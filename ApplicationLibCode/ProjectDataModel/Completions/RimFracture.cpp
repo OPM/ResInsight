@@ -295,7 +295,7 @@ void RimFracture::fieldChangedByUi( const caf::PdmFieldHandle* changedField, con
         if ( eclipseCase )
         {
             RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews(
-                eclipseCase );
+                { eclipseCase } );
         }
         else
         {

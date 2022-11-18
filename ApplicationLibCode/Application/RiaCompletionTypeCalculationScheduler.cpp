@@ -24,9 +24,7 @@
 #include "RigEclipseCaseData.h"
 
 #include "RimEclipseCase.h"
-#include "RimEclipseCaseCollection.h"
 #include "RimEclipseView.h"
-#include "RimOilField.h"
 #include "RimProject.h"
 
 #include "RiuMainWindow.h"
@@ -55,19 +53,7 @@ RiaCompletionTypeCalculationScheduler* RiaCompletionTypeCalculationScheduler::in
 //--------------------------------------------------------------------------------------------------
 void RiaCompletionTypeCalculationScheduler::scheduleRecalculateCompletionTypeAndRedrawAllViews()
 {
-    std::vector<RimEclipseCase*> eclipseCases =
-        RimProject::current()->activeOilField()->analysisModels->cases().children();
-
-    scheduleRecalculateCompletionTypeAndRedrawAllViews( eclipseCases );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaCompletionTypeCalculationScheduler::scheduleRecalculateCompletionTypeAndRedrawAllViews( RimEclipseCase* eclipseCase )
-{
-    std::vector<RimEclipseCase*> eclipseCases;
-    eclipseCases.push_back( eclipseCase );
+    auto eclipseCases = RimProject::current()->eclipseCases();
 
     scheduleRecalculateCompletionTypeAndRedrawAllViews( eclipseCases );
 }
@@ -93,10 +79,23 @@ void RiaCompletionTypeCalculationScheduler::scheduleRecalculateCompletionTypeAnd
 //--------------------------------------------------------------------------------------------------
 void RiaCompletionTypeCalculationScheduler::clearCompletionTypeResultsInAllCases()
 {
-    std::vector<RimEclipseCase*> eclipseCases =
-        RimProject::current()->activeOilField()->analysisModels->cases().children();
+    auto eclipseCases = RimProject::current()->eclipseCases();
 
     clearCompletionTypeResults( eclipseCases );
+
+    // Clear geometry cache in views to recreate potential property filter geometry
+    for ( auto eclipseCase : eclipseCases )
+    {
+        if ( !eclipseCase ) continue;
+
+        for ( auto view : eclipseCase->views() )
+        {
+            if ( auto eclipseView = dynamic_cast<RimEclipseView*>( view ) )
+            {
+                eclipseView->scheduleReservoirGridGeometryRegen();
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -124,18 +123,15 @@ void RiaCompletionTypeCalculationScheduler::performScheduledUpdates()
 {
     std::set<RimEclipseCase*> uniqueCases( m_eclipseCasesToRecalculate.begin(), m_eclipseCasesToRecalculate.end() );
 
-    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
-
     for ( RimEclipseCase* eclipseCase : uniqueCases )
     {
         if ( eclipseCase )
         {
-            for ( const auto& w : eclipseCase->views() )
+            for ( auto view : eclipseCase->views() )
             {
-                RimEclipseView* eclView = dynamic_cast<RimEclipseView*>( w );
-                if ( eclView )
+                if ( auto eclipseView = dynamic_cast<RimEclipseView*>( view ) )
                 {
-                    eclView->calculateCompletionTypeAndRedrawIfRequired();
+                    eclipseView->calculateCompletionTypeAndRedrawIfRequired();
                 }
             }
         }
@@ -146,6 +142,7 @@ void RiaCompletionTypeCalculationScheduler::performScheduledUpdates()
     // Recalculation of completion type causes active view to be set to potentially a different view
     // Also current index in project tree is changed. Restore both to initial state.
 
+    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
     if ( activeView && activeView->viewer() )
     {
         RiaApplication::instance()->setActiveReservoirView( activeView );

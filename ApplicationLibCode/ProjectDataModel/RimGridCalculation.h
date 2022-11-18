@@ -50,6 +50,8 @@ public:
     void updateDependentObjects() override;
     void removeDependentObjects() override;
 
+    RimEclipseCase* destinationEclipseCase() const;
+
 protected:
     void onChildrenUpdated( caf::PdmChildArrayFieldHandle*      childArray,
                             std::vector<caf::PdmObjectHandle*>& updatedObjects ) override;
@@ -57,7 +59,6 @@ protected:
     RimGridCalculationVariable* createVariable() override;
     std::pair<bool, QString>    validateVariables();
 
-    RimEclipseCase*              destinationEclipseCase() const;
     std::vector<RimEclipseCase*> inputCases() const;
 
     std::vector<double> getInputVectorForVariable( RimGridCalculationVariable*   v,
