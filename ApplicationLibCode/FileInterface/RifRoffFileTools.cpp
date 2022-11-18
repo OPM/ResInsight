@@ -128,7 +128,7 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
     mainGrid->setGridPointDimensions( gridPointDim );
     mainGrid->setGridName( "Main grid" );
 
-    unsigned int       zCornerSize = ( nx + 1 ) * ( ny + 1 ) * ( nz + 1 ) * 4;
+    unsigned int       zCornerSize = ( nx + 1 ) * ( ny + 1 ) * ( nz + 1 ) * 4u;
     std::vector<float> zCorners( zCornerSize, 0.0 );
 
     interpretSplitenzData( nz + 1, zOffset, zScale, splitEnz, zValues, zCorners );
@@ -158,7 +158,7 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
     defaultCell.setHostGrid( mainGrid );
     mainGrid->globalCellArray().resize( cellStartIndex + cellCount, defaultCell );
 
-    mainGrid->nodes().resize( nodeStartIndex + cellCount * 8, cvf::Vec3d( 0, 0, 0 ) );
+    mainGrid->nodes().resize( nodeStartIndex + static_cast<size_t>( cellCount ) * 8, cvf::Vec3d( 0, 0, 0 ) );
 
     // Loop over cells and fill them with data
     int cellCountPerThread      = cellCount;
@@ -319,7 +319,7 @@ void RifRoffFileTools::interpretSplitenzData( int                       nz,
     size_t nsplitenz = splitenz.size();
     size_t nzdata    = zdata.size();
 
-    size_t num_row = 4 * nz;
+    size_t num_row = 4 * static_cast<size_t>( nz );
     if ( nzcorn % num_row != 0 ) throw std::runtime_error( "Incorrect size of zcorn." );
     if ( nsplitenz != nzcorn / 4 ) throw std::runtime_error( "Incorrect size of splitenz." );
 

@@ -288,7 +288,7 @@ std::vector<Token> Tokenizer::tokenizeArrayData( std::istream& stream )
         {
             tokens.push_back( tokenizeValue( stream ) );
         }
-        catch ( std::runtime_error& e )
+        catch ( std::runtime_error& )
         {
             gotNewToken = false;
         }
@@ -315,7 +315,7 @@ std::vector<Token> Tokenizer::tokenizeTagGroup( std::istream& stream )
         {
             std::vector<Token> tagGroupTokens = tokenizeTagKey( stream );
 
-            for ( auto tok : tagGroupTokens )
+            for ( const Token& tok : tagGroupTokens )
                 tokens.push_back( tok );
 
             hasMoreTokens = true;
@@ -360,7 +360,7 @@ std::vector<Token> Tokenizer::tokenizeStream( std::istream& stream )
         try
         {
             std::vector<Token> tagGroupTokens = tokenizeTagGroup( stream );
-            for ( auto tok : tagGroupTokens )
+            for ( const Token& tok : tagGroupTokens )
                 tokens.push_back( tok );
 
             hasMoreTokens = true;

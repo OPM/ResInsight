@@ -7,7 +7,7 @@ CONFIGURE_FILE( ${CMAKE_CURRENT_LIST_DIR}/RoffTestDataDirectory.hpp.cmake
                 ${CMAKE_BINARY_DIR}/Generated/RoffTestDataDirectory.hpp
 )
 
-target_include_directories(roffcpp-tests PUBLIC ../ ${CMAKE_BINARY_DIR}/Generated)
+target_include_directories(roffcpp-tests PUBLIC ../../ ${CMAKE_BINARY_DIR}/Generated)
 
 target_compile_features(roffcpp-tests PRIVATE cxx_std_17)
 
