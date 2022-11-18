@@ -23,6 +23,8 @@
 
 #include <QString>
 
+#include <vector>
+
 class RigEclipseCaseData;
 class RigMainGrid;
 

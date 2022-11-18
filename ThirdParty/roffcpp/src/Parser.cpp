@@ -52,7 +52,7 @@ void Parser::parse()
 
             // Move to the first item to get the index
             std::advance( it, 1 );
-            long startIndex = std::distance( m_tokens->begin(), it );
+            long startIndex = static_cast<long>(std::distance( m_tokens->begin(), it ));
 
             // Skip rest of the array
             std::advance( it, arrayLength - 1 );
@@ -131,7 +131,7 @@ std::string Parser::parseString( const Token& token, std::istream& stream )
 {
     stream.clear();
     stream.seekg( token.start() );
-    int         length = token.end() - token.start();
+    size_t         length = token.end() - token.start();
     std::string res;
     res.resize( length );
     stream.read( const_cast<char*>( res.data() ), length );
@@ -198,7 +198,7 @@ std::vector<char> Parser::getByteArray( const std::string& keyword )
     std::vector<char> values;
     for ( long i = startIndex; i < startIndex + arrayLength; i++ )
     {
-        values.push_back( parseInt( ( *m_tokens )[i], *m_stream ) );
+        values.push_back( static_cast<char>(parseInt( ( *m_tokens )[i], *m_stream ) ));
     }
 
     return values;
@@ -214,7 +214,7 @@ std::vector<float> Parser::getFloatArray( const std::string& keyword )
     std::vector<float> values;
     for ( long i = startIndex; i < startIndex + arrayLength; i++ )
     {
-        values.push_back( parseDouble( ( *m_tokens )[i], *m_stream ) );
+        values.push_back( static_cast<float>(parseDouble( ( *m_tokens )[i], *m_stream ) ));
     }
 
     return values;
