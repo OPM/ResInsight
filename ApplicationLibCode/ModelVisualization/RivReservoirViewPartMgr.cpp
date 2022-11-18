@@ -852,6 +852,8 @@ void RivReservoirViewPartMgr::computePropertyVisibility( cvf::UByteArray*       
 
             if ( propertyFilter->isActive() && propertyFilter->resultDefinition()->hasResult() )
             {
+                propertyFilter->resultDefinition()->loadResult();
+
                 const RimCellFilter::FilterModeType filterType = propertyFilter->filterMode();
 
                 RigEclipseCaseData* eclipseCase = propFilterColl->reservoirView()->eclipseCase()->eclipseCaseData();
