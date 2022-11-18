@@ -1370,7 +1370,7 @@ void RimProject::reloadCompletionTypeResultsForEclipseCase( RimEclipseCase* ecli
         views[viewIdx]->scheduleCreateDisplayModelAndRedraw();
     }
 
-    RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews( eclipseCase );
+    RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews( { eclipseCase } );
 }
 
 //--------------------------------------------------------------------------------------------------
