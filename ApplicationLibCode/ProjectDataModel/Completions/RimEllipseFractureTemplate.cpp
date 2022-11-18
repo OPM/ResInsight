@@ -92,7 +92,8 @@ void RimEllipseFractureTemplate::fieldChangedByUi( const caf::PdmFieldHandle* ch
     RimFractureTemplate::fieldChangedByUi( changedField, oldValue, newValue );
 
     if ( changedField == &m_halfLength || changedField == &m_height || changedField == &m_width ||
-         changedField == &m_permeability || changedField == &m_scaleApplyButton )
+         changedField == &m_permeability || changedField == &m_scaleApplyButton ||
+         changedField == &m_wellPathDepthAtFracture )
     {
         m_scaleApplyButton = false;
 
