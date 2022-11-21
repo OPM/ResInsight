@@ -208,28 +208,6 @@ std::vector<RimEclipseCase*> RimGridCalculation::inputCases() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool operator<( const RimGridCalculation& a, const RimGridCalculation& b )
-{
-    auto destinationCase = a.outputEclipseCase();
-    auto destinationAdr  = a.outputAddress();
-
-    for ( auto v : b.allVariables() )
-    {
-        auto gridVariable = dynamic_cast<RimGridCalculationVariable*>( v );
-        if ( gridVariable->eclipseCase() == destinationCase &&
-             destinationAdr.resultCatType() == gridVariable->resultCategoryType() &&
-             destinationAdr.resultName() == gridVariable->resultVariable() )
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimGridCalculation::DefaultValueConfig RimGridCalculation::defaultValueConfiguration() const
 {
     if ( m_defaultValueType() == RimGridCalculation::DefaultValueType::USER_DEFINED )

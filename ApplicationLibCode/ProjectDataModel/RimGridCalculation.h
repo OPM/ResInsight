@@ -56,8 +56,6 @@ public:
 
     std::vector<RimEclipseCase*> inputCases() const;
 
-    friend bool operator<( const RimGridCalculation& a, const RimGridCalculation& b );
-
 protected:
     void onChildrenUpdated( caf::PdmChildArrayFieldHandle*      childArray,
                             std::vector<caf::PdmObjectHandle*>& updatedObjects ) override;
