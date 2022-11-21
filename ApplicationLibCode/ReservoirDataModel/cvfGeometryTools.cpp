@@ -168,6 +168,21 @@ double GeometryTools::getAngle( const cvf::Vec3d& v1, const cvf::Vec3d& v2 )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+cvf::Mat4d GeometryTools::rotationMatrixBetweenVectors( const cvf::Vec3d& v1, const cvf::Vec3d& v2 )
+{
+    cvf::Vec3d rotAxis = v1 ^ v2;
+    rotAxis.normalize();
+
+    // Guard acos against out-of-domain input
+    const double dotProduct = cvf::Math::clamp( v1 * v2, -1.0, 1.0 );
+    const double angle      = cvf::Math::acos( dotProduct );
+    cvf::Mat4d   rotMat     = cvf::Mat4d::fromRotation( rotAxis, angle );
+    return rotMat;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double GeometryTools::signedAreaPlanarPolygon( const cvf::Vec3d& planeNormal, const std::vector<cvf::Vec3d>& polygon )
 {
     int Z = findClosestAxis( planeNormal );
