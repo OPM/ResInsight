@@ -271,7 +271,7 @@ RiaDefines::ImportFileType RiaDefines::obtainFileTypeFromFileName( const QString
     {
         return ImportFileType::ECLIPSE_INPUT_FILE;
     }
-    else if ( fileName.endsWith( "ROFF", Qt::CaseInsensitive ) )
+    else if ( fileName.endsWith( "ROFF", Qt::CaseInsensitive ) || fileName.endsWith( "ROFFASC", Qt::CaseInsensitive ) )
     {
         return ImportFileType::ROFF_FILE;
     }
