@@ -184,6 +184,23 @@ Rim3dView::Rim3dView()
 //--------------------------------------------------------------------------------------------------
 Rim3dView::~Rim3dView()
 {
+    // When a 3d view is destructed, make sure that all other views using this as a comparison view is reset and
+    // redrawn. A crash was seen for test case
+    // "\ResInsight-regression-test\ProjectFiles\ProjectFilesSmallTests\TestCase_CoViz-Simple" when a view used as
+    // comparison view was deleted.
+
+    std::vector<Rim3dView*> allViews;
+    RimProject::current()->allViews( allViews );
+
+    for ( auto v : allViews )
+    {
+        if ( v->activeComparisonView() == this )
+        {
+            v->setComparisonView( nullptr );
+            v->scheduleCreateDisplayModelAndRedraw();
+        }
+    }
+
     if ( RiaApplication::instance()->activeReservoirView() == this )
     {
         RiaApplication::instance()->setActiveReservoirView( nullptr );
