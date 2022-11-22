@@ -662,17 +662,17 @@ void Rim2dIntersectionView::onUpdateDisplayModelForCurrentTimeStep()
                 frameScene->addModel( dynWellPathModel.p() );
             }
         }
+    }
 
-        if ( this->hasResults() )
-        {
-            m_flatIntersectionPartMgr->updateCellResultColor( m_currentTimeStep,
-                                                              m_legendConfig->scalarMapper(),
-                                                              m_ternaryLegendConfig()->scalarMapper() );
-        }
-        else
-        {
-            m_flatIntersectionPartMgr->applySingleColorEffect();
-        }
+    if ( m_flatIntersectionPartMgr.notNull() && this->hasResults() )
+    {
+        m_flatIntersectionPartMgr->updateCellResultColor( m_currentTimeStep,
+                                                          m_legendConfig->scalarMapper(),
+                                                          m_ternaryLegendConfig()->scalarMapper() );
+    }
+    else
+    {
+        m_flatIntersectionPartMgr->applySingleColorEffect();
     }
 }
 //--------------------------------------------------------------------------------------------------
