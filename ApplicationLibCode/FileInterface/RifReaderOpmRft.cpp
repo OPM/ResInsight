@@ -778,7 +778,7 @@ void RifReaderOpmRft::identifyAnnulusBranches( RifRftSegment& segmentRef, const 
             seglenstForBranch[branchId] = values;
         }
 
-        std::set<size_t> annulusBranchIds;
+        std::set<int> annulusBranchIds;
 
         for ( auto branchId : tubingIds )
         {
@@ -801,7 +801,7 @@ void RifReaderOpmRft::identifyAnnulusBranches( RifRftSegment& segmentRef, const 
                 const double distanceTubingAnnulus = 0.1;
                 if ( std::fabs( ( std::fabs( diff ) - distanceTubingAnnulus ) ) < epsilon )
                 {
-                    size_t annulusBranchId = ( diff > 0 ) ? candidateBranchId : branchId;
+                    int annulusBranchId = ( diff > 0 ) ? candidateBranchId : branchId;
 
                     segmentRef.setBranchType( annulusBranchId, RiaDefines::RftBranchType::RFT_ANNULUS );
                     annulusBranchIds.insert( annulusBranchId );
@@ -818,9 +818,9 @@ void RifReaderOpmRft::reassignBranchIndices( RifRftSegment& segmentRef )
 {
     auto tubingBranchIds = segmentRef.tubingBranchIds();
 
-    size_t oneBasedBranchIndex = 1;
+    int oneBasedBranchIndex = 1;
 
-    std::map<size_t, size_t> newOneBasedBranchIndex;
+    std::map<int, int> newOneBasedBranchIndex;
     for ( auto branchId : tubingBranchIds )
     {
         auto previsousIndex                    = segmentRef.oneBasedBranchIndexForBranchId( branchId );

@@ -27,6 +27,7 @@
 
 class RimEclipseCase;
 class RimGridView;
+class RigEclipseResultAddress;
 
 //==================================================================================================
 ///
@@ -50,7 +51,10 @@ public:
     void updateDependentObjects() override;
     void removeDependentObjects() override;
 
-    RimEclipseCase* destinationEclipseCase() const;
+    RimEclipseCase*         outputEclipseCase() const;
+    RigEclipseResultAddress outputAddress() const;
+
+    std::vector<RimEclipseCase*> inputCases() const;
 
 protected:
     void onChildrenUpdated( caf::PdmChildArrayFieldHandle*      childArray,
@@ -58,8 +62,6 @@ protected:
 
     RimGridCalculationVariable* createVariable() override;
     std::pair<bool, QString>    validateVariables();
-
-    std::vector<RimEclipseCase*> inputCases() const;
 
     std::vector<double> getInputVectorForVariable( RimGridCalculationVariable*   v,
                                                    size_t                        tsId,

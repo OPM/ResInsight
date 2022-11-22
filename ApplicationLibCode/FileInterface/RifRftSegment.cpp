@@ -381,7 +381,7 @@ int RifRftSegment::segmentIndexFromSegmentNumber( int segmentNumber ) const
     {
         auto segment = m_topology[i];
 
-        if ( segment.segNo() == segmentNumber ) return i;
+        if ( segment.segNo() == segmentNumber ) return static_cast<int>( i );
     }
 
     return -1;

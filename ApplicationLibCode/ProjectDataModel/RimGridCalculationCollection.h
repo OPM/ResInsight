@@ -34,7 +34,8 @@ public:
 
     void rebuildCaseMetaData() override;
 
-    RimGridCalculation* createCalculation() const override;
+    RimGridCalculation*              createCalculation() const override;
+    std::vector<RimGridCalculation*> sortedGridCalculations() const;
 
 private:
     void initAfterRead() override;

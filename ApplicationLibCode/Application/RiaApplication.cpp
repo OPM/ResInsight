@@ -710,7 +710,7 @@ bool RiaApplication::loadProject( const QString&      projectFileName,
 
     // Recalculate the results from grid property calculations.
     // Has to be done late since the results are filtered by view cell visibility
-    for ( auto gridCalculation : m_project->gridCalculationCollection()->calculations() )
+    for ( auto gridCalculation : m_project->gridCalculationCollection()->sortedGridCalculations() )
     {
         gridCalculation->calculate();
         gridCalculation->updateDependentObjects();

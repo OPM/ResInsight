@@ -30,7 +30,10 @@
 #include "RimEclipseContourMapView.h"
 #include "RimEclipseContourMapViewCollection.h"
 #include "RimEclipseView.h"
+#include "RimGridCalculation.h"
+#include "RimGridCalculationCollection.h"
 #include "RimMainPlotCollection.h"
+#include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -62,6 +65,20 @@ void RimReloadCaseTools::reloadAllEclipseData( RimEclipseCase* eclipseCase, bool
     clearAllGridData( eclipseCaseData );
 
     eclipseCase->reloadEclipseGridFile();
+
+    std::vector<RimGridCalculation*> gridCalculations =
+        RimProject::current()->gridCalculationCollection()->sortedGridCalculations();
+
+    for ( auto gridCalculation : gridCalculations )
+    {
+        bool recalculate = false;
+        for ( auto inputCase : gridCalculation->inputCases() )
+        {
+            if ( inputCase == eclipseCase ) recalculate = true;
+        }
+
+        if ( recalculate ) gridCalculation->calculate();
+    }
 
     updateAll3dViews( eclipseCase );
 
