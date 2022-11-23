@@ -22,6 +22,7 @@
 #include "RiaLogging.h"
 #include "RiaPorosityModel.h"
 
+#include "RigActiveCellInfo.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
@@ -31,6 +32,7 @@
 #include "RimTools.h"
 
 #include "RigCaseCellResultsData.h"
+#include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
 #include "RigGridManager.h"
 #include "RigMainGrid.h"
@@ -136,7 +138,7 @@ bool RimGridCalculation::calculate()
         {
             RimGridCalculationVariable* v = dynamic_cast<RimGridCalculationVariable*>( m_variables[i] );
             CAF_ASSERT( v != nullptr );
-            values.push_back( getInputVectorForVariable( v, tsId, porosityModel ) );
+            values.push_back( getInputVectorForVariable( v, tsId, porosityModel, outputEclipseCase() ) );
         }
 
         ExpressionParser parser;
@@ -360,7 +362,8 @@ RigEclipseResultAddress RimGridCalculation::outputAddress() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimGridCalculation::getInputVectorForVariable( RimGridCalculationVariable*   v,
                                                                    size_t                        tsId,
-                                                                   RiaDefines::PorosityModelType porosityModel ) const
+                                                                   RiaDefines::PorosityModelType porosityModel,
+                                                                   RimEclipseCase* outputEclipseCase ) const
 {
     int timeStep = v->timeStep();
 
@@ -385,7 +388,9 @@ std::vector<double> RimGridCalculation::getInputVectorForVariable( RimGridCalcul
     auto   mainGrid     = v->eclipseCase()->mainGrid();
     size_t maxGridCount = mainGrid->gridCount();
 
-    size_t              cellCount = mainGrid->globalCellArray().size();
+    auto   activeCellInfo = outputEclipseCase->eclipseCaseData()->activeCellInfo( porosityModel );
+    size_t cellCount      = activeCellInfo->reservoirActiveCellCount();
+
     std::vector<double> inputValues( cellCount );
     for ( size_t gridIdx = 0; gridIdx < maxGridCount; ++gridIdx )
     {
@@ -402,7 +407,11 @@ std::vector<double> RimGridCalculation::getInputVectorForVariable( RimGridCalcul
         for ( int localGridCellIdx = 0; localGridCellIdx < static_cast<int>( grid->cellCount() ); localGridCellIdx++ )
         {
             const size_t reservoirCellIndex = grid->reservoirCellIndex( localGridCellIdx );
-            inputValues[reservoirCellIndex] = sourceResultAccessor->cellScalar( localGridCellIdx );
+            if ( activeCellInfo->isActive( reservoirCellIndex ) )
+            {
+                size_t cellResultIndex       = activeCellInfo->cellResultIndex( reservoirCellIndex );
+                inputValues[cellResultIndex] = sourceResultAccessor->cellScalar( localGridCellIdx );
+            }
         }
     }
 

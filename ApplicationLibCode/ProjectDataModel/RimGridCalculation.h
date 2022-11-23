@@ -65,7 +65,8 @@ protected:
 
     std::vector<double> getInputVectorForVariable( RimGridCalculationVariable*   v,
                                                    size_t                        tsId,
-                                                   RiaDefines::PorosityModelType porosityModel ) const;
+                                                   RiaDefines::PorosityModelType porosityModel,
+                                                   RimEclipseCase*               outputEclipseCase ) const;
 
     void filterResults( RimGridView*                            cellFilterView,
                         const std::vector<std::vector<double>>& values,
