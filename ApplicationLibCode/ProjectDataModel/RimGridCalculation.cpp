@@ -125,7 +125,9 @@ bool RimGridCalculation::calculate()
 
     eclipseCase->results( porosityModel )->clearScalarResult( resAddr );
 
-    const size_t timeStepCount = eclipseCase->results( porosityModel )->maxTimeStepCount();
+    // If an input grid is present, max time step count is zero. Make sure the time step count for the calculation is
+    // always 1 or more.
+    const size_t timeStepCount = std::max( size_t( 1 ), eclipseCase->results( porosityModel )->maxTimeStepCount() );
 
     std::vector<std::vector<double>>* scalarResultFrames =
         eclipseCase->results( porosityModel )->modifiableCellScalarResultTimesteps( resAddr );
