@@ -199,7 +199,7 @@ const RifRftSegmentData* RifRftSegment::segmentData( int segmentNumber ) const
 //--------------------------------------------------------------------------------------------------
 const RifRftSegmentData* RifRftSegment::segmentDataByIndex( int segmentIndex ) const
 {
-    CVF_ASSERT( segmentIndex < static_cast<int>(m_topology.size()) );
+    CVF_ASSERT( segmentIndex < static_cast<int>( m_topology.size() ) );
 
     return &( m_topology[segmentIndex] );
 }
