@@ -113,6 +113,7 @@ void RicWellMeasurementImportTools::importWellMeasurementsFromFiles( const QStri
             if ( gridView )
             {
                 gridView->updateWellMeasurements();
+                gridView->updateConnectedEditors();
             }
         }
 
