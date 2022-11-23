@@ -22,7 +22,7 @@ jobs:
         config:
           - {
               name: "Windows Latest MSVC",
-              os: windows-latest,
+              os: windows-2022,
               cc: "cl",
               cxx: "cl",
               vcpkg-response-file: vcpkg_x64-windows.txt,
@@ -32,7 +32,7 @@ jobs:
             }
           - {
               name: "Ubuntu Latest gcc",
-              os: ubuntu-latest,
+              os: ubuntu-20.04,
               cc: "gcc",
               cxx: "g++",
               vcpkg-response-file: vcpkg_x64-linux.txt,
@@ -42,7 +42,7 @@ jobs:
             }
           - {
               name: "Ubuntu Latest clang",
-              os: ubuntu-latest,
+              os: ubuntu-20.04,
               cc: "clang",
               cxx: "clang++",
               vcpkg-response-file: vcpkg_x64-linux.txt,
