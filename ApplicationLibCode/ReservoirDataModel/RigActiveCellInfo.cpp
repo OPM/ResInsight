@@ -141,10 +141,11 @@ void RigActiveCellInfo::IJKBoundingBox( cvf::Vec3st& min, cvf::Vec3st& max ) con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigActiveCellInfo::gridActiveCellCounts( size_t gridIndex, size_t& activeCellCount ) const
+size_t RigActiveCellInfo::gridActiveCellCounts( size_t gridIndex ) const
 {
-    activeCellCount = m_perGridActiveCellInfo[gridIndex].activeCellCount();
+    return m_perGridActiveCellInfo[gridIndex].activeCellCount();
 }
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
