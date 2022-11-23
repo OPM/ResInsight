@@ -160,7 +160,13 @@ bool RimGridCalculation::calculate()
         {
             if ( m_cellFilterView() )
             {
-                filterResults( m_cellFilterView(), values, m_defaultValueType(), m_defaultValue(), resultValues );
+                filterResults( m_cellFilterView(),
+                               values,
+                               m_defaultValueType(),
+                               m_defaultValue(),
+                               resultValues,
+                               porosityModel,
+                               outputEclipseCase() );
             }
 
             scalarResultFrames->at( tsId ) = resultValues;
@@ -421,16 +427,23 @@ std::vector<double> RimGridCalculation::getInputVectorForVariable( RimGridCalcul
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCalculation::replaceFilteredValuesWithVector( const std::vector<double>& inputValues,
-                                                          cvf::ref<cvf::UByteArray>  visibility,
-                                                          std::vector<double>&       resultValues )
+void RimGridCalculation::replaceFilteredValuesWithVector( const std::vector<double>&    inputValues,
+                                                          cvf::ref<cvf::UByteArray>     visibility,
+                                                          std::vector<double>&          resultValues,
+                                                          RiaDefines::PorosityModelType porosityModel,
+                                                          RimEclipseCase*               outputEclipseCase )
+
 {
+    auto activeCellInfo = outputEclipseCase->eclipseCaseData()->activeCellInfo( porosityModel );
+    int  numCells       = static_cast<int>( visibility->size() );
+
 #pragma omp parallel for
-    for ( int i = 0; i < static_cast<int>( resultValues.size() ); i++ )
+    for ( int i = 0; i < numCells; i++ )
     {
-        if ( !visibility->val( i ) )
+        if ( !visibility->val( i ) && activeCellInfo->isActive( i ) )
         {
-            resultValues[i] = inputValues[i];
+            size_t cellResultIndex        = activeCellInfo->cellResultIndex( i );
+            resultValues[cellResultIndex] = inputValues[cellResultIndex];
         }
     }
 }
@@ -438,16 +451,23 @@ void RimGridCalculation::replaceFilteredValuesWithVector( const std::vector<doub
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCalculation::replaceFilteredValuesWithDefaultValue( double                    defaultValue,
-                                                                cvf::ref<cvf::UByteArray> visibility,
-                                                                std::vector<double>&      resultValues )
+void RimGridCalculation::replaceFilteredValuesWithDefaultValue( double                        defaultValue,
+                                                                cvf::ref<cvf::UByteArray>     visibility,
+                                                                std::vector<double>&          resultValues,
+                                                                RiaDefines::PorosityModelType porosityModel,
+                                                                RimEclipseCase*               outputEclipseCase )
+
 {
+    auto activeCellInfo = outputEclipseCase->eclipseCaseData()->activeCellInfo( porosityModel );
+    int  numCells       = static_cast<int>( visibility->size() );
+
 #pragma omp parallel for
-    for ( int i = 0; i < static_cast<int>( resultValues.size() ); i++ )
+    for ( int i = 0; i < numCells; i++ )
     {
-        if ( !visibility->val( i ) )
+        if ( !visibility->val( i ) && activeCellInfo->isActive( i ) )
         {
-            resultValues[i] = defaultValue;
+            size_t cellResultIndex        = activeCellInfo->cellResultIndex( i );
+            resultValues[cellResultIndex] = defaultValue;
         }
     }
 }
@@ -459,14 +479,21 @@ void RimGridCalculation::filterResults( RimGridView*                            
                                         const std::vector<std::vector<double>>& values,
                                         RimGridCalculation::DefaultValueType    defaultValueType,
                                         double                                  defaultValue,
-                                        std::vector<double>&                    resultValues ) const
+                                        std::vector<double>&                    resultValues,
+                                        RiaDefines::PorosityModelType           porosityModel,
+                                        RimEclipseCase*                         outputEclipseCase ) const
+
 {
     auto visibility = cellFilterView->currentTotalCellVisibility();
 
     if ( defaultValueType == RimGridCalculation::DefaultValueType::FROM_PROPERTY )
     {
         if ( m_defaultPropertyVariableIndex < static_cast<int>( values.size() ) )
-            replaceFilteredValuesWithVector( values[m_defaultPropertyVariableIndex], visibility, resultValues );
+            replaceFilteredValuesWithVector( values[m_defaultPropertyVariableIndex],
+                                             visibility,
+                                             resultValues,
+                                             porosityModel,
+                                             outputEclipseCase );
         else
         {
             QString errorMessage =
@@ -479,7 +506,7 @@ void RimGridCalculation::filterResults( RimGridView*                            
         double valueToUse = defaultValue;
         if ( defaultValueType == RimGridCalculation::DefaultValueType::POSITIVE_INFINITY ) valueToUse = HUGE_VAL;
 
-        replaceFilteredValuesWithDefaultValue( valueToUse, visibility, resultValues );
+        replaceFilteredValuesWithDefaultValue( valueToUse, visibility, resultValues, porosityModel, outputEclipseCase );
     }
 }
 

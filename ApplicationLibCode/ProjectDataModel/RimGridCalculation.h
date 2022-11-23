@@ -72,15 +72,21 @@ protected:
                         const std::vector<std::vector<double>>& values,
                         RimGridCalculation::DefaultValueType    defaultValueType,
                         double                                  defaultValue,
-                        std::vector<double>&                    resultValues ) const;
+                        std::vector<double>&                    resultValues,
+                        RiaDefines::PorosityModelType           porosityModel,
+                        RimEclipseCase*                         outputEclipseCase ) const;
 
-    static void replaceFilteredValuesWithVector( const std::vector<double>& inputValues,
-                                                 cvf::ref<cvf::UByteArray>  visibility,
-                                                 std::vector<double>&       resultValues );
+    static void replaceFilteredValuesWithVector( const std::vector<double>&    inputValues,
+                                                 cvf::ref<cvf::UByteArray>     visibility,
+                                                 std::vector<double>&          resultValues,
+                                                 RiaDefines::PorosityModelType porosityModel,
+                                                 RimEclipseCase*               outputEclipseCase );
 
-    static void replaceFilteredValuesWithDefaultValue( double                    defaultValue,
-                                                       cvf::ref<cvf::UByteArray> visibility,
-                                                       std::vector<double>&      resultValues );
+    static void replaceFilteredValuesWithDefaultValue( double                        defaultValue,
+                                                       cvf::ref<cvf::UByteArray>     visibility,
+                                                       std::vector<double>&          resultValues,
+                                                       RiaDefines::PorosityModelType porosityModel,
+                                                       RimEclipseCase*               outputEclipseCase );
 
     using DefaultValueConfig = std::pair<RimGridCalculation::DefaultValueType, double>;
     DefaultValueConfig defaultValueConfiguration() const;
