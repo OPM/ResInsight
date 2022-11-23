@@ -99,7 +99,8 @@ private:
         SourceAddress( QString primary   = "",
                        QString secondary = "",
                        QString units     = RiaWellLogUnitTools<double>::noUnitString() )
-            : primary( primary )
+            : resType( RIG_NODAL )
+            , primary( primary )
             , secondary( secondary )
             , units( units )
         {
