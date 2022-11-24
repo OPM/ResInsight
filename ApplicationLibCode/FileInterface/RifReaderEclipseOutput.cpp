@@ -1178,11 +1178,8 @@ void RifReaderEclipseOutput::sourSimRlResult( const QString& result, size_t step
         return;
     }
 
-    size_t activeCellCount = cvf::UNDEFINED_SIZE_T;
-    {
-        RigActiveCellInfo* fracActCellInfo = m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-        fracActCellInfo->gridActiveCellCounts( 0, activeCellCount );
-    }
+    RigActiveCellInfo* fracActCellInfo = m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    size_t             activeCellCount = fracActCellInfo->gridActiveCellCounts( 0 );
 
     size_t fileIndex = timeStepIndexOnFile( stepIndex );
 
@@ -2262,10 +2259,8 @@ QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel( const QString
         {
             if ( timeStepCount == 1 )
             {
-                size_t mainGridMatrixActiveCellCount;
-                matrixActiveCellInfo->gridActiveCellCounts( 0, mainGridMatrixActiveCellCount );
-                size_t mainGridFractureActiveCellCount;
-                fractureActiveCellInfo->gridActiveCellCounts( 0, mainGridFractureActiveCellCount );
+                size_t mainGridMatrixActiveCellCount   = matrixActiveCellInfo->gridActiveCellCounts( 0 );
+                size_t mainGridFractureActiveCellCount = fractureActiveCellInfo->gridActiveCellCounts( 0 );
 
                 if ( keywordDataItemCount == mainGridMatrixActiveCellCount ||
                      keywordDataItemCount == mainGridFractureActiveCellCount ||
@@ -2413,11 +2408,8 @@ void RifReaderEclipseOutput::extractResultValuesBasedOnPorosityModel( RiaDefines
         {
             if ( m_eclipseCase->mainGrid()->gridByIndex( i )->isTempGrid() ) continue;
 
-            size_t matrixActiveCellCount   = 0;
-            size_t fractureActiveCellCount = 0;
-
-            actCellInfo->gridActiveCellCounts( i, matrixActiveCellCount );
-            fracActCellInfo->gridActiveCellCounts( i, fractureActiveCellCount );
+            size_t matrixActiveCellCount   = actCellInfo->gridActiveCellCounts( i );
+            size_t fractureActiveCellCount = fracActCellInfo->gridActiveCellCounts( i );
 
             if ( matrixOrFracture == RiaDefines::PorosityModelType::MATRIX_MODEL )
             {

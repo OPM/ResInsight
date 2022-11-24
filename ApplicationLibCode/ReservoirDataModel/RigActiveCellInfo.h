@@ -39,10 +39,10 @@ public:
     size_t cellResultIndex( size_t reservoirCellIndex ) const;
     void   setCellResultIndex( size_t reservoirCellIndex, size_t globalResultCellIndex );
 
-    void setGridCount( size_t gridCount );
-    void setGridActiveCellCounts( size_t gridIndex, size_t activeCellCount );
-    void gridActiveCellCounts( size_t gridIndex, size_t& activeCellCount ) const;
-    void computeDerivedData();
+    void   setGridCount( size_t gridCount );
+    void   setGridActiveCellCounts( size_t gridIndex, size_t activeCellCount );
+    size_t gridActiveCellCounts( size_t gridIndex ) const;
+    void   computeDerivedData();
 
     void setIJKBoundingBox( const cvf::Vec3st& min, const cvf::Vec3st& max );
     void IJKBoundingBox( cvf::Vec3st& min, cvf::Vec3st& max ) const;
