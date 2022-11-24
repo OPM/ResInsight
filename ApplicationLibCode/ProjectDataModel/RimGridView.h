@@ -39,7 +39,6 @@ class RimGridView : public Rim3dView
 
 public:
     RimGridView();
-    ~RimGridView( void ) override;
 
     void showGridCells( bool enableGridCells );
 

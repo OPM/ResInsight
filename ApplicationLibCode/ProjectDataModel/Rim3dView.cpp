@@ -40,6 +40,7 @@
 #include "RimTools.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
+#include "RimViewLinkerCollection.h"
 #include "RimViewManipulator.h"
 #include "RimViewNameConfig.h"
 #include "RimWellPathCollection.h"
@@ -189,8 +190,10 @@ Rim3dView::~Rim3dView()
     // "\ResInsight-regression-test\ProjectFiles\ProjectFilesSmallTests\TestCase_CoViz-Simple" when a view used as
     // comparison view was deleted.
 
+    RimProject* proj = RimProject::current();
+
     std::vector<Rim3dView*> allViews;
-    RimProject::current()->allViews( allViews );
+    proj->allViews( allViews );
 
     for ( auto v : allViews )
     {
@@ -199,6 +202,27 @@ Rim3dView::~Rim3dView()
             v->setComparisonView( nullptr );
             v->scheduleCreateDisplayModelAndRedraw();
         }
+    }
+
+    if ( proj && this->isMasterView() )
+    {
+        RimViewLinker* viewLinker = this->assosiatedViewLinker();
+        viewLinker->setMasterView( nullptr );
+
+        delete proj->viewLinkerCollection->viewLinker();
+        proj->viewLinkerCollection->viewLinker = nullptr;
+
+        proj->uiCapability()->updateConnectedEditors();
+    }
+
+    RimViewController* vController = this->viewController();
+    if ( proj && vController )
+    {
+        vController->setManagedView( nullptr );
+        vController->ownerViewLinker()->removeViewController( vController );
+        delete vController;
+
+        proj->uiCapability()->updateConnectedEditors();
     }
 
     if ( RiaApplication::instance()->activeReservoirView() == this )
@@ -917,6 +941,13 @@ void Rim3dView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const
         updateScaling();
 
         RiuMainWindow::instance()->updateScaleValue();
+
+        RimViewLinker* viewLinker = this->assosiatedViewLinker();
+        if ( viewLinker )
+        {
+            viewLinker->updateScaleZ( this, scaleZ() );
+            viewLinker->updateCamera( this );
+        }
     }
     else if ( changedField == &surfaceMode )
     {

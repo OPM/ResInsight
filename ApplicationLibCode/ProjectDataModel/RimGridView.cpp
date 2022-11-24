@@ -37,8 +37,6 @@
 #include "RimTextAnnotation.h"
 #include "RimTools.h"
 #include "RimViewController.h"
-#include "RimViewLinker.h"
-#include "RimViewLinkerCollection.h"
 #include "RimViewNameConfig.h"
 #include "RimWellMeasurementCollection.h"
 #include "RimWellMeasurementInViewCollection.h"
@@ -108,35 +106,6 @@ RimGridView::RimGridView()
 
     m_surfaceVizModel = new cvf::ModelBasicList;
     m_surfaceVizModel->setName( "SurfaceModel" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimGridView::~RimGridView( void )
-{
-    RimProject* proj = RimProject::current();
-
-    if ( proj && this->isMasterView() )
-    {
-        RimViewLinker* viewLinker = this->assosiatedViewLinker();
-        viewLinker->setMasterView( nullptr );
-
-        delete proj->viewLinkerCollection->viewLinker();
-        proj->viewLinkerCollection->viewLinker = nullptr;
-
-        proj->uiCapability()->updateConnectedEditors();
-    }
-
-    RimViewController* vController = this->viewController();
-    if ( proj && vController )
-    {
-        vController->setManagedView( nullptr );
-        vController->ownerViewLinker()->removeViewController( vController );
-        delete vController;
-
-        proj->uiCapability()->updateConnectedEditors();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -435,16 +404,6 @@ void RimGridView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, con
     }
 
     Rim3dView::fieldChangedByUi( changedField, oldValue, newValue );
-
-    if ( changedField == &m_scaleZ )
-    {
-        RimViewLinker* viewLinker = this->assosiatedViewLinker();
-        if ( viewLinker )
-        {
-            viewLinker->updateScaleZ( this, scaleZ() );
-            viewLinker->updateCamera( this );
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
