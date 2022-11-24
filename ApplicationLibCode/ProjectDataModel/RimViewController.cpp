@@ -900,7 +900,8 @@ bool RimViewController::isPropertyFilterControlPossible() const
     if ( eclipseView )
     {
         RimEclipseView* depEclipseView = managedEclipseView();
-        if ( depEclipseView && eclipseView->eclipseCase()->isGridSizeEqualTo( depEclipseView->eclipseCase() ) )
+        if ( depEclipseView && eclipseView->eclipseCase() && depEclipseView->eclipseCase() &&
+             eclipseView->eclipseCase()->isGridSizeEqualTo( depEclipseView->eclipseCase() ) )
         {
             return true;
         }
