@@ -93,10 +93,7 @@ std::vector<Rim3dView*> RicLinkVisibleViewsFeature::findLinkableVisibleViews()
 
     for ( auto gridView : candidates )
     {
-        if ( !gridView ) continue;
-        if ( gridView->assosiatedViewLinker() ) continue;
-
-        views.push_back( gridView );
+        if ( gridView && !gridView->assosiatedViewLinker() ) views.push_back( gridView );
     }
 
     return views;
@@ -147,13 +144,13 @@ std::vector<Rim3dView*> RicLinkVisibleViewsFeature::matchingViews( Rim3dView*   
 
     std::vector<Rim3dView*> matchingViews;
 
-    auto primaryContent = primaryView->viewContent();
+    RiaDefines::View3dContent primaryContent = primaryView->viewContent();
     if ( primaryContent == RiaDefines::View3dContent::FLAT_INTERSECTION )
     {
         for ( auto v : candidates )
         {
-            if ( v == primaryView ) continue;
-            if ( v->viewContent() == primaryContent ) matchingViews.emplace_back( v );
+            if ( v != primaryView && v->viewContent() == RiaDefines::View3dContent::FLAT_INTERSECTION )
+                matchingViews.emplace_back( v );
         }
 
         return matchingViews;
@@ -162,8 +159,8 @@ std::vector<Rim3dView*> RicLinkVisibleViewsFeature::matchingViews( Rim3dView*   
     // We have a 3D view or contour map as primary view, include all views except flat intersection views
     for ( auto v : candidates )
     {
-        if ( v == primaryView ) continue;
-        if ( v->viewContent() != RiaDefines::View3dContent::FLAT_INTERSECTION ) matchingViews.emplace_back( v );
+        if ( v != primaryView && v->viewContent() != RiaDefines::View3dContent::FLAT_INTERSECTION )
+            matchingViews.emplace_back( v );
     }
 
     return matchingViews;

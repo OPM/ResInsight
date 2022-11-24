@@ -1069,13 +1069,7 @@ void RimViewController::applyCellFilterCollectionByUserChoice()
                           masterView->propertyFilterCollection()->hasActiveFilters();
     }
 
-    bool restoreOriginal = true;
-    if ( anyActiveFilter )
-    {
-        restoreOriginal = askUserToRestoreOriginalCellFilterCollection( m_managedView->name() );
-    }
-
-    if ( restoreOriginal )
+    if ( anyActiveFilter && askUserToRestoreOriginalCellFilterCollection( m_managedView->name() ) )
     {
         managedGridView->setOverrideCellFilterCollection( nullptr );
     }
