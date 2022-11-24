@@ -141,7 +141,7 @@ RimFractureTemplate::RimFractureTemplate()
 
     CAF_PDM_InitField( &m_skinFactor, "SkinFactor", 0.0f, "Skin Factor" );
 
-    CAF_PDM_InitField( &m_perforationLength, "PerforationLength", 1.0, "Perforation Length" );
+    CAF_PDM_InitScriptableField( &m_perforationLength, "PerforationLength", 1.0, "Perforation Length" );
 
     CAF_PDM_InitField( &m_perforationEfficiency, "PerforationEfficiency", 1.0, "Perforation Efficiency" );
     m_perforationEfficiency.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
