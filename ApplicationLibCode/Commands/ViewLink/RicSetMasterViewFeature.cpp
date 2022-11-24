@@ -67,7 +67,7 @@ void RicSetMasterViewFeature::onActionTriggered( bool isChecked )
 
     viewLinker->applyCellFilterCollectionByUserChoice();
 
-    RimGridView* previousMasterView = viewLinker->masterView();
+    auto previousMasterView = viewLinker->masterView();
 
     viewLinker->setMasterView( activeView );
     viewLinker->updateDependentViews();

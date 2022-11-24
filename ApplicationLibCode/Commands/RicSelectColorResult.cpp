@@ -49,7 +49,7 @@ RimGridView* gridViewFrom2dIntersectionView( const Rim2dIntersectionView* int2dV
 //--------------------------------------------------------------------------------------------------
 void RicSelectColorResult::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Select Color Result" );
+    actionToSetup->setText( "Activate Result in Project Tree" );
     actionToSetup->setIcon( QIcon( ":/CellResult.png" ) );
 }
 
@@ -68,8 +68,7 @@ bool RicSelectColorResult::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicSelectColorResult::onActionTriggered( bool isChecked )
 {
-    Rim3dView* activeView       = RiaApplication::instance()->activeMainOrComparisonGridView();
-    bool       isComparisonView = ( activeView != RiaApplication::instance()->activeGridView() );
+    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
 
     Rim2dIntersectionView* int2dView = dynamic_cast<Rim2dIntersectionView*>( activeView );
     RimGridView*           gridView  = nullptr;
@@ -82,13 +81,13 @@ void RicSelectColorResult::onActionTriggered( bool isChecked )
     RimEclipseView* eclView = dynamic_cast<RimEclipseView*>( gridView );
     if ( eclView )
     {
-        Riu3DMainWindowTools::selectAsCurrentItem( eclView->cellResult(), int2dView == nullptr && !isComparisonView );
+        Riu3DMainWindowTools::selectAsCurrentItem( eclView->cellResult(), int2dView == nullptr );
         return;
     }
 
     RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>( gridView );
     if ( geoMechView )
     {
-        Riu3DMainWindowTools::selectAsCurrentItem( geoMechView->cellResult(), int2dView == nullptr && !isComparisonView );
+        Riu3DMainWindowTools::selectAsCurrentItem( geoMechView->cellResult(), int2dView == nullptr );
     }
 }

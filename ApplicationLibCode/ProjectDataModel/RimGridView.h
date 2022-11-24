@@ -39,7 +39,6 @@ class RimGridView : public Rim3dView
 
 public:
     RimGridView();
-    ~RimGridView( void ) override;
 
     void showGridCells( bool enableGridCells );
 
@@ -63,9 +62,6 @@ public:
     bool hasOverriddenCellFilterCollection();
     void setOverrideCellFilterCollection( RimCellFilterCollection* rfc );
     void replaceCellFilterCollectionWithOverride();
-
-    RimViewController* viewController() const override;
-    RimViewLinker*     assosiatedViewLinker() const override;
 
     bool isGridVisualizationMode() const override;
 
@@ -105,6 +101,5 @@ private:
     void onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) override;
 
     cvf::ref<cvf::UByteArray> m_currentReservoirCellVisibility;
-    RimViewLinker*            viewLinkerIfMasterView() const;
     bool                      m_previousGridModeMeshLinesWasFaults;
 };

@@ -89,6 +89,8 @@ public:
     RimEclipseView();
     ~RimEclipseView() override;
 
+    RiaDefines::View3dContent viewContent() const override;
+
     RimEclipseCellColors*          cellResult() const;
     RimCellEdgeColors*             cellEdgeResult() const;
     RimElementVectorResult*        elementVectorResult() const;

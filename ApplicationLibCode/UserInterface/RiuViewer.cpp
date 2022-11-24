@@ -354,24 +354,21 @@ void RiuViewer::slotSetCurrentFrame( int frameIndex )
 {
     setCurrentFrame( frameIndex );
 
-    if ( m_rimView )
+    auto* view = dynamic_cast<Rim3dView*>( m_rimView.p() );
+    if ( view )
     {
-        RimViewLinker* viewLinker = m_rimView->assosiatedViewLinker();
+        RimViewLinker* viewLinker = view->assosiatedViewLinker();
         if ( viewLinker )
         {
-            viewLinker->updateTimeStep( dynamic_cast<RimGridView*>( m_rimView.p() ), frameIndex );
+            viewLinker->updateTimeStep( view, frameIndex );
         }
 
         // Update  views using this as comparison
-        Rim3dView* view = dynamic_cast<Rim3dView*>( m_rimView.p() );
-        if ( view )
-        {
-            std::set<Rim3dView*> containingViews = view->viewsUsingThisAsComparisonView();
+        std::set<Rim3dView*> containingViews = view->viewsUsingThisAsComparisonView();
 
-            for ( auto contView : containingViews )
-            {
-                contView->updateDisplayModelForCurrentTimeStepAndRedraw();
-            }
+        for ( auto contView : containingViews )
+        {
+            contView->updateDisplayModelForCurrentTimeStepAndRedraw();
         }
     }
 }
@@ -982,7 +979,7 @@ void RiuViewer::navigationPolicyUpdate()
         RimViewLinker* viewLinker = m_rimView->assosiatedViewLinker();
         if ( viewLinker )
         {
-            viewLinker->updateCamera( dynamic_cast<RimGridView*>( m_rimView.p() ) );
+            viewLinker->updateCamera( dynamic_cast<Rim3dView*>( m_rimView.p() ) );
         }
     }
 }
@@ -1090,7 +1087,8 @@ void RiuViewer::mouseMoveEvent( QMouseEvent* mouseEvent )
                 cvf::ref<caf::DisplayCoordTransform> trans       = m_rimView->displayCoordTransform();
                 cvf::Vec3d                           domainCoord = trans->transformToDomainCoord( displayCoord );
 
-                viewLinker->updateCursorPosition( dynamic_cast<RimGridView*>( m_rimView.p() ), domainCoord );
+                auto view = dynamic_cast<Rim3dView*>( m_rimView.p() );
+                if ( view ) viewLinker->updateCursorPosition( view, domainCoord );
             }
         }
     }
@@ -1120,7 +1118,9 @@ void RiuViewer::leaveEvent( QEvent* )
     if ( m_rimView && m_rimView->assosiatedViewLinker() )
     {
         RimViewLinker* viewLinker = m_rimView->assosiatedViewLinker();
-        viewLinker->updateCursorPosition( dynamic_cast<RimGridView*>( m_rimView.p() ), cvf::Vec3d::UNDEFINED );
+
+        auto view = dynamic_cast<Rim3dView*>( m_rimView.p() );
+        if ( view ) viewLinker->updateCursorPosition( view, cvf::Vec3d::UNDEFINED );
     }
 }
 

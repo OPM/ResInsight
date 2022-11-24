@@ -40,6 +40,7 @@
 #include "RimTools.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
+#include "RimViewLinkerCollection.h"
 #include "RimViewManipulator.h"
 #include "RimViewNameConfig.h"
 #include "RimWellPathCollection.h"
@@ -184,6 +185,46 @@ Rim3dView::Rim3dView()
 //--------------------------------------------------------------------------------------------------
 Rim3dView::~Rim3dView()
 {
+    // When a 3d view is destructed, make sure that all other views using this as a comparison view is reset and
+    // redrawn. A crash was seen for test case
+    // "\ResInsight-regression-test\ProjectFiles\ProjectFilesSmallTests\TestCase_CoViz-Simple" when a view used as
+    // comparison view was deleted.
+
+    RimProject* proj = RimProject::current();
+
+    std::vector<Rim3dView*> allViews;
+    proj->allViews( allViews );
+
+    for ( auto v : allViews )
+    {
+        if ( v->activeComparisonView() == this )
+        {
+            v->setComparisonView( nullptr );
+            v->scheduleCreateDisplayModelAndRedraw();
+        }
+    }
+
+    if ( proj && this->isMasterView() )
+    {
+        RimViewLinker* viewLinker = this->assosiatedViewLinker();
+        viewLinker->setMasterView( nullptr );
+
+        delete proj->viewLinkerCollection->viewLinker();
+        proj->viewLinkerCollection->viewLinker = nullptr;
+
+        proj->uiCapability()->updateConnectedEditors();
+    }
+
+    RimViewController* vController = this->viewController();
+    if ( proj && vController )
+    {
+        vController->setManagedView( nullptr );
+        vController->ownerViewLinker()->removeViewController( vController );
+        delete vController;
+
+        proj->uiCapability()->updateConnectedEditors();
+    }
+
     if ( RiaApplication::instance()->activeReservoirView() == this )
     {
         RiaApplication::instance()->setActiveReservoirView( nullptr );
@@ -394,6 +435,43 @@ void Rim3dView::updateMdiWindowTitle()
 
         m_viewer->layoutWidget()->setWindowTitle( title );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimViewLinker* Rim3dView::assosiatedViewLinker() const
+{
+    RimViewLinker* viewLinker = this->viewLinkerIfMasterView();
+    if ( !viewLinker )
+    {
+        RimViewController* viewController = this->viewController();
+        if ( viewController )
+        {
+            viewLinker = viewController->ownerViewLinker();
+        }
+    }
+
+    return viewLinker;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimViewController* Rim3dView::viewController() const
+{
+    std::vector<RimViewController*> objects;
+    this->objectsWithReferringPtrFieldsOfType( objects );
+
+    for ( auto v : objects )
+    {
+        if ( v )
+        {
+            return v;
+        }
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -863,6 +941,13 @@ void Rim3dView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const
         updateScaling();
 
         RiuMainWindow::instance()->updateScaleValue();
+
+        RimViewLinker* viewLinker = this->assosiatedViewLinker();
+        if ( viewLinker )
+        {
+            viewLinker->updateScaleZ( this, scaleZ() );
+            viewLinker->updateCamera( this );
+        }
     }
     else if ( changedField == &surfaceMode )
     {
@@ -1421,16 +1506,13 @@ QList<caf::PdmOptionItemInfo> Rim3dView::calculateValueOptions( const caf::PdmFi
             proj->allViews( views );
             for ( auto view : views )
             {
-                if ( view != this && dynamic_cast<RimGridView*>( view ) )
+                if ( view != this )
                 {
                     RiaOptionItemFactory::appendOptionItemFromViewNameAndCaseName( view, &options );
                 }
             }
 
-            if ( !options.empty() )
-            {
-                options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
-            }
+            options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
         }
     }
     else if ( fieldNeedingOptions == &m_fontSize )
@@ -1663,4 +1745,23 @@ void Rim3dView::restoreComparisonView()
 
     depView->setOverrideViewer( nullptr );
     viewer()->setCurrentComparisonFrame( depView->currentTimeStep() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimViewLinker* Rim3dView::viewLinkerIfMasterView() const
+{
+    std::vector<RimViewLinker*> objects;
+    this->objectsWithReferringPtrFieldsOfType( objects );
+
+    for ( auto viewLinker : objects )
+    {
+        if ( viewLinker )
+        {
+            return viewLinker;
+        }
+    }
+
+    return nullptr;
 }

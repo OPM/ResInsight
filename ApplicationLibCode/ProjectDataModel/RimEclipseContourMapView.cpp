@@ -90,6 +90,14 @@ RimEclipseContourMapProjection* RimEclipseContourMapView::contourMapProjection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiaDefines::View3dContent RimEclipseContourMapView::viewContent() const
+{
+    return ( RiaDefines::View3dContent::ECLIPSE_DATA & RiaDefines::View3dContent::CONTOUR );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimEclipseContourMapView::createAutoName() const
 {
     QStringList autoName;

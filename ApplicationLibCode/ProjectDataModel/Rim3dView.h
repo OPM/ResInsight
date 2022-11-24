@@ -115,6 +115,8 @@ public:
     QString name() const;
     QString autoName() const;
 
+    virtual RiaDefines::View3dContent viewContent() const = 0;
+
     void         setMeshOnlyDrawstyle();
     void         setMeshSurfDrawstyle();
     void         setSurfOnlyDrawstyle();
@@ -179,6 +181,9 @@ public:
     void                 setComparisonView( Rim3dView* compView );
     std::set<Rim3dView*> viewsUsingThisAsComparisonView();
     void                 updateMdiWindowTitle() override;
+
+    RimViewLinker*     assosiatedViewLinker() const override;
+    RimViewController* viewController() const override;
 
 protected:
     static void removeModelByName( cvf::Scene* scene, const cvf::String& modelName );
@@ -291,6 +296,8 @@ private:
     void       setOverrideViewer( RiuViewer* overrideViewer );
     Rim3dView* prepareComparisonView();
     void       restoreComparisonView();
+
+    RimViewLinker* viewLinkerIfMasterView() const;
 
 private:
     QPointer<RiuViewer> m_viewer;

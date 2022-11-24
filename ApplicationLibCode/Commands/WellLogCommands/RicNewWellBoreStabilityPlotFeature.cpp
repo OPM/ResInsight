@@ -110,7 +110,7 @@ RimWellBoreStabilityPlot*
     {
         auto task = progInfo.task( "Updating all tracks", 5 );
 
-        QString templateText = QString( "%1, %2, %3, %4, %5" )
+        QString templateText = QString( "Well Bore Stability: %1, %2, %3, %4, %5" )
                                    .arg( RiaDefines::namingVariableCase() )
                                    .arg( RiaDefines::namingVariableWell() )
                                    .arg( RiaDefines::namingVariableTime() )
@@ -228,6 +228,7 @@ void RicNewWellBoreStabilityPlotFeature::createFormationTrack( RimWellBoreStabil
     formationTrack->setFormationCase( geoMechCase );
     formationTrack->setAnnotationType( RiaDefines::RegionAnnotationType::FORMATION_ANNOTATIONS );
     formationTrack->setVisiblePropertyValueRange( 0.0, 0.0 );
+    formationTrack->enablePropertyAxis( false );
     formationTrack->setColSpan( RimPlot::ONE );
 }
 
@@ -250,6 +251,7 @@ void RicNewWellBoreStabilityPlotFeature::createCasingShoeTrack( RimWellBoreStabi
     casingShoeTrack->setAnnotationTransparency( 90 );
     casingShoeTrack->setWellPathAttributesSource( wellPath );
     casingShoeTrack->setVisiblePropertyValueRange( 0.0, 0.0 );
+    casingShoeTrack->enablePropertyAxis( false );
     casingShoeTrack->setAutoScalePropertyValuesEnabled( true );
     casingShoeTrack->loadDataAndUpdate();
 }

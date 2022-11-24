@@ -19,6 +19,8 @@
 
 #include "RimViewLinker.h"
 
+#include "RiaOptionItemFactory.h"
+
 #include "RigFemResultAddress.h"
 #include "RigMainGrid.h"
 
@@ -43,7 +45,6 @@
 
 #include "RiuViewer.h"
 
-#include "RiaOptionItemFactory.h"
 #include "cafIconProvider.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cvfCamera.h"
@@ -70,9 +71,6 @@ RimViewLinker::RimViewLinker()
     m_viewControllers.uiCapability()->setUiTreeHidden( true );
     m_viewControllers.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_comparisonView, "LinkedComparisonView", "Comparison View" );
-    m_comparisonView.xmlCapability()->disableIO();
-
     setDeletable( true );
 }
 
@@ -84,15 +82,15 @@ RimViewLinker::~RimViewLinker()
     removeOverrides();
 
     m_viewControllers.deleteChildren();
-    RimGridView* masterView = m_masterView;
-    m_masterView            = nullptr;
+    auto masterView = m_masterView();
+    m_masterView    = nullptr;
     if ( masterView ) masterView->updateAutoName();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::updateTimeStep( RimGridView* sourceView, int timeStep )
+void RimViewLinker::updateTimeStep( Rim3dView* sourceView, int timeStep )
 {
     CVF_ASSERT( sourceView );
 
@@ -285,7 +283,7 @@ void RimViewLinker::updateScaleWidgetVisibility()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::allViewsForCameraSync( const RimGridView* source, std::vector<RimGridView*>& views ) const
+void RimViewLinker::allViewsForCameraSync( const Rim3dView* source, std::vector<Rim3dView*>& views ) const
 {
     if ( !isActive() ) return;
 
@@ -323,7 +321,7 @@ void RimViewLinker::updateDependentViews()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimViewLinker::displayNameForView( RimGridView* view )
+QString RimViewLinker::displayNameForView( Rim3dView* view )
 {
     QString displayName = "None";
 
@@ -338,7 +336,7 @@ QString RimViewLinker::displayNameForView( RimGridView* view )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::setMasterView( RimGridView* view )
+void RimViewLinker::setMasterView( Rim3dView* view )
 {
     RimViewController* previousViewController = nullptr;
     if ( view ) previousViewController = view->viewController();
@@ -360,7 +358,7 @@ void RimViewLinker::setMasterView( RimGridView* view )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGridView* RimViewLinker::masterView() const
+Rim3dView* RimViewLinker::masterView() const
 {
     return m_masterView;
 }
@@ -368,9 +366,9 @@ RimGridView* RimViewLinker::masterView() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimGridView*> RimViewLinker::allViews() const
+std::vector<Rim3dView*> RimViewLinker::allViews() const
 {
-    std::vector<RimGridView*> views;
+    std::vector<Rim3dView*> views;
 
     views.push_back( m_masterView() );
 
@@ -391,16 +389,12 @@ std::vector<RimGridView*> RimViewLinker::allViews() const
 void RimViewLinker::initAfterRead()
 {
     updateUiNameAndIcon();
-    if ( m_masterView() )
-    {
-        m_comparisonView = dynamic_cast<RimGridView*>( m_masterView->activeComparisonView() );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::updateScaleZ( RimGridView* sourceView, double scaleZ )
+void RimViewLinker::updateScaleZ( Rim3dView* sourceView, double scaleZ )
 {
     if ( !isActive() ) return;
 
@@ -415,7 +409,7 @@ void RimViewLinker::updateScaleZ( RimGridView* sourceView, double scaleZ )
         }
     }
 
-    std::vector<RimGridView*> views;
+    std::vector<Rim3dView*> views;
     allViewsForCameraSync( sourceView, views );
 
     // Make sure scale factors are identical
@@ -450,7 +444,11 @@ bool RimViewLinker::isActive() const
 void RimViewLinker::updateUiNameAndIcon()
 {
     caf::IconProvider iconProvider;
-    RimViewLinker::findNameAndIconFromView( &m_name.v(), &iconProvider, m_masterView );
+
+    QString name;
+    RimViewLinker::findNameAndIconFromView( &name, &iconProvider, m_masterView );
+    name += " (Primary)";
+    m_name.v() = name;
 
     if ( m_masterView ) m_masterView->updateAutoName();
 
@@ -482,7 +480,7 @@ void RimViewLinker::scheduleCreateDisplayModelAndRedrawForDependentViews()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::findNameAndIconFromView( QString* name, caf::IconProvider* icon, RimGridView* view )
+void RimViewLinker::findNameAndIconFromView( QString* name, caf::IconProvider* icon, Rim3dView* view )
 {
     CVF_ASSERT( name && icon );
 
@@ -500,7 +498,7 @@ void RimViewLinker::findNameAndIconFromView( QString* name, caf::IconProvider* i
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::updateCursorPosition( const RimGridView* sourceView, const cvf::Vec3d& domainCoord )
+void RimViewLinker::updateCursorPosition( const Rim3dView* sourceView, const cvf::Vec3d& domainCoord )
 {
     RimViewController* sourceViewLink = sourceView->viewController();
     if ( sourceViewLink && !sourceViewLink->showCursor() )
@@ -508,7 +506,7 @@ void RimViewLinker::updateCursorPosition( const RimGridView* sourceView, const c
         return;
     }
 
-    std::vector<RimGridView*> viewsToUpdate;
+    std::vector<Rim3dView*> viewsToUpdate;
     allViewsForCameraSync( sourceView, viewsToUpdate );
 
     for ( Rim3dView* destinationView : viewsToUpdate )
@@ -534,24 +532,6 @@ void RimViewLinker::updateCursorPosition( const RimGridView* sourceView, const c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::notifyManagedViewChange( RimGridView* oldManagedView, RimGridView* newManagedView )
-{
-    if ( oldManagedView && ( oldManagedView == m_comparisonView ) )
-    {
-        m_comparisonView = newManagedView;
-        m_comparisonView.uiCapability()->updateConnectedEditors();
-
-        if ( masterView() )
-        {
-            masterView()->setComparisonView( m_comparisonView() );
-            masterView()->scheduleCreateDisplayModelAndRedraw();
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimViewLinker::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                                     std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
@@ -569,10 +549,10 @@ QList<caf::PdmOptionItemInfo> RimViewLinker::calculateValueOptions( const caf::P
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    RimGridView* actualComparisonView = nullptr;
+    Rim3dView* actualComparisonView = nullptr;
     if ( m_masterView() )
     {
-        actualComparisonView = dynamic_cast<RimGridView*>( m_masterView->activeComparisonView() );
+        actualComparisonView = m_masterView->activeComparisonView();
     }
 
     bool isActiveCompViewInList = false;
@@ -605,38 +585,9 @@ QList<caf::PdmOptionItemInfo> RimViewLinker::calculateValueOptions( const caf::P
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RimViewLinker::updateCamera( Rim3dView* sourceView )
 {
-    // Update the comparison view from the master view
-    if ( m_masterView() )
-    {
-        m_comparisonView = dynamic_cast<RimGridView*>( m_masterView->activeComparisonView() );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimViewLinker::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                      const QVariant&            oldValue,
-                                      const QVariant&            newValue )
-{
-    if ( changedField == &m_comparisonView )
-    {
-        if ( masterView() )
-        {
-            masterView()->setComparisonView( m_comparisonView() );
-            masterView()->scheduleCreateDisplayModelAndRedraw();
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimViewLinker::updateCamera( RimGridView* sourceView )
-{
-    if ( !sourceView->viewer() ) return;
+    if ( !sourceView || !sourceView->viewer() ) return;
 
     if ( !isActive() ) return;
 
@@ -649,7 +600,7 @@ void RimViewLinker::updateCamera( RimGridView* sourceView )
         }
     }
 
-    std::vector<RimGridView*> viewsToUpdate;
+    std::vector<Rim3dView*> viewsToUpdate;
     allViewsForCameraSync( sourceView, viewsToUpdate );
 
     RimViewManipulator::applySourceViewCameraOnDestinationViews( sourceView, viewsToUpdate );
@@ -658,7 +609,7 @@ void RimViewLinker::updateCamera( RimGridView* sourceView )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::addDependentView( RimGridView* view )
+void RimViewLinker::addDependentView( Rim3dView* view )
 {
     CVF_ASSERT( view && view != m_masterView );
 
@@ -676,7 +627,7 @@ void RimViewLinker::addDependentView( RimGridView* view )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimViewLinker::isFirstViewDependentOnSecondView( const RimGridView* firstView, const RimGridView* secondView ) const
+bool RimViewLinker::isFirstViewDependentOnSecondView( const Rim3dView* firstView, const Rim3dView* secondView ) const
 {
     for ( const RimViewController* controller : m_viewControllers() )
     {
@@ -732,7 +683,7 @@ void RimViewLinker::removeViewController( RimViewController* viewController )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGridView* RimViewLinker::firstControlledView()
+Rim3dView* RimViewLinker::firstControlledView()
 {
     if ( m_viewControllers.empty() ) return nullptr;
 

@@ -44,29 +44,18 @@ bool RicLinkVisibleViewsFeature::isCommandEnabled()
     RimProject* proj = RimProject::current();
     if ( !proj ) return false;
 
-    std::vector<Rim3dView*>   visibleViews;
-    std::vector<RimGridView*> linkedviews;
-    std::vector<RimGridView*> visibleGridViews;
-
+    std::vector<Rim3dView*> visibleViews;
     proj->allVisibleViews( visibleViews );
-    for ( Rim3dView* view : visibleViews )
-    {
-        RimGridView* gridView = dynamic_cast<RimGridView*>( view );
-        if ( gridView ) visibleGridViews.push_back( gridView );
-    }
 
+    std::vector<Rim3dView*> linkedviews;
     if ( proj->viewLinkerCollection() && proj->viewLinkerCollection()->viewLinker() )
     {
         linkedviews = proj->viewLinkerCollection()->viewLinker()->allViews();
     }
 
-    if ( visibleGridViews.size() >= 2 && ( linkedviews.size() < visibleGridViews.size() ) )
+    if ( visibleViews.size() >= 2 && ( linkedviews.size() < visibleViews.size() ) )
     {
-        std::vector<RimGridView*> views;
-        findLinkableVisibleViews( views );
-        RicLinkVisibleViewsFeatureUi testUi;
-        testUi.setViews( views );
-        return !testUi.masterViewCandidates().empty();
+        return !findLinkableVisibleViews().empty();
     }
 
     return false;
@@ -77,10 +66,8 @@ bool RicLinkVisibleViewsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicLinkVisibleViewsFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimGridView*> linkableViews;
-    findLinkableVisibleViews( linkableViews );
-
-    linkViews( linkableViews );
+    auto linkableViews = findLinkableVisibleViews();
+    RicLinkVisibleViewsFeature::linkViews( linkableViews );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -95,57 +82,86 @@ void RicLinkVisibleViewsFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicLinkVisibleViewsFeature::findLinkableVisibleViews( std::vector<RimGridView*>& views )
+std::vector<Rim3dView*> RicLinkVisibleViewsFeature::findLinkableVisibleViews()
 {
     RimProject* proj = RimProject::current();
 
-    std::vector<RimGridView*> visibleGridViews;
-    proj->allVisibleGridViews( visibleGridViews );
+    std::vector<Rim3dView*> views;
 
-    for ( auto gridView : visibleGridViews )
+    std::vector<Rim3dView*> candidates;
+    proj->allVisibleViews( candidates );
+
+    for ( auto gridView : candidates )
     {
-        if ( !gridView ) continue;
-        if ( gridView->assosiatedViewLinker() ) continue;
-
-        views.push_back( gridView );
+        if ( gridView && !gridView->assosiatedViewLinker() ) views.push_back( gridView );
     }
+
+    return views;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicLinkVisibleViewsFeature::linkViews( std::vector<RimGridView*>& linkableViews )
+void RicLinkVisibleViewsFeature::linkViews( std::vector<Rim3dView*>& linkableViews )
 {
+    if ( linkableViews.empty() ) return;
+
     RimProject*    proj       = RimProject::current();
     RimViewLinker* viewLinker = proj->viewLinkerCollection->viewLinker();
 
-    std::vector<RimGridView*> masterCandidates = linkableViews;
-
     if ( !viewLinker )
     {
-        // Create a new view linker
-
-        RimGridView* masterView = masterCandidates.front();
-
         viewLinker = new RimViewLinker;
 
         proj->viewLinkerCollection()->viewLinker = viewLinker;
-        viewLinker->setMasterView( masterView );
+        viewLinker->setMasterView( linkableViews.front() );
     }
 
-    for ( RimGridView* rimView : linkableViews )
-    {
-        if ( rimView == viewLinker->masterView() ) continue;
+    Rim3dView* primaryView = viewLinker->masterView();
 
-        viewLinker->addDependentView( rimView );
+    auto matchingViews = RicLinkVisibleViewsFeature::matchingViews( primaryView, linkableViews );
+    for ( auto v : matchingViews )
+    {
+        viewLinker->addDependentView( v );
     }
 
     viewLinker->updateDependentViews();
-
     viewLinker->updateUiNameAndIcon();
 
     proj->viewLinkerCollection.uiCapability()->updateConnectedEditors();
     proj->viewLinkerCollection->updateConnectedEditors();
 
     Riu3DMainWindowTools::setExpanded( proj->viewLinkerCollection() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<Rim3dView*> RicLinkVisibleViewsFeature::matchingViews( Rim3dView*               primaryView,
+                                                                   std::vector<Rim3dView*>& candidates )
+{
+    if ( !primaryView ) return {};
+
+    std::vector<Rim3dView*> matchingViews;
+
+    RiaDefines::View3dContent primaryContent = primaryView->viewContent();
+    if ( primaryContent == RiaDefines::View3dContent::FLAT_INTERSECTION )
+    {
+        for ( auto v : candidates )
+        {
+            if ( v != primaryView && v->viewContent() == RiaDefines::View3dContent::FLAT_INTERSECTION )
+                matchingViews.emplace_back( v );
+        }
+
+        return matchingViews;
+    }
+
+    // We have a 3D view or contour map as primary view, include all views except flat intersection views
+    for ( auto v : candidates )
+    {
+        if ( v != primaryView && v->viewContent() != RiaDefines::View3dContent::FLAT_INTERSECTION )
+            matchingViews.emplace_back( v );
+    }
+
+    return matchingViews;
 }

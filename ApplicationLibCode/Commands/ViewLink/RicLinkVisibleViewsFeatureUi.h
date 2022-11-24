@@ -25,7 +25,7 @@
 
 #include <vector>
 
-class RimGridView;
+class Rim3dView;
 
 //==================================================================================================
 ///
@@ -37,15 +37,14 @@ class RicLinkVisibleViewsFeatureUi : public caf::PdmObject
 public:
     RicLinkVisibleViewsFeatureUi( void );
 
-    void                      setViews( const std::vector<RimGridView*>& allViews );
-    RimGridView*              masterView();
-    std::vector<RimGridView*> masterViewCandidates() const;
+    void       setViews( const std::vector<Rim3dView*>& allViews );
+    Rim3dView* masterView();
 
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 private:
-    caf::PdmPtrField<RimGridView*> m_masterView;
+    caf::PdmPtrField<Rim3dView*> m_masterView;
 
-    std::vector<RimGridView*> m_allViews;
+    std::vector<Rim3dView*> m_allViews;
 };
