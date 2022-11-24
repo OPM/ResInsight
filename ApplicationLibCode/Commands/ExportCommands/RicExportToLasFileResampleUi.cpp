@@ -64,12 +64,14 @@ RicExportToLasFileResampleUi::RicExportToLasFileResampleUi( void )
     exportFolder.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &filePrefix, "FilePrefix", QString( "" ), "File Prefix" );
     CAF_PDM_InitField( &capitalizeFileName, "CapitalizeFileName", false, "Capitalize File Name" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &capitalizeFileName );
+
     CAF_PDM_InitFieldNoDefault( &curveUnitConversion, "CurveUnitConversion", "Curve Units" );
 
     CAF_PDM_InitField( &activateResample, "ActivateResample", false, "Resample Curve Data" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &activateResample );
 
-    CAF_PDM_InitField( &resampleInterval, "ResampleInterval", 1.0, "Resample Interval [m]" );
+    CAF_PDM_InitField( &resampleInterval, "ResampleInterval", 1.0, "    Resample Interval [m]" );
 
     CAF_PDM_InitField( &exportTvdrkb, "ExportTvdrkb", false, "Export TVDRKB" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &exportTvdrkb );
@@ -192,12 +194,8 @@ void RicExportToLasFileResampleUi::defineUiOrdering( QString uiConfigName, caf::
         uiOrdering.add( &curveUnitConversion );
     }
 
-    {
-        caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Resampling" );
-
-        group->add( &activateResample );
-        group->add( &resampleInterval );
-    }
+    uiOrdering.add( &activateResample );
+    uiOrdering.add( &resampleInterval );
 
     caf::PdmUiGroup* tvdrkbGroup = uiOrdering.addNewGroup( "TVDRKB" );
     tvdrkbGroup->add( &exportTvdrkb );
