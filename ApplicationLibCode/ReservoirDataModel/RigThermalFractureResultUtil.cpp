@@ -446,24 +446,6 @@ void RigThermalFractureResultUtil::appendDataToResultStatistics( std::shared_ptr
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Taken from OverlayNavigationCube::computeNewUpVector
-/// Consider move to geometry util class
-//--------------------------------------------------------------------------------------------------
-cvf::Mat4d RigThermalFractureResultUtil::rotationMatrixBetweenVectors( const cvf::Vec3d& v1, const cvf::Vec3d& v2 )
-{
-    using namespace cvf;
-
-    Vec3d rotAxis = v1 ^ v2;
-    rotAxis.normalize();
-
-    // Guard acos against out-of-domain input
-    const double dotProduct = Math::clamp( v1 * v2, -1.0, 1.0 );
-    const double angle      = Math::acos( dotProduct );
-    Mat4d        rotMat     = Mat4d::fromRotation( rotAxis, angle );
-    return rotMat;
-}
-
-//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3d>
@@ -493,7 +475,7 @@ std::vector<cvf::Vec3d>
     plane.setFromPoints( p0, p1, p2 );
 
     cvf::Vec3d planeNormal = plane.normal().getNormalized();
-    auto       rotMat      = rotationMatrixBetweenVectors( planeNormal, ( cvf::Vec3d::Z_AXIS ).getNormalized() );
+    auto rotMat = cvf::GeometryTools::rotationMatrixBetweenVectors( planeNormal, ( cvf::Vec3d::Z_AXIS ).getNormalized() );
 
     for ( auto& r : relativePos )
     {
@@ -533,7 +515,7 @@ std::vector<cvf::Vec3d>
     // Make sure normal is pointing down
     if ( directionNormal.y() > 0.0 ) directionNormal *= -1.0;
 
-    auto rotMat2 = rotationMatrixBetweenVectors( directionNormal, cvf::Vec3d::X_AXIS );
+    auto rotMat2 = cvf::GeometryTools::rotationMatrixBetweenVectors( directionNormal, cvf::Vec3d::X_AXIS );
     for ( auto& r : relativePos )
     {
         r.transformVector( rotMat2 );

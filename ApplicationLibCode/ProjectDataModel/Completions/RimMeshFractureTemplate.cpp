@@ -28,6 +28,7 @@
 #include "RigFractureCell.h"
 #include "RigFractureGrid.h"
 #include "RigTransmissibilityEquations.h"
+#include "RigWellPath.h"
 #include "RigWellPathStimplanIntersector.h"
 
 #include "RimEclipseView.h"
@@ -275,7 +276,10 @@ WellFractureIntersectionData RimMeshFractureTemplate::wellFractureIntersectionDa
                 RiaWeightedMeanCalculator<double>  conductivityCalc;
                 RiaWeightedGeometricMeanCalculator betaFactorCalc;
 
-                RigWellPathStimplanIntersector intersector( rimWellPath->wellPathGeometry(), fractureInstance );
+                std::vector<cvf::Vec3d> wellPathPoints =
+                    rimWellPath->wellPathGeometry()->wellPathPointsIncludingInterpolatedIntersectionPoint(
+                        fractureInstance->fractureMD() );
+                RigWellPathStimplanIntersector intersector( wellPathPoints, fractureInstance );
                 for ( const auto& v : intersector.intersections() )
                 {
                     size_t fractureGlobalCellIndex = v.first;
@@ -498,6 +502,7 @@ void RimMeshFractureTemplate::defineUiOrdering( QString uiConfigName, caf::PdmUi
         group->add( &m_conductivityResultNameOnFile );
         group->add( &m_conductivityType );
         group->add( &m_skinFactor );
+        group->add( &m_userDefinedPerforationLength );
         group->add( &m_perforationLength );
         group->add( &m_perforationEfficiency );
         group->add( &m_wellDiameter );

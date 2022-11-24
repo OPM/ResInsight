@@ -133,6 +133,10 @@ RimFractureTemplate::RimFractureTemplate()
                                  caf::AppEnum<FracOrientationEnum>( TRANSVERSE_WELL_PATH ),
                                  "Fracture Orientation" );
 
+    CAF_PDM_InitScriptableField( &m_userDefinedPerforationLength,
+                                 "UserDefinedPerforationLength",
+                                 false,
+                                 "User-defined Perforation Length" );
     CAF_PDM_InitScriptableField( &m_azimuthAngle, "AzimuthAngle", 0.0f, "Azimuth Angle" );
 
     CAF_PDM_InitField( &m_skinFactor, "SkinFactor", 0.0f, "Skin Factor" );
@@ -496,10 +500,12 @@ void RimFractureTemplate::prepareFieldsForUiDisplay()
          m_orientationType == RimFractureTemplate::TRANSVERSE_WELL_PATH )
     {
         m_azimuthAngle.uiCapability()->setUiHidden( true );
+        m_userDefinedPerforationLength.uiCapability()->setUiHidden( true );
     }
     else if ( m_orientationType == RimFractureTemplate::AZIMUTH )
     {
         m_azimuthAngle.uiCapability()->setUiHidden( false );
+        m_userDefinedPerforationLength.uiCapability()->setUiHidden( false );
     }
 
     if ( m_orientationType == RimFractureTemplate::ALONG_WELL_PATH )
@@ -510,7 +516,10 @@ void RimFractureTemplate::prepareFieldsForUiDisplay()
     else
     {
         m_perforationEfficiency.uiCapability()->setUiHidden( true );
-        m_perforationLength.uiCapability()->setUiHidden( true );
+
+        bool hidePerforationLength =
+            !( m_orientationType == RimFractureTemplate::AZIMUTH && m_userDefinedPerforationLength() );
+        m_perforationLength.uiCapability()->setUiHidden( hidePerforationLength );
     }
 
     if ( m_conductivityType == FINITE_CONDUCTIVITY )
@@ -937,6 +946,14 @@ double RimFractureTemplate::wellDiameter() const
 double RimFractureTemplate::perforationLength() const
 {
     return m_perforationLength;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFractureTemplate::useUserDefinedPerforationLength() const
+{
+    return m_userDefinedPerforationLength;
 }
 
 //--------------------------------------------------------------------------------------------------

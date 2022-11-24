@@ -21,6 +21,7 @@
 #include "cafEffectGenerator.h"
 #include "cvfArray.h"
 #include "cvfDrawableGeo.h"
+#include "cvfGeometryTools.h"
 #include "cvfPart.h"
 #include "cvfPrimitiveSetIndexedUInt.h"
 #include "cvfScalarMapper.h"
@@ -122,7 +123,8 @@ cvf::ref<cvf::DrawableGeo> RivWellConnectionFactorGeometryGenerator::createSurfa
 
     for ( const auto& item : m_completionVizData )
     {
-        auto rotMatrix = rotationMatrixBetweenVectors( cvf::Vec3d::Y_AXIS, item.m_direction );
+        auto rotMatrix =
+            cvf::Mat4f( cvf::GeometryTools::rotationMatrixBetweenVectors( cvf::Vec3d::Y_AXIS, item.m_direction ) );
 
         cvf::uint indexOffset = static_cast<cvf::uint>( vertices->size() );
 
@@ -178,28 +180,6 @@ size_t RivWellConnectionFactorGeometryGenerator::mapFromTriangleToConnectionInde
     size_t connectionIndex = triangleIndex / m_trianglesPerConnection;
 
     return connectionIndex;
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Taken from OverlayNavigationCube::computeNewUpVector
-/// Consider move to geometry util class
-//--------------------------------------------------------------------------------------------------
-cvf::Mat4f RivWellConnectionFactorGeometryGenerator::rotationMatrixBetweenVectors( const cvf::Vec3d& v1,
-                                                                                   const cvf::Vec3d& v2 )
-{
-    using namespace cvf;
-
-    Vec3d rotAxis = v1 ^ v2;
-    rotAxis.normalize();
-
-    // Guard acos against out-of-domain input
-    const double dotProduct = Math::clamp( v1 * v2, -1.0, 1.0 );
-    const double angle      = Math::acos( dotProduct );
-    Mat4d        rotMat     = Mat4d::fromRotation( rotAxis, angle );
-
-    Mat4f myMat( rotMat );
-
-    return myMat;
 }
 
 //--------------------------------------------------------------------------------------------------

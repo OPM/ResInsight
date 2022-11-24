@@ -138,6 +138,7 @@ public:
     double                                      wellDiameter() const;
     FracConductivityEnum                        conductivityType() const;
     double                                      perforationLength() const;
+    bool                                        useUserDefinedPerforationLength() const;
 
     double                            wellPathDepthAtFracture() const;
     virtual std::pair<double, double> wellPathDepthAtFractureRange() const  = 0;
@@ -215,6 +216,7 @@ protected:
     caf::PdmField<caf::AppEnum<FracOrientationEnum>>           m_orientationType;
     caf::PdmField<float>                                       m_azimuthAngle;
     caf::PdmField<float>                                       m_skinFactor;
+    caf::PdmField<bool>                                        m_userDefinedPerforationLength;
     caf::PdmField<double>                                      m_perforationLength;
     caf::PdmField<double>                                      m_perforationEfficiency;
     caf::PdmField<double>                                      m_wellDiameter;
