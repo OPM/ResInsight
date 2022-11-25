@@ -25,7 +25,7 @@ class RiuMdiSubWindow : public QMdiSubWindow
 {
     Q_OBJECT
 public:
-    RiuMdiSubWindow( QWidget* parent = nullptr, Qt::WindowFlags flags = nullptr );
+    RiuMdiSubWindow( QWidget* parent = nullptr, Qt::WindowFlags flags = Qt::WindowFlags() );
 
     ~RiuMdiSubWindow() override;
 

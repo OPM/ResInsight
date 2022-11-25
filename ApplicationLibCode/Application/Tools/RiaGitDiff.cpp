@@ -75,6 +75,7 @@ bool RiaGitDiff::executeDiff( const QString& baseFolder )
     QString completeCommand = QString( "\"%1\" %2" ).arg( fullFilePath ).arg( args );
 
     // Launch process and wait
+    #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     QProcess proc;
     proc.start( completeCommand );
     proc.waitForFinished( 30000 );

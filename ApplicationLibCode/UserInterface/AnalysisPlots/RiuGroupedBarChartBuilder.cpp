@@ -101,7 +101,6 @@ public:
     struct RiuBarChartTick
     {
         RiuBarChartTick()                             = default;
-        RiuBarChartTick( const RiuBarChartTick& rhs ) = default;
         RiuBarChartTick( QwtScaleDiv::TickType tickType, const QString& label, bool oppositeSide = false )
             : tickType( tickType )
             , label( label )
