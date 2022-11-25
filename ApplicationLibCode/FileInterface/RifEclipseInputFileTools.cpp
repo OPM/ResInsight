@@ -501,10 +501,10 @@ void RifEclipseInputFileTools::saveFault( QString                               
                                           const cvf::Vec3st&                      refinement )
 {
     QFile exportFile( completeFilename );
-
     if ( !exportFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
     {
         RiaLogging::error( "Could not open the file : " + completeFilename );
+        return;
     }
 
     QTextStream stream( &exportFile );
