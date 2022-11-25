@@ -36,6 +36,7 @@
 #include "RigSimulationWellCenterLineCalculator.h"
 #include "RigSimulationWellCoordsAndMD.h"
 #include "RigWellLogCurveData.h"
+#include "RigWellLogIndexDepthOffset.h"
 #include "RigWellPath.h"
 
 #include "RimEclipseCase.h"
@@ -67,6 +68,7 @@
 #include "cafPdmUiTreeOrdering.h"
 #include "cafUtils.h"
 
+#include <algorithm>
 #include <cmath>
 
 //==================================================================================================
@@ -436,55 +438,94 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
 
     clampBranchIndex();
 
-    RimWellLogPlotCollection* wellLogCollection = RimMainPlotCollection::current()->wellLogPlotCollection();
-
-    cvf::ref<RigEclipseWellLogExtractor> eclExtractor;
-    cvf::ref<RigGeoMechWellLogExtractor> geomExtractor;
+    WellLogExtractionCurveData curveData;
 
     if ( eclipseCase )
     {
-        if ( m_trajectoryType == WELL_PATH )
-        {
-            eclExtractor = wellLogCollection->findOrCreateExtractor( m_wellPath, eclipseCase );
-        }
-        else
-        {
-            std::vector<const RigWellPath*> simWellBranches =
-                RiaSimWellBranchTools::simulationWellBranches( m_simWellName, m_branchDetection );
-            if ( m_branchIndex >= 0 && m_branchIndex < static_cast<int>( simWellBranches.size() ) )
-            {
-                auto wellBranch = simWellBranches[m_branchIndex];
-                eclExtractor    = wellLogCollection->findOrCreateSimWellExtractor( m_simWellName,
-                                                                                eclipseCase->caseUserDescription(),
-                                                                                wellBranch,
-                                                                                eclipseCase->eclipseCaseData() );
-                if ( eclExtractor.notNull() )
-                {
-                    m_wellPathsWithExtractors.push_back( wellBranch );
-                }
-
-                *isUsingPseudoLength = true;
-            }
-        }
+        curveData = extractEclipseData( eclipseCase, isUsingPseudoLength );
     }
     else if ( geomCase )
     {
-        geomExtractor = wellLogCollection->findOrCreateExtractor( m_wellPath, geomCase );
+        curveData = extractGeomData( geomCase, isUsingPseudoLength, performDataSmoothing, smoothingThreshold );
     }
 
-    std::vector<double> values;
-    std::vector<double> measuredDepthValues;
-    std::vector<double> tvDepthValues;
-    double              rkbDiff = 0.0;
-
-    RiaDefines::DepthUnitType depthUnit = RiaDefines::DepthUnitType::UNIT_METER;
-    QString                   xUnits    = RiaWellLogUnitTools<double>::noUnitString();
-
-    if ( eclExtractor.notNull() )
+    if ( !curveData.values.empty() && !curveData.measuredDepthValues.empty() )
     {
-        measuredDepthValues = eclExtractor->cellIntersectionMDs();
-        tvDepthValues       = eclExtractor->cellIntersectionTVDs();
-        rkbDiff             = eclExtractor->wellPathGeometry()->rkbDiff();
+        bool useLogarithmicScale = false;
+
+        RimWellLogTrack* track = nullptr;
+        firstAncestorOfType( track );
+        if ( track )
+        {
+            useLogarithmicScale = track->isLogarithmicScale();
+        }
+
+        if ( curveData.tvDepthValues.empty() )
+        {
+            this->setPropertyValuesAndDepths( curveData.values,
+                                              curveData.measuredDepthValues,
+                                              RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
+                                              0.0,
+                                              curveData.depthUnit,
+                                              !performDataSmoothing,
+                                              useLogarithmicScale,
+                                              curveData.xUnits );
+        }
+        else
+        {
+            this->setPropertyValuesWithMdAndTVD( curveData.values,
+                                                 curveData.measuredDepthValues,
+                                                 curveData.tvDepthValues,
+                                                 curveData.rkbDiff,
+                                                 curveData.depthUnit,
+                                                 !performDataSmoothing,
+                                                 useLogarithmicScale,
+                                                 curveData.xUnits );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellLogExtractionCurve::WellLogExtractionCurveData
+    RimWellLogExtractionCurve::extractEclipseData( RimEclipseCase* eclipseCase, bool* isUsingPseudoLength )
+{
+    WellLogExtractionCurveData curveData;
+    RimWellLogPlotCollection*  wellLogCollection = RimMainPlotCollection::current()->wellLogPlotCollection();
+
+    cvf::ref<RigEclipseWellLogExtractor> wellExtractor;
+    cvf::ref<RigEclipseWellLogExtractor> refWellExtractor;
+    if ( m_trajectoryType == WELL_PATH )
+    {
+        wellExtractor    = wellLogCollection->findOrCreateExtractor( m_wellPath, eclipseCase );
+        refWellExtractor = wellLogCollection->findOrCreateExtractor( m_refWellPath, eclipseCase );
+    }
+    else
+    {
+        std::vector<const RigWellPath*> simWellBranches =
+            RiaSimWellBranchTools::simulationWellBranches( m_simWellName, m_branchDetection );
+        if ( m_branchIndex >= 0 && m_branchIndex < static_cast<int>( simWellBranches.size() ) )
+        {
+            auto wellBranch = simWellBranches[m_branchIndex];
+            wellExtractor   = wellLogCollection->findOrCreateSimWellExtractor( m_simWellName,
+                                                                             eclipseCase->caseUserDescription(),
+                                                                             wellBranch,
+                                                                             eclipseCase->eclipseCaseData() );
+            if ( wellExtractor.notNull() )
+            {
+                m_wellPathsWithExtractors.push_back( wellBranch );
+            }
+
+            *isUsingPseudoLength = true;
+        }
+    }
+
+    if ( wellExtractor.notNull() )
+    {
+        curveData.measuredDepthValues = wellExtractor->cellIntersectionMDs();
+        curveData.tvDepthValues       = wellExtractor->cellIntersectionTVDs();
+        curveData.rkbDiff             = wellExtractor->wellPathGeometry()->rkbDiff();
 
         m_eclipseResultDefinition->loadResult();
 
@@ -496,7 +537,7 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
 
         if ( resAcc.notNull() )
         {
-            eclExtractor->curveData( resAcc.p(), &values );
+            wellExtractor->curveData( resAcc.p(), &curveData.values );
         }
 
         RiaDefines::EclipseUnitSystem eclipseUnitsType = eclipseCase->eclipseCaseData()->unitsType();
@@ -504,72 +545,222 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
         {
             // See https://github.com/OPM/ResInsight/issues/538
 
-            depthUnit = RiaDefines::DepthUnitType::UNIT_FEET;
+            curveData.depthUnit = RiaDefines::DepthUnitType::UNIT_FEET;
         }
     }
-    else if ( geomExtractor.notNull() ) // geomExtractor
-    {
-        measuredDepthValues = geomExtractor->cellIntersectionMDs();
-        tvDepthValues       = geomExtractor->cellIntersectionTVDs();
-        rkbDiff             = geomExtractor->wellPathGeometry()->rkbDiff();
 
-        if ( measuredDepthValues.empty() )
+    // Reference well adjustment does not support simulated wells
+    if ( m_trajectoryType == WELL_PATH && wellExtractor.notNull() && refWellExtractor.notNull() )
+    {
+        // ************************************************
+        //
+        // Adjust measured dept values according to refWell
+        //
+        // ************************************************
+
+        RigEclipseResultAddress     indexKResAdr( RiaResultNames::indexKResultName() );
+        cvf::ref<RigResultAccessor> indexKResAcc =
+            RigResultAccessorFactory::createFromResultAddress( eclipseCase->eclipseCaseData(),
+                                                               0,
+                                                               RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                               m_timeStep,
+                                                               indexKResAdr );
+
+        std::vector<double> refWellMeasuredDepthValues = refWellExtractor->cellIntersectionMDs();
+        std::vector<double> refWellTvDepthValues       = refWellExtractor->cellIntersectionTVDs();
+        std::vector<double> wellIndexKValues;
+        std::vector<double> refWellIndexKValues;
+        if ( indexKResAcc.notNull() )
         {
-            return;
+            wellExtractor->curveData( indexKResAcc.p(), &wellIndexKValues );
+            refWellExtractor->curveData( indexKResAcc.p(), &refWellIndexKValues );
         }
 
-        findAndLoadWbsParametersFromLasFiles( m_wellPath(), geomExtractor.p() );
+        //
+        if ( !wellIndexKValues.empty() && !refWellIndexKValues.empty() )
+        {
+            adjustWellDepthValuesToReferenceWell( curveData.measuredDepthValues,
+                                                  curveData.tvDepthValues,
+                                                  wellIndexKValues,
+                                                  refWellMeasuredDepthValues,
+                                                  refWellTvDepthValues,
+                                                  refWellIndexKValues );
+        }
+    }
+
+    return curveData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellLogExtractionCurve::WellLogExtractionCurveData
+    RimWellLogExtractionCurve::extractGeomData( RimGeoMechCase* geomCase,
+                                                bool*           isUsingPseudoLength,
+                                                bool            performDataSmoothing,
+                                                double          smoothingThreshold )
+{
+    // TODO: Add depth adjustements for reference well
+
+    WellLogExtractionCurveData           curveData;
+    RimWellLogPlotCollection*            wellLogCollection = RimMainPlotCollection::current()->wellLogPlotCollection();
+    cvf::ref<RigGeoMechWellLogExtractor> wellExtractor = wellLogCollection->findOrCreateExtractor( m_wellPath, geomCase );
+    cvf::ref<RigGeoMechWellLogExtractor> refWellExtractor =
+        wellLogCollection->findOrCreateExtractor( m_refWellPath, geomCase );
+
+    if ( wellExtractor.notNull() )
+    {
+        curveData.measuredDepthValues = wellExtractor->cellIntersectionMDs();
+        curveData.tvDepthValues       = wellExtractor->cellIntersectionTVDs();
+        curveData.rkbDiff             = wellExtractor->wellPathGeometry()->rkbDiff();
+
+        if ( curveData.measuredDepthValues.empty() )
+        {
+            return curveData;
+        }
+
+        findAndLoadWbsParametersFromLasFiles( m_wellPath(), wellExtractor.p() );
         RimWellBoreStabilityPlot* wbsPlot;
         this->firstAncestorOrThisOfType( wbsPlot );
         if ( wbsPlot )
         {
-            wbsPlot->applyWbsParametersToExtractor( geomExtractor.p() );
+            wbsPlot->applyWbsParametersToExtractor( wellExtractor.p() );
         }
 
         m_geomResultDefinition->loadResult();
-        xUnits = geomExtractor->curveData( m_geomResultDefinition->resultAddress(), m_timeStep, &values );
+        curveData.xUnits =
+            wellExtractor->curveData( m_geomResultDefinition->resultAddress(), m_timeStep, &curveData.values );
         if ( performDataSmoothing )
         {
-            geomExtractor->performCurveDataSmoothing( m_timeStep,
-                                                      &measuredDepthValues,
-                                                      &tvDepthValues,
-                                                      &values,
+            wellExtractor->performCurveDataSmoothing( m_timeStep,
+                                                      &curveData.measuredDepthValues,
+                                                      &curveData.tvDepthValues,
+                                                      &curveData.values,
                                                       smoothingThreshold );
         }
     }
 
-    if ( !values.empty() && !measuredDepthValues.empty() )
+    if ( wellExtractor.notNull() && refWellExtractor.notNull() )
     {
-        bool useLogarithmicScale = false;
+        // Add reference well depth adjustments
 
-        RimWellLogTrack* track = nullptr;
-        firstAncestorOfType( track );
-        if ( track )
-        {
-            useLogarithmicScale = track->isLogarithmicScale();
-        }
+        // ************************************************
+        //
+        // Adjust measured dept values according to refWell
+        //
+        // ************************************************
+    }
 
-        if ( tvDepthValues.empty() )
+    return curveData;
+}
+
+//--------------------------------------------------------------------------------------------------
+// Utility function to adjust well depth values according to reference well - match k-index
+//     enter/exit values and linearize between enter/exit of k-index
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::adjustWellDepthValuesToReferenceWell( std::vector<double>&       rMeasuredDepthValues,
+                                                                      std::vector<double>&       rTvDepthValues,
+                                                                      const std::vector<double>& indexKValues,
+                                                                      const std::vector<double>& refWellMeasuredDepthValues,
+                                                                      const std::vector<double>& refWellTvDepthValues,
+                                                                      const std::vector<double>& refWellIndexKValues )
+{
+    // Description:
+    // - Adjust values up to largest common k-index value
+    // Assumptions:
+    // - Both wells have min k-index equal to 1.
+    // - k-index values are continously increasing values between top and bottom of well
+
+    CAF_ASSERT( rMeasuredDepthValues.size() == rTvDepthValues.size() &&
+                "Number of depth values must be equal for well!" );
+    CAF_ASSERT( rMeasuredDepthValues.size() == indexKValues.size() &&
+                "Number of index K values must be number of depth values for well!" );
+    CAF_ASSERT( refWellMeasuredDepthValues.size() == refWellTvDepthValues.size() &&
+                "Number of depth values must be equal for reference well!" );
+    CAF_ASSERT( refWellMeasuredDepthValues.size() == refWellIndexKValues.size() &&
+                "Number of index K values must be number of depth values for reference well!" );
+    CAF_ASSERT( *std::min( indexKValues.cbegin(), indexKValues.cend() ) ==
+                    *std::min( refWellIndexKValues.cbegin(), refWellIndexKValues.cend() ) &&
+                "Both index-K value vectors must have same start index-K layer" );
+
+    /*const std::vector<double> adjusedMeasuredDepthValues;
+    const std::vector<double> adjustedTvDepthValues;*/
+
+    // Find min and max k-index value for adjustments
+    const double minLayerK = *std::max( std::min_element( refWellIndexKValues.cbegin(), refWellIndexKValues.cend() ),
+                                        std::min_element( indexKValues.cbegin(), indexKValues.cend() ) );
+    const double maxLayerK = *std::min( std::max_element( refWellIndexKValues.cbegin(), refWellIndexKValues.cend() ),
+                                        std::max_element( indexKValues.cbegin(), indexKValues.cend() ) );
+    if ( minLayerK > maxLayerK )
+    {
+        RiaLogging::error(
+            QString( "Invalid K layers found. Minimum: %1 > Maximum : %2" ).arg( minLayerK ).arg( maxLayerK ) );
+        return;
+    }
+
+    RigWellLogIndexDepthOffset refWellLogIndexDepthOffset;
+    for ( int kLayer = static_cast<int>( minLayerK ); kLayer <= static_cast<int>( maxLayerK ); kLayer++ )
+    {
+        const auto kLayerTopIter =
+            std::find( refWellIndexKValues.cbegin(), refWellIndexKValues.cend(), static_cast<double>( kLayer ) );
+        const auto kLayerBottomRIter =
+            std::find( refWellIndexKValues.crbegin(), refWellIndexKValues.crend(), static_cast<double>( kLayer ) );
+        const auto indexTop    = std::distance( refWellIndexKValues.cbegin(), kLayerTopIter );
+        const auto indexBottom = refWellIndexKValues.size() - 1 -
+                                 std::distance( refWellIndexKValues.crbegin(), kLayerBottomRIter );
+
+        const auto topMd     = refWellMeasuredDepthValues[indexTop];
+        const auto bottomMd  = refWellMeasuredDepthValues[indexBottom];
+        const auto topTvd    = refWellTvDepthValues[indexTop];
+        const auto bottomTvd = refWellTvDepthValues[indexBottom];
+
+        refWellLogIndexDepthOffset.setIndexOffsetDepth( kLayer, topMd, bottomMd, topTvd, bottomTvd );
+    }
+
+    std::map<int, std::vector<size_t>> wellKLayerAndIndexes;
+    for ( size_t i = 0; i < indexKValues.size() - 1; i++ )
+    {
+        const int kLayer = static_cast<int>( indexKValues[i] );
+        if ( wellKLayerAndIndexes.count( kLayer ) == 0 )
         {
-            this->setPropertyValuesAndDepths( values,
-                                              measuredDepthValues,
-                                              RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
-                                              0.0,
-                                              depthUnit,
-                                              !performDataSmoothing,
-                                              useLogarithmicScale,
-                                              xUnits );
+            wellKLayerAndIndexes[kLayer] = std::vector<size_t>( { i } );
         }
         else
         {
-            this->setPropertyValuesWithMdAndTVD( values,
-                                                 measuredDepthValues,
-                                                 tvDepthValues,
-                                                 rkbDiff,
-                                                 depthUnit,
-                                                 !performDataSmoothing,
-                                                 useLogarithmicScale,
-                                                 xUnits );
+            wellKLayerAndIndexes[kLayer].push_back( i );
+        }
+    }
+
+    for ( const auto& [kLayer, indexes] : wellKLayerAndIndexes )
+    {
+        const auto firstIdx = indexes.front();
+        const auto lastIdx  = indexes.back();
+        if ( indexes.size() == 2 )
+        {
+            rMeasuredDepthValues[firstIdx] = refWellLogIndexDepthOffset.getTopMd( kLayer );
+            rMeasuredDepthValues[lastIdx]  = refWellLogIndexDepthOffset.getBottomMd( kLayer );
+            rTvDepthValues[firstIdx]       = refWellLogIndexDepthOffset.getTopTvd( kLayer );
+            rTvDepthValues[lastIdx]        = refWellLogIndexDepthOffset.getBottomMd( kLayer );
+        }
+        else if ( indexes.size() > 2 )
+        {
+            // Linearize depth values between top and bottom values in kLayer
+            const auto topMd     = rMeasuredDepthValues[firstIdx];
+            const auto bottomMd  = rMeasuredDepthValues[lastIdx];
+            const auto topTvd    = rTvDepthValues[firstIdx];
+            const auto bottomTvd = rTvDepthValues[lastIdx];
+            for ( size_t idx = 1; idx < indexes.size() - 2; idx++ )
+            {
+                const auto percMd  = ( rMeasuredDepthValues[idx] - topMd ) / ( bottomMd - topMd );
+                const auto percTvd = ( rTvDepthValues[idx] - topMd ) / ( bottomMd - topMd );
+
+                rMeasuredDepthValues[idx] = percMd * refWellLogIndexDepthOffset.getBottomMd( kLayer );
+                rTvDepthValues[idx]       = percTvd * refWellLogIndexDepthOffset.getBottomTvd( kLayer );
+            }
+            rMeasuredDepthValues[firstIdx] = refWellLogIndexDepthOffset.getTopMd( kLayer );
+            rMeasuredDepthValues[lastIdx]  = refWellLogIndexDepthOffset.getBottomMd( kLayer );
+            rTvDepthValues[firstIdx]       = refWellLogIndexDepthOffset.getTopTvd( kLayer );
+            rTvDepthValues[lastIdx]        = refWellLogIndexDepthOffset.getBottomMd( kLayer );
         }
     }
 }
@@ -701,9 +892,6 @@ void RimWellLogExtractionCurve::clearGeneratedSimWellPaths()
     m_wellPathsWithExtractors.clear();
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
     RimWellLogExtractionCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
@@ -752,7 +940,6 @@ void RimWellLogExtractionCurve::defineUiOrdering( QString uiConfigName, caf::Pdm
     RimPlotCurve::updateFieldUiState();
 
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroupWithKeyword( "Data Source", dataSourceGroupKeyword() );
-
     curveDataGroup->add( &m_case );
 
     RimGeoMechCase* geomCase    = dynamic_cast<RimGeoMechCase*>( m_case.value() );
@@ -764,6 +951,9 @@ void RimWellLogExtractionCurve::defineUiOrdering( QString uiConfigName, caf::Pdm
         if ( m_trajectoryType() == WELL_PATH )
         {
             curveDataGroup->add( &m_wellPath );
+
+            // NOTE: Remove - only used for debug purposes
+            RimWellLogCurve::defineUiOrdering( uiConfigName, uiOrdering );
         }
         else
         {
@@ -779,6 +969,10 @@ void RimWellLogExtractionCurve::defineUiOrdering( QString uiConfigName, caf::Pdm
     else if ( geomCase )
     {
         curveDataGroup->add( &m_wellPath );
+
+        // NOTE: Remove - only used for debug purposes
+        RimWellLogCurve::defineUiOrdering( uiConfigName, uiOrdering );
+
         m_geomResultDefinition->uiOrdering( uiConfigName, *curveDataGroup );
     }
 

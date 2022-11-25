@@ -27,9 +27,11 @@
 #include "RimGeoMechCase.h"
 #include "RimTools.h"
 #include "RimWbsParameters.h"
+#include "RimWellLogCurve.h"
 #include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogPlotNameConfig.h"
+#include "RimWellLogTrack.h"
 
 #include "cafPdmBase.h"
 #include "cafPdmFieldScriptingCapability.h"
@@ -213,5 +215,7 @@ void RimWellBoreStabilityPlot::applyDataSource()
     m_wbsParameters->setGeoMechCase( dynamic_cast<RimGeoMechCase*>( m_commonDataSource->caseToApply() ) );
     m_wbsParameters->setWellPath( m_commonDataSource->wellPathToApply() );
     m_wbsParameters->setTimeStep( m_commonDataSource->timeStepToApply() );
+
+    this->updateReferenceWellPathInCurves();
     this->updateConnectedEditors();
 }
