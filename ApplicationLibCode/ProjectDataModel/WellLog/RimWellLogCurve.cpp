@@ -21,9 +21,12 @@
 
 #include "RiaCurveDataTools.h"
 #include "RiaPlotDefines.h"
+
 #include "RigWellLogCurveData.h"
 
 #include "RimDepthTrackPlot.h"
+#include "RimMainPlotCollection.h"
+#include "RimTools.h"
 #include "RimWellLogTrack.h"
 
 #include "RiuQwtPlotCurve.h"
@@ -51,6 +54,9 @@ RimWellLogCurve::RimWellLogCurve()
 
     m_curveDataPropertyValueRange =
         std::make_pair( std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity() );
+
+    CAF_PDM_InitFieldNoDefault( &m_refWellPath, "ReferenceWellPath", "Reference Well Path" );
+    // m_refWellPath.uiCapability()->setUiHidden( true );
 
     setDeletable( true );
 }
@@ -218,6 +224,14 @@ void RimWellLogCurve::setPropertyValuesWithMdAndTVD( const std::vector<double>& 
 const RigWellLogCurveData* RimWellLogCurve::curveData() const
 {
     return m_curveData.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogCurve::setReferenceWellPath( RimWellPath* refWellPath )
+{
+    m_refWellPath = refWellPath;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -405,6 +419,36 @@ void RimWellLogCurve::calculateCurveDataPropertyValueRange()
             m_curveDataPropertyValueRange.second = std::max( m_curveDataPropertyValueRange.second, xValue );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimWellLogCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    auto options = RimStackablePlotCurve::calculateValueOptions( fieldNeedingOptions );
+    if ( fieldNeedingOptions == &m_refWellPath )
+    {
+        options.push_back( caf::PdmOptionItemInfo( QString( "None" ), nullptr ) );
+        RimTools::wellPathOptionItems( &options );
+    }
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// TODO: Remove - only used for debug purposes
+//--------------------------------------------------------------------------------------------------
+void RimWellLogCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    RimStackablePlotCurve::defineUiOrdering( uiConfigName, uiOrdering );
+
+    auto group = uiOrdering.findGroup( "DataSource" );
+    if ( group != nullptr )
+    {
+        group->add( &m_refWellPath );
+    }
+
+    uiOrdering.skipRemainingFields( true );
 }
 
 //--------------------------------------------------------------------------------------------------
