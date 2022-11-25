@@ -676,7 +676,6 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo(
     double maxSegmentLength = enableSegmentSplitting ? mswParameters->maxSegmentLength()
                                                      : std::numeric_limits<double>::infinity();
 
-
     auto unitSystem = exportInfo->unitSystem();
 
     for ( RimFishbones* subs : fishbonesSubs )
