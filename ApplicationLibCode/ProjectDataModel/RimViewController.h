@@ -123,7 +123,6 @@ private:
     caf::PdmField<bool> m_syncLegendDefinitions;
 
     caf::PdmField<bool> m_syncCellFilters;
-    caf::PdmField<bool> m_syncVisibleCells;
     caf::PdmField<bool> m_syncPropertyFilters;
 
     cvf::ref<RigCaseToCaseCellMapper> m_caseToCaseCellMapper;

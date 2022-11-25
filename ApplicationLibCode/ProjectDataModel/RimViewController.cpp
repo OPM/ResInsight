@@ -78,11 +78,6 @@ RimViewController::RimViewController()
     CAF_PDM_InitField( &m_syncCellResult, "SyncCellResult", false, "Cell Result" );
     CAF_PDM_InitField( &m_syncLegendDefinitions, "SyncLegendDefinitions", true, "   Color Legend" );
 
-    CAF_PDM_InitField( &m_syncVisibleCells, "SyncVisibleCells", false, "Visible Cells" );
-    /// We do not support this. Consider to remove sometime
-    m_syncVisibleCells.uiCapability()->setUiHidden( true );
-    m_syncVisibleCells.xmlCapability()->disableIO();
-
     CAF_PDM_InitField( &m_syncCellFilters, "SyncRangeFilters", false, "Cell Filters" );
     CAF_PDM_InitField( &m_syncPropertyFilters, "SyncPropertyFilters", false, "Property Filters" );
 
@@ -224,11 +219,6 @@ void RimViewController::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
         setManagedView( m_managedView() );
 
         m_name.uiCapability()->updateConnectedEditors();
-    }
-    else if ( &m_syncVisibleCells == changedField )
-    {
-        updateOptionSensitivity();
-        updateOverrides();
     }
 }
 
@@ -432,8 +422,6 @@ void RimViewController::updateOptionSensitivity()
         this->m_showCursor.uiCapability()->setUiReadOnly( true );
         this->m_showCursor = false;
     }
-
-    m_syncVisibleCells.uiCapability()->setUiReadOnly( !this->isMasterAndDepViewDifferentType() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -481,7 +469,6 @@ void RimViewController::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     scriptGroup->add( &m_syncLegendDefinitions );
 
     caf::PdmUiGroup* visibleCells = uiOrdering.addNewGroup( "Link Cell Filters" );
-    visibleCells->add( &m_syncVisibleCells );
     visibleCells->add( &m_syncCellFilters );
     visibleCells->add( &m_syncPropertyFilters );
 }
@@ -781,16 +768,6 @@ bool RimViewController::isLegendDefinitionsControlled() const
 //--------------------------------------------------------------------------------------------------
 bool RimViewController::isVisibleCellsOveridden() const
 {
-    if ( isMasterAndDepViewDifferentType() )
-    {
-        if ( ownerViewLinker()->isActive() && this->m_isActive() )
-        {
-            return m_syncVisibleCells();
-        }
-
-        return false;
-    }
-
     return false;
 }
 
