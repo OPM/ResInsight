@@ -23,6 +23,9 @@
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )
 #endif
+#ifdef __GNUC__
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 
 //==================================================================================================
 //
@@ -86,8 +89,7 @@ bool RiaImageFileCompare::runComparison( const QString& imgFileName, const QStri
 #endif
     QString completeCommand = QString( "\"%1\" %2" ).arg( m_compareExecutable ).arg( args );
 
-// Launch process and wait
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+    // Launch process and wait
     QProcess proc;
     proc.start( completeCommand );
     proc.waitForFinished( 30000 );

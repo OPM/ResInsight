@@ -26,6 +26,9 @@
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )
 #endif
+#ifdef __GNUC__
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -74,7 +77,6 @@ bool RiaTextFileCompare::runComparison( const QString& baseFolder, const QString
     QString completeCommand =
         QString( "\"%1\" %2 %3 %4" ).arg( fullFilePath ).arg( baseFolder ).arg( generatedFolder ).arg( args );
 
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     // Launch process and wait
     QProcess proc;
     proc.start( completeCommand );
