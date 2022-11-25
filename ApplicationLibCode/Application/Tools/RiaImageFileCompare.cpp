@@ -86,8 +86,8 @@ bool RiaImageFileCompare::runComparison( const QString& imgFileName, const QStri
 #endif
     QString completeCommand = QString( "\"%1\" %2" ).arg( m_compareExecutable ).arg( args );
 
-    // Launch process and wait
-    #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+// Launch process and wait
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     QProcess proc;
     proc.start( completeCommand );
     proc.waitForFinished( 30000 );

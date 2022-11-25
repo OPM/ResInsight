@@ -147,7 +147,7 @@ bool RimProcess::execute()
 
     bool retval = false;
 
-    #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     proc->start( cmd );
     if ( proc->waitForStarted( -1 ) )
     {
