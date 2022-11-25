@@ -1114,6 +1114,14 @@ void RimDepthTrackPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
     updateConnectedEditors();
 }
 
+void RimDepthTrackPlot::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
+{
+    if ( changedChildField == &m_commonDataSource )
+    {
+        updateReferenceWellPathInCurves();
+    }
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -1296,6 +1304,21 @@ void RimDepthTrackPlot::updatePlots()
 caf::PdmFieldHandle* RimDepthTrackPlot::userDescriptionField()
 {
     return &m_plotWindowTitle;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimDepthTrackPlot::updateReferenceWellPathInCurves()
+{
+    for ( auto plot : this->plots() )
+    {
+        auto wellLogTrack = dynamic_cast<RimWellLogTrack*>( plot );
+        for ( auto curve : wellLogTrack->curves() )
+        {
+            curve->setReferenceWellPath( m_commonDataSource->referenceWellPathToApply() );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
