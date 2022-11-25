@@ -58,7 +58,7 @@ public:
                   const QGLFormat&         format,
                   QWidget*                 parent,
                   OpenGLWidget*            shareWidget = nullptr,
-                  Qt::WindowFlags          f           = nullptr );
+                  Qt::WindowFlags          f           = Qt::WindowFlags() );
     OpenGLWidget( OpenGLWidget* shareWidget, QWidget* parent, Qt::WindowFlags f = Qt::WindowFlags() );
 
     cvf::OpenGLContext* cvfOpenGLContext() const;
