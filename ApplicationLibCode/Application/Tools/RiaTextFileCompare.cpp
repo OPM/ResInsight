@@ -26,6 +26,9 @@
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )
 #endif
+#ifdef __GNUC__
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 
 //--------------------------------------------------------------------------------------------------
 ///
