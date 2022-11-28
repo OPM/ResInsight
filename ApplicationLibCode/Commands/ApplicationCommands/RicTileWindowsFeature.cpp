@@ -155,7 +155,7 @@ void RicTilePlotWindowsFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 bool RicTilePlotWindowsFeature::isCommandChecked()
 {
-    return RimProject::current()->subWindowsTileMode3DWindow() == RiaDefines::WindowTileMode::DEFAULT;
+    return RimProject::current()->subWindowsTileModePlotWindow() == RiaDefines::WindowTileMode::DEFAULT;
 }
 
 CAF_CMD_SOURCE_INIT( RicTileWindowsVerticallyFeature, "RicTileWindowsVerticallyFeature" );
