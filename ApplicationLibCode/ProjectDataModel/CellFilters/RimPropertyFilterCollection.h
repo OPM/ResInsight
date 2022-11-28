@@ -48,6 +48,7 @@ public:
     virtual void updateIconState() = 0;
     void         onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                                  std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+    void         onChildAdded( caf::PdmFieldHandle* containerForNewObject ) override;
 
 protected:
     // Overridden methods

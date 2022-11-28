@@ -69,6 +69,8 @@ void RicEclipsePropertyFilterFeatureImpl::addPropertyFilter( RimEclipsePropertyF
 
     propertyFilterCollection->updateConnectedEditors();
     Riu3DMainWindowTools::selectAsCurrentItem( propertyFilter, false );
+
+    propertyFilterCollection->onChildAdded( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------

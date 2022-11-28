@@ -64,6 +64,17 @@ RimEclipseView* RimEclipsePropertyFilterCollection::reservoirView()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEclipsePropertyFilterCollection::setIsDuplicatedFromLinkedView()
+{
+    for ( RimEclipsePropertyFilter* propertyFilter : propertyFilters )
+    {
+        propertyFilter->setIsDuplicatedFromLinkedView( true );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilterCollection::loadAndInitializePropertyFilters()
 {
     for ( RimEclipsePropertyFilter* propertyFilter : propertyFilters )

@@ -68,6 +68,7 @@ public:
 
     void updateOverrides();
     void updateWindowTitles();
+    void updateDuplicatedPropertyFilters();
 
     void updateCamera( Rim3dView* sourceView );
     void updateTimeStep( Rim3dView* sourceView, int timeStep );

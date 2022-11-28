@@ -40,6 +40,7 @@ public:
     ~RimEclipsePropertyFilterCollection() override;
 
     RimEclipseView* reservoirView();
+    void            setIsDuplicatedFromLinkedView();
 
     // Fields:
     caf::PdmChildArrayField<RimEclipsePropertyFilter*> propertyFilters;
