@@ -19,6 +19,7 @@
 
 #include "RimWellLogCurve.h"
 
+#include "RiaApplication.h"
 #include "RiaCurveDataTools.h"
 #include "RiaPlotDefines.h"
 
@@ -56,7 +57,7 @@ RimWellLogCurve::RimWellLogCurve()
         std::make_pair( std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity() );
 
     CAF_PDM_InitFieldNoDefault( &m_refWellPath, "ReferenceWellPath", "Reference Well Path" );
-    // m_refWellPath.uiCapability()->setUiHidden( true );
+    m_refWellPath.uiCapability()->setUiHidden( !RiaApplication::enableDevelopmentFeatures() );
 
     setDeletable( true );
 }
