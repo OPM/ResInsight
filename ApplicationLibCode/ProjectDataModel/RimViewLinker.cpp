@@ -116,7 +116,8 @@ void RimViewLinker::updateTimeStep( Rim3dView* sourceView, int timeStep )
     {
         if ( !viewController->isTimeStepLinked() ) continue;
 
-        if ( viewController->managedView() && viewController->managedView() != sourceView && viewController->managedView()->viewer() )
+        if ( viewController->managedView() && viewController->managedView() != sourceView &&
+             viewController->managedView()->viewer() )
         {
             viewController->managedView()->viewer()->setCurrentFrame( timeStep );
         }
