@@ -69,7 +69,7 @@ void RicEclipsePropertyFilterNewExec::redo()
 //--------------------------------------------------------------------------------------------------
 void RicEclipsePropertyFilterNewExec::undo()
 {
-    m_propertyFilterCollection->propertyFilters.erase( m_propertyFilterCollection->propertyFilters.size() - 1 );
+    m_propertyFilterCollection->propertyFiltersField().erase( m_propertyFilterCollection->propertyFilters().size() - 1 );
 
     m_propertyFilterCollection->updateConnectedEditors();
 }

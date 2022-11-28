@@ -40,6 +40,7 @@
 #include "RiuMainWindow.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
+#include "cafPdmUiTreeAttributes.h"
 
 #include "cvfAssert.h"
 
@@ -75,6 +76,9 @@ RimEclipsePropertyFilter::RimEclipsePropertyFilter()
 
     CAF_PDM_InitField( &m_useCategorySelection, "CategorySelection", false, "Category Selection" );
     m_upperBound.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitField( &m_isDuplicatedFromLinkedView, "IsDuplicatedFromLinkedView", false, "Duplicated" );
+    m_isDuplicatedFromLinkedView.uiCapability()->setUiHidden( true );
 
     // HEADLESS HACK
     if ( RiaGuiApplication::isRunning() )
@@ -127,27 +131,32 @@ bool RimEclipsePropertyFilter::isCategorySelectionActive() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEclipsePropertyFilter::setIsDuplicatedFromLinkedView( bool isDuplicated )
+{
+    m_isDuplicatedFromLinkedView = isDuplicated;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                                  const QVariant&            oldValue,
                                                  const QVariant&            newValue )
 {
-    // clang-format off
-    if (   &m_lowerBound == changedField 
-        || &m_upperBound == changedField
-        || &m_isActive == changedField
-        || &m_filterMode == changedField
-        || &m_selectedCategoryValues == changedField
-        || &m_useCategorySelection == changedField)
+    if ( &m_lowerBound == changedField || &m_upperBound == changedField || &m_isActive == changedField ||
+         &m_filterMode == changedField || &m_selectedCategoryValues == changedField ||
+         &m_useCategorySelection == changedField )
     {
+        m_isDuplicatedFromLinkedView = false;
+
         this->m_resultDefinition->loadResult();
         this->computeResultValueRange();
         updateFilterName();
         this->updateIconState();
         this->uiCapability()->updateConnectedEditors();
 
-        parentContainer()->updateDisplayModelNotifyManagedViews(this);
+        parentContainer()->updateDisplayModelNotifyManagedViews( this );
     }
-    // clang-format on
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -338,6 +347,31 @@ void RimEclipsePropertyFilter::defineEditorAttribute( const caf::PdmFieldHandle*
 
         myAttr->m_minimum = m_minimumResultValue;
         myAttr->m_maximum = m_maximumResultValue;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipsePropertyFilter::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    if ( !m_isDuplicatedFromLinkedView ) return;
+
+    Rim3dView* rimView = nullptr;
+    firstAncestorOrThisOfTypeAsserted( rimView );
+
+    RimViewController* vc = rimView->viewController();
+    if ( vc && vc->isPropertyFilterDuplicationActive() )
+    {
+        auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute );
+        if ( treeItemAttribute )
+        {
+            treeItemAttribute->tags.clear();
+            auto tag  = caf::PdmUiTreeViewItemAttribute::Tag::create();
+            tag->icon = caf::IconProvider( ":/chain.png" );
+
+            treeItemAttribute->tags.push_back( std::move( tag ) );
+        }
     }
 }
 

@@ -69,6 +69,7 @@ public:
 
     bool isVisibleCellsOveridden() const;
     bool isPropertyFilterOveridden() const;
+    bool isPropertyFilterDuplicationActive() const;
 
     void scheduleCreateDisplayModelAndRedrawForDependentView() const;
     void scheduleGeometryRegenForDepViews( RivCellSetEnum geometryType ) const;
@@ -76,6 +77,7 @@ public:
     void updateOptionSensitivity();
     void removeOverrides();
     void updateDisplayNameAndIcon();
+    void updateDuplicatedPropertyFilters();
 
     void updateCellFilterOverrides( const RimCellFilter* changedFilter );
     void applyCellFilterCollectionByUserChoice();
@@ -118,13 +120,12 @@ private:
     caf::PdmField<bool> m_showCursor;
     caf::PdmField<bool> m_syncTimeStep;
 
-    // Overridden properties
     caf::PdmField<bool> m_syncCellResult;
     caf::PdmField<bool> m_syncLegendDefinitions;
 
     caf::PdmField<bool> m_syncCellFilters;
-    caf::PdmField<bool> m_syncVisibleCells;
     caf::PdmField<bool> m_syncPropertyFilters;
+    caf::PdmField<bool> m_duplicatePropertyFilters;
 
     cvf::ref<RigCaseToCaseCellMapper> m_caseToCaseCellMapper;
 };

@@ -40,11 +40,11 @@ public:
     ~RimEclipsePropertyFilterCollection() override;
 
     RimEclipseView* reservoirView();
+    void            setIsDuplicatedFromLinkedView();
 
-    // Fields:
-    caf::PdmChildArrayField<RimEclipsePropertyFilter*> propertyFilters;
+    std::vector<RimEclipsePropertyFilter*>              propertyFilters() const;
+    caf::PdmChildArrayField<RimEclipsePropertyFilter*>& propertyFiltersField();
 
-    // Methods
     bool hasActiveFilters() const override;
     bool hasActiveDynamicFilters() const override;
     bool isUsingFormationNames() const;
@@ -55,6 +55,8 @@ public:
     void updateFromCurrentTimeStep();
 
 protected:
-    // Overridden methods
     void initAfterRead() override;
+
+private:
+    caf::PdmChildArrayField<RimEclipsePropertyFilter*> m_propertyFilters;
 };

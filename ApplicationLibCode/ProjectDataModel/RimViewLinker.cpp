@@ -112,13 +112,14 @@ void RimViewLinker::updateTimeStep( Rim3dView* sourceView, int timeStep )
         m_masterView->viewer()->setCurrentFrame( timeStep );
     }
 
-    for ( RimViewController* viewLink : m_viewControllers )
+    for ( RimViewController* viewController : m_viewControllers )
     {
-        if ( !viewLink->isTimeStepLinked() ) continue;
+        if ( !viewController->isTimeStepLinked() ) continue;
 
-        if ( viewLink->managedView() && viewLink->managedView() != sourceView && viewLink->managedView()->viewer() )
+        if ( viewController->managedView() && viewController->managedView() != sourceView &&
+             viewController->managedView()->viewer() )
         {
-            viewLink->managedView()->viewer()->setCurrentFrame( timeStep );
+            viewController->managedView()->viewer()->setCurrentFrame( timeStep );
         }
     }
 }
@@ -134,20 +135,20 @@ void RimViewLinker::updateCellResult()
     {
         RimEclipseResultDefinition* eclipseCellResultDefinition = masterEclipseView->cellResult();
 
-        for ( RimViewController* viewLink : m_viewControllers )
+        for ( RimViewController* viewController : m_viewControllers )
         {
-            if ( viewLink->managedView() )
+            if ( viewController->managedView() )
             {
-                Rim3dView*      managedView = viewLink->managedView();
+                Rim3dView*      managedView = viewController->managedView();
                 RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( managedView );
                 if ( eclipseView )
                 {
-                    if ( viewLink->isResultColorControlled() )
+                    if ( viewController->isResultColorControlled() )
                     {
                         eclipseView->cellResult()->simpleCopy( eclipseCellResultDefinition );
                         eclipseView->cellResult()->loadResult();
 
-                        if ( viewLink->isLegendDefinitionsControlled() )
+                        if ( viewController->isLegendDefinitionsControlled() )
                         {
                             eclipseView->cellResult()->legendConfig()->setUiValuesFromLegendConfig(
                                 masterEclipseView->cellResult()->legendConfig() );
@@ -172,19 +173,19 @@ void RimViewLinker::updateCellResult()
     {
         RimGeoMechResultDefinition* geoMechResultDefinition = masterGeoView->cellResult();
 
-        for ( RimViewController* viewLink : m_viewControllers )
+        for ( RimViewController* viewController : m_viewControllers )
         {
-            if ( viewLink->managedView() )
+            if ( viewController->managedView() )
             {
-                Rim3dView*      managedView = viewLink->managedView();
+                Rim3dView*      managedView = viewController->managedView();
                 RimGeoMechView* geoView     = dynamic_cast<RimGeoMechView*>( managedView );
                 if ( geoView )
                 {
-                    if ( viewLink->isResultColorControlled() )
+                    if ( viewController->isResultColorControlled() )
                     {
                         geoView->cellResult()->setResultAddress( geoMechResultDefinition->resultAddress() );
 
-                        if ( viewLink->isLegendDefinitionsControlled() )
+                        if ( viewController->isLegendDefinitionsControlled() )
                         {
                             geoView->cellResult()->legendConfig()->setUiValuesFromLegendConfig(
                                 masterGeoView->cellResult()->legendConfig() );
@@ -207,9 +208,9 @@ void RimViewLinker::updateCellResult()
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::updateCellFilters( const RimCellFilter* changedFilter )
 {
-    for ( RimViewController* viewLink : m_viewControllers )
+    for ( RimViewController* viewController : m_viewControllers )
     {
-        viewLink->updateCellFilterOverrides( changedFilter );
+        viewController->updateCellFilterOverrides( changedFilter );
     }
 }
 
@@ -218,15 +219,15 @@ void RimViewLinker::updateCellFilters( const RimCellFilter* changedFilter )
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::updateOverrides()
 {
-    for ( RimViewController* viewLink : m_viewControllers )
+    for ( RimViewController* viewController : m_viewControllers )
     {
-        if ( viewLink->isActive() )
+        if ( viewController->isActive() )
         {
-            viewLink->updateOverrides();
+            viewController->updateOverrides();
         }
         else
         {
-            viewLink->removeOverrides();
+            viewController->removeOverrides();
         }
     }
 }
@@ -238,12 +239,23 @@ void RimViewLinker::updateWindowTitles()
 {
     if ( m_masterView ) m_masterView->updateMdiWindowTitle();
 
-    for ( RimViewController* viewLink : m_viewControllers )
+    for ( RimViewController* viewController : m_viewControllers )
     {
-        if ( auto view = viewLink->managedView() )
+        if ( auto view = viewController->managedView() )
         {
             view->updateMdiWindowTitle();
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimViewLinker::updateDuplicatedPropertyFilters()
+{
+    for ( RimViewController* viewController : m_viewControllers )
+    {
+        viewController->updateDuplicatedPropertyFilters();
     }
 }
 
@@ -271,11 +283,11 @@ void RimViewLinker::updateScaleWidgetVisibility()
 
     if ( masterView() ) masterView()->scheduleCreateDisplayModelAndRedraw();
 
-    for ( RimViewController* viewLink : m_viewControllers )
+    for ( RimViewController* viewController : m_viewControllers )
     {
-        if ( viewLink->managedView() )
+        if ( viewController->managedView() )
         {
-            viewLink->managedView()->scheduleCreateDisplayModelAndRedraw();
+            viewController->managedView()->scheduleCreateDisplayModelAndRedraw();
         }
     }
 }
@@ -312,6 +324,7 @@ void RimViewLinker::updateDependentViews()
     if ( m_viewControllers.empty() ) return;
 
     updateOverrides();
+    updateDuplicatedPropertyFilters();
     updateCellResult();
     updateScaleZ( m_masterView, m_masterView->scaleZ() );
     updateCamera( m_masterView );
