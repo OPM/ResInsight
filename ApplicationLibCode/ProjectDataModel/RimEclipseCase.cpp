@@ -543,7 +543,7 @@ void RimEclipseCase::updateFormationNamesData()
                     }
 
                     RimEclipsePropertyFilterCollection* eclFilColl = eclView->eclipsePropertyFilterCollection();
-                    for ( RimEclipsePropertyFilter* propFilter : eclFilColl->propertyFilters )
+                    for ( RimEclipsePropertyFilter* propFilter : eclFilColl->propertyFilters() )
                     {
                         if ( propFilter->resultDefinition()->resultType() == RiaDefines::ResultCatType::FORMATION_NAMES )
                         {
@@ -553,7 +553,7 @@ void RimEclipseCase::updateFormationNamesData()
                 }
 
                 RimEclipsePropertyFilterCollection* eclFilColl = eclView->eclipsePropertyFilterCollection();
-                for ( RimEclipsePropertyFilter* propFilter : eclFilColl->propertyFilters )
+                for ( RimEclipsePropertyFilter* propFilter : eclFilColl->propertyFilters() )
                 {
                     if ( propFilter->resultDefinition()->resultType() == RiaDefines::ResultCatType::FORMATION_NAMES )
                     {

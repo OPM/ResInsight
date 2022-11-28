@@ -1836,7 +1836,7 @@ void RimEclipseView::calculateCompletionTypeAndRedrawIfRequired()
         isDependingOnCompletionType = true;
     }
 
-    for ( const auto& propFilter : m_propertyFilterCollection()->propertyFilters )
+    for ( const auto& propFilter : m_propertyFilterCollection()->propertyFilters() )
     {
         if ( propFilter->isActive() &&
              propFilter->resultDefinition()->resultVariable() == RiaResultNames::completionTypeResultName() )
@@ -1859,7 +1859,7 @@ void RimEclipseView::calculateCompletionTypeAndRedrawIfRequired()
         }
     }
 
-    for ( const auto& propFilter : m_propertyFilterCollection()->propertyFilters )
+    for ( const auto& propFilter : m_propertyFilterCollection()->propertyFilters() )
     {
         if ( propFilter->isActive() &&
              propFilter->resultDefinition()->resultVariable() == RiaResultNames::completionTypeResultName() )
