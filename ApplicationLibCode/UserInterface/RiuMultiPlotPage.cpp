@@ -816,7 +816,6 @@ void RiuMultiPlotPage::setDefaultAxisProperties( RiuPlotWidget* plotWidget, int 
 {
     plotWidget->setAxisLabelsAndTicksEnabled( RiuPlotAxis::defaultLeft(), showYAxis( row, column ), showYAxis( row, column ) );
     plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), showYAxis( row, column ) );
-    plotWidget->setAxesFontsAndAlignment( m_axisTitleFontSize, m_axisValueFontSize );
 }
 
 //--------------------------------------------------------------------------------------------------
