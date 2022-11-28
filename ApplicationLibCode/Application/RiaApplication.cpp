@@ -1180,11 +1180,8 @@ void RiaApplication::terminateProcess()
 {
     if ( m_workerProcess )
     {
-        m_workerProcess->close();
+        m_workerProcess->kill();
     }
-
-    m_runningWorkerProcess = false;
-    m_workerProcess        = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
