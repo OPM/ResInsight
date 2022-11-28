@@ -1114,14 +1114,6 @@ void RimDepthTrackPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
     updateConnectedEditors();
 }
 
-void RimDepthTrackPlot::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
-{
-    if ( changedChildField == &m_commonDataSource )
-    {
-        updateReferenceWellPathInCurves();
-    }
-}
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -1275,6 +1267,7 @@ void RimDepthTrackPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
 //--------------------------------------------------------------------------------------------------
 void RimDepthTrackPlot::onLoadDataAndUpdate()
 {
+    updateReferenceWellPathInCurves();
     updateMdiWindowVisibility();
     performAutoNameUpdate();
     updatePlots();
