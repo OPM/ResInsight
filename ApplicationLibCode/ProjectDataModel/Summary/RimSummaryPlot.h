@@ -82,6 +82,7 @@ public:
     caf::Signal<>                curvesChanged;
     caf::Signal<RimSummaryPlot*> axisChanged;
     caf::Signal<>                plotZoomedByUser;
+    caf::Signal<>                titleChanged;
 
 public:
     RimSummaryPlot( bool isCrossPlot = false );

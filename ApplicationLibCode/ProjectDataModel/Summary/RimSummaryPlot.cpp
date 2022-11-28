@@ -105,6 +105,7 @@ RimSummaryPlot::RimSummaryPlot( bool isCrossPlot )
     , curvesChanged( this )
     , axisChanged( this )
     , plotZoomedByUser( this )
+    , titleChanged( this )
     , m_isValid( true )
 {
     CAF_PDM_InitScriptableObject( "Summary Plot", ":/SummaryPlotLight16x16.png", "", "A Summary Plot" );
@@ -1485,6 +1486,8 @@ void RimSummaryPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                 c->updateCurveNameNoLegendUpdate();
             }
         }
+
+        titleChanged.send();
     }
 
     if ( changedField == &m_showPlotLegends ) updateLegend();
