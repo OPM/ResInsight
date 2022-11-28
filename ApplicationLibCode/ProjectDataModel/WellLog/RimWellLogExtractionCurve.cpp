@@ -575,8 +575,6 @@ RimWellLogExtractionCurve::WellLogExtractionCurveData
             wellExtractor->curveData( indexKResAcc.p(), &wellIndexKValues );
             refWellExtractor->curveData( indexKResAcc.p(), &refWellIndexKValues );
         }
-
-        //
         if ( !wellIndexKValues.empty() && !refWellIndexKValues.empty() )
         {
             adjustWellDepthValuesToReferenceWell( curveData.measuredDepthValues,
@@ -683,14 +681,11 @@ void RimWellLogExtractionCurve::adjustWellDepthValuesToReferenceWell( std::vecto
                     *std::min( refWellIndexKValues.cbegin(), refWellIndexKValues.cend() ) &&
                 "Both index-K value vectors must have same start index-K layer" );
 
-    /*const std::vector<double> adjusedMeasuredDepthValues;
-    const std::vector<double> adjustedTvDepthValues;*/
-
-    // Find min and max k-index value for adjustments
-    const double minLayerK = *std::max( std::min_element( refWellIndexKValues.cbegin(), refWellIndexKValues.cend() ),
-                                        std::min_element( indexKValues.cbegin(), indexKValues.cend() ) );
-    const double maxLayerK = *std::min( std::max_element( refWellIndexKValues.cbegin(), refWellIndexKValues.cend() ),
-                                        std::max_element( indexKValues.cbegin(), indexKValues.cend() ) );
+    // Find common min and max k-index value for range depth values adjustment
+    const double minLayerK = std::max( *std::min_element( refWellIndexKValues.cbegin(), refWellIndexKValues.cend() ),
+                                       *std::min_element( indexKValues.cbegin(), indexKValues.cend() ) );
+    const double maxLayerK = std::min( *std::max_element( refWellIndexKValues.cbegin(), refWellIndexKValues.cend() ),
+                                       *std::max_element( indexKValues.cbegin(), indexKValues.cend() ) );
     if ( minLayerK > maxLayerK )
     {
         RiaLogging::error(
@@ -718,7 +713,7 @@ void RimWellLogExtractionCurve::adjustWellDepthValuesToReferenceWell( std::vecto
     }
 
     std::map<int, std::vector<size_t>> wellKLayerAndIndexes;
-    for ( size_t i = 0; i < indexKValues.size() - 1; i++ )
+    for ( size_t i = 0; i < indexKValues.size(); i++ )
     {
         const int kLayer = static_cast<int>( indexKValues[i] );
         if ( wellKLayerAndIndexes.count( kLayer ) == 0 )
@@ -735,14 +730,14 @@ void RimWellLogExtractionCurve::adjustWellDepthValuesToReferenceWell( std::vecto
     {
         const auto firstIdx = indexes.front();
         const auto lastIdx  = indexes.back();
-        if ( indexes.size() == 2 )
+        if ( indexes.size() == 2 && refWellLogIndexDepthOffset.hasIndex( kLayer ) )
         {
             rMeasuredDepthValues[firstIdx] = refWellLogIndexDepthOffset.getTopMd( kLayer );
             rMeasuredDepthValues[lastIdx]  = refWellLogIndexDepthOffset.getBottomMd( kLayer );
             rTvDepthValues[firstIdx]       = refWellLogIndexDepthOffset.getTopTvd( kLayer );
             rTvDepthValues[lastIdx]        = refWellLogIndexDepthOffset.getBottomMd( kLayer );
         }
-        else if ( indexes.size() > 2 )
+        else if ( indexes.size() > 2 && refWellLogIndexDepthOffset.hasIndex( kLayer ) )
         {
             // Linearize depth values between top and bottom values in kLayer
             const auto topMd     = rMeasuredDepthValues[firstIdx];

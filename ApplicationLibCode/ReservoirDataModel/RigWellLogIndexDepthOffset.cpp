@@ -99,3 +99,11 @@ std::vector<int> RigWellLogIndexDepthOffset::sortedIndexes() const
     std::sort( indexes.begin(), indexes.end() );
     return indexes;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigWellLogIndexDepthOffset::hasIndex( int kIndex ) const
+{
+    return m_mdOffsets.count( kIndex ) > 0;
+}
