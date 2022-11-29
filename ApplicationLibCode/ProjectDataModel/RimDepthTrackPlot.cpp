@@ -614,6 +614,7 @@ QStringList RimDepthTrackPlot::supportedPlotNameVariables() const
 {
     return { RiaDefines::namingVariableCase(),
              RiaDefines::namingVariableWell(),
+             RiaDefines::namingVariableRefWell(),
              RiaDefines::namingVariableWellBranch(),
              RiaDefines::namingVariableTime(),
              RiaDefines::namingVariableAirGap() };
@@ -626,8 +627,9 @@ std::map<QString, QString> RimDepthTrackPlot::createNameKeyValueMap() const
 {
     std::map<QString, QString> variableValueMap;
 
-    RimCase*     commonCase     = m_commonDataSource->caseToApply();
-    RimWellPath* commonWellPath = m_commonDataSource->wellPathToApply();
+    RimCase*     commonCase        = m_commonDataSource->caseToApply();
+    RimWellPath* commonWellPath    = m_commonDataSource->wellPathToApply();
+    RimWellPath* commonRefWellPath = m_commonDataSource->referenceWellPathToApply();
 
     if ( commonCase )
     {
@@ -671,6 +673,11 @@ std::map<QString, QString> RimDepthTrackPlot::createNameKeyValueMap() const
     else if ( !m_commonDataSource->simWellNameToApply().isEmpty() )
     {
         variableValueMap[RiaDefines::namingVariableWell()] = m_commonDataSource->simWellNameToApply();
+    }
+
+    if ( commonRefWellPath && !commonRefWellPath->name().isEmpty() )
+    {
+        variableValueMap[RiaDefines::namingVariableRefWell()] = QString( "Ref. Well: %1" ).arg( commonRefWellPath->name() );
     }
 
     if ( commonWellPath )
