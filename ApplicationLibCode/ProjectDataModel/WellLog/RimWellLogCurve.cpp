@@ -29,6 +29,7 @@
 #include "RimMainPlotCollection.h"
 #include "RimTools.h"
 #include "RimWellLogTrack.h"
+#include "RimWellPath.h"
 
 #include "RiuQwtPlotCurve.h"
 #include "RiuQwtPlotWidget.h"
