@@ -56,6 +56,9 @@ RimWellLogCurve::RimWellLogCurve()
     m_curveDataPropertyValueRange =
         std::make_pair( std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity() );
 
+    // Ref well path as Ui element for debug purpose. If not needed: Remove use of caf::PdmPtrField,
+    // and replace with regular non-ui ptr. The remove related code in calculateValueOptions() and
+    // defineUiOrdering().
     CAF_PDM_InitFieldNoDefault( &m_refWellPath, "ReferenceWellPath", "Reference Well Path" );
     m_refWellPath.uiCapability()->setUiHidden( !RiaApplication::enableDevelopmentFeatures() );
 
@@ -437,7 +440,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogCurve::calculateValueOptions( const caf:
 }
 
 //--------------------------------------------------------------------------------------------------
-/// TODO: Remove - only used for debug purposes
+///
 //--------------------------------------------------------------------------------------------------
 void RimWellLogCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {

@@ -946,8 +946,6 @@ void RimWellLogExtractionCurve::defineUiOrdering( QString uiConfigName, caf::Pdm
         if ( m_trajectoryType() == WELL_PATH )
         {
             curveDataGroup->add( &m_wellPath );
-
-            // NOTE: Remove - only used for debug purposes
             RimWellLogCurve::defineUiOrdering( uiConfigName, uiOrdering );
         }
         else
@@ -964,8 +962,6 @@ void RimWellLogExtractionCurve::defineUiOrdering( QString uiConfigName, caf::Pdm
     else if ( geomCase )
     {
         curveDataGroup->add( &m_wellPath );
-
-        // NOTE: Remove - only used for debug purposes
         RimWellLogCurve::defineUiOrdering( uiConfigName, uiOrdering );
 
         m_geomResultDefinition->uiOrdering( uiConfigName, *curveDataGroup );
