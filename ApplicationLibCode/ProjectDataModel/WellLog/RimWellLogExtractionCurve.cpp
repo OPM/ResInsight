@@ -747,7 +747,7 @@ void RimWellLogExtractionCurve::adjustWellDepthValuesToReferenceWell( std::vecto
             for ( size_t idx = 1; idx < indexes.size() - 2; idx++ )
             {
                 const auto percMd  = ( rMeasuredDepthValues[idx] - topMd ) / ( bottomMd - topMd );
-                const auto percTvd = ( rTvDepthValues[idx] - topMd ) / ( bottomMd - topMd );
+                const auto percTvd = ( rTvDepthValues[idx] - topTvd ) / ( bottomTvd - topTvd );
 
                 rMeasuredDepthValues[idx] = percMd * refWellLogIndexDepthOffset.getBottomMd( kLayer );
                 rTvDepthValues[idx]       = percTvd * refWellLogIndexDepthOffset.getBottomTvd( kLayer );
