@@ -209,6 +209,7 @@ void RimSummaryMultiPlot::insertPlot( RimPlot* plot, size_t index )
         sumPlot->axisChanged.connect( this, &RimSummaryMultiPlot::onSubPlotAxisChanged );
         sumPlot->curvesChanged.connect( this, &RimSummaryMultiPlot::onSubPlotChanged );
         sumPlot->plotZoomedByUser.connect( this, &RimSummaryMultiPlot::onSubPlotZoomed );
+        sumPlot->titleChanged.connect( this, &RimSummaryMultiPlot::onSubPlotChanged );
 
         bool isMinMaxOverridden = m_axisRangeAggregation() != AxisRangeAggregation::NONE;
         setAutoValueStatesForPlot( sumPlot, isMinMaxOverridden, m_autoAdjustAppearance() );
@@ -550,9 +551,9 @@ void RimSummaryMultiPlot::updatePlotWindowTitle()
         setMultiPlotTitle( title );
     }
 
-    if ( m_autoSubPlotTitle )
+    for ( auto plot : summaryPlots() )
     {
-        for ( auto plot : summaryPlots() )
+        if ( m_autoSubPlotTitle )
         {
             auto subPlotNameHelper = plot->plotTitleHelper();
 
@@ -563,11 +564,11 @@ void RimSummaryMultiPlot::updatePlotWindowTitle()
             auto plotName = subPlotNameHelper->aggregatedPlotTitle( *m_nameHelper );
             plot->setPlotTitleVisible( true );
             plot->setDescription( plotName );
-            plot->updatePlotTitle();
         }
-
-        if ( !m_viewer.isNull() ) m_viewer->scheduleTitleUpdate();
+        plot->updatePlotTitle();
     }
+
+    if ( !m_viewer.isNull() ) m_viewer->scheduleTitleUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -715,6 +716,7 @@ void RimSummaryMultiPlot::initAfterRead()
         plot->axisChanged.connect( this, &RimSummaryMultiPlot::onSubPlotAxisChanged );
         plot->curvesChanged.connect( this, &RimSummaryMultiPlot::onSubPlotChanged );
         plot->plotZoomedByUser.connect( this, &RimSummaryMultiPlot::onSubPlotZoomed );
+        plot->titleChanged.connect( this, &RimSummaryMultiPlot::onSubPlotChanged );
     }
     updateStepDimensionFromDefault();
 }

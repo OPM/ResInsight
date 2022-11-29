@@ -115,8 +115,8 @@ public:
 
     virtual void   setPlotTitle( const QString& plotTitle ) = 0;
     const QString& plotTitle() const;
-    void           setPlotTitleEnabled( bool enabled );
-    bool           plotTitleEnabled() const;
+    virtual void   setPlotTitleEnabled( bool enabled )       = 0;
+    virtual bool   plotTitleEnabled() const                  = 0;
     virtual void   setPlotTitleFontSize( int titleFontSize ) = 0;
 
     virtual void setLegendFontSize( int fontSize )        = 0;

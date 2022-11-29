@@ -112,8 +112,8 @@ public:
 
     void           setPlotTitle( const QString& plotTitle ) override;
     const QString& plotTitle() const;
-    void           setPlotTitleEnabled( bool enabled );
-    bool           plotTitleEnabled() const;
+    void           setPlotTitleEnabled( bool enabled ) override;
+    bool           plotTitleEnabled() const override;
     void           setPlotTitleFontSize( int titleFontSize ) override;
 
     void setLegendFontSize( int fontSize ) override;
