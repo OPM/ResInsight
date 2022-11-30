@@ -92,7 +92,7 @@ private:
     std::vector<float>
         resultAsFloat( const std::string& resultName, const std::string& wellName, int year, int month, int day ) const;
 
-    void openFiles();
+    bool openFiles();
 
 private:
     std::unique_ptr<Opm::EclIO::ERft> m_opm_rft;
@@ -111,4 +111,5 @@ private:
 
     QString m_fileName;
     QString m_dataDeckFileName;
+    bool    m_detectedErrorWhenOpeningRftFile;
 };

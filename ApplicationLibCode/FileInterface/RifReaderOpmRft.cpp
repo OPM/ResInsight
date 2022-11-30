@@ -43,6 +43,7 @@ RifReaderOpmRft::RifReaderOpmRft( const QString& fileName, const QString& dataDe
     , m_connectionResultItemCount( 0 )
     , m_fileName( fileName )
     , m_dataDeckFileName( dataDeckFileName )
+    , m_detectedErrorWhenOpeningRftFile( false )
 {
 }
 
@@ -53,6 +54,7 @@ RifReaderOpmRft::RifReaderOpmRft( const QString& fileName )
     : m_segmentResultItemCount( 0 )
     , m_connectionResultItemCount( 0 )
     , m_fileName( fileName )
+    , m_detectedErrorWhenOpeningRftFile( false )
 {
 }
 
@@ -71,7 +73,7 @@ std::set<RifEclipseRftAddress> RifReaderOpmRft::eclipseRftAddresses()
 //--------------------------------------------------------------------------------------------------
 void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vector<double>* values )
 {
-    openFiles();
+    if ( !openFiles() ) return;
 
     auto wellName   = rftAddress.wellName().toStdString();
     auto resultName = rftAddress.segmentResultName().toStdString();
@@ -281,7 +283,7 @@ std::set<QString> RifReaderOpmRft::wellNames()
 //--------------------------------------------------------------------------------------------------
 void RifReaderOpmRft::cellIndices( const RifEclipseRftAddress& rftAddress, std::vector<caf::VecIjk>* indices )
 {
-    openFiles();
+    if ( !openFiles() ) return;
 
     auto wellName = rftAddress.wellName().toStdString();
 
@@ -395,6 +397,8 @@ void RifReaderOpmRft::openFiles( const QString& fileName, const QString& dataDec
         readWseglink( dataDeckFileName.toStdString() );
 
         buildMetaData();
+
+        return;
     }
     catch ( const std::exception& e )
     {
@@ -404,6 +408,8 @@ void RifReaderOpmRft::openFiles( const QString& fileName, const QString& dataDec
     {
         RiaLogging::error( QString( "Failed to open RFT file %1" ).arg( fileName ) );
     }
+
+    m_detectedErrorWhenOpeningRftFile = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -998,12 +1004,15 @@ std::vector<float>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifReaderOpmRft::openFiles()
+bool RifReaderOpmRft::openFiles()
 {
     // The file open operations can be costly, so do lazy loading of the files
     // NB! Make sure that this function is called from all public functions that needs to access the files
 
-    if ( isOpen() ) return;
+    if ( !isOpen() && !m_detectedErrorWhenOpeningRftFile )
+    {
+        openFiles( m_fileName, m_dataDeckFileName );
+    }
 
-    openFiles( m_fileName, m_dataDeckFileName );
+    return isOpen();
 }
