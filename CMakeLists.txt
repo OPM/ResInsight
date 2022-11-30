@@ -264,7 +264,7 @@ set(CMAKE_CXX_COMPILER_LAUNCHER ${TEMP_CMAKE_CXX_COMPILER_LAUNCHER})
 # ##############################################################################
 # Go through required git submodules #
 # ##############################################################################
-list(APPEND THIRD_PARTY_SUBMODULES fast_float qwt qtadvanceddocking)
+list(APPEND THIRD_PARTY_SUBMODULES fast_float qwt qtadvanceddocking openzgy)
 
 # ##############################################################################
 # Init GIT submodules if they haven't already #
@@ -276,7 +276,7 @@ if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
   if(GIT_SUBMODULE)
     foreach(SUBMODULE ${THIRD_PARTY_SUBMODULES})
       set(SUBDIR "${PROJECT_SOURCE_DIR}/ThirdParty/${SUBMODULE}")
-      message(STATUS "Initializing GIT submodules")
+      message(STATUS "Initializing GIT submodule ${SUBMODULE}")
       execute_process(
         COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive --
                 ${SUBDIR}
@@ -396,6 +396,15 @@ set_property(
 add_subdirectory(ThirdParty/NRLib)
 
 list(APPEND THIRD_PARTY_LIBRARIES NRLib)
+
+# ##############################################################################
+# openzgy
+# ##############################################################################
+
+add_subdirectory(ThirdParty/openzgy)
+
+list(APPEND THIRD_PARTY_LIBRARIES openzgy)
+
 
 # ##############################################################################
 # Qt
