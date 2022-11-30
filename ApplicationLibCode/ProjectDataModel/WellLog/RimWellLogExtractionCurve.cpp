@@ -712,14 +712,14 @@ void RimWellLogExtractionCurve::adjustWellDepthValuesToReferenceWell( std::vecto
         refWellLogIndexDepthOffset.setIndexOffsetDepth( kLayer, topMd, bottomMd, topTvd, bottomTvd );
     }
 
-    std::map<int, std::vector<size_t>> wellKLayerAndIndexes;
+    std::map<int, std::vector<size_t>> wellKLayerAndIndexesMap = {};
     for ( size_t i = 0; i < indexKValues.size(); i++ )
     {
         const int kLayer = static_cast<int>( indexKValues[i] );
-        wellKLayerAndIndexes[kLayer].push_back( i );
+        wellKLayerAndIndexesMap[kLayer].push_back( i );
     }
 
-    for ( const auto& [kLayer, indexes] : wellKLayerAndIndexes )
+    for ( const auto& [kLayer, indexes] : wellKLayerAndIndexesMap )
     {
         const auto firstIdx = indexes.front();
         const auto lastIdx  = indexes.back();
@@ -732,23 +732,29 @@ void RimWellLogExtractionCurve::adjustWellDepthValuesToReferenceWell( std::vecto
         }
         else if ( indexes.size() > 2 && refWellLogIndexDepthOffset.hasIndex( kLayer ) )
         {
+            const auto refWellTopMd     = refWellLogIndexDepthOffset.getTopMd( kLayer );
+            const auto refWellBottomMd  = refWellLogIndexDepthOffset.getBottomMd( kLayer );
+            const auto refWellTopTvd    = refWellLogIndexDepthOffset.getTopTvd( kLayer );
+            const auto refWellBottomTvd = refWellLogIndexDepthOffset.getBottomTvd( kLayer );
+
             // Linearize depth values between top and bottom values in kLayer
             const auto topMd     = rMeasuredDepthValues[firstIdx];
             const auto bottomMd  = rMeasuredDepthValues[lastIdx];
             const auto topTvd    = rTvDepthValues[firstIdx];
             const auto bottomTvd = rTvDepthValues[lastIdx];
-            for ( size_t idx = 1; idx < indexes.size() - 2; idx++ )
+            for ( auto it = indexes.cbegin() + 1; it != indexes.cend() - 1; ++it )
             {
+                const auto idx     = *it;
                 const auto percMd  = ( rMeasuredDepthValues[idx] - topMd ) / ( bottomMd - topMd );
                 const auto percTvd = ( rTvDepthValues[idx] - topTvd ) / ( bottomTvd - topTvd );
 
-                rMeasuredDepthValues[idx] = percMd * refWellLogIndexDepthOffset.getBottomMd( kLayer );
-                rTvDepthValues[idx]       = percTvd * refWellLogIndexDepthOffset.getBottomTvd( kLayer );
+                rMeasuredDepthValues[idx] = percMd * ( refWellBottomMd - refWellTopMd ) + refWellTopMd;
+                rTvDepthValues[idx]       = percTvd * ( refWellBottomTvd - refWellTopTvd ) + refWellTopTvd;
             }
-            rMeasuredDepthValues[firstIdx] = refWellLogIndexDepthOffset.getTopMd( kLayer );
-            rMeasuredDepthValues[lastIdx]  = refWellLogIndexDepthOffset.getBottomMd( kLayer );
-            rTvDepthValues[firstIdx]       = refWellLogIndexDepthOffset.getTopTvd( kLayer );
-            rTvDepthValues[lastIdx]        = refWellLogIndexDepthOffset.getBottomMd( kLayer );
+            rMeasuredDepthValues[firstIdx] = refWellTopMd;
+            rMeasuredDepthValues[lastIdx]  = refWellBottomMd;
+            rTvDepthValues[firstIdx]       = refWellTopTvd;
+            rTvDepthValues[lastIdx]        = refWellBottomTvd;
         }
     }
 }
