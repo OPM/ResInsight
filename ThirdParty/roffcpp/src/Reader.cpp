@@ -1,5 +1,6 @@
 #include "Reader.hpp"
 
+#include "AsciiTokenizer.hpp"
 #include "Parser.hpp"
 #include "Tokenizer.hpp"
 
@@ -22,7 +23,8 @@ Reader::Reader( std::istream& stream )
 //--------------------------------------------------------------------------------------------------
 void Reader::parse()
 {
-    m_tokens = Tokenizer::tokenizeStream( *m_stream );
+    AsciiTokenizer tokenizer;
+    m_tokens = tokenizer.tokenizeStream( *m_stream );
     m_parser = std::make_unique<Parser>();
     m_parser->parse( *m_stream, m_tokens, m_scalarValues, m_arrayTypes, m_arrayInfo );
 }

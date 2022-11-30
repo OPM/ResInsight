@@ -1,5 +1,5 @@
-set(HEADER_LIST "Token.hpp" "Tokenizer.hpp" "Parser.hpp" "Reader.hpp" "RoffScalar.hpp")
-set(SOURCE_LIST "Token.cpp" "Tokenizer.cpp" "Parser.cpp" "Reader.cpp")
+set(HEADER_LIST "Token.hpp" "Tokenizer.hpp" "AsciiTokenizer.hpp" "Parser.hpp" "Reader.hpp" "RoffScalar.hpp")
+set(SOURCE_LIST "Token.cpp" "Tokenizer.cpp" "AsciiTokenizer.cpp" "Parser.cpp" "Reader.cpp")
 
 add_library(roffcpp ${SOURCE_LIST} ${HEADER_LIST})
 
