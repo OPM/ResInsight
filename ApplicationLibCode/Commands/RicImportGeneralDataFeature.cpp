@@ -183,7 +183,7 @@ QStringList RicImportGeneralDataFeature::getEclipseFileNamesWithDialog( RiaDefin
     QString eclipseEGridFilePattern( "*.EGRID" );
     QString eclipseInputFilePattern( "*.GRDECL" );
     QString eclipseSummaryFilePattern( "*.SMSPEC" );
-    QString roffFilePattern( "*.ROFF" );
+    QString roffFilePattern( "*.ROFF *.ROFFASC" );
 
     QStringList filePatternTexts;
     if ( fileType == ImportFileType::ANY_ECLIPSE_FILE )
