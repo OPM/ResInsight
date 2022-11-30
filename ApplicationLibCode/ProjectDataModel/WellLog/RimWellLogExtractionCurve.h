@@ -20,6 +20,7 @@
 #pragma once
 
 #include "RigWbsParameter.h"
+
 #include "RimEclipseCase.h"
 #include "RimGeoMechCase.h"
 #include "RimWellLogCurve.h"

@@ -716,14 +716,7 @@ void RimWellLogExtractionCurve::adjustWellDepthValuesToReferenceWell( std::vecto
     for ( size_t i = 0; i < indexKValues.size(); i++ )
     {
         const int kLayer = static_cast<int>( indexKValues[i] );
-        if ( wellKLayerAndIndexes.count( kLayer ) == 0 )
-        {
-            wellKLayerAndIndexes[kLayer] = std::vector<size_t>( { i } );
-        }
-        else
-        {
-            wellKLayerAndIndexes[kLayer].push_back( i );
-        }
+        wellKLayerAndIndexes[kLayer].push_back( i );
     }
 
     for ( const auto& [kLayer, indexes] : wellKLayerAndIndexes )

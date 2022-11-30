@@ -848,28 +848,19 @@ void RimWellLogCurveCommonDataSource::fieldChangedByUi( const caf::PdmFieldHandl
     RimWellLogPlot* parentPlot = nullptr;
     this->firstAncestorOrThisOfType( parentPlot );
 
-    if ( changedField == &m_wellPath )
+    if ( changedField == &m_wellPath && m_wellPath() == m_refWellPath() )
     {
-        if ( m_wellPath() == m_refWellPath() )
-        {
-            m_refWellPath = nullptr;
-        }
+        m_refWellPath = nullptr;
     }
-    if ( changedField == &m_branchDetection )
+    if ( changedField == &m_branchDetection && m_branchDetection().isPartiallyTrue() )
     {
-        if ( m_branchDetection().isPartiallyTrue() )
-        {
-            // The Tristate is cycled from false -> partially true -> true
-            // Partially true is used for "Mixed state" and is not settable by the user so cycle on to true.
-            m_branchDetection.v() = caf::Tristate::State::True;
-        }
+        // The Tristate is cycled from false -> partially true -> true
+        // Partially true is used for "Mixed state" and is not settable by the user so cycle on to true.
+        m_branchDetection.v() = caf::Tristate::State::True;
     }
-    if ( changedField == &m_wbsSmoothing )
+    if ( changedField == &m_wbsSmoothing && m_wbsSmoothing().isPartiallyTrue() )
     {
-        if ( m_wbsSmoothing().isPartiallyTrue() )
-        {
-            m_wbsSmoothing.v() = caf::Tristate::State::True;
-        }
+        m_wbsSmoothing.v() = caf::Tristate::State::True;
     }
 
     this->applyDataSourceChanges();
