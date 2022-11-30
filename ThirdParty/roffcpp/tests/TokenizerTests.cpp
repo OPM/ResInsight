@@ -84,7 +84,7 @@ TEST( TokenizerTests, testTokenizeDelimiterComment )
 TEST( TokenizerTests, testTokenizeAsciiString )
 {
     std::stringstream stream( "\"string\"" );
-    Token             token = Tokenizer::tokenizeString( stream );
+    Token             token = Tokenizer::tokenizeString( stream ).value();
     ASSERT_EQ( Token::Kind::STRING_LITERAL, token.kind() );
     ASSERT_EQ( 1, token.start() );
     ASSERT_EQ( 7, token.end() );
@@ -97,7 +97,7 @@ TEST( TokenizerTests, testTokenizeAsciiString )
 TEST( TokenizerTests, testTokenizeAsciiNumericValuesInt )
 {
     std::stringstream stream( "123 " );
-    Token             token = Tokenizer::tokenizeAsciiNumber( stream );
+    Token             token = Tokenizer::tokenizeAsciiNumber( stream ).value();
     ASSERT_EQ( Token::Kind::NUMERIC_VALUE, token.kind() );
     ASSERT_EQ( 0, token.start() );
     ASSERT_EQ( 3, token.end() );
@@ -110,7 +110,7 @@ TEST( TokenizerTests, testTokenizeAsciiNumericValuesInt )
 TEST( TokenizerTests, testTokenizeAsciiNumericValuesDouble )
 {
     std::stringstream stream( "1.0 " );
-    Token             token = Tokenizer::tokenizeAsciiNumber( stream );
+    Token             token = Tokenizer::tokenizeAsciiNumber( stream ).value();
     ASSERT_EQ( Token::Kind::NUMERIC_VALUE, token.kind() );
     ASSERT_EQ( 0, token.start() );
     ASSERT_EQ( 3, token.end() );

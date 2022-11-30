@@ -1,6 +1,7 @@
 #include "Tokenizer.hpp"
 
 #include <cctype>
+#include <optional>
 #include <stdexcept>
 #include <vector>
 
@@ -62,7 +63,7 @@ bool Tokenizer::tokenizeSpace( std::istream& stream )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Token Tokenizer::tokenizeString( std::istream& stream )
+std::optional<Token> Tokenizer::tokenizeString( std::istream& stream )
 {
     tokenizeDelimiter( stream );
 
@@ -71,8 +72,9 @@ Token Tokenizer::tokenizeString( std::istream& stream )
     char readChar = static_cast<char>( stream.get() );
     if ( readChar != '"' )
     {
+        // Expected string, but no opening quote found
         stream.seekg( start );
-        throw std::runtime_error( "Expected string." );
+        return {};
     }
 
     // Read until closing double-quote.
@@ -89,7 +91,7 @@ Token Tokenizer::tokenizeString( std::istream& stream )
     {
         // Reached unexpected end of file.
         stream.seekg( start );
-        throw std::runtime_error( "Reached end of stream while reading string literal." );
+        return {};
     }
 
     return Token( Token::Kind::STRING_LITERAL, start, end );
@@ -124,7 +126,7 @@ Token Tokenizer::tokenizeName( std::istream& stream )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Token Tokenizer::tokenizeAsciiNumber( std::istream& stream )
+std::optional<Token> Tokenizer::tokenizeAsciiNumber( std::istream& stream )
 {
     tokenizeDelimiter( stream );
 
@@ -147,8 +149,9 @@ Token Tokenizer::tokenizeAsciiNumber( std::istream& stream )
 
     if ( end - start < 1 )
     {
+        // Expected numeric value, but could not find one.
         stream.seekg( start );
-        throw std::runtime_error( "Expected numeric value" );
+        return {};
     }
 
     stream.seekg( end );
@@ -185,12 +188,10 @@ Token Tokenizer::tokenizeKeyword( std::istream& stream, const std::vector<std::p
 {
     for ( auto [kind, keyword] : keywords )
     {
-        try
+        auto token = tokenizeWord( stream, keyword, kind );
+        if ( token )
         {
-            return tokenizeWord( stream, keyword, kind );
-        }
-        catch ( std::runtime_error& )
-        {
+            return token.value();
         }
     }
 
@@ -200,16 +201,13 @@ Token Tokenizer::tokenizeKeyword( std::istream& stream, const std::vector<std::p
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Token Tokenizer::tokenizeValue( std::istream& stream )
+std::optional<Token> Tokenizer::tokenizeValue( std::istream& stream )
 {
-    try
-    {
-        return tokenizeAsciiNumber( stream );
-    }
-    catch ( const std::runtime_error& )
-    {
+    auto numberToken = tokenizeAsciiNumber( stream );
+    if ( numberToken )
+        return numberToken;
+    else
         return tokenizeString( stream );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -229,7 +227,7 @@ Token Tokenizer::tokenizeSimpleType( std::istream& stream )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Token Tokenizer::tokenizeWord( std::istream& stream, const std::string& keyword, Token::Kind kind )
+std::optional<Token> Tokenizer::tokenizeWord( std::istream& stream, const std::string& keyword, Token::Kind kind )
 {
     tokenizeDelimiter( stream );
     auto        start = stream.tellg();
@@ -242,7 +240,7 @@ Token Tokenizer::tokenizeWord( std::istream& stream, const std::string& keyword,
     else
     {
         stream.seekg( start );
-        throw std::runtime_error( "Token did not match word: " + keyword );
+        return {};
     }
 }
 
@@ -254,7 +252,11 @@ std::vector<Token> Tokenizer::tokenizeAsciiTagKey( std::istream& stream )
     std::vector<Token> tokens;
     tokens.push_back( tokenizeSimpleType( stream ) );
     tokens.push_back( tokenizeName( stream ) );
-    tokens.push_back( tokenizeValue( stream ) );
+    auto value = tokenizeValue( stream );
+    if ( value )
+        tokens.push_back( value.value() );
+    else
+        throw std::runtime_error( "Invalid value." );
     return tokens;
 }
 
@@ -267,7 +269,10 @@ std::vector<Token> Tokenizer::tokenizeArrayAsciiTagKey( std::istream& stream )
     tokens.push_back( tokenizeKeyword( stream, { std::make_pair( Token::Kind::ARRAY, "array" ) } ) );
     tokens.push_back( tokenizeSimpleType( stream ) );
     tokens.push_back( tokenizeName( stream ) );
-    tokens.push_back( tokenizeAsciiNumber( stream ) );
+    auto numberOfElements = tokenizeAsciiNumber( stream );
+    if ( !numberOfElements ) throw std::runtime_error( "Expected numeric value" );
+
+    tokens.push_back( numberOfElements.value() );
 
     std::vector<Token> arrayTokens = tokenizeArrayData( stream );
     tokens.insert( tokens.end(), arrayTokens.begin(), arrayTokens.end() );
@@ -285,14 +290,11 @@ std::vector<Token> Tokenizer::tokenizeArrayData( std::istream& stream )
     bool gotNewToken = true;
     while ( gotNewToken )
     {
-        try
-        {
-            tokens.push_back( tokenizeValue( stream ) );
-        }
-        catch ( std::runtime_error& )
-        {
+        auto token = tokenizeValue( stream );
+        if ( token )
+            tokens.push_back( token.value() );
+        else
             gotNewToken = false;
-        }
     }
 
     return tokens;
