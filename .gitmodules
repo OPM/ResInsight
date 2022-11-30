@@ -13,3 +13,6 @@
 [submodule "ThirdParty/custom-opm-common/opm-common"]
 	path = ThirdParty/custom-opm-common/opm-common
 	url = https://github.com/CeetronSolutions/opm-common
+[submodule "ThirdParty/openzgy"]
+	path = ThirdParty/openzgy
+	url = https://github.com/CeetronSolutions/openzgy.git
