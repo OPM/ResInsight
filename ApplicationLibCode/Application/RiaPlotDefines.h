@@ -84,6 +84,7 @@ enum class WindowTileMode
 // Defines relate to curve and plot template names
 QString namingVariableCase();
 QString namingVariableWell();
+QString namingVariableRefWell();
 QString namingVariableWellBranch();
 QString namingVariableResultName();
 QString namingVariableResultType();

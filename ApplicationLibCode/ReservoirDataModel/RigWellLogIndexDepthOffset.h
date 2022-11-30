@@ -34,6 +34,7 @@ public:
     double           getTopTvd( int kIndex ) const;
     double           getBottomTvd( int kIndex ) const;
     std::vector<int> sortedIndexes() const;
+    bool             hasIndex( int kIndex ) const;
 
 private:
     std::map<int, std::pair<double, double>> m_mdOffsets;
