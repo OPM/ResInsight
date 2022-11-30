@@ -7,14 +7,14 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Token Tokenizer::tokenizeComment( std::istream& stream )
+bool Tokenizer::tokenizeComment( std::istream& stream )
 {
     auto start    = stream.tellg();
     char readChar = static_cast<char>( stream.get() );
     if ( readChar != '#' )
     {
         stream.seekg( start );
-        throw std::runtime_error( "Expected comment." );
+        return false;
     }
 
     auto end = stream.tellg();
@@ -27,24 +27,24 @@ Token Tokenizer::tokenizeComment( std::istream& stream )
     if ( !stream.good() )
     {
         stream.seekg( start );
-        throw std::runtime_error( "Reached end of stream while reading comment." );
+        return false;
     }
 
     end = stream.tellg();
-    return Token( Token::Kind::COMMENT, start, end );
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Tokenizer::tokenizeSpace( std::istream& stream )
+bool Tokenizer::tokenizeSpace( std::istream& stream )
 {
     auto start    = stream.tellg();
     char readChar = static_cast<char>( stream.get() );
     if ( !std::isspace( readChar ) )
     {
         stream.seekg( start );
-        throw std::runtime_error( "Expected space." );
+        return false;
     }
 
     auto end = stream.tellg();
@@ -56,6 +56,7 @@ void Tokenizer::tokenizeSpace( std::istream& stream )
     }
 
     stream.seekg( end );
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -379,32 +380,7 @@ std::vector<Token> Tokenizer::tokenizeStream( std::istream& stream )
 //--------------------------------------------------------------------------------------------------
 void Tokenizer::tokenizeDelimiter( std::istream& stream )
 {
-    // TODO: improve this code
-    auto f1 = []( std::istream& s ) {
-        try
-        {
-            tokenizeSpace( s );
-            return true;
-        }
-        catch ( const std::runtime_error& )
-        {
-            return false;
-        }
-    };
-
-    auto f2 = []( std::istream& s ) {
-        try
-        {
-            tokenizeComment( s );
-            return true;
-        }
-        catch ( const std::runtime_error& )
-        {
-            return false;
-        }
-    };
-
-    while ( stream.good() && ( f1( stream ) || f2( stream ) ) )
+    while ( stream.good() && ( tokenizeSpace( stream ) || tokenizeComment( stream ) ) )
     {
     }
 }

@@ -66,8 +66,6 @@ std::string Token::kindToString( Token::Kind kind )
             return "double";
         case Token::Kind::ARRAY:
             return "array";
-        case Token::Kind::COMMENT:
-            return "comment";
         case Token::Kind::STRING_LITERAL:
             return "string";
         case Token::Kind::NAME:

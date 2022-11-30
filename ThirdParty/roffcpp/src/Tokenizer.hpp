@@ -9,8 +9,8 @@ class Tokenizer
 {
 public:
     static std::vector<Token> tokenizeStream( std::istream& stream );
-    static Token              tokenizeComment( std::istream& stream );
-    static void               tokenizeSpace( std::istream& stream );
+    static bool               tokenizeComment( std::istream& stream );
+    static bool               tokenizeSpace( std::istream& stream );
     static void               tokenizeDelimiter( std::istream& stream );
     static Token              tokenizeString( std::istream& stream );
     static Token              tokenizeAsciiNumber( std::istream& stream );

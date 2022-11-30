@@ -9,7 +9,6 @@ public:
     {
         ROFF_ASC,
         ROFF_BIN,
-        COMMENT,
         TAG,
         ENDTAG,
         STRING_LITERAL,

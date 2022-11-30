@@ -13,10 +13,7 @@
 TEST( TokenizerTests, testTokenizeComment )
 {
     std::stringstream stream( "#This is a comment.#" );
-    Token             token = Tokenizer::tokenizeComment( stream );
-    ASSERT_EQ( Token::Kind::COMMENT, token.kind() );
-    ASSERT_EQ( 0, token.start() );
-    ASSERT_EQ( 20, token.end() );
+    ASSERT_TRUE( Tokenizer::tokenizeComment( stream ) );
     ASSERT_EQ( 20, stream.tellg() );
 }
 
@@ -26,7 +23,7 @@ TEST( TokenizerTests, testTokenizeComment )
 TEST( TokenizerTests, testTokenizeCommentWithoutStartTag )
 {
     std::stringstream stream( "This comment did not have a start comment tag#" );
-    ASSERT_THROW( Tokenizer::tokenizeComment( stream ), std::runtime_error );
+    ASSERT_FALSE( Tokenizer::tokenizeComment( stream ) );
     ASSERT_EQ( 0, stream.tellg() );
 }
 
@@ -36,7 +33,7 @@ TEST( TokenizerTests, testTokenizeCommentWithoutStartTag )
 TEST( TokenizerTests, testTokenizeCommentWithoutEndTag )
 {
     std::stringstream stream( "#This is an incomplete comment." );
-    ASSERT_THROW( Tokenizer::tokenizeComment( stream ), std::runtime_error );
+    ASSERT_FALSE( Tokenizer::tokenizeComment( stream ) );
     ASSERT_EQ( -1, stream.tellg() );
 }
 
@@ -57,7 +54,7 @@ TEST( TokenizerTests, testTokenizeSpace )
 TEST( TokenizerTests, testTokenizeNonSpaceAsSpace )
 {
     std::stringstream stream( "not-really-space" );
-    ASSERT_THROW( Tokenizer::tokenizeSpace( stream ), std::runtime_error );
+    ASSERT_FALSE( Tokenizer::tokenizeSpace( stream ) );
     ASSERT_EQ( 0, stream.tellg() );
 }
 
