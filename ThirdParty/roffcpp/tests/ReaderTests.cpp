@@ -6,6 +6,7 @@
 #include <variant>
 
 #include "Parser.hpp"
+#include "Reader.hpp"
 #include "RoffTestDataDirectory.hpp"
 #include "Token.hpp"
 #include "Tokenizer.hpp"
@@ -13,15 +14,15 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( ParserTests, testParseScalarNamedValuesFromExampleFile )
+TEST( ReaderTests, testParseScalarNamedValuesFromExampleFile )
 {
     std::ifstream stream( std::string( TEST_DATA_DIR ) + "/facies_info.roff" );
     ASSERT_TRUE( stream.good() );
 
-    std::vector<Token> tokens = Tokenizer::tokenizeStream( stream );
-    Parser             parser( stream, tokens );
+    Reader reader( stream );
+    reader.parse();
 
-    std::vector<std::pair<std::string, RoffScalar>> values = parser.scalarNamedValues();
+    std::vector<std::pair<std::string, RoffScalar>> values = reader.scalarNamedValues();
     ASSERT_FALSE( values.empty() );
 
     auto hasValue = []( auto values, const std::string& keyword ) {
@@ -67,15 +68,15 @@ TEST( ParserTests, testParseScalarNamedValuesFromExampleFile )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( ParserTests, testParseArrayValuesFromExampleFile )
+TEST( ReaderTests, testParseArrayValuesFromExampleFile )
 {
     std::ifstream stream( std::string( TEST_DATA_DIR ) + "/facies_info.roff" );
     ASSERT_TRUE( stream.good() );
 
-    std::vector<Token> tokens = Tokenizer::tokenizeStream( stream );
-    Parser             parser( stream, tokens );
+    Reader reader( stream );
+    reader.parse();
 
-    std::vector<std::pair<std::string, Token::Kind>> arrayTypes = parser.getNamedArrayTypes();
+    std::vector<std::pair<std::string, Token::Kind>> arrayTypes = reader.getNamedArrayTypes();
     ASSERT_FALSE( arrayTypes.empty() );
 
     auto hasValue = []( auto values, const std::string& keyword, Token::Kind kind ) {
@@ -90,21 +91,21 @@ TEST( ParserTests, testParseArrayValuesFromExampleFile )
     ASSERT_TRUE( hasValue( arrayTypes, "parameter.doubleData", Token::Kind::DOUBLE ) );
     ASSERT_TRUE( hasValue( arrayTypes, "parameter.intData", Token::Kind::INT ) );
 
-    std::vector<std::string> codeNames = parser.getStringArray( "parameter.codeNames" );
+    std::vector<std::string> codeNames = reader.getStringArray( "parameter.codeNames" );
     ASSERT_EQ( 6, codeNames.size() );
     ASSERT_EQ( "code name 1", codeNames[0] );
     ASSERT_EQ( "code name 6", codeNames[5] );
 
-    std::vector<int> codeValues = parser.getIntArray( "parameter.codeValues" );
+    std::vector<int> codeValues = reader.getIntArray( "parameter.codeValues" );
     ASSERT_EQ( 6, codeValues.size() );
     for ( int i = 0; i < 6; i++ )
     {
         ASSERT_EQ( i, codeValues[i] );
     }
 
-    std::vector<float> floatData = parser.getFloatArray( "parameter.floatData" );
+    std::vector<float> floatData = reader.getFloatArray( "parameter.floatData" );
     ASSERT_EQ( 5, floatData.size() );
 
-    std::vector<double> doubleData = parser.getDoubleArray( "parameter.doubleData" );
+    std::vector<double> doubleData = reader.getDoubleArray( "parameter.doubleData" );
     ASSERT_EQ( 6, doubleData.size() );
 }

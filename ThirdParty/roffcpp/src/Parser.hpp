@@ -2,45 +2,48 @@
 
 #include "Token.hpp"
 
+#include "RoffScalar.hpp"
+
 #include <istream>
 #include <map>
 #include <variant>
 #include <vector>
 
-typedef std::variant<int, float, double, unsigned char, bool, std::string> RoffScalar;
-
 class Parser
 {
 public:
-    Parser( std::istream& stream, const std::vector<Token>& tokens );
+    Parser();
 
-    void parse();
-
-    std::vector<std::pair<std::string, RoffScalar>> scalarNamedValues() const;
-
-    std::vector<std::pair<std::string, Token::Kind>> getNamedArrayTypes() const;
+    void parse( std::istream&                                     stream,
+                const std::vector<Token>&                         tokens,
+                std::vector<std::pair<std::string, RoffScalar>>&  scalarValues,
+                std::vector<std::pair<std::string, Token::Kind>>& arrayTypes,
+                std::map<std::string, std::pair<long, long>>&     arrayInfo ) const;
 
     std::pair<std::string, RoffScalar> parseSimpleType( std::vector<Token>::const_iterator& it,
-                                                        const std::string&                  tagGroupName );
+                                                        const std::string&                  tagGroupName,
+                                                        std::istream&                       stream ) const;
 
-    std::vector<std::string> getStringArray( const std::string& keyword );
-    std::vector<int>         getIntArray( const std::string& keyword );
-    std::vector<double>      getDoubleArray( const std::string& keyword );
-    std::vector<float>       getFloatArray( const std::string& keyword );
-    std::vector<char>        getByteArray( const std::string& keyword );
+    std::vector<std::string>
+        parseStringArray( const std::vector<Token>& tokens, std::istream& stream, long startIndex, long arrayLength ) const;
+
+    std::vector<int>
+        parseIntArray( const std::vector<Token>& tokens, std::istream& stream, long startIndex, long arrayLength ) const;
+
+    std::vector<double>
+        parseDoubleArray( const std::vector<Token>& tokens, std::istream& stream, long startIndex, long arrayLength ) const;
+
+    std::vector<float>
+        parseFloatArray( const std::vector<Token>& tokens, std::istream& stream, long startIndex, long arrayLength ) const;
+
+    std::vector<char>
+        parseByteArray( const std::vector<Token>& tokens, std::istream& stream, long startIndex, long arrayLength ) const;
 
     static bool isSimpleType( Token::Kind kind );
 
-    static std::string parseString( const Token& token, std::istream& stream );
+    std::string parseString( const Token& token, std::istream& stream ) const;
 
-    static int parseInt( const Token& token, std::istream& stream );
+    int parseInt( const Token& token, std::istream& stream ) const;
 
-    static double parseDouble( const Token& token, std::istream& stream );
-
-private:
-    const std::vector<Token>*                        m_tokens;
-    std::istream*                                    m_stream;
-    std::vector<std::pair<std::string, RoffScalar>>  m_scalarValues;
-    std::vector<std::pair<std::string, Token::Kind>> m_arrayTypes;
-    std::map<std::string, std::pair<long, long>>     m_arrayInfo;
+    double parseDouble( const Token& token, std::istream& stream ) const;
 };

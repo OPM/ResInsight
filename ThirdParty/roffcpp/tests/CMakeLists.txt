@@ -1,6 +1,6 @@
 
 # Tests need to be added as executables first
-add_executable(roffcpp-tests TokenTests.cpp TokenizerTests.cpp ParserTests.cpp ../../gtest/gtest-all.cc roffcpptestmain.cpp)
+add_executable(roffcpp-tests TokenTests.cpp TokenizerTests.cpp ReaderTests.cpp ../../gtest/gtest-all.cc roffcpptestmain.cpp)
 
 
 CONFIGURE_FILE( ${CMAKE_CURRENT_LIST_DIR}/RoffTestDataDirectory.hpp.cmake

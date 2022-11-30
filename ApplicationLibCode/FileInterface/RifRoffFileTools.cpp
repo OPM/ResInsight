@@ -32,8 +32,7 @@
 #include <iostream>
 #include <vector>
 
-#include "Parser.hpp"
-#include "Tokenizer.hpp"
+#include "Reader.hpp"
 
 //--------------------------------------------------------------------------------------------------
 /// Constructor
@@ -65,11 +64,11 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
         return false;
     }
 
-    std::vector<Token> tokens = Tokenizer::tokenizeStream( stream );
-    Parser             parser( stream, tokens );
+    Reader reader( stream );
+    reader.parse();
 
-    std::vector<std::pair<std::string, RoffScalar>>  values     = parser.scalarNamedValues();
-    std::vector<std::pair<std::string, Token::Kind>> arrayTypes = parser.getNamedArrayTypes();
+    std::vector<std::pair<std::string, RoffScalar>>  values     = reader.scalarNamedValues();
+    std::vector<std::pair<std::string, Token::Kind>> arrayTypes = reader.getNamedArrayTypes();
 
     auto getInt = []( auto values, const std::string& name ) {
         auto v = std::find_if( values.begin(), values.end(), [&name]( const auto& arg ) { return arg.first == name; } );
@@ -102,11 +101,11 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
     float zScale = getFloat( values, "scale.zscale" );
     RiaLogging::info( QString( "Scale: %1 %2 %3" ).arg( xScale ).arg( yScale ).arg( zScale ) );
 
-    std::vector<int>   layers      = parser.getIntArray( "subgrids.nLayers" );
-    std::vector<float> cornerLines = parser.getFloatArray( "cornerLines.data" );
-    std::vector<float> zValues     = parser.getFloatArray( "zvalues.data" );
-    std::vector<char>  splitEnz    = parser.getByteArray( "zvalues.splitEnz" );
-    std::vector<int>   active      = parser.getIntArray( "active.data" );
+    std::vector<int>   layers      = reader.getIntArray( "subgrids.nLayers" );
+    std::vector<float> cornerLines = reader.getFloatArray( "cornerLines.data" );
+    std::vector<float> zValues     = reader.getFloatArray( "zvalues.data" );
+    std::vector<char>  splitEnz    = reader.getByteArray( "zvalues.splitEnz" );
+    std::vector<int>   active      = reader.getIntArray( "active.data" );
 
     RiaLogging::info( QString( "Layers: %1" ).arg( layers.size() ) );
     RiaLogging::info( QString( "Corner lines: %1" ).arg( cornerLines.size() ) );
