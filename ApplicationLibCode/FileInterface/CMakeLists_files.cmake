@@ -71,6 +71,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseKeywordContent.h
     ${CMAKE_CURRENT_LIST_DIR}/RifMultipleSummaryReaders.h
     ${CMAKE_CURRENT_LIST_DIR}/RifProjectSummaryDataWriter.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifSeismicZGYReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderOpmRft.h
     ${CMAKE_CURRENT_LIST_DIR}/RifRftSegment.h
 )
@@ -145,6 +146,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseTextFileReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifMultipleSummaryReaders.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifProjectSummaryDataWriter.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifSeismicZGYReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderOpmRft.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifRftSegment.cpp
 )

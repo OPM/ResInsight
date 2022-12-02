@@ -401,6 +401,7 @@ list(APPEND THIRD_PARTY_LIBRARIES NRLib)
 # openzgy
 # ##############################################################################
 
+add_definitions(-DOPENZGY_STATIC)
 add_subdirectory(ThirdParty/openzgy)
 
 list(APPEND THIRD_PARTY_LIBRARIES openzgy)
