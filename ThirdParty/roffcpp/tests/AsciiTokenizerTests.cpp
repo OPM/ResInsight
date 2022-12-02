@@ -106,7 +106,7 @@ TEST( AsciiTokenizerTests, testTokenizeAsciiNumericValuesInt )
 {
     std::stringstream stream( "123 " );
     AsciiTokenizer    tokenizer;
-    Token             token = tokenizer.tokenizeAsciiNumber( stream ).value();
+    Token             token = tokenizer.tokenizeNumber( stream ).value();
     ASSERT_EQ( Token::Kind::NUMERIC_VALUE, token.kind() );
     ASSERT_EQ( 0, token.start() );
     ASSERT_EQ( 3, token.end() );
@@ -120,7 +120,7 @@ TEST( AsciiTokenizerTests, testTokenizeAsciiNumericValuesDouble )
 {
     std::stringstream stream( "1.0 " );
     AsciiTokenizer    tokenizer;
-    Token             token = tokenizer.tokenizeAsciiNumber( stream ).value();
+    Token             token = tokenizer.tokenizeNumber( stream ).value();
     ASSERT_EQ( Token::Kind::NUMERIC_VALUE, token.kind() );
     ASSERT_EQ( 0, token.start() );
     ASSERT_EQ( 3, token.end() );
@@ -172,11 +172,11 @@ TEST( AsciiTokenizerTests, testTokenizeKeywordRoffBin )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( AsciiTokenizerTests, testTokenizeAsciiTagKeyInt )
+TEST( AsciiTokenizerTests, testTokenizeTagKeyInt )
 {
     std::stringstream  stream( "int x 3" );
     AsciiTokenizer     tokenizer;
-    std::vector<Token> tokens = tokenizer.tokenizeAsciiTagKey( stream );
+    std::vector<Token> tokens = tokenizer.tokenizeTagKey( stream );
 
     ASSERT_EQ( 3, tokens.size() );
     ASSERT_EQ( Token::Kind::INT, tokens[0].kind() );
@@ -187,11 +187,11 @@ TEST( AsciiTokenizerTests, testTokenizeAsciiTagKeyInt )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( AsciiTokenizerTests, testTokenizeAsciiTagKeyFloat )
+TEST( AsciiTokenizerTests, testTokenizeTagKeyFloat )
 {
     std::stringstream  stream( "float z 44.5" );
     AsciiTokenizer     tokenizer;
-    std::vector<Token> tokens = tokenizer.tokenizeAsciiTagKey( stream );
+    std::vector<Token> tokens = tokenizer.tokenizeTagKey( stream );
 
     ASSERT_EQ( 3, tokens.size() );
     ASSERT_EQ( Token::Kind::FLOAT, tokens[0].kind() );
@@ -250,11 +250,11 @@ TEST( AsciiTokenizerTests, testTokenizeTagGroup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( AsciiTokenizerTests, testTokenizeArrayAsciiTagKeyInt )
+TEST( AsciiTokenizerTests, testTokenizeArrayTagKeyInt )
 {
     std::stringstream  stream( "array int my_array 6 1 2 3 4 5 6" );
     AsciiTokenizer     tokenizer;
-    std::vector<Token> tokens = tokenizer.tokenizeArrayAsciiTagKey( stream );
+    std::vector<Token> tokens = tokenizer.tokenizeArrayTagKey( stream );
 
     ASSERT_EQ( 10, tokens.size() );
     ASSERT_EQ( Token::Kind::ARRAY, tokens[0].kind() );
@@ -272,11 +272,11 @@ TEST( AsciiTokenizerTests, testTokenizeArrayAsciiTagKeyInt )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( AsciiTokenizerTests, testTokenizeArrayAsciiTagKeyStrings )
+TEST( AsciiTokenizerTests, testTokenizeArrayTagKeyStrings )
 {
     std::stringstream  stream( "array char my_array 3 \"a\" \"bb\" \"ccc\"" );
     AsciiTokenizer     tokenizer;
-    std::vector<Token> tokens = tokenizer.tokenizeArrayAsciiTagKey( stream );
+    std::vector<Token> tokens = tokenizer.tokenizeArrayTagKey( stream );
 
     ASSERT_EQ( 7, tokens.size() );
     ASSERT_EQ( Token::Kind::ARRAY, tokens[0].kind() );

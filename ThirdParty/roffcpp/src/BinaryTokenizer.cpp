@@ -1,5 +1,6 @@
-#include "AsciiTokenizer.hpp"
+#include "BinaryTokenizer.hpp"
 
+#include <cassert>
 #include <cctype>
 #include <optional>
 #include <stdexcept>
@@ -8,7 +9,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-AsciiTokenizer::AsciiTokenizer()
+BinaryTokenizer::BinaryTokenizer()
     : Tokenizer()
 {
 }
@@ -16,57 +17,41 @@ AsciiTokenizer::AsciiTokenizer()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-AsciiTokenizer::~AsciiTokenizer()
+BinaryTokenizer::~BinaryTokenizer()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool AsciiTokenizer::tokenizeSpace( std::istream& stream )
+bool BinaryTokenizer::tokenizeSpace( std::istream& stream )
 {
     auto start    = stream.tellg();
     char readChar = static_cast<char>( stream.get() );
-    if ( !std::isspace( readChar ) )
+    if ( readChar != '\0' )
     {
         stream.seekg( start );
         return false;
     }
-
-    auto end = stream.tellg();
-    readChar = static_cast<char>( stream.get() );
-    while ( stream.good() && std::isspace( readChar ) )
+    else
     {
-        end      = stream.tellg();
-        readChar = static_cast<char>( stream.get() );
+        auto end = stream.tellg();
+        stream.seekg( end );
+        return true;
     }
-
-    stream.seekg( end );
-    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::optional<Token> AsciiTokenizer::tokenizeString( std::istream& stream )
+std::optional<Token> BinaryTokenizer::tokenizeString( std::istream& stream )
 {
     tokenizeDelimiter( stream );
 
-    // First part of string should be double-quote
     auto start    = stream.tellg();
+    auto end      = start;
     char readChar = static_cast<char>( stream.get() );
-    if ( readChar != '"' )
-    {
-        // Expected string, but no opening quote found
-        stream.seekg( start );
-        return {};
-    }
-
-    // Read until closing double-quote.
-    start    = stream.tellg();
-    auto end = start;
-    readChar = static_cast<char>( stream.get() );
-    while ( stream.good() && readChar != '"' )
+    while ( stream.good() && readChar != '\0' )
     {
         end      = stream.tellg();
         readChar = static_cast<char>( stream.get() );
@@ -85,91 +70,60 @@ std::optional<Token> AsciiTokenizer::tokenizeString( std::istream& stream )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Token AsciiTokenizer::tokenizeName( std::istream& stream )
+Token BinaryTokenizer::tokenizeName( std::istream& stream )
 {
-    tokenizeDelimiter( stream );
+    auto t = tokenizeString( stream );
+    if ( !t ) throw std::runtime_error( "Could not tokenize name." );
 
+    return Token( Token::Kind::NAME, t.value().start(), t.value().end() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<Token> BinaryTokenizer::tokenizeNumber( std::istream& stream, Token::Kind kind )
+{
     auto start  = stream.tellg();
-    int  length = 0;
-
-    auto readChar = static_cast<char>( stream.get() );
-    while ( stream.good() && !std::isspace( readChar ) )
-    {
-        length++;
-        readChar = static_cast<char>( stream.get() );
-    }
-
-    if ( length < 1 )
-    {
-        stream.seekg( start );
-        throw std::runtime_error( "Could not tokenize name." );
-    }
-
-    return Token( Token::Kind::NAME, start, static_cast<size_t>( start ) + length );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::optional<Token> AsciiTokenizer::tokenizeNumber( std::istream& stream )
-{
-    tokenizeDelimiter( stream );
-
-    auto isCharValidInDigit = []( char c ) {
-        return std::isdigit( c ) || c == '.' || c == 'e' || c == 'E' || c == '-' || c == '+';
-    };
-
-    auto start = stream.tellg();
-    auto end   = start;
-
-    char readChar = static_cast<char>( stream.get() );
-    if ( stream.good() && ( std::isdigit( readChar ) || readChar == '-' ) )
-    {
-        while ( stream.good() && isCharValidInDigit( readChar ) )
-        {
-            end      = stream.tellg();
-            readChar = static_cast<char>( stream.get() );
-        }
-    }
-
-    if ( end - start < 1 )
-    {
-        // Expected numeric value, but could not find one.
-        stream.seekg( start );
-        return {};
-    }
-
+    int  length = Token::binaryTokenSizeInBytes( kind );
+    auto end    = static_cast<size_t>( start ) + length;
     stream.seekg( end );
-    return Token( Token::Kind::NUMERIC_VALUE, start, end );
+    return Token( Token::Kind::BINARY_NUMERIC_VALUE, start, end );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::optional<Token> AsciiTokenizer::tokenizeValue( std::istream& stream )
+std::optional<Token> BinaryTokenizer::tokenizeValue( std::istream& stream, Token::Kind kind )
 {
-    auto numberToken = tokenizeNumber( stream );
-    if ( numberToken )
-        return numberToken;
-    else
+    if ( kind == Token::Kind::CHAR )
         return tokenizeString( stream );
+    else
+        return tokenizeNumber( stream, kind );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::optional<Token> AsciiTokenizer::tokenizeWord( std::istream& stream, const std::string& keyword, Token::Kind kind )
+std::optional<Token> BinaryTokenizer::tokenizeWord( std::istream& stream, const std::string& keyword, Token::Kind kind )
 {
     tokenizeDelimiter( stream );
-    auto        start = stream.tellg();
-    std::string word;
-    if ( stream >> word && word == keyword )
+    auto start = stream.tellg();
+
+    int length = keyword.size();
+
+    std::vector<char> buffer( length );
+    stream.read( &buffer[0], length );
+
+    std::string word( buffer.begin(), buffer.end() );
+
+    if ( stream && keyword.compare( word ) == 0 )
     {
         auto end = static_cast<size_t>( start ) + keyword.length();
         return Token( kind, start, end );
     }
     else
     {
+        stream.clear();
         stream.seekg( start );
         return {};
     }
@@ -178,34 +132,59 @@ std::optional<Token> AsciiTokenizer::tokenizeWord( std::istream& stream, const s
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<Token> AsciiTokenizer::tokenizeTagKeyInternal( std::istream& stream )
+std::vector<Token> BinaryTokenizer::tokenizeTagKeyInternal( std::istream& stream )
 {
     std::vector<Token> tokens;
-    tokens.push_back( tokenizeSimpleType( stream ) );
+    Token              typeToken = tokenizeSimpleType( stream );
+    tokens.push_back( typeToken );
+
     tokens.push_back( tokenizeName( stream ) );
-    auto value = tokenizeValue( stream );
+
+    auto value = tokenizeValue( stream, typeToken.kind() );
     if ( value )
         tokens.push_back( value.value() );
     else
         throw std::runtime_error( "Invalid value." );
+
     return tokens;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<Token> AsciiTokenizer::tokenizeArrayTagKey( std::istream& stream )
+std::vector<Token> BinaryTokenizer::tokenizeArrayTagKey( std::istream& stream )
 {
     std::vector<Token> tokens;
     tokens.push_back( tokenizeKeyword( stream, { std::make_pair( Token::Kind::ARRAY, "array" ) } ) );
-    tokens.push_back( tokenizeSimpleType( stream ) );
+
+    auto typeToken = tokenizeSimpleType( stream );
+    tokens.push_back( typeToken );
     tokens.push_back( tokenizeName( stream ) );
-    auto numberOfElements = tokenizeNumber( stream );
-    if ( !numberOfElements ) throw std::runtime_error( "Expected numeric value" );
 
-    tokens.push_back( numberOfElements.value() );
+    auto numElementsToken = tokenizeNumber( stream, Token::Kind::INT );
+    if ( !numElementsToken )
+    {
+        throw std::runtime_error( "Expected numeric value" );
+    }
+    tokens.push_back( numElementsToken.value() );
 
-    std::vector<Token> arrayTokens = tokenizeArrayData( stream );
+    auto parseInt = []( const Token& token, std::istream& stream ) {
+        int length = Token::binaryTokenSizeInBytes( Token::Kind::INT );
+
+        auto start = token.start();
+
+        int myint;
+        stream.seekg( start );
+        stream.read( reinterpret_cast<char*>( &myint ), length );
+
+        return myint;
+    };
+
+    auto streamPos   = stream.tellg();
+    int  numElements = parseInt( numElementsToken.value(), stream );
+    stream.seekg( streamPos );
+
+    std::vector<Token> arrayTokens = tokenizeArrayData( stream, numElements, typeToken.kind() );
     tokens.insert( tokens.end(), arrayTokens.begin(), arrayTokens.end() );
 
     return tokens;
@@ -214,27 +193,30 @@ std::vector<Token> AsciiTokenizer::tokenizeArrayTagKey( std::istream& stream )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<Token> AsciiTokenizer::tokenizeArrayData( std::istream& stream )
+std::vector<Token> BinaryTokenizer::tokenizeArrayData( std::istream& stream, size_t numElements, Token::Kind kind )
 {
-    std::vector<Token> tokens;
-
-    bool gotNewToken = true;
-    while ( gotNewToken )
+    if ( kind == Token::Kind::CHAR )
     {
-        auto token = tokenizeValue( stream );
-        if ( token )
-            tokens.push_back( token.value() );
-        else
-            gotNewToken = false;
+        assert( false && "Not implemented" );
+        std::vector<Token> tokens;
+        return tokens;
     }
+    else
+    {
+        auto start = stream.tellg();
 
-    return tokens;
+        int  length = Token::binaryTokenSizeInBytes( kind ) * numElements;
+        auto end    = static_cast<size_t>( start ) + length;
+
+        stream.seekg( end );
+        return { Token( Token::Kind::ARRAYBLOB, start, end ) };
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<Token> AsciiTokenizer::tokenizeStream( std::istream& stream )
+std::vector<Token> BinaryTokenizer::tokenizeStream( std::istream& stream )
 {
-    return Tokenizer::tokenizeStream( stream, Token::Kind::ROFF_ASC );
+    return Tokenizer::tokenizeStream( stream, Token::Kind::ROFF_BIN );
 }

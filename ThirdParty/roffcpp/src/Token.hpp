@@ -31,7 +31,8 @@ public:
     size_t start() const;
     size_t end() const;
 
-    static std::string kindToString( Kind );
+    static std::string kindToString( Kind kind );
+    static int         binaryTokenSizeInBytes( Kind kind );
 
 private:
     Kind   m_kind;

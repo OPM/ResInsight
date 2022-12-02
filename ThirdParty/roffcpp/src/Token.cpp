@@ -82,3 +82,24 @@ std::string Token::kindToString( Token::Kind kind )
 
     return "";
 }
+
+int Token::binaryTokenSizeInBytes( Kind kind )
+{
+    switch ( kind )
+    {
+        case Token::Kind::BOOL:
+            return 1;
+        case Token::Kind::BYTE:
+            return 1;
+        case Token::Kind::INT:
+            return 4;
+        case Token::Kind::FLOAT:
+            return 4;
+        case Token::Kind::DOUBLE:
+            return 8;
+        default:
+            assert( false );
+    }
+
+    return -1;
+}
