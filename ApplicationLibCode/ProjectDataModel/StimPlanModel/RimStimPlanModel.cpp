@@ -835,6 +835,7 @@ void RimStimPlanModel::updatePerforationInterval()
     if ( !m_perforationInterval )
     {
         m_perforationInterval = new RimPerforationInterval;
+        m_perforationInterval->setUnitSystemSpecificDefaults();
         m_thicknessDirectionWellPath->perforationIntervalCollection()->appendPerforation( m_perforationInterval );
     }
 

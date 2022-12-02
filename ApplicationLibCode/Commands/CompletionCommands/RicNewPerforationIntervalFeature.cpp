@@ -57,6 +57,7 @@ void RicNewPerforationIntervalFeature::onActionTriggered( bool isChecked )
 
     RimPerforationInterval* perforationInterval = new RimPerforationInterval;
     perforationInterval->setStartAndEndMD( wellPath->uniqueStartMD(), wellPath->uniqueEndMD() );
+    perforationInterval->setUnitSystemSpecificDefaults();
 
     perforationCollection->appendPerforation( perforationInterval );
 
