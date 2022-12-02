@@ -39,11 +39,13 @@ void RicTileWindowsFeature::applyTiling( RiuMainWindow* mainWindow, RiaDefines::
 {
     auto mode = requestedTileMode;
 
-    // If requested mode is set, reset tiling mode to undefined
-    if ( RimProject::current()->subWindowsTileMode3DWindow() == requestedTileMode )
-        mode = RiaDefines::WindowTileMode::UNDEFINED;
+    if ( auto proj = RimProject::current() )
+    {
+        // If requested mode is set, reset tiling mode to undefined
+        if ( proj->subWindowsTileMode3DWindow() == requestedTileMode ) mode = RiaDefines::WindowTileMode::UNDEFINED;
 
-    RimProject::current()->setSubWindowsTileMode3DWindow( mode );
+        proj->setSubWindowsTileMode3DWindow( mode );
+    }
 
     if ( mainWindow )
     {
@@ -91,7 +93,9 @@ void RicTileWindowsFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 bool RicTileWindowsFeature::isCommandChecked()
 {
-    return RimProject::current()->subWindowsTileMode3DWindow() == RiaDefines::WindowTileMode::DEFAULT;
+    auto proj = RimProject::current();
+
+    return proj ? ( proj->subWindowsTileMode3DWindow() == RiaDefines::WindowTileMode::DEFAULT ) : false;
 }
 
 CAF_CMD_SOURCE_INIT( RicTilePlotWindowsFeature, "RicTilePlotWindowsFeature" );
@@ -103,11 +107,13 @@ void RicTilePlotWindowsFeature::applyTiling( RiuPlotMainWindow* mainWindow, RiaD
 {
     auto mode = requestedTileMode;
 
-    // If requested mode is set, reset tiling mode to undefined
-    if ( RimProject::current()->subWindowsTileModePlotWindow() == requestedTileMode )
-        mode = RiaDefines::WindowTileMode::UNDEFINED;
+    if ( auto proj = RimProject::current() )
+    {
+        // If requested mode is set, reset tiling mode to undefined
+        if ( proj->subWindowsTileModePlotWindow() == requestedTileMode ) mode = RiaDefines::WindowTileMode::UNDEFINED;
 
-    RimProject::current()->setSubWindowsTileModePlotWindow( mode );
+        proj->setSubWindowsTileModePlotWindow( mode );
+    }
 
     if ( mainWindow )
     {
@@ -155,7 +161,9 @@ void RicTilePlotWindowsFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 bool RicTilePlotWindowsFeature::isCommandChecked()
 {
-    return RimProject::current()->subWindowsTileModePlotWindow() == RiaDefines::WindowTileMode::DEFAULT;
+    auto proj = RimProject::current();
+
+    return proj ? ( proj->subWindowsTileModePlotWindow() == RiaDefines::WindowTileMode::DEFAULT ) : false;
 }
 
 CAF_CMD_SOURCE_INIT( RicTileWindowsVerticallyFeature, "RicTileWindowsVerticallyFeature" );
@@ -199,7 +207,9 @@ void RicTileWindowsVerticallyFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 bool RicTileWindowsVerticallyFeature::isCommandChecked()
 {
-    return RimProject::current()->subWindowsTileMode3DWindow() == RiaDefines::WindowTileMode::VERTICAL;
+    auto proj = RimProject::current();
+
+    return proj ? ( proj->subWindowsTileMode3DWindow() == RiaDefines::WindowTileMode::VERTICAL ) : false;
 }
 
 CAF_CMD_SOURCE_INIT( RicTileWindowsHorizontallyFeature, "RicTileWindowsHorizontallyFeature" );
@@ -243,7 +253,9 @@ void RicTileWindowsHorizontallyFeature::setupActionLook( QAction* actionToSetup 
 //--------------------------------------------------------------------------------------------------
 bool RicTileWindowsHorizontallyFeature::isCommandChecked()
 {
-    return RimProject::current()->subWindowsTileMode3DWindow() == RiaDefines::WindowTileMode::DEFAULT;
+    auto proj = RimProject::current();
+
+    return proj ? ( proj->subWindowsTileMode3DWindow() == RiaDefines::WindowTileMode::HORIZONTAL ) : false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -293,7 +305,9 @@ void RicTilePlotWindowsVerticallyFeature::setupActionLook( QAction* actionToSetu
 //--------------------------------------------------------------------------------------------------
 bool RicTilePlotWindowsVerticallyFeature::isCommandChecked()
 {
-    return RimProject::current()->subWindowsTileModePlotWindow() == RiaDefines::WindowTileMode::VERTICAL;
+    auto proj = RimProject::current();
+
+    return proj ? ( proj->subWindowsTileModePlotWindow() == RiaDefines::WindowTileMode::VERTICAL ) : false;
 }
 
 CAF_CMD_SOURCE_INIT( RicTilePlotWindowsHorizontallyFeature, "RicTilePlotWindowsHorizontallyFeature" );
@@ -337,5 +351,7 @@ void RicTilePlotWindowsHorizontallyFeature::setupActionLook( QAction* actionToSe
 //--------------------------------------------------------------------------------------------------
 bool RicTilePlotWindowsHorizontallyFeature::isCommandChecked()
 {
-    return RimProject::current()->subWindowsTileModePlotWindow() == RiaDefines::WindowTileMode::DEFAULT;
+    auto proj = RimProject::current();
+
+    return proj ? ( proj->subWindowsTileModePlotWindow() == RiaDefines::WindowTileMode::HORIZONTAL ) : false;
 }
