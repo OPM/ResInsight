@@ -44,11 +44,15 @@ RiuMdiArea::~RiuMdiArea()
 //--------------------------------------------------------------------------------------------------
 RiaDefines::WindowTileMode RiuMdiArea::tileMode() const
 {
-    auto* mainWindow = dynamic_cast<RiuMainWindow*>( window() );
-    if ( mainWindow ) return RimProject::current()->subWindowsTileMode3DWindow();
+    auto proj = RimProject::current();
+    if ( proj )
+    {
+        auto* mainWindow = dynamic_cast<RiuMainWindow*>( window() );
+        if ( mainWindow ) return proj->subWindowsTileMode3DWindow();
 
-    auto* plotMainWindow = dynamic_cast<RiuPlotMainWindow*>( window() );
-    if ( plotMainWindow ) return RimProject::current()->subWindowsTileModePlotWindow();
+        auto* plotMainWindow = dynamic_cast<RiuPlotMainWindow*>( window() );
+        if ( plotMainWindow ) return proj->subWindowsTileModePlotWindow();
+    }
 
     return RiaDefines::WindowTileMode::UNDEFINED;
 }

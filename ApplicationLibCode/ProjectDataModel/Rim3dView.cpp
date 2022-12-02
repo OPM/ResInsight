@@ -190,39 +190,40 @@ Rim3dView::~Rim3dView()
     // "\ResInsight-regression-test\ProjectFiles\ProjectFilesSmallTests\TestCase_CoViz-Simple" when a view used as
     // comparison view was deleted.
 
-    RimProject* proj = RimProject::current();
-
-    std::vector<Rim3dView*> allViews;
-    proj->allViews( allViews );
-
-    for ( auto v : allViews )
+    if ( auto proj = RimProject::current() )
     {
-        if ( v->activeComparisonView() == this )
+        std::vector<Rim3dView*> allViews;
+        proj->allViews( allViews );
+
+        for ( auto v : allViews )
         {
-            v->setComparisonView( nullptr );
-            v->scheduleCreateDisplayModelAndRedraw();
+            if ( v->activeComparisonView() == this )
+            {
+                v->setComparisonView( nullptr );
+                v->scheduleCreateDisplayModelAndRedraw();
+            }
         }
-    }
 
-    if ( proj && this->isMasterView() )
-    {
-        RimViewLinker* viewLinker = this->assosiatedViewLinker();
-        viewLinker->setMasterView( nullptr );
+        if ( this->isMasterView() )
+        {
+            RimViewLinker* viewLinker = this->assosiatedViewLinker();
+            viewLinker->setMasterView( nullptr );
 
-        delete proj->viewLinkerCollection->viewLinker();
-        proj->viewLinkerCollection->viewLinker = nullptr;
+            delete proj->viewLinkerCollection->viewLinker();
+            proj->viewLinkerCollection->viewLinker = nullptr;
 
-        proj->uiCapability()->updateConnectedEditors();
-    }
+            proj->uiCapability()->updateConnectedEditors();
+        }
 
-    RimViewController* vController = this->viewController();
-    if ( proj && vController )
-    {
-        vController->setManagedView( nullptr );
-        vController->ownerViewLinker()->removeViewController( vController );
-        delete vController;
+        RimViewController* vController = this->viewController();
+        if ( vController )
+        {
+            vController->setManagedView( nullptr );
+            vController->ownerViewLinker()->removeViewController( vController );
+            delete vController;
 
-        proj->uiCapability()->updateConnectedEditors();
+            proj->uiCapability()->updateConnectedEditors();
+        }
     }
 
     if ( RiaApplication::instance()->activeReservoirView() == this )
