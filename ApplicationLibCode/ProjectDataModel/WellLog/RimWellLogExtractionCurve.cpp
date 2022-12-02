@@ -558,7 +558,10 @@ RimWellLogExtractionCurve::WellLogExtractionCurveData
         //
         // ************************************************
 
-        RigEclipseResultAddress     indexKResAdr( RiaResultNames::indexKResultName() );
+        RigEclipseResultAddress indexKResAdr( RiaDefines::ResultCatType::STATIC_NATIVE,
+                                              RiaResultNames::indexKResultName() );
+        eclipseCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( indexKResAdr );
+
         cvf::ref<RigResultAccessor> indexKResAcc =
             RigResultAccessorFactory::createFromResultAddress( eclipseCase->eclipseCaseData(),
                                                                0,
