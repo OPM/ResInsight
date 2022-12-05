@@ -39,9 +39,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RifReaderOpmRft::RifReaderOpmRft( const QString& fileName, const QString& dataDeckFileName )
-    : m_segmentResultItemCount( 0 )
-    , m_connectionResultItemCount( 0 )
-    , m_fileName( fileName )
+    : m_fileName( fileName )
     , m_dataDeckFileName( dataDeckFileName )
     , m_detectedErrorWhenOpeningRftFile( false )
 {
@@ -51,9 +49,7 @@ RifReaderOpmRft::RifReaderOpmRft( const QString& fileName, const QString& dataDe
 ///
 //--------------------------------------------------------------------------------------------------
 RifReaderOpmRft::RifReaderOpmRft( const QString& fileName )
-    : m_segmentResultItemCount( 0 )
-    , m_connectionResultItemCount( 0 )
-    , m_fileName( fileName )
+    : m_fileName( fileName )
     , m_detectedErrorWhenOpeningRftFile( false )
 {
 }
@@ -128,7 +124,7 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
                 auto key     = std::make_pair( wellName, RftDate{ y, m, d } );
                 auto segment = m_rftWellDateSegments[key];
 
-                if ( data.size() == m_connectionResultItemCount )
+                if ( m_connectionResultItemCount.count( wellName ) && data.size() == m_connectionResultItemCount[wellName] )
                 {
                     // Connection results with size equal to length of result CONSEGNO. CONSEGNO defines the segment
                     // numbers the connection is connected to.
@@ -534,21 +530,21 @@ void RifReaderOpmRft::buildSegmentData()
 
             for ( const auto& [name, arrayType, size] : results )
             {
-                if ( ( name.find( "SEG" ) == 0 ) && m_segmentResultItemCount == 0 )
+                if ( ( name.find( "SEG" ) == 0 ) && m_segmentResultItemCount.count( wellName ) == 0 )
                 {
-                    m_segmentResultItemCount = size;
+                    m_segmentResultItemCount[wellName] = size;
                 }
-                if ( name.find( "CON" ) == 0 && m_connectionResultItemCount == 0 )
+                if ( name.find( "CON" ) == 0 && m_connectionResultItemCount.count( wellName ) == 0 )
                 {
-                    m_connectionResultItemCount = size;
+                    m_connectionResultItemCount[wellName] = size;
                 }
             }
 
             for ( const auto& rftResultMetaData : results )
             {
                 const auto& [name, arrayType, size] = rftResultMetaData;
-                if ( size == static_cast<int64_t>( m_segmentResultItemCount ) ||
-                     size == static_cast<int64_t>( m_connectionResultItemCount ) )
+                if ( size == static_cast<int64_t>( m_segmentResultItemCount[wellName] ) ||
+                     size == static_cast<int64_t>( m_connectionResultItemCount[wellName] ) )
                 {
                     segment.addResultNameAndSize( rftResultMetaData );
                 }

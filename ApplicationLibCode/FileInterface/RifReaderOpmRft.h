@@ -104,8 +104,8 @@ private:
     std::map<RftSegmentKey, RifRftSegment> m_rftWellDateSegments;
     std::set<QDateTime>                    m_rftSegmentTimeSteps;
 
-    size_t m_segmentResultItemCount;
-    size_t m_connectionResultItemCount;
+    std::map<std::string, size_t> m_segmentResultItemCount;
+    std::map<std::string, size_t> m_connectionResultItemCount;
 
     std::map<std::string, std::vector<std::pair<int, int>>> m_wseglink;
 
