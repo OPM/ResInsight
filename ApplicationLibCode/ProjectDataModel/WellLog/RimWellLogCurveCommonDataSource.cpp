@@ -864,6 +864,13 @@ void RimWellLogCurveCommonDataSource::fieldChangedByUi( const caf::PdmFieldHandl
     }
 
     this->applyDataSourceChanges();
+
+    if ( changedField == &m_rftWellName )
+    {
+        // The segment branch index is depending on the well name. Make sure that the combo box for branch index is
+        // updated.
+        m_rftSegmentBranchIndex.uiCapability()->updateConnectedEditors();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
