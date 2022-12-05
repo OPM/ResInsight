@@ -111,6 +111,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Surfaces
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Intersections
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Streamlines
+  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Seismic
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/CellFilters
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/ProcessControl
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/WellLog
@@ -183,6 +184,7 @@ list(
   ProjectDataModel/PlotTemplates/CMakeLists_files.cmake
   ProjectDataModel/StimPlanModel/CMakeLists_files.cmake
   ProjectDataModel/Streamlines/CMakeLists_files.cmake
+  ProjectDataModel/Seismic/CMakeLists_files.cmake
   ProjectDataModel/Surfaces/CMakeLists_files.cmake
   ProjectDataModel/Intersections/CMakeLists_files.cmake
   ProjectDataModel/CellFilters/CMakeLists_files.cmake
