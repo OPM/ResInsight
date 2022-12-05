@@ -543,8 +543,17 @@ void RifReaderOpmRft::buildSegmentData()
             for ( const auto& rftResultMetaData : results )
             {
                 const auto& [name, arrayType, size] = rftResultMetaData;
-                if ( size == static_cast<int64_t>( m_segmentResultItemCount[wellName] ) ||
+
+                bool isResultItemCountValid = false;
+                if ( m_segmentResultItemCount.count( wellName ) &&
+                     size == static_cast<int64_t>( m_segmentResultItemCount[wellName] ) )
+                    isResultItemCountValid = true;
+
+                if ( m_connectionResultItemCount.count( wellName ) &&
                      size == static_cast<int64_t>( m_connectionResultItemCount[wellName] ) )
+                    isResultItemCountValid = true;
+
+                if ( isResultItemCountValid )
                 {
                     segment.addResultNameAndSize( rftResultMetaData );
                 }
