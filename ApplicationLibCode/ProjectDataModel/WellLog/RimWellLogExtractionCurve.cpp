@@ -552,12 +552,6 @@ RimWellLogExtractionCurve::WellLogExtractionCurveData
     // Reference well adjustment does not support simulated wells
     if ( m_trajectoryType == WELL_PATH && wellExtractor.notNull() && refWellExtractor.notNull() )
     {
-        // ************************************************
-        //
-        // Adjust measured dept values according to refWell
-        //
-        // ************************************************
-
         RigEclipseResultAddress indexKResAdr( RiaDefines::ResultCatType::STATIC_NATIVE,
                                               RiaResultNames::indexKResultName() );
         eclipseCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( indexKResAdr );
@@ -601,8 +595,6 @@ RimWellLogExtractionCurve::WellLogExtractionCurveData
                                                 bool            performDataSmoothing,
                                                 double          smoothingThreshold )
 {
-    // TODO: Add depth adjustements for reference well
-
     WellLogExtractionCurveData           curveData;
     RimWellLogPlotCollection*            wellLogCollection = RimMainPlotCollection::current()->wellLogPlotCollection();
     cvf::ref<RigGeoMechWellLogExtractor> wellExtractor = wellLogCollection->findOrCreateExtractor( m_wellPath, geomCase );
