@@ -190,6 +190,7 @@ list(
   ProjectDataModel/WellLog/CMakeLists_files.cmake
   ProjectDataModel/WellMeasurement/CMakeLists_files.cmake
   ProjectDataModel/WellPath/CMakeLists_files.cmake
+  ProjectDataModel/Tools/CMakeLists_files.cmake
   ProjectDataModelCommands/CMakeLists_files.cmake
   ProjectDataModelCommands/CommandRouter/CMakeLists_files.cmake
   GeoMech/GeoMechVisualization/CMakeLists_files.cmake

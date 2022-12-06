@@ -54,11 +54,13 @@ public:
     RimSummaryCase();
     ~RimSummaryCase() override;
 
-    virtual QString summaryHeaderFilename() const;
-    QString         displayCaseName() const;
-    QString         nativeCaseName() const;
-    void            setCaseId( int caseId );
-    int             caseId() const;
+    virtual QString                      summaryHeaderFilename() const;
+    QString                              displayCaseName() const;
+    QString                              nativeCaseName() const;
+    RimCaseDisplayNameTools::DisplayName displayNameType() const;
+
+    void setCaseId( int caseId );
+    int  caseId() const;
 
     void setCustomCaseName( const QString& caseName );
 
