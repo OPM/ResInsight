@@ -60,6 +60,11 @@ void RimSeismicCollection::addSeismicData( RimSeismicData* data )
 //--------------------------------------------------------------------------------------------------
 RimSeismicData* RimSeismicCollection::importSeismicFromFile( const QString fileName )
 {
+    RimSeismicData* seisData = new RimSeismicData();
+    seisData->setFileName( fileName );
+
+    addSeismicData( seisData );
+
     this->updateConnectedEditors();
 
     return nullptr;

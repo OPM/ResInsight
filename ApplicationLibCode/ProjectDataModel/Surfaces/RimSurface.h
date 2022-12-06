@@ -40,8 +40,6 @@ public:
         DEFAULT,
         ENSEMBLE_SOURCE,
         ENSEMBLE_STATISTICS,
-        // TODO: Add fault reactivation surfaces
-
     };
 
 public:

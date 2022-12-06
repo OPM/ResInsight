@@ -15,31 +15,20 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "cafCmdFeature.h"
 
-#include <QString>
-
-class RimSeismicData : public caf::PdmObject
+//==================================================================================================
+///
+//==================================================================================================
+class RicImportSeismicFeature : public caf::CmdFeature
 {
-    CAF_PDM_HEADER_INIT;
-
-public:
-    RimSeismicData();
-    ~RimSeismicData() override;
-
-    void    setFileName( QString filename );
-    QString fileName() const;
-
-    QString userDescription();
-    void    setUserDescription( QString description );
+    CAF_CMD_HEADER_INIT;
 
 protected:
-    caf::PdmFieldHandle* userDescriptionField() override;
-
-private:
-    caf::PdmField<QString> m_filename;
-    caf::PdmField<QString> m_userDescription;
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };

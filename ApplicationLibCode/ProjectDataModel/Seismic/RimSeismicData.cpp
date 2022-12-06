@@ -27,6 +27,11 @@ RimSeismicData::RimSeismicData()
 {
     CAF_PDM_InitObject( "SeismicData", ":/Seismic16x16.png" );
 
+    CAF_PDM_InitFieldNoDefault( &m_userDescription, "SeismicUserDecription", "Name" );
+
+    CAF_PDM_InitFieldNoDefault( &m_filename, "SeismicFilePath", "File" );
+    m_filename.uiCapability()->setUiReadOnly( true );
+
     setDeletable( true );
 }
 
@@ -35,4 +40,44 @@ RimSeismicData::RimSeismicData()
 //--------------------------------------------------------------------------------------------------
 RimSeismicData::~RimSeismicData()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicData::setFileName( QString filename )
+{
+    m_filename = filename;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSeismicData::fileName() const
+{
+    return m_filename;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSeismicData::userDescription()
+{
+    return m_userDescription;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicData::setUserDescription( QString description )
+{
+    m_userDescription = description;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmFieldHandle* RimSeismicData::userDescriptionField()
+{
+    return &m_userDescription;
 }

@@ -35,6 +35,7 @@ set(COMMAND_REFERENCED_CMAKE_FILES
     SsiHubImportCommands/CMakeLists_files.cmake
     StreamlineCommands/CMakeLists_files.cmake
     SurfaceCommands/CMakeLists_files.cmake
+    SeismicCommands/CMakeLists_files.cmake
     ToggleCommands/CMakeLists_files.cmake
     ViewLink/CMakeLists_files.cmake
     WellLogCommands/CMakeLists_files.cmake
