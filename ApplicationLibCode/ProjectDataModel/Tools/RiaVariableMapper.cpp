@@ -16,180 +16,172 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaOpmParserTools.h"
+#include "RiaVariableMapper.h"
+#include "RiaTextStringTools.h"
 
-#include "cafPdmUiItem.h"
-#include "cafUtils.h"
-
-#include "opm/input/eclipse/Deck/Deck.hpp"
-#include "opm/input/eclipse/Parser/ParseContext.hpp"
-#include "opm/input/eclipse/Parser/Parser.hpp"
-#include "opm/input/eclipse/Parser/ParserKeywords/I.hpp"
-#include "opm/input/eclipse/Parser/ParserKeywords/P.hpp"
-#include "opm/input/eclipse/Parser/ParserKeywords/V.hpp"
-#include "opm/input/eclipse/Parser/ParserKeywords/W.hpp"
+#include <QStringList>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<Opm::VFPInjTable> RiaOpmParserTools::extractVfpInjectionTables( const std::string& filename )
+VariableNameValueMapper::VariableNameValueMapper( const QString& globalPathListTable )
 {
-    std::vector<Opm::VFPInjTable> tables;
+    m_maxUsedIdNumber     = 0;
+    QStringList pathPairs = RiaTextStringTools::splitSkipEmptyParts( globalPathListTable, ";" );
 
-    try
+    for ( const QString& pathIdPathPair : pathPairs )
     {
-        Opm::Parser                           parser( false );
-        const ::Opm::ParserKeywords::VFPINJ   kw1;
-        const ::Opm::ParserKeywords::VFPIDIMS kw2;
+        QStringList pathIdPathComponents = pathIdPathPair.trimmed().split( variableToken() );
 
-        parser.addParserKeyword( kw1 );
-        parser.addParserKeyword( kw2 );
-
-        auto deck = parser.parseFile( filename );
-
-        std::string myKeyword   = "VFPINJ";
-        auto        keywordList = deck.getKeywordList( myKeyword );
-
-        for ( auto kw : keywordList )
+        if ( pathIdPathComponents.size() == 3 && pathIdPathComponents[0].size() == 0 )
         {
-            auto name = kw->name();
+            QString pathIdCore = pathIdPathComponents[1];
+            QString pathId     = variableToken() + pathIdCore + variableToken();
+            QString path       = pathIdPathComponents[2].trimmed();
 
-            Opm::UnitSystem unitSystem;
+            // Check if we have a standard id, and store the max number
+
+            if ( pathIdCore.startsWith( pathIdBaseString ) )
             {
-                const auto& header = kw->getRecord( 0 );
+                bool    isOk       = false;
+                QString numberText = pathIdCore.right( pathIdCore.size() - pathIdBaseString.size() );
+                size_t  idNumber   = numberText.toUInt( &isOk );
 
-                if ( header.getItem<Opm::ParserKeywords::VFPINJ::UNITS>().hasValue( 0 ) )
+                if ( isOk )
                 {
-                    std::string units_string;
-                    units_string = header.getItem<Opm::ParserKeywords::VFPINJ::UNITS>().get<std::string>( 0 );
-                    unitSystem   = Opm::UnitSystem( units_string );
+                    m_maxUsedIdNumber = std::max( m_maxUsedIdNumber, idNumber );
                 }
             }
 
-            Opm::VFPInjTable table( *kw, unitSystem );
-            tables.push_back( table );
+            // Check for unique pathId
+            {
+                auto pathIdPathPairIt = m_variableToValueMap.find( pathId );
+
+                if ( pathIdPathPairIt != m_variableToValueMap.end() )
+                {
+                    // Error: pathID is already used
+                }
+            }
+
+            // Check for multiple identical paths
+            {
+                auto pathPathIdPairIt = m_valueToVariableMap.find( path );
+
+                if ( pathPathIdPairIt != m_valueToVariableMap.end() )
+                {
+                    // Warning: path has already been assigned a pathId
+                }
+            }
+
+            m_variableToValueMap[pathId] = path;
+            m_valueToVariableMap[path]   = pathId;
+        }
+        else
+        {
+            // Error: The text is ill formatted
         }
     }
-    catch ( ... )
-    {
-    }
-
-    return tables;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<Opm::VFPProdTable> RiaOpmParserTools::extractVfpProductionTables( const std::string& filename )
+QString VariableNameValueMapper::addPathAndGetId( const QString& path )
 {
-    std::vector<Opm::VFPProdTable> tables;
+    // Want to re-use ids from last save to avoid unnecessary changes and make the behavior predictable
+    QString pathId;
+    QString trimmedPath = path.trimmed();
 
-    try
+    auto pathToIdIt = m_valueToVariableMap.find( trimmedPath );
+    if ( pathToIdIt != m_valueToVariableMap.end() )
     {
-        Opm::Parser                          parser( false );
-        const ::Opm::ParserKeywords::VFPPROD kw1;
-
-        parser.addParserKeyword( kw1 );
-
-        auto deck = parser.parseFile( filename );
-
-        std::string myKeyword   = "VFPPROD";
-        auto        keywordList = deck.getKeywordList( myKeyword );
-
-        for ( auto kw : keywordList )
+        pathId = pathToIdIt->second;
+    }
+    else
+    {
+        auto pathPathIdPairIt = m_newValueToVariableMap.find( trimmedPath );
+        if ( pathPathIdPairIt != m_newValueToVariableMap.end() )
         {
-            auto name = kw->name();
-
-            Opm::UnitSystem unitSystem;
-            {
-                const auto& header = kw->getRecord( 0 );
-
-                if ( header.getItem<Opm::ParserKeywords::VFPPROD::UNITS>().hasValue( 0 ) )
-                {
-                    std::string units_string;
-                    units_string = header.getItem<Opm::ParserKeywords::VFPPROD::UNITS>().get<std::string>( 0 );
-                    unitSystem   = Opm::UnitSystem( units_string );
-                }
-            }
-
-            bool              gaslift_opt_active = false;
-            Opm::VFPProdTable table( *kw, gaslift_opt_active, unitSystem );
-            tables.push_back( table );
+            pathId = pathPathIdPairIt->second;
+        }
+        else
+        {
+            pathId = createUnusedId();
         }
     }
-    catch ( ... )
-    {
-    }
 
-    return tables;
+    m_newVariableToValueMap[pathId]      = trimmedPath;
+    m_newValueToVariableMap[trimmedPath] = pathId;
+
+    return pathId;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<std::string, std::vector<std::pair<int, int>>> RiaOpmParserTools::extractWseglink( const std::string& filename )
+QString VariableNameValueMapper::variableTableAsText() const
 {
-    if ( !std::filesystem::exists( filename ) ) return {};
-
-    Opm::Parser parser( false );
-
-    const Opm::ParserKeywords::WSEGLINK kw1;
-    const Opm::ParserKeywords::INCLUDE  kw2;
-    const Opm::ParserKeywords::PATHS    kw3;
-
-    parser.addParserKeyword( kw1 );
-    parser.addParserKeyword( kw2 );
-    parser.addParserKeyword( kw3 );
-
-    std::stringstream ss;
-    Opm::ParseContext parseContext( Opm::InputError::Action::WARN );
-    auto              deck = parser.parseFile( filename, parseContext );
-
-    std::string keyword     = "WSEGLINK";
-    auto        keywordList = deck.getKeywordList( keyword );
-    if ( keywordList.empty() ) return {};
-
-    std::map<std::string, std::vector<std::pair<int, int>>> wseglink;
-    for ( auto kw : keywordList )
+    QString pathList;
+    pathList += "\n";
+    for ( const auto& pathIdPathPairIt : m_newVariableToValueMap )
     {
-        auto name = kw->name();
-
-        for ( size_t i = 0; i < kw->size(); i++ )
-        {
-            auto deckRecord = kw->getRecord( i );
-
-            std::string wellName;
-            int         segment1 = -1;
-            int         segment2 = -1;
-
-            {
-                auto itemName = ::Opm::ParserKeywords::WSEGLINK::WELL::itemName;
-                if ( deckRecord.hasItem( itemName ) && deckRecord.getItem( itemName ).hasValue( 0 ) )
-                {
-                    wellName = deckRecord.getItem( itemName ).getTrimmedString( 0 );
-                }
-            }
-            {
-                auto itemName = ::Opm::ParserKeywords::WSEGLINK::SEGMENT1::itemName;
-                if ( deckRecord.hasItem( itemName ) && deckRecord.getItem( itemName ).hasValue( 0 ) )
-                {
-                    segment1 = deckRecord.getItem( itemName ).get<int>( 0 );
-                }
-            }
-            {
-                auto itemName = ::Opm::ParserKeywords::WSEGLINK::SEGMENT2::itemName;
-                if ( deckRecord.hasItem( itemName ) && deckRecord.getItem( itemName ).hasValue( 0 ) )
-                {
-                    segment2 = deckRecord.getItem( itemName ).get<int>( 0 );
-                }
-            }
-
-            if ( segment1 != -1 && segment2 != -1 )
-            {
-                wseglink[wellName].push_back( std::make_pair( segment1, segment2 ) );
-            }
-        }
+        pathList += "        " + pathIdPathPairIt.first + " " + pathIdPathPairIt.second + ";\n";
     }
 
-    return wseglink;
+    pathList += "    ";
+
+    return pathList;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString VariableNameValueMapper::pathFromPathId( const QString& pathId, bool* isFound ) const
+{
+    auto it = m_variableToValueMap.find( pathId );
+    if ( it != m_variableToValueMap.end() )
+    {
+        ( *isFound ) = true;
+        return it->second;
+    }
+
+    ( *isFound ) = false;
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void VariableNameValueMapper::addVariable( const QString& variableName, const QString& variableValue )
+{
+    m_newVariableToValueMap[variableName] = variableValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString VariableNameValueMapper::valueForVariable( const QString& variableName, bool* isFound ) const
+{
+    auto it = m_variableToValueMap.find( variableName );
+    if ( it != m_variableToValueMap.end() )
+    {
+        ( *isFound ) = true;
+        return it->second;
+    }
+
+    ( *isFound ) = false;
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString VariableNameValueMapper::createUnusedId()
+{
+    m_maxUsedIdNumber++;
+
+    QString numberString   = QString( "%1" ).arg( (uint)m_maxUsedIdNumber, 3, 10, QChar( '0' ) );
+    QString pathIdentifier = variableToken() + pathIdBaseString + numberString + variableToken();
+
+    return pathIdentifier;
 }

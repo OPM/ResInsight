@@ -18,21 +18,35 @@
 
 #pragma once
 
+#include <QString>
 #include <map>
-#include <string>
-#include <vector>
 
-#include "opm/input/eclipse/Schedule/VFPInjTable.hpp"
-#include "opm/input/eclipse/Schedule/VFPProdTable.hpp"
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-class RiaOpmParserTools
+class VariableNameValueMapper
 {
 public:
-    static std::vector<Opm::VFPInjTable>  extractVfpInjectionTables( const std::string& filename );
-    static std::vector<Opm::VFPProdTable> extractVfpProductionTables( const std::string& filename );
+    static QString variableToken() { return "$"; }
 
-    static std::map<std::string, std::vector<std::pair<int, int>>> extractWseglink( const std::string& filename );
+public:
+    VariableNameValueMapper( const QString& globalPathListTable );
+
+    QString addPathAndGetId( const QString& path );
+    QString variableTableAsText() const;
+    QString pathFromPathId( const QString& pathId, bool* isFound ) const;
+
+    void    addVariable( const QString& variableName, const QString& variableValue );
+    QString valueForVariable( const QString& variableName, bool* isFound ) const;
+
+private:
+    QString createUnusedId();
+
+private:
+    const QString pathIdBaseString = "PathId_";
+
+    size_t m_maxUsedIdNumber; // Set when parsing the globalPathListTable. Increment while creating new id's
+
+    std::map<QString, QString> m_newVariableToValueMap;
+    std::map<QString, QString> m_newValueToVariableMap;
+
+    std::map<QString, QString> m_variableToValueMap;
+    std::map<QString, QString> m_valueToVariableMap;
 };
