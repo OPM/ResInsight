@@ -633,15 +633,40 @@ RimWellLogExtractionCurve::WellLogExtractionCurveData
         }
     }
 
+    const std::string fieldName = m_geomResultDefinition->resultAddress().fieldName;
+    if ( fieldName == RiaResultNames::wbsAzimuthResult().toStdString() ||
+         fieldName == RiaResultNames::wbsInclinationResult().toStdString() )
+    {
+        // Do not adjust depth values of Azimuth and Inclination as they are
+        // dependent of the well geometry
+        return curveData;
+    }
+
     if ( wellExtractor.notNull() && refWellExtractor.notNull() )
     {
-        // Add reference well depth adjustments
+        // NOTE: Perform performCurveDataSmoothing() for refWell, as done for well?
 
-        // ************************************************
-        //
-        // Adjust measured dept values according to refWell
-        //
-        // ************************************************
+        RigFemResultAddress indexKResAdr( RigFemResultPosEnum::RIG_ELEMENT_NODAL, "INDEX", "INDEX_K" );
+
+        const size_t        frameIdx                   = 0;
+        std::vector<double> refWellMeasuredDepthValues = refWellExtractor->cellIntersectionMDs();
+        std::vector<double> refWellTvDepthValues       = refWellExtractor->cellIntersectionTVDs();
+        std::vector<double> wellIndexKValues;
+        std::vector<double> refWellIndexKValues;
+        if ( indexKResAdr.isValid() )
+        {
+            wellExtractor->curveData( indexKResAdr, frameIdx, &wellIndexKValues );
+            refWellExtractor->curveData( indexKResAdr, frameIdx, &refWellIndexKValues );
+        }
+        if ( !wellIndexKValues.empty() && !refWellIndexKValues.empty() )
+        {
+            adjustWellDepthValuesToReferenceWell( curveData.measuredDepthValues,
+                                                  curveData.tvDepthValues,
+                                                  wellIndexKValues,
+                                                  refWellMeasuredDepthValues,
+                                                  refWellTvDepthValues,
+                                                  refWellIndexKValues );
+        }
     }
 
     return curveData;
