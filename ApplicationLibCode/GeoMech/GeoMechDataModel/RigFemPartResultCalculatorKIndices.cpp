@@ -83,7 +83,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorKIndices::calculate( int    
 
         const int elementCount = femPart->elementCount();
 
-        // Using max() as std::numberic_limitz<size_t>::infinity() returns 0
+        // Using max() as std::numeric_limits<size_t>::infinity() returns 0
         constexpr size_t maxValue = std::numeric_limits<size_t>::max();
 
 #pragma omp parallel for

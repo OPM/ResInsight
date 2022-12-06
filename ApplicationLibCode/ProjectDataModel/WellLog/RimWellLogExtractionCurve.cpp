@@ -673,8 +673,11 @@ RimWellLogExtractionCurve::WellLogExtractionCurveData
 }
 
 //--------------------------------------------------------------------------------------------------
-// Utility function to adjust well depth values according to reference well - match k-index
-//     enter/exit values and linearize between enter/exit of k-index
+/// Utility function to adjust well depth values according to reference well - match
+/// enter and exit values for k-layer and linearize for depth values between enter/exit of k-layer.
+///
+/// Performs depth adjustment from first common k-layer to last common k-layer - i.e common min and
+/// max index-k, as long as the k-layers are asymptotically increasing.
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::adjustWellDepthValuesToReferenceWell( std::vector<double>&       rMeasuredDepthValues,
                                                                       std::vector<double>&       rTvDepthValues,
@@ -683,12 +686,6 @@ void RimWellLogExtractionCurve::adjustWellDepthValuesToReferenceWell( std::vecto
                                                                       const std::vector<double>& refWellTvDepthValues,
                                                                       const std::vector<double>& refWellIndexKValues )
 {
-    // Description:
-    // - Adjust values up to largest common k-index value
-    // Assumptions:
-    // - Both wells have min k-index equal to 1.
-    // - k-index values are continously increasing values between top and bottom of well
-
     CAF_ASSERT( rMeasuredDepthValues.size() == rTvDepthValues.size() &&
                 "Number of depth values must be equal for well!" );
     CAF_ASSERT( rMeasuredDepthValues.size() == indexKValues.size() &&
@@ -699,13 +696,15 @@ void RimWellLogExtractionCurve::adjustWellDepthValuesToReferenceWell( std::vecto
                 "Number of index K values must be number of depth values for reference well!" );
     CAF_ASSERT( *std::min( indexKValues.cbegin(), indexKValues.cend() ) ==
                     *std::min( refWellIndexKValues.cbegin(), refWellIndexKValues.cend() ) &&
-                "Both index-K value vectors must have same start index-K layer" );
+                "Both index-K value vectors must containt common min index-K layer" );
 
-    // Find common min and max k-index value for range depth values adjustment
-    const double minLayerK = std::max( *std::min_element( refWellIndexKValues.cbegin(), refWellIndexKValues.cend() ),
-                                       *std::min_element( indexKValues.cbegin(), indexKValues.cend() ) );
-    const double maxLayerK = std::min( *std::max_element( refWellIndexKValues.cbegin(), refWellIndexKValues.cend() ),
-                                       *std::max_element( indexKValues.cbegin(), indexKValues.cend() ) );
+    // Find common min and max k-index value for range of depth values to adjust
+    const auto minLayerK =
+        static_cast<int>( std::max( *std::min_element( refWellIndexKValues.cbegin(), refWellIndexKValues.cend() ),
+                                    *std::min_element( indexKValues.cbegin(), indexKValues.cend() ) ) );
+    const auto maxLayerK =
+        static_cast<int>( std::min( *std::max_element( refWellIndexKValues.cbegin(), refWellIndexKValues.cend() ),
+                                    *std::max_element( indexKValues.cbegin(), indexKValues.cend() ) ) );
     if ( minLayerK > maxLayerK )
     {
         RiaLogging::error(
@@ -713,32 +712,38 @@ void RimWellLogExtractionCurve::adjustWellDepthValuesToReferenceWell( std::vecto
         return;
     }
 
-    RigWellLogIndexDepthOffset refWellLogIndexDepthOffset;
-    for ( int kLayer = static_cast<int>( minLayerK ); kLayer <= static_cast<int>( maxLayerK ); kLayer++ )
+    // Only allow asymptotically increasing k-layers - break at first decreasing k-layer value
+    auto createKLayerAndIndexMap = []( const std::vector<double>& indexKValues, int minLayerK, int maxLayerK ) {
+        int                                prevKLayer          = -1;
+        std::map<int, std::vector<size_t>> kLayerAndIndexesMap = {};
+        for ( size_t i = 0; i < indexKValues.size(); ++i )
+        {
+            const auto kLayer = static_cast<int>( indexKValues[i] );
+            if ( kLayer < minLayerK ) continue;
+            if ( kLayer < prevKLayer || kLayer > maxLayerK ) break;
+
+            kLayerAndIndexesMap[kLayer].push_back( i );
+            prevKLayer = kLayer;
+        }
+        return kLayerAndIndexesMap;
+    };
+
+    RigWellLogIndexDepthOffset         refWellLogIndexDepthOffset;
+    std::map<int, std::vector<size_t>> refWellKLayerAndIndexesMap =
+        createKLayerAndIndexMap( refWellIndexKValues, minLayerK, maxLayerK );
+    for ( const auto& [kLayer, indexes] : refWellKLayerAndIndexesMap )
     {
-        const auto kLayerTopIter =
-            std::find( refWellIndexKValues.cbegin(), refWellIndexKValues.cend(), static_cast<double>( kLayer ) );
-        const auto kLayerBottomRIter =
-            std::find( refWellIndexKValues.crbegin(), refWellIndexKValues.crend(), static_cast<double>( kLayer ) );
-        const auto indexTop    = std::distance( refWellIndexKValues.cbegin(), kLayerTopIter );
-        const auto indexBottom = refWellIndexKValues.size() - 1 -
-                                 std::distance( refWellIndexKValues.crbegin(), kLayerBottomRIter );
-
-        const auto topMd     = refWellMeasuredDepthValues[indexTop];
-        const auto bottomMd  = refWellMeasuredDepthValues[indexBottom];
-        const auto topTvd    = refWellTvDepthValues[indexTop];
-        const auto bottomTvd = refWellTvDepthValues[indexBottom];
-
-        refWellLogIndexDepthOffset.setIndexOffsetDepth( kLayer, topMd, bottomMd, topTvd, bottomTvd );
+        const auto indexTop    = indexes.front();
+        const auto indexBottom = indexes.back();
+        refWellLogIndexDepthOffset.setIndexOffsetDepth( kLayer,
+                                                        refWellMeasuredDepthValues[indexTop],
+                                                        refWellMeasuredDepthValues[indexBottom],
+                                                        refWellTvDepthValues[indexTop],
+                                                        refWellTvDepthValues[indexBottom] );
     }
 
-    std::map<int, std::vector<size_t>> wellKLayerAndIndexesMap = {};
-    for ( size_t i = 0; i < indexKValues.size(); i++ )
-    {
-        const int kLayer = static_cast<int>( indexKValues[i] );
-        wellKLayerAndIndexesMap[kLayer].push_back( i );
-    }
-
+    std::map<int, std::vector<size_t>> wellKLayerAndIndexesMap =
+        createKLayerAndIndexMap( indexKValues, minLayerK, maxLayerK );
     for ( const auto& [kLayer, indexes] : wellKLayerAndIndexesMap )
     {
         const auto firstIdx = indexes.front();
