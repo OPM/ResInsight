@@ -731,7 +731,7 @@ void RimWellLogExtractionCurve::adjustWellDepthValuesToReferenceWell( std::vecto
             rMeasuredDepthValues[firstIdx] = refWellLogIndexDepthOffset.getTopMd( kLayer );
             rMeasuredDepthValues[lastIdx]  = refWellLogIndexDepthOffset.getBottomMd( kLayer );
             rTvDepthValues[firstIdx]       = refWellLogIndexDepthOffset.getTopTvd( kLayer );
-            rTvDepthValues[lastIdx]        = refWellLogIndexDepthOffset.getBottomMd( kLayer );
+            rTvDepthValues[lastIdx]        = refWellLogIndexDepthOffset.getBottomTvd( kLayer );
         }
         else if ( indexes.size() > 2 && refWellLogIndexDepthOffset.hasIndex( kLayer ) )
         {
