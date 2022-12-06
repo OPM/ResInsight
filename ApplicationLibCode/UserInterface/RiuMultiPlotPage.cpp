@@ -450,6 +450,7 @@ void RiuMultiPlotPage::contextMenuEvent( QContextMenuEvent* event )
 
     menuBuilder << "RicShowPlotDataFeature";
     menuBuilder << "RicShowContributingWellsFromPlotFeature";
+    menuBuilder << "RicNewDefaultSummaryPlotFeature";
 
     menuBuilder.appendToMenu( &menu );
 
