@@ -1590,7 +1590,7 @@ void RimProject::distributePathsFromGlobalPathList()
              pathIdComponents[2].size() == 0 )
         {
             bool    isFound = false;
-            QString path    = pathListMapper.pathFromPathId( pathIdCandidate, &isFound );
+            QString path    = pathListMapper.valueForVariable( pathIdCandidate, &isFound );
             if ( isFound )
             {
                 filePath->setPath( path );

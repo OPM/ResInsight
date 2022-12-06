@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2020- Equinor ASA
+//  Copyright (C) 2022- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -53,32 +53,8 @@ VariableNameValueMapper::VariableNameValueMapper( const QString& globalPathListT
                 }
             }
 
-            // Check for unique pathId
-            {
-                auto pathIdPathPairIt = m_variableToValueMap.find( pathId );
-
-                if ( pathIdPathPairIt != m_variableToValueMap.end() )
-                {
-                    // Error: pathID is already used
-                }
-            }
-
-            // Check for multiple identical paths
-            {
-                auto pathPathIdPairIt = m_valueToVariableMap.find( path );
-
-                if ( pathPathIdPairIt != m_valueToVariableMap.end() )
-                {
-                    // Warning: path has already been assigned a pathId
-                }
-            }
-
             m_variableToValueMap[pathId] = path;
             m_valueToVariableMap[path]   = pathId;
-        }
-        else
-        {
-            // Error: The text is ill formatted
         }
     }
 }
@@ -99,8 +75,8 @@ QString VariableNameValueMapper::addPathAndGetId( const QString& path )
     }
     else
     {
-        auto pathPathIdPairIt = m_newValueToVariableMap.find( trimmedPath );
-        if ( pathPathIdPairIt != m_newValueToVariableMap.end() )
+        auto pathPathIdPairIt = m_pathToPathIdMap.find( trimmedPath );
+        if ( pathPathIdPairIt != m_pathToPathIdMap.end() )
         {
             pathId = pathPathIdPairIt->second;
         }
@@ -110,8 +86,9 @@ QString VariableNameValueMapper::addPathAndGetId( const QString& path )
         }
     }
 
-    m_newVariableToValueMap[pathId]      = trimmedPath;
-    m_newValueToVariableMap[trimmedPath] = pathId;
+    addVariable( pathId, trimmedPath );
+
+    m_pathToPathIdMap[trimmedPath] = pathId;
 
     return pathId;
 }
@@ -121,32 +98,16 @@ QString VariableNameValueMapper::addPathAndGetId( const QString& path )
 //--------------------------------------------------------------------------------------------------
 QString VariableNameValueMapper::variableTableAsText() const
 {
-    QString pathList;
-    pathList += "\n";
-    for ( const auto& pathIdPathPairIt : m_newVariableToValueMap )
+    QString textTable;
+    textTable += "\n";
+    for ( const auto& variableNameValuePair : m_newVariableToValueMap )
     {
-        pathList += "        " + pathIdPathPairIt.first + " " + pathIdPathPairIt.second + ";\n";
+        textTable += "        " + variableNameValuePair.first + " " + variableNameValuePair.second + ";\n";
     }
 
-    pathList += "    ";
+    textTable += "    ";
 
-    return pathList;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString VariableNameValueMapper::pathFromPathId( const QString& pathId, bool* isFound ) const
-{
-    auto it = m_variableToValueMap.find( pathId );
-    if ( it != m_variableToValueMap.end() )
-    {
-        ( *isFound ) = true;
-        return it->second;
-    }
-
-    ( *isFound ) = false;
-    return "";
+    return textTable;
 }
 
 //--------------------------------------------------------------------------------------------------

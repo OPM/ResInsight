@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2020- Equinor ASA
+//  Copyright (C) 2022- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -30,11 +30,10 @@ public:
     VariableNameValueMapper( const QString& globalPathListTable );
 
     QString addPathAndGetId( const QString& path );
-    QString variableTableAsText() const;
-    QString pathFromPathId( const QString& pathId, bool* isFound ) const;
 
     void    addVariable( const QString& variableName, const QString& variableValue );
     QString valueForVariable( const QString& variableName, bool* isFound ) const;
+    QString variableTableAsText() const;
 
 private:
     QString createUnusedId();
@@ -45,7 +44,7 @@ private:
     size_t m_maxUsedIdNumber; // Set when parsing the globalPathListTable. Increment while creating new id's
 
     std::map<QString, QString> m_newVariableToValueMap;
-    std::map<QString, QString> m_newValueToVariableMap;
+    std::map<QString, QString> m_pathToPathIdMap;
 
     std::map<QString, QString> m_variableToValueMap;
     std::map<QString, QString> m_valueToVariableMap;
