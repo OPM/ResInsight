@@ -5,7 +5,9 @@ project(cafCommandFeatures)
 # Unity Build
 if(CAF_ENABLE_UNITY_BUILD)
   message("Cmake Unity build is enabled on : ${PROJECT_NAME}")
-  set(CMAKE_UNITY_BUILD true)
+  set(CMAKE_UNITY_BUILD
+      true
+  )
 endif()
 
 # These headers need to go through Qt's MOC compiler
@@ -17,7 +19,9 @@ find_package(
   COMPONENTS
   REQUIRED Core Gui Widgets
 )
-set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
+set(QT_LIBRARIES
+    Qt5::Core Qt5::Gui Qt5::Widgets
+)
 qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})
 
 set(PROJECT_FILES
@@ -65,7 +69,10 @@ set(QRC_FILES
 # https://gitlab.kitware.com/cmake/community/wikis/doc/tutorials/Object-Library
 # and
 # https://cmake.org/cmake/help/v3.15/command/add_library.html?highlight=add_library#object-libraries
-add_library(${PROJECT_NAME} OBJECT ${PROJECT_FILES} ${MOC_SOURCE_FILES})
+add_library(
+  ${PROJECT_NAME} OBJECT
+  ${PROJECT_FILES} ${MOC_SOURCE_FILES}
+)
 
 target_include_directories(
   ${PROJECT_NAME}
@@ -85,15 +92,22 @@ target_include_directories(
 # Before cmake 3.12 OBJECT libraries could not use the target_link_libraries
 # command, So we need to set the POSITION_INDEPENDENT_CODE option  manually
 
-set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_property(
+  TARGET ${PROJECT_NAME}
+  PROPERTY POSITION_INDEPENDENT_CODE ON
+)
 
 # Not to be used until we can use cmake 3.12 or above target_link_libraries (
 # ${PROJECT_NAME} cafCommand cafUserInterface ${QT_LIBRARIES} )
 
 if(MSVC)
   set_target_properties(
-    ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127"
+    ${PROJECT_NAME}
+    PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127"
   )
 endif()
 
-source_group("" FILES ${PROJECT_FILES})
+source_group(
+  ""
+  FILES ${PROJECT_FILES}
+)

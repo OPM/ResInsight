@@ -5,12 +5,15 @@ project(cafPdmUiCore)
 # Unity Build
 if(CAF_ENABLE_UNITY_BUILD)
   message("Cmake Unity build is enabled on : ${PROJECT_NAME}")
-  set(CMAKE_UNITY_BUILD true)
+  set(CMAKE_UNITY_BUILD
+      true
+  )
 endif()
 
 # These headers need to go through Qt's MOC compiler
-set(MOC_HEADER_FILES cafPdmUiEditorHandle.h cafPdmUiFieldEditorHandle.h
-                     cafPdmUiSelection3dEditorVisualizer.h cafQShortenedLabel.h
+set(MOC_HEADER_FILES
+    cafPdmUiEditorHandle.h cafPdmUiFieldEditorHandle.h
+    cafPdmUiSelection3dEditorVisualizer.h cafQShortenedLabel.h
 )
 
 # Qt
@@ -19,7 +22,9 @@ find_package(
   COMPONENTS
   REQUIRED Core Gui Widgets
 )
-set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
+set(QT_LIBRARIES
+    Qt5::Core Qt5::Gui Qt5::Widgets
+)
 qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})
 
 include_directories(..)
@@ -86,16 +91,26 @@ set(QRC_FILES
     PARENT_SCOPE
 )
 
-add_library(${PROJECT_NAME} ${PROJECT_FILES} ${MOC_SOURCE_FILES})
+add_library(
+  ${PROJECT_NAME}
+  ${PROJECT_FILES} ${MOC_SOURCE_FILES}
+)
 
 target_link_libraries(${PROJECT_NAME} cafPdmCore ${QT_LIBRARIES})
 
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(
+  ${PROJECT_NAME}
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
 if(MSVC)
   set_target_properties(
-    ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127"
+    ${PROJECT_NAME}
+    PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127"
   )
 endif()
 
-source_group("" FILES ${PROJECT_FILES})
+source_group(
+  ""
+  FILES ${PROJECT_FILES}
+)

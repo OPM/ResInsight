@@ -3,7 +3,9 @@ cmake_minimum_required(VERSION 3.15)
 include(CheckCSourceCompiles)
 project(ResInsight)
 
-set(VIZ_MODULES_FOLDER_NAME Fwk/VizFwk)
+set(VIZ_MODULES_FOLDER_NAME
+    Fwk/VizFwk
+)
 
 cmake_policy(SET CMP0020 NEW)
 if(POLICY CMP0077)
@@ -17,11 +19,16 @@ if(UNIX)
     ON
   )
   if(RESINSIGHT_PREFER_LEGACY_OPENGL)
-    set(OpenGL_GL_PREFERENCE LEGACY)
+    set(OpenGL_GL_PREFERENCE
+        LEGACY
+    )
   endif()
 endif()
 
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+set_property(
+  GLOBAL
+  PROPERTY USE_FOLDERS ON
+)
 
 set(BUILD_SHARED_LIBS
     OFF
@@ -37,13 +44,21 @@ option(VCPKG_AUTO_INSTALL
 )
 if(VCPKG_AUTO_INSTALL)
   include(AutoVcpkg)
-  set(AUTO_VCPKG_ROOT "${CMAKE_SOURCE_DIR}/ThirdParty/vcpkg")
+  set(AUTO_VCPKG_ROOT
+      "${CMAKE_SOURCE_DIR}/ThirdParty/vcpkg"
+  )
 endif()
 
 # Use CMake to enforce C++17
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_STANDARD
+    17
+)
+set(CMAKE_CXX_STANDARD_REQUIRED
+    ON
+)
+set(CMAKE_CXX_EXTENSIONS
+    OFF
+)
 
 # ##############################################################################
 # Setup the main platform defines
@@ -53,16 +68,24 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   add_definitions(-DCVF_OSX)
 elseif(MSVC)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
-  set(_HAS_STD_BYTE 0)
+  set(CMAKE_CXX_FLAGS
+      "${CMAKE_CXX_FLAGS} /MP"
+  )
+  set(_HAS_STD_BYTE
+      0
+  )
 endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set(CMAKE_CXX_FLAGS
       "-DCVF_LINUX -pipe -Wextra -Woverloaded-virtual -Wformat -Wno-unused-parameter"
   )
-  set(CMAKE_CXX_FLAGS_DEBUG "-ggdb -g3 -O0 -DDEBUG -D_DEBUG")
-  set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNO_DEBUG")
+  set(CMAKE_CXX_FLAGS_DEBUG
+      "-ggdb -g3 -O0 -DDEBUG -D_DEBUG"
+  )
+  set(CMAKE_CXX_FLAGS_RELEASE
+      "-O2 -DNO_DEBUG"
+  )
 endif()
 
 # ##############################################################################
@@ -73,8 +96,12 @@ if(RESINSIGHT_USE_OPENMP)
   find_package(OpenMP)
   if(OPENMP_FOUND)
     message(STATUS "Enabling OpenMP support")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} -DUSE_OPENMP")
+    set(CMAKE_C_FLAGS
+        "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}"
+    )
+    set(CMAKE_CXX_FLAGS
+        "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} -DUSE_OPENMP"
+    )
     set(CMAKE_EXE_LINKER_FLAGS
         "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}"
     )
@@ -94,7 +121,9 @@ set(RESINSIGHT_ODB_API_DIR
 )
 if(NOT ${RESINSIGHT_ODB_API_DIR} EQUAL "")
   add_definitions(-DUSE_ODB_API)
-  set(RESINSIGHT_USE_ODB_API 1)
+  set(RESINSIGHT_USE_ODB_API
+      1
+  )
   message(STATUS "Using ODB-Api from : ${RESINSIGHT_ODB_API_DIR}")
 endif()
 
@@ -134,8 +163,12 @@ option(RESINSIGHT_ENABLE_UNITY_BUILD
 )
 mark_as_advanced(FORCE RESINSIGHT_ENABLE_UNITY_BUILD)
 if(RESINSIGHT_ENABLE_UNITY_BUILD)
-  set(CAF_ENABLE_UNITY_BUILD true)
-  set(CVF_ENABLE_UNITY_BUILD true)
+  set(CAF_ENABLE_UNITY_BUILD
+      true
+  )
+  set(CVF_ENABLE_UNITY_BUILD
+      true
+  )
 endif()
 
 # ##############################################################################
@@ -144,7 +177,9 @@ endif()
 
 # Use of CMAKE_CXX_COMPILER_LAUNCHER is not working with libecl. Disable by
 # temporarily setting compiler launcher to nothing
-set(TEMP_CMAKE_CXX_COMPILER_LAUNCHER ${CMAKE_CXX_COMPILER_LAUNCHER})
+set(TEMP_CMAKE_CXX_COMPILER_LAUNCHER
+    ${CMAKE_CXX_COMPILER_LAUNCHER}
+)
 set(CMAKE_CXX_COMPILER_LAUNCHER)
 
 if(NOT MSVC)
@@ -160,9 +195,12 @@ if(NOT MSVC)
   )
 endif()
 
-if(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
-  if(NOT (RESINSIGHT_ERT_EXTERNAL_LIB_ROOT
-          AND RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
+if(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT
+   OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT
+)
+  if(NOT
+     (RESINSIGHT_ERT_EXTERNAL_LIB_ROOT
+      AND RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
   )
     message(
       FATAL_ERROR
@@ -193,12 +231,18 @@ else()
   )
 
   # Remember original state
-  set(ORIGINAL_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
+  set(ORIGINAL_BUILD_SHARED_LIBS
+      ${BUILD_SHARED_LIBS}
+  )
 
   if(MSVC)
     # Force static linking on Windows
-    set(BUILD_SHARED_LIBS OFF)
-    set(ERT_HAVE_UNISTD OFF) # If anyone has mingw installed
+    set(BUILD_SHARED_LIBS
+        OFF
+    )
+    set(ERT_HAVE_UNISTD
+        OFF
+    ) # If anyone has mingw installed
   else()
     set(RESINSIGHT_ERT_EXTERNAL_SOURCE_ROOT
         ""
@@ -207,7 +251,9 @@ else()
 
     # Force dynamic linking on other platforms Copy of libraries into install
     # folder of ResInsight is done a bit further down in this file
-    set(BUILD_SHARED_LIBS ON)
+    set(BUILD_SHARED_LIBS
+        ON
+    )
   endif()
 
   if(RESINSIGHT_ERT_EXTERNAL_SOURCE_ROOT)
@@ -242,22 +288,33 @@ else()
     )
 
     target_compile_options(
-      ecl PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-Wno-class-memaccess>
+      ecl
+      PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-Wno-class-memaccess>
     )
 
   endif()
 
   list(APPEND THIRD_PARTY_LIBRARIES ecl)
 
-  set_property(TARGET catch2 PROPERTY FOLDER "Thirdparty")
+  set_property(
+    TARGET catch2
+    PROPERTY FOLDER "Thirdparty"
+  )
 
   # Restore original state
-  set(BUILD_SHARED_LIBS ${ORIGINAL_BUILD_SHARED_LIBS})
+  set(BUILD_SHARED_LIBS
+      ${ORIGINAL_BUILD_SHARED_LIBS}
+  )
 
-endif(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
+endif(
+  RESINSIGHT_ERT_EXTERNAL_LIB_ROOT
+  OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT
+)
 
 # restore buildcache when libecl has been configured
-set(CMAKE_CXX_COMPILER_LAUNCHER ${TEMP_CMAKE_CXX_COMPILER_LAUNCHER})
+set(CMAKE_CXX_COMPILER_LAUNCHER
+    ${TEMP_CMAKE_CXX_COMPILER_LAUNCHER}
+)
 
 # ##############################################################################
 
@@ -270,12 +327,19 @@ list(APPEND THIRD_PARTY_SUBMODULES fast_float qwt qtadvanceddocking openzgy)
 # Init GIT submodules if they haven't already #
 # ##############################################################################
 find_package(Git QUIET)
-if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
+if(GIT_FOUND
+   AND EXISTS "${PROJECT_SOURCE_DIR}/.git"
+)
   # Update submodules as needed
   option(GIT_SUBMODULE "Check submodules during build" ON)
   if(GIT_SUBMODULE)
-    foreach(SUBMODULE ${THIRD_PARTY_SUBMODULES})
-      set(SUBDIR "${PROJECT_SOURCE_DIR}/ThirdParty/${SUBMODULE}")
+    foreach(
+      SUBMODULE
+      ${THIRD_PARTY_SUBMODULES}
+    )
+      set(SUBDIR
+          "${PROJECT_SOURCE_DIR}/ThirdParty/${SUBMODULE}"
+      )
       message(STATUS "Initializing GIT submodule ${SUBMODULE}")
       execute_process(
         COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive --
@@ -304,20 +368,28 @@ endif()
 # ##############################################################################
 find_program(buildcache_program buildcache)
 if(buildcache_program)
-  set(CMAKE_CXX_COMPILER_LAUNCHER "${buildcache_program}")
+  set(CMAKE_CXX_COMPILER_LAUNCHER
+      "${buildcache_program}"
+  )
   message(STATUS "Found buildcache from : ${buildcache_program}")
 
   if(MSVC)
-    string(REGEX REPLACE "/Zi" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    string(
+      REGEX
+      REPLACE "/Zi" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}"
+    )
 
     if(CMAKE_CXX_FLAGS_DEBUG MATCHES "/Zi")
       message(STATUS "Clearing pdb setting")
-      string(REGEX REPLACE "/Zi" "" CMAKE_CXX_FLAGS_DEBUG
-                           "${CMAKE_CXX_FLAGS_DEBUG}"
+      string(
+        REGEX
+        REPLACE "/Zi" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}"
       )
     endif()
 
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Z7")
+    set(CMAKE_CXX_FLAGS_DEBUG
+        "${CMAKE_CXX_FLAGS_DEBUG} /Z7"
+    )
   endif()
 else()
   message(STATUS "No buildcache found")
@@ -339,7 +411,9 @@ if(MSVC)
          ${RESINSIGHT_HDF5_DIR}/lib/hdf5_cpp.lib
     )
 
-    set(RESINSIGHT_FOUND_HDF5 1)
+    set(RESINSIGHT_FOUND_HDF5
+        1
+    )
     message(STATUS "Using HDF5 from : ${RESINSIGHT_HDF5_DIR}")
   else()
     message(
@@ -348,11 +422,16 @@ if(MSVC)
     )
   endif()
 else()
-  find_package(HDF5 COMPONENTS CXX)
+  find_package(
+    HDF5
+    COMPONENTS CXX
+  )
   if(HDF5_FOUND)
     list(APPEND EXTERNAL_LINK_LIBRARIES ${HDF5_LIBRARIES})
 
-    set(RESINSIGHT_FOUND_HDF5 1)
+    set(RESINSIGHT_FOUND_HDF5
+        1
+    )
     message(STATUS "Using HDF5 libraries : ${HDF5_LIBRARIES}")
 
     option(RESINSIGHT_HDF5_BUNDLE_LIBRARIES "Bundle HDF5 libraries" OFF)
@@ -386,7 +465,8 @@ list(APPEND OPM_LIBRARIES custom-opm-flowdiagnostics custom-opm-flowdiag-app
 )
 
 set_property(
-  TARGET ${OPM_LIBRARIES} opm-parser-tests PROPERTY FOLDER "Thirdparty/OPM"
+  TARGET ${OPM_LIBRARIES} opm-parser-tests
+  PROPERTY FOLDER "Thirdparty/OPM"
 )
 
 # ##############################################################################
@@ -409,10 +489,13 @@ list(APPEND THIRD_PARTY_LIBRARIES openzgy)
 # ##############################################################################
 # Qt
 # ##############################################################################
-set(RI_QT_MINIMUM_VERSION 5.12)
+set(RI_QT_MINIMUM_VERSION
+    5.12
+)
 
 find_package(
-  Qt5 ${RI_QT_MINIMUM_VERSION} COMPONENTS Core Gui OpenGL Network Widgets
+  Qt5 ${RI_QT_MINIMUM_VERSION}
+  COMPONENTS Core Gui OpenGL Network Widgets
 )
 
 # Open GL
@@ -423,14 +506,19 @@ find_package(OpenGL)
 # ##############################################################################
 option(RESINSIGHT_USE_QT_CHARTS "Enable QtCharts in the code" ON)
 if(RESINSIGHT_USE_QT_CHARTS)
-  find_package(Qt5 OPTIONAL_COMPONENTS Charts)
+  find_package(
+    Qt5
+    OPTIONAL_COMPONENTS Charts
+  )
 
   if(Qt5Charts_FOUND)
     message(STATUS "QtCharts found: ${Qt5Charts_LIBRARIES}")
     add_definitions(-DUSE_QTCHARTS)
   else()
     message(STATUS "QtCharts not found.")
-    set(RESINSIGHT_USE_QT_CHARTS OFF)
+    set(RESINSIGHT_USE_QT_CHARTS
+        OFF
+    )
   endif()
 endif()
 
@@ -441,11 +529,20 @@ endif()
 add_subdirectory(ThirdParty/qwt)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-  target_compile_options(qwt PRIVATE -Wno-deprecated-copy)
+  target_compile_options(
+    qwt
+    PRIVATE -Wno-deprecated-copy
+  )
 elseif(MSVC)
-  target_compile_options(qwt PRIVATE /wd4996 /wd4005)
+  target_compile_options(
+    qwt
+    PRIVATE /wd4996 /wd4005
+  )
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  target_compile_options(qwt PRIVATE -Wno-deprecated)
+  target_compile_options(
+    qwt
+    PRIVATE -Wno-deprecated
+  )
 endif()
 
 list(APPEND THIRD_PARTY_LIBRARIES qwt)
@@ -453,16 +550,27 @@ list(APPEND THIRD_PARTY_LIBRARIES qwt)
 # ##############################################################################
 # Qt Advanced Docking System
 # ##############################################################################
-set(ADS_VERSION "3.8.2")
+set(ADS_VERSION
+    "3.8.2"
+)
 
 add_subdirectory(ThirdParty/qtadvanceddocking EXCLUDE_FROM_ALL)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-  target_compile_options(qtadvanceddocking PRIVATE -Wno-deprecated-copy)
+  target_compile_options(
+    qtadvanceddocking
+    PRIVATE -Wno-deprecated-copy
+  )
 elseif(MSVC)
-  target_compile_options(qtadvanceddocking PRIVATE /wd4996 /wd4005)
+  target_compile_options(
+    qtadvanceddocking
+    PRIVATE /wd4996 /wd4005
+  )
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  target_compile_options(qtadvanceddocking PRIVATE -Wno-deprecated)
+  target_compile_options(
+    qtadvanceddocking
+    PRIVATE -Wno-deprecated
+  )
 endif()
 
 list(APPEND THIRD_PARTY_LIBRARIES qtadvanceddocking)
@@ -473,9 +581,15 @@ list(APPEND THIRD_PARTY_LIBRARIES qtadvanceddocking)
 
 add_subdirectory(ThirdParty/nightcharts)
 if(MSVC)
-  target_compile_options(nightcharts PRIVATE /wd4996)
+  target_compile_options(
+    nightcharts
+    PRIVATE /wd4996
+  )
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  target_compile_options(nightcharts PRIVATE -Wno-deprecated)
+  target_compile_options(
+    nightcharts
+    PRIVATE -Wno-deprecated
+  )
 endif()
 
 list(APPEND THIRD_PARTY_LIBRARIES nightcharts)
@@ -487,7 +601,10 @@ list(APPEND THIRD_PARTY_LIBRARIES nightcharts)
 add_subdirectory(ThirdParty/expressionparser)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  target_compile_options(expressionparser PUBLIC -Wno-overloaded-virtual)
+  target_compile_options(
+    expressionparser
+    PUBLIC -Wno-overloaded-virtual
+  )
 endif()
 
 list(APPEND THIRD_PARTY_LIBRARIES expressionparser)
@@ -499,7 +616,10 @@ list(APPEND THIRD_PARTY_LIBRARIES expressionparser)
 add_subdirectory(ThirdParty/clipper)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  target_compile_options(clipper PUBLIC -Wno-deprecated-copy)
+  target_compile_options(
+    clipper
+    PUBLIC -Wno-deprecated-copy
+  )
 endif()
 
 list(APPEND THIRD_PARTY_LIBRARIES clipper)
@@ -507,20 +627,32 @@ list(APPEND THIRD_PARTY_LIBRARIES clipper)
 # ##############################################################################
 # Thirdparty libraries are put in ThirdParty solution folder
 # ##############################################################################
-set_property(TARGET ${THIRD_PARTY_LIBRARIES} PROPERTY FOLDER "Thirdparty")
+set_property(
+  TARGET ${THIRD_PARTY_LIBRARIES}
+  PROPERTY FOLDER "Thirdparty"
+)
 
 # ##############################################################################
 # Unity Build
 # ##############################################################################
 if(RESINSIGHT_ENABLE_UNITY_BUILD)
   message("Cmake Unity build is enabled on : qwt")
-  set_property(TARGET qwt PROPERTY UNITY_BUILD true)
+  set_property(
+    TARGET qwt
+    PROPERTY UNITY_BUILD true
+  )
   message("Cmake Unity build is enabled on : custom-opm-flowdiagnostics")
-  set_property(TARGET custom-opm-flowdiagnostics PROPERTY UNITY_BUILD true)
+  set_property(
+    TARGET custom-opm-flowdiagnostics
+    PROPERTY UNITY_BUILD true
+  )
   # message("Cmake Unity build is enabled on : custom-opm-common")
   # set_property(TARGET custom-opm-common PROPERTY UNITY_BUILD true)
   message("Cmake Unity build is enabled on : qtadvanceddocking")
-  set_property(TARGET qtadvanceddocking PROPERTY UNITY_BUILD true)
+  set_property(
+    TARGET qtadvanceddocking
+    PROPERTY UNITY_BUILD true
+  )
 endif()
 
 # ##############################################################################
@@ -572,17 +704,24 @@ list(
 )
 
 if(MSVC)
-  target_compile_options(LibGuiQt PRIVATE /wd4996)
+  target_compile_options(
+    LibGuiQt
+    PRIVATE /wd4996
+  )
 endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   target_compile_options(
-    LibRender PRIVATE -Wno-undefined-var-template -Wno-invalid-source-encoding
-                      -Wno-null-pointer-arithmetic
+    LibRender
+    PRIVATE -Wno-undefined-var-template -Wno-invalid-source-encoding
+            -Wno-null-pointer-arithmetic
   )
 endif()
 
-set_property(TARGET ${VIZ_FWK_LIBRARIES} PROPERTY FOLDER "VizFwk")
+set_property(
+  TARGET ${VIZ_FWK_LIBRARIES}
+  PROPERTY FOLDER "VizFwk"
+)
 
 # ##############################################################################
 # Application Framework
@@ -605,38 +744,68 @@ add_subdirectory(Fwk/AppFwk/cafVizExtensions)
 
 option(CAF_CVF_SCRIPTING "" ON)
 add_subdirectory(Fwk/AppFwk/cafPdmScripting)
-set_property(TARGET cafPdmScripting PROPERTY FOLDER "AppFwk")
+set_property(
+  TARGET cafPdmScripting
+  PROPERTY FOLDER "AppFwk"
+)
 
 add_subdirectory(Fwk/AppFwk/cafCommandFeatures)
-set_property(TARGET cafCommandFeatures PROPERTY FOLDER "AppFwk")
+set_property(
+  TARGET cafCommandFeatures
+  PROPERTY FOLDER "AppFwk"
+)
 
 add_subdirectory(Fwk/AppFwk/cafTensor)
 add_subdirectory(Fwk/AppFwk/cafHexInterpolator)
 
 if(MSVC)
-  target_compile_options(cafViewer PRIVATE /wd4996)
-  target_compile_options(cafPdmCore PRIVATE /wd4996)
-  target_compile_options(cafPdmCore PRIVATE /wd4996)
-  target_compile_options(cafPdmXml PRIVATE /wd4996)
-  target_compile_options(cafUserInterface PRIVATE /wd4996)
+  target_compile_options(
+    cafViewer
+    PRIVATE /wd4996
+  )
+  target_compile_options(
+    cafPdmCore
+    PRIVATE /wd4996
+  )
+  target_compile_options(
+    cafPdmCore
+    PRIVATE /wd4996
+  )
+  target_compile_options(
+    cafPdmXml
+    PRIVATE /wd4996
+  )
+  target_compile_options(
+    cafUserInterface
+    PRIVATE /wd4996
+  )
 endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  target_compile_options(cafCommandFeatures PRIVATE -Wno-deprecated-copy)
+  target_compile_options(
+    cafCommandFeatures
+    PRIVATE -Wno-deprecated-copy
+  )
 endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   target_compile_options(
-    CommonCode PRIVATE -Wno-deprecated-copy -Wno-undefined-var-template
+    CommonCode
+    PRIVATE -Wno-deprecated-copy -Wno-undefined-var-template
   )
   target_compile_options(
-    cafCommandFeatures PRIVATE -Wno-deprecated-copy -Wno-undefined-var-template
+    cafCommandFeatures
+    PRIVATE -Wno-deprecated-copy -Wno-undefined-var-template
   )
   target_compile_options(
-    cafVizExtensions PRIVATE -Wno-deprecated-copy -Wno-undefined-var-template
-                             -Wno-invalid-source-encoding
+    cafVizExtensions
+    PRIVATE -Wno-deprecated-copy -Wno-undefined-var-template
+            -Wno-invalid-source-encoding
   )
-  target_compile_options(cafUserInterface PRIVATE -Wno-null-pointer-arithmetic)
+  target_compile_options(
+    cafUserInterface
+    PRIVATE -Wno-null-pointer-arithmetic
+  )
 endif()
 
 list(
@@ -657,7 +826,10 @@ list(
   cafPdmScripting
 )
 
-set_property(TARGET ${APP_FWK_LIBRARIES} PROPERTY FOLDER "AppFwk")
+set_property(
+  TARGET ${APP_FWK_LIBRARIES}
+  PROPERTY FOLDER "AppFwk"
+)
 
 option(RESINSIGHT_INCLUDE_APPFWK_TESTS "Enable AppFwk Tests" OFF)
 mark_as_advanced(FORCE RESINSIGHT_INCLUDE_APPFWK_TESTS)
@@ -666,36 +838,57 @@ if(RESINSIGHT_INCLUDE_APPFWK_TESTS)
   # Unit Tests
   add_subdirectory(Fwk/AppFwk/cafProjectDataModel/cafProjectDataModel_UnitTests)
   set_property(
-    TARGET cafProjectDataModel_UnitTests PROPERTY FOLDER "AppFwkTests"
+    TARGET cafProjectDataModel_UnitTests
+    PROPERTY FOLDER "AppFwkTests"
   )
 
   add_subdirectory(
     Fwk/AppFwk/cafProjectDataModel/cafPdmCore/cafPdmCore_UnitTests
   )
-  set_property(TARGET cafPdmCore_UnitTests PROPERTY FOLDER "AppFwkTests")
+  set_property(
+    TARGET cafPdmCore_UnitTests
+    PROPERTY FOLDER "AppFwkTests"
+  )
 
   add_subdirectory(Fwk/AppFwk/cafProjectDataModel/cafPdmXml/cafPdmXml_UnitTests)
-  set_property(TARGET cafPdmXml_UnitTests PROPERTY FOLDER "AppFwkTests")
+  set_property(
+    TARGET cafPdmXml_UnitTests
+    PROPERTY FOLDER "AppFwkTests"
+  )
 
   add_subdirectory(Fwk/AppFwk/cafPdmScripting/cafPdmScripting_UnitTests)
-  set_property(TARGET cafPdmScripting_UnitTests PROPERTY FOLDER "AppFwkTests")
+  set_property(
+    TARGET cafPdmScripting_UnitTests
+    PROPERTY FOLDER "AppFwkTests"
+  )
 
   add_subdirectory(Fwk/AppFwk/cafUserInterface/cafUserInterface_UnitTests)
-  set_property(TARGET cafUserInterface_UnitTests PROPERTY FOLDER "AppFwkTests")
+  set_property(
+    TARGET cafUserInterface_UnitTests
+    PROPERTY FOLDER "AppFwkTests"
+  )
 
   # Executables
   add_subdirectory(Fwk/AppFwk/cafTests/cafTestApplication)
-  set_property(TARGET cafTestApplication PROPERTY FOLDER "AppFwkTests")
+  set_property(
+    TARGET cafTestApplication
+    PROPERTY FOLDER "AppFwkTests"
+  )
 
   add_subdirectory(Fwk/AppFwk/cafTests/cafTestCvfApplication)
-  set_property(TARGET cafTestCvfApplication PROPERTY FOLDER "AppFwkTests")
+  set_property(
+    TARGET cafTestCvfApplication
+    PROPERTY FOLDER "AppFwkTests"
+  )
 endif()
 
 # ##############################################################################
 # Installation settings
 # ##############################################################################
 
-set(RESINSIGHT_INSTALL_FOLDER ".")
+set(RESINSIGHT_INSTALL_FOLDER
+    "."
+)
 
 # override system install prefix if private installation chosen
 option(RESINSIGHT_PRIVATE_INSTALL
@@ -717,8 +910,9 @@ if(RESINSIGHT_PRIVATE_INSTALL)
         ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so.2
         ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so.2.4
     )
-    install(FILES ${ERT_SHARED_LIB_FILES}
-            DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
+    install(
+      FILES ${ERT_SHARED_LIB_FILES}
+      DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
     )
   endif()
 
@@ -740,12 +934,16 @@ if(RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
   if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     # find all file names with text hdf5 use file globbing to also copy the
     # symlinks to make sure the dependencies from ResInsight runtime is correct
-    foreach(FILE_TO_COPY ${HDF5_LIBRARIES})
+    foreach(
+      FILE_TO_COPY
+      ${HDF5_LIBRARIES}
+    )
       string(FIND ${FILE_TO_COPY} "hdf5" POS_IN_STRING)
       if(${POS_IN_STRING} GREATER -1)
         file(GLOB FILE_AND_SYMLINKS ${FILE_TO_COPY}*)
-        install(FILES ${FILE_AND_SYMLINKS}
-                DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
+        install(
+          FILES ${FILE_AND_SYMLINKS}
+          DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
         )
       endif()
     endforeach()
@@ -753,8 +951,9 @@ if(RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
 endif(RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
 
 if(RESINSIGHT_BUNDLE_TESTMODELS)
-  install(DIRECTORY ${CMAKE_SOURCE_DIR}/TestModels
-          DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
+  install(
+    DIRECTORY ${CMAKE_SOURCE_DIR}/TestModels
+    DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
   )
 endif()
 

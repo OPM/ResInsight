@@ -5,7 +5,9 @@ project(RigGeoMechDataModel)
 # Unity Build
 if(RESINSIGHT_ENABLE_UNITY_BUILD)
   message("Cmake Unity build is enabled on : ${PROJECT_NAME}")
-  set(CMAKE_UNITY_BUILD true)
+  set(CMAKE_UNITY_BUILD
+      true
+  )
 endif()
 
 add_library(
@@ -106,12 +108,19 @@ add_library(
   RimGeoMechGeometrySelectionItem.cpp
 )
 
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(
+  ${PROJECT_NAME}
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
-set(LINK_LIBRARIES LibCore cafPdmCvf cafTensor cafUserInterface CommonCode
-                   ResultStatisticsCache
+set(LINK_LIBRARIES
+    LibCore cafPdmCvf cafTensor cafUserInterface CommonCode
+    ResultStatisticsCache
 )
 
 target_link_libraries(${PROJECT_NAME} ${LINK_LIBRARIES})
 
-source_group("" FILES ${PROJECT_FILES})
+source_group(
+  ""
+  FILES ${PROJECT_FILES}
+)

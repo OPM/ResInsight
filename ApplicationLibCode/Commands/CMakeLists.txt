@@ -5,7 +5,9 @@ project(Commands)
 # Unity Build
 if(RESINSIGHT_ENABLE_UNITY_BUILD)
   message("Cmake Unity build is enabled on : ${PROJECT_NAME}")
-  set(CMAKE_UNITY_BUILD true)
+  set(CMAKE_UNITY_BUILD
+      true
+  )
 endif()
 
 set(COMMAND_REFERENCED_CMAKE_FILES
@@ -45,7 +47,10 @@ set(COMMAND_REFERENCED_CMAKE_FILES
 )
 
 # Include source file lists from *.cmake files
-foreach(referencedfile ${COMMAND_REFERENCED_CMAKE_FILES})
+foreach(
+  referencedfile
+  ${COMMAND_REFERENCED_CMAKE_FILES}
+)
   include(${referencedfile})
 endforeach(referencedfile)
 
@@ -95,9 +100,15 @@ endif()
 
 if(RESINSIGHT_TREAT_WARNINGS_AS_ERRORS)
   if(MSVC)
-    target_compile_options(Commands PRIVATE /WX)
+    target_compile_options(
+      Commands
+      PRIVATE /WX
+    )
   elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    target_compile_options(Commands PRIVATE -Werror)
+    target_compile_options(
+      Commands
+      PRIVATE -Werror
+    )
   endif()
 endif()
 
@@ -111,17 +122,22 @@ if(MSVC)
   # set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W3 /wd4190
   # /wd4100 /wd4127")
 
-  set(BUILD_FLAGS_FOR_MSVC "/wd4190 /wd4100 /wd4127 /wd4245 /wd4005 /wd4573")
+  set(BUILD_FLAGS_FOR_MSVC
+      "/wd4190 /wd4100 /wd4127 /wd4245 /wd4005 /wd4573"
+  )
 
   if(CMAKE_CXX_COMPILER_VERSION LESS_EQUAL 19.14)
     # The following warning is generated over 800 times from a qwt header only
     # using VS2015 Disabling temporarily warning C4505 'function' : unreferenced
     # local function has been removed
-    set(BUILD_FLAGS_FOR_MSVC "${BUILD_FLAGS_FOR_MSVC} /wd4505")
+    set(BUILD_FLAGS_FOR_MSVC
+        "${BUILD_FLAGS_FOR_MSVC} /wd4505"
+    )
   endif()
 
   set_target_properties(
-    ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS ${BUILD_FLAGS_FOR_MSVC}
+    ${PROJECT_NAME}
+    PROPERTIES COMPILE_FLAGS ${BUILD_FLAGS_FOR_MSVC}
   )
 
 endif()
@@ -141,6 +157,12 @@ set(LINK_LIBRARIES
     Eigen3::Eigen
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE ${LINK_LIBRARIES})
+target_link_libraries(
+  ${PROJECT_NAME}
+  PRIVATE ${LINK_LIBRARIES}
+)
 
-source_group("" FILES ${PROJECT_FILES})
+source_group(
+  ""
+  FILES ${PROJECT_FILES}
+)

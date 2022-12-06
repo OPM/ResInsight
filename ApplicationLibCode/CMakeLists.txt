@@ -4,12 +4,16 @@ project(ApplicationLibCode)
 
 # set packaging dir
 if(NOT CPACK_PACKAGE_DIRECTORY)
-  set(CPACK_PACKAGE_DIRECTORY ${CMAKE_BINARY_DIR}/packages)
+  set(CPACK_PACKAGE_DIRECTORY
+      ${CMAKE_BINARY_DIR}/packages
+  )
 endif()
 
 if(RESINSIGHT_ENABLE_UNITY_BUILD)
   message("Cmake Unity build is enabled on : ${PROJECT_NAME}")
-  set(CMAKE_UNITY_BUILD true)
+  set(CMAKE_UNITY_BUILD
+      true
+  )
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX)
@@ -25,7 +29,10 @@ option(RESINSIGHT_TREAT_WARNINGS_AS_ERRORS
        "Treat warnings as errors (stops build)" OFF
 )
 
-find_package(Qt5 ${RI_QT_MINIMUM_VERSION} COMPONENTS Core)
+find_package(
+  Qt5 ${RI_QT_MINIMUM_VERSION}
+  COMPONENTS Core
+)
 
 if(Qt5Core_FOUND)
   find_package(
@@ -223,7 +230,10 @@ if(RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS)
 endif()
 
 # Include source file lists from *.cmake files
-foreach(referencedfile ${REFERENCED_CMAKE_FILES})
+foreach(
+  referencedfile
+  ${REFERENCED_CMAKE_FILES}
+)
   include(${referencedfile})
 endforeach(referencedfile)
 
@@ -236,7 +246,9 @@ list(APPEND CPP_SOURCES ${CODE_SOURCE_FILES})
 add_subdirectory(ResultStatisticsCache)
 add_subdirectory(Commands)
 
-set(RI_LIBRARIES ResultStatisticsCache Commands)
+set(RI_LIBRARIES
+    ResultStatisticsCache Commands
+)
 
 #
 # Odb api
@@ -283,7 +295,10 @@ if(RESINSIGHT_FOUND_HDF5)
     include_directories(${HDF5_INCLUDE_DIRS})
   endif() # MSVC
 
-  source_group("FileInterface\\HDF5" FILES ${HDF5_FILES})
+  source_group(
+    "FileInterface\\HDF5"
+    FILES ${HDF5_FILES}
+  )
 
 endif()
 
@@ -303,9 +318,18 @@ qt5_wrap_ui(FORM_FILES_CPP ${QT_UI_FILES})
 # ##############################################################################
 # Create source groups - see also included CMakeLists_files.cmake
 # ##############################################################################
-source_group("ModelVisualization" FILES ${MODEL_VISUALIZATION_FILES})
-source_group("SocketInterface" FILES ${SOCKET_INTERFACE_FILES})
-source_group("UnitTests" FILES ${UNIT_TEST_FILES})
+source_group(
+  "ModelVisualization"
+  FILES ${MODEL_VISUALIZATION_FILES}
+)
+source_group(
+  "SocketInterface"
+  FILES ${SOCKET_INTERFACE_FILES}
+)
+source_group(
+  "UnitTests"
+  FILES ${UNIT_TEST_FILES}
+)
 
 list(
   APPEND
@@ -321,7 +345,10 @@ list(
   Adm/RiaVersionInfo.h.cmake
 )
 
-add_library(${PROJECT_NAME} OBJECT ${ALL_SOURCE_FILES})
+add_library(
+  ${PROJECT_NAME} OBJECT
+  ${ALL_SOURCE_FILES}
+)
 
 option(RESINSIGHT_ENABLE_PRECOMPILED_HEADERS "Use Precompiled Headers" OFF)
 mark_as_advanced(FORCE RESINSIGHT_ENABLE_PRECOMPILED_HEADERS)
@@ -337,8 +364,9 @@ endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   target_compile_options(
-    ApplicationLibCode PRIVATE -Wall -Wno-unused-parameter -Wno-reorder
-                               -Wno-parentheses -Wno-switch
+    ApplicationLibCode
+    PRIVATE -Wall -Wno-unused-parameter -Wno-reorder -Wno-parentheses
+            -Wno-switch
   )
 endif()
 
@@ -368,9 +396,15 @@ endif()
 
 if(RESINSIGHT_TREAT_WARNINGS_AS_ERRORS)
   if(MSVC)
-    target_compile_options(ApplicationLibCode PRIVATE /WX)
+    target_compile_options(
+      ApplicationLibCode
+      PRIVATE /WX
+    )
   elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    target_compile_options(ApplicationLibCode PRIVATE -Werror)
+    target_compile_options(
+      ApplicationLibCode
+      PRIVATE -Werror
+    )
   endif()
 endif()
 
@@ -384,18 +418,23 @@ if(MSVC)
   # set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W3 /wd4190
   # /wd4100 /wd4127")
 
-  set(BUILD_FLAGS_FOR_MSVC "/wd4190 /wd4100 /wd4127 /wd4245 /wd4005 /wd4251")
+  set(BUILD_FLAGS_FOR_MSVC
+      "/wd4190 /wd4100 /wd4127 /wd4245 /wd4005 /wd4251"
+  )
 
   if(CMAKE_CXX_COMPILER_VERSION LESS_EQUAL 19.14)
     # The following warning is generated over 800 times from a qwt header only
     # using VS2015 Disabling temporarily warning C4505 'function' : unreferenced
     # local function has been removed
-    set(BUILD_FLAGS_FOR_MSVC "${BUILD_FLAGS_FOR_MSVC} /wd4505")
+    set(BUILD_FLAGS_FOR_MSVC
+        "${BUILD_FLAGS_FOR_MSVC} /wd4505"
+    )
   endif()
 
   message(STATUS "BUILD_FLAGS_FOR_MSVC ${BUILD_FLAGS_FOR_MSVC}")
   set_target_properties(
-    ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS ${BUILD_FLAGS_FOR_MSVC}
+    ${PROJECT_NAME}
+    PROPERTIES COMPILE_FLAGS ${BUILD_FLAGS_FOR_MSVC}
   )
 
 endif()
@@ -461,9 +500,13 @@ set(UNITY_EXCLUDE_FILES
 )
 
 if(RESINSIGHT_ENABLE_UNITY_BUILD)
-  foreach(fileToExclude ${UNITY_EXCLUDE_FILES})
+  foreach(
+    fileToExclude
+    ${UNITY_EXCLUDE_FILES}
+  )
     set_source_files_properties(
-      ${fileToExclude} PROPERTIES SKIP_UNITY_BUILD_INCLUSION TRUE
+      ${fileToExclude}
+      PROPERTIES SKIP_UNITY_BUILD_INCLUSION TRUE
     )
   endforeach(fileToExclude)
 endif()

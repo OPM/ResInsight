@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 2.8.12)
 
-find_package(Qt5 CONFIG COMPONENTS Core)
+find_package(
+  Qt5 CONFIG
+  COMPONENTS Core
+)
 if(Qt5Core_FOUND)
   find_package(Qt5 CONFIG REQUIRED Core)
 else()
@@ -25,13 +28,21 @@ set(PROJECT_FILES
 )
 
 # add the executable
-add_executable(${PROJECT_NAME} ${PROJECT_FILES})
+add_executable(
+  ${PROJECT_NAME}
+  ${PROJECT_FILES}
+)
 
 if(Qt5Core_FOUND)
-  set(QT_LIBRARIES Qt5::Core)
+  set(QT_LIBRARIES
+      Qt5::Core
+  )
 endif()
 
-source_group("" FILES ${PROJECT_FILES})
+source_group(
+  ""
+  FILES ${PROJECT_FILES}
+)
 
 target_link_libraries(
   ${PROJECT_NAME} cafPdmCore cafPdmXml LibCore cafPdmCvf ${QT_LIBRARIES}
@@ -39,7 +50,10 @@ target_link_libraries(
 
 # Copy Qt Dlls
 if(Qt5Core_FOUND)
-  foreach(qtlib ${QT_LIBRARIES})
+  foreach(
+    qtlib
+    ${QT_LIBRARIES}
+  )
     add_custom_command(
       TARGET ${PROJECT_NAME}
       POST_BUILD
@@ -51,8 +65,13 @@ if(Qt5Core_FOUND)
 else()
   # Copy Qt Dlls
   if(MSVC)
-    set(QTLIBLIST QtCore)
-    foreach(qtlib ${QTLIBLIST})
+    set(QTLIBLIST
+        QtCore
+    )
+    foreach(
+      qtlib
+      ${QTLIBLIST}
+    )
 
       # Debug
       execute_process(

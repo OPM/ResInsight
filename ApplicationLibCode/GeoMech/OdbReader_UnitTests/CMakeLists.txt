@@ -31,11 +31,14 @@ include_directories(../OdbReader)
 include_directories(../GeoMechDataModel)
 include_directories(${RI_GTEST_ROOT})
 
-set(UNIT_TEST_CPP_SOURCES main.cpp RifOdbReader-Test.cpp
-                          ${RI_GTEST_ROOT}/gtest/gtest-all.cc
+set(UNIT_TEST_CPP_SOURCES
+    main.cpp RifOdbReader-Test.cpp ${RI_GTEST_ROOT}/gtest/gtest-all.cc
 )
 
-add_executable(${PROJECT_NAME} ${UNIT_TEST_CPP_SOURCES})
+add_executable(
+  ${PROJECT_NAME}
+  ${UNIT_TEST_CPP_SOURCES}
+)
 target_link_libraries(${PROJECT_NAME} RifOdbReader)
 
 include(../OdbReader/OdbSetup.cmake)

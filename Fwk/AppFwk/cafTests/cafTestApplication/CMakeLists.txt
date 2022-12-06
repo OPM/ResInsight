@@ -8,19 +8,23 @@ find_package(OpenGL)
 # Qt
 
 # Qt MOC
-set(MOC_HEADER_FILES MainWindow.h WidgetLayoutTest.h CustomObjectEditor.h
-                     MenuItemProducer.h
+set(MOC_HEADER_FILES
+    MainWindow.h WidgetLayoutTest.h CustomObjectEditor.h MenuItemProducer.h
 )
 
 # Resource file
-set(QRC_FILES ${QRC_FILES} textedit.qrc)
+set(QRC_FILES
+    ${QRC_FILES} textedit.qrc
+)
 
 find_package(
   Qt5
   COMPONENTS
   REQUIRED Core Gui Widgets OpenGL Svg
 )
-set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL Qt5::Svg)
+set(QT_LIBRARIES
+    Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL Qt5::Svg
+)
 qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})
 qt5_add_resources(QRC_FILES_CPP ${QRC_FILES})
 
@@ -60,7 +64,9 @@ add_executable(
                                        # with OBJECT libraries
 )
 
-set(TAP_LINK_LIBRARIES cafUserInterface)
+set(TAP_LINK_LIBRARIES
+    cafUserInterface
+)
 
 if(USE_COMMAND_FRAMEWORK)
   set(TAP_LINK_LIBRARIES
@@ -81,9 +87,15 @@ target_link_libraries(
   ${EXTERNAL_LINK_LIBRARIES}
 )
 
-source_group("" FILES ${PROJECT_FILES})
+source_group(
+  ""
+  FILES ${PROJECT_FILES}
+)
 
-foreach(qtlib ${QT_LIBRARIES})
+foreach(
+  qtlib
+  ${QT_LIBRARIES}
+)
   add_custom_command(
     TARGET ${PROJECT_NAME}
     POST_BUILD

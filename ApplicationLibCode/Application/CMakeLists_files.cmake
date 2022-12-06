@@ -82,6 +82,7 @@ set(QT_MOC_HEADERS
 )
 
 source_group(
-  "Application" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-                      ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+  "Application"
+  FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
+        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
 )

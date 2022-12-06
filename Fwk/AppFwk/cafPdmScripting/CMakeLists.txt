@@ -7,7 +7,9 @@ option(CAF_CVF_SCRIPTING "Enable CVF-data support in Scripting" OFF)
 # Unity Build
 if(CAF_ENABLE_UNITY_BUILD)
   message("Cmake Unity build is enabled on : ${PROJECT_NAME}")
-  set(CMAKE_UNITY_BUILD true)
+  set(CMAKE_UNITY_BUILD
+      true
+  )
 endif()
 
 set(PROJECT_FILES
@@ -34,7 +36,9 @@ set(PROJECT_FILES
     cafPdmMarkdownBuilder.cpp
 )
 
-set(CAF_LIBS cafProjectDataModel)
+set(CAF_LIBS
+    cafProjectDataModel
+)
 
 if(CAF_CVF_SCRIPTING)
   list(
@@ -48,10 +52,19 @@ if(CAF_CVF_SCRIPTING)
   list(APPEND CAF_LIBS cafPdmCvf)
 endif()
 
-add_library(${PROJECT_NAME} ${PROJECT_FILES})
+add_library(
+  ${PROJECT_NAME}
+  ${PROJECT_FILES}
+)
 
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(
+  ${PROJECT_NAME}
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
 target_link_libraries(${PROJECT_NAME} ${CAF_LIBS})
 
-source_group("" FILES ${PROJECT_FILES})
+source_group(
+  ""
+  FILES ${PROJECT_FILES}
+)

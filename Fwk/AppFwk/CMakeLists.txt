@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 2.8.12)
 
 project(CeeApp)
 
-if(MSVC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11))
+if(MSVC
+   AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11)
+)
   # VS 2017 : Disable warnings from from gtest code, using deprecated code
   # related to TR1
   add_definitions(-D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING)
@@ -22,7 +24,9 @@ if(CEE_USE_QT5)
     COMPONENTS
     REQUIRED Core Gui OpenGL Widgets
   )
-  set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets)
+  set(QT_LIBRARIES
+      Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets
+  )
 else()
   find_package(
     Qt4
@@ -33,12 +37,20 @@ else()
 endif(CEE_USE_QT5)
 
 # Use CMake to enforce C++17
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_STANDARD
+    17
+)
+set(CMAKE_CXX_STANDARD_REQUIRED
+    ON
+)
+set(CMAKE_CXX_EXTENSIONS
+    OFF
+)
 
 if(MSVC)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+  set(CMAKE_CXX_FLAGS
+      "${CMAKE_CXX_FLAGS} /MP"
+  )
 endif()
 
 # Improvement Cmake 3.x If we have compiler requirements for this library, list
@@ -60,7 +72,9 @@ add_subdirectory(cafPdmScripting)
 add_subdirectory(cafTests/cafTestApplication)
 
 if(UNIX)
-  set(THREAD_LIBRARY "pthread")
+  set(THREAD_LIBRARY
+      "pthread"
+  )
 endif()
 
 add_subdirectory(cafProjectDataModel/cafPdmCore/cafPdmCore_UnitTests)
@@ -71,9 +85,13 @@ add_subdirectory(cafPdmScripting/cafPdmScripting_UnitTests)
 
 # Organize sub-projects into folders on Visual Studio Turn on using solution
 # folders
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+set_property(
+  GLOBAL
+  PROPERTY USE_FOLDERS ON
+)
 
 set_property(
   TARGET cafPdmCore cafPdmCore_UnitTests cafPdmXml cafPdmXml_UnitTests
-         cafPdmUiCore PROPERTY FOLDER "PdmCore"
+         cafPdmUiCore
+  PROPERTY FOLDER "PdmCore"
 )

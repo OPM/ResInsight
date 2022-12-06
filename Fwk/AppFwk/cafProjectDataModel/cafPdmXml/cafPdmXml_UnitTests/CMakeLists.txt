@@ -7,9 +7,13 @@ find_package(
   COMPONENTS
   REQUIRED Core Xml
 )
-set(QT_LIBRARIES Qt5::Core Qt5::Xml)
+set(QT_LIBRARIES
+    Qt5::Core Qt5::Xml
+)
 
-if(MSVC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11))
+if(MSVC
+   AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11)
+)
   # VS 2017 : Disable warnings from from gtest code, using deprecated code
   # related to TR1
   add_definitions(-D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING)
@@ -30,18 +34,26 @@ add_executable(
 )
 
 if(Qt5Core_FOUND)
-  set(QT_LIBRARIES Qt5::Core Qt5::Xml)
+  set(QT_LIBRARIES
+      Qt5::Core Qt5::Xml
+  )
 endif()
 
 target_link_libraries(
   ${PROJECT_NAME} cafPdmXml ${QT_LIBRARIES} ${THREAD_LIBRARY}
 )
 
-source_group("" FILES ${PROJECT_FILES})
+source_group(
+  ""
+  FILES ${PROJECT_FILES}
+)
 
 # Copy Qt Dlls
 if(Qt5Core_FOUND)
-  foreach(qtlib ${QT_LIBRARIES})
+  foreach(
+    qtlib
+    ${QT_LIBRARIES}
+  )
     add_custom_command(
       TARGET ${PROJECT_NAME}
       POST_BUILD

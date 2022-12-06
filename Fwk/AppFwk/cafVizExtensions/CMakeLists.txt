@@ -5,7 +5,9 @@ project(cafVizExtensions)
 # Unity Build
 if(CAF_ENABLE_UNITY_BUILD)
   message("Cmake Unity build is enabled on : ${PROJECT_NAME}")
-  set(CMAKE_UNITY_BUILD true)
+  set(CMAKE_UNITY_BUILD
+      true
+  )
 endif()
 
 # Open GL
@@ -17,7 +19,9 @@ find_package(
   COMPONENTS
   REQUIRED Core Gui Widgets OpenGL
 )
-set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL)
+set(QT_LIBRARIES
+    Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL
+)
 qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})
 
 add_library(
@@ -53,7 +57,10 @@ add_library(
   cafHexGridIntersectionTools/cafHexGridIntersectionTools.cpp
 )
 
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(
+  ${PROJECT_NAME}
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
 target_link_libraries(
   ${PROJECT_NAME}
@@ -66,4 +73,7 @@ target_link_libraries(
   ${QT_LIBRARIES}
 )
 
-source_group("" FILES ${PROJECT_FILES})
+source_group(
+  ""
+  FILES ${PROJECT_FILES}
+)
