@@ -733,6 +733,7 @@ void RimWellLogExtractionCurve::adjustWellDepthValuesToReferenceWell( std::vecto
         createKLayerAndIndexMap( refWellIndexKValues, minLayerK, maxLayerK );
     for ( const auto& [kLayer, indexes] : refWellKLayerAndIndexesMap )
     {
+        if ( indexes.empty() ) continue;
         const auto indexTop    = indexes.front();
         const auto indexBottom = indexes.back();
         refWellLogIndexDepthOffset.setIndexOffsetDepth( kLayer,
