@@ -26,6 +26,7 @@ class RiaVariableMapper
 public:
     static QString variableToken() { return "$"; }
     static QString pathIdBaseString() { return "PathId_"; }
+    static QString postfixName() { return "_name"; }
 
 public:
     RiaVariableMapper( const QString& variableNameValueTable );

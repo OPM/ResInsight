@@ -1547,12 +1547,12 @@ void RimProject::transferPathsToGlobalPathList()
         if ( summaryCase->displayNameType() == RimCaseDisplayNameTools::DisplayName::CUSTOM )
         {
             // At this point, after the replace of variables into caf::FilePath objects, the variable name is stored in
-            // the summary case object. Read out the variable name and append "_alias" for custom summary variables.
+            // the summary case object. Read out the variable name and append "_name" for custom summary variables.
 
             QString variableName = summaryCase->summaryHeaderFilename();
             variableName         = variableName.remove( RiaVariableMapper::variableToken() );
 
-            variableName = RiaVariableMapper::variableToken() + variableName + "_alias" +
+            variableName = RiaVariableMapper::variableToken() + variableName + RiaVariableMapper::postfixName() +
                            RiaVariableMapper::variableToken();
 
             QString variableValue = summaryCase->displayCaseName();
@@ -1567,12 +1567,12 @@ void RimProject::transferPathsToGlobalPathList()
         if ( gridCase->displayNameType() == RimCaseDisplayNameTools::DisplayName::CUSTOM )
         {
             // At this point, after the replace of variables into caf::FilePath objects, the variable name is stored in
-            // the summary case object. Read out the variable name and append "_alias" for custom summary variables.
+            // the summary case object. Read out the variable name and append "_name" for custom summary variables.
 
             QString variableName = gridCase->gridFileName();
             variableName         = variableName.remove( RiaVariableMapper::variableToken() );
 
-            variableName = RiaVariableMapper::variableToken() + variableName + "_alias" +
+            variableName = RiaVariableMapper::variableToken() + variableName + RiaVariableMapper::postfixName() +
                            RiaVariableMapper::variableToken();
 
             QString variableValue = gridCase->caseUserDescription();
@@ -1624,7 +1624,7 @@ void RimProject::distributePathsFromGlobalPathList()
             {
                 summaryCase->setCustomCaseName( variableValue );
             }
-            else if ( variableName.contains( "_alias" + RiaVariableMapper::variableToken() ) )
+            else if ( variableName.contains( RiaVariableMapper::postfixName() + RiaVariableMapper::variableToken() ) )
             {
                 // The variable name is not found in the variable list, but the name indicates a variable. Reset to full
                 // case name.
@@ -1645,7 +1645,7 @@ void RimProject::distributePathsFromGlobalPathList()
             {
                 gridCase->setCustomCaseName( variableValue );
             }
-            else if ( variableName.contains( "_alias" + RiaVariableMapper::variableToken() ) )
+            else if ( variableName.contains( RiaVariableMapper::postfixName() + RiaVariableMapper::variableToken() ) )
             {
                 // The variable name is not found in the variable list, but the name indicates a variable. Reset to full
                 // case name.
