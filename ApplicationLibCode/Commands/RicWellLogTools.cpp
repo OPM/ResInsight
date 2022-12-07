@@ -475,19 +475,21 @@ RimWellLogCurve* RicWellLogTools::addSummaryRftCurve( RimWellLogTrack* plotTrack
 
     curve->setSummaryCase( rimCase );
     auto rftReader = rimCase->rftReader();
+    if ( rftReader )
+    {
+        QString wellName;
+        auto    wellNames = rftReader->wellNames();
+        if ( !wellNames.empty() ) wellName = *wellNames.begin();
 
-    QString wellName;
-    auto    wellNames = rftReader->wellNames();
-    if ( !wellNames.empty() ) wellName = *wellNames.begin();
+        QDateTime dateTime;
 
-    QDateTime dateTime;
+        auto timeSteps = rftReader->availableTimeSteps( wellName );
+        if ( !timeSteps.empty() ) dateTime = *timeSteps.rbegin();
 
-    auto timeSteps = rftReader->availableTimeSteps( wellName );
-    if ( !timeSteps.empty() ) dateTime = *timeSteps.rbegin();
-
-    RifEclipseRftAddress adr =
-        RifEclipseRftAddress::createAddress( wellName, dateTime, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
-    curve->setRftAddress( adr );
+        RifEclipseRftAddress adr =
+            RifEclipseRftAddress::createAddress( wellName, dateTime, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
+        curve->setRftAddress( adr );
+    }
 
     plotTrack->addCurve( curve );
 
@@ -506,20 +508,23 @@ RimWellLogRftCurve* RicWellLogTools::addSummaryRftSegmentCurve( RimWellLogTrack*
     auto curve = new RimWellLogRftCurve();
 
     curve->setSummaryCase( rimCase );
+
     auto rftReader = rimCase->rftReader();
+    if ( rftReader )
+    {
+        QDateTime dateTime;
 
-    QDateTime dateTime;
+        auto timeSteps = rftReader->availableTimeSteps( wellName );
+        if ( !timeSteps.empty() ) dateTime = *timeSteps.rbegin();
 
-    auto timeSteps = rftReader->availableTimeSteps( wellName );
-    if ( !timeSteps.empty() ) dateTime = *timeSteps.rbegin();
+        RifEclipseRftAddress adr =
+            RifEclipseRftAddress::createBranchSegmentAddress( wellName, dateTime, resultName, 1, branchType );
+        curve->setRftAddress( adr );
+        curve->assignColorFromResultName( resultName );
+        curve->setLineThickness( 4 );
 
-    RifEclipseRftAddress adr =
-        RifEclipseRftAddress::createBranchSegmentAddress( wellName, dateTime, resultName, 1, branchType );
-    curve->setRftAddress( adr );
-    curve->assignColorFromResultName( resultName );
-    curve->setLineThickness( 4 );
-
-    curve->setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT );
+        curve->setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT );
+    }
 
     plotTrack->addCurve( curve );
 
@@ -535,6 +540,7 @@ bool RicWellLogTools::hasData( const QString&            resultName,
                                RimSummaryCase*           rimCase )
 {
     auto rftReader = rimCase->rftReader();
+    if ( rftReader ) return false;
 
     QDateTime dateTime;
 

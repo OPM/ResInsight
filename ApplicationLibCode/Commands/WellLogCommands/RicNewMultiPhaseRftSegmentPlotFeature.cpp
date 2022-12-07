@@ -24,6 +24,7 @@
 #include "RicWellLogTools.h"
 
 #include "RiaApplication.h"
+#include "RiaLogging.h"
 #include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaRftDefines.h"
 
@@ -64,16 +65,19 @@ void RicNewMultiPhaseRftSegmentPlotFeature::onActionTriggered( bool isChecked )
     rftCase->firstAncestorOfType( summaryCase );
     if ( !summaryCase ) return;
 
+    auto rftReader = summaryCase->rftReader();
+    if ( !rftReader )
+    {
+        RiaLogging::error( "Could not open RFT file or no RFT file present. " );
+        return;
+    }
+
     auto plot = RicNewWellLogPlotFeatureImpl::createHorizontalWellLogPlot();
 
     QString wellName = "Unknown";
 
-    auto rftReader = summaryCase->rftReader();
-    if ( rftReader )
-    {
-        auto wellNames = rftReader->wellNames();
-        if ( !wellNames.empty() ) wellName = *wellNames.begin();
-    }
+    auto wellNames = rftReader->wellNames();
+    if ( !wellNames.empty() ) wellName = *wellNames.begin();
 
     appendTrackAndCurveForBranchType( plot,
                                       "Connection Rates",
