@@ -141,6 +141,22 @@ QString RimCase::gridFileName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimCase::DisplayNameEnum RimCase::displayNameType() const
+{
+    return m_displayNameOption();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCase::setDisplayNameType( RimCaseDisplayNameTools::DisplayName displayNameType )
+{
+    m_displayNameOption = displayNameType;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimCase::setCustomCaseName( const QString& caseName )
 {
     m_displayNameOption   = RimCaseDisplayNameTools::DisplayName::CUSTOM;

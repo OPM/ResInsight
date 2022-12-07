@@ -63,9 +63,11 @@ public:
     void    setGridFileName( const QString& fileName );
     QString gridFileName() const;
 
-    void setCustomCaseName( const QString& caseName );
-    void updateAutoShortName();
-    void updateOptionSensitivity();
+    DisplayNameEnum displayNameType() const;
+    void            setDisplayNameType( RimCaseDisplayNameTools::DisplayName displayNameType );
+    void            setCustomCaseName( const QString& caseName );
+    void            updateAutoShortName();
+    void            updateOptionSensitivity();
 
     std::vector<Rim3dView*>   views() const;
     std::vector<RimGridView*> gridViews() const;
