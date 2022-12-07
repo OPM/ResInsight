@@ -18,6 +18,13 @@
 
 #include "RimSeismicData.h"
 
+#include "RifSeismicZGYReader.h"
+#include "RimStringParameter.h"
+
+#include "cafPdmUiTableViewEditor.h"
+
+#include <tuple>
+
 CAF_PDM_SOURCE_INIT( RimSeismicData, "SeismicData" );
 
 //--------------------------------------------------------------------------------------------------
@@ -31,6 +38,13 @@ RimSeismicData::RimSeismicData()
 
     CAF_PDM_InitFieldNoDefault( &m_filename, "SeismicFilePath", "File" );
     m_filename.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_metadata, "Metadata", "Metadata" );
+    m_metadata.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
+    m_metadata.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_metadata.uiCapability()->setCustomContextMenuEnabled( true );
+    m_metadata.uiCapability()->setUiTreeChildrenHidden( true );
+    m_metadata.uiCapability()->setUiReadOnly( true );
 
     setDeletable( true );
 }
@@ -80,4 +94,35 @@ void RimSeismicData::setUserDescription( QString description )
 caf::PdmFieldHandle* RimSeismicData::userDescriptionField()
 {
     return &m_userDescription;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicData::updateMetaData()
+{
+    m_metadata.deleteChildren();
+
+    RifSeismicZGYReader reader( m_filename );
+
+    if ( !reader.Open() ) return;
+
+    auto metadata = reader.metaData();
+
+    for ( auto [name, value] : metadata )
+    {
+        auto param = new RimStringParameter();
+        param->setName( name );
+        param->setValue( value );
+        m_metadata.push_back( param );
+    }
+
+    reader.Close();
+}
+
+void RimSeismicData::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    if ( m_metadata.empty() ) updateMetaData();
+
+    caf::PdmObject::defineUiOrdering( uiConfigName, uiOrdering );
 }

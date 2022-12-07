@@ -17,10 +17,13 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
 #include <QString>
+
+class RimGenericParameter;
 
 class RimSeismicData : public caf::PdmObject
 {
@@ -36,10 +39,14 @@ public:
     QString userDescription();
     void    setUserDescription( QString description );
 
+    void updateMetaData();
+
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;
+    void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
-    caf::PdmField<QString> m_filename;
-    caf::PdmField<QString> m_userDescription;
+    caf::PdmField<QString>                        m_filename;
+    caf::PdmField<QString>                        m_userDescription;
+    caf::PdmChildArrayField<RimGenericParameter*> m_metadata;
 };
