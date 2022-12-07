@@ -232,13 +232,13 @@ cvf::Vec3d RifRoffFileTools::getCorner( const RigMainGrid&        grid,
                                         const cvf::Vec3d&         scale )
 {
     size_t iOffset = 0;
-    if ( cornerIdx == 1 || cornerIdx == 3 || cornerIdx == 5 || cornerIdx == 7 )
+    if ( !( cornerIdx == 1 || cornerIdx == 3 || cornerIdx == 5 || cornerIdx == 7 ) )
     {
         iOffset = 1;
     }
 
     size_t jOffset = 0;
-    if ( cornerIdx == 2 || cornerIdx == 3 || cornerIdx == 6 || cornerIdx == 7 )
+    if ( !( cornerIdx == 2 || cornerIdx == 3 || cornerIdx == 6 || cornerIdx == 7 ) )
     {
         jOffset = 1;
     }
