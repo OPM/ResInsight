@@ -102,6 +102,8 @@ add_library(
   RigFemPartResultCalculatorMudWeightWindow.cpp
   RigFemPartResultCalculatorShearSlipIndicator.h
   RigFemPartResultCalculatorShearSlipIndicator.cpp
+  RigFemPartResultCalculatorKIndices.h
+  RigFemPartResultCalculatorKIndices.cpp
   RimGeoMechGeometrySelectionItem.h
   RimGeoMechGeometrySelectionItem.cpp
 )
