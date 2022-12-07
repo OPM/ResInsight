@@ -26,7 +26,7 @@ class RiaVariableMapper
 public:
     static QString variableToken() { return "$"; }
     static QString pathIdBaseString() { return "PathId_"; }
-    static QString postfixName() { return "_name"; }
+    static QString postfixName() { return "_Name"; }
 
 public:
     RiaVariableMapper( const QString& variableNameValueTable );
@@ -44,7 +44,7 @@ private:
     void    resolveVariablesUsedInValues();
 
 private:
-    size_t m_maxUsedIdNumber; // Set when parsing the globalPathListTable. Increment while creating new id's
+    size_t m_maxUsedIdNumber;
 
     std::map<QString, QString> m_newVariableToValueMap;
     std::map<QString, QString> m_pathToPathIdMap;

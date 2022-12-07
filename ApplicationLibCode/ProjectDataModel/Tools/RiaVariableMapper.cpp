@@ -71,27 +71,31 @@ RiaVariableMapper::RiaVariableMapper( const QString& variableNameValueTable )
 //--------------------------------------------------------------------------------------------------
 QString RiaVariableMapper::addPathAndGetId( const QString& path )
 {
-    // Want to re-use ids from last save to avoid unnecessary changes and make the behavior predictable
-    QString pathId;
-    QString trimmedPath = path.trimmed();
-
-    auto pathToIdIt = m_valueToVariableMap.find( trimmedPath );
-    if ( pathToIdIt != m_valueToVariableMap.end() )
-    {
-        pathId = pathToIdIt->second;
-    }
-    else
-    {
-        auto pathPathIdPairIt = m_pathToPathIdMap.find( trimmedPath );
-        if ( pathPathIdPairIt != m_pathToPathIdMap.end() )
+    auto computePathId = [this]( const auto& trimmedPath ) -> QString {
+        QString pathId;
+        auto    pathToIdIt = m_valueToVariableMap.find( trimmedPath );
+        if ( pathToIdIt != m_valueToVariableMap.end() )
         {
-            pathId = pathPathIdPairIt->second;
+            pathId = pathToIdIt->second;
         }
         else
         {
-            pathId = createUnusedId();
+            auto pathPathIdPairIt = m_pathToPathIdMap.find( trimmedPath );
+            if ( pathPathIdPairIt != m_pathToPathIdMap.end() )
+            {
+                pathId = pathPathIdPairIt->second;
+            }
+            else
+            {
+                pathId = createUnusedId();
+            }
         }
-    }
+        return pathId;
+    };
+
+    // Want to re-use ids from last save to avoid unnecessary changes and make the behavior predictable
+    QString trimmedPath = path.trimmed();
+    QString pathId      = computePathId( trimmedPath );
 
     addVariable( pathId, trimmedPath );
 
@@ -153,11 +157,11 @@ QString RiaVariableMapper::valueForVariable( const QString& variableName, bool* 
     auto it = m_variableToValueMap.find( variableName );
     if ( it != m_variableToValueMap.end() )
     {
-        ( *isFound ) = true;
+        if ( isFound ) *isFound = true;
         return it->second;
     }
 
-    ( *isFound ) = false;
+    if ( isFound ) *isFound = false;
     return "";
 }
 
@@ -204,9 +208,10 @@ void RiaVariableMapper::replaceVariablesInValues()
     // Move all non-path variables from the original map imported from the project file to the new map
     for ( auto& [variableName, variableValue] : m_variableToValueMap )
     {
-        if ( variableName.startsWith( variableToken() + pathIdBaseString() ) ) continue;
-
-        m_newVariableToValueMap[variableName] = variableValue;
+        if ( !variableName.startsWith( variableToken() + pathIdBaseString() ) )
+        {
+            m_newVariableToValueMap[variableName] = variableValue;
+        }
     }
 
     // Replace text with variables
@@ -214,9 +219,10 @@ void RiaVariableMapper::replaceVariablesInValues()
     {
         for ( const auto& [otherVariableName, otherVariableValue] : m_newVariableToValueMap )
         {
-            if ( otherVariableName == variableName ) continue;
-
-            variableValue.replace( otherVariableValue, otherVariableName );
+            if ( otherVariableName != variableName )
+            {
+                variableValue.replace( otherVariableValue, otherVariableName );
+            }
         }
     }
 }
