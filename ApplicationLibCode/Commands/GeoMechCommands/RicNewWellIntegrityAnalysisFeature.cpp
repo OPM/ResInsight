@@ -97,7 +97,7 @@ void RicNewWellIntegrityAnalysisFeature::onActionTriggered( bool isChecked )
 void RicNewWellIntegrityAnalysisFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/WellIntAnalysis.png" ) );
-    actionToSetup->setText( "New Well Integration Analysis at this Depth" );
+    actionToSetup->setText( "New Well Integrity Analysis at this Depth" );
 }
 
 //--------------------------------------------------------------------------------------------------
