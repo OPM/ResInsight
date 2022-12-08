@@ -51,6 +51,31 @@ double AsciiParser::parseDouble( const Token& token, std::istream& stream ) cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+float AsciiParser::parseFloat( const Token& token, std::istream& stream ) const
+{
+    std::string res = parseString( token, stream );
+    return std::stof( res );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool AsciiParser::parseBool( const Token& token, std::istream& stream ) const
+{
+    return static_cast<bool>( parseInt( token, stream ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+unsigned char AsciiParser::parseByte( const Token& token, std::istream& stream ) const
+{
+    return static_cast<unsigned char>( parseInt( token, stream ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<std::string> AsciiParser::parseStringArray( const std::vector<Token>& tokens,
                                                         std::istream&             stream,
                                                         long                      startIndex,

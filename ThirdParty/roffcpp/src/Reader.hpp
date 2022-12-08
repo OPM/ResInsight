@@ -16,8 +16,7 @@ public:
 
     void parse();
 
-    std::vector<std::pair<std::string, RoffScalar>> scalarNamedValues() const;
-
+    std::vector<std::pair<std::string, RoffScalar>>  scalarNamedValues() const;
     std::vector<std::pair<std::string, Token::Kind>> getNamedArrayTypes() const;
 
     std::vector<std::string> getStringArray( const std::string& keyword );
@@ -27,6 +26,9 @@ public:
     std::vector<char>        getByteArray( const std::string& keyword );
 
 private:
+    void parseAscii();
+    void parseBinary();
+
     std::vector<Token>                               m_tokens;
     std::istream*                                    m_stream;
     std::vector<std::pair<std::string, RoffScalar>>  m_scalarValues;

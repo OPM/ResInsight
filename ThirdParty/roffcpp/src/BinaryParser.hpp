@@ -10,10 +10,10 @@
 #include <variant>
 #include <vector>
 
-class AsciiParser : public Parser
+class BinaryParser : public Parser
 {
 public:
-    AsciiParser();
+    BinaryParser();
 
     void parse( std::istream&                                     stream,
                 const std::vector<Token>&                         tokens,

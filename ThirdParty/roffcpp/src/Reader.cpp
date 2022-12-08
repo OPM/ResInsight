@@ -2,6 +2,8 @@
 
 #include "AsciiParser.hpp"
 #include "AsciiTokenizer.hpp"
+#include "BinaryParser.hpp"
+#include "BinaryTokenizer.hpp"
 #include "Parser.hpp"
 #include "Tokenizer.hpp"
 
@@ -24,9 +26,50 @@ Reader::Reader( std::istream& stream )
 //--------------------------------------------------------------------------------------------------
 void Reader::parse()
 {
+    // Detect file type from first token
+    BinaryTokenizer tokenizer;
+    try
+    {
+        Token token = tokenizer.tokenizeFileType( *m_stream );
+        assert( token.kind() == Token::Kind::ROFF_ASC || token.kind() == Token::Kind::ROFF_BIN );
+
+        m_stream->clear();
+        m_stream->seekg( 0 );
+
+        if ( token.kind() == Token::Kind::ROFF_ASC )
+        {
+            parseAscii();
+        }
+        else
+        {
+            parseBinary();
+        }
+    }
+    catch ( std::runtime_error& )
+    {
+        throw std::runtime_error( "Unexpected file type." );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Reader::parseAscii()
+{
     AsciiTokenizer tokenizer;
     m_tokens = tokenizer.tokenizeStream( *m_stream );
     m_parser = std::make_unique<AsciiParser>();
+    m_parser->parse( *m_stream, m_tokens, m_scalarValues, m_arrayTypes, m_arrayInfo );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Reader::parseBinary()
+{
+    BinaryTokenizer tokenizer;
+    m_tokens = tokenizer.tokenizeStream( *m_stream );
+    m_parser = std::make_unique<BinaryParser>();
     m_parser->parse( *m_stream, m_tokens, m_scalarValues, m_arrayTypes, m_arrayInfo );
 }
 

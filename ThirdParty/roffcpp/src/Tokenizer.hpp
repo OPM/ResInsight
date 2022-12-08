@@ -25,6 +25,7 @@ public:
     virtual void               tokenizeDelimiter( std::istream& stream );
     virtual Token              tokenizeSimpleType( std::istream& stream );
     virtual Token              tokenizeKeyword( std::istream& stream );
+    virtual Token              tokenizeFileType( std::istream& stream );
     virtual Token tokenizeKeyword( std::istream& stream, const std::vector<std::pair<Token::Kind, std::string>>& keywords );
 
 protected:
