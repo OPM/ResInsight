@@ -93,6 +93,8 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
+#include "Tools/RiaVariableMapper.h"
+
 #ifdef USE_QTCHARTS
 #include "RimEnsembleFractureStatisticsPlot.h"
 #include "RimEnsembleFractureStatisticsPlotCollection.h"
@@ -116,6 +118,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QMenu>
+
 #include <algorithm>
 
 CAF_PDM_SOURCE_INIT( RimProject, "ResInsightProject" );
@@ -276,6 +279,8 @@ void RimProject::close()
     viewLinkerCollection->viewLinker = nullptr;
 
     fileName = "";
+
+    m_globalPathList = "";
 
     mainWindowCurrentModelIndexPaths = "";
     mainWindowTreeViewStates         = "";
@@ -1519,155 +1524,12 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
     uiTreeOrdering.skipRemainingChildren( true );
 }
 
-#define PATHIDCHAR "$"
-
-class GlobalPathListMapper
-{
-    const QString pathIdBaseString = "PathId_";
-
-public:
-    GlobalPathListMapper( const QString& globalPathListTable )
-    {
-        m_maxUsedIdNumber     = 0;
-        QStringList pathPairs = RiaTextStringTools::splitSkipEmptyParts( globalPathListTable, ";" );
-
-        for ( const QString& pathIdPathPair : pathPairs )
-        {
-            QStringList pathIdPathComponents = pathIdPathPair.trimmed().split( PATHIDCHAR );
-
-            if ( pathIdPathComponents.size() == 3 && pathIdPathComponents[0].size() == 0 )
-            {
-                QString pathIdCore = pathIdPathComponents[1];
-                QString pathId     = PATHIDCHAR + pathIdCore + PATHIDCHAR;
-                QString path       = pathIdPathComponents[2].trimmed();
-
-                // Check if we have a standard id, and store the max number
-
-                if ( pathIdCore.startsWith( pathIdBaseString ) )
-                {
-                    bool    isOk       = false;
-                    QString numberText = pathIdCore.right( pathIdCore.size() - pathIdBaseString.size() );
-                    size_t  idNumber   = numberText.toUInt( &isOk );
-
-                    if ( isOk )
-                    {
-                        m_maxUsedIdNumber = std::max( m_maxUsedIdNumber, idNumber );
-                    }
-                }
-
-                // Check for unique pathId
-                {
-                    auto pathIdPathPairIt = m_oldPathIdToPathMap.find( pathId );
-
-                    if ( pathIdPathPairIt != m_oldPathIdToPathMap.end() )
-                    {
-                        // Error: pathID is already used
-                    }
-                }
-
-                // Check for multiple identical paths
-                {
-                    auto pathPathIdPairIt = m_oldPathToPathIdMap.find( path );
-
-                    if ( pathPathIdPairIt != m_oldPathToPathIdMap.end() )
-                    {
-                        // Warning: path has already been assigned a pathId
-                    }
-                }
-
-                m_oldPathIdToPathMap[pathId] = path;
-                m_oldPathToPathIdMap[path]   = pathId;
-            }
-            else
-            {
-                // Error: The text is ill formatted
-            }
-        }
-    }
-
-    QString addPathAndGetId( const QString& path )
-    {
-        // Want to re-use ids from last save to avoid unnecessary changes and make the behavior predictable
-        QString pathId;
-        QString trimmedPath = path.trimmed();
-
-        auto pathToIdIt = m_oldPathToPathIdMap.find( trimmedPath );
-        if ( pathToIdIt != m_oldPathToPathIdMap.end() )
-        {
-            pathId = pathToIdIt->second;
-        }
-        else
-        {
-            auto pathPathIdPairIt = m_newPathToPathIdMap.find( trimmedPath );
-            if ( pathPathIdPairIt != m_newPathToPathIdMap.end() )
-            {
-                pathId = pathPathIdPairIt->second;
-            }
-            else
-            {
-                pathId = createUnusedId();
-            }
-        }
-
-        m_newPathIdToPathMap[pathId]      = trimmedPath;
-        m_newPathToPathIdMap[trimmedPath] = pathId;
-
-        return pathId;
-    };
-
-    QString newGlobalPathListTable() const
-    {
-        QString pathList;
-        pathList += "\n";
-        for ( const auto& pathIdPathPairIt : m_newPathIdToPathMap )
-        {
-            pathList += "        " + pathIdPathPairIt.first + " " + pathIdPathPairIt.second + ";\n";
-        }
-
-        pathList += "    ";
-
-        return pathList;
-    }
-
-    QString pathFromPathId( const QString& pathId, bool* isFound ) const
-    {
-        auto it = m_oldPathIdToPathMap.find( pathId );
-        if ( it != m_oldPathIdToPathMap.end() )
-        {
-            ( *isFound ) = true;
-            return it->second;
-        }
-
-        ( *isFound ) = false;
-        return "";
-    }
-
-private:
-    QString createUnusedId()
-    {
-        m_maxUsedIdNumber++;
-
-        QString numberString   = QString( "%1" ).arg( (uint)m_maxUsedIdNumber, 3, 10, QChar( '0' ) );
-        QString pathIdentifier = PATHIDCHAR + pathIdBaseString + numberString + PATHIDCHAR;
-
-        return pathIdentifier;
-    }
-
-    size_t m_maxUsedIdNumber; // Set when parsing the globalPathListTable. Increment while creating new id's
-
-    std::map<QString, QString> m_newPathIdToPathMap;
-    std::map<QString, QString> m_newPathToPathIdMap;
-
-    std::map<QString, QString> m_oldPathIdToPathMap;
-    std::map<QString, QString> m_oldPathToPathIdMap;
-};
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimProject::transferPathsToGlobalPathList()
 {
-    GlobalPathListMapper pathListMapper( m_globalPathList() );
+    RiaVariableMapper variableMapper( m_globalPathList() );
 
     std::vector<caf::FilePath*> filePaths = allFilePaths();
     for ( caf::FilePath* filePath : filePaths )
@@ -1675,12 +1537,54 @@ void RimProject::transferPathsToGlobalPathList()
         QString path = filePath->path();
         if ( !path.isEmpty() )
         {
-            QString pathId = pathListMapper.addPathAndGetId( path );
+            QString pathId = variableMapper.addPathAndGetId( path );
             filePath->setPath( pathId );
         }
     }
 
-    m_globalPathList = pathListMapper.newGlobalPathListTable();
+    for ( auto summaryCase : allSummaryCases() )
+    {
+        if ( summaryCase->displayNameType() == RimCaseDisplayNameTools::DisplayName::CUSTOM )
+        {
+            // At this point, after the replace of variables into caf::FilePath objects, the variable name is stored in
+            // the summary case object. Read out the variable name and append "_name" for custom summary variables.
+
+            QString variableName = summaryCase->summaryHeaderFilename();
+            variableName         = variableName.remove( RiaVariableMapper::variableToken() );
+
+            variableName = RiaVariableMapper::variableToken() + variableName + RiaVariableMapper::postfixName() +
+                           RiaVariableMapper::variableToken();
+
+            QString variableValue = summaryCase->displayCaseName();
+            variableMapper.addVariable( variableName, variableValue );
+
+            summaryCase->setCustomCaseName( variableName );
+        }
+    }
+
+    for ( auto gridCase : allGridCases() )
+    {
+        if ( gridCase->displayNameType() == RimCaseDisplayNameTools::DisplayName::CUSTOM )
+        {
+            // At this point, after the replace of variables into caf::FilePath objects, the variable name is stored in
+            // the summary case object. Read out the variable name and append "_name" for custom summary variables.
+
+            QString variableName = gridCase->gridFileName();
+            variableName         = variableName.remove( RiaVariableMapper::variableToken() );
+
+            variableName = RiaVariableMapper::variableToken() + variableName + RiaVariableMapper::postfixName() +
+                           RiaVariableMapper::variableToken();
+
+            QString variableValue = gridCase->caseUserDescription();
+            variableMapper.addVariable( variableName, variableValue );
+
+            gridCase->setCustomCaseName( variableName );
+        }
+    }
+
+    variableMapper.replaceVariablesInValues();
+
+    m_globalPathList = variableMapper.variableTableAsText();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1688,31 +1592,65 @@ void RimProject::transferPathsToGlobalPathList()
 //--------------------------------------------------------------------------------------------------
 void RimProject::distributePathsFromGlobalPathList()
 {
-    GlobalPathListMapper pathListMapper( m_globalPathList() );
+    RiaVariableMapper pathListMapper( m_globalPathList() );
 
     std::vector<caf::FilePath*> filePaths = allFilePaths();
     for ( caf::FilePath* filePath : filePaths )
     {
         QString     pathIdCandidate  = filePath->path().trimmed();
-        QStringList pathIdComponents = pathIdCandidate.split( PATHIDCHAR );
+        QStringList pathIdComponents = pathIdCandidate.split( RiaVariableMapper::variableToken() );
 
         if ( pathIdComponents.size() == 3 && pathIdComponents[0].size() == 0 && pathIdComponents[1].size() > 0 &&
              pathIdComponents[2].size() == 0 )
         {
             bool    isFound = false;
-            QString path    = pathListMapper.pathFromPathId( pathIdCandidate, &isFound );
+            QString path    = pathListMapper.valueForVariable( pathIdCandidate, &isFound );
             if ( isFound )
             {
                 filePath->setPath( path );
             }
-            else
+        }
+    }
+
+    for ( auto summaryCase : allSummaryCases() )
+    {
+        if ( summaryCase->displayNameType() == RimCaseDisplayNameTools::DisplayName::CUSTOM )
+        {
+            auto variableName = summaryCase->displayCaseName();
+
+            bool    isFound       = false;
+            QString variableValue = pathListMapper.valueForVariable( variableName, &isFound );
+            if ( isFound )
             {
-                // The pathId can not be found in the path list
+                summaryCase->setCustomCaseName( variableValue );
+            }
+            else if ( variableName.contains( RiaVariableMapper::postfixName() + RiaVariableMapper::variableToken() ) )
+            {
+                // The variable name is not found in the variable list, but the name indicates a variable. Reset to full
+                // case name.
+                summaryCase->setDisplayNameOption( RimCaseDisplayNameTools::DisplayName::FULL_CASE_NAME );
             }
         }
-        else
+    }
+
+    for ( auto gridCase : allGridCases() )
+    {
+        if ( gridCase->displayNameType() == RimCaseDisplayNameTools::DisplayName::CUSTOM )
         {
-            // The pathIdCandidate is probably a real path. Leave alone.
+            auto variableName = gridCase->caseUserDescription();
+
+            bool    isFound       = false;
+            QString variableValue = pathListMapper.valueForVariable( variableName, &isFound );
+            if ( isFound )
+            {
+                gridCase->setCustomCaseName( variableValue );
+            }
+            else if ( variableName.contains( RiaVariableMapper::postfixName() + RiaVariableMapper::variableToken() ) )
+            {
+                // The variable name is not found in the variable list, but the name indicates a variable. Reset to full
+                // case name.
+                gridCase->setDisplayNameType( RimCaseDisplayNameTools::DisplayName::FULL_CASE_NAME );
+            }
         }
     }
 }

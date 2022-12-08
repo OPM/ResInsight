@@ -84,6 +84,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/opm-summary-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseTextFileReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryStringTools-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaVariableMapper-Test.cpp
 )
 
 if(RESINSIGHT_ENABLE_GRPC)
