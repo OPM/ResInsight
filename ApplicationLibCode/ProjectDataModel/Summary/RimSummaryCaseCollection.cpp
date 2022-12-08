@@ -1036,6 +1036,11 @@ void RimSummaryCaseCollection::initAfterRead()
     }
 
     updateIcon();
+
+    for ( auto summaryCase : m_cases )
+    {
+        summaryCase->nameChanged.connect( this, &RimSummaryCaseCollection::onCaseNameChanged );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
