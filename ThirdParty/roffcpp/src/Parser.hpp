@@ -24,26 +24,34 @@ public:
                                                         const std::string&                  tagGroupName,
                                                         std::istream&                       stream ) const;
 
-    std::vector<std::string>
-        parseStringArray( const std::vector<Token>& tokens, std::istream& stream, long startIndex, long arrayLength ) const;
+    virtual std::vector<std::string> parseStringArray( const std::vector<Token>& tokens,
+                                                       std::istream&             stream,
+                                                       long                      startIndex,
+                                                       long                      arrayLength ) const = 0;
 
-    std::vector<int>
-        parseIntArray( const std::vector<Token>& tokens, std::istream& stream, long startIndex, long arrayLength ) const;
+    virtual std::vector<int>
+        parseIntArray( const std::vector<Token>& tokens, std::istream& stream, long startIndex, long arrayLength ) const = 0;
 
-    std::vector<double>
-        parseDoubleArray( const std::vector<Token>& tokens, std::istream& stream, long startIndex, long arrayLength ) const;
+    virtual std::vector<double> parseDoubleArray( const std::vector<Token>& tokens,
+                                                  std::istream&             stream,
+                                                  long                      startIndex,
+                                                  long                      arrayLength ) const = 0;
 
-    std::vector<float>
-        parseFloatArray( const std::vector<Token>& tokens, std::istream& stream, long startIndex, long arrayLength ) const;
+    virtual std::vector<float> parseFloatArray( const std::vector<Token>& tokens,
+                                                std::istream&             stream,
+                                                long                      startIndex,
+                                                long                      arrayLength ) const = 0;
 
-    std::vector<char>
-        parseByteArray( const std::vector<Token>& tokens, std::istream& stream, long startIndex, long arrayLength ) const;
+    virtual std::vector<char> parseByteArray( const std::vector<Token>& tokens,
+                                              std::istream&             stream,
+                                              long                      startIndex,
+                                              long                      arrayLength ) const = 0;
+
+    virtual std::string parseString( const Token& token, std::istream& stream ) const = 0;
+
+    virtual int parseInt( const Token& token, std::istream& stream ) const = 0;
+
+    virtual double parseDouble( const Token& token, std::istream& stream ) const = 0;
 
     static bool isSimpleType( Token::Kind kind );
-
-    std::string parseString( const Token& token, std::istream& stream ) const;
-
-    int parseInt( const Token& token, std::istream& stream ) const;
-
-    double parseDouble( const Token& token, std::istream& stream ) const;
 };
