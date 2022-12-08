@@ -526,7 +526,7 @@ void RimSummaryMultiPlot::defineEditorAttribute( const caf::PdmFieldHandle* fiel
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::updatePlotWindowTitle()
+void RimSummaryMultiPlot::updatePlotTitles()
 {
     if ( m_autoPlotTitle )
     {
@@ -727,7 +727,7 @@ void RimSummaryMultiPlot::initAfterRead()
 void RimSummaryMultiPlot::onLoadDataAndUpdate()
 {
     RimMultiPlot::onLoadDataAndUpdate();
-    updatePlotWindowTitle();
+    updatePlotTitles();
 
     analyzePlotsAndAdjustAppearanceSettings();
 }
@@ -1344,7 +1344,7 @@ std::pair<int, int> RimSummaryMultiPlot::gridLayoutInfoForSubPlot( RimSummaryPlo
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::onSubPlotChanged( const caf::SignalEmitter* emitter )
 {
-    updatePlotWindowTitle();
+    updatePlotTitles();
     applyPlotWindowTitleToWidgets();
 }
 

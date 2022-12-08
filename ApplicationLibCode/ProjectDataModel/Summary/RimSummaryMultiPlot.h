@@ -79,7 +79,7 @@ public:
 
     void removePlotNoUpdate( RimPlot* plot ) override;
     void updateAfterPlotRemove() override;
-    void updatePlotWindowTitle() override;
+    void updatePlotTitles() override;
 
     std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar() override;
 

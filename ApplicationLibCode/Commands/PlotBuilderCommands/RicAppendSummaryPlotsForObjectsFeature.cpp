@@ -113,7 +113,7 @@ void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot* s
         info.incrementProgress();
     }
 
-    summaryMultiPlot->updatePlotWindowTitle();
+    summaryMultiPlot->updatePlotTitles();
 }
 
 //--------------------------------------------------------------------------------------------------

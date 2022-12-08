@@ -77,7 +77,7 @@ public:
 
     void         deleteAllPlots() override;
     void         updatePlots();
-    virtual void updatePlotWindowTitle();
+    virtual void updatePlotTitles();
 
     size_t plotCount() const override;
     size_t plotIndex( const RimPlot* plot ) const;

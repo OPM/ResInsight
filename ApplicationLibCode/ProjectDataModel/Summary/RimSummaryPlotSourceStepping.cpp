@@ -517,7 +517,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
         if ( summaryMultiPlot )
         {
             summaryMultiPlot->updatePlots();
-            summaryMultiPlot->updatePlotWindowTitle();
+            summaryMultiPlot->updatePlotTitles();
 
             if ( isAutoZoomAllowed ) summaryMultiPlot->zoomAllYAxes();
 

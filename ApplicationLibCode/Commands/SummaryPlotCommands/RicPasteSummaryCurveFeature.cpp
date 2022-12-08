@@ -68,7 +68,7 @@ RimSummaryCurve* RicPasteSummaryCurveFeature::copyCurveAndAddToPlot( RimSummaryC
     summaryPlot->firstAncestorOrThisOfType( summaryMultiPlot );
     if ( summaryMultiPlot )
     {
-        summaryMultiPlot->updatePlotWindowTitle();
+        summaryMultiPlot->updatePlotTitles();
     }
     else
     {
