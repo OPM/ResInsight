@@ -101,14 +101,15 @@ std::vector<std::pair<QString, QString>> RifSeismicZGYReader::metaData()
 
     for ( auto& a : m_reader->brickcount() )
     {
-        tmp.append( QString( "%1x%2x%3 " ).arg( a[0], a[1], a[2] ) );
+        tmp.append( QString( "%1x%2x%3 " ).arg( a[0] ).arg( a[1] ).arg( a[2] ) );
     }
     retValues.push_back( std::make_pair( "Brick count", tmp ) );
     retValues.push_back( std::make_pair( "Levels of details", QString::number( m_reader->nlods() ) ) );
 
     auto& bricksize = m_reader->bricksize();
     retValues.push_back(
-        std::make_pair( "Brick size", QString( "%1 x %2 x %3" ).arg( bricksize[0], bricksize[1], bricksize[2] ) ) );
+        std::make_pair( "Brick size",
+                        QString( "%1 x %2 x %3" ).arg( bricksize[0] ).arg( bricksize[1] ).arg( bricksize[2] ) ) );
 
     switch ( m_reader->datatype() )
     {
@@ -129,7 +130,7 @@ std::vector<std::pair<QString, QString>> RifSeismicZGYReader::metaData()
     retValues.push_back( std::make_pair( "Native data type", tmp ) );
 
     auto& datarange = m_reader->datarange();
-    retValues.push_back( std::make_pair( "Data range", QString( "%1 - %2" ).arg( datarange[0], datarange[1] ) ) );
+    retValues.push_back( std::make_pair( "Data range", QString( "%1 - %2" ).arg( datarange[0] ).arg( datarange[1] ) ) );
 
     retValues.push_back( std::make_pair( "Depth unit", QString::fromStdString( m_reader->zunitname() ) ) );
     retValues.push_back( std::make_pair( "Depth offset", QString::number( m_reader->zstart() ) ) );
@@ -174,5 +175,5 @@ std::vector<std::pair<QString, QString>> RifSeismicZGYReader::metaData()
 //--------------------------------------------------------------------------------------------------
 QString RifSeismicZGYReader::cornerToString( std::array<double, 2> corner )
 {
-    return QString( "(%1, %2)" ).arg( corner[0], corner[1] );
+    return QString( "(%1, %2)" ).arg( corner[0] ).arg( corner[1] );
 }

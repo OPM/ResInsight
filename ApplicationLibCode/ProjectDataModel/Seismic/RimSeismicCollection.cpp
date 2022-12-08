@@ -63,6 +63,10 @@ RimSeismicData* RimSeismicCollection::importSeismicFromFile( const QString fileN
     RimSeismicData* seisData = new RimSeismicData();
     seisData->setFileName( fileName );
 
+    QFileInfo fi( fileName );
+
+    seisData->setUserDescription( fi.baseName() );
+
     addSeismicData( seisData );
 
     this->updateConnectedEditors();

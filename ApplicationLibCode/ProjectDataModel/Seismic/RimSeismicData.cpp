@@ -112,7 +112,7 @@ void RimSeismicData::updateMetaData()
     for ( auto [name, value] : metadata )
     {
         auto param = new RimStringParameter();
-        param->setName( name );
+        param->setLabel( name );
         param->setValue( value );
         m_metadata.push_back( param );
     }
@@ -120,9 +120,31 @@ void RimSeismicData::updateMetaData()
     reader.Close();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSeismicData::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     if ( m_metadata.empty() ) updateMetaData();
 
     caf::PdmObject::defineUiOrdering( uiConfigName, uiOrdering );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicData::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                            QString                    uiConfigName,
+                                            caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_metadata )
+    {
+        auto tvAttribute = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>( attribute );
+        if ( tvAttribute )
+        {
+            tvAttribute->resizePolicy              = caf::PdmUiTableViewEditorAttribute::RESIZE_TO_FILL_CONTAINER;
+            tvAttribute->alwaysEnforceResizePolicy = true;
+            tvAttribute->minimumHeight             = 400;
+        }
+    }
 }
