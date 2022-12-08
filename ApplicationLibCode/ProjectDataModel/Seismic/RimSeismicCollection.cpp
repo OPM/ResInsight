@@ -71,7 +71,7 @@ RimSeismicData* RimSeismicCollection::importSeismicFromFile( const QString fileN
 
     this->updateConnectedEditors();
 
-    return nullptr;
+    return seisData;
 }
 
 //--------------------------------------------------------------------------------------------------

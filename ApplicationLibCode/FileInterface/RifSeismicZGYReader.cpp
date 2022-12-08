@@ -94,8 +94,9 @@ std::vector<std::pair<QString, QString>> RifSeismicZGYReader::metaData()
         retValues.push_back( std::make_pair( "Compressed", "yes" ) );
         retValues.push_back( std::make_pair( "Compression factor", QString::number( stats->compressionFactor() ) ) );
     }
-    retValues.push_back( std::make_pair( "File size", QString::number( stats->fileSize() ) ) );
-    retValues.push_back( std::make_pair( "Header size", QString::number( stats->headerSize() ) ) );
+    retValues.push_back(
+        std::make_pair( "File size", QString::number( 1.0 * stats->fileSize() / 1024.0 / 1024.0 ) + " MBytes" ) );
+    retValues.push_back( std::make_pair( "Header size", QString::number( stats->headerSize() ) + "Bytes" ) );
 
     QString tmp;
 
