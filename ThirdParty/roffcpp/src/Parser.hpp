@@ -13,6 +13,7 @@ class Parser
 {
 public:
     Parser();
+    virtual ~Parser();
 
     void parse( std::istream&                                     stream,
                 const std::vector<Token>&                         tokens,
@@ -47,11 +48,12 @@ public:
                                               long                      startIndex,
                                               long                      arrayLength ) const = 0;
 
-    virtual std::string parseString( const Token& token, std::istream& stream ) const = 0;
-
-    virtual int parseInt( const Token& token, std::istream& stream ) const = 0;
-
-    virtual double parseDouble( const Token& token, std::istream& stream ) const = 0;
+    virtual std::string   parseString( const Token& token, std::istream& stream ) const = 0;
+    virtual int           parseInt( const Token& token, std::istream& stream ) const    = 0;
+    virtual double        parseDouble( const Token& token, std::istream& stream ) const = 0;
+    virtual float         parseFloat( const Token& token, std::istream& stream ) const  = 0;
+    virtual bool          parseBool( const Token& token, std::istream& stream ) const   = 0;
+    virtual unsigned char parseByte( const Token& token, std::istream& stream ) const   = 0;
 
     static bool isSimpleType( Token::Kind kind );
 };

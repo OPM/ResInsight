@@ -10,9 +10,11 @@
 //--------------------------------------------------------------------------------------------------
 TEST( TokenTests, SimpleTest )
 {
-    Token token( Token::Kind::TAG, 3, 6 );
+    size_t start = 3u;
+    size_t end   = 6u;
+    Token  token( Token::Kind::TAG, start, end );
 
     ASSERT_EQ( Token::Kind::TAG, token.kind() );
-    ASSERT_EQ( 3, token.start() );
-    ASSERT_EQ( 6, token.end() );
+    ASSERT_EQ( start, token.start() );
+    ASSERT_EQ( end, token.end() );
 }

@@ -60,6 +60,19 @@ Token Tokenizer::tokenizeKeyword( std::istream& stream )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+Token Tokenizer::tokenizeFileType( std::istream& stream )
+{
+    std::vector<std::pair<Token::Kind, std::string>> keywords = {
+        std::make_pair( Token::Kind::ROFF_BIN, "roff-bin" ),
+        std::make_pair( Token::Kind::ROFF_ASC, "roff-asc" ),
+    };
+
+    return tokenizeKeyword( stream, keywords );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 Token Tokenizer::tokenizeSimpleType( std::istream& stream )
 {
     std::vector<std::pair<Token::Kind, std::string>> simpleTypes = { std::make_pair( Token::Kind::CHAR, "char" ),

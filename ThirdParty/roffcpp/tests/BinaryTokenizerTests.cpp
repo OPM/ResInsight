@@ -278,3 +278,39 @@ TEST( BinaryTokenizerTests, testTokenizeExampleFile )
     ASSERT_EQ( "byteswaptest", readValueForToken( stream, tokens[4] ) );
     ASSERT_EQ( "floatData", readValueForToken( stream, tokens[63] ) );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( BinaryTokenizerTests, testFileTypeDetectionBinary )
+{
+    std::ifstream stream( std::string( TEST_DATA_DIR ) + "/facies_info.roffbin" );
+    ASSERT_TRUE( stream.good() );
+
+    BinaryTokenizer tokenizer;
+    Token           token = tokenizer.tokenizeFileType( stream );
+    ASSERT_EQ( Token::Kind::ROFF_BIN, token.kind() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( BinaryTokenizerTests, testFileTypeDetectionAscii )
+{
+    std::ifstream stream( std::string( TEST_DATA_DIR ) + "/facies_info.roff" );
+    ASSERT_TRUE( stream.good() );
+
+    BinaryTokenizer tokenizer;
+    Token           token = tokenizer.tokenizeFileType( stream );
+    ASSERT_EQ( Token::Kind::ROFF_ASC, token.kind() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( BinaryTokenizerTests, testFileTypeDetectionEmptyStream )
+{
+    std::stringstream stream;
+    BinaryTokenizer   tokenizer;
+    ASSERT_THROW( tokenizer.tokenizeFileType( stream ), std::runtime_error );
+}

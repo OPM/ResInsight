@@ -18,6 +18,13 @@ Parser::Parser()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+Parser::~Parser()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void Parser::parse( std::istream&                                     stream,
                     const std::vector<Token>&                         tokens,
                     std::vector<std::pair<std::string, RoffScalar>>&  scalarValues,
@@ -57,8 +64,12 @@ void Parser::parse( std::istream&                                     stream,
             std::advance( it, 1 );
             long startIndex = static_cast<long>( std::distance( tokens.begin(), it ) );
 
-            // Skip rest of the array
-            std::advance( it, arrayLength - 1 );
+            if ( it->kind() != Token::Kind::ARRAYBLOB )
+            {
+                // Skip rest of the array when not blob.
+                // The blob is always only one token and is skip already.
+                std::advance( it, arrayLength - 1 );
+            }
 
             arrayInfo[name] = std::make_pair( startIndex, arrayLength );
 
@@ -99,11 +110,11 @@ std::pair<std::string, RoffScalar> Parser::parseSimpleType( std::vector<Token>::
 
     auto extractValue = [this]( auto it, Token::Kind kind, std::istream& stream ) {
         if ( kind == Token::Kind::INT ) return RoffScalar( parseInt( *it, stream ) );
-        if ( kind == Token::Kind::BOOL ) return RoffScalar( static_cast<bool>( parseInt( *it, stream ) ) );
-        if ( kind == Token::Kind::BYTE ) return RoffScalar( static_cast<unsigned char>( parseInt( *it, stream ) ) );
+        if ( kind == Token::Kind::BOOL ) return RoffScalar( parseBool( *it, stream ) );
+        if ( kind == Token::Kind::BYTE ) return RoffScalar( parseByte( *it, stream ) );
         if ( kind == Token::Kind::CHAR ) return RoffScalar( parseString( *it, stream ) );
         if ( kind == Token::Kind::DOUBLE ) return RoffScalar( parseDouble( *it, stream ) );
-        if ( kind == Token::Kind::FLOAT ) return RoffScalar( static_cast<float>( parseDouble( *it, stream ) ) );
+        if ( kind == Token::Kind::FLOAT ) return RoffScalar( parseFloat( *it, stream ) );
         return RoffScalar( 1 );
     };
 

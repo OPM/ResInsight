@@ -94,8 +94,8 @@ TEST( AsciiTokenizerTests, testTokenizeAsciiString )
     AsciiTokenizer    tokenizer;
     Token             token = tokenizer.tokenizeString( stream ).value();
     ASSERT_EQ( Token::Kind::STRING_LITERAL, token.kind() );
-    ASSERT_EQ( 1, token.start() );
-    ASSERT_EQ( 7, token.end() );
+    ASSERT_EQ( 1u, token.start() );
+    ASSERT_EQ( 7u, token.end() );
     ASSERT_EQ( 8, stream.tellg() );
 }
 
@@ -108,8 +108,8 @@ TEST( AsciiTokenizerTests, testTokenizeAsciiNumericValuesInt )
     AsciiTokenizer    tokenizer;
     Token             token = tokenizer.tokenizeNumber( stream ).value();
     ASSERT_EQ( Token::Kind::NUMERIC_VALUE, token.kind() );
-    ASSERT_EQ( 0, token.start() );
-    ASSERT_EQ( 3, token.end() );
+    ASSERT_EQ( 0u, token.start() );
+    ASSERT_EQ( 3u, token.end() );
     ASSERT_EQ( 3, stream.tellg() );
 }
 
@@ -122,8 +122,8 @@ TEST( AsciiTokenizerTests, testTokenizeAsciiNumericValuesDouble )
     AsciiTokenizer    tokenizer;
     Token             token = tokenizer.tokenizeNumber( stream ).value();
     ASSERT_EQ( Token::Kind::NUMERIC_VALUE, token.kind() );
-    ASSERT_EQ( 0, token.start() );
-    ASSERT_EQ( 3, token.end() );
+    ASSERT_EQ( 0u, token.start() );
+    ASSERT_EQ( 3u, token.end() );
     ASSERT_EQ( 3, stream.tellg() );
 }
 
@@ -136,8 +136,8 @@ TEST( AsciiTokenizerTests, testTokenizeName )
     AsciiTokenizer    tokenizer;
     Token             token = tokenizer.tokenizeName( stream );
     ASSERT_EQ( Token::Kind::NAME, token.kind() );
-    ASSERT_EQ( 0, token.start() );
-    ASSERT_EQ( 9, token.end() );
+    ASSERT_EQ( 0u, token.start() );
+    ASSERT_EQ( 9u, token.end() );
     ASSERT_EQ( -1, stream.tellg() );
 }
 
@@ -150,8 +150,8 @@ TEST( AsciiTokenizerTests, testTokenizeKeywordChar )
     AsciiTokenizer    tokenizer;
     Token             token = tokenizer.tokenizeKeyword( stream );
     ASSERT_EQ( Token::Kind::CHAR, token.kind() );
-    ASSERT_EQ( 0, token.start() );
-    ASSERT_EQ( 4, token.end() );
+    ASSERT_EQ( 0u, token.start() );
+    ASSERT_EQ( 4u, token.end() );
     ASSERT_EQ( -1, stream.tellg() );
 }
 
@@ -164,8 +164,8 @@ TEST( AsciiTokenizerTests, testTokenizeKeywordRoffBin )
     AsciiTokenizer    tokenizer;
     Token             token = tokenizer.tokenizeKeyword( stream );
     ASSERT_EQ( Token::Kind::ROFF_BIN, token.kind() );
-    ASSERT_EQ( 0, token.start() );
-    ASSERT_EQ( 8, token.end() );
+    ASSERT_EQ( 0u, token.start() );
+    ASSERT_EQ( 8u, token.end() );
     ASSERT_EQ( -1, stream.tellg() );
 }
 
@@ -178,7 +178,7 @@ TEST( AsciiTokenizerTests, testTokenizeTagKeyInt )
     AsciiTokenizer     tokenizer;
     std::vector<Token> tokens = tokenizer.tokenizeTagKey( stream );
 
-    ASSERT_EQ( 3, tokens.size() );
+    ASSERT_EQ( 3u, tokens.size() );
     ASSERT_EQ( Token::Kind::INT, tokens[0].kind() );
     ASSERT_EQ( Token::Kind::NAME, tokens[1].kind() );
     ASSERT_EQ( Token::Kind::NUMERIC_VALUE, tokens[2].kind() );
@@ -193,7 +193,7 @@ TEST( AsciiTokenizerTests, testTokenizeTagKeyFloat )
     AsciiTokenizer     tokenizer;
     std::vector<Token> tokens = tokenizer.tokenizeTagKey( stream );
 
-    ASSERT_EQ( 3, tokens.size() );
+    ASSERT_EQ( 3u, tokens.size() );
     ASSERT_EQ( Token::Kind::FLOAT, tokens[0].kind() );
     ASSERT_EQ( Token::Kind::NAME, tokens[1].kind() );
     ASSERT_EQ( Token::Kind::NUMERIC_VALUE, tokens[2].kind() );
@@ -208,7 +208,7 @@ TEST( AsciiTokenizerTests, testTokenizeTagGroupFloatWithMoreSpecialChars )
     AsciiTokenizer     tokenizer;
     std::vector<Token> tokens = tokenizer.tokenizeTagGroup( stream );
 
-    ASSERT_EQ( 9, tokens.size() );
+    ASSERT_EQ( 9u, tokens.size() );
     ASSERT_EQ( Token::Kind::TAG, tokens[0].kind() );
     ASSERT_EQ( Token::Kind::NAME, tokens[1].kind() );
 
@@ -232,7 +232,7 @@ TEST( AsciiTokenizerTests, testTokenizeTagGroup )
     AsciiTokenizer     tokenizer;
     std::vector<Token> tokens = tokenizer.tokenizeTagGroup( stream );
 
-    ASSERT_EQ( 9, tokens.size() );
+    ASSERT_EQ( 9u, tokens.size() );
     ASSERT_EQ( Token::Kind::TAG, tokens[0].kind() );
     ASSERT_EQ( Token::Kind::NAME, tokens[1].kind() );
 
@@ -256,7 +256,7 @@ TEST( AsciiTokenizerTests, testTokenizeArrayTagKeyInt )
     AsciiTokenizer     tokenizer;
     std::vector<Token> tokens = tokenizer.tokenizeArrayTagKey( stream );
 
-    ASSERT_EQ( 10, tokens.size() );
+    ASSERT_EQ( 10u, tokens.size() );
     ASSERT_EQ( Token::Kind::ARRAY, tokens[0].kind() );
     ASSERT_EQ( Token::Kind::INT, tokens[1].kind() );
     ASSERT_EQ( Token::Kind::NAME, tokens[2].kind() );
@@ -278,7 +278,7 @@ TEST( AsciiTokenizerTests, testTokenizeArrayTagKeyStrings )
     AsciiTokenizer     tokenizer;
     std::vector<Token> tokens = tokenizer.tokenizeArrayTagKey( stream );
 
-    ASSERT_EQ( 7, tokens.size() );
+    ASSERT_EQ( 7u, tokens.size() );
     ASSERT_EQ( Token::Kind::ARRAY, tokens[0].kind() );
     ASSERT_EQ( Token::Kind::CHAR, tokens[1].kind() );
     ASSERT_EQ( Token::Kind::NAME, tokens[2].kind() );
@@ -298,7 +298,7 @@ TEST( AsciiTokenizerTests, testTokenizeExampleFile )
 
     AsciiTokenizer     tokenizer;
     std::vector<Token> tokens = tokenizer.tokenizeStream( stream );
-    ASSERT_EQ( 109, tokens.size() );
+    ASSERT_EQ( 109u, tokens.size() );
 
     auto readValueForToken = []( std::istream& stream, const Token& token ) {
         stream.seekg( token.start() );

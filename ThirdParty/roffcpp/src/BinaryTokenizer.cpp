@@ -35,8 +35,6 @@ bool BinaryTokenizer::tokenizeSpace( std::istream& stream )
     }
     else
     {
-        auto end = stream.tellg();
-        stream.seekg( end );
         return true;
     }
 }
@@ -109,7 +107,7 @@ std::optional<Token> BinaryTokenizer::tokenizeWord( std::istream& stream, const 
     tokenizeDelimiter( stream );
     auto start = stream.tellg();
 
-    int length = keyword.size();
+    int length = static_cast<int>( keyword.size() );
 
     std::vector<char> buffer( length );
     stream.read( &buffer[0], length );
@@ -205,7 +203,7 @@ std::vector<Token> BinaryTokenizer::tokenizeArrayData( std::istream& stream, siz
     {
         auto start = stream.tellg();
 
-        int  length = Token::binaryTokenSizeInBytes( kind ) * numElements;
+        auto length = static_cast<size_t>( Token::binaryTokenSizeInBytes( kind ) ) * numElements;
         auto end    = static_cast<size_t>( start ) + length;
 
         stream.seekg( end );
