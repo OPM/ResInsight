@@ -42,7 +42,7 @@ DOXYFILE_ENCODING      = UTF-8
 # title of most generated pages and in a few other places.
 # The default value is: My Project.
 
-PROJECT_NAME           = "ResInsight Project Data Model"
+PROJECT_NAME           = "ResInsight Application Lib Code"
 
 # The PROJECT_NUMBER tag can be used to enter a project or revision number. This
 # could be handy for archiving the generated documentation or if some version
@@ -908,14 +908,11 @@ WARN_LOGFILE           =
 # spaces. See also FILE_PATTERNS and EXTENSION_MAPPING
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = ProjectDataModel \
-                         ../cafPdmCvf \
-                         ../cafProjectDataModel \
-                         ../cafUserInterface \
-                         ../cafViewer \
-                         UserInterface \
+INPUT                  = . \
                          ReservoirDataModel \
-                         GeoMech
+                         GeoMech \
+                         ProjectDataModel \
+                         UserInterface
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
