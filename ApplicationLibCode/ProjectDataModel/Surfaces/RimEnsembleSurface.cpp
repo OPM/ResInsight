@@ -25,12 +25,12 @@
 #include "RigSurfaceStatisticsCalculator.h"
 
 #include "RimEnsembleCurveSet.h"
-#include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimEnsembleStatisticsSurface.h"
 #include "RimFileSurface.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
+#include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimSurface.h"
 #include "RimSurfaceCollection.h"
 
