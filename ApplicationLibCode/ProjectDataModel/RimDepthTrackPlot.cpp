@@ -42,6 +42,7 @@
 #include "RimPlotAxisAnnotation.h"
 #include "RimPlotWindow.h"
 #include "RimProject.h"
+#include "RimSummaryCase.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogCurveCommonDataSource.h"

@@ -28,6 +28,7 @@
 #include "RimObjectiveFunctionTools.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 
 #include "RiuSummaryVectorSelectionDialog.h"
 

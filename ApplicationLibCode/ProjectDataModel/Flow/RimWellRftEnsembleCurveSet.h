@@ -19,7 +19,6 @@
 #pragma once
 
 #include "RimEnsembleCurveSetColorManager.h"
-#include "RimSummaryCaseCollection.h"
 
 #include "RigEnsembleParameter.h"
 
@@ -32,6 +31,7 @@
 #include <QPointer>
 
 class RiuCvfOverlayItemWidget;
+class RimSummaryCaseCollection;
 
 class RimWellRftEnsembleCurveSet : public caf::PdmObject
 {

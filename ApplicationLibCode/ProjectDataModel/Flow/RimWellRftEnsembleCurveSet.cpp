@@ -17,9 +17,11 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimWellRftEnsembleCurveSet.h"
+
 #include "RimEnsembleCurveSetColorManager.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimWellRftPlot.h"
 
 #include "RiuQwtPlotWidget.h"

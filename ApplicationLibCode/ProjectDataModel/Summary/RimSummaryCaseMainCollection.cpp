@@ -427,6 +427,22 @@ void RimSummaryCaseMainCollection::loadAllSummaryCaseData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCaseMainCollection::initAfterRead()
+{
+    for ( auto sumCase : topLevelSummaryCases() )
+    {
+        sumCase->nameChanged.connect( this, &RimSummaryCaseMainCollection::onCaseNameChanged );
+    }
+
+    for ( auto caseCollection : summaryCaseCollections() )
+    {
+        caseCollection->caseNameChanged.connect( this, &RimSummaryCaseMainCollection::onCaseNameChanged );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCaseMainCollection::loadSummaryCaseData( std::vector<RimSummaryCase*> summaryCases )
 {
     std::vector<RimFileSummaryCase*> fileSummaryCases;

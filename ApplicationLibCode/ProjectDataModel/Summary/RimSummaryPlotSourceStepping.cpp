@@ -30,6 +30,7 @@
 #include "RimProject.h"
 #include "RimSummaryAddressModifier.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCrossPlot.h"
 #include "RimSummaryCurve.h"
@@ -517,7 +518,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
         if ( summaryMultiPlot )
         {
             summaryMultiPlot->updatePlots();
-            summaryMultiPlot->updatePlotWindowTitle();
+            summaryMultiPlot->updatePlotTitles();
 
             if ( isAutoZoomAllowed ) summaryMultiPlot->zoomAllYAxes();
 

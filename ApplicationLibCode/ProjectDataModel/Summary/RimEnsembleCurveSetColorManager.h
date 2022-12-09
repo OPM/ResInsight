@@ -21,7 +21,6 @@
 #include "RiaDefines.h"
 
 #include "RimRegularLegendConfig.h"
-#include "RimSummaryCaseCollection.h"
 
 #include "RigEnsembleParameter.h"
 
@@ -33,6 +32,9 @@ class RimEnsembleCurveSet;
 class RimEnsembleCurveSetCollection;
 class RimCustomObjectiveFunction;
 class RimObjectiveFunction;
+class RimSummaryCase;
+class RifEclipseSummaryAddress;
+class ObjectiveFunctionTimeConfig;
 
 //--------------------------------------------------------------------------------------------------
 ///

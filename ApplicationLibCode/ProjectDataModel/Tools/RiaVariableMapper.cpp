@@ -219,7 +219,7 @@ void RiaVariableMapper::replaceVariablesInValues()
     {
         for ( const auto& [otherVariableName, otherVariableValue] : m_newVariableToValueMap )
         {
-            if ( otherVariableName != variableName )
+            if ( otherVariableName != variableName && !otherVariableName.contains( postfixName() ) )
             {
                 variableValue.replace( otherVariableValue, otherVariableName );
             }

@@ -67,6 +67,7 @@ public:
 
     void    setName( const QString& name );
     QString name() const;
+    void    ensureNameIsUpdated();
 
     bool                                       isEnsemble() const;
     void                                       setAsEnsemble( bool isEnsemble );
@@ -145,6 +146,7 @@ protected:
 
 private:
     caf::PdmField<QString>                           m_name;
+    caf::PdmField<bool>                              m_autoName;
     caf::PdmProxyValueField<QString>                 m_nameAndItemCount;
     caf::PdmField<bool>                              m_isEnsemble;
     caf::PdmChildField<RimSummaryAddressCollection*> m_dataVectorFolders;
