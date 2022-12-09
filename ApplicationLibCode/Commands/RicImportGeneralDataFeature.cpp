@@ -111,7 +111,7 @@ RicImportGeneralDataFeature::OpenCaseResults
     }
     if ( !roffFiles.empty() )
     {
-        if ( !openRoffCaseFromFileNames( roffFiles, doCreateDefaultPlot, results.createdCaseIds ) )
+        if ( !openRoffCaseFromFileNames( roffFiles, createDefaultView, results.createdCaseIds ) )
         {
             return OpenCaseResults();
         }
