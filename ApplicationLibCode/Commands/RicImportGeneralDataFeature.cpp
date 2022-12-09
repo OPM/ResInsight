@@ -201,10 +201,9 @@ QStringList RicImportGeneralDataFeature::getEclipseFileNamesWithDialog( RiaDefin
 
     QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectory( defaultDirectoryLabel( fileType ) );
 
-    QStringList fileNames = RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
-                                                                  "Import Data File",
-                                                                  defaultDir,
-                                                                  fullPattern );
+    // Use nullptr as parent to this dialog, as this function is called from both plot window and main window
+    QStringList fileNames = RiuFileDialogTools::getOpenFileNames( nullptr, "Import Data File", defaultDir, fullPattern );
+
     return fileNames;
 }
 
