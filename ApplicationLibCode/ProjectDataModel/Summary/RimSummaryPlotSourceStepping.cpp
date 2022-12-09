@@ -30,6 +30,7 @@
 #include "RimProject.h"
 #include "RimSummaryAddressModifier.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCrossPlot.h"
 #include "RimSummaryCurve.h"
