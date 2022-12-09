@@ -75,6 +75,6 @@ void RicImportEclipseCaseFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicImportEclipseCaseFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/Case48x48.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Case.svg" ) );
     actionToSetup->setText( "Import Eclipse Case" );
 }

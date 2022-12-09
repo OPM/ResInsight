@@ -594,7 +594,7 @@ void RiuMainWindow::createToolBars()
     {
         QToolBar* toolbar = addToolBar( tr( "Standard" ) );
         toolbar->setObjectName( toolbar->windowTitle() );
-        toolbar->addAction( cmdFeatureMgr->action( "RicImportGeneralDataFeature" ) );
+        toolbar->addAction( cmdFeatureMgr->action( "RicImportEclipseCaseFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicOpenProjectFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicSaveProjectFeature" ) );
     }

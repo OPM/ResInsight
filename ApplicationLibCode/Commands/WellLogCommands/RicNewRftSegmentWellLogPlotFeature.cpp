@@ -24,6 +24,7 @@
 
 #include "RiaApplication.h"
 #include "RiaColorTools.h"
+#include "RiaLogging.h"
 #include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaRftDefines.h"
 
@@ -64,16 +65,18 @@ void RicNewRftSegmentWellLogPlotFeature::onActionTriggered( bool isChecked )
     rftCase->firstAncestorOfType( summaryCase );
     if ( !summaryCase ) return;
 
+    auto rftReader = summaryCase->rftReader();
+    if ( !rftReader )
+    {
+        RiaLogging::error( "Could not open RFT file or no RFT file present. " );
+        return;
+    }
+
     auto plot = RicNewWellLogPlotFeatureImpl::createHorizontalWellLogPlot();
 
-    QString wellName = "Unknown";
-
-    auto rftReader = summaryCase->rftReader();
-    if ( rftReader )
-    {
-        auto wellNames = rftReader->wellNames();
-        if ( !wellNames.empty() ) wellName = *wellNames.begin();
-    }
+    QString wellName  = "Unknown";
+    auto    wellNames = rftReader->wellNames();
+    if ( !wellNames.empty() ) wellName = *wellNames.begin();
 
     {
         RimWellLogTrack* plotTrack = new RimWellLogTrack();
@@ -197,15 +200,14 @@ void RicNewRftSegmentWellLogPlotFeature::appendTopologyTrack( RimWellLogPlot* pl
                                                               const QString&  wellName,
                                                               RimSummaryCase* summaryCase )
 {
+    auto rftReader = dynamic_cast<RifReaderOpmRft*>( summaryCase->rftReader() );
+    if ( !rftReader ) return;
+
     QDateTime dateTime;
     int       branchIndex = 1;
 
-    auto rftReader = dynamic_cast<RifReaderOpmRft*>( summaryCase->rftReader() );
-    if ( rftReader )
-    {
-        auto timeSteps = rftReader->availableTimeSteps( wellName );
-        if ( !timeSteps.empty() ) dateTime = *timeSteps.rbegin();
-    }
+    auto timeSteps = rftReader->availableTimeSteps( wellName );
+    if ( !timeSteps.empty() ) dateTime = *timeSteps.rbegin();
 
     auto track = new RimWellLogTrack();
     track->setDescription( "Topology" );

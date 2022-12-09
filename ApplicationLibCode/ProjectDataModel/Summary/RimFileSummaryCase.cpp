@@ -269,7 +269,12 @@ void RimFileSummaryCase::defineEditorAttribute( const caf::PdmFieldHandle* field
 void RimFileSummaryCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= "" */ )
 {
     RimSummaryCase::defineUiTreeOrdering( uiTreeOrdering, uiConfigName );
-    uiTreeOrdering.add( m_rftCase() );
+
+    if ( rftReader() )
+    {
+        uiTreeOrdering.add( m_rftCase() );
+    }
+    uiTreeOrdering.skipRemainingChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
