@@ -127,10 +127,10 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
     mainGrid->setGridPointDimensions( gridPointDim );
     mainGrid->setGridName( "Main grid" );
 
-    unsigned int       zCornerSize = static_cast<unsigned int>(( nx + 1 ) * ( ny + 1 ) * ( nz + 1 ) * 4u);
+    unsigned int       zCornerSize = static_cast<unsigned int>( ( nx + 1 ) * ( ny + 1 ) * ( nz + 1 ) * 4u );
     std::vector<float> zCorners( zCornerSize, 0.0 );
 
-    interpretSplitenzData( static_cast<int>(nz) + 1, zOffset, zScale, splitEnz, zValues, zCorners );
+    interpretSplitenzData( static_cast<int>( nz ) + 1, zOffset, zScale, splitEnz, zValues, zCorners );
 
     RiaLogging::info( QString( "zCorners: %1" ).arg( zCorners.size() ) );
 
@@ -149,7 +149,7 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
     int               progTicks = 100;
     caf::ProgressInfo progInfo( progTicks, "" );
 
-    int    cellCount      = static_cast<int>(totalCellCount);
+    int    cellCount      = static_cast<int>( totalCellCount );
     size_t cellStartIndex = mainGrid->globalCellArray().size();
     size_t nodeStartIndex = mainGrid->nodes().size();
 
