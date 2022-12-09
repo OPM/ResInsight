@@ -33,6 +33,9 @@
 #include <vector>
 
 #include "Reader.hpp"
+#include <chrono>
+
+using namespace std::chrono;
 
 //--------------------------------------------------------------------------------------------------
 /// Constructor
@@ -64,8 +67,12 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
         return false;
     }
 
+    const auto totalStart = high_resolution_clock::now();
+
     Reader reader( stream );
     reader.parse();
+
+    const auto tokenizeDone = high_resolution_clock::now();
 
     std::vector<std::pair<std::string, RoffScalar>>  values     = reader.scalarNamedValues();
     std::vector<std::pair<std::string, Token::Kind>> arrayTypes = reader.getNamedArrayTypes();
@@ -106,6 +113,8 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
     std::vector<float> zValues     = reader.getFloatArray( "zvalues.data" );
     std::vector<char>  splitEnz    = reader.getByteArray( "zvalues.splitEnz" );
     std::vector<int>   active      = reader.getIntArray( "active.data" );
+
+    const auto parsingDone = high_resolution_clock::now();
 
     RiaLogging::info( QString( "Layers: %1" ).arg( layers.size() ) );
     RiaLogging::info( QString( "Corner lines: %1" ).arg( cornerLines.size() ) );
@@ -216,6 +225,20 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
     mainGrid->initAllSubGridsParentGridPointer();
     activeCellInfo->computeDerivedData();
     fractureActiveCellInfo->computeDerivedData();
+
+    auto gridConstructionDone = high_resolution_clock::now();
+
+    auto tokenizeDuration = duration_cast<milliseconds>( tokenizeDone - totalStart );
+    RiaLogging::info( QString( "Tokenizing: %1 ms" ).arg( tokenizeDuration.count() ) );
+
+    auto parsingDuration = duration_cast<milliseconds>( parsingDone - tokenizeDone );
+    RiaLogging::info( QString( "Parsing: %1 ms" ).arg( parsingDuration.count() ) );
+
+    auto gridConstructionDuration = duration_cast<milliseconds>( gridConstructionDone - parsingDone );
+    RiaLogging::info( QString( "Grid Construction: %1 ms" ).arg( gridConstructionDuration.count() ) );
+
+    auto totalDuration = duration_cast<milliseconds>( gridConstructionDone - totalStart );
+    RiaLogging::info( QString( "Total: %1 ms" ).arg( totalDuration.count() ) );
 
     return true;
 }
