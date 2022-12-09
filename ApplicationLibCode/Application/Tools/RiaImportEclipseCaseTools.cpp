@@ -545,5 +545,7 @@ int RiaImportEclipseCaseTools::openRoffCaseFromFileNames( const QStringList& fil
         eclipseView->loadDataAndUpdate();
     }
 
+    analysisModels->updateConnectedEditors();
+
     return roffCase->caseId();
 }
