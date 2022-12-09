@@ -36,6 +36,7 @@
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"

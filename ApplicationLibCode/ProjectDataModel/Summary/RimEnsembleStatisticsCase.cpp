@@ -25,6 +25,7 @@
 #include "RigStatisticsMath.h"
 
 #include "RimEnsembleCurveSet.h"
+#include "RimSummaryCaseCollection.h"
 
 #include <limits>
 #include <set>

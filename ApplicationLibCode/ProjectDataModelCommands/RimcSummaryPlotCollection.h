@@ -18,9 +18,6 @@
 
 #pragma once
 
-#include "RimSummaryCaseCollection.h"
-#include "RimSummaryPlotCollection.h"
-
 #include "cafPdmField.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmObjectMethod.h"
@@ -33,6 +30,7 @@
 
 class RimSummaryCase;
 class RimSummaryPlotCollection;
+class RimSummaryCaseCollection;
 
 //==================================================================================================
 ///

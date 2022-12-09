@@ -22,6 +22,7 @@
 
 #include "RimEnsembleCurveSet.h"
 #include "RimPlot.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
 
