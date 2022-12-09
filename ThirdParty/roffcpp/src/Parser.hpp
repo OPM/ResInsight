@@ -13,6 +13,7 @@ class Parser
 {
 public:
     Parser();
+    virtual ~Parser();
 
     void parse( std::istream&                                     stream,
                 const std::vector<Token>&                         tokens,
