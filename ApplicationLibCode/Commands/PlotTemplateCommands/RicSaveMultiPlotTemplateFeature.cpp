@@ -32,6 +32,8 @@
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
+#include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"

@@ -19,12 +19,15 @@
 #include "RimEnsembleCurveSetColorManager.h"
 
 #include "RiaColorTables.h"
+
 #include "RimCustomObjectiveFunction.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimObjectiveFunction.h"
-
 #include "RimRegularLegendConfig.h"
+#include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
+
 #include "cvfScalarMapper.h"
 
 //--------------------------------------------------------------------------------------------------
