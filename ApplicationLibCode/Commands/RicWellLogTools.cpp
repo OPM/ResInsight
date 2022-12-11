@@ -540,7 +540,7 @@ bool RicWellLogTools::hasData( const QString&            resultName,
                                RimSummaryCase*           rimCase )
 {
     auto rftReader = rimCase->rftReader();
-    if ( rftReader ) return false;
+    if ( !rftReader ) return false;
 
     QDateTime dateTime;
 
