@@ -49,6 +49,11 @@ private:
                                        const std::vector<float>& zdata,
                                        std::vector<float>&       zcornsv );
 
+    static void
+        convertToReservoirIndexOrder( int nx, int ny, int nz, const std::vector<char>& activeIn, std::vector<int>& activeOut );
+
+    static size_t computeActiveCellMatrixIndex( std::vector<int>& activeCells );
+
     static cvf::Vec3d getCorner( const RigMainGrid&        grid,
                                  const std::vector<float>& cornerLines,
                                  const std::vector<float>& zcorn,
