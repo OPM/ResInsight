@@ -1167,7 +1167,7 @@ QString RimWellLogExtractionCurve::createCurveAutoName()
         }
     }
 
-    if ( m_refWellPath && !m_refWellPath->name().isEmpty() )
+    if ( m_useRefWell && m_refWellPath && !m_refWellPath->name().isEmpty() )
     {
         generatedCurveName.push_back( QString( "Ref. Well: %1" ).arg( m_refWellPath->name() ) );
     }
