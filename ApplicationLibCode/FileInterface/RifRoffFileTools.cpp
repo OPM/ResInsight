@@ -112,7 +112,7 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
     std::vector<float> cornerLines = reader.getFloatArray( "cornerLines.data" );
     std::vector<float> zValues     = reader.getFloatArray( "zvalues.data" );
     std::vector<char>  splitEnz    = reader.getByteArray( "zvalues.splitEnz" );
-    std::vector<int>   active      = reader.getIntArray( "active.data" );
+    std::vector<char>  active      = reader.getByteArray( "active.data" );
 
     const auto parsingDone = high_resolution_clock::now();
 
@@ -180,7 +180,12 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
     cvf::Vec3d offset( xOffset, yOffset, zOffset );
     cvf::Vec3d scale( xScale, yScale, zScale );
 
-    size_t activeMatrixIndex = 0;
+    std::vector<int> activeCells;
+    convertToReservoirIndexOrder( nx, ny, nz, active, activeCells );
+
+    // Precompute the active cell matrix index
+    size_t numActiveCells = computeActiveCellMatrixIndex( activeCells );
+
     for ( int gridLocalCellIndex = 0; gridLocalCellIndex < cellCount; ++gridLocalCellIndex )
     {
         RigCell& cell = mainGrid->globalCellArray()[cellStartIndex + gridLocalCellIndex];
@@ -188,11 +193,10 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
         cell.setGridLocalCellIndex( gridLocalCellIndex );
 
         // Active cell index
-        int matrixActiveIndex = active[gridLocalCellIndex];
+        int matrixActiveIndex = activeCells[gridLocalCellIndex];
         if ( matrixActiveIndex != -1 )
         {
-            activeCellInfo->setCellResultIndex( cellStartIndex + gridLocalCellIndex, activeMatrixIndex );
-            activeMatrixIndex++;
+            activeCellInfo->setCellResultIndex( cellStartIndex + gridLocalCellIndex, matrixActiveIndex );
         }
 
         cell.setParentCellIndex( cvf::UNDEFINED_SIZE_T );
@@ -219,7 +223,7 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
             progInfo.incrementProgress();
     }
 
-    activeCellInfo->setGridActiveCellCounts( 0, activeMatrixIndex );
+    activeCellInfo->setGridActiveCellCounts( 0, numActiveCells );
     fractureActiveCellInfo->setGridActiveCellCounts( 0, 0 );
 
     mainGrid->initAllSubGridsParentGridPointer();
@@ -392,4 +396,55 @@ void RifRoffFileTools::interpretSplitenzData( int                       nz,
     if ( it_splitenz != nsplitenz ) throw std::runtime_error( "Incorrect size of splitenz." );
     if ( it_zdata != nzdata ) throw std::runtime_error( "Incorrect size of zdata" );
     if ( it_zcorn != nzcorn ) throw std::runtime_error( "Incorrect size of zcorn." );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifRoffFileTools::convertToReservoirIndexOrder( int                      nx,
+                                                     int                      ny,
+                                                     int                      nz,
+                                                     const std::vector<char>& activeIn,
+                                                     std::vector<int>&        activeOut )
+{
+    CAF_ASSERT( static_cast<size_t>( nx ) * ny * nz == activeIn.size() );
+
+    activeOut.resize( activeIn.size(), -1 );
+
+    int outIdx = 0;
+    for ( int k = 0; k < nz; k++ )
+    {
+        for ( int j = 0; j < ny; j++ )
+        {
+            for ( int i = 0; i < nx; i++ )
+            {
+                int inIdx         = i * ny * nz + j * nz + k;
+                activeOut[outIdx] = static_cast<int>( activeIn[inIdx] );
+                outIdx++;
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RifRoffFileTools::computeActiveCellMatrixIndex( std::vector<int>& activeCells )
+{
+    size_t activeMatrixIndex = 0;
+    int    cellCount         = static_cast<int>( activeCells.size() );
+    for ( int gridLocalCellIndex = 0; gridLocalCellIndex < cellCount; gridLocalCellIndex++ )
+    {
+        if ( activeCells[gridLocalCellIndex] != 0 )
+        {
+            activeCells[gridLocalCellIndex] = activeMatrixIndex;
+            activeMatrixIndex++;
+        }
+        else
+        {
+            activeCells[gridLocalCellIndex] = -1;
+        }
+    }
+
+    return activeMatrixIndex;
 }
