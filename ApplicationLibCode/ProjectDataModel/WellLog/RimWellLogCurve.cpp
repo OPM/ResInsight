@@ -62,6 +62,9 @@ RimWellLogCurve::RimWellLogCurve()
     // defineUiOrdering().
     CAF_PDM_InitFieldNoDefault( &m_refWellPath, "ReferenceWellPath", "Reference Well Path" );
     m_refWellPath.uiCapability()->setUiHidden( !RiaApplication::enableDevelopmentFeatures() );
+    m_refWellPath.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitField( &m_useRefWell, "UseReferenceWellPath", true, "Use Reference Well Path" );
 
     setDeletable( true );
 }
@@ -237,6 +240,16 @@ const RigWellLogCurveData* RimWellLogCurve::curveData() const
 void RimWellLogCurve::setReferenceWellPath( RimWellPath* refWellPath )
 {
     m_refWellPath = refWellPath;
+
+    if ( m_refWellPath == nullptr )
+    {
+        m_useRefWell.uiCapability()->setUiHidden( true );
+        m_useRefWell = true;
+    }
+    else
+    {
+        m_useRefWell.uiCapability()->setUiHidden( false );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -451,6 +464,7 @@ void RimWellLogCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     if ( group != nullptr )
     {
         group->add( &m_refWellPath );
+        group->add( &m_useRefWell );
     }
 
     uiOrdering.skipRemainingFields( true );
@@ -476,6 +490,12 @@ void RimWellLogCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     if ( changedField == &m_isStacked )
     {
         loadDataAndUpdate( true );
+    }
+
+    if ( changedField == &m_useRefWell )
+    {
+        loadDataAndUpdate( true );
+        updateConnectedEditors();
     }
 }
 
