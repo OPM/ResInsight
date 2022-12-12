@@ -71,22 +71,12 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
         return false;
     }
 
-    const auto totalStart = high_resolution_clock::now();
-
-    Reader reader( stream );
-    reader.parse();
-
-    const auto tokenizeDone = high_resolution_clock::now();
-
-    std::vector<std::pair<std::string, RoffScalar>>  values     = reader.scalarNamedValues();
-    std::vector<std::pair<std::string, Token::Kind>> arrayTypes = reader.getNamedArrayTypes();
-
     auto getInt = []( auto values, const std::string& name ) {
         auto v = std::find_if( values.begin(), values.end(), [&name]( const auto& arg ) { return arg.first == name; } );
         if ( v != values.end() )
             return std::get<int>( v->second );
         else
-            return -1;
+            throw std::runtime_error( "Missing parameter (integer): " + name );
     };
 
     auto getFloat = []( auto values, const std::string& name ) {
@@ -94,176 +84,194 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
         if ( v != values.end() )
             return std::get<float>( v->second );
         else
-            return -1.0f;
+            throw std::runtime_error( "Missing parameter (float): " + name );
     };
 
-    size_t nx = getInt( values, "dimensions.nX" );
-    size_t ny = getInt( values, "dimensions.nY" );
-    size_t nz = getInt( values, "dimensions.nZ" );
-    RiaLogging::info( QString( "Grid dimensions: %1 %2 %3" ).arg( nx ).arg( ny ).arg( nz ) );
-
-    float xOffset = getFloat( values, "translate.xoffset" );
-    float yOffset = getFloat( values, "translate.yoffset" );
-    float zOffset = getFloat( values, "translate.zoffset" );
-    RiaLogging::info( QString( "Offset: %1 %2 %3" ).arg( xOffset ).arg( yOffset ).arg( zOffset ) );
-
-    float xScale = getFloat( values, "scale.xscale" );
-    float yScale = getFloat( values, "scale.yscale" );
-    float zScale = getFloat( values, "scale.zscale" );
-    RiaLogging::info( QString( "Scale: %1 %2 %3" ).arg( xScale ).arg( yScale ).arg( zScale ) );
-
-    std::vector<int>   layers      = reader.getIntArray( "subgrids.nLayers" );
-    std::vector<float> cornerLines = reader.getFloatArray( "cornerLines.data" );
-    std::vector<float> zValues     = reader.getFloatArray( "zvalues.data" );
-    std::vector<char>  splitEnz    = reader.getByteArray( "zvalues.splitEnz" );
-    std::vector<char>  active      = reader.getByteArray( "active.data" );
-
-    const auto parsingDone = high_resolution_clock::now();
-
-    RiaLogging::info( QString( "Layers: %1" ).arg( layers.size() ) );
-    RiaLogging::info( QString( "Corner lines: %1" ).arg( cornerLines.size() ) );
-    RiaLogging::info( QString( "Z values: %1" ).arg( zValues.size() ) );
-    RiaLogging::info( QString( "Splitenz: %1" ).arg( splitEnz.size() ) );
-    RiaLogging::info( QString( "Active: %1" ).arg( active.size() ) );
-
-    RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    CVF_ASSERT( activeCellInfo );
-
-    RigActiveCellInfo* fractureActiveCellInfo =
-        eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
-    CVF_ASSERT( fractureActiveCellInfo );
-
-    RigMainGrid* mainGrid = eclipseCase->mainGrid();
-    CVF_ASSERT( mainGrid );
-
-    cvf::Vec3st gridPointDim( nx + 1, ny + 1, nz + 1 );
-    mainGrid->setGridPointDimensions( gridPointDim );
-    mainGrid->setGridName( "Main grid" );
-
-    unsigned int       zCornerSize = static_cast<unsigned int>( ( nx + 1 ) * ( ny + 1 ) * ( nz + 1 ) * 4u );
-    std::vector<float> zCorners( zCornerSize, 0.0 );
-
-    interpretSplitenzData( static_cast<int>( nz ) + 1, zOffset, zScale, splitEnz, zValues, zCorners );
-
-    RiaLogging::info( QString( "zCorners: %1" ).arg( zCorners.size() ) );
-
-    size_t totalCellCount = nx * ny * nz;
-
-    activeCellInfo->setGridCount( 1 );
-    fractureActiveCellInfo->setGridCount( 1 );
-
-    activeCellInfo->setReservoirCellCount( totalCellCount );
-    fractureActiveCellInfo->setReservoirCellCount( totalCellCount );
-
-    // Reserve room for the cells and nodes and fill them with data
-    mainGrid->globalCellArray().reserve( totalCellCount );
-    mainGrid->nodes().reserve( 8 * totalCellCount );
-
-    int               progTicks = 100;
-    caf::ProgressInfo progInfo( progTicks, "" );
-
-    int    cellCount      = static_cast<int>( totalCellCount );
-    size_t cellStartIndex = mainGrid->globalCellArray().size();
-    size_t nodeStartIndex = mainGrid->nodes().size();
-
-    RigCell defaultCell;
-    defaultCell.setHostGrid( mainGrid );
-    mainGrid->globalCellArray().resize( cellStartIndex + cellCount, defaultCell );
-
-    mainGrid->nodes().resize( nodeStartIndex + static_cast<size_t>( cellCount ) * 8, cvf::Vec3d( 0, 0, 0 ) );
-
-    const size_t cellMappingECLRi[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
-
-    cvf::Vec3d offset( xOffset, yOffset, zOffset );
-    cvf::Vec3d scale( xScale, yScale, zScale );
-
-    std::vector<int> activeCells;
-    convertToReservoirIndexOrder( nx, ny, nz, active, activeCells );
-
-    // Precompute the active cell matrix index
-    size_t numActiveCells = computeActiveCellMatrixIndex( activeCells );
-
-    // Loop over cells and fill them with data
-#pragma omp parallel
+    try
     {
-        int cellCountPerThread = cellCount;
+        const auto totalStart = high_resolution_clock::now();
+
+        Reader reader( stream );
+        reader.parse();
+
+        const auto tokenizeDone = high_resolution_clock::now();
+
+        std::vector<std::pair<std::string, RoffScalar>>  values     = reader.scalarNamedValues();
+        std::vector<std::pair<std::string, Token::Kind>> arrayTypes = reader.getNamedArrayTypes();
+
+        size_t nx = getInt( values, "dimensions.nX" );
+        size_t ny = getInt( values, "dimensions.nY" );
+        size_t nz = getInt( values, "dimensions.nZ" );
+        RiaLogging::info( QString( "Grid dimensions: %1 %2 %3" ).arg( nx ).arg( ny ).arg( nz ) );
+
+        float xOffset = getFloat( values, "translate.xoffset" );
+        float yOffset = getFloat( values, "translate.yoffset" );
+        float zOffset = getFloat( values, "translate.zoffset" );
+        RiaLogging::info( QString( "Offset: %1 %2 %3" ).arg( xOffset ).arg( yOffset ).arg( zOffset ) );
+
+        float xScale = getFloat( values, "scale.xscale" );
+        float yScale = getFloat( values, "scale.yscale" );
+        float zScale = getFloat( values, "scale.zscale" );
+        RiaLogging::info( QString( "Scale: %1 %2 %3" ).arg( xScale ).arg( yScale ).arg( zScale ) );
+
+        std::vector<int>   layers      = reader.getIntArray( "subgrids.nLayers" );
+        std::vector<float> cornerLines = reader.getFloatArray( "cornerLines.data" );
+        std::vector<float> zValues     = reader.getFloatArray( "zvalues.data" );
+        std::vector<char>  splitEnz    = reader.getByteArray( "zvalues.splitEnz" );
+        std::vector<char>  active      = reader.getByteArray( "active.data" );
+
+        const auto parsingDone = high_resolution_clock::now();
+
+        RiaLogging::info( QString( "Layers: %1" ).arg( layers.size() ) );
+        RiaLogging::info( QString( "Corner lines: %1" ).arg( cornerLines.size() ) );
+        RiaLogging::info( QString( "Z values: %1" ).arg( zValues.size() ) );
+        RiaLogging::info( QString( "Splitenz: %1" ).arg( splitEnz.size() ) );
+        RiaLogging::info( QString( "Active: %1" ).arg( active.size() ) );
+
+        unsigned int       zCornerSize = static_cast<unsigned int>( ( nx + 1 ) * ( ny + 1 ) * ( nz + 1 ) * 4u );
+        std::vector<float> zCorners( zCornerSize, 0.0 );
+
+        interpretSplitenzData( static_cast<int>( nz ) + 1, zOffset, zScale, splitEnz, zValues, zCorners );
+
+        RiaLogging::info( QString( "zCorners: %1" ).arg( zCorners.size() ) );
+
+        RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+        CVF_ASSERT( activeCellInfo );
+
+        RigActiveCellInfo* fractureActiveCellInfo =
+            eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
+        CVF_ASSERT( fractureActiveCellInfo );
+
+        RigMainGrid* mainGrid = eclipseCase->mainGrid();
+        CVF_ASSERT( mainGrid );
+
+        cvf::Vec3st gridPointDim( nx + 1, ny + 1, nz + 1 );
+        mainGrid->setGridPointDimensions( gridPointDim );
+        mainGrid->setGridName( "Main grid" );
+
+        size_t totalCellCount = nx * ny * nz;
+
+        activeCellInfo->setGridCount( 1 );
+        fractureActiveCellInfo->setGridCount( 1 );
+
+        activeCellInfo->setReservoirCellCount( totalCellCount );
+        fractureActiveCellInfo->setReservoirCellCount( totalCellCount );
+
+        // Reserve room for the cells and nodes and fill them with data
+        mainGrid->globalCellArray().reserve( totalCellCount );
+        mainGrid->nodes().reserve( 8 * totalCellCount );
+
+        int               progTicks = 100;
+        caf::ProgressInfo progInfo( progTicks, "" );
+
+        int    cellCount      = static_cast<int>( totalCellCount );
+        size_t cellStartIndex = mainGrid->globalCellArray().size();
+        size_t nodeStartIndex = mainGrid->nodes().size();
+
+        RigCell defaultCell;
+        defaultCell.setHostGrid( mainGrid );
+        mainGrid->globalCellArray().resize( cellStartIndex + cellCount, defaultCell );
+
+        mainGrid->nodes().resize( nodeStartIndex + static_cast<size_t>( cellCount ) * 8, cvf::Vec3d( 0, 0, 0 ) );
+
+        const size_t cellMappingECLRi[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
+
+        cvf::Vec3d offset( xOffset, yOffset, zOffset );
+        cvf::Vec3d scale( xScale, yScale, zScale );
+
+        std::vector<int> activeCells;
+        convertToReservoirIndexOrder( nx, ny, nz, active, activeCells );
+
+        // Precompute the active cell matrix index
+        size_t numActiveCells = computeActiveCellMatrixIndex( activeCells );
+
+        // Loop over cells and fill them with data
+#pragma omp parallel
+        {
+            int cellCountPerThread = cellCount;
 #ifdef USE_OPENMP
-        cellCountPerThread = std::max( 1, cellCount / omp_get_num_threads() );
+            cellCountPerThread = std::max( 1, cellCount / omp_get_num_threads() );
 #endif
 
-        int computedThreadCellCount = 0;
+            int computedThreadCellCount = 0;
 
-        int cellsPrProgressTick = std::max( 1, cellCountPerThread / progTicks );
-        int maxProgressCell     = cellsPrProgressTick * progTicks;
+            int cellsPrProgressTick = std::max( 1, cellCountPerThread / progTicks );
+            int maxProgressCell     = cellsPrProgressTick * progTicks;
 
 #pragma omp for
-        for ( int gridLocalCellIndex = 0; gridLocalCellIndex < cellCount; ++gridLocalCellIndex )
-        {
-            RigCell& cell = mainGrid->globalCellArray()[cellStartIndex + gridLocalCellIndex];
-
-            cell.setGridLocalCellIndex( gridLocalCellIndex );
-
-            // Active cell index
-            int matrixActiveIndex = activeCells[gridLocalCellIndex];
-            if ( matrixActiveIndex != -1 )
+            for ( int gridLocalCellIndex = 0; gridLocalCellIndex < cellCount; ++gridLocalCellIndex )
             {
-                activeCellInfo->setCellResultIndex( cellStartIndex + gridLocalCellIndex, matrixActiveIndex );
-            }
+                RigCell& cell = mainGrid->globalCellArray()[cellStartIndex + gridLocalCellIndex];
 
-            cell.setParentCellIndex( cvf::UNDEFINED_SIZE_T );
+                cell.setGridLocalCellIndex( gridLocalCellIndex );
 
-            // Corner coordinates
-            for ( int cIdx = 0; cIdx < 8; ++cIdx )
-            {
-                double* point =
-                    mainGrid->nodes()[nodeStartIndex + (size_t)gridLocalCellIndex * 8 + cellMappingECLRi[cIdx]].ptr();
-                auto corner = getCorner( *mainGrid, cornerLines, zCorners, gridLocalCellIndex, cIdx, offset, scale );
+                // Active cell index
+                int matrixActiveIndex = activeCells[gridLocalCellIndex];
+                if ( matrixActiveIndex != -1 )
+                {
+                    activeCellInfo->setCellResultIndex( cellStartIndex + gridLocalCellIndex, matrixActiveIndex );
+                }
 
-                point[0] = corner.x();
-                point[1] = corner.y();
-                point[2] = corner.z();
+                cell.setParentCellIndex( cvf::UNDEFINED_SIZE_T );
 
-                cell.cornerIndices()[cIdx] = nodeStartIndex + (size_t)gridLocalCellIndex * 8 + cIdx;
-            }
+                // Corner coordinates
+                for ( int cIdx = 0; cIdx < 8; ++cIdx )
+                {
+                    double* point =
+                        mainGrid->nodes()[nodeStartIndex + (size_t)gridLocalCellIndex * 8 + cellMappingECLRi[cIdx]].ptr();
+                    auto corner = getCorner( *mainGrid, cornerLines, zCorners, gridLocalCellIndex, cIdx, offset, scale );
 
-            // Mark inactive long pyramid looking cells as invalid
-            cell.setInvalid( cell.isLongPyramidCell() );
+                    point[0] = corner.x();
+                    point[1] = corner.y();
+                    point[2] = corner.z();
+
+                    cell.cornerIndices()[cIdx] = nodeStartIndex + (size_t)gridLocalCellIndex * 8 + cIdx;
+                }
+
+                // Mark inactive long pyramid looking cells as invalid
+                cell.setInvalid( cell.isLongPyramidCell() );
 
 #ifdef USE_OPENMP
-            if ( omp_get_thread_num() == 0 )
-            {
+                if ( omp_get_thread_num() == 0 )
+                {
+                    computedThreadCellCount++;
+                    if ( computedThreadCellCount <= maxProgressCell && computedThreadCellCount % cellsPrProgressTick == 0 )
+                        progInfo.incrementProgress();
+                }
+#else
                 computedThreadCellCount++;
                 if ( computedThreadCellCount <= maxProgressCell && computedThreadCellCount % cellsPrProgressTick == 0 )
                     progInfo.incrementProgress();
-            }
-#else
-            computedThreadCellCount++;
-            if ( computedThreadCellCount <= maxProgressCell && computedThreadCellCount % cellsPrProgressTick == 0 )
-                progInfo.incrementProgress();
 #endif
+            }
         }
+
+        activeCellInfo->setGridActiveCellCounts( 0, numActiveCells );
+        fractureActiveCellInfo->setGridActiveCellCounts( 0, 0 );
+
+        mainGrid->initAllSubGridsParentGridPointer();
+        activeCellInfo->computeDerivedData();
+        fractureActiveCellInfo->computeDerivedData();
+
+        auto gridConstructionDone = high_resolution_clock::now();
+
+        auto tokenizeDuration = duration_cast<milliseconds>( tokenizeDone - totalStart );
+        RiaLogging::info( QString( "Tokenizing: %1 ms" ).arg( tokenizeDuration.count() ) );
+
+        auto parsingDuration = duration_cast<milliseconds>( parsingDone - tokenizeDone );
+        RiaLogging::info( QString( "Parsing: %1 ms" ).arg( parsingDuration.count() ) );
+
+        auto gridConstructionDuration = duration_cast<milliseconds>( gridConstructionDone - parsingDone );
+        RiaLogging::info( QString( "Grid Construction: %1 ms" ).arg( gridConstructionDuration.count() ) );
+
+        auto totalDuration = duration_cast<milliseconds>( gridConstructionDone - totalStart );
+        RiaLogging::info( QString( "Total: %1 ms" ).arg( totalDuration.count() ) );
     }
-
-    activeCellInfo->setGridActiveCellCounts( 0, numActiveCells );
-    fractureActiveCellInfo->setGridActiveCellCounts( 0, 0 );
-
-    mainGrid->initAllSubGridsParentGridPointer();
-    activeCellInfo->computeDerivedData();
-    fractureActiveCellInfo->computeDerivedData();
-
-    auto gridConstructionDone = high_resolution_clock::now();
-
-    auto tokenizeDuration = duration_cast<milliseconds>( tokenizeDone - totalStart );
-    RiaLogging::info( QString( "Tokenizing: %1 ms" ).arg( tokenizeDuration.count() ) );
-
-    auto parsingDuration = duration_cast<milliseconds>( parsingDone - tokenizeDone );
-    RiaLogging::info( QString( "Parsing: %1 ms" ).arg( parsingDuration.count() ) );
-
-    auto gridConstructionDuration = duration_cast<milliseconds>( gridConstructionDone - parsingDone );
-    RiaLogging::info( QString( "Grid Construction: %1 ms" ).arg( gridConstructionDuration.count() ) );
-
-    auto totalDuration = duration_cast<milliseconds>( gridConstructionDone - totalStart );
-    RiaLogging::info( QString( "Total: %1 ms" ).arg( totalDuration.count() ) );
+    catch ( std::runtime_error& err )
+    {
+        RiaLogging::error( QString( "Roff file import failed: %1" ).arg( err.what() ) );
+        return false;
+    }
 
     return true;
 }
