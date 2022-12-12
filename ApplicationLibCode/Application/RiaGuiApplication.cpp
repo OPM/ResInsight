@@ -1574,7 +1574,7 @@ void RiaGuiApplication::stopMonitoringWorkProgress()
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::slotWorkerProcessFinished( int exitCode, QProcess::ExitStatus exitStatus )
 {
-    CAF_ASSERT( m_mainWindow );
+    if ( m_mainWindow == nullptr ) return;
 
     m_mainWindow->processMonitor()->stopMonitorWorkProcess();
 
