@@ -27,13 +27,17 @@
 
 #include "cafProgressInfo.h"
 
+#include <chrono>
 #include <cmath>
 #include <fstream>
 #include <iostream>
 #include <vector>
 
 #include "Reader.hpp"
-#include <chrono>
+
+#ifdef USE_OPENMP
+#include <omp.h>
+#endif
 
 using namespace std::chrono;
 
@@ -168,13 +172,6 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
 
     mainGrid->nodes().resize( nodeStartIndex + static_cast<size_t>( cellCount ) * 8, cvf::Vec3d( 0, 0, 0 ) );
 
-    // Loop over cells and fill them with data
-    int cellCountPerThread      = cellCount;
-    int computedThreadCellCount = 0;
-
-    int cellsPrProgressTick = std::max( 1, cellCountPerThread / progTicks );
-    int maxProgressCell     = cellsPrProgressTick * progTicks;
-
     const size_t cellMappingECLRi[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
 
     cvf::Vec3d offset( xOffset, yOffset, zOffset );
@@ -186,41 +183,65 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
     // Precompute the active cell matrix index
     size_t numActiveCells = computeActiveCellMatrixIndex( activeCells );
 
-    for ( int gridLocalCellIndex = 0; gridLocalCellIndex < cellCount; ++gridLocalCellIndex )
+    // Loop over cells and fill them with data
+#pragma omp parallel
     {
-        RigCell& cell = mainGrid->globalCellArray()[cellStartIndex + gridLocalCellIndex];
+        int cellCountPerThread = cellCount;
+#ifdef USE_OPENMP
+        cellCountPerThread = std::max( 1, cellCount / omp_get_num_threads() );
+#endif
 
-        cell.setGridLocalCellIndex( gridLocalCellIndex );
+        int computedThreadCellCount = 0;
 
-        // Active cell index
-        int matrixActiveIndex = activeCells[gridLocalCellIndex];
-        if ( matrixActiveIndex != -1 )
+        int cellsPrProgressTick = std::max( 1, cellCountPerThread / progTicks );
+        int maxProgressCell     = cellsPrProgressTick * progTicks;
+
+#pragma omp for
+        for ( int gridLocalCellIndex = 0; gridLocalCellIndex < cellCount; ++gridLocalCellIndex )
         {
-            activeCellInfo->setCellResultIndex( cellStartIndex + gridLocalCellIndex, matrixActiveIndex );
+            RigCell& cell = mainGrid->globalCellArray()[cellStartIndex + gridLocalCellIndex];
+
+            cell.setGridLocalCellIndex( gridLocalCellIndex );
+
+            // Active cell index
+            int matrixActiveIndex = activeCells[gridLocalCellIndex];
+            if ( matrixActiveIndex != -1 )
+            {
+                activeCellInfo->setCellResultIndex( cellStartIndex + gridLocalCellIndex, matrixActiveIndex );
+            }
+
+            cell.setParentCellIndex( cvf::UNDEFINED_SIZE_T );
+
+            // Corner coordinates
+            for ( int cIdx = 0; cIdx < 8; ++cIdx )
+            {
+                double* point =
+                    mainGrid->nodes()[nodeStartIndex + (size_t)gridLocalCellIndex * 8 + cellMappingECLRi[cIdx]].ptr();
+                auto corner = getCorner( *mainGrid, cornerLines, zCorners, gridLocalCellIndex, cIdx, offset, scale );
+
+                point[0] = corner.x();
+                point[1] = corner.y();
+                point[2] = corner.z();
+
+                cell.cornerIndices()[cIdx] = nodeStartIndex + (size_t)gridLocalCellIndex * 8 + cIdx;
+            }
+
+            // Mark inactive long pyramid looking cells as invalid
+            cell.setInvalid( cell.isLongPyramidCell() );
+
+#ifdef USE_OPENMP
+            if ( omp_get_thread_num() == 0 )
+            {
+                computedThreadCellCount++;
+                if ( computedThreadCellCount <= maxProgressCell && computedThreadCellCount % cellsPrProgressTick == 0 )
+                    progInfo.incrementProgress();
+            }
+#else
+            computedThreadCellCount++;
+            if ( computedThreadCellCount <= maxProgressCell && computedThreadCellCount % cellsPrProgressTick == 0 )
+                progInfo.incrementProgress();
+#endif
         }
-
-        cell.setParentCellIndex( cvf::UNDEFINED_SIZE_T );
-
-        // Corner coordinates
-        for ( int cIdx = 0; cIdx < 8; ++cIdx )
-        {
-            double* point =
-                mainGrid->nodes()[nodeStartIndex + (size_t)gridLocalCellIndex * 8 + cellMappingECLRi[cIdx]].ptr();
-            auto corner = getCorner( *mainGrid, cornerLines, zCorners, gridLocalCellIndex, cIdx, offset, scale );
-
-            point[0] = corner.x();
-            point[1] = corner.y();
-            point[2] = corner.z();
-
-            cell.cornerIndices()[cIdx] = nodeStartIndex + (size_t)gridLocalCellIndex * 8 + cIdx;
-        }
-
-        // Mark inactive long pyramid looking cells as invalid
-        cell.setInvalid( cell.isLongPyramidCell() );
-
-        computedThreadCellCount++;
-        if ( computedThreadCellCount <= maxProgressCell && computedThreadCellCount % cellsPrProgressTick == 0 )
-            progInfo.incrementProgress();
     }
 
     activeCellInfo->setGridActiveCellCounts( 0, numActiveCells );
