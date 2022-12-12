@@ -688,7 +688,7 @@ RimWellLogExtractionCurve::WellLogExtractionCurveData
 
 //--------------------------------------------------------------------------------------------------
 /// Utility function to map property values of reference well into curve of selected well, by
-/// retreiving the property values and map to korresponding depth values by usage of k-layer index.
+/// retrieving the property values and map to korresponding depth values by usage of k-layer index.
 /// Match enter and exit values for k-layer and linearize for depth values between enter/exit of k-layer.
 ///
 /// Performs value mapping from first common k-layer to last common k-layer - i.e common min and
