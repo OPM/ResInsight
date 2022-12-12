@@ -496,6 +496,7 @@ RimWellLogExtractionCurve::WellLogExtractionCurveData
 
     cvf::ref<RigEclipseWellLogExtractor> wellExtractor;
     cvf::ref<RigEclipseWellLogExtractor> refWellExtractor;
+    cvf::ref<RigResultAccessor>          resAcc;
     if ( m_trajectoryType == WELL_PATH )
     {
         wellExtractor    = wellLogCollection->findOrCreateExtractor( m_wellPath, eclipseCase );
@@ -529,12 +530,10 @@ RimWellLogExtractionCurve::WellLogExtractionCurveData
 
         m_eclipseResultDefinition->loadResult();
 
-        cvf::ref<RigResultAccessor> resAcc =
-            RigResultAccessorFactory::createFromResultDefinition( eclipseCase->eclipseCaseData(),
-                                                                  0,
-                                                                  m_timeStep,
-                                                                  m_eclipseResultDefinition );
-
+        resAcc = RigResultAccessorFactory::createFromResultDefinition( eclipseCase->eclipseCaseData(),
+                                                                       0,
+                                                                       m_timeStep,
+                                                                       m_eclipseResultDefinition );
         if ( resAcc.notNull() )
         {
             wellExtractor->curveData( resAcc.p(), &curveData.values );
@@ -550,7 +549,7 @@ RimWellLogExtractionCurve::WellLogExtractionCurveData
     }
 
     // Reference well adjustment does not support simulated wells
-    if ( m_trajectoryType == WELL_PATH && wellExtractor.notNull() && refWellExtractor.notNull() )
+    if ( m_trajectoryType == WELL_PATH && wellExtractor.notNull() && refWellExtractor.notNull() && m_useRefWell )
     {
         RigEclipseResultAddress indexKResAdr( RiaDefines::ResultCatType::STATIC_NATIVE,
                                               RiaResultNames::indexKResultName() );
@@ -565,6 +564,7 @@ RimWellLogExtractionCurve::WellLogExtractionCurveData
 
         std::vector<double> refWellMeasuredDepthValues = refWellExtractor->cellIntersectionMDs();
         std::vector<double> refWellTvDepthValues       = refWellExtractor->cellIntersectionTVDs();
+        std::vector<double> refWellPropertyValues;
         std::vector<double> wellIndexKValues;
         std::vector<double> refWellIndexKValues;
         if ( indexKResAcc.notNull() )
@@ -572,14 +572,20 @@ RimWellLogExtractionCurve::WellLogExtractionCurveData
             wellExtractor->curveData( indexKResAcc.p(), &wellIndexKValues );
             refWellExtractor->curveData( indexKResAcc.p(), &refWellIndexKValues );
         }
-        if ( !wellIndexKValues.empty() && !refWellIndexKValues.empty() )
+        if ( resAcc.notNull() )
         {
-            adjustWellDepthValuesToReferenceWell( curveData.measuredDepthValues,
-                                                  curveData.tvDepthValues,
-                                                  wellIndexKValues,
-                                                  refWellMeasuredDepthValues,
-                                                  refWellTvDepthValues,
-                                                  refWellIndexKValues );
+            refWellExtractor->curveData( resAcc.p(), &refWellPropertyValues );
+        }
+        if ( !wellIndexKValues.empty() && !refWellIndexKValues.empty() && !refWellPropertyValues.empty() )
+        {
+            mapPropertyValuesFromReferenceWell( curveData.measuredDepthValues,
+                                                curveData.tvDepthValues,
+                                                curveData.values,
+                                                wellIndexKValues,
+                                                refWellMeasuredDepthValues,
+                                                refWellTvDepthValues,
+                                                refWellPropertyValues,
+                                                refWellIndexKValues );
         }
     }
 
@@ -623,77 +629,93 @@ RimWellLogExtractionCurve::WellLogExtractionCurveData
         m_geomResultDefinition->loadResult();
         curveData.xUnits =
             wellExtractor->curveData( m_geomResultDefinition->resultAddress(), m_timeStep, &curveData.values );
-        if ( performDataSmoothing )
-        {
-            wellExtractor->performCurveDataSmoothing( m_timeStep,
-                                                      &curveData.measuredDepthValues,
-                                                      &curveData.tvDepthValues,
-                                                      &curveData.values,
-                                                      smoothingThreshold );
-        }
     }
 
-    const std::string fieldName = m_geomResultDefinition->resultAddress().fieldName;
-    if ( fieldName == RiaResultNames::wbsAzimuthResult().toStdString() ||
-         fieldName == RiaResultNames::wbsInclinationResult().toStdString() )
+    // Do not adjust depth values of Azimuth and Inclination as they are dependent
+    // of the well geometry
+    const std::string fieldName            = m_geomResultDefinition->resultAddress().fieldName;
+    const bool        isNeglectedFieldName = fieldName == RiaResultNames::wbsAzimuthResult().toStdString() ||
+                                      fieldName == RiaResultNames::wbsInclinationResult().toStdString();
+    if ( !isNeglectedFieldName && wellExtractor.notNull() && refWellExtractor.notNull() && m_useRefWell )
     {
-        // Do not adjust depth values of Azimuth and Inclination as they are
-        // dependent of the well geometry
-        return curveData;
-    }
-
-    if ( wellExtractor.notNull() && refWellExtractor.notNull() )
-    {
-        // NOTE: Perform performCurveDataSmoothing() for refWell, as done for well?
-
         RigFemResultAddress indexKResAdr( RigFemResultPosEnum::RIG_ELEMENT_NODAL, "INDEX", "INDEX_K" );
 
         const size_t        frameIdx                   = 0;
         std::vector<double> refWellMeasuredDepthValues = refWellExtractor->cellIntersectionMDs();
         std::vector<double> refWellTvDepthValues       = refWellExtractor->cellIntersectionTVDs();
-        std::vector<double> wellIndexKValues;
+        std::vector<double> refWellPropertyValues;
         std::vector<double> refWellIndexKValues;
+        std::vector<double> wellIndexKValues;
         if ( indexKResAdr.isValid() )
         {
             wellExtractor->curveData( indexKResAdr, frameIdx, &wellIndexKValues );
             refWellExtractor->curveData( indexKResAdr, frameIdx, &refWellIndexKValues );
+            refWellExtractor->curveData( m_geomResultDefinition->resultAddress(), frameIdx, &refWellPropertyValues );
         }
-        if ( !wellIndexKValues.empty() && !refWellIndexKValues.empty() )
+
+        if ( !wellIndexKValues.empty() && !refWellIndexKValues.empty() && !refWellPropertyValues.empty() )
         {
-            adjustWellDepthValuesToReferenceWell( curveData.measuredDepthValues,
-                                                  curveData.tvDepthValues,
-                                                  wellIndexKValues,
-                                                  refWellMeasuredDepthValues,
-                                                  refWellTvDepthValues,
-                                                  refWellIndexKValues );
+            mapPropertyValuesFromReferenceWell( curveData.measuredDepthValues,
+                                                curveData.tvDepthValues,
+                                                curveData.values,
+                                                wellIndexKValues,
+                                                refWellMeasuredDepthValues,
+                                                refWellTvDepthValues,
+                                                refWellPropertyValues,
+                                                refWellIndexKValues );
         }
+        if ( performDataSmoothing )
+        {
+            refWellExtractor->performCurveDataSmoothing( frameIdx,
+                                                         &curveData.measuredDepthValues,
+                                                         &curveData.tvDepthValues,
+                                                         &curveData.values,
+                                                         smoothingThreshold );
+        }
+        return curveData;
     }
 
+    if ( wellExtractor.notNull() && performDataSmoothing )
+    {
+        wellExtractor->performCurveDataSmoothing( m_timeStep,
+                                                  &curveData.measuredDepthValues,
+                                                  &curveData.tvDepthValues,
+                                                  &curveData.values,
+                                                  smoothingThreshold );
+    }
     return curveData;
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Utility function to adjust well depth values according to reference well - match
-/// enter and exit values for k-layer and linearize for depth values between enter/exit of k-layer.
+/// Utility function to map property values of reference well into curve of selected well, by
+/// retreiving the property values and map to korresponding depth values by usage of k-layer index.
+/// Match enter and exit values for k-layer and linearize for depth values between enter/exit of k-layer.
 ///
-/// Performs depth adjustment from first common k-layer to last common k-layer - i.e common min and
+/// Performs value mapping from first common k-layer to last common k-layer - i.e common min and
 /// max index-k, as long as the k-layers are asymptotically increasing.
 //--------------------------------------------------------------------------------------------------
-void RimWellLogExtractionCurve::adjustWellDepthValuesToReferenceWell( std::vector<double>&       rMeasuredDepthValues,
-                                                                      std::vector<double>&       rTvDepthValues,
-                                                                      const std::vector<double>& indexKValues,
-                                                                      const std::vector<double>& refWellMeasuredDepthValues,
-                                                                      const std::vector<double>& refWellTvDepthValues,
-                                                                      const std::vector<double>& refWellIndexKValues )
+void RimWellLogExtractionCurve::mapPropertyValuesFromReferenceWell( std::vector<double>&       rMeasuredDepthValues,
+                                                                    std::vector<double>&       rTvDepthValues,
+                                                                    std::vector<double>&       rPropertyValues,
+                                                                    const std::vector<double>& indexKValues,
+                                                                    const std::vector<double>& refWellMeasuredDepthValues,
+                                                                    const std::vector<double>& refWellTvDepthValues,
+                                                                    const std::vector<double>& refWellPropertyValues,
+                                                                    const std::vector<double>& refWellIndexKValues )
 {
+    // TODO: Add asserts and checks
     CAF_ASSERT( rMeasuredDepthValues.size() == rTvDepthValues.size() &&
                 "Number of depth values must be equal for well!" );
+    CAF_ASSERT( rMeasuredDepthValues.size() == rPropertyValues.size() &&
+                "Number of property values must be equal number of depth values for well!" );
     CAF_ASSERT( rMeasuredDepthValues.size() == indexKValues.size() &&
-                "Number of index K values must be number of depth values for well!" );
+                "Number of index K values must be equal number of depth values for well!" );
     CAF_ASSERT( refWellMeasuredDepthValues.size() == refWellTvDepthValues.size() &&
                 "Number of depth values must be equal for reference well!" );
+    CAF_ASSERT( refWellMeasuredDepthValues.size() == refWellPropertyValues.size() &&
+                "Number of property values must be equal number of depth values for reference well!" );
     CAF_ASSERT( refWellMeasuredDepthValues.size() == refWellIndexKValues.size() &&
-                "Number of index K values must be number of depth values for reference well!" );
+                "Number of index K values must be equal number of depth values for reference well!" );
     CAF_ASSERT( *std::min( indexKValues.cbegin(), indexKValues.cend() ) ==
                     *std::min( refWellIndexKValues.cbegin(), refWellIndexKValues.cend() ) &&
                 "Both index-K value vectors must containt common min index-K layer" );
@@ -728,61 +750,79 @@ void RimWellLogExtractionCurve::adjustWellDepthValuesToReferenceWell( std::vecto
         return kLayerAndIndexesMap;
     };
 
-    RigWellLogIndexDepthOffset         refWellLogIndexDepthOffset;
-    std::map<int, std::vector<size_t>> refWellKLayerAndIndexesMap =
-        createKLayerAndIndexMap( refWellIndexKValues, minLayerK, maxLayerK );
-    for ( const auto& [kLayer, indexes] : refWellKLayerAndIndexesMap )
-    {
-        if ( indexes.empty() ) continue;
-        const auto indexTop    = indexes.front();
-        const auto indexBottom = indexes.back();
-        refWellLogIndexDepthOffset.setIndexOffsetDepth( kLayer,
-                                                        refWellMeasuredDepthValues[indexTop],
-                                                        refWellMeasuredDepthValues[indexBottom],
-                                                        refWellTvDepthValues[indexTop],
-                                                        refWellTvDepthValues[indexBottom] );
-    }
-
+    RigWellLogIndexDepthOffset         wellLogIndexDepthOffset;
     std::map<int, std::vector<size_t>> wellKLayerAndIndexesMap =
         createKLayerAndIndexMap( indexKValues, minLayerK, maxLayerK );
     for ( const auto& [kLayer, indexes] : wellKLayerAndIndexesMap )
     {
+        if ( indexes.empty() ) continue;
+        const auto indexTop    = indexes.front();
+        const auto indexBottom = indexes.back();
+        wellLogIndexDepthOffset.setIndexOffsetDepth( kLayer,
+                                                     rMeasuredDepthValues[indexTop],
+                                                     rMeasuredDepthValues[indexBottom],
+                                                     rTvDepthValues[indexTop],
+                                                     rTvDepthValues[indexBottom] );
+    }
+
+    std::vector<double>                propertyValues      = {};
+    std::vector<double>                measuredDepthValues = {};
+    std::vector<double>                tvDepthValues       = {};
+    std::map<int, std::vector<size_t>> refWellKLayerAndIndexesMap =
+        createKLayerAndIndexMap( refWellIndexKValues, minLayerK, maxLayerK );
+    for ( const auto& [kLayer, indexes] : refWellKLayerAndIndexesMap )
+    {
+        if ( indexes.empty() || !wellLogIndexDepthOffset.hasIndex( kLayer ) ) continue;
         const auto firstIdx = indexes.front();
         const auto lastIdx  = indexes.back();
-        if ( indexes.size() == 2 && refWellLogIndexDepthOffset.hasIndex( kLayer ) )
-        {
-            rMeasuredDepthValues[firstIdx] = refWellLogIndexDepthOffset.getTopMd( kLayer );
-            rMeasuredDepthValues[lastIdx]  = refWellLogIndexDepthOffset.getBottomMd( kLayer );
-            rTvDepthValues[firstIdx]       = refWellLogIndexDepthOffset.getTopTvd( kLayer );
-            rTvDepthValues[lastIdx]        = refWellLogIndexDepthOffset.getBottomTvd( kLayer );
-        }
-        else if ( indexes.size() > 2 && refWellLogIndexDepthOffset.hasIndex( kLayer ) )
-        {
-            const auto refWellTopMd     = refWellLogIndexDepthOffset.getTopMd( kLayer );
-            const auto refWellBottomMd  = refWellLogIndexDepthOffset.getBottomMd( kLayer );
-            const auto refWellTopTvd    = refWellLogIndexDepthOffset.getTopTvd( kLayer );
-            const auto refWellBottomTvd = refWellLogIndexDepthOffset.getBottomTvd( kLayer );
 
-            // Linearize depth values between top and bottom values in kLayer
-            const auto topMd     = rMeasuredDepthValues[firstIdx];
-            const auto bottomMd  = rMeasuredDepthValues[lastIdx];
-            const auto topTvd    = rTvDepthValues[firstIdx];
-            const auto bottomTvd = rTvDepthValues[lastIdx];
+        if ( indexes.size() == 2 )
+        {
+            propertyValues.push_back( refWellPropertyValues[firstIdx] );
+            propertyValues.push_back( refWellPropertyValues[lastIdx] );
+            measuredDepthValues.push_back( wellLogIndexDepthOffset.getTopMd( kLayer ) );
+            measuredDepthValues.push_back( wellLogIndexDepthOffset.getBottomMd( kLayer ) );
+            tvDepthValues.push_back( wellLogIndexDepthOffset.getTopTvd( kLayer ) );
+            tvDepthValues.push_back( wellLogIndexDepthOffset.getBottomTvd( kLayer ) );
+        }
+        else if ( indexes.size() > 2 && wellLogIndexDepthOffset.hasIndex( kLayer ) )
+        {
+            const auto wellTopMd     = wellLogIndexDepthOffset.getTopMd( kLayer );
+            const auto wellBottomMd  = wellLogIndexDepthOffset.getBottomMd( kLayer );
+            const auto wellTopTvd    = wellLogIndexDepthOffset.getTopTvd( kLayer );
+            const auto wellBottomTvd = wellLogIndexDepthOffset.getBottomTvd( kLayer );
+
+            // Add top/first samples
+            propertyValues.push_back( refWellPropertyValues[firstIdx] );
+            measuredDepthValues.push_back( wellTopMd );
+            tvDepthValues.push_back( wellTopTvd );
+
+            // Linearize depth values between top and bottom values in kLayer and add property value
+            const auto refTopMd     = refWellMeasuredDepthValues[firstIdx];
+            const auto refBottomMd  = refWellMeasuredDepthValues[lastIdx];
+            const auto refTopTvd    = refWellTvDepthValues[firstIdx];
+            const auto refBottomTvd = refWellTvDepthValues[lastIdx];
             for ( auto it = indexes.cbegin() + 1; it != indexes.cend() - 1; ++it )
             {
                 const auto idx     = *it;
-                const auto percMd  = ( rMeasuredDepthValues[idx] - topMd ) / ( bottomMd - topMd );
-                const auto percTvd = ( rTvDepthValues[idx] - topTvd ) / ( bottomTvd - topTvd );
+                const auto percMd  = ( refWellMeasuredDepthValues[idx] - refTopMd ) / ( refBottomMd - refTopMd );
+                const auto percTvd = ( refWellTvDepthValues[idx] - refTopTvd ) / ( refBottomTvd - refTopTvd );
 
-                rMeasuredDepthValues[idx] = percMd * ( refWellBottomMd - refWellTopMd ) + refWellTopMd;
-                rTvDepthValues[idx]       = percTvd * ( refWellBottomTvd - refWellTopTvd ) + refWellTopTvd;
+                propertyValues.push_back( refWellPropertyValues[idx] );
+                measuredDepthValues.push_back( percMd * ( wellBottomMd - wellTopMd ) + wellTopMd );
+                tvDepthValues.push_back( percTvd * ( wellBottomTvd - wellTopTvd ) + wellTopTvd );
             }
-            rMeasuredDepthValues[firstIdx] = refWellTopMd;
-            rMeasuredDepthValues[lastIdx]  = refWellBottomMd;
-            rTvDepthValues[firstIdx]       = refWellTopTvd;
-            rTvDepthValues[lastIdx]        = refWellBottomTvd;
+
+            // Add bottom/last samples
+            propertyValues.push_back( refWellPropertyValues[lastIdx] );
+            measuredDepthValues.push_back( wellBottomMd );
+            tvDepthValues.push_back( wellBottomTvd );
         }
     }
+
+    rPropertyValues      = propertyValues;
+    rMeasuredDepthValues = measuredDepthValues;
+    rTvDepthValues       = tvDepthValues;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -158,10 +158,12 @@ private:
                                                 bool*           isUsingPseudoLength,
                                                 bool            performDataSmoothing = false,
                                                 double          smoothingThreshold   = -1.0 );
-    void                       adjustWellDepthValuesToReferenceWell( std::vector<double>&       rMeasuredDepthValues,
-                                                                     std::vector<double>&       rTvDepthValues,
-                                                                     const std::vector<double>& indexKValues,
-                                                                     const std::vector<double>& refWellMeasuredDepthValues,
-                                                                     const std::vector<double>& refWellTvDepthValues,
-                                                                     const std::vector<double>& refWellIndexKValues );
+    void                       mapPropertyValuesFromReferenceWell( std::vector<double>&       rMeasuredDepthValues,
+                                                                   std::vector<double>&       rTvDepthValues,
+                                                                   std::vector<double>&       rPropertyValues,
+                                                                   const std::vector<double>& indexKValues,
+                                                                   const std::vector<double>& refWellMeasuredDepthValues,
+                                                                   const std::vector<double>& refWellTvDepthValues,
+                                                                   const std::vector<double>& refWellPropertyValues,
+                                                                   const std::vector<double>& refWellIndexKValues );
 };
