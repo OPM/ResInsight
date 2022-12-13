@@ -296,7 +296,8 @@ void RicNewWellBoreStabilityPlotFeature::createParametersTrack( RimWellBoreStabi
         curve->setLineStyle( lineStyles[i % lineStyles.size()] );
         curve->setLineThickness( 2 );
         curve->loadDataAndUpdate( false );
-        curve->setCustomName( param.name() );
+        curve->setAutoNameComponents( false, true, false, false, false );
+
         i++;
     }
     paramCurvesTrack->setAutoScalePropertyValuesEnabled( true );

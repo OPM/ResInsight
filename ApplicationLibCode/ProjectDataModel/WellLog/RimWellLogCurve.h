@@ -115,6 +115,7 @@ protected:
 
 protected:
     caf::PdmPtrField<RimWellPath*> m_refWellPath;
+    caf::PdmField<bool>            m_useRefWell;
 
 private:
     cvf::ref<RigWellLogCurveData> m_curveData;
