@@ -21,13 +21,16 @@
 #include "expressionparser/ExpressionParser.h"
 
 #include "RiaLogging.h"
+#include "RiaNetworkTools.h"
 
 #include "RimProject.h"
 #include "RimUserDefinedCalculationVariable.h"
 
 #include "RiuExpressionContextMenuManager.h"
 
+#include "cafPdmUiLabelEditor.h"
 #include "cafPdmUiLineEditor.h"
+#include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTextEditor.h"
 
@@ -45,8 +48,20 @@ RimUserDefinedCalculation::RimUserDefinedCalculation()
     CAF_PDM_InitFieldNoDefault( &m_description, "Description", "Description" );
     m_description.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitField( &m_expression, "Expression", QString( "" ), "Expression" );
+    CAF_PDM_InitField( &m_expression, "Expression", QString( "" ), "" );
     m_expression.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitFieldNoDefault( &m_helpButton, "HelpButton", "" );
+    caf::PdmUiPushButtonEditor::configureEditorForField( &m_helpButton );
+    m_helpButton.xmlCapability()->disableIO();
+
+    CAF_PDM_InitFieldNoDefault( &m_helpText,
+                                "Label",
+                                "Use the right-click menu inside the text area for quick access to operators and "
+                                "functions." );
+    m_helpText.uiCapability()->setUiEditorTypeName( caf::PdmUiLabelEditor::uiEditorTypeName() );
+    m_helpText.xmlCapability()->disableIO();
+    m_helpText = "Use the right-click menu inside the text area for quick access to operators and functions.";
 
     CAF_PDM_InitField( &m_unit, "Unit", QString( "" ), "Unit" );
     m_unit.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
@@ -293,6 +308,16 @@ void RimUserDefinedCalculation::fieldChangedByUi( const caf::PdmFieldHandle* cha
                                                   const QVariant&            oldValue,
                                                   const QVariant&            newValue )
 {
+    if ( changedField == &m_helpButton )
+    {
+        m_helpButton = false;
+
+        QString urlString = "https://resinsight.org/calculated-data/calculatorexpressions/";
+        RiaNetworkTools::openUrl( urlString );
+
+        return;
+    }
+
     m_isDirty = true;
 
     PdmObject::fieldChangedByUi( changedField, oldValue, newValue );
@@ -303,8 +328,10 @@ void RimUserDefinedCalculation::fieldChangedByUi( const caf::PdmFieldHandle* cha
 //--------------------------------------------------------------------------------------------------
 void RimUserDefinedCalculation::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    uiOrdering.add( &m_helpButton );
     uiOrdering.add( &m_description );
     uiOrdering.add( &m_expression );
+    uiOrdering.add( &m_helpText );
     uiOrdering.add( &m_unit );
 }
 
@@ -375,6 +402,14 @@ void RimUserDefinedCalculation::defineEditorAttribute( const caf::PdmFieldHandle
         if ( myAttr )
         {
             myAttr->enableDropTarget = true;
+        }
+    }
+    else if ( field == &m_helpButton )
+    {
+        auto* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
+        if ( attrib )
+        {
+            attrib->m_buttonText = "Open Help Page";
         }
     }
 }
