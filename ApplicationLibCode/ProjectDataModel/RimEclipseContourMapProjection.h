@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include "RimCheckableNamedObject.h"
 #include "RimContourMapProjection.h"
 
 #include "cafDisplayCoordTransform.h"
@@ -51,7 +50,7 @@ public:
     ~RimEclipseContourMapProjection() override;
 
     QString weightingParameter() const;
-    void    updatedWeightingResult();
+    void    clearGridMappingAndRedraw();
 
     // Eclipse case overrides for contour map methods
     QString                 resultDescriptionText() const override;
