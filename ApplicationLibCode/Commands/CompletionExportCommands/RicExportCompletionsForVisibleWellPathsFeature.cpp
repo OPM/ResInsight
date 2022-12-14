@@ -18,14 +18,16 @@
 
 #include "RicExportCompletionsForVisibleWellPathsFeature.h"
 
-#include "RicWellPathExportCompletionDataFeature.h"
+#include "RiaLogging.h"
 
-#include "RiuPlotMainWindow.h"
+#include "RicWellPathExportCompletionDataFeature.h"
 
 #include "RimProject.h"
 #include "RimWellMeasurementCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+
+#include "RiuPlotMainWindow.h"
 
 #include "cafSelectionManager.h"
 
@@ -74,7 +76,7 @@ bool RicExportCompletionsForVisibleWellPathsFeature::isCommandEnabled()
 void RicExportCompletionsForVisibleWellPathsFeature::onActionTriggered( bool isChecked )
 {
     std::vector<RimWellPath*> wellPaths = visibleWellPaths();
-    CVF_ASSERT( wellPaths.size() > 0 );
+    if ( wellPaths.empty() ) return RiaLogging::warning( "No visible well paths found, no data exported." );
 
     std::vector<RimSimWellInView*> simWells;
     QString                        dialogTitle = "Export Completion Data for Visible Well Paths";

@@ -1002,10 +1002,14 @@ bool RicWellPathExportMswCompletionsImpl::generatePerforationsMswExportInfo(
         auto childMswBranch         = createChildMswBranch( childWellPath );
         auto childCellIntersections = generateCellSegments( eclipseCase, childWellPath );
 
+        // Start MD of child well path at the tie in location
+        const double tieInOnParentWellPath =
+            childWellPath->wellPathTieIn() ? childWellPath->wellPathTieIn()->tieInMeasuredDepth() : initialMD;
+
         if ( generatePerforationsMswExportInfo( eclipseCase,
                                                 childWellPath,
                                                 timeStep,
-                                                initialMD,
+                                                tieInOnParentWellPath,
                                                 childCellIntersections,
                                                 exportInfo,
                                                 childMswBranch.get() ) )
