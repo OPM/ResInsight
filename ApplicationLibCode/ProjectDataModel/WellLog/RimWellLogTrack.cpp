@@ -59,6 +59,7 @@
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
+#include "RimRftTopologyCurve.h"
 #include "RimTools.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellBoreStabilityPlot.h"
@@ -371,8 +372,9 @@ void RimWellLogTrack::calculatePropertyValueZoomRange()
     double minValue = HUGE_VAL;
     double maxValue = -HUGE_VAL;
 
-    size_t visibleCurves = 0u;
-    for ( auto curve : m_curves )
+    size_t topologyCurveCount = 0;
+    size_t visibleCurves      = 0u;
+    for ( const auto& curve : m_curves )
     {
         double minCurveValue = HUGE_VAL;
         double maxCurveValue = -HUGE_VAL;
@@ -393,6 +395,16 @@ void RimWellLogTrack::calculatePropertyValueZoomRange()
                 }
             }
         }
+
+        if ( dynamic_cast<RimRftTopologyCurve*>( curve.p() ) ) topologyCurveCount++;
+    }
+
+    if ( topologyCurveCount == m_curves.size() )
+    {
+        // The topology track is quite narrow, and to be able to show the curves we add extra space for min/max values
+        const double range = maxValue - minValue;
+        maxValue += range * 0.5;
+        minValue -= range * 0.5;
     }
 
     if ( minValue == HUGE_VAL )
