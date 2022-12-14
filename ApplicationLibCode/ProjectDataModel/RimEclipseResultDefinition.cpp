@@ -350,7 +350,7 @@ void RimEclipseResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
 
         if ( contourMapView )
         {
-            contourMapView->contourMapProjection()->updatedWeightingResult();
+            contourMapView->contourMapProjection()->clearGridMappingAndRedraw();
         }
 
         loadDataAndUpdate();
@@ -360,7 +360,7 @@ void RimEclipseResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
     {
         if ( contourMapView )
         {
-            contourMapView->contourMapProjection()->updatedWeightingResult();
+            contourMapView->contourMapProjection()->clearGridMappingAndRedraw();
         }
 
         loadDataAndUpdate();
@@ -508,7 +508,7 @@ void RimEclipseResultDefinition::updateAnyFieldHasChanged()
     this->firstAncestorOrThisOfType( contourMap );
     if ( contourMap )
     {
-        contourMap->updatedWeightingResult();
+        contourMap->clearGridMappingAndRedraw();
     }
 
     RimWellLogTrack* wellLogTrack = nullptr;

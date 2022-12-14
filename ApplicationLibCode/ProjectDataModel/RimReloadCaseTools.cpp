@@ -27,6 +27,8 @@
 #include "Rim2dIntersectionView.h"
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipseContourMapProjection.h"
 #include "RimEclipseContourMapView.h"
 #include "RimEclipseContourMapViewCollection.h"
 #include "RimEclipseView.h"
@@ -134,6 +136,16 @@ void RimReloadCaseTools::updateAll3dViews( RimEclipseCase* eclipseCase )
     for ( RimEclipseContourMapView* contourMap : eclipseCase->contourMapCollection()->views() )
     {
         CVF_ASSERT( contourMap );
+
+        if ( contourMap->cellResult()->resultType() == RiaDefines::ResultCatType::GENERATED )
+        {
+            // When a generated result is selected, the data might come from a calculation. Make sure that all
+            // computations are updated based on new data.
+            // See RimEclipseContourMapProjection::generateResults()
+            contourMap->contourMapProjection()->clearGeometry();
+            contourMap->contourMapProjection()->clearGridMappingAndRedraw();
+        }
+
         contourMap->loadDataAndUpdate();
         contourMap->updateGridBoxData();
         contourMap->updateAnnotationItems();
