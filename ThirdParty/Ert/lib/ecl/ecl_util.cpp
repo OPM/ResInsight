@@ -336,6 +336,11 @@ const char * ecl_util_file_type_name( ecl_file_enum file_type ) {
 }
 
 static bool valid_base(const char * input_base, bool * upper_case) {
+  // Disable checking of mixed upper and lower case
+  // https://github.com/OPM/ResInsight/issues/9529
+  return true;
+
+/*
   bool upper = false;
   bool lower = false;
   const char * base = strrchr(input_base, UTIL_PATH_SEP_CHAR);
@@ -356,6 +361,7 @@ static bool valid_base(const char * input_base, bool * upper_case) {
   if (upper_case)
     *upper_case = upper;
   return !(lower && upper);
+*/
 }
 
 
