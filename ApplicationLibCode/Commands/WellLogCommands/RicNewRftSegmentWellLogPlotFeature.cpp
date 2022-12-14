@@ -212,6 +212,7 @@ void RicNewRftSegmentWellLogPlotFeature::appendTopologyTrack( RimWellLogPlot* pl
     auto track = new RimWellLogTrack();
     track->setDescription( "Topology" );
     track->enablePropertyAxis( false );
+    track->setRowSpan( RimPlot::TWO );
 
     plot->addPlot( track );
 

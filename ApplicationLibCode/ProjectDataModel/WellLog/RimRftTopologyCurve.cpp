@@ -407,7 +407,7 @@ void RimRftTopologyCurve::applyDefaultAppearance()
             setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
         }
 
-        int adjustedSymbolSize = symbolSize() * 1.5;
+        int adjustedSymbolSize = symbolSize() * 1.2;
         setSymbolSize( adjustedSymbolSize );
         setSymbol( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_ELLIPSE );
     }
