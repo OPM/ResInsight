@@ -35,7 +35,6 @@
 #include "RimEclipseContourMapView.h"
 #include "RimEclipseResultDefinition.h"
 #include "RimEclipseView.h"
-#include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimTextAnnotation.h"
 
@@ -163,16 +162,16 @@ double RimEclipseContourMapProjection::sampleSpacing() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapProjection::updatedWeightingResult()
+void RimEclipseContourMapProjection::clearGridMappingAndRedraw()
 {
     this->clearGridMapping();
     this->updateConnectedEditors();
     this->generateResultsIfNecessary( view()->currentTimeStep() );
     this->updateLegend();
 
-    RimProject* proj;
-    this->firstAncestorOrThisOfTypeAsserted( proj );
-    proj->scheduleCreateDisplayModelAndRedrawAllViews();
+    RimEclipseView* parentView = nullptr;
+    this->firstAncestorOrThisOfTypeAsserted( parentView );
+    parentView->scheduleCreateDisplayModelAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -228,7 +227,11 @@ std::vector<double> RimEclipseContourMapProjection::generateResults( int timeSte
                                                  cellColors->resultVariable(),
                                                  cellColors->timeLapseBaseTimeStep(),
                                                  cellColors->caseDiffIndex() );
-                if ( resAddr.isValid() && gridCellResult->hasResultEntry( resAddr ) )
+
+                // When loading a project file, grid calculator results are not computed the first time this function is
+                // called. Must check if result is loaded. See RimReloadCaseTools::updateAll3dViews()
+                if ( resAddr.isValid() && gridCellResult->hasResultEntry( resAddr ) &&
+                     gridCellResult->isResultLoaded( resAddr ) )
                 {
                     gridResultValues = gridCellResult->cellScalarResults( resAddr, timeStep );
                 }
