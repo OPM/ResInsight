@@ -41,7 +41,14 @@ RigEclipseNativeStatCalc::RigEclipseNativeStatCalc( RigCaseCellResultsData*     
 void RigEclipseNativeStatCalc::minMaxCellScalarValues( size_t timeStepIndex, double& min, double& max )
 {
     MinMaxAccumulator acc( min, max );
-    traverseCells( acc, timeStepIndex );
+
+    std::vector<MinMaxAccumulator> threadAccumulators;
+    threadTraverseCells( threadAccumulators, timeStepIndex );
+    for ( const auto& threadAcc : threadAccumulators )
+    {
+        acc.addValue( threadAcc.min );
+        acc.addValue( threadAcc.max );
+    }
     min = acc.min;
     max = acc.max;
 }
@@ -63,7 +70,13 @@ void RigEclipseNativeStatCalc::p10p90CellScalarValues( double& p10, double& p90 
 
     for ( size_t timeStepIndex = 0; timeStepIndex < timeStepCount(); timeStepIndex++ )
     {
-        traverseCells( acc, timeStepIndex );
+        std::vector<PercentilAccumulator> threadAccumulators;
+        threadTraverseCells( threadAccumulators, timeStepIndex );
+        for ( const auto& threadAcc : threadAccumulators )
+        {
+            acc.addData( threadAcc.values );
+            acc.addData( threadAcc.values );
+        }
     }
 
     acc.computep10p90( p10, p90 );
@@ -75,7 +88,15 @@ void RigEclipseNativeStatCalc::p10p90CellScalarValues( double& p10, double& p90 
 void RigEclipseNativeStatCalc::p10p90CellScalarValues( size_t timeStepIndex, double& p10, double& p90 )
 {
     PercentilAccumulator acc;
-    traverseCells( acc, timeStepIndex );
+
+    std::vector<PercentilAccumulator> threadAccumulators;
+    threadTraverseCells( threadAccumulators, timeStepIndex );
+    for ( const auto& threadAcc : threadAccumulators )
+    {
+        acc.addData( threadAcc.values );
+        acc.addData( threadAcc.values );
+    }
+
     acc.computep10p90( p10, p90 );
 }
 
@@ -85,7 +106,15 @@ void RigEclipseNativeStatCalc::p10p90CellScalarValues( size_t timeStepIndex, dou
 void RigEclipseNativeStatCalc::posNegClosestToZero( size_t timeStepIndex, double& pos, double& neg )
 {
     PosNegAccumulator acc( pos, neg );
-    traverseCells( acc, timeStepIndex );
+
+    std::vector<PosNegAccumulator> threadAccumulators;
+    threadTraverseCells( threadAccumulators, timeStepIndex );
+    for ( const auto& threadAcc : threadAccumulators )
+    {
+        acc.addValue( threadAcc.pos );
+        acc.addValue( threadAcc.neg );
+    }
+
     pos = acc.pos;
     neg = acc.neg;
 }
