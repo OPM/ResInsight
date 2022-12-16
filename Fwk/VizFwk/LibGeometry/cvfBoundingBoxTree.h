@@ -60,6 +60,8 @@ public:
     
     void findIntersections(const cvf::BoundingBox& inputBB, std::vector<size_t>* bbIdsOrIndexesIntersected) const;
 
+    std::string info() const;
+
 private:
 
     BoundingBoxTreeImpl* m_implTree;

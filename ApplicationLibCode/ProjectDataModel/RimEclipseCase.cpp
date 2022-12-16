@@ -651,7 +651,11 @@ void RimEclipseCase::computeCachedData()
 
         {
             auto task = pInf.task( "Calculating Cell Search Tree", 10 );
-            rigEclipseCase->mainGrid()->computeCachedData();
+
+            std::string aabbTreeInfo;
+            rigEclipseCase->mainGrid()->computeCachedData( &aabbTreeInfo );
+
+            RiaLogging::info( QString::fromStdString( aabbTreeInfo ) );
         }
 
         {
