@@ -21,6 +21,7 @@
 #include "RigMainGrid.h"
 
 #include "RiaLogging.h"
+#include "RiaOpenMPTools.h"
 #include "RiaResultNames.h"
 
 #include "RigActiveCellInfo.h"
@@ -29,10 +30,6 @@
 
 #include "cvfAssert.h"
 #include "cvfBoundingBoxTree.h"
-
-#ifdef USE_OPENMP
-#include <omp.h>
-#endif
 
 RigMainGrid::RigMainGrid()
     : RigGridBase( this )
@@ -452,21 +449,14 @@ void RigMainGrid::calculateFaults( const RigActiveCellInfo* activeCellInfo )
 
     const std::vector<cvf::Vec3d>& vxs = m_mainGrid->nodes();
 
-    int numberOfThreads = 1;
-#ifdef USE_OPENMP
-    numberOfThreads = omp_get_max_threads();
-#endif
+    int numberOfThreads = RiaOpenMPTools::availableThreadCount();
 
     std::vector<std::vector<RigFault::FaultFace>> threadFaultFaces( numberOfThreads );
     std::vector<std::vector<RigFault::FaultFace>> threadInactiveFaultFaces( numberOfThreads );
 
 #pragma omp parallel
     {
-        int myThread = 0;
-
-#ifdef USE_OPENMP
-        myThread = omp_get_thread_num();
-#endif
+        int myThread = RiaOpenMPTools::currentThreadIndex();
 
         // NB! We are inside a parallel section, do not use "parallel for" here
 #pragma omp for
@@ -771,10 +761,8 @@ void RigMainGrid::buildCellSearchTree()
 
 #pragma omp parallel
         {
-            size_t threadCellCount = cellCount;
-#ifdef USE_OPENMP
-            threadCellCount = std::ceil( cellCount / static_cast<double>( omp_get_num_threads() ) );
-#endif
+            int    numberOfThreads = RiaOpenMPTools::availableThreadCount();
+            size_t threadCellCount = std::ceil( cellCount / static_cast<double>( numberOfThreads ) );
 
             std::vector<size_t>           threadIndicesForBoundingBoxes;
             std::vector<cvf::BoundingBox> threadBoundingBoxes;
@@ -830,9 +818,24 @@ cvf::BoundingBox RigMainGrid::boundingBox() const
 {
     if ( m_boundingBox.isValid() ) return m_boundingBox;
 
-    for ( const auto& node : m_nodes )
+    int numberOfThreads = RiaOpenMPTools::availableThreadCount();
+
+    std::vector<cvf::BoundingBox> threadBoundingBox( numberOfThreads );
+
+#pragma omp parallel
     {
-        m_boundingBox.add( node );
+        int myThread = RiaOpenMPTools::currentThreadIndex();
+
+#pragma omp for
+        for ( long long i = 0; i < (long long)m_nodes.size(); i++ )
+        {
+            threadBoundingBox[myThread].add( m_nodes[i] );
+        }
+    }
+
+    for ( int i = 0; i < numberOfThreads; i++ )
+    {
+        m_boundingBox.add( threadBoundingBox[i] );
     }
 
     return m_boundingBox;

@@ -20,6 +20,8 @@
 
 #include "RigEclipseCaseData.h"
 
+#include "RiaOpenMPTools.h"
+
 #include "RifReaderEclipseOutput.h"
 
 #include "RigActiveCellInfo.h"
@@ -417,6 +419,8 @@ public:
         if ( k > m_max.z() ) m_max.z() = k;
     }
 
+    void add( const cvf::Vec3st& ijk ) { add( ijk.x(), ijk.y(), ijk.z() ); }
+
 public:
     cvf::Vec3st m_min;
     cvf::Vec3st m_max;
@@ -429,25 +433,47 @@ void RigEclipseCaseData::computeActiveCellIJKBBox()
 {
     if ( m_mainGrid.notNull() && m_activeCellInfo.notNull() && m_fractureActiveCellInfo.notNull() )
     {
+        int numberOfThreads = RiaOpenMPTools::availableThreadCount();
+
+        std::vector<CellRangeBB> threadMatrixActiveBB( numberOfThreads );
+        std::vector<CellRangeBB> threadFractureActiveBB( numberOfThreads );
+
+#pragma omp parallel
+        {
+            int myThread = RiaOpenMPTools::currentThreadIndex();
+
+            size_t i, j, k = 0;
+
+            // NB! We are inside a parallel section, do not use "parallel for" here
+#pragma omp for
+            for ( long long idx = 0; idx < (long long)m_mainGrid->cellCount(); idx++ )
+            {
+                m_mainGrid->ijkFromCellIndex( idx, &i, &j, &k );
+
+                if ( m_activeCellInfo->isActive( idx ) )
+                {
+                    threadMatrixActiveBB[myThread].add( i, j, k );
+                }
+
+                if ( m_fractureActiveCellInfo->isActive( idx ) )
+                {
+                    threadFractureActiveBB[myThread].add( i, j, k );
+                }
+            }
+        }
+
         CellRangeBB matrixModelActiveBB;
         CellRangeBB fractureModelActiveBB;
 
-        size_t idx;
-        for ( idx = 0; idx < m_mainGrid->cellCount(); idx++ )
+        for ( int i = 0; i < numberOfThreads; i++ )
         {
-            size_t i, j, k;
-            m_mainGrid->ijkFromCellIndex( idx, &i, &j, &k );
+            matrixModelActiveBB.add( threadMatrixActiveBB[i].m_min );
+            matrixModelActiveBB.add( threadMatrixActiveBB[i].m_max );
 
-            if ( m_activeCellInfo->isActive( idx ) )
-            {
-                matrixModelActiveBB.add( i, j, k );
-            }
-
-            if ( m_fractureActiveCellInfo->isActive( idx ) )
-            {
-                fractureModelActiveBB.add( i, j, k );
-            }
+            fractureModelActiveBB.add( threadFractureActiveBB[i].m_min );
+            fractureModelActiveBB.add( threadFractureActiveBB[i].m_max );
         }
+
         m_activeCellInfo->setIJKBoundingBox( matrixModelActiveBB.m_min, matrixModelActiveBB.m_max );
         m_fractureActiveCellInfo->setIJKBoundingBox( fractureModelActiveBB.m_min, fractureModelActiveBB.m_max );
     }
@@ -662,36 +688,49 @@ void RigEclipseCaseData::computeActiveCellsGeometryBoundingBox()
 
     RigActiveCellInfo* activeInfos[2];
     activeInfos[0] = m_fractureActiveCellInfo.p();
-    activeInfos[1] = m_activeCellInfo.p(); // Last, to make this bb.min become display offset
+    activeInfos[1] = m_activeCellInfo.p();
 
-    cvf::BoundingBox bb;
-    for ( int acIdx = 0; acIdx < 2; ++acIdx )
+    for ( const auto& activeInfo : activeInfos )
     {
-        bb.reset();
-        if ( m_mainGrid->nodes().size() == 0 )
+        int numberOfThreads = RiaOpenMPTools::availableThreadCount();
+
+        std::vector<cvf::BoundingBox> threadBoundingBoxes( numberOfThreads );
+
+#pragma omp parallel
         {
-            bb.add( cvf::Vec3d::ZERO );
-        }
-        else
-        {
+            int myThread = RiaOpenMPTools::currentThreadIndex();
+
             std::array<cvf::Vec3d, 8> hexCorners;
-            for ( size_t i = 0; i < m_mainGrid->cellCount(); i++ )
+
+#pragma omp for
+            for ( long long i = 0; i < (long long)m_mainGrid->cellCount(); i++ )
             {
-                if ( activeInfos[acIdx]->isActive( i ) )
+                if ( activeInfo->isActive( i ) )
                 {
                     m_mainGrid->cellCornerVertices( i, hexCorners.data() );
                     for ( const auto& corner : hexCorners )
                     {
-                        bb.add( corner );
+                        threadBoundingBoxes[myThread].add( corner );
                     }
                 }
             }
         }
 
-        activeInfos[acIdx]->setGeometryBoundingBox( bb );
+        cvf::BoundingBox bb;
+        if ( m_mainGrid->nodes().size() == 0 )
+        {
+            bb.add( cvf::Vec3d::ZERO );
+        }
+
+        for ( int i = 0; i < numberOfThreads; i++ )
+        {
+            bb.add( threadBoundingBoxes[i] );
+        }
+
+        activeInfo->setGeometryBoundingBox( bb );
     }
 
-    m_mainGrid->setDisplayModelOffset( bb.min() );
+    m_mainGrid->setDisplayModelOffset( m_activeCellInfo->geometryBoundingBox().min() );
 }
 
 //--------------------------------------------------------------------------------------------------

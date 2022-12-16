@@ -28,10 +28,6 @@
 #include "opm/io/eclipse/ESmry.hpp"
 #include "opm/io/eclipse/ExtESmry.hpp"
 
-#ifdef USE_OPENMP
-#include <omp.h>
-#endif
-
 #include <QFileInfo>
 
 size_t RifOpmCommonEclipseSummary::sm_createdEsmryFileCount = 0;

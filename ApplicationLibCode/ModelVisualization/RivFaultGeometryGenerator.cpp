@@ -19,7 +19,11 @@
 
 #include "RivFaultGeometryGenerator.h"
 
-#include <cmath>
+#include "RiaOpenMPTools.h"
+
+#include "RigFault.h"
+#include "RigNNCData.h"
+#include "RigNncConnection.h"
 
 #include "cvfDrawableGeo.h"
 #include "cvfOutlineEdgeExtractor.h"
@@ -28,13 +32,7 @@
 
 #include "cvfScalarMapper.h"
 
-#include "RigFault.h"
-#include "RigNNCData.h"
-#include "RigNncConnection.h"
-
-#ifdef USE_OPENMP
-#include <omp.h>
-#endif
+#include <cmath>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -170,10 +168,7 @@ void RivFaultGeometryGenerator::computeArrays( bool onlyShowFacesWithDefinedNeig
 
     const std::vector<RigFault::FaultFace>& faultFaces = m_fault->faultFaces();
 
-    int numberOfThreads = 1;
-#ifdef USE_OPENMP
-    numberOfThreads = omp_get_max_threads();
-#endif
+    int numberOfThreads = RiaOpenMPTools::availableThreadCount();
 
     std::vector<std::vector<cvf::Vec3f>>                         threadVertices( numberOfThreads );
     std::vector<std::vector<size_t>>                             threadCellIndices( numberOfThreads );
@@ -181,11 +176,8 @@ void RivFaultGeometryGenerator::computeArrays( bool onlyShowFacesWithDefinedNeig
 
 #pragma omp parallel
     {
-        int myThread = 0;
+        int myThread = RiaOpenMPTools::currentThreadIndex();
 
-#ifdef USE_OPENMP
-        myThread = omp_get_thread_num();
-#endif
         cvf::Vec3d cornerVerts[8];
         cvf::ubyte faceConn[4];
 
