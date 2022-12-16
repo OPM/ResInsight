@@ -487,7 +487,7 @@ void RigMainGrid::calculateFaults( const RigActiveCellInfo* activeCellInfo )
     std::vector<RigFault::FaultFace>& unNamedFaultFaces         = unNamedFault->faultFaces();
     std::vector<RigFault::FaultFace>& unNamedFaultFacesInactive = unNamedFaultWithInactive->faultFaces();
 
-    for ( size_t i = 0; i < numberOfThreads; i++ )
+    for ( int i = 0; i < numberOfThreads; i++ )
     {
         unNamedFaultFaces.insert( unNamedFaultFaces.end(), threadFaultFaces[i].begin(), threadFaultFaces[i].end() );
         unNamedFaultFacesInactive.insert( unNamedFaultFacesInactive.end(),

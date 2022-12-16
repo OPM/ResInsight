@@ -223,7 +223,7 @@ void RivFaultGeometryGenerator::computeArrays( bool onlyShowFacesWithDefinedNeig
         }
     }
 
-    for ( auto threadIndex = 0; threadIndex < numberOfThreads; threadIndex++ )
+    for ( int threadIndex = 0; threadIndex < numberOfThreads; threadIndex++ )
     {
         vertices.insert( vertices.end(), threadVertices[threadIndex].begin(), threadVertices[threadIndex].end() );
 
