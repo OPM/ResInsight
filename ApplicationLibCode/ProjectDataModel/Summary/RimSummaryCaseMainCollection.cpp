@@ -47,10 +47,6 @@
 
 #include "cafProgressInfo.h"
 
-#ifdef USE_OPENMP
-#include <omp.h>
-#endif
-
 #include <QDir>
 
 CAF_PDM_SOURCE_INIT( RimSummaryCaseMainCollection, "SummaryCaseCollection" );

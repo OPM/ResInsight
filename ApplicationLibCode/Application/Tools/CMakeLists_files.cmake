@@ -50,6 +50,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaEnsembleNameTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryStringTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaNetworkTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaOpenMPTools.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -97,6 +98,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaVec3Tools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryStringTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaNetworkTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaOpenMPTools.cpp
 )
 
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
