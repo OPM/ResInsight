@@ -201,6 +201,9 @@ bool RigNNCData::ensureAllConnectionDataIsProcessed()
 {
     if ( m_haveGeneratedConnections ) return false;
 
+    // Return false if we have no data to process to avoid recursive updates in consuming code
+    if ( !m_mainGrid ) return false;
+
     if ( m_mainGrid )
     {
         caf::ProgressInfo progressInfo( 3, "Computing NNC Data" );
