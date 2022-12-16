@@ -264,13 +264,14 @@ void RigMainGrid::setDisplayModelOffset( cvf::Vec3d offset )
 /// Compute cell ranges for active and valid cells
 /// Compute bounding box in world coordinates based on node coordinates
 //--------------------------------------------------------------------------------------------------
-void RigMainGrid::computeCachedData()
+void RigMainGrid::computeCachedData( std::string* aabbTreeInfo )
 {
     initAllSubGridsParentGridPointer();
     initAllSubCellsMainGridCellIndex();
 
     m_cellSearchTree = nullptr;
     buildCellSearchTree();
+    if ( aabbTreeInfo ) *aabbTreeInfo = m_cellSearchTree->info();
 }
 
 //--------------------------------------------------------------------------------------------------

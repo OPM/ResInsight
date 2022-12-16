@@ -168,7 +168,7 @@ namespace cvf {
         size_t  leavesCount() const;
         bool    boundingBox(cvf::BoundingBox* pBox) const;
 
-        cvf::String treeInfo() const;
+        std::string treeInfo() const;
 
     protected:
         virtual cvf::BoundingBox createLeaves() = 0;
@@ -711,32 +711,34 @@ size_t AABBTree::treeHeight(const AABBTreeNode* pNode, size_t iLevel, size_t* pi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::String AABBTree::treeInfo() const
+std::string AABBTree::treeInfo() const
 {
-    cvf::String sInfo;
-
-    /*
-    sInfo =  cvf::String("Tree size: %1 \n").arg(static_cast<int>(treeSize()));
-    sInfo += cvf::String("Num leaves: %1 \n").arg(static_cast<int>(leavesCount()));
+    size_t treeSizeInMB = treeSize() / (1024u *1024u);
+    auto text = "Tree size : " + std::to_string(treeSizeInMB) + "[MB] \n";
+    
+    text += "Num leaves: " + std::to_string(leavesCount()) + "\n";
 
     size_t iMin = cvf::UNDEFINED_UINT;
     size_t iMax = 0;
     size_t iSumHeight = treeHeight(m_pRoot, 1, &iMin, &iMax);
     size_t iAvgHeigth = 0;
-    size_t iIdealHeigth = 0;
 
     if (leavesCount() > 0 ) iAvgHeigth = iSumHeight/leavesCount();
+    
+    auto iIdealHeigth = (cvf::uint)ceil((log((float)leavesCount())/log(2.0f)));
 
-    sInfo += VTString::MakeForm("Tree height: Min: %d - Max: %d - Avg: %d - Ideal: %d\n", iMin, iMax, iAvgHeigth, (VTint)ceil((log((VTfloat)GetNumLeaves())/log(2.0f))));
-    iIdealHeigth = (cvf::uint)ceil((log((float)leavesCount())/log(2.0f)));
-    sInfo =  cvf::String("Tree height: Min: %1 - Max: %2 - Avg: %3 - Ideal: %4\n").arg(iMin).arg(iMax).arg(iAvgHeigth).arg(iIdealHeigth);
+    text += "Tree height: \n";
+    text += "  Min   : " + std::to_string(iMin) + "\n";
+    text += "  Max   : " + std::to_string(iMax) + "\n";
+    text += "  Avg   : " + std::to_string(iAvgHeigth) + "\n";
+    text += "  Ideal : " + std::to_string(iIdealHeigth) + "\n";
+   
 
     cvf::BoundingBox bb;
     boundingBox(&bb);
-    sInfo += bb.debugString();
-    */
+    text += bb.debugString().toStdString();
 
-    return sInfo;
+    return text;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -933,6 +935,14 @@ void BoundingBoxTree::findIntersections(const cvf::BoundingBox& bb, std::vector<
     CVF_ASSERT(bbIdsOrIndices);
 
     m_implTree->findIntersections(bb, *bbIdsOrIndices);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string BoundingBoxTree::info() const
+{
+    return m_implTree->treeInfo();
 }
 
 } // namespace cvf
