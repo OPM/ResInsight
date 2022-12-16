@@ -232,6 +232,7 @@ void Utils::toTextureImageRegion(const QImage& qImage, const cvf::Vec2ui& srcPos
     // Check if QImage has format QImage::Format_ARGB32, and use a more optimized path
     if (qImage.format() == QImage::Format_ARGB32)
     {
+#pragma parallel for
         for (cvf::uint y = 0; y < sizeY; ++y)
         {
             const cvf::uint scanLineIdx = srcPosY + sizeY - y - 1;
@@ -254,6 +255,7 @@ void Utils::toTextureImageRegion(const QImage& qImage, const cvf::Vec2ui& srcPos
     else
     {
         cvf::Color4ub cvfRgbVal;
+#pragma parallel for
         for (cvf::uint y = 0; y < sizeY; ++y)
         {
             const cvf::uint qImageYPos = srcPosY + sizeY - y - 1;
