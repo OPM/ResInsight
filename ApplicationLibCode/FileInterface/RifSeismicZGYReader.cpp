@@ -107,7 +107,7 @@ std::vector<std::pair<QString, QString>> RifSeismicZGYReader::metaData()
     retValues.push_back( std::make_pair( "Brick count", tmp ) );
     retValues.push_back( std::make_pair( "Levels of details", QString::number( m_reader->nlods() ) ) );
 
-    auto& bricksize = m_reader->bricksize();
+    const auto& bricksize = m_reader->bricksize();
     retValues.push_back(
         std::make_pair( "Brick size",
                         QString( "%1 x %2 x %3" ).arg( bricksize[0] ).arg( bricksize[1] ).arg( bricksize[2] ) ) );
@@ -130,7 +130,7 @@ std::vector<std::pair<QString, QString>> RifSeismicZGYReader::metaData()
     }
     retValues.push_back( std::make_pair( "Native data type", tmp ) );
 
-    auto& datarange = m_reader->datarange();
+    const auto& datarange = m_reader->datarange();
     retValues.push_back( std::make_pair( "Data range", QString( "%1 - %2" ).arg( datarange[0] ).arg( datarange[1] ) ) );
 
     retValues.push_back( std::make_pair( "Depth unit", QString::fromStdString( m_reader->zunitname() ) ) );
@@ -139,11 +139,11 @@ std::vector<std::pair<QString, QString>> RifSeismicZGYReader::metaData()
 
     retValues.push_back( std::make_pair( "Horizontal unit", QString::fromStdString( m_reader->hunitname() ) ) );
 
-    auto& annotstart = m_reader->annotstart();
+    const auto& annotstart = m_reader->annotstart();
     retValues.push_back( std::make_pair( "First inline", QString::number( annotstart[0] ) ) );
     retValues.push_back( std::make_pair( "First crossline", QString::number( annotstart[1] ) ) );
 
-    auto& annotinc = m_reader->annotinc();
+    const auto& annotinc = m_reader->annotinc();
     retValues.push_back( std::make_pair( "Inline increment", QString::number( annotinc[0] ) ) );
     retValues.push_back( std::make_pair( "Crossline increment", QString::number( annotinc[1] ) ) );
 
