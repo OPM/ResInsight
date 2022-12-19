@@ -47,6 +47,7 @@
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimRoffCase.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -507,4 +508,52 @@ bool RiaImportEclipseCaseTools::addEclipseCases( const QStringList&          fil
     }
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiaImportEclipseCaseTools::openRoffCaseFromFileNames( const QStringList& fileNames, bool createDefaultView )
+{
+    CAF_ASSERT( !fileNames.empty() );
+
+    auto* roffCase = new RimRoffCase();
+
+    RiaApplication* app     = RiaApplication::instance();
+    RimProject*     project = app->project();
+    project->assignCaseIdToCase( roffCase );
+    roffCase->setGridFileName( fileNames[0] );
+
+    bool gridImportSuccess = roffCase->openEclipseGridFile();
+    if ( !gridImportSuccess )
+    {
+        RiaLogging::error( "Failed to import grid" );
+        return -1;
+    }
+
+    RimEclipseCaseCollection* analysisModels = project->activeOilField() ? project->activeOilField()->analysisModels()
+                                                                         : nullptr;
+    if ( !analysisModels ) return -1;
+
+    analysisModels->cases.push_back( roffCase );
+
+    RimEclipseView* eclipseView = nullptr;
+    if ( createDefaultView )
+    {
+        eclipseView = roffCase->createAndAddReservoirView();
+
+        eclipseView->cellResult()->setResultType( RiaDefines::ResultCatType::INPUT_PROPERTY );
+
+        if ( RiaGuiApplication::isRunning() )
+        {
+            if ( RiuMainWindow::instance() )
+                RiuMainWindow::instance()->selectAsCurrentItem( eclipseView->cellResult() );
+        }
+
+        eclipseView->loadDataAndUpdate();
+    }
+
+    analysisModels->updateConnectedEditors();
+
+    return roffCase->caseId();
 }

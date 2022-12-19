@@ -55,6 +55,7 @@ RicImportGeneralDataFeature::OpenCaseResults
     QStringList eclipseCaseFiles;
     QStringList eclipseInputFiles;
     QStringList eclipseSummaryFiles;
+    QStringList roffFiles;
 
     for ( const QString& fileName : fileNames )
     {
@@ -70,6 +71,10 @@ RicImportGeneralDataFeature::OpenCaseResults
         else if ( fileTypeAsInt & int( ImportFileType::ECLIPSE_SUMMARY_FILE ) )
         {
             eclipseSummaryFiles.push_back( fileName );
+        }
+        else if ( fileTypeAsInt & int( ImportFileType::ROFF_FILE ) )
+        {
+            roffFiles.push_back( fileName );
         }
     }
 
@@ -104,6 +109,17 @@ RicImportGeneralDataFeature::OpenCaseResults
         RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirectoryLabel( ImportFileType::ECLIPSE_SUMMARY_FILE ),
                                                                 defaultDir );
     }
+    if ( !roffFiles.empty() )
+    {
+        if ( !openRoffCaseFromFileNames( roffFiles, createDefaultView, results.createdCaseIds ) )
+        {
+            return OpenCaseResults();
+        }
+        results.roffFiles = roffFiles;
+        RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirectoryLabel( ImportFileType::ROFF_FILE ),
+                                                                defaultDir );
+    }
+
     return results;
 }
 
@@ -167,6 +183,7 @@ QStringList RicImportGeneralDataFeature::getEclipseFileNamesWithDialog( RiaDefin
     QString eclipseEGridFilePattern( "*.EGRID" );
     QString eclipseInputFilePattern( "*.GRDECL" );
     QString eclipseSummaryFilePattern( "*.SMSPEC" );
+    QString roffFilePattern( "*.ROFF *.ROFFASC" );
 
     QStringList filePatternTexts;
     if ( fileType == ImportFileType::ANY_ECLIPSE_FILE )
@@ -195,6 +212,10 @@ QStringList RicImportGeneralDataFeature::getEclipseFileNamesWithDialog( RiaDefin
     if ( fileTypeAsInt & int( ImportFileType::ECLIPSE_SUMMARY_FILE ) )
     {
         filePatternTexts += QString( "Eclipse Summary File (%1)" ).arg( eclipseSummaryFilePattern );
+    }
+    if ( fileTypeAsInt & int( ImportFileType::ROFF_FILE ) )
+    {
+        filePatternTexts += QString( "Roff File (%1)" ).arg( roffFilePattern );
     }
 
     QString fullPattern = filePatternTexts.join( ";;" );
@@ -285,6 +306,25 @@ bool RicImportGeneralDataFeature::openSummaryCaseFromFileNames( const QStringLis
         {
             RiaApplication::instance()->addToRecentFiles( newCase->summaryHeaderFilename() );
         }
+        return true;
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicImportGeneralDataFeature::openRoffCaseFromFileNames( const QStringList& fileNames,
+                                                             bool               createDefaultView,
+                                                             std::vector<int>&  createdCaseIds )
+{
+    CAF_ASSERT( !fileNames.empty() );
+
+    auto generatedCaseId = RiaImportEclipseCaseTools::openRoffCaseFromFileNames( fileNames, createDefaultView );
+    if ( generatedCaseId >= 0 )
+    {
+        RiaApplication::instance()->addToRecentFiles( fileNames[0] );
+        createdCaseIds.push_back( generatedCaseId );
         return true;
     }
     return false;
