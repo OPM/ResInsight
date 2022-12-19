@@ -515,6 +515,8 @@ bool RiaImportEclipseCaseTools::addEclipseCases( const QStringList&          fil
 //--------------------------------------------------------------------------------------------------
 int RiaImportEclipseCaseTools::openRoffCaseFromFileNames( const QStringList& fileNames, bool createDefaultView )
 {
+    CAF_ASSERT( !fileNames.empty() );
+
     auto* roffCase = new RimRoffCase();
 
     RiaApplication* app     = RiaApplication::instance();
@@ -541,6 +543,12 @@ int RiaImportEclipseCaseTools::openRoffCaseFromFileNames( const QStringList& fil
         eclipseView = roffCase->createAndAddReservoirView();
 
         eclipseView->cellResult()->setResultType( RiaDefines::ResultCatType::INPUT_PROPERTY );
+
+        if ( RiaGuiApplication::isRunning() )
+        {
+            if ( RiuMainWindow::instance() )
+                RiuMainWindow::instance()->selectAsCurrentItem( eclipseView->cellResult() );
+        }
 
         eclipseView->loadDataAndUpdate();
     }
