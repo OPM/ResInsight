@@ -47,6 +47,7 @@ for measured_depth in measured_depths:
 fracture_template.orientation = "Azimuth"
 fracture_template.azimuth_angle = 60.0
 fracture_template.user_defined_perforation_length = True
+fracture_template.conductivity_type = "InfiniteConductivity"
 fracture_template.perforation_length = 12.3
 fracture_template.update()
 

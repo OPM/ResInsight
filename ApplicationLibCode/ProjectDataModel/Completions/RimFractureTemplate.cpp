@@ -147,10 +147,10 @@ RimFractureTemplate::RimFractureTemplate()
     m_perforationEfficiency.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_wellDiameter, "WellDiameter", 0.216, "Well Diameter at Fracture" );
-    CAF_PDM_InitField( &m_conductivityType,
-                       "ConductivityType",
-                       caf::AppEnum<FracConductivityEnum>( FINITE_CONDUCTIVITY ),
-                       "Conductivity in Fracture" );
+    CAF_PDM_InitScriptableField( &m_conductivityType,
+                                 "ConductivityType",
+                                 caf::AppEnum<FracConductivityEnum>( FINITE_CONDUCTIVITY ),
+                                 "Conductivity in Fracture" );
 
     CAF_PDM_InitField( &m_wellPathDepthAtFracture, "WellPathDepthAtFracture", 0.0, "Well/Fracture Intersection Depth" );
     m_wellPathDepthAtFracture.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
