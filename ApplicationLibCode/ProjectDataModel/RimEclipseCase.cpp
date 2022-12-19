@@ -20,6 +20,7 @@
 
 #include "RimEclipseCase.h"
 
+#include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaDefines.h"
 #include "RiaFieldHandleTools.h"
@@ -655,7 +656,7 @@ void RimEclipseCase::computeCachedData()
             std::string aabbTreeInfo;
             rigEclipseCase->mainGrid()->computeCachedData( &aabbTreeInfo );
 
-            RiaLogging::info( QString::fromStdString( aabbTreeInfo ) );
+            RiaLogging::debug( QString::fromStdString( aabbTreeInfo ) );
         }
 
         {

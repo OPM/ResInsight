@@ -63,6 +63,8 @@ public:
     static RiaLogger* loggerInstance();
     static void       setLoggerInstance( std::unique_ptr<RiaLogger> loggerInstance );
 
+    static RILogLevel logLevelBasedOnPreferences();
+
     static void error( const QString& message );
     static void warning( const QString& message );
     static void info( const QString& message );

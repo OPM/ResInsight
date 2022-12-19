@@ -734,11 +734,6 @@ std::string AABBTree::treeInfo() const
     text += "  Avg   : " + std::to_string(iAvgHeigth) + "\n";
     text += "  Ideal : " + std::to_string(iIdealHeigth) + "\n";
    
-
-    cvf::BoundingBox bb;
-    boundingBox(&bb);
-    text += bb.debugString().toStdString();
-
     return text;
 }
 

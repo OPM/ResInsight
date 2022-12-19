@@ -17,8 +17,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RiaLogging.h"
-
 #include <QString>
 #include <grpc/support/log.h>
 #include <grpcpp/grpcpp.h>
