@@ -934,7 +934,7 @@ void BoundingBoxTree::buildTreeFromBoundingBoxes(const std::vector<cvf::Bounding
     if (optionalBoundingBoxIds)
         validOptionalBoundingBoxIds.reserve(optionalBoundingBoxIds->size());
 
-    for (int i = 0; i < (int)boundingBoxes.size(); ++i)
+    for (size_t i = 0; i < boundingBoxes.size(); ++i)
     {
         if (boundingBoxes[i].isValid())
         {

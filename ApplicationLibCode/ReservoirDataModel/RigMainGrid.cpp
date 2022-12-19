@@ -269,12 +269,8 @@ void RigMainGrid::computeCachedData( std::string* aabbTreeInfo )
     m_cellSearchTree = nullptr;
 
     const double maxNumberOfLeafNodes = 4000000;
-
-    double factor = cellCount() / maxNumberOfLeafNodes;
-    factor        = std::ceil( factor );
-
-    size_t cellsPerBoundingBox = static_cast<size_t>( factor );
-    cellsPerBoundingBox        = std::max( size_t( 1 ), cellsPerBoundingBox );
+    const double factor               = std::ceil( cellCount() / maxNumberOfLeafNodes );
+    const size_t cellsPerBoundingBox  = std::max( size_t( 1 ), static_cast<size_t>( factor ) );
 
     buildCellSearchTreeOptimized( cellsPerBoundingBox );
 
@@ -793,14 +789,10 @@ void RigMainGrid::buildCellSearchTree()
                 const std::array<size_t, 8>& cellIndices = m_cells[cIdx].cornerIndices();
 
                 cvf::BoundingBox cellBB;
-                cellBB.add( m_nodes[cellIndices[0]] );
-                cellBB.add( m_nodes[cellIndices[1]] );
-                cellBB.add( m_nodes[cellIndices[2]] );
-                cellBB.add( m_nodes[cellIndices[3]] );
-                cellBB.add( m_nodes[cellIndices[4]] );
-                cellBB.add( m_nodes[cellIndices[5]] );
-                cellBB.add( m_nodes[cellIndices[6]] );
-                cellBB.add( m_nodes[cellIndices[7]] );
+                for ( size_t i : cellIndices )
+                {
+                    cellBB.add( m_nodes[i] );
+                }
 
                 if ( cellBB.isValid() )
                 {
