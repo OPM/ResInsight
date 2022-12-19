@@ -279,18 +279,20 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
 //--------------------------------------------------------------------------------------------------
 // The indexing conventions for vertices in Roff file
 //
-//      2-------------3
+//      1-------------0
 //     /|            /|
-//    / |           / |
-//   /  |          /  |
-//  0-------------1   |         i---*
-//  |   |         |   |            /|
-//  |   6---------|---7          j/ |
+//    / |           / |               /j
+//   /  |          /  |              /
+//  3-------------2   |             *---i
+//  |   |         |   |             |
+//  |   5---------|---4             |
 //  |  /          |  /              |k
 //  | /           | /
 //  |/            |/
-//  4-------------5
+//  7-------------6
 //  vertex indices
+//
+
 //
 // The indexing conventions for vertices in ResInsight
 //
