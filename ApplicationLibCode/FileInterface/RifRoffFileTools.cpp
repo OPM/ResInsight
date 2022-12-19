@@ -478,7 +478,7 @@ void RifRoffFileTools::convertToReservoirIndexOrder( int                      nx
         {
             for ( int i = 0; i < nx; i++ )
             {
-                int inIdx         = i * ny * nz + j * nz + k;
+                int inIdx         = i * ny * nz + j * nz + ( nz - k - 1 );
                 activeOut[outIdx] = static_cast<int>( activeIn[inIdx] );
                 outIdx++;
             }
