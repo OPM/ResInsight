@@ -277,7 +277,36 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Adapted from xtgeo
+// The indexing conventions for vertices in Roff file
+//
+//      2-------------3
+//     /|            /|
+//    / |           / |
+//   /  |          /  |
+//  0-------------1   |         i---*
+//  |   |         |   |            /|
+//  |   6---------|---7          j/ |
+//  |  /          |  /              |k
+//  | /           | /
+//  |/            |/
+//  4-------------5
+//  vertex indices
+//
+// The indexing conventions for vertices in ResInsight
+//
+//      7-------------6             |k
+//     /|            /|             | /j
+//    / |           / |             |/
+//   /  |          /  |             *---i
+//  4-------------5   |
+//  |   |         |   |
+//  |   3---------|---2
+//  |  /          |  /
+//  | /           | /
+//  |/            |/
+//  0-------------1
+//  vertex indices
+//
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RifRoffFileTools::getCorner( const RigMainGrid&        grid,
                                         const std::vector<float>& cornerLines,
@@ -352,7 +381,7 @@ double RifRoffFileTools::interpolate( const cvf::Vec3d& top, const cvf::Vec3d& b
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Adapted from xtgeo
+/// Adapted from xtgeo: https://github.com/equinor/xtgeo/blob/master/src/clib/xtg/grd3d_roff2xtgeo_splitenz.c
 //--------------------------------------------------------------------------------------------------
 void RifRoffFileTools::interpretSplitenzData( int                       nz,
                                               float                     zoffset,

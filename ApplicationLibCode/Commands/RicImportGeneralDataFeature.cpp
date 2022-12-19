@@ -318,6 +318,8 @@ bool RicImportGeneralDataFeature::openRoffCaseFromFileNames( const QStringList& 
                                                              bool               createDefaultView,
                                                              std::vector<int>&  createdCaseIds )
 {
+    CAF_ASSERT( !fileNames.empty() );
+
     auto generatedCaseId = RiaImportEclipseCaseTools::openRoffCaseFromFileNames( fileNames, createDefaultView );
     if ( generatedCaseId >= 0 )
     {
