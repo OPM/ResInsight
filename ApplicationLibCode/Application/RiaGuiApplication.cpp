@@ -434,7 +434,8 @@ void RiaGuiApplication::initialize()
         logger->addMessagePanel( m_mainWindow->messagePanel() );
         logger->addMessagePanel( m_mainPlotWindow->messagePanel() );
         RiaLogging::setLoggerInstance( std::move( logger ) );
-        RiaLogging::loggerInstance()->setLevel( int( RILogLevel::RI_LL_DEBUG ) );
+
+        RiaLogging::loggerInstance()->setLevel( int( RiaLogging::logLevelBasedOnPreferences() ) );
     }
     m_socketServer = new RiaSocketServer( this );
 }

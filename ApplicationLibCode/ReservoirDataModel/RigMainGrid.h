@@ -116,6 +116,7 @@ public:
 private:
     void initAllSubCellsMainGridCellIndex();
     void buildCellSearchTree();
+    void buildCellSearchTreeOptimized( size_t cellsPerBoundingBox );
     bool hasFaultWithName( const QString& name ) const;
 
     static std::array<double, 6> defaultMapAxes();
