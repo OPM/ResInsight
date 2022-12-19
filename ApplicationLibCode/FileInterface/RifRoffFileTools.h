@@ -27,6 +27,7 @@
 
 class RigEclipseCaseData;
 class RigMainGrid;
+class Reader;
 
 //==================================================================================================
 //
@@ -41,6 +42,8 @@ public:
 
     static bool openGridFile( const QString& fileName, RigEclipseCaseData* eclipseCase, QString* errorMessages );
 
+    static bool createInputProperties( const QString& fileName, RigEclipseCaseData* eclipseCase );
+
 private:
     static void interpretSplitenzData( int                       nz,
                                        float                     zoffset,
@@ -51,6 +54,9 @@ private:
 
     static void
         convertToReservoirIndexOrder( int nx, int ny, int nz, const std::vector<char>& activeIn, std::vector<int>& activeOut );
+
+    static void
+        convertToReservoirIndexOrder( int nx, int ny, int nz, const std::vector<float>& in, std::vector<float>& out );
 
     static size_t computeActiveCellMatrixIndex( std::vector<int>& activeCells );
 
@@ -63,4 +69,9 @@ private:
                                  const cvf::Vec3d&         scale );
 
     static double interpolate( const cvf::Vec3d& top, const cvf::Vec3d& bottom, double z, int idx );
+
+    static bool appendNewInputPropertyResult( RigEclipseCaseData* caseData,
+                                              const QString&      resultName,
+                                              const std::string&  keyword,
+                                              Reader&             reader );
 };

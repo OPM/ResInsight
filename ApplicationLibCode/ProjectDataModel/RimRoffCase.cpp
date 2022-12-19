@@ -100,6 +100,8 @@ bool RimRoffCase::openEclipseGridFile()
 
     results( RiaDefines::PorosityModelType::MATRIX_MODEL )->computeCellVolumes();
 
+    RifRoffFileTools::createInputProperties( fileName, eclipseCaseData() );
+
     return true;
 }
 
