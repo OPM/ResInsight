@@ -489,6 +489,34 @@ void RifRoffFileTools::convertToReservoirIndexOrder( int                      nx
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RifRoffFileTools::convertToReservoirIndexOrder( int                       nx,
+                                                     int                       ny,
+                                                     int                       nz,
+                                                     const std::vector<float>& in,
+                                                     std::vector<float>&       out )
+{
+    CAF_ASSERT( static_cast<size_t>( nx ) * ny * nz == in.size() );
+
+    out.resize( in.size(), 0.0 );
+
+    int outIdx = 0;
+    for ( int k = 0; k < nz; k++ )
+    {
+        for ( int j = 0; j < ny; j++ )
+        {
+            for ( int i = 0; i < nx; i++ )
+            {
+                int inIdx   = i * ny * nz + j * nz + ( nz - k - 1 );
+                out[outIdx] = in[inIdx];
+                outIdx++;
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 size_t RifRoffFileTools::computeActiveCellMatrixIndex( std::vector<int>& activeCells )
 {
     size_t activeMatrixIndex = 0;
@@ -507,4 +535,92 @@ size_t RifRoffFileTools::computeActiveCellMatrixIndex( std::vector<int>& activeC
     }
 
     return activeMatrixIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifRoffFileTools::createInputProperties( const QString& fileName, RigEclipseCaseData* eclipseCaseData )
+{
+    RiaLogging::info( QString( "Opening roff file: %1" ).arg( fileName ) );
+
+    std::string filename = fileName.toStdString();
+
+    std::ifstream stream( filename, std::ios::binary );
+    if ( !stream.good() )
+    {
+        RiaLogging::error( "Unable to open roff file" );
+        return false;
+    }
+
+    try
+    {
+        Reader reader( stream );
+        reader.parse();
+
+        std::vector<std::pair<std::string, Token::Kind>> arrayTypes = reader.getNamedArrayTypes();
+
+        for ( auto [keyword, kind] : arrayTypes )
+        {
+            size_t keywordLength = reader.getArrayLength( keyword );
+            RiaLogging::info( QString( "Array found: %1 . Type: %2 Size: %3" )
+                                  .arg( QString::fromStdString( keyword ) )
+                                  .arg( QString::fromStdString( Token::kindToString( kind ) ) )
+                                  .arg( keywordLength ) );
+            if ( eclipseCaseData->mainGrid()->cellCount() == keywordLength )
+            {
+                QString newResultName = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
+                                            ->makeResultNameUnique( QString::fromStdString( keyword ) );
+
+                if ( !appendNewInputPropertyResult( eclipseCaseData, newResultName, keyword, reader ) )
+                {
+                    RiaLogging::error( QString( "Unable to import result '%1' from %2" )
+                                           .arg( QString::fromStdString( keyword ) )
+                                           .arg( fileName ) );
+                    return false;
+                }
+            }
+        }
+    }
+    catch ( std::runtime_error& err )
+    {
+        RiaLogging::error( QString( "Roff property file import failed: %1" ).arg( err.what() ) );
+        return false;
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifRoffFileTools::appendNewInputPropertyResult( RigEclipseCaseData* caseData,
+                                                     const QString&      resultName,
+                                                     const std::string&  keyword,
+                                                     Reader&             reader )
+{
+    CVF_ASSERT( caseData );
+
+    std::vector<float> values = reader.getFloatArray( keyword );
+    CAF_ASSERT( values.size() == caseData->mainGrid()->cellCount() );
+
+    int nx = caseData->mainGrid()->cellCountI();
+    int ny = caseData->mainGrid()->cellCountJ();
+    int nz = caseData->mainGrid()->cellCountK();
+
+    std::vector<float> valuesReservoirOrder;
+    convertToReservoirIndexOrder( nx, ny, nz, values, valuesReservoirOrder );
+
+    RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::INPUT_PROPERTY, resultName );
+    caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->createResultEntry( resAddr, false );
+
+    auto newPropertyData =
+        caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->modifiableCellScalarResultTimesteps( resAddr );
+
+    std::vector<double> doubleVals;
+    doubleVals.insert( doubleVals.begin(), valuesReservoirOrder.begin(), valuesReservoirOrder.end() );
+
+    newPropertyData->push_back( doubleVals );
+
+    return true;
 }
