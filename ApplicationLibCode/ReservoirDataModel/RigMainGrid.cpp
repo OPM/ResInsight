@@ -823,19 +823,14 @@ void RigMainGrid::buildCellSearchTree()
 //--------------------------------------------------------------------------------------------------
 void RigMainGrid::buildCellSearchTreeOptimized( size_t cellsPerBoundingBox )
 {
-    int threadCount = 1;
-#ifdef USE_OPENMP
-    threadCount = omp_get_max_threads();
-#endif
+    int threadCount = RiaOpenMPTools::availableThreadCount();
+
     std::vector<std::vector<std::vector<int>>> threadCellIndicesForBoundingBoxes( threadCount );
     std::vector<std::vector<cvf::BoundingBox>> threadCellBoundingBoxes( threadCount );
 
 #pragma omp parallel
     {
-        int myThread = 0;
-#ifdef USE_OPENMP
-        myThread = omp_get_thread_num();
-#endif
+        int myThread = RiaOpenMPTools::currentThreadIndex();
 
 #pragma omp for
         for ( int i = 0; i < static_cast<int>( cellCountI() ); i++ )
@@ -876,14 +871,10 @@ void RigMainGrid::buildCellSearchTreeOptimized( size_t cellsPerBoundingBox )
                             const std::array<size_t, 8>& cellIndices = rigCell.cornerIndices();
 
                             cvf::BoundingBox cellBB;
-                            cellBB.add( m_nodes[cellIndices[0]] );
-                            cellBB.add( m_nodes[cellIndices[1]] );
-                            cellBB.add( m_nodes[cellIndices[2]] );
-                            cellBB.add( m_nodes[cellIndices[3]] );
-                            cellBB.add( m_nodes[cellIndices[4]] );
-                            cellBB.add( m_nodes[cellIndices[5]] );
-                            cellBB.add( m_nodes[cellIndices[6]] );
-                            cellBB.add( m_nodes[cellIndices[7]] );
+                            for ( size_t i : cellIndices )
+                            {
+                                cellBB.add( m_nodes[i] );
+                            }
 
                             if ( cellBB.isValid() ) accumulatedBB.add( cellBB );
                         }
