@@ -232,10 +232,11 @@ void Utils::toTextureImageRegion(const QImage& qImage, const cvf::Vec2ui& srcPos
     // Check if QImage has format QImage::Format_ARGB32, and use a more optimized path
     if (qImage.format() == QImage::Format_ARGB32)
     {
-        for (cvf::uint y = 0; y < sizeY; ++y)
+#pragma omp for
+        for (int y = 0; y < static_cast<int>(sizeY); ++y)
         {
             const cvf::uint scanLineIdx = srcPosY + sizeY - y - 1;
-            const QRgb* qWholeScanLine = reinterpret_cast<const QRgb*>(qImage.scanLine(scanLineIdx));
+            const QRgb* qWholeScanLine = reinterpret_cast<const QRgb*>(qImage.constScanLine(scanLineIdx));
             const QRgb* qPixels = &qWholeScanLine[srcPosX];
 
             const cvf::uint dstStartIdx = 4*(y*sizeX);
@@ -254,7 +255,8 @@ void Utils::toTextureImageRegion(const QImage& qImage, const cvf::Vec2ui& srcPos
     else
     {
         cvf::Color4ub cvfRgbVal;
-        for (cvf::uint y = 0; y < sizeY; ++y)
+#pragma omp for
+        for (int y = 0; y < static_cast<int>(sizeY); ++y)
         {
             const cvf::uint qImageYPos = srcPosY + sizeY - y - 1;
             for (cvf::uint x = 0; x < sizeX; ++x)

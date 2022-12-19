@@ -21,6 +21,7 @@
 #include "RigMainGrid.h"
 
 #include "RiaLogging.h"
+#include "RiaOpenMPTools.h"
 #include "RiaResultNames.h"
 
 #include "RigActiveCellInfo.h"
@@ -29,10 +30,6 @@
 
 #include "cvfAssert.h"
 #include "cvfBoundingBoxTree.h"
-
-#ifdef USE_OPENMP
-#include <omp.h>
-#endif
 
 RigMainGrid::RigMainGrid()
     : RigGridBase( this )
@@ -453,18 +450,39 @@ void RigMainGrid::calculateFaults( const RigActiveCellInfo* activeCellInfo )
 
     const std::vector<cvf::Vec3d>& vxs = m_mainGrid->nodes();
 
+    int numberOfThreads = RiaOpenMPTools::availableThreadCount();
+
+    std::vector<std::vector<RigFault::FaultFace>> threadFaultFaces( numberOfThreads );
+    std::vector<std::vector<RigFault::FaultFace>> threadInactiveFaultFaces( numberOfThreads );
+
+#pragma omp parallel
+    {
+        int myThread = RiaOpenMPTools::currentThreadIndex();
+
+        // NB! We are inside a parallel section, do not use "parallel for" here
+#pragma omp for
+        for ( int gcIdx = 0; gcIdx < static_cast<int>( m_cells.size() ); ++gcIdx )
+        {
+            addUnNamedFaultFaces( gcIdx,
+                                  activeCellInfo,
+                                  vxs,
+                                  unNamedFaultIdx,
+                                  unNamedFaultWithInactiveIdx,
+                                  threadFaultFaces[myThread],
+                                  threadInactiveFaultFaces[myThread],
+                                  m_faultsPrCellAcc.p() );
+        }
+    }
+
     std::vector<RigFault::FaultFace>& unNamedFaultFaces         = unNamedFault->faultFaces();
     std::vector<RigFault::FaultFace>& unNamedFaultFacesInactive = unNamedFaultWithInactive->faultFaces();
-    for ( int gcIdx = 0; gcIdx < static_cast<int>( m_cells.size() ); ++gcIdx )
+
+    for ( int i = 0; i < numberOfThreads; i++ )
     {
-        addUnNamedFaultFaces( gcIdx,
-                              activeCellInfo,
-                              vxs,
-                              unNamedFaultIdx,
-                              unNamedFaultWithInactiveIdx,
-                              unNamedFaultFaces,
-                              unNamedFaultFacesInactive,
-                              m_faultsPrCellAcc.p() );
+        unNamedFaultFaces.insert( unNamedFaultFaces.end(), threadFaultFaces[i].begin(), threadFaultFaces[i].end() );
+        unNamedFaultFacesInactive.insert( unNamedFaultFacesInactive.end(),
+                                          threadInactiveFaultFaces[i].begin(),
+                                          threadInactiveFaultFaces[i].end() );
     }
 }
 
@@ -557,8 +575,16 @@ void RigMainGrid::addUnNamedFaultFaces( int                               gcIdx,
             int faultIdx = unNamedFaultIdx;
             if ( !( isCellActive && isNeighborCellActive ) ) faultIdx = unNamedFaultWithInactiveIdx;
 
-            faultsPrCellAcc->setFaultIdx( gcIdx, face, faultIdx );
-            faultsPrCellAcc->setFaultIdx( neighborReservoirCellIdx, StructGridInterface::oppositeFace( face ), faultIdx );
+#pragma omp critical( faultsPrCellAcc_modification )
+            {
+                // Best practice is to avoid critical sections. The number of cells related to a fault is usually very
+                // small compared to the total number of cells, so the performance of this function should be good. The
+                // main computation is related to the 'pointDistance' functions above. The refactoring of this structure
+                // to avoid critical section is considered too much compared to the gain.
+
+                faultsPrCellAcc->setFaultIdx( gcIdx, face, faultIdx );
+                faultsPrCellAcc->setFaultIdx( neighborReservoirCellIdx, StructGridInterface::oppositeFace( face ), faultIdx );
+            }
 
             // Add as fault face only if the grid index is less than the neighbors
 
@@ -573,15 +599,6 @@ void RigMainGrid::addUnNamedFaultFaces( int                               gcIdx,
                 {
                     unNamedFaultFacesInactive.push_back( ff );
                 }
-            }
-            else
-            {
-                CVF_FAIL_MSG( "Found fault with global neighbor index less than the native index. " ); // Should never
-                                                                                                       // occur. because
-                                                                                                       // we flag the
-                                                                                                       // opposite face
-                                                                                                       // in the
-                                                                                                       // faultsPrCellAcc
             }
         }
     }
@@ -745,10 +762,8 @@ void RigMainGrid::buildCellSearchTree()
 
 #pragma omp parallel
         {
-            size_t threadCellCount = cellCount;
-#ifdef USE_OPENMP
-            threadCellCount = std::ceil( cellCount / static_cast<double>( omp_get_num_threads() ) );
-#endif
+            int    numberOfThreads = RiaOpenMPTools::availableThreadCount();
+            size_t threadCellCount = std::ceil( cellCount / static_cast<double>( numberOfThreads ) );
 
             std::vector<size_t>           threadIndicesForBoundingBoxes;
             std::vector<cvf::BoundingBox> threadBoundingBoxes;

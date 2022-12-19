@@ -19,7 +19,11 @@
 
 #include "RivFaultGeometryGenerator.h"
 
-#include <cmath>
+#include "RiaOpenMPTools.h"
+
+#include "RigFault.h"
+#include "RigNNCData.h"
+#include "RigNncConnection.h"
 
 #include "cvfDrawableGeo.h"
 #include "cvfOutlineEdgeExtractor.h"
@@ -28,9 +32,7 @@
 
 #include "cvfScalarMapper.h"
 
-#include "RigFault.h"
-#include "RigNNCData.h"
-#include "RigNncConnection.h"
+#include <cmath>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -166,44 +168,64 @@ void RivFaultGeometryGenerator::computeArrays( bool onlyShowFacesWithDefinedNeig
 
     const std::vector<RigFault::FaultFace>& faultFaces = m_fault->faultFaces();
 
-#pragma omp parallel for
-    for ( int fIdx = 0; fIdx < static_cast<int>( faultFaces.size() ); fIdx++ )
+    int numberOfThreads = RiaOpenMPTools::availableThreadCount();
+
+    std::vector<std::vector<cvf::Vec3f>>                         threadVertices( numberOfThreads );
+    std::vector<std::vector<size_t>>                             threadCellIndices( numberOfThreads );
+    std::vector<std::vector<cvf::StructGridInterface::FaceType>> threadFaceTypes( numberOfThreads );
+
+#pragma omp parallel
     {
-        size_t                             cellIndex = faultFaces[fIdx].m_nativeReservoirCellIndex;
-        cvf::StructGridInterface::FaceType face      = faultFaces[fIdx].m_nativeFace;
-
-        if ( !m_computeNativeFaultFaces )
-        {
-            cellIndex = faultFaces[fIdx].m_oppositeReservoirCellIndex;
-            face      = cvf::StructGridInterface::oppositeFace( face );
-        }
-
-        if ( cellIndex >= m_cellVisibility->size() ) continue;
-
-        if ( !( *m_cellVisibility )[cellIndex] ) continue;
-
-        if ( onlyShowFacesWithDefinedNeighbors && !hasConnection( cellIndex, face, connections, connIndices ) )
-            continue;
+        int myThread = RiaOpenMPTools::currentThreadIndex();
 
         cvf::Vec3d cornerVerts[8];
-        m_grid->cellCornerVertices( cellIndex, cornerVerts );
-
         cvf::ubyte faceConn[4];
-        m_grid->cellFaceVertexIndices( face, faceConn );
 
-// Critical section to avoid two threads accessing the arrays at the same time.
-#pragma omp critical( critical_section_RivFaultGeometryGenerator_computeArrays )
+        // NB! We are inside a parallel section, do not use "parallel for" here
+#pragma omp for
+        for ( int fIdx = 0; fIdx < static_cast<int>( faultFaces.size() ); fIdx++ )
         {
-            int n;
-            for ( n = 0; n < 4; n++ )
+            size_t                             cellIndex = faultFaces[fIdx].m_nativeReservoirCellIndex;
+            cvf::StructGridInterface::FaceType face      = faultFaces[fIdx].m_nativeFace;
+
+            if ( !m_computeNativeFaultFaces )
             {
-                vertices.push_back( cvf::Vec3f( cornerVerts[faceConn[n]] - offset ) );
+                cellIndex = faultFaces[fIdx].m_oppositeReservoirCellIndex;
+                face      = cvf::StructGridInterface::oppositeFace( face );
+            }
+
+            if ( cellIndex >= m_cellVisibility->size() ) continue;
+
+            if ( !( *m_cellVisibility )[cellIndex] ) continue;
+
+            if ( onlyShowFacesWithDefinedNeighbors && !hasConnection( cellIndex, face, connections, connIndices ) )
+                continue;
+
+            m_grid->cellCornerVertices( cellIndex, cornerVerts );
+            m_grid->cellFaceVertexIndices( face, faceConn );
+
+            for ( int n = 0; n < 4; n++ )
+            {
+                threadVertices[myThread].emplace_back( cvf::Vec3f( cornerVerts[faceConn[n]] - offset ) );
             }
 
             // Keep track of the source cell index per quad
-            m_quadMapper->quadToCellIndexMap().push_back( cellIndex );
-            m_quadMapper->quadToCellFaceMap().push_back( face );
+            threadCellIndices[myThread].emplace_back( cellIndex );
+            threadFaceTypes[myThread].emplace_back( face );
         }
+    }
+
+    for ( int threadIndex = 0; threadIndex < numberOfThreads; threadIndex++ )
+    {
+        vertices.insert( vertices.end(), threadVertices[threadIndex].begin(), threadVertices[threadIndex].end() );
+
+        m_quadMapper->quadToCellIndexMap().insert( m_quadMapper->quadToCellIndexMap().end(),
+                                                   threadCellIndices[threadIndex].begin(),
+                                                   threadCellIndices[threadIndex].end() );
+
+        m_quadMapper->quadToCellFaceMap().insert( m_quadMapper->quadToCellFaceMap().end(),
+                                                  threadFaceTypes[threadIndex].begin(),
+                                                  threadFaceTypes[threadIndex].end() );
     }
 
     m_vertices = new cvf::Vec3fArray;
