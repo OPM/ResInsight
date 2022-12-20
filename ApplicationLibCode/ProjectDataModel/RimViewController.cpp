@@ -519,6 +519,9 @@ void RimViewController::updateDuplicatedPropertyFilters()
             manEclView->eclipsePropertyFilterCollection()->loadAndInitializePropertyFilters();
             manEclView->eclipsePropertyFilterCollection()->setIsDuplicatedFromLinkedView();
             manEclView->eclipsePropertyFilterCollection()->updateAllRequiredEditors();
+
+            manEclView->scheduleGeometryRegen( PROPERTY_FILTERED );
+            manEclView->scheduleCreateDisplayModelAndRedraw();
         }
 
         auto*           masterGeoView = dynamic_cast<RimGeoMechView*>( masterView );
@@ -528,8 +531,11 @@ void RimViewController::updateDuplicatedPropertyFilters()
             auto propertyString = masterGeoView->geoMechPropertyFilterCollection()->writeObjectToXmlString();
             manGeoView->geoMechPropertyFilterCollection()->readObjectFromXmlString( propertyString,
                                                                                     caf::PdmDefaultObjectFactory::instance() );
-            managedGeoView()->geoMechPropertyFilterCollection()->loadAndInitializePropertyFilters();
-            managedGeoView()->geoMechPropertyFilterCollection()->updateAllRequiredEditors();
+            manGeoView->geoMechPropertyFilterCollection()->loadAndInitializePropertyFilters();
+            manGeoView->geoMechPropertyFilterCollection()->updateAllRequiredEditors();
+
+            manGeoView->scheduleGeometryRegen( PROPERTY_FILTERED );
+            manGeoView->scheduleCreateDisplayModelAndRedraw();
         }
     }
 }
