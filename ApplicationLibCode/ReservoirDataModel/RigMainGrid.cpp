@@ -272,7 +272,14 @@ void RigMainGrid::computeCachedData( std::string* aabbTreeInfo )
     const double factor               = std::ceil( cellCount() / maxNumberOfLeafNodes );
     const size_t cellsPerBoundingBox  = std::max( size_t( 1 ), static_cast<size_t>( factor ) );
 
-    buildCellSearchTreeOptimized( cellsPerBoundingBox );
+    if ( cellsPerBoundingBox > 1 )
+    {
+        buildCellSearchTreeOptimized( cellsPerBoundingBox );
+    }
+    else
+    {
+        buildCellSearchTree();
+    }
 
     if ( aabbTreeInfo )
     {
