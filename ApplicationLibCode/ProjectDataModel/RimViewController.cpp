@@ -1104,15 +1104,14 @@ void RimViewController::applyCellFilterCollectionByUserChoice()
     RimViewLinker* viewLinker = ownerViewLinker();
     auto*          masterView = dynamic_cast<RimGridView*>( viewLinker->masterView() );
 
-    bool anyActiveFilter = false;
+    bool anyActiveCellFilter = false;
 
     if ( masterView )
     {
-        anyActiveFilter = !masterView->cellFilterCollection()->filters().empty() ||
-                          masterView->propertyFilterCollection()->hasActiveFilters();
+        anyActiveCellFilter = !masterView->cellFilterCollection()->filters().empty();
     }
 
-    if ( anyActiveFilter && askUserToRestoreOriginalCellFilterCollection( m_managedView->name() ) )
+    if ( anyActiveCellFilter && askUserToRestoreOriginalCellFilterCollection( m_managedView->name() ) )
     {
         managedGridView->setOverrideCellFilterCollection( nullptr );
     }
