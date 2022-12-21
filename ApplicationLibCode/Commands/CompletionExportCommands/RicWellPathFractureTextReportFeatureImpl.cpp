@@ -584,7 +584,9 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureInstancesText(
         formatter.add( fracture->tilt() );
 
         if ( fracture->fractureTemplate() &&
-             fracture->fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH )
+             ( fracture->fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH ||
+               ( fracture->fractureTemplate()->orientationType() == RimFractureTemplate::AZIMUTH &&
+                 fracture->fractureTemplate()->useUserDefinedPerforationLength() ) ) )
         {
             formatter.add( fracture->perforationLength() );
         }
