@@ -34,10 +34,10 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifInputPropertyLoader::loadAndSyncronizeInputProperties( RimEclipseInputPropertyCollection* inputPropertyCollection,
-                                                               RigEclipseCaseData*                eclipseCaseData,
-                                                               const std::vector<QString>&        filenames,
-                                                               bool                               allowImportOfFaults )
+void RifInputPropertyLoader::loadAndSynchronizeInputProperties( RimEclipseInputPropertyCollection* inputPropertyCollection,
+                                                                RigEclipseCaseData*                eclipseCaseData,
+                                                                const std::vector<QString>&        filenames,
+                                                                bool                               allowImportOfFaults )
 {
     std::vector<RimEclipseInputProperty*> existingProperties = inputPropertyCollection->inputProperties.children();
 

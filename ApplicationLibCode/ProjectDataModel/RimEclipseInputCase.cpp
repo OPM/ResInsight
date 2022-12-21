@@ -174,10 +174,10 @@ bool RimEclipseInputCase::openDataFileSet( const QStringList& fileNames )
         }
     }
 
-    RifInputPropertyLoader::loadAndSyncronizeInputProperties( m_inputPropertyCollection,
-                                                              this->eclipseCaseData(),
-                                                              filesToRead,
-                                                              importFaults );
+    RifInputPropertyLoader::loadAndSynchronizeInputProperties( m_inputPropertyCollection,
+                                                               this->eclipseCaseData(),
+                                                               filesToRead,
+                                                               importFaults );
 
     if ( importFaults )
     {
@@ -224,7 +224,7 @@ bool RimEclipseInputCase::openEclipseGridFile()
 
         this->eclipseCaseData()->mainGrid()->setFlipAxis( m_flipXAxis, m_flipYAxis );
 
-        loadAndSyncronizeInputProperties( true );
+        loadAndSynchronizeInputProperties( true );
         computeCachedData();
     }
 
