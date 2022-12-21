@@ -592,17 +592,20 @@ size_t RifRoffFileTools::computeActiveCellMatrixIndex( std::vector<int>& activeC
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifRoffFileTools::createInputProperties( const QString& fileName, RigEclipseCaseData* eclipseCaseData )
+std::pair<bool, std::map<QString, QString>>
+    RifRoffFileTools::createInputProperties( const QString& fileName, RigEclipseCaseData* eclipseCaseData )
 {
     RiaLogging::info( QString( "Opening roff file: %1" ).arg( fileName ) );
 
     std::string filename = fileName.toStdString();
 
+    std::map<QString, QString> keywordMapping;
+
     std::ifstream stream( filename, std::ios::binary );
     if ( !stream.good() )
     {
         RiaLogging::error( "Unable to open roff file" );
-        return false;
+        return std::make_pair( false, keywordMapping );
     }
 
     try
@@ -634,18 +637,20 @@ bool RifRoffFileTools::createInputProperties( const QString& fileName, RigEclips
                     RiaLogging::error( QString( "Unable to import result '%1' from %2" )
                                            .arg( QString::fromStdString( keyword ) )
                                            .arg( fileName ) );
-                    return false;
+                    return std::make_pair( false, keywordMapping );
                 }
+
+                keywordMapping[QString::fromStdString( keyword )] = newResultName;
             }
         }
     }
     catch ( std::runtime_error& err )
     {
         RiaLogging::error( QString( "Roff property file import failed: %1" ).arg( err.what() ) );
-        return false;
+        return std::make_pair( false, keywordMapping );
     }
 
-    return true;
+    return std::make_pair( true, keywordMapping );
 }
 
 //--------------------------------------------------------------------------------------------------

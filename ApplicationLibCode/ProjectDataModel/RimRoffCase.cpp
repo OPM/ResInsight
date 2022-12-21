@@ -22,6 +22,7 @@
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 
+#include "RifInputPropertyLoader.h"
 #include "RifRoffFileTools.h"
 
 #include "RigActiveCellInfo.h"
@@ -100,7 +101,11 @@ bool RimRoffCase::openEclipseGridFile()
 
     results( RiaDefines::PorosityModelType::MATRIX_MODEL )->computeCellVolumes();
 
+    // Read properties from grid file
     RifRoffFileTools::createInputProperties( fileName, eclipseCaseData() );
+
+    // Read properties from input property collection
+    loadAndSyncronizeInputProperties( false );
 
     return true;
 }
@@ -139,4 +144,18 @@ QString RimRoffCase::locationOnDisc() const
 
     QFileInfo fi( gridFileName() );
     return fi.absolutePath();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimRoffCase::importAsciiInputProperties( const QStringList& fileNames )
+{
+    bool importFaults = false;
+    RifInputPropertyLoader::loadAndSyncronizeInputProperties( m_inputPropertyCollection,
+                                                              this->eclipseCaseData(),
+                                                              std::vector<QString>( fileNames.begin(), fileNames.end() ),
+                                                              importFaults );
+
+    return true;
 }

@@ -28,8 +28,8 @@
 
 #include "RicfCommandObject.h"
 
-#include "RifEclipseInputPropertyLoader.h"
 #include "RifEclipseOutputFileTools.h"
+#include "RifInputPropertyLoader.h"
 #include "RifReaderEclipseOutput.h"
 #include "RifReaderEclipseRft.h"
 #include "RifReaderMockModel.h"
@@ -236,11 +236,10 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
 bool RimEclipseResultCase::importAsciiInputProperties( const QStringList& fileNames )
 {
     bool importFaults = false;
-    RifEclipseInputPropertyLoader::loadAndSyncronizeInputProperties( m_inputPropertyCollection,
-                                                                     this->eclipseCaseData(),
-                                                                     std::vector<QString>( fileNames.begin(),
-                                                                                           fileNames.end() ),
-                                                                     importFaults );
+    RifInputPropertyLoader::loadAndSyncronizeInputProperties( m_inputPropertyCollection,
+                                                              this->eclipseCaseData(),
+                                                              std::vector<QString>( fileNames.begin(), fileNames.end() ),
+                                                              importFaults );
 
     return true;
 }

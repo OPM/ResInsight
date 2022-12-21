@@ -26,7 +26,7 @@
 #include "RiaPreferences.h"
 
 #include "RifEclipseInputFileTools.h"
-#include "RifEclipseInputPropertyLoader.h"
+#include "RifInputPropertyLoader.h"
 #include "RifReaderEclipseInput.h"
 #include "RifReaderInterface.h"
 #include "RifReaderMockModel.h"
@@ -174,10 +174,10 @@ bool RimEclipseInputCase::openDataFileSet( const QStringList& fileNames )
         }
     }
 
-    RifEclipseInputPropertyLoader::loadAndSyncronizeInputProperties( m_inputPropertyCollection,
-                                                                     this->eclipseCaseData(),
-                                                                     filesToRead,
-                                                                     importFaults );
+    RifInputPropertyLoader::loadAndSyncronizeInputProperties( m_inputPropertyCollection,
+                                                              this->eclipseCaseData(),
+                                                              filesToRead,
+                                                              importFaults );
 
     if ( importFaults )
     {

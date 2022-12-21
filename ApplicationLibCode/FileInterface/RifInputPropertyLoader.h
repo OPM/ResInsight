@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2022-     Equinor ASA
+//  Copyright (C) 2022- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,31 +18,27 @@
 
 #pragma once
 
-#include "RimEclipseCase.h"
+#include <QString>
 
-#include "cafPdmChildField.h"
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include <map>
+#include <vector>
+
+class RimEclipseInputPropertyCollection;
+class RigEclipseCaseData;
 
 //==================================================================================================
 //
 //
 //
 //==================================================================================================
-class RimRoffCase : public RimEclipseCase
+class RifInputPropertyLoader
 {
-    CAF_PDM_HEADER_INIT;
-
 public:
-    RimRoffCase();
-    ~RimRoffCase() override;
+    static void loadAndSyncronizeInputProperties( RimEclipseInputPropertyCollection* inputPropertyCollection,
+                                                  RigEclipseCaseData*                eclipseCaseData,
+                                                  const std::vector<QString>&        filenames,
+                                                  bool                               allowImportOfFaults );
 
-    bool openEclipseGridFile() override;
-    void reloadEclipseGridFile() override;
-    bool importAsciiInputProperties( const QStringList& fileNames ) override;
-
-    QString locationOnDisc() const override;
-
-protected:
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+private:
+    static std::map<QString, QString> readProperties( const QString& fileName, RigEclipseCaseData* eclipseCaseData );
 };
