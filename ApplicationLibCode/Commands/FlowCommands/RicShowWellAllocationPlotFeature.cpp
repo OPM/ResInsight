@@ -24,6 +24,7 @@
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 #include "RimFlowPlotCollection.h"
+#include "RimHistoryWellAllocationPlot.h"
 #include "RimMainPlotCollection.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
@@ -108,8 +109,12 @@ void RicShowWellAllocationPlotFeature::onActionTriggered( bool isChecked )
         flowPlotColl->defaultWellAllocPlot()->setFromSimulationWell( simWell );
         flowPlotColl->defaultWellAllocPlot()->updateConnectedEditors();
 
+        flowPlotColl->defaultHistoryWellAllocPlot()->setFromSimulationWell( simWell );
+        flowPlotColl->defaultHistoryWellAllocPlot()->updateConnectedEditors();
+
         RiuPlotMainWindowTools::showPlotMainWindow();
         RiuPlotMainWindowTools::onObjectAppended( flowPlotColl->defaultWellAllocPlot() );
+        RiuPlotMainWindowTools::onObjectAppended( flowPlotColl->defaultHistoryWellAllocPlot() );
     }
 }
 
