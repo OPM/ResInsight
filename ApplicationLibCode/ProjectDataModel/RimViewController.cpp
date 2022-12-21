@@ -499,7 +499,28 @@ void RimViewController::updateDisplayNameAndIcon()
 //--------------------------------------------------------------------------------------------------
 void RimViewController::updateDuplicatedPropertyFilters()
 {
-    if ( !m_duplicatePropertyFilters ) return;
+    if ( !m_duplicatePropertyFilters )
+    {
+        // A chain icon is used to indicate that a property filter is linked. If a property filter is unlinked, update
+        // the property filters to make sure the chain icon is removed
+
+        std::vector<RimPropertyFilterCollection*> eclipsePropertyFilters;
+
+        RimProject::current()->descendantsIncludingThisOfType( eclipsePropertyFilters );
+        for ( auto p : eclipsePropertyFilters )
+        {
+            p->updateConnectedEditors();
+        }
+
+        std::vector<RimGeoMechPropertyFilterCollection*> geoMechPropertyFilters;
+        RimProject::current()->descendantsIncludingThisOfType( geoMechPropertyFilters );
+        for ( auto p : geoMechPropertyFilters )
+        {
+            p->updateConnectedEditors();
+        }
+
+        return;
+    }
 
     RimViewLinker* viewLinker = ownerViewLinker();
 
