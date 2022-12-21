@@ -1065,6 +1065,8 @@ void RimSummaryCaseCollection::initAfterRead()
     {
         summaryCase->nameChanged.connect( this, &RimSummaryCaseCollection::onCaseNameChanged );
     }
+
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2022.06.2" ) ) m_autoName = false;
 }
 
 //--------------------------------------------------------------------------------------------------
