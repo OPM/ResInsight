@@ -827,18 +827,11 @@ void RimWellAllocationPlot::fieldChangedByUi( const caf::PdmFieldHandle* changed
 //--------------------------------------------------------------------------------------------------
 std::set<QString> RimWellAllocationPlot::findSortedWellNames()
 {
-    std::set<QString> sortedWellNames;
     if ( m_case && m_case->eclipseCaseData() )
     {
-        const cvf::Collection<RigSimWellData>& simWellData = m_case->eclipseCaseData()->wellResults();
-
-        for ( size_t wIdx = 0; wIdx < simWellData.size(); ++wIdx )
-        {
-            sortedWellNames.insert( simWellData[wIdx]->m_wellName );
-        }
+        return m_case->eclipseCaseData()->findSortedWellNames();
     }
-
-    return sortedWellNames;
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
