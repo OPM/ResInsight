@@ -25,6 +25,8 @@
 
 #include <vector>
 
+#include "Token.hpp"
+
 class RigEclipseCaseData;
 class RigMainGrid;
 class Reader;
@@ -56,7 +58,12 @@ private:
         convertToReservoirIndexOrder( int nx, int ny, int nz, const std::vector<char>& activeIn, std::vector<int>& activeOut );
 
     static void
-        convertToReservoirIndexOrder( int nx, int ny, int nz, const std::vector<float>& in, std::vector<float>& out );
+        convertToReservoirIndexOrder( int nx, int ny, int nz, const std::vector<float>& in, std::vector<double>& out );
+
+    static void convertToReservoirIndexOrder( int nx, int ny, int nz, const std::vector<int>& in, std::vector<double>& out );
+
+    static void
+        convertToReservoirIndexOrder( int nx, int ny, int nz, const std::vector<char>& in, std::vector<double>& out );
 
     static size_t computeActiveCellMatrixIndex( std::vector<int>& activeCells );
 
@@ -70,8 +77,12 @@ private:
 
     static double interpolate( const cvf::Vec3d& top, const cvf::Vec3d& bottom, double z, int idx );
 
+    static std::vector<double>
+        readAndConvertToDouble( int nx, int ny, int nz, const std::string& keyword, Token::Kind kind, Reader& reader );
+
     static bool appendNewInputPropertyResult( RigEclipseCaseData* caseData,
                                               const QString&      resultName,
                                               const std::string&  keyword,
+                                              Token::Kind         token,
                                               Reader&             reader );
 };
