@@ -19,6 +19,7 @@
 #include "RimFlowPlotCollection.h"
 
 #include "RimFlowCharacteristicsPlot.h"
+#include "RimHistoryWellAllocationPlot.h"
 #include "RimProject.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellDistributionPlotCollection.h"
@@ -37,6 +38,9 @@ RimFlowPlotCollection::RimFlowPlotCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_flowCharacteristicsPlot, "FlowCharacteristicsPlot", "" );
     m_flowCharacteristicsPlot.uiCapability()->setUiTreeHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_defaultHistoryWellAllocPlot, "DefaultHistoryWellAllocationPlot", "" );
+    m_defaultHistoryWellAllocPlot.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_defaultWellAllocPlot, "DefaultWellAllocationPlot", "" );
     m_defaultWellAllocPlot.uiCapability()->setUiTreeHidden( true );
@@ -58,6 +62,8 @@ RimFlowPlotCollection::RimFlowPlotCollection()
 //--------------------------------------------------------------------------------------------------
 RimFlowPlotCollection::~RimFlowPlotCollection()
 {
+    // TODO: Remove? Testing without manually deleting for RimHistoryWellAllocationPlot
+
     delete m_defaultWellAllocPlot();
 
     m_storedWellAllocPlots.deleteChildren();
@@ -68,6 +74,8 @@ RimFlowPlotCollection::~RimFlowPlotCollection()
 //--------------------------------------------------------------------------------------------------
 void RimFlowPlotCollection::deleteAllPlots()
 {
+    // TODO: Remove? Testing without manually deleting for RimHistoryWellAllocationPlot
+
     if ( m_defaultWellAllocPlot )
     {
         m_defaultWellAllocPlot->removeFromMdiAreaAndDeleteViewWidget();
@@ -87,9 +95,12 @@ void RimFlowPlotCollection::deleteAllPlots()
 //--------------------------------------------------------------------------------------------------
 void RimFlowPlotCollection::loadDataAndUpdateAllPlots()
 {
-    caf::ProgressInfo plotProgress( m_storedWellAllocPlots.size() + m_storedFlowCharacteristicsPlots.size() + 3, "" );
+    caf::ProgressInfo plotProgress( m_storedWellAllocPlots.size() + m_storedFlowCharacteristicsPlots.size() + 4, "" );
 
     if ( m_defaultWellAllocPlot ) m_defaultWellAllocPlot->loadDataAndUpdate();
+    plotProgress.incrementProgress();
+
+    if ( m_defaultHistoryWellAllocPlot ) m_defaultHistoryWellAllocPlot->loadDataAndUpdate();
     plotProgress.incrementProgress();
 
     for ( RimWellAllocationPlot* p : m_storedWellAllocPlots )
@@ -126,7 +137,8 @@ void RimFlowPlotCollection::loadDataAndUpdateAllPlots()
 size_t RimFlowPlotCollection::plotCount() const
 {
     size_t plotCount = 0;
-    if ( m_defaultWellAllocPlot ) plotCount = 1;
+    plotCount += m_defaultWellAllocPlot ? 1 : 0;
+    plotCount += m_defaultHistoryWellAllocPlot ? 1 : 0;
     plotCount += m_storedWellAllocPlots.size();
     plotCount += m_storedFlowCharacteristicsPlots.size();
     return plotCount;
@@ -146,6 +158,22 @@ void RimFlowPlotCollection::addWellAllocPlotToStoredPlots( RimWellAllocationPlot
 void RimFlowPlotCollection::addFlowCharacteristicsPlotToStoredPlots( RimFlowCharacteristicsPlot* plot )
 {
     m_storedFlowCharacteristicsPlots.push_back( plot );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimHistoryWellAllocationPlot* RimFlowPlotCollection::defaultHistoryWellAllocPlot()
+{
+    if ( !m_defaultHistoryWellAllocPlot() )
+    {
+        m_defaultHistoryWellAllocPlot = new RimHistoryWellAllocationPlot;
+        m_defaultHistoryWellAllocPlot->setDescription( "Default History Well Allocation Plot" );
+    }
+
+    this->updateConnectedEditors();
+
+    return m_defaultHistoryWellAllocPlot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -196,6 +224,12 @@ void RimFlowPlotCollection::ensureDefaultFlowPlotsAreCreated()
     {
         m_defaultWellAllocPlot = new RimWellAllocationPlot;
         m_defaultWellAllocPlot->setDescription( "Default Flow Diagnostics Plot" );
+    }
+
+    if ( !m_defaultHistoryWellAllocPlot() )
+    {
+        m_defaultHistoryWellAllocPlot = new RimHistoryWellAllocationPlot;
+        m_defaultHistoryWellAllocPlot->setDescription( "Default History Well Allocation Plot" );
     }
 
     if ( !m_flowCharacteristicsPlot() )
