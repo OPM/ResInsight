@@ -60,10 +60,14 @@ public:
     static QStringList     fileNamesFromCaseNames( const QStringList& caseNames );
     static QStringList     getEclipseFileNamesWithDialog( RiaDefines::ImportFileType fileTypes );
 
+    static QString getFilePattern( const std::vector<RiaDefines::ImportFileType>& fileTypes, bool allowWildcard );
+
 protected:
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
+
+    static QString getFilePattern( RiaDefines::ImportFileType fileType );
 
     static void openFileDialog( RiaDefines::ImportFileType fileTypes );
 

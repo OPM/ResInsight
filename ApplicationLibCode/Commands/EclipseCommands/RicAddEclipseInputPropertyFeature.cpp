@@ -19,6 +19,11 @@
 
 #include "RicAddEclipseInputPropertyFeature.h"
 
+#include "RiaApplication.h"
+#include "RiaDefines.h"
+
+#include "RicImportGeneralDataFeature.h"
+
 #include "RimEclipseCellColors.h"
 #include "RimEclipseInputCase.h"
 #include "RimEclipseInputPropertyCollection.h"
@@ -26,7 +31,6 @@
 #include "RimEclipseView.h"
 #include "RimRoffCase.h"
 
-#include "RiaApplication.h"
 #include "Riu3DMainWindowTools.h"
 #include "RiuFileDialogTools.h"
 
@@ -69,10 +73,13 @@ void RicAddEclipseInputPropertyFeature::onActionTriggered( bool isChecked )
 
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectoryWithFallback( "INPUT_FILES", casePath );
-    QStringList     fileNames  = RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
+    QString filePattern = RicImportGeneralDataFeature::getFilePattern( { RiaDefines::ImportFileType::ECLIPSE_INPUT_FILE,
+                                                                         RiaDefines::ImportFileType::ROFF_FILE },
+                                                                       true );
+    QStringList fileNames = RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
                                                                   "Select Eclipse Input Property Files",
                                                                   defaultDir,
-                                                                  "All Files (*.* *)" );
+                                                                  filePattern );
 
     if ( fileNames.isEmpty() ) return;
 
