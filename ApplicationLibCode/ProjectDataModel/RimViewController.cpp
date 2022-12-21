@@ -499,7 +499,28 @@ void RimViewController::updateDisplayNameAndIcon()
 //--------------------------------------------------------------------------------------------------
 void RimViewController::updateDuplicatedPropertyFilters()
 {
-    if ( !m_duplicatePropertyFilters ) return;
+    if ( !m_duplicatePropertyFilters )
+    {
+        // A chain icon is used to indicate that a property filter is linked. If a property filter is unlinked, update
+        // the property filters to make sure the chain icon is removed
+
+        std::vector<RimPropertyFilterCollection*> eclipsePropertyFilters;
+
+        RimProject::current()->descendantsIncludingThisOfType( eclipsePropertyFilters );
+        for ( auto p : eclipsePropertyFilters )
+        {
+            p->updateConnectedEditors();
+        }
+
+        std::vector<RimGeoMechPropertyFilterCollection*> geoMechPropertyFilters;
+        RimProject::current()->descendantsIncludingThisOfType( geoMechPropertyFilters );
+        for ( auto p : geoMechPropertyFilters )
+        {
+            p->updateConnectedEditors();
+        }
+
+        return;
+    }
 
     RimViewLinker* viewLinker = ownerViewLinker();
 
@@ -519,6 +540,9 @@ void RimViewController::updateDuplicatedPropertyFilters()
             manEclView->eclipsePropertyFilterCollection()->loadAndInitializePropertyFilters();
             manEclView->eclipsePropertyFilterCollection()->setIsDuplicatedFromLinkedView();
             manEclView->eclipsePropertyFilterCollection()->updateAllRequiredEditors();
+
+            manEclView->scheduleGeometryRegen( PROPERTY_FILTERED );
+            manEclView->scheduleCreateDisplayModelAndRedraw();
         }
 
         auto*           masterGeoView = dynamic_cast<RimGeoMechView*>( masterView );
@@ -528,8 +552,11 @@ void RimViewController::updateDuplicatedPropertyFilters()
             auto propertyString = masterGeoView->geoMechPropertyFilterCollection()->writeObjectToXmlString();
             manGeoView->geoMechPropertyFilterCollection()->readObjectFromXmlString( propertyString,
                                                                                     caf::PdmDefaultObjectFactory::instance() );
-            managedGeoView()->geoMechPropertyFilterCollection()->loadAndInitializePropertyFilters();
-            managedGeoView()->geoMechPropertyFilterCollection()->updateAllRequiredEditors();
+            manGeoView->geoMechPropertyFilterCollection()->loadAndInitializePropertyFilters();
+            manGeoView->geoMechPropertyFilterCollection()->updateAllRequiredEditors();
+
+            manGeoView->scheduleGeometryRegen( PROPERTY_FILTERED );
+            manGeoView->scheduleCreateDisplayModelAndRedraw();
         }
     }
 }
@@ -1098,15 +1125,14 @@ void RimViewController::applyCellFilterCollectionByUserChoice()
     RimViewLinker* viewLinker = ownerViewLinker();
     auto*          masterView = dynamic_cast<RimGridView*>( viewLinker->masterView() );
 
-    bool anyActiveFilter = false;
+    bool anyActiveCellFilter = false;
 
     if ( masterView )
     {
-        anyActiveFilter = !masterView->cellFilterCollection()->filters().empty() ||
-                          masterView->propertyFilterCollection()->hasActiveFilters();
+        anyActiveCellFilter = !masterView->cellFilterCollection()->filters().empty();
     }
 
-    if ( anyActiveFilter && askUserToRestoreOriginalCellFilterCollection( m_managedView->name() ) )
+    if ( anyActiveCellFilter && askUserToRestoreOriginalCellFilterCollection( m_managedView->name() ) )
     {
         managedGridView->setOverrideCellFilterCollection( nullptr );
     }

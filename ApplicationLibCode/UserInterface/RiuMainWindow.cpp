@@ -34,6 +34,7 @@
 #include "RimCellEdgeColors.h"
 #include "RimCommandObject.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseCellColors.h"
 #include "RimEclipseContourMapView.h"
 #include "RimEclipseFaultColors.h"
 #include "RimEclipsePropertyFilter.h"
@@ -1326,61 +1327,69 @@ void RiuMainWindow::selectViewInProjectTreePreservingSubItemSelection( const Rim
         }
     }
 
-    if ( is3dViewCurrentlySelected && ( previousActiveReservoirView != activatedView ) )
+    auto tv = getTreeViewWithItem( activatedView );
+    if ( !tv ) return;
+
+    QModelIndex newViewModelIndex = tv->findModelIndex( activatedView );
+    if ( !newViewModelIndex.isValid() ) return;
+
+    QModelIndex newSelectionIndex = newViewModelIndex;
+
+    if ( !is3dViewCurrentlySelected )
     {
-        auto tv = getTreeViewWithItem( activatedView );
-        if ( !tv ) return;
+        std::vector<RimEclipseCellColors*> objects;
 
-        QModelIndex newViewModelIndex = tv->findModelIndex( activatedView );
-        if ( !newViewModelIndex.isValid() ) return;
-
-        QModelIndex newSelectionIndex = newViewModelIndex;
-
-        if ( previousActiveReservoirView && is3dViewCurrentlySelected )
+        activatedView->descendantsIncludingThisOfType( objects );
+        if ( !objects.empty() )
         {
-            // Try to select the same entry in the new View, as was selected in the previous
+            auto candidate = tv->findModelIndex( objects.front() );
+            if ( candidate.isValid() ) newSelectionIndex = candidate;
+        }
+    }
+    else if ( previousActiveReservoirView && is3dViewCurrentlySelected )
+    {
+        // Try to select the same entry in the new View, as was selected in the previous
 
-            QModelIndex previousViewModelIndex = tv->findModelIndex( previousActiveReservoirView );
-            QModelIndex currentSelectionIndex  = tv->treeView()->selectionModel()->currentIndex();
+        QModelIndex previousViewModelIndex = tv->findModelIndex( previousActiveReservoirView );
+        QModelIndex currentSelectionIndex  = tv->treeView()->selectionModel()->currentIndex();
 
-            if ( currentSelectionIndex != newViewModelIndex && currentSelectionIndex.isValid() )
+        if ( currentSelectionIndex != newViewModelIndex && currentSelectionIndex.isValid() )
+        {
+            QVector<QModelIndex> route; // Contains all model indices from current selection up to previous view
+
+            QModelIndex tmpModelIndex = currentSelectionIndex;
+
+            while ( tmpModelIndex.isValid() && tmpModelIndex != previousViewModelIndex )
             {
-                QVector<QModelIndex> route; // Contains all model indices from current selection up to previous view
+                // NB! Add model index to front of vector to be able to do a for-loop with correct ordering
+                route.push_front( tmpModelIndex );
 
-                QModelIndex tmpModelIndex = currentSelectionIndex;
+                tmpModelIndex = tmpModelIndex.parent();
+            }
 
-                while ( tmpModelIndex.isValid() && tmpModelIndex != previousViewModelIndex )
+            // Traverse model indices from new view index to currently selected item
+            int i;
+            for ( i = 0; i < route.size(); i++ )
+            {
+                QModelIndex tmp = route[i];
+                if ( newSelectionIndex.isValid() )
                 {
-                    // NB! Add model index to front of vector to be able to do a for-loop with correct ordering
-                    route.push_front( tmpModelIndex );
-
-                    tmpModelIndex = tmpModelIndex.parent();
-                }
-
-                // Traverse model indices from new view index to currently selected item
-                int i;
-                for ( i = 0; i < route.size(); i++ )
-                {
-                    QModelIndex tmp = route[i];
-                    if ( newSelectionIndex.isValid() )
-                    {
-                        newSelectionIndex = tv->treeView()->model()->index( tmp.row(), tmp.column(), newSelectionIndex );
-                    }
-                }
-
-                // Use view model index if anything goes wrong
-                if ( !newSelectionIndex.isValid() )
-                {
-                    newSelectionIndex = newViewModelIndex;
+                    newSelectionIndex = tv->treeView()->model()->index( tmp.row(), tmp.column(), newSelectionIndex );
                 }
             }
-        }
 
-        tv->treeView()->setCurrentIndex( newSelectionIndex );
-        if ( newSelectionIndex != newViewModelIndex )
-        {
-            tv->treeView()->setExpanded( newViewModelIndex, true );
+            // Use view model index if anything goes wrong
+            if ( !newSelectionIndex.isValid() )
+            {
+                newSelectionIndex = newViewModelIndex;
+            }
         }
+    }
+
+    tv->treeView()->setCurrentIndex( newSelectionIndex );
+    if ( newSelectionIndex != newViewModelIndex )
+    {
+        tv->treeView()->setExpanded( newViewModelIndex, true );
     }
 }
 
