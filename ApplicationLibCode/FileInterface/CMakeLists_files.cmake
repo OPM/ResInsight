@@ -51,6 +51,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifActiveCellsReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifCsvDataTableFormatter.h
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseInputPropertyLoader.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifInputPropertyLoader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifSurfaceImporter.h
     ${CMAKE_CURRENT_LIST_DIR}/RifRoffReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifColorLegendData.h
@@ -127,6 +128,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifCsvDataTableFormatter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderEnsembleStatisticsRft.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseInputPropertyLoader.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifInputPropertyLoader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifSurfaceImporter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifRoffReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifColorLegendData.cpp

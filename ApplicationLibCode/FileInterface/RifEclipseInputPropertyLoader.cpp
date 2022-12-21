@@ -31,65 +31,6 @@
 
 #include "RimEclipseInputProperty.h"
 #include "RimEclipseInputPropertyCollection.h"
-#include "RimTools.h"
-
-#include "cafProgressInfo.h"
-
-#include <QFile>
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RifEclipseInputPropertyLoader::loadAndSyncronizeInputProperties( RimEclipseInputPropertyCollection* inputPropertyCollection,
-                                                                      RigEclipseCaseData*         eclipseCaseData,
-                                                                      const std::vector<QString>& filenames,
-                                                                      bool                        allowImportOfFaults )
-{
-    std::vector<RimEclipseInputProperty*> existingProperties = inputPropertyCollection->inputProperties.children();
-
-    caf::ProgressInfo progInfo( static_cast<int>( filenames.size() ), "Reading Input properties" );
-
-    for ( const auto& filename : filenames )
-    {
-        progInfo.setProgressDescription( filename );
-
-        auto resultNamesEclipseKeywords = RifEclipseInputPropertyLoader::readProperties( filename, eclipseCaseData );
-
-        for ( const auto& [resultName, eclipseKeyword] : resultNamesEclipseKeywords )
-        {
-            bool isProperyPresent      = false;
-            bool isFaultKeywordPresent = false;
-            for ( const auto* propertyObj : existingProperties )
-            {
-                if ( propertyObj->resultName() == resultName )
-                {
-                    isProperyPresent = true;
-                }
-                else if ( propertyObj->resultName() == "FAULTS" )
-                {
-                    isFaultKeywordPresent = true;
-                }
-            }
-
-            if ( !isProperyPresent )
-            {
-                RimEclipseInputProperty* inputProperty = new RimEclipseInputProperty;
-                inputProperty->resultName              = resultName;
-                inputProperty->eclipseKeyword          = eclipseKeyword;
-                inputProperty->fileName                = filename;
-                inputProperty->resolvedState           = RimEclipseInputProperty::RESOLVED;
-                inputPropertyCollection->inputProperties.push_back( inputProperty );
-            }
-
-            if ( allowImportOfFaults && isFaultKeywordPresent )
-            {
-                RifEclipseInputFileTools::importFaultsFromFile( eclipseCaseData, filename );
-            }
-        }
-
-        progInfo.incrementProgress();
-    }
-}
 
 //--------------------------------------------------------------------------------------------------
 ///

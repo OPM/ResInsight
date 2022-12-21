@@ -41,20 +41,15 @@ class ProgressInfo;
 class RifEclipseInputPropertyLoader
 {
 public:
-    static void loadAndSyncronizeInputProperties( RimEclipseInputPropertyCollection* inputPropertyCollection,
-                                                  RigEclipseCaseData*                eclipseCaseData,
-                                                  const std::vector<QString>&        filenames,
-                                                  bool                               allowImportOfFaults );
-
     static void createInputPropertiesFromKeywords( RigEclipseCaseData*                          eclipseCase,
                                                    const std::vector<RifEclipseKeywordContent>& keywordContent );
+
+    // Returns map of assigned resultName and Eclipse Keyword.
+    static std::map<QString, QString> readProperties( const QString& fileName, RigEclipseCaseData* eclipseCase );
 
 private:
     // Hide constructor to prevent instantiation
     RifEclipseInputPropertyLoader();
-
-    // Returns map of assigned resultName and Eclipse Keyword.
-    static std::map<QString, QString> readProperties( const QString& fileName, RigEclipseCaseData* eclipseCase );
 
     static const std::vector<QString>& invalidPropertyDataKeywords();
     static bool                        isValidDataKeyword( const QString& keyword );

@@ -31,7 +31,7 @@
 #include "CompletionExportCommands/RicWellPathExportCompletionDataFeatureImpl.h"
 
 #include "RicfCommandObject.h"
-#include "RifEclipseInputPropertyLoader.h"
+#include "RifInputPropertyLoader.h"
 #include "RifReaderSettings.h"
 
 #include "RigActiveCellInfo.h"
@@ -738,10 +738,10 @@ void RimEclipseCase::loadAndSyncronizeInputProperties( bool importGridOrFaultDat
         filenames.push_back( fileName );
     }
 
-    RifEclipseInputPropertyLoader::loadAndSyncronizeInputProperties( inputPropertyCollection(),
-                                                                     eclipseCaseData(),
-                                                                     filenames,
-                                                                     importGridOrFaultData );
+    RifInputPropertyLoader::loadAndSyncronizeInputProperties( inputPropertyCollection(),
+                                                              eclipseCaseData(),
+                                                              filenames,
+                                                              importGridOrFaultData );
 }
 
 //--------------------------------------------------------------------------------------------------
