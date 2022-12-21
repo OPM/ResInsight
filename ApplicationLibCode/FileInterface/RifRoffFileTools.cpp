@@ -493,7 +493,59 @@ void RifRoffFileTools::convertToReservoirIndexOrder( int                       n
                                                      int                       ny,
                                                      int                       nz,
                                                      const std::vector<float>& in,
-                                                     std::vector<float>&       out )
+                                                     std::vector<double>&      out )
+{
+    CAF_ASSERT( static_cast<size_t>( nx ) * ny * nz == in.size() );
+
+    out.resize( in.size(), 0.0 );
+
+    int outIdx = 0;
+    for ( int k = 0; k < nz; k++ )
+    {
+        for ( int j = 0; j < ny; j++ )
+        {
+            for ( int i = 0; i < nx; i++ )
+            {
+                int inIdx   = i * ny * nz + j * nz + ( nz - k - 1 );
+                out[outIdx] = in[inIdx];
+                outIdx++;
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifRoffFileTools::convertToReservoirIndexOrder( int                      nx,
+                                                     int                      ny,
+                                                     int                      nz,
+                                                     const std::vector<char>& in,
+                                                     std::vector<double>&     out )
+{
+    CAF_ASSERT( static_cast<size_t>( nx ) * ny * nz == in.size() );
+
+    out.resize( in.size(), 0.0 );
+
+    int outIdx = 0;
+    for ( int k = 0; k < nz; k++ )
+    {
+        for ( int j = 0; j < ny; j++ )
+        {
+            for ( int i = 0; i < nx; i++ )
+            {
+                int inIdx   = i * ny * nz + j * nz + ( nz - k - 1 );
+                out[outIdx] = in[inIdx];
+                outIdx++;
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifRoffFileTools::convertToReservoirIndexOrder( int nx, int ny, int nz, const std::vector<int>& in, std::vector<double>& out )
 {
     CAF_ASSERT( static_cast<size_t>( nx ) * ny * nz == in.size() );
 
@@ -571,8 +623,13 @@ bool RifRoffFileTools::createInputProperties( const QString& fileName, RigEclips
             {
                 QString newResultName = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
                                             ->makeResultNameUnique( QString::fromStdString( keyword ) );
+                // Special handling for active.data ==> ACTNUM
+                if ( newResultName == "active.data" )
+                {
+                    newResultName = "ACTNUM";
+                }
 
-                if ( !appendNewInputPropertyResult( eclipseCaseData, newResultName, keyword, reader ) )
+                if ( !appendNewInputPropertyResult( eclipseCaseData, newResultName, keyword, kind, reader ) )
                 {
                     RiaLogging::error( QString( "Unable to import result '%1' from %2" )
                                            .arg( QString::fromStdString( keyword ) )
@@ -594,22 +651,52 @@ bool RifRoffFileTools::createInputProperties( const QString& fileName, RigEclips
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<double>
+    RifRoffFileTools::readAndConvertToDouble( int nx, int ny, int nz, const std::string& keyword, Token::Kind kind, Reader& reader )
+{
+    std::vector<double> doubleVals;
+
+    if ( kind == Token::Kind::FLOAT )
+    {
+        std::vector<float> values = reader.getFloatArray( keyword );
+        convertToReservoirIndexOrder( nx, ny, nz, values, doubleVals );
+    }
+    else if ( kind == Token::Kind::BOOL )
+    {
+        std::vector<char> values = reader.getByteArray( keyword );
+        convertToReservoirIndexOrder( nx, ny, nz, values, doubleVals );
+    }
+    else if ( kind == Token::Kind::INT )
+    {
+        std::vector<int> values = reader.getIntArray( keyword );
+        convertToReservoirIndexOrder( nx, ny, nz, values, doubleVals );
+    }
+    else
+    {
+        RiaLogging::error( QString( "Unsupported property type '%1' for keyword '%2'." )
+                               .arg( QString::fromStdString( Token::kindToString( kind ) ) )
+                               .arg( QString::fromStdString( keyword ) ) );
+    }
+
+    return doubleVals;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RifRoffFileTools::appendNewInputPropertyResult( RigEclipseCaseData* caseData,
                                                      const QString&      resultName,
                                                      const std::string&  keyword,
+                                                     Token::Kind         kind,
                                                      Reader&             reader )
 {
     CVF_ASSERT( caseData );
 
-    std::vector<float> values = reader.getFloatArray( keyword );
-    CAF_ASSERT( values.size() == caseData->mainGrid()->cellCount() );
-
-    int nx = caseData->mainGrid()->cellCountI();
-    int ny = caseData->mainGrid()->cellCountJ();
-    int nz = caseData->mainGrid()->cellCountK();
-
-    std::vector<float> valuesReservoirOrder;
-    convertToReservoirIndexOrder( nx, ny, nz, values, valuesReservoirOrder );
+    int                 nx     = caseData->mainGrid()->cellCountI();
+    int                 ny     = caseData->mainGrid()->cellCountJ();
+    int                 nz     = caseData->mainGrid()->cellCountK();
+    std::vector<double> values = readAndConvertToDouble( nx, ny, nz, keyword, kind, reader );
+    if ( values.size() != caseData->mainGrid()->cellCount() ) return false;
 
     RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::INPUT_PROPERTY, resultName );
     caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->createResultEntry( resAddr, false );
@@ -617,10 +704,7 @@ bool RifRoffFileTools::appendNewInputPropertyResult( RigEclipseCaseData* caseDat
     auto newPropertyData =
         caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->modifiableCellScalarResultTimesteps( resAddr );
 
-    std::vector<double> doubleVals;
-    doubleVals.insert( doubleVals.begin(), valuesReservoirOrder.begin(), valuesReservoirOrder.end() );
-
-    newPropertyData->push_back( doubleVals );
+    newPropertyData->push_back( values );
 
     return true;
 }
