@@ -261,6 +261,26 @@ void RimHistoryWellAllocationPlot::onLoadDataAndUpdate()
 }
 
 //--------------------------------------------------------------------------------------------------
+/// TODO: Improve generating axis title, see WellAllocationPlot for how to retrieve units
+//--------------------------------------------------------------------------------------------------
+QString RimHistoryWellAllocationPlot::getYAxisTitleFromValueType() const
+{
+    if ( m_flowValueType == FlowValueType::PERCENTAGE )
+    {
+        return QString( "Percentage of well flow [%]" );
+    }
+    if ( m_flowValueType == FlowValueType::FLOW_RATE )
+    {
+        return QString( "Flow Rate [m<sup>3</sup>/day]" );
+    }
+    if ( m_flowValueType == FlowValueType::FLOW_VOLUME )
+    {
+        return QString( "Flow Volume [m<sup>3</sup>]" );
+    }
+    return QString( "" );
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimHistoryWellAllocationPlot::updateFromWell()
@@ -304,7 +324,7 @@ void RimHistoryWellAllocationPlot::updateFromWell()
         curve->setZ( zPos-- );
     }
 
-    m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), "Test title for axis left" );
+    m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), getYAxisTitleFromValueType() );
     m_plotWidget->scheduleReplot();
 }
 
