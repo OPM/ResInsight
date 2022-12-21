@@ -30,7 +30,7 @@ CAF_PDM_SOURCE_INIT( RimMultipleEclipseResults, "RimMultipleEclipseResults" );
 //--------------------------------------------------------------------------------------------------
 RimMultipleEclipseResults::RimMultipleEclipseResults()
 {
-    CAF_PDM_InitObject( "Result Info Data", ":/TextAnnotation16x16.png" );
+    CAF_PDM_InitObject( "Multiple Result Info", ":/TextAnnotation16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedKeywords, "SelectedProperties", "Properties" );
     m_selectedKeywords.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
@@ -51,7 +51,7 @@ void RimMultipleEclipseResults::setEclipseView( RimEclipseView* eclipseView )
 //--------------------------------------------------------------------------------------------------
 std::vector<RigEclipseResultAddress> RimMultipleEclipseResults::additionalResultAddresses() const
 {
-    if ( !m_eclipseView || !m_eclipseView->currentGridCellResults() ) return {};
+    if ( !m_eclipseView || !m_eclipseView->currentGridCellResults() || !m_isChecked ) return {};
 
     std::set<QString> selectedResults;
     for ( const auto& result : m_selectedKeywords() )

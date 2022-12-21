@@ -18,8 +18,7 @@
 
 #pragma once
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "RimCheckableObject.h"
 
 #include <QString>
 
@@ -30,7 +29,7 @@ class RimEclipseView;
 ///
 ///
 //==================================================================================================
-class RimMultipleEclipseResults : public caf::PdmObject
+class RimMultipleEclipseResults : public RimCheckableObject
 {
     CAF_PDM_HEADER_INIT;
 
