@@ -724,7 +724,7 @@ std::vector<QString> RimEclipseCase::additionalFiles() const
 /// Loads input property data from the gridFile and additional files
 /// Creates new InputProperties if necessary, and flags the unused ones as obsolete
 //--------------------------------------------------------------------------------------------------
-void RimEclipseCase::loadAndSyncronizeInputProperties( bool importGridOrFaultData )
+void RimEclipseCase::loadAndSynchronizeInputProperties( bool importGridOrFaultData )
 {
     // Make sure we actually have reservoir data
 
@@ -739,10 +739,10 @@ void RimEclipseCase::loadAndSyncronizeInputProperties( bool importGridOrFaultDat
         filenames.push_back( fileName );
     }
 
-    RifInputPropertyLoader::loadAndSyncronizeInputProperties( inputPropertyCollection(),
-                                                              eclipseCaseData(),
-                                                              filenames,
-                                                              importGridOrFaultData );
+    RifInputPropertyLoader::loadAndSynchronizeInputProperties( inputPropertyCollection(),
+                                                               eclipseCaseData(),
+                                                               filenames,
+                                                               importGridOrFaultData );
 }
 
 //--------------------------------------------------------------------------------------------------

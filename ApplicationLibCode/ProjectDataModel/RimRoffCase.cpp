@@ -105,7 +105,7 @@ bool RimRoffCase::openEclipseGridFile()
     RifRoffFileTools::createInputProperties( fileName, eclipseCaseData() );
 
     // Read properties from input property collection
-    loadAndSyncronizeInputProperties( false );
+    loadAndSynchronizeInputProperties( false );
 
     return true;
 }
@@ -152,10 +152,10 @@ QString RimRoffCase::locationOnDisc() const
 bool RimRoffCase::importAsciiInputProperties( const QStringList& fileNames )
 {
     bool importFaults = false;
-    RifInputPropertyLoader::loadAndSyncronizeInputProperties( m_inputPropertyCollection,
-                                                              this->eclipseCaseData(),
-                                                              std::vector<QString>( fileNames.begin(), fileNames.end() ),
-                                                              importFaults );
+    RifInputPropertyLoader::loadAndSynchronizeInputProperties( m_inputPropertyCollection,
+                                                               this->eclipseCaseData(),
+                                                               std::vector<QString>( fileNames.begin(), fileNames.end() ),
+                                                               importFaults );
 
     return true;
 }

@@ -34,10 +34,10 @@ class RigEclipseCaseData;
 class RifInputPropertyLoader
 {
 public:
-    static void loadAndSyncronizeInputProperties( RimEclipseInputPropertyCollection* inputPropertyCollection,
-                                                  RigEclipseCaseData*                eclipseCaseData,
-                                                  const std::vector<QString>&        filenames,
-                                                  bool                               allowImportOfFaults );
+    static void loadAndSynchronizeInputProperties( RimEclipseInputPropertyCollection* inputPropertyCollection,
+                                                   RigEclipseCaseData*                eclipseCaseData,
+                                                   const std::vector<QString>&        filenames,
+                                                   bool                               allowImportOfFaults );
 
 private:
     static std::map<QString, QString> readProperties( const QString& fileName, RigEclipseCaseData* eclipseCaseData );
