@@ -54,8 +54,9 @@ bool is_region_to_region( const std::string& keyword )
 //--------------------------------------------------------------------------------------------------
 RiuSummaryQuantityNameInfoProvider* RiuSummaryQuantityNameInfoProvider::instance()
 {
-    static auto* singleton = new RiuSummaryQuantityNameInfoProvider;
-    return singleton;
+    static RiuSummaryQuantityNameInfoProvider theInstance;
+
+    return &theInstance;
 }
 
 //--------------------------------------------------------------------------------------------------
