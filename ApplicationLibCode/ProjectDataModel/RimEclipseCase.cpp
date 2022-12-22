@@ -656,7 +656,8 @@ void RimEclipseCase::computeCachedData()
             std::string aabbTreeInfo;
             rigEclipseCase->mainGrid()->computeCachedData( &aabbTreeInfo );
 
-            RiaLogging::debug( QString::fromStdString( aabbTreeInfo ) );
+            // Debug output of the content of the AABB tree
+            // RiaLogging::debug( QString::fromStdString( aabbTreeInfo ) );
         }
 
         {
