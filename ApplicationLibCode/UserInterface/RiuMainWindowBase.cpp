@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaDefines.h"
 #include "RiaPreferences.h"
+#include "RiaRegressionTestRunner.h"
 #include "RiaVersionInfo.h"
 
 #include "RiuDockWidgetTools.h"
@@ -151,7 +152,6 @@ void RiuMainWindowBase::loadWinGeoAndDockToolBarLayout()
 
     QVariant winGeo        = settings.value( QString( "%1/winGeometry" ).arg( registryFolderName() ) );
     QVariant toolbarLayout = settings.value( QString( "%1/toolBarLayout" ).arg( registryFolderName() ) );
-    QVariant dockState     = settings.value( QString( "%1/dockLayout" ).arg( registryFolderName() ) );
 
     if ( winGeo.isValid() )
     {
@@ -164,16 +164,24 @@ void RiuMainWindowBase::loadWinGeoAndDockToolBarLayout()
         }
     }
 
-    bool dockingOk = false;
-
-    if ( dockState.isValid() )
+    if ( !RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
     {
-        dockingOk = m_dockManager->restoreState( dockState.toByteArray(), DOCKSTATE_VERSION );
-    }
+        // Performance of m_dockManager->restoreState() is very bad is degrading as more and more regression tests are
+        // launched. Disable restore of state for regression test.
 
-    if ( !dockingOk )
-    {
-        m_dockManager->restoreState( RiuDockWidgetTools::defaultDockState( defaultDockStateNames()[0] ), DOCKSTATE_VERSION );
+        bool     dockingOk = false;
+        QVariant dockState = settings.value( QString( "%1/dockLayout" ).arg( registryFolderName() ) );
+
+        if ( dockState.isValid() )
+        {
+            dockingOk = m_dockManager->restoreState( dockState.toByteArray(), DOCKSTATE_VERSION );
+        }
+
+        if ( !dockingOk )
+        {
+            m_dockManager->restoreState( RiuDockWidgetTools::defaultDockState( defaultDockStateNames()[0] ),
+                                         DOCKSTATE_VERSION );
+        }
     }
 
     settings.beginGroup( registryFolderName() );
