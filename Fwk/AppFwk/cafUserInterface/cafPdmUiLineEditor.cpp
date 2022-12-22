@@ -98,7 +98,7 @@ QWidget* PdmUiLineEditor::createEditorWidget( QWidget* parent )
     m_layout->setSpacing( 0 );
     m_layout->addWidget( m_lineEdit );
 
-    m_autoValueToolButton = new QToolButton();
+    m_autoValueToolButton = new QToolButton( m_placeholder );
     m_autoValueToolButton->setCheckable( true );
     m_autoValueToolButton->setToolButtonStyle( Qt::ToolButtonIconOnly );
 
