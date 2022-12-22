@@ -99,9 +99,9 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
         std::vector<std::pair<std::string, RoffScalar>>  values     = reader.scalarNamedValues();
         std::vector<std::pair<std::string, Token::Kind>> arrayTypes = reader.getNamedArrayTypes();
 
-        size_t nx = getInt( values, "dimensions.nX" );
-        size_t ny = getInt( values, "dimensions.nY" );
-        size_t nz = getInt( values, "dimensions.nZ" );
+        int nx = getInt( values, "dimensions.nX" );
+        int ny = getInt( values, "dimensions.nY" );
+        int nz = getInt( values, "dimensions.nZ" );
         RiaLogging::info( QString( "Grid dimensions: %1 %2 %3" ).arg( nx ).arg( ny ).arg( nz ) );
 
         float xOffset = getFloat( values, "translate.xoffset" );
@@ -571,8 +571,8 @@ void RifRoffFileTools::convertToReservoirIndexOrder( int nx, int ny, int nz, con
 //--------------------------------------------------------------------------------------------------
 size_t RifRoffFileTools::computeActiveCellMatrixIndex( std::vector<int>& activeCells )
 {
-    size_t activeMatrixIndex = 0;
-    int    cellCount         = static_cast<int>( activeCells.size() );
+    int activeMatrixIndex = 0;
+    int cellCount         = static_cast<int>( activeCells.size() );
     for ( int gridLocalCellIndex = 0; gridLocalCellIndex < cellCount; gridLocalCellIndex++ )
     {
         if ( activeCells[gridLocalCellIndex] != 0 )
@@ -697,9 +697,9 @@ bool RifRoffFileTools::appendNewInputPropertyResult( RigEclipseCaseData* caseDat
 {
     CVF_ASSERT( caseData );
 
-    int                 nx     = caseData->mainGrid()->cellCountI();
-    int                 ny     = caseData->mainGrid()->cellCountJ();
-    int                 nz     = caseData->mainGrid()->cellCountK();
+    int                 nx     = static_cast<int>( caseData->mainGrid()->cellCountI() );
+    int                 ny     = static_cast<int>( caseData->mainGrid()->cellCountJ() );
+    int                 nz     = static_cast<int>( caseData->mainGrid()->cellCountK() );
     std::vector<double> values = readAndConvertToDouble( nx, ny, nz, keyword, kind, reader );
     if ( values.size() != caseData->mainGrid()->cellCount() ) return false;
 
