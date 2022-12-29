@@ -108,6 +108,7 @@ RimSummaryPlot::RimSummaryPlot( bool isCrossPlot )
     , plotZoomedByUser( this )
     , titleChanged( this )
     , m_isValid( true )
+    , axisChangedReloadRequired( this )
 {
     CAF_PDM_InitScriptableObject( "Summary Plot", ":/SummaryPlotLight16x16.png", "", "A Summary Plot" );
 
@@ -144,6 +145,7 @@ RimSummaryPlot::RimSummaryPlot( bool isCrossPlot )
     {
         auto* timeAxisProperties = new RimSummaryTimeAxisProperties;
         timeAxisProperties->settingsChanged.connect( this, &RimSummaryPlot::axisSettingsChanged );
+        timeAxisProperties->requestLoadDataAndUpdate.connect( this, &RimSummaryPlot::axisSettingsChangedReloadRequired );
 
         m_axisProperties.push_back( timeAxisProperties );
     }
@@ -1871,6 +1873,14 @@ void RimSummaryPlot::axisSettingsChanged( const caf::SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::axisSettingsChangedReloadRequired( const caf::SignalEmitter* emitter )
+{
+    axisChangedReloadRequired.send( this );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::axisLogarithmicChanged( const caf::SignalEmitter* emitter, bool isLogarithmic )
 {
     axisChanged.send( this );
@@ -2568,6 +2578,7 @@ void RimSummaryPlot::initAfterRead()
         if ( timeAxis )
         {
             timeAxis->settingsChanged.connect( this, &RimSummaryPlot::axisSettingsChanged );
+            timeAxis->requestLoadDataAndUpdate.connect( this, &RimSummaryPlot::axisSettingsChangedReloadRequired );
         }
     }
 

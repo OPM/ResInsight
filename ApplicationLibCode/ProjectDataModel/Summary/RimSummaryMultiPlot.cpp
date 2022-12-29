@@ -210,9 +210,16 @@ void RimSummaryMultiPlot::insertPlot( RimPlot* plot, size_t index )
         sumPlot->curvesChanged.connect( this, &RimSummaryMultiPlot::onSubPlotChanged );
         sumPlot->plotZoomedByUser.connect( this, &RimSummaryMultiPlot::onSubPlotZoomed );
         sumPlot->titleChanged.connect( this, &RimSummaryMultiPlot::onSubPlotChanged );
+        sumPlot->axisChangedReloadRequired.connect( this, &RimSummaryMultiPlot::onSubPlotAxisReloadRequired );
 
         bool isMinMaxOverridden = m_axisRangeAggregation() != AxisRangeAggregation::NONE;
         setAutoValueStatesForPlot( sumPlot, isMinMaxOverridden, m_autoAdjustAppearance() );
+
+        auto plots = summaryPlots();
+        if ( !plots.empty() && m_linkTimeAxis )
+        {
+            sumPlot->copyAxisPropertiesFromOther( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, *plots.front() );
+        }
 
         RimMultiPlot::insertPlot( plot, index );
     }
@@ -717,6 +724,7 @@ void RimSummaryMultiPlot::initAfterRead()
         plot->curvesChanged.connect( this, &RimSummaryMultiPlot::onSubPlotChanged );
         plot->plotZoomedByUser.connect( this, &RimSummaryMultiPlot::onSubPlotZoomed );
         plot->titleChanged.connect( this, &RimSummaryMultiPlot::onSubPlotChanged );
+        plot->axisChangedReloadRequired.connect( this, &RimSummaryMultiPlot::onSubPlotAxisReloadRequired );
     }
     updateStepDimensionFromDefault();
 }
@@ -1379,6 +1387,28 @@ void RimSummaryMultiPlot::onSubPlotAxisChanged( const caf::SignalEmitter* emitte
     }
 
     syncAxisRanges();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::onSubPlotAxisReloadRequired( const caf::SignalEmitter* emitter, RimSummaryPlot* summaryPlot )
+{
+    if ( !summaryPlot ) return;
+
+    if ( m_linkTimeAxis() )
+    {
+        syncTimeAxisRanges( summaryPlot );
+
+        for ( auto plot : summaryPlots() )
+        {
+            plot->loadDataAndUpdate();
+        }
+    }
+    else
+    {
+        summaryPlot->loadDataAndUpdate();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

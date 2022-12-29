@@ -71,6 +71,7 @@ CAF_PDM_SOURCE_INIT( RimSummaryTimeAxisProperties, "SummaryTimeAxisProperties" )
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryTimeAxisProperties::RimSummaryTimeAxisProperties()
+    : requestLoadDataAndUpdate( this )
 {
     CAF_PDM_InitObject( "Time Axis", ":/BottomAxis16x16.png" );
 
@@ -719,21 +720,12 @@ void RimSummaryTimeAxisProperties::fieldChangedByUi( const caf::PdmFieldHandle* 
         updateDateVisibleRange();
         m_isAutoZoom = false;
     }
-    else if ( changedField == &m_timeMode )
+    else if ( changedField == &m_timeMode || changedField == &m_timeUnit || changedField == &m_dateFormat ||
+              changedField == &m_timeFormat )
     {
-        rimSummaryPlot->loadDataAndUpdate();
-    }
-    else if ( changedField == &m_timeUnit )
-    {
-        updateTimeVisibleRange(); // Use the stored max min dates to update the visible time range to new unit
-        rimSummaryPlot->loadDataAndUpdate();
-        updateDateVisibleRange();
-    }
-    else if ( changedField == &m_dateFormat || changedField == &m_timeFormat )
-    {
-        updateTimeVisibleRange(); // Use the stored max min dates to update the visible time range to new unit
-        rimSummaryPlot->loadDataAndUpdate();
-        updateDateVisibleRange();
+        // Changing these settings requires a full update of the plot
+        requestLoadDataAndUpdate.send();
+        return;
     }
 
     rimSummaryPlot->updateAxes();
