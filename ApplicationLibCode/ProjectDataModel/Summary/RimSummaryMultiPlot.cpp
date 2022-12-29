@@ -903,15 +903,15 @@ void RimSummaryMultiPlot::syncAxisRanges()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::syncTimeAxisRanges( RimSummaryPlot* souceSummaryPlot )
+void RimSummaryMultiPlot::syncTimeAxisRanges( RimSummaryPlot* sourceSummaryPlot )
 {
-    if ( m_linkTimeAxis )
+    if ( sourceSummaryPlot && m_linkTimeAxis() )
     {
         for ( auto plot : summaryPlots() )
         {
-            if ( plot != souceSummaryPlot )
+            if ( plot != sourceSummaryPlot )
             {
-                plot->copyAxisPropertiesFromOther( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, *souceSummaryPlot );
+                plot->copyAxisPropertiesFromOther( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, *sourceSummaryPlot );
                 plot->updateAll();
             }
         }
