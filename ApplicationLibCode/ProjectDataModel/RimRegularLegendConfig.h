@@ -181,9 +181,8 @@ private:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
-    void   updateLegend();
-    void   updateFieldVisibility();
-    double roundToNumSignificantDigits( double value, double precision );
+    void updateLegend();
+    void updateFieldVisibility();
 
     void updateCategoryItems();
     void configureCategoryMapper();

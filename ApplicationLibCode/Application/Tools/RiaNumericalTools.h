@@ -24,4 +24,7 @@ double roundToClosestPowerOfTenCeil( double value );
 double roundToClosestPowerOfTenFloor( double value );
 double computeTenExponentCeil( double value );
 double computeTenExponentFloor( double value );
+
+double roundToNumSignificantDigits( double value, double numSignificantDigits );
+
 }; // namespace RiaNumericalTools

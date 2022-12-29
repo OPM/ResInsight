@@ -20,6 +20,7 @@
 
 #include "cvfMath.h"
 
+#include <algorithm>
 #include <cmath>
 
 //--------------------------------------------------------------------------------------------------
@@ -64,4 +65,31 @@ double RiaNumericalTools::computeTenExponentFloor( double value )
     logDecValueMin        = cvf::Math::floor( logDecValueMin );
 
     return logDecValueMin;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RiaNumericalTools::roundToNumSignificantDigits( double value, double numSignificantDigits )
+{
+    double absoluteValue = cvf::Math::abs( value );
+    if ( absoluteValue == 0.0 )
+    {
+        return 0.0;
+    }
+
+    double logDecValue = log10( absoluteValue );
+    logDecValue        = cvf::Math::ceil( logDecValue );
+
+    double factor = pow( 10.0, numSignificantDigits - logDecValue );
+
+    double tmp = value * factor;
+    double integerPart;
+    double fraction = modf( tmp, &integerPart );
+
+    if ( cvf::Math::abs( fraction ) >= 0.5 ) ( integerPart >= 0 ) ? integerPart++ : integerPart--;
+
+    double roundedValue = integerPart / factor;
+
+    return roundedValue;
 }
