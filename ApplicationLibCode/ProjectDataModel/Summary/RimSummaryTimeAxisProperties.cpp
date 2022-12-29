@@ -472,7 +472,7 @@ void RimSummaryTimeAxisProperties::setTimeMode( TimeModeType val )
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// https://www.unitconverters.net/time-converter.html
 //--------------------------------------------------------------------------------------------------
 double RimSummaryTimeAxisProperties::fromTimeTToDisplayUnitScale()
 {
@@ -490,9 +490,13 @@ double RimSummaryTimeAxisProperties::fromTimeTToDisplayUnitScale()
         case DAYS:
             scale = 1.0 / ( 60.0 * 60.0 * 24.0 );
             break;
+        case MONTHS:
+            scale = 3.805175038E-7;
+            break;
         case YEARS:
             scale = 1.0 / 31556952.0;
             break;
+
         default:
             CVF_ASSERT( false );
             break;
@@ -502,7 +506,7 @@ double RimSummaryTimeAxisProperties::fromTimeTToDisplayUnitScale()
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// https://www.unitconverters.net/time-converter.html
 //--------------------------------------------------------------------------------------------------
 double RimSummaryTimeAxisProperties::fromDaysToDisplayUnitScale()
 {
@@ -519,6 +523,9 @@ double RimSummaryTimeAxisProperties::fromDaysToDisplayUnitScale()
             scale = 24.0;
             break;
         case DAYS:
+            break;
+        case MONTHS:
+            scale = 1.0 / 30.416666667;
             break;
         case YEARS:
             scale = 1.0 / 365.2425;
