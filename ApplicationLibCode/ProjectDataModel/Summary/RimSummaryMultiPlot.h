@@ -84,7 +84,7 @@ public:
     std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar() override;
 
     void syncAxisRanges();
-    void syncTimeAxisRanges( RimSummaryPlot* summaryPlot );
+    void syncTimeAxisRanges( RimSummaryPlot* souceSummaryPlot );
 
     void handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects );
 
