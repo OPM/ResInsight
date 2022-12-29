@@ -19,6 +19,7 @@
 #include "RimSummaryMultiPlot.h"
 
 #include "RiaApplication.h"
+#include "RiaNumericalTools.h"
 #include "RiaPlotDefines.h"
 #include "RiaSummaryAddressAnalyzer.h"
 #include "RiaSummaryStringTools.h"
@@ -933,16 +934,28 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
         return values;
     };
 
-    auto findMinMaxForSummaryCase = [readValues]( RimSummaryCase* summaryCase, RifEclipseSummaryAddress addr ) {
-        auto values = readValues( summaryCase, addr );
-        if ( values.empty() ) return std::make_pair( HUGE_VAL, -HUGE_VAL );
+    auto findMinMaxForSummaryCase =
+        [readValues]( RimSummaryCase* summaryCase, RifEclipseSummaryAddress addr, bool onlyPositiveValues ) {
+            auto values = readValues( summaryCase, addr );
+            if ( onlyPositiveValues )
+            {
+                std::vector<double> positiveValues;
 
-        auto   minMaxPair  = std::minmax_element( values.begin(), values.end() );
-        double caseMinimum = *minMaxPair.first;
-        double caseMaximum = *minMaxPair.second;
+                for ( const auto& v : values )
+                {
+                    if ( v > 0.0 ) positiveValues.push_back( v );
+                }
 
-        return std::make_pair( caseMinimum, caseMaximum );
-    };
+                values = positiveValues;
+            }
+            if ( values.empty() ) return std::make_pair( HUGE_VAL, -HUGE_VAL );
+
+            auto   minMaxPair  = std::minmax_element( values.begin(), values.end() );
+            double caseMinimum = *minMaxPair.first;
+            double caseMaximum = *minMaxPair.second;
+
+            return std::make_pair( caseMinimum, caseMaximum );
+        };
 
     auto summaryCasesForCurve = []( RimSummaryCurve* curve, AxisRangeAggregation axisRangeAggregation ) {
         std::vector<RimSummaryCase*> summaryCases;
@@ -1027,14 +1040,15 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
 
     auto findMinMaxForAddressesInSummaryCases =
         [findMinMaxForSummaryCase]( const std::vector<RifEclipseSummaryAddress>& addresses,
-                                    const std::vector<RimSummaryCase*>&          summaryCases ) {
+                                    const std::vector<RimSummaryCase*>&          summaryCases,
+                                    bool                                         onlyPositiveValues ) {
             double minimum = HUGE_VAL;
             double maximum = -HUGE_VAL;
             for ( auto summaryCase : summaryCases )
             {
                 for ( const auto& addr : addresses )
                 {
-                    auto [caseMinimum, caseMaximum] = findMinMaxForSummaryCase( summaryCase, addr );
+                    auto [caseMinimum, caseMaximum] = findMinMaxForSummaryCase( summaryCase, addr, onlyPositiveValues );
                     minimum                         = std::min( minimum, caseMinimum );
                     maximum                         = std::max( maximum, caseMaximum );
                 }
@@ -1057,7 +1071,10 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
                     std::vector<RimSummaryCase*> summaryCases = summaryCasesForCurve( curve, m_axisRangeAggregation() );
                     std::vector<RifEclipseSummaryAddress> addresses = addressesForCurve( curve, m_axisRangeAggregation() );
 
-                    auto [minimum, maximum] = findMinMaxForAddressesInSummaryCases( addresses, summaryCases );
+                    bool onlyPositiveValues = axis->isLogarithmicScaleEnabled();
+
+                    auto [minimum, maximum] =
+                        findMinMaxForAddressesInSummaryCases( addresses, summaryCases, onlyPositiveValues );
 
                     if ( axisRanges.count( axis->plotAxisType() ) == 0 )
                     {
@@ -1441,7 +1458,10 @@ std::pair<double, double> RimSummaryMultiPlot::adjustedMinMax( const RimPlotAxis
         return { adjustedMin, adjustedMax };
     }
 
-    return { min, max };
+    auto adjustedMin = RiaNumericalTools::roundToClosestPowerOfTenFloor( min );
+    auto adjustedMax = RiaNumericalTools::roundToClosestPowerOfTenCeil( max );
+
+    return { adjustedMin, adjustedMax };
 }
 
 //--------------------------------------------------------------------------------------------------

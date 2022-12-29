@@ -18,6 +18,7 @@
 
 #include "RimPlotAxisLogRangeCalculator.h"
 
+#include "RiaNumericalTools.h"
 #include "RiaPlotDefines.h"
 
 #include "RimPlotCurve.h"
@@ -51,16 +52,11 @@ void RimPlotAxisLogRangeCalculator::computeAxisRange( double* minPositive, doubl
 
         if ( curveValueRange( curve, &minPosCurveValue, &maxCurveValue ) )
         {
-            if ( minPosCurveValue < minPosValue )
-            {
-                CVF_ASSERT( minPosCurveValue > 0.0 );
-                minPosValue = minPosCurveValue;
-            }
+            minPosCurveValue = RiaNumericalTools::roundToClosestPowerOfTenFloor( minPosCurveValue );
+            maxCurveValue    = RiaNumericalTools::roundToClosestPowerOfTenCeil( maxCurveValue );
 
-            if ( maxCurveValue > maxValue )
-            {
-                maxValue = maxCurveValue;
-            }
+            minPosValue = std::min( minPosValue, minPosCurveValue );
+            maxValue    = std::max( maxValue, maxCurveValue );
         }
     }
 

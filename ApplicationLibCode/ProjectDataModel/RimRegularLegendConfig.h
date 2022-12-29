@@ -163,9 +163,6 @@ public:
     static cvf::Color3ubArray colorArrayFromColorType( ColorRangesType colorType );
     static RimColorLegend*    mapToColorLegend( ColorRangesType colorType );
 
-    static double computeTenExponentCeil( double value );
-    static double computeTenExponentFloor( double value );
-
     void updateFonts() override;
 
     QString valueToText( double value ) const;

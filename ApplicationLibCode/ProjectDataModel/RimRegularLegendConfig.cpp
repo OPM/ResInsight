@@ -23,6 +23,7 @@
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaNumberFormat.h"
+#include "RiaNumericalTools.h"
 #include "RiaPreferences.h"
 
 #include "RimCellEdgeColors.h"
@@ -872,8 +873,8 @@ void RimRegularLegendConfig::updateTickCountAndUserDefinedRange()
     {
         if ( m_mappingMode() == MappingType::LOG10_CONTINUOUS || m_mappingMode() == MappingType::LOG10_DISCRETE )
         {
-            double exponentMax = computeTenExponentCeil( m_globalAutoMax );
-            double exponentMin = computeTenExponentFloor( m_globalAutoPosClosestToZero );
+            double exponentMax = RiaNumericalTools::computeTenExponentCeil( m_globalAutoMax );
+            double exponentMin = RiaNumericalTools::computeTenExponentFloor( m_globalAutoPosClosestToZero );
 
             m_userDefinedMaxValue = pow( 10, exponentMax );
             m_userDefinedMinValue = pow( 10, exponentMin );
@@ -1169,32 +1170,6 @@ RimColorLegend* RimRegularLegendConfig::mapToColorLegend( ColorRangesType colorT
 {
     RimProject* project = RimProject::current();
     return project->colorLegendCollection()->findByName( RimRegularLegendConfig::ColorRangeEnum::uiText( colorType ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimRegularLegendConfig::computeTenExponentCeil( double value )
-{
-    if ( value < 0.0 ) return 0.0;
-
-    double logDecValueMax = log10( value );
-    logDecValueMax        = cvf::Math::ceil( logDecValueMax );
-
-    return logDecValueMax;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimRegularLegendConfig::computeTenExponentFloor( double value )
-{
-    if ( value < 0.0 ) return 0.0;
-
-    double logDecValueMin = log10( value );
-    logDecValueMin        = cvf::Math::floor( logDecValueMin );
-
-    return logDecValueMin;
 }
 
 //--------------------------------------------------------------------------------------------------
