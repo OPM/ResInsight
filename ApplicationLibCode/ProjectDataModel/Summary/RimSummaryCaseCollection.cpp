@@ -984,11 +984,11 @@ void RimSummaryCaseCollection::computeMinMax( const RifEclipseSummaryAddress& ad
     double minimumValue( std::numeric_limits<double>::infinity() );
     double maximumValue( -std::numeric_limits<double>::infinity() );
 
-    std::vector<double> values;
     for ( const auto& s : m_cases() )
     {
         if ( !s->summaryReader() ) continue;
 
+        std::vector<double> values;
         s->summaryReader()->values( address, &values );
         if ( values.empty() ) continue;
 
