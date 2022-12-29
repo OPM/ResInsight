@@ -627,7 +627,7 @@ QFileInfoList RiaRegressionTestRunner::subDirectoriesForTestExecution( const QDi
         {
             QString trimmed = s.trimmed();
             if ( ( m_appendAllTestsAfterLastItemInFilter && anyMatchFound ) ||
-                 baseName.contains( trimmed, Qt::CaseInsensitive ) )
+                 baseName.compare( trimmed, Qt::CaseInsensitive ) == 0 )
             {
                 foldersMatchingTestFilter.push_back( fi );
                 anyMatchFound = true;
