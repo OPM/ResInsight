@@ -451,49 +451,6 @@ void RimWellAllocationPlot::updateWellFlowPlotXAxisTitle( RimWellLogTrack* plotT
 
     QString axisTitle = RimWellPlotTools::flowPlotAxisTitle( condition, unitSet );
     plotTrack->setPropertyValueAxisTitle( axisTitle );
-
-#if 0
-    if (m_flowDiagSolution) 
-    {
-        QString unitText;
-        switch ( unitSet )
-        {
-            case RiaEclipseUnitTools::UNITS_METRIC:
-            unitText = "[m<sup>3</sup>/day]";
-            break;
-            case RiaEclipseUnitTools::UNITS_FIELD:
-            unitText = "[Brl/day]";
-            break;
-            case RiaEclipseUnitTools::UNITS_LAB:
-            unitText = "[cm<sup>3</sup>/hr]";
-            break;
-            default:
-            break;
-
-        }
-        plotTrack->setXAxisTitle("Reservoir Flow Rate " + unitText);
-    }
-    else
-    {
-        QString unitText;
-        switch ( unitSet )
-        {
-            case RiaEclipseUnitTools::UNITS_METRIC:
-            unitText = "[Liquid Sm<sup>3</sup>/day], [Gas kSm<sup>3</sup>/day]";
-            break;
-            case RiaEclipseUnitTools::UNITS_FIELD:
-            unitText = "[Liquid BBL/day], [Gas BOE/day]";
-            break;
-            case RiaEclipseUnitTools::UNITS_LAB:
-            unitText = "[cm<sup>3</sup>/hr]";
-            break;
-            default:
-            break;
-
-        }
-        plotTrack->setXAxisTitle("Surface Flow Rate " + unitText);
-    }
-#endif
 }
 
 //--------------------------------------------------------------------------------------------------
