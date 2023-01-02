@@ -23,6 +23,7 @@
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaNumberFormat.h"
+#include "RiaNumericalTools.h"
 #include "RiaPreferences.h"
 
 #include "RimCellEdgeColors.h"
@@ -266,11 +267,11 @@ void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
         {
             if ( m_userDefinedMaxValue == m_userDefinedMaxValue.defaultValue() && m_globalAutoMax != cvf::UNDEFINED_DOUBLE )
             {
-                m_userDefinedMaxValue = roundToNumSignificantDigits( m_globalAutoMax, m_precision );
+                m_userDefinedMaxValue = RiaNumericalTools::roundToNumSignificantDigits( m_globalAutoMax, m_precision );
             }
             if ( m_userDefinedMinValue == m_userDefinedMinValue.defaultValue() && m_globalAutoMin != cvf::UNDEFINED_DOUBLE )
             {
-                m_userDefinedMinValue = roundToNumSignificantDigits( m_globalAutoMin, m_precision );
+                m_userDefinedMinValue = RiaNumericalTools::roundToNumSignificantDigits( m_globalAutoMin, m_precision );
             }
         }
         updateFieldVisibility();
@@ -417,24 +418,24 @@ void RimRegularLegendConfig::updateLegend()
 
     if ( m_rangeMode == RangeModeType::AUTOMATIC_ALLTIMESTEPS )
     {
-        adjustedMin = roundToNumSignificantDigits( m_globalAutoMin, m_precision );
-        adjustedMax = roundToNumSignificantDigits( m_globalAutoMax, m_precision );
+        adjustedMin = RiaNumericalTools::roundToNumSignificantDigits( m_globalAutoMin, m_precision );
+        adjustedMax = RiaNumericalTools::roundToNumSignificantDigits( m_globalAutoMax, m_precision );
 
         posClosestToZero = m_globalAutoPosClosestToZero;
         negClosestToZero = m_globalAutoNegClosestToZero;
     }
     else if ( m_rangeMode == RangeModeType::AUTOMATIC_CURRENT_TIMESTEP )
     {
-        adjustedMin = roundToNumSignificantDigits( m_localAutoMin, m_precision );
-        adjustedMax = roundToNumSignificantDigits( m_localAutoMax, m_precision );
+        adjustedMin = RiaNumericalTools::roundToNumSignificantDigits( m_localAutoMin, m_precision );
+        adjustedMax = RiaNumericalTools::roundToNumSignificantDigits( m_localAutoMax, m_precision );
 
         posClosestToZero = m_localAutoPosClosestToZero;
         negClosestToZero = m_localAutoNegClosestToZero;
     }
     else
     {
-        adjustedMin = roundToNumSignificantDigits( m_userDefinedMinValue, m_precision );
-        adjustedMax = roundToNumSignificantDigits( m_userDefinedMaxValue, m_precision );
+        adjustedMin = RiaNumericalTools::roundToNumSignificantDigits( m_userDefinedMinValue, m_precision );
+        adjustedMax = RiaNumericalTools::roundToNumSignificantDigits( m_userDefinedMaxValue, m_precision );
 
         posClosestToZero = m_globalAutoPosClosestToZero;
         negClosestToZero = m_globalAutoNegClosestToZero;
@@ -632,11 +633,11 @@ void RimRegularLegendConfig::disableAllTimeStepsRange( bool doDisable )
 //--------------------------------------------------------------------------------------------------
 void RimRegularLegendConfig::setAutomaticRanges( double globalMin, double globalMax, double localMin, double localMax )
 {
-    double candidateGlobalAutoMin = roundToNumSignificantDigits( globalMin, m_precision );
-    double candidateGlobalAutoMax = roundToNumSignificantDigits( globalMax, m_precision );
+    double candidateGlobalAutoMin = RiaNumericalTools::roundToNumSignificantDigits( globalMin, m_precision );
+    double candidateGlobalAutoMax = RiaNumericalTools::roundToNumSignificantDigits( globalMax, m_precision );
 
-    double candidateLocalAutoMin = roundToNumSignificantDigits( localMin, m_precision );
-    double candidateLocalAutoMax = roundToNumSignificantDigits( localMax, m_precision );
+    double candidateLocalAutoMin = RiaNumericalTools::roundToNumSignificantDigits( localMin, m_precision );
+    double candidateLocalAutoMax = RiaNumericalTools::roundToNumSignificantDigits( localMax, m_precision );
 
     m_globalAutoMin = candidateGlobalAutoMin;
     m_globalAutoMax = candidateGlobalAutoMax;
@@ -771,33 +772,6 @@ void RimRegularLegendConfig::onRecreateLegend()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Rounding the double value to given number of significant digits
-//--------------------------------------------------------------------------------------------------
-double RimRegularLegendConfig::roundToNumSignificantDigits( double domainValue, double numSignificantDigits )
-{
-    double absDomainValue = cvf::Math::abs( domainValue );
-    if ( absDomainValue == 0.0 )
-    {
-        return 0.0;
-    }
-
-    double logDecValue = log10( absDomainValue );
-    logDecValue        = cvf::Math::ceil( logDecValue );
-
-    double factor = pow( 10.0, numSignificantDigits - logDecValue );
-
-    double tmp = domainValue * factor;
-    double integerPart;
-    double fraction = modf( tmp, &integerPart );
-
-    if ( cvf::Math::abs( fraction ) >= 0.5 ) ( integerPart >= 0 ) ? integerPart++ : integerPart--;
-
-    double newDomainValue = integerPart / factor;
-
-    return newDomainValue;
-}
-
-//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RimRegularLegendConfig::updateCategoryItems()
@@ -872,8 +846,8 @@ void RimRegularLegendConfig::updateTickCountAndUserDefinedRange()
     {
         if ( m_mappingMode() == MappingType::LOG10_CONTINUOUS || m_mappingMode() == MappingType::LOG10_DISCRETE )
         {
-            double exponentMax = computeTenExponentCeil( m_globalAutoMax );
-            double exponentMin = computeTenExponentFloor( m_globalAutoPosClosestToZero );
+            double exponentMax = RiaNumericalTools::computeTenExponentCeil( m_globalAutoMax );
+            double exponentMin = RiaNumericalTools::computeTenExponentFloor( m_globalAutoPosClosestToZero );
 
             m_userDefinedMaxValue = pow( 10, exponentMax );
             m_userDefinedMinValue = pow( 10, exponentMin );
@@ -1169,32 +1143,6 @@ RimColorLegend* RimRegularLegendConfig::mapToColorLegend( ColorRangesType colorT
 {
     RimProject* project = RimProject::current();
     return project->colorLegendCollection()->findByName( RimRegularLegendConfig::ColorRangeEnum::uiText( colorType ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimRegularLegendConfig::computeTenExponentCeil( double value )
-{
-    if ( value < 0.0 ) return 0.0;
-
-    double logDecValueMax = log10( value );
-    logDecValueMax        = cvf::Math::ceil( logDecValueMax );
-
-    return logDecValueMax;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RimRegularLegendConfig::computeTenExponentFloor( double value )
-{
-    if ( value < 0.0 ) return 0.0;
-
-    double logDecValueMin = log10( value );
-    logDecValueMin        = cvf::Math::floor( logDecValueMin );
-
-    return logDecValueMin;
 }
 
 //--------------------------------------------------------------------------------------------------

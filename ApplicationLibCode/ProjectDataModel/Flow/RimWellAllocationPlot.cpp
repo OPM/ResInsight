@@ -18,6 +18,7 @@
 
 #include "RimWellAllocationPlot.h"
 
+#include "RiaNumericalTools.h"
 #include "RiaPreferences.h"
 
 #include "RigAccWellFlowCalculator.h"
@@ -374,9 +375,7 @@ void RimWellAllocationPlot::updateFromWell()
                         double depthSpan = 0.1 * cvf::Math::abs( availableMinDepth - availableMaxDepth );
 
                         // Round off value to floored decade
-                        double logDecValue = log10( depthSpan );
-                        logDecValue        = cvf::Math::floor( logDecValue );
-                        depthSpan          = pow( 10.0, logDecValue );
+                        depthSpan = RiaNumericalTools::roundToClosestPowerOfTenFloor( depthSpan );
 
                         double dummyNegativeDepthValue = curveDepthValues.back() - depthSpan;
 
