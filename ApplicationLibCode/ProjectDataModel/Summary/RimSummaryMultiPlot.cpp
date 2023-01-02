@@ -455,11 +455,7 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     }
     else if ( changedField == &m_linkTimeAxis )
     {
-        auto plots = summaryPlots();
-        if ( !plots.empty() )
-        {
-            syncTimeAxisRanges( plots.front() );
-        }
+        updateTimeAxisRangesFromFirstPlot();
     }
     else if ( changedField == &m_linkSubPlotAxes || changedField == &m_axisRangeAggregation ||
               changedField == &m_linkTimeAxis )
@@ -760,6 +756,8 @@ void RimSummaryMultiPlot::zoomAll()
 
         updateZoom();
 
+        updateTimeAxisRangesFromFirstPlot();
+
         return;
     }
 
@@ -767,6 +765,20 @@ void RimSummaryMultiPlot::zoomAll()
     RimMultiPlot::zoomAll();
 
     syncAxisRanges();
+
+    updateTimeAxisRangesFromFirstPlot();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::updateTimeAxisRangesFromFirstPlot()
+{
+    if ( m_linkTimeAxis && !summaryPlots().empty() )
+    {
+        setAutoScaleXEnabled( false );
+        syncTimeAxisRanges( summaryPlots().front() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

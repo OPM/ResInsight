@@ -150,6 +150,8 @@ private:
     void onSubPlotAxisChanged( const caf::SignalEmitter* emitter, RimSummaryPlot* summaryPlot );
     void onSubPlotAxisReloadRequired( const caf::SignalEmitter* emitter, RimSummaryPlot* summaryPlot );
 
+    void updateTimeAxisRangesFromFirstPlot();
+
     void updateReadOnlyState();
 
     std::pair<double, double> adjustedMinMax( const RimPlotAxisProperties* axis, double min, double max ) const;
