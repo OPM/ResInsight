@@ -809,7 +809,7 @@ void RimGeoMechView::onClampCurrentTimestep()
 //--------------------------------------------------------------------------------------------------
 size_t RimGeoMechView::onTimeStepCountRequested()
 {
-    if ( m_geomechCase )
+    if ( m_geomechCase && m_geomechCase->geoMechData() && m_geomechCase->geoMechData()->femPartResults() )
     {
         return m_geomechCase->geoMechData()->femPartResults()->frameCount();
     }
