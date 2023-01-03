@@ -404,6 +404,47 @@ TEST( RifColumnBasedAsciiParserTest, TestCellSeparatorComma )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+TEST( RifColumnBasedAsciiParserTest, ThreeLinesHeader )
+{
+    AsciiDataParseOptions parseOptions;
+    parseOptions.dateFormat           = "dd.MM.yyyy";
+    parseOptions.cellSeparator        = ";";
+    parseOptions.locale               = QLocale::c();
+    parseOptions.timeSeriesColumnName = "TIME";
+
+    // The CSV header require at leas one line with header data.
+    // Units and object names are optional header lines.
+
+    // Example data with three header lines:
+    QString data = R"(
+TIME;WBHPH;WBHPH;WBHPH
+DAYS;BARS;BARS;BARS
+;A-3T2_old;A-3A_old;A-9T2_old
+15.07.1999;456.78;0;0
+16.07.1999;0;0;0
+)";
+
+    QTextStream out( &data );
+
+    RifCsvUserDataPastedTextParser parser = RifCsvUserDataPastedTextParser( data );
+    parser.parse( parseOptions );
+
+    auto timeColumn = parser.columnInfo( 0 );
+    ASSERT_TRUE( timeColumn != nullptr );
+
+    auto column1 = parser.columnInfo( 1 );
+    ASSERT_TRUE( column1 != nullptr );
+    auto adr = column1->summaryAddress;
+
+    ASSERT_STREQ( adr.wellName().data(), "A-3T2_old" );
+    ASSERT_STREQ( adr.vectorName().data(), "WBHPH" );
+
+    ASSERT_EQ( column1->values.front(), 456.78 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 TEST( RifRsmspecParserToolsTest, TestSplitLineToDoubles )
 {
     QString     data;

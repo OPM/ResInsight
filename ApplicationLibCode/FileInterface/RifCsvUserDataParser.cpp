@@ -313,19 +313,69 @@ bool RifCsvUserDataParser::parseColumnInfo( QTextStream*                 dataStr
         QString line = dataStream->readLine();
         if ( line.trimmed().isEmpty() ) continue;
 
-        QStringList lineColumns = RifFileParseTools::splitLineAndTrim( line, parseOptions.cellSeparator );
+        QStringList columnHeaders = RifFileParseTools::splitLineAndTrim( line, parseOptions.cellSeparator );
 
-        int colCount = lineColumns.size();
+        // Optional support for unit text (second header line) and names (third header line)
+        QStringList unitTexts;
+        QStringList names;
+
+        auto startOfLineWithDataValues = dataStream->pos();
+        bool hasDataValues             = false;
+        while ( !hasDataValues )
+        {
+            QString candidateLine = dataStream->readLine();
+
+            QStringList candidateColumnHeaders =
+                RifFileParseTools::splitLineAndTrim( candidateLine, parseOptions.cellSeparator );
+            for ( const auto& text : candidateColumnHeaders )
+            {
+                if ( RiaStdStringTools::isNumber( text.toStdString(), parseOptions.locale.decimalPoint().toLatin1() ) )
+                    hasDataValues = true;
+            }
+
+            if ( !hasDataValues && candidateColumnHeaders.size() == columnHeaders.size() )
+            {
+                if ( unitTexts.empty() )
+                {
+                    unitTexts = candidateColumnHeaders;
+                }
+                else if ( names.empty() )
+                {
+                    names = candidateColumnHeaders;
+                }
+
+                startOfLineWithDataValues = dataStream->pos();
+            }
+        }
+
+        dataStream->seek( startOfLineWithDataValues );
+
+        int colCount = columnHeaders.size();
 
         for ( int iCol = 0; iCol < colCount; iCol++ )
         {
-            QString                  colName = RiaTextStringTools::trimAndRemoveDoubleSpaces( lineColumns[iCol] );
+            QString colName = RiaTextStringTools::trimAndRemoveDoubleSpaces( columnHeaders[iCol] );
+
+            if ( iCol < names.size() )
+            {
+                QString name = RiaTextStringTools::trimAndRemoveDoubleSpaces( names[iCol] );
+                if ( !name.isEmpty() )
+                {
+                    // Create summary address in the form "WBHP:A-1", <vector name>:<well name>
+                    colName += ":" + name;
+                }
+            }
+
+            QString unit;
+            if ( iCol < unitTexts.size() ) unit = unitTexts[iCol];
+
             RifEclipseSummaryAddress addr =
                 RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( colName.toStdString() );
-            Column col = Column::createColumnInfoFromCsvData( addr, "" );
+            Column col = Column::createColumnInfoFromCsvData( addr, unit.toStdString() );
 
             columnInfoList->push_back( col );
         }
+
         headerFound = true;
     }
 
