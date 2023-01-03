@@ -18,6 +18,7 @@
 
 #include "RifHdf5SummaryExporter.h"
 
+#include "RiaFilePathTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesSummary.h"
 #include "RiaStdStringTools.h"
@@ -98,7 +99,7 @@ bool RifHdf5SummaryExporter::ensureHdf5FileIsCreated( const std::string& smspecF
         {
             exportIsRequired = true;
         }
-        else if ( RifHdf5SummaryExporter::isFirstOlderThanSecond( h5FileName, smspecFileName ) )
+        else if ( RiaFilePathTools::isFirstOlderThanSecond( h5FileName, smspecFileName ) )
         {
             exportIsRequired = true;
         }
@@ -268,19 +269,4 @@ bool RifHdf5SummaryExporter::writeSummaryVectors( RifHdf5Exporter& exporter, Opm
     }
 
     return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RifHdf5SummaryExporter::isFirstOlderThanSecond( const std::string& firstFileName, const std::string& secondFileName )
-{
-    // Use Opm namespace to make sure the code compiles on older compilers
-
-    if ( !std::filesystem::exists( firstFileName ) || !std::filesystem::exists( secondFileName ) ) return false;
-
-    auto timeA = std::filesystem::last_write_time( firstFileName );
-    auto timeB = std::filesystem::last_write_time( secondFileName );
-
-    return ( timeA < timeB );
 }
