@@ -120,7 +120,6 @@ public:
 
     void deleteResult( const RigFemResultAddress& resVarAddr );
     void deleteResultForAllTimeSteps( const std::vector<RigFemResultAddress>& addresses );
-    void deleteResultFrame( const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex );
 
     std::vector<RigFemResultAddress> loadedResults() const;
 
