@@ -58,3 +58,40 @@ def test_10k(rips_instance, initialize_test):
     check_corner(cell_corners[cell_index].c5, expected_corners[5])
     check_corner(cell_corners[cell_index].c6, expected_corners[6])
     check_corner(cell_corners[cell_index].c7, expected_corners[7])
+
+
+def check_reek_grid_box(case):
+    assert len(case.grids()) == 1
+    grid = case.grid(index=0)
+
+    dimensions = grid.dimensions()
+    assert dimensions.i == 21
+    assert dimensions.j == 23
+    assert dimensions.k == 14
+
+    cell_centers = grid.cell_centers()
+    total_size = dimensions.i * dimensions.j * dimensions.k
+    assert len(cell_centers) == total_size
+
+    poro = case.active_cell_property("INPUT_PROPERTY", "PORO", 0)
+    assert len(poro) == total_size
+    assert math.isclose(min(poro), 0.000928084715269506)
+    assert math.isclose(max(poro), 0.351595014333725)
+
+
+def test_load_roff_binary_grid(rips_instance, initialize_test):
+    casePath = dataroot.PATH + "/reek/reek_box_grid_w_props.roff"
+    case = rips_instance.project.load_case(path=casePath)
+    check_reek_grid_box(case)
+
+
+def test_load_roff_ascii_grid(rips_instance, initialize_test):
+    casePath = dataroot.PATH + "/reek/reek_box_grid_w_props.roffasc"
+    case = rips_instance.project.load_case(path=casePath)
+    check_reek_grid_box(case)
+
+
+def test_load_grdecl_grid(rips_instance, initialize_test):
+    casePath = dataroot.PATH + "/reek/reek_box_grid_w_props.grdecl"
+    case = rips_instance.project.load_case(path=casePath)
+    check_reek_grid_box(case)
