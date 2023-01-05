@@ -889,6 +889,88 @@ QString RimWellPlotTools::flowUnitText( RimWellLogFile::WellFlowCondition condit
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimWellPlotTools::flowVolumePlotAxisTitle( RimWellLogFile::WellFlowCondition condition,
+                                                   RiaDefines::EclipseUnitSystem     unitSystem )
+{
+    QString axisTitle;
+
+    if ( condition == RimWellLogFile::WELL_FLOW_COND_RESERVOIR )
+    {
+        QString unitText = RimWellPlotTools::flowVolumeUnitText( condition, unitSystem );
+
+        axisTitle = "Reservoir Flow Volume " + unitText;
+    }
+    else
+    {
+        QString unitText = RimWellPlotTools::flowVolumeUnitText( condition, unitSystem );
+
+        axisTitle = "Surface Flow Volume " + unitText;
+    }
+
+    return axisTitle;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString flowVolumeConditionReservoirUnitText( RiaDefines::EclipseUnitSystem unitSystem )
+{
+    QString unitText;
+
+    switch ( unitSystem )
+    {
+        case RiaDefines::EclipseUnitSystem::UNITS_METRIC:
+            unitText = "[m<sup>3</sup>]";
+            break;
+        case RiaDefines::EclipseUnitSystem::UNITS_FIELD:
+            unitText = "[Brl]";
+            break;
+        case RiaDefines::EclipseUnitSystem::UNITS_LAB:
+            unitText = "[cm<sup>3</sup>]";
+            break;
+        default:
+            break;
+    }
+
+    return unitText;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellPlotTools::flowVolumeUnitText( RimWellLogFile::WellFlowCondition condition,
+                                              RiaDefines::EclipseUnitSystem     unitSystem )
+{
+    QString unitText;
+
+    if ( condition == RimWellLogFile::WELL_FLOW_COND_RESERVOIR )
+    {
+        unitText = flowVolumeConditionReservoirUnitText( unitSystem );
+    }
+    else
+    {
+        switch ( unitSystem )
+        {
+            case RiaDefines::EclipseUnitSystem::UNITS_METRIC:
+                unitText = "[Liquid Sm<sup>3</sup>], [Gas kSm<sup>3</sup>]";
+                break;
+            case RiaDefines::EclipseUnitSystem::UNITS_FIELD:
+                unitText = "[Liquid BBL], [Gas BOE]";
+                break;
+            case RiaDefines::EclipseUnitSystem::UNITS_LAB:
+                unitText = "[cm<sup>3</sup>]";
+                break;
+            default:
+                break;
+        }
+    }
+
+    return unitText;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimWellPlotTools::curveUnitText( RimWellLogFile::WellFlowCondition condition,
                                          RiaDefines::EclipseUnitSystem     unitSystem,
                                          FlowPhase                         flowPhase )
