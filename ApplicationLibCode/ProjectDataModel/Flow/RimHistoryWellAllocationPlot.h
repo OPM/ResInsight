@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2022- Equinor ASA
+//  Copyright (C) 2023- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@
 class RigAccWellFlowCalculator;
 class RimEclipseResultCase;
 class RimFlowDiagSolution;
+class RimHistoryWellFlowDataCollection;
 class RimSimWellInView;
 class RiuPlotWidget;
 class RiuQwtPlotWidget;
@@ -51,6 +52,7 @@ public:
         PERCENTAGE,
         FLOW_RATE,
         FLOW_VOLUME,
+        ACCUMULATED_FLOW_VOLUME,
     };
 
 public:
@@ -90,17 +92,10 @@ private:
     caf::PdmFieldHandle* userDescriptionField() override;
 
 private:
-    struct WellTotalFractionCollection
-    {
-        std::vector<QDateTime>                         timeStepDates = {};
-        std::map<QString, std::map<QDateTime, double>> wellValuesMap = {};
-    };
-
-private:
-    void                        updateFromWell();
-    WellTotalFractionCollection createWellsTotalFractionCollection();
-    std::set<QString>           findSortedWellNames();
-    cvf::Color3f                getTracerColor( const QString& tracerName );
+    void                             updateFromWell();
+    RimHistoryWellFlowDataCollection createHistoryWellFlowDataCollection();
+    std::set<QString>                findSortedWellNames();
+    cvf::Color3f                     getTracerColor( const QString& tracerName );
 
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
