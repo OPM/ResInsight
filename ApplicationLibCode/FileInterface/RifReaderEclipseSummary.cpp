@@ -63,7 +63,7 @@ bool RifReaderEclipseSummary::open( const QString& headerFileName, RiaThreadSafe
     // Create reader as specified by the user using the following fallback strategy
     //
     // ESMRY
-    // - if h5 file is present on disk
+    // - if h5 file is present on disk and prefSummary->createEnhancedSummaryDataFiles() is false
     //   - use h5 reader
     // - else
     //   - create ESMRY file if defined in preference
@@ -91,8 +91,9 @@ bool RifReaderEclipseSummary::open( const QString& headerFileName, RiaThreadSafe
 
         bool h5FileFound = QFile::exists( h5FileName );
 
-        if ( h5FileFound ||
-             ( prefSummary->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON ) )
+        if ( !prefSummary->createEnhancedSummaryDataFiles() &&
+             ( h5FileFound ||
+               ( prefSummary->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON ) ) )
         {
 #ifdef USE_HDF5
             if ( prefSummary->createH5SummaryDataFiles() )
