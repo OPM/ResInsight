@@ -260,7 +260,7 @@ void RimGeoMechContourMapView::updateGeometry()
     { // Step 1: generate results. About 30% of the time.
         if ( m_contourMapProjection->isChecked() )
         {
-            m_contourMapProjection->generateResultsIfNecessary( m_currentTimeStep() );
+            m_contourMapProjection->generateResultsIfNecessary( m_currentTimeStep );
         }
         onUpdateLegends();
 

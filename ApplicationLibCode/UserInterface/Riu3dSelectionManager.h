@@ -174,7 +174,8 @@ class RiuGeoMechSelectionItem : public RiuSelectionItem
 public:
     explicit RiuGeoMechSelectionItem( RimGridView*                view,
                                       RimGeoMechResultDefinition* resultDefinition,
-                                      size_t                      timestepIdx,
+                                      int                         timestepIdx,
+                                      int                         frameIdx,
                                       size_t                      gridIndex,
                                       size_t                      cellIndex,
                                       cvf::Color3f                color,
@@ -183,7 +184,8 @@ public:
 
     explicit RiuGeoMechSelectionItem( RimGridView*                     view,
                                       RimGeoMechResultDefinition*      resultDefinition,
-                                      size_t                           timestepIdx,
+                                      int                              timestepIdx,
+                                      int                              frameIdx,
                                       size_t                           gridIndex,
                                       size_t                           cellIndex,
                                       cvf::Color3f                     color,
@@ -197,7 +199,8 @@ public:
 public:
     caf::PdmPointer<RimGridView>                m_view;
     caf::PdmPointer<RimGeoMechResultDefinition> m_resultDefinition;
-    size_t                                      m_timestepIdx;
+    int                                         m_timestepIdx;
+    int                                         m_frameIdx;
     size_t                                      m_gridIndex;
     size_t                                      m_cellIndex;
     cvf::Color3f                                m_color;

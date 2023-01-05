@@ -46,7 +46,8 @@ RiuFemResultTextBuilder::RiuFemResultTextBuilder( RimGridView*                di
                                                   RimGeoMechResultDefinition* geomResDef,
                                                   int                         gridIndex,
                                                   int                         cellIndex,
-                                                  int                         timeStepIndex )
+                                                  int                         timeStepIndex,
+                                                  int                         frameIndex )
     : m_isIntersectionTriangleSet( false )
 {
     m_displayCoordView = displayCoordView;
@@ -54,6 +55,7 @@ RiuFemResultTextBuilder::RiuFemResultTextBuilder( RimGridView*                di
     m_gridIndex        = gridIndex;
     m_cellIndex        = cellIndex;
     m_timeStepIndex    = timeStepIndex;
+    m_frameIndex       = frameIndex;
 
     m_intersectionPointInDisplay = cvf::Vec3d::UNDEFINED;
     m_face                       = cvf::StructGridInterface::NO_FACE;
@@ -198,7 +200,13 @@ QString RiuFemResultTextBuilder::gridResultDetails()
     {
         RigGeoMechCaseData* eclipseCaseData = m_geomResDef->geoMechCase()->geoMechData();
 
-        this->appendTextFromResultColors( eclipseCaseData, m_gridIndex, m_cellIndex, m_timeStepIndex, m_geomResDef, &text );
+        this->appendTextFromResultColors( eclipseCaseData,
+                                          m_gridIndex,
+                                          m_cellIndex,
+                                          m_timeStepIndex,
+                                          m_frameIndex,
+                                          m_geomResDef,
+                                          &text );
 
         if ( !text.isEmpty() )
         {
@@ -261,6 +269,7 @@ void RiuFemResultTextBuilder::appendTextFromResultColors( RigGeoMechCaseData*   
                                                           int                         gridIndex,
                                                           int                         cellIndex,
                                                           int                         timeStepIndex,
+                                                          int                         frameIndex,
                                                           RimGeoMechResultDefinition* resultDefinition,
                                                           QString*                    resultInfoText )
 {
@@ -272,7 +281,7 @@ void RiuFemResultTextBuilder::appendTextFromResultColors( RigGeoMechCaseData*   
     if ( resultDefinition->hasResult() )
     {
         const std::vector<float>& scalarResults =
-            geomData->femPartResults()->resultValues( resultDefinition->resultAddress(), gridIndex, timeStepIndex );
+            geomData->femPartResults()->resultValues( resultDefinition->resultAddress(), gridIndex, timeStepIndex, frameIndex );
         if ( scalarResults.size() )
         {
             caf::AppEnum<RigFemResultPosEnum> resPosAppEnum = resultDefinition->resultPositionType();
@@ -399,8 +408,10 @@ QString RiuFemResultTextBuilder::closestNodeResultText( RimGeoMechResultDefiniti
 
         RigGeoMechCaseData* geomData = m_geomResDef->geoMechCase()->geoMechData();
 
-        const std::vector<float>& scalarResults =
-            geomData->femPartResults()->resultValues( resultColors->resultAddress(), m_gridIndex, m_timeStepIndex );
+        const std::vector<float>& scalarResults = geomData->femPartResults()->resultValues( resultColors->resultAddress(),
+                                                                                            m_gridIndex,
+                                                                                            m_timeStepIndex,
+                                                                                            m_frameIndex );
 
         if ( scalarResults.size() && m_displayCoordView )
         {
@@ -441,7 +452,9 @@ QString RiuFemResultTextBuilder::closestNodeResultText( RimGeoMechResultDefiniti
             {
                 RiuGeoMechXfTensorResultAccessor tensAccessor( geomData->femPartResults(),
                                                                resultColors->resultAddress(),
-                                                               m_timeStepIndex );
+                                                               m_gridIndex,
+                                                               m_timeStepIndex,
+                                                               m_frameIndex );
                 float tensValue = tensAccessor.calculateElmNodeValue( m_intersectionTriangle, closestElmNodResIdx );
 
                 text.append( QString( "Closest result: N[%1], in Element[%2] transformed onto intersection: %3 \n" )

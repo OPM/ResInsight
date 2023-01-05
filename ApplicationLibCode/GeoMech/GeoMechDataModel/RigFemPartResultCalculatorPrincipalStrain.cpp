@@ -75,11 +75,11 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorPrincipalStrain::calculate( 
 
     QString progressText = "Calculating " + QString::fromStdString( resAddr.fieldName + ": " + resAddr.componentName );
 
-    caf::ProgressInfo frameCountProgress( static_cast<size_t>( m_resultCollection->frameCount() ) * 7, progressText );
+    caf::ProgressInfo frameCountProgress( static_cast<size_t>( m_resultCollection->timeStepCount() ) * 7, progressText );
 
     auto loadFrameLambda = [&]( const std::string& component ) {
         auto task = frameCountProgress.task( QString::fromStdString( "Loading " + component ),
-                                             m_resultCollection->frameCount() );
+                                             m_resultCollection->timeStepCount() );
         return m_resultCollection->findOrLoadScalarResult( partIndex, resAddr.copyWithComponent( component ) );
     };
 
@@ -97,37 +97,40 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorPrincipalStrain::calculate( 
     RigFemScalarResultFrames* e3Frames =
         m_resultCollection->createScalarResult( partIndex, resAddr.copyWithComponent( m_componentNames[2] ) );
 
-    int frameCount = e11Frames->frameCount();
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
+    int timeSteps = e11Frames->timeStepCount();
+    for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
-        auto task = frameCountProgress.task( QString( "Frame %1" ).arg( fIdx ) );
+        for ( int fIdx = 0; fIdx < e11Frames->frameCount( stepIdx ); fIdx++ )
+        {
+            auto task = frameCountProgress.task( QString( "Frame %1" ).arg( fIdx ) );
 
-        const std::vector<float>& e11 = e11Frames->frameData( fIdx );
-        const std::vector<float>& e22 = e22Frames->frameData( fIdx );
-        const std::vector<float>& e33 = e33Frames->frameData( fIdx );
-        const std::vector<float>& e12 = e12Frames->frameData( fIdx );
-        const std::vector<float>& e13 = e13Frames->frameData( fIdx );
-        const std::vector<float>& e23 = e23Frames->frameData( fIdx );
+            const std::vector<float>& e11 = e11Frames->frameData( stepIdx, fIdx );
+            const std::vector<float>& e22 = e22Frames->frameData( stepIdx, fIdx );
+            const std::vector<float>& e33 = e33Frames->frameData( stepIdx, fIdx );
+            const std::vector<float>& e12 = e12Frames->frameData( stepIdx, fIdx );
+            const std::vector<float>& e13 = e13Frames->frameData( stepIdx, fIdx );
+            const std::vector<float>& e23 = e23Frames->frameData( stepIdx, fIdx );
 
-        std::vector<float>& e1 = e1Frames->frameData( fIdx );
-        std::vector<float>& e2 = e2Frames->frameData( fIdx );
-        std::vector<float>& e3 = e3Frames->frameData( fIdx );
+            std::vector<float>& e1 = e1Frames->frameData( stepIdx, fIdx );
+            std::vector<float>& e2 = e2Frames->frameData( stepIdx, fIdx );
+            std::vector<float>& e3 = e3Frames->frameData( stepIdx, fIdx );
 
-        size_t valCount = e11.size();
+            size_t valCount = e11.size();
 
-        e1.resize( valCount );
-        e2.resize( valCount );
-        e3.resize( valCount );
+            e1.resize( valCount );
+            e2.resize( valCount );
+            e3.resize( valCount );
 
 #pragma omp parallel for
-        for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
-        {
-            caf::Ten3f T( e11[vIdx], e22[vIdx], e33[vIdx], e12[vIdx], e23[vIdx], e13[vIdx] );
-            cvf::Vec3f principalDirs[3];
-            cvf::Vec3f principals = T.calculatePrincipals( principalDirs );
-            e1[vIdx]              = principals[0];
-            e2[vIdx]              = principals[1];
-            e3[vIdx]              = principals[2];
+            for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
+            {
+                caf::Ten3f T( e11[vIdx], e22[vIdx], e33[vIdx], e12[vIdx], e23[vIdx], e13[vIdx] );
+                cvf::Vec3f principalDirs[3];
+                cvf::Vec3f principals = T.calculatePrincipals( principalDirs );
+                e1[vIdx]              = principals[0];
+                e2[vIdx]              = principals[1];
+                e3[vIdx]              = principals[2];
+            }
         }
     }
 

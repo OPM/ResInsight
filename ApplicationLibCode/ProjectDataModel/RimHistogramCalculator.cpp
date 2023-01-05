@@ -289,12 +289,22 @@ RigHistogramData RimHistogramCalculator::histogramData( RimGeoMechView*         
                 else if ( timeRange == StatisticsTimeRangeType::CURRENT_TIMESTEP )
                 {
                     int timeStepIdx = geoMechView->currentTimeStep();
-                    caseData->femPartResults()->meanScalarValue( resAddress, timeStepIdx, &histData.mean );
-                    caseData->femPartResults()->minMaxScalarValues( resAddress, timeStepIdx, &histData.min, &histData.max );
-                    caseData->femPartResults()->p10p90ScalarValues( resAddress, timeStepIdx, &histData.p10, &histData.p90 );
-                    caseData->femPartResults()->sumScalarValue( resAddress, timeStepIdx, &histData.sum );
+                    int frameIdx    = geoMechView->currentDataFrameIndex();
+                    caseData->femPartResults()->meanScalarValue( resAddress, timeStepIdx, frameIdx, &histData.mean );
+                    caseData->femPartResults()->minMaxScalarValues( resAddress,
+                                                                    timeStepIdx,
+                                                                    frameIdx,
+                                                                    &histData.min,
+                                                                    &histData.max );
+                    caseData->femPartResults()->p10p90ScalarValues( resAddress,
+                                                                    timeStepIdx,
+                                                                    frameIdx,
+                                                                    &histData.p10,
+                                                                    &histData.p90 );
+                    caseData->femPartResults()->sumScalarValue( resAddress, timeStepIdx, frameIdx, &histData.sum );
 
-                    histData.histogram = caseData->femPartResults()->scalarValuesHistogram( resAddress, timeStepIdx );
+                    histData.histogram =
+                        caseData->femPartResults()->scalarValuesHistogram( resAddress, timeStepIdx, frameIdx );
                 }
             }
             else if ( cellRange == StatisticsCellRangeType::VISIBLE_CELLS )
@@ -314,6 +324,7 @@ RigHistogramData RimHistogramCalculator::histogramData( RimGeoMechView*         
                 else if ( timeRange == StatisticsTimeRangeType::CURRENT_TIMESTEP )
                 {
                     int timeStepIdx = geoMechView->currentTimeStep();
+                    int frameIdx    = geoMechView->currentDataFrameIndex();
                     m_visibleCellStatistics->meanCellScalarValues( timeStepIdx, histData.mean );
                     m_visibleCellStatistics->minMaxCellScalarValues( timeStepIdx, histData.min, histData.max );
                     m_visibleCellStatistics->p10p90CellScalarValues( timeStepIdx, histData.p10, histData.p90 );

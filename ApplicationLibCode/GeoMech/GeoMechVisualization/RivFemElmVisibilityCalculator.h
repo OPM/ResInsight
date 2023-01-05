@@ -43,6 +43,7 @@ public:
     static void computePropertyVisibility( cvf::UByteArray*                    cellVisibility,
                                            const RigFemPart*                   grid,
                                            int                                 timeStepIndex,
+                                           int                                 frameIndex,
                                            const cvf::UByteArray*              rangeFilterVisibility,
                                            RimGeoMechPropertyFilterCollection* propFilterColl );
 

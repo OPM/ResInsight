@@ -61,7 +61,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorSM::calculate( int partIndex
     QString progressText = "Calculating " +
                            QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName );
 
-    caf::ProgressInfo frameCountProgress( static_cast<size_t>( m_resultCollection->frameCount() ) * 4, progressText );
+    caf::ProgressInfo frameCountProgress( static_cast<size_t>( m_resultCollection->timeStepCount() ) * 4, progressText );
 
     auto loadFrameLambda = [&]( const QString& component ) {
         auto task = frameCountProgress.task( component );
@@ -75,25 +75,27 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorSM::calculate( int partIndex
 
     RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );
 
-    int frameCount = st11->frameCount();
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
+    int timeSteps = st11->timeStepCount();
+    for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
-        auto task = frameCountProgress.task( QString( "Frame %1" ).arg( fIdx ) );
+        for ( int fIdx = 0; fIdx < st11->frameCount( stepIdx ); fIdx++ )
+        {
+            auto task = frameCountProgress.task( QString( "Frame %1" ).arg( fIdx ) );
 
-        const std::vector<float>& st11Data = st11->frameData( fIdx );
-        const std::vector<float>& st22Data = st22->frameData( fIdx );
-        const std::vector<float>& st33Data = st33->frameData( fIdx );
+            const std::vector<float>& st11Data = st11->frameData( stepIdx, fIdx );
+            const std::vector<float>& st22Data = st22->frameData( stepIdx, fIdx );
+            const std::vector<float>& st33Data = st33->frameData( stepIdx, fIdx );
 
-        std::vector<float>& dstFrameData = dstDataFrames->frameData( fIdx );
-        size_t              valCount     = st11Data.size();
-        dstFrameData.resize( valCount );
+            std::vector<float>& dstFrameData = dstDataFrames->frameData( stepIdx, fIdx );
+            size_t              valCount     = st11Data.size();
+            dstFrameData.resize( valCount );
 
 #pragma omp parallel for
-        for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
-        {
-            dstFrameData[vIdx] = ( st11Data[vIdx] + st22Data[vIdx] + st33Data[vIdx] ) / 3.0f;
+            for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
+            {
+                dstFrameData[vIdx] = ( st11Data[vIdx] + st22Data[vIdx] + st33Data[vIdx] ) / 3.0f;
+            }
         }
     }
-
     return dstDataFrames;
 }

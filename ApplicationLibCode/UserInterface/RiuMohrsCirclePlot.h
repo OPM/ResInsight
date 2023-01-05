@@ -100,7 +100,8 @@ private:
     void deleteEnvelopes();
 
     bool addOrUpdateCurves( const RimGeoMechResultDefinition* geomResDef,
-                            size_t                            timeStepIndex,
+                            int                               timeStepIndex,
+                            int                               frameIndex,
                             size_t                            gridIndex,
                             size_t                            elmIndex,
                             const cvf::Color3ub&              color );

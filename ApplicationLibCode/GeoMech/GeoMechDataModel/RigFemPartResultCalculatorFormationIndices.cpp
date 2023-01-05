@@ -64,13 +64,13 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorFormationIndices::calculate(
         "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
 
     RigFemScalarResultFrames* resFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );
-    resFrames->enableAsSingleFrameResult();
+    resFrames->enableAsSingleStepResult();
 
     const RigFemPart*   femPart      = m_resultCollection->parts()->part( partIndex );
-    std::vector<float>& dstFrameData = resFrames->frameData( 0 );
+    std::vector<float>& dstFrameData = resFrames->frameData( 0, 0 );
 
-    size_t valCount = femPart->elementNodeResultCount();
-    float  inf      = std::numeric_limits<float>::infinity();
+    size_t          valCount = femPart->elementNodeResultCount();
+    constexpr float inf      = std::numeric_limits<float>::infinity();
     dstFrameData.resize( valCount, inf );
 
     const RigFormationNames* activeFormNames = m_resultCollection->activeFormationNames();

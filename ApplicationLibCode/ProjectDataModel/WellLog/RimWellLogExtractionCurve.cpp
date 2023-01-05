@@ -607,6 +607,9 @@ RimWellLogExtractionCurve::WellLogExtractionCurveData
     cvf::ref<RigGeoMechWellLogExtractor> refWellExtractor =
         wellLogCollection->findOrCreateExtractor( m_refWellPath, geomCase );
 
+    auto [timeStepIdx, frameIdx] =
+        geomCase->geoMechData()->femPartResults()->stepListIndexToTimeStepAndDataFrameIndex( m_timeStep );
+
     if ( wellExtractor.notNull() )
     {
         curveData.measuredDepthValues = wellExtractor->cellIntersectionMDs();
@@ -628,7 +631,7 @@ RimWellLogExtractionCurve::WellLogExtractionCurveData
 
         m_geomResultDefinition->loadResult();
         curveData.xUnits =
-            wellExtractor->curveData( m_geomResultDefinition->resultAddress(), m_timeStep, &curveData.values );
+            wellExtractor->curveData( m_geomResultDefinition->resultAddress(), timeStepIdx, frameIdx, &curveData.values );
     }
 
     // Do not adjust depth values of Azimuth and Inclination as they are dependent
@@ -640,7 +643,6 @@ RimWellLogExtractionCurve::WellLogExtractionCurveData
     {
         RigFemResultAddress indexKResAdr( RigFemResultPosEnum::RIG_ELEMENT_NODAL, "INDEX", "INDEX_K" );
 
-        const size_t        frameIdx                   = 0;
         std::vector<double> refWellMeasuredDepthValues = refWellExtractor->cellIntersectionMDs();
         std::vector<double> refWellTvDepthValues       = refWellExtractor->cellIntersectionTVDs();
         std::vector<double> refWellPropertyValues;
@@ -648,9 +650,9 @@ RimWellLogExtractionCurve::WellLogExtractionCurveData
         std::vector<double> wellIndexKValues;
         if ( indexKResAdr.isValid() )
         {
-            wellExtractor->curveData( indexKResAdr, frameIdx, &wellIndexKValues );
-            refWellExtractor->curveData( indexKResAdr, frameIdx, &refWellIndexKValues );
-            refWellExtractor->curveData( m_geomResultDefinition->resultAddress(), frameIdx, &refWellPropertyValues );
+            wellExtractor->curveData( indexKResAdr, timeStepIdx, frameIdx, &wellIndexKValues );
+            refWellExtractor->curveData( indexKResAdr, timeStepIdx, frameIdx, &refWellIndexKValues );
+            refWellExtractor->curveData( m_geomResultDefinition->resultAddress(), timeStepIdx, frameIdx, &refWellPropertyValues );
         }
 
         if ( !wellIndexKValues.empty() && !refWellIndexKValues.empty() && !refWellPropertyValues.empty() )
@@ -666,7 +668,8 @@ RimWellLogExtractionCurve::WellLogExtractionCurveData
         }
         if ( performDataSmoothing )
         {
-            refWellExtractor->performCurveDataSmoothing( frameIdx,
+            refWellExtractor->performCurveDataSmoothing( timeStepIdx,
+                                                         frameIdx,
                                                          &curveData.measuredDepthValues,
                                                          &curveData.tvDepthValues,
                                                          &curveData.values,
@@ -677,7 +680,8 @@ RimWellLogExtractionCurve::WellLogExtractionCurveData
 
     if ( wellExtractor.notNull() && performDataSmoothing )
     {
-        wellExtractor->performCurveDataSmoothing( m_timeStep,
+        wellExtractor->performCurveDataSmoothing( timeStepIdx,
+                                                  frameIdx,
                                                   &curveData.measuredDepthValues,
                                                   &curveData.tvDepthValues,
                                                   &curveData.values,
@@ -1148,7 +1152,7 @@ QString RimWellLogExtractionCurve::createCurveAutoName()
         {
             if ( geomCase->geoMechData() )
             {
-                maxTimeStep = geomCase->geoMechData()->femPartResults()->frameCount();
+                maxTimeStep = geomCase->geoMechData()->femPartResults()->totalSteps();
             }
         }
 

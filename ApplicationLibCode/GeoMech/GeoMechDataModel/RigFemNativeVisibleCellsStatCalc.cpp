@@ -97,5 +97,5 @@ void RigFemNativeVisibleCellsStatCalc::uniqueValues( size_t timeStepIndex, std::
 //--------------------------------------------------------------------------------------------------
 size_t RigFemNativeVisibleCellsStatCalc::timeStepCount()
 {
-    return m_resultsData->frameCount();
+    return m_resultsData->timeStepCount();
 }

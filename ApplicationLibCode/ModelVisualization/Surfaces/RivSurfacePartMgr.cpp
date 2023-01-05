@@ -89,7 +89,7 @@ void RivSurfacePartMgr::appendNativeGeometryPartsToModel( cvf::ModelBasicList* m
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivSurfacePartMgr::updateCellResultColor( size_t timeStepIndex )
+void RivSurfacePartMgr::updateCellResultColor( int timeStepIndex )
 {
     if ( m_intersectionFaces.notNull() )
     {

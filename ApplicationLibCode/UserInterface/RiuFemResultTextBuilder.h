@@ -48,7 +48,8 @@ public:
                              RimGeoMechResultDefinition* geomResDef,
                              int                         gridIndex,
                              int                         cellIndex,
-                             int                         timeStepIndex );
+                             int                         timeStepIndex,
+                             int                         frameIndex );
     void setFace( int face );
     void setIntersectionPointInDisplay( cvf::Vec3d intersectionPointInDisplay );
     void setIntersectionTriangle( const std::array<cvf::Vec3f, 3>& triangle );
@@ -70,6 +71,7 @@ private:
                                      int                         gridIndex,
                                      int                         cellIndex,
                                      int                         timeStepIndex,
+                                     int                         frameIndex,
                                      RimGeoMechResultDefinition* resultDefinition,
                                      QString*                    resultInfoText );
 
@@ -81,6 +83,7 @@ private:
     int m_gridIndex;
     int m_cellIndex;
     int m_timeStepIndex;
+    int m_frameIndex;
 
     int                       m_face;
     bool                      m_isIntersectionTriangleSet;

@@ -93,9 +93,9 @@ public:
 
     bool isUsingFormationNames() const override;
 
-    void calculateCurrentTotalCellVisibility( cvf::UByteArray* totalVisibility, int timeStep ) override;
+    void calculateCurrentTotalCellVisibility( cvf::UByteArray* totalVisibility, int viewerTimeStep ) override;
 
-    void updateLegendTextAndRanges( RimRegularLegendConfig* legendConfig, int timeStepIndex );
+    void updateLegendTextAndRanges( RimRegularLegendConfig* legendConfig, int viewerTimeStep );
 
     const cvf::ref<RivGeoMechVizLogic> vizLogic() const;
     const RimTensorResults*            tensorResults() const;
@@ -110,6 +110,9 @@ public:
 
     double displacementScaleFactor() const;
     bool   showDisplacements() const;
+
+    int currentLocalTimeStep() const;
+    int currentDataFrameIndex() const;
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -137,9 +140,11 @@ private:
 
     void onUpdateLegends() override;
 
-    void updateTensorLegendTextAndRanges( RimRegularLegendConfig* legendConfig, int timeStepIndex );
+    void updateTensorLegendTextAndRanges( RimRegularLegendConfig* legendConfig, int viewerTimeStep );
 
     void updateElementDisplacements();
+
+    std::pair<int, int> viewerStepToTimeStepAndFrameIndex( int viewerTimeStep );
 
     caf::PdmChildField<RimTensorResults*>                   m_tensorResults;
     caf::PdmChildField<RimGeoMechPropertyFilterCollection*> m_propertyFilterCollection;
@@ -153,4 +158,7 @@ private:
     cvf::ref<cvf::Transform>     m_scaleTransform;
 
     cvf::ref<RivTensorResultPartMgr> m_tensorPartMgr;
+
+    int m_currentLocalTimeStep;
+    int m_currentDataFrameIndex;
 };

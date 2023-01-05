@@ -45,6 +45,7 @@ public:
     virtual std::vector<std::string> allStepNames() const                                               = 0;
     virtual std::vector<std::string> filteredStepNames() const                                          = 0;
     virtual std::vector<double>      frameTimes( int stepIndex ) const                                  = 0;
+    virtual int                      frameCount( int stepIndex ) const                                  = 0;
 
     virtual std::vector<std::string> elementSetNames( int partIndex )          = 0;
     virtual std::vector<size_t>      elementSet( int partIndex, int setIndex ) = 0;

@@ -116,6 +116,7 @@ void RiuMohrsCirclePlot::appendSelection( const RiuSelectionItem* selectionItem 
 
             addOrUpdateCurves( geoMechSelectionItem->m_resultDefinition,
                                geoMechSelectionItem->m_timestepIdx,
+                               geoMechSelectionItem->m_frameIdx,
                                gridIndex,
                                cellIndex,
                                cvf::Color3ub( color ) );
@@ -164,10 +165,15 @@ void RiuMohrsCirclePlot::updateOnTimeStepChanged( Rim3dView* changedView )
     std::vector<MohrsCirclesInfo> mohrsCiclesInfosCopy = m_mohrsCiclesInfos;
     deletePlotItems();
 
+    RimGeoMechView* geomechView = dynamic_cast<RimGeoMechView*>( changedView );
+
+    if ( geomechView == nullptr ) return;
+
     for ( const MohrsCirclesInfo& mohrInfo : mohrsCiclesInfosCopy )
     {
         addOrUpdateCurves( mohrInfo.geomResDef,
-                           changedView->currentTimeStep(),
+                           geomechView->currentTimeStep(),
+                           geomechView->currentDataFrameIndex(),
                            mohrInfo.gridIndex,
                            mohrInfo.elmIndex,
                            mohrInfo.color );
@@ -356,7 +362,8 @@ void RiuMohrsCirclePlot::deleteEnvelopes()
 ///
 //--------------------------------------------------------------------------------------------------
 bool RiuMohrsCirclePlot::addOrUpdateCurves( const RimGeoMechResultDefinition* geomResDef,
-                                            size_t                            timeStepIndex,
+                                            int                               timeStepIndex,
+                                            int                               frameIndex,
                                             size_t                            gridIndex,
                                             size_t                            elmIndex,
                                             const cvf::Color3ub&              color )
@@ -371,7 +378,7 @@ bool RiuMohrsCirclePlot::addOrUpdateCurves( const RimGeoMechResultDefinition* ge
 
     // TODO: All tensors are calculated every time this function is called. FIX
 
-    std::vector<caf::Ten3f> vertexTensors = resultCollection->tensors( address, 0, (int)timeStepIndex );
+    std::vector<caf::Ten3f> vertexTensors = resultCollection->tensors( address, 0, timeStepIndex, frameIndex );
     if ( vertexTensors.empty() )
     {
         return false;

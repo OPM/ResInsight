@@ -162,6 +162,7 @@ cvf::ref<cvf::UByteArray> RimGeoMechContourMapProjection::getCellVisibility() co
         RivFemElmVisibilityCalculator::computePropertyVisibility( cellGridIdxVisibility.p(),
                                                                   m_femPart.p(),
                                                                   view()->currentTimeStep(),
+                                                                  view()->currentDataFrameIndex(),
                                                                   cellGridIdxVisibility.p(),
                                                                   view()->geoMechPropertyFilterCollection() );
     }
@@ -172,7 +173,7 @@ cvf::ref<cvf::UByteArray> RimGeoMechContourMapProjection::getCellVisibility() co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::BoundingBox RimGeoMechContourMapProjection::calculateExpandedPorBarBBox( int timeStep ) const
+cvf::BoundingBox RimGeoMechContourMapProjection::calculateExpandedPorBarBBox( int timeStep, int frameIndex ) const
 {
     RigFemResultAddress          porBarAddr( RigFemResultPosEnum::RIG_ELEMENT_NODAL,
                                     "POR-Bar",
@@ -180,7 +181,7 @@ cvf::BoundingBox RimGeoMechContourMapProjection::calculateExpandedPorBarBBox( in
     RigGeoMechCaseData*          caseData         = geoMechCase()->geoMechData();
     RigFemPartResultsCollection* resultCollection = caseData->femPartResults();
 
-    const std::vector<float>& resultValues = resultCollection->resultValues( porBarAddr, 0, timeStep );
+    const std::vector<float>& resultValues = resultCollection->resultValues( porBarAddr, 0, timeStep, frameIndex );
     cvf::BoundingBox          boundingBox;
 
     if ( resultValues.empty() )
@@ -230,7 +231,7 @@ void RimGeoMechContourMapProjection::updateGridInformation()
 
     if ( m_limitToPorePressureRegions )
     {
-        m_expandedBoundingBox = calculateExpandedPorBarBBox( view()->currentTimeStep() );
+        m_expandedBoundingBox = calculateExpandedPorBarBBox( view()->currentTimeStep(), view()->currentDataFrameIndex() );
         if ( !m_expandedBoundingBox.isValid() )
         {
             m_limitToPorePressureRegions = false;
@@ -348,12 +349,14 @@ std::vector<double> RimGeoMechContourMapProjection::generateResults( int timeSte
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimGeoMechContourMapProjection::generateResultsFromAddress( RigFemResultAddress      resultAddress,
                                                                                 const std::vector<bool>& mapCellVisibility,
-                                                                                int                      timeStep )
+                                                                                int viewerTimeStep )
 {
     RigGeoMechCaseData*          caseData         = geoMechCase()->geoMechData();
     RigFemPartResultsCollection* resultCollection = caseData->femPartResults();
     size_t                       nCells           = numberOfCells();
     std::vector<double> aggregatedResults = std::vector<double>( nCells, std::numeric_limits<double>::infinity() );
+
+    auto [stepIdx, frameIdx] = caseData->femPartResults()->stepListIndexToTimeStepAndDataFrameIndex( viewerTimeStep );
 
     bool wasInvalid = false;
     if ( !resultAddress.isValid() )
@@ -375,7 +378,7 @@ std::vector<double> RimGeoMechContourMapProjection::generateResultsFromAddress( 
         resultAddress.resultPosType = RIG_ELEMENT_NODAL; // formation indices are stored per element node result.
     }
 
-    std::vector<float> resultValuesF = resultCollection->resultValues( resultAddress, 0, timeStep );
+    std::vector<float> resultValuesF = resultCollection->resultValues( resultAddress, 0, stepIdx, frameIdx );
     if ( resultValuesF.empty() ) return aggregatedResults;
 
     std::vector<double> resultValues = gridCellValues( resultAddress, resultValuesF );
@@ -671,4 +674,33 @@ void RimGeoMechContourMapProjection::defineEditorAttribute( const caf::PdmFieldH
             myAttr->m_delaySliderUpdateUntilRelease = true;
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> RimGeoMechContourMapProjection::minmaxValuesAllTimeSteps()
+{
+    if ( !resultRangeIsValid() )
+    {
+        clearTimeStepRange();
+
+        m_minResultAllTimeSteps = std::min( m_minResultAllTimeSteps, minValue( m_aggregatedResults ) );
+        m_maxResultAllTimeSteps = std::max( m_maxResultAllTimeSteps, maxValue( m_aggregatedResults ) );
+
+        if ( geoMechCase() && geoMechCase()->geoMechData() && geoMechCase()->geoMechData()->femPartResults() )
+        {
+            int steps = geoMechCase()->geoMechData()->femPartResults()->totalSteps();
+
+            for ( int stepIdx = 0; stepIdx < steps; stepIdx++ )
+            {
+                if ( stepIdx == m_currentResultTimestep ) continue;
+
+                std::vector<double> aggregatedResults = generateResults( stepIdx );
+                m_minResultAllTimeSteps = std::min( m_minResultAllTimeSteps, minValue( aggregatedResults ) );
+                m_maxResultAllTimeSteps = std::max( m_maxResultAllTimeSteps, maxValue( aggregatedResults ) );
+            }
+        }
+    }
+    return std::make_pair( m_minResultAllTimeSteps, m_maxResultAllTimeSteps );
 }

@@ -57,75 +57,69 @@ private:
     {
         int partCount = m_caseData->femParts()->partCount();
 
-        if ( m_resVarAddr.resultPosType == RIG_NODAL )
+        for ( int pIdx = 0; pIdx < partCount; ++pIdx )
         {
-            for ( int pIdx = 0; pIdx < partCount; ++pIdx )
+            RigFemPart* part     = m_caseData->femParts()->part( pIdx );
+            int         elmCount = part->elementCount();
+            auto        frames   = m_resultsData->findOrLoadScalarResult( pIdx, m_resVarAddr );
+
+            for ( int frameIdx = 0; frameIdx < frames->frameCount( timeStepIndex ); frameIdx++ )
             {
-                RigFemPart*               part   = m_caseData->femParts()->part( pIdx );
-                const std::vector<float>& values = m_resultsData->resultValues( m_resVarAddr, pIdx, (int)timeStepIndex );
-
-                size_t          nodeCount = values.size();
-                cvf::UByteArray nodeVisibilities( nodeCount );
-                nodeVisibilities.setAll( false );
-
-                int elmCount = part->elementCount();
-                for ( int elmIdx = 0; elmIdx < elmCount; ++elmIdx )
-                {
-                    if ( !( *m_cellVisibilities )[elmIdx] ) continue;
-
-                    int elmNodeCount = RigFemTypes::elementNodeCount( part->elementType( elmIdx ) );
-                    for ( int elmLocIdx = 0; elmLocIdx < elmNodeCount; ++elmLocIdx )
-                    {
-                        size_t elmNodeResIdx      = part->elementNodeResultIdx( elmIdx, elmLocIdx );
-                        int    nodeIdx            = part->nodeIdxFromElementNodeResultIdx( elmNodeResIdx );
-                        nodeVisibilities[nodeIdx] = true;
-                    }
-                }
-
-                for ( size_t nodeIdx = 0; nodeIdx < nodeCount; ++nodeIdx )
-                {
-                    if ( nodeVisibilities[nodeIdx] )
-                    {
-                        accumulator.addValue( values[nodeIdx] );
-                    }
-                }
-            }
-        }
-        else if ( m_resVarAddr.resultPosType == RIG_ELEMENT )
-        {
-            for ( int pIdx = 0; pIdx < partCount; ++pIdx )
-            {
-                RigFemPart*               part   = m_caseData->femParts()->part( pIdx );
-                const std::vector<float>& values = m_resultsData->resultValues( m_resVarAddr, pIdx, (int)timeStepIndex );
-                int                       elmCount = part->elementCount();
-
-                for ( int elmIdx = 0; elmIdx < elmCount; ++elmIdx )
-                {
-                    if ( !( *m_cellVisibilities )[elmIdx] ) continue;
-
-                    accumulator.addValue( values[elmIdx] );
-                }
-            }
-        }
-        else
-        {
-            for ( int pIdx = 0; pIdx < partCount; ++pIdx )
-            {
-                RigFemPart*               part   = m_caseData->femParts()->part( pIdx );
-                const std::vector<float>& values = m_resultsData->resultValues( m_resVarAddr, pIdx, (int)timeStepIndex );
-                int                       elmCount = part->elementCount();
+                const std::vector<float>& values =
+                    m_resultsData->resultValues( m_resVarAddr, pIdx, (int)timeStepIndex, frameIdx );
 
                 if ( values.empty() ) continue;
 
-                for ( int elmIdx = 0; elmIdx < elmCount; ++elmIdx )
+                if ( m_resVarAddr.resultPosType == RIG_NODAL )
                 {
-                    if ( !( *m_cellVisibilities )[elmIdx] ) continue;
+                    size_t          nodeCount = values.size();
+                    cvf::UByteArray nodeVisibilities( nodeCount );
+                    nodeVisibilities.setAll( false );
 
-                    int elmNodeCount = RigFemTypes::elementNodeCount( part->elementType( elmIdx ) );
-                    for ( int elmLocIdx = 0; elmLocIdx < elmNodeCount; ++elmLocIdx )
+                    for ( int elmIdx = 0; elmIdx < elmCount; ++elmIdx )
                     {
-                        size_t elmNodeResIdx = part->elementNodeResultIdx( elmIdx, elmLocIdx );
-                        accumulator.addValue( values[elmNodeResIdx] );
+                        if ( !( *m_cellVisibilities )[elmIdx] ) continue;
+
+                        int elmNodeCount = RigFemTypes::elementNodeCount( part->elementType( elmIdx ) );
+                        for ( int elmLocIdx = 0; elmLocIdx < elmNodeCount; ++elmLocIdx )
+                        {
+                            size_t elmNodeResIdx      = part->elementNodeResultIdx( elmIdx, elmLocIdx );
+                            int    nodeIdx            = part->nodeIdxFromElementNodeResultIdx( elmNodeResIdx );
+                            nodeVisibilities[nodeIdx] = true;
+                        }
+                    }
+
+                    for ( size_t nodeIdx = 0; nodeIdx < nodeCount; ++nodeIdx )
+                    {
+                        if ( nodeVisibilities[nodeIdx] )
+                        {
+                            accumulator.addValue( values[nodeIdx] );
+                        }
+                    }
+                }
+
+                else if ( m_resVarAddr.resultPosType == RIG_ELEMENT )
+                {
+                    for ( int elmIdx = 0; elmIdx < elmCount; ++elmIdx )
+                    {
+                        if ( !( *m_cellVisibilities )[elmIdx] ) continue;
+
+                        accumulator.addValue( values[elmIdx] );
+                    }
+                }
+
+                else
+                {
+                    for ( int elmIdx = 0; elmIdx < elmCount; ++elmIdx )
+                    {
+                        if ( !( *m_cellVisibilities )[elmIdx] ) continue;
+
+                        int elmNodeCount = RigFemTypes::elementNodeCount( part->elementType( elmIdx ) );
+                        for ( int elmLocIdx = 0; elmLocIdx < elmNodeCount; ++elmLocIdx )
+                        {
+                            size_t elmNodeResIdx = part->elementNodeResultIdx( elmIdx, elmLocIdx );
+                            accumulator.addValue( values[elmNodeResIdx] );
+                        }
                     }
                 }
             }

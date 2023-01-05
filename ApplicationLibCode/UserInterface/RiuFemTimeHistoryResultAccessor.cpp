@@ -156,9 +156,13 @@ void RiuFemTimeHistoryResultAccessor::computeTimeHistoryData()
     {
         int closestElmNodeResIndex = closestCalc.closestElementNodeResIdx();
 
-        for ( int frameIdx = 0; frameIdx < femPartResultsColl->frameCount(); frameIdx++ )
+        for ( int stepIdx = 0; stepIdx < femPartResultsColl->timeStepCount(); stepIdx++ )
         {
-            RiuGeoMechXfTensorResultAccessor stressXfAccessor( femPartResultsColl, *m_femResultAddress, frameIdx );
+            RiuGeoMechXfTensorResultAccessor stressXfAccessor( femPartResultsColl,
+                                                               *m_femResultAddress,
+                                                               m_gridIndex,
+                                                               stepIdx,
+                                                               -1 );
             float scalarValue = stressXfAccessor.calculateElmNodeValue( m_intersectionTriangle, closestElmNodeResIndex );
             m_timeHistoryValues.push_back( scalarValue );
         }
@@ -167,12 +171,13 @@ void RiuFemTimeHistoryResultAccessor::computeTimeHistoryData()
     {
         if ( scalarResultIndex < 0 ) return;
 
-        for ( int frameIdx = 0; frameIdx < femPartResultsColl->frameCount(); frameIdx++ )
+        for ( int stepIdx = 0; stepIdx < femPartResultsColl->timeStepCount(); stepIdx++ )
         {
             const std::vector<float>& scalarResults =
                 m_geoMechCaseData->femPartResults()->resultValues( *m_femResultAddress,
                                                                    static_cast<int>( m_gridIndex ),
-                                                                   frameIdx );
+                                                                   stepIdx,
+                                                                   -1 );
             if ( scalarResults.size() )
             {
                 float scalarValue = scalarResults[scalarResultIndex];

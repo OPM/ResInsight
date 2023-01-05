@@ -58,7 +58,7 @@ public:
     void setDisplacements( bool useDisplacements, double scalingFactor, const std::vector<cvf::Vec3f>& displacements );
 
     void updateCellColor( cvf::Color4f color );
-    void updateCellResultColor( size_t timeStepIndex, RimGeoMechCellColors* cellResultColors );
+    void updateCellResultColor( int timeStepIndex, int frameIndex, RimGeoMechCellColors* cellResultColors );
 
     void appendPartsToModel( cvf::ModelBasicList* model );
 

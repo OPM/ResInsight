@@ -183,7 +183,8 @@ RiuEclipseSelectionItem::RiuEclipseSelectionItem( RimGridView*                  
 //--------------------------------------------------------------------------------------------------
 RiuGeoMechSelectionItem::RiuGeoMechSelectionItem( RimGridView*                view,
                                                   RimGeoMechResultDefinition* resultDefinition,
-                                                  size_t                      timestepIdx,
+                                                  int                         timestepIdx,
+                                                  int                         frameIdx,
                                                   size_t                      gridIndex,
                                                   size_t                      cellIndex,
                                                   cvf::Color3f                color,
@@ -192,6 +193,7 @@ RiuGeoMechSelectionItem::RiuGeoMechSelectionItem( RimGridView*                vi
     : m_view( view )
     , m_resultDefinition( resultDefinition )
     , m_timestepIdx( timestepIdx )
+    , m_frameIdx( frameIdx )
     , m_gridIndex( gridIndex )
     , m_cellIndex( cellIndex )
     , m_color( color )
@@ -206,7 +208,8 @@ RiuGeoMechSelectionItem::RiuGeoMechSelectionItem( RimGridView*                vi
 //--------------------------------------------------------------------------------------------------
 RiuGeoMechSelectionItem::RiuGeoMechSelectionItem( RimGridView*                     view,
                                                   RimGeoMechResultDefinition*      resultDefinition,
-                                                  size_t                           timestepIdx,
+                                                  int                              timestepIdx,
+                                                  int                              frameIdx,
                                                   size_t                           gridIndex,
                                                   size_t                           cellIndex,
                                                   cvf::Color3f                     color,
@@ -216,6 +219,7 @@ RiuGeoMechSelectionItem::RiuGeoMechSelectionItem( RimGridView*                  
     : m_view( view )
     , m_resultDefinition( resultDefinition )
     , m_timestepIdx( timestepIdx )
+    , m_frameIdx( frameIdx )
     , m_gridIndex( gridIndex )
     , m_cellIndex( cellIndex )
     , m_color( color )

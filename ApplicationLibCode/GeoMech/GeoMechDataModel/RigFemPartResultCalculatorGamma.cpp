@@ -59,10 +59,10 @@ bool RigFemPartResultCalculatorGamma::isMatching( const RigFemResultAddress& res
 //--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultCalculatorGamma::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
 {
-    caf::ProgressInfo frameCountProgress( m_resultCollection->frameCount() * 3, "" );
+    caf::ProgressInfo frameCountProgress( m_resultCollection->timeStepCount() * 3, "" );
     frameCountProgress.setProgressDescription(
         "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemResultAddress totStressCompAddr( resVarAddr.resultPosType, "ST", "" );
     {
@@ -86,7 +86,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorGamma::calculate( int partIn
     RigFemScalarResultFrames* srcDataFrames = m_resultCollection->findOrLoadScalarResult( partIndex, totStressCompAddr );
 
     frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* srcPORDataFrames =
         m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_NODAL, "POR-Bar", "" ) );
@@ -114,60 +114,62 @@ void RigFemPartResultCalculatorGamma::calculateGammaFromFrames( int             
                                                                 RigFemScalarResultFrames*       dstDataFrames,
                                                                 caf::ProgressInfo*              frameCountProgress )
 {
-    const RigFemPart* femPart    = femParts->part( partIndex );
-    int               frameCount = totalStressComponentDataFrames->frameCount();
-    float             inf        = std::numeric_limits<float>::infinity();
+    const RigFemPart* femPart = femParts->part( partIndex );
+    float             inf     = std::numeric_limits<float>::infinity();
 
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
+    int timeSteps = totalStressComponentDataFrames->timeStepCount();
+    for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
-        const std::vector<float>& srcSTFrameData  = totalStressComponentDataFrames->frameData( fIdx );
-        const std::vector<float>& srcPORFrameData = srcPORDataFrames->frameData( fIdx );
+        for ( int fIdx = 0; fIdx < totalStressComponentDataFrames->frameCount( stepIdx ); fIdx++ )
+        {
+            const std::vector<float>& srcSTFrameData  = totalStressComponentDataFrames->frameData( stepIdx, fIdx );
+            const std::vector<float>& srcPORFrameData = srcPORDataFrames->frameData( stepIdx, fIdx );
 
-        std::vector<float>& dstFrameData = dstDataFrames->frameData( fIdx );
+            std::vector<float>& dstFrameData = dstDataFrames->frameData( stepIdx, fIdx );
 
-        size_t valCount = srcSTFrameData.size();
-        dstFrameData.resize( valCount );
+            size_t valCount = srcSTFrameData.size();
+            dstFrameData.resize( valCount );
 
-        int elementCount = femPart->elementCount();
+            int elementCount = femPart->elementCount();
 
 #pragma omp parallel for
-        for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
-        {
-            RigElementType elmType = femPart->elementType( elmIdx );
-
-            int elmNodeCount = RigFemTypes::elementNodeCount( femPart->elementType( elmIdx ) );
-
-            if ( elmType == HEX8P )
+            for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
             {
-                for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
+                RigElementType elmType = femPart->elementType( elmIdx );
+
+                int elmNodeCount = RigFemTypes::elementNodeCount( femPart->elementType( elmIdx ) );
+
+                if ( elmType == HEX8P )
                 {
-                    size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
-                    if ( elmNodResIdx < srcSTFrameData.size() )
+                    for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
                     {
-                        int nodeIdx = femPart->nodeIdxFromElementNodeResultIdx( elmNodResIdx );
+                        size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
+                        if ( elmNodResIdx < srcSTFrameData.size() )
+                        {
+                            int nodeIdx = femPart->nodeIdxFromElementNodeResultIdx( elmNodResIdx );
 
-                        float por = srcPORFrameData[nodeIdx];
+                            float por = srcPORFrameData[nodeIdx];
 
-                        if ( por == inf || fabs( por ) < 0.01e6 * 1.0e-5 )
-                            dstFrameData[elmNodResIdx] = inf;
-                        else
-                            dstFrameData[elmNodResIdx] = srcSTFrameData[elmNodResIdx] / por;
+                            if ( por == inf || fabs( por ) < 0.01e6 * 1.0e-5 )
+                                dstFrameData[elmNodResIdx] = inf;
+                            else
+                                dstFrameData[elmNodResIdx] = srcSTFrameData[elmNodResIdx] / por;
+                        }
                     }
                 }
-            }
-            else
-            {
-                for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
+                else
                 {
-                    size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
-                    if ( elmNodResIdx < dstFrameData.size() )
+                    for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
                     {
-                        dstFrameData[elmNodResIdx] = inf;
+                        size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
+                        if ( elmNodResIdx < dstFrameData.size() )
+                        {
+                            dstFrameData[elmNodResIdx] = inf;
+                        }
                     }
                 }
             }
         }
-
         frameCountProgress->incrementProgress();
     }
 }

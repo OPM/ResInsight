@@ -154,7 +154,7 @@ void Rim3dWellLogCurve::curveValuesAndMdsAtTimeStep( std::vector<double>* values
                                                      std::vector<double>* measuredDepthValues,
                                                      int                  timeStep ) const
 {
-    return this->curveValuesAndMds( values, measuredDepthValues );
+    curveValuesAndMds( values, measuredDepthValues );
 }
 
 //--------------------------------------------------------------------------------------------------

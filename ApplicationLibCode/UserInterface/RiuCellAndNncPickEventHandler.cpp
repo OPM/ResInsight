@@ -133,7 +133,9 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
     RimGeoMechResultDefinition*        geomResDef     = nullptr;
     RimEclipseResultDefinition*        eclResDef      = nullptr;
     size_t                             timestepIndex  = cvf::UNDEFINED_SIZE_T;
-    RimIntersectionResultDefinition*   sepInterResDef = nullptr;
+    int                                dataFrameIndex = -2; // needs to be less than -1, as -1 means last step
+
+    RimIntersectionResultDefinition* sepInterResDef = nullptr;
 
     // clang-format off
     if ( const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>( firstHitPart->sourceInfo() ) )
@@ -197,6 +199,7 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
 
     if ( sepInterResDef )
     {
+        timestepIndex = sepInterResDef->timeStep();
         if ( sepInterResDef->isEclipseResultDefinition() )
         {
             eclResDef = sepInterResDef->eclipseResultDefinition();
@@ -205,8 +208,6 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
         {
             geomResDef = sepInterResDef->geoMechResultDefinition();
         }
-
-        timestepIndex = sepInterResDef->timeStep();
     }
 
     if ( gridLocalCellIndex == cvf::UNDEFINED_SIZE_T )
@@ -287,6 +288,7 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
             {
                 if ( !geomResDef ) geomResDef = geomView->cellResult();
                 if ( timestepIndex == cvf::UNDEFINED_SIZE_T ) timestepIndex = geomView->currentTimeStep();
+                if ( dataFrameIndex < -1 ) dataFrameIndex = geomView->currentDataFrameIndex();
             }
         }
 
@@ -370,6 +372,7 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
                 selItem = new RiuGeoMechSelectionItem( associatedGridView,
                                                        geomResDef,
                                                        timestepIndex,
+                                                       dataFrameIndex,
                                                        gridIndex,
                                                        gridLocalCellIndex,
                                                        curveColor,
@@ -380,6 +383,7 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
                 selItem = new RiuGeoMechSelectionItem( associatedGridView,
                                                        geomResDef,
                                                        timestepIndex,
+                                                       dataFrameIndex,
                                                        gridIndex,
                                                        gridLocalCellIndex,
                                                        curveColor,

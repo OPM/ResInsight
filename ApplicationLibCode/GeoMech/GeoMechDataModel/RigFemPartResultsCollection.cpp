@@ -459,12 +459,12 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult( i
         std::map<std::string, std::vector<float>> elementProperties =
             m_elementPropertyReader->readAllElementPropertiesInFileContainingField( resVarAddr.fieldName );
 
-        for ( auto [addrString, values] : elementProperties )
+        for ( auto& [addrString, values] : elementProperties )
         {
             RigFemResultAddress       addressForElement( RIG_ELEMENT, addrString, "" );
             RigFemScalarResultFrames* currentFrames = m_femPartResults[partIndex]->createScalarResult( addressForElement );
-            currentFrames->enableAsSingleFrameResult();
-            currentFrames->frameData( 0 ).swap( values );
+            currentFrames->enableAsSingleStepResult();
+            currentFrames->frameData( 0, 0 ).swap( values );
         }
 
         frames = m_femPartResults[partIndex]->findScalarResult( resVarAddr );
@@ -490,46 +490,50 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult( i
             resultsForEachComponent.push_back( m_femPartResults[partIndex]->createScalarResult( resultAddressOfComponent ) );
         }
 
-        int               frameCount = this->frameCount();
-        caf::ProgressInfo progress( frameCount, "" );
+        int               timeSteps = this->timeStepCount();
+        caf::ProgressInfo progress( timeSteps, "" );
         progress.setProgressDescription(
             QString( "Loading Native Result %1 %2" ).arg( resVarAddr.fieldName.c_str(), resVarAddr.componentName.c_str() ) );
 
-        for ( int stepIndex = 0; stepIndex < frameCount; ++stepIndex )
+        for ( int stepIndex = 0; stepIndex < timeSteps; ++stepIndex )
         {
             std::vector<double> frameTimes = m_readerInterface->frameTimes( stepIndex );
 
-            int fIdx = (int)( frameTimes.size() - 1 );
-
-            std::vector<std::vector<float>*> componentDataVectors;
-            for ( auto& componentResult : resultsForEachComponent )
+            for ( int frameIndex = 0; frameIndex < int( frameTimes.size() ); frameIndex++ )
             {
-                componentDataVectors.push_back( &( componentResult->frameData( stepIndex ) ) );
-            }
+                std::vector<std::vector<float>*> componentDataVectors;
+                for ( auto& componentResult : resultsForEachComponent )
+                {
+                    componentDataVectors.push_back( &( componentResult->frameData( stepIndex, frameIndex ) ) );
+                }
 
-            switch ( resVarAddr.resultPosType )
-            {
-                case RIG_NODAL:
-                    m_readerInterface->readNodeField( resVarAddr.fieldName, partIndex, stepIndex, fIdx, &componentDataVectors );
-                    break;
-                case RIG_ELEMENT_NODAL:
-                    m_readerInterface->readElementNodeField( resVarAddr.fieldName,
-                                                             partIndex,
-                                                             stepIndex,
-                                                             fIdx,
-                                                             &componentDataVectors );
-                    break;
-                case RIG_INTEGRATION_POINT:
-                    m_readerInterface->readIntegrationPointField( resVarAddr.fieldName,
-                                                                  partIndex,
-                                                                  stepIndex,
-                                                                  fIdx,
-                                                                  &componentDataVectors );
-                    break;
-                default:
-                    break;
+                switch ( resVarAddr.resultPosType )
+                {
+                    case RIG_NODAL:
+                        m_readerInterface->readNodeField( resVarAddr.fieldName,
+                                                          partIndex,
+                                                          stepIndex,
+                                                          frameIndex,
+                                                          &componentDataVectors );
+                        break;
+                    case RIG_ELEMENT_NODAL:
+                        m_readerInterface->readElementNodeField( resVarAddr.fieldName,
+                                                                 partIndex,
+                                                                 stepIndex,
+                                                                 frameIndex,
+                                                                 &componentDataVectors );
+                        break;
+                    case RIG_INTEGRATION_POINT:
+                        m_readerInterface->readIntegrationPointField( resVarAddr.fieldName,
+                                                                      partIndex,
+                                                                      stepIndex,
+                                                                      frameIndex,
+                                                                      &componentDataVectors );
+                        break;
+                    default:
+                        break;
+                }
             }
-
             progress.incrementProgress();
         }
 
@@ -949,9 +953,52 @@ std::vector<std::string> RigFemPartResultsCollection::filteredStepNames() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RigFemPartResultsCollection::frameCount()
+int RigFemPartResultsCollection::timeStepCount() const
 {
     return static_cast<int>( filteredStepNames().size() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RigFemPartResultsCollection::frameCount( int timeStepIndex ) const
+{
+    CVF_ASSERT( m_readerInterface.notNull() );
+    return m_readerInterface->frameCount( timeStepIndex );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<std::pair<int, int>>& RigFemPartResultsCollection::stepList()
+{
+    if ( m_stepList.empty() )
+    {
+        const int timeSteps = timeStepCount();
+        for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
+        {
+            const int frames = frameCount( stepIdx );
+            for ( int frameIdx = 0; frameIdx < frames; frameIdx++ )
+            {
+                m_stepList.emplace_back( stepIdx, frameIdx );
+            }
+        }
+    }
+
+    return m_stepList;
+}
+
+int RigFemPartResultsCollection::totalSteps()
+{
+    return int( stepList().size() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::pair<int, int> RigFemPartResultsCollection::stepListIndexToTimeStepAndDataFrameIndex( int stepIndex )
+{
+    return stepList()[stepIndex];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -968,9 +1015,12 @@ bool RigFemPartResultsCollection::assertResultsLoaded( const RigFemResultAddress
         if ( m_femPartResults[pIdx].notNull() )
         {
             RigFemScalarResultFrames* scalarResults = findOrLoadScalarResult( pIdx, resVarAddr );
-            for ( int fIdx = 0; fIdx < scalarResults->frameCount(); ++fIdx )
+            for ( int stepIdx = 0; stepIdx < scalarResults->timeStepCount(); stepIdx++ )
             {
-                foundResults = foundResults || !scalarResults->frameData( fIdx ).empty();
+                for ( int fIdx = 0; fIdx < scalarResults->frameCount( stepIdx ); ++fIdx )
+                {
+                    foundResults = foundResults || !scalarResults->frameData( stepIdx, fIdx ).empty();
+                }
             }
         }
     }
@@ -1046,13 +1096,15 @@ std::vector<RigFemResultAddress> RigFemPartResultsCollection::loadedResults() co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<float>&
-    RigFemPartResultsCollection::resultValues( const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex )
+const std::vector<float>& RigFemPartResultsCollection::resultValues( const RigFemResultAddress& resVarAddr,
+                                                                     int                        partIndex,
+                                                                     int                        stepIndex,
+                                                                     int                        frameIndex )
 {
     CVF_ASSERT( resVarAddr.isValid() );
 
     RigFemScalarResultFrames* scalarResults = findOrLoadScalarResult( partIndex, resVarAddr );
-    return scalarResults->frameData( frameIndex );
+    return scalarResults->frameData( stepIndex, frameIndex );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1060,13 +1112,14 @@ const std::vector<float>&
 //--------------------------------------------------------------------------------------------------
 void RigFemPartResultsCollection::globalResultValues( const RigFemResultAddress& resVarAddr,
                                                       int                        timeStepIndex,
+                                                      int                        frameIndex,
                                                       std::vector<float>&        resultValues )
 {
     CVF_ASSERT( resVarAddr.isValid() );
 
     for ( int i = 0; i < partCount(); i++ )
     {
-        const std::vector<float>& partResults = this->resultValues( resVarAddr, i, (int)timeStepIndex );
+        const std::vector<float>& partResults = this->resultValues( resVarAddr, i, timeStepIndex, frameIndex );
         if ( partResults.empty() )
         {
             size_t expectedSize = 0;
@@ -1107,7 +1160,7 @@ void RigFemPartResultsCollection::globalResultValues( const RigFemResultAddress&
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<caf::Ten3f>
-    RigFemPartResultsCollection::tensors( const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex )
+    RigFemPartResultsCollection::tensors( const RigFemResultAddress& resVarAddr, int partIndex, int stepIndex, int frameIndex )
 {
     CVF_ASSERT( resVarAddr.resultPosType == RIG_ELEMENT_NODAL || resVarAddr.resultPosType == RIG_INTEGRATION_POINT );
 
@@ -1120,12 +1173,12 @@ std::vector<caf::Ten3f>
         return outputTensors;
     }
 
-    const std::vector<float>& v11 = resultValues( addresses[caf::Ten3f::SXX], partIndex, frameIndex );
-    const std::vector<float>& v22 = resultValues( addresses[caf::Ten3f::SYY], partIndex, frameIndex );
-    const std::vector<float>& v33 = resultValues( addresses[caf::Ten3f::SZZ], partIndex, frameIndex );
-    const std::vector<float>& v12 = resultValues( addresses[caf::Ten3f::SXY], partIndex, frameIndex );
-    const std::vector<float>& v13 = resultValues( addresses[caf::Ten3f::SZX], partIndex, frameIndex );
-    const std::vector<float>& v23 = resultValues( addresses[caf::Ten3f::SYZ], partIndex, frameIndex );
+    const std::vector<float>& v11 = resultValues( addresses[caf::Ten3f::SXX], partIndex, stepIndex, frameIndex );
+    const std::vector<float>& v22 = resultValues( addresses[caf::Ten3f::SYY], partIndex, stepIndex, frameIndex );
+    const std::vector<float>& v33 = resultValues( addresses[caf::Ten3f::SZZ], partIndex, stepIndex, frameIndex );
+    const std::vector<float>& v12 = resultValues( addresses[caf::Ten3f::SXY], partIndex, stepIndex, frameIndex );
+    const std::vector<float>& v13 = resultValues( addresses[caf::Ten3f::SZX], partIndex, stepIndex, frameIndex );
+    const std::vector<float>& v23 = resultValues( addresses[caf::Ten3f::SYZ], partIndex, stepIndex, frameIndex );
 
     size_t valCount = v11.size();
     outputTensors.resize( valCount );
@@ -1160,11 +1213,12 @@ RigStatisticsDataCache* RigFemPartResultsCollection::statistics( const RigFemRes
 ///
 //--------------------------------------------------------------------------------------------------
 void RigFemPartResultsCollection::minMaxScalarValues( const RigFemResultAddress& resVarAddr,
+                                                      int                        stepIndex,
                                                       int                        frameIndex,
                                                       double*                    localMin,
                                                       double*                    localMax )
 {
-    this->statistics( resVarAddr )->minMaxCellScalarValues( frameIndex, *localMin, *localMax );
+    this->statistics( resVarAddr )->minMaxCellScalarValues( stepIndex, *localMin, *localMax );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1182,10 +1236,11 @@ void RigFemPartResultsCollection::minMaxScalarValues( const RigFemResultAddress&
 //--------------------------------------------------------------------------------------------------
 void RigFemPartResultsCollection::posNegClosestToZero( const RigFemResultAddress& resVarAddr,
                                                        int                        frameIndex,
+                                                       int                        stepIndex,
                                                        double*                    localPosClosestToZero,
                                                        double*                    localNegClosestToZero )
 {
-    this->statistics( resVarAddr )->posNegClosestToZero( frameIndex, *localPosClosestToZero, *localNegClosestToZero );
+    this->statistics( resVarAddr )->posNegClosestToZero( stepIndex, *localPosClosestToZero, *localNegClosestToZero );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1211,9 +1266,12 @@ void RigFemPartResultsCollection::meanScalarValue( const RigFemResultAddress& re
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFemPartResultsCollection::meanScalarValue( const RigFemResultAddress& resVarAddr, int frameIndex, double* meanValue )
+void RigFemPartResultsCollection::meanScalarValue( const RigFemResultAddress& resVarAddr,
+                                                   int                        stepIndex,
+                                                   int                        frameIndex,
+                                                   double*                    meanValue )
 {
-    this->statistics( resVarAddr )->meanCellScalarValues( frameIndex, *meanValue );
+    this->statistics( resVarAddr )->meanCellScalarValues( stepIndex, *meanValue );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1228,11 +1286,12 @@ void RigFemPartResultsCollection::p10p90ScalarValues( const RigFemResultAddress&
 ///
 //--------------------------------------------------------------------------------------------------
 void RigFemPartResultsCollection::p10p90ScalarValues( const RigFemResultAddress& resVarAddr,
+                                                      int                        stepIndex,
                                                       int                        frameIndex,
                                                       double*                    p10,
                                                       double*                    p90 )
 {
-    this->statistics( resVarAddr )->p10p90CellScalarValues( frameIndex, *p10, *p90 );
+    this->statistics( resVarAddr )->p10p90CellScalarValues( stepIndex, *p10, *p90 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1248,11 +1307,14 @@ void RigFemPartResultsCollection::sumScalarValue( const RigFemResultAddress& res
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFemPartResultsCollection::sumScalarValue( const RigFemResultAddress& resVarAddr, int frameIndex, double* sum )
+void RigFemPartResultsCollection::sumScalarValue( const RigFemResultAddress& resVarAddr,
+                                                  int                        stepIndex,
+                                                  int                        frameIndex,
+                                                  double*                    sum )
 {
     CVF_ASSERT( sum );
 
-    this->statistics( resVarAddr )->sumCellScalarValues( frameIndex, *sum );
+    this->statistics( resVarAddr )->sumCellScalarValues( stepIndex, *sum );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1267,11 +1329,15 @@ const std::vector<size_t>& RigFemPartResultsCollection::scalarValuesHistogram( c
 ///
 //--------------------------------------------------------------------------------------------------
 const std::vector<size_t>& RigFemPartResultsCollection::scalarValuesHistogram( const RigFemResultAddress& resVarAddr,
+                                                                               int                        stepIndex,
                                                                                int                        frameIndex )
 {
-    return this->statistics( resVarAddr )->cellScalarValuesHistogram( frameIndex );
+    return this->statistics( resVarAddr )->cellScalarValuesHistogram( stepIndex );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RigFemResultAddress>
     RigFemPartResultsCollection::tensorPrincipalComponentAdresses( const RigFemResultAddress& resVarAddr )
 {
@@ -1445,6 +1511,7 @@ double RigFemPartResultsCollection::normalizationAirGap() const
 ///
 //--------------------------------------------------------------------------------------------------
 void RigFemPartResultsCollection::minMaxScalarValuesOverAllTensorComponents( const RigFemResultAddress& resVarAddr,
+                                                                             int                        stepIndex,
                                                                              int                        frameIndex,
                                                                              double*                    localMin,
                                                                              double*                    localMax )
@@ -1456,7 +1523,7 @@ void RigFemPartResultsCollection::minMaxScalarValuesOverAllTensorComponents( con
 
     for ( const auto& address : tensorPrincipalComponentAdresses( resVarAddr ) )
     {
-        this->statistics( address )->minMaxCellScalarValues( frameIndex, min, max );
+        this->statistics( address )->minMaxCellScalarValues( stepIndex, min, max );
         if ( min < currentMin )
         {
             currentMin = min;
@@ -1504,6 +1571,7 @@ void RigFemPartResultsCollection::minMaxScalarValuesOverAllTensorComponents( con
 ///
 //--------------------------------------------------------------------------------------------------
 void RigFemPartResultsCollection::posNegClosestToZeroOverAllTensorComponents( const RigFemResultAddress& resVarAddr,
+                                                                              int                        stepIndex,
                                                                               int                        frameIndex,
                                                                               double* localPosClosestToZero,
                                                                               double* localNegClosestToZero )
@@ -1515,7 +1583,7 @@ void RigFemPartResultsCollection::posNegClosestToZeroOverAllTensorComponents( co
 
     for ( const auto& address : tensorPrincipalComponentAdresses( resVarAddr ) )
     {
-        this->statistics( address )->posNegClosestToZero( frameIndex, pos, neg );
+        this->statistics( address )->posNegClosestToZero( stepIndex, pos, neg );
         if ( pos < currentPosClosestToZero )
         {
             currentPosClosestToZero = pos;

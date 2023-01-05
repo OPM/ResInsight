@@ -111,11 +111,15 @@ void RimWellBoreStabilityPlot::copyWbsParameters( const RimWbsParameters* wbsPar
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellBoreStabilityPlot::setCaseWellPathAndTimeStep( RimGeoMechCase* geoMechCase, RimWellPath* wellPath, int timeStep )
+void RimWellBoreStabilityPlot::setCaseWellPathAndTimeStep( RimGeoMechCase* geoMechCase,
+                                                           RimWellPath*    wellPath,
+                                                           int             timeStep,
+                                                           int             frameIndex /* = -1 */ )
 {
     m_wbsParameters->setGeoMechCase( geoMechCase );
     m_wbsParameters->setWellPath( wellPath );
     m_wbsParameters->setTimeStep( timeStep );
+    m_wbsParameters->setFrameIndex( frameIndex );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -215,6 +219,7 @@ void RimWellBoreStabilityPlot::applyDataSource()
     m_wbsParameters->setGeoMechCase( dynamic_cast<RimGeoMechCase*>( m_commonDataSource->caseToApply() ) );
     m_wbsParameters->setWellPath( m_commonDataSource->wellPathToApply() );
     m_wbsParameters->setTimeStep( m_commonDataSource->timeStepToApply() );
+    m_wbsParameters->setFrameIndex( -1 );
 
     this->updateReferenceWellPathInCurves();
     this->updateConnectedEditors();
