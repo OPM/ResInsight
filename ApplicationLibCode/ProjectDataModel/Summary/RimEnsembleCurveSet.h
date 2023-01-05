@@ -81,6 +81,12 @@ public:
     using ColorModeEnum      = RimEnsembleCurveSetColorManager::ColorModeEnum;
     using TimeStepFilterEnum = caf::AppEnum<RimTimeStepFilter::TimeStepFilterTypeEnum>;
 
+    enum class ParameterSorting
+    {
+        ABSOLUTE_VALUE,
+        ALPHABETICALLY
+    };
+
 public:
     RimEnsembleCurveSet();
     ~RimEnsembleCurveSet() override;
@@ -137,7 +143,7 @@ public:
     void                              updateAllTextInPlot();
     std::vector<RigEnsembleParameter> variationSortedEnsembleParameters() const;
 
-    std::vector<std::pair<RigEnsembleParameter, double>> correlationSortedEnsembleParameters() const;
+    std::vector<std::pair<RigEnsembleParameter, double>> ensembleParameters( ParameterSorting sortingMode ) const;
 
     std::vector<RimSummaryCase*> filterEnsembleCases( const std::vector<RimSummaryCase*>& sumCases );
     void                         disableStatisticCurves();
@@ -219,9 +225,10 @@ private:
     caf::PdmField<bool>                           m_yPushButtonSelectSummaryAddress;
     caf::PdmField<RiaDefines::DateTimePeriodEnum> m_resampling;
 
-    caf::PdmField<ColorModeEnum> m_colorMode;
-    caf::PdmField<cvf::Color3f>  m_color;
-    caf::PdmField<QString>       m_ensembleParameter;
+    caf::PdmField<ColorModeEnum>                                       m_colorMode;
+    caf::PdmField<cvf::Color3f>                                        m_color;
+    caf::PdmField<QString>                                             m_ensembleParameter;
+    caf::PdmField<caf::AppEnum<RimEnsembleCurveSet::ParameterSorting>> m_ensembleParameterSorting;
 
     caf::PdmChildArrayField<RimSummaryAddress*>   m_objectiveValuesSummaryAddresses;
     caf::PdmField<QString>                        m_objectiveValuesSummaryAddressesUiField;

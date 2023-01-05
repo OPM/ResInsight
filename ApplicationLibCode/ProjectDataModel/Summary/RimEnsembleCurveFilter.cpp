@@ -260,7 +260,7 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveFilter::calculateValueOptions( con
         auto curveSet = parentCurveSet();
         if ( curveSet )
         {
-            auto params = curveSet->correlationSortedEnsembleParameters();
+            auto params = curveSet->ensembleParameters( RimEnsembleCurveSet::ParameterSorting::ABSOLUTE_VALUE );
             for ( const auto& [param, corr] : params )
             {
                 options.push_back(
@@ -657,7 +657,7 @@ void RimEnsembleCurveFilter::updateMaxMinAndDefaultValues( bool forceDefault )
     {
         if ( !selectedEnsembleParameter().isValid() )
         {
-            auto ensParams = parentCurveSet()->correlationSortedEnsembleParameters();
+            auto ensParams = parentCurveSet()->ensembleParameters( RimEnsembleCurveSet::ParameterSorting::ABSOLUTE_VALUE );
             if ( !ensParams.empty() )
             {
                 m_ensembleParameterName = ensParams.front().first.name;
