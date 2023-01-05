@@ -22,6 +22,7 @@
 
 #include "RigAccWellFlowCalculator.h"
 #include "RigFlowDiagResultAddress.h"
+#include "RigWellResultPoint.h"
 
 #include <set>
 
