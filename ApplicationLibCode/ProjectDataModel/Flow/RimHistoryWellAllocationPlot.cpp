@@ -38,6 +38,8 @@
 #include "RimSimWellInView.h"
 #include "RimStackablePlotCurve.h"
 #include "RimWellAllocationTools.h"
+#include "RimWellLogFile.h"
+#include "RimWellPlotTools.h"
 
 #include "RiuContextMenuLauncher.h"
 #include "RiuPlotCurve.h"
@@ -261,21 +263,31 @@ void RimHistoryWellAllocationPlot::onLoadDataAndUpdate()
 }
 
 //--------------------------------------------------------------------------------------------------
-/// TODO: Improve generating axis title, see WellAllocationPlot for how to retrieve units
+///
 //--------------------------------------------------------------------------------------------------
 QString RimHistoryWellAllocationPlot::getYAxisTitleFromValueType() const
 {
+    RiaDefines::EclipseUnitSystem     unitSet   = m_case->eclipseCaseData()->unitsType();
+    RimWellLogFile::WellFlowCondition condition = m_flowDiagSolution ? RimWellLogFile::WELL_FLOW_COND_RESERVOIR
+                                                                     : RimWellLogFile::WELL_FLOW_COND_STANDARD;
+
     if ( m_flowValueType == FlowValueType::PERCENTAGE )
     {
-        return QString( "Percentage of well flow [%]" );
+        QString conditionText = condition == RimWellLogFile::WELL_FLOW_COND_RESERVOIR ? "Reservoir Flow Rate"
+                                                                                      : "Surface Flow Rate";
+        return QString( "Percentage of %1 [%]" ).arg( conditionText );
     }
     if ( m_flowValueType == FlowValueType::FLOW_RATE )
     {
-        return QString( "Flow Rate [m<sup>3</sup>/day]" );
+        return RimWellPlotTools::flowPlotAxisTitle( condition, unitSet );
     }
     if ( m_flowValueType == FlowValueType::FLOW_VOLUME )
     {
-        return QString( "Flow Volume [m<sup>3</sup>]" );
+        return RimWellPlotTools::flowVolumePlotAxisTitle( condition, unitSet );
+    }
+    if ( m_flowValueType == FlowValueType::ACCUMULATED_FLOW_VOLUME )
+    {
+        return RimWellPlotTools::flowVolumePlotAxisTitle( condition, unitSet );
     }
     return QString( "" );
 }
