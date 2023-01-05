@@ -75,6 +75,20 @@
 #include <algorithm>
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+namespace caf
+{
+template <>
+void AppEnum<RimEnsembleCurveSet::ParameterSorting>::setUp()
+{
+    addItem( RimEnsembleCurveSet::ParameterSorting::ABSOLUTE_VALUE, "ABSOLUTE_VALUE", "Absolute Correlation" );
+    addItem( RimEnsembleCurveSet::ParameterSorting::ALPHABETICALLY, "ALPHABETICALLY", "Alphabetically" );
+    setDefault( RimEnsembleCurveSet::ParameterSorting::ABSOLUTE_VALUE );
+}
+} // namespace caf
+
+//--------------------------------------------------------------------------------------------------
 /// Internal functions
 //--------------------------------------------------------------------------------------------------
 RiuPlotCurveSymbol::PointSymbolEnum statisticsCurveSymbolFromAddress( const RifEclipseSummaryAddress& address );
@@ -123,8 +137,10 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     CAF_PDM_InitField( &m_color, "Color", RiaColorTools::textColor3f(), "Color" );
 
-    CAF_PDM_InitField( &m_ensembleParameter, "EnsembleParameter", QString( "" ), "Ensemble Parameter" );
-    m_ensembleParameter.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+    CAF_PDM_InitField( &m_ensembleParameter, "EnsembleParameter", QString( "" ), "Parameter" );
+    m_ensembleParameter.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitFieldNoDefault( &m_ensembleParameterSorting, "EnsembleParameterSorting", "Parameter Sorting" );
 
     CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSummaryAddressesUiField, "SelectedObjectiveSummaryVar", "Vector" );
     m_objectiveValuesSummaryAddressesUiField.xmlCapability()->disableIO();
@@ -939,6 +955,7 @@ void RimEnsembleCurveSet::appendColorGroup( caf::PdmUiOrdering& uiOrdering )
     else if ( m_colorMode == ColorMode::BY_ENSEMBLE_PARAM )
     {
         m_ensembleParameter.uiCapability()->setUiReadOnly( !m_yValuesSummaryCaseCollection() );
+        colorsGroup->add( &m_ensembleParameterSorting );
         colorsGroup->add( &m_ensembleParameter );
     }
     else if ( m_colorMode == ColorMode::BY_OBJECTIVE_FUNCTION || m_colorMode == ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION )
@@ -1107,7 +1124,7 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions( const 
     }
     else if ( fieldNeedingOptions == &m_ensembleParameter )
     {
-        auto params = correlationSortedEnsembleParameters();
+        auto params = ensembleParameters( m_ensembleParameterSorting() );
         for ( const auto& paramCorrPair : params )
         {
             QString name = paramCorrPair.first.name;
@@ -1885,17 +1902,29 @@ std::vector<RigEnsembleParameter> RimEnsembleCurveSet::variationSortedEnsemblePa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<RigEnsembleParameter, double>> RimEnsembleCurveSet::correlationSortedEnsembleParameters() const
+std::vector<std::pair<RigEnsembleParameter, double>>
+    RimEnsembleCurveSet::ensembleParameters( ParameterSorting sortingMode ) const
 {
     RimSummaryCaseCollection* ensemble = m_yValuesSummaryCaseCollection;
     if ( ensemble )
     {
-        return ensemble->correlationSortedEnsembleParameters( summaryAddress() );
+        if ( sortingMode == ParameterSorting::ABSOLUTE_VALUE )
+        {
+            return ensemble->correlationSortedEnsembleParameters( summaryAddress() );
+        }
+
+        if ( sortingMode == ParameterSorting::ALPHABETICALLY )
+        {
+            auto parameters = ensemble->parameterCorrelationsAllTimeSteps( summaryAddress() );
+            std::sort( parameters.begin(), parameters.end(), []( const auto& lhs, const auto& rhs ) {
+                return lhs.first.name < rhs.first.name;
+            } );
+
+            return parameters;
+        }
     }
-    else
-    {
-        return std::vector<std::pair<RigEnsembleParameter, double>>();
-    }
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
