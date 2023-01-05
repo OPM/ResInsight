@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2022- Equinor ASA
+//  Copyright (C) 2023- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 #include "RimFlowDiagSolution.h"
+#include "RimHistoryWellFlowDataCollection.h"
 #include "RimSimWellInView.h"
 #include "RimStackablePlotCurve.h"
 #include "RimWellAllocationTools.h"
@@ -47,8 +48,6 @@
 
 #include "cafCmdFeatureMenuBuilder.h"
 
-#pragma optimize( "", off )
-
 CAF_PDM_SOURCE_INIT( RimHistoryWellAllocationPlot, "RimHistoryWellAllocationPlot" );
 
 //--------------------------------------------------------------------------------------------------
@@ -61,6 +60,7 @@ void AppEnum<RimHistoryWellAllocationPlot::FlowValueType>::setUp()
 {
     addItem( RimHistoryWellAllocationPlot::FLOW_RATE, "FLOW_RATE", "Flow Rates" );
     addItem( RimHistoryWellAllocationPlot::FLOW_VOLUME, "FLOW_VOLUME", "Flow Volumes" );
+    addItem( RimHistoryWellAllocationPlot::ACCUMULATED_FLOW_VOLUME, "ACCUMULATED_FLOW_VOLUME", "Accumulated Flow Volumes" );
     addItem( RimHistoryWellAllocationPlot::PERCENTAGE, "PERCENTAGE", "Percentage" );
     setDefault( RimHistoryWellAllocationPlot::FLOW_RATE );
 }
@@ -295,34 +295,38 @@ void RimHistoryWellAllocationPlot::updateFromWell()
     m_plotWidget->detachItems( RiuPlotWidget::PlotItemType::CURVE );
 
     // Retrieve collection of total fraction data for wells
-    WellTotalFractionCollection wellTotalFractionCollection = createWellsTotalFractionCollection();
-    std::vector<double>         allStackedValues( wellTotalFractionCollection.timeStepDates.size(), 0.0 );
+    RimHistoryWellFlowDataCollection wellFlowDataCollection = createHistoryWellFlowDataCollection();
+    std::vector<double>              allStackedValues( wellFlowDataCollection.timeStepDates().size(), 0.0 );
 
     // Negative z-position to show grid lines
     int zPos = -10000;
-    for ( auto& [wellName, wellValues] : wellTotalFractionCollection.wellValuesMap )
+    for ( auto& [wellName, wellValues] : wellFlowDataCollection.wellValuesMap() )
     {
         cvf::Color3f color = m_flowDiagSolution ? m_flowDiagSolution->tracerColor( wellName ) : getTracerColor( wellName );
-        for ( size_t i = 0; i < wellTotalFractionCollection.timeStepDates.size(); ++i )
+        for ( size_t i = 0; i < wellFlowDataCollection.timeStepDates().size(); ++i )
         {
-            const auto value = wellValues.at( wellTotalFractionCollection.timeStepDates[i] );
+            const auto value = wellValues.at( wellFlowDataCollection.timeStepDates()[i] );
             allStackedValues[i] += value;
         }
 
-        auto          qColor    = QColor( color.rByte(), color.gByte(), color.bByte() );
-        auto          fillColor = RiaColorTools::blendQColors( qColor, QColor( Qt::white ), 3, 1 );
-        QBrush        fillBrush( fillColor, Qt::BrushStyle::SolidPattern );
+        const auto   qColor    = QColor( color.rByte(), color.gByte(), color.bByte() );
+        const auto   fillColor = RiaColorTools::blendQColors( qColor, QColor( Qt::white ), 3, 1 );
+        const QBrush fillBrush( fillColor, Qt::BrushStyle::SolidPattern );
+        auto         interpolationType = m_flowValueType == FlowValueType::ACCUMULATED_FLOW_VOLUME
+                                     ? RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT
+                                     : RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT;
+
         RiuPlotCurve* curve = m_plotWidget->createPlotCurve( nullptr, wellName, qColor );
-        curve->setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID,
-                              RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT,
-                              2,
-                              qColor,
-                              fillBrush );
-        curve->setSamplesFromDatesAndYValues( wellTotalFractionCollection.timeStepDates, allStackedValues, false );
+        curve->setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID, interpolationType, 2, qColor, fillBrush );
+        curve->setSamplesFromDatesAndYValues( wellFlowDataCollection.timeStepDates(), allStackedValues, false );
         curve->attachToPlot( m_plotWidget );
         curve->showInPlot();
         curve->setZ( zPos-- );
     }
+
+    QString flowTypeText = m_flowDiagSolution() ? "Well Allocation History" : "Well Flow History";
+    setDescription( flowTypeText + ": " + m_wellName + ", " + " (" + m_case->caseUserDescription() + ")" );
+    m_plotWidget->setPlotTitle( m_userName );
 
     m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), getYAxisTitleFromValueType() );
     m_plotWidget->scheduleReplot();
@@ -333,17 +337,27 @@ void RimHistoryWellAllocationPlot::updateFromWell()
 /// well data for all time steps. If well does not exist for specific time step date - value is
 /// set to 0.
 //--------------------------------------------------------------------------------------------------
-RimHistoryWellAllocationPlot::WellTotalFractionCollection RimHistoryWellAllocationPlot::createWellsTotalFractionCollection()
+RimHistoryWellFlowDataCollection RimHistoryWellAllocationPlot::createHistoryWellFlowDataCollection()
 {
-    WellTotalFractionCollection output;
-
-    if ( !m_case ) return output;
+    if ( !m_case )
+    {
+        return RimHistoryWellFlowDataCollection( {}, {} );
+    }
     const RigSimWellData* simWellData = m_case->eclipseCaseData()->findSimWellData( m_wellName );
-    if ( !simWellData ) return output;
+    if ( !simWellData )
+    {
+        return RimHistoryWellFlowDataCollection( {}, {} );
+    }
 
     std::vector<QDateTime>                        timeSteps                  = m_case->timeStepDates();
     std::map<QDateTime, RigAccWellFlowCalculator> timeStepAndCalculatorPairs = {};
-    std::set<QString>                             activeWellNames            = {};
+
+    // Note: Threshold per calculator does not work for accumulated data - use no threshold for each calculator
+    // and filter on threshold value based on accumulated values at last time sample.
+    const double smallContributionThreshold = m_groupSmallContributions() &&
+                                                      m_flowValueType != FlowValueType::ACCUMULATED_FLOW_VOLUME
+                                                  ? m_smallContributionsThreshold
+                                                  : 0.0;
     for ( size_t i = 0; i < timeSteps.size(); ++i )
     {
         std::vector<std::vector<cvf::Vec3d>>          pipeBranchesCLCoords;
@@ -359,7 +373,6 @@ RimHistoryWellAllocationPlot::WellTotalFractionCollection RimHistoryWellAllocati
                                                                                          pipeBranchesCLCoords,
                                                                                          pipeBranchesCellIds );
 
-        const double smallContributionThreshold = m_groupSmallContributions() ? m_smallContributionsThreshold : 0.0;
         if ( tracerFractionCellValues.size() )
         {
             bool isProducer =
@@ -369,13 +382,13 @@ RimHistoryWellAllocationPlot::WellTotalFractionCollection RimHistoryWellAllocati
                                                    m_case->eclipseCaseData()->activeCellInfo(
                                                        RiaDefines::PorosityModelType::MATRIX_MODEL ) );
             const auto                calculator = RigAccWellFlowCalculator( pipeBranchesCLCoords,
+
                                                               pipeBranchesCellIds,
                                                               tracerFractionCellValues,
                                                               cellIdxCalc,
                                                               smallContributionThreshold,
                                                               isProducer );
             timeStepAndCalculatorPairs.emplace( timeSteps[i], calculator );
-            activeWellNames.insert( calculator.tracerNames().begin(), calculator.tracerNames().end() );
         }
         else if ( pipeBranchesCLCoords.size() > 0 )
         {
@@ -386,56 +399,39 @@ RimHistoryWellAllocationPlot::WellTotalFractionCollection RimHistoryWellAllocati
             if ( calculator.totalTracerFractions().size() > 0 )
             {
                 timeStepAndCalculatorPairs.emplace( timeSteps[i], calculator );
-                activeWellNames.insert( calculator.tracerNames().begin(), calculator.tracerNames().end() );
             }
         }
     }
 
     std::sort( timeSteps.begin(), timeSteps.end() );
-    std::map<QString, std::map<QDateTime, double>> wellValuesMap;
-    for ( const auto& well : activeWellNames )
+
+    // Create collection
+    RimHistoryWellFlowDataCollection wellFlowDataCollection( timeSteps, timeStepAndCalculatorPairs );
+
+    if ( m_flowValueType == FlowValueType::PERCENTAGE )
     {
-        for ( const auto& date : timeSteps )
-        {
-            std::pair<QDateTime, double> defaultValue( date, 0.0 );
-            wellValuesMap[well].insert( defaultValue );
-        }
+        wellFlowDataCollection.fillWithPercentageValues();
     }
-    // Fill data for each time step
-    for ( const auto& [timeStep, calculator] : timeStepAndCalculatorPairs )
+    else if ( m_flowValueType == FlowValueType::FLOW_RATE )
     {
-        if ( m_flowValueType == FlowValueType::FLOW_RATE )
-        {
-            for ( const auto& tracerName : calculator.tracerNames() )
-            {
-                const QString wellName        = tracerName;
-                const size_t  branchIdx       = 0;
-                const auto&   accumulatedFlow = calculator.accumulatedTracerFlowPrConnection( tracerName, branchIdx );
-                const double  value           = accumulatedFlow.empty() ? 0.0 : accumulatedFlow.back();
-                wellValuesMap[wellName][timeStep] = value;
-            }
-        }
-        else if ( m_flowValueType == FlowValueType::PERCENTAGE )
-        {
-            const auto totalTracerFractions = calculator.totalTracerFractions();
-            for ( const auto& elm : totalTracerFractions )
-            {
-                const QString wellName            = elm.first;
-                const auto    value               = elm.second;
-                double        valuePercent        = 100.0 * value;
-                wellValuesMap[wellName][timeStep] = valuePercent;
-            }
-        }
-        else
-        {
-            CAF_ASSERT( "Not handled FlowValue type!" );
-        }
+        wellFlowDataCollection.fillWithFlowRateValues();
+    }
+    else if ( m_flowValueType == FlowValueType::FLOW_VOLUME )
+    {
+        wellFlowDataCollection.fillWithFlowVolumeValues();
+    }
+    else if ( m_flowValueType == FlowValueType::ACCUMULATED_FLOW_VOLUME )
+    {
+        // Threshold for accumulated data is based on last time sample values after accumulating non-filtered flow volumes
+        const double actualSmallContributionThreshold = m_groupSmallContributions() ? m_smallContributionsThreshold : 0.0;
+        wellFlowDataCollection.fillWithAccumulatedFlowVolumeValues( actualSmallContributionThreshold );
+    }
+    else
+    {
+        CAF_ASSERT( "Not handled FlowValue type!" );
     }
 
-    output.timeStepDates = timeSteps;
-    output.wellValuesMap = wellValuesMap;
-
-    return output;
+    return wellFlowDataCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
