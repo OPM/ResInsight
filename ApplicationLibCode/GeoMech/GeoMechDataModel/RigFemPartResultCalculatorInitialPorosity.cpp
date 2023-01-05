@@ -57,10 +57,10 @@ bool RigFemPartResultCalculatorInitialPorosity::isMatching( const RigFemResultAd
 RigFemScalarResultFrames* RigFemPartResultCalculatorInitialPorosity::calculate( int                        partIndex,
                                                                                 const RigFemResultAddress& resVarAddr )
 {
-    caf::ProgressInfo frameCountProgress( m_resultCollection->frameCount() * 2, "" );
+    caf::ProgressInfo frameCountProgress( m_resultCollection->timeStepCount() * 2, "" );
     frameCountProgress.setProgressDescription( "Calculating Initial Porosity" );
 
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* voidRatioFrames =
         m_resultCollection->findOrLoadScalarResult( partIndex,
@@ -76,54 +76,56 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorInitialPorosity::calculate( 
 
     frameCountProgress.setNextProgressIncrement( 1u );
 
-    int frameCount = voidRatioFrames->frameCount();
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
+    int timeSteps = voidRatioFrames->timeStepCount();
+    for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
-        const std::vector<float>& voidRatioData     = voidRatioFrames->frameData( 0 );
-        std::vector<float>&       porosityFrameData = porosityFrames->frameData( fIdx );
+        for ( int fIdx = 0; fIdx < voidRatioFrames->frameCount( stepIdx ); fIdx++ )
+        {
+            const std::vector<float>& voidRatioData     = voidRatioFrames->frameData( 0, 0 );
+            std::vector<float>&       porosityFrameData = porosityFrames->frameData( stepIdx, fIdx );
 
-        size_t valCount = voidRatioData.size();
-        porosityFrameData.resize( valCount );
+            size_t valCount = voidRatioData.size();
+            porosityFrameData.resize( valCount );
 
-        int elementCount = femPart->elementCount();
+            int elementCount = femPart->elementCount();
 
 #pragma omp parallel for
-        for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
-        {
-            RigElementType elmType = femPart->elementType( elmIdx );
-
-            int elmNodeCount = RigFemTypes::elementNodeCount( femPart->elementType( elmIdx ) );
-
-            if ( elmType == HEX8P )
+            for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
             {
-                for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
+                RigElementType elmType = femPart->elementType( elmIdx );
+
+                int elmNodeCount = RigFemTypes::elementNodeCount( femPart->elementType( elmIdx ) );
+
+                if ( elmType == HEX8P )
                 {
-                    size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
-                    if ( elmNodResIdx < voidRatioData.size() )
+                    for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
                     {
-                        int nodeIdx = femPart->nodeIdxFromElementNodeResultIdx( elmNodResIdx );
+                        size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
+                        if ( elmNodResIdx < voidRatioData.size() )
+                        {
+                            int nodeIdx = femPart->nodeIdxFromElementNodeResultIdx( elmNodResIdx );
 
-                        // Calculate initial porosity
-                        double voidr           = voidRatioData[elmNodResIdx];
-                        double initialPorosity = voidr / ( 1.0 + voidr );
+                            // Calculate initial porosity
+                            double voidr           = voidRatioData[elmNodResIdx];
+                            double initialPorosity = voidr / ( 1.0 + voidr );
 
-                        porosityFrameData[elmNodResIdx] = initialPorosity;
+                            porosityFrameData[elmNodResIdx] = initialPorosity;
+                        }
                     }
                 }
-            }
-            else
-            {
-                for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
+                else
                 {
-                    size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
-                    if ( elmNodResIdx < voidRatioData.size() )
+                    for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
                     {
-                        porosityFrameData[elmNodResIdx] = inf;
+                        size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
+                        if ( elmNodResIdx < voidRatioData.size() )
+                        {
+                            porosityFrameData[elmNodResIdx] = inf;
+                        }
                     }
                 }
             }
         }
-
         frameCountProgress.incrementProgress();
     }
 

@@ -60,10 +60,10 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorSFI::calculate( int partInde
 
     QString progressText = "Calculating " + QString::fromStdString( resAddr.fieldName + ": " + resAddr.componentName );
 
-    caf::ProgressInfo frameCountProgress( static_cast<size_t>( m_resultCollection->frameCount() ) * 3, progressText );
+    caf::ProgressInfo frameCountProgress( static_cast<size_t>( m_resultCollection->timeStepCount() ) * 3, progressText );
 
     auto loadFrameLambda = [&]( const QString& component ) {
-        auto task = frameCountProgress.task( "Loading " + component, m_resultCollection->frameCount() );
+        auto task = frameCountProgress.task( "Loading " + component, m_resultCollection->timeStepCount() );
         return m_resultCollection->findOrLoadScalarResult( partIndex, resAddr.copyWithComponent( component.toStdString() ) );
     };
 
@@ -76,36 +76,38 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorSFI::calculate( int partInde
         (float)( m_resultCollection->parameterCohesion() / tan( m_resultCollection->parameterFrictionAngleRad() ) );
     float sinFricAng = sin( m_resultCollection->parameterFrictionAngleRad() );
 
-    int frameCount = se1Frames->frameCount();
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
+    int timeSteps = se1Frames->timeStepCount();
+    for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
-        auto task = frameCountProgress.task( QString( "Frame %1" ).arg( fIdx ) );
+        auto task = frameCountProgress.task( QString( "Step %1" ).arg( stepIdx ) );
 
-        const std::vector<float>& se1Data = se1Frames->frameData( fIdx );
-        const std::vector<float>& se3Data = se3Frames->frameData( fIdx );
+        for ( int fIdx = 0; fIdx < se1Frames->frameCount( stepIdx ); fIdx++ )
+        {
+            const std::vector<float>& se1Data = se1Frames->frameData( stepIdx, fIdx );
+            const std::vector<float>& se3Data = se3Frames->frameData( stepIdx, fIdx );
 
-        std::vector<float>& dstFrameData = dstDataFrames->frameData( fIdx );
-        size_t              valCount     = se1Data.size();
-        dstFrameData.resize( valCount );
+            std::vector<float>& dstFrameData = dstDataFrames->frameData( stepIdx, fIdx );
+            size_t              valCount     = se1Data.size();
+            dstFrameData.resize( valCount );
 
 #pragma omp parallel for
-        for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
-        {
-            float se1        = se1Data[vIdx];
-            float se3        = se3Data[vIdx];
-            float se1Se3Diff = se1 - se3;
+            for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
+            {
+                float se1        = se1Data[vIdx];
+                float se3        = se3Data[vIdx];
+                float se1Se3Diff = se1 - se3;
 
-            if ( fabs( se1Se3Diff ) < 1e-7 )
-            {
-                dstFrameData[vIdx] = std::numeric_limits<float>::infinity();
-            }
-            else
-            {
-                dstFrameData[vIdx] = ( ( cohPrFricAngle + 0.5 * ( se1Data[vIdx] + se3Data[vIdx] ) ) * sinFricAng ) /
-                                     ( 0.5 * ( se1Data[vIdx] - se3Data[vIdx] ) );
+                if ( fabs( se1Se3Diff ) < 1e-7 )
+                {
+                    dstFrameData[vIdx] = std::numeric_limits<float>::infinity();
+                }
+                else
+                {
+                    dstFrameData[vIdx] = ( ( cohPrFricAngle + 0.5 * ( se1Data[vIdx] + se3Data[vIdx] ) ) * sinFricAng ) /
+                                         ( 0.5 * ( se1Data[vIdx] - se3Data[vIdx] ) );
+                }
             }
         }
     }
-
     return dstDataFrames;
 }

@@ -47,6 +47,7 @@ public:
     void setGeoMechCase( RimGeoMechCase* geoMechCase );
     void setWellPath( RimWellPath* wellPath );
     void setTimeStep( int timeStep );
+    void setFrameIndex( int frameIndex );
 
     void applyWbsParametersToExtractor( RigGeoMechWellLogExtractor* extractor );
 
@@ -98,6 +99,7 @@ private:
     caf::PdmPtrField<RimGeoMechCase*> m_geoMechCase;
     caf::PdmPtrField<RimWellPath*>    m_wellPath;
     caf::PdmField<int>                m_timeStep;
+    caf::PdmField<int>                m_frameIndex;
 
     std::map<RigWbsParameter, caf::PdmField<ParameterSourceEnum>*> m_parameterSourceFields;
     std::map<RigWbsParameter, caf::PdmField<double>*>              m_userDefinedValueFields;

@@ -473,7 +473,7 @@ bool RimWellIASettings::updateResInsightParameters()
     for ( size_t i = 0; i < nativeKeys.size(); i++ )
     {
         double stressValue =
-            dataAccess.interpolatedResultValue( "ST", nativeKeys[i], RigFemResultPosEnum::RIG_ELEMENT_NODAL, position, 0 );
+            dataAccess.interpolatedResultValue( "ST", nativeKeys[i], RigFemResultPosEnum::RIG_ELEMENT_NODAL, position, 0, 0 );
         if ( std::isfinite( stressValue ) )
         {
             initialStress->addParameter( paramKeys[i], stressValue * 100000.0 );
@@ -484,7 +484,7 @@ bool RimWellIASettings::updateResInsightParameters()
         }
     }
 
-    double ppValue = dataAccess.interpolatedResultValue( "POR-Bar", "", RigFemResultPosEnum::RIG_NODAL, position, 0 );
+    double ppValue = dataAccess.interpolatedResultValue( "POR-Bar", "", RigFemResultPosEnum::RIG_NODAL, position, 0, 0 );
     if ( std::isfinite( ppValue ) )
     {
         initialStress->addParameter( "PP", ppValue * 100000.0 );
@@ -673,9 +673,13 @@ std::vector<cvf::Vec3d> RimWellIASettings::extractDisplacements( std::vector<cvf
 
     for ( auto& pos : corners )
     {
-        double u1 = dataAccess.interpolatedResultValue( "U", "U1", RigFemResultPosEnum::RIG_NODAL, pos, timeStep );
-        double u2 = dataAccess.interpolatedResultValue( "U", "U2", RigFemResultPosEnum::RIG_NODAL, pos, timeStep );
-        double u3 = dataAccess.interpolatedResultValue( "U", "U3", RigFemResultPosEnum::RIG_NODAL, pos, timeStep );
+        int    lastFrame = -1;
+        double u1 =
+            dataAccess.interpolatedResultValue( "U", "U1", RigFemResultPosEnum::RIG_NODAL, pos, timeStep, lastFrame );
+        double u2 =
+            dataAccess.interpolatedResultValue( "U", "U2", RigFemResultPosEnum::RIG_NODAL, pos, timeStep, lastFrame );
+        double u3 =
+            dataAccess.interpolatedResultValue( "U", "U3", RigFemResultPosEnum::RIG_NODAL, pos, timeStep, lastFrame );
 
         displacements.push_back( cvf::Vec3d( u1, u2, u3 ) );
     }

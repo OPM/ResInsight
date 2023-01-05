@@ -80,7 +80,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorCompaction::calculate( int  
 {
     CVF_ASSERT( resVarAddr.fieldName == RigFemPartResultsCollection::FIELD_NAME_COMPACTION );
 
-    caf::ProgressInfo frameCountProgress( m_resultCollection->frameCount() + 1, "" );
+    caf::ProgressInfo frameCountProgress( m_resultCollection->timeStepCount() + 1, "" );
     frameCountProgress.setProgressDescription( "Calculating " + QString::fromStdString( resVarAddr.fieldName ) );
 
     RigFemScalarResultFrames* u3Frames =
@@ -92,60 +92,65 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorCompaction::calculate( int  
     const RigFemPart* part = m_resultCollection->parts()->part( partIndex );
     part->ensureIntersectionSearchTreeIsBuilt();
 
-    for ( int t = 0; t < u3Frames->frameCount(); t++ )
+    int timeSteps = u3Frames->timeStepCount();
+    for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
-        std::vector<float>& compactionFrame = compactionFrames->frameData( t );
-        size_t              nodeCount       = part->nodes().nodeIds.size();
-
-        frameCountProgress.incrementProgress();
-
-        compactionFrame.resize( nodeCount );
-
+        for ( int fIdx = 0; fIdx < u3Frames->frameCount( stepIdx ); fIdx++ )
         {
-            // Make sure the AABB-tree is created before using OpenMP
-            cvf::BoundingBox    bb;
-            std::vector<size_t> refElementCandidates;
+            std::vector<float>& compactionFrame = compactionFrames->frameData( stepIdx, fIdx );
+            size_t              nodeCount       = part->nodes().nodeIds.size();
 
-            part->findIntersectingCells( bb, &refElementCandidates );
+            frameCountProgress.incrementProgress();
 
-            // Also make sure the struct grid is created, as this is required before using OpenMP
-            part->getOrCreateStructGrid();
-        }
+            compactionFrame.resize( nodeCount );
+
+            {
+                // Make sure the AABB-tree is created before using OpenMP
+                cvf::BoundingBox    bb;
+                std::vector<size_t> refElementCandidates;
+
+                part->findIntersectingCells( bb, &refElementCandidates );
+
+                // Also make sure the struct grid is created, as this is required before using OpenMP
+                part->getOrCreateStructGrid();
+            }
 
 #pragma omp parallel for
-        for ( long n = 0; n < static_cast<long>( nodeCount ); n++ )
-        {
-            RefElement refElement;
-            findReferenceElementForNode( *part, n, resVarAddr.refKLayerIndex, &refElement );
-
-            if ( refElement.elementIdx != cvf::UNDEFINED_SIZE_T )
+            for ( long n = 0; n < static_cast<long>( nodeCount ); n++ )
             {
-                float  shortestDist      = std::numeric_limits<float>::infinity();
-                size_t closestRefNodeIdx = cvf::UNDEFINED_SIZE_T;
+                RefElement refElement;
+                findReferenceElementForNode( *part, n, resVarAddr.refKLayerIndex, &refElement );
 
-                for ( size_t nodeIdx : refElement.elementFaceNodeIdxs )
+                if ( refElement.elementIdx != cvf::UNDEFINED_SIZE_T )
                 {
-                    float dist = horizontalDistance( refElement.intersectionPoint, part->nodes().coordinates[nodeIdx] );
-                    if ( dist < shortestDist )
-                    {
-                        shortestDist      = dist;
-                        closestRefNodeIdx = nodeIdx;
-                    }
-                }
+                    float  shortestDist      = std::numeric_limits<float>::infinity();
+                    size_t closestRefNodeIdx = cvf::UNDEFINED_SIZE_T;
 
-                cvf::Vec3f currentNodeCoord = part->nodes().coordinates[n];
-                if ( currentNodeCoord.z() >= refElement.intersectionPoint.z() )
-                    compactionFrame[n] = -( u3Frames->frameData( t )[n] - u3Frames->frameData( t )[closestRefNodeIdx] );
+                    for ( size_t nodeIdx : refElement.elementFaceNodeIdxs )
+                    {
+                        float dist = horizontalDistance( refElement.intersectionPoint, part->nodes().coordinates[nodeIdx] );
+                        if ( dist < shortestDist )
+                        {
+                            shortestDist      = dist;
+                            closestRefNodeIdx = nodeIdx;
+                        }
+                    }
+
+                    cvf::Vec3f currentNodeCoord = part->nodes().coordinates[n];
+                    if ( currentNodeCoord.z() >= refElement.intersectionPoint.z() )
+                        compactionFrame[n] = -( u3Frames->frameData( stepIdx, fIdx )[n] -
+                                                u3Frames->frameData( stepIdx, fIdx )[closestRefNodeIdx] );
+                    else
+                        compactionFrame[n] = -( u3Frames->frameData( stepIdx, fIdx )[closestRefNodeIdx] -
+                                                u3Frames->frameData( stepIdx, fIdx )[n] );
+                }
                 else
-                    compactionFrame[n] = -( u3Frames->frameData( t )[closestRefNodeIdx] - u3Frames->frameData( t )[n] );
-            }
-            else
-            {
-                compactionFrame[n] = HUGE_VAL;
+                {
+                    compactionFrame[n] = HUGE_VAL;
+                }
             }
         }
     }
-
     RigFemScalarResultFrames* requestedPrincipal = m_resultCollection->findOrLoadScalarResult( partIndex, resVarAddr );
     return requestedPrincipal;
 }

@@ -58,10 +58,10 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorED::calculate( int partIndex
 {
     CVF_ASSERT( resVarAddr.fieldName == "NE" && resVarAddr.componentName == "ED" );
 
-    caf::ProgressInfo frameCountProgress( m_resultCollection->frameCount() * 3, "" );
+    caf::ProgressInfo frameCountProgress( m_resultCollection->timeStepCount() * 3, "" );
     frameCountProgress.setProgressDescription(
         "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* ea11 = nullptr;
     RigFemScalarResultFrames* ea33 = nullptr;
@@ -69,7 +69,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorED::calculate( int partIndex
         ea11 = m_resultCollection->findOrLoadScalarResult( partIndex,
                                                            RigFemResultAddress( resVarAddr.resultPosType, "NE", "E1" ) );
         frameCountProgress.incrementProgress();
-        frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+        frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
         ea33 = m_resultCollection->findOrLoadScalarResult( partIndex,
                                                            RigFemResultAddress( resVarAddr.resultPosType, "NE", "E3" ) );
     }
@@ -78,22 +78,24 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorED::calculate( int partIndex
 
     frameCountProgress.incrementProgress();
 
-    int frameCount = ea11->frameCount();
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
+    int timeSteps = ea11->timeStepCount();
+    for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
-        const std::vector<float>& ea11Data = ea11->frameData( fIdx );
-        const std::vector<float>& ea33Data = ea33->frameData( fIdx );
+        for ( int fIdx = 0; fIdx < ea11->frameCount( stepIdx ); fIdx++ )
+        {
+            const std::vector<float>& ea11Data = ea11->frameData( stepIdx, fIdx );
+            const std::vector<float>& ea33Data = ea33->frameData( stepIdx, fIdx );
 
-        std::vector<float>& dstFrameData = dstDataFrames->frameData( fIdx );
-        size_t              valCount     = ea11Data.size();
-        dstFrameData.resize( valCount );
+            std::vector<float>& dstFrameData = dstDataFrames->frameData( stepIdx, fIdx );
+            size_t              valCount     = ea11Data.size();
+            dstFrameData.resize( valCount );
 
 #pragma omp parallel for
-        for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
-        {
-            dstFrameData[vIdx] = 0.666666666666667f * ( ea11Data[vIdx] - ea33Data[vIdx] );
+            for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
+            {
+                dstFrameData[vIdx] = 0.666666666666667f * ( ea11Data[vIdx] - ea33Data[vIdx] );
+            }
         }
-
         frameCountProgress.incrementProgress();
     }
 

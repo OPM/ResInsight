@@ -44,7 +44,7 @@ public:
     explicit RivSurfacePartMgr( RimSurfaceInView* surface );
 
     void updateNativeSurfaceColors();
-    void updateCellResultColor( size_t timeStepIndex );
+    void updateCellResultColor( int timeStepIndex );
     void appendIntersectionGeometryPartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
 
     void appendNativeGeometryPartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );

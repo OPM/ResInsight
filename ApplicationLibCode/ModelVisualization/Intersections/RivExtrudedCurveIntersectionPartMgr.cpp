@@ -154,7 +154,7 @@ void RivExtrudedCurveIntersectionPartMgr::applySingleColorEffect()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivExtrudedCurveIntersectionPartMgr::updateCellResultColor( size_t                   timeStepIndex,
+void RivExtrudedCurveIntersectionPartMgr::updateCellResultColor( int                      timeStepIndex,
                                                                  const cvf::ScalarMapper* explicitScalarColorMapper,
                                                                  const RivTernaryScalarMapper* explicitTernaryColorMapper )
 {

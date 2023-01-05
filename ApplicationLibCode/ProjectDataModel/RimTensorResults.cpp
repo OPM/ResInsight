@@ -205,13 +205,19 @@ void RimTensorResults::mappingRange( double* min, double* max ) const
         RigFemPartResultsCollection* resultCollection = geoMechView->geoMechCase()->geoMechData()->femPartResults();
         if ( !resultCollection ) return;
 
+        int currentFrame = geoMechView->currentDataFrameIndex();
+
         if ( m_rangeMode == RimRegularLegendConfig::RangeModeType::AUTOMATIC_ALLTIMESTEPS )
         {
             resultCollection->minMaxScalarValuesOverAllTensorComponents( selectedTensorResult(), min, max );
         }
         else if ( m_rangeMode == RimRegularLegendConfig::RangeModeType::AUTOMATIC_CURRENT_TIMESTEP )
         {
-            resultCollection->minMaxScalarValuesOverAllTensorComponents( selectedTensorResult(), currentTimeStep, min, max );
+            resultCollection->minMaxScalarValuesOverAllTensorComponents( selectedTensorResult(),
+                                                                         currentTimeStep,
+                                                                         currentFrame,
+                                                                         min,
+                                                                         max );
         }
     }
 }

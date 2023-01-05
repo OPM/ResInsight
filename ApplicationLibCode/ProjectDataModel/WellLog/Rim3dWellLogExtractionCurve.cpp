@@ -170,7 +170,7 @@ void Rim3dWellLogExtractionCurve::curveValuesAndMds( std::vector<double>* values
 {
     CVF_ASSERT( m_timeStep() >= 0 );
 
-    return this->curveValuesAndMdsAtTimeStep( values, measuredDepthValues, m_timeStep() );
+    return this->curveValuesAndMdsAtTimeStep( values, measuredDepthValues, m_timeStep );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -223,7 +223,11 @@ void Rim3dWellLogExtractionCurve::curveValuesAndMdsAtTimeStep( std::vector<doubl
                 RimWellLogExtractionCurve::findAndLoadWbsParametersFromLasFiles( wellPath, geomExtractor.p() );
 
                 m_geomResultDefinition->loadResult();
-                geomExtractor->curveData( m_geomResultDefinition->resultAddress(), timeStep, values );
+
+                auto [stepIndex, frameIndex] =
+                    geomCase->geoMechData()->femPartResults()->stepListIndexToTimeStepAndDataFrameIndex( timeStep );
+
+                geomExtractor->curveData( m_geomResultDefinition->resultAddress(), stepIndex, frameIndex, values );
             }
         }
     }
@@ -338,7 +342,7 @@ QString Rim3dWellLogExtractionCurve::createAutoName() const
             RigGeoMechCaseData* data = geomCase->geoMechData();
             if ( data )
             {
-                maxTimeStep = data->femPartResults()->frameCount();
+                maxTimeStep = data->femPartResults()->timeStepCount();
             }
         }
 
@@ -450,6 +454,7 @@ void Rim3dWellLogExtractionCurve::fieldChangedByUi( const caf::PdmFieldHandle* c
         this->resetMinMaxValues();
         this->updateConnectedEditors();
     }
+
     Rim3dWellLogCurve::fieldChangedByUi( changedField, oldValue, newValue );
 }
 

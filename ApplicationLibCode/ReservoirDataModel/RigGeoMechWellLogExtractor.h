@@ -61,13 +61,14 @@ public:
                                 gsl::not_null<const RigWellPath*>  wellpath,
                                 const std::string&                 wellCaseErrorMsgName );
 
-    void performCurveDataSmoothing( int                  frameIndex,
+    void performCurveDataSmoothing( int                  timeStepIndex,
+                                    int                  frameIndex,
                                     std::vector<double>* mds,
                                     std::vector<double>* tvds,
                                     std::vector<double>* values,
                                     const double         smoothingTreshold );
 
-    QString curveData( const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values );
+    QString curveData( const RigFemResultAddress& resAddr, int timeStepIndex, int frameIndex, std::vector<double>* values );
     const RigGeoMechCaseData* caseData();
 
     void setWbsLasValues( const RigWbsParameter& parameter, const std::vector<std::pair<double, double>>& values );
@@ -76,9 +77,9 @@ public:
 
     static QString parameterInputUnits( const RigWbsParameter& parameter );
 
-    std::vector<double> porePressureSourceRegions( int frameIndex );
-    std::vector<double> poissonSourceRegions( int frameIndex );
-    std::vector<double> ucsSourceRegions( int frameIndex );
+    std::vector<double> porePressureSourceRegions( int timeStepIndex, int frameIndex );
+    std::vector<double> poissonSourceRegions( int timeStepIndex, int frameIndex );
+    std::vector<double> ucsSourceRegions( int timeStepIndex, int frameIndex );
 
     static caf::Ten3d transformTensorToWellPathOrientation( const cvf::Vec3d& wellPathTangent,
                                                             const caf::Ten3d& wellPathTensor );
@@ -98,27 +99,34 @@ private:
 
     std::vector<WbsParameterSource> calculateWbsParameterForAllSegments( const RigWbsParameter& parameter,
                                                                          WbsParameterSource     primarySource,
+                                                                         int                    timeStepIndex,
                                                                          int                    frameIndex,
                                                                          std::vector<double>*   outputValues,
                                                                          bool                   allowNormalization );
     std::vector<WbsParameterSource> calculateWbsParameterForAllSegments( const RigWbsParameter& parameter,
+                                                                         int                    timeStepIndex,
                                                                          int                    frameIndex,
                                                                          std::vector<double>*   outputValues,
                                                                          bool                   allowNormalization );
     std::vector<WbsParameterSource> calculateWbsParametersForAllSegments( const RigFemResultAddress& resAddr,
+                                                                          int                        timeStepIndex,
                                                                           int                        frameIndex,
                                                                           std::vector<double>*       values,
                                                                           bool allowNormalization );
 
     void                            wellPathAngles( const RigFemResultAddress& resAddr, std::vector<double>* values );
     std::vector<WbsParameterSource> wellPathScaledCurveData( const RigFemResultAddress& resAddr,
+                                                             int                        timeStepIndex,
                                                              int                        frameIndex,
                                                              std::vector<double>*       values,
                                                              bool forceGridSourceforPPReservoir = false );
-    void wellBoreWallCurveData( const RigFemResultAddress& resAddr, int frameIndex, std::vector<double>* values );
+    void                            wellBoreWallCurveData( const RigFemResultAddress& resAddr,
+                                                           int                        timeStepIndex,
+                                                           int                        frameIndex,
+                                                           std::vector<double>*       values );
 
-    void wellBoreFGShale( int frameIndex, std::vector<double>* values );
-    void wellBoreSH_MatthewsKelly( int frameIndex, std::vector<double>* values );
+    void wellBoreFGShale( int timeStepIndex, int frameIndex, std::vector<double>* values );
+    void wellBoreSH_MatthewsKelly( int timeStepIndex, int frameIndex, std::vector<double>* values );
 
     template <typename T>
     T      interpolateGridResultValue( RigFemResultPosEnum   resultPosType,
@@ -144,6 +152,7 @@ private:
 
     template <typename T>
     std::vector<T> interpolateInterfaceValues( RigFemResultAddress   nativeAddr,
+                                               int                   timeStepIndex,
                                                int                   frameIndex,
                                                const std::vector<T>& unscaledResultValues );
 

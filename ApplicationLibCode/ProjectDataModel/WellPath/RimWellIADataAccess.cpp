@@ -81,11 +81,12 @@ double RimWellIADataAccess::resultValue( QString             fieldName,
                                          QString             componentName,
                                          RigFemResultPosEnum resultType,
                                          size_t              resultIndex,
-                                         int                 timeStep )
+                                         int                 timeStep,
+                                         int                 frameId )
 {
     RigFemResultAddress address( resultType, fieldName.toStdString(), componentName.toStdString() );
 
-    const std::vector<float>& scalarResults = m_caseData->femPartResults()->resultValues( address, 0, timeStep );
+    const std::vector<float>& scalarResults = m_caseData->femPartResults()->resultValues( address, 0, timeStep, frameId );
 
     if ( resultIndex < scalarResults.size() ) return scalarResults[resultIndex];
 
@@ -99,7 +100,8 @@ double RimWellIADataAccess::interpolatedResultValue( QString             fieldNa
                                                      QString             componentName,
                                                      RigFemResultPosEnum resultType,
                                                      cvf::Vec3d          position,
-                                                     int                 timeStep )
+                                                     int                 timeStep,
+                                                     int                 frameId )
 {
     RigFemResultAddress address( resultType, fieldName.toStdString(), componentName.toStdString() );
 
@@ -110,7 +112,7 @@ double RimWellIADataAccess::interpolatedResultValue( QString             fieldNa
     const int*     elementConn  = femPart->connectivities( elmIdx );
     int            elmNodeCount = RigFemTypes::elementNodeCount( elmType );
 
-    const std::vector<float>& scalarResults = m_caseData->femPartResults()->resultValues( address, 0, timeStep );
+    const std::vector<float>& scalarResults = m_caseData->femPartResults()->resultValues( address, 0, timeStep, frameId );
 
     std::array<double, 8>     nodeResults;
     std::array<cvf::Vec3d, 8> nodeCorners;

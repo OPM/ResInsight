@@ -69,9 +69,9 @@ void RivGeoMechVizLogic::appendNoAnimPartsToModel( cvf::ModelBasicList* model )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivGeoMechVizLogic::appendPartsToModel( int timeStepIndex, cvf::ModelBasicList* model )
+void RivGeoMechVizLogic::appendPartsToModel( int viewerStepIndex, cvf::ModelBasicList* model )
 {
-    std::vector<RivGeoMechPartMgrCache::Key> visiblePartMgrs = keysToVisiblePartMgrs( timeStepIndex );
+    std::vector<RivGeoMechPartMgrCache::Key> visiblePartMgrs = keysToVisiblePartMgrs( viewerStepIndex );
     for ( size_t pmIdx = 0; pmIdx < visiblePartMgrs.size(); ++pmIdx )
     {
         RivGeoMechPartMgr* partMgr = getUpdatedPartMgr( visiblePartMgrs[pmIdx] );
@@ -83,22 +83,25 @@ void RivGeoMechVizLogic::appendPartsToModel( int timeStepIndex, cvf::ModelBasicL
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivGeoMechVizLogic::updateCellResultColor( int timeStepIndex, RimGeoMechCellColors* cellResultColors )
+void RivGeoMechVizLogic::updateCellResultColor( int                   viewerStepIndex,
+                                                int                   timeStepIndex,
+                                                int                   frameIndex,
+                                                RimGeoMechCellColors* cellResultColors )
 {
-    std::vector<RivGeoMechPartMgrCache::Key> visiblePartMgrs = keysToVisiblePartMgrs( timeStepIndex );
+    std::vector<RivGeoMechPartMgrCache::Key> visiblePartMgrs = keysToVisiblePartMgrs( viewerStepIndex );
     for ( size_t pmIdx = 0; pmIdx < visiblePartMgrs.size(); ++pmIdx )
     {
         RivGeoMechPartMgr* partMgr = m_partMgrCache->partMgr( visiblePartMgrs[pmIdx] );
-        partMgr->updateCellResultColor( timeStepIndex, cellResultColors );
+        partMgr->updateCellResultColor( timeStepIndex, frameIndex, cellResultColors );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivGeoMechVizLogic::updateStaticCellColors( int timeStepIndex )
+void RivGeoMechVizLogic::updateStaticCellColors( int viewerStepIndex )
 {
-    std::vector<RivGeoMechPartMgrCache::Key> visiblePartMgrs = keysToVisiblePartMgrs( timeStepIndex );
+    std::vector<RivGeoMechPartMgrCache::Key> visiblePartMgrs = keysToVisiblePartMgrs( viewerStepIndex );
     for ( size_t pmIdx = 0; pmIdx < visiblePartMgrs.size(); ++pmIdx )
     {
         RivGeoMechPartMgr* partMgr = m_partMgrCache->partMgr( visiblePartMgrs[pmIdx] );
@@ -114,15 +117,18 @@ void RivGeoMechVizLogic::scheduleGeometryRegen( RivCellSetEnum geometryType )
 {
     this->scheduleRegenOfDirectlyDependentGeometry( geometryType );
 
-    int frameCount = 0;
-    if ( m_geomechView->geoMechCase() && m_geomechView->geoMechCase()->geoMechData() )
+    bool resultsOk = ( m_geomechView->geoMechCase() && m_geomechView->geoMechCase()->geoMechData() &&
+                       m_geomechView->geoMechCase()->geoMechData()->femPartResults() );
+
+    int stepCount = 0;
+    if ( resultsOk )
     {
-        frameCount = m_geomechView->geoMechCase()->geoMechData()->femPartResults()->frameCount();
+        stepCount = m_geomechView->geoMechCase()->geoMechData()->femPartResults()->totalSteps();
     }
 
-    for ( int fIdx = -1; fIdx < frameCount; ++fIdx )
+    for ( int stepIdx = 0; stepIdx < stepCount; stepIdx++ )
     {
-        RivGeoMechPartMgrCache::Key geomToRegen( geometryType, fIdx );
+        RivGeoMechPartMgrCache::Key geomToRegen( geometryType, stepIdx );
         m_partMgrCache->scheduleRegeneration( geomToRegen );
     }
 }
@@ -130,9 +136,9 @@ void RivGeoMechVizLogic::scheduleGeometryRegen( RivCellSetEnum geometryType )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivGeoMechVizLogic::scheduleGeometryRegenOfVisiblePartMgrs( int timeStepIndex )
+void RivGeoMechVizLogic::scheduleGeometryRegenOfVisiblePartMgrs( int viewerStepIndex )
 {
-    std::vector<RivGeoMechPartMgrCache::Key> visiblePartMgrs = keysToVisiblePartMgrs( timeStepIndex );
+    std::vector<RivGeoMechPartMgrCache::Key> visiblePartMgrs = keysToVisiblePartMgrs( viewerStepIndex );
     for ( size_t pmIdx = 0; pmIdx < visiblePartMgrs.size(); ++pmIdx )
     {
         m_partMgrCache->scheduleRegeneration( visiblePartMgrs[pmIdx] );
@@ -153,7 +159,7 @@ void RivGeoMechVizLogic::scheduleRegenOfDirectlyDependentGeometry( RivCellSetEnu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RivGeoMechPartMgrCache::Key> RivGeoMechVizLogic::keysToVisiblePartMgrs( int timeStepIndex ) const
+std::vector<RivGeoMechPartMgrCache::Key> RivGeoMechVizLogic::keysToVisiblePartMgrs( int viewerStepIndex ) const
 {
     std::vector<RivGeoMechPartMgrCache::Key> visiblePartMgrs;
     if ( m_geomechView->viewController() && m_geomechView->viewController()->isVisibleCellsOveridden() )
@@ -162,9 +168,9 @@ std::vector<RivGeoMechPartMgrCache::Key> RivGeoMechVizLogic::keysToVisiblePartMg
     }
     else if ( m_geomechView->isGridVisualizationMode() )
     {
-        if ( timeStepIndex >= 0 && m_geomechView->geoMechPropertyFilterCollection()->hasActiveFilters() )
+        if ( viewerStepIndex >= 0 && m_geomechView->geoMechPropertyFilterCollection()->hasActiveFilters() )
         {
-            visiblePartMgrs.push_back( RivGeoMechPartMgrCache::Key( PROPERTY_FILTERED, timeStepIndex ) );
+            visiblePartMgrs.push_back( RivGeoMechPartMgrCache::Key( PROPERTY_FILTERED, viewerStepIndex ) );
         }
         else if ( m_geomechView->cellFilterCollection()->hasActiveFilters() )
         {
@@ -207,10 +213,15 @@ RivGeoMechPartMgr* RivGeoMechVizLogic::getUpdatedPartMgr( RivGeoMechPartMgrCache
     RivGeoMechPartMgr*  partMgrToUpdate = m_partMgrCache->partMgr( pMgrKey );
     int                 partCount       = 0;
     RigGeoMechCaseData* caseData        = nullptr;
+    int                 timeStepIdx     = -1;
+    int                 frameIdx        = -1;
+
     if ( m_geomechView->geoMechCase() )
     {
         caseData  = m_geomechView->geoMechCase()->geoMechData();
         partCount = caseData->femParts()->partCount();
+        std::tie( timeStepIdx, frameIdx ) =
+            caseData->femPartResults()->stepListIndexToTimeStepAndDataFrameIndex( pMgrKey.viewerTimeStepIndex() );
     }
 
     if ( partMgrToUpdate->initializedFemPartCount() != partCount )
@@ -251,7 +262,8 @@ RivGeoMechPartMgr* RivGeoMechVizLogic::getUpdatedPartMgr( RivGeoMechPartMgrCache
 
             RivFemElmVisibilityCalculator::computePropertyVisibility( elmVisibility.p(),
                                                                       caseData->femParts()->part( femPartIdx ),
-                                                                      pMgrKey.frameIndex(),
+                                                                      timeStepIdx,
+                                                                      frameIdx,
                                                                       rangeFiltVisibility.p(),
                                                                       m_geomechView->geoMechPropertyFilterCollection() );
         }
@@ -282,7 +294,7 @@ RivGeoMechPartMgr* RivGeoMechVizLogic::getUpdatedPartMgr( RivGeoMechPartMgrCache
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivGeoMechVizLogic::calculateCurrentTotalCellVisibility( cvf::UByteArray* totalVisibility, int timeStepIndex )
+void RivGeoMechVizLogic::calculateCurrentTotalCellVisibility( cvf::UByteArray* totalVisibility, int viewerStepIndex )
 {
     if ( !m_geomechView->geoMechCase() ) return;
 
@@ -298,7 +310,7 @@ void RivGeoMechVizLogic::calculateCurrentTotalCellVisibility( cvf::UByteArray* t
     totalVisibility->resize( elmCount );
     totalVisibility->setAll( false );
 
-    std::vector<RivGeoMechPartMgrCache::Key> visiblePartMgrs = keysToVisiblePartMgrs( timeStepIndex );
+    std::vector<RivGeoMechPartMgrCache::Key> visiblePartMgrs = keysToVisiblePartMgrs( viewerStepIndex );
     for ( size_t pmIdx = 0; pmIdx < visiblePartMgrs.size(); ++pmIdx )
     {
         RivGeoMechPartMgr* partMgr = getUpdatedPartMgr( visiblePartMgrs[pmIdx] );

@@ -162,14 +162,14 @@ bool RigGeoMechCaseData::readFemParts( std::string* errorMessage, const std::vec
 bool RigGeoMechCaseData::readDisplacements( std::string*             errorMessage,
                                             int                      partId,
                                             int                      timeStep,
+                                            int                      frameIndex,
                                             std::vector<cvf::Vec3f>* displacements )
 {
     CVF_ASSERT( errorMessage );
 #ifdef USE_ODB_API
     if ( m_readerInterface.notNull() && m_readerInterface->isOpen() )
     {
-        const auto& frames = m_readerInterface->frameTimes( timeStep );
-        m_readerInterface->readDisplacements( partId, timeStep, (int)frames.size() - 1, displacements );
+        m_readerInterface->readDisplacements( partId, timeStep, frameIndex, displacements );
         return true;
     }
 

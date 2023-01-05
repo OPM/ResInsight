@@ -57,10 +57,10 @@ bool RigFemPartResultCalculatorEnIpPorBar::isMatching( const RigFemResultAddress
 RigFemScalarResultFrames* RigFemPartResultCalculatorEnIpPorBar::calculate( int                        partIndex,
                                                                            const RigFemResultAddress& resVarAddr )
 {
-    caf::ProgressInfo frameCountProgress( m_resultCollection->frameCount() * 2, "" );
+    caf::ProgressInfo frameCountProgress( m_resultCollection->timeStepCount() * 2, "" );
     frameCountProgress.setProgressDescription(
         "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemResultAddress       unconvertedResultAddr( RIG_NODAL, "POR", "" );
     RigFemScalarResultFrames* srcDataFrames =
@@ -70,38 +70,40 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorEnIpPorBar::calculate( int  
     frameCountProgress.incrementProgress();
 
     const RigFemPart* femPart = m_resultCollection->parts()->part( partIndex );
-    float             inf     = std::numeric_limits<float>::infinity();
+    constexpr float   inf     = std::numeric_limits<float>::infinity();
 
-    int frameCount = srcDataFrames->frameCount();
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
+    int timeSteps = srcDataFrames->timeStepCount();
+    for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
-        const std::vector<float>& srcFrameData = srcDataFrames->frameData( fIdx );
-        std::vector<float>&       dstFrameData = dstDataFrames->frameData( fIdx );
+        for ( int fIdx = 0; fIdx < srcDataFrames->frameCount( stepIdx ); fIdx++ )
+        {
+            const std::vector<float>& srcFrameData = srcDataFrames->frameData( stepIdx, fIdx );
+            std::vector<float>&       dstFrameData = dstDataFrames->frameData( stepIdx, fIdx );
 
-        if ( srcFrameData.empty() ) continue; // Create empty results if we have no POR result.
+            if ( srcFrameData.empty() ) continue; // Create empty results if we have no POR result.
 
-        size_t valCount = femPart->elementNodeResultCount();
-        dstFrameData.resize( valCount, inf );
+            size_t valCount = femPart->elementNodeResultCount();
+            dstFrameData.resize( valCount, inf );
 
-        int elementCount = femPart->elementCount();
+            int elementCount = femPart->elementCount();
 
 #pragma omp parallel for schedule( dynamic )
-        for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
-        {
-            RigElementType elmType = femPart->elementType( elmIdx );
-
-            if ( elmType == HEX8P )
+            for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
             {
-                int elmNodeCount = RigFemTypes::elementNodeCount( elmType );
-                for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
+                RigElementType elmType = femPart->elementType( elmIdx );
+
+                if ( elmType == HEX8P )
                 {
-                    size_t elmNodResIdx        = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
-                    int    nodeIdx             = femPart->nodeIdxFromElementNodeResultIdx( elmNodResIdx );
-                    dstFrameData[elmNodResIdx] = 1.0e-5 * srcFrameData[nodeIdx];
+                    int elmNodeCount = RigFemTypes::elementNodeCount( elmType );
+                    for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
+                    {
+                        size_t elmNodResIdx        = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
+                        int    nodeIdx             = femPart->nodeIdxFromElementNodeResultIdx( elmNodResIdx );
+                        dstFrameData[elmNodResIdx] = 1.0e-5 * srcFrameData[nodeIdx];
+                    }
                 }
             }
         }
-
         frameCountProgress.incrementProgress();
     }
 

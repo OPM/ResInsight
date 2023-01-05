@@ -58,10 +58,10 @@ bool RigFemPartResultCalculatorNormalSE::isMatching( const RigFemResultAddress& 
 RigFemScalarResultFrames* RigFemPartResultCalculatorNormalSE::calculate( int                        partIndex,
                                                                          const RigFemResultAddress& resVarAddr )
 {
-    caf::ProgressInfo frameCountProgress( m_resultCollection->frameCount() * 3, "" );
+    caf::ProgressInfo frameCountProgress( m_resultCollection->timeStepCount() * 3, "" );
     frameCountProgress.setProgressDescription(
         "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* srcDataFrames =
         m_resultCollection->findOrLoadScalarResult( partIndex,
@@ -69,57 +69,58 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNormalSE::calculate( int    
                                                                          "S-Bar",
                                                                          resVarAddr.componentName ) );
     frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
     RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );
 
     frameCountProgress.incrementProgress();
 
     const RigFemPart* femPart = m_resultCollection->parts()->part( partIndex );
-    float             inf     = std::numeric_limits<float>::infinity();
+    constexpr float   inf     = std::numeric_limits<float>::infinity();
 
-    int frameCount = srcDataFrames->frameCount();
-
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
+    int timeSteps = srcDataFrames->timeStepCount();
+    for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
-        const std::vector<float>& srcSFrameData = srcDataFrames->frameData( fIdx );
-        std::vector<float>&       dstFrameData  = dstDataFrames->frameData( fIdx );
-        size_t                    valCount      = srcSFrameData.size();
-        dstFrameData.resize( valCount );
+        for ( int fIdx = 0; fIdx < srcDataFrames->frameCount( stepIdx ); fIdx++ )
+        {
+            const std::vector<float>& srcSFrameData = srcDataFrames->frameData( stepIdx, fIdx );
+            std::vector<float>&       dstFrameData  = dstDataFrames->frameData( stepIdx, fIdx );
+            size_t                    valCount      = srcSFrameData.size();
+            dstFrameData.resize( valCount );
 
-        int elementCount = femPart->elementCount();
+            int elementCount = femPart->elementCount();
 
 #pragma omp parallel for
-        for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
-        {
-            RigElementType elmType = femPart->elementType( elmIdx );
-
-            int elmNodeCount = RigFemTypes::elementNodeCount( femPart->elementType( elmIdx ) );
-
-            if ( elmType == HEX8P )
+            for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
             {
-                for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
+                RigElementType elmType = femPart->elementType( elmIdx );
+
+                int elmNodeCount = RigFemTypes::elementNodeCount( femPart->elementType( elmIdx ) );
+
+                if ( elmType == HEX8P )
                 {
-                    size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
-                    if ( elmNodResIdx < srcSFrameData.size() )
+                    for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
                     {
-                        // SE from abacus in opposite direction
-                        dstFrameData[elmNodResIdx] = -srcSFrameData[elmNodResIdx];
+                        size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
+                        if ( elmNodResIdx < srcSFrameData.size() )
+                        {
+                            // SE from abacus in opposite direction
+                            dstFrameData[elmNodResIdx] = -srcSFrameData[elmNodResIdx];
+                        }
                     }
                 }
-            }
-            else
-            {
-                for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
+                else
                 {
-                    size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
-                    if ( elmNodResIdx < dstFrameData.size() )
+                    for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
                     {
-                        dstFrameData[elmNodResIdx] = inf;
+                        size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
+                        if ( elmNodResIdx < dstFrameData.size() )
+                        {
+                            dstFrameData[elmNodResIdx] = inf;
+                        }
                     }
                 }
             }
         }
-
         frameCountProgress.incrementProgress();
     }
 

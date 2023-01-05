@@ -58,10 +58,10 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorFOS::calculate( int partInde
 {
     CVF_ASSERT( resVarAddr.fieldName == "SE" && resVarAddr.componentName == "FOS" );
 
-    caf::ProgressInfo frameCountProgress( m_resultCollection->frameCount() * 2, "" );
+    caf::ProgressInfo frameCountProgress( m_resultCollection->timeStepCount() * 2, "" );
     frameCountProgress.setProgressDescription(
         "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* dsmFrames =
         m_resultCollection->findOrLoadScalarResult( partIndex,
@@ -71,22 +71,24 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorFOS::calculate( int partInde
 
     frameCountProgress.incrementProgress();
 
-    int frameCount = dsmFrames->frameCount();
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
+    int timeSteps = dsmFrames->timeStepCount();
+    for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
-        const std::vector<float>& dsmData = dsmFrames->frameData( fIdx );
+        for ( int fIdx = 0; fIdx < dsmFrames->frameCount( stepIdx ); fIdx++ )
+        {
+            const std::vector<float>& dsmData = dsmFrames->frameData( stepIdx, fIdx );
 
-        std::vector<float>& dstFrameData = dstDataFrames->frameData( fIdx );
-        size_t              valCount     = dsmData.size();
-        dstFrameData.resize( valCount );
+            std::vector<float>& dstFrameData = dstDataFrames->frameData( stepIdx, fIdx );
+            size_t              valCount     = dsmData.size();
+            dstFrameData.resize( valCount );
 
 #pragma omp parallel for
-        for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
-        {
-            float dsm          = dsmData[vIdx];
-            dstFrameData[vIdx] = 1.0f / dsm;
+            for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
+            {
+                float dsm          = dsmData[vIdx];
+                dstFrameData[vIdx] = 1.0f / dsm;
+            }
         }
-
         frameCountProgress.incrementProgress();
     }
 

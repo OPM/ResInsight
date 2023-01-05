@@ -943,7 +943,7 @@ void RimGeoMechResultDefinition::setResultAddress( const RigFemResultAddress& re
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechResultDefinition::updateLegendTextAndRanges( RimRegularLegendConfig* legendConfigToUpdate,
                                                             const QString&          legendHeading,
-                                                            int                     timeStepIndex )
+                                                            int                     viewerStepIndex )
 {
     if ( !this->ownerCaseData() || !( this->resultAddress().isValid() ) )
     {
@@ -960,8 +960,14 @@ void RimGeoMechResultDefinition::updateLegendTextAndRanges( RimRegularLegendConf
 
     RigFemResultAddress resVarAddress = this->resultAddress();
 
-    gmCase->femPartResults()->minMaxScalarValues( resVarAddress, timeStepIndex, &localMin, &localMax );
-    gmCase->femPartResults()->posNegClosestToZero( resVarAddress, timeStepIndex, &localPosClosestToZero, &localNegClosestToZero );
+    auto [stepIdx, frameIdx] = gmCase->femPartResults()->stepListIndexToTimeStepAndDataFrameIndex( viewerStepIndex );
+
+    gmCase->femPartResults()->minMaxScalarValues( resVarAddress, stepIdx, frameIdx, &localMin, &localMax );
+    gmCase->femPartResults()->posNegClosestToZero( resVarAddress,
+                                                   stepIdx,
+                                                   frameIdx,
+                                                   &localPosClosestToZero,
+                                                   &localNegClosestToZero );
 
     gmCase->femPartResults()->minMaxScalarValues( resVarAddress, &globalMin, &globalMax );
     gmCase->femPartResults()->posNegClosestToZero( resVarAddress, &globalPosClosestToZero, &globalNegClosestToZero );

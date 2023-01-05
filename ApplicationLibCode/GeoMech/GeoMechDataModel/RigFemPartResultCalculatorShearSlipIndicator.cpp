@@ -61,24 +61,24 @@ RigFemScalarResultFrames*
 {
     CVF_ASSERT( isMatching( resVarAddr ) );
 
-    caf::ProgressInfo frameCountProgress( m_resultCollection->frameCount() * 3, "" );
-    frameCountProgress.setProgressDescription( "Calculating Shear Slip Indicator." );
+    caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 3, "" );
+    stepCountProgress.setProgressDescription( "Calculating Shear Slip Indicator." );
 
     // Pore pressure
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
     RigFemScalarResultFrames* porePressureDataFrames =
         m_resultCollection->findOrLoadScalarResult( partIndex,
                                                     RigFemResultAddress( resVarAddr.resultPosType, "POR-Bar", "" ) );
-    frameCountProgress.incrementProgress();
+    stepCountProgress.incrementProgress();
 
     // Total vertical stress (ST.S33)
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
     RigFemScalarResultFrames* stressDataFrames =
         m_resultCollection->findOrLoadScalarResult( partIndex,
                                                     RigFemResultAddress( resVarAddr.resultPosType, "ST", "S33" ) );
-    frameCountProgress.incrementProgress();
+    stepCountProgress.incrementProgress();
 
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* shearSlipIndicatorFrames =
         m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "ST", "DPN" ) );
@@ -88,76 +88,78 @@ RigFemScalarResultFrames*
 
     float inf = std::numeric_limits<float>::infinity();
 
-    frameCountProgress.setNextProgressIncrement( 1u );
+    stepCountProgress.setNextProgressIncrement( 1u );
 
-    int frameCount = stressDataFrames->frameCount();
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
+    int timeSteps = stressDataFrames->timeStepCount();
+    for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
-        const std::vector<float>& porFrameData = porePressureDataFrames->frameData( fIdx );
-        if ( porFrameData.empty() ) continue;
+        for ( int fIdx = 0; fIdx < stressDataFrames->frameCount( stepIdx ); fIdx++ )
+        {
+            const std::vector<float>& porFrameData = porePressureDataFrames->frameData( stepIdx, fIdx );
+            if ( porFrameData.empty() ) continue;
 
-        const std::vector<float>& stressFrameData = stressDataFrames->frameData( fIdx );
-        if ( stressFrameData.empty() ) continue;
+            const std::vector<float>& stressFrameData = stressDataFrames->frameData( stepIdx, fIdx );
+            if ( stressFrameData.empty() ) continue;
 
-        std::vector<float>& shearSlipIndicatorFrameData = shearSlipIndicatorFrames->frameData( fIdx );
+            std::vector<float>& shearSlipIndicatorFrameData = shearSlipIndicatorFrames->frameData( stepIdx, fIdx );
 
-        size_t valCount = stressFrameData.size();
-        shearSlipIndicatorFrameData.resize( valCount );
+            size_t valCount = stressFrameData.size();
+            shearSlipIndicatorFrameData.resize( valCount );
 
-        int elementCount = femPart->elementCount();
+            int elementCount = femPart->elementCount();
 
 #pragma omp parallel for
-        for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
-        {
-            RigElementType elmType = femPart->elementType( elmIdx );
-
-            int elmNodeCount = RigFemTypes::elementNodeCount( femPart->elementType( elmIdx ) );
-
-            if ( femPart->isHexahedron( elmIdx ) )
+            for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
             {
-                for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
+                RigElementType elmType = femPart->elementType( elmIdx );
+
+                int elmNodeCount = RigFemTypes::elementNodeCount( femPart->elementType( elmIdx ) );
+
+                if ( femPart->isHexahedron( elmIdx ) )
                 {
-                    // Use hydrostatic pressure from cell centroid.
-                    // Use centroid to avoid intra-element differences
-                    cvf::Vec3d cellCentroid       = femPartGrid->cellCentroid( elmIdx );
-                    double     cellCentroidTvdMSL = -cellCentroid.z();
-
-                    double waterDensity = m_resultCollection->waterDensityShearSlipIndicator();
-                    double cellCenterHydroStaticPressure =
-                        RigGeoMechWellLogExtractor::hydroStaticPorePressureAtDepth( cellCentroidTvdMSL, waterDensity );
-
-                    size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
-                    if ( elmNodResIdx < stressFrameData.size() )
+                    for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
                     {
-                        // Pore pressure (unit: Bar)
-                        float porePressureBar     = porFrameData[elmNodResIdx];
-                        float totalVerticalStress = stressFrameData[elmNodResIdx];
+                        // Use hydrostatic pressure from cell centroid.
+                        // Use centroid to avoid intra-element differences
+                        cvf::Vec3d cellCentroid       = femPartGrid->cellCentroid( elmIdx );
+                        double     cellCentroidTvdMSL = -cellCentroid.z();
 
-                        float shearSlipIndicator = inf;
-                        if ( porePressureBar != inf && totalVerticalStress - cellCenterHydroStaticPressure != 0.0 )
+                        double waterDensity = m_resultCollection->waterDensityShearSlipIndicator();
+                        double cellCenterHydroStaticPressure =
+                            RigGeoMechWellLogExtractor::hydroStaticPorePressureAtDepth( cellCentroidTvdMSL, waterDensity );
+
+                        size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
+                        if ( elmNodResIdx < stressFrameData.size() )
                         {
-                            shearSlipIndicator = ( porePressureBar - cellCenterHydroStaticPressure ) /
-                                                 ( totalVerticalStress - cellCenterHydroStaticPressure );
-                        }
+                            // Pore pressure (unit: Bar)
+                            float porePressureBar     = porFrameData[elmNodResIdx];
+                            float totalVerticalStress = stressFrameData[elmNodResIdx];
 
-                        shearSlipIndicatorFrameData[elmNodResIdx] = shearSlipIndicator;
+                            float shearSlipIndicator = inf;
+                            if ( porePressureBar != inf && totalVerticalStress - cellCenterHydroStaticPressure != 0.0 )
+                            {
+                                shearSlipIndicator = ( porePressureBar - cellCenterHydroStaticPressure ) /
+                                                     ( totalVerticalStress - cellCenterHydroStaticPressure );
+                            }
+
+                            shearSlipIndicatorFrameData[elmNodResIdx] = shearSlipIndicator;
+                        }
                     }
                 }
-            }
-            else
-            {
-                for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
+                else
                 {
-                    size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
-                    if ( elmNodResIdx < stressFrameData.size() )
+                    for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
                     {
-                        shearSlipIndicatorFrameData[elmNodResIdx] = inf;
+                        size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
+                        if ( elmNodResIdx < stressFrameData.size() )
+                        {
+                            shearSlipIndicatorFrameData[elmNodResIdx] = inf;
+                        }
                     }
                 }
             }
         }
-
-        frameCountProgress.incrementProgress();
+        stepCountProgress.incrementProgress();
     }
 
     RigFemScalarResultFrames* requestedResultFrames = m_resultCollection->findOrLoadScalarResult( partIndex, resVarAddr );

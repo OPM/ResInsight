@@ -83,10 +83,10 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorTimeLapse::calculate( int   
 RigFemScalarResultFrames*
     RigFemPartResultCalculatorTimeLapse::calculateTimeLapse( int partIndex, const RigFemResultAddress& resVarAddr )
 {
-    caf::ProgressInfo frameCountProgress( m_resultCollection->frameCount() * 2, "" );
+    caf::ProgressInfo frameCountProgress( m_resultCollection->timeStepCount() * 2, "" );
     frameCountProgress.setProgressDescription(
         "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemResultAddress resVarNative( resVarAddr.resultPosType,
                                       resVarAddr.fieldName,
@@ -111,27 +111,29 @@ RigFemScalarResultFrames*
 
     frameCountProgress.incrementProgress();
 
-    int frameCount   = srcDataFrames->frameCount();
+    int timeSteps    = srcDataFrames->timeStepCount();
     int baseFrameIdx = resVarAddr.timeLapseBaseStepIdx;
-    if ( baseFrameIdx >= frameCount ) return dstDataFrames;
-    const std::vector<float>& baseFrameData = srcDataFrames->frameData( baseFrameIdx );
+    if ( baseFrameIdx >= timeSteps ) return dstDataFrames;
+    const std::vector<float>& baseFrameData = srcDataFrames->frameData( baseFrameIdx, 0 );
     if ( baseFrameData.empty() ) return dstDataFrames;
 
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
+    for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
-        const std::vector<float>& srcFrameData = srcDataFrames->frameData( fIdx );
-        if ( srcFrameData.empty() ) continue; // Create empty results
+        for ( int fIdx = 0; fIdx < srcDataFrames->frameCount( stepIdx ); fIdx++ )
+        {
+            const std::vector<float>& srcFrameData = srcDataFrames->frameData( stepIdx, fIdx );
+            if ( srcFrameData.empty() ) continue; // Create empty results
 
-        std::vector<float>& dstFrameData = dstDataFrames->frameData( fIdx );
-        size_t              valCount     = srcFrameData.size();
-        dstFrameData.resize( valCount );
+            std::vector<float>& dstFrameData = dstDataFrames->frameData( stepIdx, fIdx );
+            size_t              valCount     = srcFrameData.size();
+            dstFrameData.resize( valCount );
 
 #pragma omp parallel for
-        for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
-        {
-            dstFrameData[vIdx] = srcFrameData[vIdx] - baseFrameData[vIdx];
+            for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
+            {
+                dstFrameData[vIdx] = srcFrameData[vIdx] - baseFrameData[vIdx];
+            }
         }
-
         frameCountProgress.incrementProgress();
     }
 
@@ -147,10 +149,10 @@ RigFemScalarResultFrames*
     // Gamma time lapse needs to be calculated as ST_dt / POR_dt and not Gamma - Gamma_baseFrame see github
     // issue #937
 
-    caf::ProgressInfo frameCountProgress( m_resultCollection->frameCount() * 3, "" );
+    caf::ProgressInfo frameCountProgress( m_resultCollection->timeStepCount() * 3, "" );
     frameCountProgress.setProgressDescription(
         "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemResultAddress totStressCompAddr( resVarAddr.resultPosType, "ST", "", resVarAddr.timeLapseBaseStepIdx );
     {
@@ -173,7 +175,7 @@ RigFemScalarResultFrames*
 
     RigFemScalarResultFrames* srcDataFrames = m_resultCollection->findOrLoadScalarResult( partIndex, totStressCompAddr );
     frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
     RigFemScalarResultFrames* srcPORDataFrames =
         m_resultCollection
             ->findOrLoadScalarResult( partIndex,

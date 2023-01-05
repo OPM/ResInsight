@@ -67,36 +67,36 @@ RigFemScalarResultFrames*
                 resVarAddr.componentName == "TP" || resVarAddr.componentName == "TPinc" ||
                 resVarAddr.componentName == "FAULTMOB" || resVarAddr.componentName == "PCRIT" );
 
-    caf::ProgressInfo frameCountProgress( m_resultCollection->frameCount() * 7, "" );
+    caf::ProgressInfo frameCountProgress( m_resultCollection->timeStepCount() * 7, "" );
     frameCountProgress.setProgressDescription(
         "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* s11Frames =
         m_resultCollection->findOrLoadScalarResult( partIndex,
                                                     RigFemResultAddress( RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S11" ) );
     frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
     RigFemScalarResultFrames* s22Frames =
         m_resultCollection->findOrLoadScalarResult( partIndex,
                                                     RigFemResultAddress( RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S22" ) );
     frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
     RigFemScalarResultFrames* s33Frames =
         m_resultCollection->findOrLoadScalarResult( partIndex,
                                                     RigFemResultAddress( RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S33" ) );
     frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
     RigFemScalarResultFrames* s12Frames =
         m_resultCollection->findOrLoadScalarResult( partIndex,
                                                     RigFemResultAddress( RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S12" ) );
     frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
     RigFemScalarResultFrames* s23Frames =
         m_resultCollection->findOrLoadScalarResult( partIndex,
                                                     RigFemResultAddress( RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S23" ) );
     frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
     RigFemScalarResultFrames* s13Frames =
         m_resultCollection->findOrLoadScalarResult( partIndex,
                                                     RigFemResultAddress( RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S13" ) );
@@ -142,123 +142,125 @@ RigFemScalarResultFrames*
     float tanFricAng        = tan( m_resultCollection->parameterFrictionAngleRad() );
     float cohPrTanFricAngle = (float)( m_resultCollection->parameterCohesion() / tanFricAng );
 
-    int frameCount = s11Frames->frameCount();
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
+    int timeSteps = s11Frames->timeStepCount();
+    for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
-        const std::vector<float>& s11 = s11Frames->frameData( fIdx );
-        if ( s11.empty() ) continue;
+        for ( int fIdx = 0; fIdx < s11Frames->frameCount( stepIdx ); fIdx++ )
+        {
+            const std::vector<float>& s11 = s11Frames->frameData( stepIdx, fIdx );
+            if ( s11.empty() ) continue;
 
-        const std::vector<float>& s22 = s22Frames->frameData( fIdx );
-        const std::vector<float>& s33 = s33Frames->frameData( fIdx );
-        const std::vector<float>& s12 = s12Frames->frameData( fIdx );
-        const std::vector<float>& s23 = s23Frames->frameData( fIdx );
-        const std::vector<float>& s13 = s13Frames->frameData( fIdx );
+            const std::vector<float>& s22 = s22Frames->frameData( stepIdx, fIdx );
+            const std::vector<float>& s33 = s33Frames->frameData( stepIdx, fIdx );
+            const std::vector<float>& s12 = s12Frames->frameData( stepIdx, fIdx );
+            const std::vector<float>& s23 = s23Frames->frameData( stepIdx, fIdx );
+            const std::vector<float>& s13 = s13Frames->frameData( stepIdx, fIdx );
 
-        std::vector<float>& SNDat       = SNFrames->frameData( fIdx );
-        std::vector<float>& STHDat      = STHFrames->frameData( fIdx );
-        std::vector<float>& STQVDat     = STQVFrames->frameData( fIdx );
-        std::vector<float>& TNHDat      = TNHFrames->frameData( fIdx );
-        std::vector<float>& TNQVDat     = TNQVFrames->frameData( fIdx );
-        std::vector<float>& THQVDat     = THQVFrames->frameData( fIdx );
-        std::vector<float>& TPDat       = TPFrames->frameData( fIdx );
-        std::vector<float>& TincDat     = TPincFrames->frameData( fIdx );
-        std::vector<float>& FAULTMOBDat = FAULTMOBFrames->frameData( fIdx );
-        std::vector<float>& PCRITDat    = PCRITFrames->frameData( fIdx );
+            std::vector<float>& SNDat       = SNFrames->frameData( stepIdx, fIdx );
+            std::vector<float>& STHDat      = STHFrames->frameData( stepIdx, fIdx );
+            std::vector<float>& STQVDat     = STQVFrames->frameData( stepIdx, fIdx );
+            std::vector<float>& TNHDat      = TNHFrames->frameData( stepIdx, fIdx );
+            std::vector<float>& TNQVDat     = TNQVFrames->frameData( stepIdx, fIdx );
+            std::vector<float>& THQVDat     = THQVFrames->frameData( stepIdx, fIdx );
+            std::vector<float>& TPDat       = TPFrames->frameData( stepIdx, fIdx );
+            std::vector<float>& TincDat     = TPincFrames->frameData( stepIdx, fIdx );
+            std::vector<float>& FAULTMOBDat = FAULTMOBFrames->frameData( stepIdx, fIdx );
+            std::vector<float>& PCRITDat    = PCRITFrames->frameData( stepIdx, fIdx );
 
-        // HACK ! Todo : make it robust against other elements than Hex8
-        size_t valCount = s11.size() * 3; // Number of Elm Node Face results 24 = 4 * num faces = 3* numElmNodes
+            // HACK ! Todo : make it robust against other elements than Hex8
+            size_t valCount = s11.size() * 3; // Number of Elm Node Face results 24 = 4 * num faces = 3* numElmNodes
 
-        SNDat.resize( valCount );
-        STHDat.resize( valCount );
-        STQVDat.resize( valCount );
-        TNHDat.resize( valCount );
-        TNQVDat.resize( valCount );
-        THQVDat.resize( valCount );
-        TPDat.resize( valCount );
-        TincDat.resize( valCount );
-        FAULTMOBDat.resize( valCount );
-        PCRITDat.resize( valCount );
+            SNDat.resize( valCount );
+            STHDat.resize( valCount );
+            STQVDat.resize( valCount );
+            TNHDat.resize( valCount );
+            TNQVDat.resize( valCount );
+            THQVDat.resize( valCount );
+            TPDat.resize( valCount );
+            TincDat.resize( valCount );
+            FAULTMOBDat.resize( valCount );
+            PCRITDat.resize( valCount );
 
-        int elementCount = femPart->elementCount();
+            int elementCount = femPart->elementCount();
 
 #pragma omp parallel for
-        for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
-        {
-            RigElementType elmType        = femPart->elementType( elmIdx );
-            int            faceCount      = RigFemTypes::elementFaceCount( elmType );
-            const int*     elmNodeIndices = femPart->connectivities( elmIdx );
-
-            int elmNodFaceResIdxElmStart = elmIdx * 24; // HACK should get from part
-
-            for ( int lfIdx = 0; lfIdx < faceCount; ++lfIdx )
+            for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
             {
-                int        faceNodeCount = 0;
-                const int* localElmNodeIndicesForFace =
-                    RigFemTypes::localElmNodeIndicesForFace( elmType, lfIdx, &faceNodeCount );
-                if ( faceNodeCount == 4 )
+                RigElementType elmType        = femPart->elementType( elmIdx );
+                int            faceCount      = RigFemTypes::elementFaceCount( elmType );
+                const int*     elmNodeIndices = femPart->connectivities( elmIdx );
+
+                int elmNodFaceResIdxElmStart = elmIdx * 24; // HACK should get from part
+
+                for ( int lfIdx = 0; lfIdx < faceCount; ++lfIdx )
                 {
-                    int        elmNodFaceResIdxFaceStart = elmNodFaceResIdxElmStart + lfIdx * 4; // HACK
-                    cvf::Vec3f quadVxs[4];
-
-                    quadVxs[0] = ( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[0]]] );
-                    quadVxs[1] = ( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[1]]] );
-                    quadVxs[2] = ( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[2]]] );
-                    quadVxs[3] = ( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[3]]] );
-
-                    cvf::Mat3f rotMx = cvf::GeometryTools::computePlaneHorizontalRotationMx( quadVxs[2] - quadVxs[0],
-                                                                                             quadVxs[3] - quadVxs[1] );
-
-                    size_t qElmNodeResIdx[4];
-                    qElmNodeResIdx[0] = femPart->elementNodeResultIdx( elmIdx, localElmNodeIndicesForFace[0] );
-                    qElmNodeResIdx[1] = femPart->elementNodeResultIdx( elmIdx, localElmNodeIndicesForFace[1] );
-                    qElmNodeResIdx[2] = femPart->elementNodeResultIdx( elmIdx, localElmNodeIndicesForFace[2] );
-                    qElmNodeResIdx[3] = femPart->elementNodeResultIdx( elmIdx, localElmNodeIndicesForFace[3] );
-
-                    for ( int qIdx = 0; qIdx < 4; ++qIdx )
+                    int        faceNodeCount = 0;
+                    const int* localElmNodeIndicesForFace =
+                        RigFemTypes::localElmNodeIndicesForFace( elmType, lfIdx, &faceNodeCount );
+                    if ( faceNodeCount == 4 )
                     {
-                        size_t elmNodResIdx = qElmNodeResIdx[qIdx];
-                        float  t11          = s11[elmNodResIdx];
-                        float  t22          = s22[elmNodResIdx];
-                        float  t33          = s33[elmNodResIdx];
-                        float  t12          = s12[elmNodResIdx];
-                        float  t23          = s23[elmNodResIdx];
-                        float  t13          = s13[elmNodResIdx];
+                        int        elmNodFaceResIdxFaceStart = elmNodFaceResIdxElmStart + lfIdx * 4; // HACK
+                        cvf::Vec3f quadVxs[4];
 
-                        caf::Ten3f tensor( t11, t22, t33, t12, t23, t13 );
-                        caf::Ten3f xfTen            = tensor.rotated( rotMx );
-                        int        elmNodFaceResIdx = elmNodFaceResIdxFaceStart + qIdx;
+                        quadVxs[0] = ( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[0]]] );
+                        quadVxs[1] = ( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[1]]] );
+                        quadVxs[2] = ( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[2]]] );
+                        quadVxs[3] = ( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[3]]] );
 
-                        float szx = xfTen[caf::Ten3f::SZX];
-                        float syz = xfTen[caf::Ten3f::SYZ];
-                        float szz = xfTen[caf::Ten3f::SZZ];
+                        cvf::Mat3f rotMx = cvf::GeometryTools::computePlaneHorizontalRotationMx( quadVxs[2] - quadVxs[0],
+                                                                                                 quadVxs[3] - quadVxs[1] );
 
-                        STHDat[elmNodFaceResIdx]  = xfTen[caf::Ten3f::SXX];
-                        STQVDat[elmNodFaceResIdx] = xfTen[caf::Ten3f::SYY];
-                        SNDat[elmNodFaceResIdx]   = xfTen[caf::Ten3f::SZZ];
+                        size_t qElmNodeResIdx[4];
+                        qElmNodeResIdx[0] = femPart->elementNodeResultIdx( elmIdx, localElmNodeIndicesForFace[0] );
+                        qElmNodeResIdx[1] = femPart->elementNodeResultIdx( elmIdx, localElmNodeIndicesForFace[1] );
+                        qElmNodeResIdx[2] = femPart->elementNodeResultIdx( elmIdx, localElmNodeIndicesForFace[2] );
+                        qElmNodeResIdx[3] = femPart->elementNodeResultIdx( elmIdx, localElmNodeIndicesForFace[3] );
 
-                        TNHDat[elmNodFaceResIdx]  = xfTen[caf::Ten3f::SZX];
-                        TNQVDat[elmNodFaceResIdx] = xfTen[caf::Ten3f::SYZ];
-                        THQVDat[elmNodFaceResIdx] = xfTen[caf::Ten3f::SXY];
-
-                        float TP                = sqrt( szx * szx + syz * syz );
-                        TPDat[elmNodFaceResIdx] = TP;
-
-                        if ( TP > 1e-5 )
+                        for ( int qIdx = 0; qIdx < 4; ++qIdx )
                         {
-                            TincDat[elmNodFaceResIdx] = cvf::Math::toDegrees( acos( syz / TP ) );
-                        }
-                        else
-                        {
-                            TincDat[elmNodFaceResIdx] = std::numeric_limits<float>::infinity();
-                        }
+                            size_t elmNodResIdx = qElmNodeResIdx[qIdx];
+                            float  t11          = s11[elmNodResIdx];
+                            float  t22          = s22[elmNodResIdx];
+                            float  t33          = s33[elmNodResIdx];
+                            float  t12          = s12[elmNodResIdx];
+                            float  t23          = s23[elmNodResIdx];
+                            float  t13          = s13[elmNodResIdx];
 
-                        FAULTMOBDat[elmNodFaceResIdx] = TP / ( tanFricAng * ( szz + cohPrTanFricAngle ) );
-                        PCRITDat[elmNodFaceResIdx]    = szz - TP / tanFricAng;
+                            caf::Ten3f tensor( t11, t22, t33, t12, t23, t13 );
+                            caf::Ten3f xfTen            = tensor.rotated( rotMx );
+                            int        elmNodFaceResIdx = elmNodFaceResIdxFaceStart + qIdx;
+
+                            float szx = xfTen[caf::Ten3f::SZX];
+                            float syz = xfTen[caf::Ten3f::SYZ];
+                            float szz = xfTen[caf::Ten3f::SZZ];
+
+                            STHDat[elmNodFaceResIdx]  = xfTen[caf::Ten3f::SXX];
+                            STQVDat[elmNodFaceResIdx] = xfTen[caf::Ten3f::SYY];
+                            SNDat[elmNodFaceResIdx]   = xfTen[caf::Ten3f::SZZ];
+
+                            TNHDat[elmNodFaceResIdx]  = xfTen[caf::Ten3f::SZX];
+                            TNQVDat[elmNodFaceResIdx] = xfTen[caf::Ten3f::SYZ];
+                            THQVDat[elmNodFaceResIdx] = xfTen[caf::Ten3f::SXY];
+
+                            float TP                = sqrt( szx * szx + syz * syz );
+                            TPDat[elmNodFaceResIdx] = TP;
+
+                            if ( TP > 1e-5 )
+                            {
+                                TincDat[elmNodFaceResIdx] = cvf::Math::toDegrees( acos( syz / TP ) );
+                            }
+                            else
+                            {
+                                TincDat[elmNodFaceResIdx] = std::numeric_limits<float>::infinity();
+                            }
+
+                            FAULTMOBDat[elmNodFaceResIdx] = TP / ( tanFricAng * ( szz + cohPrTanFricAngle ) );
+                            PCRITDat[elmNodFaceResIdx]    = szz - TP / tanFricAng;
+                        }
                     }
                 }
             }
         }
-
         frameCountProgress.incrementProgress();
     }
 

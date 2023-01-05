@@ -58,23 +58,23 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorQ::calculate( int partIndex,
 {
     CVF_ASSERT( resVarAddr.fieldName == "ST" && resVarAddr.componentName == "Q" );
 
-    caf::ProgressInfo frameCountProgress( m_resultCollection->frameCount() * 5, "" );
+    caf::ProgressInfo frameCountProgress( m_resultCollection->timeStepCount() * 5, "" );
     frameCountProgress.setProgressDescription(
         "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* st11 =
         m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "ST", "S1" ) );
     frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
     RigFemScalarResultFrames* st22 =
         m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "ST", "S2" ) );
     frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
     RigFemScalarResultFrames* st33 =
         m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "ST", "S3" ) );
     frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* stm =
         m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "ST", "SM" ) );
@@ -83,30 +83,32 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorQ::calculate( int partIndex,
 
     frameCountProgress.incrementProgress();
 
-    int frameCount = st11->frameCount();
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
+    int timeSteps = st11->timeStepCount();
+    for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
-        const std::vector<float>& st11Data = st11->frameData( fIdx );
-        const std::vector<float>& st22Data = st22->frameData( fIdx );
-        const std::vector<float>& st33Data = st33->frameData( fIdx );
+        for ( int fIdx = 0; fIdx < st11->frameCount( stepIdx ); fIdx++ )
+        {
+            const std::vector<float>& st11Data = st11->frameData( stepIdx, fIdx );
+            const std::vector<float>& st22Data = st22->frameData( stepIdx, fIdx );
+            const std::vector<float>& st33Data = st33->frameData( stepIdx, fIdx );
 
-        const std::vector<float>& stmData = stm->frameData( fIdx );
+            const std::vector<float>& stmData = stm->frameData( stepIdx, fIdx );
 
-        std::vector<float>& dstFrameData = dstDataFrames->frameData( fIdx );
-        size_t              valCount     = st11Data.size();
-        dstFrameData.resize( valCount );
+            std::vector<float>& dstFrameData = dstDataFrames->frameData( stepIdx, fIdx );
+            size_t              valCount     = st11Data.size();
+            dstFrameData.resize( valCount );
 
 #pragma omp parallel for
-        for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
-        {
-            float stmVal   = stmData[vIdx];
-            float st11Corr = st11Data[vIdx] - stmVal;
-            float st22Corr = st22Data[vIdx] - stmVal;
-            float st33Corr = st33Data[vIdx] - stmVal;
+            for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
+            {
+                float stmVal   = stmData[vIdx];
+                float st11Corr = st11Data[vIdx] - stmVal;
+                float st22Corr = st22Data[vIdx] - stmVal;
+                float st33Corr = st33Data[vIdx] - stmVal;
 
-            dstFrameData[vIdx] = sqrt( 1.5 * ( st11Corr * st11Corr + st22Corr * st22Corr + st33Corr * st33Corr ) );
+                dstFrameData[vIdx] = sqrt( 1.5 * ( st11Corr * st11Corr + st22Corr * st22Corr + st33Corr * st33Corr ) );
+            }
         }
-
         frameCountProgress.incrementProgress();
     }
 

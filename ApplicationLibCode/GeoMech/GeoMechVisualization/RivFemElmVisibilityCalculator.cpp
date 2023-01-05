@@ -91,6 +91,7 @@ void RivFemElmVisibilityCalculator::computeRangeVisibility( cvf::UByteArray*    
 void RivFemElmVisibilityCalculator::computePropertyVisibility( cvf::UByteArray*       cellVisibility,
                                                                const RigFemPart*      part,
                                                                int                    timeStepIndex,
+                                                               int                    frameIndex,
                                                                const cvf::UByteArray* rangeFilterVisibility,
                                                                RimGeoMechPropertyFilterCollection* propFilterColl )
 {
@@ -124,7 +125,7 @@ void RivFemElmVisibilityCalculator::computePropertyVisibility( cvf::UByteArray* 
             resVarAddress.resultPosType = RIG_ELEMENT_NODAL;
 
         const std::vector<float>& resVals =
-            caseData->femPartResults()->resultValues( resVarAddress, part->elementPartId(), timeStepIndex );
+            caseData->femPartResults()->resultValues( resVarAddress, part->elementPartId(), timeStepIndex, frameIndex );
 
         if ( !propertyFilter->isActive() ) continue;
         if ( !propertyFilter->resultDefinition->hasResult() ) continue;

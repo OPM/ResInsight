@@ -157,9 +157,10 @@ protected:
     void clearResults();
     void clearTimeStepRange();
 
-    double                    maxValue( const std::vector<double>& aggregatedResults ) const;
-    double                    minValue( const std::vector<double>& aggregatedResults ) const;
-    std::pair<double, double> minmaxValuesAllTimeSteps();
+    double maxValue( const std::vector<double>& aggregatedResults ) const;
+    double minValue( const std::vector<double>& aggregatedResults ) const;
+
+    virtual std::pair<double, double> minmaxValuesAllTimeSteps();
 
     virtual cvf::ref<cvf::UByteArray>                   getCellVisibility() const;
     virtual std::vector<bool>                           getMapCellVisibility();

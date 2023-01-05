@@ -28,16 +28,18 @@
 class RigFemScalarResultFrames : public cvf::Object
 {
 public:
-    explicit RigFemScalarResultFrames( int frameCount );
+    explicit RigFemScalarResultFrames( int timeStepCount );
     ~RigFemScalarResultFrames() override;
 
-    void enableAsSingleFrameResult();
+    void enableAsSingleStepResult();
 
-    std::vector<float>&       frameData( size_t frameIndex );
-    const std::vector<float>& frameData( size_t frameIndex ) const;
-    int                       frameCount() const;
+    std::vector<float>&       frameData( int timeStep, int frameIndex );
+    const std::vector<float>& frameData( int timeStep, int frameIndex ) const;
+    int                       timeStepCount() const;
+    int                       frameCount( int timeStep ) const;
 
 private:
-    std::vector<std::vector<float>> m_dataForEachFrame;
-    bool                            m_isSingleFrameResult;
+    std::vector<std::vector<std::vector<float>>> m_dataForEachFrame;
+    std::vector<float>                           m_noData;
+    bool                                         m_isSingleStepResult;
 };
