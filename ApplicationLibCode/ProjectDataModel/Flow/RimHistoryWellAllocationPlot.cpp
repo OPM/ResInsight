@@ -20,8 +20,11 @@
 
 #include "RiaColorTools.h"
 #include "RiaDefines.h"
+#include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaTimeTTools.h"
+
+#include "RifTextDataTableFormatter.h"
 
 #include "RigAccWellFlowCalculator.h"
 #include "RigEclipseCaseData.h"
@@ -152,7 +155,45 @@ RiuPlotWidget* RimHistoryWellAllocationPlot::plotWidget()
 //--------------------------------------------------------------------------------------------------
 QString RimHistoryWellAllocationPlot::asciiDataForPlotExport() const
 {
-    return "";
+    // Retrieve collection of total fraction data for wells
+    RimHistoryWellFlowDataCollection wellFlowDataCollection = createHistoryWellFlowDataCollection();
+
+    QString titleText = "Well " + getYAxisTitleFromValueType() + ": " + m_wellName + ", " + " (" +
+                        m_case->caseUserDescription() + ") \n\n";
+
+    QString                   dataText;
+    QTextStream               stringStream( &dataText );
+    RifTextDataTableFormatter formatter( stringStream );
+    formatter.setCommentPrefix( "" );
+    formatter.setHeaderPrefix( "" );
+    formatter.setTableRowPrependText( "" );
+    formatter.setTableRowLineAppendText( "" );
+    formatter.setColumnSpacing( 3 );
+
+    auto                                numberFormat = RifTextDataTableDoubleFormatting( RIF_FLOAT, 2 );
+    std::vector<RifTextDataTableColumn> headerVector = { { "Time Step", numberFormat, RIGHT } };
+    for ( auto& [wellName, wellValues] : wellFlowDataCollection.wellValuesMap() )
+    {
+        headerVector.push_back( { wellName, numberFormat, RIGHT } );
+    }
+    formatter.header( headerVector );
+
+    const QString dateFormatStr =
+        RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
+                                             RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
+    for ( const auto& timeStep : wellFlowDataCollection.timeStepDates() )
+    {
+        formatter.add( timeStep.toString( dateFormatStr ) );
+        for ( auto& [wellName, wellValues] : wellFlowDataCollection.wellValuesMap() )
+        {
+            formatter.add( wellValues.count( timeStep ) == 0 ? QString::number( 0.0 )
+                                                             : QString::number( wellValues.at( timeStep ) ) );
+        }
+        formatter.rowCompleted();
+    }
+    formatter.tableCompleted( "", false );
+
+    return titleText + dataText;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -197,26 +238,21 @@ RiuPlotWidget* RimHistoryWellAllocationPlot::doCreatePlotViewWidget( QWidget* ma
     {
         return m_plotWidget;
     }
-
     auto* plotWidget = new RiuQwtPlotWidget( this, mainWindowParent );
     new RiuQwtCurvePointTracker( plotWidget->qwtPlot(), true, nullptr );
 
     // Remove event filter to disable unwanted highlighting on left click in plot.
     plotWidget->removeEventFilter();
 
-    /* caf::CmdFeatureMenuBuilder menuBuilder;
-     menuBuilder << "RicShowPlotDataFeature";
-     new RiuContextMenuLauncher( plotWidget, menuBuilder );*/
+    caf::CmdFeatureMenuBuilder menuBuilder;
+    menuBuilder << "RicShowPlotDataFeature";
+    new RiuContextMenuLauncher( plotWidget, menuBuilder );
 
     m_plotWidget = plotWidget;
     m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
-    /*RiuQwtPlotTools::enableDateBasedBottomXAxis( m_plotWidget->qwtPlot(),
-                                                 RiaQDateTimeTools::supportedDateFormats().front(),
-                                                 RiaQDateTimeTools::supportedTimeFormats().front(),
-                                                 RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY,
-                                                 RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND );*/
+
     RiuQwtPlotTools::enableDateBasedBottomXAxis( m_plotWidget->qwtPlot(),
-                                                 RiaQDateTimeTools::supportedDateFormats().front(),
+                                                 RiaPreferences::current()->dateFormat(),
                                                  QString(),
                                                  RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY,
                                                  RiaDefines::TimeFormatComponents::TIME_FORMAT_NONE );
@@ -349,7 +385,7 @@ void RimHistoryWellAllocationPlot::updateFromWell()
 /// well data for all time steps. If well does not exist for specific time step date - value is
 /// set to 0.
 //--------------------------------------------------------------------------------------------------
-RimHistoryWellFlowDataCollection RimHistoryWellAllocationPlot::createHistoryWellFlowDataCollection()
+RimHistoryWellFlowDataCollection RimHistoryWellAllocationPlot::createHistoryWellFlowDataCollection() const
 {
     if ( !m_case )
     {

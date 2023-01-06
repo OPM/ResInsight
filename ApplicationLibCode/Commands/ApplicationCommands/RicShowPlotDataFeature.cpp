@@ -25,6 +25,7 @@
 
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCurve.h"
+#include "RimHistoryWellAllocationPlot.h"
 #include "RimPlotWindow.h"
 #include "RimProject.h"
 #include "RimSummaryCrossPlot.h"
@@ -189,7 +190,7 @@ bool RicShowPlotDataFeature::isCommandEnabled()
 
         if ( dynamic_cast<RimSummaryPlot*>( plot ) || dynamic_cast<RimWellLogPlot*>( plot ) ||
              dynamic_cast<RimWellLogTrack*>( plot ) || dynamic_cast<RimGridCrossPlot*>( plot ) ||
-             dynamic_cast<RimVfpPlot*>( plot ) )
+             dynamic_cast<RimVfpPlot*>( plot ) || dynamic_cast<RimHistoryWellAllocationPlot*>( plot ) )
         {
             validPlots++;
         }
@@ -221,11 +222,12 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
     std::vector<RimPlotWindow*> selection;
     getSelection( selection );
 
-    std::vector<RimSummaryPlot*>   selectedSummaryPlots;
-    std::vector<RimWellLogPlot*>   wellLogPlots;
-    std::vector<RimGridCrossPlot*> crossPlots;
-    std::vector<RimVfpPlot*>       vfpPlots;
-    std::vector<RimWellLogTrack*>  depthTracks;
+    std::vector<RimSummaryPlot*>               selectedSummaryPlots;
+    std::vector<RimWellLogPlot*>               wellLogPlots;
+    std::vector<RimGridCrossPlot*>             crossPlots;
+    std::vector<RimVfpPlot*>                   vfpPlots;
+    std::vector<RimWellLogTrack*>              depthTracks;
+    std::vector<RimHistoryWellAllocationPlot*> historyWellAllocationPlots;
 
     for ( auto plot : selection )
     {
@@ -256,6 +258,12 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
         if ( auto depthTrack = dynamic_cast<RimWellLogTrack*>( plot ) )
         {
             depthTracks.push_back( depthTrack );
+            continue;
+        }
+
+        if ( auto historyWellAllocationPlot = dynamic_cast<RimHistoryWellAllocationPlot*>( plot ) )
+        {
+            historyWellAllocationPlots.push_back( historyWellAllocationPlot );
             continue;
         }
     }
@@ -291,6 +299,13 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
     {
         auto textProvider = new RiuTabbedGridCrossPlotTextProvider( crossPlot );
         RicShowPlotDataFeature::showTabbedTextWindow( textProvider );
+    }
+
+    for ( RimHistoryWellAllocationPlot* historyWellAllocationPlot : historyWellAllocationPlots )
+    {
+        QString title = historyWellAllocationPlot->description();
+        QString text  = historyWellAllocationPlot->asciiDataForPlotExport();
+        RicShowPlotDataFeature::showTextWindow( title, text );
     }
 }
 
