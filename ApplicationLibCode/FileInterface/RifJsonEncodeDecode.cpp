@@ -19,6 +19,7 @@
 #include "RifJsonEncodeDecode.h"
 
 #include <QtCore/QFile>
+#include <QtCore/QJsonArray>
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
 #include <QtCore/QString>
@@ -35,6 +36,26 @@ QMap<QString, QVariant> JsonReader::decodeFile( QString filePath )
     return Json::decode( byteArray );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QVariantList JsonReader::getVariantList( const QMap<QString, QVariant>& map )
+{
+    // Assume a "root" key with a variant list
+    return map[JsonReader::rootKeyText()].toList();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString JsonReader::rootKeyText()
+{
+    return "root";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString Json::encode( const QMap<QString, QVariant>& map, bool prettify )
 {
     QJsonDocument doc( QJsonObject::fromVariantMap( map ) );
@@ -43,14 +64,34 @@ QString Json::encode( const QMap<QString, QVariant>& map, bool prettify )
     return doc.toJson( format );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QMap<QString, QVariant> Json::decode( const QString& jsonStr )
 {
     return Json::decode( jsonStr.toUtf8() );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QMap<QString, QVariant> Json::decode( const QByteArray& byteArray )
 {
-    return QJsonDocument::fromJson( byteArray ).object().toVariantMap();
+    auto document = QJsonDocument::fromJson( byteArray );
+    if ( document.isObject() ) return QJsonDocument::fromJson( byteArray ).object().toVariantMap();
+
+    // Return a variant map with "root" as key and a variant list if the document contains an array
+    if ( document.isArray() )
+    {
+        auto variantList = document.array().toVariantList();
+
+        QMap<QString, QVariant> map;
+
+        map[JsonReader::rootKeyText()] = variantList;
+        return map;
+    }
+
+    return {};
 }
 
 } // namespace ResInsightInternalJson
