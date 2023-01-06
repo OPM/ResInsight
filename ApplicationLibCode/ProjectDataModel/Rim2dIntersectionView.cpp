@@ -214,7 +214,7 @@ bool Rim2dIntersectionView::isTimeStepDependentDataVisible() const
 //--------------------------------------------------------------------------------------------------
 void Rim2dIntersectionView::update3dInfo()
 {
-    if ( !nativeOrOverrideViewer() ) return;
+    if ( !nativeOrOverrideViewer() || !m_intersection ) return;
 
     QString overlayInfoText;
 
@@ -605,6 +605,8 @@ void Rim2dIntersectionView::onCreateDisplayModel()
 //--------------------------------------------------------------------------------------------------
 void Rim2dIntersectionView::onUpdateDisplayModelForCurrentTimeStep()
 {
+    if ( !m_intersection ) return;
+
     update3dInfo();
     onUpdateLegends();
 
@@ -682,7 +684,7 @@ void Rim2dIntersectionView::onUpdateLegends()
 {
     m_legendObjectToSelect = nullptr;
 
-    if ( !nativeOrOverrideViewer() ) return;
+    if ( !nativeOrOverrideViewer() || !m_intersection ) return;
 
     nativeOrOverrideViewer()->removeAllColorLegends();
 
@@ -877,7 +879,7 @@ void Rim2dIntersectionView::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 
     uiOrdering.skipRemainingFields( true );
 
-    if ( m_intersection->hasDefiningPoints() )
+    if ( m_intersection && m_intersection->hasDefiningPoints() )
     {
         caf::PdmUiGroup* plGroup = uiOrdering.addNewGroup( "Defining Points" );
         plGroup->add( &m_showDefiningPoints );
