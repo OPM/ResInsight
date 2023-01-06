@@ -24,8 +24,6 @@
 #include "RiaQDateTimeTools.h"
 #include "RiaTimeTTools.h"
 
-#include "RifTextDataTableFormatter.h"
-
 #include "RigAccWellFlowCalculator.h"
 #include "RigEclipseCaseData.h"
 #include "RigSimWellData.h"
@@ -161,37 +159,27 @@ QString RimHistoryWellAllocationPlot::asciiDataForPlotExport() const
     QString titleText = "Well " + getYAxisTitleFromValueType() + ": " + m_wellName + ", " + " (" +
                         m_case->caseUserDescription() + ") \n\n";
 
-    QString                   dataText;
-    QTextStream               stringStream( &dataText );
-    RifTextDataTableFormatter formatter( stringStream );
-    formatter.setCommentPrefix( "" );
-    formatter.setHeaderPrefix( "" );
-    formatter.setTableRowPrependText( "" );
-    formatter.setTableRowLineAppendText( "" );
-    formatter.setColumnSpacing( 3 );
-
-    auto                                numberFormat = RifTextDataTableDoubleFormatting( RIF_FLOAT, 2 );
-    std::vector<RifTextDataTableColumn> headerVector = { { "Time Step", numberFormat, RIGHT } };
+    QString dataText = "Time Step\t";
     for ( auto& [wellName, wellValues] : wellFlowDataCollection.wellValuesMap() )
     {
-        headerVector.push_back( { wellName, numberFormat, RIGHT } );
+        dataText += wellName + "\t";
     }
-    formatter.header( headerVector );
+    dataText += "\n";
 
     const QString dateFormatStr =
         RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
                                              RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
     for ( const auto& timeStep : wellFlowDataCollection.timeStepDates() )
     {
-        formatter.add( timeStep.toString( dateFormatStr ) );
+        dataText += timeStep.toString( dateFormatStr ) + "\t";
         for ( auto& [wellName, wellValues] : wellFlowDataCollection.wellValuesMap() )
         {
-            formatter.add( wellValues.count( timeStep ) == 0 ? QString::number( 0.0 )
-                                                             : QString::number( wellValues.at( timeStep ) ) );
+            dataText += wellValues.count( timeStep ) == 0 ? QString::number( 0.0 )
+                                                          : QString::number( wellValues.at( timeStep ) );
+            dataText += "\t";
         }
-        formatter.rowCompleted();
+        dataText += "\n";
     }
-    formatter.tableCompleted( "", false );
 
     return titleText + dataText;
 }
