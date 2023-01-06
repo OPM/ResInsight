@@ -112,6 +112,22 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
         femPartResult->initResultSteps( filteredStepNames );
     }
 
+    // initialize step cache
+    {
+        int stepIdx = 0;
+        for ( auto& stepName : filteredStepNames )
+        {
+            int frameIdx = 0;
+            for ( auto& frame : m_readerInterface->frameTimes( stepIdx ) )
+            {
+                m_stepNames.emplace_back( stepName + " (" + std::to_string( frame ) + ")" );
+                m_stepList.emplace_back( stepIdx, frameIdx );
+                frameIdx++;
+            }
+            stepIdx++;
+        }
+    }
+
     m_cohesion            = 10.0;
     m_frictionAngleRad    = cvf::Math::toRadians( 30.0 );
     m_normalizationAirGap = 0.0;
@@ -972,22 +988,12 @@ int RigFemPartResultsCollection::frameCount( int timeStepIndex ) const
 //--------------------------------------------------------------------------------------------------
 const std::vector<std::pair<int, int>>& RigFemPartResultsCollection::stepList()
 {
-    if ( m_stepList.empty() )
-    {
-        const int timeSteps = timeStepCount();
-        for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
-        {
-            const int frames = frameCount( stepIdx );
-            for ( int frameIdx = 0; frameIdx < frames; frameIdx++ )
-            {
-                m_stepList.emplace_back( stepIdx, frameIdx );
-            }
-        }
-    }
-
     return m_stepList;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 int RigFemPartResultsCollection::totalSteps()
 {
     return int( stepList().size() );
@@ -996,8 +1002,17 @@ int RigFemPartResultsCollection::totalSteps()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<std::string> RigFemPartResultsCollection::stepNames() const
+{
+    return m_stepNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 const std::pair<int, int> RigFemPartResultsCollection::stepListIndexToTimeStepAndDataFrameIndex( int stepIndex )
 {
+    if ( stepIndex < 0 ) return std::make_pair( stepIndex, -1 );
     return stepList()[stepIndex];
 }
 
