@@ -416,21 +416,16 @@ void RiuWellImportWizard::updateFieldsModel()
 
     if ( caf::Utils::fileExists( fileName ) )
     {
+        QStringList regions;
+        QStringList fields;
+        QStringList edmIds;
+
         ResInsightInternalJson::JsonReader jsonReader;
-        QMap<QString, QVariant>            jsonMap = jsonReader.decodeFile( fileName );
-
-        QStringList                     regions;
-        QStringList                     fields;
-        QStringList                     edmIds;
-        QMapIterator<QString, QVariant> it( jsonMap );
-        while ( it.hasNext() )
+        QMap<QString, QVariant>            jsonMap     = jsonReader.decodeFile( fileName );
+        QVariantList                       variantList = ResInsightInternalJson::JsonReader::getVariantList( jsonMap );
+        for ( const auto& listItem : variantList )
         {
-            it.next();
-
-            // If we have an array, skip to next node
-            if ( it.key() == "length" ) continue;
-
-            QMap<QString, QVariant> fieldMap = it.value().toMap();
+            QMap<QString, QVariant> fieldMap = listItem.toMap();
 
             regions.push_back( fieldMap["region"].toString() );
             fields.push_back( fieldMap["name"].toString() );
@@ -641,17 +636,11 @@ void RiuWellImportWizard::parseWellsResponse( RimOilFieldEntry* oilFieldEntry )
     if ( caf::Utils::fileExists( oilFieldEntry->wellsFilePath ) )
     {
         ResInsightInternalJson::JsonReader jsonReader;
-        QMap<QString, QVariant>            jsonMap = jsonReader.decodeFile( oilFieldEntry->wellsFilePath );
-
-        QMapIterator<QString, QVariant> it( jsonMap );
-        while ( it.hasNext() )
+        QMap<QString, QVariant>            jsonMap     = jsonReader.decodeFile( oilFieldEntry->wellsFilePath );
+        QVariantList                       variantList = ResInsightInternalJson::JsonReader::getVariantList( jsonMap );
+        for ( const auto& listItem : variantList )
         {
-            it.next();
-
-            // If we have an array, skip to next node
-            if ( it.key() == "length" ) continue;
-
-            QMap<QString, QVariant> rootMap = it.value().toMap();
+            QMap<QString, QVariant> rootMap = listItem.toMap();
 
             if ( m_wellPathImportObject->wellTypeSurvey )
             {
@@ -865,6 +854,7 @@ WellSelectionPage::WellSelectionPage( RimWellPathImport* wellPathImport, QWidget
 
     m_regionsWithVisibleWells = new ObjectGroupWithHeaders;
     m_regionsWithVisibleWells->objects.uiCapability()->setUiHidden( true );
+    m_regionsWithVisibleWells->objects.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -911,6 +901,7 @@ void WellSelectionPage::buildWellTreeView()
         {
             caf::PdmObjectCollection* regGroup = new caf::PdmObjectCollection;
             regGroup->objects.uiCapability()->setUiHidden( true );
+            regGroup->objects.uiCapability()->setUiTreeHidden( true );
 
             regGroup->setUiName( oilRegion->userDescriptionField()->uiCapability()->uiValue().toString() );
 
@@ -923,6 +914,7 @@ void WellSelectionPage::buildWellTreeView()
                 {
                     caf::PdmObjectCollection* fieldGroup = new caf::PdmObjectCollection;
                     fieldGroup->objects.uiCapability()->setUiHidden( true );
+                    fieldGroup->objects.uiCapability()->setUiTreeHidden( true );
 
                     fieldGroup->setUiName( oilField->userDescriptionField()->uiCapability()->uiValue().toString() );
 
@@ -932,7 +924,8 @@ void WellSelectionPage::buildWellTreeView()
                     {
                         RimWellPathEntry* wellPathEntry = oilField->wells[wIdx];
 
-                        // Create a copy of the PdmObject, as it is not supported to have multiple parents of any objects
+                        // Create a copy of the PdmObject, as it is not supported to have multiple parents of any
+                        // objects
                         QString objStr = wellPathEntry->writeObjectToXmlString();
 
                         RimWellPathEntry* wellPathCopy = new RimWellPathEntry;
@@ -1026,8 +1019,8 @@ void WellSelectionPage::customMenuRequested( const QPoint& pos )
 
     menuBuilder.appendToMenu( &menu );
 
-    // Qt doc: QAbstractScrollArea and its subclasses that map the context menu event to coordinates of the viewport().
-    // Since we might get this signal from different treeViews, we need to map the position accordingly.
+    // Qt doc: QAbstractScrollArea and its subclasses that map the context menu event to coordinates of the
+    // viewport(). Since we might get this signal from different treeViews, we need to map the position accordingly.
     QObject*   senderObj = this->sender();
     QTreeView* treeView  = dynamic_cast<QTreeView*>( senderObj );
     if ( treeView )

@@ -29,6 +29,11 @@ class JsonReader
 {
 public:
     QMap<QString, QVariant> decodeFile( QString filePath );
+
+    // Get a variant list from a map
+    static QVariantList getVariantList( const QMap<QString, QVariant>& map );
+
+    static QString rootKeyText();
 };
 
 class Json
