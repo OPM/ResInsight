@@ -159,10 +159,12 @@ cvf::ref<cvf::UByteArray> RimGeoMechContourMapProjection::getCellVisibility() co
     }
     if ( view()->propertyFilterCollection()->isActive() )
     {
+        auto [stepIdx, frameIdx] = view()->currentStepAndDataFrame();
+
         RivFemElmVisibilityCalculator::computePropertyVisibility( cellGridIdxVisibility.p(),
                                                                   m_femPart.p(),
-                                                                  view()->currentTimeStep(),
-                                                                  view()->currentDataFrameIndex(),
+                                                                  stepIdx,
+                                                                  frameIdx,
                                                                   cellGridIdxVisibility.p(),
                                                                   view()->geoMechPropertyFilterCollection() );
     }
@@ -231,7 +233,9 @@ void RimGeoMechContourMapProjection::updateGridInformation()
 
     if ( m_limitToPorePressureRegions )
     {
-        m_expandedBoundingBox = calculateExpandedPorBarBBox( view()->currentTimeStep(), view()->currentDataFrameIndex() );
+        auto [stepIdx, frameIdx] = view()->currentStepAndDataFrame();
+
+        m_expandedBoundingBox = calculateExpandedPorBarBBox( stepIdx, frameIdx );
         if ( !m_expandedBoundingBox.isValid() )
         {
             m_limitToPorePressureRegions = false;

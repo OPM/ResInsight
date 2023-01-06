@@ -83,7 +83,7 @@ CAF_PDM_SOURCE_INIT( RimGeoMechView, "GeoMechView" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimGeoMechView::RimGeoMechView( void )
-    : m_currentLocalTimeStep( 0 )
+    : m_currentInternalTimeStep( 0 )
     , m_currentDataFrameIndex( -1 )
 {
     CAF_PDM_InitScriptableObject( "Geomechanical View", ":/3DViewGeoMech16x16.png", "", "The Geomechanical 3d View" );
@@ -379,7 +379,7 @@ void RimGeoMechView::updateElementDisplacements()
             std::vector<cvf::Vec3f> displacements;
             m_geomechCase->geoMechData()->readDisplacements( &errmsg,
                                                              part->partId(),
-                                                             m_currentLocalTimeStep,
+                                                             m_currentInternalTimeStep,
                                                              m_currentDataFrameIndex,
                                                              &displacements );
             part->setDisplacements( displacements );
@@ -453,7 +453,7 @@ void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
                     frameParts->setName( name );
                     m_tensorPartMgr->appendDynamicGeometryPartsToModel( frameParts.p(),
                                                                         m_currentTimeStep,
-                                                                        m_currentLocalTimeStep,
+                                                                        m_currentInternalTimeStep,
                                                                         m_currentDataFrameIndex );
                     frameParts->updateBoundingBoxesRecursive();
 
@@ -469,7 +469,7 @@ void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
 
         if ( hasGeneralCellResult )
             m_vizLogic->updateCellResultColor( m_currentTimeStep(),
-                                               m_currentLocalTimeStep,
+                                               m_currentInternalTimeStep,
                                                m_currentDataFrameIndex,
                                                this->cellResult() );
         else
@@ -492,8 +492,8 @@ void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
     {
         m_vizLogic->updateStaticCellColors( -1 );
 
-        m_intersectionCollection->updateCellResultColor( false, m_currentLocalTimeStep );
-        if ( m_surfaceCollection ) m_surfaceCollection->updateCellResultColor( false, m_currentLocalTimeStep );
+        m_intersectionCollection->updateCellResultColor( false, m_currentInternalTimeStep );
+        if ( m_surfaceCollection ) m_surfaceCollection->updateCellResultColor( false, m_currentInternalTimeStep );
 
         nativeOrOverrideViewer()->animationControl()->slotPause(); // To avoid animation timer spinning in the background
     }
@@ -835,7 +835,7 @@ void RimGeoMechView::onClampCurrentTimestep()
     if ( m_currentTimeStep >= maxSteps ) m_currentTimeStep = maxSteps - 1;
     if ( m_currentTimeStep < 0 ) m_currentTimeStep = 0;
 
-    std::tie( m_currentLocalTimeStep, m_currentDataFrameIndex ) = viewerStepToTimeStepAndFrameIndex( m_currentTimeStep );
+    std::tie( m_currentInternalTimeStep, m_currentDataFrameIndex ) = viewerStepToTimeStepAndFrameIndex( m_currentTimeStep );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1118,17 +1118,9 @@ bool RimGeoMechView::showDisplacements() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimGeoMechView::currentLocalTimeStep() const
+std::pair<int, int> RimGeoMechView::currentStepAndDataFrame() const
 {
-    return m_currentLocalTimeStep;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-int RimGeoMechView::currentDataFrameIndex() const
-{
-    return m_currentDataFrameIndex;
+    return std::make_pair( m_currentInternalTimeStep, m_currentDataFrameIndex );
 }
 
 //--------------------------------------------------------------------------------------------------
