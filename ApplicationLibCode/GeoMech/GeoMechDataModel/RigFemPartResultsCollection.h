@@ -140,6 +140,7 @@ public:
 
     int                                     totalSteps();
     const std::vector<std::pair<int, int>>& stepList();
+    std::vector<std::string>                stepNames() const;
     const std::pair<int, int>               stepListIndexToTimeStepAndDataFrameIndex( int stepIndex );
 
     void minMaxScalarValues( const RigFemResultAddress& resVarAddr,
@@ -257,4 +258,5 @@ private:
     std::map<RigFemResultAddress, cvf::ref<RigStatisticsDataCache>> m_resultStatistics;
 
     std::vector<std::pair<int, int>> m_stepList;
+    std::vector<std::string>         m_stepNames;
 };

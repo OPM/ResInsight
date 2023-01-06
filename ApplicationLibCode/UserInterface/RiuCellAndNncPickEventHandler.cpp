@@ -26,6 +26,7 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimExtrudedCurveIntersection.h"
+#include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechView.h"
 #include "RimIntersectionResultDefinition.h"
@@ -42,6 +43,8 @@
 #include "RivSourceInfo.h"
 
 #include "RigEclipseCaseData.h"
+#include "RigFemPartResultsCollection.h"
+#include "RigGeoMechCaseData.h"
 #include "RigMainGrid.h"
 #include "RigNNCData.h"
 
@@ -199,13 +202,23 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
 
     if ( sepInterResDef )
     {
-        timestepIndex = sepInterResDef->timeStep();
         if ( sepInterResDef->isEclipseResultDefinition() )
         {
-            eclResDef = sepInterResDef->eclipseResultDefinition();
+            eclResDef     = sepInterResDef->eclipseResultDefinition();
+            timestepIndex = sepInterResDef->timeStep();
         }
         else
         {
+            RimGeoMechView* geomView = dynamic_cast<RimGeoMechView*>( mainOrComparisonView );
+            if ( geomView )
+            {
+                if ( geomView->geoMechCase() && geomView->geoMechCase()->geoMechData() )
+                {
+                    std::tie( timestepIndex, dataFrameIndex ) =
+                        geomView->geoMechCase()->geoMechData()->femPartResults()->stepListIndexToTimeStepAndDataFrameIndex(
+                            sepInterResDef->timeStep() );
+                }
+            }
             geomResDef = sepInterResDef->geoMechResultDefinition();
         }
     }
@@ -287,7 +300,7 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
             if ( geomView )
             {
                 if ( !geomResDef ) geomResDef = geomView->cellResult();
-                if ( timestepIndex == cvf::UNDEFINED_SIZE_T ) timestepIndex = geomView->currentTimeStep();
+                if ( timestepIndex == cvf::UNDEFINED_SIZE_T ) timestepIndex = geomView->currentLocalTimeStep();
                 if ( dataFrameIndex < -1 ) dataFrameIndex = geomView->currentDataFrameIndex();
             }
         }

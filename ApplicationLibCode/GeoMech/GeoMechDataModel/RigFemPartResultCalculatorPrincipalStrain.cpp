@@ -100,10 +100,10 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorPrincipalStrain::calculate( 
     int timeSteps = e11Frames->timeStepCount();
     for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
+        auto task = frameCountProgress.task( QString( "Step %1" ).arg( stepIdx ) );
+
         for ( int fIdx = 0; fIdx < e11Frames->frameCount( stepIdx ); fIdx++ )
         {
-            auto task = frameCountProgress.task( QString( "Frame %1" ).arg( fIdx ) );
-
             const std::vector<float>& e11 = e11Frames->frameData( stepIdx, fIdx );
             const std::vector<float>& e22 = e22Frames->frameData( stepIdx, fIdx );
             const std::vector<float>& e33 = e33Frames->frameData( stepIdx, fIdx );
