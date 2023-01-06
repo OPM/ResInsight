@@ -111,8 +111,7 @@ public:
     double displacementScaleFactor() const;
     bool   showDisplacements() const;
 
-    int currentLocalTimeStep() const;
-    int currentDataFrameIndex() const;
+    std::pair<int, int> currentStepAndDataFrame() const;
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -159,6 +158,6 @@ private:
 
     cvf::ref<RivTensorResultPartMgr> m_tensorPartMgr;
 
-    int m_currentLocalTimeStep;
+    int m_currentInternalTimeStep;
     int m_currentDataFrameIndex;
 };

@@ -169,14 +169,11 @@ void RiuMohrsCirclePlot::updateOnTimeStepChanged( Rim3dView* changedView )
 
     if ( geomechView == nullptr ) return;
 
+    auto [stepIdx, frameIdx] = geomechView->currentStepAndDataFrame();
+
     for ( const MohrsCirclesInfo& mohrInfo : mohrsCiclesInfosCopy )
     {
-        addOrUpdateCurves( mohrInfo.geomResDef,
-                           geomechView->currentTimeStep(),
-                           geomechView->currentDataFrameIndex(),
-                           mohrInfo.gridIndex,
-                           mohrInfo.elmIndex,
-                           mohrInfo.color );
+        addOrUpdateCurves( mohrInfo.geomResDef, stepIdx, frameIdx, mohrInfo.gridIndex, mohrInfo.elmIndex, mohrInfo.color );
     }
 
     updatePlot();

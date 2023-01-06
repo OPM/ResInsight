@@ -300,8 +300,11 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
             if ( geomView )
             {
                 if ( !geomResDef ) geomResDef = geomView->cellResult();
-                if ( timestepIndex == cvf::UNDEFINED_SIZE_T ) timestepIndex = geomView->currentLocalTimeStep();
-                if ( dataFrameIndex < -1 ) dataFrameIndex = geomView->currentDataFrameIndex();
+
+                auto [stepIdx, frameIdx] = geomView->currentStepAndDataFrame();
+
+                if ( timestepIndex == cvf::UNDEFINED_SIZE_T ) timestepIndex = stepIdx;
+                if ( dataFrameIndex < -1 ) dataFrameIndex = frameIdx;
             }
         }
 
