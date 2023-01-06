@@ -93,7 +93,7 @@ private:
 
 private:
     void                             updateFromWell();
-    RimHistoryWellFlowDataCollection createHistoryWellFlowDataCollection();
+    RimHistoryWellFlowDataCollection createHistoryWellFlowDataCollection() const;
     std::set<QString>                findSortedWellNames();
     cvf::Color3f                     getTracerColor( const QString& tracerName );
 
