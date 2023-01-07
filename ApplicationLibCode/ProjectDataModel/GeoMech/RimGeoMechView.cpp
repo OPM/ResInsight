@@ -999,8 +999,6 @@ const RimGeoMechPropertyFilterCollection* RimGeoMechView::geoMechPropertyFilterC
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::calculateCurrentTotalCellVisibility( cvf::UByteArray* totalVisibility, int viewerTimeStep )
 {
-    auto [timeStepIndex, frameIndex] =
-        geoMechCase()->geoMechData()->femPartResults()->stepListIndexToTimeStepAndDataFrameIndex( viewerTimeStep );
     m_vizLogic->calculateCurrentTotalCellVisibility( totalVisibility, viewerTimeStep );
 }
 
