@@ -126,7 +126,7 @@ void RivGeoMechVizLogic::scheduleGeometryRegen( RivCellSetEnum geometryType )
         stepCount = m_geomechView->geoMechCase()->geoMechData()->femPartResults()->totalSteps();
     }
 
-    for ( int stepIdx = 0; stepIdx < stepCount; stepIdx++ )
+    for ( int stepIdx = -1; stepIdx < stepCount; stepIdx++ )
     {
         RivGeoMechPartMgrCache::Key geomToRegen( geometryType, stepIdx );
         m_partMgrCache->scheduleRegeneration( geomToRegen );
@@ -199,6 +199,8 @@ cvf::Color3f RivGeoMechVizLogic::staticCellColor()
 {
     return cvf::Color3f::ORANGE;
 }
+
+#pragma optimize( "", off )
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -332,3 +334,5 @@ void RivGeoMechVizLogic::calculateCurrentTotalCellVisibility( cvf::UByteArray* t
         }
     }
 }
+
+#pragma optimize( "", on )

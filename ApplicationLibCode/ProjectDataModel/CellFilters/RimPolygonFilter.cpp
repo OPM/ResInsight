@@ -792,15 +792,19 @@ void RimPolygonFilter::updateCellsForGeoMech( const std::vector<cvf::Vec3d>& poi
 {
     if ( gCase->geoMechData() && gCase->geoMechData()->femParts()->partCount() > 0 )
     {
-        const RigFemPartGrid* grid = gCase->geoMechData()->femParts()->part( 0 )->getOrCreateStructGrid();
+        int partCount = gCase->geoMechData()->femParts()->partCount();
+        for ( int i = 0; i < partCount; i++ )
+        {
+            const RigFemPartGrid* grid = gCase->geoMechData()->femParts()->part( i )->getOrCreateStructGrid();
 
-        if ( m_polyFilterMode == PolygonFilterModeType::DEPTH_Z )
-        {
-            updateCellsDepthGeoMech( points, grid );
-        }
-        else if ( m_polyFilterMode == PolygonFilterModeType::INDEX_K )
-        {
-            updateCellsKIndexGeoMech( points, grid );
+            if ( m_polyFilterMode == PolygonFilterModeType::DEPTH_Z )
+            {
+                updateCellsDepthGeoMech( points, grid );
+            }
+            else if ( m_polyFilterMode == PolygonFilterModeType::INDEX_K )
+            {
+                updateCellsKIndexGeoMech( points, grid );
+            }
         }
     }
 }
