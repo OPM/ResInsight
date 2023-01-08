@@ -147,6 +147,7 @@ void RigWellLogExtractor::insertIntersectionsInMap( const std::vector<HexInterse
 void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo>& uniqueIntersections )
 {
     QStringList errorMessages;
+
     // For same MD and same cell, remove enter/leave pairs, as they only touches the wellpath, and should not contribute.
     {
         auto it1 = uniqueIntersections.begin();
@@ -180,6 +181,46 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
         for ( auto erItIdx : iteratorsToIntersectonsToErase )
         {
             uniqueIntersections.erase( erItIdx );
+        }
+    }
+
+    // Make sure the enter/leave flag is set correct. For thin cells with very twisted geometry, the intersection point
+    // of the bottom face can be intersected before the top cell causing inverted isEnteringCell flag
+    // NB! The operation must be performed here, as it is required to have all intersections from all well path segments
+    // in place.
+    // https://github.com/OPM/ResInsight/issues/9622
+
+    {
+        auto it1 = uniqueIntersections.begin();
+        auto it2 = uniqueIntersections.begin();
+
+        std::vector<RigMDCellIdxEnterLeaveKey> toBeSwitched;
+
+        while ( it2 != uniqueIntersections.end() )
+        {
+            ++it2;
+
+            // The intersections are ordered by increasing measured depth. Identify a pair of enter/leave intersections
+            // with inverted flag setting for isEnteringCell
+            if ( it2 != uniqueIntersections.end() && ( it1->first.hexIndex == it2->first.hexIndex ) &&
+                 ( it1->first.isLeavingCell() && it2->first.isEnteringCell ) )
+            {
+                toBeSwitched.push_back( it1->first );
+                toBeSwitched.push_back( it2->first );
+            }
+            ++it1;
+        }
+
+        // Change the object used as key in a map based on
+        // https://stackoverflow.com/questions/5743545/what-is-the-fastest-way-to-change-a-key-of-an-element-inside-stdmap
+
+        for ( auto& obj : toBeSwitched )
+        {
+            auto objToBeSwitched      = uniqueIntersections.extract( obj );
+            auto updatedObj           = obj;
+            updatedObj.isEnteringCell = !updatedObj.isEnteringCell;
+            objToBeSwitched.key()     = updatedObj;
+            uniqueIntersections.insert( std::move( objToBeSwitched ) );
         }
     }
 
