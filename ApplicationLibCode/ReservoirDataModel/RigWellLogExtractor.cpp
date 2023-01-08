@@ -18,8 +18,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RigWellLogExtractor.h"
+
 #include "RiaLogging.h"
 #include "RigWellPath.h"
+
 #include "cvfTrace.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -114,10 +116,10 @@ void RigWellLogExtractor::insertIntersectionsInMap( const std::vector<HexInterse
                                                     double                                  tolerance,
                                                     std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo>* uniqueIntersections )
 {
-    for ( size_t intIdx = 0; intIdx < intersections.size(); ++intIdx )
+    for ( const auto& intersection : intersections )
     {
-        double lengthAlongLineSegment1 = ( intersections[intIdx].m_intersectionPoint - p1 ).length();
-        double lengthAlongLineSegment2 = ( p2 - intersections[intIdx].m_intersectionPoint ).length();
+        double lengthAlongLineSegment1 = ( intersection.m_intersectionPoint - p1 ).length();
+        double lengthAlongLineSegment2 = ( p2 - intersection.m_intersectionPoint ).length();
         double measuredDepthDiff       = md2 - md1;
         double lineLength              = lengthAlongLineSegment1 + lengthAlongLineSegment2;
         double measuredDepthOfPoint    = 0.0;
@@ -132,10 +134,10 @@ void RigWellLogExtractor::insertIntersectionsInMap( const std::vector<HexInterse
         }
 
         uniqueIntersections->insert( std::make_pair( RigMDCellIdxEnterLeaveKey( measuredDepthOfPoint,
-                                                                                intersections[intIdx].m_hexIndex,
-                                                                                intersections[intIdx].m_isIntersectionEntering,
+                                                                                intersection.m_hexIndex,
+                                                                                intersection.m_isIntersectionEntering,
                                                                                 tolerance ),
-                                                     intersections[intIdx] ) );
+                                                     intersection ) );
     }
 }
 
@@ -147,8 +149,8 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
     QStringList errorMessages;
     // For same MD and same cell, remove enter/leave pairs, as they only touches the wellpath, and should not contribute.
     {
-        std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo>::iterator it1 = uniqueIntersections.begin();
-        std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo>::iterator it2 = uniqueIntersections.begin();
+        auto it1 = uniqueIntersections.begin();
+        auto it2 = uniqueIntersections.begin();
 
         std::vector<std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo>::iterator> iteratorsToIntersectonsToErase;
 
@@ -175,9 +177,9 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
         }
 
         // Erase all the intersections that is not needed
-        for ( size_t erItIdx = 0; erItIdx < iteratorsToIntersectonsToErase.size(); ++erItIdx )
+        for ( auto erItIdx : iteratorsToIntersectonsToErase )
         {
-            uniqueIntersections.erase( iteratorsToIntersectonsToErase[erItIdx] );
+            uniqueIntersections.erase( erItIdx );
         }
     }
 
@@ -185,7 +187,7 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
 
     std::map<RigMDEnterLeaveCellIdxKey, HexIntersectionInfo> sortedUniqueIntersections;
     {
-        std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo>::iterator it = uniqueIntersections.begin();
+        auto it = uniqueIntersections.begin();
         while ( it != uniqueIntersections.end() )
         {
             sortedUniqueIntersections.insert( std::make_pair( RigMDEnterLeaveCellIdxKey( it->first.measuredDepth,
@@ -200,7 +202,7 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
     // Add points for the endpoint of the wellpath, if it starts/ends inside a cell
     {
         // Add an intersection for the well startpoint that is inside the first cell
-        std::map<RigMDEnterLeaveCellIdxKey, HexIntersectionInfo>::iterator it = sortedUniqueIntersections.begin();
+        auto it = sortedUniqueIntersections.begin();
         if ( it != sortedUniqueIntersections.end() && !it->first.isEnteringCell ) // Leaving a cell as first
                                                                                   // intersection. Well starts inside a
                                                                                   // cell.
@@ -220,8 +222,7 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
         }
 
         // Add an intersection for the well endpoint possibly inside the last cell.
-        std::map<RigMDEnterLeaveCellIdxKey, HexIntersectionInfo>::reverse_iterator rit =
-            sortedUniqueIntersections.rbegin();
+        auto rit = sortedUniqueIntersections.rbegin();
         if ( rit != sortedUniqueIntersections.rend() && rit->first.isEnteringCell ) // Entering a cell as last
                                                                                     // intersection. Well ends inside a
                                                                                     // cell.
@@ -244,7 +245,7 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
     // Filter and store the intersections pairwise as cell enter-leave pairs
     // Discard points that does not have a match .
     {
-        std::map<RigMDEnterLeaveCellIdxKey, HexIntersectionInfo>::iterator it1 = sortedUniqueIntersections.begin();
+        auto                                                               it1 = sortedUniqueIntersections.begin();
         std::map<RigMDEnterLeaveCellIdxKey, HexIntersectionInfo>::iterator it2;
 
         while ( it1 != sortedUniqueIntersections.end() )
@@ -269,8 +270,8 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
                 //       +---+
                 //             +---+
 
-                std::map<RigMDEnterLeaveCellIdxKey, HexIntersectionInfo>::iterator it11 = it1;
-                std::map<RigMDEnterLeaveCellIdxKey, HexIntersectionInfo>::iterator it21 = it2;
+                auto it11 = it1;
+                auto it21 = it2;
 
                 // Check if we have overlapping cells (typically at a fault)
                 ++it21;
@@ -294,16 +295,14 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
                         ++it1;
                         continue;
                     }
-                    else
-                    {
-                        errorMessages +=
-                            QString( "Well Log Extraction : " ) + QString::fromStdString( m_wellCaseErrorMsgName ) +
-                            ( " Discards a point at MD:  " ) + QString::number( (double)( it1->first.measuredDepth ) );
 
-                        // Found that 8 to 10 is not connected, after finding 7 to 9
-                        it1 = it21; // Discard 8 by Jumping to 10
-                        continue;
-                    }
+                    errorMessages += QString( "Well Log Extraction : " ) +
+                                     QString::fromStdString( m_wellCaseErrorMsgName ) + ( " Discards a point at MD:  " ) +
+                                     QString::number( (double)( it1->first.measuredDepth ) );
+
+                    // Found that 8 to 10 is not connected, after finding 7 to 9
+                    it1 = it21; // Discard 8 by Jumping to 10
+                    continue;
                 }
                 else
                 {
@@ -323,7 +322,7 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
     if ( reportErrorMessages )
     {
         errorMessages.removeDuplicates();
-        for ( auto message : errorMessages )
+        for ( const auto& message : errorMessages )
         {
             RiaLogging::warning( message );
         }
