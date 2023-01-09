@@ -450,8 +450,10 @@ void RiuMainWindow::createMenus()
     importEclipseMenu->addAction( cmdFeatureMgr->action( "RicImportEclipseCasesFeature" ) );
     importEclipseMenu->addAction( cmdFeatureMgr->action( "RicImportEclipseCaseTimeStepFilterFeature" ) );
     importEclipseMenu->addAction( cmdFeatureMgr->action( "RicImportInputEclipseCaseFeature" ) );
-    importEclipseMenu->addAction( cmdFeatureMgr->action( "RicImportRoffCaseFeature" ) );
     importEclipseMenu->addAction( cmdFeatureMgr->action( "RicCreateGridCaseGroupFromFilesFeature" ) );
+
+    QMenu* importRoffMenu = importMenu->addMenu( QIcon( ":/Case48x48.png" ), "Roff Grid Models" );
+    importRoffMenu->addAction( cmdFeatureMgr->action( "RicImportRoffCaseFeature" ) );
 
     importMenu->addSeparator();
     QMenu* importSummaryMenu = importMenu->addMenu( QIcon( ":/SummaryCase.svg" ), "Summary Cases" );
