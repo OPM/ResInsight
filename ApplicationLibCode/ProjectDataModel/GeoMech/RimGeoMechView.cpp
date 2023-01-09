@@ -279,21 +279,15 @@ void RimGeoMechView::onCreateDisplayModel()
 
     if ( isTimeStepDependentDataVisibleInThisOrComparisonView() )
     {
-        // Create empty frames in the viewer
-
-        int timeStepCount = geoMechCase()->geoMechData()->femPartResults()->timeStepCount();
-        for ( int stepIndex = 0; stepIndex < timeStepCount; stepIndex++ )
+        // Create empty frames in the viewer, one per global timestep
+        const int totalSteps = geoMechCase()->geoMechData()->femPartResults()->totalSteps();
+        for ( int timeStepIndex = 0; timeStepIndex < totalSteps; timeStepIndex++ )
         {
-            int dataFrameCount = geoMechCase()->geoMechData()->femPartResults()->frameCount( stepIndex );
-
-            for ( int frameIndex = 0; frameIndex < dataFrameCount; frameIndex++ )
-            {
-                cvf::ref<cvf::Scene>          scene      = new cvf::Scene;
-                cvf::ref<cvf::ModelBasicList> emptyModel = new cvf::ModelBasicList;
-                emptyModel->setName( "EmptyModel" );
-                scene->addModel( emptyModel.p() );
-                nativeOrOverrideViewer()->addFrame( scene.p(), isUsingOverrideViewer() );
-            }
+            cvf::ref<cvf::Scene>          scene      = new cvf::Scene;
+            cvf::ref<cvf::ModelBasicList> emptyModel = new cvf::ModelBasicList;
+            emptyModel->setName( "EmptyModel" );
+            scene->addModel( emptyModel.p() );
+            nativeOrOverrideViewer()->addFrame( scene.p(), isUsingOverrideViewer() );
         }
     }
 

@@ -58,18 +58,18 @@ bool RigFemPartResultCalculatorNormalST::isMatching( const RigFemResultAddress& 
 RigFemScalarResultFrames* RigFemPartResultCalculatorNormalST::calculate( int                        partIndex,
                                                                          const RigFemResultAddress& resVarAddr )
 {
-    caf::ProgressInfo frameCountProgress( m_resultCollection->timeStepCount() * 3, "" );
-    frameCountProgress.setProgressDescription(
+    caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 3, "" );
+    stepCountProgress.setProgressDescription(
         "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* srcSDataFrames =
         m_resultCollection->findOrLoadScalarResult( partIndex,
                                                     RigFemResultAddress( resVarAddr.resultPosType,
                                                                          "S-Bar",
                                                                          resVarAddr.componentName ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
+    stepCountProgress.incrementProgress();
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* srcPORDataFrames =
         m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_NODAL, "POR-Bar", "" ) );
@@ -77,7 +77,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNormalST::calculate( int    
     RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );
     const RigFemPart*         femPart       = m_resultCollection->parts()->part( partIndex );
 
-    frameCountProgress.incrementProgress();
+    stepCountProgress.incrementProgress();
 
     constexpr float inf = std::numeric_limits<float>::infinity();
 
@@ -135,7 +135,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNormalST::calculate( int    
                 }
             }
         }
-        frameCountProgress.incrementProgress();
+        stepCountProgress.incrementProgress();
     }
 
     return dstDataFrames;

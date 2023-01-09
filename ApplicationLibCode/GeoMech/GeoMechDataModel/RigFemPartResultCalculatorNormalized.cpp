@@ -70,32 +70,32 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNormalized::calculate( int  
 
     CAF_ASSERT( unscaledResult.resultPosType == RIG_ELEMENT_NODAL );
 
-    caf::ProgressInfo frameCountProgress( m_resultCollection->timeStepCount() * 4, "Calculating Normalized Result" );
+    caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 4, "Calculating Normalized Result" );
 
     RigFemScalarResultFrames* porDataFrames = nullptr;
     RigFemScalarResultFrames* srcDataFrames = nullptr;
     RigFemScalarResultFrames* dstDataFrames = nullptr;
 
     {
-        auto task = frameCountProgress.task( "Loading POR Result", m_resultCollection->timeStepCount() );
+        auto task = stepCountProgress.task( "Loading POR Result", m_resultCollection->timeStepCount() );
         porDataFrames =
             m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_ELEMENT_NODAL, "POR-Bar", "" ) );
         if ( !porDataFrames ) return nullptr;
     }
 
     {
-        auto task     = frameCountProgress.task( "Loading Unscaled Result", m_resultCollection->timeStepCount() );
+        auto task     = stepCountProgress.task( "Loading Unscaled Result", m_resultCollection->timeStepCount() );
         srcDataFrames = m_resultCollection->findOrLoadScalarResult( partIndex, unscaledResult );
         if ( !srcDataFrames ) return nullptr;
     }
     {
-        auto task = frameCountProgress.task( "Creating Space for Normalized Result", m_resultCollection->timeStepCount() );
+        auto task = stepCountProgress.task( "Creating Space for Normalized Result", m_resultCollection->timeStepCount() );
         dstDataFrames = m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( resVarAddr ) );
         if ( !dstDataFrames ) return nullptr;
     }
 
-    frameCountProgress.setProgressDescription( "Normalizing Result" );
-    frameCountProgress.setNextProgressIncrement( 1u );
+    stepCountProgress.setProgressDescription( "Normalizing Result" );
+    stepCountProgress.setNextProgressIncrement( 1u );
 
     const RigFemPart*     femPart     = m_resultCollection->parts()->part( partIndex );
     const RigFemPartGrid* femPartGrid = femPart->getOrCreateStructGrid();

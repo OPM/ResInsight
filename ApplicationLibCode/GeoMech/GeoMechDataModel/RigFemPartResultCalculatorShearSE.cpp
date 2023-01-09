@@ -59,13 +59,13 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorShearSE::calculate( int part
 {
     QString progressText = "Calculating " + QString::fromStdString( resAddr.fieldName + ": " + resAddr.componentName );
 
-    caf::ProgressInfo frameCountProgress( static_cast<size_t>( m_resultCollection->timeStepCount() ) * 2, progressText );
+    caf::ProgressInfo stepCountProgress( static_cast<size_t>( m_resultCollection->timeStepCount() ) * 2, progressText );
 
     RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resAddr );
 
     RigFemScalarResultFrames* srcDataFrames = nullptr;
     {
-        auto task     = frameCountProgress.task( "S-Bar", m_resultCollection->timeStepCount() );
+        auto task     = stepCountProgress.task( "S-Bar", m_resultCollection->timeStepCount() );
         srcDataFrames = m_resultCollection->findOrLoadScalarResult( partIndex,
                                                                     RigFemResultAddress( resAddr.resultPosType,
                                                                                          "S-Bar",
@@ -78,10 +78,10 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorShearSE::calculate( int part
     int timeSteps = srcDataFrames->timeStepCount();
     for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
+        auto task = stepCountProgress.task( QString( "Step %1" ).arg( stepIdx ) );
+
         for ( int fIdx = 0; fIdx < srcDataFrames->frameCount( stepIdx ); fIdx++ )
         {
-            auto task = frameCountProgress.task( QString( "Frame %1" ).arg( fIdx ) );
-
             const std::vector<float>& srcSFrameData = srcDataFrames->frameData( stepIdx, fIdx );
             std::vector<float>&       dstFrameData  = dstDataFrames->frameData( stepIdx, fIdx );
             size_t                    valCount      = srcSFrameData.size();

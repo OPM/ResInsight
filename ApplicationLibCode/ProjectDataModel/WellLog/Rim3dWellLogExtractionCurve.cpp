@@ -342,7 +342,7 @@ QString Rim3dWellLogExtractionCurve::createAutoName() const
             RigGeoMechCaseData* data = geomCase->geoMechData();
             if ( data )
             {
-                maxTimeStep = data->femPartResults()->timeStepCount();
+                maxTimeStep = data->femPartResults()->totalSteps();
             }
         }
 

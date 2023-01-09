@@ -83,10 +83,10 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorTimeLapse::calculate( int   
 RigFemScalarResultFrames*
     RigFemPartResultCalculatorTimeLapse::calculateTimeLapse( int partIndex, const RigFemResultAddress& resVarAddr )
 {
-    caf::ProgressInfo frameCountProgress( m_resultCollection->timeStepCount() * 2, "" );
-    frameCountProgress.setProgressDescription(
+    caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 2, "" );
+    stepCountProgress.setProgressDescription(
         "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemResultAddress resVarNative( resVarAddr.resultPosType,
                                       resVarAddr.fieldName,
@@ -109,7 +109,7 @@ RigFemScalarResultFrames*
         srcDataFrames = m_resultCollection->findOrLoadScalarResult( partIndex, resVarNative );
     }
 
-    frameCountProgress.incrementProgress();
+    stepCountProgress.incrementProgress();
 
     int timeSteps    = srcDataFrames->timeStepCount();
     int baseFrameIdx = resVarAddr.timeLapseBaseStepIdx;
@@ -134,7 +134,7 @@ RigFemScalarResultFrames*
                 dstFrameData[vIdx] = srcFrameData[vIdx] - baseFrameData[vIdx];
             }
         }
-        frameCountProgress.incrementProgress();
+        stepCountProgress.incrementProgress();
     }
 
     return dstDataFrames;
@@ -149,10 +149,10 @@ RigFemScalarResultFrames*
     // Gamma time lapse needs to be calculated as ST_dt / POR_dt and not Gamma - Gamma_baseFrame see github
     // issue #937
 
-    caf::ProgressInfo frameCountProgress( m_resultCollection->timeStepCount() * 3, "" );
-    frameCountProgress.setProgressDescription(
+    caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 3, "" );
+    stepCountProgress.setProgressDescription(
         "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemResultAddress totStressCompAddr( resVarAddr.resultPosType, "ST", "", resVarAddr.timeLapseBaseStepIdx );
     {
@@ -174,22 +174,22 @@ RigFemScalarResultFrames*
     }
 
     RigFemScalarResultFrames* srcDataFrames = m_resultCollection->findOrLoadScalarResult( partIndex, totStressCompAddr );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
+    stepCountProgress.incrementProgress();
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
     RigFemScalarResultFrames* srcPORDataFrames =
         m_resultCollection
             ->findOrLoadScalarResult( partIndex,
                                       RigFemResultAddress( RIG_NODAL, "POR-Bar", "", resVarAddr.timeLapseBaseStepIdx ) );
     RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );
 
-    frameCountProgress.incrementProgress();
+    stepCountProgress.incrementProgress();
 
     RigFemPartResultCalculatorGamma::calculateGammaFromFrames( partIndex,
                                                                m_resultCollection->parts(),
                                                                srcDataFrames,
                                                                srcPORDataFrames,
                                                                dstDataFrames,
-                                                               &frameCountProgress );
+                                                               &stepCountProgress );
     if ( resVarAddr.normalizeByHydrostaticPressure() && RigFemPartResultsCollection::isNormalizableResult( resVarAddr ) )
     {
         RigFemPartResultCalculatorNormalized normalizedCalculator( *m_resultCollection );

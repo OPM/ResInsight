@@ -57,10 +57,10 @@ bool RigFemPartResultCalculatorInitialPorosity::isMatching( const RigFemResultAd
 RigFemScalarResultFrames* RigFemPartResultCalculatorInitialPorosity::calculate( int                        partIndex,
                                                                                 const RigFemResultAddress& resVarAddr )
 {
-    caf::ProgressInfo frameCountProgress( m_resultCollection->timeStepCount() * 2, "" );
-    frameCountProgress.setProgressDescription( "Calculating Initial Porosity" );
+    caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 2, "" );
+    stepCountProgress.setProgressDescription( "Calculating Initial Porosity" );
 
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* voidRatioFrames =
         m_resultCollection->findOrLoadScalarResult( partIndex,
@@ -69,12 +69,12 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorInitialPorosity::calculate( 
     RigFemScalarResultFrames* porosityFrames =
         m_resultCollection->createScalarResult( partIndex,
                                                 RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "PHI0" ) );
-    frameCountProgress.incrementProgress();
+    stepCountProgress.incrementProgress();
 
     const RigFemPart* femPart = m_resultCollection->parts()->part( partIndex );
     float             inf     = std::numeric_limits<float>::infinity();
 
-    frameCountProgress.setNextProgressIncrement( 1u );
+    stepCountProgress.setNextProgressIncrement( 1u );
 
     int timeSteps = voidRatioFrames->timeStepCount();
     for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
@@ -126,7 +126,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorInitialPorosity::calculate( 
                 }
             }
         }
-        frameCountProgress.incrementProgress();
+        stepCountProgress.incrementProgress();
     }
 
     RigFemScalarResultFrames* requestedResultFrames = m_resultCollection->findOrLoadScalarResult( partIndex, resVarAddr );

@@ -59,8 +59,8 @@ bool RigFemPartResultCalculatorFormationIndices::isMatching( const RigFemResultA
 RigFemScalarResultFrames* RigFemPartResultCalculatorFormationIndices::calculate( int                        partIndex,
                                                                                  const RigFemResultAddress& resVarAddr )
 {
-    caf::ProgressInfo frameCountProgress( 2, "" );
-    frameCountProgress.setProgressDescription(
+    caf::ProgressInfo stepCountProgress( 2, "" );
+    stepCountProgress.setProgressDescription(
         "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
 
     RigFemScalarResultFrames* resFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );
@@ -75,7 +75,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorFormationIndices::calculate(
 
     const RigFormationNames* activeFormNames = m_resultCollection->activeFormationNames();
 
-    frameCountProgress.incrementProgress();
+    stepCountProgress.incrementProgress();
 
     if ( activeFormNames )
     {

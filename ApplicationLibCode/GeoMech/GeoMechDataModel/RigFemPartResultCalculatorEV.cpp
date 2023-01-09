@@ -60,10 +60,10 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorEV::calculate( int partIndex
 
     QString progressText = "Calculating " + QString::fromStdString( resAddr.fieldName + ": " + resAddr.componentName );
 
-    caf::ProgressInfo frameCountProgress( static_cast<size_t>( m_resultCollection->timeStepCount() ) * 4, progressText );
+    caf::ProgressInfo stepCountProgress( static_cast<size_t>( m_resultCollection->timeStepCount() ) * 4, progressText );
 
     auto loadFrameLambda = [&]( const QString& component ) {
-        auto task = frameCountProgress.task( "Loading " + component, m_resultCollection->timeStepCount() );
+        auto task = stepCountProgress.task( "Loading " + component, m_resultCollection->timeStepCount() );
         return m_resultCollection->findOrLoadScalarResult( partIndex, resAddr.copyWithComponent( component.toStdString() ) );
     };
 
@@ -76,10 +76,10 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorEV::calculate( int partIndex
     int timeSteps = ea11->timeStepCount();
     for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
+        auto task = stepCountProgress.task( QString( "Step %1" ).arg( stepIdx ) );
+
         for ( int fIdx = 0; fIdx < ea11->frameCount( stepIdx ); fIdx++ )
         {
-            auto task = frameCountProgress.task( QString( "Frame %1" ).arg( fIdx ) );
-
             const std::vector<float>& ea11Data = ea11->frameData( stepIdx, fIdx );
             const std::vector<float>& ea22Data = ea22->frameData( stepIdx, fIdx );
             const std::vector<float>& ea33Data = ea33->frameData( stepIdx, fIdx );

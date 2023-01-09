@@ -60,10 +60,10 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorSFI::calculate( int partInde
 
     QString progressText = "Calculating " + QString::fromStdString( resAddr.fieldName + ": " + resAddr.componentName );
 
-    caf::ProgressInfo frameCountProgress( static_cast<size_t>( m_resultCollection->timeStepCount() ) * 3, progressText );
+    caf::ProgressInfo stepCountProgress( static_cast<size_t>( m_resultCollection->timeStepCount() ) * 3, progressText );
 
     auto loadFrameLambda = [&]( const QString& component ) {
-        auto task = frameCountProgress.task( "Loading " + component, m_resultCollection->timeStepCount() );
+        auto task = stepCountProgress.task( "Loading " + component, m_resultCollection->timeStepCount() );
         return m_resultCollection->findOrLoadScalarResult( partIndex, resAddr.copyWithComponent( component.toStdString() ) );
     };
 
@@ -79,7 +79,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorSFI::calculate( int partInde
     int timeSteps = se1Frames->timeStepCount();
     for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
-        auto task = frameCountProgress.task( QString( "Step %1" ).arg( stepIdx ) );
+        auto task = stepCountProgress.task( QString( "Step %1" ).arg( stepIdx ) );
 
         for ( int fIdx = 0; fIdx < se1Frames->frameCount( stepIdx ); fIdx++ )
         {

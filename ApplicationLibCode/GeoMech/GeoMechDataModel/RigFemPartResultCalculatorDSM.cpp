@@ -58,21 +58,21 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorDSM::calculate( int partInde
 {
     CVF_ASSERT( resVarAddr.fieldName == "SE" && resVarAddr.componentName == "DSM" );
 
-    caf::ProgressInfo frameCountProgress( m_resultCollection->timeStepCount() * 3, "" );
-    frameCountProgress.setProgressDescription(
+    caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 3, "" );
+    stepCountProgress.setProgressDescription(
         "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* se1Frames =
         m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "SE", "S1" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
+    stepCountProgress.incrementProgress();
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
     RigFemScalarResultFrames* se3Frames =
         m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "SE", "S3" ) );
 
     RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );
 
-    frameCountProgress.incrementProgress();
+    stepCountProgress.incrementProgress();
 
     float tanFricAng        = tan( m_resultCollection->parameterFrictionAngleRad() );
     float cohPrTanFricAngle = (float)( m_resultCollection->parameterCohesion() / tanFricAng );
@@ -95,7 +95,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorDSM::calculate( int partInde
                 dstFrameData[vIdx] = dsm( se1Data[vIdx], se3Data[vIdx], tanFricAng, cohPrTanFricAngle );
             }
         }
-        frameCountProgress.incrementProgress();
+        stepCountProgress.incrementProgress();
     }
 
     return dstDataFrames;

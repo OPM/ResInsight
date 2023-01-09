@@ -62,30 +62,30 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNodalGradients::calculate( i
     CVF_ASSERT( resVarAddr.fieldName == "POR-Bar" );
     CVF_ASSERT( resVarAddr.componentName == "X" || resVarAddr.componentName == "Y" || resVarAddr.componentName == "Z" );
 
-    caf::ProgressInfo frameCountProgress( m_resultCollection->timeStepCount() * 5, "" );
-    frameCountProgress.setProgressDescription(
+    caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 5, "" );
+    stepCountProgress.setProgressDescription(
         "Calculating gradient: " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* dataFramesX =
         m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( RIG_NODAL, resVarAddr.fieldName, "X" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
+    stepCountProgress.incrementProgress();
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* dataFramesY =
         m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( RIG_NODAL, resVarAddr.fieldName, "Y" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
+    stepCountProgress.incrementProgress();
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* dataFramesZ =
         m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( RIG_NODAL, resVarAddr.fieldName, "Z" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
+    stepCountProgress.incrementProgress();
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemResultAddress       porResultAddr( RIG_NODAL, "POR-Bar", "" );
     RigFemScalarResultFrames* srcDataFrames = m_resultCollection->findOrLoadScalarResult( partIndex, porResultAddr );
 
-    frameCountProgress.incrementProgress();
+    stepCountProgress.incrementProgress();
 
     const RigFemPart* femPart = m_resultCollection->parts()->part( partIndex );
     constexpr float   inf     = std::numeric_limits<float>::infinity();
@@ -170,7 +170,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNodalGradients::calculate( i
                 }
             }
         }
-        frameCountProgress.incrementProgress();
+        stepCountProgress.incrementProgress();
     }
 
     RigFemScalarResultFrames* requestedGradient = m_resultCollection->findOrLoadScalarResult( partIndex, resVarAddr );

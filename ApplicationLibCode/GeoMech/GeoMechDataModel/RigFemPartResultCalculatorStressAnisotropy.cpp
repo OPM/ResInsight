@@ -142,13 +142,13 @@ RigFemScalarResultFrames*
 {
     CVF_ASSERT( isMatching( resVarAddr ) );
 
-    caf::ProgressInfo frameCountProgress( m_resultCollection->timeStepCount() * 4, "" );
-    frameCountProgress.setProgressDescription(
+    caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 4, "" );
+    stepCountProgress.setProgressDescription(
         "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
 
     RigFemScalarResultFrames* s1Frames = nullptr;
     {
-        auto task = frameCountProgress.task( "Loading S1.", m_resultCollection->timeStepCount() );
+        auto task = stepCountProgress.task( "Loading S1.", m_resultCollection->timeStepCount() );
         s1Frames  = m_resultCollection->findOrLoadScalarResult( partIndex,
                                                                RigFemResultAddress( resVarAddr.resultPosType,
                                                                                     resVarAddr.fieldName,
@@ -157,7 +157,7 @@ RigFemScalarResultFrames*
 
     RigFemScalarResultFrames* s2Frames = nullptr;
     {
-        auto task = frameCountProgress.task( "Loading S2.", m_resultCollection->timeStepCount() );
+        auto task = stepCountProgress.task( "Loading S2.", m_resultCollection->timeStepCount() );
         s2Frames  = m_resultCollection->findOrLoadScalarResult( partIndex,
                                                                RigFemResultAddress( resVarAddr.resultPosType,
                                                                                     resVarAddr.fieldName,
@@ -166,7 +166,7 @@ RigFemScalarResultFrames*
 
     RigFemScalarResultFrames* s3Frames = nullptr;
     {
-        auto task = frameCountProgress.task( "Loading S3.", m_resultCollection->timeStepCount() );
+        auto task = stepCountProgress.task( "Loading S3.", m_resultCollection->timeStepCount() );
         s3Frames  = m_resultCollection->findOrLoadScalarResult( partIndex,
                                                                RigFemResultAddress( resVarAddr.resultPosType,
                                                                                     resVarAddr.fieldName,
@@ -198,7 +198,7 @@ RigFemScalarResultFrames*
     int timeSteps = s1Frames->timeStepCount();
     for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
-        auto task = frameCountProgress.task( QString( "Calculating %1/%2." ).arg( stepIdx ).arg( timeSteps - 1 ) );
+        auto task = stepCountProgress.task( QString( "Calculating %1 of %2." ).arg( stepIdx ).arg( timeSteps - 1 ) );
 
         for ( int fIdx = 0; fIdx < s1Frames->frameCount( stepIdx ); fIdx++ )
         {
