@@ -1740,8 +1740,7 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
 
             if ( !m_plotCurveForLegendText )
             {
-                m_plotCurveForLegendText =
-                    plot->plotWidget()->createPlotCurve( nullptr, "", RiaColorTools::toQColor( m_color ) );
+                m_plotCurveForLegendText = plot->plotWidget()->createPlotCurve( nullptr, "" );
             }
             m_plotCurveForLegendText->attachToPlot( plot->plotWidget() );
             updateEnsembleLegendItem();

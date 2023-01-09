@@ -179,7 +179,7 @@ public:
 
     virtual void updateAxes() = 0;
 
-    virtual RiuPlotCurve* createPlotCurve( RimPlotCurve* ownerRimCurve, const QString& title, const QColor& color ) = 0;
+    virtual RiuPlotCurve* createPlotCurve( RimPlotCurve* ownerRimCurve, const QString& title ) = 0;
 
     virtual const QColor& backgroundColor() const = 0;
 
