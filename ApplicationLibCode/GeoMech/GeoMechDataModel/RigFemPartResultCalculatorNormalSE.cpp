@@ -58,21 +58,21 @@ bool RigFemPartResultCalculatorNormalSE::isMatching( const RigFemResultAddress& 
 RigFemScalarResultFrames* RigFemPartResultCalculatorNormalSE::calculate( int                        partIndex,
                                                                          const RigFemResultAddress& resVarAddr )
 {
-    caf::ProgressInfo frameCountProgress( m_resultCollection->timeStepCount() * 3, "" );
-    frameCountProgress.setProgressDescription(
+    caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 3, "" );
+    stepCountProgress.setProgressDescription(
         "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* srcDataFrames =
         m_resultCollection->findOrLoadScalarResult( partIndex,
                                                     RigFemResultAddress( resVarAddr.resultPosType,
                                                                          "S-Bar",
                                                                          resVarAddr.componentName ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
+    stepCountProgress.incrementProgress();
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
     RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );
 
-    frameCountProgress.incrementProgress();
+    stepCountProgress.incrementProgress();
 
     const RigFemPart* femPart = m_resultCollection->parts()->part( partIndex );
     constexpr float   inf     = std::numeric_limits<float>::infinity();
@@ -121,7 +121,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNormalSE::calculate( int    
                 }
             }
         }
-        frameCountProgress.incrementProgress();
+        stepCountProgress.incrementProgress();
     }
 
     return dstDataFrames;

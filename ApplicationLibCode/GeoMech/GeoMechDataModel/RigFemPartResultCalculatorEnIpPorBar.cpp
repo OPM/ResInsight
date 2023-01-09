@@ -57,17 +57,17 @@ bool RigFemPartResultCalculatorEnIpPorBar::isMatching( const RigFemResultAddress
 RigFemScalarResultFrames* RigFemPartResultCalculatorEnIpPorBar::calculate( int                        partIndex,
                                                                            const RigFemResultAddress& resVarAddr )
 {
-    caf::ProgressInfo frameCountProgress( m_resultCollection->timeStepCount() * 2, "" );
-    frameCountProgress.setProgressDescription(
+    caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 2, "" );
+    stepCountProgress.setProgressDescription(
         "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemResultAddress       unconvertedResultAddr( RIG_NODAL, "POR", "" );
     RigFemScalarResultFrames* srcDataFrames =
         m_resultCollection->findOrLoadScalarResult( partIndex, unconvertedResultAddr );
     RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );
 
-    frameCountProgress.incrementProgress();
+    stepCountProgress.incrementProgress();
 
     const RigFemPart* femPart = m_resultCollection->parts()->part( partIndex );
     constexpr float   inf     = std::numeric_limits<float>::infinity();
@@ -104,7 +104,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorEnIpPorBar::calculate( int  
                 }
             }
         }
-        frameCountProgress.incrementProgress();
+        stepCountProgress.incrementProgress();
     }
 
     m_resultCollection->deleteResult( unconvertedResultAddr );

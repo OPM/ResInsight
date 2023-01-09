@@ -57,10 +57,10 @@ bool RigFemPartResultCalculatorShearST::isMatching( const RigFemResultAddress& r
 //--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultCalculatorShearST::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
 {
-    caf::ProgressInfo frameCountProgress( m_resultCollection->timeStepCount() * 2, "" );
-    frameCountProgress.setProgressDescription(
+    caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 2, "" );
+    stepCountProgress.setProgressDescription(
         "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* srcSDataFrames =
         m_resultCollection->findOrLoadScalarResult( partIndex,
@@ -69,7 +69,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorShearST::calculate( int part
                                                                          resVarAddr.componentName ) );
     RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );
 
-    frameCountProgress.incrementProgress();
+    stepCountProgress.incrementProgress();
 
     int timeSteps = srcSDataFrames->timeStepCount();
     for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
@@ -88,7 +88,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorShearST::calculate( int part
                 dstFrameData[vIdx] = -srcSFrameData[vIdx];
             }
         }
-        frameCountProgress.incrementProgress();
+        stepCountProgress.incrementProgress();
     }
 
     return dstDataFrames;

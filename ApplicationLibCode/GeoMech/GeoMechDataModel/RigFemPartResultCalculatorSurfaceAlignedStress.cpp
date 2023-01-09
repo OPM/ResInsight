@@ -67,36 +67,36 @@ RigFemScalarResultFrames*
                 resVarAddr.componentName == "TP" || resVarAddr.componentName == "TPinc" ||
                 resVarAddr.componentName == "FAULTMOB" || resVarAddr.componentName == "PCRIT" );
 
-    caf::ProgressInfo frameCountProgress( m_resultCollection->timeStepCount() * 7, "" );
-    frameCountProgress.setProgressDescription(
+    caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 7, "" );
+    stepCountProgress.setProgressDescription(
         "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* s11Frames =
         m_resultCollection->findOrLoadScalarResult( partIndex,
                                                     RigFemResultAddress( RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S11" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
+    stepCountProgress.incrementProgress();
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
     RigFemScalarResultFrames* s22Frames =
         m_resultCollection->findOrLoadScalarResult( partIndex,
                                                     RigFemResultAddress( RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S22" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
+    stepCountProgress.incrementProgress();
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
     RigFemScalarResultFrames* s33Frames =
         m_resultCollection->findOrLoadScalarResult( partIndex,
                                                     RigFemResultAddress( RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S33" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
+    stepCountProgress.incrementProgress();
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
     RigFemScalarResultFrames* s12Frames =
         m_resultCollection->findOrLoadScalarResult( partIndex,
                                                     RigFemResultAddress( RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S12" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
+    stepCountProgress.incrementProgress();
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
     RigFemScalarResultFrames* s23Frames =
         m_resultCollection->findOrLoadScalarResult( partIndex,
                                                     RigFemResultAddress( RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S23" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
+    stepCountProgress.incrementProgress();
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
     RigFemScalarResultFrames* s13Frames =
         m_resultCollection->findOrLoadScalarResult( partIndex,
                                                     RigFemResultAddress( RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S13" ) );
@@ -134,7 +134,7 @@ RigFemScalarResultFrames*
         m_resultCollection->createScalarResult( partIndex,
                                                 RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "PCRIT" ) );
 
-    frameCountProgress.incrementProgress();
+    stepCountProgress.incrementProgress();
 
     const RigFemPart*              femPart         = m_resultCollection->parts()->part( partIndex );
     const std::vector<cvf::Vec3f>& nodeCoordinates = femPart->nodes().coordinates;
@@ -261,7 +261,7 @@ RigFemScalarResultFrames*
                 }
             }
         }
-        frameCountProgress.incrementProgress();
+        stepCountProgress.incrementProgress();
     }
 
     RigFemScalarResultFrames* requestedSurfStress = m_resultCollection->findOrLoadScalarResult( partIndex, resVarAddr );

@@ -74,10 +74,10 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorStressGradients::calculate( 
 {
     CVF_ASSERT( resVarAddr.fieldName == "ST" || resVarAddr.fieldName == "SE" );
 
-    caf::ProgressInfo frameCountProgress( m_resultCollection->timeStepCount() * 2, "" );
-    frameCountProgress.setProgressDescription(
+    caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 2, "" );
+    stepCountProgress.setProgressDescription(
         "Calculating gradient: " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     QString origFieldName     = QString::fromStdString( resVarAddr.fieldName );
     QString origComponentName = QString::fromStdString( resVarAddr.componentName );
@@ -105,7 +105,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorStressGradients::calculate( 
                                                 RigFemResultAddress( resVarAddr.resultPosType,
                                                                      resVarAddr.fieldName,
                                                                      componentName.toStdString() + "-Z" ) );
-    frameCountProgress.incrementProgress();
+    stepCountProgress.incrementProgress();
 
     const RigFemPart*              femPart      = m_resultCollection->parts()->part( partIndex );
     int                            elementCount = femPart->elementCount();
@@ -164,7 +164,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorStressGradients::calculate( 
                 }
             }
         }
-        frameCountProgress.incrementProgress();
+        stepCountProgress.incrementProgress();
     }
 
     RigFemScalarResultFrames* requestedStress = m_resultCollection->findOrLoadScalarResult( partIndex, resVarAddr );

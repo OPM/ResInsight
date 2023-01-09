@@ -200,8 +200,6 @@ cvf::Color3f RivGeoMechVizLogic::staticCellColor()
     return cvf::Color3f::ORANGE;
 }
 
-#pragma optimize( "", off )
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -334,5 +332,3 @@ void RivGeoMechVizLogic::calculateCurrentTotalCellVisibility( cvf::UByteArray* t
         }
     }
 }
-
-#pragma optimize( "", on )

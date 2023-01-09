@@ -61,10 +61,10 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorSM::calculate( int partIndex
     QString progressText = "Calculating " +
                            QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName );
 
-    caf::ProgressInfo frameCountProgress( static_cast<size_t>( m_resultCollection->timeStepCount() ) * 4, progressText );
+    caf::ProgressInfo stepCountProgress( static_cast<size_t>( m_resultCollection->timeStepCount() ) * 4, progressText );
 
     auto loadFrameLambda = [&]( const QString& component ) {
-        auto task = frameCountProgress.task( component );
+        auto task = stepCountProgress.task( component );
         return m_resultCollection->findOrLoadScalarResult( partIndex,
                                                            resVarAddr.copyWithComponent( component.toStdString() ) );
     };
@@ -78,10 +78,10 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorSM::calculate( int partIndex
     int timeSteps = st11->timeStepCount();
     for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
+        auto task = stepCountProgress.task( QString( "Step %1" ).arg( stepIdx ) );
+
         for ( int fIdx = 0; fIdx < st11->frameCount( stepIdx ); fIdx++ )
         {
-            auto task = frameCountProgress.task( QString( "Frame %1" ).arg( fIdx ) );
-
             const std::vector<float>& st11Data = st11->frameData( stepIdx, fIdx );
             const std::vector<float>& st22Data = st22->frameData( stepIdx, fIdx );
             const std::vector<float>& st33Data = st33->frameData( stepIdx, fIdx );

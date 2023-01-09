@@ -65,8 +65,8 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorSurfaceAngles::calculate( in
 {
     CVF_ASSERT( resVarAddr.componentName == "Pazi" || resVarAddr.componentName == "Pinc" );
 
-    caf::ProgressInfo frameCountProgress( m_resultCollection->timeStepCount() * 1, "" );
-    frameCountProgress.setProgressDescription(
+    caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 1, "" );
+    stepCountProgress.setProgressDescription(
         "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
 
     RigFemScalarResultFrames* PaziFrames =
@@ -138,7 +138,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorSurfaceAngles::calculate( in
                 }
             }
         }
-        frameCountProgress.incrementProgress();
+        stepCountProgress.incrementProgress();
     }
 
     RigFemScalarResultFrames* requestedPlaneAngle = m_resultCollection->findOrLoadScalarResult( partIndex, resVarAddr );

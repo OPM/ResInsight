@@ -339,8 +339,6 @@ void RimCellFilterCollection::connectToFilterUpdates( RimCellFilter* filter )
     filter->filterChanged.connect( this, &RimCellFilterCollection::onFilterUpdated );
 }
 
-#pragma optimize( "", off )
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -383,5 +381,3 @@ void RimCellFilterCollection::compoundCellRangeFilter( cvf::CellRangeFilter* cel
         }
     }
 }
-
-#pragma optimize( "", on )

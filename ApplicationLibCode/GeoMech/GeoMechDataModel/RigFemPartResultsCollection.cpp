@@ -1030,9 +1030,11 @@ bool RigFemPartResultsCollection::assertResultsLoaded( const RigFemResultAddress
         if ( m_femPartResults[pIdx].notNull() )
         {
             RigFemScalarResultFrames* scalarResults = findOrLoadScalarResult( pIdx, resVarAddr );
-            for ( int stepIdx = 0; stepIdx < scalarResults->timeStepCount(); stepIdx++ )
+            const int                 stepCount     = scalarResults->timeStepCount();
+            for ( int stepIdx = 0; stepIdx < stepCount; stepIdx++ )
             {
-                for ( int fIdx = 0; fIdx < scalarResults->frameCount( stepIdx ); ++fIdx )
+                const int frameCount = scalarResults->frameCount( stepIdx );
+                for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
                 {
                     foundResults = foundResults || !scalarResults->frameData( stepIdx, fIdx ).empty();
                 }

@@ -80,12 +80,12 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorCompaction::calculate( int  
 {
     CVF_ASSERT( resVarAddr.fieldName == RigFemPartResultsCollection::FIELD_NAME_COMPACTION );
 
-    caf::ProgressInfo frameCountProgress( m_resultCollection->timeStepCount() + 1, "" );
-    frameCountProgress.setProgressDescription( "Calculating " + QString::fromStdString( resVarAddr.fieldName ) );
+    caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() + 1, "" );
+    stepCountProgress.setProgressDescription( "Calculating " + QString::fromStdString( resVarAddr.fieldName ) );
 
     RigFemScalarResultFrames* u3Frames =
         m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "U", "U3" ) );
-    frameCountProgress.incrementProgress();
+    stepCountProgress.incrementProgress();
 
     RigFemScalarResultFrames* compactionFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );
 
@@ -99,8 +99,6 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorCompaction::calculate( int  
         {
             std::vector<float>& compactionFrame = compactionFrames->frameData( stepIdx, fIdx );
             size_t              nodeCount       = part->nodes().nodeIds.size();
-
-            frameCountProgress.incrementProgress();
 
             compactionFrame.resize( nodeCount );
 
@@ -150,6 +148,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorCompaction::calculate( int  
                 }
             }
         }
+        stepCountProgress.incrementProgress();
     }
     RigFemScalarResultFrames* requestedPrincipal = m_resultCollection->findOrLoadScalarResult( partIndex, resVarAddr );
     return requestedPrincipal;
