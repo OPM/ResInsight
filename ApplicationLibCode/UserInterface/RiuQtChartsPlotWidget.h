@@ -166,7 +166,7 @@ public:
     void updateLegend() override;
     void updateAxes() override;
 
-    RiuPlotCurve* createPlotCurve( RimPlotCurve* ownerRimCurve, const QString& title, const QColor& color ) override;
+    RiuPlotCurve* createPlotCurve( RimPlotCurve* ownerRimCurve, const QString& title ) override;
 
     QtCharts::QChart* qtChart();
 

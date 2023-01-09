@@ -1326,7 +1326,7 @@ RiuPlotAxis RiuQwtPlotWidget::createNextPlotAxis( RiaDefines::PlotAxis axis )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuPlotCurve* RiuQwtPlotWidget::createPlotCurve( RimPlotCurve* ownerRimCurve, const QString& title, const QColor& color )
+RiuPlotCurve* RiuQwtPlotWidget::createPlotCurve( RimPlotCurve* ownerRimCurve, const QString& title )
 {
     return new RiuQwtPlotCurve( ownerRimCurve, title );
 }

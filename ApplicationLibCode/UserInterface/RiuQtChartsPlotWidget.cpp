@@ -832,7 +832,7 @@ void RiuQtChartsPlotWidget::updateAxes()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuPlotCurve* RiuQtChartsPlotWidget::createPlotCurve( RimPlotCurve* ownerRimCurve, const QString& title, const QColor& color )
+RiuPlotCurve* RiuQtChartsPlotWidget::createPlotCurve( RimPlotCurve* ownerRimCurve, const QString& title )
 {
     return new RiuQtChartsPlotCurve( ownerRimCurve, title );
 }
