@@ -19,8 +19,8 @@
 #include "RimFlowPlotCollection.h"
 
 #include "RimFlowCharacteristicsPlot.h"
-#include "RimHistoryWellAllocationPlot.h"
 #include "RimProject.h"
+#include "RimWellAllocationOverTimePlot.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellDistributionPlotCollection.h"
 
@@ -39,8 +39,8 @@ RimFlowPlotCollection::RimFlowPlotCollection()
     CAF_PDM_InitFieldNoDefault( &m_flowCharacteristicsPlot, "FlowCharacteristicsPlot", "" );
     m_flowCharacteristicsPlot.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_defaultHistoryWellAllocPlot, "DefaultHistoryWellAllocationPlot", "" );
-    m_defaultHistoryWellAllocPlot.uiCapability()->setUiTreeHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_defaultWellAllocOverTimePlot, "DefaultWellAllocationOverTimePlot", "" );
+    m_defaultWellAllocOverTimePlot.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_defaultWellAllocPlot, "DefaultWellAllocationPlot", "" );
     m_defaultWellAllocPlot.uiCapability()->setUiTreeHidden( true );
@@ -62,7 +62,7 @@ RimFlowPlotCollection::RimFlowPlotCollection()
 //--------------------------------------------------------------------------------------------------
 RimFlowPlotCollection::~RimFlowPlotCollection()
 {
-    // TODO: Remove? Testing without manually deleting for RimHistoryWellAllocationPlot
+    // TODO: Remove? Testing without manually deleting for RimWellAllocationOverTimePlot
 
     delete m_defaultWellAllocPlot();
 
@@ -74,7 +74,7 @@ RimFlowPlotCollection::~RimFlowPlotCollection()
 //--------------------------------------------------------------------------------------------------
 void RimFlowPlotCollection::deleteAllPlots()
 {
-    // TODO: Remove? Testing without manually deleting for RimHistoryWellAllocationPlot
+    // TODO: Remove? Testing without manually deleting for RimWellAllocationOverTimePlot
 
     if ( m_defaultWellAllocPlot )
     {
@@ -100,7 +100,7 @@ void RimFlowPlotCollection::loadDataAndUpdateAllPlots()
     if ( m_defaultWellAllocPlot ) m_defaultWellAllocPlot->loadDataAndUpdate();
     plotProgress.incrementProgress();
 
-    if ( m_defaultHistoryWellAllocPlot ) m_defaultHistoryWellAllocPlot->loadDataAndUpdate();
+    if ( m_defaultWellAllocOverTimePlot ) m_defaultWellAllocOverTimePlot->loadDataAndUpdate();
     plotProgress.incrementProgress();
 
     for ( RimWellAllocationPlot* p : m_storedWellAllocPlots )
@@ -138,7 +138,7 @@ size_t RimFlowPlotCollection::plotCount() const
 {
     size_t plotCount = 0;
     plotCount += m_defaultWellAllocPlot ? 1 : 0;
-    plotCount += m_defaultHistoryWellAllocPlot ? 1 : 0;
+    plotCount += m_defaultWellAllocOverTimePlot ? 1 : 0;
     plotCount += m_storedWellAllocPlots.size();
     plotCount += m_storedFlowCharacteristicsPlots.size();
     return plotCount;
@@ -163,17 +163,17 @@ void RimFlowPlotCollection::addFlowCharacteristicsPlotToStoredPlots( RimFlowChar
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimHistoryWellAllocationPlot* RimFlowPlotCollection::defaultHistoryWellAllocPlot()
+RimWellAllocationOverTimePlot* RimFlowPlotCollection::defaultWellAllocOverTimePlot()
 {
-    if ( !m_defaultHistoryWellAllocPlot() )
+    if ( !m_defaultWellAllocOverTimePlot() )
     {
-        m_defaultHistoryWellAllocPlot = new RimHistoryWellAllocationPlot;
-        m_defaultHistoryWellAllocPlot->setDescription( "Default History Well Allocation Plot" );
+        m_defaultWellAllocOverTimePlot = new RimWellAllocationOverTimePlot;
+        m_defaultWellAllocOverTimePlot->setDescription( "Default Well Allocation Over Time Plot" );
     }
 
     this->updateConnectedEditors();
 
-    return m_defaultHistoryWellAllocPlot();
+    return m_defaultWellAllocOverTimePlot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -226,10 +226,10 @@ void RimFlowPlotCollection::ensureDefaultFlowPlotsAreCreated()
         m_defaultWellAllocPlot->setDescription( "Default Flow Diagnostics Plot" );
     }
 
-    if ( !m_defaultHistoryWellAllocPlot() )
+    if ( !m_defaultWellAllocOverTimePlot() )
     {
-        m_defaultHistoryWellAllocPlot = new RimHistoryWellAllocationPlot;
-        m_defaultHistoryWellAllocPlot->setDescription( "Default History Well Allocation Plot" );
+        m_defaultWellAllocOverTimePlot = new RimWellAllocationOverTimePlot;
+        m_defaultWellAllocOverTimePlot->setDescription( "Default Well Allocation Over Time Plot" );
     }
 
     if ( !m_flowCharacteristicsPlot() )

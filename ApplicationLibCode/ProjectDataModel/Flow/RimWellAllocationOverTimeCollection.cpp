@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimHistoryWellFlowDataCollection.h"
+#include "RimWellAllocationOverTimeCollection.h"
 
 #include "cafAssert.h"
 
@@ -29,7 +29,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimHistoryWellFlowDataCollection::RimHistoryWellFlowDataCollection(
+RimWellAllocationOverTimeCollection::RimWellAllocationOverTimeCollection(
     const std::vector<QDateTime>&                        timeStepDates,
     const std::map<QDateTime, RigAccWellFlowCalculator>& timeStepAndCalculatorPairs )
     : m_timeStepDates( timeStepDates )
@@ -68,7 +68,7 @@ RimHistoryWellFlowDataCollection::RimHistoryWellFlowDataCollection(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimHistoryWellFlowDataCollection::fillWithPercentageValues()
+void RimWellAllocationOverTimeCollection::fillWithPercentageValues()
 {
     m_wellValuesMap = m_defaultWellValuesMap;
     for ( auto& [timeStep, calculator] : m_timeStepAndCalculatorPairs )
@@ -85,7 +85,7 @@ void RimHistoryWellFlowDataCollection::fillWithPercentageValues()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimHistoryWellFlowDataCollection::fillWithFlowRateValues()
+void RimWellAllocationOverTimeCollection::fillWithFlowRateValues()
 {
     m_wellValuesMap        = m_defaultWellValuesMap;
     const size_t branchIdx = 0;
@@ -103,7 +103,7 @@ void RimHistoryWellFlowDataCollection::fillWithFlowRateValues()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimHistoryWellFlowDataCollection::fillWithFlowVolumeValues()
+void RimWellAllocationOverTimeCollection::fillWithFlowVolumeValues()
 {
     fillWithFlowRateValues();
 
@@ -129,7 +129,7 @@ void RimHistoryWellFlowDataCollection::fillWithFlowVolumeValues()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimHistoryWellFlowDataCollection::fillWithAccumulatedFlowVolumeValues( double smallContributionsThreshold )
+void RimWellAllocationOverTimeCollection::fillWithAccumulatedFlowVolumeValues( double smallContributionsThreshold )
 {
     fillWithFlowVolumeValues();
 
@@ -153,8 +153,8 @@ void RimHistoryWellFlowDataCollection::fillWithAccumulatedFlowVolumeValues( doub
 /// Handle grouping of small contributors in accumulated data based on threshold.
 /// Group small contributors in "Others" based on last time sample values.
 //--------------------------------------------------------------------------------------------------
-void RimHistoryWellFlowDataCollection::groupAccumulatedFlowVolumes( std::map<QString, std::map<QDateTime, double>>& rWellValuesMap,
-                                                                    double threshold )
+void RimWellAllocationOverTimeCollection::groupAccumulatedFlowVolumes( std::map<QString, std::map<QDateTime, double>>& rWellValuesMap,
+                                                                       double threshold )
 {
     if ( m_timeStepDates.size() == 0 )
     {

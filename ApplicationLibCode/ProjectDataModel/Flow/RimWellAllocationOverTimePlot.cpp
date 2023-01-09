@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimHistoryWellAllocationPlot.h"
+#include "RimWellAllocationOverTimePlot.h"
 
 #include "RiaColorTools.h"
 #include "RiaDefines.h"
@@ -35,9 +35,9 @@
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 #include "RimFlowDiagSolution.h"
-#include "RimHistoryWellFlowDataCollection.h"
 #include "RimSimWellInView.h"
 #include "RimStackablePlotCurve.h"
+#include "RimWellAllocationOverTimeCollection.h"
 #include "RimWellAllocationTools.h"
 #include "RimWellLogFile.h"
 #include "RimWellPlotTools.h"
@@ -51,7 +51,7 @@
 
 #include "cafCmdFeatureMenuBuilder.h"
 
-CAF_PDM_SOURCE_INIT( RimHistoryWellAllocationPlot, "RimHistoryWellAllocationPlot" );
+CAF_PDM_SOURCE_INIT( RimWellAllocationOverTimePlot, "RimWellAllocationOverTimePlot" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -59,25 +59,25 @@ CAF_PDM_SOURCE_INIT( RimHistoryWellAllocationPlot, "RimHistoryWellAllocationPlot
 namespace caf
 {
 template <>
-void AppEnum<RimHistoryWellAllocationPlot::FlowValueType>::setUp()
+void AppEnum<RimWellAllocationOverTimePlot::FlowValueType>::setUp()
 {
-    addItem( RimHistoryWellAllocationPlot::FLOW_RATE, "FLOW_RATE", "Flow Rates" );
-    addItem( RimHistoryWellAllocationPlot::FLOW_VOLUME, "FLOW_VOLUME", "Flow Volumes" );
-    addItem( RimHistoryWellAllocationPlot::ACCUMULATED_FLOW_VOLUME, "ACCUMULATED_FLOW_VOLUME", "Accumulated Flow Volumes" );
-    addItem( RimHistoryWellAllocationPlot::PERCENTAGE, "PERCENTAGE", "Percentage" );
-    setDefault( RimHistoryWellAllocationPlot::FLOW_RATE );
+    addItem( RimWellAllocationOverTimePlot::FLOW_RATE, "FLOW_RATE", "Flow Rates" );
+    addItem( RimWellAllocationOverTimePlot::FLOW_VOLUME, "FLOW_VOLUME", "Flow Volumes" );
+    addItem( RimWellAllocationOverTimePlot::ACCUMULATED_FLOW_VOLUME, "ACCUMULATED_FLOW_VOLUME", "Accumulated Flow Volumes" );
+    addItem( RimWellAllocationOverTimePlot::PERCENTAGE, "PERCENTAGE", "Percentage" );
+    setDefault( RimWellAllocationOverTimePlot::FLOW_RATE );
 }
 } // namespace caf
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimHistoryWellAllocationPlot::RimHistoryWellAllocationPlot()
+RimWellAllocationOverTimePlot::RimWellAllocationOverTimePlot()
 {
     // TODO: Add icon
-    CAF_PDM_InitObject( "History Well Allocation Plot", ":/HistoryWellAllocPlot16x16.png" );
+    CAF_PDM_InitObject( "Well Allocation Over Time Plot", ":/WellAllocOverTimePlot16x16.png" );
 
-    CAF_PDM_InitField( &m_userName, "PlotDescription", QString( "History Flow Diagnostics Plot" ), "Name" );
+    CAF_PDM_InitField( &m_userName, "PlotDescription", QString( "Well Allocation Over Time Plot" ), "Name" );
     m_userName.uiCapability()->setUiReadOnly( true );
     CAF_PDM_InitField( &m_branchDetection,
                        "BranchDetection",
@@ -101,7 +101,7 @@ RimHistoryWellAllocationPlot::RimHistoryWellAllocationPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimHistoryWellAllocationPlot::~RimHistoryWellAllocationPlot()
+RimWellAllocationOverTimePlot::~RimWellAllocationOverTimePlot()
 {
     removeMdiWindowFromMdiArea();
     deleteViewWidget();
@@ -110,7 +110,7 @@ RimHistoryWellAllocationPlot::~RimHistoryWellAllocationPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimHistoryWellAllocationPlot::setDescription( const QString& description )
+void RimWellAllocationOverTimePlot::setDescription( const QString& description )
 {
     m_userName = description;
 }
@@ -118,7 +118,7 @@ void RimHistoryWellAllocationPlot::setDescription( const QString& description )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimHistoryWellAllocationPlot::setFromSimulationWell( RimSimWellInView* simWell )
+void RimWellAllocationOverTimePlot::setFromSimulationWell( RimSimWellInView* simWell )
 {
     m_showWindow = true;
 
@@ -143,7 +143,7 @@ void RimHistoryWellAllocationPlot::setFromSimulationWell( RimSimWellInView* simW
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuPlotWidget* RimHistoryWellAllocationPlot::plotWidget()
+RiuPlotWidget* RimWellAllocationOverTimePlot::plotWidget()
 {
     return m_plotWidget;
 }
@@ -151,16 +151,16 @@ RiuPlotWidget* RimHistoryWellAllocationPlot::plotWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimHistoryWellAllocationPlot::asciiDataForPlotExport() const
+QString RimWellAllocationOverTimePlot::asciiDataForPlotExport() const
 {
-    // Retrieve collection of total fraction data for wells
-    RimHistoryWellFlowDataCollection wellFlowDataCollection = createHistoryWellFlowDataCollection();
+    // Retrieve collection of allocation over time data for wells
+    RimWellAllocationOverTimeCollection allocationOverTimeCollection = createWellAllocationOverTimeCollection();
 
     QString titleText = "Well " + getYAxisTitleFromValueType() + ": " + m_wellName + ", " + " (" +
                         m_case->caseUserDescription() + ") \n\n";
 
     QString dataText = "Time Step\t";
-    for ( auto& [wellName, wellValues] : wellFlowDataCollection.wellValuesMap() )
+    for ( auto& [wellName, wellValues] : allocationOverTimeCollection.wellValuesMap() )
     {
         dataText += wellName + "\t";
     }
@@ -169,10 +169,10 @@ QString RimHistoryWellAllocationPlot::asciiDataForPlotExport() const
     const QString dateFormatStr =
         RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
                                              RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
-    for ( const auto& timeStep : wellFlowDataCollection.timeStepDates() )
+    for ( const auto& timeStep : allocationOverTimeCollection.timeStepDates() )
     {
         dataText += timeStep.toString( dateFormatStr ) + "\t";
-        for ( auto& [wellName, wellValues] : wellFlowDataCollection.wellValuesMap() )
+        for ( auto& [wellName, wellValues] : allocationOverTimeCollection.wellValuesMap() )
         {
             dataText += wellValues.count( timeStep ) == 0 ? QString::number( 0.0 )
                                                           : QString::number( wellValues.at( timeStep ) );
@@ -187,7 +187,7 @@ QString RimHistoryWellAllocationPlot::asciiDataForPlotExport() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimHistoryWellAllocationPlot::description() const
+QString RimWellAllocationOverTimePlot::description() const
 {
     return uiName();
 }
@@ -195,7 +195,7 @@ QString RimHistoryWellAllocationPlot::description() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* RimHistoryWellAllocationPlot::viewWidget()
+QWidget* RimWellAllocationOverTimePlot::viewWidget()
 {
     return plotWidget();
 }
@@ -203,7 +203,7 @@ QWidget* RimHistoryWellAllocationPlot::viewWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QImage RimHistoryWellAllocationPlot::snapshotWindowContent()
+QImage RimWellAllocationOverTimePlot::snapshotWindowContent()
 {
     QImage image;
 
@@ -219,7 +219,7 @@ QImage RimHistoryWellAllocationPlot::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuPlotWidget* RimHistoryWellAllocationPlot::doCreatePlotViewWidget( QWidget* mainWindowParent )
+RiuPlotWidget* RimWellAllocationOverTimePlot::doCreatePlotViewWidget( QWidget* mainWindowParent )
 {
     // If called multiple times?
     if ( m_plotWidget )
@@ -254,7 +254,7 @@ RiuPlotWidget* RimHistoryWellAllocationPlot::doCreatePlotViewWidget( QWidget* ma
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimHistoryWellAllocationPlot::deleteViewWidget()
+void RimWellAllocationOverTimePlot::deleteViewWidget()
 {
     if ( m_plotWidget != nullptr )
     {
@@ -268,7 +268,7 @@ void RimHistoryWellAllocationPlot::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimHistoryWellAllocationPlot::onLoadDataAndUpdate()
+void RimWellAllocationOverTimePlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
 
@@ -289,7 +289,7 @@ void RimHistoryWellAllocationPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimHistoryWellAllocationPlot::getYAxisTitleFromValueType() const
+QString RimWellAllocationOverTimePlot::getYAxisTitleFromValueType() const
 {
     RiaDefines::EclipseUnitSystem     unitSet   = m_case->eclipseCaseData()->unitsType();
     RimWellLogFile::WellFlowCondition condition = m_flowDiagSolution ? RimWellLogFile::WELL_FLOW_COND_RESERVOIR
@@ -319,7 +319,7 @@ QString RimHistoryWellAllocationPlot::getYAxisTitleFromValueType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimHistoryWellAllocationPlot::updateFromWell()
+void RimWellAllocationOverTimePlot::updateFromWell()
 {
     // TODO:
     // - Add branch detection/ branch count - see RimWellAllocationPlot
@@ -331,17 +331,17 @@ void RimHistoryWellAllocationPlot::updateFromWell()
     m_plotWidget->detachItems( RiuPlotWidget::PlotItemType::CURVE );
 
     // Retrieve collection of total fraction data for wells
-    RimHistoryWellFlowDataCollection wellFlowDataCollection = createHistoryWellFlowDataCollection();
-    std::vector<double>              allStackedValues( wellFlowDataCollection.timeStepDates().size(), 0.0 );
+    RimWellAllocationOverTimeCollection allocationOverTimeCollection = createWellAllocationOverTimeCollection();
+    std::vector<double>                 allStackedValues( allocationOverTimeCollection.timeStepDates().size(), 0.0 );
 
     // Negative z-position to show grid lines
     int zPos = -10000;
-    for ( auto& [wellName, wellValues] : wellFlowDataCollection.wellValuesMap() )
+    for ( auto& [wellName, wellValues] : allocationOverTimeCollection.wellValuesMap() )
     {
         cvf::Color3f color = m_flowDiagSolution ? m_flowDiagSolution->tracerColor( wellName ) : getTracerColor( wellName );
-        for ( size_t i = 0; i < wellFlowDataCollection.timeStepDates().size(); ++i )
+        for ( size_t i = 0; i < allocationOverTimeCollection.timeStepDates().size(); ++i )
         {
-            const auto value = wellValues.at( wellFlowDataCollection.timeStepDates()[i] );
+            const auto value = wellValues.at( allocationOverTimeCollection.timeStepDates()[i] );
             allStackedValues[i] += value;
         }
 
@@ -354,13 +354,13 @@ void RimHistoryWellAllocationPlot::updateFromWell()
 
         RiuPlotCurve* curve = m_plotWidget->createPlotCurve( nullptr, wellName, qColor );
         curve->setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID, interpolationType, 2, qColor, fillBrush );
-        curve->setSamplesFromDatesAndYValues( wellFlowDataCollection.timeStepDates(), allStackedValues, false );
+        curve->setSamplesFromDatesAndYValues( allocationOverTimeCollection.timeStepDates(), allStackedValues, false );
         curve->attachToPlot( m_plotWidget );
         curve->showInPlot();
         curve->setZ( zPos-- );
     }
 
-    QString flowTypeText = m_flowDiagSolution() ? "Well Allocation History" : "Well Flow History";
+    QString flowTypeText = m_flowDiagSolution() ? "Well Allocation Over Time" : "Well Flow Over Time";
     setDescription( flowTypeText + ": " + m_wellName + ", " + " (" + m_case->caseUserDescription() + ")" );
     m_plotWidget->setPlotTitle( m_userName );
 
@@ -373,16 +373,16 @@ void RimHistoryWellAllocationPlot::updateFromWell()
 /// well data for all time steps. If well does not exist for specific time step date - value is
 /// set to 0.
 //--------------------------------------------------------------------------------------------------
-RimHistoryWellFlowDataCollection RimHistoryWellAllocationPlot::createHistoryWellFlowDataCollection() const
+RimWellAllocationOverTimeCollection RimWellAllocationOverTimePlot::createWellAllocationOverTimeCollection() const
 {
     if ( !m_case )
     {
-        return RimHistoryWellFlowDataCollection( {}, {} );
+        return RimWellAllocationOverTimeCollection( {}, {} );
     }
     const RigSimWellData* simWellData = m_case->eclipseCaseData()->findSimWellData( m_wellName );
     if ( !simWellData )
     {
-        return RimHistoryWellFlowDataCollection( {}, {} );
+        return RimWellAllocationOverTimeCollection( {}, {} );
     }
 
     std::vector<QDateTime>                        timeSteps                  = m_case->timeStepDates();
@@ -442,38 +442,38 @@ RimHistoryWellFlowDataCollection RimHistoryWellAllocationPlot::createHistoryWell
     std::sort( timeSteps.begin(), timeSteps.end() );
 
     // Create collection
-    RimHistoryWellFlowDataCollection wellFlowDataCollection( timeSteps, timeStepAndCalculatorPairs );
+    RimWellAllocationOverTimeCollection collection( timeSteps, timeStepAndCalculatorPairs );
 
     if ( m_flowValueType == FlowValueType::PERCENTAGE )
     {
-        wellFlowDataCollection.fillWithPercentageValues();
+        collection.fillWithPercentageValues();
     }
     else if ( m_flowValueType == FlowValueType::FLOW_RATE )
     {
-        wellFlowDataCollection.fillWithFlowRateValues();
+        collection.fillWithFlowRateValues();
     }
     else if ( m_flowValueType == FlowValueType::FLOW_VOLUME )
     {
-        wellFlowDataCollection.fillWithFlowVolumeValues();
+        collection.fillWithFlowVolumeValues();
     }
     else if ( m_flowValueType == FlowValueType::ACCUMULATED_FLOW_VOLUME )
     {
         // Threshold for accumulated data is based on last time sample values after accumulating non-filtered flow volumes
         const double actualSmallContributionThreshold = m_groupSmallContributions() ? m_smallContributionsThreshold : 0.0;
-        wellFlowDataCollection.fillWithAccumulatedFlowVolumeValues( actualSmallContributionThreshold );
+        collection.fillWithAccumulatedFlowVolumeValues( actualSmallContributionThreshold );
     }
     else
     {
         CAF_ASSERT( "Not handled FlowValue type!" );
     }
 
-    return wellFlowDataCollection;
+    return collection;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimHistoryWellAllocationPlot::userDescriptionField()
+caf::PdmFieldHandle* RimWellAllocationOverTimePlot::userDescriptionField()
 {
     return &m_userName;
 }
@@ -481,7 +481,7 @@ caf::PdmFieldHandle* RimHistoryWellAllocationPlot::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimHistoryWellAllocationPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RimWellAllocationOverTimePlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     RimPlot::defineUiOrdering( uiConfigName, uiOrdering );
 
@@ -506,9 +506,9 @@ void RimHistoryWellAllocationPlot::defineUiOrdering( QString uiConfigName, caf::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimHistoryWellAllocationPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                     const QVariant&            oldValue,
-                                                     const QVariant&            newValue )
+void RimWellAllocationOverTimePlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                      const QVariant&            oldValue,
+                                                      const QVariant&            newValue )
 {
     RimPlot::fieldChangedByUi( changedField, oldValue, newValue );
 
@@ -544,7 +544,7 @@ void RimHistoryWellAllocationPlot::fieldChangedByUi( const caf::PdmFieldHandle* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<QString> RimHistoryWellAllocationPlot::findSortedWellNames()
+std::set<QString> RimWellAllocationOverTimePlot::findSortedWellNames()
 {
     if ( m_case && m_case->eclipseCaseData() )
     {
@@ -557,7 +557,7 @@ std::set<QString> RimHistoryWellAllocationPlot::findSortedWellNames()
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimHistoryWellAllocationPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+    RimWellAllocationOverTimePlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options = RimPlot::calculateValueOptions( fieldNeedingOptions );
 
@@ -597,7 +597,7 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Color3f RimHistoryWellAllocationPlot::getTracerColor( const QString& tracerName )
+cvf::Color3f RimWellAllocationOverTimePlot::getTracerColor( const QString& tracerName )
 {
     if ( tracerName == RIG_FLOW_OIL_NAME ) return cvf::Color3f::DARK_GREEN;
     if ( tracerName == RIG_FLOW_GAS_NAME ) return cvf::Color3f::DARK_RED;

@@ -25,12 +25,12 @@
 
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCurve.h"
-#include "RimHistoryWellAllocationPlot.h"
 #include "RimPlotWindow.h"
 #include "RimProject.h"
 #include "RimSummaryCrossPlot.h"
 #include "RimSummaryPlot.h"
 #include "RimVfpPlot.h"
+#include "RimWellAllocationOverTimePlot.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 
@@ -190,7 +190,7 @@ bool RicShowPlotDataFeature::isCommandEnabled()
 
         if ( dynamic_cast<RimSummaryPlot*>( plot ) || dynamic_cast<RimWellLogPlot*>( plot ) ||
              dynamic_cast<RimWellLogTrack*>( plot ) || dynamic_cast<RimGridCrossPlot*>( plot ) ||
-             dynamic_cast<RimVfpPlot*>( plot ) || dynamic_cast<RimHistoryWellAllocationPlot*>( plot ) )
+             dynamic_cast<RimVfpPlot*>( plot ) || dynamic_cast<RimWellAllocationOverTimePlot*>( plot ) )
         {
             validPlots++;
         }
@@ -222,12 +222,12 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
     std::vector<RimPlotWindow*> selection;
     getSelection( selection );
 
-    std::vector<RimSummaryPlot*>               selectedSummaryPlots;
-    std::vector<RimWellLogPlot*>               wellLogPlots;
-    std::vector<RimGridCrossPlot*>             crossPlots;
-    std::vector<RimVfpPlot*>                   vfpPlots;
-    std::vector<RimWellLogTrack*>              depthTracks;
-    std::vector<RimHistoryWellAllocationPlot*> historyWellAllocationPlots;
+    std::vector<RimSummaryPlot*>                selectedSummaryPlots;
+    std::vector<RimWellLogPlot*>                wellLogPlots;
+    std::vector<RimGridCrossPlot*>              crossPlots;
+    std::vector<RimVfpPlot*>                    vfpPlots;
+    std::vector<RimWellLogTrack*>               depthTracks;
+    std::vector<RimWellAllocationOverTimePlot*> wellAllocationOverTimePlots;
 
     for ( auto plot : selection )
     {
@@ -261,9 +261,9 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
             continue;
         }
 
-        if ( auto historyWellAllocationPlot = dynamic_cast<RimHistoryWellAllocationPlot*>( plot ) )
+        if ( auto wellAllocationOverTimePlot = dynamic_cast<RimWellAllocationOverTimePlot*>( plot ) )
         {
-            historyWellAllocationPlots.push_back( historyWellAllocationPlot );
+            wellAllocationOverTimePlots.push_back( wellAllocationOverTimePlot );
             continue;
         }
     }
@@ -301,10 +301,10 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
         RicShowPlotDataFeature::showTabbedTextWindow( textProvider );
     }
 
-    for ( RimHistoryWellAllocationPlot* historyWellAllocationPlot : historyWellAllocationPlots )
+    for ( RimWellAllocationOverTimePlot* wellAllocationOverTimePlot : wellAllocationOverTimePlots )
     {
-        QString title = historyWellAllocationPlot->description();
-        QString text  = historyWellAllocationPlot->asciiDataForPlotExport();
+        QString title = wellAllocationOverTimePlot->description();
+        QString text  = wellAllocationOverTimePlot->asciiDataForPlotExport();
         RicShowPlotDataFeature::showTextWindow( title, text );
     }
 }
