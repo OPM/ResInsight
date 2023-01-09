@@ -36,6 +36,7 @@
 
 #include "cvfStructGrid.h"
 #include "cvfBase.h"
+#include "cvfBoundingBox.h"
 
 namespace caf
 {
@@ -359,6 +360,16 @@ void StructGridInterface::characteristicCellSizes( double* iSize, double* jSize,
                     {
                         size_t cellIndex = cellIndexFromIJK( i, j, k );
                         cellCornerVertices( cellIndex, cornerVerts );
+
+                        cvf::BoundingBox bb;
+                        for ( const auto& v : cornerVerts )
+                        {
+                            bb.add( v );
+                        }
+
+                        // Exclude cells with very small volumes
+                        const double tolerance = 0.2;
+                        if ( bb.extent().z() < tolerance ) continue;
 
                         iLengthAccumulated +=
                             ( cornerVerts[faceConnPosI[0]] - cornerVerts[faceConnNegI[0]] ).lengthSquared();
