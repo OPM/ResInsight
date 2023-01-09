@@ -32,7 +32,7 @@
 class RigAccWellFlowCalculator;
 class RimEclipseResultCase;
 class RimFlowDiagSolution;
-class RimHistoryWellFlowDataCollection;
+class RimWellAllocationOverTimeCollection;
 class RimSimWellInView;
 class RiuPlotWidget;
 class RiuQwtPlotWidget;
@@ -42,7 +42,7 @@ namespace cvf
 class Color3f;
 }
 
-class RimHistoryWellAllocationPlot : public RimPlot
+class RimWellAllocationOverTimePlot : public RimPlot
 {
     CAF_PDM_HEADER_INIT;
 
@@ -56,8 +56,8 @@ public:
     };
 
 public:
-    RimHistoryWellAllocationPlot();
-    ~RimHistoryWellAllocationPlot() override;
+    RimWellAllocationOverTimePlot();
+    ~RimWellAllocationOverTimePlot() override;
 
     void setDescription( const QString& description );
     void setFromSimulationWell( RimSimWellInView* simWell );
@@ -92,10 +92,10 @@ private:
     caf::PdmFieldHandle* userDescriptionField() override;
 
 private:
-    void                             updateFromWell();
-    RimHistoryWellFlowDataCollection createHistoryWellFlowDataCollection() const;
-    std::set<QString>                findSortedWellNames();
-    cvf::Color3f                     getTracerColor( const QString& tracerName );
+    void                                updateFromWell();
+    RimWellAllocationOverTimeCollection createWellAllocationOverTimeCollection() const;
+    std::set<QString>                   findSortedWellNames();
+    cvf::Color3f                        getTracerColor( const QString& tracerName );
 
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
