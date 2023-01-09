@@ -651,32 +651,67 @@ void RigMainGrid::distributeNNCsToFaults()
 //--------------------------------------------------------------------------------------------------
 bool RigMainGrid::isFaceNormalsOutwards() const
 {
-    for ( int gcIdx = 0; gcIdx < static_cast<int>( m_cells.size() ); ++gcIdx )
-    {
-        if ( !m_cells[gcIdx].isInvalid() )
+    auto isValidAndFaceNormalDir = []( const double                       ijSize,
+                                       const double                       kSize,
+                                       const RigCell&                     cell,
+                                       cvf::StructGridInterface::FaceType face ) -> std::pair<bool, bool> {
+        const cvf::Vec3d cellCenter = cell.center();
+        const cvf::Vec3d faceCenter = cell.faceCenter( face );
+        const cvf::Vec3d faceNormal = cell.faceNormalWithAreaLength( face );
+
+        if ( ( faceCenter - cellCenter ).length() > 0.2 * ijSize && ( faceNormal.length() > ( 0.2 * ijSize * 0.2 * kSize ) ) )
         {
-            cvf::Vec3d cellCenter = m_cells[gcIdx].center();
-            cvf::Vec3d faceCenter = m_cells[gcIdx].faceCenter( StructGridInterface::POS_I );
-            cvf::Vec3d faceNormal = m_cells[gcIdx].faceNormalWithAreaLength( StructGridInterface::POS_I );
-
-            double typicalIJCellSize = characteristicIJCellSize();
-            double dummy, dummy2, typicalKSize;
-            characteristicCellSizes( &dummy, &dummy2, &typicalKSize );
-
-            if ( ( faceCenter - cellCenter ).length() > 0.2 * typicalIJCellSize &&
-                 ( faceNormal.length() > ( 0.2 * typicalIJCellSize * 0.2 * typicalKSize ) ) )
+            // Cell is assumed ok to use, so calculate whether the normals are outwards or inwards
+            if ( ( faceCenter - cellCenter ) * faceNormal >= 0 )
             {
-                // Cell is assumed ok to use, so calculate whether the normals are outwards or inwards
-
-                if ( ( faceCenter - cellCenter ) * faceNormal >= 0 )
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                return { true, true };
             }
+
+            return { true, false };
+        }
+
+        return { false, false };
+    };
+
+    double ijSize = characteristicIJCellSize();
+
+    double iSize, jSize, kSize = 0.0;
+    characteristicCellSizes( &iSize, &jSize, &kSize );
+    const double characteristicVolume = iSize * jSize * kSize;
+
+    for ( const auto& cell : m_cells )
+    {
+        if ( !cell.isInvalid() )
+        {
+            // Some cells can be very twisted and distorted. Use a volume criteria to find a reasonably regular cell.
+            const double cellVolume = cell.volume();
+            if ( cellVolume < characteristicVolume * 0.8 ) continue;
+
+            auto [isValid1, direction1] =
+                isValidAndFaceNormalDir( ijSize, kSize, cell, cvf::StructGridInterface::FaceType::NEG_I );
+            auto [isValid2, direction2] =
+                isValidAndFaceNormalDir( ijSize, kSize, cell, cvf::StructGridInterface::FaceType::POS_I );
+            auto [isValid3, direction3] =
+                isValidAndFaceNormalDir( ijSize, kSize, cell, cvf::StructGridInterface::FaceType::NEG_J );
+            auto [isValid4, direction4] =
+                isValidAndFaceNormalDir( ijSize, kSize, cell, cvf::StructGridInterface::FaceType::POS_J );
+
+            if ( !isValid1 || !isValid2 || !isValid3 || !isValid4 ) continue;
+
+            if ( direction1 && direction2 && direction3 && direction4 )
+            {
+                // All face normals pointing outwards
+                return true;
+            }
+
+            if ( !direction1 && !direction2 && !direction3 && !direction4 )
+            {
+                // All cell face normals pointing inwards
+                return false;
+            }
+
+            // This is a mixed case, where some faces are outwards and some are inwards
+            continue;
         }
     }
 
