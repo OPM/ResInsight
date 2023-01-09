@@ -174,7 +174,8 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
 
         mainGrid->nodes().resize( nodeStartIndex + static_cast<size_t>( cellCount ) * 8, cvf::Vec3d( 0, 0, 0 ) );
 
-        const size_t cellMappingECLRi[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
+        // Swap i and j to get correct faces
+        const size_t cellMappingECLRi[8] = { 2, 3, 1, 0, 6, 7, 5, 4 };
 
         cvf::Vec3d offset( xOffset, yOffset, zOffset );
         cvf::Vec3d scale( xScale, yScale, zScale );
