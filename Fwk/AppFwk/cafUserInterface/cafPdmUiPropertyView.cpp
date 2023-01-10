@@ -151,7 +151,15 @@ void PdmUiPropertyView::showProperties( PdmObjectHandle* object )
     {
         if ( object )
         {
-            PdmUiObjectHandle* uiObject1 = uiObj( m_defaultObjectEditor->pdmObject() );
+            // Avoid using uiObj( m_defaultObjectEditor->pdmObject() ), as the ui capability can be removed by a
+            // delete operation. See RicDeleteItemExec::redo() and use of obj->prepareForDelete()
+            PdmUiObjectHandle* uiObject1 = m_defaultObjectEditor->pdmObject()->capability<PdmUiObjectHandle>();
+            if ( !uiObject1 )
+            {
+                rebuildWidget = true;
+                m_defaultObjectEditor->setPdmObject( nullptr );
+            }
+
             PdmUiObjectHandle* uiObject2 = uiObj( object );
 
             if ( uiObject1 && uiObject2 &&
@@ -192,7 +200,7 @@ void PdmUiPropertyView::showProperties( PdmObjectHandle* object )
 
     m_defaultObjectEditor->updateUi( m_uiConfigName );
     m_scrollArea->updateGeometry();
-}
+} // namespace caf
 
 //--------------------------------------------------------------------------------------------------
 ///
