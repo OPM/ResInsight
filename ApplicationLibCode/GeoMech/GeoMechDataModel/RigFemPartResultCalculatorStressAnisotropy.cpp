@@ -192,8 +192,9 @@ RigFemScalarResultFrames*
                                                                      "SA23",
                                                                      resVarAddr.timeLapseBaseStepIdx ) );
 
-    constexpr float inf          = std::numeric_limits<float>::infinity();
-    int             baseTimeStep = resVarAddr.timeLapseBaseStepIdx;
+    constexpr float inf = std::numeric_limits<float>::infinity();
+    auto [baseTimeStep, baseFrame] =
+        m_resultCollection->stepListIndexToTimeStepAndDataFrameIndex( resVarAddr.timeLapseBaseStepIdx );
 
     int timeSteps = s1Frames->timeStepCount();
     for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
@@ -206,9 +207,9 @@ RigFemScalarResultFrames*
             const std::vector<float>& s2t = s2Frames->frameData( stepIdx, fIdx );
             const std::vector<float>& s3t = s3Frames->frameData( stepIdx, fIdx );
 
-            const std::vector<float>& s1b = s1Frames->frameData( baseTimeStep, 0 );
-            const std::vector<float>& s2b = s2Frames->frameData( baseTimeStep, 0 );
-            const std::vector<float>& s3b = s3Frames->frameData( baseTimeStep, 0 );
+            const std::vector<float>& s1b = s1Frames->frameData( baseTimeStep, baseFrame );
+            const std::vector<float>& s2b = s2Frames->frameData( baseTimeStep, baseFrame );
+            const std::vector<float>& s3b = s3Frames->frameData( baseTimeStep, baseFrame );
 
             std::vector<float>& s12 = s12Frames->frameData( stepIdx, fIdx );
             std::vector<float>& s13 = s13Frames->frameData( stepIdx, fIdx );

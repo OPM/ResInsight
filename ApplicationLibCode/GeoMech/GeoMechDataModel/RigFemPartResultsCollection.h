@@ -115,7 +115,6 @@ public:
     void   setWaterDensityShearSlipIndicator( double waterDensity );
 
     std::map<std::string, std::vector<std::string>> scalarFieldAndComponentNames( RigFemResultPosEnum resPos );
-    std::vector<std::string>                        filteredStepNames() const;
     bool                                            assertResultsLoaded( const RigFemResultAddress& resVarAddr );
 
     void deleteResult( const RigFemResultAddress& resVarAddr );
@@ -141,7 +140,7 @@ public:
     int                                     totalSteps();
     const std::vector<std::pair<int, int>>& stepList();
     std::vector<std::string>                stepNames() const;
-    const std::pair<int, int>               stepListIndexToTimeStepAndDataFrameIndex( int stepIndex );
+    const std::pair<int, int>               stepListIndexToTimeStepAndDataFrameIndex( int stepIndex ) const;
 
     void minMaxScalarValues( const RigFemResultAddress& resVarAddr,
                              int                        stepIndex,
@@ -194,7 +193,8 @@ public:
     double normalizationAirGap() const;
 
     void setReferenceTimeStep( int referenceTimeStep );
-    int  referenceTimeStep() const;
+
+    std::pair<int, int> referenceStepAndFrameIndex() const;
 
     static std::set<RigFemResultAddress> referenceCaseDependentResults();
     static bool                          isReferenceCaseDependentResult( const RigFemResultAddress& result );
@@ -214,6 +214,7 @@ public:
 
 private:
     RigFemScalarResultFrames* calculateDerivedResult( int partIndex, const RigFemResultAddress& resVarAddr );
+    std::vector<std::string>  filteredTimeStepNames() const;
 
 private:
     cvf::Collection<RigFemPartResults>  m_femPartResults;

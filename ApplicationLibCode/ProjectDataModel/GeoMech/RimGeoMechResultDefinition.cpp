@@ -249,7 +249,7 @@ QList<caf::PdmOptionItemInfo>
             std::vector<std::string> stepNames;
             if ( m_geomCase->geoMechData() )
             {
-                stepNames = m_geomCase->geoMechData()->femPartResults()->filteredStepNames();
+                stepNames = m_geomCase->geoMechData()->femPartResults()->stepNames();
             }
 
             options.push_back( caf::PdmOptionItemInfo( QString( "Disabled" ), RigFemResultAddress::noTimeLapseValue() ) );
@@ -265,7 +265,7 @@ QList<caf::PdmOptionItemInfo>
             std::vector<std::string> stepNames;
             if ( m_geomCase->geoMechData() )
             {
-                stepNames = m_geomCase->geoMechData()->femPartResults()->filteredStepNames();
+                stepNames = m_geomCase->geoMechData()->femPartResults()->stepNames();
             }
 
             for ( size_t stepIdx = 0; stepIdx < stepNames.size(); ++stepIdx )
@@ -698,14 +698,14 @@ QString RimGeoMechResultDefinition::diffResultUiName() const
     {
         if ( referenceCaseDependentResultSelected() )
         {
-            std::vector<std::string> stepNames      = m_geomCase->geoMechData()->femPartResults()->filteredStepNames();
-            QString                  timeStepString = QString::fromStdString( stepNames[m_referenceTimeStep()] );
+            std::vector<std::string> timeStepNames  = m_geomCase->geoMechData()->femPartResults()->stepNames();
+            QString                  timeStepString = QString::fromStdString( timeStepNames[m_referenceTimeStep()] );
             diffResultString += QString( "<b>Reference Time Step</b>: %1" ).arg( timeStepString );
         }
         else if ( m_timeLapseBaseTimestep != RigFemResultAddress::noTimeLapseValue() )
         {
-            std::vector<std::string> stepNames      = m_geomCase->geoMechData()->femPartResults()->filteredStepNames();
-            QString                  timeStepString = QString::fromStdString( stepNames[m_timeLapseBaseTimestep()] );
+            std::vector<std::string> timeStepNames = m_geomCase->geoMechData()->femPartResults()->stepNames();
+            QString timeStepString                 = QString::fromStdString( timeStepNames[m_timeLapseBaseTimestep()] );
             diffResultString += QString( "<b>Base Time Step</b>: %1" ).arg( timeStepString );
         }
     }

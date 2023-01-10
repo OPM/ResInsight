@@ -130,8 +130,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorPoreCompressibility::calcula
     const RigFemPart* femPart = m_resultCollection->parts()->part( partIndex );
     float             inf     = std::numeric_limits<float>::infinity();
 
-    int refStepIdx  = m_resultCollection->referenceTimeStep();
-    int refFrameIdx = 0;
+    auto [refStepIdx, refFrameIdx] = m_resultCollection->referenceStepAndFrameIndex();
 
     int timeSteps = srcEVDataFrames->timeStepCount();
     for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )

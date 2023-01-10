@@ -404,9 +404,9 @@ void RigFemPartResultsCollection::setReferenceTimeStep( int referenceTimeStep )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RigFemPartResultsCollection::referenceTimeStep() const
+std::pair<int, int> RigFemPartResultsCollection::referenceStepAndFrameIndex() const
 {
-    return m_referenceTimeStep;
+    return stepListIndexToTimeStepAndDataFrameIndex( m_referenceTimeStep );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -421,7 +421,7 @@ void RigFemPartResultsCollection::setPermeabilityParameters( double         fixe
     m_permeabilityExponent             = permeabilityExponent;
 
     std::set<RigFemResultAddress> results = initialPermeabilityDependentResults();
-    for ( auto result : results )
+    for ( auto& result : results )
     {
         deleteResult( result );
     }
@@ -960,7 +960,7 @@ std::vector<RigFemResultAddress>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::string> RigFemPartResultsCollection::filteredStepNames() const
+std::vector<std::string> RigFemPartResultsCollection::filteredTimeStepNames() const
 {
     CVF_ASSERT( m_readerInterface.notNull() );
     return m_readerInterface->filteredStepNames();
@@ -971,7 +971,7 @@ std::vector<std::string> RigFemPartResultsCollection::filteredStepNames() const
 //--------------------------------------------------------------------------------------------------
 int RigFemPartResultsCollection::timeStepCount() const
 {
-    return static_cast<int>( filteredStepNames().size() );
+    return static_cast<int>( filteredTimeStepNames().size() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1010,10 +1010,11 @@ std::vector<std::string> RigFemPartResultsCollection::stepNames() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::pair<int, int> RigFemPartResultsCollection::stepListIndexToTimeStepAndDataFrameIndex( int stepIndex )
+const std::pair<int, int> RigFemPartResultsCollection::stepListIndexToTimeStepAndDataFrameIndex( int stepIndex ) const
 {
     if ( stepIndex < 0 ) return std::make_pair( stepIndex, -1 );
-    return stepList()[stepIndex];
+    CVF_ASSERT( stepIndex < m_stepList.size() );
+    return m_stepList[stepIndex];
 }
 
 //--------------------------------------------------------------------------------------------------

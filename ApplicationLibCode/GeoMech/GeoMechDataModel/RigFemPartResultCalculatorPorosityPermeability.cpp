@@ -133,8 +133,7 @@ RigFemScalarResultFrames*
 
     stepCountProgress.setNextProgressIncrement( 1u );
 
-    int refStepIdx = m_resultCollection->referenceTimeStep();
-    int refFrame   = 0;
+    auto [refStepIdx, refFrame] = m_resultCollection->referenceStepAndFrameIndex();
 
     int timeSteps = srcEVDataFrames->timeStepCount();
     for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )

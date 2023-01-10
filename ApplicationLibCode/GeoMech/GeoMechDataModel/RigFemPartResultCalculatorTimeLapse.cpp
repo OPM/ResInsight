@@ -111,10 +111,13 @@ RigFemScalarResultFrames*
 
     stepCountProgress.incrementProgress();
 
-    int timeSteps    = srcDataFrames->timeStepCount();
-    int baseFrameIdx = resVarAddr.timeLapseBaseStepIdx;
-    if ( baseFrameIdx >= timeSteps ) return dstDataFrames;
-    const std::vector<float>& baseFrameData = srcDataFrames->frameData( baseFrameIdx, 0 );
+    int timeSteps = srcDataFrames->timeStepCount();
+    auto [baseStepIdx, baseFrameIdx] =
+        m_resultCollection->stepListIndexToTimeStepAndDataFrameIndex( resVarAddr.timeLapseBaseStepIdx );
+
+    if ( baseStepIdx >= timeSteps ) return dstDataFrames;
+
+    const std::vector<float>& baseFrameData = srcDataFrames->frameData( baseStepIdx, baseFrameIdx );
     if ( baseFrameData.empty() ) return dstDataFrames;
 
     for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
