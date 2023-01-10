@@ -122,8 +122,11 @@ public:
 
     static QString flowPlotAxisTitle( RimWellLogFile::WellFlowCondition condition,
                                       RiaDefines::EclipseUnitSystem     unitSystem );
-
     static QString flowUnitText( RimWellLogFile::WellFlowCondition condition, RiaDefines::EclipseUnitSystem unitSystem );
+    static QString flowVolumePlotAxisTitle( RimWellLogFile::WellFlowCondition condition,
+                                            RiaDefines::EclipseUnitSystem     unitSystem );
+    static QString flowVolumeUnitText( RimWellLogFile::WellFlowCondition condition,
+                                       RiaDefines::EclipseUnitSystem     unitSystem );
 
     static QString curveUnitText( RimWellLogFile::WellFlowCondition condition,
                                   RiaDefines::EclipseUnitSystem     unitSystem,
