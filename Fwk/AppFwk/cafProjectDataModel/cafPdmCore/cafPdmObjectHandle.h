@@ -172,7 +172,8 @@ void PdmObjectHandle::firstAncestorOrThisOfType( T*& ancestor ) const
 {
     ancestor = nullptr;
 
-    // Check if this matches the type
+    // If compilation error occurs, include of header file for type T might be missing in calling
+    // code resulting in invalid dynamic_cast
 
     const T* objectOfTypeConst = dynamic_cast<const T*>( this );
     if ( objectOfTypeConst )
