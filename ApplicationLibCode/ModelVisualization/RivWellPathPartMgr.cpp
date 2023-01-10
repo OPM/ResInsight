@@ -889,6 +889,7 @@ void RivWellPathPartMgr::appendFlattenedStaticGeometryPartsToModel( cvf::ModelBa
                                                                     double                  characteristicCellSize,
                                                                     const cvf::BoundingBox& wellPathClipBoundingBox )
 {
+    if ( !wellPathClipBoundingBox.isValid() ) return;
     if ( !isWellPathWithinBoundingBox( wellPathClipBoundingBox ) ) return;
 
     // The pipe geometry needs to be rebuilt on scale change to keep the pipes round
