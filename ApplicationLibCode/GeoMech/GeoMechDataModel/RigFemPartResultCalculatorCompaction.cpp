@@ -90,7 +90,9 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorCompaction::calculate( int  
     RigFemScalarResultFrames* compactionFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );
 
     const RigFemPart* part = m_resultCollection->parts()->part( partIndex );
+    // Make sure AABB tree and struct grid is created
     part->ensureIntersectionSearchTreeIsBuilt();
+    part->getOrCreateStructGrid();
 
     int timeSteps = u3Frames->timeStepCount();
     for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
@@ -101,17 +103,6 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorCompaction::calculate( int  
             size_t              nodeCount       = part->nodes().nodeIds.size();
 
             compactionFrame.resize( nodeCount );
-
-            {
-                // Make sure the AABB-tree is created before using OpenMP
-                cvf::BoundingBox    bb;
-                std::vector<size_t> refElementCandidates;
-
-                part->findIntersectingCells( bb, &refElementCandidates );
-
-                // Also make sure the struct grid is created, as this is required before using OpenMP
-                part->getOrCreateStructGrid();
-            }
 
 #pragma omp parallel for
             for ( long n = 0; n < static_cast<long>( nodeCount ); n++ )
