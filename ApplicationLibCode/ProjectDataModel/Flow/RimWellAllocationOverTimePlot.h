@@ -49,10 +49,11 @@ class RimWellAllocationOverTimePlot : public RimPlot
 public:
     enum FlowValueType
     {
-        PERCENTAGE,
         FLOW_RATE,
+        FLOW_RATE_PERCENTAGE,
         FLOW_VOLUME,
         ACCUMULATED_FLOW_VOLUME,
+        ACCUMULATED_FLOW_VOLUME_PERCENTAGE,
     };
 
 public:
@@ -100,7 +101,7 @@ private:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
-    QString                       getYAxisTitleFromValueType() const;
+    QString                       getValueTypeText() const;
 
 private:
     caf::PdmField<QString>                  m_userName;

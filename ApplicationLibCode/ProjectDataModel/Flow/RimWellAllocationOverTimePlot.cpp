@@ -62,9 +62,12 @@ template <>
 void AppEnum<RimWellAllocationOverTimePlot::FlowValueType>::setUp()
 {
     addItem( RimWellAllocationOverTimePlot::FLOW_RATE, "FLOW_RATE", "Flow Rates" );
+    addItem( RimWellAllocationOverTimePlot::FLOW_RATE_PERCENTAGE, "FLOW_RATE_PERCENTAGE", "Flow Rate Percentage" );
     addItem( RimWellAllocationOverTimePlot::FLOW_VOLUME, "FLOW_VOLUME", "Flow Volumes" );
     addItem( RimWellAllocationOverTimePlot::ACCUMULATED_FLOW_VOLUME, "ACCUMULATED_FLOW_VOLUME", "Accumulated Flow Volumes" );
-    addItem( RimWellAllocationOverTimePlot::PERCENTAGE, "PERCENTAGE", "Percentage" );
+    addItem( RimWellAllocationOverTimePlot::ACCUMULATED_FLOW_VOLUME_PERCENTAGE,
+             "ACCUMULATED_FLOW_VOLUME_PERCENTAGE",
+             "Accumulated Flow Volume Percentage" );
     setDefault( RimWellAllocationOverTimePlot::FLOW_RATE );
 }
 } // namespace caf
@@ -156,8 +159,7 @@ QString RimWellAllocationOverTimePlot::asciiDataForPlotExport() const
     // Retrieve collection of allocation over time data for wells
     RimWellAllocationOverTimeCollection allocationOverTimeCollection = createWellAllocationOverTimeCollection();
 
-    QString titleText = "Well " + getYAxisTitleFromValueType() + ": " + m_wellName + ", " + " (" +
-                        m_case->caseUserDescription() + ") \n\n";
+    QString titleText = m_userName + "\n\n";
 
     QString dataText = "Time Step\t";
     for ( auto& [wellName, wellValues] : allocationOverTimeCollection.wellValuesMap() )
@@ -289,17 +291,16 @@ void RimWellAllocationOverTimePlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWellAllocationOverTimePlot::getYAxisTitleFromValueType() const
+QString RimWellAllocationOverTimePlot::getValueTypeText() const
 {
     RiaDefines::EclipseUnitSystem     unitSet   = m_case->eclipseCaseData()->unitsType();
     RimWellLogFile::WellFlowCondition condition = m_flowDiagSolution ? RimWellLogFile::WELL_FLOW_COND_RESERVOIR
                                                                      : RimWellLogFile::WELL_FLOW_COND_STANDARD;
 
-    if ( m_flowValueType == FlowValueType::PERCENTAGE )
+    if ( m_flowValueType == FlowValueType::FLOW_RATE_PERCENTAGE )
     {
-        QString conditionText = condition == RimWellLogFile::WELL_FLOW_COND_RESERVOIR ? "Reservoir Flow Rate"
-                                                                                      : "Surface Flow Rate";
-        return QString( "Percentage of %1 [%]" ).arg( conditionText );
+        QString conditionText = condition == RimWellLogFile::WELL_FLOW_COND_RESERVOIR ? "Reservoir" : "Surface";
+        return QString( "Percentage of %1 Flow Rate [%]" ).arg( conditionText );
     }
     if ( m_flowValueType == FlowValueType::FLOW_RATE )
     {
@@ -311,8 +312,14 @@ QString RimWellAllocationOverTimePlot::getYAxisTitleFromValueType() const
     }
     if ( m_flowValueType == FlowValueType::ACCUMULATED_FLOW_VOLUME )
     {
-        return RimWellPlotTools::flowVolumePlotAxisTitle( condition, unitSet );
+        return "Accumulated " + RimWellPlotTools::flowVolumePlotAxisTitle( condition, unitSet );
     }
+    if ( m_flowValueType == FlowValueType::ACCUMULATED_FLOW_VOLUME_PERCENTAGE )
+    {
+        QString conditionText = condition == RimWellLogFile::WELL_FLOW_COND_RESERVOIR ? "Reservoir" : "Surface";
+        return QString( "Accumulated %1 Flow Volume Allocation [%]" ).arg( conditionText );
+    }
+
     return QString( "" );
 }
 
@@ -360,11 +367,16 @@ void RimWellAllocationOverTimePlot::updateFromWell()
         curve->setZ( zPos-- );
     }
 
-    QString flowTypeText = m_flowDiagSolution() ? "Well Allocation Over Time" : "Well Flow Over Time";
-    setDescription( flowTypeText + ": " + m_wellName + ", " + " (" + m_case->caseUserDescription() + ")" );
-    m_plotWidget->setPlotTitle( m_userName );
+    QString descriptionText = QString( m_flowDiagSolution() ? "Well Allocation Over Time: " : "Well Flow Over Time: " ) +
+                              QString( "%1 (%2)" ).arg( m_wellName ).arg( m_case->caseUserDescription() );
+    QString valueTypeText  = getValueTypeText();
+    QString newDescription = descriptionText + ", " + valueTypeText;
 
-    m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), getYAxisTitleFromValueType() );
+    setDescription( newDescription );
+    m_plotWidget->setWindowTitle( newDescription );
+    m_plotWidget->setPlotTitle( descriptionText + "<br>" + valueTypeText + "</br>" );
+
+    m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), valueTypeText );
     m_plotWidget->scheduleReplot();
 }
 
@@ -390,10 +402,10 @@ RimWellAllocationOverTimeCollection RimWellAllocationOverTimePlot::createWellAll
 
     // Note: Threshold per calculator does not work for accumulated data - use no threshold for each calculator
     // and filter on threshold value based on accumulated values at last time sample.
-    const double smallContributionThreshold = m_groupSmallContributions() &&
-                                                      m_flowValueType != FlowValueType::ACCUMULATED_FLOW_VOLUME
-                                                  ? m_smallContributionsThreshold
-                                                  : 0.0;
+    const bool neglectThresholdToAccumulateVolume = m_flowValueType == FlowValueType::ACCUMULATED_FLOW_VOLUME ||
+                                                    m_flowValueType == FlowValueType::ACCUMULATED_FLOW_VOLUME_PERCENTAGE;
+    const double smallContributionThreshold =
+        m_groupSmallContributions() && !neglectThresholdToAccumulateVolume ? m_smallContributionsThreshold : 0.0;
     for ( size_t i = 0; i < timeSteps.size(); ++i )
     {
         std::vector<std::vector<cvf::Vec3d>>          pipeBranchesCLCoords;
@@ -444,9 +456,9 @@ RimWellAllocationOverTimeCollection RimWellAllocationOverTimePlot::createWellAll
     // Create collection
     RimWellAllocationOverTimeCollection collection( timeSteps, timeStepAndCalculatorPairs );
 
-    if ( m_flowValueType == FlowValueType::PERCENTAGE )
+    if ( m_flowValueType == FlowValueType::FLOW_RATE_PERCENTAGE )
     {
-        collection.fillWithPercentageValues();
+        collection.fillWithFlowRatePercentageValues();
     }
     else if ( m_flowValueType == FlowValueType::FLOW_RATE )
     {
@@ -458,9 +470,16 @@ RimWellAllocationOverTimeCollection RimWellAllocationOverTimePlot::createWellAll
     }
     else if ( m_flowValueType == FlowValueType::ACCUMULATED_FLOW_VOLUME )
     {
-        // Threshold for accumulated data is based on last time sample values after accumulating non-filtered flow volumes
+        // Accumulated flow volume without threshold, and filter according to threshold after accumulating volumes
         const double actualSmallContributionThreshold = m_groupSmallContributions() ? m_smallContributionsThreshold : 0.0;
         collection.fillWithAccumulatedFlowVolumeValues( actualSmallContributionThreshold );
+    }
+    else if ( m_flowValueType == FlowValueType::ACCUMULATED_FLOW_VOLUME_PERCENTAGE )
+    {
+        // Accumulate flow volume percentages without threshold, and filter according to threshold after accumulating
+        // values
+        const double actualSmallContributionThreshold = m_groupSmallContributions() ? m_smallContributionsThreshold : 0.0;
+        collection.fillWithAccumulatedFlowVolumePercentageValues( actualSmallContributionThreshold );
     }
     else
     {
