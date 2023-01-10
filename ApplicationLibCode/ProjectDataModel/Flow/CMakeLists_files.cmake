@@ -15,9 +15,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellDistributionPlot.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellDistributionPlotCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellAllocationOverTimePlot.h
-	${CMAKE_CURRENT_LIST_DIR}/RimWellAllocationTools.h
-	${CMAKE_CURRENT_LIST_DIR}/RimWellAllocationOverTimeCollection.h
-	
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellAllocationTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellAllocationOverTimeCollection.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -37,8 +36,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellDistributionPlot.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellDistributionPlotCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellAllocationOverTimePlot.cpp
-	${CMAKE_CURRENT_LIST_DIR}/RimWellAllocationTools.cpp
-	${CMAKE_CURRENT_LIST_DIR}/RimWellAllocationOverTimeCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellAllocationTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellAllocationOverTimeCollection.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
