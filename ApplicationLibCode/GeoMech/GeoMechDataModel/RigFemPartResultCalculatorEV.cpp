@@ -73,12 +73,13 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorEV::calculate( int partIndex
 
     RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resAddr );
 
-    int timeSteps = ea11->timeStepCount();
+    const int timeSteps = ea11->timeStepCount();
     for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
         auto task = stepCountProgress.task( QString( "Step %1" ).arg( stepIdx ) );
 
-        for ( int fIdx = 0; fIdx < ea11->frameCount( stepIdx ); fIdx++ )
+        const int frameCount = ea11->frameCount( stepIdx );
+        for ( int fIdx = 0; fIdx < frameCount; fIdx++ )
         {
             const std::vector<float>& ea11Data = ea11->frameData( stepIdx, fIdx );
             const std::vector<float>& ea22Data = ea22->frameData( stepIdx, fIdx );

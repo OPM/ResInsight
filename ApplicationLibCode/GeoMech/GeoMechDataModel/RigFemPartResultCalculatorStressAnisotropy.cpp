@@ -100,12 +100,13 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorStressAnisotropy::calculate(
         m_resultCollection->createScalarResult( partIndex,
                                                 RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "SA23" ) );
 
-    int timeSteps = s1Frames->timeStepCount();
+    const int timeSteps = s1Frames->timeStepCount();
     for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
         auto task = stepCountProgress.task( QString( "Calculating %1/%2." ).arg( stepIdx ).arg( timeSteps - 1 ) );
 
-        for ( int fIdx = 0; fIdx < s1Frames->frameCount( stepIdx ); fIdx++ )
+        const int frameCount = s1Frames->frameCount( stepIdx );
+        for ( int fIdx = 0; fIdx < frameCount; fIdx++ )
         {
             const std::vector<float>& s1 = s1Frames->frameData( stepIdx, fIdx );
             const std::vector<float>& s2 = s2Frames->frameData( stepIdx, fIdx );
@@ -196,12 +197,13 @@ RigFemScalarResultFrames*
     auto [baseTimeStep, baseFrame] =
         m_resultCollection->stepListIndexToTimeStepAndDataFrameIndex( resVarAddr.timeLapseBaseStepIdx );
 
-    int timeSteps = s1Frames->timeStepCount();
+    const int timeSteps = s1Frames->timeStepCount();
     for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
         auto task = stepCountProgress.task( QString( "Calculating %1 of %2." ).arg( stepIdx ).arg( timeSteps - 1 ) );
 
-        for ( int fIdx = 0; fIdx < s1Frames->frameCount( stepIdx ); fIdx++ )
+        const int frameCount = s1Frames->frameCount( stepIdx );
+        for ( int fIdx = 0; fIdx < frameCount; fIdx++ )
         {
             const std::vector<float>& s1t = s1Frames->frameData( stepIdx, fIdx );
             const std::vector<float>& s2t = s2Frames->frameData( stepIdx, fIdx );

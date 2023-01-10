@@ -71,10 +71,11 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorFOS::calculate( int partInde
 
     stepCountProgress.incrementProgress();
 
-    int timeSteps = dsmFrames->timeStepCount();
+    const int timeSteps = dsmFrames->timeStepCount();
     for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
-        for ( int fIdx = 0; fIdx < dsmFrames->frameCount( stepIdx ); fIdx++ )
+        const int frameCount = dsmFrames->frameCount( stepIdx );
+        for ( int fIdx = 0; fIdx < frameCount; fIdx++ )
         {
             const std::vector<float>& dsmData = dsmFrames->frameData( stepIdx, fIdx );
 

@@ -76,10 +76,11 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorInitialPorosity::calculate( 
 
     stepCountProgress.setNextProgressIncrement( 1u );
 
-    int timeSteps = voidRatioFrames->timeStepCount();
+    const int timeSteps = voidRatioFrames->timeStepCount();
     for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
-        for ( int fIdx = 0; fIdx < voidRatioFrames->frameCount( stepIdx ); fIdx++ )
+        const int frameCount = voidRatioFrames->frameCount( stepIdx );
+        for ( int fIdx = 0; fIdx < frameCount; fIdx++ )
         {
             const std::vector<float>& voidRatioData     = voidRatioFrames->frameData( 0, 0 );
             std::vector<float>&       porosityFrameData = porosityFrames->frameData( stepIdx, fIdx );

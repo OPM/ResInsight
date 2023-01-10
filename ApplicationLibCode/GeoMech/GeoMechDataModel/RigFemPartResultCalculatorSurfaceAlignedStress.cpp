@@ -142,10 +142,11 @@ RigFemScalarResultFrames*
     float tanFricAng        = tan( m_resultCollection->parameterFrictionAngleRad() );
     float cohPrTanFricAngle = (float)( m_resultCollection->parameterCohesion() / tanFricAng );
 
-    int timeSteps = s11Frames->timeStepCount();
+    const int timeSteps = s11Frames->timeStepCount();
     for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
-        for ( int fIdx = 0; fIdx < s11Frames->frameCount( stepIdx ); fIdx++ )
+        const int frameCount = s11Frames->frameCount( stepIdx );
+        for ( int fIdx = 0; fIdx < frameCount; fIdx++ )
         {
             const std::vector<float>& s11 = s11Frames->frameData( stepIdx, fIdx );
             if ( s11.empty() ) continue;

@@ -72,10 +72,11 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorEnIpPorBar::calculate( int  
     const RigFemPart* femPart = m_resultCollection->parts()->part( partIndex );
     constexpr float   inf     = std::numeric_limits<float>::infinity();
 
-    int timeSteps = srcDataFrames->timeStepCount();
+    const int timeSteps = srcDataFrames->timeStepCount();
     for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
-        for ( int fIdx = 0; fIdx < srcDataFrames->frameCount( stepIdx ); fIdx++ )
+        const int frameCount = srcDataFrames->frameCount( stepIdx );
+        for ( int fIdx = 0; fIdx < frameCount; fIdx++ )
         {
             const std::vector<float>& srcFrameData = srcDataFrames->frameData( stepIdx, fIdx );
             std::vector<float>&       dstFrameData = dstDataFrames->frameData( stepIdx, fIdx );

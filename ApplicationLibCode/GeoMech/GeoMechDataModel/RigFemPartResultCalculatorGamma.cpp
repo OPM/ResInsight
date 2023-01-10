@@ -117,7 +117,7 @@ void RigFemPartResultCalculatorGamma::calculateGammaFromFrames( int             
     const RigFemPart* femPart = femParts->part( partIndex );
     float             inf     = std::numeric_limits<float>::infinity();
 
-    int timeSteps = totalStressComponentDataFrames->timeStepCount();
+    const int timeSteps = totalStressComponentDataFrames->timeStepCount();
     for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
         const int frameCount = totalStressComponentDataFrames->frameCount( stepIdx );

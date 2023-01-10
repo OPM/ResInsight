@@ -76,12 +76,13 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorSFI::calculate( int partInde
         (float)( m_resultCollection->parameterCohesion() / tan( m_resultCollection->parameterFrictionAngleRad() ) );
     float sinFricAng = sin( m_resultCollection->parameterFrictionAngleRad() );
 
-    int timeSteps = se1Frames->timeStepCount();
+    const int timeSteps = se1Frames->timeStepCount();
     for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
         auto task = stepCountProgress.task( QString( "Step %1" ).arg( stepIdx ) );
 
-        for ( int fIdx = 0; fIdx < se1Frames->frameCount( stepIdx ); fIdx++ )
+        const int frameCount = se1Frames->frameCount( stepIdx );
+        for ( int fIdx = 0; fIdx < frameCount; fIdx++ )
         {
             const std::vector<float>& se1Data = se1Frames->frameData( stepIdx, fIdx );
             const std::vector<float>& se3Data = se3Frames->frameData( stepIdx, fIdx );

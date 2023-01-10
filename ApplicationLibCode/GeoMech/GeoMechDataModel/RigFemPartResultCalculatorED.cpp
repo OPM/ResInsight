@@ -78,10 +78,11 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorED::calculate( int partIndex
 
     stepCountProgress.incrementProgress();
 
-    int timeSteps = ea11->timeStepCount();
+    const int timeSteps = ea11->timeStepCount();
     for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
-        for ( int fIdx = 0; fIdx < ea11->frameCount( stepIdx ); fIdx++ )
+        const int frameCount = ea11->frameCount( stepIdx );
+        for ( int fIdx = 0; fIdx < frameCount; fIdx++ )
         {
             const std::vector<float>& ea11Data = ea11->frameData( stepIdx, fIdx );
             const std::vector<float>& ea33Data = ea33->frameData( stepIdx, fIdx );
