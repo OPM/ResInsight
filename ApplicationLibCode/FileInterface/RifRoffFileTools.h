@@ -30,7 +30,11 @@
 
 class RigEclipseCaseData;
 class RigMainGrid;
+
+namespace roff
+{
 class Reader;
+}
 
 //==================================================================================================
 //
@@ -80,11 +84,11 @@ private:
     static double interpolate( const cvf::Vec3d& top, const cvf::Vec3d& bottom, double z, int idx );
 
     static std::vector<double>
-        readAndConvertToDouble( int nx, int ny, int nz, const std::string& keyword, Token::Kind kind, Reader& reader );
+        readAndConvertToDouble( int nx, int ny, int nz, const std::string& keyword, roff::Token::Kind kind, roff::Reader& reader );
 
     static bool appendNewInputPropertyResult( RigEclipseCaseData* caseData,
                                               const QString&      resultName,
                                               const std::string&  keyword,
-                                              Token::Kind         token,
-                                              Reader&             reader );
+                                              roff::Token::Kind   token,
+                                              roff::Reader&       reader );
 };

@@ -91,13 +91,13 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
     {
         const auto totalStart = high_resolution_clock::now();
 
-        Reader reader( stream );
+        roff::Reader reader( stream );
         reader.parse();
 
         const auto tokenizeDone = high_resolution_clock::now();
 
-        std::vector<std::pair<std::string, RoffScalar>>  values     = reader.scalarNamedValues();
-        std::vector<std::pair<std::string, Token::Kind>> arrayTypes = reader.getNamedArrayTypes();
+        std::vector<std::pair<std::string, roff::RoffScalar>>  values     = reader.scalarNamedValues();
+        std::vector<std::pair<std::string, roff::Token::Kind>> arrayTypes = reader.getNamedArrayTypes();
 
         int nx = getInt( values, "dimensions.nX" );
         int ny = getInt( values, "dimensions.nY" );
@@ -611,17 +611,17 @@ std::pair<bool, std::map<QString, QString>>
 
     try
     {
-        Reader reader( stream );
+        roff::Reader reader( stream );
         reader.parse();
 
-        std::vector<std::pair<std::string, Token::Kind>> arrayTypes = reader.getNamedArrayTypes();
+        std::vector<std::pair<std::string, roff::Token::Kind>> arrayTypes = reader.getNamedArrayTypes();
 
         for ( auto [keyword, kind] : arrayTypes )
         {
             size_t keywordLength = reader.getArrayLength( keyword );
             RiaLogging::info( QString( "Array found: %1 . Type: %2 Size: %3" )
                                   .arg( QString::fromStdString( keyword ) )
-                                  .arg( QString::fromStdString( Token::kindToString( kind ) ) )
+                                  .arg( QString::fromStdString( roff::Token::kindToString( kind ) ) )
                                   .arg( keywordLength ) );
             if ( eclipseCaseData->mainGrid()->cellCount() == keywordLength )
             {
@@ -657,22 +657,26 @@ std::pair<bool, std::map<QString, QString>>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double>
-    RifRoffFileTools::readAndConvertToDouble( int nx, int ny, int nz, const std::string& keyword, Token::Kind kind, Reader& reader )
+std::vector<double> RifRoffFileTools::readAndConvertToDouble( int                nx,
+                                                              int                ny,
+                                                              int                nz,
+                                                              const std::string& keyword,
+                                                              roff::Token::Kind  kind,
+                                                              roff::Reader&      reader )
 {
     std::vector<double> doubleVals;
 
-    if ( kind == Token::Kind::FLOAT )
+    if ( kind == roff::Token::Kind::FLOAT )
     {
         std::vector<float> values = reader.getFloatArray( keyword );
         convertToReservoirIndexOrder( nx, ny, nz, values, doubleVals );
     }
-    else if ( kind == Token::Kind::BOOL )
+    else if ( kind == roff::Token::Kind::BOOL )
     {
         std::vector<char> values = reader.getByteArray( keyword );
         convertToReservoirIndexOrder( nx, ny, nz, values, doubleVals );
     }
-    else if ( kind == Token::Kind::INT )
+    else if ( kind == roff::Token::Kind::INT )
     {
         std::vector<int> values = reader.getIntArray( keyword );
         convertToReservoirIndexOrder( nx, ny, nz, values, doubleVals );
@@ -680,7 +684,7 @@ std::vector<double>
     else
     {
         RiaLogging::error( QString( "Unsupported property type '%1' for keyword '%2'." )
-                               .arg( QString::fromStdString( Token::kindToString( kind ) ) )
+                               .arg( QString::fromStdString( roff::Token::kindToString( kind ) ) )
                                .arg( QString::fromStdString( keyword ) ) );
     }
 
@@ -693,8 +697,8 @@ std::vector<double>
 bool RifRoffFileTools::appendNewInputPropertyResult( RigEclipseCaseData* caseData,
                                                      const QString&      resultName,
                                                      const std::string&  keyword,
-                                                     Token::Kind         kind,
-                                                     Reader&             reader )
+                                                     roff::Token::Kind   kind,
+                                                     roff::Reader&       reader )
 {
     CVF_ASSERT( caseData );
 
