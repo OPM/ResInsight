@@ -93,10 +93,11 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNodalGradients::calculate( i
     const std::vector<cvf::Vec3f>& nodeCoords = femPart->nodes().coordinates;
     size_t                         nodeCount  = femPart->nodes().nodeIds.size();
 
-    int timeSteps = srcDataFrames->timeStepCount();
+    const int timeSteps = srcDataFrames->timeStepCount();
     for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
-        for ( int fIdx = 0; fIdx < srcDataFrames->frameCount( stepIdx ); fIdx++ )
+        const int frameCount = srcDataFrames->frameCount( stepIdx );
+        for ( int fIdx = 0; fIdx < frameCount; fIdx++ )
         {
             const std::vector<float>& srcFrameData  = srcDataFrames->frameData( stepIdx, fIdx );
             std::vector<float>&       dstFrameDataX = dataFramesX->frameData( stepIdx, fIdx );

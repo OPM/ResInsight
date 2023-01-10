@@ -136,10 +136,11 @@ RigFemScalarResultFrames*
     int refStepIdx, refFrameIdx;
     std::tie( refStepIdx, refFrameIdx ) = m_resultCollection->referenceStepAndFrameIndex();
 
-    int timeSteps = srcEVDataFrames->timeStepCount();
+    const int timeSteps = srcEVDataFrames->timeStepCount();
     for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
-        for ( int fIdx = 0; fIdx < srcEVDataFrames->frameCount( stepIdx ); fIdx++ )
+        const int frameCount = srcEVDataFrames->frameCount( stepIdx );
+        for ( int fIdx = 0; fIdx < frameCount; fIdx++ )
         {
             const std::vector<float>& evData          = srcEVDataFrames->frameData( stepIdx, fIdx );
             const std::vector<float>& referenceEvData = srcEVDataFrames->frameData( refStepIdx, refFrameIdx );

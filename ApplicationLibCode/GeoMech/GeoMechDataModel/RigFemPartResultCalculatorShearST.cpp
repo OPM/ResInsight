@@ -71,10 +71,11 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorShearST::calculate( int part
 
     stepCountProgress.incrementProgress();
 
-    int timeSteps = srcSDataFrames->timeStepCount();
+    const int timeSteps = srcSDataFrames->timeStepCount();
     for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
-        for ( int fIdx = 0; fIdx < srcSDataFrames->frameCount( stepIdx ); fIdx++ )
+        const int frameCount = srcSDataFrames->frameCount( stepIdx );
+        for ( int fIdx = 0; fIdx < frameCount; fIdx++ )
         {
             const std::vector<float>& srcSFrameData = srcSDataFrames->frameData( stepIdx, fIdx );
             std::vector<float>&       dstFrameData  = dstDataFrames->frameData( stepIdx, fIdx );

@@ -83,10 +83,11 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorSurfaceAngles::calculate( in
     size_t valCount = femPart->elementCount() * 24; // Number of Elm Node Face results 24 = 4 * num faces = 3*
                                                     // numElmNodes
 
-    int timeSteps = PaziFrames->timeStepCount();
+    const int timeSteps = PaziFrames->timeStepCount();
     for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
-        for ( int fIdx = 0; fIdx < PaziFrames->frameCount( stepIdx ); fIdx++ )
+        const int frameCount = PaziFrames->frameCount( stepIdx );
+        for ( int fIdx = 0; fIdx < frameCount; fIdx++ )
         {
             std::vector<float>& Pazi = PaziFrames->frameData( stepIdx, fIdx );
             std::vector<float>& Pinc = PincFrames->frameData( stepIdx, fIdx );

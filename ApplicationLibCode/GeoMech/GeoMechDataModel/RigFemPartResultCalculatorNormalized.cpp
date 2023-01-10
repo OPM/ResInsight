@@ -104,10 +104,11 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNormalized::calculate( int  
     int                            elmNodeCount = femPart->elementCount();
     const std::vector<cvf::Vec3f>& nodeCoords   = femPart->nodes().coordinates;
 
-    int timeSteps = srcDataFrames->timeStepCount();
+    const int timeSteps = srcDataFrames->timeStepCount();
     for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
-        for ( int fIdx = 0; fIdx < srcDataFrames->frameCount( stepIdx ); fIdx++ )
+        const int frameCount = srcDataFrames->frameCount( stepIdx );
+        for ( int fIdx = 0; fIdx < frameCount; fIdx++ )
         {
             const std::vector<float>& porFrameData = porDataFrames->frameData( stepIdx, fIdx );
             if ( porFrameData.empty() ) continue;

@@ -97,7 +97,8 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorCompaction::calculate( int  
     int timeSteps = u3Frames->timeStepCount();
     for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
-        for ( int fIdx = 0; fIdx < u3Frames->frameCount( stepIdx ); fIdx++ )
+        const int frameCount = u3Frames->frameCount( stepIdx );
+        for ( int fIdx = 0; fIdx < frameCount; fIdx++ )
         {
             std::vector<float>& compactionFrame = compactionFrames->frameData( stepIdx, fIdx );
             size_t              nodeCount       = part->nodes().nodeIds.size();

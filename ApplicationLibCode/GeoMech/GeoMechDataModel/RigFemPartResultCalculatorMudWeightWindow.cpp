@@ -169,10 +169,11 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
     stepCountProgress.setNextProgressIncrement( 1u );
     stepCountProgress.setProgressDescription( "Calculating Mud Weight Window." );
 
-    int timeSteps = stressDataFrames->timeStepCount();
+    const int timeSteps = stressDataFrames->timeStepCount();
     for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
-        for ( int fIdx = 0; fIdx < stressDataFrames->frameCount( stepIdx ); fIdx++ )
+        const int frameCount = stressDataFrames->frameCount( stepIdx );
+        for ( int fIdx = 0; fIdx < frameCount; fIdx++ )
         {
             const std::vector<float>& porFrameData = porePressureDataFrames->frameData( stepIdx, fIdx );
             if ( porFrameData.empty() ) continue;

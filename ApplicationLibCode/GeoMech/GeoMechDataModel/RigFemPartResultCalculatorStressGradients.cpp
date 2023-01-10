@@ -111,10 +111,11 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorStressGradients::calculate( 
     int                            elementCount = femPart->elementCount();
     const std::vector<cvf::Vec3f>& nodeCoords   = femPart->nodes().coordinates;
 
-    int timeSteps = inputResultFrames->timeStepCount();
+    const int timeSteps = inputResultFrames->timeStepCount();
     for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
-        for ( int fIdx = 0; fIdx < inputResultFrames->frameCount( stepIdx ); fIdx++ )
+        const int frameCount = inputResultFrames->frameCount( stepIdx );
+        for ( int fIdx = 0; fIdx < frameCount; fIdx++ )
         {
             const std::vector<float>& inputData = inputResultFrames->frameData( stepIdx, fIdx );
 
