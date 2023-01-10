@@ -120,9 +120,11 @@ bool RifOpmCommonEclipseSummary::open( const QString& fileName, bool includeRest
             }
             catch ( std::exception& e )
             {
-                QString txt = QString( "Failed to create optimized summary file. Error text : %1" ).arg( e.what() );
-
-                if ( threadSafeLogger ) threadSafeLogger->error( txt );
+                if ( threadSafeLogger )
+                {
+                    QString txt = QString( "Warning, could not open summary file : %1" ).arg( smspecFileName );
+                    threadSafeLogger->warning( txt );
+                }
 
                 return false;
             }
