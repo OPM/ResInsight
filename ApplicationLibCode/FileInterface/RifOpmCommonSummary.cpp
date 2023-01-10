@@ -297,7 +297,10 @@ bool RifOpmCommonEclipseSummary::openFileReader( const QString&       fileName,
     try
     {
         // The standard reader will import data from SMSPEC and UNSMRY files
-        m_standardReader = std::make_unique<Opm::EclIO::ESmry>( smspecFileName.toStdString(), includeRestartFiles );
+        if ( QFile::exists( smspecFileName ) )
+        {
+            m_standardReader = std::make_unique<Opm::EclIO::ESmry>( smspecFileName.toStdString(), includeRestartFiles );
+        }
     }
     catch ( std::exception& e )
     {
