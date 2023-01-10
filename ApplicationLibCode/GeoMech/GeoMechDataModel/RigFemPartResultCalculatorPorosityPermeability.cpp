@@ -133,7 +133,8 @@ RigFemScalarResultFrames*
 
     stepCountProgress.setNextProgressIncrement( 1u );
 
-    auto [refStepIdx, refFrame] = m_resultCollection->referenceStepAndFrameIndex();
+    int refStepIdx, refFrameIdx;
+    std::tie( refStepIdx, refFrameIdx ) = m_resultCollection->referenceStepAndFrameIndex();
 
     int timeSteps = srcEVDataFrames->timeStepCount();
     for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
@@ -141,9 +142,9 @@ RigFemScalarResultFrames*
         for ( int fIdx = 0; fIdx < srcEVDataFrames->frameCount( stepIdx ); fIdx++ )
         {
             const std::vector<float>& evData          = srcEVDataFrames->frameData( stepIdx, fIdx );
-            const std::vector<float>& referenceEvData = srcEVDataFrames->frameData( refStepIdx, refFrame );
+            const std::vector<float>& referenceEvData = srcEVDataFrames->frameData( refStepIdx, refFrameIdx );
             const std::vector<float>& voidRatioData   = voidRatioFrames->frameData( 0, 0 );
-            const std::vector<float>& refPorFrameData = srcPorePressureDataFrames->frameData( refStepIdx, refFrame );
+            const std::vector<float>& refPorFrameData = srcPorePressureDataFrames->frameData( refStepIdx, refFrameIdx );
             const std::vector<float>& porFrameData    = srcPorePressureDataFrames->frameData( stepIdx, fIdx );
             const std::vector<float>& poreCompressibilityFrameData = poreCompressibilityFrames->frameData( stepIdx, fIdx );
 
