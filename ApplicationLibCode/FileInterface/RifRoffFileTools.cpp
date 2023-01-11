@@ -18,6 +18,7 @@
 
 #include "RifRoffFileTools.h"
 
+#include "RiaApplication.h"
 #include "RiaLogging.h"
 
 #include "RigActiveCellInfo.h"
@@ -102,19 +103,22 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
         int nx = getInt( values, "dimensions.nX" );
         int ny = getInt( values, "dimensions.nY" );
         int nz = getInt( values, "dimensions.nZ" );
-        RiaLogging::info( QString( "Grid dimensions: %1 %2 %3" ).arg( nx ).arg( ny ).arg( nz ) );
 
         float xOffset = getFloat( values, "translate.xoffset" );
         float yOffset = getFloat( values, "translate.yoffset" );
         float zOffset = getFloat( values, "translate.zoffset" );
-        RiaLogging::info( QString( "Offset: %1 %2 %3" ).arg( xOffset ).arg( yOffset ).arg( zOffset ) );
 
         float xScale = getFloat( values, "scale.xscale" );
         float yScale = getFloat( values, "scale.yscale" );
         float zScale = getFloat( values, "scale.zscale" );
-        RiaLogging::info( QString( "Scale: %1 %2 %3" ).arg( xScale ).arg( yScale ).arg( zScale ) );
 
-        std::vector<int>   layers      = reader.getIntArray( "subgrids.nLayers" );
+        if ( RiaApplication::enableDevelopmentFeatures() )
+        {
+            RiaLogging::info( QString( "Grid dimensions: %1 %2 %3" ).arg( nx ).arg( ny ).arg( nz ) );
+            RiaLogging::info( QString( "Offset: %1 %2 %3" ).arg( xOffset ).arg( yOffset ).arg( zOffset ) );
+            RiaLogging::info( QString( "Scale: %1 %2 %3" ).arg( xScale ).arg( yScale ).arg( zScale ) );
+        }
+
         std::vector<float> cornerLines = reader.getFloatArray( "cornerLines.data" );
         std::vector<float> zValues     = reader.getFloatArray( "zvalues.data" );
         std::vector<char>  splitEnz    = reader.getByteArray( "zvalues.splitEnz" );
@@ -122,18 +126,10 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
 
         const auto parsingDone = high_resolution_clock::now();
 
-        RiaLogging::info( QString( "Layers: %1" ).arg( layers.size() ) );
-        RiaLogging::info( QString( "Corner lines: %1" ).arg( cornerLines.size() ) );
-        RiaLogging::info( QString( "Z values: %1" ).arg( zValues.size() ) );
-        RiaLogging::info( QString( "Splitenz: %1" ).arg( splitEnz.size() ) );
-        RiaLogging::info( QString( "Active: %1" ).arg( active.size() ) );
-
         unsigned int       zCornerSize = static_cast<unsigned int>( ( nx + 1 ) * ( ny + 1 ) * ( nz + 1 ) * 4u );
         std::vector<float> zCorners( zCornerSize, 0.0 );
 
         interpretSplitenzData( static_cast<int>( nz ) + 1, zOffset, zScale, splitEnz, zValues, zCorners );
-
-        RiaLogging::info( QString( "zCorners: %1" ).arg( zCorners.size() ) );
 
         RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
         CVF_ASSERT( activeCellInfo );
@@ -254,19 +250,22 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
         activeCellInfo->computeDerivedData();
         fractureActiveCellInfo->computeDerivedData();
 
-        auto gridConstructionDone = high_resolution_clock::now();
+        if ( RiaApplication::enableDevelopmentFeatures() )
+        {
+            auto gridConstructionDone = high_resolution_clock::now();
 
-        auto tokenizeDuration = duration_cast<milliseconds>( tokenizeDone - totalStart );
-        RiaLogging::info( QString( "Tokenizing: %1 ms" ).arg( tokenizeDuration.count() ) );
+            auto tokenizeDuration = duration_cast<milliseconds>( tokenizeDone - totalStart );
+            RiaLogging::info( QString( "Tokenizing: %1 ms" ).arg( tokenizeDuration.count() ) );
 
-        auto parsingDuration = duration_cast<milliseconds>( parsingDone - tokenizeDone );
-        RiaLogging::info( QString( "Parsing: %1 ms" ).arg( parsingDuration.count() ) );
+            auto parsingDuration = duration_cast<milliseconds>( parsingDone - tokenizeDone );
+            RiaLogging::info( QString( "Parsing: %1 ms" ).arg( parsingDuration.count() ) );
 
-        auto gridConstructionDuration = duration_cast<milliseconds>( gridConstructionDone - parsingDone );
-        RiaLogging::info( QString( "Grid Construction: %1 ms" ).arg( gridConstructionDuration.count() ) );
+            auto gridConstructionDuration = duration_cast<milliseconds>( gridConstructionDone - parsingDone );
+            RiaLogging::info( QString( "Grid Construction: %1 ms" ).arg( gridConstructionDuration.count() ) );
 
-        auto totalDuration = duration_cast<milliseconds>( gridConstructionDone - totalStart );
-        RiaLogging::info( QString( "Total: %1 ms" ).arg( totalDuration.count() ) );
+            auto totalDuration = duration_cast<milliseconds>( gridConstructionDone - totalStart );
+            RiaLogging::info( QString( "Total: %1 ms" ).arg( totalDuration.count() ) );
+        }
     }
     catch ( std::runtime_error& err )
     {
@@ -488,7 +487,7 @@ size_t RifRoffFileTools::computeActiveCellMatrixIndex( std::vector<int>& activeC
 std::pair<bool, std::map<QString, QString>>
     RifRoffFileTools::createInputProperties( const QString& fileName, RigEclipseCaseData* eclipseCaseData )
 {
-    RiaLogging::info( QString( "Opening roff file: %1" ).arg( fileName ) );
+    RiaLogging::info( QString( "Reading properties from roff file: %1" ).arg( fileName ) );
 
     std::string filename = fileName.toStdString();
 
@@ -511,10 +510,13 @@ std::pair<bool, std::map<QString, QString>>
         for ( auto [keyword, kind] : arrayTypes )
         {
             size_t keywordLength = reader.getArrayLength( keyword );
-            RiaLogging::info( QString( "Array found: %1 . Type: %2 Size: %3" )
-                                  .arg( QString::fromStdString( keyword ) )
-                                  .arg( QString::fromStdString( roff::Token::kindToString( kind ) ) )
-                                  .arg( keywordLength ) );
+            if ( RiaApplication::enableDevelopmentFeatures() )
+            {
+                RiaLogging::info( QString( "Array found: '%1'. Type: %2 with size: %3." )
+                                      .arg( QString::fromStdString( keyword ) )
+                                      .arg( QString::fromStdString( roff::Token::kindToString( kind ) ) )
+                                      .arg( keywordLength ) );
+            }
             if ( eclipseCaseData->mainGrid()->cellCount() == keywordLength )
             {
                 QString newResultName = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
