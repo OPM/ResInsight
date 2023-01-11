@@ -235,6 +235,10 @@ Rim3dView::~Rim3dView()
     {
         m_viewer->clearRimView();
     }
+
+    // Make sure the object is disconnected from other objects before delete
+    prepareForDelete();
+
     removeMdiWindowFromMdiArea();
 
     delete m_viewer;

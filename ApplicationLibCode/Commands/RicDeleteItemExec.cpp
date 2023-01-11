@@ -65,9 +65,6 @@ void RicDeleteItemExec::redo()
             m_commandData.m_deletedObjectAsXml = xmlObj( obj )->writeObjectToXmlString();
         }
 
-        // Make sure the object is disconnected from other objects before delete
-        obj->prepareForDelete();
-
         delete obj;
 
         listField->erase( m_commandData.m_indexToObject );
