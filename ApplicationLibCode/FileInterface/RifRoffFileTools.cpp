@@ -181,7 +181,7 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
         cvf::Vec3d scale( xScale, yScale, zScale );
 
         std::vector<int> activeCells;
-        convertToReservoirIndexOrder( nx, ny, nz, active, activeCells );
+        convertToReservoirIndexOrder<char, int>( nx, ny, nz, active, activeCells );
 
         // Precompute the active cell matrix index
         size_t numActiveCells = computeActiveCellMatrixIndex( activeCells );
@@ -462,114 +462,6 @@ void RifRoffFileTools::interpretSplitenzData( int                       nz,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifRoffFileTools::convertToReservoirIndexOrder( int                      nx,
-                                                     int                      ny,
-                                                     int                      nz,
-                                                     const std::vector<char>& activeIn,
-                                                     std::vector<int>&        activeOut )
-{
-    CAF_ASSERT( static_cast<size_t>( nx ) * ny * nz == activeIn.size() );
-
-    activeOut.resize( activeIn.size(), -1 );
-
-    int outIdx = 0;
-    for ( int k = 0; k < nz; k++ )
-    {
-        for ( int j = 0; j < ny; j++ )
-        {
-            for ( int i = 0; i < nx; i++ )
-            {
-                int inIdx         = i * ny * nz + j * nz + ( nz - k - 1 );
-                activeOut[outIdx] = static_cast<int>( activeIn[inIdx] );
-                outIdx++;
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RifRoffFileTools::convertToReservoirIndexOrder( int                       nx,
-                                                     int                       ny,
-                                                     int                       nz,
-                                                     const std::vector<float>& in,
-                                                     std::vector<double>&      out )
-{
-    CAF_ASSERT( static_cast<size_t>( nx ) * ny * nz == in.size() );
-
-    out.resize( in.size(), 0.0 );
-
-    int outIdx = 0;
-    for ( int k = 0; k < nz; k++ )
-    {
-        for ( int j = 0; j < ny; j++ )
-        {
-            for ( int i = 0; i < nx; i++ )
-            {
-                int inIdx   = i * ny * nz + j * nz + ( nz - k - 1 );
-                out[outIdx] = in[inIdx];
-                outIdx++;
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RifRoffFileTools::convertToReservoirIndexOrder( int                      nx,
-                                                     int                      ny,
-                                                     int                      nz,
-                                                     const std::vector<char>& in,
-                                                     std::vector<double>&     out )
-{
-    CAF_ASSERT( static_cast<size_t>( nx ) * ny * nz == in.size() );
-
-    out.resize( in.size(), 0.0 );
-
-    int outIdx = 0;
-    for ( int k = 0; k < nz; k++ )
-    {
-        for ( int j = 0; j < ny; j++ )
-        {
-            for ( int i = 0; i < nx; i++ )
-            {
-                int inIdx   = i * ny * nz + j * nz + ( nz - k - 1 );
-                out[outIdx] = in[inIdx];
-                outIdx++;
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RifRoffFileTools::convertToReservoirIndexOrder( int nx, int ny, int nz, const std::vector<int>& in, std::vector<double>& out )
-{
-    CAF_ASSERT( static_cast<size_t>( nx ) * ny * nz == in.size() );
-
-    out.resize( in.size(), 0.0 );
-
-    int outIdx = 0;
-    for ( int k = 0; k < nz; k++ )
-    {
-        for ( int j = 0; j < ny; j++ )
-        {
-            for ( int i = 0; i < nx; i++ )
-            {
-                int inIdx   = i * ny * nz + j * nz + ( nz - k - 1 );
-                out[outIdx] = in[inIdx];
-                outIdx++;
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 size_t RifRoffFileTools::computeActiveCellMatrixIndex( std::vector<int>& activeCells )
 {
     int activeMatrixIndex = 0;
@@ -669,17 +561,17 @@ std::vector<double> RifRoffFileTools::readAndConvertToDouble( int               
     if ( kind == roff::Token::Kind::FLOAT )
     {
         std::vector<float> values = reader.getFloatArray( keyword );
-        convertToReservoirIndexOrder( nx, ny, nz, values, doubleVals );
+        convertToReservoirIndexOrder<float, double>( nx, ny, nz, values, doubleVals );
     }
     else if ( kind == roff::Token::Kind::BOOL )
     {
         std::vector<char> values = reader.getByteArray( keyword );
-        convertToReservoirIndexOrder( nx, ny, nz, values, doubleVals );
+        convertToReservoirIndexOrder<char, double>( nx, ny, nz, values, doubleVals );
     }
     else if ( kind == roff::Token::Kind::INT )
     {
         std::vector<int> values = reader.getIntArray( keyword );
-        convertToReservoirIndexOrder( nx, ny, nz, values, doubleVals );
+        convertToReservoirIndexOrder<int, double>( nx, ny, nz, values, doubleVals );
     }
     else
     {
