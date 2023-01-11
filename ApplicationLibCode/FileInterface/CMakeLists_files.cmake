@@ -75,6 +75,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifProjectSummaryDataWriter.h
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderOpmRft.h
     ${CMAKE_CURRENT_LIST_DIR}/RifRftSegment.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifPressureDepthTextFileReader.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -151,6 +152,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifProjectSummaryDataWriter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderOpmRft.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifRftSegment.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifPressureDepthTextFileReader.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
