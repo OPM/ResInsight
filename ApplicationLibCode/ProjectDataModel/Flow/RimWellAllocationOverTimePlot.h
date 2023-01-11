@@ -23,11 +23,12 @@
 #include "cafPdmField.h"
 #include "cafPdmPtrField.h"
 
-#include <qdatetime.h>
-
+#include <QDateTime>
 #include <QPointer>
+
 #include <map>
 #include <set>
+#include <vector>
 
 class RigAccWellFlowCalculator;
 class RimEclipseResultCase;
@@ -99,15 +100,25 @@ private:
     cvf::Color3f                        getTracerColor( const QString& tracerName );
 
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                         QString                    uiConfigName,
+                                                         caf::PdmUiEditorAttribute* attribute ) override;
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     QString                       getValueTypeText() const;
+    QString                       dateFormatString() const;
+
+    void setValidTimeStepRangeForCase();
 
 private:
     caf::PdmField<QString>                  m_userName;
     caf::PdmPtrField<RimEclipseResultCase*> m_case;
     caf::PdmField<QString>                  m_wellName;
-    caf::PdmField<bool>                     m_branchDetection;
+
+    caf::PdmField<QDateTime>              m_selectedFromTimeStep;
+    caf::PdmField<QDateTime>              m_selectedToTimeStep;
+    caf::PdmField<std::vector<QDateTime>> m_excludeTimeSteps;
+    caf::PdmField<bool>                   m_applyExcludeTimeSteps;
 
     caf::PdmPtrField<RimFlowDiagSolution*>     m_flowDiagSolution;
     caf::PdmField<caf::AppEnum<FlowValueType>> m_flowValueType;
@@ -116,5 +127,5 @@ private:
 
     QPointer<RiuQwtPlotWidget> m_plotWidget;
 
-    // TODO: Add options? See: RimWellAllocationPlot
+    const int m_initialNumberOfTimeSteps = 10;
 };
