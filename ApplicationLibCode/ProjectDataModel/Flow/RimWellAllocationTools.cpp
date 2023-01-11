@@ -29,14 +29,14 @@
 std::map<QString, const std::vector<double>*>
     RimWellAllocationTools::findOrCreateRelevantTracerCellFractions( const RigSimWellData* simWellData,
                                                                      RimFlowDiagSolution*  flowDiagSolution,
-                                                                     int                   timeStep )
+                                                                     int                   timeStepIndex )
 {
     std::map<QString, const std::vector<double>*> tracerCellFractionValues = {};
-    if ( flowDiagSolution && simWellData->hasWellResult( timeStep ) )
+    if ( flowDiagSolution && simWellData->hasWellResult( timeStepIndex ) )
     {
         RimFlowDiagSolution::TracerStatusType requestedTracerType = RimFlowDiagSolution::TracerStatusType::UNDEFINED;
 
-        const RiaDefines::WellProductionType prodType = simWellData->wellProductionType( timeStep );
+        const RiaDefines::WellProductionType prodType = simWellData->wellProductionType( timeStepIndex );
         if ( prodType == RiaDefines::WellProductionType::PRODUCER ||
              prodType == RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE )
         {
@@ -50,13 +50,13 @@ std::map<QString, const std::vector<double>*>
         std::vector<QString> tracerNames = flowDiagSolution->tracerNames();
         for ( const QString& tracerName : tracerNames )
         {
-            if ( flowDiagSolution->tracerStatusInTimeStep( tracerName, timeStep ) == requestedTracerType )
+            if ( flowDiagSolution->tracerStatusInTimeStep( tracerName, timeStepIndex ) == requestedTracerType )
             {
                 RigFlowDiagResultAddress   resAddr( RIG_FLD_CELL_FRACTION_RESNAME,
                                                   RigFlowDiagResultAddress::PHASE_ALL,
                                                   tracerName.toStdString() );
                 const std::vector<double>* tracerCellFractions =
-                    flowDiagSolution->flowDiagResults()->resultValues( resAddr, timeStep );
+                    flowDiagSolution->flowDiagResults()->resultValues( resAddr, timeStepIndex );
                 if ( tracerCellFractions )
                 {
                     tracerCellFractionValues[tracerName] = tracerCellFractions;

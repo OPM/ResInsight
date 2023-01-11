@@ -32,5 +32,5 @@ namespace RimWellAllocationTools
 {
 std::map<QString, const std::vector<double>*> findOrCreateRelevantTracerCellFractions( const RigSimWellData* simWellData,
                                                                                        RimFlowDiagSolution* flowDiagSolution,
-                                                                                       int                  timeStep );
+                                                                                       int timeStepIndex );
 }
