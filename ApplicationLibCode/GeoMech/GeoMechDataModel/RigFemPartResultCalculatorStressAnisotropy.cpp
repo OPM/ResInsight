@@ -194,7 +194,8 @@ RigFemScalarResultFrames*
                                                                      resVarAddr.timeLapseBaseStepIdx ) );
 
     constexpr float inf = std::numeric_limits<float>::infinity();
-    auto [baseTimeStep, baseFrame] =
+    int             baseTimeStep, baseFrame;
+    std::tie( baseTimeStep, baseFrame ) =
         m_resultCollection->stepListIndexToTimeStepAndDataFrameIndex( resVarAddr.timeLapseBaseStepIdx );
 
     const int timeSteps = s1Frames->timeStepCount();
