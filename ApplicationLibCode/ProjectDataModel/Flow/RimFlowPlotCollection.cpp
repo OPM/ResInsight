@@ -45,9 +45,6 @@ RimFlowPlotCollection::RimFlowPlotCollection()
     CAF_PDM_InitFieldNoDefault( &m_defaultWellAllocPlot, "DefaultWellAllocationPlot", "" );
     m_defaultWellAllocPlot.uiCapability()->setUiTreeHidden( true );
 
-    // CAF_PDM_InitFieldNoDefault( &m_dbgWellDistributionPlot, "DbgWellDistributionPlot", "");
-    // m_dbgWellDistributionPlot.uiCapability()->setUiHidden( true );
-
     CAF_PDM_InitFieldNoDefault( &m_wellDistributionPlotCollection, "WellDistributionPlotCollection", "" );
     m_wellDistributionPlotCollection.uiCapability()->setUiTreeHidden( true );
 
@@ -79,7 +76,6 @@ void RimFlowPlotCollection::deleteAllPlots()
     }
     delete m_defaultWellAllocOverTimePlot;
     delete m_flowCharacteristicsPlot;
-    // delete m_dbgWellDistributionPlot;
     delete m_wellDistributionPlotCollection;
 
     m_storedWellAllocPlots.deleteChildren();
@@ -115,11 +111,6 @@ void RimFlowPlotCollection::loadDataAndUpdateAllPlots()
     {
         m_flowCharacteristicsPlot->loadDataAndUpdate();
     }
-
-    // if ( m_dbgWellDistributionPlot )
-    //{
-    //    m_dbgWellDistributionPlot->loadDataAndUpdate();
-    //}
 
     if ( m_wellDistributionPlotCollection )
     {
