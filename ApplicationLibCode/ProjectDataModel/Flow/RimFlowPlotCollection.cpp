@@ -62,8 +62,6 @@ RimFlowPlotCollection::RimFlowPlotCollection()
 //--------------------------------------------------------------------------------------------------
 RimFlowPlotCollection::~RimFlowPlotCollection()
 {
-    // TODO: Remove? Testing without manually deleting for RimWellAllocationOverTimePlot
-
     delete m_defaultWellAllocPlot();
 
     m_storedWellAllocPlots.deleteChildren();
@@ -74,14 +72,12 @@ RimFlowPlotCollection::~RimFlowPlotCollection()
 //--------------------------------------------------------------------------------------------------
 void RimFlowPlotCollection::deleteAllPlots()
 {
-    // TODO: Remove? Testing without manually deleting for RimWellAllocationOverTimePlot
-
     if ( m_defaultWellAllocPlot )
     {
         m_defaultWellAllocPlot->removeFromMdiAreaAndDeleteViewWidget();
         delete m_defaultWellAllocPlot();
     }
-
+    delete m_defaultWellAllocOverTimePlot;
     delete m_flowCharacteristicsPlot;
     // delete m_dbgWellDistributionPlot;
     delete m_wellDistributionPlotCollection;
