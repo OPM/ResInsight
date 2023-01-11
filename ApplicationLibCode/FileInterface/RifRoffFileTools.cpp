@@ -598,7 +598,20 @@ bool RifRoffFileTools::appendNewInputPropertyResult( RigEclipseCaseData* caseDat
     int                 ny     = static_cast<int>( caseData->mainGrid()->cellCountJ() );
     int                 nz     = static_cast<int>( caseData->mainGrid()->cellCountK() );
     std::vector<double> values = readAndConvertToDouble( nx, ny, nz, keyword, kind, reader );
-    if ( values.size() != caseData->mainGrid()->cellCount() ) return false;
+
+    auto mainGrid = caseData->mainGrid();
+    if ( values.size() != mainGrid->cellCount() ) return false;
+
+    // Set better invalid value for inactive cells: roff file has -999
+    auto   activeCellInfo = caseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    size_t cellCount      = mainGrid->cellCount();
+    for ( size_t i = 0; i < cellCount; i++ )
+    {
+        if ( !activeCellInfo->isActive( mainGrid->reservoirCellIndex( i ) ) )
+        {
+            values[i] = HUGE_VAL;
+        }
+    }
 
     RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::INPUT_PROPERTY, resultName );
     caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->createResultEntry( resAddr, false );
