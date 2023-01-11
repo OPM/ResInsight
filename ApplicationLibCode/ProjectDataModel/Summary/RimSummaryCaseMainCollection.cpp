@@ -47,10 +47,6 @@
 
 #include "cafProgressInfo.h"
 
-#ifdef USE_OPENMP
-#include <omp.h>
-#endif
-
 #include <QDir>
 
 CAF_PDM_SOURCE_INIT( RimSummaryCaseMainCollection, "SummaryCaseCollection" );
@@ -422,6 +418,22 @@ void RimSummaryCaseMainCollection::loadAllSummaryCaseData()
     std::vector<RimSummaryCase*> sumCases = allSummaryCases();
 
     RimSummaryCaseMainCollection::loadSummaryCaseData( sumCases );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseMainCollection::initAfterRead()
+{
+    for ( auto sumCase : topLevelSummaryCases() )
+    {
+        sumCase->nameChanged.connect( this, &RimSummaryCaseMainCollection::onCaseNameChanged );
+    }
+
+    for ( auto caseCollection : summaryCaseCollections() )
+    {
+        caseCollection->caseNameChanged.connect( this, &RimSummaryCaseMainCollection::onCaseNameChanged );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

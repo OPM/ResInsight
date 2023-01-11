@@ -29,6 +29,7 @@
 #include "RivCellSetEnum.h"
 
 class RimGridView;
+class Rim3dView;
 class RimEclipseView;
 class RimGeoMechView;
 class RimViewLinker;
@@ -50,10 +51,10 @@ public:
 
     bool isActive() const;
 
-    RimGridView* managedView() const;
-    void         setManagedView( RimGridView* view );
+    Rim3dView* managedView() const;
+    void       setManagedView( Rim3dView* view );
 
-    RimGridView*   masterView() const;
+    Rim3dView*     masterView() const;
     RimViewLinker* ownerViewLinker() const;
 
     const RigCaseToCaseCellMapper* cellMapper();
@@ -68,6 +69,7 @@ public:
 
     bool isVisibleCellsOveridden() const;
     bool isPropertyFilterOveridden() const;
+    bool isPropertyFilterDuplicationActive() const;
 
     void scheduleCreateDisplayModelAndRedrawForDependentView() const;
     void scheduleGeometryRegenForDepViews( RivCellSetEnum geometryType ) const;
@@ -75,6 +77,7 @@ public:
     void updateOptionSensitivity();
     void removeOverrides();
     void updateDisplayNameAndIcon();
+    void updateDuplicatedPropertyFilters();
 
     void updateCellFilterOverrides( const RimCellFilter* changedFilter );
     void applyCellFilterCollectionByUserChoice();
@@ -95,9 +98,6 @@ private:
     void updateResultColorsControl();
     void updateLegendDefinitions();
 
-    void updateDefaultOptions();
-
-    bool isCameraControlPossible() const;
     bool isMasterAndDepViewDifferentType() const;
     bool isPropertyFilterControlPossible() const;
     bool isCellFilterMappingApplicable() const;
@@ -112,21 +112,20 @@ private:
     static bool askUserToRestoreOriginalCellFilterCollection( const QString& viewName );
 
 private:
-    caf::PdmField<QString>         m_name;
-    caf::PdmPtrField<RimGridView*> m_managedView;
+    caf::PdmField<QString>       m_name;
+    caf::PdmPtrField<Rim3dView*> m_managedView;
 
     caf::PdmField<bool> m_isActive;
     caf::PdmField<bool> m_syncCamera;
     caf::PdmField<bool> m_showCursor;
     caf::PdmField<bool> m_syncTimeStep;
 
-    // Overridden properties
     caf::PdmField<bool> m_syncCellResult;
     caf::PdmField<bool> m_syncLegendDefinitions;
 
     caf::PdmField<bool> m_syncCellFilters;
-    caf::PdmField<bool> m_syncVisibleCells;
     caf::PdmField<bool> m_syncPropertyFilters;
+    caf::PdmField<bool> m_duplicatePropertyFilters;
 
     cvf::ref<RigCaseToCaseCellMapper> m_caseToCaseCellMapper;
 };

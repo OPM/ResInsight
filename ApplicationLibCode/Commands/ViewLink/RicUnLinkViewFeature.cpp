@@ -22,15 +22,16 @@
 #include "RiaApplication.h"
 
 #include "Rim3dView.h"
+#include "RimEclipseContourMapView.h"
 #include "RimGridView.h"
 #include "RimProject.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
+#include "RimViewLinkerCollection.h"
 
 #include "cafCmdFeatureManager.h"
 #include "cafSelectionManager.h"
 
-#include "RimViewLinkerCollection.h"
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicUnLinkViewFeature, "RicUnLinkViewFeature" );
@@ -40,8 +41,7 @@ CAF_CMD_SOURCE_INIT( RicUnLinkViewFeature, "RicUnLinkViewFeature" );
 //--------------------------------------------------------------------------------------------------
 bool RicUnLinkViewFeature::isCommandEnabled()
 {
-    Rim3dView* activeView = RiaApplication::instance()->activeMainOrComparisonGridView();
-    ;
+    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
     if ( !activeView ) return false;
 
     if ( activeView->assosiatedViewLinker() )
@@ -57,8 +57,7 @@ bool RicUnLinkViewFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicUnLinkViewFeature::onActionTriggered( bool isChecked )
 {
-    Rim3dView* activeView = RiaApplication::instance()->activeMainOrComparisonGridView();
-    ;
+    Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
     if ( !activeView ) return;
 
     RimViewController* viewController = activeView->viewController();
@@ -68,14 +67,15 @@ void RicUnLinkViewFeature::onActionTriggered( bool isChecked )
     {
         viewController->applyCellFilterCollectionByUserChoice();
         delete viewController;
-        viewLinker->removeViewController( nullptr ); // Remove the slots in the vector that was set to nullptr by the
-                                                     // destructor
+
+        // Remove the slots in the vector that was set to nullptr by the destructor
+        viewLinker->removeViewController( nullptr );
     }
     else if ( viewLinker )
     {
         viewLinker->applyCellFilterCollectionByUserChoice();
 
-        RimGridView* firstControlledView = viewLinker->firstControlledView();
+        Rim3dView* firstControlledView = viewLinker->firstControlledView();
 
         if ( firstControlledView )
         {
@@ -93,6 +93,8 @@ void RicUnLinkViewFeature::onActionTriggered( bool isChecked )
         }
         activeView->updateAutoName();
     }
+
+    if ( dynamic_cast<RimEclipseContourMapView*>( activeView ) ) activeView->zoomAll();
 
     RimProject::current()->viewLinkerCollection.uiCapability()->updateConnectedEditors();
     RimProject::current()->uiCapability()->updateConnectedEditors();

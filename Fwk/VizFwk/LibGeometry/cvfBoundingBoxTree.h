@@ -57,8 +57,13 @@ public:
     
     void buildTreeFromBoundingBoxes(const std::vector<cvf::BoundingBox>& boundingBoxes,
                                     const std::vector<size_t>* optionalBoundingBoxIds);
-    
+
+    void buildTreeFromBoundingBoxesOptimized(const std::vector<cvf::BoundingBox>& boundingBoxes,
+        const std::vector<std::vector<int>>& optionalBoundingBoxIds);
+
     void findIntersections(const cvf::BoundingBox& inputBB, std::vector<size_t>* bbIdsOrIndexesIntersected) const;
+
+    std::string info() const;
 
 private:
 

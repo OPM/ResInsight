@@ -386,7 +386,7 @@ QWidget* PdmUiComboBoxEditor::createEditorWidget( QWidget* parent )
 
     connect( m_comboBox, SIGNAL( activated( int ) ), this, SLOT( slotIndexActivated( int ) ) );
 
-    m_autoValueToolButton = new QToolButton();
+    m_autoValueToolButton = new QToolButton( m_placeholder );
     m_autoValueToolButton->setCheckable( true );
     m_autoValueToolButton->setToolButtonStyle( Qt::ToolButtonIconOnly );
 

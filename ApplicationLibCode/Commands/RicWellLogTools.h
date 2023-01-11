@@ -77,11 +77,16 @@ public:
                                                                const QString&   measurementName,
                                                                bool             showPlotWindow = true );
 
-    static RimWellLogCurve* addSummaryRftCurve( RimWellLogTrack* plotTrack, RimSummaryCase* rimCase );
-    static RimWellLogCurve* addSummaryRftSegmentCurve( RimWellLogTrack*          plotTrack,
-                                                       const QString&            resultName,
-                                                       RiaDefines::RftBranchType branchType,
-                                                       RimSummaryCase*           rimCase );
+    static RimWellLogCurve*    addSummaryRftCurve( RimWellLogTrack* plotTrack, RimSummaryCase* rimCase );
+    static RimWellLogRftCurve* addSummaryRftSegmentCurve( RimWellLogTrack*          plotTrack,
+                                                          const QString&            resultName,
+                                                          const QString&            wellName,
+                                                          RiaDefines::RftBranchType branchType,
+                                                          RimSummaryCase*           rimCase );
+    static bool                hasData( const QString&            resultName,
+                                        const QString&            wellName,
+                                        RiaDefines::RftBranchType branchType,
+                                        RimSummaryCase*           rimCase );
 
 private:
     template <typename ExtractionCurveType>

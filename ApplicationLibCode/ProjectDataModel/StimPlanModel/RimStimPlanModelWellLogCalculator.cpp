@@ -563,7 +563,15 @@ bool RimStimPlanModelWellLogCalculator::extractValuesForProperty( RiaDefines::Cu
     RiaLogging::info( QString( "Extracting values for '%1' from grid '%2'." )
                           .arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() )
                           .arg( eclipseCase->caseUserDescription() ) );
-    RigEclipseWellLogExtractor eclExtractor( eclipseCase->eclipseCaseData(), wellPathGeometry, "fracture model" );
+
+    auto eclipseCaseData = eclipseCase->eclipseCaseData();
+    if ( !eclipseCaseData )
+    {
+        RiaLogging::error( "Missing Eclipse case data." );
+        return false;
+    }
+
+    RigEclipseWellLogExtractor eclExtractor( eclipseCaseData, wellPathGeometry, "fracture model" );
 
     measuredDepthValues = eclExtractor.cellIntersectionMDs();
     tvDepthValues       = eclExtractor.cellIntersectionTVDs();
@@ -584,10 +592,7 @@ bool RimStimPlanModelWellLogCalculator::extractValuesForProperty( RiaDefines::Cu
     }
 
     cvf::ref<RigResultAccessor> resAcc =
-        RigResultAccessorFactory::createFromResultDefinition( eclipseCase->eclipseCaseData(),
-                                                              0,
-                                                              timeStep,
-                                                              &eclipseResultDefinition );
+        RigResultAccessorFactory::createFromResultDefinition( eclipseCaseData, 0, timeStep, &eclipseResultDefinition );
 
     if ( resAcc.notNull() )
     {
@@ -635,8 +640,15 @@ bool RimStimPlanModelWellLogCalculator::replaceMissingValuesWithDefault( RiaDefi
 
     QString resultVariable = stimPlanModel->eclipseResultVariable( curveProperty );
 
+    auto eclipseCaseData = eclipseCase->eclipseCaseData();
+    if ( !eclipseCaseData )
+    {
+        RiaLogging::error( "Missing Eclipse case data." );
+        return false;
+    }
+
     // Try to locate a backup accessor (e.g. PORO_1 for PORO)
-    cvf::ref<RigResultAccessor> backupResAcc = findMissingValuesAccessor( eclipseCase->eclipseCaseData(),
+    cvf::ref<RigResultAccessor> backupResAcc = findMissingValuesAccessor( eclipseCaseData,
                                                                           eclipseCase->inputPropertyCollection(),
                                                                           0,
                                                                           replacementTimeStep,
@@ -780,6 +792,11 @@ bool RimStimPlanModelWellLogCalculator::replaceMissingValuesWithOtherKLayer( Ria
     const RigMainGrid* mainGrid = eclipseCase->mainGrid();
 
     RigEclipseCaseData* caseData = eclipseCase->eclipseCaseData();
+    if ( !caseData )
+    {
+        RiaLogging::error( "Missing Eclipse case data." );
+        return false;
+    }
 
     RiaDefines::PorosityModelType porosityModel = RiaDefines::PorosityModelType::MATRIX_MODEL;
 

@@ -88,7 +88,7 @@ public:
                                                        cvf::StructGridInterface::FaceType face ) const;
     bool            isFaceNormalsOutwards() const;
 
-    void computeCachedData();
+    void computeCachedData( std::string* aabbTreeInfo = nullptr );
     void initAllSubGridsParentGridPointer();
 
     cvf::Vec3d displayModelOffset() const override;
@@ -116,6 +116,7 @@ public:
 private:
     void initAllSubCellsMainGridCellIndex();
     void buildCellSearchTree();
+    void buildCellSearchTreeOptimized( size_t cellsPerBoundingBox );
     bool hasFaultWithName( const QString& name ) const;
 
     static std::array<double, 6> defaultMapAxes();

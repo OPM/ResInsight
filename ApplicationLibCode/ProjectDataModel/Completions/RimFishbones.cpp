@@ -718,12 +718,7 @@ void RimFishbones::computeSubLateralIndices()
         }
     }
 
-    std::mt19937 randomEngine( m_randomSeed() );
-    std::shuffle( subLateralCandidates.begin(), subLateralCandidates.end(), randomEngine );
-
-    double numLaterals = static_cast<double>( m_valveLocations->valveLocations().size() * m_lateralCountPerSub );
-    m_subLateralIndices =
-        std::vector<SubAndLateralIndex>( subLateralCandidates.begin(), subLateralCandidates.begin() + numLaterals );
+    m_subLateralIndices = subLateralCandidates;
 }
 
 //--------------------------------------------------------------------------------------------------

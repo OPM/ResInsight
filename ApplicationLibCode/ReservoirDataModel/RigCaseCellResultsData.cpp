@@ -28,6 +28,7 @@
 #include "RiaResultNames.h"
 #include "RigAllanDiagramData.h"
 #include "RigCaseCellResultCalculator.h"
+#include "RigEclipseAllanFaultsStatCalc.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseMultiPropertyStatCalc.h"
 #include "RigEclipseNativeStatCalc.h"
@@ -39,6 +40,8 @@
 
 #include "RimCompletionCellIntersectionCalc.h"
 #include "RimEclipseCase.h"
+#include "RimGridCalculation.h"
+#include "RimGridCalculationCollection.h"
 #include "RimProject.h"
 
 #include "RifReaderEclipseOutput.h"
@@ -49,7 +52,6 @@
 
 #include <QDateTime>
 
-#include "RigEclipseAllanFaultsStatCalc.h"
 #include <algorithm>
 #include <cmath>
 
@@ -1122,9 +1124,16 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
 
     // I/J/K indexes
     {
-        addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::indexIResultName(), false, 0 );
-        addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::indexJResultName(), false, 0 );
-        addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::indexKResultName(), false, 0 );
+        findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                                RiaResultNames::indexIResultName() ),
+                                       false );
+
+        findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                                RiaResultNames::indexJResultName() ),
+                                       false );
+        findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                                RiaResultNames::indexKResultName() ),
+                                       false );
     }
 }
 
@@ -2034,70 +2043,47 @@ void RigCaseCellResultsData::computeIndexResults()
     size_t reservoirCellCount = activeCellInfo()->reservoirCellCount();
     if ( reservoirCellCount == 0 ) return;
 
-    size_t iResultIndex = findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                                                  RiaResultNames::indexIResultName() ),
-                                                         false );
-    size_t jResultIndex = findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                                                  RiaResultNames::indexJResultName() ),
-                                                         false );
-    size_t kResultIndex = findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                                                  RiaResultNames::indexKResultName() ),
-                                                         false );
+    size_t iResultIndex = findScalarResultIndexFromAddress(
+        RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::indexIResultName() ) );
+    size_t jResultIndex = findScalarResultIndexFromAddress(
+        RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::indexJResultName() ) );
+    size_t kResultIndex = findScalarResultIndexFromAddress(
+        RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::indexKResultName() ) );
+
+    if ( iResultIndex == cvf::UNDEFINED_SIZE_T || jResultIndex == cvf::UNDEFINED_SIZE_T ||
+         kResultIndex == cvf::UNDEFINED_SIZE_T )
+        return;
 
     bool computeIndexI = false;
     bool computeIndexJ = false;
     bool computeIndexK = false;
 
-    if ( iResultIndex == cvf::UNDEFINED_SIZE_T )
-    {
-        iResultIndex  = this->addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                    RiaResultNames::indexIResultName(),
-                                                    false,
-                                                    reservoirCellCount );
-        computeIndexI = true;
-    }
-
-    if ( jResultIndex == cvf::UNDEFINED_SIZE_T )
-    {
-        jResultIndex  = this->addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                    RiaResultNames::indexJResultName(),
-                                                    false,
-                                                    reservoirCellCount );
-        computeIndexJ = true;
-    }
-
-    if ( kResultIndex == cvf::UNDEFINED_SIZE_T )
-    {
-        kResultIndex  = this->addStaticScalarResult( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                    RiaResultNames::indexKResultName(),
-                                                    false,
-                                                    reservoirCellCount );
-        computeIndexK = true;
-    }
-
     std::vector<std::vector<double>>& indexI = m_cellScalarResults[iResultIndex];
     std::vector<std::vector<double>>& indexJ = m_cellScalarResults[jResultIndex];
     std::vector<std::vector<double>>& indexK = m_cellScalarResults[kResultIndex];
 
+    if ( indexI.empty() ) indexI.resize( 1 );
+    if ( indexI[0].size() < reservoirCellCount )
     {
-        if ( indexI[0].size() < reservoirCellCount )
-        {
-            indexI[0].resize( reservoirCellCount, std::numeric_limits<double>::infinity() );
-            computeIndexI = true;
-        }
-
-        if ( indexJ[0].size() < reservoirCellCount )
-        {
-            indexJ[0].resize( reservoirCellCount, std::numeric_limits<double>::infinity() );
-            computeIndexJ = true;
-        }
-
-        if ( indexK[0].size() < reservoirCellCount )
-        {
-            indexK[0].resize( reservoirCellCount, std::numeric_limits<double>::infinity() );
-            computeIndexK = true;
-        }
+        indexI[0].resize( reservoirCellCount, std::numeric_limits<double>::infinity() );
+        computeIndexI = true;
     }
+
+    if ( indexJ.empty() ) indexJ.resize( 1 );
+    if ( indexJ[0].size() < reservoirCellCount )
+    {
+        indexJ[0].resize( reservoirCellCount, std::numeric_limits<double>::infinity() );
+        computeIndexJ = true;
+    }
+
+    if ( indexK.empty() ) indexK.resize( 1 );
+    if ( indexK[0].size() < reservoirCellCount )
+    {
+        indexK[0].resize( reservoirCellCount, std::numeric_limits<double>::infinity() );
+        computeIndexK = true;
+    }
+
+    if ( !( computeIndexI || computeIndexJ || computeIndexK ) ) return;
 
     const std::vector<RigCell>& globalCellArray = m_ownerMainGrid->globalCellArray();
     long long                   numCells        = static_cast<long long>( globalCellArray.size() );
@@ -2896,6 +2882,23 @@ void RigCaseCellResultsData::computeCompletionTypeForTimeStep( size_t timeStep )
     RimEclipseCase* eclipseCase = m_ownerCaseData->ownerCase();
 
     if ( !eclipseCase ) return;
+
+    // If permeabilities are generated by calculations, make sure that generated data is calculated
+    // See RicExportFractureCompletionsImpl::generateCompdatValues()
+    for ( const QString propertyName : { "PERMX", "PERMY", "PERMZ" } )
+    {
+        for ( auto userCalculation : RimProject::current()->gridCalculationCollection()->calculations() )
+        {
+            auto gridCalculation = dynamic_cast<RimGridCalculation*>( userCalculation );
+            if ( gridCalculation && gridCalculation->outputEclipseCase() != eclipseCase ) continue;
+
+            QString generatedPropertyName = userCalculation->findLeftHandSide( userCalculation->expression() );
+            if ( generatedPropertyName == propertyName )
+            {
+                userCalculation->calculate();
+            }
+        }
+    }
 
     RimCompletionCellIntersectionCalc::calculateCompletionTypeResult( eclipseCase, completionTypeResult, timeStep );
 }

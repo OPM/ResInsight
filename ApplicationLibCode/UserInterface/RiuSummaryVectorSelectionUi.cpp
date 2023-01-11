@@ -22,6 +22,7 @@
 #include "RiaOptionItemFactory.h"
 #include "RiaStdStringTools.h"
 #include "RiaSummaryCurveDefinition.h"
+#include "RiaSummaryDefines.h"
 
 #include "RifEclipseSummaryAddress.h"
 #include "RifReaderEclipseSummary.h"
@@ -873,7 +874,7 @@ void RiuSummaryVectorSelectionUi::defineUiOrdering( QString uiConfigName, caf::P
     else if ( sumCategory == RifEclipseSummaryAddress::SUMMARY_AQUIFER )
     {
         {
-            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( "Aquifers" );
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( RiaDefines::summaryAquifer() + "s" );
             myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_AQUIFER][0]->pdmField() );
         }
 
@@ -890,7 +891,7 @@ void RiuSummaryVectorSelectionUi::defineUiOrdering( QString uiConfigName, caf::P
     else if ( sumCategory == RifEclipseSummaryAddress::SUMMARY_REGION )
     {
         {
-            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( "Regions" );
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( RiaDefines::summaryRegion() + "s" );
             myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_REGION][0]->pdmField() );
         }
 
@@ -908,7 +909,7 @@ void RiuSummaryVectorSelectionUi::defineUiOrdering( QString uiConfigName, caf::P
     else if ( sumCategory == RifEclipseSummaryAddress::SUMMARY_GROUP )
     {
         {
-            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( "Groups" );
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( RiaDefines::summaryWellGroup() + "s" );
             myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_GROUP][0]->pdmField() );
         }
 
@@ -917,7 +918,7 @@ void RiuSummaryVectorSelectionUi::defineUiOrdering( QString uiConfigName, caf::P
     else if ( sumCategory == RifEclipseSummaryAddress::SUMMARY_WELL )
     {
         {
-            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( "Wells" );
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( RiaDefines::summaryWell() + "s" );
             myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL][0]->pdmField() );
         }
 
@@ -926,7 +927,7 @@ void RiuSummaryVectorSelectionUi::defineUiOrdering( QString uiConfigName, caf::P
     else if ( sumCategory == RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION )
     {
         {
-            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( "Completions" );
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( RiaDefines::summaryCompletion() + "s" );
             myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION][0]->pdmField() );
             myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION][1]->pdmField() );
         }
@@ -936,7 +937,7 @@ void RiuSummaryVectorSelectionUi::defineUiOrdering( QString uiConfigName, caf::P
     else if ( sumCategory == RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR )
     {
         {
-            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( "LGR Completions" );
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( RiaDefines::summaryLgrCompletion() + "s" );
             myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR][0]->pdmField() );
             myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR][1]->pdmField() );
             myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR][2]->pdmField() );
@@ -947,7 +948,7 @@ void RiuSummaryVectorSelectionUi::defineUiOrdering( QString uiConfigName, caf::P
     else if ( sumCategory == RifEclipseSummaryAddress::SUMMARY_WELL_LGR )
     {
         {
-            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( "LGR Wells" );
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( RiaDefines::summaryLgrWell() + "s" );
             myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_LGR][0]->pdmField() );
             myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_LGR][1]->pdmField() );
         }
@@ -957,7 +958,7 @@ void RiuSummaryVectorSelectionUi::defineUiOrdering( QString uiConfigName, caf::P
     else if ( sumCategory == RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT )
     {
         {
-            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( "Well Segments" );
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( RiaDefines::summaryWellSegment() + "s" );
             myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT][0]->pdmField() );
             myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT][1]->pdmField() );
         }
@@ -967,7 +968,7 @@ void RiuSummaryVectorSelectionUi::defineUiOrdering( QString uiConfigName, caf::P
     else if ( sumCategory == RifEclipseSummaryAddress::SUMMARY_BLOCK )
     {
         {
-            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( "Blocks" );
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( RiaDefines::summaryBlock() + "s" );
             myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_BLOCK][0]->pdmField() );
         }
 
@@ -976,7 +977,7 @@ void RiuSummaryVectorSelectionUi::defineUiOrdering( QString uiConfigName, caf::P
     else if ( sumCategory == RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR )
     {
         {
-            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( "LGR Blocks" );
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( RiaDefines::summaryLgrBlock() + "s" );
             myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][0]->pdmField() );
             myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][1]->pdmField() );
         }
@@ -1505,7 +1506,7 @@ void RiuSummaryVectorSelectionUi::appendOptionItemsForSubCategoriesAndVectors( Q
             }
             else if ( i == CALCULATED_CURVES )
             {
-                headerText = QString( "Calculated" );
+                headerText = QString( RiaDefines::summaryCalculated() );
             }
 
             if ( !headerText.isEmpty() )

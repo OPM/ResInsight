@@ -22,10 +22,12 @@
 #include "RiaColorTools.h"
 #include "RiaDefines.h"
 #include "RiaGuiApplication.h"
+#include "RiaLogging.h"
 #include "RiaPlotDefines.h"
 #include "RiaPlotWindowRedrawScheduler.h"
 
 #include "RimPlot.h"
+#include "RimPlotCurve.h"
 
 #include "RiuDraggableOverlayFrame.h"
 #include "RiuGuiTheme.h"
@@ -70,8 +72,6 @@
 
 #include <algorithm>
 #include <limits>
-
-#include "RiaLogging.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -601,11 +601,17 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
                  !m_clickPosition.isNull() )
             {
                 endZoomOperations();
-                selectClosestPlotItem( mouseEvent->pos(), toggleItemInSelection );
+
+                if ( m_plotDefinition->isCurveHighlightSupported() )
+                {
+                    selectClosestPlotItem( mouseEvent->pos(), toggleItemInSelection );
+                }
                 m_clickPosition = QPoint();
                 return true;
             }
         }
+
+        onMouseMoveEvent( mouseEvent );
     }
     return false;
 }
@@ -1005,8 +1011,6 @@ void RiuQwtPlotWidget::highlightPlotItems( const std::set<const QwtPlotItem*>& c
                     symbol->setPen( blendedSymbolLineColor, symbol->pen().width(), symbol->pen().style() );
                 }
             }
-            CurveProperties properties = { curveColor, symbolColor, symbolLineColor, penWidth };
-            m_originalCurveProperties.insert( std::make_pair( plotCurve, properties ) );
             m_originalZValues.insert( std::make_pair( plotCurve, zValue ) );
 
             continue;
@@ -1031,43 +1035,40 @@ void RiuQwtPlotWidget::highlightPlotItems( const std::set<const QwtPlotItem*>& c
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::resetPlotItemHighlighting( bool doUpdateCurveOrder )
 {
-    auto plotItemList = m_plot->itemList();
-    for ( QwtPlotItem* plotItem : plotItemList )
+    if ( !m_originalZValues.empty() )
     {
-        auto* plotCurve = dynamic_cast<QwtPlotCurve*>( plotItem );
-        if ( plotCurve && m_originalCurveProperties.count( plotCurve ) )
+        auto plotItemList = m_plot->itemList();
+        for ( QwtPlotItem* plotItem : plotItemList )
         {
-            const QPen& existingPen = plotCurve->pen();
-            auto        properties  = m_originalCurveProperties[plotCurve];
-            double      zValue      = m_originalZValues[plotCurve];
-
-            plotCurve->setPen( properties.lineColor, properties.lineWidth, existingPen.style() );
-            plotCurve->setZ( zValue );
-            auto* symbol = const_cast<QwtSymbol*>( plotCurve->symbol() );
-            if ( symbol )
+            if ( auto* plotCurve = dynamic_cast<QwtPlotCurve*>( plotItem ) )
             {
-                symbol->setColor( properties.symbolColor );
-                symbol->setPen( properties.symbolLineColor, symbol->pen().width(), symbol->pen().style() );
+                auto* riuPlotCurve = dynamic_cast<RiuPlotCurve*>( plotItem );
+
+                if ( auto rimPlotCurve =
+                         dynamic_cast<RimPlotCurve*>( m_plotDefinition->findPdmObjectFromPlotCurve( riuPlotCurve ) ) )
+                {
+                    rimPlotCurve->updateCurveAppearance();
+                    double zValue = m_originalZValues[plotCurve];
+                    riuPlotCurve->setZ( zValue );
+                    continue;
+                }
             }
 
-            continue;
+            auto* plotShapeItem = dynamic_cast<QwtPlotShapeItem*>( plotItem );
+            if ( plotShapeItem )
+            {
+                QPen pen = plotShapeItem->pen();
+
+                auto color = RiuGuiTheme::getColorByVariableName( "markerColor" );
+
+                pen.setColor( color );
+                pen.setWidth( 1 );
+                plotShapeItem->setPen( pen );
+                plotShapeItem->setZ( plotShapeItem->z() - 100.0 );
+            }
         }
-
-        auto* plotShapeItem = dynamic_cast<QwtPlotShapeItem*>( plotItem );
-        if ( plotShapeItem )
-        {
-            QPen pen = plotShapeItem->pen();
-
-            auto color = RiuGuiTheme::getColorByVariableName( "markerColor" );
-
-            pen.setColor( color );
-            pen.setWidth( 1 );
-            plotShapeItem->setPen( pen );
-            plotShapeItem->setZ( plotShapeItem->z() - 100.0 );
-        }
+        m_originalZValues.clear();
     }
-    m_originalCurveProperties.clear();
-    m_originalZValues.clear();
 
     resetPlotAxisHighlighting();
 
@@ -1325,7 +1326,7 @@ RiuPlotAxis RiuQwtPlotWidget::createNextPlotAxis( RiaDefines::PlotAxis axis )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuPlotCurve* RiuQwtPlotWidget::createPlotCurve( RimPlotCurve* ownerRimCurve, const QString& title, const QColor& color )
+RiuPlotCurve* RiuQwtPlotWidget::createPlotCurve( RimPlotCurve* ownerRimCurve, const QString& title )
 {
     return new RiuQwtPlotCurve( ownerRimCurve, title );
 }
@@ -1384,6 +1385,13 @@ RiuPlotAxis RiuQwtPlotWidget::findPlotAxisForQwtAxis( const QwtAxisId& qwtAxisId
 
     CAF_ASSERT( false );
     return RiuPlotAxis::defaultLeft();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::onMouseMoveEvent( QMouseEvent* event )
+{
 }
 
 //--------------------------------------------------------------------------------------------------

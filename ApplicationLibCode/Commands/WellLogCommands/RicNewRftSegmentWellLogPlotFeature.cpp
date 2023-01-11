@@ -23,25 +23,25 @@
 #include "RicWellLogTools.h"
 
 #include "RiaApplication.h"
+#include "RiaColorTools.h"
+#include "RiaLogging.h"
+#include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaRftDefines.h"
 
-#include "RigWellLogCurveData.h"
+#include "RifReaderOpmRft.h"
 
 #include "RimRftCase.h"
+#include "RimRftTopologyCurve.h"
 #include "RimSummaryCase.h"
-#include "RimWellLogExtractionCurve.h"
-#include "RimWellLogPlot.h"
+#include "RimWellLogRftCurve.h"
 #include "RimWellLogTrack.h"
 
-#include "Riu3dSelectionManager.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
 
 #include "cafSelectionManager.h"
 
 #include <QAction>
-
-#include <vector>
 
 CAF_CMD_SOURCE_INIT( RicNewRftSegmentWellLogPlotFeature, "RicNewRftSegmentWellLogPlotFeature" );
 
@@ -63,26 +63,51 @@ void RicNewRftSegmentWellLogPlotFeature::onActionTriggered( bool isChecked )
 
     RimSummaryCase* summaryCase = nullptr;
     rftCase->firstAncestorOfType( summaryCase );
+    if ( !summaryCase ) return;
+
+    auto rftReader = summaryCase->rftReader();
+    if ( !rftReader )
+    {
+        RiaLogging::error( "Could not open RFT file or no RFT file present. " );
+        return;
+    }
 
     auto plot = RicNewWellLogPlotFeatureImpl::createHorizontalWellLogPlot();
 
-    QString resultName = "SEGGRAT";
+    QString wellName  = "Unknown";
+    auto    wellNames = rftReader->wellNames();
+    if ( !wellNames.empty() ) wellName = *wellNames.begin();
 
     {
-        auto branchType = RiaDefines::RftBranchType::RFT_TUBING;
+        RimWellLogTrack* plotTrack = new RimWellLogTrack();
+        plot->addPlot( plotTrack );
+        plotTrack->setDescription( "Connection Rates" );
 
-        appendTrackAndCurveForBranchType( plot, resultName, branchType, summaryCase );
+        auto curve =
+            createAndAddCurve( plotTrack, "CONGRAT", wellName, RiaDefines::RftBranchType::RFT_ANNULUS, summaryCase );
+        curve->setScaleFactor( 1e-3 );
+        curve->setFillStyle( Qt::SolidPattern );
     }
+
+    for ( auto branchType : { RiaDefines::RftBranchType::RFT_ANNULUS,
+                              RiaDefines::RftBranchType::RFT_DEVICE,
+                              RiaDefines::RftBranchType::RFT_TUBING } )
     {
-        auto branchType = RiaDefines::RftBranchType::RFT_DEVICE;
-
-        appendTrackAndCurveForBranchType( plot, resultName, branchType, summaryCase );
+        QString resultName = "SEGGRAT";
+        QString trackName  = "Segment Rates";
+        auto curve = appendTrackAndCurveForBranchType( plot, trackName, resultName, wellName, branchType, summaryCase );
+        curve->setScaleFactor( 1e-3 );
+        curve->setFillStyle( Qt::SolidPattern );
     }
-    {
-        auto branchType = RiaDefines::RftBranchType::RFT_ANNULUS;
 
-        appendTrackAndCurveForBranchType( plot, resultName, branchType, summaryCase );
-    }
+    appendPressureTrack( plot, wellName, summaryCase );
+    appendConnectionFactorTrack( plot, wellName, summaryCase );
+    appendTopologyTrack( plot, wellName, summaryCase );
+
+    plot->loadDataAndUpdate();
+
+    RiaPlotWindowRedrawScheduler::instance()->performScheduledUpdatesAndReplots();
+    plot->updateLayout();
 
     RiuPlotMainWindowTools::onObjectAppended( plot );
 }
@@ -90,22 +115,195 @@ void RicNewRftSegmentWellLogPlotFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewRftSegmentWellLogPlotFeature::appendTrackAndCurveForBranchType( RimWellLogPlot*           plot,
-                                                                           const QString&            resultName,
-                                                                           RiaDefines::RftBranchType branchType,
-                                                                           RimSummaryCase*           summaryCase )
+RimWellLogRftCurve* RicNewRftSegmentWellLogPlotFeature::appendTrackAndCurveForBranchType( RimWellLogPlot* plot,
+                                                                                          const QString&  trackName,
+                                                                                          const QString&  resultName,
+                                                                                          const QString&  wellName,
+                                                                                          RiaDefines::RftBranchType branchType,
+                                                                                          RimSummaryCase* summaryCase )
 {
     RimWellLogTrack* plotTrack = new RimWellLogTrack();
     plot->addPlot( plotTrack );
-    plotTrack->setDescription( QString( "Track %1" ).arg( plot->plotCount() ) );
+    plotTrack->setDescription( trackName );
 
     plot->loadDataAndUpdate();
 
-    auto curve = RicWellLogTools::addSummaryRftSegmentCurve( plotTrack, resultName, branchType, summaryCase );
-    curve->loadDataAndUpdate( true );
+    auto curve = createAndAddCurve( plotTrack, resultName, wellName, branchType, summaryCase );
 
+    curve->loadDataAndUpdate( true );
     curve->updateAllRequiredEditors();
-    RiuPlotMainWindowTools::setExpanded( curve );
+
+    return curve;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellLogRftCurve* RicNewRftSegmentWellLogPlotFeature::createAndAddCurve( RimWellLogTrack*          track,
+                                                                           const QString&            resultName,
+                                                                           const QString&            wellName,
+                                                                           RiaDefines::RftBranchType branchType,
+                                                                           RimSummaryCase*           summaryCase )
+{
+    auto curve = RicWellLogTools::addSummaryRftSegmentCurve( track, resultName, wellName, branchType, summaryCase );
+    curve->setNamingMethod( RiaDefines::ObjectNamingMethod::TEMPLATE );
+
+    QString templateText = RiaDefines::namingVariableResultName() + ", " + RiaDefines::namingVariableResultType();
+    curve->setCurveNameTemplateText( templateText );
+
+    return curve;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPlotCurve*> RicNewRftSegmentWellLogPlotFeature::appendAdditionalDataSourceTrack( RimWellLogPlot* plot,
+                                                                                                const QString& wellName,
+                                                                                                RimSummaryCase* summaryCase )
+{
+    auto additionalDataSourceTrack = new RimWellLogTrack();
+    additionalDataSourceTrack->setDescription( "Additional Data Source Curves" );
+
+    plot->addPlot( additionalDataSourceTrack );
+    additionalDataSourceTrack->setShowWindow( false );
+
+    QString resultName   = RiaDefines::segmentNumberResultName();
+    QString templateText = RiaDefines::namingVariableResultName() + ", " + RiaDefines::namingVariableResultType();
+
+    std::vector<RimPlotCurve*> curves;
+
+    for ( auto branchType : { RiaDefines::RftBranchType::RFT_TUBING,
+                              RiaDefines::RftBranchType::RFT_DEVICE,
+                              RiaDefines::RftBranchType::RFT_ANNULUS } )
+    {
+        auto curve = RicWellLogTools::addSummaryRftSegmentCurve( additionalDataSourceTrack,
+                                                                 resultName,
+                                                                 wellName,
+                                                                 branchType,
+                                                                 summaryCase );
+        curve->setFillStyle( Qt::NoBrush );
+        curve->setNamingMethod( RiaDefines::ObjectNamingMethod::TEMPLATE );
+        curve->setCurveNameTemplateText( templateText );
+
+        curves.push_back( curve );
+    }
+
+    additionalDataSourceTrack->updateAllRequiredEditors();
+
+    return curves;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicNewRftSegmentWellLogPlotFeature::appendTopologyTrack( RimWellLogPlot* plot,
+                                                              const QString&  wellName,
+                                                              RimSummaryCase* summaryCase )
+{
+    auto rftReader = dynamic_cast<RifReaderOpmRft*>( summaryCase->rftReader() );
+    if ( !rftReader ) return;
+
+    QDateTime dateTime;
+    int       branchIndex = 1;
+
+    auto timeSteps = rftReader->availableTimeSteps( wellName );
+    if ( !timeSteps.empty() ) dateTime = *timeSteps.rbegin();
+
+    auto track = new RimWellLogTrack();
+    track->setDescription( "Topology" );
+    track->enablePropertyAxis( false );
+    track->setRowSpan( RimPlot::TWO );
+
+    plot->addPlot( track );
+
+    std::vector<RimPlotCurve*> additionalDataSourceCurves = appendAdditionalDataSourceTrack( plot, wellName, summaryCase );
+
+    for ( auto branchType : { RiaDefines::RftBranchType::RFT_TUBING,
+                              RiaDefines::RftBranchType::RFT_DEVICE,
+                              RiaDefines::RftBranchType::RFT_ANNULUS } )
+    {
+        auto curve = RimRftTopologyCurve::createTopologyCurve( summaryCase, dateTime, wellName, branchIndex, branchType );
+        curve->setAdditionalDataSources( additionalDataSourceCurves );
+        curve->applyDefaultAppearance();
+        track->addCurve( curve );
+    }
+
+    auto packerCurve = RimRftTopologyCurve::createPackerCurve( summaryCase, dateTime, wellName, branchIndex );
+    packerCurve->setAdditionalDataSources( additionalDataSourceCurves );
+    packerCurve->applyDefaultAppearance();
+    track->addCurve( packerCurve );
+
+    track->updateAllRequiredEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicNewRftSegmentWellLogPlotFeature::appendPressureTrack( RimWellLogPlot* plot,
+                                                              const QString&  wellName,
+                                                              RimSummaryCase* summaryCase )
+{
+    auto track = new RimWellLogTrack();
+    track->setDescription( "Pressure" );
+
+    plot->addPlot( track );
+
+    QString resultName = "SEGPRES";
+    for ( auto branchType : { RiaDefines::RftBranchType::RFT_TUBING,
+                              RiaDefines::RftBranchType::RFT_DEVICE,
+                              RiaDefines::RftBranchType::RFT_ANNULUS } )
+    {
+        auto curve = createAndAddCurve( track, resultName, wellName, branchType, summaryCase );
+        auto color = RimRftTopologyCurve::colorForRftBranchType( branchType );
+        curve->setColor( color );
+        curve->setLineThickness( 3 );
+    }
+
+    auto curve = createAndAddCurve( track, "PRESSURE", wellName, RiaDefines::RftBranchType::RFT_ANNULUS, summaryCase );
+    curve->setLineThickness( 3 );
+
+    track->updateAllRequiredEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicNewRftSegmentWellLogPlotFeature::appendConnectionFactorTrack( RimWellLogPlot* plot,
+                                                                      const QString&  wellName,
+                                                                      RimSummaryCase* summaryCase )
+{
+    QString resultName = "CONFAC";
+
+    // Connection factor data can be found in the tubing, device and annulus branches.
+    // Search for data ordered by annulus, device and tubing.
+    RiaDefines::RftBranchType branchType = RiaDefines::RftBranchType::RFT_ANNULUS;
+    bool                      foundData  = false;
+    if ( RicWellLogTools::hasData( resultName, wellName, branchType, summaryCase ) )
+    {
+        foundData = true;
+    }
+
+    if ( !foundData && RicWellLogTools::hasData( resultName, wellName, RiaDefines::RftBranchType::RFT_DEVICE, summaryCase ) )
+    {
+        branchType = RiaDefines::RftBranchType::RFT_DEVICE;
+        foundData  = true;
+    }
+
+    if ( !foundData && RicWellLogTools::hasData( resultName, wellName, RiaDefines::RftBranchType::RFT_TUBING, summaryCase ) )
+    {
+        branchType = RiaDefines::RftBranchType::RFT_TUBING;
+        foundData  = true;
+    }
+
+    QString trackName = "Connection Factors";
+    auto    curve = appendTrackAndCurveForBranchType( plot, trackName, resultName, wellName, branchType, summaryCase );
+
+    auto curveColor = cvf::Color3f( cvf::Color3f::ColorIdent::ORANGE );
+    curve->setColor( curveColor );
+
+    auto fillColor = RiaColorTools::makeLighter( curveColor, 0.3f );
+    curve->setFillColor( fillColor );
+    curve->setFillStyle( Qt::SolidPattern );
 }
 
 //--------------------------------------------------------------------------------------------------

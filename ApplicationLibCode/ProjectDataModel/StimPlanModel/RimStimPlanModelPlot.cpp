@@ -27,6 +27,7 @@
 #include "RimStimPlanModelCurve.h"
 #include "RimStimPlanModelPropertyCurve.h"
 #include "RimTools.h"
+#include "RimWellLogPlotNameConfig.h"
 #include "RimWellLogTrack.h"
 
 #include "cafPdmBase.h"
@@ -95,8 +96,7 @@ void RimStimPlanModelPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     caf::PdmUiGroup* titleGroup = uiOrdering.addNewGroup( "Plot Title" );
     RimDepthTrackPlot::uiOrderingForAutoName( uiConfigName, *titleGroup );
 
-    caf::PdmUiGroup* plotLayoutGroup = uiOrdering.addNewGroup( "Plot Layout" );
-    RimPlotWindow::uiOrderingForPlotLayout( uiConfigName, *plotLayoutGroup );
+    RimPlotWindow::uiOrderingForLegendsAndFonts( uiConfigName, uiOrdering );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -132,6 +132,8 @@ void RimStimPlanModelPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedF
                                              const QVariant&            oldValue,
                                              const QVariant&            newValue )
 {
+    RimDepthTrackPlot::fieldChangedByUi( changedField, oldValue, newValue );
+
     if ( m_stimPlanModel )
     {
         if ( changedField == &m_eclipseCase || changedField == &m_timeStep )

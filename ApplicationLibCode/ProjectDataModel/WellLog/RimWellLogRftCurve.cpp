@@ -18,6 +18,8 @@
 
 #include "RimWellLogRftCurve.h"
 
+#include "RiaColorTables.h"
+#include "RiaColorTools.h"
 #include "RiaDefines.h"
 #include "RiaEclipseUnitTools.h"
 #include "RiaQDateTimeTools.h"
@@ -25,6 +27,7 @@
 #include "RiaRftDefines.h"
 #include "RiaSimWellBranchTools.h"
 #include "RiaSummaryTools.h"
+#include "RiaTextStringTools.h"
 
 #include "RifEclipseRftAddress.h"
 #include "RifReaderEclipseRft.h"
@@ -175,7 +178,11 @@ RimWellLogRftCurve::RimWellLogRftCurve()
 
     CAF_PDM_InitField( &m_segmentResultName, "SegmentResultName", RiaResultNames::undefinedResultName(), "Result Name" );
     CAF_PDM_InitField( &m_segmentBranchIndex, "SegmentBranchIndex", -1, "Branch" );
-    CAF_PDM_InitFieldNoDefault( &m_segmentBranchType, "SegmentBranchType", "Branch Type" );
+    CAF_PDM_InitFieldNoDefault( &m_segmentBranchType, "SegmentBranchType", "Completion" );
+
+    CAF_PDM_InitField( &m_scaleFactor, "ScaleFactor", 1.0, "Scale Factor" );
+
+    CAF_PDM_InitField( &m_curveColorByPhase, "CurveColorByPhase", false, "Color by Phase" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -441,32 +448,83 @@ void RimWellLogRftCurve::setSimWellBranchData( bool branchDetection, int branchI
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWellLogRftCurve::createCurveAutoName()
+void RimWellLogRftCurve::enableColorFromResultName( bool enable )
 {
-    QStringList name;
+    m_curveColorByPhase = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogRftCurve::assignColorFromResultName( const QString& resultName )
+{
+    cvf::Color3f color = cvf::Color3f::BLACK;
+
+    if ( resultName.startsWith( "SEGO" ) || resultName.startsWith( "CONO" ) || resultName.startsWith( "SOIL" ) )
+    {
+        color = RiaColorTables::summaryCurveGreenPaletteColors().cycledColor3f( 0 );
+    }
+    else if ( resultName.startsWith( "SEGW" ) || resultName.startsWith( "CONW" ) || resultName.startsWith( "SWAT" ) )
+    {
+        color = RiaColorTables::summaryCurveBluePaletteColors().cycledColor3f( 0 );
+    }
+    else if ( resultName.startsWith( "SEGG" ) || resultName.startsWith( "CONG" ) || resultName.startsWith( "SGAS" ) )
+    {
+        color = RiaColorTables::summaryCurveRedPaletteColors().cycledColor3f( 0 );
+    }
+
+    // Do nothing if not phase is identified
+    if ( color == cvf::Color3f::BLACK ) return;
+
+    float scalingFactor = 0.5;
+    auto  fillColor     = RiaColorTools::makeLighter( color, scalingFactor );
+    setColor( color );
+    setFillColor( fillColor );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogRftCurve::setScaleFactor( double factor )
+{
+    m_scaleFactor = factor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<QString, QString> RimWellLogRftCurve::createCurveNameKeyValueMap() const
+{
+    std::map<QString, QString> variableValueMap;
 
     if ( !wellName().isEmpty() )
     {
-        name.push_back( wellName() );
+        variableValueMap[RiaDefines::namingVariableWell()] = wellName();
     }
 
-    name.push_back( "RFT" );
+    variableValueMap[RiaDefines::namingVariableResultType()] = "RFT";
 
+    QString caseText;
     if ( m_eclipseResultCase )
     {
-        name.push_back( m_eclipseResultCase->caseUserDescription() );
+        caseText = m_eclipseResultCase->caseUserDescription();
     }
     else if ( m_ensemble ) // Summary RFT curves have both ensemble and summary set. Prioritize ensemble for name.
     {
-        name.push_back( m_ensemble->name() );
+        caseText = m_ensemble->name();
     }
     else if ( m_summaryCase )
     {
-        name.push_back( m_summaryCase->displayCaseName() );
+        caseText = m_summaryCase->displayCaseName();
     }
     else if ( m_observedFmuRftData )
     {
-        name.push_back( m_observedFmuRftData->name() );
+        caseText = m_observedFmuRftData->name();
+    }
+
+    if ( !caseText.isEmpty() )
+    {
+        variableValueMap[RiaDefines::namingVariableCase()] = caseText;
     }
 
     if ( m_rftDataType() == RftDataType::RFT_DATA )
@@ -477,25 +535,80 @@ QString RimWellLogRftCurve::createCurveAutoName()
             RifEclipseRftAddress::RftWellLogChannelType channelNameEnum =
                 caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::fromText( wellLogChannelUiName() );
             QString channelName = caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText( channelNameEnum );
-            name.push_back( channelName );
+
+            variableValueMap[RiaDefines::namingVariableResultName()] = channelName;
         }
     }
     else if ( m_rftDataType() == RftDataType::RFT_SEGMENT_DATA )
     {
-        name.push_back( m_segmentResultName );
+        variableValueMap[RiaDefines::namingVariableResultName()] = m_segmentResultName;
 
         QString branchText = QString( "Branch %1" ).arg( m_segmentBranchIndex() );
-        name.push_back( branchText );
 
-        name.push_back( m_segmentBranchType().uiText() );
+        variableValueMap[RiaDefines::namingVariableWellBranch()] = branchText;
+
+        if ( isSegmentResult( m_segmentResultName() ) )
+        {
+            variableValueMap[RiaDefines::namingVariableResultType()] = m_segmentBranchType().uiText();
+        }
+        else
+        {
+            variableValueMap[RiaDefines::namingVariableResultType()] = "Reservoir";
+        }
     }
 
     if ( !m_timeStep().isNull() )
     {
-        name.push_back( m_timeStep().toString( RiaQDateTimeTools::dateFormatString() ) );
+        variableValueMap[RiaDefines::namingVariableTime()] = m_timeStep().toString( RiaQDateTimeTools::dateFormatString() );
     }
 
-    return name.join( ", " );
+    return variableValueMap;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellLogRftCurve::createCurveAutoName()
+{
+    QStringList curveNameSubStrings;
+
+    for ( const auto& [key, value] : createCurveNameKeyValueMap() )
+    {
+        curveNameSubStrings.push_back( value );
+    }
+
+    return curveNameSubStrings.join( ", " );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellLogRftCurve::createCurveNameFromTemplate( const QString& templateText )
+{
+    auto name = RiaTextStringTools::replaceTemplateTextWithValues( templateText, createCurveNameKeyValueMap() );
+
+    if ( m_scaleFactor() != 1.0 )
+    {
+        int  exponent = std::log10( m_scaleFactor() );
+        auto text     = QString( "x1e%1" ).arg( QString::number( exponent ) );
+
+        name += QString( " [%1]" ).arg( text );
+    }
+
+    return name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RimWellLogRftCurve::supportedCurveNameVariables() const
+{
+    return { RiaDefines::namingVariableWell(),
+             RiaDefines::namingVariableResultName(),
+             RiaDefines::namingVariableResultType(),
+             RiaDefines::namingVariableCase(),
+             RiaDefines::namingVariableWellBranch(),
+             RiaDefines::namingVariableTime() };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -503,6 +616,11 @@ QString RimWellLogRftCurve::createCurveAutoName()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
+    if ( m_curveColorByPhase && m_rftDataType() == RimWellLogRftCurve::RftDataType::RFT_SEGMENT_DATA )
+    {
+        assignColorFromResultName( m_segmentResultName );
+    }
+
     this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
 
     DerivedMDSource derivedMDSource = DerivedMDSource::NO_SOURCE;
@@ -604,8 +722,9 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         {
             m_plotCurve->setPerPointLabels( perPointLabels );
 
-            auto propertyValues = this->curveData()->propertyValues();
-            auto depthValues    = this->curveData()->depths( RiaDefines::DepthTypeEnum::MEASURED_DEPTH, displayUnit );
+            auto propertyValues = this->curveData()->propertyValuesByIntervals();
+            auto depthValues =
+                this->curveData()->depthValuesByIntervals( RiaDefines::DepthTypeEnum::MEASURED_DEPTH, displayUnit );
 
             if ( !errors.empty() )
             {
@@ -615,6 +734,8 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
             {
                 setPropertyAndDepthValuesToPlotCurve( propertyValues, depthValues );
             }
+
+            m_plotCurve->setLineSegmentStartStopIndices( this->curveData()->polylineStartStopIndices() );
 
             RimWellLogTrack* wellLogTrack;
             firstAncestorOrThisOfType( wellLogTrack );
@@ -689,7 +810,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 //--------------------------------------------------------------------------------------------------
 void RimWellLogRftCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    RimPlotCurve::updateOptionSensitivity();
+    RimPlotCurve::updateFieldUiState();
 
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Curve Data" );
     curveDataGroup->add( &m_eclipseResultCase );
@@ -697,6 +818,7 @@ void RimWellLogRftCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     curveDataGroup->add( &m_wellName );
     curveDataGroup->add( &m_timeStep );
     curveDataGroup->add( &m_rftDataType );
+    curveDataGroup->add( &m_scaleFactor );
 
     if ( m_rftDataType() == RimWellLogRftCurve::RftDataType::RFT_DATA )
     {
@@ -710,19 +832,12 @@ void RimWellLogRftCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     else
     {
         curveDataGroup->add( &m_segmentResultName );
-        curveDataGroup->add( &m_segmentBranchIndex );
         curveDataGroup->add( &m_segmentBranchType );
+        curveDataGroup->add( &m_segmentBranchIndex );
+        curveDataGroup->add( &m_curveColorByPhase );
     }
 
-    caf::PdmUiGroup* stackingGroup = uiOrdering.addNewGroup( "Stacking" );
-    RimStackablePlotCurve::stackingUiOrdering( *stackingGroup );
-
-    caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup( "Appearance" );
-    RimPlotCurve::appearanceUiOrdering( *appearanceGroup );
-
-    caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup( "Curve Name" );
-    nameGroup->add( &m_showLegend );
-    RimPlotCurve::curveNameUiOrdering( *nameGroup );
+    RimStackablePlotCurve::defaultUiOrdering( uiOrdering );
 
     uiOrdering.skipRemainingFields();
 }
@@ -778,7 +893,17 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions( const c
     }
     else if ( fieldNeedingOptions == &m_segmentBranchIndex )
     {
-        options = RimRftTools::segmentBranchIndexOptions( reader, m_wellName(), m_timeStep() );
+        options = RimRftTools::segmentBranchIndexOptions( reader, m_wellName(), m_timeStep(), m_segmentBranchType() );
+    }
+    else if ( fieldNeedingOptions == &m_scaleFactor )
+    {
+        for ( int exp = -12; exp <= 12; exp += 3 )
+        {
+            QString uiText = exp == 0 ? "1" : QString( "10 ^ %1" ).arg( exp );
+            double  value  = std::pow( 10, exp );
+
+            options.push_back( caf::PdmOptionItemInfo( uiText, value ) );
+        }
     }
 
     return options;
@@ -829,7 +954,7 @@ void RimWellLogRftCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
         loadData = true;
     }
     else if ( changedField == &m_timeStep || changedField == &m_segmentResultName || changedField == &m_segmentBranchIndex ||
-              changedField == &m_rftDataType || changedField == &m_segmentBranchType )
+              changedField == &m_rftDataType || changedField == &m_segmentBranchType || m_scaleFactor )
     {
         loadData = true;
     }
@@ -1010,9 +1135,9 @@ std::vector<size_t> RimWellLogRftCurve::sortedIndicesInRftFile()
 std::vector<double> RimWellLogRftCurve::xValues()
 {
     RifReaderRftInterface* reader = rftReader();
-    std::vector<double>    values;
+    if ( !reader ) return {};
 
-    if ( !reader ) return values;
+    std::vector<double> values;
 
     if ( m_rftDataType() == RftDataType::RFT_SEGMENT_DATA )
     {
@@ -1023,29 +1148,37 @@ std::vector<double> RimWellLogRftCurve::xValues()
                                                                               m_segmentBranchType() );
 
         reader->values( depthAddress, &values );
+    }
+    else
+    {
+        auto address = RifEclipseRftAddress::createAddress( m_wellName(), m_timeStep, m_wellLogChannelName() );
 
-        return values;
+        reader->values( address, &values );
+
+        bool wellPathExists = createWellPathIdxToRftFileIdxMapping();
+
+        if ( wellPathExists )
+        {
+            std::vector<double> valuesSorted;
+
+            for ( size_t idx : sortedIndicesInRftFile() )
+            {
+                if ( idx < values.size() )
+                {
+                    valuesSorted.push_back( ( values.at( idx ) ) );
+                }
+            }
+
+            std::swap( valuesSorted, values );
+        }
     }
 
-    auto address = RifEclipseRftAddress::createAddress( m_wellName(), m_timeStep, m_wellLogChannelName() );
-
-    reader->values( address, &values );
-
-    bool wellPathExists = createWellPathIdxToRftFileIdxMapping();
-
-    if ( wellPathExists )
+    if ( m_scaleFactor() != 1.0 )
     {
-        std::vector<double> valuesSorted;
-
-        for ( size_t idx : sortedIndicesInRftFile() )
+        for ( auto& val : values )
         {
-            if ( idx < values.size() )
-            {
-                valuesSorted.push_back( ( values.at( idx ) ) );
-            }
+            val *= m_scaleFactor();
         }
-
-        return valuesSorted;
     }
 
     return values;
@@ -1124,27 +1257,12 @@ std::vector<double> RimWellLogRftCurve::measuredDepthValues()
 {
     if ( m_rftDataType() == RftDataType::RFT_SEGMENT_DATA )
     {
-        std::vector<double> values;
-
         RifReaderRftInterface* reader = rftReader();
         if ( reader )
         {
-            auto depthAddress =
-                RifEclipseRftAddress::createBranchSegmentAddress( m_wellName(),
-                                                                  m_timeStep,
-                                                                  RiaDefines::segmentStartDepthResultName(),
-                                                                  segmentBranchIndex(),
-                                                                  m_segmentBranchType() );
-
-            reader->values( depthAddress, &values );
-
-            // Special handling of first segment
-            if ( values.size() > 2 && values.front() < 0.001 )
-            {
-                values[0] = values[1];
-            }
+            return RimRftTools::seglenstValues( reader, m_wellName(), m_timeStep, segmentBranchIndex(), m_segmentBranchType() );
         }
-        return values;
+        return {};
     }
 
     if ( m_observedFmuRftData && !m_ensemble && !m_summaryCase )
@@ -1262,4 +1380,12 @@ bool RimWellLogRftCurve::deriveMeasuredDepthFromObservedData( const std::vector<
 int RimWellLogRftCurve::segmentBranchIndex() const
 {
     return m_segmentBranchIndex();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellLogRftCurve::isSegmentResult( const QString& resultName )
+{
+    return resultName.startsWith( "SEG" );
 }

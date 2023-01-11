@@ -41,7 +41,7 @@ protected:
     void alignScrollbar( int offset );
 
 private:
-    RimDepthTrackPlot* depthTrackPlot();
+    RimDepthTrackPlot* depthTrackPlot() const;
 
 private slots:
     void slotSetMinDepth( int value );

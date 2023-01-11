@@ -110,7 +110,15 @@ RimWellBoreStabilityPlot*
     {
         auto task = progInfo.task( "Updating all tracks", 5 );
 
-        plot->nameConfig()->setAutoNameTags( true, true, true, true, true );
+        QString templateText = QString( "Well Bore Stability: %1, %2, %3, %4, %5" )
+                                   .arg( RiaDefines::namingVariableCase() )
+                                   .arg( RiaDefines::namingVariableWell() )
+                                   .arg( RiaDefines::namingVariableTime() )
+                                   .arg( RiaDefines::namingVariableAirGap() )
+                                   .arg( RiaDefines::namingVariableWaterDepth() );
+        plot->setNameTemplateText( templateText );
+        plot->setNamingMethod( RiaDefines::ObjectNamingMethod::TEMPLATE );
+
         plot->setPlotTitleVisible( true );
         plot->setLegendsVisible( true );
         plot->setLegendsHorizontal( true );
@@ -220,6 +228,7 @@ void RicNewWellBoreStabilityPlotFeature::createFormationTrack( RimWellBoreStabil
     formationTrack->setFormationCase( geoMechCase );
     formationTrack->setAnnotationType( RiaDefines::RegionAnnotationType::FORMATION_ANNOTATIONS );
     formationTrack->setVisiblePropertyValueRange( 0.0, 0.0 );
+    formationTrack->enablePropertyAxis( false );
     formationTrack->setColSpan( RimPlot::ONE );
 }
 
@@ -242,6 +251,7 @@ void RicNewWellBoreStabilityPlotFeature::createCasingShoeTrack( RimWellBoreStabi
     casingShoeTrack->setAnnotationTransparency( 90 );
     casingShoeTrack->setWellPathAttributesSource( wellPath );
     casingShoeTrack->setVisiblePropertyValueRange( 0.0, 0.0 );
+    casingShoeTrack->enablePropertyAxis( false );
     casingShoeTrack->setAutoScalePropertyValuesEnabled( true );
     casingShoeTrack->loadDataAndUpdate();
 }
@@ -286,7 +296,8 @@ void RicNewWellBoreStabilityPlotFeature::createParametersTrack( RimWellBoreStabi
         curve->setLineStyle( lineStyles[i % lineStyles.size()] );
         curve->setLineThickness( 2 );
         curve->loadDataAndUpdate( false );
-        curve->setCustomName( param.name() );
+        curve->setAutoNameComponents( false, true, false, false, false );
+
         i++;
     }
     paramCurvesTrack->setAutoScalePropertyValuesEnabled( true );

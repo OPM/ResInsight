@@ -54,20 +54,18 @@ public:
     RimSummaryCase();
     ~RimSummaryCase() override;
 
-    virtual QString summaryHeaderFilename() const;
-    QString         displayCaseName() const;
-    QString         nativeCaseName() const;
-    void            setCaseId( int caseId );
-    int             caseId() const;
+    virtual QString                      summaryHeaderFilename() const;
+    QString                              displayCaseName() const;
+    QString                              nativeCaseName() const;
+    void                                 setCustomCaseName( const QString& caseName );
+    void                                 updateAutoShortName();
+    RimCaseDisplayNameTools::DisplayName displayNameType() const;
+    void                                 setDisplayNameOption( RimCaseDisplayNameTools::DisplayName displayNameOption );
 
-    void setCustomCaseName( const QString& caseName );
+    void setCaseId( int caseId );
+    int  caseId() const;
 
-    caf::AppEnum<RiaDefines::EclipseUnitSystem> unitsSystem();
-
-    void setDisplayNameOption( RimCaseDisplayNameTools::DisplayName displayNameOption );
-    void updateAutoShortName();
     void updateOptionSensitivity();
-
     void refreshMetaData();
 
     virtual void                       createSummaryReaderInterface() = 0;
@@ -77,6 +75,8 @@ public:
     virtual QString                    errorMessagesFromReader();
 
     void setSummaryHeaderFileName( const QString& fileName );
+
+    caf::AppEnum<RiaDefines::EclipseUnitSystem> unitsSystem();
 
     bool isObservedData() const;
 

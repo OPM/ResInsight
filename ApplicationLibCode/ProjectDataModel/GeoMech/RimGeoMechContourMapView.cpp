@@ -86,6 +86,14 @@ RimGeoMechContourMapProjection* RimGeoMechContourMapView::contourMapProjection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiaDefines::View3dContent RimGeoMechContourMapView::viewContent() const
+{
+    return ( RiaDefines::View3dContent::GEOMECH_DATA & RiaDefines::View3dContent::CONTOUR );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimGeoMechContourMapView::createAutoName() const
 {
     QStringList autoName;

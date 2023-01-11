@@ -22,6 +22,7 @@
 #include "RimRftPlotCollection.h"
 #include "RimSimWellInView.h"
 #include "RimWellLogPlot.h"
+#include "RimWellLogPlotNameConfig.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellRftPlot.h"
@@ -77,6 +78,7 @@ void RicNewRftPlotFeature::onActionTriggered( bool isChecked )
         QString plotName = QString( RimWellRftPlot::plotNameFormatString() ).arg( wellName );
 
         rftPlot->nameConfig()->setCustomName( plotName );
+        rftPlot->setNamingMethod( RiaDefines::ObjectNamingMethod::CUSTOM );
 
         rftPlot->loadDataAndUpdate();
         rftPlotColl->updateConnectedEditors();

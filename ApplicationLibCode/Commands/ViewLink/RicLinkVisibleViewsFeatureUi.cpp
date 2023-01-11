@@ -22,9 +22,8 @@
 #include "RiaApplication.h"
 #include "RiaOptionItemFactory.h"
 
+#include "Rim3dView.h"
 #include "RimCase.h"
-#include "RimEclipseContourMapView.h"
-#include "RimGridView.h"
 #include "RimViewLinker.h"
 
 CAF_PDM_SOURCE_INIT( RicLinkVisibleViewsFeatureUi, "RicLinkVisibleViewsFeatureUi" );
@@ -32,7 +31,7 @@ CAF_PDM_SOURCE_INIT( RicLinkVisibleViewsFeatureUi, "RicLinkVisibleViewsFeatureUi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicLinkVisibleViewsFeatureUi::RicLinkVisibleViewsFeatureUi( void )
+RicLinkVisibleViewsFeatureUi::RicLinkVisibleViewsFeatureUi()
 {
     CAF_PDM_InitObject( "Link Visible Views Feature UI", ":/LinkView.svg" );
 
@@ -42,54 +41,33 @@ RicLinkVisibleViewsFeatureUi::RicLinkVisibleViewsFeatureUi( void )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicLinkVisibleViewsFeatureUi::setViews( const std::vector<RimGridView*>& allViews )
+void RicLinkVisibleViewsFeatureUi::setViews( const std::vector<Rim3dView*>& allViews )
 {
     m_allViews = allViews;
 
-    RimGridView* activeView = RiaApplication::instance()->activeGridView();
+    auto activeView = RiaApplication::instance()->activeReservoirView();
 
-    std::vector<RimGridView*> masterCandidates = masterViewCandidates();
-
-    // Set Active view as master view if the active view isn't a contour map.
-    for ( size_t i = 0; i < masterCandidates.size(); i++ )
+    for ( size_t i = 0; i < m_allViews.size(); i++ )
     {
-        if ( activeView == masterCandidates[i] )
+        if ( activeView == m_allViews[i] )
         {
             m_masterView = allViews[i];
         }
     }
 
     // Fallback to use first view if no active view is present
-    if ( !m_masterView && masterCandidates.size() > 0 )
+    if ( !m_masterView && !m_allViews.empty() )
     {
-        m_masterView = masterCandidates[0];
+        m_masterView = m_allViews[0];
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGridView* RicLinkVisibleViewsFeatureUi::masterView()
+Rim3dView* RicLinkVisibleViewsFeatureUi::masterView()
 {
     return m_masterView;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RimGridView*> RicLinkVisibleViewsFeatureUi::masterViewCandidates() const
-{
-    std::vector<RimGridView*> masterCandidates;
-    // Set Active view as master view if the active view isn't a contour map.
-    for ( size_t i = 0; i < m_allViews.size(); i++ )
-    {
-        RimEclipseContourMapView* contourMap = dynamic_cast<RimEclipseContourMapView*>( m_allViews[i] );
-        if ( contourMap == nullptr )
-        {
-            masterCandidates.push_back( m_allViews[i] );
-        }
-    }
-    return masterCandidates;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -102,7 +80,7 @@ QList<caf::PdmOptionItemInfo>
 
     if ( fieldNeedingOptions == &m_masterView )
     {
-        for ( RimGridView* v : masterViewCandidates() )
+        for ( auto v : m_allViews )
         {
             RiaOptionItemFactory::appendOptionItemFromViewNameAndCaseName( v, &options );
         }

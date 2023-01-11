@@ -238,15 +238,22 @@ void RiaRegressionTestRunner::runRegressionTest()
                 // Wait until all command objects have completed
                 app->waitUntilCommandObjectsHasBeenProcessed();
 
-                setDefaultSnapshotSizeFor3dViews();
-
                 QString fullPathGeneratedFolder = testCaseFolder.absoluteFilePath( generatedFolderName );
-                RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( fullPathGeneratedFolder );
+                if ( regressionTestConfig.exportSnapshots3dViews )
+                {
+                    setDefaultSnapshotSizeFor3dViews();
 
-                QApplication::processEvents();
-                setDefaultSnapshotSizeForPlotWindows();
+                    RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( fullPathGeneratedFolder );
 
-                RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( fullPathGeneratedFolder );
+                    QApplication::processEvents();
+                }
+
+                if ( regressionTestConfig.exportSnapshotsPlots )
+                {
+                    setDefaultSnapshotSizeForPlotWindows();
+
+                    RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( fullPathGeneratedFolder );
+                }
 
                 uint64_t usedMemoryBeforeClose = caf::MemoryInspector::getApplicationPhysicalMemoryUsageMiB();
 
@@ -620,7 +627,7 @@ QFileInfoList RiaRegressionTestRunner::subDirectoriesForTestExecution( const QDi
         {
             QString trimmed = s.trimmed();
             if ( ( m_appendAllTestsAfterLastItemInFilter && anyMatchFound ) ||
-                 baseName.contains( trimmed, Qt::CaseInsensitive ) )
+                 baseName.compare( trimmed, Qt::CaseInsensitive ) == 0 )
             {
                 foldersMatchingTestFilter.push_back( fi );
                 anyMatchFound = true;

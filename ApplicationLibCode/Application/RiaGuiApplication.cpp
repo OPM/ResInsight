@@ -434,7 +434,8 @@ void RiaGuiApplication::initialize()
         logger->addMessagePanel( m_mainWindow->messagePanel() );
         logger->addMessagePanel( m_mainPlotWindow->messagePanel() );
         RiaLogging::setLoggerInstance( std::move( logger ) );
-        RiaLogging::loggerInstance()->setLevel( int( RILogLevel::RI_LL_DEBUG ) );
+
+        RiaLogging::loggerInstance()->setLevel( int( RiaLogging::logLevelBasedOnPreferences() ) );
     }
     m_socketServer = new RiaSocketServer( this );
 }
@@ -1209,6 +1210,9 @@ void RiaGuiApplication::onProjectBeingOpened()
 {
     // When importing a project, do not maximize the first MDI window to be created
     m_maximizeWindowGuard = std::make_unique<RiuMdiMaximizeWindowGuard>();
+
+    if ( m_mainWindow ) m_mainWindow->setBlockSubWindowActivatedSignal( true );
+    if ( mainPlotWindow() ) mainPlotWindow()->setBlockSubWindowActivatedSignal( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1268,6 +1272,9 @@ void RiaGuiApplication::onProjectOpened()
     m_maximizeWindowGuard.reset();
 
     processEvents();
+
+    if ( m_mainWindow ) m_mainWindow->setBlockSubWindowActivatedSignal( false );
+    if ( mainPlotWindow() ) mainPlotWindow()->setBlockSubWindowActivatedSignal( false );
 
     // Make sure to process events before this function to avoid strange Qt crash
     RiuPlotMainWindowTools::refreshToolbars();
@@ -1568,7 +1575,7 @@ void RiaGuiApplication::stopMonitoringWorkProgress()
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::slotWorkerProcessFinished( int exitCode, QProcess::ExitStatus exitStatus )
 {
-    CAF_ASSERT( m_mainWindow );
+    if ( m_mainWindow == nullptr ) return;
 
     m_mainWindow->processMonitor()->stopMonitorWorkProcess();
 

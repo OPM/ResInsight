@@ -46,7 +46,6 @@
 #include "RimContextCommandBuilder.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
-#include "RimEclipseContourMapView.h"
 #include "RimEclipseFaultColors.h"
 #include "RimEclipseView.h"
 #include "RimEllipseFractureTemplate.h"
@@ -56,7 +55,6 @@
 #include "RimFracture.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
-#include "RimGeoMechContourMapView.h"
 #include "RimGeoMechView.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimLegendConfig.h"
@@ -108,7 +106,6 @@
 #include "cvfPart.h"
 #include "cvfRay.h"
 #include "cvfScene.h"
-#include "cvfTransform.h"
 
 #include <QMenu>
 #include <QMouseEvent>
@@ -133,6 +130,7 @@ RiuViewerCommands::RiuViewerCommands( RiuViewer* ownerViewer )
     , m_currentCellIndex( -1 )
     , m_currentFaceIndex( cvf::StructGridInterface::NO_FACE )
     , m_currentPickPositionInDomainCoords( cvf::Vec3d::UNDEFINED )
+    , m_isCurrentPickInComparisonView( false )
     , m_viewer( ownerViewer )
 {
     if ( sm_defaultPickEventHandlers.empty() )
@@ -162,7 +160,7 @@ void RiuViewerCommands::setOwnerView( Rim3dView* owner )
 
 void RiuViewerCommands::addCompareToViewMenu( caf::CmdFeatureMenuBuilder* menuBuilder )
 {
-    RimGridView* mainGridView = dynamic_cast<RimGridView*>( m_reservoirView.p() );
+    auto* mainGridView = m_reservoirView.p();
     if ( mainGridView && !mainGridView->activeComparisonView() )
     {
         std::vector<Rim3dView*> validComparisonViews;
@@ -171,17 +169,13 @@ void RiuViewerCommands::addCompareToViewMenu( caf::CmdFeatureMenuBuilder* menuBu
         RimProject::current()->allViews( views );
         for ( auto view : views )
         {
-            if ( !dynamic_cast<RimGridView*>( view ) ) continue;
-            if ( dynamic_cast<RimEclipseContourMapView*>( view ) ) continue;
-            if ( dynamic_cast<RimGeoMechContourMapView*>( view ) ) continue;
-
             if ( view != mainGridView )
             {
                 validComparisonViews.push_back( view );
             }
         }
 
-        if ( validComparisonViews.size() )
+        if ( !validComparisonViews.empty() )
         {
             menuBuilder->subMenuStart( "Compare To ...", QIcon( ":/ComparisonView16x16.png" ) );
             for ( auto view : validComparisonViews )
@@ -223,7 +217,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
     uint             firstPartTriangleIndex = cvf::UNDEFINED_UINT;
     m_currentPickPositionInDomainCoords     = cvf::Vec3d::UNDEFINED;
 
-    if ( pickItemInfos.size() )
+    if ( !pickItemInfos.empty() )
     {
         cvf::Vec3d globalIntersectionPoint = pickItemInfos[0].globalPickedPoint();
 
@@ -453,22 +447,6 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
                                                            QVariant( fault->name() ) );
 
                     menuBuilder.addSeparator();
-
-                    if ( eclipseView->faultCollection() && eclipseView->faultCollection()->faultRAEnabled() )
-                    {
-                        menuBuilder.subMenuStart( "Reactivation Assessment" );
-                        menuBuilder.addCmdFeatureWithUserData( "RicRunBasicFaultReactAssessment3dFeature",
-                                                               "Run Basic Processing",
-                                                               QVariant( fault->name() ) );
-                        if ( eclipseView->faultCollection()->faultRAAdvancedEnabled() )
-                        {
-                            menuBuilder.addCmdFeatureWithUserData( "RicRunAdvFaultReactAssessment3dFeature",
-                                                                   "Run Advanced Processing",
-                                                                   QVariant( fault->name() ) );
-                        }
-                        menuBuilder.subMenuEnd();
-                        menuBuilder.addSeparator();
-                    }
                 }
             }
 
@@ -616,7 +594,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
     // View Link commands
     if ( !firstHitPart )
     {
-        if ( gridView )
+        if ( gridView || int2dView )
         {
             menuBuilder << "RicLinkViewFeature";
             menuBuilder << "RicShowLinkOptionsFeature";
@@ -625,9 +603,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
             menuBuilder.addSeparator();
             menuBuilder << "RicUnLinkViewFeature";
             menuBuilder << "RicRemoveComparison3dViewFeature";
-        }
-        else if ( int2dView )
-        {
+            menuBuilder.addSeparator();
             menuBuilder << "RicSelectColorResult";
         }
     }
@@ -656,9 +632,6 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
 #endif
         menuBuilder << "RicShowGridStatisticsFeature";
         menuBuilder << "RicSelectColorResult";
-    }
-    else if ( int2dView )
-    {
     }
 
     menuBuilder << "RicExportContourMapToTextFeature";
@@ -711,7 +684,7 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
 
     // Make pickEventHandlers do their stuff
 
-    if ( pickItemInfos.size() )
+    if ( !pickItemInfos.empty() )
     {
         Ric3dPickEvent viewerEventObject( pickItemInfos, mainOrComparisonView, keyboardModifiers );
 
@@ -739,7 +712,7 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
         uint             firstPartTriangleIndex = cvf::UNDEFINED_UINT;
         cvf::Vec3d       globalIntersectionPoint( cvf::Vec3d::ZERO );
 
-        if ( pickItemInfos.size() )
+        if ( !pickItemInfos.empty() )
         {
             size_t indexToFirstNoneNncItem     = cvf::UNDEFINED_SIZE_T;
             size_t indexToNncItemNearFirstItem = cvf::UNDEFINED_SIZE_T;
@@ -1129,7 +1102,7 @@ void RiuViewerCommands::findFirstItems( Rim3dView*                          main
                                         size_t*                             indexToFirstNoneNncItem,
                                         size_t*                             indexToNncItemNearFirsItem )
 {
-    CVF_ASSERT( pickItemInfos.size() > 0 );
+    CVF_ASSERT( !pickItemInfos.empty() );
     CVF_ASSERT( indexToFirstNoneNncItem );
     CVF_ASSERT( indexToNncItemNearFirsItem );
 

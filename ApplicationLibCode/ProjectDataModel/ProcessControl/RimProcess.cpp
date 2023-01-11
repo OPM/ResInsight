@@ -29,6 +29,9 @@
 #ifdef _MSC_VER
 #pragma warning( disable : 4996 )
 #endif
+#ifdef __GNUC__
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 
 CAF_PDM_SOURCE_INIT( RimProcess, "RimProcess" );
 
@@ -146,7 +149,6 @@ bool RimProcess::execute()
     QObject::connect( proc, SIGNAL( started() ), m_monitor, SLOT( started() ) );
 
     bool retval = false;
-
     proc->start( cmd );
     if ( proc->waitForStarted( -1 ) )
     {

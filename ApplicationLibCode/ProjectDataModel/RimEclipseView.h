@@ -66,6 +66,8 @@ class RimTernaryLegendConfig;
 class RimEclipseResultDefinition;
 class RimElementVectorResult;
 class RimStreamlineInViewCollection;
+class RimMultipleEclipseResults;
+class RigEclipseResultAddress;
 
 namespace cvf
 {
@@ -86,6 +88,8 @@ class RimEclipseView : public RimGridView
 public:
     RimEclipseView();
     ~RimEclipseView() override;
+
+    RiaDefines::View3dContent viewContent() const override;
 
     RimEclipseCellColors*          cellResult() const;
     RimCellEdgeColors*             cellEdgeResult() const;
@@ -155,6 +159,8 @@ public:
     cvf::Color4f                  colorFromCellCategory( RivCellSetEnum geometryType ) const;
 
     void syncronizeLocalAnnotationsFromGlobal();
+
+    std::vector<RigEclipseResultAddress> additionalResultsForResultInfo() const;
 
 protected:
     void initAfterRead() override;
@@ -237,4 +243,6 @@ private:
     cvf::ref<RivStreamlinesPartMgr>       m_streamlinesPartManager;
 
     std::vector<RivCellSetEnum> m_visibleGridParts;
+
+    caf::PdmChildField<RimMultipleEclipseResults*> m_additionalResultsForResultInfo;
 };

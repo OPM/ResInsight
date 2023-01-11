@@ -41,7 +41,8 @@ template <>
 void caf::AppEnum<RimPlotWindow::LegendPosition>::setUp()
 {
     addItem( RimPlotWindow::LegendPosition::ABOVE, "ABOVE", "Above" );
-    addItem( RimPlotWindow::LegendPosition::INSIDE, "INSIDE", "Inside" );
+    addItem( RimPlotWindow::LegendPosition::INSIDE_UPPER_RIGHT, "INSIDE_UPPER_RIGHT", "Inside Right", { "INSIDE" } );
+    addItem( RimPlotWindow::LegendPosition::INSIDE_UPPER_LEFT, "INSIDE_UPPER_LEFT", "Inside Left" );
     setDefault( RimPlotWindow::LegendPosition::ABOVE );
 }
 }; // namespace caf
@@ -68,6 +69,7 @@ RimPlotWindow::RimPlotWindow()
     CAF_PDM_InitField( &m_showPlotTitle, "ShowPlotTitle", true, "Show Plot Title" );
     CAF_PDM_InitField( &m_showPlotLegends, "ShowTrackLegends", true, "Show Legends" );
     CAF_PDM_InitField( &m_plotLegendsHorizontal, "TrackLegendsHorizontal", true, "Legend Orientation" );
+    CAF_PDM_InitField( &m_legendItemsClickable, "LegendItemsClickable", true, "Legend Items Clickable" );
     m_plotLegendsHorizontal.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_titleFontSize, "TitleFontSize", "Title Font Size" );
@@ -76,6 +78,8 @@ RimPlotWindow::RimPlotWindow()
 
     m_titleFontSize  = caf::FontTools::RelativeSize::XXLarge;
     m_legendFontSize = caf::FontTools::RelativeSize::Large;
+
+    m_bottomMargin = -1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -101,6 +105,7 @@ RimPlotWindow& RimPlotWindow::operator=( RimPlotWindow&& rhs )
     m_showPlotTitle         = rhs.m_showPlotTitle();
     m_showPlotLegends       = rhs.m_showPlotLegends();
     m_plotLegendsHorizontal = rhs.m_plotLegendsHorizontal();
+    m_legendItemsClickable  = rhs.m_legendItemsClickable();
     m_titleFontSize         = rhs.m_titleFontSize();
     m_legendFontSize        = rhs.m_legendFontSize();
     m_legendPosition        = rhs.m_legendPosition();
@@ -153,6 +158,22 @@ bool RimPlotWindow::legendsHorizontal() const
 void RimPlotWindow::setLegendsHorizontal( bool horizontal )
 {
     m_plotLegendsHorizontal = horizontal;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPlotWindow::legendItemsClickable() const
+{
+    return m_legendItemsClickable();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotWindow::setLegendItemsClickable( bool clickable )
+{
+    m_legendItemsClickable = clickable;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -270,6 +291,22 @@ QPageLayout RimPlotWindow::pageLayout() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPlotWindow::setBottomMargin( int bottomMargin )
+{
+    m_bottomMargin = bottomMargin;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimPlotWindow::bottomMargin() const
+{
+    return m_bottomMargin;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPlotWindow::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                       const QVariant&            oldValue,
                                       const QVariant&            newValue )
@@ -282,7 +319,8 @@ void RimPlotWindow::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     }
 
     if ( changedField == &m_showPlotLegends || changedField == &m_plotLegendsHorizontal ||
-         changedField == &m_legendFontSize || changedField == &m_titleFontSize || changedField == &m_legendPosition )
+         changedField == &m_legendFontSize || changedField == &m_titleFontSize || changedField == &m_legendPosition ||
+         changedField == &m_legendItemsClickable )
     {
         updateLayout();
     }
@@ -312,16 +350,38 @@ QList<caf::PdmOptionItemInfo> RimPlotWindow::calculateValueOptions( const caf::P
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotWindow::uiOrderingForPlotLayout( QString uiConfigName, caf::PdmUiOrdering& uiOrdering, bool showLegendPosition )
+void RimPlotWindow::uiOrderingForLegends( QString uiConfigName, caf::PdmUiOrdering& uiOrdering, bool showLegendPosition )
 {
     uiOrdering.add( &m_showPlotLegends );
     uiOrdering.add( &m_plotLegendsHorizontal );
+    uiOrdering.add( &m_legendItemsClickable );
     if ( showLegendPosition )
     {
         uiOrdering.add( &m_legendPosition );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotWindow::uiOrderingForFonts( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
     uiOrdering.add( &m_titleFontSize );
     uiOrdering.add( &m_legendFontSize );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotWindow::uiOrderingForLegendsAndFonts( QString uiConfigName, caf::PdmUiOrdering& uiOrdering, bool showLegendPosition )
+{
+    caf::PdmUiGroup* legendGroup = uiOrdering.addNewGroup( "Legends" );
+    legendGroup->setCollapsedByDefault();
+    RimPlotWindow::uiOrderingForLegends( uiConfigName, *legendGroup, showLegendPosition );
+
+    caf::PdmUiGroup* fontGroup = uiOrdering.addNewGroup( "Fonts" );
+    fontGroup->setCollapsedByDefault();
+    RimPlotWindow::uiOrderingForFonts( uiConfigName, *fontGroup );
 }
 
 //--------------------------------------------------------------------------------------------------

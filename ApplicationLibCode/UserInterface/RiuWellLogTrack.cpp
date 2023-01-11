@@ -21,11 +21,16 @@
 
 #include "RiaDefines.h"
 #include "RiaPlotDefines.h"
+
+#include "RimPlotAxisAnnotation.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogTrack.h"
 
+#include "RigWellLogCurveData.h"
+
 #include "RiuGuiTheme.h"
+#include "RiuPlotAnnotationTool.h"
 #include "RiuPlotCurve.h"
 #include "RiuPlotCurveInfoTextProvider.h"
 #include "RiuQwtCurvePointTracker.h"
@@ -35,6 +40,7 @@
 #include "qwt_plot_curve.h"
 #include "qwt_scale_draw.h"
 #include "qwt_scale_engine.h"
+#include "qwt_scale_map.h"
 #include "qwt_scale_widget.h"
 
 #include <QWheelEvent>
@@ -73,13 +79,13 @@ protected:
                 RimWellLogPlot* wlp = nullptr;
                 m_wellLogTrack->firstAncestorOfType( wlp );
 
-                if ( wlp && wlp->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
+                if ( wlp && wlp->depthOrientation() == RiaDefines::Orientation::HORIZONTAL )
                 {
-                    str = QString( "%1\nDepth: %2" ).arg( xAxisValueString ).arg( depthAxisValueString );
+                    str = QString( "%1\nDepth: %2" ).arg( depthAxisValueString ).arg( xAxisValueString );
                 }
                 else
                 {
-                    str = QString( "%1\nDepth: %2" ).arg( depthAxisValueString ).arg( xAxisValueString );
+                    str = QString( "%1\nDepth: %2" ).arg( xAxisValueString ).arg( depthAxisValueString );
                 }
 
                 if ( !curveInfoText.isEmpty() )
@@ -114,10 +120,9 @@ public:
     //--------------------------------------------------------------------------------------------------
     QString curveInfoText( RiuPlotCurve* riuCurve ) const override
     {
-        RimWellLogCurve* wlCurve = nullptr;
         if ( riuCurve )
         {
-            wlCurve = dynamic_cast<RimWellLogCurve*>( riuCurve->ownerRimCurve() );
+            RimWellLogCurve* wlCurve = dynamic_cast<RimWellLogCurve*>( riuCurve->ownerRimCurve() );
             if ( wlCurve )
             {
                 return QString( "%1" ).arg( wlCurve->curveName() );
@@ -125,6 +130,50 @@ public:
         }
 
         return "";
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
+    QString additionalText( RiuPlotCurve* curve, int sampleIndex ) const override
+    {
+        if ( !curve ) return {};
+
+        std::vector<std::pair<QString, double>> propertyNameValues;
+
+        auto* sourceCurve = curve->ownerRimCurve();
+        if ( !sourceCurve ) return {};
+
+        auto annotationCurves = sourceCurve->additionalDataSources();
+        for ( auto annotationCurve : annotationCurves )
+        {
+            RimDepthTrackPlot* depthTrackPlot = nullptr;
+            annotationCurve->firstAncestorOfType( depthTrackPlot );
+            if ( depthTrackPlot )
+            {
+                auto [xValue, yValue] = curve->sample( sampleIndex );
+
+                auto depth = depthTrackPlot->depthOrientation() == RiaDefines::Orientation::VERTICAL ? yValue : xValue;
+
+                auto propertyValue = annotationCurve->closestYValueForX( depth );
+
+                // Use template to get as short label as possible. The default curve name will often
+                // contain too much and redundant information.
+                QString templateText = RiaDefines::namingVariableResultName() + ", " +
+                                       RiaDefines::namingVariableResultType();
+                auto resultName = annotationCurve->createCurveNameFromTemplate( templateText );
+
+                propertyNameValues.push_back( std::make_pair( resultName, propertyValue ) );
+            }
+        }
+
+        QString txt;
+        for ( const auto& [name, value] : propertyNameValues )
+        {
+            txt += QString( "%1 : %2\n" ).arg( name ).arg( value );
+        }
+
+        return txt;
     }
 };
 static WellLogCurveInfoTextProvider wellLogCurveInfoTextProvider;
@@ -138,11 +187,13 @@ RiuWellLogTrack::RiuWellLogTrack( RimWellLogTrack* track, QWidget* parent /*= nu
     RimWellLogPlot* wlp = nullptr;
     track->firstAncestorOfType( wlp );
 
-    bool isVertical = ( wlp && wlp->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL );
+    bool isVertical = ( wlp && wlp->depthOrientation() == RiaDefines::Orientation::VERTICAL );
     setAxisEnabled( QwtAxis::YLeft, true );
     setAxisEnabled( QwtAxis::YRight, false );
     setAxisEnabled( QwtAxis::XTop, !isVertical );
     setAxisEnabled( QwtAxis::XBottom, isVertical );
+
+    m_annotationTool = std::make_unique<RiuPlotAnnotationTool>();
 
     new RiuWellLogCurvePointTracker( this->qwtPlot(), &wellLogCurveInfoTextProvider, track );
 }
@@ -173,4 +224,72 @@ void RiuWellLogTrack::setAxisEnabled( QwtAxis::Position axis, bool enabled )
     }
 
     setAxisTitleEnabled( plotAxis, enabled );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogTrack::createAnnotationsInPlot( const std::vector<RimPlotAxisAnnotation*>& annotations )
+{
+    m_annotationTool->detachAllAnnotations();
+
+    // Not required to update annotations in an invisible plot
+    if ( !plotDefinition()->showWindow() ) return;
+
+    RimDepthTrackPlot* depthTrackPlot = nullptr;
+    m_plotDefinition->firstAncestorOfType( depthTrackPlot );
+    if ( !depthTrackPlot ) return;
+
+    auto orientation = depthTrackPlot->depthOrientation() == RiaDefines::Orientation::HORIZONTAL
+                           ? RiaDefines::Orientation::VERTICAL
+                           : RiaDefines::Orientation::HORIZONTAL;
+    for ( auto annotation : annotations )
+    {
+        m_annotationTool->attachAnnotation( qwtPlot(), annotation, orientation );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogTrack::onMouseMoveEvent( QMouseEvent* mouseEvent )
+{
+    // The mouse move event here is a mouse move event local to one track. The depth information here must be
+    // communicated to all tracks in the same depth track plot. And then, after the depth information has been updated,
+    // all well log tracks must be updated with the new depth marker line location.
+
+    if ( !m_plotDefinition ) return;
+    if ( mouseEvent->type() != QMouseEvent::MouseMove ) return;
+
+    RimDepthTrackPlot* depthTrackPlot = nullptr;
+    m_plotDefinition->firstAncestorOfType( depthTrackPlot );
+    if ( !depthTrackPlot || !depthTrackPlot->isDepthMarkerLineEnabled() ) return;
+
+    auto plotwidget = dynamic_cast<RiuQwtPlotWidget*>( m_plotDefinition->plotWidget() );
+    if ( !plotwidget ) return;
+
+    auto qwtPlot = plotwidget->qwtPlot();
+    if ( !qwtPlot ) return;
+
+    auto              riuPlotAxis = depthTrackPlot->depthAxis();
+    auto              qwtAxis     = plotwidget->toQwtPlotAxis( riuPlotAxis );
+    const QwtScaleMap axisMap     = qwtPlot->canvasMap( qwtAxis );
+
+    double depth = 0.0;
+    if ( depthTrackPlot->depthOrientation() == RiaDefines::Orientation::HORIZONTAL )
+    {
+        depth = axisMap.invTransform( mouseEvent->pos().x() );
+    }
+    else
+    {
+        depth = axisMap.invTransform( mouseEvent->pos().y() );
+    }
+
+    depthTrackPlot->setDepthMarkerPosition( depth );
+
+    for ( auto p : depthTrackPlot->plots() )
+    {
+        auto wellLogTrack = dynamic_cast<RimWellLogTrack*>( p );
+        if ( wellLogTrack ) wellLogTrack->updateDepthMarkerLine();
+    }
 }

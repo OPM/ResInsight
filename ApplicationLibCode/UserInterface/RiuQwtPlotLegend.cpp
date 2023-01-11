@@ -35,9 +35,9 @@
 //--------------------------------------------------------------------------------------------------
 RiuQwtPlotLegend::RiuQwtPlotLegend( QWidget* parent /*= nullptr */ )
     : QwtLegend( parent )
-    , m_columnCount( 1 )
+
 {
-    QwtDynGridLayout* legendLayout = qobject_cast<QwtDynGridLayout*>( contentsWidget()->layout() );
+    auto* legendLayout = qobject_cast<QwtDynGridLayout*>( contentsWidget()->layout() );
     if ( legendLayout )
     {
         legendLayout->setExpandingDirections( Qt::Horizontal | Qt::Vertical );
@@ -51,15 +51,15 @@ RiuQwtPlotLegend::RiuQwtPlotLegend( QWidget* parent /*= nullptr */ )
 void RiuQwtPlotLegend::resizeEvent( QResizeEvent* event )
 {
     QWidget::resizeEvent( event );
-    QSize                   size         = event->size();
+
+    QSize size = event->size();
+
+    // Avoid updating geometry if height is very small
+    if ( size.height() < 10 ) return;
+
     const QwtDynGridLayout* legendLayout = qobject_cast<QwtDynGridLayout*>( contentsWidget()->layout() );
     if ( legendLayout )
     {
-        QMargins margins = this->contentsMargins();
-
-        m_columnCount =
-            std::max( 1, (int)legendLayout->columnsForWidth( size.width() - margins.left() - margins.right() ) );
-
         updateGeometry();
     }
 }
@@ -70,40 +70,43 @@ void RiuQwtPlotLegend::resizeEvent( QResizeEvent* event )
 QSize RiuQwtPlotLegend::sizeHint() const
 {
     QSize fullSizeHint = QwtLegend::sizeHint();
-    // Update width
+
     const QwtDynGridLayout* legendLayout = qobject_cast<QwtDynGridLayout*>( contentsWidget()->layout() );
     if ( legendLayout )
     {
-        int numColumns = m_columnCount;
-        int numRows    = legendLayout->itemCount() / numColumns;
+        QMargins margins = this->contentsMargins();
+
+        auto widgetSize = size();
+
+        int numColumns =
+            std::max( 1, (int)legendLayout->columnsForWidth( widgetSize.width() - margins.left() - margins.right() ) );
+        int numRows = legendLayout->itemCount() / numColumns;
         if ( numRows == 0 )
         {
-            return QSize( 0, 0 );
+            return { 0, 0 };
         }
-        else
+
+        if ( legendLayout->itemCount() % numColumns ) numRows++;
+
+        int width = numColumns * legendLayout->maxItemWidth();
+
+        int maxHeight = 0;
+        for ( unsigned int i = 0; i < legendLayout->itemCount(); ++i )
         {
-            if ( legendLayout->itemCount() % numColumns ) numRows++;
-
-            int width = numColumns * legendLayout->maxItemWidth();
-
-            int maxHeight = 0;
-            for ( unsigned int i = 0; i < legendLayout->itemCount(); ++i )
-            {
-                auto itemSize = legendLayout->itemAt( i )->sizeHint();
-                maxHeight     = std::max( maxHeight, itemSize.height() );
-            }
-            QMargins margins      = legendLayout->contentsMargins();
-            int      totalSpacing = ( numRows + 2 ) * legendLayout->spacing() + margins.top() + margins.bottom();
-
-            int height = maxHeight * numRows + totalSpacing;
-
-            QSize layoutSize( width, height );
-            QSize frameSize = layoutSize + QSize( 2 * frameWidth(), 2 * frameWidth() );
-
-            fullSizeHint.setWidth( std::max( fullSizeHint.width(), frameSize.width() ) );
-            fullSizeHint.setHeight( std::max( fullSizeHint.height(), frameSize.height() ) );
+            auto itemSize = legendLayout->itemAt( i )->sizeHint();
+            maxHeight     = std::max( maxHeight, itemSize.height() );
         }
+        int totalSpacing = ( numRows + 2 ) * legendLayout->spacing() + margins.top() + margins.bottom();
+
+        int height = maxHeight * numRows + totalSpacing;
+
+        QSize layoutSize( width, height );
+        QSize frameSize = layoutSize + QSize( 2 * frameWidth(), 2 * frameWidth() );
+
+        fullSizeHint.setWidth( std::max( fullSizeHint.width(), frameSize.width() ) );
+        fullSizeHint.setHeight( std::max( fullSizeHint.height(), frameSize.height() ) );
     }
+
     return fullSizeHint;
 }
 

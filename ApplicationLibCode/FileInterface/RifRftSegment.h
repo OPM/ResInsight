@@ -55,13 +55,17 @@ public:
     void addResultNameAndSize( const Opm::EclIO::EclFile::EclEntry& resultNameAndSize );
     std::vector<Opm::EclIO::EclFile::EclEntry> resultNameAndSize() const;
 
-    std::vector<int>         tubingBranchIds() const;
-    std::vector<int>         branchIds() const;
-    std::set<int>            oneBasedBranchIndices() const;
-    int                      oneBasedBranchIndexForBranchId( int branchId ) const;
-    const RifRftSegmentData* segmentData( int segmentNumber ) const;
+    std::vector<int>   tubingBranchIds() const;
+    std::vector<int>   branchIds() const;
+    int                oneBasedBranchIndexForBranchId( int branchId ) const;
+    std::map<int, int> branchIdsAndOneBasedBranchIndices( RiaDefines::RftBranchType branchType ) const;
 
-    void createDeviceBranch( int deviceBranchFirstSegmentNumber, int oneBasedBranchIndex );
+    const RifRftSegmentData* segmentData( int segmentNumber ) const;
+    const RifRftSegmentData* segmentDataByIndex( int segmentIndex ) const;
+
+    void createDeviceBranch( int                        deviceBranchFirstSegmentNumber,
+                             int                        oneBasedBranchIndex,
+                             const std::vector<double>& seglenstValues );
 
     void setBranchLength( int branchId, double length );
     void setBranchType( int branchId, RiaDefines::RftBranchType branchType );
@@ -69,10 +73,16 @@ public:
 
     RiaDefines::RftBranchType branchType( int branchId ) const;
 
-    std::vector<size_t> indicesForBranchNumber( int branchNumber ) const;
-    std::vector<size_t> indicesForBranchIndex( int branchIndex, RiaDefines::RftBranchType branchType ) const;
+    std::vector<size_t> segmentIndicesForBranchNumber( int branchNumber ) const;
+    std::vector<size_t> segmentIndicesForBranchIndex( int branchIndex, RiaDefines::RftBranchType branchType ) const;
+    std::vector<size_t> packerSegmentIndicesOnAnnulus( int branchIndex ) const;
 
     std::vector<int> segmentNumbersForBranchIndex( int oneBasedBranchIndex, RiaDefines::RftBranchType branchType ) const;
+
+    std::set<int> uniqueOneBasedBranchIndices( RiaDefines::RftBranchType branchType ) const;
+
+private:
+    int segmentIndexFromSegmentNumber( int segmentNumber ) const;
 
 private:
     std::vector<RifRftSegmentData>             m_topology;

@@ -167,10 +167,12 @@ RimStimPlanModel::RimStimPlanModel()
     CAF_PDM_InitScriptableField( &m_extractionDepthTop, "ExtractionDepthTop", -1.0, "Depth" );
     m_extractionDepthTop.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
     m_extractionDepthTop.uiCapability()->setUiReadOnly( true );
+    m_extractionDepthTop.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( false );
 
     CAF_PDM_InitScriptableField( &m_extractionDepthBottom, "ExtractionDepthBottom", -1.0, "Depth" );
     m_extractionDepthBottom.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
     m_extractionDepthBottom.uiCapability()->setUiReadOnly( true );
+    m_extractionDepthBottom.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( false );
 
     CAF_PDM_InitScriptableField( &m_extractionType,
                                  "ExtractionType",
@@ -180,6 +182,7 @@ RimStimPlanModel::RimStimPlanModel()
     CAF_PDM_InitScriptableFieldNoDefault( &m_anchorPosition, "AnchorPosition", "Anchor Position" );
     m_anchorPosition.uiCapability()->setUiReadOnly( true );
     m_anchorPosition.xmlCapability()->disableIO();
+    m_anchorPosition.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( false );
 
     CAF_PDM_InitFieldNoDefault( &m_anchorPositionForUi, "AnchorPositionForUi", "Anchor Position" );
     m_anchorPositionForUi.registerGetMethod( this, &RimStimPlanModel::anchorPositionForUi );
@@ -189,16 +192,19 @@ RimStimPlanModel::RimStimPlanModel()
     CAF_PDM_InitScriptableFieldNoDefault( &m_thicknessDirection, "ThicknessDirection", "Thickness Direction" );
     m_thicknessDirection.uiCapability()->setUiReadOnly( true );
     m_thicknessDirection.xmlCapability()->disableIO();
+    m_thicknessDirection.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( false );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_originalThicknessDirection,
                                           "OriginalThicknessDirection",
                                           "Original Thickness Direction" );
     m_originalThicknessDirection.uiCapability()->setUiReadOnly( true );
     m_originalThicknessDirection.xmlCapability()->disableIO();
+    m_originalThicknessDirection.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( false );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_thicknessDirectionWellPath,
                                           "ThicknessDirectionWellPath",
                                           "Thickness Direction Well Path" );
+    m_thicknessDirectionWellPath.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( false );
 
     CAF_PDM_InitScriptableField( &m_boundingBoxHorizontal, "BoundingBoxHorizontal", 50.0, "Bounding Box Horizontal" );
     CAF_PDM_InitScriptableField( &m_boundingBoxVertical, "BoundingBoxVertical", 100.0, "Bounding Box Vertical" );
@@ -297,7 +303,7 @@ void RimStimPlanModel::initAfterRead()
         m_stimPlanModelTemplate->changed.connect( this, &RimStimPlanModel::stimPlanModelTemplateChanged );
     }
 
-    if ( m_extractionDepthTop() < 0.0 || m_extractionDepthBottom < 0.0 )
+    if ( m_extractionDepthTop() < 0.0 || m_extractionDepthBottom() < 0.0 )
     {
         updateExtractionDepthBoundaries();
     }
@@ -313,10 +319,10 @@ void RimStimPlanModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField
     if ( changedField == &m_MD )
     {
         updatePositionFromMeasuredDepth();
-        updateExtractionDepthBoundaries();
     }
 
-    if ( changedField == &m_extractionOffsetTop || changedField == &m_extractionOffsetBottom )
+    if ( changedField == &m_MD || changedField == &m_extractionOffsetTop || changedField == &m_extractionOffsetBottom ||
+         changedField == &m_extractionDepthTop || changedField == &m_extractionDepthBottom )
     {
         updateExtractionDepthBoundaries();
     }
@@ -325,8 +331,8 @@ void RimStimPlanModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField
          changedField == &m_boundingBoxHorizontal || changedField == &m_fractureOrientation ||
          changedField == &m_autoComputeBarrier || changedField == &m_azimuthAngle ||
          changedField == &m_showOnlyBarrierFault || changedField == &m_eclipseCase ||
-         changedField == &m_extractionDepthTop || changedField == &m_extractionDepthBottom ||
          changedField == &m_extractionOffsetTop || changedField == &m_extractionOffsetBottom ||
+         changedField == &m_extractionDepthTop || changedField == &m_extractionDepthBottom ||
          changedField == &m_perforationLength )
     {
         updateThicknessDirection();
@@ -824,31 +830,28 @@ RimAnnotationCollectionBase* RimStimPlanModel::annotationCollection()
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanModel::updatePerforationInterval()
 {
-    if ( m_thicknessDirectionWellPath )
+    if ( !m_thicknessDirectionWellPath || !wellPath() || !wellPath()->wellPathGeometry() ) return;
+
+    if ( !m_perforationInterval )
     {
-        if ( !m_perforationInterval )
-        {
-            m_perforationInterval = new RimPerforationInterval;
-            m_thicknessDirectionWellPath->perforationIntervalCollection()->appendPerforation( m_perforationInterval );
-        }
-
-        double halfPerforationLength = m_perforationLength() * 0.5;
-        if ( m_fractureOrientation == FractureOrientation::ALONG_WELL_PATH )
-        {
-            // Adjust perforation interval for longitudinal fractures to correct TVD depth
-            CAF_ASSERT( wellPath() );
-            CAF_ASSERT( wellPath()->wellPathGeometry() );
-
-            cvf::Vec3d wellPathTangent = wellPath()->wellPathGeometry()->tangentAlongWellPath( m_MD() );
-            halfPerforationLength =
-                RigStimPlanModelTools::calculatePerforationLength( wellPathTangent, m_perforationLength() ) * 0.5;
-        }
-
-        double closestMd = m_thicknessDirectionWellPath->wellPathGeometry()->closestMeasuredDepth( m_anchorPosition );
-        m_perforationInterval->setStartAndEndMD( closestMd - halfPerforationLength, closestMd + halfPerforationLength );
-        m_perforationInterval->updateConnectedEditors();
-        updateViewsAndPlots();
+        m_perforationInterval = new RimPerforationInterval;
+        m_perforationInterval->setUnitSystemSpecificDefaults();
+        m_thicknessDirectionWellPath->perforationIntervalCollection()->appendPerforation( m_perforationInterval );
     }
+
+    double halfPerforationLength = m_perforationLength() * 0.5;
+    if ( m_fractureOrientation == FractureOrientation::ALONG_WELL_PATH )
+    {
+        // Adjust perforation interval for longitudinal fractures to correct TVD depth
+        cvf::Vec3d wellPathTangent = wellPath()->wellPathGeometry()->tangentAlongWellPath( m_MD() );
+        halfPerforationLength =
+            RigStimPlanModelTools::calculatePerforationLength( wellPathTangent, m_perforationLength() ) * 0.5;
+    }
+
+    double closestMd = m_thicknessDirectionWellPath->wellPathGeometry()->closestMeasuredDepth( m_anchorPosition );
+    m_perforationInterval->setStartAndEndMD( closestMd - halfPerforationLength, closestMd + halfPerforationLength );
+    m_perforationInterval->updateConnectedEditors();
+    updateViewsAndPlots();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1594,7 +1597,8 @@ void RimStimPlanModel::updateViewsAndPlots()
     this->firstAncestorOrThisOfType( eclipseCase );
     if ( eclipseCase )
     {
-        RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews( eclipseCase );
+        RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews(
+            { eclipseCase } );
     }
     else
     {

@@ -52,6 +52,7 @@ void RicNewPerforationIntervalAtMeasuredDepthFeature::onActionTriggered( bool is
     RimPerforationInterval* perforationInterval = new RimPerforationInterval;
     double                  measuredDepth       = wellPathSelItem->m_measuredDepth;
     perforationInterval->setStartAndEndMD( measuredDepth, measuredDepth + 50 );
+    perforationInterval->setUnitSystemSpecificDefaults();
 
     wellPath->perforationIntervalCollection()->appendPerforation( perforationInterval );
 

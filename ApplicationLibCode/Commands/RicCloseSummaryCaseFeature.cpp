@@ -77,6 +77,7 @@ void RicCloseSummaryCaseFeature::deleteSummaryCases( std::vector<RimSummaryCase*
     for ( auto plot : plotsToUpdate )
     {
         plot->updateConnectedEditors();
+        plot->updatePlots();
     }
 
     summaryCaseMainCollection->updateAllRequiredEditors();

@@ -60,34 +60,29 @@ CAF_PDM_SOURCE_INIT( RimViewController, "ViewController" );
 //--------------------------------------------------------------------------------------------------
 RimViewController::RimViewController()
 {
-    // clang-format off
+    CAF_PDM_InitObject( "View Link" );
 
-    CAF_PDM_InitObject("View Link");
-
-    CAF_PDM_InitField(&m_isActive, "Active", true, "Active");
-    m_isActive.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitField( &m_isActive, "Active", true, "Active" );
+    m_isActive.uiCapability()->setUiHidden( true );
 
     QString defaultName = "View Config: Empty view";
-    CAF_PDM_InitField(&m_name, "Name", defaultName, "Managed View Name");
-    m_name.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitField( &m_name, "Name", defaultName, "Managed View Name" );
+    m_name.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault(&m_managedView, "ManagedView", "Linked View");
-    m_managedView.uiCapability()->setUiTreeChildrenHidden(true);
+    CAF_PDM_InitFieldNoDefault( &m_managedView, "ManagedView", "Linked View" );
+    m_managedView.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitField(&m_syncCamera,            "SyncCamera", true,             "Camera");
-    CAF_PDM_InitField(&m_showCursor,            "ShowCursor", true,             "   Show Cursor");
-    CAF_PDM_InitField(&m_syncTimeStep,          "SyncTimeStep", true,           "Time Step");
-    CAF_PDM_InitField(&m_syncCellResult,        "SyncCellResult", false,        "Cell Result");
-    CAF_PDM_InitField(&m_syncLegendDefinitions, "SyncLegendDefinitions", true,  "   Color Legend");
-    
-    CAF_PDM_InitField(&m_syncVisibleCells,    "SyncVisibleCells", false,  "Visible Cells");
-    /// We do not support this. Consider to remove sometime
-    m_syncVisibleCells.uiCapability()->setUiHidden(true);
-    m_syncVisibleCells.xmlCapability()->disableIO();
+    CAF_PDM_InitField( &m_syncCamera, "SyncCamera", true, "Camera" );
+    CAF_PDM_InitField( &m_showCursor, "ShowCursor", true, "   Show Cursor" );
+    CAF_PDM_InitField( &m_syncTimeStep, "SyncTimeStep", true, "Time Step" );
+    CAF_PDM_InitField( &m_syncCellResult, "SyncCellResult", false, "Cell Result" );
+    CAF_PDM_InitField( &m_syncLegendDefinitions, "SyncLegendDefinitions", true, "   Color Legend" );
 
-    CAF_PDM_InitField(&m_syncCellFilters,    "SyncRangeFilters", false,   "Cell Filters");
-    CAF_PDM_InitField(&m_syncPropertyFilters, "SyncPropertyFilters", false,"Property Filters");
-    // clang-format on
+    CAF_PDM_InitField( &m_syncCellFilters, "SyncRangeFilters", false, "Cell Filters" );
+    CAF_PDM_InitField( &m_syncPropertyFilters, "SyncPropertyFilters", false, "Property Filters" );
+    m_syncPropertyFilters.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitField( &m_duplicatePropertyFilters, "DuplicatePropertyFilters", false, "Property Filters" );
 
     setDeletable( true );
 }
@@ -98,8 +93,8 @@ RimViewController::RimViewController()
 RimViewController::~RimViewController()
 {
     this->removeOverrides();
-    RimGridView* managedView = m_managedView;
-    m_managedView            = nullptr;
+    auto managedView = m_managedView();
+    m_managedView    = nullptr;
 
     if ( managedView ) managedView->updateAutoName();
 }
@@ -113,8 +108,8 @@ QList<caf::PdmOptionItemInfo> RimViewController::calculateValueOptions( const ca
 
     if ( fieldNeedingOptions == &m_managedView )
     {
-        RimProject*               proj = RimProject::current();
-        std::vector<RimGridView*> views;
+        RimProject*             proj = RimProject::current();
+        std::vector<Rim3dView*> views;
         proj->allNotLinkedViews( views );
 
         // Add currently linked view to list
@@ -127,7 +122,7 @@ QList<caf::PdmOptionItemInfo> RimViewController::calculateValueOptions( const ca
         this->firstAncestorOrThisOfType( viewLinker );
         CVF_ASSERT( viewLinker );
 
-        for ( RimGridView* view : views )
+        for ( auto view : views )
         {
             if ( view != viewLinker->masterView() )
             {
@@ -168,10 +163,13 @@ void RimViewController::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
         }
 
         updateOverrides();
+        updateDuplicatedPropertyFilters();
         updateResultColorsControl();
         updateCameraLink();
         updateDisplayNameAndIcon();
         updateTimeStepLink();
+
+        if ( m_managedView ) m_managedView->updateMdiWindowTitle();
     }
     else if ( changedField == &m_syncCamera )
     {
@@ -216,22 +214,19 @@ void RimViewController::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
     {
         updateOverrides();
     }
+    else if ( changedField == &m_duplicatePropertyFilters )
+    {
+        updateDuplicatedPropertyFilters();
+    }
     else if ( changedField == &m_managedView )
     {
         PdmObjectHandle* prevValue           = oldValue.value<caf::PdmPointer<PdmObjectHandle>>().rawPtr();
-        RimGridView*     previousManagedView = dynamic_cast<RimGridView*>( prevValue );
+        auto*            previousManagedView = dynamic_cast<RimGridView*>( prevValue );
         RimViewController::removeOverrides( previousManagedView );
-
-        ownerViewLinker()->notifyManagedViewChange( previousManagedView, m_managedView() );
 
         setManagedView( m_managedView() );
 
         m_name.uiCapability()->updateConnectedEditors();
-    }
-    else if ( &m_syncVisibleCells == changedField )
-    {
-        updateOptionSensitivity();
-        updateOverrides();
     }
 }
 
@@ -240,9 +235,7 @@ void RimViewController::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RimViewController::managedEclipseView() const
 {
-    RimGridView* rimView = m_managedView;
-
-    return dynamic_cast<RimEclipseView*>( rimView );
+    return dynamic_cast<RimEclipseView*>( m_managedView() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -250,9 +243,7 @@ RimEclipseView* RimViewController::managedEclipseView() const
 //--------------------------------------------------------------------------------------------------
 RimGeoMechView* RimViewController::managedGeoView() const
 {
-    RimGridView* rimView = m_managedView;
-
-    return dynamic_cast<RimGeoMechView*>( rimView );
+    return dynamic_cast<RimGeoMechView*>( m_managedView() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -262,7 +253,7 @@ void RimViewController::updateOverrides()
 {
     RimViewLinker* viewLinker = ownerViewLinker();
 
-    RimGridView* masterView = viewLinker->masterView();
+    auto masterView = viewLinker->masterView();
 
     CVF_ASSERT( masterView );
 
@@ -280,7 +271,7 @@ void RimViewController::updateOverrides()
         }
         else
         {
-            RimEclipseView* masterEclipseView = dynamic_cast<RimEclipseView*>( masterView );
+            auto* masterEclipseView = dynamic_cast<RimEclipseView*>( masterView );
             if ( masterEclipseView )
             {
                 if ( manEclView )
@@ -297,7 +288,7 @@ void RimViewController::updateOverrides()
                 }
             }
 
-            RimGeoMechView* masterGeoView = dynamic_cast<RimGeoMechView*>( masterView );
+            auto* masterGeoView = dynamic_cast<RimGeoMechView*>( masterView );
             if ( masterGeoView )
             {
                 if ( manGeoView )
@@ -333,7 +324,7 @@ void RimViewController::updateOverrides()
 //--------------------------------------------------------------------------------------------------
 void RimViewController::removeOverrides()
 {
-    removeOverrides( m_managedView );
+    removeOverrides( dynamic_cast<RimGridView*>( m_managedView() ) );
 
     RimEclipseView* manEclView = managedEclipseView();
     RimGeoMechView* manGeoView = managedGeoView();
@@ -355,8 +346,8 @@ void RimViewController::removeOverrides( RimGridView* view )
 {
     if ( view )
     {
-        RimEclipseView* manEclView = dynamic_cast<RimEclipseView*>( view );
-        RimGeoMechView* manGeoView = dynamic_cast<RimGeoMechView*>( view );
+        auto* manEclView = dynamic_cast<RimEclipseView*>( view );
+        auto* manGeoView = dynamic_cast<RimGeoMechView*>( view );
 
         if ( manEclView ) manEclView->setOverridePropertyFilterCollection( nullptr );
         if ( manGeoView ) manGeoView->setOverridePropertyFilterCollection( nullptr );
@@ -370,7 +361,7 @@ void RimViewController::removeOverrides( RimGridView* view )
 //--------------------------------------------------------------------------------------------------
 void RimViewController::updateOptionSensitivity()
 {
-    RimGridView* mainView = nullptr;
+    Rim3dView* mainView = nullptr;
 
     {
         RimViewLinker* linkedViews = nullptr;
@@ -384,8 +375,8 @@ void RimViewController::updateOptionSensitivity()
         CVF_ASSERT( mainView );
     }
 
-    RimEclipseView* eclipseMasterView = dynamic_cast<RimEclipseView*>( mainView );
-    RimGeoMechView* geoMasterView     = dynamic_cast<RimGeoMechView*>( mainView );
+    auto* eclipseMasterView = dynamic_cast<RimEclipseView*>( mainView );
+    auto* geoMasterView     = dynamic_cast<RimGeoMechView*>( mainView );
 
     bool isMasterAndDependentViewDifferentType = false;
     if ( eclipseMasterView && !managedEclipseView() )
@@ -420,16 +411,6 @@ void RimViewController::updateOptionSensitivity()
         }
     }
 
-    if ( isCameraControlPossible() )
-    {
-        this->m_syncCamera.uiCapability()->setUiReadOnly( false );
-    }
-    else
-    {
-        this->m_syncCamera.uiCapability()->setUiReadOnly( true );
-        this->m_syncCamera = false;
-    }
-
     if ( isPropertyFilterControlPossible() )
     {
         this->m_syncPropertyFilters.uiCapability()->setUiReadOnly( false );
@@ -449,14 +430,12 @@ void RimViewController::updateOptionSensitivity()
         this->m_showCursor.uiCapability()->setUiReadOnly( true );
         this->m_showCursor = false;
     }
-
-    m_syncVisibleCells.uiCapability()->setUiReadOnly( !this->isMasterAndDepViewDifferentType() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGridView* RimViewController::managedView() const
+Rim3dView* RimViewController::managedView() const
 {
     return m_managedView;
 }
@@ -464,18 +443,13 @@ RimGridView* RimViewController::managedView() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewController::setManagedView( RimGridView* view )
+void RimViewController::setManagedView( Rim3dView* view )
 {
-    if ( m_managedView != view )
-    {
-        ownerViewLinker()->notifyManagedViewChange( m_managedView(), view );
-    }
-
     m_managedView = view;
 
     updateOptionSensitivity();
-    updateDefaultOptions();
     updateOverrides();
+    updateDuplicatedPropertyFilters();
     updateResultColorsControl();
     updateCameraLink();
     updateDisplayNameAndIcon();
@@ -504,9 +478,9 @@ void RimViewController::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     scriptGroup->add( &m_syncLegendDefinitions );
 
     caf::PdmUiGroup* visibleCells = uiOrdering.addNewGroup( "Link Cell Filters" );
-    visibleCells->add( &m_syncVisibleCells );
     visibleCells->add( &m_syncCellFilters );
     visibleCells->add( &m_syncPropertyFilters );
+    visibleCells->add( &m_duplicatePropertyFilters );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -518,6 +492,73 @@ void RimViewController::updateDisplayNameAndIcon()
     RimViewLinker::findNameAndIconFromView( &m_name.v(), &iconProvider, managedView() );
     iconProvider.setActive( m_isActive() );
     setUiIcon( iconProvider );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimViewController::updateDuplicatedPropertyFilters()
+{
+    if ( !m_duplicatePropertyFilters )
+    {
+        // A chain icon is used to indicate that a property filter is linked. If a property filter is unlinked, update
+        // the property filters to make sure the chain icon is removed
+
+        std::vector<RimPropertyFilterCollection*> eclipsePropertyFilters;
+
+        RimProject::current()->descendantsIncludingThisOfType( eclipsePropertyFilters );
+        for ( auto p : eclipsePropertyFilters )
+        {
+            p->updateConnectedEditors();
+        }
+
+        std::vector<RimGeoMechPropertyFilterCollection*> geoMechPropertyFilters;
+        RimProject::current()->descendantsIncludingThisOfType( geoMechPropertyFilters );
+        for ( auto p : geoMechPropertyFilters )
+        {
+            p->updateConnectedEditors();
+        }
+
+        return;
+    }
+
+    RimViewLinker* viewLinker = ownerViewLinker();
+
+    auto masterView = viewLinker->masterView();
+    CVF_ASSERT( masterView );
+
+    if ( m_managedView )
+    {
+        RimEclipseView* manEclView        = managedEclipseView();
+        auto*           masterEclipseView = dynamic_cast<RimEclipseView*>( masterView );
+
+        if ( masterEclipseView && manEclView )
+        {
+            auto propertyString = masterEclipseView->eclipsePropertyFilterCollection()->writeObjectToXmlString();
+            manEclView->eclipsePropertyFilterCollection()->readObjectFromXmlString( propertyString,
+                                                                                    caf::PdmDefaultObjectFactory::instance() );
+            manEclView->eclipsePropertyFilterCollection()->loadAndInitializePropertyFilters();
+            manEclView->eclipsePropertyFilterCollection()->setIsDuplicatedFromLinkedView();
+            manEclView->eclipsePropertyFilterCollection()->updateAllRequiredEditors();
+
+            manEclView->scheduleGeometryRegen( PROPERTY_FILTERED );
+            manEclView->scheduleCreateDisplayModelAndRedraw();
+        }
+
+        auto*           masterGeoView = dynamic_cast<RimGeoMechView*>( masterView );
+        RimGeoMechView* manGeoView    = managedGeoView();
+        if ( masterGeoView && manGeoView )
+        {
+            auto propertyString = masterGeoView->geoMechPropertyFilterCollection()->writeObjectToXmlString();
+            manGeoView->geoMechPropertyFilterCollection()->readObjectFromXmlString( propertyString,
+                                                                                    caf::PdmDefaultObjectFactory::instance() );
+            manGeoView->geoMechPropertyFilterCollection()->loadAndInitializePropertyFilters();
+            manGeoView->geoMechPropertyFilterCollection()->updateAllRequiredEditors();
+
+            manGeoView->scheduleGeometryRegen( PROPERTY_FILTERED );
+            manGeoView->scheduleCreateDisplayModelAndRedraw();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -575,16 +616,6 @@ void RimViewController::updateLegendDefinitions()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewController::updateDefaultOptions()
-{
-    m_syncCellResult      = isCellResultControlAdvisable();
-    m_syncCellFilters     = isCellFilterControlAdvisable();
-    m_syncPropertyFilters = isPropertyFilterControlAdvisable();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimViewLinker* RimViewController::ownerViewLinker() const
 {
     RimViewLinker* viewLinker = nullptr;
@@ -598,9 +629,9 @@ RimViewLinker* RimViewController::ownerViewLinker() const
 //--------------------------------------------------------------------------------------------------
 const RigCaseToCaseCellMapper* RimViewController::cellMapper()
 {
-    RimEclipseView* masterEclipseView = dynamic_cast<RimEclipseView*>( masterView() );
+    auto*           masterEclipseView = dynamic_cast<RimEclipseView*>( masterView() );
     RimEclipseView* dependEclipseView = managedEclipseView();
-    RimGeoMechView* masterGeomechView = dynamic_cast<RimGeoMechView*>( masterView() );
+    auto*           masterGeomechView = dynamic_cast<RimGeoMechView*>( masterView() );
     RimGeoMechView* dependGeomechView = managedGeoView();
 
     RigMainGrid* masterEclGrid = nullptr;
@@ -638,10 +669,8 @@ const RigCaseToCaseCellMapper* RimViewController::cellMapper()
         {
             return m_caseToCaseCellMapper.p();
         }
-        else
-        {
-            m_caseToCaseCellMapper = nullptr;
-        }
+
+        m_caseToCaseCellMapper = nullptr;
     }
 
     // Create the mapping if needed
@@ -672,7 +701,7 @@ const RigCaseToCaseCellMapper* RimViewController::cellMapper()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGridView* RimViewController::masterView() const
+Rim3dView* RimViewController::masterView() const
 {
     return ownerViewLinker()->masterView();
 }
@@ -680,20 +709,10 @@ RimGridView* RimViewController::masterView() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimViewController::isCameraControlPossible() const
-{
-    RimEclipseContourMapView* contourMapMasterView  = dynamic_cast<RimEclipseContourMapView*>( masterView() );
-    RimEclipseContourMapView* contourMapManagedView = dynamic_cast<RimEclipseContourMapView*>( managedEclipseView() );
-    return !( contourMapMasterView || contourMapManagedView );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RimViewController::isMasterAndDepViewDifferentType() const
 {
-    RimEclipseView* eclipseMasterView = dynamic_cast<RimEclipseView*>( masterView() );
-    RimGeoMechView* geoMasterView     = dynamic_cast<RimGeoMechView*>( masterView() );
+    auto* eclipseMasterView = dynamic_cast<RimEclipseView*>( masterView() );
+    auto* geoMasterView     = dynamic_cast<RimGeoMechView*>( masterView() );
 
     bool isMasterAndDependentViewDifferentType = false;
     if ( eclipseMasterView && !managedEclipseView() )
@@ -726,7 +745,8 @@ void RimViewController::scheduleCreateDisplayModelAndRedrawForDependentView() co
 
     if ( this->isResultColorControlled() && this->managedView() )
     {
-        this->managedView()->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+        auto gridView = dynamic_cast<RimGridView*>( this->managedView() );
+        if ( gridView ) gridView->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
     }
 }
 
@@ -769,10 +789,8 @@ bool RimViewController::isCameraLinked() const
     {
         return m_syncCamera;
     }
-    else
-    {
-        return false;
-    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -792,10 +810,8 @@ bool RimViewController::isTimeStepLinked() const
     {
         return m_syncTimeStep;
     }
-    else
-    {
-        return false;
-    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -807,10 +823,8 @@ bool RimViewController::isResultColorControlled() const
     {
         return m_syncCellResult;
     }
-    else
-    {
-        return false;
-    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -822,10 +836,8 @@ bool RimViewController::isLegendDefinitionsControlled() const
     {
         return m_syncLegendDefinitions;
     }
-    else
-    {
-        return false;
-    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -833,21 +845,7 @@ bool RimViewController::isLegendDefinitionsControlled() const
 //--------------------------------------------------------------------------------------------------
 bool RimViewController::isVisibleCellsOveridden() const
 {
-    if ( isMasterAndDepViewDifferentType() )
-    {
-        if ( ownerViewLinker()->isActive() && this->m_isActive() )
-        {
-            return m_syncVisibleCells();
-        }
-        else
-        {
-            return false;
-        }
-    }
-    else
-    {
-        return false;
-    }
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -858,8 +856,8 @@ bool RimViewController::isCellFilterMappingApplicable() const
     if ( !isMasterAndDepViewDifferentType() ) return false;
 
     // Make sure the cases are in the same domain
-    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( masterView() );
-    RimGeoMechView* geomView    = dynamic_cast<RimGeoMechView*>( masterView() );
+    auto* eclipseView = dynamic_cast<RimEclipseView*>( masterView() );
+    auto* geomView    = dynamic_cast<RimGeoMechView*>( masterView() );
     if ( !geomView ) geomView = managedGeoView();
     if ( !eclipseView ) eclipseView = managedEclipseView();
 
@@ -890,7 +888,7 @@ bool RimViewController::isCellResultControlAdvisable() const
 {
     bool contourMapMasterView  = dynamic_cast<RimEclipseContourMapView*>( masterView() ) != nullptr;
     bool contourMapManagedView = dynamic_cast<RimEclipseContourMapView*>( managedEclipseView() ) != nullptr;
-    return !isMasterAndDepViewDifferentType() && contourMapMasterView != contourMapManagedView;
+    return !isMasterAndDepViewDifferentType() && ( contourMapMasterView != contourMapManagedView );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -910,7 +908,7 @@ bool RimViewController::isPropertyFilterControlAdvisable() const
 {
     bool contourMapMasterView  = dynamic_cast<RimEclipseContourMapView*>( masterView() ) != nullptr;
     bool contourMapManagedView = dynamic_cast<RimEclipseContourMapView*>( managedEclipseView() ) != nullptr;
-    return isPropertyFilterControlPossible() && contourMapMasterView != contourMapManagedView;
+    return isPropertyFilterControlPossible() && ( contourMapMasterView != contourMapManagedView );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -922,10 +920,8 @@ bool RimViewController::isCellFiltersControlled() const
     {
         return m_syncCellFilters;
     }
-    else
-    {
-        return false;
-    }
+
+    return false;
 }
 //--------------------------------------------------------------------------------------------------
 ///
@@ -933,7 +929,7 @@ bool RimViewController::isCellFiltersControlled() const
 bool RimViewController::isPropertyFilterControlPossible() const
 {
     // The cases need to be the same
-    RimGeoMechView* geomView = dynamic_cast<RimGeoMechView*>( masterView() );
+    auto* geomView = dynamic_cast<RimGeoMechView*>( masterView() );
 
     if ( geomView )
     {
@@ -944,12 +940,12 @@ bool RimViewController::isPropertyFilterControlPossible() const
         }
     }
 
-    RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( masterView() );
-
+    auto* eclipseView = dynamic_cast<RimEclipseView*>( masterView() );
     if ( eclipseView )
     {
         RimEclipseView* depEclipseView = managedEclipseView();
-        if ( depEclipseView && eclipseView->eclipseCase() == depEclipseView->eclipseCase() )
+        if ( depEclipseView && eclipseView->eclipseCase() && depEclipseView->eclipseCase() &&
+             eclipseView->eclipseCase() == depEclipseView->eclipseCase() )
         {
             return true;
         }
@@ -969,10 +965,16 @@ bool RimViewController::isPropertyFilterOveridden() const
     {
         return m_syncPropertyFilters;
     }
-    else
-    {
-        return false;
-    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimViewController::isPropertyFilterDuplicationActive() const
+{
+    return m_duplicatePropertyFilters;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -980,22 +982,25 @@ bool RimViewController::isPropertyFilterOveridden() const
 //--------------------------------------------------------------------------------------------------
 void RimViewController::updateCellFilterOverrides( const RimCellFilter* changedFilter )
 {
-    if ( !m_managedView ) return;
+    auto controlledGridView = dynamic_cast<RimGridView*>( m_managedView() );
+    if ( !controlledGridView ) return;
 
     if ( !isCellFiltersControlled() )
     {
-        m_managedView->setOverrideCellFilterCollection( nullptr );
+        controlledGridView->setOverrideCellFilterCollection( nullptr );
         return;
     }
     // Copy the rangeFilterCollection
+    auto masterGridView = dynamic_cast<RimGridView*>( masterView() );
+    if ( !masterGridView ) return;
 
-    RimCellFilterCollection* sourceFilterCollection = masterView()->cellFilterCollection();
+    RimCellFilterCollection* sourceFilterCollection = masterGridView->cellFilterCollection();
     QString                  xmlFilterCollCopy      = sourceFilterCollection->writeObjectToXmlString();
     PdmObjectHandle*         objectCopy =
         PdmXmlObjectHandle::readUnknownObjectFromXmlString( xmlFilterCollCopy,
                                                             caf::PdmDefaultObjectFactory::instance(),
                                                             true );
-    RimCellFilterCollection* overrideFilterColl = dynamic_cast<RimCellFilterCollection*>( objectCopy );
+    auto* overrideFilterColl = dynamic_cast<RimCellFilterCollection*>( objectCopy );
 
     std::vector<RimCellFilter*> srcFilters  = sourceFilterCollection->filters();
     std::vector<RimCellFilter*> dstFilters  = overrideFilterColl->filters();
@@ -1005,8 +1010,8 @@ void RimViewController::updateCellFilterOverrides( const RimCellFilter* changedF
     // Convert the cell filter to fit in the managed view if needed
     if ( isCellFilterMappingApplicable() )
     {
-        RimEclipseView* eclipseMasterView = dynamic_cast<RimEclipseView*>( masterView() );
-        RimGeoMechView* geoMasterView     = dynamic_cast<RimGeoMechView*>( masterView() );
+        auto* eclipseMasterView = dynamic_cast<RimEclipseView*>( masterView() );
+        auto* geoMasterView     = dynamic_cast<RimGeoMechView*>( masterView() );
 
         if ( eclipseMasterView && depGeomView )
         {
@@ -1019,8 +1024,8 @@ void RimViewController::updateCellFilterOverrides( const RimCellFilter* changedF
                 {
                     overrideFilterColl->connectToFilterUpdates( dstFilters[rfIdx] );
 
-                    RimCellRangeFilter* srcRFilter = dynamic_cast<RimCellRangeFilter*>( srcFilters[rfIdx] );
-                    RimCellRangeFilter* dstRFilter = dynamic_cast<RimCellRangeFilter*>( dstFilters[rfIdx] );
+                    auto* srcRFilter = dynamic_cast<RimCellRangeFilter*>( srcFilters[rfIdx] );
+                    auto* dstRFilter = dynamic_cast<RimCellRangeFilter*>( dstFilters[rfIdx] );
 
                     if ( ( srcRFilter != nullptr ) && ( dstRFilter != nullptr ) )
                     {
@@ -1076,11 +1081,11 @@ void RimViewController::updateCellFilterOverrides( const RimCellFilter* changedF
     }
     else
     {
-        for ( size_t rfIdx = 0; rfIdx < dstFilters.size(); ++rfIdx )
+        for ( auto& dstFilter : dstFilters )
         {
-            overrideFilterColl->connectToFilterUpdates( dstFilters[rfIdx] );
+            overrideFilterColl->connectToFilterUpdates( dstFilter );
 
-            RimPolygonFilter* polyDstFilter = dynamic_cast<RimPolygonFilter*>( dstFilters[rfIdx] );
+            RimPolygonFilter* polyDstFilter = dynamic_cast<RimPolygonFilter*>( dstFilter );
             if ( polyDstFilter != nullptr )
             {
                 RimCase* theCase = nullptr;
@@ -1091,7 +1096,7 @@ void RimViewController::updateCellFilterOverrides( const RimCellFilter* changedF
         }
     }
 
-    m_managedView->setOverrideCellFilterCollection( overrideFilterColl );
+    controlledGridView->setOverrideCellFilterCollection( overrideFilterColl );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1100,6 +1105,7 @@ void RimViewController::updateCellFilterOverrides( const RimCellFilter* changedF
 void RimViewController::updatePropertyFilterOverrides( RimPropertyFilter* changedPropertyFilter )
 {
     updateOverrides();
+    updateDuplicatedPropertyFilters();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1107,21 +1113,32 @@ void RimViewController::updatePropertyFilterOverrides( RimPropertyFilter* change
 //--------------------------------------------------------------------------------------------------
 void RimViewController::applyCellFilterCollectionByUserChoice()
 {
-    if ( !m_managedView ) return;
+    auto managedGridView = dynamic_cast<RimGridView*>( m_managedView() );
 
-    if ( !m_managedView->hasOverriddenCellFilterCollection() )
+    if ( !managedGridView ) return;
+
+    if ( !managedGridView->hasOverriddenCellFilterCollection() )
     {
         return;
     }
 
-    bool restoreOriginal = askUserToRestoreOriginalCellFilterCollection( m_managedView->name() );
-    if ( restoreOriginal )
+    RimViewLinker* viewLinker = ownerViewLinker();
+    auto*          masterView = dynamic_cast<RimGridView*>( viewLinker->masterView() );
+
+    bool anyActiveCellFilter = false;
+
+    if ( masterView )
     {
-        m_managedView->setOverrideCellFilterCollection( nullptr );
+        anyActiveCellFilter = !masterView->cellFilterCollection()->filters().empty();
+    }
+
+    if ( anyActiveCellFilter && askUserToRestoreOriginalCellFilterCollection( m_managedView->name() ) )
+    {
+        managedGridView->setOverrideCellFilterCollection( nullptr );
     }
     else
     {
-        m_managedView->replaceCellFilterCollectionWithOverride();
+        managedGridView->replaceCellFilterCollectionWithOverride();
     }
 }
 
@@ -1147,8 +1164,6 @@ bool RimViewController::askUserToRestoreOriginalCellFilterCollection( const QStr
     {
         return false;
     }
-    else
-    {
-        return true;
-    }
+
+    return true;
 }

@@ -2,6 +2,7 @@
 
 #include "RimDepthTrackPlot.h"
 #include "RimPlotWindow.h"
+#include "RimWellLogTrack.h"
 
 #include "RiuQwtPlotWidget.h"
 #include "RiuWellLogTrack.h"
@@ -39,7 +40,7 @@ RiuWellLogPlot::RiuWellLogPlot( RimDepthTrackPlot* plotDefinition, QWidget* pare
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimDepthTrackPlot* RiuWellLogPlot::depthTrackPlot()
+RimDepthTrackPlot* RiuWellLogPlot::depthTrackPlot() const
 {
     auto* wellLogPlot = dynamic_cast<RimDepthTrackPlot*>( m_plotDefinition.p() );
     CAF_ASSERT( wellLogPlot );
@@ -90,7 +91,7 @@ void RiuWellLogPlot::renderTo( QPaintDevice* paintDevice )
 
     RiuMultiPlotPage::renderTo( paintDevice );
 
-    if ( depthTrackPlot() && depthTrackPlot()->depthOrientation() == RimDepthTrackPlot::DepthOrientation::HORIZONTAL )
+    if ( depthTrackPlot() && depthTrackPlot()->depthOrientation() == RiaDefines::Orientation::HORIZONTAL )
         m_horizontalTrackScrollBar->setVisible( true );
     else
         m_verticalTrackScrollBar->setVisible( true );
@@ -101,7 +102,25 @@ void RiuWellLogPlot::renderTo( QPaintDevice* paintDevice )
 //--------------------------------------------------------------------------------------------------
 bool RiuWellLogPlot::showYAxis( int row, int column ) const
 {
-    return column == 0;
+    if ( depthTrackPlot() )
+    {
+        if ( depthTrackPlot()->depthOrientation() == RiaDefines::Orientation::VERTICAL )
+        {
+            return column == 0;
+        }
+
+        auto index = static_cast<size_t>( std::max( row, column ) );
+        if ( index < depthTrackPlot()->visiblePlots().size() )
+        {
+            auto track = dynamic_cast<RimWellLogTrack*>( depthTrackPlot()->visiblePlots()[index] );
+            if ( track )
+            {
+                return track->isPropertyAxisEnabled();
+            }
+        }
+    }
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -113,7 +132,7 @@ void RiuWellLogPlot::reinsertScrollbar()
     int                            colCount    = this->m_gridLayout->columnCount();
     int                            rowCount    = this->m_gridLayout->rowCount();
 
-    if ( depthTrackPlot() && depthTrackPlot()->depthOrientation() == RimDepthTrackPlot::DepthOrientation::HORIZONTAL )
+    if ( depthTrackPlot() && depthTrackPlot()->depthOrientation() == RiaDefines::Orientation::HORIZONTAL )
     {
         m_gridLayout->addLayout( m_horizontalTrackScrollBarLayout, rowCount, 0, 1, colCount );
         m_horizontalTrackScrollBar->setVisible( !plotWidgets.empty() );
@@ -162,4 +181,5 @@ void RiuWellLogPlot::performUpdate( RiaDefines::MultiPlotPageUpdateType /* whatT
     int axisShift = alignCanvasTops();
     alignScrollbar( axisShift );
     alignAxes();
+    updatePlotLayouts();
 }

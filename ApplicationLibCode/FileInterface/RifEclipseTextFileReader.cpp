@@ -28,6 +28,7 @@
 #include "RiaPreferencesSystem.h"
 #include "RiaStdStringTools.h"
 
+#include <filesystem>
 #include <fstream>
 #include <iosfwd>
 #include <iostream>
@@ -71,6 +72,8 @@ std::vector<RifEclipseKeywordContent> RifEclipseTextFileReader::readKeywordAndVa
 std::vector<RifEclipseKeywordContent>
     RifEclipseTextFileReader::readKeywordAndValuesMemoryMappedFile( const std::string& filename )
 {
+    if ( !std::filesystem::exists( filename ) ) return {};
+
     mio::mmap_source mmap( filename );
 
     std::error_code  error;

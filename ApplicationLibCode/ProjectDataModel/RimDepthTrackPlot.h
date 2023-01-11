@@ -20,11 +20,12 @@
 #pragma once
 
 #include "RiaDefines.h"
+#include "RiaPlotDefines.h"
+
 #include "RimAbstractPlotCollection.h"
 #include "RimEnsembleWellLogStatistics.h"
 #include "RimPlot.h"
 #include "RimPlotWindow.h"
-#include "RimWellLogPlotNameConfig.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
@@ -44,6 +45,8 @@ class RimPlot;
 class RimEnsembleCurveSet;
 class RiuPlotAxis;
 class RimWellLogTrack;
+class RimWellLogPlotNameConfig;
+class RimPlotAxisAnnotation;
 
 class QKeyEvent;
 
@@ -67,7 +70,7 @@ public:
     typedef caf::AppEnum<AxisGridVisibility> AxisGridEnum;
     using DepthTypeEnum = RiaDefines::DepthTypeEnum;
 
-    enum class DepthOrientation
+    enum class DepthOrientation_OBSOLETE
     {
         HORIZONTAL,
         VERTICAL
@@ -104,8 +107,11 @@ public:
     void               enableDepthAxisGridLines( AxisGridVisibility gridVisibility );
     AxisGridVisibility depthAxisGridLinesEnabled() const;
 
-    RimDepthTrackPlot::DepthOrientation depthOrientation() const;
-    void                                setDepthOrientation( RimDepthTrackPlot::DepthOrientation depthOrientation );
+    RiaDefines::Orientation depthOrientation() const;
+    void                    setDepthOrientation( RiaDefines::Orientation depthOrientation );
+
+    RiaDefines::MultiPlotAxisVisibility depthAxisVisibility() const;
+    void                                setDepthAxisVisibility( RiaDefines::MultiPlotAxisVisibility axisVisibility );
 
     RiuPlotAxis depthAxis() const;
     RiuPlotAxis valueAxis() const;
@@ -124,11 +130,21 @@ public:
     void availableDepthRange( double* minimumDepth, double* maximumDepth ) const;
     void visibleDepthRange( double* minimumDepth, double* maximumDepth ) const;
 
+    void                                enableDepthMarkerLine( bool enable );
+    bool                                isDepthMarkerLineEnabled() const;
+    void                                setDepthMarkerPosition( double depth );
+    void                                clearDepthAnnotations();
+    std::vector<RimPlotAxisAnnotation*> depthAxisAnnotations() const;
+    void                                setAutoZoomMinimumDepthFactor( double factor );
+    void                                setAutoZoomMaximumDepthFactor( double factor );
+
     void uiOrderingForDepthAxis( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
     void uiOrderingForAutoName( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
 
     QString                   createAutoName() const override;
     RimWellLogPlotNameConfig* nameConfig() const;
+    void                      setNameTemplateText( const QString& templateText );
+    void                      setNamingMethod( RiaDefines::ObjectNamingMethod namingMethod );
 
     RimWellLogCurveCommonDataSource* commonDataSource() const;
     void                             updateCommonDataSource();
@@ -151,17 +167,22 @@ public:
 
     void updateDepthAxisVisibility();
 
-    static RiuPlotAxis depthAxis( DepthOrientation depthOrientation );
-    static RiuPlotAxis valueAxis( DepthOrientation depthOrientation );
-    static RiuPlotAxis annotationAxis( DepthOrientation depthOrientation );
+    static RiuPlotAxis depthAxis( RiaDefines::Orientation depthOrientation );
+    static RiuPlotAxis valueAxis( RiaDefines::Orientation depthOrientation );
+    static RiuPlotAxis annotationAxis( RiaDefines::Orientation depthOrientation );
 
 protected:
     QImage snapshotWindowContent() override;
 
     QWidget* createViewWidget( QWidget* mainWindowParent ) override;
     void     deleteViewWidget() override;
-    void     performAutoNameUpdate() override;
-    void     recreatePlotWidgets();
+
+    void                               performAutoNameUpdate() override;
+    QString                            createPlotNameFromTemplate( const QString& templateText ) const override;
+    QStringList                        supportedPlotNameVariables() const override;
+    virtual std::map<QString, QString> createNameKeyValueMap() const;
+
+    void recreatePlotWidgets();
 
     // Overridden PDM methods
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -176,6 +197,8 @@ protected:
     void                 updatePlots();
     caf::PdmFieldHandle* userDescriptionField() override;
 
+    void updateReferenceWellPathInCurves();
+
 private:
     void cleanupBeforeClose();
     void updateSubPlotNames();
@@ -188,16 +211,27 @@ protected:
     caf::PdmChildField<RimWellLogCurveCommonDataSource*> m_commonDataSource;
     bool                                                 m_commonDataSourceEnabled;
 
-    caf::PdmField<QString>                                 m_plotWindowTitle;
-    caf::PdmField<caf::AppEnum<DepthTypeEnum>>             m_depthType;
-    caf::PdmField<caf::AppEnum<RiaDefines::DepthUnitType>> m_depthUnit;
-    caf::PdmField<double>                                  m_minVisibleDepth;
-    caf::PdmField<double>                                  m_maxVisibleDepth;
-    caf::PdmField<AxisGridEnum>                            m_depthAxisGridVisibility;
-    caf::PdmField<bool>                                    m_isAutoScaleDepthEnabled;
-    caf::PdmField<caf::FontTools::RelativeSizeEnum>        m_subTitleFontSize;
-    caf::PdmField<caf::FontTools::RelativeSizeEnum>        m_axisTitleFontSize;
-    caf::PdmField<caf::FontTools::RelativeSizeEnum>        m_axisValueFontSize;
+    caf::PdmField<QString> m_plotWindowTitle;
+    caf::PdmField<QString> m_nameTemplateText;
+
+    caf::PdmField<caf::AppEnum<RiaDefines::ObjectNamingMethod>> m_namingMethod;
+
+    // Depth axis
+    caf::PdmField<caf::AppEnum<DepthTypeEnum>>                       m_depthType;
+    caf::PdmField<caf::AppEnum<RiaDefines::DepthUnitType>>           m_depthUnit;
+    caf::PdmField<double>                                            m_minVisibleDepth;
+    caf::PdmField<double>                                            m_maxVisibleDepth;
+    caf::PdmField<AxisGridEnum>                                      m_depthAxisGridVisibility;
+    caf::PdmField<bool>                                              m_isAutoScaleDepthEnabled;
+    caf::PdmField<caf::AppEnum<RiaDefines::MultiPlotAxisVisibility>> m_depthAxisVisibility;
+    caf::PdmField<bool>                                              m_showDepthMarkerLine;
+    caf::PdmField<double>                                            m_autoZoomMinDepthFactor;
+    caf::PdmField<double>                                            m_autoZoomMaxDepthFactor;
+    caf::PdmChildArrayField<RimPlotAxisAnnotation*>                  m_depthAnnotations;
+
+    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_subTitleFontSize;
+    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisTitleFontSize;
+    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisValueFontSize;
 
     caf::PdmChildField<RimWellLogPlotNameConfig*> m_nameConfig;
     caf::PdmChildArrayField<RimWellLogTrack*>     m_plots;
@@ -205,7 +239,7 @@ protected:
     caf::PdmField<caf::AppEnum<RimEnsembleWellLogStatistics::DepthEqualization>> m_depthEqualization;
     caf::PdmPtrField<RimEnsembleCurveSet*>                                       m_ensembleCurveSet;
 
-    caf::PdmField<caf::AppEnum<DepthOrientation>> m_depthOrientation;
+    caf::PdmField<caf::AppEnum<RiaDefines::Orientation>> m_depthOrientation;
 
     QPointer<RiuWellLogPlot>            m_viewer;
     std::set<RiaDefines::DepthUnitType> m_availableDepthUnits;

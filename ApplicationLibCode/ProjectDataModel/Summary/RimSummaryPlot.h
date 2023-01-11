@@ -82,6 +82,8 @@ public:
     caf::Signal<>                curvesChanged;
     caf::Signal<RimSummaryPlot*> axisChanged;
     caf::Signal<>                plotZoomedByUser;
+    caf::Signal<>                titleChanged;
+    caf::Signal<RimSummaryPlot*> axisChangedReloadRequired;
 
 public:
     RimSummaryPlot( bool isCrossPlot = false );
@@ -281,6 +283,7 @@ private:
 
     void connectAxisSignals( RimPlotAxisProperties* axis );
     void axisSettingsChanged( const caf::SignalEmitter* emitter );
+    void axisSettingsChangedReloadRequired( const caf::SignalEmitter* emitter );
     void axisLogarithmicChanged( const caf::SignalEmitter* emitter, bool isLogarithmic );
     void axisPositionChanged( const caf::SignalEmitter* emitter,
                               RimPlotAxisProperties*    axisProperties,

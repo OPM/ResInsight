@@ -1,7 +1,7 @@
 
-set(RESINSIGHT_MAJOR_VERSION 2022)
-set(RESINSIGHT_MINOR_VERSION 06)
-set(RESINSIGHT_PATCH_VERSION 2)
+set(RESINSIGHT_MAJOR_VERSION 2023)
+set(RESINSIGHT_MINOR_VERSION 01)
+set(RESINSIGHT_PATCH_VERSION 0)
 
 # Opional text with no restrictions
 #set(RESINSIGHT_VERSION_TEXT "-dev")
@@ -11,7 +11,7 @@ set(RESINSIGHT_PATCH_VERSION 2)
 # Must be unique and increasing within one combination of major/minor/patch version 
 # The uniqueness of this text is independent of RESINSIGHT_VERSION_TEXT 
 # Format of text must be ".xx"
-# set(RESINSIGHT_DEV_VERSION ".01")
+#set(RESINSIGHT_DEV_VERSION ".07")
 
 # https://github.com/CRAVA/crava/tree/master/libs/nrlib
 set(NRLIB_GITHUB_SHA "ba35d4359882f1c6f5e9dc30eb95fe52af50fd6f") 

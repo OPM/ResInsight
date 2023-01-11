@@ -162,6 +162,7 @@ void RiuSummaryQwtPlot::updateAnnotationObjects( RimPlotAxisPropertiesInterface*
             m_annotationTool->attachAnnotationLine( m_plotWidget->qwtPlot(),
                                                     annotation->color(),
                                                     annotation->name(),
+                                                    annotation->penStyle(),
                                                     annotation->value(),
                                                     orientation );
         }

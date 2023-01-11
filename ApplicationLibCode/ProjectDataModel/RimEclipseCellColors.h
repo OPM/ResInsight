@@ -62,6 +62,8 @@ public:
 
     void useDiscreteLogLevels( bool enable );
 
+    void setAdditionalUiTreeObjects( const std::vector<caf::PdmObject*>& objects );
+
 protected:
     // Overridden methods
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -84,6 +86,8 @@ private:
     caf::PdmChildField<RimTernaryLegendConfig*>      m_ternaryLegendConfig;
 
     caf::PdmPointer<RimEclipseView> m_reservoirView;
+
+    std::vector<caf::PdmObject*> m_additionalUiTreeObjects;
 
     bool m_useDiscreteLogLevels;
 

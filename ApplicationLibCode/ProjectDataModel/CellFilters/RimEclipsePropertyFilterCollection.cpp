@@ -38,8 +38,8 @@ RimEclipsePropertyFilterCollection::RimEclipsePropertyFilterCollection()
 {
     CAF_PDM_InitObject( "Property Filters", ":/CellFilter_Values.png" );
 
-    CAF_PDM_InitFieldNoDefault( &propertyFilters, "PropertyFilters", "Property Filters" );
-    propertyFilters.uiCapability()->setUiTreeHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_propertyFilters, "PropertyFilters", "Property Filters" );
+    m_propertyFilters.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -47,7 +47,7 @@ RimEclipsePropertyFilterCollection::RimEclipsePropertyFilterCollection()
 //--------------------------------------------------------------------------------------------------
 RimEclipsePropertyFilterCollection::~RimEclipsePropertyFilterCollection()
 {
-    propertyFilters.deleteChildren();
+    m_propertyFilters.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -64,9 +64,36 @@ RimEclipseView* RimEclipsePropertyFilterCollection::reservoirView()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEclipsePropertyFilterCollection::setIsDuplicatedFromLinkedView()
+{
+    for ( RimEclipsePropertyFilter* propertyFilter : m_propertyFilters )
+    {
+        propertyFilter->setIsDuplicatedFromLinkedView( true );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimEclipsePropertyFilter*> RimEclipsePropertyFilterCollection::propertyFilters() const
+{
+    return m_propertyFilters.children();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmChildArrayField<RimEclipsePropertyFilter*>& RimEclipsePropertyFilterCollection::propertyFiltersField()
+{
+    return m_propertyFilters;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilterCollection::loadAndInitializePropertyFilters()
 {
-    for ( RimEclipsePropertyFilter* propertyFilter : propertyFilters )
+    for ( RimEclipsePropertyFilter* propertyFilter : m_propertyFilters )
     {
         propertyFilter->resultDefinition()->setEclipseCase( reservoirView()->eclipseCase() );
         propertyFilter->initAfterRead();
@@ -93,7 +120,7 @@ bool RimEclipsePropertyFilterCollection::hasActiveFilters() const
 {
     if ( !isActive ) return false;
 
-    for ( RimEclipsePropertyFilter* propertyFilter : propertyFilters )
+    for ( RimEclipsePropertyFilter* propertyFilter : m_propertyFilters )
     {
         if ( propertyFilter->isActive() && propertyFilter->resultDefinition()->hasResult() ) return true;
     }
@@ -108,7 +135,7 @@ bool RimEclipsePropertyFilterCollection::hasActiveDynamicFilters() const
 {
     if ( !isActive ) return false;
 
-    for ( RimEclipsePropertyFilter* propertyFilter : propertyFilters )
+    for ( RimEclipsePropertyFilter* propertyFilter : m_propertyFilters )
     {
         if ( propertyFilter->isActive() && propertyFilter->resultDefinition()->hasDynamicResult() ) return true;
     }
@@ -123,7 +150,7 @@ bool RimEclipsePropertyFilterCollection::isUsingFormationNames() const
 {
     if ( !isActive ) return false;
 
-    for ( RimEclipsePropertyFilter* propertyFilter : propertyFilters )
+    for ( RimEclipsePropertyFilter* propertyFilter : m_propertyFilters )
     {
         if ( propertyFilter->isActive() &&
              propertyFilter->resultDefinition()->resultType() == RiaDefines::ResultCatType::FORMATION_NAMES &&
@@ -159,7 +186,7 @@ void RimEclipsePropertyFilterCollection::updateIconState()
 
     updateUiIconFromState( activeIcon );
 
-    for ( RimEclipsePropertyFilter* cellFilter : propertyFilters )
+    for ( RimEclipsePropertyFilter* cellFilter : m_propertyFilters )
     {
         cellFilter->updateActiveState();
         cellFilter->updateIconState();
@@ -171,7 +198,7 @@ void RimEclipsePropertyFilterCollection::updateIconState()
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilterCollection::updateFromCurrentTimeStep()
 {
-    for ( RimEclipsePropertyFilter* cellFilter : propertyFilters() )
+    for ( RimEclipsePropertyFilter* cellFilter : m_propertyFilters() )
     {
         cellFilter->updateFromCurrentTimeStep();
     }

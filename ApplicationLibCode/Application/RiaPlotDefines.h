@@ -19,6 +19,7 @@
 #pragma once
 
 class QPaintDevice;
+class QString;
 
 // Defines relate to plotting
 namespace RiaDefines
@@ -59,6 +60,39 @@ enum class Orientation
     VERTICAL
 };
 
+enum class MultiPlotAxisVisibility
+{
+    ONE_VISIBLE,
+    ALL_VISIBLE
+};
+
+enum class ObjectNamingMethod
+{
+    CUSTOM,
+    AUTO,
+    TEMPLATE
+};
+
+enum class WindowTileMode
+{
+    DEFAULT,
+    VERTICAL,
+    HORIZONTAL,
+    UNDEFINED,
+};
+
+// Defines relate to curve and plot template names
+QString namingVariableCase();
+QString namingVariableWell();
+QString namingVariableRefWell();
+QString namingVariableWellBranch();
+QString namingVariableResultName();
+QString namingVariableResultType();
+QString namingVariableTime();
+QString namingVariableTimestep();
+QString namingVariableAirGap();
+QString namingVariableWaterDepth();
+
 double minimumDefaultValuePlot();
 double minimumDefaultLogValuePlot();
 double maximumDefaultValuePlot();
@@ -68,5 +102,10 @@ bool     isVertical( PlotAxis axis );
 PlotAxis opposite( PlotAxis axis );
 
 double scalingFactor( QPaintDevice* paintDevice );
+
+// Project editor group names
+QString curveNameGroupName();
+QString appearanceGroupName();
+QString additionalDataSourcesGroupName();
 
 }; // namespace RiaDefines

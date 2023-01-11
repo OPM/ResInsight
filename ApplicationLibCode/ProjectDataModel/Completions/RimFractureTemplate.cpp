@@ -115,7 +115,7 @@ RimFractureTemplate::RimFractureTemplate()
     CAF_PDM_InitField( &m_id, "Id", -1, "ID" );
     m_id.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitField( &m_name, "UserDescription", QString( "Fracture Template" ), "Name" );
+    CAF_PDM_InitScriptableField( &m_name, "UserDescription", QString( "Fracture Template" ), "Name" );
 
     CAF_PDM_InitFieldNoDefault( &m_nameAndUnit, "NameAndUnit", "NameAndUnit" );
     m_nameAndUnit.registerGetMethod( this, &RimFractureTemplate::nameAndUnit );
@@ -133,20 +133,24 @@ RimFractureTemplate::RimFractureTemplate()
                                  caf::AppEnum<FracOrientationEnum>( TRANSVERSE_WELL_PATH ),
                                  "Fracture Orientation" );
 
+    CAF_PDM_InitScriptableField( &m_userDefinedPerforationLength,
+                                 "UserDefinedPerforationLength",
+                                 false,
+                                 "User-defined Perforation Length" );
     CAF_PDM_InitScriptableField( &m_azimuthAngle, "AzimuthAngle", 0.0f, "Azimuth Angle" );
 
     CAF_PDM_InitField( &m_skinFactor, "SkinFactor", 0.0f, "Skin Factor" );
 
-    CAF_PDM_InitField( &m_perforationLength, "PerforationLength", 1.0, "Perforation Length" );
+    CAF_PDM_InitScriptableField( &m_perforationLength, "PerforationLength", 1.0, "Perforation Length" );
 
     CAF_PDM_InitField( &m_perforationEfficiency, "PerforationEfficiency", 1.0, "Perforation Efficiency" );
     m_perforationEfficiency.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_wellDiameter, "WellDiameter", 0.216, "Well Diameter at Fracture" );
-    CAF_PDM_InitField( &m_conductivityType,
-                       "ConductivityType",
-                       caf::AppEnum<FracConductivityEnum>( FINITE_CONDUCTIVITY ),
-                       "Conductivity in Fracture" );
+    CAF_PDM_InitScriptableField( &m_conductivityType,
+                                 "ConductivityType",
+                                 caf::AppEnum<FracConductivityEnum>( FINITE_CONDUCTIVITY ),
+                                 "Conductivity in Fracture" );
 
     CAF_PDM_InitField( &m_wellPathDepthAtFracture, "WellPathDepthAtFracture", 0.0, "Well/Fracture Intersection Depth" );
     m_wellPathDepthAtFracture.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
@@ -202,16 +206,16 @@ RimFractureTemplate::RimFractureTemplate()
     m_dFactorSummaryText.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::TOP );
     m_dFactorSummaryText.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &m_heightScaleFactor, "HeightScaleFactor", 1.0, "Height" );
-    CAF_PDM_InitField( &m_halfLengthScaleFactor, "WidthScaleFactor", 1.0, "Half Length" );
-    CAF_PDM_InitField( &m_dFactorScaleFactor, "DFactorScaleFactor", 1.0, "D-factor" );
-    CAF_PDM_InitField( &m_conductivityScaleFactor,
-                       "ConductivityFactor",
-                       1.0,
-                       "Conductivity",
-                       "",
-                       "The conductivity values read from file will be scaled with this parameters",
-                       "" );
+    CAF_PDM_InitScriptableField( &m_heightScaleFactor, "HeightScaleFactor", 1.0, "Height" );
+    CAF_PDM_InitScriptableField( &m_halfLengthScaleFactor, "WidthScaleFactor", 1.0, "Half Length" );
+    CAF_PDM_InitScriptableField( &m_dFactorScaleFactor, "DFactorScaleFactor", 1.0, "D-factor" );
+    CAF_PDM_InitScriptableField( &m_conductivityScaleFactor,
+                                 "ConductivityFactor",
+                                 1.0,
+                                 "Conductivity",
+                                 "",
+                                 "The conductivity values read from file will be scaled with this parameters",
+                                 "" );
     CAF_PDM_InitField( &m_scaleApplyButton, "ScaleApplyButton", false, "Apply" );
 
     m_scaleApplyButton.xmlCapability()->disableIO();
@@ -496,10 +500,12 @@ void RimFractureTemplate::prepareFieldsForUiDisplay()
          m_orientationType == RimFractureTemplate::TRANSVERSE_WELL_PATH )
     {
         m_azimuthAngle.uiCapability()->setUiHidden( true );
+        m_userDefinedPerforationLength.uiCapability()->setUiHidden( true );
     }
     else if ( m_orientationType == RimFractureTemplate::AZIMUTH )
     {
         m_azimuthAngle.uiCapability()->setUiHidden( false );
+        m_userDefinedPerforationLength.uiCapability()->setUiHidden( false );
     }
 
     if ( m_orientationType == RimFractureTemplate::ALONG_WELL_PATH )
@@ -510,7 +516,10 @@ void RimFractureTemplate::prepareFieldsForUiDisplay()
     else
     {
         m_perforationEfficiency.uiCapability()->setUiHidden( true );
-        m_perforationLength.uiCapability()->setUiHidden( true );
+
+        bool hidePerforationLength =
+            !( m_orientationType == RimFractureTemplate::AZIMUTH && m_userDefinedPerforationLength() );
+        m_perforationLength.uiCapability()->setUiHidden( hidePerforationLength );
     }
 
     if ( m_conductivityType == FINITE_CONDUCTIVITY )
@@ -942,6 +951,14 @@ double RimFractureTemplate::perforationLength() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimFractureTemplate::useUserDefinedPerforationLength() const
+{
+    return m_userDefinedPerforationLength;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 const RimFractureContainment* RimFractureTemplate::fractureContainment() const
 {
     return m_fractureContainment();
@@ -1000,4 +1017,12 @@ bool RimFractureTemplate::isNonDarcyFlowEnabled() const
 double RimFractureTemplate::wellPathDepthAtFracture() const
 {
     return m_wellPathDepthAtFracture;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFractureTemplate::placeFractureUsingTemplateData( RimFracture* fracture )
+{
+    return true;
 }

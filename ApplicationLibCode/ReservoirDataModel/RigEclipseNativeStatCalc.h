@@ -19,10 +19,11 @@
 
 #pragma once
 
-#include "RigStatisticsCalculator.h"
+#include "RiaOpenMPTools.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
+#include "RigStatisticsCalculator.h"
 
 class RigHistogramCalculator;
 
@@ -50,6 +51,7 @@ private:
     RigCaseCellResultsData* m_resultsData;
     RigEclipseResultAddress m_eclipseResultAddress;
 
+    // Add all result values to an accumulator for a given time step
     template <typename StatisticsAccumulator>
     void traverseCells( StatisticsAccumulator& accumulator, size_t timeStepIndex )
     {
@@ -59,31 +61,34 @@ private:
         }
 
         const std::vector<double>& values = m_resultsData->cellScalarResults( m_eclipseResultAddress, timeStepIndex );
-
-        if ( values.empty() )
+        for ( const auto& val : values )
         {
-            // Can happen if values do not exist for the current time step index.
+            accumulator.addValue( val );
+        }
+    }
+
+    // Create one accumulator for each available thread, and add values to accumulator for a given time step
+    template <typename StatisticsAccumulator>
+    void threadTraverseCells( std::vector<StatisticsAccumulator>& accumulators, size_t timeStepIndex )
+    {
+        if ( timeStepIndex >= m_resultsData->cellScalarResults( m_eclipseResultAddress ).size() )
+        {
             return;
         }
 
-        const RigActiveCellInfo* actCellInfo = m_resultsData->activeCellInfo();
-        size_t                   cellCount   = actCellInfo->reservoirCellCount();
+        const std::vector<double>& values = m_resultsData->cellScalarResults( m_eclipseResultAddress, timeStepIndex );
 
-        bool isUsingGlobalActiveIndex = m_resultsData->isUsingGlobalActiveIndex( m_eclipseResultAddress );
-        for ( size_t cIdx = 0; cIdx < cellCount; ++cIdx )
+        int numberOfThreads = RiaOpenMPTools::availableThreadCount();
+        accumulators.resize( numberOfThreads );
+
+#pragma omp parallel
         {
-            // Filter out inactive cells
-            if ( !actCellInfo->isActive( cIdx ) ) continue;
+            int myThread = RiaOpenMPTools::currentThreadIndex();
 
-            size_t cellResultIndex = cIdx;
-            if ( isUsingGlobalActiveIndex )
+#pragma omp for
+            for ( long long i = 0; i < (long long)values.size(); i++ )
             {
-                cellResultIndex = actCellInfo->cellResultIndex( cIdx );
-            }
-
-            if ( cellResultIndex != cvf::UNDEFINED_SIZE_T && cellResultIndex < values.size() )
-            {
-                accumulator.addValue( values[cellResultIndex] );
+                accumulators[myThread].addValue( values[i] );
             }
         }
     }

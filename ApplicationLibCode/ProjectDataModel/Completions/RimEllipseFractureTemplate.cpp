@@ -92,7 +92,8 @@ void RimEllipseFractureTemplate::fieldChangedByUi( const caf::PdmFieldHandle* ch
     RimFractureTemplate::fieldChangedByUi( changedField, oldValue, newValue );
 
     if ( changedField == &m_halfLength || changedField == &m_height || changedField == &m_width ||
-         changedField == &m_permeability || changedField == &m_scaleApplyButton )
+         changedField == &m_permeability || changedField == &m_scaleApplyButton ||
+         changedField == &m_wellPathDepthAtFracture )
     {
         m_scaleApplyButton = false;
 
@@ -173,8 +174,8 @@ cvf::cref<RigFractureGrid> RimEllipseFractureTemplate::createFractureGrid( doubl
     double height     = m_height * m_heightScaleFactor;
     double halfLength = m_halfLength * m_halfLengthScaleFactor;
 
-    double cellSizeX = ( halfLength * 2 ) / numberOfCellsI * m_halfLengthScaleFactor;
-    double cellSizeZ = height / numberOfCellsJ * m_heightScaleFactor;
+    double cellSizeX = ( halfLength * 2 ) / numberOfCellsI;
+    double cellSizeZ = height / numberOfCellsJ;
 
     double cellArea                     = cellSizeX * cellSizeZ;
     double areaTresholdForIncludingCell = 0.5 * cellArea;
@@ -396,7 +397,8 @@ void RimEllipseFractureTemplate::onLoadDataAndUpdateGeometryHasChanged()
     this->firstAncestorOrThisOfType( eclipseCase );
     if ( eclipseCase )
     {
-        RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews( eclipseCase );
+        RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews(
+            { eclipseCase } );
     }
     else
     {
@@ -487,6 +489,7 @@ void RimEllipseFractureTemplate::defineUiOrdering( QString uiConfigName, caf::Pd
         group->add( &m_permeability );
         group->add( &m_width );
         group->add( &m_skinFactor );
+        group->add( &m_userDefinedPerforationLength );
         group->add( &m_perforationLength );
         group->add( &m_perforationEfficiency );
         group->add( &m_wellDiameter );

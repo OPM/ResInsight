@@ -24,6 +24,7 @@
 #include "RimPlotDataFilterCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 
 CAF_PDM_SOURCE_INIT( RimAnalysisPlotCollection, "AnalysisPlotCollection" );
 

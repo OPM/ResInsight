@@ -39,6 +39,13 @@ class RimThermalFractureTemplate : public RimMeshFractureTemplate
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class FilterCakePressureDrop
+    {
+        NONE,
+        RELATIVE,
+        ABSOLUTE
+    };
+
     RimThermalFractureTemplate();
     ~RimThermalFractureTemplate() override;
 
@@ -54,6 +61,8 @@ public:
     void fractureTriangleGeometry( std::vector<cvf::Vec3f>* nodeCoords,
                                    std::vector<cvf::uint>*  triangleIndices,
                                    double                   wellPathDepthAtFracture ) const override;
+
+    bool placeFractureUsingTemplateData( RimFracture* fracture ) override;
 
     // Result Access
     std::vector<QString>                     timeStepsStrings() override;
@@ -75,6 +84,7 @@ public:
                                        const QString&     unit,
                                        MinMaxAccumulator& minMaxAccumulator,
                                        PosNegAccumulator& posNegAccumulator ) const override;
+    bool isValidResult( double value ) const override;
 
     void setDefaultConductivityResultIfEmpty();
     bool setBorderPolygonResultNameToDefault();
@@ -102,10 +112,18 @@ public:
 
     std::pair<cvf::Vec3d, cvf::Vec3d> computePositionAndRotation() const;
 
+    const RigThermalFractureDefinition* fractureDefinition() const;
+
+    FilterCakePressureDrop filterCakePressureDropType() const;
+
 protected:
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
     QString     getFileSelectionFilter() const override;
     QStringList conductivityResultNames() const override;
 
 private:
+    caf::PdmField<caf::AppEnum<FilterCakePressureDrop>> m_filterCakePressureDropType;
+
     std::shared_ptr<RigThermalFractureDefinition> m_fractureDefinitionData;
 };

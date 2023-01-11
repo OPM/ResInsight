@@ -27,7 +27,7 @@
 #include <memory>
 #include <vector>
 
-class QMdiArea;
+class RiuMdiArea;
 struct RimMdiWindowGeometry;
 
 class RiuMdiArea;
@@ -83,11 +83,6 @@ public:
 
     void enableShowFirstVisibleMdiWindowMaximized( bool enable );
 
-    virtual void tileSubWindows()                   = 0;
-    virtual void storeSubWindowTiling( bool tiled ) = 0;
-    virtual void clearWindowTiling()                = 0;
-    virtual bool subWindowsAreTiled() const         = 0;
-
     void setBlockSubWindowActivatedSignal( bool block );
     bool isBlockingSubWindowActivatedSignal() const;
 
@@ -96,10 +91,12 @@ public:
 
     ads::CDockManager* dockManager() const;
 
+    RiuMdiArea* mdiArea();
+
 protected:
     void createTreeViews( int numberOfTrees );
-    void removeViewerFromMdiArea( QMdiArea* mdiArea, QWidget* viewer );
-    void initializeSubWindow( QMdiArea*      mdiArea,
+    void removeViewerFromMdiArea( RiuMdiArea* mdiArea, QWidget* viewer );
+    void initializeSubWindow( RiuMdiArea*    mdiArea,
                               QMdiSubWindow* mdiSubWindow,
                               const QPoint&  subWindowPos,
                               const QSize&   subWindowSize );
@@ -114,7 +111,7 @@ protected:
 
     virtual QStringList defaultDockStateNames() = 0;
 
-    virtual QAction* tileSubWindowsAction() = 0;
+    virtual QStringList windowsMenuFeatureNames() = 0;
 
 protected slots:
     void slotDockWidgetToggleViewActionTriggered();

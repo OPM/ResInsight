@@ -157,7 +157,7 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells( Rim
     }
 
     RimEclipsePropertyFilter* propertyFilter = new RimEclipsePropertyFilter();
-    propertyFilterCollection->propertyFilters().push_back( propertyFilter );
+    propertyFilterCollection->propertyFiltersField().push_back( propertyFilter );
 
     propertyFilter->resultDefinition()->setEclipseCase( viewToModify->eclipseCase() );
     propertyFilter->resultDefinition()->setTofAndSelectTracer( selectedWell->name() );

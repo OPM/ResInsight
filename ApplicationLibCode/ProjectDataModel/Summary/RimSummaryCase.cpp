@@ -307,6 +307,14 @@ QString RimSummaryCase::nativeCaseName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimCaseDisplayNameTools::DisplayName RimSummaryCase::displayNameType() const
+{
+    return m_displayNameOption();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 caf::AppEnum<RiaDefines::EclipseUnitSystem> RimSummaryCase::unitsSystem()
 {
     RifSummaryReaderInterface* reader = summaryReader();

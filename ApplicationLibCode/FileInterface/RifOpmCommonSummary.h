@@ -72,7 +72,7 @@ public:
     static void   resetEnhancedSummaryFileCount();
     static size_t numberOfEnhancedSummaryFileCreated();
 
-    bool open( const QString& headerFileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
+    bool open( const QString& fileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
 
     const std::vector<time_t>& timeSteps( const RifEclipseSummaryAddress& resultAddress ) const override;
     bool        values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const override;
@@ -81,10 +81,11 @@ public:
 
 private:
     void buildMetaData();
-    bool openFileReader( const QString& headerFileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
+    bool openFileReader( const QString& fileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
 
     static void    increaseEsmryFileCount();
-    static QString enhancedSummaryFilename( const QString& headerFileName );
+    static QString enhancedSummaryFilename( const QString& fileName );
+    static QString smspecSummaryFilename( const QString& fileName );
 
 private:
     std::unique_ptr<Opm::EclIO::ESmry>    m_standardReader;

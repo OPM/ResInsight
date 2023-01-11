@@ -21,6 +21,7 @@
 #include "RigMainGrid.h"
 
 #include "RiaLogging.h"
+#include "RiaOpenMPTools.h"
 #include "RiaResultNames.h"
 
 #include "RigActiveCellInfo.h"
@@ -29,10 +30,6 @@
 
 #include "cvfAssert.h"
 #include "cvfBoundingBoxTree.h"
-
-#ifdef USE_OPENMP
-#include <omp.h>
-#endif
 
 RigMainGrid::RigMainGrid()
     : RigGridBase( this )
@@ -264,13 +261,31 @@ void RigMainGrid::setDisplayModelOffset( cvf::Vec3d offset )
 /// Compute cell ranges for active and valid cells
 /// Compute bounding box in world coordinates based on node coordinates
 //--------------------------------------------------------------------------------------------------
-void RigMainGrid::computeCachedData()
+void RigMainGrid::computeCachedData( std::string* aabbTreeInfo )
 {
     initAllSubGridsParentGridPointer();
     initAllSubCellsMainGridCellIndex();
 
     m_cellSearchTree = nullptr;
-    buildCellSearchTree();
+
+    const double maxNumberOfLeafNodes = 4000000;
+    const double factor               = std::ceil( cellCount() / maxNumberOfLeafNodes );
+    const size_t cellsPerBoundingBox  = std::max( size_t( 1 ), static_cast<size_t>( factor ) );
+
+    if ( cellsPerBoundingBox > 1 )
+    {
+        buildCellSearchTreeOptimized( cellsPerBoundingBox );
+    }
+    else
+    {
+        buildCellSearchTree();
+    }
+
+    if ( aabbTreeInfo )
+    {
+        *aabbTreeInfo += "Cells per bounding box : " + std::to_string( cellsPerBoundingBox ) + "\n";
+        *aabbTreeInfo += m_cellSearchTree->info();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -575,12 +590,7 @@ void RigMainGrid::addUnNamedFaultFaces( int                               gcIdx,
             }
             else
             {
-                CVF_FAIL_MSG( "Found fault with global neighbor index less than the native index. " ); // Should never
-                                                                                                       // occur. because
-                                                                                                       // we flag the
-                                                                                                       // opposite face
-                                                                                                       // in the
-                                                                                                       // faultsPrCellAcc
+                CVF_FAIL_MSG( "Found fault with global neighbor index less than the native index. " );
             }
         }
     }
@@ -641,32 +651,67 @@ void RigMainGrid::distributeNNCsToFaults()
 //--------------------------------------------------------------------------------------------------
 bool RigMainGrid::isFaceNormalsOutwards() const
 {
-    for ( int gcIdx = 0; gcIdx < static_cast<int>( m_cells.size() ); ++gcIdx )
-    {
-        if ( !m_cells[gcIdx].isInvalid() )
+    auto isValidAndFaceNormalDir = []( const double                       ijSize,
+                                       const double                       kSize,
+                                       const RigCell&                     cell,
+                                       cvf::StructGridInterface::FaceType face ) -> std::pair<bool, bool> {
+        const cvf::Vec3d cellCenter = cell.center();
+        const cvf::Vec3d faceCenter = cell.faceCenter( face );
+        const cvf::Vec3d faceNormal = cell.faceNormalWithAreaLength( face );
+
+        if ( ( faceCenter - cellCenter ).length() > 0.2 * ijSize && ( faceNormal.length() > ( 0.2 * ijSize * 0.2 * kSize ) ) )
         {
-            cvf::Vec3d cellCenter = m_cells[gcIdx].center();
-            cvf::Vec3d faceCenter = m_cells[gcIdx].faceCenter( StructGridInterface::POS_I );
-            cvf::Vec3d faceNormal = m_cells[gcIdx].faceNormalWithAreaLength( StructGridInterface::POS_I );
-
-            double typicalIJCellSize = characteristicIJCellSize();
-            double dummy, dummy2, typicalKSize;
-            characteristicCellSizes( &dummy, &dummy2, &typicalKSize );
-
-            if ( ( faceCenter - cellCenter ).length() > 0.2 * typicalIJCellSize &&
-                 ( faceNormal.length() > ( 0.2 * typicalIJCellSize * 0.2 * typicalKSize ) ) )
+            // Cell is assumed ok to use, so calculate whether the normals are outwards or inwards
+            if ( ( faceCenter - cellCenter ) * faceNormal >= 0 )
             {
-                // Cell is assumed ok to use, so calculate whether the normals are outwards or inwards
-
-                if ( ( faceCenter - cellCenter ) * faceNormal >= 0 )
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                return { true, true };
             }
+
+            return { true, false };
+        }
+
+        return { false, false };
+    };
+
+    double ijSize = characteristicIJCellSize();
+
+    double iSize, jSize, kSize = 0.0;
+    characteristicCellSizes( &iSize, &jSize, &kSize );
+    const double characteristicVolume = iSize * jSize * kSize;
+
+    for ( const auto& cell : m_cells )
+    {
+        if ( !cell.isInvalid() )
+        {
+            // Some cells can be very twisted and distorted. Use a volume criteria to find a reasonably regular cell.
+            const double cellVolume = cell.volume();
+            if ( cellVolume < characteristicVolume * 0.8 ) continue;
+
+            auto [isValid1, direction1] =
+                isValidAndFaceNormalDir( ijSize, kSize, cell, cvf::StructGridInterface::FaceType::NEG_I );
+            auto [isValid2, direction2] =
+                isValidAndFaceNormalDir( ijSize, kSize, cell, cvf::StructGridInterface::FaceType::POS_I );
+            auto [isValid3, direction3] =
+                isValidAndFaceNormalDir( ijSize, kSize, cell, cvf::StructGridInterface::FaceType::NEG_J );
+            auto [isValid4, direction4] =
+                isValidAndFaceNormalDir( ijSize, kSize, cell, cvf::StructGridInterface::FaceType::POS_J );
+
+            if ( !isValid1 || !isValid2 || !isValid3 || !isValid4 ) continue;
+
+            if ( direction1 && direction2 && direction3 && direction4 )
+            {
+                // All face normals pointing outwards
+                return true;
+            }
+
+            if ( !direction1 && !direction2 && !direction3 && !direction4 )
+            {
+                // All cell face normals pointing inwards
+                return false;
+            }
+
+            // This is a mixed case, where some faces are outwards and some are inwards
+            continue;
         }
     }
 
@@ -744,10 +789,8 @@ void RigMainGrid::buildCellSearchTree()
 
 #pragma omp parallel
         {
-            size_t threadCellCount = cellCount;
-#ifdef USE_OPENMP
-            threadCellCount = std::ceil( cellCount / static_cast<double>( omp_get_num_threads() ) );
-#endif
+            int    numberOfThreads = RiaOpenMPTools::availableThreadCount();
+            size_t threadCellCount = std::ceil( cellCount / static_cast<double>( numberOfThreads ) );
 
             std::vector<size_t>           threadIndicesForBoundingBoxes;
             std::vector<cvf::BoundingBox> threadBoundingBoxes;
@@ -763,14 +806,10 @@ void RigMainGrid::buildCellSearchTree()
                 const std::array<size_t, 8>& cellIndices = m_cells[cIdx].cornerIndices();
 
                 cvf::BoundingBox cellBB;
-                cellBB.add( m_nodes[cellIndices[0]] );
-                cellBB.add( m_nodes[cellIndices[1]] );
-                cellBB.add( m_nodes[cellIndices[2]] );
-                cellBB.add( m_nodes[cellIndices[3]] );
-                cellBB.add( m_nodes[cellIndices[4]] );
-                cellBB.add( m_nodes[cellIndices[5]] );
-                cellBB.add( m_nodes[cellIndices[6]] );
-                cellBB.add( m_nodes[cellIndices[7]] );
+                for ( size_t i : cellIndices )
+                {
+                    cellBB.add( m_nodes[i] );
+                }
 
                 if ( cellBB.isValid() )
                 {
@@ -794,6 +833,97 @@ void RigMainGrid::buildCellSearchTree()
         m_cellSearchTree = new cvf::BoundingBoxTree;
         m_cellSearchTree->buildTreeFromBoundingBoxes( cellBoundingBoxes, &cellIndicesForBoundingBoxes );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigMainGrid::buildCellSearchTreeOptimized( size_t cellsPerBoundingBox )
+{
+    int threadCount = RiaOpenMPTools::availableThreadCount();
+
+    std::vector<std::vector<std::vector<int>>> threadCellIndicesForBoundingBoxes( threadCount );
+    std::vector<std::vector<cvf::BoundingBox>> threadCellBoundingBoxes( threadCount );
+
+#pragma omp parallel
+    {
+        int myThread = RiaOpenMPTools::currentThreadIndex();
+
+#pragma omp for
+        for ( int i = 0; i < static_cast<int>( cellCountI() ); i++ )
+        {
+            for ( size_t j = 0; j < cellCountJ(); j++ )
+            {
+                size_t k = 0;
+                while ( k < cellCountK() )
+                {
+                    size_t kCount = 0;
+
+                    std::vector<int> aggregatedCellIndices;
+                    cvf::BoundingBox accumulatedBB;
+
+                    while ( ( kCount < cellsPerBoundingBox ) && ( k + kCount < cellCountK() ) )
+                    {
+                        size_t      cellIdx = cellIndexFromIJK( i, j, k + kCount );
+                        const auto& rigCell = cell( cellIdx );
+
+                        if ( !rigCell.isInvalid() )
+                        {
+                            aggregatedCellIndices.push_back( static_cast<int>( cellIdx ) );
+
+                            // Add all cells in sub grid contained in this main grid cell
+                            if ( auto subGrid = rigCell.subGrid() )
+                            {
+                                for ( size_t localIdx = 0; localIdx < subGrid->cellCount(); localIdx++ )
+                                {
+                                    const auto& localCell = subGrid->cell( localIdx );
+                                    if ( localCell.mainGridCellIndex() == cellIdx )
+                                    {
+                                        aggregatedCellIndices.push_back(
+                                            static_cast<int>( subGrid->reservoirCellIndex( localIdx ) ) );
+                                    }
+                                }
+                            }
+
+                            const std::array<size_t, 8>& cellIndices = rigCell.cornerIndices();
+
+                            cvf::BoundingBox cellBB;
+                            for ( size_t i : cellIndices )
+                            {
+                                cellBB.add( m_nodes[i] );
+                            }
+
+                            if ( cellBB.isValid() ) accumulatedBB.add( cellBB );
+                        }
+                        kCount++;
+                    }
+
+                    k += kCount;
+                    kCount = 0;
+
+                    threadCellIndicesForBoundingBoxes[myThread].emplace_back( aggregatedCellIndices );
+                    threadCellBoundingBoxes[myThread].emplace_back( accumulatedBB );
+                }
+            }
+        }
+    }
+
+    std::vector<std::vector<int>> cellIndicesForBoundingBoxes;
+    std::vector<cvf::BoundingBox> cellBoundingBoxes;
+
+    for ( auto i = 0; i < threadCount; i++ )
+    {
+        cellIndicesForBoundingBoxes.insert( cellIndicesForBoundingBoxes.end(),
+                                            threadCellIndicesForBoundingBoxes[i].begin(),
+                                            threadCellIndicesForBoundingBoxes[i].end() );
+
+        cellBoundingBoxes.insert( cellBoundingBoxes.end(),
+                                  threadCellBoundingBoxes[i].begin(),
+                                  threadCellBoundingBoxes[i].end() );
+    }
+
+    m_cellSearchTree = new cvf::BoundingBoxTree;
+    m_cellSearchTree->buildTreeFromBoundingBoxesOptimized( cellBoundingBoxes, cellIndicesForBoundingBoxes );
 }
 
 //--------------------------------------------------------------------------------------------------

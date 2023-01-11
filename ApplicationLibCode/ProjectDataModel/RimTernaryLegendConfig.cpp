@@ -21,6 +21,7 @@
 
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
+#include "RiaNumericalTools.h"
 #include "RiaPreferences.h"
 #include "RiaResultNames.h"
 
@@ -221,11 +222,11 @@ void RimTernaryLegendConfig::setAutomaticRanges( TernaryArrayIndex ternaryIndex,
                                                  double            localMin,
                                                  double            localMax )
 {
-    double candidateGlobalAutoMin = roundToNumSignificantDigits( globalMin, precision );
-    double candidateGlobalAutoMax = roundToNumSignificantDigits( globalMax, precision );
+    double candidateGlobalAutoMin = RiaNumericalTools::roundToNumSignificantDigits( globalMin, precision );
+    double candidateGlobalAutoMax = RiaNumericalTools::roundToNumSignificantDigits( globalMax, precision );
 
-    double candidateLocalAutoMin = roundToNumSignificantDigits( localMin, precision );
-    double candidateLocalAutoMax = roundToNumSignificantDigits( localMax, precision );
+    double candidateLocalAutoMin = RiaNumericalTools::roundToNumSignificantDigits( localMin, precision );
+    double candidateLocalAutoMax = RiaNumericalTools::roundToNumSignificantDigits( localMax, precision );
 
     m_globalAutoMin[ternaryIndex] = candidateGlobalAutoMin;
     m_globalAutoMax[ternaryIndex] = candidateGlobalAutoMax;
@@ -260,33 +261,6 @@ void RimTernaryLegendConfig::setUiValuesFromLegendConfig( const RimTernaryLegend
     QString serializedObjectString = otherLegendConfig->writeObjectToXmlString();
     this->readObjectFromXmlString( serializedObjectString, caf::PdmDefaultObjectFactory::instance() );
     this->updateLegend();
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Rounding the double value to given number of significant digits
-//--------------------------------------------------------------------------------------------------
-double RimTernaryLegendConfig::roundToNumSignificantDigits( double domainValue, double numSignificantDigits )
-{
-    double absDomainValue = cvf::Math::abs( domainValue );
-    if ( absDomainValue == 0.0 )
-    {
-        return 0.0;
-    }
-
-    double logDecValue = log10( absDomainValue );
-    logDecValue        = cvf::Math::ceil( logDecValue );
-
-    double factor = pow( 10.0, numSignificantDigits - logDecValue );
-
-    double tmp = domainValue * factor;
-    double integerPart;
-    double fraction = modf( tmp, &integerPart );
-
-    if ( cvf::Math::abs( fraction ) >= 0.5 ) ( integerPart >= 0 ) ? integerPart++ : integerPart--;
-
-    double newDomainValue = integerPart / factor;
-
-    return newDomainValue;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -101,8 +101,8 @@ public:
 
     void           setPlotTitle( const QString& plotTitle ) override;
     const QString& plotTitle() const;
-    void           setPlotTitleEnabled( bool enabled );
-    bool           plotTitleEnabled() const;
+    void           setPlotTitleEnabled( bool enabled ) override;
+    bool           plotTitleEnabled() const override;
     void           setPlotTitleFontSize( int titleFontSize ) override;
 
     void setLegendFontSize( int fontSize ) override;
@@ -157,7 +157,7 @@ public:
     void updateLegend() override;
     void updateAxes() override;
 
-    RiuPlotCurve* createPlotCurve( RimPlotCurve* ownerRimCurve, const QString& title, const QColor& color ) override;
+    RiuPlotCurve* createPlotCurve( RimPlotCurve* ownerRimCurve, const QString& title ) override;
 
     void detachItems( RiuPlotWidget::PlotItemType plotItemType ) override;
 
@@ -207,6 +207,8 @@ protected:
 
     RiuPlotAxis findPlotAxisForQwtAxis( const QwtAxisId& qwtAxisId ) const;
 
+    virtual void onMouseMoveEvent( QMouseEvent* event );
+
 private:
     void       selectClosestPlotItem( const QPoint& pos, bool toggleItemInSelection = false );
     static int defaultMinimumWidth();
@@ -233,9 +235,8 @@ private:
         int    lineWidth;
     };
 
-    std::map<QwtPlotCurve*, CurveProperties> m_originalCurveProperties;
-    std::map<QwtPlotCurve*, double>          m_originalZValues;
-    std::map<RiuPlotAxis, QwtAxisId>         m_axisMapping;
+    std::map<QwtPlotCurve*, double>  m_originalZValues;
+    std::map<RiuPlotAxis, QwtAxisId> m_axisMapping;
 
     QPointer<QwtPlot> m_plot;
 };

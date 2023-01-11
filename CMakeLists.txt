@@ -385,7 +385,9 @@ list(APPEND OPM_LIBRARIES custom-opm-flowdiagnostics custom-opm-flowdiag-app
      custom-opm-common
 )
 
-set_property(TARGET ${OPM_LIBRARIES} PROPERTY FOLDER "Thirdparty/OPM")
+set_property(
+  TARGET ${OPM_LIBRARIES} opm-parser-tests PROPERTY FOLDER "Thirdparty/OPM"
+)
 
 # ##############################################################################
 # NRLib
@@ -401,14 +403,7 @@ list(APPEND THIRD_PARTY_LIBRARIES NRLib)
 set(RI_QT_MINIMUM_VERSION 5.12)
 
 find_package(
-  Qt5 ${RI_QT_MINIMUM_VERSION}
-  COMPONENTS Core
-             Gui
-             OpenGL
-             Network
-             Script
-             ScriptTools
-             Widgets
+  Qt5 ${RI_QT_MINIMUM_VERSION} COMPONENTS Core Gui OpenGL Network Widgets
 )
 
 # Open GL
@@ -451,7 +446,7 @@ list(APPEND THIRD_PARTY_LIBRARIES qwt)
 # ##############################################################################
 set(ADS_VERSION "3.8.2")
 
-add_subdirectory(ThirdParty/qtadvanceddocking)
+add_subdirectory(ThirdParty/qtadvanceddocking EXCLUDE_FROM_ALL)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   target_compile_options(qtadvanceddocking PRIVATE -Wno-deprecated-copy)
@@ -499,6 +494,13 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif()
 
 list(APPEND THIRD_PARTY_LIBRARIES clipper)
+
+# ##############################################################################
+# roffcpp
+# ##############################################################################
+
+add_subdirectory(ThirdParty/roffcpp)
+list(APPEND THIRD_PARTY_LIBRARIES roffcpp)
 
 # ##############################################################################
 # Thirdparty libraries are put in ThirdParty solution folder

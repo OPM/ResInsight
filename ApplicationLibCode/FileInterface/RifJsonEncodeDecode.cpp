@@ -16,15 +16,13 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-// Json parser based on code example found on:
-// http://stackoverflow.com/questions/4169988/easiest-way-to-parse-json-in-qt-4-7
-
 #include "RifJsonEncodeDecode.h"
 
 #include <QtCore/QFile>
+#include <QtCore/QJsonArray>
+#include <QtCore/QJsonDocument>
+#include <QtCore/QJsonObject>
 #include <QtCore/QString>
-#include <QtScript/QScriptEngine>
-#include <QtScript/QScriptValueIterator>
 
 namespace ResInsightInternalJson
 {
@@ -35,117 +33,65 @@ QMap<QString, QVariant> JsonReader::decodeFile( QString filePath )
     file.open( QIODevice::ReadOnly );
     QByteArray byteArray = file.readAll();
     file.close();
-    QString jsonString( byteArray );
-    Json    json;
-    return json.decode( jsonString );
+    return Json::decode( byteArray );
 }
 
-#if IMPL_DUMP_TO_FILE
-void JsonReader::dumpToFile( std::vector<cvf::Vec3d>& points, QString filePath )
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QVariantList JsonReader::getVariantList( const QMap<QString, QVariant>& map )
 {
-    QFile file;
-    file.setFileName( filePath );
-    file.open( QIODevice::WriteOnly );
-    for ( size_t idx = 0; idx < points.size(); idx++ )
-    {
-        cvf::Vec3d point = points[idx];
-        QString    string;
-        string.sprintf( "(%0.10e, %0.10e, %0.10e)\n", point.x(), point.y(), point.z() );
-        QByteArray byteArray( string.toLatin1() );
-        file.write( byteArray );
-    }
-    file.close();
+    // Assume a "root" key with a variant list
+    return map[JsonReader::rootKeyText()].toList();
 }
-#endif
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString JsonReader::rootKeyText()
+{
+    return "root";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString Json::encode( const QMap<QString, QVariant>& map, bool prettify )
 {
-    QScriptEngine engine;
-    if ( prettify )
-    {
-        engine.evaluate( "function toString() { return JSON.stringify(this, null, '  ') }" );
-    }
-    else
-    {
-        engine.evaluate( "function toString() { return JSON.stringify(this) }" );
-    }
+    QJsonDocument doc( QJsonObject::fromVariantMap( map ) );
 
-    QScriptValue toString = engine.globalObject().property( "toString" );
-    QScriptValue obj      = encodeInner( map, &engine );
-    return toString.call( obj ).toString();
+    QJsonDocument::JsonFormat format = prettify ? QJsonDocument::JsonFormat::Indented : QJsonDocument::JsonFormat::Compact;
+    return doc.toJson( format );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QMap<QString, QVariant> Json::decode( const QString& jsonStr )
 {
-    QScriptValue  object;
-    QScriptEngine engine;
-    object = engine.evaluate( "(" + jsonStr + ")" );
-    return decodeInner( object );
+    return Json::decode( jsonStr.toUtf8() );
 }
 
-QScriptValue Json::encodeInner( const QMap<QString, QVariant>& map, QScriptEngine* engine )
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QMap<QString, QVariant> Json::decode( const QByteArray& byteArray )
 {
-    QScriptValue                    obj = engine->newObject();
-    QMapIterator<QString, QVariant> i( map );
-    while ( i.hasNext() )
-    {
-        i.next();
-        if ( i.value().type() == QVariant::String )
-            obj.setProperty( i.key(), i.value().toString() );
-        else if ( i.value().type() == QVariant::Int )
-            obj.setProperty( i.key(), i.value().toInt() );
-        else if ( i.value().type() == QVariant::Double )
-            obj.setProperty( i.key(), i.value().toDouble() );
-        else if ( i.value().type() == QVariant::List )
-            obj.setProperty( i.key(), qScriptValueFromSequence( engine, i.value().toList() ) );
-        else if ( i.value().type() == QVariant::Map )
-            obj.setProperty( i.key(), encodeInner( i.value().toMap(), engine ) );
-    }
-    return obj;
-}
+    auto document = QJsonDocument::fromJson( byteArray );
+    if ( document.isObject() ) return QJsonDocument::fromJson( byteArray ).object().toVariantMap();
 
-QMap<QString, QVariant> Json::decodeInner( QScriptValue object )
-{
-    QMap<QString, QVariant> map;
-    QScriptValueIterator    it( object );
-    while ( it.hasNext() )
+    // Return a variant map with "root" as key and a variant list if the document contains an array
+    if ( document.isArray() )
     {
-        it.next();
-        if ( it.value().isArray() )
-            map.insert( it.name(), QVariant( decodeInnerToList( it.value() ) ) );
-        else if ( it.value().isNumber() )
-            map.insert( it.name(), QVariant( it.value().toNumber() ) );
-        else if ( it.value().isString() )
-            map.insert( it.name(), QVariant( it.value().toString() ) );
-        else if ( it.value().isNull() )
-            map.insert( it.name(), QVariant() );
-        else if ( it.value().isObject() )
-            map.insert( it.name(), QVariant( decodeInner( it.value() ) ) );
-    }
-    return map;
-}
+        auto variantList = document.array().toVariantList();
 
-QList<QVariant> Json::decodeInnerToList( QScriptValue arrayValue )
-{
-    QList<QVariant>      list;
-    QScriptValueIterator it( arrayValue );
-    while ( it.hasNext() )
-    {
-        it.next();
-        if ( it.name() == "length" ) continue;
+        QMap<QString, QVariant> map;
 
-        if ( it.value().isArray() )
-            list.append( QVariant( decodeInnerToList( it.value() ) ) );
-        else if ( it.value().isNumber() )
-            list.append( QVariant( it.value().toNumber() ) );
-        else if ( it.value().isString() )
-            list.append( QVariant( it.value().toString() ) );
-        else if ( it.value().isNull() )
-            list.append( QVariant() );
-        else if ( it.value().isObject() )
-            list.append( QVariant( decodeInner( it.value() ) ) );
+        map[JsonReader::rootKeyText()] = variantList;
+        return map;
     }
-    return list;
+
+    return {};
 }
 
 } // namespace ResInsightInternalJson

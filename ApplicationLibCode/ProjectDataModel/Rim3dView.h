@@ -115,6 +115,8 @@ public:
     QString name() const;
     QString autoName() const;
 
+    virtual RiaDefines::View3dContent viewContent() const = 0;
+
     void         setMeshOnlyDrawstyle();
     void         setMeshSurfDrawstyle();
     void         setSurfOnlyDrawstyle();
@@ -178,6 +180,10 @@ public:
     Rim3dView*           activeComparisonView() const;
     void                 setComparisonView( Rim3dView* compView );
     std::set<Rim3dView*> viewsUsingThisAsComparisonView();
+    void                 updateMdiWindowTitle() override;
+
+    RimViewLinker*     assosiatedViewLinker() const override;
+    RimViewController* viewController() const override;
 
 protected:
     static void removeModelByName( cvf::Scene* scene, const cvf::String& modelName );
@@ -229,8 +235,6 @@ protected:
     virtual cvf::Transform* scaleTransform()         = 0;
 
 protected:
-    // Overridden PdmObject methods:
-
     caf::PdmFieldHandle* userDescriptionField() override;
     caf::PdmFieldHandle* backgroundColorField();
 
@@ -241,9 +245,10 @@ protected:
 
     void setupBeforeSave() override;
 
-    // Overridden ViewWindow methods:
     void     updateViewWidgetAfterCreation() override;
     QWidget* createViewWidget( QWidget* mainWindowParent ) override;
+
+    void setCameraPosition( const cvf::Mat4d& cameraPosition ) override;
 
 protected:
     // Timestep Field. Children clamps this differently
@@ -263,7 +268,6 @@ private:
     void setId( int id );
     void assignIdIfNecessary() final;
 
-    void     updateMdiWindowTitle() override;
     void     deleteViewWidget() override;
     QWidget* viewWidget() override;
 
@@ -271,8 +275,6 @@ private:
     void performAutoNameUpdate() final;
 
     // Implementation of RiuViewerToViewInterface
-
-    void setCameraPosition( const cvf::Mat4d& cameraPosition ) override;
     void setCameraPointOfInterest( const cvf::Vec3d& cameraPointOfInterest ) override;
 
     void endAnimation() override;
@@ -294,6 +296,8 @@ private:
     void       setOverrideViewer( RiuViewer* overrideViewer );
     Rim3dView* prepareComparisonView();
     void       restoreComparisonView();
+
+    RimViewLinker* viewLinkerIfMasterView() const;
 
 private:
     QPointer<RiuViewer> m_viewer;

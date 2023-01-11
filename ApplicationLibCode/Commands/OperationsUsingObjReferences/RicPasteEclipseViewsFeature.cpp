@@ -19,14 +19,16 @@
 
 #include "RicPasteEclipseViewsFeature.h"
 
-#include "Riu3DMainWindowTools.h"
-
 #include "RicPasteFeatureImpl.h"
 
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseContourMapView.h"
+#include "RimEclipseContourMapViewCollection.h"
 #include "RimEclipseView.h"
 #include "RimSimWellInViewCollection.h"
+
+#include "Riu3DMainWindowTools.h"
 
 #include "cafPdmDocument.h"
 #include "cafPdmObjectGroup.h"
@@ -47,13 +49,12 @@ bool RicPasteEclipseViewsFeature::isCommandEnabled()
     std::vector<caf::PdmPointer<RimEclipseView>> typedObjects;
     objectGroup.objectsByType( &typedObjects );
 
-    if ( typedObjects.size() == 0 )
+    if ( typedObjects.empty() )
     {
         return false;
     }
 
-    caf::PdmObjectHandle* destinationObject =
-        dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
+    auto* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
 
     RimIdenticalGridCaseGroup* gridCaseGroup = RicPasteFeatureImpl::findGridCaseGroup( destinationObject );
     if ( gridCaseGroup ) return false;
@@ -69,8 +70,7 @@ bool RicPasteEclipseViewsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicPasteEclipseViewsFeature::onActionTriggered( bool isChecked )
 {
-    caf::PdmObjectHandle* destinationObject =
-        dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
+    auto* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
 
     RimEclipseCase* eclipseCase = RicPasteFeatureImpl::findEclipseCase( destinationObject );
     assert( eclipseCase );
@@ -78,7 +78,7 @@ void RicPasteEclipseViewsFeature::onActionTriggered( bool isChecked )
     caf::PdmObjectGroup objectGroup;
     RicPasteFeatureImpl::findObjectsFromClipboardRefs( &objectGroup );
 
-    if ( objectGroup.objects.size() == 0 ) return;
+    if ( objectGroup.objects.empty() ) return;
 
     std::vector<caf::PdmPointer<RimEclipseView>> eclipseViews;
     objectGroup.objectsByType( &eclipseViews );
@@ -86,15 +86,26 @@ void RicPasteEclipseViewsFeature::onActionTriggered( bool isChecked )
     RimEclipseView* lastViewCopy = nullptr;
 
     // Add cases to case group
-    for ( size_t i = 0; i < eclipseViews.size(); i++ )
+    for ( const auto& eclipseView : eclipseViews )
     {
-        RimEclipseView* rimReservoirView = dynamic_cast<RimEclipseView*>(
-            eclipseViews[i]->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+        auto* rimReservoirView = dynamic_cast<RimEclipseView*>(
+            eclipseView->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
         CVF_ASSERT( rimReservoirView );
 
         QString nameOfCopy = QString( "Copy of " ) + rimReservoirView->name();
         rimReservoirView->setName( nameOfCopy );
-        eclipseCase->reservoirViews().push_back( rimReservoirView );
+
+        if ( dynamic_cast<RimEclipseContourMapView*>( eclipseView.p() ) )
+        {
+            auto contourMapView = dynamic_cast<RimEclipseContourMapView*>( rimReservoirView );
+            CVF_ASSERT( contourMapView );
+
+            eclipseCase->contourMapCollection()->push_back( contourMapView );
+        }
+        else
+        {
+            eclipseCase->reservoirViews().push_back( rimReservoirView );
+        }
 
         rimReservoirView->setEclipseCase( eclipseCase );
 

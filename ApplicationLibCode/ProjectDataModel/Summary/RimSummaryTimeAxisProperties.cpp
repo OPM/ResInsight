@@ -71,6 +71,7 @@ CAF_PDM_SOURCE_INIT( RimSummaryTimeAxisProperties, "SummaryTimeAxisProperties" )
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryTimeAxisProperties::RimSummaryTimeAxisProperties()
+    : requestLoadDataAndUpdate( this )
 {
     CAF_PDM_InitObject( "Time Axis", ":/BottomAxis16x16.png" );
 
@@ -472,7 +473,7 @@ void RimSummaryTimeAxisProperties::setTimeMode( TimeModeType val )
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// https://www.unitconverters.net/time-converter.html
 //--------------------------------------------------------------------------------------------------
 double RimSummaryTimeAxisProperties::fromTimeTToDisplayUnitScale()
 {
@@ -490,9 +491,13 @@ double RimSummaryTimeAxisProperties::fromTimeTToDisplayUnitScale()
         case DAYS:
             scale = 1.0 / ( 60.0 * 60.0 * 24.0 );
             break;
+        case MONTHS:
+            scale = 3.805175038E-7;
+            break;
         case YEARS:
             scale = 1.0 / 31556952.0;
             break;
+
         default:
             CVF_ASSERT( false );
             break;
@@ -502,7 +507,7 @@ double RimSummaryTimeAxisProperties::fromTimeTToDisplayUnitScale()
 }
 
 //--------------------------------------------------------------------------------------------------
-///
+/// https://www.unitconverters.net/time-converter.html
 //--------------------------------------------------------------------------------------------------
 double RimSummaryTimeAxisProperties::fromDaysToDisplayUnitScale()
 {
@@ -519,6 +524,9 @@ double RimSummaryTimeAxisProperties::fromDaysToDisplayUnitScale()
             scale = 24.0;
             break;
         case DAYS:
+            break;
+        case MONTHS:
+            scale = 1.0 / 30.416666667;
             break;
         case YEARS:
             scale = 1.0 / 365.2425;
@@ -712,21 +720,12 @@ void RimSummaryTimeAxisProperties::fieldChangedByUi( const caf::PdmFieldHandle* 
         updateDateVisibleRange();
         m_isAutoZoom = false;
     }
-    else if ( changedField == &m_timeMode )
+    else if ( changedField == &m_timeMode || changedField == &m_timeUnit || changedField == &m_dateFormat ||
+              changedField == &m_timeFormat )
     {
-        rimSummaryPlot->loadDataAndUpdate();
-    }
-    else if ( changedField == &m_timeUnit )
-    {
-        updateTimeVisibleRange(); // Use the stored max min dates to update the visible time range to new unit
-        rimSummaryPlot->loadDataAndUpdate();
-        updateDateVisibleRange();
-    }
-    else if ( changedField == &m_dateFormat || changedField == &m_timeFormat )
-    {
-        updateTimeVisibleRange(); // Use the stored max min dates to update the visible time range to new unit
-        rimSummaryPlot->loadDataAndUpdate();
-        updateDateVisibleRange();
+        // Changing these settings requires a full update of the plot
+        requestLoadDataAndUpdate.send();
+        return;
     }
 
     rimSummaryPlot->updateAxes();

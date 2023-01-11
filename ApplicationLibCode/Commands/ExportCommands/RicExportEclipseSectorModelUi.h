@@ -74,16 +74,17 @@ public:
     void       applyBoundaryDefaults();
     void       removeInvalidKeywords();
 
-    caf::PdmField<bool>    exportGrid;
-    caf::PdmField<QString> exportGridFilename;
-    caf::PdmField<bool>    exportInLocalCoordinates;
-    caf::PdmField<bool>    makeInvisibleCellsInactive;
+    QString exportFaultsFilename() const;
+    QString exportGridFilename() const;
+    QString exportParametersFilename() const;
+
+    caf::PdmField<bool> exportGrid;
+    caf::PdmField<bool> exportInLocalCoordinates;
+    caf::PdmField<bool> makeInvisibleCellsInactive;
 
     caf::PdmField<ResultExportOptionsEnum> exportFaults;
-    caf::PdmField<QString>                 exportFaultsFilename;
 
     caf::PdmField<ResultExportOptionsEnum> exportParameters;
-    caf::PdmField<QString>                 exportParametersFilename;
 
     caf::PdmField<std::vector<QString>> selectedKeywords;
 
@@ -115,6 +116,11 @@ protected:
     QString                  defaultFaultsFileName() const;
 
 private:
+    caf::PdmField<caf::FilePath> m_exportFolder;
+    caf::PdmField<QString>       m_exportFaultsFilename;
+    caf::PdmField<QString>       m_exportParametersFilename;
+    caf::PdmField<QString>       m_exportGridFilename;
+
     RigEclipseCaseData* m_caseData;
     cvf::Vec3i          m_visibleMin;
     cvf::Vec3i          m_visibleMax;

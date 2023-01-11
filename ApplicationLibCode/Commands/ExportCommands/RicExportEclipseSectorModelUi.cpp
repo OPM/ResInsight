@@ -78,8 +78,7 @@ RicExportEclipseSectorModelUi::RicExportEclipseSectorModelUi()
     CAF_PDM_InitObject( "Export Visible Cells as Eclipse Input Grid" );
 
     CAF_PDM_InitField( &exportGrid, "ExportGrid", true, "Export Grid Data", "", "Includes COORD, ZCORN and ACTNUM", "" );
-    CAF_PDM_InitField( &exportGridFilename, "ExportGridFilename", QString(), "Grid File Name" );
-    exportGridFilename.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
+    CAF_PDM_InitField( &m_exportGridFilename, "ExportGridFilename", QString(), "Grid File Name" );
     CAF_PDM_InitField( &exportInLocalCoordinates,
                        "ExportInLocalCoords",
                        false,
@@ -107,8 +106,7 @@ RicExportEclipseSectorModelUi::RicExportEclipseSectorModelUi()
     CAF_PDM_InitFieldNoDefault( &exportFaults, "ExportFaults", "Export Fault Data" );
     exportFaults = EXPORT_TO_SINGLE_SEPARATE_FILE;
 
-    CAF_PDM_InitField( &exportFaultsFilename, "ExportFaultsFilename", QString(), "Faults File Name" );
-    exportFaultsFilename.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
+    CAF_PDM_InitField( &m_exportFaultsFilename, "ExportFaultsFilename", QString(), "Faults File Name" );
 
     QString ijkLabel = "Cell Count I, J, K";
     CAF_PDM_InitField( &refinementCountI, "RefinementCountI", 1, ijkLabel );
@@ -116,14 +114,16 @@ RicExportEclipseSectorModelUi::RicExportEclipseSectorModelUi()
     CAF_PDM_InitField( &refinementCountK, "RefinementCountK", 1, "" );
 
     CAF_PDM_InitFieldNoDefault( &exportParameters, "ExportParams", "Export Parameters" );
-    CAF_PDM_InitField( &exportParametersFilename, "ExportParamsFilename", QString(), "File Name" );
-    exportParametersFilename.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
+    CAF_PDM_InitField( &m_exportParametersFilename, "ExportParamsFilename", QString(), "File Name" );
 
     CAF_PDM_InitFieldNoDefault( &selectedKeywords, "ExportMainKeywords", "Keywords to Export" );
 
-    exportGridFilename       = defaultGridFileName();
-    exportParametersFilename = defaultResultsFileName();
-    exportFaultsFilename     = defaultFaultsFileName();
+    CAF_PDM_InitFieldNoDefault( &m_exportFolder, "ExportFolder", "Export Folder" );
+    m_exportFolder = defaultFolder();
+
+    m_exportGridFilename       = defaultGridFileName();
+    m_exportParametersFilename = defaultResultsFileName();
+    m_exportFaultsFilename     = defaultFaultsFileName();
 
     m_tabNames << "Grid Data";
     m_tabNames << "Parameters";
@@ -241,7 +241,7 @@ void RicExportEclipseSectorModelUi::defineEditorAttribute( const caf::PdmFieldHa
 
     auto* lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
 
-    if ( field == &exportParametersFilename || field == &exportGridFilename || field == &exportFaultsFilename )
+    if ( field == &m_exportParametersFilename || field == &m_exportGridFilename || field == &m_exportFaultsFilename )
     {
         auto* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
         if ( myAttr )
@@ -287,6 +287,15 @@ void RicExportEclipseSectorModelUi::defineEditorAttribute( const caf::PdmFieldHa
             lineEditorAttr->validator = new QIntValidator( 1, (int)gridDimensions.z(), nullptr );
         }
     }
+
+    if ( field == &m_exportFolder )
+    {
+        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
+        if ( myAttr )
+        {
+            myAttr->m_selectDirectory = true;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -296,10 +305,12 @@ void RicExportEclipseSectorModelUi::defineUiOrdering( QString uiConfigName, caf:
 {
     if ( uiConfigName == m_tabNames[0] )
     {
+        uiOrdering.add( &m_exportFolder );
+
         caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup( "Grid Export" );
         gridGroup->add( &exportGrid );
-        gridGroup->add( &exportGridFilename );
-        exportGridFilename.uiCapability()->setUiReadOnly( !exportGrid() );
+        gridGroup->add( &m_exportGridFilename );
+        m_exportGridFilename.uiCapability()->setUiReadOnly( !exportGrid() );
         gridGroup->add( &exportInLocalCoordinates );
         exportInLocalCoordinates.uiCapability()->setUiReadOnly( !exportGrid() );
 
@@ -336,7 +347,7 @@ void RicExportEclipseSectorModelUi::defineUiOrdering( QString uiConfigName, caf:
         {
             if ( exportFaults() == EXPORT_TO_SINGLE_SEPARATE_FILE )
             {
-                faultsGroup->add( &exportFaultsFilename );
+                faultsGroup->add( &m_exportFaultsFilename );
             }
         }
     }
@@ -349,7 +360,7 @@ void RicExportEclipseSectorModelUi::defineUiOrdering( QString uiConfigName, caf:
         {
             if ( exportParameters() == EXPORT_TO_SINGLE_SEPARATE_FILE )
             {
-                resultsGroup->add( &exportParametersFilename );
+                resultsGroup->add( &m_exportParametersFilename );
             }
         }
 
@@ -387,48 +398,6 @@ void RicExportEclipseSectorModelUi::fieldChangedByUi( const caf::PdmFieldHandle*
     {
         applyBoundaryDefaults();
         this->updateConnectedEditors();
-    }
-    else if ( changedField == &exportGridFilename )
-    {
-        QFileInfo info( exportGridFilename() );
-        QDir      dirPath = info.absoluteDir();
-
-        if ( exportParametersFilename() == defaultResultsFileName() )
-        {
-            exportParametersFilename = dirPath.absoluteFilePath( "RESULTS.GRDECL" );
-        }
-        if ( exportFaultsFilename() == defaultFaultsFileName() )
-        {
-            exportFaultsFilename = dirPath.absoluteFilePath( "FAULTS.GRDECL" );
-        }
-    }
-    else if ( changedField == &exportParametersFilename )
-    {
-        QFileInfo info( exportParametersFilename() );
-        QDir      dirPath = info.absoluteDir();
-
-        if ( exportGridFilename() == defaultGridFileName() )
-        {
-            exportGridFilename = dirPath.absoluteFilePath( "GRID.GRDECL" );
-        }
-        if ( exportFaultsFilename() == defaultFaultsFileName() )
-        {
-            exportFaultsFilename = dirPath.absoluteFilePath( "FAULTS.GRDECL" );
-        }
-    }
-    else if ( changedField == &exportFaultsFilename )
-    {
-        QFileInfo info( exportFaultsFilename() );
-        QDir      dirPath = info.absoluteDir();
-
-        if ( exportGridFilename() == defaultGridFileName() )
-        {
-            exportGridFilename = dirPath.absoluteFilePath( "GRID.GRDECL" );
-        }
-        if ( exportParametersFilename() == defaultResultsFileName() )
-        {
-            exportParametersFilename = dirPath.absoluteFilePath( "RESULTS.GRDECL" );
-        }
     }
 }
 
@@ -533,8 +502,7 @@ QString RicExportEclipseSectorModelUi::defaultFolder() const
 //--------------------------------------------------------------------------------------------------
 QString RicExportEclipseSectorModelUi::defaultGridFileName() const
 {
-    QDir baseDir( defaultFolder() );
-    return baseDir.absoluteFilePath( "GRID.GRDECL" );
+    return "GRID.GRDECL";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -542,8 +510,7 @@ QString RicExportEclipseSectorModelUi::defaultGridFileName() const
 //--------------------------------------------------------------------------------------------------
 QString RicExportEclipseSectorModelUi::defaultResultsFileName() const
 {
-    QDir baseDir( defaultFolder() );
-    return baseDir.absoluteFilePath( "RESULTS.GRDECL" );
+    return "RESULTS.GRDECL";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -551,8 +518,7 @@ QString RicExportEclipseSectorModelUi::defaultResultsFileName() const
 //--------------------------------------------------------------------------------------------------
 QString RicExportEclipseSectorModelUi::defaultFaultsFileName() const
 {
-    QDir baseDir( defaultFolder() );
-    return baseDir.absoluteFilePath( "FAULTS.GRDECL" );
+    return "FAULTS.GRDECL";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -617,4 +583,28 @@ void RicExportEclipseSectorModelUi::removeInvalidKeywords()
         }
     }
     selectedKeywords.v().swap( validKeywords );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicExportEclipseSectorModelUi::exportFaultsFilename() const
+{
+    return m_exportFolder().path() + "/" + m_exportFaultsFilename();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicExportEclipseSectorModelUi::exportGridFilename() const
+{
+    return m_exportFolder().path() + "/" + m_exportGridFilename();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicExportEclipseSectorModelUi::exportParametersFilename() const
+{
+    return m_exportFolder().path() + "/" + m_exportParametersFilename();
 }

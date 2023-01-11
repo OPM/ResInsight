@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 #include "RiaDefines.h"
 #include "RiaPreferences.h"
+#include "RiaRegressionTestRunner.h"
 #include "RiaVersionInfo.h"
 
 #include "RiuDockWidgetTools.h"
@@ -63,6 +64,7 @@ RiuMainWindowBase::RiuMainWindowBase()
     , m_windowMenu( nullptr )
     , m_mdiArea( nullptr )
 {
+    ads::CDockManager::setAutoHideConfigFlags( ads::CDockManager::DefaultAutoHideConfig );
     m_dockManager = new ads::CDockManager( this );
 
     if ( RiaPreferences::current()->useUndoRedo() && RiaApplication::enableDevelopmentFeatures() )
@@ -107,6 +109,14 @@ ads::CDockManager* RiuMainWindowBase::dockManager() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiuMdiArea* RiuMainWindowBase::mdiArea()
+{
+    return m_mdiArea;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QMdiSubWindow* RiuMainWindowBase::createViewWindow()
 {
     RiuMdiSubWindow* subWin =
@@ -142,7 +152,6 @@ void RiuMainWindowBase::loadWinGeoAndDockToolBarLayout()
 
     QVariant winGeo        = settings.value( QString( "%1/winGeometry" ).arg( registryFolderName() ) );
     QVariant toolbarLayout = settings.value( QString( "%1/toolBarLayout" ).arg( registryFolderName() ) );
-    QVariant dockState     = settings.value( QString( "%1/dockLayout" ).arg( registryFolderName() ) );
 
     if ( winGeo.isValid() )
     {
@@ -155,16 +164,24 @@ void RiuMainWindowBase::loadWinGeoAndDockToolBarLayout()
         }
     }
 
-    bool dockingOk = false;
-
-    if ( dockState.isValid() )
+    if ( !RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
     {
-        dockingOk = m_dockManager->restoreState( dockState.toByteArray(), DOCKSTATE_VERSION );
-    }
+        // Performance of m_dockManager->restoreState() is very bad is degrading as more and more regression tests are
+        // launched. Disable restore of state for regression test.
 
-    if ( !dockingOk )
-    {
-        m_dockManager->restoreState( RiuDockWidgetTools::defaultDockState( defaultDockStateNames()[0] ), DOCKSTATE_VERSION );
+        bool     dockingOk = false;
+        QVariant dockState = settings.value( QString( "%1/dockLayout" ).arg( registryFolderName() ) );
+
+        if ( dockState.isValid() )
+        {
+            dockingOk = m_dockManager->restoreState( dockState.toByteArray(), DOCKSTATE_VERSION );
+        }
+
+        if ( !dockingOk )
+        {
+            m_dockManager->restoreState( RiuDockWidgetTools::defaultDockState( defaultDockStateNames()[0] ),
+                                         DOCKSTATE_VERSION );
+        }
     }
 
     settings.beginGroup( registryFolderName() );
@@ -325,7 +342,7 @@ bool RiuMainWindowBase::isBlockingViewSelectionOnSubWindowActivated() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindowBase::removeViewerFromMdiArea( QMdiArea* mdiArea, QWidget* viewer )
+void RiuMainWindowBase::removeViewerFromMdiArea( RiuMdiArea* mdiArea, QWidget* viewer )
 {
     bool removedSubWindowWasActive = false;
 
@@ -362,10 +379,8 @@ void RiuMainWindowBase::removeViewerFromMdiArea( QMdiArea* mdiArea, QWidget* vie
         {
             mdiArea->currentSubWindow()->showMaximized();
         }
-        else if ( subWindowsAreTiled() )
-        {
-            tileSubWindows();
-        }
+
+        mdiArea->applyTiling();
     }
 }
 
@@ -400,13 +415,14 @@ void RiuMainWindowBase::slotDockWidgetToggleViewActionTriggered()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindowBase::initializeSubWindow( QMdiArea*      mdiArea,
+void RiuMainWindowBase::initializeSubWindow( RiuMdiArea*    mdiArea,
                                              QMdiSubWindow* mdiSubWindow,
                                              const QPoint&  subWindowPos,
                                              const QSize&   subWindowSize )
 {
-    bool initialStateTiled     = subWindowsAreTiled();
-    bool initialStateMaximized = false;
+    bool initialStateMaximized  = false;
+    auto initialState3dWindow   = RimProject::current()->subWindowsTileMode3DWindow();
+    auto initialStatePlotWindow = RimProject::current()->subWindowsTileModePlotWindow();
 
     if ( m_showFirstVisibleWindowMaximized && mdiArea->subWindowList().empty() )
     {
@@ -434,10 +450,14 @@ void RiuMainWindowBase::initializeSubWindow( QMdiArea*      mdiArea,
     else
     {
         mdiSubWindow->showNormal();
-        if ( initialStateTiled )
+
+        if ( !isBlockingSubWindowActivatedSignal() )
         {
-            tileSubWindows();
+            RimProject::current()->setSubWindowsTileMode3DWindow( initialState3dWindow );
+            RimProject::current()->setSubWindowsTileModePlotWindow( initialStatePlotWindow );
         }
+
+        mdiArea->applyTiling();
     }
 }
 
@@ -753,7 +773,14 @@ void RiuMainWindowBase::addDefaultEntriesToWindowsMenu()
     QAction* closeAllSubWindowsAction = new QAction( "Close All Windows", this );
     connect( closeAllSubWindowsAction, SIGNAL( triggered() ), m_mdiArea, SLOT( closeAllSubWindows() ) );
 
-    m_windowMenu->addAction( tileSubWindowsAction() );
+    caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
+
+    auto featureNames = windowsMenuFeatureNames();
+    for ( const auto& name : featureNames )
+    {
+        m_windowMenu->addAction( cmdFeatureMgr->action( name ) );
+    }
+
     m_windowMenu->addAction( cascadeWindowsAction );
     m_windowMenu->addAction( closeAllSubWindowsAction );
 }

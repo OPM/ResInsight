@@ -139,6 +139,7 @@ void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
 
             summaryPlot->loadDataAndUpdate();
         }
+        multiPlot->updatePlotTitles();
     }
 
     RimSummaryCrossPlotCollection* summaryCrossPlotColl = RiaSummaryTools::summaryCrossPlotCollection();

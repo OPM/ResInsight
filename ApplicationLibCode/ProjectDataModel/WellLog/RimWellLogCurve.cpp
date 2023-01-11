@@ -19,12 +19,17 @@
 
 #include "RimWellLogCurve.h"
 
+#include "RiaApplication.h"
 #include "RiaCurveDataTools.h"
 #include "RiaPlotDefines.h"
+
 #include "RigWellLogCurveData.h"
 
 #include "RimDepthTrackPlot.h"
+#include "RimMainPlotCollection.h"
+#include "RimTools.h"
 #include "RimWellLogTrack.h"
+#include "RimWellPath.h"
 
 #include "RiuQwtPlotCurve.h"
 #include "RiuQwtPlotWidget.h"
@@ -51,6 +56,15 @@ RimWellLogCurve::RimWellLogCurve()
 
     m_curveDataPropertyValueRange =
         std::make_pair( std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity() );
+
+    // Ref well path as Ui element for debug purpose. If not needed: Remove use of caf::PdmPtrField,
+    // and replace with regular non-ui ptr. The remove related code in calculateValueOptions() and
+    // defineUiOrdering().
+    CAF_PDM_InitFieldNoDefault( &m_refWellPath, "ReferenceWellPath", "Reference Well Path" );
+    m_refWellPath.uiCapability()->setUiHidden( !RiaApplication::enableDevelopmentFeatures() );
+    m_refWellPath.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitField( &m_useRefWell, "UseReferenceWellPath", true, "Use Reference Well Path" );
 
     setDeletable( true );
 }
@@ -223,11 +237,29 @@ const RigWellLogCurveData* RimWellLogCurve::curveData() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellLogCurve::setReferenceWellPath( RimWellPath* refWellPath )
+{
+    m_refWellPath = refWellPath;
+
+    if ( m_refWellPath == nullptr )
+    {
+        m_useRefWell.uiCapability()->setUiHidden( true );
+        m_useRefWell = true;
+    }
+    else
+    {
+        m_useRefWell.uiCapability()->setUiHidden( false );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogCurve::updateCurveAppearance()
 {
     RimPlotCurve::updateCurveAppearance();
 
-    RimDepthTrackPlot::DepthOrientation orientation = RimDepthTrackPlot::DepthOrientation::VERTICAL;
+    auto orientation = RiaDefines::Orientation::VERTICAL;
 
     RimDepthTrackPlot* wellLogPlot = nullptr;
     firstAncestorOrThisOfType( wellLogPlot );
@@ -247,7 +279,7 @@ void RimWellLogCurve::updateCurveAppearance()
         RiuQwtPlotCurve* qwtPlotCurve = dynamic_cast<RiuQwtPlotCurve*>( m_plotCurve );
         if ( qwtPlotCurve )
         {
-            if ( orientation == RimDepthTrackPlot::DepthOrientation::VERTICAL )
+            if ( orientation == RiaDefines::Orientation::VERTICAL )
             {
                 qwtPlotCurve->setOrientation( Qt::Horizontal );
                 qwtPlotCurve->setBaseline( 0.0 );
@@ -293,6 +325,31 @@ void RimWellLogCurve::setOverrideCurveData( const std::vector<double>&          
 
         m_plotCurve->setLineSegmentStartStopIndices( curveIntervals );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimWellLogCurve::closestYValueForX( double xValue ) const
+{
+    if ( m_curveData.isNull() ) return std::numeric_limits<double>::infinity();
+
+    auto depths = m_curveData->depths( RiaDefines::DepthTypeEnum::MEASURED_DEPTH );
+    auto values = m_curveData->propertyValues();
+
+    if ( depths.empty() || values.empty() ) return std::numeric_limits<double>::infinity();
+
+    auto it = std::upper_bound( depths.begin(), depths.end(), xValue );
+    if ( it == depths.begin() ) return values.front();
+    if ( it == depths.end() ) return values.back();
+
+    auto index = std::distance( depths.begin(), it - 1 );
+
+    double firstDistance  = std::abs( xValue - depths[index] );
+    double secondDistance = std::abs( xValue - depths[index + 1] );
+
+    if ( firstDistance < secondDistance ) return values[index];
+    return values[index + 1];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -385,6 +442,37 @@ void RimWellLogCurve::calculateCurveDataPropertyValueRange()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimWellLogCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    auto options = RimStackablePlotCurve::calculateValueOptions( fieldNeedingOptions );
+    if ( fieldNeedingOptions == &m_refWellPath )
+    {
+        options.push_back( caf::PdmOptionItemInfo( QString( "None" ), nullptr ) );
+        RimTools::wellPathOptionItems( &options );
+    }
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    RimStackablePlotCurve::defineUiOrdering( uiConfigName, uiOrdering );
+
+    auto group = uiOrdering.findGroup( "DataSource" );
+    if ( group != nullptr )
+    {
+        group->add( &m_refWellPath );
+        group->add( &m_useRefWell );
+    }
+
+    uiOrdering.skipRemainingFields( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                         const QVariant&            oldValue,
                                         const QVariant&            newValue )
@@ -403,6 +491,12 @@ void RimWellLogCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     {
         loadDataAndUpdate( true );
     }
+
+    if ( changedField == &m_useRefWell )
+    {
+        loadDataAndUpdate( true );
+        updateConnectedEditors();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -410,13 +504,13 @@ void RimWellLogCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogCurve::isVerticalCurve() const
 {
-    RimDepthTrackPlot::DepthOrientation orientation = RimDepthTrackPlot::DepthOrientation::VERTICAL;
+    auto orientation = RiaDefines::Orientation::VERTICAL;
 
     RimDepthTrackPlot* depthTrackPlot = nullptr;
     firstAncestorOrThisOfType( depthTrackPlot );
     if ( depthTrackPlot ) orientation = depthTrackPlot->depthOrientation();
 
-    return orientation == RimDepthTrackPlot::DepthOrientation::VERTICAL;
+    return orientation == RiaDefines::Orientation::VERTICAL;
 }
 
 //--------------------------------------------------------------------------------------------------

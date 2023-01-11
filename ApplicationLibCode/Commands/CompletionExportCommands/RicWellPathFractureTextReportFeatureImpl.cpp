@@ -34,9 +34,9 @@
 #include "RimFractureContainment.h"
 #include "RimFractureTemplate.h"
 #include "RimFractureTemplateCollection.h"
+#include "RimMeshFractureTemplate.h"
 #include "RimOilField.h"
 #include "RimProject.h"
-#include "RimStimPlanFractureTemplate.h"
 #include "RimTools.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
@@ -81,8 +81,8 @@ QString RicWellPathFractureTextReportFeatureImpl::wellPathFractureReport(
 
     textStream << lineStart << "\n";
 
-    std::vector<RimStimPlanFractureTemplate*> stimPlanTemplates;
-    std::vector<RimEllipseFractureTemplate*>  ellipseTemplates;
+    std::vector<RimMeshFractureTemplate*>    stimPlanTemplates;
+    std::vector<RimEllipseFractureTemplate*> ellipseTemplates;
 
     {
         auto proj              = RimProject::current();
@@ -101,7 +101,7 @@ QString RicWellPathFractureTextReportFeatureImpl::wellPathFractureReport(
                 continue;
             }
 
-            auto stimPlanTemplate = dynamic_cast<RimStimPlanFractureTemplate*>( fracTemplate );
+            auto stimPlanTemplate = dynamic_cast<RimMeshFractureTemplate*>( fracTemplate );
             if ( stimPlanTemplate )
             {
                 stimPlanTemplates.push_back( stimPlanTemplate );
@@ -269,7 +269,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createWellFileLocationText( co
 ///
 //--------------------------------------------------------------------------------------------------
 QString RicWellPathFractureTextReportFeatureImpl::createStimPlanFileLocationText(
-    const std::vector<RimStimPlanFractureTemplate*>& stimPlanTemplates ) const
+    const std::vector<RimMeshFractureTemplate*>& stimPlanTemplates ) const
 {
     if ( stimPlanTemplates.empty() ) return "";
 
@@ -307,7 +307,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createStimPlanFileLocationText
 ///
 //--------------------------------------------------------------------------------------------------
 QString RicWellPathFractureTextReportFeatureImpl::createStimPlanFractureText(
-    const std::vector<RimStimPlanFractureTemplate*>& stimPlanTemplates ) const
+    const std::vector<RimMeshFractureTemplate*>& stimPlanTemplates ) const
 {
     if ( stimPlanTemplates.empty() ) return "";
 
@@ -584,7 +584,9 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureInstancesText(
         formatter.add( fracture->tilt() );
 
         if ( fracture->fractureTemplate() &&
-             fracture->fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH )
+             ( fracture->fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH ||
+               ( fracture->fractureTemplate()->orientationType() == RimFractureTemplate::AZIMUTH &&
+                 fracture->fractureTemplate()->useUserDefinedPerforationLength() ) ) )
         {
             formatter.add( fracture->perforationLength() );
         }

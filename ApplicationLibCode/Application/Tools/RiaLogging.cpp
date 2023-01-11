@@ -190,6 +190,16 @@ void RiaLogging::setLoggerInstance( std::unique_ptr<RiaLogger> loggerInstance )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RILogLevel RiaLogging::logLevelBasedOnPreferences()
+{
+    if ( RiaApplication::enableDevelopmentFeatures() ) return RILogLevel::RI_LL_DEBUG;
+
+    return RILogLevel::RI_LL_INFO;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiaLogging::error( const QString& message )
 {
     if ( sm_logger && sm_logger->level() >= int( RILogLevel::RI_LL_ERROR ) )

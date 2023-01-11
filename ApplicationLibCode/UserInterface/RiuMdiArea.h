@@ -18,8 +18,9 @@
 
 #pragma once
 
-#include <QMdiArea>
+#include "RiaPlotDefines.h"
 
+#include <QMdiArea>
 #include <list>
 
 class QMdiSubWindow;
@@ -32,11 +33,16 @@ public:
     RiuMdiArea( QWidget* parent = nullptr );
     ~RiuMdiArea() override;
 
-    std::list<QMdiSubWindow*> subWindowListSortedByPosition();
+    RiaDefines::WindowTileMode tileMode() const;
+    void                       applyTiling();
 
-protected:
+private:
     void resizeEvent( QResizeEvent* resizeEvent ) override;
-    void moveEvent( QMoveEvent* event ) override;
 
-    bool subWindowsAreTiled() const;
+    std::list<QMdiSubWindow*> subWindowListSortedByPosition();
+    std::list<QMdiSubWindow*> subWindowListSortedByVerticalPosition();
+
+    void tileWindowsHorizontally();
+    void tileWindowsVertically();
+    void tileWindowsDefault();
 };

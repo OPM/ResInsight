@@ -66,6 +66,7 @@
 #include "RimIntersectionCollection.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimIntersectionResultsDefinitionCollection.h"
+#include "RimMultipleEclipseResults.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
@@ -211,6 +212,14 @@ RimEclipseView::RimEclipseView()
     nameConfig()->hidePropertyField( false );
     nameConfig()->hideSampleSpacingField( true );
 
+    CAF_PDM_InitFieldNoDefault( &m_additionalResultsForResultInfo,
+                                "AdditionalResultsForResultInfo",
+                                "Additional Result Info" );
+    m_additionalResultsForResultInfo = new RimMultipleEclipseResults;
+    m_additionalResultsForResultInfo->setEclipseView( this );
+
+    m_cellResult()->setAdditionalUiTreeObjects( { m_additionalResultsForResultInfo() } );
+
     setDeletable( true );
 
     this->updateAnimations.connect( this, &RimEclipseView::onAnimationsUpdate );
@@ -234,6 +243,14 @@ RimEclipseView::~RimEclipseView()
     m_reservoirGridPartManager->clearGeometryCache();
 
     m_eclipseCase = nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::View3dContent RimEclipseView::viewContent() const
+{
+    return RiaDefines::View3dContent::ECLIPSE_DATA;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1642,6 +1659,14 @@ void RimEclipseView::syncronizeLocalAnnotationsFromGlobal()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RigEclipseResultAddress> RimEclipseView::additionalResultsForResultInfo() const
+{
+    return m_additionalResultsForResultInfo()->additionalResultAddresses();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimStreamlineInViewCollection* RimEclipseView::streamlineCollection() const
 {
     return m_streamlineCollection;
@@ -1811,7 +1836,7 @@ void RimEclipseView::calculateCompletionTypeAndRedrawIfRequired()
         isDependingOnCompletionType = true;
     }
 
-    for ( const auto& propFilter : m_propertyFilterCollection()->propertyFilters )
+    for ( const auto& propFilter : m_propertyFilterCollection()->propertyFilters() )
     {
         if ( propFilter->isActive() &&
              propFilter->resultDefinition()->resultVariable() == RiaResultNames::completionTypeResultName() )
@@ -1834,7 +1859,7 @@ void RimEclipseView::calculateCompletionTypeAndRedrawIfRequired()
         }
     }
 
-    for ( const auto& propFilter : m_propertyFilterCollection()->propertyFilters )
+    for ( const auto& propFilter : m_propertyFilterCollection()->propertyFilters() )
     {
         if ( propFilter->isActive() &&
              propFilter->resultDefinition()->resultVariable() == RiaResultNames::completionTypeResultName() )
@@ -1904,7 +1929,6 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 {
     uiTreeOrdering.add( m_overlayInfoConfig() );
     uiTreeOrdering.add( m_gridCollection() );
-
     uiTreeOrdering.add( cellResult() );
     uiTreeOrdering.add( cellEdgeResult() );
     uiTreeOrdering.add( cellFilterCollection() );

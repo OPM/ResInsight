@@ -39,16 +39,19 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RifReaderOpmRft::RifReaderOpmRft( const QString& fileName, const QString& dataDeckFileName )
+    : m_fileName( fileName )
+    , m_dataDeckFileName( dataDeckFileName )
+    , m_detectedErrorWhenOpeningRftFile( false )
 {
-    openFiles( fileName, dataDeckFileName );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RifReaderOpmRft::RifReaderOpmRft( const QString& fileName )
+    : m_fileName( fileName )
+    , m_detectedErrorWhenOpeningRftFile( false )
 {
-    openFiles( fileName, "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,6 +59,8 @@ RifReaderOpmRft::RifReaderOpmRft( const QString& fileName )
 //--------------------------------------------------------------------------------------------------
 std::set<RifEclipseRftAddress> RifReaderOpmRft::eclipseRftAddresses()
 {
+    openFiles();
+
     return m_addresses;
 }
 
@@ -64,6 +69,8 @@ std::set<RifEclipseRftAddress> RifReaderOpmRft::eclipseRftAddresses()
 //--------------------------------------------------------------------------------------------------
 void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vector<double>* values )
 {
+    if ( !openFiles() ) return;
+
     auto wellName   = rftAddress.wellName().toStdString();
     auto resultName = rftAddress.segmentResultName().toStdString();
 
@@ -81,7 +88,8 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
         {
             auto data = segment.topology();
 
-            auto indices = segment.indicesForBranchIndex( rftAddress.segmentBranchIndex(), rftAddress.segmentBranchType() );
+            auto indices =
+                segment.segmentIndicesForBranchIndex( rftAddress.segmentBranchIndex(), rftAddress.segmentBranchType() );
             for ( const auto& i : indices )
             {
                 CAF_ASSERT( i < data.size() );
@@ -98,15 +106,6 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
             }
             return;
         }
-        else if ( rftAddress.segmentResultName() == RiaDefines::segmentOneBasedBranchIndexResultName() )
-        {
-            auto branchIndices = segment.oneBasedBranchIndices();
-            for ( const auto& branchNumber : branchIndices )
-            {
-                values->push_back( branchNumber );
-            }
-            return;
-        }
     }
 
     if ( resultName.empty() )
@@ -116,7 +115,8 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
 
     try
     {
-        auto data = m_opm_rft->getRft<float>( resultName, wellName, y, m, d );
+        std::vector<float> data = resultAsFloat( resultName, wellName, y, m, d );
+
         if ( !data.empty() )
         {
             if ( rftAddress.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::SEGMENT_VALUES )
@@ -124,7 +124,7 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
                 auto key     = std::make_pair( wellName, RftDate{ y, m, d } );
                 auto segment = m_rftWellDateSegments[key];
 
-                if ( resultName.find( "CON" ) == 0 )
+                if ( m_connectionResultItemCount.count( wellName ) && data.size() == m_connectionResultItemCount[wellName] )
                 {
                     // Connection results with size equal to length of result CONSEGNO. CONSEGNO defines the segment
                     // numbers the connection is connected to.
@@ -154,13 +154,19 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
                 }
                 else
                 {
-                    auto indices =
-                        segment.indicesForBranchIndex( rftAddress.segmentBranchIndex(), rftAddress.segmentBranchType() );
+                    auto indices = segment.segmentIndicesForBranchIndex( rftAddress.segmentBranchIndex(),
+                                                                         rftAddress.segmentBranchType() );
                     for ( const auto& i : indices )
                     {
                         CAF_ASSERT( i < data.size() );
                         values->push_back( data[i] );
                     }
+                }
+
+                if ( resultName == "CONFAC" || resultName == "CONKH" )
+                {
+                    // Replace undefined values with zero to improve readability of plots
+                    std::replace( values->begin(), values->end(), std::numeric_limits<double>::infinity(), 0.0 );
                 }
             }
             else
@@ -179,6 +185,8 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
 //--------------------------------------------------------------------------------------------------
 std::set<QDateTime> RifReaderOpmRft::availableTimeSteps( const QString& wellName )
 {
+    openFiles();
+
     std::set<QDateTime> timeSteps;
 
     for ( const auto& address : m_addresses )
@@ -198,6 +206,8 @@ std::set<QDateTime>
     RifReaderOpmRft::availableTimeSteps( const QString&                                     wellName,
                                          const RifEclipseRftAddress::RftWellLogChannelType& wellLogChannelName )
 {
+    openFiles();
+
     if ( wellLogChannelName == RifEclipseRftAddress::RftWellLogChannelType::SEGMENT_VALUES )
         return m_rftSegmentTimeSteps;
 
@@ -220,6 +230,8 @@ std::set<QDateTime>
     RifReaderOpmRft::availableTimeSteps( const QString&                                               wellName,
                                          const std::set<RifEclipseRftAddress::RftWellLogChannelType>& relevantChannels )
 {
+    openFiles();
+
     std::set<QDateTime> timeSteps;
 
     for ( const auto& address : m_addresses )
@@ -237,6 +249,8 @@ std::set<QDateTime>
 //--------------------------------------------------------------------------------------------------
 std::set<RifEclipseRftAddress::RftWellLogChannelType> RifReaderOpmRft::availableWellLogChannels( const QString& wellName )
 {
+    openFiles();
+
     std::set<RifEclipseRftAddress::RftWellLogChannelType> types;
 
     for ( const auto& a : m_addresses )
@@ -255,6 +269,8 @@ std::set<RifEclipseRftAddress::RftWellLogChannelType> RifReaderOpmRft::available
 //--------------------------------------------------------------------------------------------------
 std::set<QString> RifReaderOpmRft::wellNames()
 {
+    openFiles();
+
     return m_wellNames;
 }
 
@@ -263,6 +279,8 @@ std::set<QString> RifReaderOpmRft::wellNames()
 //--------------------------------------------------------------------------------------------------
 void RifReaderOpmRft::cellIndices( const RifEclipseRftAddress& rftAddress, std::vector<caf::VecIjk>* indices )
 {
+    if ( !openFiles() ) return;
+
     auto wellName = rftAddress.wellName().toStdString();
 
     auto date = rftAddress.timeStep().date();
@@ -298,17 +316,69 @@ void RifReaderOpmRft::cellIndices( const RifEclipseRftAddress& rftAddress, std::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::map<int, int> RifReaderOpmRft::branchIdsAndOneBasedIndices( const QString&            wellName,
+                                                                 const QDateTime&          timeStep,
+                                                                 RiaDefines::RftBranchType branchType )
+{
+    int y = timeStep.date().year();
+    int m = timeStep.date().month();
+    int d = timeStep.date().day();
+
+    auto key = std::make_pair( wellName.toStdString(), RftDate{ y, m, d } );
+    if ( m_rftWellDateSegments.count( key ) > 0 )
+    {
+        auto segment = m_rftWellDateSegments[key];
+        return segment.branchIdsAndOneBasedBranchIndices( branchType );
+    }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifRftSegment RifReaderOpmRft::segmentForWell( const QString& wellName, const QDateTime& timeStep )
+{
+    openFiles();
+
+    int y = timeStep.date().year();
+    int m = timeStep.date().month();
+    int d = timeStep.date().day();
+
+    auto key = std::make_pair( wellName.toStdString(), RftDate{ y, m, d } );
+    if ( m_rftWellDateSegments.count( key ) > 0 )
+    {
+        return m_rftWellDateSegments[key];
+    }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RifReaderOpmRft::readWseglink( const std::string& filePath )
 {
-    m_wseglink = RiaOpmParserTools::extractWseglink( filePath );
+    if ( filePath.empty() ) return;
 
+    QString text = QString( "Scanning for WSEGLINK data in %1\n" ).arg( QString::fromStdString( filePath ) );
+
+    m_wseglink = RiaOpmParserTools::extractWseglink( filePath );
     if ( !m_wseglink.empty() )
     {
-        QString text = QString( "Imported segment data from %1\n" ).arg( QString::fromStdString( filePath ) );
-        text += QString( "Number of wells: %1\n" ).arg( m_wseglink.size() );
+        text += "Imported WSEGLINK data from well(s):\n";
 
-        RiaLogging::info( text );
+        for ( auto [wellName, links] : m_wseglink )
+        {
+            text += "  " + QString::fromStdString( wellName ) + "\n";
+        }
     }
+    else
+    {
+        text += QString( "  No WSEGLINK data found." );
+    }
+
+    RiaLogging::info( text );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -323,6 +393,8 @@ void RifReaderOpmRft::openFiles( const QString& fileName, const QString& dataDec
         readWseglink( dataDeckFileName.toStdString() );
 
         buildMetaData();
+
+        return;
     }
     catch ( const std::exception& e )
     {
@@ -332,6 +404,8 @@ void RifReaderOpmRft::openFiles( const QString& fileName, const QString& dataDec
     {
         RiaLogging::error( QString( "Failed to open RFT file %1" ).arg( fileName ) );
     }
+
+    m_detectedErrorWhenOpeningRftFile = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -345,22 +419,17 @@ void RifReaderOpmRft::buildMetaData()
     importWellNames();
 
     auto reports = m_opm_rft->listOfRftReports();
-    for ( const auto& report : reports )
+    for ( const auto& [wellName, reportDate, reportTime] : reports )
     {
-        auto [wellName, reportDate, reportTime] = report;
-        auto rftVectors                         = m_opm_rft->listOfRftArrays( wellName, reportDate );
+        auto results = m_opm_rft->listOfRftArrays( wellName, reportDate );
 
-        for ( const auto& rftVec : rftVectors )
+        for ( const auto& [name, arrayType, size] : results )
         {
-            auto [resultDataName, arrType, itemCount] = rftVec;
-
-            int y = std::get<0>( reportDate );
-            int m = std::get<1>( reportDate );
-            int d = std::get<2>( reportDate );
+            const auto& [y, m, d] = reportDate;
 
             auto dt = RiaQDateTimeTools::createUtcDateTime( QDate( y, m, d ) );
 
-            auto channelType = identifyChannelType( resultDataName );
+            auto channelType = identifyChannelType( name );
             if ( channelType != RifEclipseRftAddress::RftWellLogChannelType::NONE )
             {
                 auto adr = RifEclipseRftAddress::createAddress( QString::fromStdString( wellName ), dt, channelType );
@@ -377,22 +446,17 @@ void RifReaderOpmRft::buildMetaData()
         auto [wellName, reportDate] = segmentWellData.first;
         auto segmentData            = segmentWellData.second;
 
-        auto resultNameAndSizes = segmentData.resultNameAndSize();
-
-        int y = std::get<0>( reportDate );
-        int m = std::get<1>( reportDate );
-        int d = std::get<2>( reportDate );
-
-        auto dt = RiaQDateTimeTools::createUtcDateTime( QDate( y, m, d ) );
+        const auto& [y, m, d] = reportDate;
+        auto dt               = RiaQDateTimeTools::createUtcDateTime( QDate( y, m, d ) );
 
         m_rftSegmentTimeSteps.insert( dt );
 
-        for ( const auto& resultNameAndSize : resultNameAndSizes )
+        auto resultNameAndSizes = segmentData.resultNameAndSize();
+        for ( const auto& [name, arrayType, size] : resultNameAndSizes )
         {
-            auto resultName = std::get<0>( resultNameAndSize );
-            auto adr        = RifEclipseRftAddress::createSegmentAddress( QString::fromStdString( wellName ),
+            auto adr = RifEclipseRftAddress::createSegmentAddress( QString::fromStdString( wellName ),
                                                                    dt,
-                                                                   QString::fromStdString( resultName ) );
+                                                                   QString::fromStdString( name ) );
 
             m_addresses.insert( adr );
         }
@@ -462,11 +526,34 @@ void RifReaderOpmRft::buildSegmentData()
             RifRftSegment segment;
             segment.setSegmentData( segmentsForWellDate );
 
-            auto arraysAtWellDate = m_opm_rft->listOfRftArrays( wellName, date );
-            for ( const auto& rftResultMetaData : arraysAtWellDate )
+            auto results = m_opm_rft->listOfRftArrays( wellName, date );
+
+            for ( const auto& [name, arrayType, size] : results )
             {
-                auto [name, arrayType, size] = rftResultMetaData;
-                if ( ( name.find( "SEG" ) == 0 ) || ( name.find( "CON" ) == 0 ) )
+                if ( ( name.find( "SEG" ) == 0 ) && m_segmentResultItemCount.count( wellName ) == 0 )
+                {
+                    m_segmentResultItemCount[wellName] = size;
+                }
+                if ( name.find( "CON" ) == 0 && m_connectionResultItemCount.count( wellName ) == 0 )
+                {
+                    m_connectionResultItemCount[wellName] = size;
+                }
+            }
+
+            for ( const auto& rftResultMetaData : results )
+            {
+                const auto& [name, arrayType, size] = rftResultMetaData;
+
+                bool isResultItemCountValid = false;
+                if ( m_segmentResultItemCount.count( wellName ) &&
+                     size == static_cast<int64_t>( m_segmentResultItemCount[wellName] ) )
+                    isResultItemCountValid = true;
+
+                if ( m_connectionResultItemCount.count( wellName ) &&
+                     size == static_cast<int64_t>( m_connectionResultItemCount[wellName] ) )
+                    isResultItemCountValid = true;
+
+                if ( isResultItemCountValid )
                 {
                     segment.addResultNameAndSize( rftResultMetaData );
                 }
@@ -490,8 +577,9 @@ void RifReaderOpmRft::segmentDataDebugLog() const
         auto [wellName, date] = a.first;
         auto segmentData      = a.second;
 
-        std::cout << "\nWell: " << wellName << "Date : " << std::get<0>( date ) << " " << std::get<1>( date ) << " "
-                  << std::get<2>( date ) << " \n";
+        const auto& [y, m, d] = date;
+
+        std::cout << "\nWell: " << wellName << "Date : " << y << " " << m << " " << d << " \n";
 
         for ( const auto& r : segmentData.topology() )
         {
@@ -538,17 +626,15 @@ void RifReaderOpmRft::buildSegmentBranchTypes( const RftSegmentKey& segmentKey )
     // The device segment is connected to a segment on the tubing branch
     //
     // Annulus branch
-    // Layer between device branch and reservoir. The segment connection data is imported from WSEGLINK in the data deck
+    // Layer between device branch and reservoir. The segment connection data is imported from WSEGLINK in the
+    // data deck
 
     auto           wellName   = segmentKey.first;
     auto           date       = segmentKey.second;
     RifRftSegment& segmentRef = m_rftWellDateSegments[segmentKey];
 
-    int y = std::get<0>( date );
-    int m = std::get<1>( date );
-    int d = std::get<2>( date );
-
-    auto dt = RiaQDateTimeTools::createUtcDateTime( QDate( y, m, d ) );
+    const auto& [y, m, d] = date;
+    auto dt               = RiaQDateTimeTools::createUtcDateTime( QDate( y, m, d ) );
 
     std::vector<double> seglenstValues;
     std::vector<double> seglenenValues;
@@ -568,102 +654,26 @@ void RifReaderOpmRft::buildSegmentBranchTypes( const RftSegmentKey& segmentKey )
         values( resultName, &seglenenValues );
     }
 
-    int oneBasedBranchIndex = 1;
-
     if ( !seglenenValues.empty() && !seglenstValues.empty() )
     {
-        // Find tubing and annulus branch types
+        identifyTubingCandidateBranches( segmentRef, wellName, seglenstValues, seglenenValues );
+        identifyAnnulusBranches( segmentRef, seglenstValues );
 
-        auto branchIds = segmentRef.branchIds();
-        for ( auto id : branchIds )
-        {
-            double minimumMD = std::numeric_limits<double>::max();
-            double maximumMD = std::numeric_limits<double>::min();
+        // The tubing branches are given increasing branch indices. If a tubing branch is categorized as an
+        // annulus branch, the index values must be reassigned. Each triplet of tubing/device/annulus has a
+        // unique branch index.
+        reassignBranchIndices( segmentRef );
 
-            std::vector<int> segmentNumbers;
-
-            auto indices = segmentRef.indicesForBranchNumber( id );
-            for ( auto i : indices )
-            {
-                minimumMD = std::min( minimumMD, seglenstValues[i] );
-                maximumMD = std::max( maximumMD, seglenenValues[i] );
-                segmentNumbers.push_back( segmentRef.topology()[i].segNo() );
-            }
-
-            double length = maximumMD - minimumMD;
-
-            segmentRef.setBranchLength( id, length );
-
-            RiaDefines::RftBranchType branchType = RiaDefines::RftBranchType::RFT_UNKNOWN;
-
-            bool hasFoundAnnulusBranch = false;
-
-            auto annulusSegments = annulusSegmentsForWell( wellName );
-
-            std::vector<int> matchingSegments;
-            std::set_intersection( segmentNumbers.begin(),
-                                   segmentNumbers.end(),
-                                   annulusSegments.begin(),
-                                   annulusSegments.end(),
-                                   std::inserter( matchingSegments, matchingSegments.end() ) );
-
-            if ( !matchingSegments.empty() )
-            {
-                {
-                    branchType = RiaDefines::RftBranchType::RFT_ANNULUS;
-
-                    // NOTE: Assign branch index after device branch is detected
-                    hasFoundAnnulusBranch = true;
-                }
-            }
-
-            if ( !hasFoundAnnulusBranch )
-            {
-                const double tubingThreshold = 1.0;
-                if ( length > tubingThreshold )
-                {
-                    branchType = RiaDefines::RftBranchType::RFT_TUBING;
-                    segmentRef.setOneBasedBranchIndex( id, oneBasedBranchIndex++ );
-                }
-            }
-
-            segmentRef.setBranchType( id, branchType );
-        }
-
-        auto tubingBranchIds = segmentRef.tubingBranchIds();
-
-        for ( auto& segment : segmentRef.topology() )
-        {
-            auto segmentBranchId = segment.segBrno();
-            auto it              = std::find( tubingBranchIds.begin(), tubingBranchIds.end(), segmentBranchId );
-            if ( it == tubingBranchIds.end() )
-            {
-                auto tubingSegmentNumber = segment.segNext();
-
-                auto tubingSegmentData = segmentRef.segmentData( tubingSegmentNumber );
-                if ( tubingSegmentData != nullptr )
-                {
-                    auto it = std::find( tubingBranchIds.begin(), tubingBranchIds.end(), tubingSegmentData->segBrno() );
-                    if ( it != tubingBranchIds.end() )
-                    {
-                        // Find all connected segments that is not assigned a branch type, and mark as device
-                        // layer
-
-                        auto tubingBranchIndex = segmentRef.oneBasedBranchIndexForBranchId( tubingSegmentData->segBrno() );
-                        segmentRef.createDeviceBranch( segment.segNo(), tubingBranchIndex );
-                    }
-                }
-            }
-        }
+        identifyDeviceBranches( segmentRef, seglenstValues );
 
         // Assign branch index to annulus branches
-
+        auto branchIds = segmentRef.branchIds();
         for ( auto branchId : branchIds )
         {
             auto branchType = segmentRef.branchType( branchId );
             if ( branchType == RiaDefines::RftBranchType::RFT_ANNULUS )
             {
-                auto segmentIndices = segmentRef.indicesForBranchNumber( branchId );
+                auto segmentIndices = segmentRef.segmentIndicesForBranchNumber( branchId );
                 if ( segmentIndices.empty() ) continue;
 
                 auto firstSegmentIndex      = segmentIndices.front();
@@ -678,6 +688,191 @@ void RifReaderOpmRft::buildSegmentBranchTypes( const RftSegmentKey& segmentKey )
                     {
                         segmentRef.setOneBasedBranchIndex( branchId, branchIndex );
                     }
+                }
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderOpmRft::identifyTubingCandidateBranches( RifRftSegment&             segmentRef,
+                                                       const std::string&         wellName,
+                                                       const std::vector<double>& seglenstValues,
+                                                       const std::vector<double>& seglenenValues )
+{
+    int oneBasedBranchIndex = 1;
+
+    auto branchIds = segmentRef.branchIds();
+    for ( auto id : branchIds )
+    {
+        double minimumMD = std::numeric_limits<double>::max();
+        double maximumMD = std::numeric_limits<double>::min();
+
+        std::vector<int> segmentNumbers;
+
+        auto indices = segmentRef.segmentIndicesForBranchNumber( id );
+        for ( auto i : indices )
+        {
+            minimumMD = std::min( minimumMD, seglenstValues[i] );
+            maximumMD = std::max( maximumMD, seglenenValues[i] );
+            segmentNumbers.push_back( segmentRef.topology()[i].segNo() );
+        }
+
+        double length = maximumMD - minimumMD;
+
+        segmentRef.setBranchLength( id, length );
+
+        RiaDefines::RftBranchType branchType = RiaDefines::RftBranchType::RFT_UNKNOWN;
+
+        bool hasFoundAnnulusBranch = false;
+
+        // If WESEGLINK is imported, get annulus segments for well
+        auto annulusSegments = annulusSegmentsForWell( wellName );
+
+        std::vector<int> matchingSegments;
+        std::set_intersection( segmentNumbers.begin(),
+                               segmentNumbers.end(),
+                               annulusSegments.begin(),
+                               annulusSegments.end(),
+                               std::inserter( matchingSegments, matchingSegments.end() ) );
+
+        if ( !matchingSegments.empty() )
+        {
+            {
+                branchType = RiaDefines::RftBranchType::RFT_ANNULUS;
+
+                // NOTE: Assign branch index after device branch is detected
+                hasFoundAnnulusBranch = true;
+            }
+        }
+
+        if ( !hasFoundAnnulusBranch )
+        {
+            const double tubingThreshold = 1.0;
+            if ( length > tubingThreshold )
+            {
+                branchType = RiaDefines::RftBranchType::RFT_TUBING;
+                segmentRef.setOneBasedBranchIndex( id, oneBasedBranchIndex++ );
+            }
+        }
+
+        segmentRef.setBranchType( id, branchType );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderOpmRft::identifyAnnulusBranches( RifRftSegment& segmentRef, const std::vector<double>& seglenstValues )
+{
+    // If no WESEGLINK data is present, compare the location of the last N segments of two tubing branches. If
+    // the difference is correct, mark candidate branch as annulus branch instead of tubing.
+
+    if ( m_wseglink.empty() )
+    {
+        auto tubingIds = segmentRef.tubingBranchIds();
+
+        std::map<size_t, std::vector<double>> seglenstForBranch;
+
+        for ( auto branchId : tubingIds )
+        {
+            std::vector<double> values;
+
+            auto indices = segmentRef.segmentIndicesForBranchNumber( branchId );
+            for ( auto i : indices )
+            {
+                values.push_back( seglenstValues[i] );
+            }
+
+            seglenstForBranch[branchId] = values;
+        }
+
+        std::set<int> annulusBranchIds;
+
+        for ( auto branchId : tubingIds )
+        {
+            if ( annulusBranchIds.count( branchId ) ) continue;
+
+            for ( auto candidateBranchId : tubingIds )
+            {
+                if ( candidateBranchId == branchId ) continue;
+                if ( annulusBranchIds.count( candidateBranchId ) ) continue;
+
+                auto branchValues    = seglenstForBranch.at( branchId );
+                auto candidateValues = seglenstForBranch.at( candidateBranchId );
+
+                double lastBranchValue    = branchValues.back();
+                double lastCandidateValue = candidateValues.back();
+
+                double diff = lastCandidateValue - lastBranchValue;
+
+                const double epsilon               = 1e-3;
+                const double distanceTubingAnnulus = 0.1;
+                if ( std::fabs( ( std::fabs( diff ) - distanceTubingAnnulus ) ) < epsilon )
+                {
+                    int annulusBranchId = ( diff > 0 ) ? candidateBranchId : branchId;
+
+                    segmentRef.setBranchType( annulusBranchId, RiaDefines::RftBranchType::RFT_ANNULUS );
+                    annulusBranchIds.insert( annulusBranchId );
+                }
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderOpmRft::reassignBranchIndices( RifRftSegment& segmentRef )
+{
+    auto tubingBranchIds = segmentRef.tubingBranchIds();
+
+    int oneBasedBranchIndex = 1;
+
+    std::map<int, int> newOneBasedBranchIndex;
+    for ( auto branchId : tubingBranchIds )
+    {
+        auto previsousIndex                    = segmentRef.oneBasedBranchIndexForBranchId( branchId );
+        newOneBasedBranchIndex[previsousIndex] = oneBasedBranchIndex++;
+    }
+
+    for ( auto branchId : segmentRef.branchIds() )
+    {
+        auto branchIndex = segmentRef.oneBasedBranchIndexForBranchId( branchId );
+        if ( newOneBasedBranchIndex.count( branchIndex ) )
+        {
+            segmentRef.setOneBasedBranchIndex( branchId, newOneBasedBranchIndex.at( branchIndex ) );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderOpmRft::identifyDeviceBranches( RifRftSegment& segmentRef, const std::vector<double>& seglenstValues )
+{
+    auto tubingBranchIds = segmentRef.tubingBranchIds();
+
+    for ( auto& segment : segmentRef.topology() )
+    {
+        auto segmentBranchId = segment.segBrno();
+        auto it              = std::find( tubingBranchIds.begin(), tubingBranchIds.end(), segmentBranchId );
+        if ( it == tubingBranchIds.end() )
+        {
+            auto tubingSegmentNumber = segment.segNext();
+
+            auto tubingSegmentData = segmentRef.segmentData( tubingSegmentNumber );
+            if ( tubingSegmentData != nullptr )
+            {
+                auto it = std::find( tubingBranchIds.begin(), tubingBranchIds.end(), tubingSegmentData->segBrno() );
+                if ( it != tubingBranchIds.end() )
+                {
+                    // Find all connected segments that is not assigned a branch type, and mark as device layer
+
+                    auto tubingBranchIndex = segmentRef.oneBasedBranchIndexForBranchId( tubingSegmentData->segBrno() );
+                    segmentRef.createDeviceBranch( segment.segNo(), tubingBranchIndex, seglenstValues );
                 }
             }
         }
@@ -771,4 +966,58 @@ std::string RifReaderOpmRft::resultNameFromChannelType( RifEclipseRftAddress::Rf
     if ( channelType == RifEclipseRftAddress::RftWellLogChannelType::GRAT ) return "GRAT";
 
     return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<float>
+    RifReaderOpmRft::resultAsFloat( const std::string& resultName, const std::string& wellName, int year, int month, int day ) const
+{
+    Opm::EclIO::eclArrType resultDataType = Opm::EclIO::eclArrType::REAL;
+
+    auto results = m_opm_rft->listOfRftArrays( wellName, year, month, day );
+    for ( const auto& [name, arrayType, size] : results )
+    {
+        if ( resultName == name )
+        {
+            resultDataType = arrayType;
+            break;
+        }
+    }
+
+    if ( resultDataType == Opm::EclIO::eclArrType::INTE )
+    {
+        std::vector<float> data;
+
+        auto integerData = m_opm_rft->getRft<int>( resultName, wellName, year, month, day );
+        for ( auto val : integerData )
+        {
+            data.push_back( val );
+        }
+
+        return data;
+    }
+    else
+    {
+        return m_opm_rft->getRft<float>( resultName, wellName, year, month, day );
+    }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifReaderOpmRft::openFiles()
+{
+    // The file open operations can be costly, so do lazy loading of the files
+    // NB! Make sure that this function is called from all public functions that needs to access the files
+
+    if ( !isOpen() && !m_detectedErrorWhenOpeningRftFile )
+    {
+        openFiles( m_fileName, m_dataDeckFileName );
+    }
+
+    return isOpen();
 }

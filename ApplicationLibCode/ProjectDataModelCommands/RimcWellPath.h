@@ -26,6 +26,7 @@
 #include <QString>
 
 class RimStimPlanFractureTemplate;
+class RimThermalFractureTemplate;
 class RimEclipseCase;
 
 //==================================================================================================
@@ -47,6 +48,26 @@ private:
     caf::PdmPtrField<RimStimPlanFractureTemplate*> m_stimPlanFractureTemplate;
     caf::PdmField<bool>                            m_alignDip;
     caf::PdmPtrField<RimEclipseCase*>              m_eclipseCase;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcWellPath_addThermalFracture : public caf::PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcWellPath_addThermalFracture( caf::PdmObjectHandle* self );
+
+    caf::PdmObjectHandle*            execute() override;
+    bool                             resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
+
+private:
+    caf::PdmPtrField<RimThermalFractureTemplate*> m_fractureTemplate;
+    caf::PdmField<double>                         m_md;
+    caf::PdmField<bool>                           m_placeUsingTemplateData;
 };
 
 //==================================================================================================

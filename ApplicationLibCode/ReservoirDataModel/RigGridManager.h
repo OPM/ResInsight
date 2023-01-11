@@ -38,7 +38,7 @@ public:
     void clear();
 
     static bool isEqual( RigMainGrid* gridA, RigMainGrid* gridB );
-    static bool isMainGridDimensionsEqual( RigMainGrid* gridA, RigMainGrid* gridB );
+    static bool isMainGridDimensionsEqual( const RigMainGrid* gridA, const RigMainGrid* gridB );
     static bool isGridDimensionsEqual( const std::vector<std::vector<int>>& mainCaseGridDimensions,
                                        const std::vector<std::vector<int>>& caseGridDimensions );
 

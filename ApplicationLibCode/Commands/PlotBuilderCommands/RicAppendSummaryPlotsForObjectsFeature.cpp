@@ -29,6 +29,8 @@
 #include "RimEnsembleCurveSet.h"
 #include "RimSummaryAddressCollection.h"
 #include "RimSummaryAddressModifier.h"
+#include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
@@ -112,6 +114,8 @@ void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot* s
         }
         info.incrementProgress();
     }
+
+    summaryMultiPlot->updatePlotTitles();
 }
 
 //--------------------------------------------------------------------------------------------------

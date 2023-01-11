@@ -53,6 +53,12 @@ public:
 
     void cellIndices( const RifEclipseRftAddress& rftAddress, std::vector<caf::VecIjk>* indices ) override;
 
+    std::map<int, int> branchIdsAndOneBasedIndices( const QString&            wellName,
+                                                    const QDateTime&          timeStep,
+                                                    RiaDefines::RftBranchType branchType );
+
+    RifRftSegment segmentForWell( const QString& wellName, const QDateTime& timeStep );
+
 private:
     // Segment data
     // RftDate must be synced with definition in Opm::EclIO::ERft::RftDate
@@ -66,6 +72,13 @@ private:
     bool isOpen() const;
     void importWellNames();
     void buildSegmentBranchTypes( const RftSegmentKey& segmentKey );
+    void identifyTubingCandidateBranches( RifRftSegment&             segmentRef,
+                                          const std::string&         wellName,
+                                          const std::vector<double>& seglenstValues,
+                                          const std::vector<double>& seglenenValues );
+    void identifyAnnulusBranches( RifRftSegment& segmentRef, const std::vector<double>& seglenstValues );
+    void reassignBranchIndices( RifRftSegment& segmentRef );
+    void identifyDeviceBranches( RifRftSegment& segmentRef, const std::vector<double>& seglenstValues );
 
     std::vector<int> importWellData( const std::string& wellName, const std::string& propertyName, const RftDate& date ) const;
 
@@ -75,6 +88,11 @@ private:
 
     static RifEclipseRftAddress::RftWellLogChannelType identifyChannelType( const std::string& resultName );
     static std::string resultNameFromChannelType( RifEclipseRftAddress::RftWellLogChannelType channelType );
+
+    std::vector<float>
+        resultAsFloat( const std::string& resultName, const std::string& wellName, int year, int month, int day ) const;
+
+    bool openFiles();
 
 private:
     std::unique_ptr<Opm::EclIO::ERft> m_opm_rft;
@@ -86,5 +104,12 @@ private:
     std::map<RftSegmentKey, RifRftSegment> m_rftWellDateSegments;
     std::set<QDateTime>                    m_rftSegmentTimeSteps;
 
+    std::map<std::string, size_t> m_segmentResultItemCount;
+    std::map<std::string, size_t> m_connectionResultItemCount;
+
     std::map<std::string, std::vector<std::pair<int, int>>> m_wseglink;
+
+    QString m_fileName;
+    QString m_dataDeckFileName;
+    bool    m_detectedErrorWhenOpeningRftFile;
 };

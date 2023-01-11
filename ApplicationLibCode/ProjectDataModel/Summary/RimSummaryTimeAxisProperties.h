@@ -60,6 +60,8 @@ public:
     typedef caf::AppEnum<RiaDefines::DateFormatComponents> DateFormatEnum;
     typedef caf::AppEnum<RiaDefines::TimeFormatComponents> TimeFormatEnum;
 
+    caf::Signal<> requestLoadDataAndUpdate;
+
 public:
     RimSummaryTimeAxisProperties();
 

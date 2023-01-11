@@ -46,4 +46,25 @@ for measured_depth in measured_depths:
 # Call update() to propagate changes from the Python object back to ResInsight
 fracture_template.orientation = "Azimuth"
 fracture_template.azimuth_angle = 60.0
+fracture_template.user_defined_perforation_length = True
+fracture_template.conductivity_type = "InfiniteConductivity"
+fracture_template.perforation_length = 12.3
 fracture_template.update()
+
+# Scale the template
+fracture_template.set_scale_factors(
+    half_length=2.0, height=2.0, d_factor=1.1, conductivity=1.2
+)
+
+# Output scale factors for all fracture templates
+fmt_collection = project.descendants(rips.FractureTemplate)
+for fracture_template in fmt_collection:
+    print(
+        "Fracture: '{}' Scale factors: Height={} Half Length={} D Factor={} Conductivity={}".format(
+            fracture_template.user_description,
+            fracture_template.height_scale_factor,
+            fracture_template.width_scale_factor,
+            fracture_template.d_factor_scale_factor,
+            fracture_template.conductivity_factor,
+        )
+    )

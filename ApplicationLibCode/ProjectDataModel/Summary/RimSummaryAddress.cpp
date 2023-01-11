@@ -18,6 +18,8 @@
 
 #include "RimSummaryAddress.h"
 
+#include "RiaSummaryDefines.h"
+
 #include "RimProject.h"
 #include "RimSummaryCalculation.h"
 #include "RimSummaryCalculationCollection.h"
@@ -29,24 +31,26 @@ namespace caf
 template <>
 void caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::setUp()
 {
-    addItem( RifEclipseSummaryAddress::SUMMARY_FIELD, "SUMMARY_FIELD", "Field" );
-    addItem( RifEclipseSummaryAddress::SUMMARY_AQUIFER, "SUMMARY_AQUIFER", "Aquifer" );
-    addItem( RifEclipseSummaryAddress::SUMMARY_NETWORK, "SUMMARY_NETWORK", "Network" );
-    addItem( RifEclipseSummaryAddress::SUMMARY_MISC, "SUMMARY_MISC", "Misc" );
-    addItem( RifEclipseSummaryAddress::SUMMARY_REGION, "SUMMARY_REGION", "Region" );
-    addItem( RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION, "SUMMARY_REGION_2_REGION", "Region-Region" );
-    addItem( RifEclipseSummaryAddress::SUMMARY_GROUP, "SUMMARY_WELL_GROUP", "Group" );
-    addItem( RifEclipseSummaryAddress::SUMMARY_WELL, "SUMMARY_WELL", "Well" );
-    addItem( RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION, "SUMMARY_WELL_COMPLETION", "Completion" );
-    addItem( RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR, "SUMMARY_WELL_COMPLETION_LGR", "Lgr-Completion" );
-    addItem( RifEclipseSummaryAddress::SUMMARY_WELL_LGR, "SUMMARY_WELL_LGR", "Lgr-Well" );
-    addItem( RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT, "SUMMARY_SEGMENT", "Segment" );
-    addItem( RifEclipseSummaryAddress::SUMMARY_BLOCK, "SUMMARY_BLOCK", "Block" );
-    addItem( RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR, "SUMMARY_BLOCK_LGR", "Lgr-Block" );
-    addItem( RifEclipseSummaryAddress::SUMMARY_CALCULATED, "SUMMARY_CALCULATED", "Calculated" );
-    addItem( RifEclipseSummaryAddress::SUMMARY_IMPORTED, "SUMMARY_IMPORTED", "Imported" );
-    addItem( RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS, "SUMMARY_ENSEMBLE_STATISTICS", "Ensemble Statistics" );
-    setDefault( RifEclipseSummaryAddress::SUMMARY_FIELD );
+    using RifAdr = RifEclipseSummaryAddress;
+
+    addItem( RifAdr::SUMMARY_FIELD, "SUMMARY_FIELD", RiaDefines::summaryField() );
+    addItem( RifAdr::SUMMARY_AQUIFER, "SUMMARY_AQUIFER", RiaDefines::summaryAquifer() );
+    addItem( RifAdr::SUMMARY_NETWORK, "SUMMARY_NETWORK", RiaDefines::summaryNetwork() );
+    addItem( RifAdr::SUMMARY_MISC, "SUMMARY_MISC", RiaDefines::summaryMisc() );
+    addItem( RifAdr::SUMMARY_REGION, "SUMMARY_REGION", RiaDefines::summaryRegion() );
+    addItem( RifAdr::SUMMARY_REGION_2_REGION, "SUMMARY_REGION_2_REGION", RiaDefines::summaryRegion2Region() );
+    addItem( RifAdr::SUMMARY_GROUP, "SUMMARY_WELL_GROUP", RiaDefines::summaryWellGroup() );
+    addItem( RifAdr::SUMMARY_WELL, "SUMMARY_WELL", RiaDefines::summaryWell() );
+    addItem( RifAdr::SUMMARY_WELL_COMPLETION, "SUMMARY_WELL_COMPLETION", RiaDefines::summaryCompletion() );
+    addItem( RifAdr::SUMMARY_WELL_COMPLETION_LGR, "SUMMARY_WELL_COMPLETION_LGR", RiaDefines::summaryLgrCompletion() );
+    addItem( RifAdr::SUMMARY_WELL_LGR, "SUMMARY_WELL_LGR", RiaDefines::summaryLgrWell() );
+    addItem( RifAdr::SUMMARY_WELL_SEGMENT, "SUMMARY_SEGMENT", RiaDefines::summarySegment() );
+    addItem( RifAdr::SUMMARY_BLOCK, "SUMMARY_BLOCK", RiaDefines::summaryBlock() );
+    addItem( RifAdr::SUMMARY_BLOCK_LGR, "SUMMARY_BLOCK_LGR", RiaDefines::summaryLgrBlock() );
+    addItem( RifAdr::SUMMARY_CALCULATED, "SUMMARY_CALCULATED", RiaDefines::summaryCalculated() );
+    addItem( RifAdr::SUMMARY_IMPORTED, "SUMMARY_IMPORTED", "Imported" );
+    addItem( RifAdr::SUMMARY_ENSEMBLE_STATISTICS, "SUMMARY_ENSEMBLE_STATISTICS", "Ensemble Statistics" );
+    setDefault( RifAdr::SUMMARY_FIELD );
 }
 
 } // namespace caf

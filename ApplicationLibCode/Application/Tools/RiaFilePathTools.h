@@ -48,4 +48,6 @@ public:
     static QStringList splitPathIntoComponents( const QString& path, bool splitExtensionIntoSeparateEntry = false );
 
     static std::map<QString, QStringList> keyPathComponentsForEachFilePath( const QStringList& filePaths );
+
+    static bool isFirstOlderThanSecond( const std::string& firstFileName, const std::string& secondFileName );
 };

@@ -79,6 +79,8 @@ public:
     void onProjectBeingSaved();
 
 private:
+    void initAfterRead() override;
+
     static void loadSummaryCaseData( std::vector<RimSummaryCase*> summaryCases );
     static void loadFileSummaryCaseData( std::vector<RimFileSummaryCase*> fileSummaryCases );
     static void reassignSummaryCurves( const RimGridSummaryCase* fromGridCase, RimFileSummaryCase* toFileCase );

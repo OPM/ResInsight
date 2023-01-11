@@ -42,12 +42,14 @@ public:
         QStringList eclipseCaseFiles;
         QStringList eclipseInputFiles;
         QStringList eclipseSummaryFiles;
+        QStringList roffFiles;
 
         std::vector<int> createdCaseIds;
 
         operator bool() const
         {
-            return !( eclipseCaseFiles.empty() && eclipseInputFiles.empty() && eclipseSummaryFiles.empty() );
+            return !( eclipseCaseFiles.empty() && eclipseInputFiles.empty() && eclipseSummaryFiles.empty() &&
+                      roffFiles.empty() );
         }
     };
 
@@ -58,10 +60,14 @@ public:
     static QStringList     fileNamesFromCaseNames( const QStringList& caseNames );
     static QStringList     getEclipseFileNamesWithDialog( RiaDefines::ImportFileType fileTypes );
 
+    static QString getFilePattern( const std::vector<RiaDefines::ImportFileType>& fileTypes, bool allowWildcard );
+
 protected:
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
+
+    static QString getFilePattern( RiaDefines::ImportFileType fileType );
 
     static void openFileDialog( RiaDefines::ImportFileType fileTypes );
 
@@ -73,4 +79,7 @@ protected:
                                                    bool               createDefaultView,
                                                    std::vector<int>&  createdCaseIds );
     static bool openSummaryCaseFromFileNames( const QStringList& fileNames, bool doCreateDefaultPlot = true );
+    static bool openRoffCaseFromFileNames( const QStringList& fileNames,
+                                           bool               createDefaultView,
+                                           std::vector<int>&  createdCaseIds );
 };

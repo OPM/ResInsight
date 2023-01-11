@@ -25,12 +25,13 @@
 
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCurve.h"
-#include "RimPlot.h"
+#include "RimPlotWindow.h"
 #include "RimProject.h"
 #include "RimSummaryCrossPlot.h"
 #include "RimSummaryPlot.h"
 #include "RimVfpPlot.h"
 #include "RimWellLogPlot.h"
+#include "RimWellLogTrack.h"
 
 #include "RiuPlotMainWindow.h"
 #include "RiuTextDialog.h"
@@ -174,7 +175,7 @@ bool RicShowPlotDataFeature::isCommandEnabled()
         return true;
     }
 
-    std::vector<RimPlot*> selection;
+    std::vector<RimPlotWindow*> selection;
     getSelection( selection );
 
     int validPlots = 0;
@@ -186,9 +187,9 @@ bool RicShowPlotDataFeature::isCommandEnabled()
             return false;
         }
 
-        if ( dynamic_cast<RimSummaryPlot*>( plot ) != nullptr ||
-             ( dynamic_cast<RimWellLogPlot*>( plot ) != nullptr || dynamic_cast<RimGridCrossPlot*>( plot ) != nullptr ||
-               dynamic_cast<RimVfpPlot*>( plot ) != nullptr ) )
+        if ( dynamic_cast<RimSummaryPlot*>( plot ) || dynamic_cast<RimWellLogPlot*>( plot ) ||
+             dynamic_cast<RimWellLogTrack*>( plot ) || dynamic_cast<RimGridCrossPlot*>( plot ) ||
+             dynamic_cast<RimVfpPlot*>( plot ) )
         {
             validPlots++;
         }
@@ -217,54 +218,47 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
 
     this->disableModelChangeContribution();
 
-    std::vector<RimPlot*> selection;
+    std::vector<RimPlotWindow*> selection;
     getSelection( selection );
 
     std::vector<RimSummaryPlot*>   selectedSummaryPlots;
     std::vector<RimWellLogPlot*>   wellLogPlots;
     std::vector<RimGridCrossPlot*> crossPlots;
     std::vector<RimVfpPlot*>       vfpPlots;
+    std::vector<RimWellLogTrack*>  depthTracks;
 
     for ( auto plot : selection )
     {
-        auto sumPlot = dynamic_cast<RimSummaryPlot*>( plot );
-        if ( sumPlot )
+        if ( auto sumPlot = dynamic_cast<RimSummaryPlot*>( plot ) )
         {
             selectedSummaryPlots.push_back( sumPlot );
             continue;
         }
 
-        auto wellPlot = dynamic_cast<RimWellLogPlot*>( plot );
-        if ( wellPlot )
+        if ( auto wellPlot = dynamic_cast<RimWellLogPlot*>( plot ) )
         {
             wellLogPlots.push_back( wellPlot );
             continue;
         }
 
-        auto xPlot = dynamic_cast<RimGridCrossPlot*>( plot );
-        if ( xPlot )
+        if ( auto xPlot = dynamic_cast<RimGridCrossPlot*>( plot ) )
         {
             crossPlots.push_back( xPlot );
             continue;
         }
 
-        auto vfpPlot = dynamic_cast<RimVfpPlot*>( plot );
-        if ( vfpPlot )
+        if ( auto vfpPlot = dynamic_cast<RimVfpPlot*>( plot ) )
         {
             vfpPlots.push_back( vfpPlot );
             continue;
         }
+
+        if ( auto depthTrack = dynamic_cast<RimWellLogTrack*>( plot ) )
+        {
+            depthTracks.push_back( depthTrack );
+            continue;
+        }
     }
-
-    if ( selectedSummaryPlots.empty() && wellLogPlots.empty() && crossPlots.empty() && vfpPlots.empty() )
-    {
-        CVF_ASSERT( false );
-
-        return;
-    }
-
-    RiuPlotMainWindow* plotwindow = RiaGuiApplication::instance()->mainPlotWindow();
-    CVF_ASSERT( plotwindow );
 
     for ( RimSummaryPlot* summaryPlot : selectedSummaryPlots )
     {
@@ -276,6 +270,13 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
     {
         QString title = wellLogPlot->description();
         QString text  = wellLogPlot->asciiDataForPlotExport();
+        RicShowPlotDataFeature::showTextWindow( title, text );
+    }
+
+    for ( auto* plot : depthTracks )
+    {
+        QString title = plot->description();
+        QString text  = plot->asciiDataForPlotExport();
         RicShowPlotDataFeature::showTextWindow( title, text );
     }
 
@@ -339,7 +340,7 @@ void RicShowPlotDataFeature::showTextWindow( const QString& title, const QString
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicShowPlotDataFeature::getSelection( std::vector<RimPlot*>& selection )
+void RicShowPlotDataFeature::getSelection( std::vector<RimPlotWindow*>& selection )
 {
     if ( sender() )
     {

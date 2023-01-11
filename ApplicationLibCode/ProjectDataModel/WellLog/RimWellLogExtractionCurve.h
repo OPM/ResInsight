@@ -20,6 +20,9 @@
 #pragma once
 
 #include "RigWbsParameter.h"
+
+#include "RimEclipseCase.h"
+#include "RimGeoMechCase.h"
 #include "RimWellLogCurve.h"
 
 #include "cafPdmChildField.h"
@@ -137,4 +140,30 @@ protected:
     caf::PdmField<bool> m_addDateToCurveName;
 
     std::vector<const RigWellPath*> m_wellPathsWithExtractors;
+
+private:
+    struct WellLogExtractionCurveData
+    {
+        std::vector<double>       values              = std::vector<double>();
+        std::vector<double>       measuredDepthValues = std::vector<double>();
+        std::vector<double>       tvDepthValues       = std::vector<double>();
+        double                    rkbDiff             = 0.0;
+        RiaDefines::DepthUnitType depthUnit           = RiaDefines::DepthUnitType::UNIT_METER;
+        QString                   xUnits              = RiaWellLogUnitTools<double>::noUnitString();
+    };
+
+private:
+    WellLogExtractionCurveData extractEclipseData( RimEclipseCase* eclipseCase, bool* isUsingPseudoLength );
+    WellLogExtractionCurveData extractGeomData( RimGeoMechCase* geomCase,
+                                                bool*           isUsingPseudoLength,
+                                                bool            performDataSmoothing = false,
+                                                double          smoothingThreshold   = -1.0 );
+    void                       mapPropertyValuesFromReferenceWell( std::vector<double>&       rMeasuredDepthValues,
+                                                                   std::vector<double>&       rTvDepthValues,
+                                                                   std::vector<double>&       rPropertyValues,
+                                                                   const std::vector<double>& indexKValues,
+                                                                   const std::vector<double>& refWellMeasuredDepthValues,
+                                                                   const std::vector<double>& refWellTvDepthValues,
+                                                                   const std::vector<double>& refWellPropertyValues,
+                                                                   const std::vector<double>& refWellIndexKValues );
 };

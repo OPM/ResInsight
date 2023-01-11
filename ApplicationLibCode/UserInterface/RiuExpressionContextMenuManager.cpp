@@ -23,6 +23,10 @@
 const std::map<QString, std::set<QString>> RiuExpressionContextMenuManager::MENU_MAP =
     { { "Basic Operators", { "+", "-", "*", "/", "x^n" } },
       { "Assignment Operators", { ":=" } },
+      { "If Statements",
+        { "VAR_1 := if((X < 0.01), 0.01, X)",
+          "VAR_1 := if((X < 0.01 AND Y > 2.5), 0.01, X)",
+          "VAR_1 := if((X < 0.01 OR Y > 2.5), 0.01, X)" } },
       { "Scalar Functions", { "avg(x)", "max(x)", "min(x)", "sum(x)" } },
       { "Vector Functions",
         { "abs(x)", "ceil(x)", "floor(x)", "frac(x)", "log(x)", "log10(x)", "pow(x, n)", "round(x)", "sgn(x)", "sqrt(x)", "trunc(x)" } },

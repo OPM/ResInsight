@@ -35,7 +35,4 @@ signals:
 
 private:
     void deleteAll();
-
-private:
-    int m_columnCount;
 };

@@ -25,7 +25,7 @@ class RiuMdiSubWindow : public QMdiSubWindow
 {
     Q_OBJECT
 public:
-    RiuMdiSubWindow( QWidget* parent = nullptr, Qt::WindowFlags flags = nullptr );
+    RiuMdiSubWindow( QWidget* parent = nullptr, Qt::WindowFlags flags = Qt::WindowFlags() );
 
     ~RiuMdiSubWindow() override;
 
@@ -33,10 +33,12 @@ public:
 
     void blockTilingChanges( bool block );
 
-protected:
+private:
     void closeEvent( QCloseEvent* event ) override;
     void resizeEvent( QResizeEvent* resizeEvent ) override;
     void moveEvent( QMoveEvent* moveEvent ) override;
+
+    void checkAndResetTilingState();
 
 private:
     QRect m_normalWindowGeometry;

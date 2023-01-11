@@ -208,13 +208,9 @@ void RiaGrpcServerImpl::quit()
     if ( m_server )
     {
         RiaLogging::info( "Shutting down gRPC server" );
-        // Clear unhandled requests
-        while ( !m_unprocessedRequests.empty() )
-        {
-            RiaGrpcCallbackInterface* method = m_unprocessedRequests.front();
-            m_unprocessedRequests.pop_front();
-            delete method;
-        }
+
+        // See the following link for details on how to shut down a GRPC server
+        // https://github.com/grpc/grpc/blob/master/include/grpcpp/server_builder.h#L147
 
         // Shutdown server and queue
         m_server->Shutdown();
@@ -223,15 +219,40 @@ void RiaGrpcServerImpl::quit()
         // Wait for thread to join after handling the shutdown call
         m_thread.join();
 
+        // Drain the completion queue
+        void* ignored_tag;
+        bool  ignored_ok;
+        while ( m_completionQueue->Next( &ignored_tag, &ignored_ok ) )
+        {
+        }
+
+        {
+            // Create a set of callbacks to be deleted. The same object may be present in both unprocessed and
+            // allocated. Delete the callbacks before deleting the server and completion queue to avoid crash.
+
+            std::set<RiaGrpcCallbackInterface*> toBeDeleted;
+            for ( auto r : m_unprocessedRequests )
+            {
+                toBeDeleted.insert( r );
+            }
+
+            for ( auto r : m_allocatedCallbakcs )
+            {
+                toBeDeleted.insert( r );
+            }
+
+            m_unprocessedRequests.clear();
+            m_allocatedCallbakcs.clear();
+
+            for ( auto r : toBeDeleted )
+            {
+                delete r;
+            }
+        }
+
         // Must destroy server before services
         m_server.reset();
         m_completionQueue.reset();
-
-        for ( auto c : m_allocatedCallbakcs )
-        {
-            delete c;
-        }
-        m_allocatedCallbakcs.clear();
 
         // Finally clear services
         m_services.clear();

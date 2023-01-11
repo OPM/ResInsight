@@ -139,12 +139,43 @@ void RimFileSummaryCase::createRftReaderInterface()
     QFileInfo fileInfo( summaryHeaderFilename() );
     QString   folder = fileInfo.absolutePath();
 
-    QString   rftFileName = folder + "/" + fileInfo.completeBaseName() + ".RFT";
-    QFileInfo rftFileInfo( rftFileName );
-
-    if ( rftFileInfo.exists() )
+    QString rftFileName = folder + "/" + fileInfo.completeBaseName() + ".RFT";
     {
-        m_rftCase()->setRftFileName( rftFileName );
+        QFileInfo fi( rftFileName );
+
+        if ( fi.exists() )
+        {
+            m_rftCase()->setRftFileName( rftFileName );
+        }
+    }
+
+    if ( m_rftCase->dataDeckFilePath().isEmpty() )
+    {
+        // Search for *.DATA file in same folder as summary file. If not found, search for a schedule file.
+        QString validDataDeckFileName;
+
+        QString   dataDeckFileName = folder + "/" + fileInfo.completeBaseName() + ".DATA";
+        QFileInfo fi( dataDeckFileName );
+
+        if ( fi.exists() )
+        {
+            validDataDeckFileName = dataDeckFileName;
+        }
+        else
+        {
+            QString   scheduleFileName = folder + "/" + fileInfo.completeBaseName() + ".SCH";
+            QFileInfo fi( scheduleFileName );
+
+            if ( fi.exists() )
+            {
+                validDataDeckFileName = scheduleFileName;
+            }
+        }
+
+        if ( !validDataDeckFileName.isEmpty() )
+        {
+            m_rftCase->setDataDeckFileName( dataDeckFileName );
+        }
     }
 
     m_summaryEclipseRftReader =
@@ -238,7 +269,12 @@ void RimFileSummaryCase::defineEditorAttribute( const caf::PdmFieldHandle* field
 void RimFileSummaryCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= "" */ )
 {
     RimSummaryCase::defineUiTreeOrdering( uiTreeOrdering, uiConfigName );
-    uiTreeOrdering.add( m_rftCase() );
+
+    if ( rftReader() )
+    {
+        uiTreeOrdering.add( m_rftCase() );
+    }
+    uiTreeOrdering.skipRemainingChildren();
 }
 
 //--------------------------------------------------------------------------------------------------

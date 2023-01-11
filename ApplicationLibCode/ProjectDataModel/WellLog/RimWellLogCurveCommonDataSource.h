@@ -67,6 +67,7 @@ public:
     void            setTrajectoryTypeToApply( int val );
     RimWellPath*    wellPathToApply() const;
     void            setWellPathToApply( RimWellPath* val );
+    RimWellPath*    referenceWellPathToApply() const;
     int             branchIndexToApply() const;
     void            setBranchIndexToApply( int val );
     caf::Tristate   branchDetectionToApply() const;
@@ -83,7 +84,10 @@ public:
 
     void selectWell( QString wellName );
 
-    void resetDefaultOptions();
+    QString   rftWellName() const;
+    QDateTime rftTime() const;
+    int       rftBranchIndex() const;
+
     void analyseCurvesAndTracks( const std::vector<RimWellLogCurve*>& curves, const std::vector<RimWellLogTrack*>& tracks );
     void analyseCurvesAndTracks();
     void applyDataSourceChanges( const std::vector<RimWellLogCurve*>& curves, const std::vector<RimWellLogTrack*>& tracks );
@@ -108,6 +112,7 @@ private:
                                                          QString                    uiConfigName,
                                                          caf::PdmUiEditorAttribute* attribute ) override;
     void                          modifyCurrentIndex( caf::PdmValueField* field, int indexOffset );
+    void                          resetSourceStepFields();
 
     RifReaderRftInterface* rftReader();
 
@@ -118,6 +123,7 @@ private:
     caf::PdmPtrField<RimSummaryCase*> m_summaryCase;
     caf::PdmField<int>                m_trajectoryType;
     caf::PdmPtrField<RimWellPath*>    m_wellPath;
+    caf::PdmPtrField<RimWellPath*>    m_refWellPath;
     caf::PdmField<QString>            m_simWellName;
     caf::PdmField<bool>               m_allow3DSelectionLink;
     caf::PdmField<int>                m_branchIndex;

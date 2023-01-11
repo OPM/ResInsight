@@ -37,6 +37,7 @@
 #include "RigFemPartResultCalculatorFormationIndices.h"
 #include "RigFemPartResultCalculatorGamma.h"
 #include "RigFemPartResultCalculatorInitialPorosity.h"
+#include "RigFemPartResultCalculatorKIndices.h"
 #include "RigFemPartResultCalculatorMudWeightWindow.h"
 #include "RigFemPartResultCalculatorNE.h"
 #include "RigFemPartResultCalculatorNodalGradients.h"
@@ -199,6 +200,8 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorShearSlipIndicator( *this ) ) );
     m_resultCalculators.push_back(
         std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorFormationIndices( *this ) ) );
+    m_resultCalculators.push_back(
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorKIndices( *this ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -684,6 +687,8 @@ std::map<std::string, std::vector<std::string>>
                 fieldCompNames["PE"].push_back( "PE2" );
                 fieldCompNames["PE"].push_back( "PE3" );
             }
+
+            fieldCompNames["INDEX"].push_back( "INDEX_K" );
         }
         else if ( resPos == RIG_INTEGRATION_POINT )
         {

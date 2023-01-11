@@ -22,14 +22,13 @@
 
 #include "RifJsonEncodeDecode.h"
 
-#include <fstream>
-
 #include "cafUtils.h"
 
 #include <QFileInfo>
 
 #include <algorithm>
 #include <cmath>
+#include <fstream>
 
 #define ASCII_FILE_DEFAULT_START_INDEX 0
 
@@ -109,7 +108,6 @@ size_t RifWellPathImporter::wellDataCount( const QString& filePath )
         CVF_ASSERT( it != m_fileNameToWellDataGroupMap.end() );
 
         return it->second.size();
-        ;
     }
 }
 
@@ -119,15 +117,7 @@ size_t RifWellPathImporter::wellDataCount( const QString& filePath )
 bool RifWellPathImporter::isJsonFile( const QString& filePath )
 {
     QFileInfo fileInfo( filePath );
-
-    if ( fileInfo.suffix().compare( "json" ) == 0 )
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return ( fileInfo.suffix().compare( "json" ) == 0 );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -25,6 +25,7 @@
 
 #include <QDir>
 
+#include <filesystem>
 #include <memory>
 #include <set>
 
@@ -361,4 +362,17 @@ std::map<QString, QStringList> RiaFilePathTools::keyPathComponentsForEachFilePat
     }
 
     return keyComponents;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaFilePathTools::isFirstOlderThanSecond( const std::string& firstFileName, const std::string& secondFileName )
+{
+    if ( !std::filesystem::exists( firstFileName ) || !std::filesystem::exists( secondFileName ) ) return false;
+
+    auto timeFirstFile  = std::filesystem::last_write_time( firstFileName );
+    auto timeSecondFile = std::filesystem::last_write_time( secondFileName );
+
+    return ( timeFirstFile < timeSecondFile );
 }

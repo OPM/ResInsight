@@ -370,7 +370,7 @@ void RimMultiPlot::updateSubPlotNames()
 //--------------------------------------------------------------------------------------------------
 /// Empty default implementation
 //--------------------------------------------------------------------------------------------------
-void RimMultiPlot::updatePlotWindowTitle()
+void RimMultiPlot::updatePlotTitles()
 {
 }
 
@@ -559,7 +559,7 @@ QString RimMultiPlot::asciiDataForPlotExport() const
 void RimMultiPlot::onPlotAdditionOrRemoval()
 {
     updateSubPlotNames();
-    updatePlotWindowTitle();
+    updatePlotTitles();
     applyPlotWindowTitleToWidgets();
     updateAllRequiredEditors();
     updateLayout();
@@ -683,7 +683,7 @@ void RimMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, co
     }
     else if ( changedField == &m_showPlotWindowTitle || changedField == &m_plotWindowTitle )
     {
-        updatePlotWindowTitle();
+        updatePlotTitles();
         applyPlotWindowTitleToWidgets();
     }
     else if ( changedField == &m_subTitleFontSize )
@@ -744,7 +744,7 @@ void RimMultiPlot::uiOrderingForMultiPlotLayout( QString uiConfigName, caf::PdmU
     uiOrdering.add( &m_showIndividualPlotTitles );
     uiOrdering.add( &m_subTitleFontSize );
 
-    RimPlotWindow::uiOrderingForPlotLayout( uiConfigName, uiOrdering );
+    RimPlotWindow::uiOrderingForLegendsAndFonts( uiConfigName, uiOrdering );
     uiOrdering.add( &m_columnCount );
     uiOrdering.add( &m_rowsPerPage );
     uiOrdering.add( &m_majorTickmarkCount );
@@ -805,7 +805,7 @@ void RimMultiPlot::onLoadDataAndUpdate()
     m_showPlotLegends      = false;
 
     updateMdiWindowVisibility();
-    updatePlotWindowTitle();
+    updatePlotTitles();
     applyPlotWindowTitleToWidgets();
     updatePlots();
     updateLayout();

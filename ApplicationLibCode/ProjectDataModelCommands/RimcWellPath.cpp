@@ -18,6 +18,7 @@
 
 #include "RimcWellPath.h"
 
+#include "FractureCommands/RicPlaceThermalFractureUsingTemplateDataFeature.h"
 #include "RiaLogging.h"
 
 #include "RimEclipseCase.h"
@@ -26,6 +27,7 @@
 #include "RimPerforationInterval.h"
 #include "RimStimPlanFractureTemplate.h"
 #include "RimStimPlanModel.h"
+#include "RimThermalFractureTemplate.h"
 #include "RimTools.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
@@ -119,6 +121,59 @@ bool RimcWellPath_addFracture::resultIsPersistent() const
 ///
 //--------------------------------------------------------------------------------------------------
 std::unique_ptr<caf::PdmObjectHandle> RimcWellPath_addFracture::defaultResult() const
+{
+    return std::unique_ptr<caf::PdmObjectHandle>( new RimWellPathFracture );
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPath, RimcWellPath_addThermalFracture, "AddThermalFracture" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcWellPath_addThermalFracture::RimcWellPath_addThermalFracture( caf::PdmObjectHandle* self )
+    : caf::PdmObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Add Thermal Fracture", "", "", "Add Thermal Fracture" );
+
+    CAF_PDM_InitScriptableField( &m_md, "MeasuredDepth", 0.0, "Measured Depth" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_fractureTemplate, "FractureTemplate", "", "", "", "Thermal Fracture Template" );
+    CAF_PDM_InitScriptableField( &m_placeUsingTemplateData, "PlaceUsingTemplateData", true, "Place using template data" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmObjectHandle* RimcWellPath_addThermalFracture::execute()
+{
+    auto wellPath = self<RimWellPath>();
+
+    RimWellPathFracture* wellPathFracture = RicNewWellPathFractureFeature::addFracture( wellPath, m_md() );
+
+    if ( m_fractureTemplate )
+    {
+        wellPathFracture->setFractureTemplate( m_fractureTemplate() );
+    }
+
+    if ( m_placeUsingTemplateData )
+    {
+        RicPlaceThermalFractureUsingTemplateDataFeature::placeUsingTemplateData( wellPathFracture );
+    }
+
+    return wellPathFracture;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimcWellPath_addThermalFracture::resultIsPersistent() const
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unique_ptr<caf::PdmObjectHandle> RimcWellPath_addThermalFracture::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimWellPathFracture );
 }

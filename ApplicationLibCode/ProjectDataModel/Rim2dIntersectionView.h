@@ -48,6 +48,8 @@ public:
     Rim2dIntersectionView( void );
     ~Rim2dIntersectionView( void ) override;
 
+    RiaDefines::View3dContent viewContent() const override;
+
     void                          setVisible( bool isVisible );
     void                          setIntersection( RimExtrudedCurveIntersection* intersection );
     RimExtrudedCurveIntersection* intersection() const;
@@ -56,9 +58,6 @@ public:
     void     scheduleGeometryRegen( RivCellSetEnum geometryType ) override;
     RimCase* ownerCase() const override;
     void     selectOverlayInfoConfig() override {}
-
-    RimViewLinker*     assosiatedViewLinker() const override { return nullptr; }
-    RimViewController* viewController() const override { return nullptr; }
 
     bool isTimeStepDependentDataVisible() const override;
 
@@ -94,7 +93,6 @@ protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     bool hasResults();
 

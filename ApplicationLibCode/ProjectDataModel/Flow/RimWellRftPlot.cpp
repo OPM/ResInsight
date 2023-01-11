@@ -47,6 +47,7 @@
 #include "RimWellLogFileChannel.h"
 #include "RimWellLogFileCurve.h"
 #include "RimWellLogPlot.h"
+#include "RimWellLogPlotNameConfig.h"
 #include "RimWellLogRftCurve.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
@@ -129,6 +130,8 @@ RimWellRftPlot::RimWellRftPlot()
     setAvailableDepthTypes( { RiaDefines::DepthTypeEnum::MEASURED_DEPTH, RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH } );
 
     m_nameConfig->setCustomName( "RFT Plot" );
+    setNamingMethod( RiaDefines::ObjectNamingMethod::CUSTOM );
+
     m_plotLegendsHorizontal = false;
 
     setPlotTitleVisible( true );
@@ -971,14 +974,14 @@ void RimWellRftPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         if ( track )
         {
             track->uiOrderingForRftPltFormations( uiOrdering );
-            track->uiOrderingForXAxisSettings( uiOrdering );
+            track->uiOrderingForPropertyAxisSettings( uiOrdering );
             caf::PdmUiGroup* depthGroup = uiOrdering.addNewGroup( "Depth Axis Settings" );
             uiOrderingForDepthAxis( uiConfigName, *depthGroup );
 
             caf::PdmUiGroup* plotLayoutGroup = uiOrdering.addNewGroup( "Plot Layout" );
             plotLayoutGroup->setCollapsedByDefault();
             RimWellLogPlot::uiOrderingForAutoName( uiConfigName, *plotLayoutGroup );
-            RimWellLogPlot::uiOrderingForPlotLayout( uiConfigName, *plotLayoutGroup );
+            RimPlotWindow::uiOrderingForLegendsAndFonts( uiConfigName, uiOrdering );
             plotLayoutGroup->add( &m_depthOrientation );
         }
     }

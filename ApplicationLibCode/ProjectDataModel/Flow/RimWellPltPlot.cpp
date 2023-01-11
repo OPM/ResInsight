@@ -52,6 +52,7 @@
 #include "RimWellLogFileCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
+#include "RimWellLogPlotNameConfig.h"
 #include "RimWellLogRftCurve.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
@@ -130,6 +131,7 @@ RimWellPltPlot::RimWellPltPlot()
     m_phases.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     m_nameConfig->setCustomName( "PLT Plot" );
+    setNamingMethod( RiaDefines::ObjectNamingMethod::CUSTOM );
 
     this->setAsPlotMdiWindow();
     m_doInitAfterLoad       = false;
@@ -973,14 +975,15 @@ void RimWellPltPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         if ( track )
         {
             track->uiOrderingForRftPltFormations( uiOrdering );
-            track->uiOrderingForXAxisSettings( uiOrdering );
+            track->uiOrderingForPropertyAxisSettings( uiOrdering );
             caf::PdmUiGroup* depthGroup = uiOrdering.addNewGroup( "Depth Axis Settings" );
             uiOrderingForDepthAxis( uiConfigName, *depthGroup );
 
-            caf::PdmUiGroup* plotLayoutGroup = uiOrdering.addNewGroup( "Plot Layout" );
-            plotLayoutGroup->setCollapsedByDefault();
-            RimWellLogPlot::uiOrderingForAutoName( uiConfigName, *plotLayoutGroup );
-            RimWellLogPlot::uiOrderingForPlotLayout( uiConfigName, *plotLayoutGroup );
+            caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup( "Plot Name" );
+            nameGroup->setCollapsedByDefault();
+            RimWellLogPlot::uiOrderingForAutoName( uiConfigName, *nameGroup );
+
+            RimPlotWindow::uiOrderingForLegendsAndFonts( uiConfigName, uiOrdering );
         }
     }
 

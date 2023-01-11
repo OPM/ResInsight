@@ -79,7 +79,7 @@ void RiaPolyArcLineSampler::sampleSegment( cvf::Vec3d t1, cvf::Vec3d p1, cvf::Ve
 {
     cvf::Vec3d p1p2 = p2 - p1;
 
-    CVF_ASSERT( p1p2.lengthSquared() > 1e-20 );
+    if ( p1p2.lengthSquared() < 1e-20 ) return;
 
     if ( cvf::GeometryTools::getAngle( t1, p1p2 ) < 1e-5 || p1p2.length() < m_maxSamplingsInterval )
     {

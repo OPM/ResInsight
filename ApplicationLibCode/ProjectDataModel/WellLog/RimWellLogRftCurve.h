@@ -98,9 +98,16 @@ public:
 
     void setSimWellBranchData( bool branchDetection, int branchIndex );
 
+    void enableColorFromResultName( bool enable );
+    void assignColorFromResultName( const QString& resultName );
+
+    void setScaleFactor( double factor );
+
 protected:
-    // Overrides from RimWellLogPlotCurve
-    QString               createCurveAutoName() override;
+    QString     createCurveAutoName() override;
+    QString     createCurveNameFromTemplate( const QString& templateText ) override;
+    QStringList supportedCurveNameVariables() const override;
+
     void                  onLoadDataAndUpdate( bool updateParentPlot ) override;
     RiaDefines::PhaseType phaseType() const override;
 
@@ -121,6 +128,8 @@ private:
     std::vector<size_t> sortedIndicesInRftFile();
     void                updateWellChannelNameAndTimeStep();
 
+    std::map<QString, QString> createCurveNameKeyValueMap() const;
+
     std::vector<double> xValues();
     std::vector<double> errorValues();
     std::vector<double> tvDepthValues();
@@ -133,6 +142,8 @@ private:
 
     int segmentBranchIndex() const;
 
+    static bool isSegmentResult( const QString& resultName );
+
 private:
     caf::PdmPtrField<RimEclipseResultCase*>     m_eclipseResultCase;
     caf::PdmPtrField<RimSummaryCase*>           m_summaryCase;
@@ -142,6 +153,9 @@ private:
     caf::PdmField<QString>                      m_wellName;
     caf::PdmField<int>                          m_branchIndex;
     caf::PdmField<bool>                         m_branchDetection;
+    caf::PdmField<bool>                         m_curveColorByPhase;
+
+    caf::PdmField<double> m_scaleFactor;
 
     caf::PdmField<caf::AppEnum<RimWellLogRftCurve::RftDataType>> m_rftDataType;
 

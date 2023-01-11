@@ -37,8 +37,6 @@
 #include "RimTextAnnotation.h"
 #include "RimTools.h"
 #include "RimViewController.h"
-#include "RimViewLinker.h"
-#include "RimViewLinkerCollection.h"
 #include "RimViewNameConfig.h"
 #include "RimWellMeasurementCollection.h"
 #include "RimWellMeasurementInViewCollection.h"
@@ -108,35 +106,6 @@ RimGridView::RimGridView()
 
     m_surfaceVizModel = new cvf::ModelBasicList;
     m_surfaceVizModel->setName( "SurfaceModel" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimGridView::~RimGridView( void )
-{
-    RimProject* proj = RimProject::current();
-
-    if ( proj && this->isMasterView() )
-    {
-        RimViewLinker* viewLinker = this->assosiatedViewLinker();
-        viewLinker->setMasterView( nullptr );
-
-        delete proj->viewLinkerCollection->viewLinker();
-        proj->viewLinkerCollection->viewLinker = nullptr;
-
-        proj->uiCapability()->updateConnectedEditors();
-    }
-
-    RimViewController* vController = this->viewController();
-    if ( proj && vController )
-    {
-        vController->setManagedView( nullptr );
-        vController->ownerViewLinker()->removeViewController( vController );
-        delete vController;
-
-        proj->uiCapability()->updateConnectedEditors();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -309,43 +278,6 @@ void RimGridView::replaceCellFilterCollectionWithOverride()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimViewController* RimGridView::viewController() const
-{
-    std::vector<RimViewController*> objects;
-    this->objectsWithReferringPtrFieldsOfType( objects );
-
-    for ( auto v : objects )
-    {
-        if ( v )
-        {
-            return v;
-        }
-    }
-
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimViewLinker* RimGridView::assosiatedViewLinker() const
-{
-    RimViewLinker* viewLinker = this->viewLinkerIfMasterView();
-    if ( !viewLinker )
-    {
-        RimViewController* viewController = this->viewController();
-        if ( viewController )
-        {
-            viewLinker = viewController->ownerViewLinker();
-        }
-    }
-
-    return viewLinker;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RimGridView::isGridVisualizationMode() const
 {
     return this->m_gridCollection->isActive();
@@ -472,16 +404,6 @@ void RimGridView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, con
     }
 
     Rim3dView::fieldChangedByUi( changedField, oldValue, newValue );
-
-    if ( changedField == &m_scaleZ )
-    {
-        RimViewLinker* viewLinker = this->assosiatedViewLinker();
-        if ( viewLinker )
-        {
-            viewLinker->updateScaleZ( this, scaleZ() );
-            viewLinker->updateCamera( this );
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -522,25 +444,6 @@ void RimGridView::addRequiredUiTreeObjects( caf::PdmUiTreeOrdering& uiTreeOrderi
 void RimGridView::selectOverlayInfoConfig()
 {
     Riu3DMainWindowTools::selectAsCurrentItem( m_overlayInfoConfig );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimViewLinker* RimGridView::viewLinkerIfMasterView() const
-{
-    std::vector<RimViewLinker*> objects;
-    this->objectsWithReferringPtrFieldsOfType( objects );
-
-    for ( auto viewLinker : objects )
-    {
-        if ( viewLinker )
-        {
-            return viewLinker;
-        }
-    }
-
-    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

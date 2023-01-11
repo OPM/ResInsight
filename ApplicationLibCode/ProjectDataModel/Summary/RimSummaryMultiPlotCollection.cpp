@@ -188,5 +188,7 @@ void RimSummaryMultiPlotCollection::updateSummaryNameHasChanged()
         {
             plot->updateCaseNameHasChanged();
         }
+
+        multiPlot->updatePlotTitles();
     }
 }

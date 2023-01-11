@@ -663,7 +663,8 @@ void RivReservoirViewPartMgr::computeOverriddenCellVisibility( cvf::UByteArray* 
 
     CVF_ASSERT( masterViewLink );
 
-    RimGridView* masterView = masterViewLink->ownerViewLinker()->masterView();
+    RimGridView* masterView = dynamic_cast<RimGridView*>( masterViewLink->ownerViewLinker()->masterView() );
+    if ( !masterView ) return;
 
 // get cell visibility
 #if 1
@@ -852,6 +853,8 @@ void RivReservoirViewPartMgr::computePropertyVisibility( cvf::UByteArray*       
 
             if ( propertyFilter->isActive() && propertyFilter->resultDefinition()->hasResult() )
             {
+                propertyFilter->resultDefinition()->loadResult();
+
                 const RimCellFilter::FilterModeType filterType = propertyFilter->filterMode();
 
                 RigEclipseCaseData* eclipseCase = propFilterColl->reservoirView()->eclipseCase()->eclipseCaseData();

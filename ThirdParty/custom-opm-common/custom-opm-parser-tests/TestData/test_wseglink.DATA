@@ -4,6 +4,11 @@
 -- If either item #2 or #3 is undefined, all segment links are removed for the well and segment given.
 --
 
+PATHS
+ 'E' 'mysubfolder' /
+/
+
+
 WSEGLINK
   PROD  22 30 /
   PROD2 25 37 /
@@ -20,3 +25,6 @@ WSEGLINK
 WSEGLINK
   PROD_A   /
 /
+
+INCLUDE
+ '$E/test_wseglink_subfolder.DATA ' /

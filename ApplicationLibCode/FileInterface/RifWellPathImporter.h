@@ -53,23 +53,25 @@ public:
         QDateTime m_updateDate;
     };
 
-    WellData     readWellData( const QString& filePath, size_t indexInFile );
-    WellData     readWellData( const QString& filePath );
-    WellMetaData readWellMetaData( const QString& filePath, size_t indexInFile );
-    WellMetaData readWellMetaData( const QString& filePath );
-    size_t       wellDataCount( const QString& filePath );
+    WellData readWellData( const QString& filePath, size_t indexInFile );
+    WellData readWellData( const QString& filePath );
+    size_t   wellDataCount( const QString& filePath );
 
     void clear();
     void removeFilePath( const QString& filePath );
 
+    static WellMetaData readWellMetaData( const QString& filePath, size_t indexInFile );
+    static WellMetaData readWellMetaData( const QString& filePath );
+
 private:
-    WellData     readJsonWellData( const QString& filePath );
-    WellMetaData readJsonWellMetaData( const QString& filePath );
-    WellData     readAsciiWellData( const QString& filePath, size_t indexInFile );
-    WellMetaData readAsciiWellMetaData( const QString& filePath, size_t indexInFile );
-    void         readAllAsciiWellData( const QString& filePath );
+    WellData readAsciiWellData( const QString& filePath, size_t indexInFile );
+    void     readAllAsciiWellData( const QString& filePath );
 
-    inline bool isJsonFile( const QString& filePath );
+    static WellData     readJsonWellData( const QString& filePath );
+    static WellMetaData readJsonWellMetaData( const QString& filePath );
+    static WellMetaData readAsciiWellMetaData( const QString& filePath, size_t indexInFile );
+    static bool         isJsonFile( const QString& filePath );
 
+private:
     std::map<QString, std::vector<RifWellPathImporter::WellData>> m_fileNameToWellDataGroupMap;
 };

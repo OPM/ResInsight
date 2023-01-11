@@ -44,6 +44,8 @@ public:
     void rangeValues( double* lower, double* upper ) const;
     bool isCategorySelectionActive() const;
 
+    void setIsDuplicatedFromLinkedView( bool isControlled );
+
     void setToDefaultValues();
     void updateFilterName();
     void computeResultValueRange();
@@ -63,6 +65,9 @@ private:
                                 caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
+    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+
+private:
     friend class RimEclipsePropertyFilterCollection;
     friend class RicEclipsePropertyFilterFeatureImpl;
 
@@ -79,6 +84,7 @@ private:
     caf::PdmField<QString>                          m_rangeLabelText;
     caf::PdmField<double>                           m_lowerBound;
     caf::PdmField<double>                           m_upperBound;
+    caf::PdmField<bool>                             m_isDuplicatedFromLinkedView;
 
     caf::PdmField<bool> m_useCategorySelection;
 

@@ -47,7 +47,8 @@ public:
     enum class LegendPosition
     {
         ABOVE,
-        INSIDE,
+        INSIDE_UPPER_RIGHT,
+        INSIDE_UPPER_LEFT,
     };
 
     RimPlotWindow();
@@ -65,6 +66,8 @@ public:
     void                          setLegendsVisible( bool doShow );
     bool                          legendsHorizontal() const;
     void                          setLegendsHorizontal( bool horizontal );
+    bool                          legendItemsClickable() const;
+    void                          setLegendItemsClickable( bool clickable );
     void                          setLegendPosition( RimPlotWindow::LegendPosition legendPosition );
     RimPlotWindow::LegendPosition legendPosition() const;
 
@@ -83,6 +86,7 @@ public:
 
     void        renderWindowContent( QPaintDevice* painter );
     QPageLayout pageLayout() const;
+    int         bottomMargin() const;
 
     virtual bool handleGlobalKeyEvent( QKeyEvent* keyEvent );
     virtual bool handleGlobalWheelEvent( QWheelEvent* wheelEvent );
@@ -92,9 +96,12 @@ protected:
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
-    void uiOrderingForPlotLayout( QString uiConfigName, caf::PdmUiOrdering& uiOrdering, bool showLegendPosition = false );
+    void uiOrderingForLegends( QString uiConfigName, caf::PdmUiOrdering& uiOrdering, bool showLegendPosition = false );
+    void uiOrderingForFonts( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+    void uiOrderingForLegendsAndFonts( QString uiConfigName, caf::PdmUiOrdering& uiOrdering, bool showLegendPosition = false );
 
     void updateWindowVisibility();
+    void setBottomMargin( int bottomMargin );
 
 private:
     virtual void doUpdateLayout() {}
@@ -112,8 +119,12 @@ protected:
     caf::PdmField<bool>                         m_showPlotTitle;
     caf::PdmField<bool>                         m_showPlotLegends;
     caf::PdmField<bool>                         m_plotLegendsHorizontal;
+    caf::PdmField<bool>                         m_legendItemsClickable;
     caf::PdmField<caf::AppEnum<LegendPosition>> m_legendPosition;
 
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_titleFontSize;
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_legendFontSize;
+
+private:
+    int m_bottomMargin;
 };

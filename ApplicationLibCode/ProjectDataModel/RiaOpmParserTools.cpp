@@ -24,6 +24,8 @@
 #include "opm/input/eclipse/Deck/Deck.hpp"
 #include "opm/input/eclipse/Parser/ParseContext.hpp"
 #include "opm/input/eclipse/Parser/Parser.hpp"
+#include "opm/input/eclipse/Parser/ParserKeywords/I.hpp"
+#include "opm/input/eclipse/Parser/ParserKeywords/P.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/V.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/W.hpp"
 
@@ -129,10 +131,15 @@ std::map<std::string, std::vector<std::pair<int, int>>> RiaOpmParserTools::extra
 {
     if ( !std::filesystem::exists( filename ) ) return {};
 
-    Opm::Parser                         parser( false );
+    Opm::Parser parser( false );
+
     const Opm::ParserKeywords::WSEGLINK kw1;
+    const Opm::ParserKeywords::INCLUDE  kw2;
+    const Opm::ParserKeywords::PATHS    kw3;
 
     parser.addParserKeyword( kw1 );
+    parser.addParserKeyword( kw2 );
+    parser.addParserKeyword( kw3 );
 
     std::stringstream ss;
     Opm::ParseContext parseContext( Opm::InputError::Action::WARN );

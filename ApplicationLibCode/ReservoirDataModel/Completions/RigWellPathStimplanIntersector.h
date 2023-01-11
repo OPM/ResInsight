@@ -50,7 +50,7 @@ public:
         double computeLength() const { return cvf::Math::sqrt( hlength * hlength + vlength * vlength ); }
     };
 
-    RigWellPathStimplanIntersector( gsl::not_null<const RigWellPath*> wellpathGeom,
+    RigWellPathStimplanIntersector( const std::vector<cvf::Vec3d>&    wellPathPoints,
                                     gsl::not_null<const RimFracture*> rimFracture );
 
     const std::map<size_t, WellCellIntersection>& intersections() const;

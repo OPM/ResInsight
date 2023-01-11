@@ -178,7 +178,7 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
                 }
             }
 
-            if ( m_isUsingAutoName )
+            if ( m_namingMethod == RiaDefines::ObjectNamingMethod::AUTO )
             {
                 m_plotCurve->setTitle( createCurveAutoName() );
             }
@@ -330,22 +330,14 @@ void RimWellLogFileCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
 //--------------------------------------------------------------------------------------------------
 void RimWellLogFileCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    RimPlotCurve::updateOptionSensitivity();
+    RimPlotCurve::updateFieldUiState();
 
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Curve Data" );
     curveDataGroup->add( &m_wellPath );
     curveDataGroup->add( &m_wellLogFile );
     curveDataGroup->add( &m_wellLogChannelName );
 
-    caf::PdmUiGroup* stackingGroup = uiOrdering.addNewGroup( "Stacking" );
-    RimStackablePlotCurve::stackingUiOrdering( *stackingGroup );
-
-    caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup( "Appearance" );
-    RimPlotCurve::appearanceUiOrdering( *appearanceGroup );
-
-    caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup( "Curve Name" );
-    nameGroup->add( &m_showLegend );
-    RimPlotCurve::curveNameUiOrdering( *nameGroup );
+    RimStackablePlotCurve::defaultUiOrdering( uiOrdering );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -20,7 +20,6 @@
 
 #include "RimPlot.h"
 #include "RimPlotDataFilterItem.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimTimeStepFilter.h"
 
 #include "RigEnsembleParameter.h"
@@ -38,6 +37,7 @@ class RimPlotAxisPropertiesInterface;
 class RimPlotAxisProperties;
 class RimPlotDataFilterCollection;
 class RiaSummaryCurveDefinition;
+class RimSummaryCase;
 
 //==================================================================================================
 ///

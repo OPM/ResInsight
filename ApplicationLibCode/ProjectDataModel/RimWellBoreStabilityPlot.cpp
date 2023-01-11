@@ -27,8 +27,11 @@
 #include "RimGeoMechCase.h"
 #include "RimTools.h"
 #include "RimWbsParameters.h"
+#include "RimWellLogCurve.h"
 #include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogFile.h"
+#include "RimWellLogPlotNameConfig.h"
+#include "RimWellLogTrack.h"
 
 #include "cafPdmBase.h"
 #include "cafPdmFieldScriptingCapability.h"
@@ -131,11 +134,17 @@ void RimWellBoreStabilityPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
     caf::PdmUiGroup* titleGroup = uiOrdering.addNewGroup( "Plot Title" );
     RimWellLogPlot::uiOrderingForAutoName( uiConfigName, *titleGroup );
 
-    caf::PdmUiGroup* plotLayoutGroup = uiOrdering.addNewGroup( "Plot Layout" );
-    RimPlotWindow::uiOrderingForPlotLayout( uiConfigName, *plotLayoutGroup );
-    plotLayoutGroup->add( &m_subTitleFontSize );
-    plotLayoutGroup->add( &m_axisTitleFontSize );
-    plotLayoutGroup->add( &m_axisValueFontSize );
+    caf::PdmUiGroup* legendGroup = uiOrdering.addNewGroup( "Legends" );
+    legendGroup->setCollapsedByDefault();
+    RimPlotWindow::uiOrderingForLegends( uiConfigName, *legendGroup, true );
+
+    caf::PdmUiGroup* fontGroup = uiOrdering.addNewGroup( "Fonts" );
+    fontGroup->setCollapsedByDefault();
+    RimPlotWindow::uiOrderingForFonts( uiConfigName, *fontGroup );
+
+    fontGroup->add( &m_subTitleFontSize );
+    fontGroup->add( &m_axisTitleFontSize );
+    fontGroup->add( &m_axisValueFontSize );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -176,27 +185,37 @@ void RimWellBoreStabilityPlot::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellBoreStabilityPlot::applyDataSource()
+QStringList RimWellBoreStabilityPlot::supportedPlotNameVariables() const
 {
-    m_wbsParameters->setGeoMechCase( dynamic_cast<RimGeoMechCase*>( m_commonDataSource->caseToApply() ) );
-    m_wbsParameters->setWellPath( m_commonDataSource->wellPathToApply() );
-    m_wbsParameters->setTimeStep( m_commonDataSource->timeStepToApply() );
-    this->updateConnectedEditors();
+    auto variables = RimWellLogPlot::supportedPlotNameVariables();
+
+    variables.append( RiaDefines::namingVariableWaterDepth() );
+
+    return variables;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWellBoreStabilityPlot::createAutoName() const
+std::map<QString, QString> RimWellBoreStabilityPlot::createNameKeyValueMap() const
 {
-    QString name = RimWellLogPlot::createAutoName();
+    auto nameKeyValueMap = RimWellLogPlot::createNameKeyValueMap();
 
-    if ( m_nameConfig->addWaterDepth() && m_waterDepth != std::numeric_limits<double>::infinity() )
-    {
-        double  tvdmsl           = m_waterDepth;
-        QString waterDepthString = QString( ", Water Depth = %1 m" ).arg( tvdmsl );
-        name += waterDepthString;
-    }
+    QString waterDepthString                                = QString( "Water Depth = %1 m" ).arg( m_waterDepth );
+    nameKeyValueMap[RiaDefines::namingVariableWaterDepth()] = waterDepthString;
 
-    return name;
+    return nameKeyValueMap;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellBoreStabilityPlot::applyDataSource()
+{
+    m_wbsParameters->setGeoMechCase( dynamic_cast<RimGeoMechCase*>( m_commonDataSource->caseToApply() ) );
+    m_wbsParameters->setWellPath( m_commonDataSource->wellPathToApply() );
+    m_wbsParameters->setTimeStep( m_commonDataSource->timeStepToApply() );
+
+    this->updateReferenceWellPathInCurves();
+    this->updateConnectedEditors();
 }

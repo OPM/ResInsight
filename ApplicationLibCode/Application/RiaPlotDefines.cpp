@@ -35,7 +35,139 @@ void caf::AppEnum<RiaDefines::PlotAxis>::setUp()
 
     setDefault( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
 }
+
+template <>
+void caf::AppEnum<RiaDefines::MultiPlotAxisVisibility>::setUp()
+{
+    addItem( RiaDefines::MultiPlotAxisVisibility::ONE_VISIBLE, "ONE_VISIBLE", "One Axis Per Plot" );
+    addItem( RiaDefines::MultiPlotAxisVisibility::ALL_VISIBLE, "ALL_VISIBLE", "All Axis Visible" );
+
+    setDefault( RiaDefines::MultiPlotAxisVisibility::ONE_VISIBLE );
+}
+
+template <>
+void caf::AppEnum<RiaDefines::ObjectNamingMethod>::setUp()
+{
+    addItem( RiaDefines::ObjectNamingMethod::CUSTOM, "CUSTOM", "Custom" );
+    addItem( RiaDefines::ObjectNamingMethod::AUTO, "AUTO", "Auto" );
+    addItem( RiaDefines::ObjectNamingMethod::TEMPLATE, "TEMPLATE", "Template" );
+
+    setDefault( RiaDefines::ObjectNamingMethod::AUTO );
+}
+
+template <>
+void caf::AppEnum<Qt::PenStyle>::setUp()
+{
+    addItem( Qt::PenStyle::NoPen, "NO_PEN", "No Pen" );
+    addItem( Qt::PenStyle::SolidLine, "SOLID_LINE", "Solid Line" );
+    addItem( Qt::PenStyle::DashLine, "DASH_LINE", "Dash Line" );
+    addItem( Qt::PenStyle::DotLine, "DOT_LINE", "Dot Line" );
+    addItem( Qt::PenStyle::DashDotLine, "DASH_DOT_LINE", "Dash Dot Line" );
+    addItem( Qt::PenStyle::DashDotDotLine, "DASH_DOT_DOT_LINE", "Dash Dot Dot Line" );
+
+    setDefault( Qt::PenStyle::SolidLine );
+}
+
+template <>
+void caf::AppEnum<RiaDefines::Orientation>::setUp()
+{
+    addItem( RiaDefines::Orientation::HORIZONTAL, "HORIZONTAL", "Horizontal" );
+    addItem( RiaDefines::Orientation::VERTICAL, "VERTICAL", "Vertical" );
+    setDefault( RiaDefines::Orientation::VERTICAL );
+}
+
+template <>
+void caf::AppEnum<RiaDefines::WindowTileMode>::setUp()
+{
+    addItem( RiaDefines::WindowTileMode::DEFAULT, "DEFAULT", "Default" );
+    addItem( RiaDefines::WindowTileMode::VERTICAL, "VERTICAL", "Vertical" );
+    addItem( RiaDefines::WindowTileMode::HORIZONTAL, "HORIZONTAL", "Horizontal" );
+    addItem( RiaDefines::WindowTileMode::UNDEFINED, "UNDEFINED", "Undefined" );
+
+    setDefault( RiaDefines::WindowTileMode::UNDEFINED );
+}
+
 }; // namespace caf
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaDefines::namingVariableCase()
+{
+    return "$CASE";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaDefines::namingVariableWell()
+{
+    return "$WELL";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaDefines::namingVariableRefWell()
+{
+    return "$REF_WELL";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaDefines::namingVariableWellBranch()
+{
+    return "$WELL_BRANCH";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaDefines::namingVariableResultName()
+{
+    return "$RESULT_NAME";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaDefines::namingVariableResultType()
+{
+    return "$RESULT_TYPE";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaDefines::namingVariableTime()
+{
+    return "$TIME";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaDefines::namingVariableTimestep()
+{
+    return "$TIME_STEP";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaDefines::namingVariableAirGap()
+{
+    return "$AIR_GAP";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaDefines::namingVariableWaterDepth()
+{
+    return "$WATER_DEPTH";
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -114,4 +246,28 @@ double RiaDefines::scalingFactor( QPaintDevice* paintDevice )
     double scaling    = resolution / static_cast<double>( RiaGuiApplication::applicationResolution() );
 
     return scaling;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaDefines::curveNameGroupName()
+{
+    return "Curve Name";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaDefines::appearanceGroupName()
+{
+    return "Appearance";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaDefines::additionalDataSourcesGroupName()
+{
+    return "Additional Data Sources";
 }

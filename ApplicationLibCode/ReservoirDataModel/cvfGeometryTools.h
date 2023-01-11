@@ -22,6 +22,7 @@
 #include "cvfArray.h"
 #include "cvfArrayWrapperConst.h"
 #include "cvfMatrix3.h"
+#include "cvfMatrix4.h"
 #include <list>
 #include <map>
 
@@ -140,6 +141,8 @@ public:
                                                const std::vector<bool>& faceOverlapPolygonWindingSameAsCubeFaceFlags,
                                                std::vector<IndexType>*  partialFacePolygon,
                                                bool*                    m_partiallyFreeCubeFaceHasHoles );
+
+    static cvf::Mat4d rotationMatrixBetweenVectors( const cvf::Vec3d& v1, const cvf::Vec3d& v2 );
 };
 
 template <typename IndexType>

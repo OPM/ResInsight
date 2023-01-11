@@ -868,7 +868,12 @@ bool ecl_smspec_equal(const ecl_smspec_type * self,
 static void ecl_smspec_load_restart( ecl_smspec_type * ecl_smspec , const ecl_file_type * header ) {
   if (ecl_file_has_kw( header , RESTART_KW )) {
     const ecl_kw_type * restart_kw = ecl_file_iget_named_kw(header, RESTART_KW , 0);
-    char   tmp_base[73];   /* To accomodate a maximum of 9 items which consist of 8 characters each. */
+    
+    /* Allocate 17 words of 8 characters each, add 1 for zero terminated string.
+    * https://github.com/equinor/ecl/issues/872
+    */
+    char tmp_base[137];
+
     char * restart_base;
     int i;
     tmp_base[0] = '\0';
@@ -877,7 +882,6 @@ static void ecl_smspec_load_restart( ecl_smspec_type * ecl_smspec , const ecl_fi
 
     restart_base = util_alloc_strip_copy( tmp_base );
     if (strlen(restart_base)) {  /* We ignore the empty ones. */
-      char * smspec_header;
 
       /*
         The conditional block here is to support the following situation:
@@ -899,18 +903,23 @@ static void ecl_smspec_load_restart( ecl_smspec_type * ecl_smspec , const ecl_fi
       }
 #endif
 
-      std::string path = ecl::util::path::dirname( ecl_smspec->header_file );
-      smspec_header = ecl_util_alloc_exfilename( path.c_str() , restart_base , ECL_SUMMARY_HEADER_FILE , ecl_smspec->formatted , 0);
-      if (smspec_header) {
-        if (!util_same_file(smspec_header , ecl_smspec->header_file.c_str()))    /* Restart from the current case is ignored. */ {
-          if (util_is_abs_path(restart_base))
-            ecl_smspec->restart_case = restart_base;
-          else {
-            char * tmp_path = util_alloc_filename( path.c_str() , restart_base , NULL );
-            char * abs_path = util_alloc_abs_path(tmp_path);
-            ecl_smspec->restart_case = abs_path;
-            free( abs_path );
-            free( tmp_path );
+      if (util_is_abs_path(restart_base)) {
+        ecl_smspec->restart_case = restart_base;
+      }
+      else {
+        std::string path = ecl::util::path::dirname(ecl_smspec->header_file);
+        char* smspec_header = ecl_util_alloc_exfilename( path.c_str() , restart_base , ECL_SUMMARY_HEADER_FILE , ecl_smspec->formatted , 0);
+        if (smspec_header) {
+          if (!util_same_file(smspec_header , ecl_smspec->header_file.c_str()))    /* Restart from the current case is ignored. */ {
+            if (util_is_abs_path(restart_base))
+              ecl_smspec->restart_case = restart_base;
+            else {
+              char * tmp_path = util_alloc_filename( path.c_str() , restart_base , NULL );
+              char * abs_path = util_alloc_abs_path(tmp_path);
+              ecl_smspec->restart_case = abs_path;
+              free( abs_path );
+              free( tmp_path );
+            }
           }
         }
         free( smspec_header );

@@ -25,7 +25,7 @@ class RimWellPathFracture;
 class RimEclipseCase;
 class RimFractureTemplate;
 class RimEllipseFractureTemplate;
-class RimStimPlanFractureTemplate;
+class RimMeshFractureTemplate;
 class RifTextDataTableFormatter;
 class RicWellPathFractureReportItem;
 
@@ -43,8 +43,8 @@ public:
 
 private:
     QString createWellFileLocationText( const std::vector<RimWellPath*>& wellPaths ) const;
-    QString createStimPlanFileLocationText( const std::vector<RimStimPlanFractureTemplate*>& stimPlanTemplates ) const;
-    QString createStimPlanFractureText( const std::vector<RimStimPlanFractureTemplate*>& stimPlanTemplates ) const;
+    QString createStimPlanFileLocationText( const std::vector<RimMeshFractureTemplate*>& stimPlanTemplates ) const;
+    QString createStimPlanFractureText( const std::vector<RimMeshFractureTemplate*>& stimPlanTemplates ) const;
     QString createEllipseFractureText( const std::vector<RimEllipseFractureTemplate*>& ellipseTemplates ) const;
     QString createFractureText( const std::vector<RimFractureTemplate*>& fractureTemplates ) const;
     QString createFractureInstancesText( const std::vector<RimWellPathFracture*>& fractureTemplates ) const;

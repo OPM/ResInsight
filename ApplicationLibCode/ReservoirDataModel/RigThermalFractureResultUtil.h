@@ -96,8 +96,6 @@ private:
 
     static double linearSampling( double minValue, double maxValue, int numSamples, std::vector<double>& samples );
 
-    static cvf::Mat4d rotationMatrixBetweenVectors( const cvf::Vec3d& v1, const cvf::Vec3d& v2 );
-
     static std::vector<cvf::Vec3d>
         getRelativeCoordinates( std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
                                 size_t                                              timeStepIndex );
@@ -111,4 +109,7 @@ private:
                                        std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
                                        int                                                 propertyIndex,
                                        size_t                                              timeStepIndex );
+
+    static const int NUM_SAMPLES_X = 50;
+    static const int NUM_SAMPLES_Y = 40;
 };

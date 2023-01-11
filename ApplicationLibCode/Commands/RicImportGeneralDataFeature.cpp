@@ -55,6 +55,7 @@ RicImportGeneralDataFeature::OpenCaseResults
     QStringList eclipseCaseFiles;
     QStringList eclipseInputFiles;
     QStringList eclipseSummaryFiles;
+    QStringList roffFiles;
 
     for ( const QString& fileName : fileNames )
     {
@@ -70,6 +71,10 @@ RicImportGeneralDataFeature::OpenCaseResults
         else if ( fileTypeAsInt & int( ImportFileType::ECLIPSE_SUMMARY_FILE ) )
         {
             eclipseSummaryFiles.push_back( fileName );
+        }
+        else if ( fileTypeAsInt & int( ImportFileType::ROFF_FILE ) )
+        {
+            roffFiles.push_back( fileName );
         }
     }
 
@@ -104,6 +109,17 @@ RicImportGeneralDataFeature::OpenCaseResults
         RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirectoryLabel( ImportFileType::ECLIPSE_SUMMARY_FILE ),
                                                                 defaultDir );
     }
+    if ( !roffFiles.empty() )
+    {
+        if ( !openRoffCaseFromFileNames( roffFiles, createDefaultView, results.createdCaseIds ) )
+        {
+            return OpenCaseResults();
+        }
+        results.roffFiles = roffFiles;
+        RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirectoryLabel( ImportFileType::ROFF_FILE ),
+                                                                defaultDir );
+    }
+
     return results;
 }
 
@@ -161,50 +177,112 @@ void RicImportGeneralDataFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RicImportGeneralDataFeature::getEclipseFileNamesWithDialog( RiaDefines::ImportFileType fileType )
+QString RicImportGeneralDataFeature::getFilePattern( const std::vector<RiaDefines::ImportFileType>& fileTypes,
+                                                     bool                                           allowWildcard )
+{
+    QStringList filePatternTexts;
+
+    if ( allowWildcard )
+    {
+        filePatternTexts += "All Files (*.* *)";
+    }
+
+    for ( auto f : fileTypes )
+    {
+        filePatternTexts += getFilePattern( f );
+    }
+
+    return filePatternTexts.join( ";;" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicImportGeneralDataFeature::getFilePattern( RiaDefines::ImportFileType fileType )
 {
     QString eclipseGridFilePattern( "*.GRID" );
     QString eclipseEGridFilePattern( "*.EGRID" );
     QString eclipseInputFilePattern( "*.GRDECL" );
     QString eclipseSummaryFilePattern( "*.SMSPEC" );
+    QString roffFilePattern( "*.ROFF *.ROFFASC" );
 
+    if ( fileType == ImportFileType::ANY_ECLIPSE_FILE )
+    {
+        return QString( "Eclipse Files (%1 %2 %3 %4)" )
+            .arg( eclipseGridFilePattern )
+            .arg( eclipseEGridFilePattern )
+            .arg( eclipseInputFilePattern )
+            .arg( eclipseSummaryFilePattern );
+    }
+
+    if ( fileType == ImportFileType::ECLIPSE_EGRID_FILE )
+    {
+        return QString( "Eclipse EGrid Files (%1)" ).arg( eclipseEGridFilePattern );
+    }
+
+    if ( fileType == ImportFileType::ECLIPSE_GRID_FILE )
+    {
+        return QString( "Eclipse Grid Files (%1)" ).arg( eclipseGridFilePattern );
+    }
+
+    if ( fileType == ImportFileType::ECLIPSE_INPUT_FILE )
+    {
+        return QString( "Eclipse Input Files and Input Properties (%1)" ).arg( eclipseInputFilePattern );
+    }
+
+    if ( fileType == ImportFileType::ECLIPSE_SUMMARY_FILE )
+    {
+        return QString( "Eclipse Summary File (%1)" ).arg( eclipseSummaryFilePattern );
+    }
+
+    if ( fileType == ImportFileType::ROFF_FILE )
+    {
+        return QString( "Roff File (%1)" ).arg( roffFilePattern );
+    }
+
+    return "";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RicImportGeneralDataFeature::getEclipseFileNamesWithDialog( RiaDefines::ImportFileType fileType )
+{
     QStringList filePatternTexts;
     if ( fileType == ImportFileType::ANY_ECLIPSE_FILE )
     {
-        filePatternTexts += QString( "Eclipse Files (%1 %2 %3 %4)" )
-                                .arg( eclipseGridFilePattern )
-                                .arg( eclipseEGridFilePattern )
-                                .arg( eclipseInputFilePattern )
-                                .arg( eclipseSummaryFilePattern );
+        filePatternTexts += getFilePattern( ImportFileType::ANY_ECLIPSE_FILE );
     }
 
     int fileTypeAsInt = int( fileType );
-
     if ( fileTypeAsInt & int( ImportFileType::ECLIPSE_EGRID_FILE ) )
     {
-        filePatternTexts += QString( "Eclipse EGrid Files (%1)" ).arg( eclipseEGridFilePattern );
+        filePatternTexts += getFilePattern( ImportFileType::ECLIPSE_EGRID_FILE );
     }
     if ( fileTypeAsInt & int( ImportFileType::ECLIPSE_GRID_FILE ) )
     {
-        filePatternTexts += QString( "Eclipse Grid Files (%1)" ).arg( eclipseGridFilePattern );
+        filePatternTexts += getFilePattern( ImportFileType::ECLIPSE_GRID_FILE );
     }
     if ( fileTypeAsInt & int( ImportFileType::ECLIPSE_INPUT_FILE ) )
     {
-        filePatternTexts += QString( "Eclipse Input Files and Input Properties (%1)" ).arg( eclipseInputFilePattern );
+        filePatternTexts += getFilePattern( ImportFileType::ECLIPSE_INPUT_FILE );
     }
     if ( fileTypeAsInt & int( ImportFileType::ECLIPSE_SUMMARY_FILE ) )
     {
-        filePatternTexts += QString( "Eclipse Summary File (%1)" ).arg( eclipseSummaryFilePattern );
+        filePatternTexts += getFilePattern( ImportFileType::ECLIPSE_SUMMARY_FILE );
+    }
+    if ( fileTypeAsInt & int( ImportFileType::ROFF_FILE ) )
+    {
+        filePatternTexts += getFilePattern( ImportFileType::ROFF_FILE );
     }
 
     QString fullPattern = filePatternTexts.join( ";;" );
 
     QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectory( defaultDirectoryLabel( fileType ) );
 
-    QStringList fileNames = RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
-                                                                  "Import Data File",
-                                                                  defaultDir,
-                                                                  fullPattern );
+    // Use nullptr as parent to this dialog, as this function is called from both plot window and main window
+    QStringList fileNames = RiuFileDialogTools::getOpenFileNames( nullptr, "Import Data File", defaultDir, fullPattern );
+
     return fileNames;
 }
 
@@ -286,6 +364,25 @@ bool RicImportGeneralDataFeature::openSummaryCaseFromFileNames( const QStringLis
         {
             RiaApplication::instance()->addToRecentFiles( newCase->summaryHeaderFilename() );
         }
+        return true;
+    }
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicImportGeneralDataFeature::openRoffCaseFromFileNames( const QStringList& fileNames,
+                                                             bool               createDefaultView,
+                                                             std::vector<int>&  createdCaseIds )
+{
+    CAF_ASSERT( !fileNames.empty() );
+
+    auto generatedCaseId = RiaImportEclipseCaseTools::openRoffCaseFromFileNames( fileNames, createDefaultView );
+    if ( generatedCaseId >= 0 )
+    {
+        RiaApplication::instance()->addToRecentFiles( fileNames[0] );
+        createdCaseIds.push_back( generatedCaseId );
         return true;
     }
     return false;

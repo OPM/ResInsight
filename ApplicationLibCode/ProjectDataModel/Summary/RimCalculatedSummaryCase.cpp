@@ -18,6 +18,8 @@
 
 #include "RimCalculatedSummaryCase.h"
 
+#include "RiaSummaryDefines.h"
+
 #include "RimSummaryCalculation.h"
 #include "RimSummaryCalculationCollection.h"
 
@@ -31,7 +33,7 @@ RimCalculatedSummaryCase::RimCalculatedSummaryCase()
     CAF_PDM_InitObject( "Calculated", ":/SummaryCase.svg" );
 
     m_calculatedCurveReader = nullptr;
-    m_displayName           = "Calculated";
+    m_displayName           = RiaDefines::summaryCalculated();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -46,7 +48,7 @@ RimCalculatedSummaryCase::~RimCalculatedSummaryCase()
 //--------------------------------------------------------------------------------------------------
 QString RimCalculatedSummaryCase::caseName() const
 {
-    return "Calculated";
+    return RiaDefines::summaryCalculated();
 }
 
 //--------------------------------------------------------------------------------------------------

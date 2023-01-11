@@ -212,27 +212,21 @@ std::vector<std::pair<QString, QString>> PdmUiFieldHandle::attributes() const
 //--------------------------------------------------------------------------------------------------
 void PdmUiFieldHandle::setAttributes( const std::vector<std::pair<QString, QString>>& attributes )
 {
-    for ( auto [key, valueString] : attributes )
+    for ( const auto& [key, valueString] : attributes )
     {
-        valueString = valueString.toUpper();
+        if ( valueString.toUpper() != "TRUE" ) continue;
 
         if ( key == "autoValueEnabled" )
         {
-            if ( valueString == "TRUE" )
-            {
-                // If notifyFieldChanged equals true, recursion will happen. Triggered by
-                // RimSummaryPlot::copyMatchingAxisPropertiesFromOther(), where data from one object is copied and set
-                // in another object using readObjectFromXmlString()
-                bool notifyFieldChanged = false;
-                enableAutoValue( true, notifyFieldChanged );
-            }
+            // If notifyFieldChanged equals true, recursion will happen. Triggered by
+            // RimSummaryPlot::copyMatchingAxisPropertiesFromOther(), where data from one object is copied and set
+            // in another object using readObjectFromXmlString()
+            bool notifyFieldChanged = false;
+            enableAutoValue( true, notifyFieldChanged );
         }
         else if ( key == "autoValueSupported" )
         {
-            if ( valueString == "TRUE" )
-            {
-                enableAutoValueSupport( true );
-            }
+            enableAutoValueSupport( true );
         }
     }
 }

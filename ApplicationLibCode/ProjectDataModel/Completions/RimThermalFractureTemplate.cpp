@@ -23,6 +23,7 @@
 #include "RiaEclipseUnitTools.h"
 #include "RiaFractureDefines.h"
 #include "RiaLogging.h"
+#include "RiaThermalFractureDefines.h"
 
 #include "RifThermalFractureReader.h"
 
@@ -30,13 +31,13 @@
 #include "RigFractureGrid.h"
 #include "RigThermalFractureDefinition.h"
 #include "RigThermalFractureResultUtil.h"
+#include "RigWellPath.h"
 
 #include "RimEclipseView.h"
 #include "RimFracture.h"
-#include "RimFractureContainment.h"
-#include "RimProject.h"
 #include "RimStimPlanColors.h"
 #include "RimWellPath.h"
+#include "RimWellPathFracture.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObject.h"
@@ -54,6 +55,19 @@
 #include <cmath>
 #include <vector>
 
+namespace caf
+{
+template <>
+void caf::AppEnum<RimThermalFractureTemplate::FilterCakePressureDrop>::setUp()
+{
+    addItem( RimThermalFractureTemplate::FilterCakePressureDrop::NONE, "None", "None" );
+    addItem( RimThermalFractureTemplate::FilterCakePressureDrop::RELATIVE, "Relative", "Relative" );
+    addItem( RimThermalFractureTemplate::FilterCakePressureDrop::ABSOLUTE, "Absolute", "Absolute" );
+
+    setDefault( RimThermalFractureTemplate::FilterCakePressureDrop::RELATIVE );
+}
+}; // namespace caf
+
 CAF_PDM_SOURCE_INIT( RimThermalFractureTemplate, "ThermalFractureTemplate", "RimThermalFractureTemplate" );
 
 //--------------------------------------------------------------------------------------------------
@@ -62,6 +76,10 @@ CAF_PDM_SOURCE_INIT( RimThermalFractureTemplate, "ThermalFractureTemplate", "Rim
 RimThermalFractureTemplate::RimThermalFractureTemplate()
 {
     CAF_PDM_InitScriptableObject( "Fracture Template", ":/FractureTemplate16x16.png" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_filterCakePressureDropType,
+                                          "FilterCakePressureDrop",
+                                          "Filter Cake Pressure Drop" );
 
     m_readError = false;
 
@@ -112,7 +130,7 @@ bool RimThermalFractureTemplate::setBorderPolygonResultNameToDefault()
     // first option: Width
     for ( std::pair<QString, QString> property : uiResultNamesWithUnit() )
     {
-        if ( property.first == "WIDTH" )
+        if ( property.first.contains( "width", Qt::CaseInsensitive ) )
         {
             m_borderPolygonResultName = property.first;
             return true;
@@ -149,6 +167,59 @@ void RimThermalFractureTemplate::loadDataAndUpdate()
     m_fractureDefinitionData = fractureDefinitionData;
     if ( m_fractureDefinitionData )
     {
+        auto addInjectivityFactor = []( std::shared_ptr<RigThermalFractureDefinition> def ) {
+            int     leakoffPressureDropIndex  = def->getPropertyIndex( RiaDefines::leakoffPressureDropResultName() );
+            int     filtratePressureDropIndex = def->getPropertyIndex( RiaDefines::filtratePressureDropResultName() );
+            QString injectivityValueTag       = RiaDefines::injectivityFactorResultName();
+            def->addProperty( injectivityValueTag,
+                              RiaDefines::getExpectedThermalFractureUnit( injectivityValueTag, def->unitSystem() ) );
+
+            int injectivityFactorIndex = def->getPropertyIndex( injectivityValueTag );
+
+            for ( int nodeIndex = 0; nodeIndex < static_cast<int>( def->numNodes() ); nodeIndex++ )
+            {
+                for ( int timeStepIndex = 0; timeStepIndex < static_cast<int>( def->numTimeSteps() ); timeStepIndex++ )
+                {
+                    double leakoffPressureDrop =
+                        def->getPropertyValue( leakoffPressureDropIndex, nodeIndex, timeStepIndex );
+                    double filtratePressureDrop =
+                        def->getPropertyValue( filtratePressureDropIndex, nodeIndex, timeStepIndex );
+
+                    double injectivityValue = ( leakoffPressureDrop - filtratePressureDrop ) / leakoffPressureDrop;
+                    def->appendPropertyValue( injectivityFactorIndex, nodeIndex, injectivityValue );
+                }
+            }
+        };
+
+        auto addFilterCakeMobility = []( std::shared_ptr<RigThermalFractureDefinition> def ) {
+            int     leakoffPressureDropIndex   = def->getPropertyIndex( RiaDefines::leakoffPressureDropResultName() );
+            int     filtratePressureDropIndex  = def->getPropertyIndex( RiaDefines::filtratePressureDropResultName() );
+            int     leakoffMobilityIndex       = def->getPropertyIndex( RiaDefines::leakoffMobilityResultName() );
+            QString filterCakeMobilityValueTag = RiaDefines::filterCakeMobilityResultName();
+            def->addProperty( filterCakeMobilityValueTag,
+                              RiaDefines::getExpectedThermalFractureUnit( filterCakeMobilityValueTag, def->unitSystem() ) );
+
+            int filterCakeMobilityIndex = def->getPropertyIndex( filterCakeMobilityValueTag );
+
+            for ( int nodeIndex = 0; nodeIndex < static_cast<int>( def->numNodes() ); nodeIndex++ )
+            {
+                for ( int timeStepIndex = 0; timeStepIndex < static_cast<int>( def->numTimeSteps() ); timeStepIndex++ )
+                {
+                    double leakoffPressureDrop =
+                        def->getPropertyValue( leakoffPressureDropIndex, nodeIndex, timeStepIndex );
+                    double filtratePressureDrop =
+                        def->getPropertyValue( filtratePressureDropIndex, nodeIndex, timeStepIndex );
+                    double leakoffMobility = def->getPropertyValue( leakoffMobilityIndex, nodeIndex, timeStepIndex );
+
+                    double filterCakeMobilityValue = leakoffMobility * ( leakoffPressureDrop / filtratePressureDrop );
+                    def->appendPropertyValue( filterCakeMobilityIndex, nodeIndex, filterCakeMobilityValue );
+                }
+            }
+        };
+
+        addInjectivityFactor( m_fractureDefinitionData );
+        addFilterCakeMobility( m_fractureDefinitionData );
+
         setDefaultConductivityResultIfEmpty();
 
         if ( fractureTemplateUnit() == RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN )
@@ -505,30 +576,7 @@ std::vector<std::pair<QString, QString>> RimThermalFractureTemplate::uiResultNam
 
     if ( m_fractureDefinitionData )
     {
-        QString conductivityUnit = "mD/s";
-
-        std::vector<std::pair<QString, QString>> tmp;
-
-        std::vector<std::pair<QString, QString>> propertyNamesUnitsOnFile =
-            m_fractureDefinitionData->getPropertyNamesUnits();
-        for ( const auto& nameUnitPair : propertyNamesUnitsOnFile )
-        {
-            if ( nameUnitPair.first.contains( RiaDefines::conductivityResultName(), Qt::CaseInsensitive ) )
-            {
-                conductivityUnit = nameUnitPair.second;
-            }
-            else
-            {
-                tmp.push_back( nameUnitPair );
-            }
-        }
-
-        propertyNamesAndUnits.push_back( std::make_pair( RiaDefines::conductivityResultName(), conductivityUnit ) );
-
-        for ( const auto& nameUnitPair : tmp )
-        {
-            propertyNamesAndUnits.push_back( nameUnitPair );
-        }
+        return m_fractureDefinitionData->getPropertyNamesUnits();
     }
 
     return propertyNamesAndUnits;
@@ -599,7 +647,7 @@ double RimThermalFractureTemplate::resultValueAtIJ( const RigFractureGrid* fract
     size_t adjustedI = i + 1;
     size_t adjustedJ = j + 1;
 
-    if ( adjustedI >= fractureGrid->iCellCount() || adjustedJ >= fractureGrid->jCellCount() )
+    if ( adjustedI >= fractureGrid->iCellCount() + 1 || adjustedJ >= fractureGrid->jCellCount() + 1 )
     {
         return HUGE_VAL;
     }
@@ -703,4 +751,73 @@ std::pair<cvf::Vec3d, cvf::Vec3d> RimThermalFractureTemplate::computePositionAnd
     cvf::Vec3d centerPosition = cvf::Vec3d::UNDEFINED;
     cvf::Vec3d rotation       = cvf::Vec3d::UNDEFINED;
     return std::make_pair( centerPosition, rotation );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimThermalFractureTemplate::isValidResult( double value ) const
+{
+    return !std::isinf( value ) && !std::isnan( value );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RigThermalFractureDefinition* RimThermalFractureTemplate::fractureDefinition() const
+{
+    return m_fractureDefinitionData.get();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimThermalFractureTemplate::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    RimMeshFractureTemplate::defineUiOrdering( uiConfigName, uiOrdering );
+
+    uiOrdering.add( &m_filterCakePressureDropType );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimThermalFractureTemplate::FilterCakePressureDrop RimThermalFractureTemplate::filterCakePressureDropType() const
+{
+    return m_filterCakePressureDropType.value();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimThermalFractureTemplate::placeFractureUsingTemplateData( RimFracture* fracture )
+{
+    RimWellPath* wellPath = nullptr;
+    fracture->firstAncestorOrThisOfTypeAsserted( wellPath );
+
+    auto wellPathGeometry = wellPath->wellPathGeometry();
+    if ( !wellPathGeometry ) return false;
+
+    auto [centerPosition, rotation] = computePositionAndRotation();
+
+    // TODO: y conversion is workaround for strange test data
+    centerPosition.y() = std::fabs( centerPosition.y() );
+    centerPosition.z() *= -1.0;
+
+    double md = wellPathGeometry->closestMeasuredDepth( centerPosition );
+
+    RiaLogging::info( QString( "Placing thermal fracture. Posotion: [%1 %2 %3]" )
+                          .arg( centerPosition.x() )
+                          .arg( centerPosition.y() )
+                          .arg( centerPosition.z() ) );
+    RiaLogging::info( QString( "Computed MD: %1" ).arg( md ) );
+
+    RimWellPathFracture* wellPathFracture = dynamic_cast<RimWellPathFracture*>( fracture );
+    if ( wellPathFracture ) wellPathFracture->setMeasuredDepth( md );
+
+    m_orientationType = RimFractureTemplate::AZIMUTH;
+    fracture->setAzimuth( rotation.x() );
+    fracture->setDip( rotation.y() );
+    fracture->setTilt( rotation.z() );
+    return true;
 }

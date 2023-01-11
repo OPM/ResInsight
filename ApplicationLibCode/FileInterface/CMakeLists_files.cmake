@@ -1,6 +1,7 @@
 set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifTextDataTableFormatter.h
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseInputFileTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifRoffFileTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseOutputFileTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseRestartDataAccess.h
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseRestartFilesetAccess.h
@@ -50,6 +51,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifActiveCellsReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifCsvDataTableFormatter.h
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseInputPropertyLoader.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifInputPropertyLoader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifSurfaceImporter.h
     ${CMAKE_CURRENT_LIST_DIR}/RifRoffReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifColorLegendData.h
@@ -59,9 +61,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanModelDeviationFrkExporter.h
     ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanModelPerfsFrkExporter.h
     ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanModelAsymmetricFrkExporter.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifThermalFractureTemplateSurfaceExporter.h
     ${CMAKE_CURRENT_LIST_DIR}/RifSurfaceExporter.h
-    ${CMAKE_CURRENT_LIST_DIR}/RifFaultRAXmlWriter.h
-    ${CMAKE_CURRENT_LIST_DIR}/RifFaultRAJsonWriter.h
     ${CMAKE_CURRENT_LIST_DIR}/RifParameterXmlReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifOpmCommonSummary.h
     ${CMAKE_CURRENT_LIST_DIR}/RifEnsembleFractureStatisticsExporter.h
@@ -79,6 +80,7 @@ set(SOURCE_GROUP_HEADER_FILES
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifTextDataTableFormatter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseInputFileTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifRoffFileTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseOutputFileTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseRestartDataAccess.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseRestartFilesetAccess.cpp
@@ -126,6 +128,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifCsvDataTableFormatter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifReaderEnsembleStatisticsRft.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseInputPropertyLoader.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifInputPropertyLoader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifSurfaceImporter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifRoffReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifColorLegendData.cpp
@@ -135,9 +138,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanModelDeviationFrkExporter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanModelPerfsFrkExporter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanModelAsymmetricFrkExporter.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifThermalFractureTemplateSurfaceExporter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifSurfaceExporter.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RifFaultRAXmlWriter.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RifFaultRAJsonWriter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifParameterXmlReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifOpmCommonSummary.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEnsembleFractureStatisticsExporter.cpp

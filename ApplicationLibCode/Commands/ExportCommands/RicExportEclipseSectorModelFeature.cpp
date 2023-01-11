@@ -134,7 +134,7 @@ void RicExportEclipseSectorModelFeature::executeCommand( RimEclipseView*        
 
         if ( !worked )
         {
-            RiaLogging::error( QString( "Unable to write grid to '%1'" ).arg( exportSettings.exportGridFilename ) );
+            RiaLogging::error( QString( "Unable to write grid to '%1'" ).arg( exportSettings.exportGridFilename() ) );
         }
         else
         {

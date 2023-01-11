@@ -157,3 +157,22 @@ void RimStackablePlotCurve::stackingUiOrdering( caf::PdmUiOrdering& uiOrdering )
     uiOrdering.add( &m_isStacked );
     if ( m_isStacked() ) uiOrdering.add( &m_isStackedWithPhaseColors );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStackablePlotCurve::defaultUiOrdering( caf::PdmUiOrdering& uiOrdering )
+{
+    RimPlotCurve::additionalDataSourcesUiOrdering( uiOrdering );
+
+    caf::PdmUiGroup* stackingGroup = uiOrdering.addNewGroup( "Stacking" );
+    RimStackablePlotCurve::stackingUiOrdering( *stackingGroup );
+
+    caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup( RiaDefines::appearanceGroupName() );
+    RimPlotCurve::appearanceUiOrdering( *appearanceGroup );
+
+    caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup( RiaDefines::curveNameGroupName() );
+    nameGroup->setCollapsedByDefault();
+    nameGroup->add( &m_showLegend );
+    RimPlotCurve::curveNameUiOrdering( *nameGroup );
+}

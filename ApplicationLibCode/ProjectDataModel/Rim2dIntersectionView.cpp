@@ -31,6 +31,8 @@
 #include "RimRegularLegendConfig.h"
 #include "RimSimWellInView.h"
 #include "RimTernaryLegendConfig.h"
+#include "RimViewController.h"
+#include "RimViewLinker.h"
 #include "RimViewNameConfig.h"
 #include "RimWellPath.h"
 
@@ -101,8 +103,6 @@ Rim2dIntersectionView::Rim2dIntersectionView( void )
     nameConfig()->hideAggregationTypeField( true );
     nameConfig()->hidePropertyField( true );
     nameConfig()->hideSampleSpacingField( true );
-
-    hideComparisonViewField();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,6 +110,14 @@ Rim2dIntersectionView::Rim2dIntersectionView( void )
 //--------------------------------------------------------------------------------------------------
 Rim2dIntersectionView::~Rim2dIntersectionView( void )
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::View3dContent Rim2dIntersectionView::viewContent() const
+{
+    return RiaDefines::View3dContent::FLAT_INTERSECTION;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -206,7 +214,7 @@ bool Rim2dIntersectionView::isTimeStepDependentDataVisible() const
 //--------------------------------------------------------------------------------------------------
 void Rim2dIntersectionView::update3dInfo()
 {
-    if ( !nativeOrOverrideViewer() ) return;
+    if ( !nativeOrOverrideViewer() || !m_intersection ) return;
 
     QString overlayInfoText;
 
@@ -430,16 +438,6 @@ bool Rim2dIntersectionView::handleOverlayItemPicked( const cvf::OverlayItem* pic
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> Rim2dIntersectionView::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
-{
-    QList<caf::PdmOptionItemInfo> options;
-
-    return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool Rim2dIntersectionView::hasResults()
 {
     if ( !m_intersection() ) return false;
@@ -592,11 +590,13 @@ void Rim2dIntersectionView::onCreateDisplayModel()
 
     m_intersectionVizModel->updateBoundingBoxesRecursive();
 
-    if ( viewer() ) viewer()->setCurrentFrame( m_currentTimeStep );
-
-    if ( this->viewer()->mainCamera()->viewMatrix() == sm_defaultViewMatrix )
+    if ( viewer() )
     {
-        this->zoomAll();
+        viewer()->setCurrentFrame( m_currentTimeStep );
+        if ( viewer()->mainCamera() && viewer()->mainCamera()->viewMatrix() == sm_defaultViewMatrix )
+        {
+            this->zoomAll();
+        }
     }
 }
 
@@ -605,6 +605,8 @@ void Rim2dIntersectionView::onCreateDisplayModel()
 //--------------------------------------------------------------------------------------------------
 void Rim2dIntersectionView::onUpdateDisplayModelForCurrentTimeStep()
 {
+    if ( !m_intersection ) return;
+
     update3dInfo();
     onUpdateLegends();
 
@@ -664,7 +666,7 @@ void Rim2dIntersectionView::onUpdateDisplayModelForCurrentTimeStep()
         }
     }
 
-    if ( this->hasResults() )
+    if ( m_flatIntersectionPartMgr.notNull() && this->hasResults() )
     {
         m_flatIntersectionPartMgr->updateCellResultColor( m_currentTimeStep,
                                                           m_legendConfig->scalarMapper(),
@@ -682,7 +684,7 @@ void Rim2dIntersectionView::onUpdateLegends()
 {
     m_legendObjectToSelect = nullptr;
 
-    if ( !nativeOrOverrideViewer() ) return;
+    if ( !nativeOrOverrideViewer() || !m_intersection ) return;
 
     nativeOrOverrideViewer()->removeAllColorLegends();
 
@@ -877,7 +879,7 @@ void Rim2dIntersectionView::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 
     uiOrdering.skipRemainingFields( true );
 
-    if ( m_intersection->hasDefiningPoints() )
+    if ( m_intersection && m_intersection->hasDefiningPoints() )
     {
         caf::PdmUiGroup* plGroup = uiOrdering.addNewGroup( "Defining Points" );
         plGroup->add( &m_showDefiningPoints );

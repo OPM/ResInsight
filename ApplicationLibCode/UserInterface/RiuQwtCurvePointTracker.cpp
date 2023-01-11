@@ -219,6 +219,18 @@ QPointF RiuQwtCurvePointTracker::closestCurvePoint( const QPoint& cursorPosition
         {
             *valueAxisValueString = valueAxisScaleDraw->label( valueAxisSampleVal ).text();
         }
+
+        if ( m_curveInfoTextProvider )
+        {
+            auto additionalText = m_curveInfoTextProvider->additionalText( dynamic_cast<RiuPlotCurve*>( closestCurve ),
+                                                                           closestPointSampleIndex );
+
+            if ( !additionalText.isEmpty() )
+            {
+                *valueAxisValueString += "\n";
+                *valueAxisValueString += additionalText;
+            }
+        }
     }
 
     return samplePoint;

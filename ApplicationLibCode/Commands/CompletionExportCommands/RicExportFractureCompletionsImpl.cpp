@@ -46,6 +46,7 @@
 
 #include "RifEclipseSummaryAddress.h"
 #include "RifSummaryReaderInterface.h"
+
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseToStimPlanCalculator.h"
@@ -61,6 +62,9 @@
 #include "RigTransmissibilityEquations.h"
 #include "RigWellPath.h"
 #include "RigWellPathStimplanIntersector.h"
+
+#include "cvfGeometryTools.h"
+#include "cvfPlane.h"
 
 #include <vector>
 
@@ -516,7 +520,7 @@ void RicExportFractureCompletionsImpl::getWellPressuresAndInitialProductionTimeS
 bool RicExportFractureCompletionsImpl::checkForStimPlanConductivity( const RimFractureTemplate* fracTemplate,
                                                                      const RimFracture*         fracture )
 {
-    auto fracTemplateStimPlan = dynamic_cast<const RimStimPlanFractureTemplate*>( fracTemplate );
+    auto fracTemplateStimPlan = dynamic_cast<const RimMeshFractureTemplate*>( fracTemplate );
     if ( fracTemplateStimPlan )
     {
         if ( !fracTemplateStimPlan->hasConductivity() )
@@ -607,11 +611,13 @@ void RicExportFractureCompletionsImpl::calculateFractureToWellTransmissibilities
     gsl::not_null<const RigWellPath*>         wellPathGeometry,
     RigTransmissibilityCondenser&             transCondenser )
 {
-    ////
-    // If fracture has orientation Azimuth or Transverse, assume only radial inflow
+    // If fracture has orientation Azimuth (without user-defined perforation length) or Transverse,
+    // assume only radial inflow
+    bool useRadialInflow = ( fracTemplate->orientationType() == RimFractureTemplate::AZIMUTH &&
+                             !fracTemplate->useUserDefinedPerforationLength() ) ||
+                           fracTemplate->orientationType() == RimFractureTemplate::TRANSVERSE_WELL_PATH;
 
-    if ( fracTemplate->orientationType() == RimFractureTemplate::AZIMUTH ||
-         fracTemplate->orientationType() == RimFractureTemplate::TRANSVERSE_WELL_PATH )
+    if ( useRadialInflow )
     {
         std::pair<size_t, size_t> wellCellIJ = fractureGrid->fractureCellAtWellCenter();
         size_t wellCellIndex = fractureGrid->getGlobalIndexFromIJ( wellCellIJ.first, wellCellIJ.second );
@@ -630,12 +636,27 @@ void RicExportFractureCompletionsImpl::calculateFractureToWellTransmissibilities
                                                     { false, RigTransmissibilityCondenser::CellAddress::STIMPLAN, wellCellIndex },
                                                     radialTrans );
     }
-    else if ( fracTemplate->orientationType() == RimFractureTemplate::ALONG_WELL_PATH )
+    else
     {
-        ////
-        // If fracture has orientation along well, linear inflow along well and radial flow at endpoints
+        std::vector<cvf::Vec3d> wellPathPoints;
 
-        RigWellPathStimplanIntersector wellFractureIntersector( wellPathGeometry, fracture );
+        if ( fracTemplate->orientationType() == RimFractureTemplate::ALONG_WELL_PATH )
+        {
+            // If fracture has orientation along well, linear inflow along well and radial flow at endpoints
+            wellPathPoints =
+                wellPathGeometry->wellPathPointsIncludingInterpolatedIntersectionPoint( fracture->fractureMD() );
+        }
+        else
+        {
+            // If fracture has azimuth orientation with user-defined perforation length use linear inflow along
+            // well and radial flow at endpoints on a well path which is rotated into the fracture plane.
+            CAF_ASSERT( fracTemplate->orientationType() == RimFractureTemplate::AZIMUTH );
+            CAF_ASSERT( fracTemplate->useUserDefinedPerforationLength() );
+
+            wellPathPoints = computeWellPointsInFracturePlane( fracture, wellPathGeometry );
+        }
+
+        RigWellPathStimplanIntersector wellFractureIntersector( wellPathPoints, fracture );
         const std::map<size_t, RigWellPathStimplanIntersector::WellCellIntersection>& fractureWellCells =
             wellFractureIntersector.intersections();
 
@@ -669,6 +690,87 @@ void RicExportFractureCompletionsImpl::calculateFractureToWellTransmissibilities
                                                         linearTrans );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3d>
+    RicExportFractureCompletionsImpl::computeWellPointsInFracturePlane( gsl::not_null<const RimFracture*> fracture,
+                                                                        gsl::not_null<const RigWellPath*> wellPathGeometry )
+
+{
+    std::vector<cvf::Vec3d> wellPathPoints =
+        wellPathGeometry->wellPathPointsIncludingInterpolatedIntersectionPoint( fracture->fractureMD() );
+
+    RiaLogging::info( "Using user-defined perforation length on azimuth fracture." );
+    RiaLogging::info( QString( "Perforation length: %1" ).arg( fracture->perforationLength() ) );
+    double startMd = fracture->fractureMD() - fracture->perforationLength() / 2.0;
+    double endMd   = fracture->fractureMD() + fracture->perforationLength() / 2.0;
+
+    cvf::Vec3d anchorPosition = wellPathGeometry->interpolatedPointAlongWellPath( fracture->fractureMD() );
+
+    auto coordsAndMd = wellPathGeometry->clippedPointSubset( startMd, endMd );
+
+    auto       wellPathCoords = coordsAndMd.first;
+    cvf::Vec3d startPos       = wellPathCoords.front();
+    cvf::Vec3d endPos         = wellPathCoords.back();
+
+    cvf::Vec3d wellPathTangent = endPos - startPos;
+
+    cvf::Plane fracturePlane;
+    auto       fractureTransform = fracture->transformMatrix();
+    fracturePlane.setFromPointAndNormal( fractureTransform.translation(),
+                                         static_cast<cvf::Vec3d>( fractureTransform.col( 2 ) ) );
+
+    // Get the direction from the start position to the fracture plane
+    cvf::Vec3d startPosInFracturePlane            = fracturePlane.projectPoint( startPos );
+    cvf::Vec3d directionToStartPosInFracturePlane = ( startPosInFracturePlane - anchorPosition ).getNormalized();
+    cvf::Vec3d directionToStartPos                = ( startPos - anchorPosition ).getNormalized();
+
+    auto vecToString = []( const cvf::Vec3d& vec ) {
+        return QString( "[%1 %2 %3]" ).arg( vec.x() ).arg( vec.y() ).arg( vec.z() );
+    };
+
+    RiaLogging::info( QString( "Start perforation position: %1" ).arg( vecToString( startPos ) ) );
+    RiaLogging::info(
+        QString( "Start perforation position in fracture plane: %1" ).arg( vecToString( startPosInFracturePlane ) ) );
+    RiaLogging::info( QString( "Anchor pos: %1" ).arg( vecToString( anchorPosition ) ) );
+    RiaLogging::info(
+        QString( "Direction anchor to start position in plane: %1" ).arg( vecToString( directionToStartPosInFracturePlane ) ) );
+    RiaLogging::info(
+        QString( "Direction anchor to original start position: %1" ).arg( vecToString( directionToStartPos ) ) );
+
+    // Find the angle between the real direction (tangential to well path) and the fracture plane
+    double angle = cvf::GeometryTools::getAngle( directionToStartPosInFracturePlane, directionToStartPos );
+    RiaLogging::info( QString( "Angle: %1 degrees." ).arg( cvf::Math::toDegrees( angle ) ) );
+    auto rotMat =
+        cvf::GeometryTools::rotationMatrixBetweenVectors( directionToStartPos, directionToStartPosInFracturePlane );
+
+    auto rotatePoint = []( const cvf::Vec3d& point, const cvf::Vec3d& offset, auto rotMat ) {
+        cvf::Vec3d p = point - offset;
+        p.transformPoint( rotMat );
+        p += offset;
+        return p;
+    };
+
+    // Rotate the well path points into the plane
+    for ( auto& r : wellPathPoints )
+    {
+        r = rotatePoint( r, anchorPosition, rotMat );
+    }
+
+    cvf::Vec3d transformedStartPos = rotatePoint( startPos, anchorPosition, rotMat );
+    RiaLogging::info( QString( "Perforation start position: original: %1 --> adapted: %2" )
+                          .arg( vecToString( startPos ) )
+                          .arg( vecToString( transformedStartPos ) ) );
+
+    cvf::Vec3d transformedEndPos = rotatePoint( endPos, anchorPosition, rotMat );
+    RiaLogging::info( QString( "Perforation end position: original: %1 --> adapted: %2" )
+                          .arg( vecToString( endPos ) )
+                          .arg( vecToString( transformedEndPos ) ) );
+
+    return wellPathPoints;
 }
 
 //--------------------------------------------------------------------------------------------------

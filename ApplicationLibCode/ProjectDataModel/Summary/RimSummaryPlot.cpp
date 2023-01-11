@@ -51,6 +51,7 @@
 #include "RimSummaryAddress.h"
 #include "RimSummaryAddressCollection.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryCurvesData.h"
@@ -105,7 +106,9 @@ RimSummaryPlot::RimSummaryPlot( bool isCrossPlot )
     , curvesChanged( this )
     , axisChanged( this )
     , plotZoomedByUser( this )
+    , titleChanged( this )
     , m_isValid( true )
+    , axisChangedReloadRequired( this )
 {
     CAF_PDM_InitScriptableObject( "Summary Plot", ":/SummaryPlotLight16x16.png", "", "A Summary Plot" );
 
@@ -142,6 +145,7 @@ RimSummaryPlot::RimSummaryPlot( bool isCrossPlot )
     {
         auto* timeAxisProperties = new RimSummaryTimeAxisProperties;
         timeAxisProperties->settingsChanged.connect( this, &RimSummaryPlot::axisSettingsChanged );
+        timeAxisProperties->requestLoadDataAndUpdate.connect( this, &RimSummaryPlot::axisSettingsChangedReloadRequired );
 
         m_axisProperties.push_back( timeAxisProperties );
     }
@@ -1485,6 +1489,8 @@ void RimSummaryPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                 c->updateCurveNameNoLegendUpdate();
             }
         }
+
+        titleChanged.send();
     }
 
     if ( changedField == &m_showPlotLegends ) updateLegend();
@@ -1736,23 +1742,19 @@ void RimSummaryPlot::updateZoomFromParentPlot()
 
     for ( RimPlotAxisPropertiesInterface* axisProperties : m_axisProperties )
     {
+        if ( !axisProperties ) continue;
+
         auto [axisMin, axisMax] = plotWidget()->axisRange( axisProperties->plotAxisType() );
         if ( axisProperties->isAxisInverted() ) std::swap( axisMin, axisMax );
 
-        auto propertyAxis = dynamic_cast<RimPlotAxisProperties*>( axisProperties );
-
-        if ( propertyAxis )
+        if ( auto propertyAxis = dynamic_cast<RimPlotAxisProperties*>( axisProperties ) )
         {
             propertyAxis->setAutoValueVisibleRangeMax( axisMax );
             propertyAxis->setAutoValueVisibleRangeMin( axisMin );
-            axisProperties->setVisibleRangeMax( axisMax );
-            axisProperties->setVisibleRangeMin( axisMin );
         }
-        else
-        {
-            axisProperties->setVisibleRangeMax( axisMax );
-            axisProperties->setVisibleRangeMin( axisMin );
-        }
+
+        axisProperties->setVisibleRangeMax( axisMax );
+        axisProperties->setVisibleRangeMin( axisMin );
 
         axisProperties->updateConnectedEditors();
     }
@@ -1862,6 +1864,14 @@ void RimSummaryPlot::axisSettingsChanged( const caf::SignalEmitter* emitter )
 {
     axisChanged.send( this );
     updateAxes();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::axisSettingsChangedReloadRequired( const caf::SignalEmitter* emitter )
+{
+    axisChangedReloadRequired.send( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2423,12 +2433,12 @@ void RimSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     }
     m_description.uiCapability()->setUiReadOnly( m_useAutoPlotTitle );
 
+    mainOptions->add( &m_normalizeCurveYValues );
+
     if ( isMdiWindow() )
     {
-        uiOrderingForPlotLayout( uiConfigName, *mainOptions );
+        RimPlotWindow::uiOrderingForLegendsAndFonts( uiConfigName, uiOrdering );
     }
-
-    mainOptions->add( &m_normalizeCurveYValues );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -2564,6 +2574,7 @@ void RimSummaryPlot::initAfterRead()
         if ( timeAxis )
         {
             timeAxis->settingsChanged.connect( this, &RimSummaryPlot::axisSettingsChanged );
+            timeAxis->requestLoadDataAndUpdate.connect( this, &RimSummaryPlot::axisSettingsChangedReloadRequired );
         }
     }
 

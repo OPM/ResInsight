@@ -133,6 +133,14 @@ RimGeoMechView::~RimGeoMechView( void )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiaDefines::View3dContent RimGeoMechView::viewContent() const
+{
+    return RiaDefines::View3dContent::GEOMECH_DATA;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGeoMechView::onLoadDataAndUpdate()
 {
     caf::ProgressInfo progress( 7, "" );
@@ -801,7 +809,7 @@ void RimGeoMechView::onClampCurrentTimestep()
 //--------------------------------------------------------------------------------------------------
 size_t RimGeoMechView::onTimeStepCountRequested()
 {
-    if ( m_geomechCase )
+    if ( m_geomechCase && m_geomechCase->geoMechData() && m_geomechCase->geoMechData()->femPartResults() )
     {
         return m_geomechCase->geoMechData()->femPartResults()->frameCount();
     }

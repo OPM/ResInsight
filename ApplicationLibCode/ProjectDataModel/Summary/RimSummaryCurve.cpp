@@ -521,14 +521,15 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions( const caf:
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryCurve::createCurveAutoName()
 {
-    std::vector<const RimSummaryNameHelper*> nameHelpers;
+    const RimSummaryNameHelper*              currentPlotNameHelper = nullptr;
+    std::vector<const RimSummaryNameHelper*> plotNameHelpers;
     {
         RimSummaryPlot* plot = nullptr;
         firstAncestorOrThisOfType( plot );
         if ( plot )
         {
-            auto nameHelper = plot->plotTitleHelper();
-            if ( nameHelper ) nameHelpers.push_back( nameHelper );
+            currentPlotNameHelper = plot->plotTitleHelper();
+            if ( currentPlotNameHelper ) plotNameHelpers.push_back( currentPlotNameHelper );
         }
     }
     {
@@ -537,23 +538,25 @@ QString RimSummaryCurve::createCurveAutoName()
         if ( summaryMultiPlot )
         {
             auto nameHelper = summaryMultiPlot->nameHelper();
-            if ( nameHelper ) nameHelpers.push_back( nameHelper );
+            if ( nameHelper ) plotNameHelpers.push_back( nameHelper );
         }
     }
 
-    RimMultiSummaryPlotNameHelper multiNameHelper( nameHelpers );
-    QString curveName = m_curveNameConfig->curveNameY( m_yValuesSummaryAddress->address(), &multiNameHelper );
+    RimMultiSummaryPlotNameHelper multiNameHelper( plotNameHelpers );
+    QString                       curveName =
+        m_curveNameConfig->curveNameY( m_yValuesSummaryAddress->address(), currentPlotNameHelper, &multiNameHelper );
     if ( curveName.isEmpty() )
     {
-        curveName = m_curveNameConfig->curveNameY( m_yValuesSummaryAddress->address(), nullptr );
+        curveName = m_curveNameConfig->curveNameY( m_yValuesSummaryAddress->address(), nullptr, nullptr );
     }
 
     if ( isCrossPlotCurve() )
     {
-        QString curveNameX = m_curveNameConfig->curveNameX( m_xValuesSummaryAddress->address(), &multiNameHelper );
+        QString curveNameX =
+            m_curveNameConfig->curveNameX( m_xValuesSummaryAddress->address(), currentPlotNameHelper, &multiNameHelper );
         if ( curveNameX.isEmpty() )
         {
-            curveNameX = m_curveNameConfig->curveNameX( m_xValuesSummaryAddress->address(), nullptr );
+            curveNameX = m_curveNameConfig->curveNameX( m_xValuesSummaryAddress->address(), nullptr, nullptr );
         }
 
         if ( !curveName.isEmpty() || !curveNameX.isEmpty() )
@@ -846,7 +849,7 @@ void RimSummaryCurve::defineEditorAttribute( const caf::PdmFieldHandle* field,
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    RimPlotCurve::updateOptionSensitivity();
+    RimPlotCurve::updateFieldUiState();
 
     {
         QString curveDataGroupName = "Summary Vector";
@@ -883,7 +886,7 @@ void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     nameGroup->add( &m_showLegend );
     RimPlotCurve::curveNameUiOrdering( *nameGroup );
 
-    if ( m_isUsingAutoName )
+    if ( m_namingMethod == RiaDefines::ObjectNamingMethod::AUTO )
     {
         m_curveNameConfig->uiOrdering( uiConfigName, *nameGroup );
     }
@@ -1095,10 +1098,6 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
         RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
         mainPlotWindow->updateMultiPlotToolBar();
-
-        // If no plot collection is found, we assume that we are inside a curve creator
-        // Update the summary curve collection to make sure the curve names are updated in curve creator UI
-        visibilityChanged.send( m_showCurve() );
     }
     else if ( changedField == &m_plotAxisProperties )
     {

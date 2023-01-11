@@ -32,6 +32,7 @@
 #include "cafPdmField.h"
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmObject.h"
+#include "cafPdmPtrArrayField.h"
 
 #include <QPointer>
 #include <Qt>
@@ -84,13 +85,15 @@ public:
     void updateCurveName();
     void updateCurveNameAndUpdatePlotLegendAndTitle();
     void updateCurveNameNoLegendUpdate();
+    void setCurveNameTemplateText( const QString& templateText );
 
+    void            setNamingMethod( RiaDefines::ObjectNamingMethod namingMethod );
     QString         curveName() const;
     virtual QString curveExportDescription( const RifEclipseSummaryAddress& address = RifEclipseSummaryAddress() ) const;
+    virtual QString createCurveNameFromTemplate( const QString& templateText );
 
-    void    setCustomName( const QString& customName );
-    QString legendEntryText() const;
-    void    setLegendEntryText( const QString& legendEntryText );
+    void setCustomName( const QString& customName );
+    void setLegendEntryText( const QString& legendEntryText );
 
     virtual void updateCurveVisibility();
     void         updateLegendEntryVisibilityAndPlotLegend();
@@ -116,8 +119,10 @@ public:
 
     virtual void setTitle( const QString& title );
 
-    int                       dataSize() const;
-    std::pair<double, double> sample( int index ) const;
+    int                        dataSize() const;
+    std::pair<double, double>  sample( int index ) const;
+    virtual double             closestYValueForX( double xValue ) const;
+    std::vector<RimPlotCurve*> additionalDataSources() const;
 
     void setParentPlotNoReplot( RiuPlotWidget* );
     void setParentPlotAndReplot( RiuPlotWidget* );
@@ -129,13 +134,16 @@ public:
     void deletePlotCurve();
 
 protected:
-    virtual QString createCurveAutoName()                        = 0;
-    virtual void    updateZoomInParentPlot()                     = 0;
-    virtual void    onLoadDataAndUpdate( bool updateParentPlot ) = 0;
-    void            initAfterRead() override;
-    void            updateCurvePresentation( bool updatePlotLegendAndTitle );
+    virtual QString createCurveAutoName() = 0;
 
-    void         updateOptionSensitivity();
+    virtual QStringList supportedCurveNameVariables() const;
+
+    virtual void updateZoomInParentPlot()                     = 0;
+    virtual void onLoadDataAndUpdate( bool updateParentPlot ) = 0;
+    void         initAfterRead() override;
+    void         updateCurvePresentation( bool updatePlotLegendAndTitle );
+
+    void         updateFieldUiState();
     void         updatePlotTitle();
     virtual void updateLegendsInPlot();
 
@@ -159,13 +167,14 @@ protected:
 
     virtual double computeCurveZValue();
 
-protected:
-    // Overridden PDM methods
-    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    caf::PdmFieldHandle* objectToggleField() override;
-    caf::PdmFieldHandle* userDescriptionField() override;
-    void                 appearanceUiOrdering( caf::PdmUiOrdering& uiOrdering );
-    void                 curveNameUiOrdering( caf::PdmUiOrdering& uiOrdering );
+    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    caf::PdmFieldHandle*          objectToggleField() override;
+    caf::PdmFieldHandle*          userDescriptionField() override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+
+    void appearanceUiOrdering( caf::PdmUiOrdering& uiOrdering );
+    void curveNameUiOrdering( caf::PdmUiOrdering& uiOrdering );
+    void additionalDataSourcesUiOrdering( caf::PdmUiOrdering& uiOrdering );
 
     void         onCurveAppearanceChanged( const caf::SignalEmitter* emitter );
     virtual void onFillColorChanged( const caf::SignalEmitter* emitter );
@@ -176,20 +185,30 @@ protected:
 
     virtual void updateAxisInPlot( RiuPlotAxis plotAxis );
 
+private:
+    bool isCurveNameTemplateSupported() const;
+
 protected:
-    caf::PdmField<bool>    m_showCurve;
+    caf::PdmField<bool> m_showCurve;
+
     caf::PdmField<QString> m_curveName;
-    caf::PdmField<QString> m_customCurveName;
-    caf::PdmField<bool>    m_showLegend;
+    caf::PdmField<QString> m_curveNameTemplateText;
+
+    caf::PdmField<caf::AppEnum<RiaDefines::ObjectNamingMethod>> m_namingMethod;
+
     caf::PdmField<QString> m_legendEntryText;
-    caf::PdmField<bool>    m_showErrorBars;
-    caf::PdmField<bool>    m_isUsingAutoName;
+
+    caf::PdmField<bool> m_showLegend;
+    caf::PdmField<bool> m_showErrorBars;
 
     caf::PdmChildField<RimPlotCurveAppearance*> m_curveAppearance;
+
+    caf::PdmPtrArrayField<RimPlotCurve*> m_additionalDataSources;
 
     QPointer<RiuPlotWidget> m_parentPlot;
     RiuPlotCurve*           m_plotCurve;
 
+    caf::PdmField<bool>                                       m_isUsingAutoName_OBSOLETE;
     caf::PdmField<QString>                                    m_symbolLabel_OBSOLETE;
     caf::PdmField<int>                                        m_symbolSize_OBSOLETE;
     caf::PdmField<cvf::Color3f>                               m_curveColor_OBSOLETE;

@@ -20,6 +20,7 @@
 
 #include "RimEclipseCase.h"
 
+#include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaDefines.h"
 #include "RiaFieldHandleTools.h"
@@ -30,12 +31,13 @@
 #include "CompletionExportCommands/RicWellPathExportCompletionDataFeatureImpl.h"
 
 #include "RicfCommandObject.h"
-#include "RifEclipseInputPropertyLoader.h"
+#include "RifInputPropertyLoader.h"
 #include "RifReaderSettings.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigGridManager.h"
 #include "RigMainGrid.h"
 #include "RigNNCData.h"
 #include "RigSimWellData.h"
@@ -268,6 +270,19 @@ const RigMainGrid* RimEclipseCase::mainGrid() const
     }
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEclipseCase::isGridSizeEqualTo( const RimEclipseCase* otherCase ) const
+{
+    if ( !mainGrid() || !otherCase || !otherCase->mainGrid() )
+    {
+        return false;
+    }
+
+    return RigGridManager::isMainGridDimensionsEqual( mainGrid(), otherCase->mainGrid() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -529,7 +544,7 @@ void RimEclipseCase::updateFormationNamesData()
                     }
 
                     RimEclipsePropertyFilterCollection* eclFilColl = eclView->eclipsePropertyFilterCollection();
-                    for ( RimEclipsePropertyFilter* propFilter : eclFilColl->propertyFilters )
+                    for ( RimEclipsePropertyFilter* propFilter : eclFilColl->propertyFilters() )
                     {
                         if ( propFilter->resultDefinition()->resultType() == RiaDefines::ResultCatType::FORMATION_NAMES )
                         {
@@ -539,7 +554,7 @@ void RimEclipseCase::updateFormationNamesData()
                 }
 
                 RimEclipsePropertyFilterCollection* eclFilColl = eclView->eclipsePropertyFilterCollection();
-                for ( RimEclipsePropertyFilter* propFilter : eclFilColl->propertyFilters )
+                for ( RimEclipsePropertyFilter* propFilter : eclFilColl->propertyFilters() )
                 {
                     if ( propFilter->resultDefinition()->resultType() == RiaDefines::ResultCatType::FORMATION_NAMES )
                     {
@@ -637,7 +652,12 @@ void RimEclipseCase::computeCachedData()
 
         {
             auto task = pInf.task( "Calculating Cell Search Tree", 10 );
-            rigEclipseCase->mainGrid()->computeCachedData();
+
+            std::string aabbTreeInfo;
+            rigEclipseCase->mainGrid()->computeCachedData( &aabbTreeInfo );
+
+            // Debug output of the content of the AABB tree
+            // RiaLogging::debug( QString::fromStdString( aabbTreeInfo ) );
         }
 
         {
@@ -704,7 +724,7 @@ std::vector<QString> RimEclipseCase::additionalFiles() const
 /// Loads input property data from the gridFile and additional files
 /// Creates new InputProperties if necessary, and flags the unused ones as obsolete
 //--------------------------------------------------------------------------------------------------
-void RimEclipseCase::loadAndSyncronizeInputProperties( bool importGridOrFaultData )
+void RimEclipseCase::loadAndSynchronizeInputProperties( bool importGridOrFaultData )
 {
     // Make sure we actually have reservoir data
 
@@ -719,10 +739,10 @@ void RimEclipseCase::loadAndSyncronizeInputProperties( bool importGridOrFaultDat
         filenames.push_back( fileName );
     }
 
-    RifEclipseInputPropertyLoader::loadAndSyncronizeInputProperties( inputPropertyCollection(),
-                                                                     eclipseCaseData(),
-                                                                     filenames,
-                                                                     importGridOrFaultData );
+    RifInputPropertyLoader::loadAndSynchronizeInputProperties( inputPropertyCollection(),
+                                                               eclipseCaseData(),
+                                                               filenames,
+                                                               importGridOrFaultData );
 }
 
 //--------------------------------------------------------------------------------------------------

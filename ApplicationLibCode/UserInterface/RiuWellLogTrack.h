@@ -23,7 +23,10 @@
 #include "qwt_plot.h"
 
 class RimWellLogTrack;
+class RiuPlotAnnotationTool;
+class RimPlotAxisAnnotation;
 class QWheelEvent;
+class QMouseEvent;
 
 //==================================================================================================
 //
@@ -39,4 +42,12 @@ public:
     ~RiuWellLogTrack() override;
 
     void setAxisEnabled( QwtAxis::Position axis, bool enabled );
+
+    void createAnnotationsInPlot( const std::vector<RimPlotAxisAnnotation*>& annotations );
+
+private:
+    void onMouseMoveEvent( QMouseEvent* event ) override;
+
+private:
+    std::unique_ptr<RiuPlotAnnotationTool> m_annotationTool;
 };

@@ -227,6 +227,8 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 QStringList RimStimPlanFractureTemplate::conductivityResultNames() const
 {
+    if ( m_stimPlanFractureDefinitionData.isNull() ) return QStringList();
+
     return m_stimPlanFractureDefinitionData->conductivityResultNames();
 }
 
@@ -837,4 +839,12 @@ void RimStimPlanFractureTemplate::appendTextIfValidValue( QString&              
         auto [numberFormat, precision] = RigEnsembleFractureStatisticsCalculator::numberFormatForProperty( propertyType );
         body += QString( "%1: %2<br>" ).arg( name ).arg( RiaNumberFormat::valueToText( value, numberFormat, precision ) );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimStimPlanFractureTemplate::isValidResult( double value ) const
+{
+    return value > 1e-7;
 }

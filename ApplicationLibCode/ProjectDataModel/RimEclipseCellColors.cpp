@@ -244,6 +244,11 @@ void RimEclipseCellColors::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeO
         uiTreeOrdering.add( m_legendConfigPtrField() );
     }
 
+    for ( const auto& obj : m_additionalUiTreeObjects )
+    {
+        uiTreeOrdering.add( obj );
+    }
+
     uiTreeOrdering.skipRemainingChildren( true );
 }
 
@@ -269,6 +274,14 @@ void RimEclipseCellColors::uiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 void RimEclipseCellColors::useDiscreteLogLevels( bool enable )
 {
     m_useDiscreteLogLevels = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCellColors::setAdditionalUiTreeObjects( const std::vector<caf::PdmObject*>& objects )
+{
+    m_additionalUiTreeObjects = objects;
 }
 
 //--------------------------------------------------------------------------------------------------

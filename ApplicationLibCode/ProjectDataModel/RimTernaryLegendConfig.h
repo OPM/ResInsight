@@ -73,9 +73,8 @@ private:
                                                 caf::PdmUiEditorAttribute* attribute ) override;
     caf::PdmFieldHandle* objectToggleField() override;
 
-    void   updateLegend();
-    void   updateLabelText();
-    double roundToNumSignificantDigits( double value, double precision );
+    void updateLegend();
+    void updateLabelText();
 
     void ternaryRanges( double& soilLower,
                         double& soilUpper,

@@ -61,7 +61,7 @@ std::vector<RimEclipsePropertyFilterCollection*> RicEclipsePropertyFilterFeature
 void RicEclipsePropertyFilterFeatureImpl::addPropertyFilter( RimEclipsePropertyFilterCollection* propertyFilterCollection )
 {
     RimEclipsePropertyFilter* propertyFilter = new RimEclipsePropertyFilter();
-    propertyFilterCollection->propertyFilters.push_back( propertyFilter );
+    propertyFilterCollection->propertyFiltersField().push_back( propertyFilter );
     setDefaults( propertyFilter );
 
     propertyFilterCollection->reservoirView()->scheduleGeometryRegen( PROPERTY_FILTERED );
@@ -69,6 +69,8 @@ void RicEclipsePropertyFilterFeatureImpl::addPropertyFilter( RimEclipsePropertyF
 
     propertyFilterCollection->updateConnectedEditors();
     Riu3DMainWindowTools::selectAsCurrentItem( propertyFilter, false );
+
+    propertyFilterCollection->onChildAdded( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,7 +80,7 @@ void RicEclipsePropertyFilterFeatureImpl::insertPropertyFilter( RimEclipseProper
                                                                 size_t                              index )
 {
     RimEclipsePropertyFilter* propertyFilter = new RimEclipsePropertyFilter();
-    propertyFilterCollection->propertyFilters.insertAt( static_cast<int>( index ), propertyFilter );
+    propertyFilterCollection->propertyFiltersField().insertAt( static_cast<int>( index ), propertyFilter );
     setDefaults( propertyFilter );
 
     propertyFilterCollection->reservoirView()->scheduleGeometryRegen( PROPERTY_FILTERED );

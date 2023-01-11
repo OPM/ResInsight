@@ -113,6 +113,12 @@ bool RimStimPlanModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
         return false;
     }
 
+    auto eclipseCaseData = eclipseCase->eclipseCaseData();
+    if ( !eclipseCaseData )
+    {
+        return false;
+    }
+
     RigEclipseWellLogExtractor eclExtractor( eclipseCase->eclipseCaseData(), wellPathGeometry, "fracture model" );
 
     measuredDepthValues = eclExtractor.cellIntersectionMDs();

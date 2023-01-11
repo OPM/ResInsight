@@ -753,14 +753,11 @@ private:
             const std::array<size_t, 8>& cellIndices = wellCell.cornerIndices();
 
             cvf::BoundingBox& cellBB = m_cellBoundingBoxes[cIdx];
-            cellBB.add( nodes[cellIndices[0]] );
-            cellBB.add( nodes[cellIndices[1]] );
-            cellBB.add( nodes[cellIndices[2]] );
-            cellBB.add( nodes[cellIndices[3]] );
-            cellBB.add( nodes[cellIndices[4]] );
-            cellBB.add( nodes[cellIndices[5]] );
-            cellBB.add( nodes[cellIndices[6]] );
-            cellBB.add( nodes[cellIndices[7]] );
+
+            for ( size_t i : cellIndices )
+            {
+                cellBB.add( nodes[i] );
+            }
         }
 
         m_cellSearchTree.buildTreeFromBoundingBoxes( m_cellBoundingBoxes, nullptr );

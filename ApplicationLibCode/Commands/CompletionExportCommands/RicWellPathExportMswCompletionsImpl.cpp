@@ -676,9 +676,6 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo(
     double maxSegmentLength = enableSegmentSplitting ? mswParameters->maxSegmentLength()
                                                      : std::numeric_limits<double>::infinity();
 
-    double subStartMD  = wellPath->fishbonesCollection()->startMD();
-    double subStartTVD = RicMswTableFormatterTools::tvdFromMeasuredDepth( branch->wellPath(), subStartMD );
-
     auto unitSystem = exportInfo->unitSystem();
 
     for ( RimFishbones* subs : fishbonesSubs )
@@ -808,9 +805,6 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfo(
                     segmentOnParentBranch->addCompletion( std::move( icdCompletion ) );
                 }
             }
-
-            subStartMD  = subEndMD;
-            subStartTVD = subEndTVD;
         }
     }
     exportInfo->setHasSubGridIntersections( exportInfo->hasSubGridIntersections() || foundSubGridIntersections );
@@ -1008,10 +1002,14 @@ bool RicWellPathExportMswCompletionsImpl::generatePerforationsMswExportInfo(
         auto childMswBranch         = createChildMswBranch( childWellPath );
         auto childCellIntersections = generateCellSegments( eclipseCase, childWellPath );
 
+        // Start MD of child well path at the tie in location
+        const double tieInOnParentWellPath =
+            childWellPath->wellPathTieIn() ? childWellPath->wellPathTieIn()->tieInMeasuredDepth() : initialMD;
+
         if ( generatePerforationsMswExportInfo( eclipseCase,
                                                 childWellPath,
                                                 timeStep,
-                                                initialMD,
+                                                tieInOnParentWellPath,
                                                 childCellIntersections,
                                                 exportInfo,
                                                 childMswBranch.get() ) )

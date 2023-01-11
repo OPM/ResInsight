@@ -18,6 +18,7 @@
 
 #include "RimSummaryCaseCollection.h"
 
+#include "RiaEnsembleNameTools.h"
 #include "RiaFieldHandleTools.h"
 #include "RiaLogging.h"
 #include "RiaStatisticsTools.h"
@@ -115,6 +116,7 @@ RimSummaryCaseCollection::RimSummaryCaseCollection()
     m_cases.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitScriptableField( &m_name, "SummaryCollectionName", QString( "Group" ), "Name" );
+    CAF_PDM_InitScriptableField( &m_autoName, "CreateAutoName", true, "Auto Name" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_nameAndItemCount, "NameCount", "Name" );
     m_nameAndItemCount.registerGetMethod( this, &RimSummaryCaseCollection::nameAndItemCount );
@@ -244,6 +246,28 @@ void RimSummaryCaseCollection::setName( const QString& name )
 QString RimSummaryCaseCollection::name() const
 {
     return m_name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseCollection::ensureNameIsUpdated()
+{
+    if ( m_autoName )
+    {
+        QStringList fileNames;
+        for ( const auto& summaryCase : m_cases )
+        {
+            fileNames.push_back( summaryCase->summaryHeaderFilename() );
+        }
+
+        RiaEnsembleNameTools::EnsembleGroupingMode groupingMode =
+            RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE;
+
+        QString ensembleName = RiaEnsembleNameTools::findSuitableEnsembleName( fileNames, groupingMode );
+        m_name               = ensembleName;
+        caseNameChanged.send();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -960,11 +984,11 @@ void RimSummaryCaseCollection::computeMinMax( const RifEclipseSummaryAddress& ad
     double minimumValue( std::numeric_limits<double>::infinity() );
     double maximumValue( -std::numeric_limits<double>::infinity() );
 
-    std::vector<double> values;
     for ( const auto& s : m_cases() )
     {
         if ( !s->summaryReader() ) continue;
 
+        std::vector<double> values;
         s->summaryReader()->values( address, &values );
         if ( values.empty() ) continue;
 
@@ -1036,6 +1060,13 @@ void RimSummaryCaseCollection::initAfterRead()
     }
 
     updateIcon();
+
+    for ( const auto& summaryCase : m_cases )
+    {
+        summaryCase->nameChanged.connect( this, &RimSummaryCaseCollection::onCaseNameChanged );
+    }
+
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2022.06.2" ) ) m_autoName = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1048,6 +1079,14 @@ void RimSummaryCaseCollection::fieldChangedByUi( const caf::PdmFieldHandle* chan
     if ( changedField == &m_isEnsemble )
     {
         updateIcon();
+    }
+    if ( changedField == &m_autoName )
+    {
+        ensureNameIsUpdated();
+    }
+    if ( changedField == &m_name )
+    {
+        caseNameChanged.send();
     }
 }
 
@@ -1064,7 +1103,9 @@ void RimSummaryCaseCollection::onCaseNameChanged( const SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    uiOrdering.add( &m_autoName );
     uiOrdering.add( &m_name );
+    m_name.uiCapability()->setUiReadOnly( m_autoName() );
     if ( m_isEnsemble() )
     {
         uiOrdering.add( &m_ensembleId );

@@ -1,0 +1,15 @@
+-- WSEGLINK
+-- well-name segment-no-1 segment-no-2 
+-- If item #2 and #3 are undefined, all segment links for the well are removed.
+-- If either item #2 or #3 is undefined, all segment links are removed for the well and segment given.
+--
+
+
+WSEGLINK
+  PROD_N  20 30 /
+/
+
+WSEGLINK
+  PROD_M  20  /
+/
+

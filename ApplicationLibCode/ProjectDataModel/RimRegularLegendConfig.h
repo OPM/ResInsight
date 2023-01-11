@@ -163,9 +163,6 @@ public:
     static cvf::Color3ubArray colorArrayFromColorType( ColorRangesType colorType );
     static RimColorLegend*    mapToColorLegend( ColorRangesType colorType );
 
-    static double computeTenExponentCeil( double value );
-    static double computeTenExponentFloor( double value );
-
     void updateFonts() override;
 
     QString valueToText( double value ) const;
@@ -184,9 +181,8 @@ private:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
-    void   updateLegend();
-    void   updateFieldVisibility();
-    double roundToNumSignificantDigits( double value, double precision );
+    void updateLegend();
+    void updateFieldVisibility();
 
     void updateCategoryItems();
     void configureCategoryMapper();

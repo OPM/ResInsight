@@ -34,7 +34,6 @@ if(Qt5Core_FOUND)
                Gui
                OpenGL
                Network
-               Script
                Widgets
                Xml
                Concurrent
@@ -47,7 +46,6 @@ if(Qt5Core_FOUND)
       Qt5::Gui
       Qt5::Network
       Qt5::OpenGL
-      Qt5::Script
       Qt5::Widgets
       Qt5::Xml
       Qt5::Concurrent
@@ -192,6 +190,7 @@ list(
   ProjectDataModel/WellLog/CMakeLists_files.cmake
   ProjectDataModel/WellMeasurement/CMakeLists_files.cmake
   ProjectDataModel/WellPath/CMakeLists_files.cmake
+  ProjectDataModel/Tools/CMakeLists_files.cmake
   ProjectDataModelCommands/CMakeLists_files.cmake
   ProjectDataModelCommands/CommandRouter/CMakeLists_files.cmake
   GeoMech/GeoMechVisualization/CMakeLists_files.cmake

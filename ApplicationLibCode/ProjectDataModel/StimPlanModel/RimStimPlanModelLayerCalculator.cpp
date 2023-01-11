@@ -74,6 +74,11 @@ bool RimStimPlanModelLayerCalculator::calculate( RiaDefines::CurveProperty curve
         return false;
     }
 
+    if ( !eclipseCase->eclipseCaseData() )
+    {
+        return false;
+    }
+
     if ( !stimPlanModel->thicknessDirectionWellPath() )
     {
         return false;

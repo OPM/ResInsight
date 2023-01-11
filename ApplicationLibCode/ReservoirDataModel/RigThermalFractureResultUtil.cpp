@@ -34,9 +34,6 @@
 
 #include <cmath>
 
-int numSamplesX = 100;
-int numSamplesY = 60;
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -75,12 +72,12 @@ std::vector<std::vector<double>>
     boundingBox.expand( 1.0 );
 
     // Generate a uniform mesh (center points)
-    auto [xCoords, depthCoords] = generateUniformMesh( boundingBox, numSamplesX, numSamplesY );
+    auto [xCoords, depthCoords] = generateUniformMesh( boundingBox, NUM_SAMPLES_X, NUM_SAMPLES_Y );
 
     // Fill with invalid value
-    for ( int i = 0; i < numSamplesY; i++ )
+    for ( int i = 0; i < NUM_SAMPLES_Y; i++ )
     {
-        std::vector<double> junk( numSamplesX, std::numeric_limits<double>::infinity() );
+        std::vector<double> junk( NUM_SAMPLES_X, std::numeric_limits<double>::infinity() );
         vec.push_back( junk );
     }
 
@@ -133,7 +130,7 @@ void RigThermalFractureResultUtil::createFractureTriangleGeometry(
     boundingBox.expand( 1.0 );
 
     // Generate a uniform mesh
-    auto [xCoords, depthCoords] = generateUniformMesh( boundingBox, numSamplesX, numSamplesY );
+    auto [xCoords, depthCoords] = generateUniformMesh( boundingBox, NUM_SAMPLES_X, NUM_SAMPLES_Y );
 
     // Code adapted from RigStimPlanFractureDefinition
     std::vector<double> adjustedYs = depthCoords;
@@ -190,9 +187,9 @@ std::vector<double>
     const std::vector<std::vector<double>>& resultValuesAtTimeStep =
         getDataAtTimeIndex( fractureDefinition, resultName, unitName, timeStepIndex );
 
-    for ( int i = 0; i < static_cast<int>( numSamplesX ) - 2; i++ )
+    for ( int i = 0; i < static_cast<int>( NUM_SAMPLES_X ) - 2; i++ )
     {
-        for ( int j = 0; j < static_cast<int>( numSamplesY ) - 2; j++ )
+        for ( int j = 0; j < static_cast<int>( NUM_SAMPLES_Y ) - 2; j++ )
         {
             if ( j + 1 < static_cast<int>( resultValuesAtTimeStep.size() ) &&
                  i + 1 < static_cast<int>( resultValuesAtTimeStep[j + 1].size() ) )
@@ -282,7 +279,7 @@ cvf::cref<RigFractureGrid>
     boundingBox.expand( 1.0 );
 
     // Generate a uniform mesh
-    auto [Xs, Ys] = generateUniformMesh( boundingBox, numSamplesX, numSamplesY );
+    auto [Xs, Ys] = generateUniformMesh( boundingBox, NUM_SAMPLES_X, NUM_SAMPLES_Y );
 
     double centerZ = fractureDefinition->centerPosition().z();
     double offset  = wellPathIntersectionAtFractureDepth - centerZ;
@@ -343,8 +340,8 @@ cvf::cref<RigFractureGrid>
     cvf::ref<RigFractureGrid> fractureGrid = new RigFractureGrid;
     fractureGrid->setFractureCells( stimPlanCells );
     fractureGrid->setWellCenterFractureCellIJ( wellCenterStimPlanCellIJ );
-    fractureGrid->setICellCount( numSamplesX - 2 );
-    fractureGrid->setJCellCount( numSamplesY - 2 );
+    fractureGrid->setICellCount( NUM_SAMPLES_X - 2 );
+    fractureGrid->setJCellCount( NUM_SAMPLES_Y - 2 );
     fractureGrid->ensureCellSearchTreeIsBuilt();
 
     return cvf::cref<RigFractureGrid>( fractureGrid.p() );
@@ -354,10 +351,10 @@ cvf::cref<RigFractureGrid>
 /// TODO: adapted from RimEnsembleFractureStatistics. Maybe extract?
 //--------------------------------------------------------------------------------------------------
 std::pair<std::vector<double>, std::vector<double>>
-    RigThermalFractureResultUtil::generateUniformMesh( const cvf::BoundingBox& bb, int numSamplesX, int numSamplesY )
+    RigThermalFractureResultUtil::generateUniformMesh( const cvf::BoundingBox& bb, int NUM_SAMPLES_X, int NUM_SAMPLES_Y )
 {
-    CAF_ASSERT( numSamplesX > 0 );
-    CAF_ASSERT( numSamplesY > 0 );
+    CAF_ASSERT( NUM_SAMPLES_X > 0 );
+    CAF_ASSERT( NUM_SAMPLES_Y > 0 );
 
     double minX = bb.min().x();
     double maxX = bb.max().x();
@@ -366,10 +363,10 @@ std::pair<std::vector<double>, std::vector<double>>
     double maxY = bb.max().y();
 
     std::vector<double> gridXs;
-    linearSampling( minX, maxX, numSamplesX, gridXs );
+    linearSampling( minX, maxX, NUM_SAMPLES_X, gridXs );
 
     std::vector<double> gridYs;
-    linearSampling( minY, maxY, numSamplesY, gridYs );
+    linearSampling( minY, maxY, NUM_SAMPLES_Y, gridYs );
 
     return std::make_pair( gridXs, gridYs );
 }
@@ -449,24 +446,6 @@ void RigThermalFractureResultUtil::appendDataToResultStatistics( std::shared_ptr
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Taken from OverlayNavigationCube::computeNewUpVector
-/// Consider move to geometry util class
-//--------------------------------------------------------------------------------------------------
-cvf::Mat4d RigThermalFractureResultUtil::rotationMatrixBetweenVectors( const cvf::Vec3d& v1, const cvf::Vec3d& v2 )
-{
-    using namespace cvf;
-
-    Vec3d rotAxis = v1 ^ v2;
-    rotAxis.normalize();
-
-    // Guard acos against out-of-domain input
-    const double dotProduct = Math::clamp( v1 * v2, -1.0, 1.0 );
-    const double angle      = Math::acos( dotProduct );
-    Mat4d        rotMat     = Mat4d::fromRotation( rotAxis, angle );
-    return rotMat;
-}
-
-//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3d>
@@ -481,6 +460,13 @@ std::vector<cvf::Vec3d>
         r.z() *= -1.0;
     }
 
+    // Store the depths of the points
+    std::vector<double> depths;
+    for ( auto& r : relativePos )
+    {
+        depths.push_back( r.z() );
+    }
+
     cvf::Vec3d p0 = relativePos[0];
     cvf::Vec3d p1 = relativePos[1];
     cvf::Vec3d p2 = relativePos[2];
@@ -489,7 +475,7 @@ std::vector<cvf::Vec3d>
     plane.setFromPoints( p0, p1, p2 );
 
     cvf::Vec3d planeNormal = plane.normal().getNormalized();
-    auto       rotMat      = rotationMatrixBetweenVectors( planeNormal, ( cvf::Vec3d::Z_AXIS ).getNormalized() );
+    auto rotMat = cvf::GeometryTools::rotationMatrixBetweenVectors( planeNormal, ( cvf::Vec3d::Z_AXIS ).getNormalized() );
 
     for ( auto& r : relativePos )
     {
@@ -497,21 +483,24 @@ std::vector<cvf::Vec3d>
         r.z() = 0.0;
     }
 
-    auto findExtrema = []( const std::vector<cvf::Vec3d>& points ) {
-        double maxDistance = -1.0;
+    auto findPointsWithMostSimilarDepth = []( const std::vector<cvf::Vec3d>& points, const std::vector<double>& depths ) {
+        double minDiff = std::numeric_limits<double>::max();
 
         cvf::Vec3d e1 = cvf::Vec3d::UNDEFINED;
         cvf::Vec3d e2 = cvf::Vec3d::UNDEFINED;
-        for ( auto p1 : points )
+        for ( size_t i1 = 0; i1 < points.size(); i1++ )
         {
-            for ( auto p2 : points )
+            for ( size_t i2 = 0; i2 < points.size(); i2++ )
             {
-                double distance = p1.pointDistanceSquared( p2 );
-                if ( distance > maxDistance )
+                if ( i1 != i2 )
                 {
-                    maxDistance = distance;
-                    e1          = p1;
-                    e2          = p2;
+                    double diff = std::fabs( depths[i1] - depths[i2] );
+                    if ( diff < minDiff )
+                    {
+                        minDiff = diff;
+                        e1      = points[i1];
+                        e2      = points[i2];
+                    }
                 }
             }
         }
@@ -519,9 +508,14 @@ std::vector<cvf::Vec3d>
         return std::make_pair( e1, e2 );
     };
 
-    auto [e1, e2]        = findExtrema( relativePos );
-    cvf::Vec3d direction = e1 - e2;
-    auto       rotMat2   = rotationMatrixBetweenVectors( direction.getNormalized(), cvf::Vec3d::X_AXIS );
+    // Find the rotation that aligns the data so that depth (z coord) is the most similar.
+    auto [e1, e2]              = findPointsWithMostSimilarDepth( relativePos, depths );
+    cvf::Vec3d direction       = e1 - e2;
+    cvf::Vec3d directionNormal = direction.getNormalized();
+    // Make sure normal is pointing down
+    if ( directionNormal.y() > 0.0 ) directionNormal *= -1.0;
+
+    auto rotMat2 = cvf::GeometryTools::rotationMatrixBetweenVectors( directionNormal, cvf::Vec3d::X_AXIS );
     for ( auto& r : relativePos )
     {
         r.transformVector( rotMat2 );

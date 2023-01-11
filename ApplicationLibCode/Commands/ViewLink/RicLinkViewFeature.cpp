@@ -24,8 +24,6 @@
 #include "RicLinkVisibleViewsFeature.h"
 
 #include "Rim3dView.h"
-#include "RimEclipseContourMapView.h"
-#include "RimGeoMechContourMapView.h"
 #include "RimGridView.h"
 #include "RimProject.h"
 #include "RimViewLinker.h"
@@ -55,10 +53,8 @@ public:
         if ( contextViewer )
         {
             // Link only the active view to an existing view link collection.
-            RimGridView* activeView = RiaApplication::instance()->activeGridView();
+            auto* activeView = RiaApplication::instance()->activeReservoirView();
             if ( !activeView ) return false;
-            if ( dynamic_cast<RimEclipseContourMapView*>( activeView ) ) return false;
-            if ( dynamic_cast<RimGeoMechContourMapView*>( activeView ) ) return false;
 
             if ( activeView->assosiatedViewLinker() ) return false;
 
@@ -66,25 +62,12 @@ public:
             return true;
         }
 
-        std::vector<RimGridView*> selectedGridViews;
+        std::vector<Rim3dView*> selectedGridViews;
 
         caf::SelectionManager::instance()->objectsByTypeStrict( &selectedGridViews );
-        bool hasAnyUnlinkableViews = false;
         for ( auto gridView : selectedGridViews )
         {
             if ( !gridView ) continue;
-
-            if ( dynamic_cast<RimEclipseContourMapView*>( gridView ) )
-            {
-                hasAnyUnlinkableViews = true;
-                break;
-            }
-
-            if ( dynamic_cast<RimGeoMechContourMapView*>( gridView ) )
-            {
-                hasAnyUnlinkableViews = true;
-                break;
-            }
 
             if ( !gridView->assosiatedViewLinker() )
             {
@@ -92,7 +75,7 @@ public:
             }
         }
 
-        if ( !m_viewsToLink.empty() && !hasAnyUnlinkableViews )
+        if ( !m_viewsToLink.empty() )
         {
             return true;
         }
@@ -102,10 +85,10 @@ public:
 
     void execute() { RicLinkVisibleViewsFeature::linkViews( m_viewsToLink ); }
 
-    const std::vector<RimGridView*>& viewsToLink() { return m_viewsToLink; }
+    const std::vector<Rim3dView*>& viewsToLink() { return m_viewsToLink; }
 
 private:
-    std::vector<RimGridView*> m_viewsToLink;
+    std::vector<Rim3dView*> m_viewsToLink;
 };
 
 //--------------------------------------------------------------------------------------------------

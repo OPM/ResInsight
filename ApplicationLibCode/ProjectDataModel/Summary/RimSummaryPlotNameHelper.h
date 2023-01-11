@@ -60,7 +60,8 @@ public:
     bool isSegmentInTitle() const override;
     bool isCompletionInTitle() const override;
 
-    QString caseName() const override;
+    std::set<std::string> vectorNames() const override;
+    QString               caseName() const override;
 
     std::string titleVectorName() const override;
     std::string titleWellName() const override;

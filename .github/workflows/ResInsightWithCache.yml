@@ -22,7 +22,7 @@ jobs:
         config:
           - {
               name: "Windows Latest MSVC",
-              os: windows-latest,
+              os: windows-2022,
               cc: "cl",
               cxx: "cl",
               vcpkg-response-file: vcpkg_x64-windows.txt,
@@ -32,7 +32,7 @@ jobs:
             }
           - {
               name: "Ubuntu Latest gcc",
-              os: ubuntu-latest,
+              os: ubuntu-20.04,
               cc: "gcc",
               cxx: "g++",
               vcpkg-response-file: vcpkg_x64-linux.txt,
@@ -42,7 +42,7 @@ jobs:
             }
           - {
               name: "Ubuntu Latest clang",
-              os: ubuntu-latest,
+              os: ubuntu-20.04,
               cc: "clang",
               cxx: "clang++",
               vcpkg-response-file: vcpkg_x64-linux.txt,
@@ -52,7 +52,7 @@ jobs:
             }
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: true
 
@@ -64,11 +64,12 @@ jobs:
         run: python -c "import sys; print(sys.version)"
 
       - name: Get Python executable path
+        shell: bash
         id: python-path
-        run: echo "::set-output name=PYTHON_EXECUTABLE::$(python -c 'import sys; import pathlib; print (pathlib.PurePath(sys.executable).as_posix())')"
+        run: echo "PYTHON_EXECUTABLE=$(python -c 'import sys; import pathlib; print (pathlib.PurePath(sys.executable).as_posix())')" >> $GITHUB_OUTPUT
 
       - name: Print Python path
-        run: echo ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
+        run: echo "${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}"
 
       - name: Install dependencies
         # Make sure protobuf version is compatible with grpc - https://github.com/OPM/ResInsight/issues/9304
@@ -105,18 +106,21 @@ jobs:
             )
           endif()
 
-      - name: Prepare cache timestamp
-        id: cache_timestamp_string
-        shell: cmake -P {0}
-        run: |
-          string(TIMESTAMP current_date "%Y-%m-%d" UTC)
-          message("::set-output name=timestamp::${current_date}")
+      - name: Get current time
+        uses: josStorer/get-current-time@v2.0.2
+        id: current-time
+        with:
+          format: YYYY-MM-DD
+
+      - name: Print time stamp
+        run: echo "timestamp ${{ steps.current-time.outputs.formattedTime }}"
+
       - name: Cache Buildcache
         id: cache-buildcache
         uses: actions/cache@v3
         with:
           path: ${{ env.BUILDCACHE_DIR }}
-          key: ${{ matrix.config.os }}-${{ matrix.config.cc }}-cache-v02-${{ steps.cache_timestamp_string.outputs.timestamp }}
+          key: ${{ matrix.config.os }}-${{ matrix.config.cc }}-cache-v02-${{ steps.current-time.outputs.formattedTime }}
       - name: Create Folder for buildcache
         run: New-Item ${{ env.BUILDCACHE_DIR }} -ItemType "directory" -Force
         shell: pwsh
@@ -124,20 +128,13 @@ jobs:
         run: echo "${{github.workspace}}/buildcache/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
         shell: pwsh
 
-      - name: Cache Qt
-        id: cache-qt
-        uses: actions/cache@v3
-        with:
-          path: ${{ github.workspace }}/Qt/
-          key: ${{ matrix.config.os }}-QtCache-5-12-12
       - name: Install Qt
-        uses: jurplel/install-qt-action@v2
+        uses: jurplel/install-qt-action@v3
         with:
-          setup-python: false
           version: 5.12.12
-          modules: qtscript qtcharts
+          modules: qtscript
           dir: "${{ github.workspace }}/Qt/"
-          cached: ${{ steps.cache-qt.outputs.cache-hit }}
+          cache: true
 
       - name: Install Linux dependencies
         if: "contains( matrix.config.os, 'ubuntu')"

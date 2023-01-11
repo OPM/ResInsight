@@ -38,7 +38,7 @@ public:
     void                                          scheduleRecalculateCompletionTypeAndRedrawAllViews();
     void                                          clearCompletionTypeResultsInAllCases();
 
-    void scheduleRecalculateCompletionTypeAndRedrawAllViews( RimEclipseCase* eclipseCase );
+    void scheduleRecalculateCompletionTypeAndRedrawAllViews( const std::vector<RimEclipseCase*>& eclipseCases );
     void clearCompletionTypeResults( const std::vector<RimEclipseCase*>& eclipseCases );
 
     void performScheduledUpdates() override;
@@ -49,8 +49,6 @@ private:
 
     RiaCompletionTypeCalculationScheduler( const RiaCompletionTypeCalculationScheduler& o ) = delete;
     void operator=( const RiaCompletionTypeCalculationScheduler& o ) = delete;
-
-    void scheduleRecalculateCompletionTypeAndRedrawAllViews( const std::vector<RimEclipseCase*>& eclipseCases );
 
 private:
     std::vector<caf::PdmPointer<RimEclipseCase>> m_eclipseCasesToRecalculate;

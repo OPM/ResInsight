@@ -39,19 +39,22 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RigEclipseToStimPlanCellTransmissibilityCalculator::RigEclipseToStimPlanCellTransmissibilityCalculator(
-    const RimEclipseCase*   caseToApply,
-    cvf::Mat4d              fractureTransform,
-    double                  skinFactor,
-    double                  cDarcy,
-    const RigFractureCell&  stimPlanCell,
-    const std::set<size_t>& reservoirCellIndicesOpenForFlow,
-    const RimFracture*      fracture )
+    const RimEclipseCase*  caseToApply,
+    cvf::Mat4d             fractureTransform,
+    double                 skinFactor,
+    double                 cDarcy,
+    const RigFractureCell& stimPlanCell,
+    const RimFracture*     fracture )
     : m_case( caseToApply )
     , m_fractureTransform( fractureTransform )
     , m_fractureSkinFactor( skinFactor )
     , m_cDarcy( cDarcy )
     , m_stimPlanCell( stimPlanCell )
     , m_fracture( fracture )
+{
+}
+
+void RigEclipseToStimPlanCellTransmissibilityCalculator::computeValues( const std::set<size_t>& reservoirCellIndicesOpenForFlow )
 {
     calculateStimPlanCellsMatrixTransmissibility( reservoirCellIndicesOpenForFlow );
 }
@@ -146,7 +149,7 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
     const std::set<size_t>& reservoirCellIndicesOpenForFlow )
 {
     // Not calculating flow into fracture if stimPlan cell cond value is 0 (assumed to be outside the fracture):
-    if ( m_stimPlanCell.getConductivityValue() < 1e-7 ) return;
+    if ( m_stimPlanCell.getConductivityValue() < 1e-7 || std::isinf( m_stimPlanCell.getConductivityValue() ) ) return;
 
     const RigEclipseCaseData* eclipseCaseData = m_case->eclipseCaseData();
 
@@ -328,8 +331,8 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
                                                                              fractureAreaWeightedlength,
                                                                              m_cDarcy );
 
-            transmissibility = sqrt( transmissibility_X * transmissibility_X + transmissibility_Y * transmissibility_Y +
-                                     transmissibility_Z * transmissibility_Z );
+            cvf::Vec3d transmissibilityVector( transmissibility_X, transmissibility_Y, transmissibility_Z );
+            transmissibility = calculateTransmissibility( transmissibilityVector, fractureArea );
 
             matrixPermeability = RigFractureTransmissibilityEquations::matrixPermeability( permX, permY, NTG );
         }
@@ -389,4 +392,13 @@ cvf::ref<RigResultAccessor>
                                                               porosityModel,
                                                               0,
                                                               RigEclipseResultAddress( uiResultName ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigEclipseToStimPlanCellTransmissibilityCalculator::calculateTransmissibility( const cvf::Vec3d& transmissibilityVector,
+                                                                                      double            fractureArea )
+{
+    return transmissibilityVector.length();
 }

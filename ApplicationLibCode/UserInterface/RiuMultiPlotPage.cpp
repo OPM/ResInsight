@@ -25,13 +25,10 @@
 #include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaPreferences.h"
 
-#include "WellLogCommands/RicWellLogPlotTrackFeatureImpl.h"
-
 #include "RimContextCommandBuilder.h"
 #include "RimMultiPlot.h"
 #include "RimPlotCurve.h"
 #include "RimPlotWindow.h"
-#include "RimWellLogTrack.h"
 
 #include "RiuDraggableOverlayFrame.h"
 #include "RiuMainWindow.h"
@@ -109,7 +106,7 @@ RiuMultiPlotPage::RiuMultiPlotPage( RimPlotWindow* plotDefinition, QWidget* pare
 
     m_gridLayout = new QGridLayout( m_plotWidgetFrame );
     m_gridLayout->setContentsMargins( 0, 0, 0, 0 );
-    m_gridLayout->setSpacing( 5 );
+    m_gridLayout->setSpacing( 0 );
 
     new RiuPlotObjectPicker( m_plotTitle, m_plotDefinition );
 
@@ -193,7 +190,12 @@ void RiuMultiPlotPage::insertPlot( RiuPlotWidget* plotWidget, size_t index )
         legend->setMaxColumns( legendColumns );
         legend->horizontalScrollBar()->setVisible( false );
         legend->verticalScrollBar()->setVisible( false );
-        legend->setDefaultItemMode( QwtLegendData::Clickable );
+
+        // The legend item mode must be set before the widget is created
+        // See https://qwt.sourceforge.io/class_qwt_legend.html#af977ff3e749f8281ee8ad4b926542b50
+        auto legendItemMode = m_plotDefinition->legendItemsClickable() ? QwtLegendData::Clickable : QwtLegendData::ReadOnly;
+        legend->setDefaultItemMode( legendItemMode );
+
         if ( qwtPlotWidget )
         {
             legend->connect( qwtPlotWidget->qwtPlot(),
@@ -448,6 +450,7 @@ void RiuMultiPlotPage::contextMenuEvent( QContextMenuEvent* event )
 
     menuBuilder << "RicShowPlotDataFeature";
     menuBuilder << "RicShowContributingWellsFromPlotFeature";
+    menuBuilder << "RicNewDefaultSummaryPlotFeature";
 
     menuBuilder.appendToMenu( &menu );
 
@@ -744,11 +747,17 @@ void RiuMultiPlotPage::addLegendWidget( RiuPlotWidget*            plotWidget,
     }
     else
     {
-        CAF_ASSERT( m_plotDefinition->legendPosition() == RimPlotWindow::LegendPosition::INSIDE );
+        auto anchor = RiuDraggableOverlayFrame::AnchorCorner::TopRight;
+
+        if ( m_plotDefinition->legendPosition() == RimPlotWindow::LegendPosition::INSIDE_UPPER_RIGHT )
+            anchor = RiuDraggableOverlayFrame::AnchorCorner::TopRight;
+        else if ( m_plotDefinition->legendPosition() == RimPlotWindow::LegendPosition::INSIDE_UPPER_LEFT )
+            anchor = RiuDraggableOverlayFrame::AnchorCorner::TopLeft;
+
         auto overlayFrame = new RiuQwtLegendOverlayContentFrame;
         overlayFrame->setLegend( legend );
         legendFrame->setContentFrame( overlayFrame );
-        legendFrame->setAnchorCorner( RiuDraggableOverlayFrame::AnchorCorner::TopRight );
+        legendFrame->setAnchorCorner( anchor );
         plotWidget->removeOverlayFrame( legendFrame );
         plotWidget->addOverlayFrame( legendFrame );
     }
@@ -769,7 +778,8 @@ void RiuMultiPlotPage::updateLegendVisibility( RiuPlotWidget*            plotWid
         updateLegendFont( legend );
         legend->show();
 
-        if ( m_plotDefinition->legendPosition() == RimPlotWindow::LegendPosition::INSIDE )
+        if ( m_plotDefinition->legendPosition() == RimPlotWindow::LegendPosition::INSIDE_UPPER_LEFT ||
+             m_plotDefinition->legendPosition() == RimPlotWindow::LegendPosition::INSIDE_UPPER_RIGHT )
         {
             plotWidget->addOverlayFrame( legendFrame );
             legendFrame->show();
@@ -807,7 +817,6 @@ void RiuMultiPlotPage::setDefaultAxisProperties( RiuPlotWidget* plotWidget, int 
 {
     plotWidget->setAxisLabelsAndTicksEnabled( RiuPlotAxis::defaultLeft(), showYAxis( row, column ), showYAxis( row, column ) );
     plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), showYAxis( row, column ) );
-    plotWidget->setAxesFontsAndAlignment( m_axisTitleFontSize, m_axisValueFontSize );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -817,8 +826,15 @@ void RiuMultiPlotPage::adjustHeadingSpacing( RiuPlotWidget* plotWidget )
 {
     // Adjust the space below a graph to make sure the heading of the row below is closest to the
     // corresponding graph
+
+    if ( !m_plotDefinition ) return;
+
+    int bottomMargin = m_plotDefinition->bottomMargin();
+    if ( bottomMargin < 0 ) return;
+
     auto margins = plotWidget->contentsMargins();
-    margins.setBottom( 40 );
+
+    margins.setBottom( bottomMargin );
     plotWidget->setContentsMargins( margins );
 }
 

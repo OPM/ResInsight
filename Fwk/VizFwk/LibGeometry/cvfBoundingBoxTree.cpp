@@ -134,10 +134,11 @@ namespace cvf {
     public:
         AABBTreeNodeLeaf();
 
-        size_t index() const;
-        void setIndex(size_t index);
+        std::vector<int> ids() const;
+        void setIds(const std::vector<int>& ids);
+        
     private:
-        size_t m_index;					///< An index of the leaf node. The interpretation of this index is depending on which tree the node is in.
+        std::vector<int> m_ids; ///< An list of IDs of the leaf node. The interpretation of these values depends on which tree the node is in.
     };
 
     //=================================================================================================================================
@@ -168,7 +169,7 @@ namespace cvf {
         size_t  leavesCount() const;
         bool    boundingBox(cvf::BoundingBox* pBox) const;
 
-        cvf::String treeInfo() const;
+        std::string treeInfo() const;
 
     protected:
         virtual cvf::BoundingBox createLeaves() = 0;
@@ -185,7 +186,7 @@ namespace cvf {
         bool intersect(const AABBTreeNode* pA, const AABBTreeNode* pB) const;
 
         AABBTreeNodeInternal*  createNode();
-        AABBTreeNodeLeaf*      createOrAssignLeaf(size_t leafIndex, size_t bbId);
+        AABBTreeNodeLeaf*      createOrAssignLeaf(size_t leafIndex, const std::vector<int>& bbIds);
 
     private:
         static void deleteInternalNodesBottomUp(AABBTreeNode* node);
@@ -218,6 +219,8 @@ namespace cvf {
     class BoundingBoxTreeImpl : public AABBTree
     {
         BoundingBoxTreeImpl() {}
+        
+        void buildTree(const std::vector<cvf::BoundingBox>& boundingBoxes, const std::vector<std::vector<int>>& ids);
 
     private:
         friend class BoundingBoxTree;
@@ -225,10 +228,10 @@ namespace cvf {
         cvf::BoundingBox createLeaves();
         void findIntersections(const cvf::BoundingBox& bb, std::vector<size_t>& bbIds) const;
 
-        void findIntersections(const cvf::BoundingBox& bb, const AABBTreeNode* node, std::vector<size_t>& indices) const;
+        void findIntersections(const cvf::BoundingBox& bb, const AABBTreeNode* node, std::vector<size_t>& ids) const;
 
         std::vector<cvf::BoundingBox> m_validBoundingBoxes;
-        std::vector<size_t>           m_validOptionalBoundingBoxIds;
+        std::vector<std::vector<int>> m_validOptionalBoundingBoxIds;
     };
 }
 
@@ -411,25 +414,23 @@ void AABBTreeNodeInternal::setRight(AABBTreeNode* right)
 AABBTreeNodeLeaf::AABBTreeNodeLeaf()
 {
     m_type = AB_LEAF;
-
-    m_index = std::numeric_limits<size_t>::max();
 }
 
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-size_t AABBTreeNodeLeaf::index() const
+std::vector<int> AABBTreeNodeLeaf::ids() const
 {
-    return m_index;
+    return m_ids;
 }
 
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void AABBTreeNodeLeaf::setIndex(size_t index)
+void AABBTreeNodeLeaf::setIds(const std::vector<int>& ids)
 {
-    m_index = index;
+    m_ids = ids;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -711,32 +712,29 @@ size_t AABBTree::treeHeight(const AABBTreeNode* pNode, size_t iLevel, size_t* pi
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-cvf::String AABBTree::treeInfo() const
+std::string AABBTree::treeInfo() const
 {
-    cvf::String sInfo;
-
-    /*
-    sInfo =  cvf::String("Tree size: %1 \n").arg(static_cast<int>(treeSize()));
-    sInfo += cvf::String("Num leaves: %1 \n").arg(static_cast<int>(leavesCount()));
+    size_t treeSizeInMB = treeSize() / (1024u *1024u);
+    auto text = "Tree size : " + std::to_string(treeSizeInMB) + "[MB] \n";
+    
+    text += "Num leaves: " + std::to_string(leavesCount()) + "\n";
 
     size_t iMin = cvf::UNDEFINED_UINT;
     size_t iMax = 0;
     size_t iSumHeight = treeHeight(m_pRoot, 1, &iMin, &iMax);
     size_t iAvgHeigth = 0;
-    size_t iIdealHeigth = 0;
 
     if (leavesCount() > 0 ) iAvgHeigth = iSumHeight/leavesCount();
+    
+    auto iIdealHeigth = (cvf::uint)ceil((log((float)leavesCount())/log(2.0f)));
 
-    sInfo += VTString::MakeForm("Tree height: Min: %d - Max: %d - Avg: %d - Ideal: %d\n", iMin, iMax, iAvgHeigth, (VTint)ceil((log((VTfloat)GetNumLeaves())/log(2.0f))));
-    iIdealHeigth = (cvf::uint)ceil((log((float)leavesCount())/log(2.0f)));
-    sInfo =  cvf::String("Tree height: Min: %1 - Max: %2 - Avg: %3 - Ideal: %4\n").arg(iMin).arg(iMax).arg(iAvgHeigth).arg(iIdealHeigth);
-
-    cvf::BoundingBox bb;
-    boundingBox(&bb);
-    sInfo += bb.debugString();
-    */
-
-    return sInfo;
+    text += "Tree height: \n";
+    text += "  Min   : " + std::to_string(iMin) + "\n";
+    text += "  Max   : " + std::to_string(iMax) + "\n";
+    text += "  Avg   : " + std::to_string(iAvgHeigth) + "\n";
+    text += "  Ideal : " + std::to_string(iIdealHeigth) + "\n";
+   
+    return text;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -780,10 +778,10 @@ cvf::AABBTreeNodeInternal* AABBTree::createNode()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::AABBTreeNodeLeaf* AABBTree::createOrAssignLeaf(size_t leafIndex, size_t bbId)
+cvf::AABBTreeNodeLeaf* AABBTree::createOrAssignLeaf(size_t leafIndex, const std::vector<int>& bbIds)
 {
     cvf::AABBTreeNodeLeaf* leaf = &m_leafPool[leafIndex];
-    leaf->setIndex(bbId);
+    leaf->setIds(bbIds);
     return leaf;
 }
 
@@ -806,6 +804,22 @@ void AABBTree::deleteInternalNodesBottomUp(AABBTreeNode* node)
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void BoundingBoxTreeImpl::buildTree(const std::vector<cvf::BoundingBox>& boundingBoxes, const std::vector<std::vector<int>>& ids)
+{
+    // Assign data used in the tree construction
+    m_validBoundingBoxes = boundingBoxes;
+    m_validOptionalBoundingBoxIds = ids;
+    
+    AABBTree::buildTree();
+
+    // Release the memory used by the bounding boxes and ids, as this information is now distributed in the tree
+    m_validBoundingBoxes.clear();
+    m_validOptionalBoundingBoxIds.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Creates leafs for the supplied valid bounding boxes, keeping the original index 
 //--------------------------------------------------------------------------------------------------
 cvf::BoundingBox BoundingBoxTreeImpl::createLeaves()
@@ -821,10 +835,10 @@ cvf::BoundingBox BoundingBoxTreeImpl::createLeaves()
 #pragma omp for
         for (int i = 0; i < (int)m_validBoundingBoxes.size(); i++)
         {
-            size_t bbId = i;
-            if (!m_validOptionalBoundingBoxIds.empty()) bbId = m_validOptionalBoundingBoxIds[i];
+            std::vector<int> bbIds = {i};
+            if (!m_validOptionalBoundingBoxIds.empty()) bbIds = m_validOptionalBoundingBoxIds[i];
 
-            AABBTreeNodeLeaf* leaf = createOrAssignLeaf(i, bbId);
+            AABBTreeNodeLeaf* leaf = createOrAssignLeaf(i, bbIds);
 
             leaf->setBoundingBox(m_validBoundingBoxes[i]);
 
@@ -856,7 +870,7 @@ void BoundingBoxTreeImpl::findIntersections(const cvf::BoundingBox& bb, std::vec
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
-void BoundingBoxTreeImpl::findIntersections(const cvf::BoundingBox& bb, const AABBTreeNode* node, std::vector<size_t>& cvIndices) const
+void BoundingBoxTreeImpl::findIntersections(const cvf::BoundingBox& bb, const AABBTreeNode* node, std::vector<size_t>& ids) const
 {
     CVF_TIGHT_ASSERT(bb.isValid());
     
@@ -866,7 +880,9 @@ void BoundingBoxTreeImpl::findIntersections(const cvf::BoundingBox& bb, const AA
         {
             const AABBTreeNodeLeaf* leaf = static_cast<const AABBTreeNodeLeaf*>(node);
             {
-                cvIndices.push_back(leaf->index());
+                auto leafIds = leaf->ids();
+
+                ids.insert(ids.end(), leafIds.begin(), leafIds.end());
                 return;
             }
         }
@@ -874,8 +890,8 @@ void BoundingBoxTreeImpl::findIntersections(const cvf::BoundingBox& bb, const AA
         {
             const AABBTreeNodeInternal* internalNode = static_cast<const AABBTreeNodeInternal*>(node);
 
-            findIntersections(bb, internalNode->left(), cvIndices);
-            findIntersections(bb, internalNode->right(), cvIndices);
+            findIntersections(bb, internalNode->left(), ids);
+            findIntersections(bb, internalNode->right(), ids);
         }
     }
 }
@@ -906,23 +922,50 @@ void BoundingBoxTree::buildTreeFromBoundingBoxes(const std::vector<cvf::Bounding
 {
     if (optionalBoundingBoxIds) CVF_ASSERT(boundingBoxes.size() == optionalBoundingBoxIds->size());
 
-    m_implTree->m_validBoundingBoxes.clear();
-    m_implTree->m_validBoundingBoxes.reserve(boundingBoxes.size());
-    if (optionalBoundingBoxIds)
-        m_implTree->m_validOptionalBoundingBoxIds.reserve(optionalBoundingBoxIds->size());
+    std::vector<cvf::BoundingBox> validBoundingBoxes;
+    std::vector<std::vector<int>> validOptionalBoundingBoxIds;
 
+    validBoundingBoxes.reserve(boundingBoxes.size());
+    if (optionalBoundingBoxIds)
+        validOptionalBoundingBoxIds.reserve(optionalBoundingBoxIds->size());
+
+    for (size_t i = 0; i < boundingBoxes.size(); ++i)
+    {
+        if (boundingBoxes[i].isValid())
+        {
+            validBoundingBoxes.push_back(boundingBoxes[i]);
+            if (optionalBoundingBoxIds)
+            {
+                const auto& id = (*optionalBoundingBoxIds)[i];
+                
+                std::vector<int> ids = {static_cast<int>(id)};
+                validOptionalBoundingBoxIds.push_back(ids);
+            }
+        }
+    }
+    
+    m_implTree->buildTree(validBoundingBoxes, validOptionalBoundingBoxIds);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void BoundingBoxTree::buildTreeFromBoundingBoxesOptimized(const std::vector<cvf::BoundingBox>& boundingBoxes,
+                                                          const std::vector<std::vector<int>>& optionalBoundingBoxIds)
+{
+    std::vector<cvf::BoundingBox> validBoundingBoxes;
+    std::vector<std::vector<int>> validOptionalBoundingBoxIds;
+    
     for (int i = 0; i < (int)boundingBoxes.size(); ++i)
     {
         if (boundingBoxes[i].isValid())
         {
-            m_implTree->m_validBoundingBoxes.push_back(boundingBoxes[i]);
-            if (optionalBoundingBoxIds)
-            {
-                m_implTree->m_validOptionalBoundingBoxIds.push_back((*optionalBoundingBoxIds)[i]);
-            }
+            validBoundingBoxes.push_back(boundingBoxes[i]);
+            validOptionalBoundingBoxIds.push_back(optionalBoundingBoxIds[i]);
         }
     }
-    m_implTree->buildTree(); 
+    
+    m_implTree->buildTree(validBoundingBoxes, validOptionalBoundingBoxIds);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -933,6 +976,14 @@ void BoundingBoxTree::findIntersections(const cvf::BoundingBox& bb, std::vector<
     CVF_ASSERT(bbIdsOrIndices);
 
     m_implTree->findIntersections(bb, *bbIdsOrIndices);
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string BoundingBoxTree::info() const
+{
+    return m_implTree->treeInfo();
 }
 
 } // namespace cvf

@@ -34,6 +34,7 @@
 #include "RimCellEdgeColors.h"
 #include "RimCommandObject.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseCellColors.h"
 #include "RimEclipseContourMapView.h"
 #include "RimEclipseFaultColors.h"
 #include "RimEclipsePropertyFilter.h"
@@ -50,6 +51,7 @@
 #include "RimViewWindow.h"
 
 #include "RiuDockWidgetTools.h"
+#include "RiuMdiArea.h"
 #include "RiuMdiSubWindow.h"
 #include "RiuMessagePanel.h"
 #include "RiuMohrsCirclePlot.h"
@@ -92,6 +94,7 @@
 #include <QLayout>
 #include <QMdiSubWindow>
 #include <QMenuBar>
+#include <QMimeData>
 #include <QSpinBox>
 #include <QStatusBar>
 #include <QTimer>
@@ -137,6 +140,8 @@ RiuMainWindow::RiuMainWindow()
     createMenus();
     createToolBars();
     createDockPanels();
+
+    setAcceptDrops( true );
 
     if ( m_undoView )
     {
@@ -215,10 +220,7 @@ void RiuMainWindow::initializeGuiNewProjectLoaded()
     setPdmRoot( RimProject::current() );
     restoreTreeViewState();
 
-    if ( subWindowsAreTiled() )
-    {
-        tileSubWindows();
-    }
+    m_mdiArea->applyTiling();
 
     slotRefreshFileActions();
     slotRefreshUndoRedoActions();
@@ -450,6 +452,9 @@ void RiuMainWindow::createMenus()
     importEclipseMenu->addAction( cmdFeatureMgr->action( "RicImportInputEclipseCaseFeature" ) );
     importEclipseMenu->addAction( cmdFeatureMgr->action( "RicCreateGridCaseGroupFromFilesFeature" ) );
 
+    QMenu* importRoffMenu = importMenu->addMenu( QIcon( ":/Case48x48.png" ), "Roff Grid Models" );
+    importRoffMenu->addAction( cmdFeatureMgr->action( "RicImportRoffCaseFeature" ) );
+
     importMenu->addSeparator();
     QMenu* importSummaryMenu = importMenu->addMenu( QIcon( ":/SummaryCase.svg" ), "Summary Cases" );
     importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportSummaryCaseFeature" ) );
@@ -593,7 +598,7 @@ void RiuMainWindow::createToolBars()
     {
         QToolBar* toolbar = addToolBar( tr( "Standard" ) );
         toolbar->setObjectName( toolbar->windowTitle() );
-        toolbar->addAction( cmdFeatureMgr->action( "RicImportGeneralDataFeature" ) );
+        toolbar->addAction( cmdFeatureMgr->action( "RicImportEclipseCaseFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicOpenProjectFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicSaveProjectFeature" ) );
     }
@@ -1324,61 +1329,69 @@ void RiuMainWindow::selectViewInProjectTreePreservingSubItemSelection( const Rim
         }
     }
 
-    if ( is3dViewCurrentlySelected && ( previousActiveReservoirView != activatedView ) )
+    auto tv = getTreeViewWithItem( activatedView );
+    if ( !tv ) return;
+
+    QModelIndex newViewModelIndex = tv->findModelIndex( activatedView );
+    if ( !newViewModelIndex.isValid() ) return;
+
+    QModelIndex newSelectionIndex = newViewModelIndex;
+
+    if ( !is3dViewCurrentlySelected )
     {
-        auto tv = getTreeViewWithItem( activatedView );
-        if ( !tv ) return;
+        std::vector<RimEclipseCellColors*> objects;
 
-        QModelIndex newViewModelIndex = tv->findModelIndex( activatedView );
-        if ( !newViewModelIndex.isValid() ) return;
-
-        QModelIndex newSelectionIndex = newViewModelIndex;
-
-        if ( previousActiveReservoirView && is3dViewCurrentlySelected )
+        activatedView->descendantsIncludingThisOfType( objects );
+        if ( !objects.empty() )
         {
-            // Try to select the same entry in the new View, as was selected in the previous
+            auto candidate = tv->findModelIndex( objects.front() );
+            if ( candidate.isValid() ) newSelectionIndex = candidate;
+        }
+    }
+    else if ( previousActiveReservoirView && is3dViewCurrentlySelected )
+    {
+        // Try to select the same entry in the new View, as was selected in the previous
 
-            QModelIndex previousViewModelIndex = tv->findModelIndex( previousActiveReservoirView );
-            QModelIndex currentSelectionIndex  = tv->treeView()->selectionModel()->currentIndex();
+        QModelIndex previousViewModelIndex = tv->findModelIndex( previousActiveReservoirView );
+        QModelIndex currentSelectionIndex  = tv->treeView()->selectionModel()->currentIndex();
 
-            if ( currentSelectionIndex != newViewModelIndex && currentSelectionIndex.isValid() )
+        if ( currentSelectionIndex != newViewModelIndex && currentSelectionIndex.isValid() )
+        {
+            QVector<QModelIndex> route; // Contains all model indices from current selection up to previous view
+
+            QModelIndex tmpModelIndex = currentSelectionIndex;
+
+            while ( tmpModelIndex.isValid() && tmpModelIndex != previousViewModelIndex )
             {
-                QVector<QModelIndex> route; // Contains all model indices from current selection up to previous view
+                // NB! Add model index to front of vector to be able to do a for-loop with correct ordering
+                route.push_front( tmpModelIndex );
 
-                QModelIndex tmpModelIndex = currentSelectionIndex;
+                tmpModelIndex = tmpModelIndex.parent();
+            }
 
-                while ( tmpModelIndex.isValid() && tmpModelIndex != previousViewModelIndex )
+            // Traverse model indices from new view index to currently selected item
+            int i;
+            for ( i = 0; i < route.size(); i++ )
+            {
+                QModelIndex tmp = route[i];
+                if ( newSelectionIndex.isValid() )
                 {
-                    // NB! Add model index to front of vector to be able to do a for-loop with correct ordering
-                    route.push_front( tmpModelIndex );
-
-                    tmpModelIndex = tmpModelIndex.parent();
-                }
-
-                // Traverse model indices from new view index to currently selected item
-                int i;
-                for ( i = 0; i < route.size(); i++ )
-                {
-                    QModelIndex tmp = route[i];
-                    if ( newSelectionIndex.isValid() )
-                    {
-                        newSelectionIndex = tv->treeView()->model()->index( tmp.row(), tmp.column(), newSelectionIndex );
-                    }
-                }
-
-                // Use view model index if anything goes wrong
-                if ( !newSelectionIndex.isValid() )
-                {
-                    newSelectionIndex = newViewModelIndex;
+                    newSelectionIndex = tv->treeView()->model()->index( tmp.row(), tmp.column(), newSelectionIndex );
                 }
             }
-        }
 
-        tv->treeView()->setCurrentIndex( newSelectionIndex );
-        if ( newSelectionIndex != newViewModelIndex )
-        {
-            tv->treeView()->setExpanded( newViewModelIndex, true );
+            // Use view model index if anything goes wrong
+            if ( !newSelectionIndex.isValid() )
+            {
+                newSelectionIndex = newViewModelIndex;
+            }
         }
+    }
+
+    tv->treeView()->setCurrentIndex( newSelectionIndex );
+    if ( newSelectionIndex != newViewModelIndex )
+    {
+        tv->treeView()->setExpanded( newViewModelIndex, true );
     }
 }
 
@@ -1409,8 +1422,6 @@ void RiuMainWindow::slotBuildWindowActions()
     {
         caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
         m_windowMenu->addAction( cmdFeatureMgr->action( "RicShowPlotWindowFeature" ) );
-        m_windowMenu->addSeparator();
-
         m_windowMenu->addSeparator();
     }
 
@@ -1956,120 +1967,6 @@ void RiuMainWindow::customMenuRequested( const QPoint& pos )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::tileSubWindows()
-{
-    QMdiArea::WindowOrder currentActivationOrder = m_mdiArea->activationOrder();
-
-    // Tile Windows so the one with the leftmost left edge gets sorted first.
-    std::list<QMdiSubWindow*> windowList;
-    for ( QMdiSubWindow* subWindow : m_mdiArea->subWindowList( currentActivationOrder ) )
-    {
-        windowList.push_back( subWindow );
-    }
-
-    // Get the active view linker if there is one
-    RimProject*              proj                 = RimProject::current();
-    RimViewLinkerCollection* viewLinkerCollection = proj->viewLinkerCollection();
-    RimViewLinker*           viewLinker           = nullptr;
-    if ( viewLinkerCollection && viewLinkerCollection->isActive() )
-    {
-        viewLinker = viewLinkerCollection->viewLinker();
-    }
-
-    // Perform stable sort of list so we first sort by window position but retain activation order
-    // for windows with the same position.
-    windowList.sort( [this, viewLinker]( QMdiSubWindow* lhs, QMdiSubWindow* rhs ) {
-        RimViewWindow* lhsViewWindow = findViewWindowFromSubWindow( lhs );
-        RimViewWindow* rhsViewWindow = findViewWindowFromSubWindow( rhs );
-        RimGridView*   lhsGridView   = dynamic_cast<RimGridView*>( lhsViewWindow );
-        RimGridView*   rhsGridView   = dynamic_cast<RimGridView*>( rhsViewWindow );
-
-        if ( viewLinker )
-        {
-            if ( viewLinker->isFirstViewDependentOnSecondView( lhsGridView, rhsGridView ) )
-            {
-                return true;
-            }
-            else if ( viewLinker->isFirstViewDependentOnSecondView( rhsGridView, lhsGridView ) )
-            {
-                return false;
-            }
-        }
-        if ( lhs->frameGeometry().topLeft().ry() == rhs->frameGeometry().topLeft().ry() )
-        {
-            return lhs->frameGeometry().topLeft().rx() < rhs->frameGeometry().topLeft().rx();
-        }
-        return lhs->frameGeometry().topLeft().ry() < rhs->frameGeometry().topLeft().ry();
-    } );
-
-    // Based on workaround described here
-    // https://forum.qt.io/topic/50053/qmdiarea-tilesubwindows-always-places-widgets-in-activationhistoryorder-in-subwindowview-mode
-
-    bool prevActivationBlock = isBlockingSubWindowActivatedSignal();
-
-    QMdiSubWindow* a = m_mdiArea->activeSubWindow();
-
-    // Force activation order so they end up in the order of the loop.
-    m_mdiArea->setActivationOrder( QMdiArea::ActivationHistoryOrder );
-
-    setBlockSubWindowActivatedSignal( true );
-
-    // Activate in reverse order
-    for ( auto it = windowList.rbegin(); it != windowList.rend(); ++it )
-    {
-        m_mdiArea->setActiveSubWindow( *it );
-    }
-
-    m_mdiArea->tileSubWindows();
-    // Set back the original activation order to avoid messing with the standard ordering
-    m_mdiArea->setActivationOrder( currentActivationOrder );
-    m_mdiArea->setActiveSubWindow( a );
-    setBlockSubWindowActivatedSignal( prevActivationBlock );
-
-    storeSubWindowTiling( true );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::storeSubWindowTiling( bool tiled )
-{
-    RimProject::current()->setSubWindowsTiledIn3DWindow( tiled );
-    refreshViewActions();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::clearWindowTiling()
-{
-    setBlockSubWindowActivatedSignal( true );
-    QMdiArea::WindowOrder currentActivationOrder = m_mdiArea->activationOrder();
-
-    for ( QMdiSubWindow* subWindow : m_mdiArea->subWindowList( currentActivationOrder ) )
-    {
-        subWindow->hide();
-        subWindow->showNormal();
-    }
-    storeSubWindowTiling( false );
-    setBlockSubWindowActivatedSignal( false );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiuMainWindow::subWindowsAreTiled() const
-{
-    if ( RimProject::current() )
-    {
-        return RimProject::current()->subWindowsTiled3DWindow();
-    }
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RiuMainWindow::isAnyMdiSubWindowVisible()
 {
     return !m_mdiArea->subWindowList().empty();
@@ -2102,7 +1999,40 @@ QStringList RiuMainWindow::defaultDockStateNames()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QAction* RiuMainWindow::tileSubWindowsAction()
+QStringList RiuMainWindow::windowsMenuFeatureNames()
 {
-    return caf::CmdFeatureManager::instance()->action( "RicTileWindowsFeature" );
+    return { "RicTileWindowsFeature", "RicTileWindowsVerticallyFeature", "RicTileWindowsHorizontallyFeature" };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::dragEnterEvent( QDragEnterEvent* event )
+{
+    if ( event->mimeData()->hasUrls() ) event->acceptProposedAction();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::dropEvent( QDropEvent* event )
+{
+    if ( !event ) return;
+    if ( !event->mimeData()->hasUrls() ) return;
+
+    for ( const auto& url : event->mimeData()->urls() )
+    {
+        QString fileName = url.toLocalFile();
+
+        QFileInfo fi( fileName );
+        if ( fi.exists() )
+        {
+            if ( RiaGuiApplication::instance()->openFile( fileName ) )
+            {
+                RiaGuiApplication::instance()->addToRecentFiles( fileName );
+            }
+        }
+    }
+
+    event->acceptProposedAction();
 }

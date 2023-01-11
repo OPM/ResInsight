@@ -39,6 +39,7 @@
 
 #include "cafAssert.h"
 #include "cafPdmUiComboBoxEditor.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 #include <QPen>
 
@@ -59,14 +60,20 @@ RimPlotCurve::RimPlotCurve()
     CAF_PDM_InitField( &m_showCurve, "Show", true, "Show curve" );
     m_showCurve.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_curveName, "CurveName", "Curve Name" );
-    CAF_PDM_InitFieldNoDefault( &m_customCurveName, "CurveDescription", "Custom Name" );
-    m_customCurveName.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_curveName, "CurveName", "" );
+
+    auto templateText =
+        QString( "%1, %2" ).arg( RiaDefines::namingVariableCase() ).arg( RiaDefines::namingVariableResultName() );
+    CAF_PDM_InitField( &m_curveNameTemplateText, "TemplateText", templateText, "Template Text" );
+    CAF_PDM_InitFieldNoDefault( &m_namingMethod, "CurveNamingMethod", "Curve Name" );
 
     CAF_PDM_InitFieldNoDefault( &m_legendEntryText, "LegendDescription", "Legend Name" );
     m_legendEntryText.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_isUsingAutoName, "AutoName", true, "Auto Name" );
+    CAF_PDM_InitField( &m_isUsingAutoName_OBSOLETE, "AutoName", false, "Auto Name" );
+    m_isUsingAutoName_OBSOLETE.xmlCapability()->setIOWritable( false );
+    m_isUsingAutoName_OBSOLETE.uiCapability()->setUiHidden( true );
+
     CAF_PDM_InitField( &m_showLegend, "ShowLegend", true, "Contribute To Legend" );
     CAF_PDM_InitField( &m_showErrorBars, "ShowErrorBars", true, "Show Error Bars" );
 
@@ -120,6 +127,10 @@ RimPlotCurve::RimPlotCurve()
     m_curveAppearance->appearanceChanged.connect( this, &RimPlotCurve::onCurveAppearanceChanged );
     m_curveAppearance->fillColorChanged.connect( this, &RimPlotCurve::onFillColorChanged );
 
+    CAF_PDM_InitFieldNoDefault( &m_additionalDataSources, "AdditionalDataSources", "Additional Data Sources" );
+    m_additionalDataSources.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_additionalDataSources.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
     m_plotCurve  = nullptr;
     m_parentPlot = nullptr;
 }
@@ -150,16 +161,14 @@ void RimPlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, co
     }
     else if ( changedField == &m_curveName )
     {
-        m_customCurveName = m_curveName;
         updateCurveNameAndUpdatePlotLegendAndTitle();
     }
-    else if ( changedField == &m_isUsingAutoName )
+    else if ( changedField == &m_namingMethod )
     {
-        if ( !m_isUsingAutoName )
-        {
-            m_customCurveName = createCurveAutoName();
-        }
-
+        updateCurveNameAndUpdatePlotLegendAndTitle();
+    }
+    else if ( changedField == &m_namingMethod || changedField == &m_curveNameTemplateText )
+    {
         updateCurveNameAndUpdatePlotLegendAndTitle();
         nameChanged.send( curveName() );
     }
@@ -189,20 +198,8 @@ caf::PdmFieldHandle* RimPlotCurve::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::setCustomName( const QString& customName )
 {
-    m_isUsingAutoName = false;
-    m_customCurveName = customName;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimPlotCurve::legendEntryText() const
-{
-    if ( !m_legendEntryText().isEmpty() )
-    {
-        return m_legendEntryText;
-    }
-    return m_customCurveName;
+    m_namingMethod = RiaDefines::ObjectNamingMethod::CUSTOM;
+    m_curveName    = customName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -225,11 +222,47 @@ void RimPlotCurve::setErrorBarsVisible( bool isVisible )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimPlotCurve::createCurveNameFromTemplate( const QString& templateText )
+{
+    return templateText;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPlotCurve::isCurveNameTemplateSupported() const
+{
+    return !supportedCurveNameVariables().isEmpty();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RimPlotCurve::supportedCurveNameVariables() const
+{
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPlotCurve::initAfterRead()
 {
     if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2021.06.0" ) )
     {
         updateCurveAppearanceForFilesOlderThan_2021_06();
+    }
+
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2022.06.1" ) )
+    {
+        if ( m_isUsingAutoName_OBSOLETE() )
+        {
+            m_namingMethod = RiaDefines::ObjectNamingMethod::AUTO;
+        }
+        else
+        {
+            m_namingMethod = RiaDefines::ObjectNamingMethod::CUSTOM;
+        }
     }
 }
 
@@ -259,6 +292,54 @@ void RimPlotCurve::updateCurvePresentation( bool updatePlotLegendAndTitle )
 caf::PdmFieldHandle* RimPlotCurve::userDescriptionField()
 {
     return &m_curveName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimPlotCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    QList<caf::PdmOptionItemInfo> options;
+    if ( fieldNeedingOptions == &m_namingMethod )
+    {
+        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::ObjectNamingMethod>::uiText(
+                                                       RiaDefines::ObjectNamingMethod::AUTO ),
+                                                   RiaDefines::ObjectNamingMethod::AUTO ) );
+
+        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::ObjectNamingMethod>::uiText(
+                                                       RiaDefines::ObjectNamingMethod::CUSTOM ),
+                                                   RiaDefines::ObjectNamingMethod::CUSTOM ) );
+
+        if ( isCurveNameTemplateSupported() )
+        {
+            options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::ObjectNamingMethod>::uiText(
+                                                           RiaDefines::ObjectNamingMethod::TEMPLATE ),
+                                                       RiaDefines::ObjectNamingMethod::TEMPLATE ) );
+        }
+    }
+    else if ( fieldNeedingOptions == &m_additionalDataSources )
+    {
+        std::vector<RimPlotWindow*> parentPlots;
+
+        // Find all plot windows above this object upwards in the object hierarchy. Use the top most plot window as the
+        // root to find all plot curves.
+        this->allAncestorsOfType( parentPlots );
+
+        if ( !parentPlots.empty() )
+        {
+            std::vector<RimPlotCurve*> plotCurves;
+            parentPlots.back()->descendantsOfType( plotCurves );
+
+            for ( auto p : plotCurves )
+            {
+                caf::PdmOptionItemInfo optionInfo( p->curveName(), p );
+
+                options.push_back( optionInfo );
+            }
+        }
+    }
+
+    return options;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -299,13 +380,13 @@ void RimPlotCurve::setCurveVisibility( bool visible )
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateCurveName()
 {
-    if ( m_isUsingAutoName )
+    if ( m_namingMethod == RiaDefines::ObjectNamingMethod::AUTO )
     {
         m_curveName = this->createCurveAutoName();
     }
-    else
+    else if ( m_namingMethod == RiaDefines::ObjectNamingMethod::TEMPLATE )
     {
-        m_curveName = m_customCurveName;
+        m_curveName = this->createCurveNameFromTemplate( m_curveNameTemplateText );
     }
 
     if ( !m_legendEntryText().isEmpty() )
@@ -339,9 +420,34 @@ void RimPlotCurve::updateCurveNameNoLegendUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::updateOptionSensitivity()
+void RimPlotCurve::setCurveNameTemplateText( const QString& templateText )
 {
-    m_curveName.uiCapability()->setUiReadOnly( m_isUsingAutoName );
+    m_curveNameTemplateText = templateText;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setNamingMethod( RiaDefines::ObjectNamingMethod namingMethod )
+{
+    m_namingMethod = namingMethod;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::updateFieldUiState()
+{
+    m_curveName.uiCapability()->setUiReadOnly( m_namingMethod != RiaDefines::ObjectNamingMethod::CUSTOM );
+
+    m_curveNameTemplateText.uiCapability()->setUiHidden( m_namingMethod != RiaDefines::ObjectNamingMethod::TEMPLATE );
+
+    auto templateVariables = supportedCurveNameVariables();
+    if ( !templateVariables.isEmpty() )
+    {
+        auto toolTipText = templateVariables.join( "," );
+        m_curveNameTemplateText.uiCapability()->setUiToolTip( toolTipText );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -371,8 +477,21 @@ void RimPlotCurve::appearanceUiOrdering( caf::PdmUiOrdering& uiOrdering )
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::curveNameUiOrdering( caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_isUsingAutoName );
+    updateFieldUiState();
+
+    uiOrdering.add( &m_namingMethod );
+    uiOrdering.add( &m_curveNameTemplateText );
     uiOrdering.add( &m_curveName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::additionalDataSourcesUiOrdering( caf::PdmUiOrdering& uiOrdering )
+{
+    auto group = uiOrdering.addNewGroup( RiaDefines::additionalDataSourcesGroupName() );
+    group->add( &m_additionalDataSources );
+    group->setCollapsedByDefault();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -992,6 +1111,22 @@ std::pair<double, double> RimPlotCurve::sample( int index ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RimPlotCurve::closestYValueForX( double xValue ) const
+{
+    return std::numeric_limits<double>::infinity();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPlotCurve*> RimPlotCurve::additionalDataSources() const
+{
+    return m_additionalDataSources.ptrReferencedObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPlotCurve::setParentPlotNoReplot( RiuPlotWidget* plotWidget )
 {
     if ( !plotWidget ) return;
@@ -1004,7 +1139,7 @@ void RimPlotCurve::setParentPlotNoReplot( RiuPlotWidget* plotWidget )
     }
 
     auto color  = RiaColorTools::toQColor( m_curveAppearance->color() );
-    m_plotCurve = m_parentPlot->createPlotCurve( this, "", color );
+    m_plotCurve = m_parentPlot->createPlotCurve( this, "" );
     m_plotCurve->updateErrorBarsAppearance( m_showErrorBars, color );
 
     // PERFORMANCE NOTE
