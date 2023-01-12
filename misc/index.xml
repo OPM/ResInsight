@@ -36,10 +36,8 @@ The *.rsp file is an XML file, and can be edited by any text editor.</descriptio
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/misc/windowmanagement/</guid>
-      <description>Window Management The window management system was updated in release 2022.06.1. ResInsight stores application window visibility and location between sessions. It is also possible to store the window configuration to a file for later reuse.
-The window management is available from the Windows menu.
-See the following demonstration of some of the Window Management features:
-  </description>
+      <description>Window Tiling Tiling of windows can be accessed from the tool bar. The default tiling will organize the windows in a grid pattern. It is also possible perform tiling of the windows horizontally or vertically. This feature is availble from the Windows menu at the main menbu bar.
+Default Horizontally Vertically Window Management The window management system was updated in release 2022.06.1. ResInsight stores application window visibility and location between sessions.</description>
     </item>
     
     <item>

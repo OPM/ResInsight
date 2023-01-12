@@ -15,6 +15,10 @@
   </url>
   
   <url>
+    <loc>https://resinsight.org/calculated-data/calculatorexpressions/</loc>
+  </url>
+  
+  <url>
     <loc>https://resinsight.org/getting-started/download-and-install/</loc>
   </url>
   
@@ -40,6 +44,10 @@
   
   <url>
     <loc>https://resinsight.org/misc/preferences/</loc>
+  </url>
+  
+  <url>
+    <loc>https://resinsight.org/import/roffgridmodels/</loc>
   </url>
   
   <url>
@@ -103,6 +111,10 @@
   </url>
   
   <url>
+    <loc>https://resinsight.org/getting-started/whats-new/releasenotes_2023_01/</loc>
+  </url>
+  
+  <url>
     <loc>https://resinsight.org/plot-window/summaryplotdatasources/</loc>
   </url>
   
@@ -136,6 +148,10 @@
   
   <url>
     <loc>https://resinsight.org/scripting/commandlineinterface/</loc>
+  </url>
+  
+  <url>
+    <loc>https://resinsight.org/calculated-data/curvecalculator/</loc>
   </url>
   
   <url>
@@ -199,6 +215,10 @@
   </url>
   
   <url>
+    <loc>https://resinsight.org/calculated-data/gridpropertycalculator/</loc>
+  </url>
+  
+  <url>
     <loc>https://resinsight.org/misc/keyboardshortcuts/</loc>
   </url>
   
@@ -216,6 +236,10 @@
   
   <url>
     <loc>https://resinsight.org/3d-main-window/resultcolorlegend/</loc>
+  </url>
+  
+  <url>
+    <loc>https://resinsight.org/3d-main-window/resultinfo/</loc>
   </url>
   
   <url>
@@ -240,6 +264,10 @@
   
   <url>
     <loc>https://resinsight.org/wells-and-completions/3dwelllogcurves/</loc>
+  </url>
+  
+  <url>
+    <loc>https://resinsight.org/import/appendingadditionalproperties/</loc>
   </url>
   
   <url>
@@ -332,10 +360,6 @@
   
   <url>
     <loc>https://resinsight.org/wells-and-completions/completionslgr/</loc>
-  </url>
-  
-  <url>
-    <loc>https://resinsight.org/plot-window/curvecalculator/</loc>
   </url>
   
   <url>
@@ -435,15 +459,19 @@
   </url>
   
   <url>
+    <loc>https://resinsight.org/calculated-data/derivedresults/</loc>
+  </url>
+  
+  <url>
     <loc>https://resinsight.org/plot-window/pltplot/</loc>
   </url>
   
   <url>
-    <loc>https://resinsight.org/3d-main-window/gridpropertycalculator/</loc>
+    <loc>https://resinsight.org/plot-window/vfpplot/</loc>
   </url>
   
   <url>
-    <loc>https://resinsight.org/plot-window/vfpplot/</loc>
+    <loc>https://resinsight.org/calculated-data/derivedresultsgeomech/</loc>
   </url>
   
   <url>
@@ -479,14 +507,6 @@
   </url>
   
   <url>
-    <loc>https://resinsight.org/3d-main-window/derivedresults/</loc>
-  </url>
-  
-  <url>
-    <loc>https://resinsight.org/3d-main-window/derivedresultsgeomech/</loc>
-  </url>
-  
-  <url>
     <loc>https://resinsight.org/_footer/</loc>
   </url>
   
@@ -496,6 +516,10 @@
   
   <url>
     <loc>https://resinsight.org/about/</loc>
+  </url>
+  
+  <url>
+    <loc>https://resinsight.org/calculated-data/</loc>
   </url>
   
   <url>

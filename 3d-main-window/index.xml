@@ -44,6 +44,16 @@ Legend configuration As shown above, the Legend configuration for cell results a
     </item>
     
     <item>
+      <title>Result Info</title>
+      <link>https://resinsight.org/3d-main-window/resultinfo/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/3d-main-window/resultinfo/</guid>
+      <description>The result info window displays text information based on selected geometry in the 3D view. This is information related to IJK cell values, the value of the currently selected result property, and the intersection point for the last mouse click in the 3D view.
+If you want to show additional properties, activate and select additional properties from Multiple Result Info in the Project Tree. Additional values are displayed in addition to currently selected property.</description>
+    </item>
+    
+    <item>
       <title>Color Legends</title>
       <link>https://resinsight.org/3d-main-window/colorlegends/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -187,18 +197,6 @@ To use this functionality you will need to :
     </item>
     
     <item>
-      <title>Grid Property Calculator</title>
-      <link>https://resinsight.org/3d-main-window/gridpropertycalculator/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/3d-main-window/gridpropertycalculator/</guid>
-      <description>ResInsight offers a built-in property calculator for grid parameters. The Grid Property Calculator enables arithmetic expressions to be parsed and calculated for visualization purposes.
-More details on mathematical operations are described in Curve Calculator
-Invoking the Grid Property Calculator Invoke the the Grid Property Calculator by pressing the calculator icon in the menu bar or by right-clicking Cell Result in Project Tree.
-Example using Grid Property Calculator As shown, the Grid Property Calculator is invoked by right-clicking Cell Result in Project Tree.</description>
-    </item>
-    
-    <item>
       <title>Grid Statistics Dialog</title>
       <link>https://resinsight.org/3d-main-window/gridstatisticsdialog/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -247,29 +245,6 @@ When ResInsight is in measurement mode, clicking on an surface in the 3D view wi
       <guid>https://resinsight.org/3d-main-window/annotations/</guid>
       <description>ResInsight supports displaying a few types of annotations in 3D views and Contour Map view.
  Text annotations Reach circle annotations Polyline annotations  User defined polylines Polylines imported from file    Global scope vs local scope annotations Global annotations may be displayed in all views and are located in the Annotations project tree node right below Grid Models (Global annotations sub tree). Local annotations are associated with a specific view and are located in the Annotations project tree node below the view node (Local annotations sub tree).</description>
-    </item>
-    
-    <item>
-      <title>Derived Results - Eclipse</title>
-      <link>https://resinsight.org/3d-main-window/derivedresults/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/3d-main-window/derivedresults/</guid>
-      <description>ResInsight computes several derived results. In this section we will explain what they are, and briefly how they are calculated.
-Derived Results for Eclipse Cases ResInsight calculates several derived cell properties that is made available as Static or Dynamic cell properties. The derived results listed at the bottom of the Static result properties, are shown below.
-Transmissibility Normalized by Area The transmissibility for cells and Non-Neighbor Connections (NNCs) are dependent on both cell properties and geometry.</description>
-    </item>
-    
-    <item>
-      <title>Derived Results - Geomechanical</title>
-      <link>https://resinsight.org/3d-main-window/derivedresultsgeomech/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/3d-main-window/derivedresultsgeomech/</guid>
-      <description>ResInsight computes several derived results. In this section we will explain what they are, and briefly how they are calculated.
-Derived Geomechanical results ResInsight calculates several of the presented geomechanical results based on the native results present in the odb-files.
-Relative Results (Time Lapse Results) ResInsight can calculate and display relative results, sometimes also referred to as Time Lapse results. When enabled, every result variable is calculated as:
-$Value_{[t-b]} = Value_{[t]} - Value_{[b]}$</description>
     </item>
     
   </channel>

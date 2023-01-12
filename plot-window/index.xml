@@ -16,7 +16,7 @@
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/plot-window/summaryplots/</guid>
-      <description>Summary Plots are a display of curves based on Eclipse Summary Data which can be combined with imported observed time history data, grid cell time history curve, and pasted ascii curves.
+      <description>Summary Plots are a display of curves based on Eclipse Summary Data which can be combined with imported observed data, grid cell time history curve, and pasted ascii curves.
 Summary plots are displayed on screen by maximum four rows by four columns of plots. In the example above, ResInsight displays two columns and two rows of plots, each plot comprising a single curve. However, a plot may contain an arbitrary number of curves.</description>
     </item>
     
@@ -152,17 +152,6 @@ Alternatively, Correlation Plots can be created by right-clicking the Correlatio
     </item>
     
     <item>
-      <title>Curve Calculator</title>
-      <link>https://resinsight.org/plot-window/curvecalculator/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/plot-window/curvecalculator/</guid>
-      <description>The summary curve calculator is a tool to do relative simple vector calculations on a set of curves. The created curves can be stored for later use in the project.
-The calculator can be run by pressing the calculator icon in the menu bar, or by right-clicking on either a summary case or the summary plot collection.
-Calculation Settings To make a new calculated curve, click on New Calculation. This will add a new calculation to Calculated Summaries.</description>
-    </item>
-    
-    <item>
       <title>Well Log Plots</title>
       <link>https://resinsight.org/plot-window/welllogsandplots/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -203,8 +192,7 @@ Create New RFT Plot There are several ways to create new RFT Plots.</description
       <guid>https://resinsight.org/plot-window/rftsegmentplot/</guid>
       <description>RFT Segment Data can be plotted as horizontal Well Log Plots. RFT data can be imported based on a summary case or a grid case.
 Create RFT Segment Plot Open a summary case with RFT data
-Optional Step - Additional data from WSEGLINK If WSEGLINK data is required, set the path to the file containing this data, or to the top level .DATA file.
-From the right-click menu of the summary case, select Reload to make sure the data from WSEGLINK is imported.</description>
+Additional data from WSEGLINK Some cases require data from WSEGLINK keyword. When importing summary data, ResInsight will automatically search for the related *.DATA file. The identified file can be seen or changed from the Property Editor.</description>
     </item>
     
     <item>

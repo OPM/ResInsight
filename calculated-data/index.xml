@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Calculated Data on ResInsight</title>
+    <link>https://resinsight.org/calculated-data/</link>
+    <description>Recent content in Calculated Data on ResInsight</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    
+	<atom:link href="https://resinsight.org/calculated-data/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Calculator Expressions</title>
+      <link>https://resinsight.org/calculated-data/calculatorexpressions/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/calculated-data/calculatorexpressions/</guid>
+      <description>Two similar calculators use expressions, summary curve calculator and grid cell calculator. These two variants share the text parsing for calculator expressions.
+Grid Property Calculator
+Summary Curve Calculator
+ResInsight supports a subset of the features supported in the exprtk parsing library. Scripting features like for/while loops are not supported. The full documentation for the expression parser is available at C++ Mathematical Expression Toolkit Library
+Operators and Functions Possible operations and functions are found by right-clicking in the expression window.</description>
+    </item>
+    
+    <item>
+      <title>Curve Calculator</title>
+      <link>https://resinsight.org/calculated-data/curvecalculator/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/calculated-data/curvecalculator/</guid>
+      <description>The summary curve calculator is a tool to do relative simple vector calculations on a set of curves. The created curves can be stored for later use in the project.
+The calculator can be run by pressing the calculator icon in the menu bar, or by right-clicking on either a summary case or the summary plot collection.
+More details on mathematical operations are described in Calculator Expressions
+Calculation Settings To make a new calculated curve, click on New Calculation.</description>
+    </item>
+    
+    <item>
+      <title>Grid Property Calculator</title>
+      <link>https://resinsight.org/calculated-data/gridpropertycalculator/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/calculated-data/gridpropertycalculator/</guid>
+      <description>ResInsight offers a built-in property calculator for grid parameters. The Grid Property Calculator enables arithmetic expressions to be parsed and calculated for visualization purposes.
+More details on mathematical operations are described in Calculator Expressions
+Invoking the Grid Property Calculator Invoke the the Grid Property Calculator by pressing the calculator icon in the menu bar or by right-clicking Cell Result in Project Tree.
+Example using Grid Property Calculator As shown, the Grid Property Calculator is invoked by right-clicking Cell Result in Project Tree.</description>
+    </item>
+    
+    <item>
+      <title>Derived Results - Eclipse</title>
+      <link>https://resinsight.org/calculated-data/derivedresults/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/calculated-data/derivedresults/</guid>
+      <description>ResInsight computes several derived results. In this section we will explain what they are, and briefly how they are calculated.
+Derived Results for Eclipse Cases ResInsight calculates several derived cell properties that is made available as Static or Dynamic cell properties. The derived results listed at the bottom of the Static result properties, are shown below.
+Transmissibility Normalized by Area The transmissibility for cells and Non-Neighbor Connections (NNCs) are dependent on both cell properties and geometry.</description>
+    </item>
+    
+    <item>
+      <title>Derived Results - Geomechanical</title>
+      <link>https://resinsight.org/calculated-data/derivedresultsgeomech/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/calculated-data/derivedresultsgeomech/</guid>
+      <description>ResInsight computes several derived results. In this section we will explain what they are, and briefly how they are calculated.
+Derived Geomechanical results ResInsight calculates several of the presented geomechanical results based on the native results present in the odb-files.
+Relative Results (Time Lapse Results) ResInsight can calculate and display relative results, sometimes also referred to as Time Lapse results. When enabled, every result variable is calculated as:
+$Value_{[t-b]} = Value_{[t]} - Value_{[b]}$</description>
+    </item>
+    
+  </channel>
+</rss>

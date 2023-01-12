@@ -44,6 +44,16 @@ This dialog is used for import of different file types like *.</description>
     </item>
     
     <item>
+      <title>ROFF Grid Models</title>
+      <link>https://resinsight.org/import/roffgridmodels/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/import/roffgridmodels/</guid>
+      <description>ResInsight supports the following type of ROFF input data:
+ *.ROFF and *.ROFFASC containing data from RMS as Roxar Open File Format (ROFF) in binary or ascii format.  Roff Data Roff Data can be imported from File-&amp;gt;Import-&amp;gt;Roff Grid Models-&amp;gt;Import Roff Case menu. Select a grid file and additional files with properties in the import dialog. The grid will be displayed and used in the same way as an Eclipse grid model.</description>
+    </item>
+    
+    <item>
       <title>Log ASCII Standard File</title>
       <link>https://resinsight.org/import/lasfile/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -94,7 +104,18 @@ A couple of property names are recognized and treated specially:
       <guid>https://resinsight.org/import/observeddata/</guid>
       <description>Observed Time History Data, is data measured in time. On import of observed time history data, ResInsight translates the data to make it similar to summary data. Observed time history data can be plotted along with summary data in Summary Plots.
 Import Observed Time History Data Importing observed time history data to ResInsight may be performed in two different ways:
- By selecting the main menu item File -&amp;gt; Import -&amp;gt; Import Observed Time History Data By using the right-click command Import Observed Time History Data on the Observed Time History Data item in the Plot Main Window Project Tree  The following file types are supported:</description>
+ By selecting the main menu item File -&amp;gt; Import -&amp;gt; Import Observed Data By using the right-click command Import Observed Data on the Observed Data item in the Plot Main Window Project Tree  The following file types are supported:</description>
+    </item>
+    
+    <item>
+      <title>Appending Additional Properties</title>
+      <link>https://resinsight.org/import/appendingadditionalproperties/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/import/appendingadditionalproperties/</guid>
+      <description>A grid model can be imported from several sources, either Eclipse binary/ascii or ROFF binary/ascii. Grid properties in separate files can be imported into any grid type as long as the number of grid cells is matching.
+Appending properties
+ From the right-click menu of the case or Cell Result, select Add Input Property Select the file with properties The imported data is then available in the Cell Result by activating the Input Property in the Type drop down list.</description>
     </item>
     
     <item>

@@ -162,6 +162,16 @@ Icons are added to the docking windows to make it easy to find a window.</descri
     </item>
     
     <item>
+      <title>What&#39;s New in 2023.01</title>
+      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2023_01/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2023_01/</guid>
+      <description>Summary Plotting Summary Plotting is updated with new features and improved workflows:
+ Improved logarithmic legend and default ranges Visual appearance of curves is now stable when doing Source Stepping Curve name and plot name improvements  Change Data Source by Clicking in 3D The data source for multiple plots can be updated by clicking on a well path in 3D. This feature can be useful for large fields with many wells and you want to investigate a small subset of wells.</description>
+    </item>
+    
+    <item>
       <title>What&#39;s New in 2018.11</title>
       <link>https://resinsight.org/getting-started/whats-new/releasenotes_2018_11/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

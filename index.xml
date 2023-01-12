@@ -43,6 +43,19 @@ Several views can be added to the same case by right-clicking the case or a view
     </item>
     
     <item>
+      <title>Calculator Expressions</title>
+      <link>https://resinsight.org/calculated-data/calculatorexpressions/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/calculated-data/calculatorexpressions/</guid>
+      <description>Two similar calculators use expressions, summary curve calculator and grid cell calculator. These two variants share the text parsing for calculator expressions.
+Grid Property Calculator
+Summary Curve Calculator
+ResInsight supports a subset of the features supported in the exprtk parsing library. Scripting features like for/while loops are not supported. The full documentation for the expression parser is available at C++ Mathematical Expression Toolkit Library
+Operators and Functions Possible operations and functions are found by right-clicking in the expression window.</description>
+    </item>
+    
+    <item>
       <title>Eclipse Cases</title>
       <link>https://resinsight.org/import/eclipsecases/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -99,6 +112,16 @@ General When changing the preferences, any default color, font or Z-scale Factor
     </item>
     
     <item>
+      <title>ROFF Grid Models</title>
+      <link>https://resinsight.org/import/roffgridmodels/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/import/roffgridmodels/</guid>
+      <description>ResInsight supports the following type of ROFF input data:
+ *.ROFF and *.ROFFASC containing data from RMS as Roxar Open File Format (ROFF) in binary or ascii format.  Roff Data Roff Data can be imported from File-&amp;gt;Import-&amp;gt;Roff Grid Models-&amp;gt;Import Roff Case menu. Select a grid file and additional files with properties in the import dialog. The grid will be displayed and used in the same way as an Eclipse grid model.</description>
+    </item>
+    
+    <item>
       <title>Simulation Wells</title>
       <link>https://resinsight.org/wells-and-completions/simulationwells/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -125,7 +148,7 @@ Snapshots of Existing Views The commands to snapshot existing views and plots ar
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/plot-window/summaryplots/</guid>
-      <description>Summary Plots are a display of curves based on Eclipse Summary Data which can be combined with imported observed time history data, grid cell time history curve, and pasted ascii curves.
+      <description>Summary Plots are a display of curves based on Eclipse Summary Data which can be combined with imported observed data, grid cell time history curve, and pasted ascii curves.
 Summary plots are displayed on screen by maximum four rows by four columns of plots. In the example above, ResInsight displays two columns and two rows of plots, each plot comprising a single curve. However, a plot may contain an arbitrary number of curves.</description>
     </item>
     
@@ -260,6 +283,16 @@ Icons are added to the docking windows to make it easy to find a window.</descri
     </item>
     
     <item>
+      <title>What&#39;s New in 2023.01</title>
+      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2023_01/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2023_01/</guid>
+      <description>Summary Plotting Summary Plotting is updated with new features and improved workflows:
+ Improved logarithmic legend and default ranges Visual appearance of curves is now stable when doing Source Stepping Curve name and plot name improvements  Change Data Source by Clicking in 3D The data source for multiple plots can be updated by clicking on a well path in 3D. This feature can be useful for large fields with many wells and you want to investigate a small subset of wells.</description>
+    </item>
+    
+    <item>
       <title>Data Sources</title>
       <link>https://resinsight.org/plot-window/summaryplotdatasources/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -317,10 +350,8 @@ The user writes a text string defining the summary vectors and optionally data s
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/misc/windowmanagement/</guid>
-      <description>Window Management The window management system was updated in release 2022.06.1. ResInsight stores application window visibility and location between sessions. It is also possible to store the window configuration to a file for later reuse.
-The window management is available from the Windows menu.
-See the following demonstration of some of the Window Management features:
-  </description>
+      <description>Window Tiling Tiling of windows can be accessed from the tool bar. The default tiling will organize the windows in a grid pattern. It is also possible perform tiling of the windows horizontally or vertically. This feature is availble from the Windows menu at the main menbu bar.
+Default Horizontally Vertically Window Management The window management system was updated in release 2022.06.1. ResInsight stores application window visibility and location between sessions.</description>
     </item>
     
     <item>
@@ -344,6 +375,18 @@ Cell Results are used in several operations and settings:
 Command line parameters are prefixed using a double dash. This convention is used on all platforms to make it possible to reuse scripts across different platforms. See GNU Standards for Command Line Interfaces.
 Examples on how command line options are used are given below
 Command line options General    Parameter Description     --help, --?</description>
+    </item>
+    
+    <item>
+      <title>Curve Calculator</title>
+      <link>https://resinsight.org/calculated-data/curvecalculator/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/calculated-data/curvecalculator/</guid>
+      <description>The summary curve calculator is a tool to do relative simple vector calculations on a set of curves. The created curves can be stored for later use in the project.
+The calculator can be run by pressing the calculator icon in the menu bar, or by right-clicking on either a summary case or the summary plot collection.
+More details on mathematical operations are described in Calculator Expressions
+Calculation Settings To make a new calculated curve, click on New Calculation.</description>
     </item>
     
     <item>
@@ -519,6 +562,18 @@ You can do this by using the command Export Visible Cells as FLUXNUM/MULTNUM fou
     </item>
     
     <item>
+      <title>Grid Property Calculator</title>
+      <link>https://resinsight.org/calculated-data/gridpropertycalculator/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/calculated-data/gridpropertycalculator/</guid>
+      <description>ResInsight offers a built-in property calculator for grid parameters. The Grid Property Calculator enables arithmetic expressions to be parsed and calculated for visualization purposes.
+More details on mathematical operations are described in Calculator Expressions
+Invoking the Grid Property Calculator Invoke the the Grid Property Calculator by pressing the calculator icon in the menu bar or by right-clicking Cell Result in Project Tree.
+Example using Grid Property Calculator As shown, the Grid Property Calculator is invoked by right-clicking Cell Result in Project Tree.</description>
+    </item>
+    
+    <item>
       <title>Keyboard Shortcuts</title>
       <link>https://resinsight.org/misc/keyboardshortcuts/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -549,7 +604,7 @@ These abbreviations are used in the tables below:
       <guid>https://resinsight.org/import/observeddata/</guid>
       <description>Observed Time History Data, is data measured in time. On import of observed time history data, ResInsight translates the data to make it similar to summary data. Observed time history data can be plotted along with summary data in Summary Plots.
 Import Observed Time History Data Importing observed time history data to ResInsight may be performed in two different ways:
- By selecting the main menu item File -&amp;gt; Import -&amp;gt; Import Observed Time History Data By using the right-click command Import Observed Time History Data on the Observed Time History Data item in the Plot Main Window Project Tree  The following file types are supported:</description>
+ By selecting the main menu item File -&amp;gt; Import -&amp;gt; Import Observed Data By using the right-click command Import Observed Data on the Observed Data item in the Plot Main Window Project Tree  The following file types are supported:</description>
     </item>
     
     <item>
@@ -561,6 +616,16 @@ Import Observed Time History Data Importing observed time history data to ResIns
       <description>The color mapping of the displayed cell result is controlled by the Color Legend item in Project Tree. The legend can be shown or hidden by checking or unchecking the box in front of the Color Legend item.
 Legend configuration As shown above, the Legend configuration for cell results allows the following settings:
  Number of levels &amp;ndash; Defines the number of tick marks displayed next to the color legend Significant digits &amp;ndash; Defines the number of significant digits in the number formatting Number format &amp;ndash; Defines how the numbers are formatted Colors &amp;ndash; Defines the color palette for the legend by selecting from Color Legends Mapping &amp;ndash; Defines the mapping of numerical values to legend colors:  Discrete Linear &amp;ndash; Legend divided into linear levels defined by Number of levels Continuous Linear &amp;ndash; Continuous linear legend with tick mark count defined by Number of levels Continuous Logarithmic &amp;ndash; Continuous logarithmic legend with tick mark count defined by Number of levels Discrete Logarithmic &amp;ndash; Logarithmic legend divided into levels defined by Number of levels Category &amp;ndash; Legend with one level per category for formation names and discrete data (e.</description>
+    </item>
+    
+    <item>
+      <title>Result Info</title>
+      <link>https://resinsight.org/3d-main-window/resultinfo/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/3d-main-window/resultinfo/</guid>
+      <description>The result info window displays text information based on selected geometry in the 3D view. This is information related to IJK cell values, the value of the currently selected result property, and the intersection point for the last mouse click in the 3D view.
+If you want to show additional properties, activate and select additional properties from Multiple Result Info in the Project Tree. Additional values are displayed in addition to currently selected property.</description>
     </item>
     
     <item>
@@ -612,6 +677,17 @@ The figure above exemplifies a Comparison View for comparison of two different s
       <guid>https://resinsight.org/wells-and-completions/3dwelllogcurves/</guid>
       <description>ResInsight can display well logs curves directly in the 3D view with a subset of the functionality of the full 2D Well Log Plot Editor. The curves will be drawn in a plane next to or centered on the well trajectory they belong to and can display well log data from a simulation model and from imported LAS-files.
 Creating new 3D Well Log Curves Add a new 3D well log curve by selecting a Well Path in the Project Tree, right-clicking and selecting 3D Well Log Curves and Add 3D Well Log Curve.</description>
+    </item>
+    
+    <item>
+      <title>Appending Additional Properties</title>
+      <link>https://resinsight.org/import/appendingadditionalproperties/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/import/appendingadditionalproperties/</guid>
+      <description>A grid model can be imported from several sources, either Eclipse binary/ascii or ROFF binary/ascii. Grid properties in separate files can be imported into any grid type as long as the number of grid cells is matching.
+Appending properties
+ From the right-click menu of the case or Cell Result, select Add Input Property Select the file with properties The imported data is then available in the Cell Result by activating the Input Property in the Type drop down list.</description>
     </item>
     
     <item>
@@ -840,17 +916,6 @@ The dialog contains several input fields
     </item>
     
     <item>
-      <title>Curve Calculator</title>
-      <link>https://resinsight.org/plot-window/curvecalculator/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/plot-window/curvecalculator/</guid>
-      <description>The summary curve calculator is a tool to do relative simple vector calculations on a set of curves. The created curves can be stored for later use in the project.
-The calculator can be run by pressing the calculator icon in the menu bar, or by right-clicking on either a summary case or the summary plot collection.
-Calculation Settings To make a new calculated curve, click on New Calculation. This will add a new calculation to Calculated Summaries.</description>
-    </item>
-    
-    <item>
       <title>Octave Interface Reference</title>
       <link>https://resinsight.org/scripting/octaveinterfacereference/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -1037,8 +1102,7 @@ Create New RFT Plot There are several ways to create new RFT Plots.</description
       <guid>https://resinsight.org/plot-window/rftsegmentplot/</guid>
       <description>RFT Segment Data can be plotted as horizontal Well Log Plots. RFT data can be imported based on a summary case or a grid case.
 Create RFT Segment Plot Open a summary case with RFT data
-Optional Step - Additional data from WSEGLINK If WSEGLINK data is required, set the path to the file containing this data, or to the top level .DATA file.
-From the right-click menu of the summary case, select Reload to make sure the data from WSEGLINK is imported.</description>
+Additional data from WSEGLINK Some cases require data from WSEGLINK keyword. When importing summary data, ResInsight will automatically search for the related *.DATA file. The identified file can be seen or changed from the Property Editor.</description>
     </item>
     
     <item>
@@ -1074,6 +1138,17 @@ To use this functionality you will need to :
     </item>
     
     <item>
+      <title>Derived Results - Eclipse</title>
+      <link>https://resinsight.org/calculated-data/derivedresults/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/calculated-data/derivedresults/</guid>
+      <description>ResInsight computes several derived results. In this section we will explain what they are, and briefly how they are calculated.
+Derived Results for Eclipse Cases ResInsight calculates several derived cell properties that is made available as Static or Dynamic cell properties. The derived results listed at the bottom of the Static result properties, are shown below.
+Transmissibility Normalized by Area The transmissibility for cells and Non-Neighbor Connections (NNCs) are dependent on both cell properties and geometry.</description>
+    </item>
+    
+    <item>
       <title>PLT Plot</title>
       <link>https://resinsight.org/plot-window/pltplot/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -1081,18 +1156,6 @@ To use this functionality you will need to :
       <guid>https://resinsight.org/plot-window/pltplot/</guid>
       <description>A PLT (Production Log Tool) plot is a special well plot for comparing observed production (well flow rates) and simulated production. The curves are plotted as production against measured depth (MD). Simulated production data is retrieved directly from the grid model or from the corresponding (*.rft) files, while observed production data are loaded from well log files (*.las).
 Create New PLT Plot There are several ways to create new PLT Plots</description>
-    </item>
-    
-    <item>
-      <title>Grid Property Calculator</title>
-      <link>https://resinsight.org/3d-main-window/gridpropertycalculator/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/3d-main-window/gridpropertycalculator/</guid>
-      <description>ResInsight offers a built-in property calculator for grid parameters. The Grid Property Calculator enables arithmetic expressions to be parsed and calculated for visualization purposes.
-More details on mathematical operations are described in Curve Calculator
-Invoking the Grid Property Calculator Invoke the the Grid Property Calculator by pressing the calculator icon in the menu bar or by right-clicking Cell Result in Project Tree.
-Example using Grid Property Calculator As shown, the Grid Property Calculator is invoked by right-clicking Cell Result in Project Tree.</description>
     </item>
     
     <item>
@@ -1104,6 +1167,18 @@ Example using Grid Property Calculator As shown, the Grid Property Calculator is
       <description>A Vertical Flow Performance Plot (VFP Plot) shows the relationship between bottom hole well conditions and wellhead pressure describing a well&amp;rsquo;s ability to lift fluids to the surface. ResInsight can display both production and injection VFP plots.
 Creating VFP Plots VFP Plots are created by right-clicking the VFP Plots item in Plot Project Tree.
 Production VFP Plot The production VFP Plot shows the outflow or downstream pressure based on the inlet or upstream pressure and the phases flowing through the system.</description>
+    </item>
+    
+    <item>
+      <title>Derived Results - Geomechanical</title>
+      <link>https://resinsight.org/calculated-data/derivedresultsgeomech/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/calculated-data/derivedresultsgeomech/</guid>
+      <description>ResInsight computes several derived results. In this section we will explain what they are, and briefly how they are calculated.
+Derived Geomechanical results ResInsight calculates several of the presented geomechanical results based on the native results present in the odb-files.
+Relative Results (Time Lapse Results) ResInsight can calculate and display relative results, sometimes also referred to as Time Lapse results. When enabled, every result variable is calculated as:
+$Value_{[t-b]} = Value_{[t]} - Value_{[b]}$</description>
     </item>
     
     <item>
@@ -1186,29 +1261,6 @@ When ResInsight is in measurement mode, clicking on an surface in the 3D view wi
       <guid>https://resinsight.org/3d-main-window/annotations/</guid>
       <description>ResInsight supports displaying a few types of annotations in 3D views and Contour Map view.
  Text annotations Reach circle annotations Polyline annotations  User defined polylines Polylines imported from file    Global scope vs local scope annotations Global annotations may be displayed in all views and are located in the Annotations project tree node right below Grid Models (Global annotations sub tree). Local annotations are associated with a specific view and are located in the Annotations project tree node below the view node (Local annotations sub tree).</description>
-    </item>
-    
-    <item>
-      <title>Derived Results - Eclipse</title>
-      <link>https://resinsight.org/3d-main-window/derivedresults/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/3d-main-window/derivedresults/</guid>
-      <description>ResInsight computes several derived results. In this section we will explain what they are, and briefly how they are calculated.
-Derived Results for Eclipse Cases ResInsight calculates several derived cell properties that is made available as Static or Dynamic cell properties. The derived results listed at the bottom of the Static result properties, are shown below.
-Transmissibility Normalized by Area The transmissibility for cells and Non-Neighbor Connections (NNCs) are dependent on both cell properties and geometry.</description>
-    </item>
-    
-    <item>
-      <title>Derived Results - Geomechanical</title>
-      <link>https://resinsight.org/3d-main-window/derivedresultsgeomech/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>https://resinsight.org/3d-main-window/derivedresultsgeomech/</guid>
-      <description>ResInsight computes several derived results. In this section we will explain what they are, and briefly how they are calculated.
-Derived Geomechanical results ResInsight calculates several of the presented geomechanical results based on the native results present in the odb-files.
-Relative Results (Time Lapse Results) ResInsight can calculate and display relative results, sometimes also referred to as Time Lapse results. When enabled, every result variable is calculated as:
-$Value_{[t-b]} = Value_{[t]} - Value_{[b]}$</description>
     </item>
     
     <item>
