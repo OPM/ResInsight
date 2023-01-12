@@ -423,7 +423,6 @@ RimWellAllocationOverTimeCollection RimWellAllocationOverTimePlot::createWellAll
                                                    m_case->eclipseCaseData()->activeCellInfo(
                                                        RiaDefines::PorosityModelType::MATRIX_MODEL ) );
             const auto                calculator = RigAccWellFlowCalculator( pipeBranchesCLCoords,
-
                                                               pipeBranchesCellIds,
                                                               tracerFractionCellValues,
                                                               cellIdxCalc,
