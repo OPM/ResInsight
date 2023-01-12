@@ -113,8 +113,8 @@ void RicShowWellAllocationPlotFeature::onActionTriggered( bool isChecked )
         flowPlotColl->defaultWellAllocOverTimePlot()->updateConnectedEditors();
 
         RiuPlotMainWindowTools::showPlotMainWindow();
-        RiuPlotMainWindowTools::onObjectAppended( flowPlotColl->defaultWellAllocPlot() );
         RiuPlotMainWindowTools::onObjectAppended( flowPlotColl->defaultWellAllocOverTimePlot() );
+        RiuPlotMainWindowTools::onObjectAppended( flowPlotColl->defaultWellAllocPlot() );
     }
 }
 

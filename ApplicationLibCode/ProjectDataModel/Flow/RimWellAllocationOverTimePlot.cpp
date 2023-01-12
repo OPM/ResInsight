@@ -129,8 +129,6 @@ void RimWellAllocationOverTimePlot::setDescription( const QString& description )
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationOverTimePlot::setFromSimulationWell( RimSimWellInView* simWell )
 {
-    m_showWindow = true;
-
     RimEclipseView* eclView;
     simWell->firstAncestorOrThisOfType( eclView );
     RimEclipseResultCase* eclCase;
