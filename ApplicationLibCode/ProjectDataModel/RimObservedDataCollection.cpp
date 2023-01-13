@@ -29,6 +29,7 @@
 #include "RimObservedEclipseUserData.h"
 #include "RimObservedFmuRftData.h"
 #include "RimObservedSummaryData.h"
+#include "RimPressureDepthData.h"
 #include "RimProject.h"
 #include "RimSummaryObservedDataFile.h"
 
@@ -53,8 +54,10 @@ RimObservedDataCollection::RimObservedDataCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_observedDataArray, "ObservedDataArray", "" );
     CAF_PDM_InitFieldNoDefault( &m_observedFmuRftArray, "ObservedFmuRftDataArray", "" );
+    CAF_PDM_InitFieldNoDefault( &m_observedPressureDepthArray, "PressureDepthDataArray", "" );
     m_observedDataArray.uiCapability()->setUiTreeHidden( true );
     m_observedFmuRftArray.uiCapability()->setUiTreeHidden( true );
+    m_observedPressureDepthArray.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -64,6 +67,7 @@ RimObservedDataCollection::~RimObservedDataCollection()
 {
     m_observedDataArray.deleteChildren();
     m_observedFmuRftArray.deleteChildren();
+    m_observedPressureDepthArray.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -98,6 +102,14 @@ std::vector<RimObservedSummaryData*> RimObservedDataCollection::allObservedSumma
 std::vector<RimObservedFmuRftData*> RimObservedDataCollection::allObservedFmuRftData() const
 {
     return m_observedFmuRftArray.children();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPressureDepthData*> RimObservedDataCollection::allPressureDepthData() const
+{
+    return m_observedPressureDepthArray.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -248,4 +260,23 @@ RimObservedFmuRftData* RimObservedDataCollection::createAndAddFmuRftDataFromPath
     this->updateConnectedEditors();
 
     return fmuRftData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPressureDepthData* RimObservedDataCollection::createAndAddPressureDepthDataFromPath( const QString& filePath )
+{
+    QString name = QString( "Imported Pressure/Depth Data %1" ).arg( m_observedPressureDepthArray.size() + 1 );
+
+    RimPressureDepthData* data = new RimPressureDepthData;
+    data->setFilePath( filePath );
+    data->createRftReaderInterface();
+    data->setName( name );
+    m_observedPressureDepthArray.push_back( data );
+
+    updateNewObservedDataCreated( data );
+    this->updateConnectedEditors();
+
+    return data;
 }

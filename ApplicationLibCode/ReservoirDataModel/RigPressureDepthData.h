@@ -20,6 +20,7 @@
 
 #include "RiaDefines.h"
 
+#include <QDateTime>
 #include <QString>
 
 #include <vector>
@@ -36,10 +37,17 @@ public:
     void    setWellName( const QString& name );
     QString wellName() const;
 
+    void      setTimeStep( const QDateTime& timeStep );
+    QDateTime timeStep() const;
+
     void                                   addPressureAtDepth( double pressure, double depth );
     std::vector<std::pair<double, double>> getPressureDepthValues() const;
 
+    std::vector<double> tvdmsl() const;
+    std::vector<double> pressure() const;
+
 private:
     QString                                m_wellName;
+    QDateTime                              m_timeStep;
     std::vector<std::pair<double, double>> m_values;
 };

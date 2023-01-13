@@ -32,6 +32,7 @@
 #include "RimObservedDataCollection.h"
 #include "RimObservedFmuRftData.h"
 #include "RimOilField.h"
+#include "RimPressureDepthData.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
@@ -489,6 +490,39 @@ std::vector<RimObservedFmuRftData*> RimWellPlotTools::observedFmuRftData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimPressureDepthData*> RimWellPlotTools::pressureDepthDataForWell( const QString& simWellName )
+{
+    std::vector<RimPressureDepthData*> observedDataForWell;
+    std::vector<RimPressureDepthData*> allObservedData = pressureDepthData();
+    for ( RimPressureDepthData* observedData : allObservedData )
+    {
+        if ( observedData->hasWell( simWellName ) )
+        {
+            observedDataForWell.push_back( observedData );
+        }
+    }
+    return observedDataForWell;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPressureDepthData*> RimWellPlotTools::pressureDepthData()
+{
+    const RimProject*          project = RimProject::current();
+    RimObservedDataCollection* observedDataCollection =
+        project->activeOilField() ? project->activeOilField()->observedDataCollection() : nullptr;
+
+    if ( observedDataCollection )
+    {
+        return observedDataCollection->allPressureDepthData();
+    }
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::map<QDateTime, std::set<RifDataSourceForRftPlt>> RimWellPlotTools::timeStepsMapFromGridCase( RimEclipseCase* gridCase )
 {
     const RigEclipseCaseData* const             eclipseCaseData = gridCase->eclipseCaseData();
@@ -588,6 +622,7 @@ RiaRftPltCurveDefinition RimWellPlotTools::curveDefFromCurve( const RimWellLogCu
         RimSummaryCase*           rftSummaryCase = rftCurve->summaryCase();
         RimSummaryCaseCollection* rftEnsemble    = rftCurve->ensemble();
         RimObservedFmuRftData*    rftFmuData     = rftCurve->observedFmuRftData();
+        RimPressureDepthData*     pressureDepthData = rftCurve->pressureDepthData();
 
         const RifEclipseRftAddress rftAddress = rftCurve->rftAddress();
         const QString&             wellName   = rftAddress.wellName();
@@ -617,6 +652,13 @@ RiaRftPltCurveDefinition RimWellPlotTools::curveDefFromCurve( const RimWellLogCu
         else if ( rftFmuData != nullptr )
         {
             return RiaRftPltCurveDefinition( RifDataSourceForRftPlt( RifDataSourceForRftPlt::OBSERVED_FMU_RFT, rftFmuData ),
+                                             wellName,
+                                             timeStep );
+        }
+        else if ( pressureDepthData != nullptr )
+        {
+            return RiaRftPltCurveDefinition( RifDataSourceForRftPlt( RifDataSourceForRftPlt::OBSERVED_FMU_RFT,
+                                                                     pressureDepthData ),
                                              wellName,
                                              timeStep );
         }
@@ -757,6 +799,20 @@ std::set<RiaRftPltCurveDefinition>
             {
                 std::set<QDateTime> timeSteps =
                     observedFmuRftData->rftReader()->availableTimeSteps( wellPathNameOrSimWellName );
+                for ( const QDateTime& time : timeSteps )
+                {
+                    if ( selectedTimeStepSet.count( time ) )
+                    {
+                        curveDefs.insert( RiaRftPltCurveDefinition( addr, wellPathNameOrSimWellName, time ) );
+                    }
+                }
+            }
+
+            RimPressureDepthData* pressureDepthData = addr.pressureDepthData();
+            if ( pressureDepthData && pressureDepthData->rftReader() )
+            {
+                std::set<QDateTime> timeSteps =
+                    pressureDepthData->rftReader()->availableTimeSteps( wellPathNameOrSimWellName );
                 for ( const QDateTime& time : timeSteps )
                 {
                     if ( selectedTimeStepSet.count( time ) )
@@ -1082,13 +1138,27 @@ std::map<QDateTime, std::set<RifDataSourceForRftPlt>> RimWellPlotTools::calculat
             {
                 observedTimeStepsWithSources[source.wellLogFile()->date()].insert( source );
             }
-            else if ( source.sourceType() == RifDataSourceForRftPlt::OBSERVED_FMU_RFT && source.observedFmuRftData() )
+            else if ( source.sourceType() == RifDataSourceForRftPlt::OBSERVED_FMU_RFT )
             {
-                std::set<QDateTime> rftFmuTimes =
-                    source.observedFmuRftData()->rftReader()->availableTimeSteps( wellPathNameOrSimWellName );
-                for ( const QDateTime& date : rftFmuTimes )
                 {
-                    observedTimeStepsWithSources[date].insert( source );
+                    if ( source.observedFmuRftData() )
+                    {
+                        std::set<QDateTime> rftFmuTimes =
+                            source.observedFmuRftData()->rftReader()->availableTimeSteps( wellPathNameOrSimWellName );
+                        for ( const QDateTime& date : rftFmuTimes )
+                        {
+                            observedTimeStepsWithSources[date].insert( source );
+                        }
+                    }
+                    else if ( source.pressureDepthData() )
+                    {
+                        std::set<QDateTime> rftFmuTimes =
+                            source.pressureDepthData()->rftReader()->availableTimeSteps( wellPathNameOrSimWellName );
+                        for ( const QDateTime& date : rftFmuTimes )
+                        {
+                            observedTimeStepsWithSources[date].insert( source );
+                        }
+                    }
                 }
             }
         }

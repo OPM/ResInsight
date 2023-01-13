@@ -35,6 +35,7 @@ class RifReaderRftInterface;
 class RimSummaryCase;
 class RimSummaryCaseCollection;
 class RimObservedFmuRftData;
+class RimPressureDepthData;
 
 //==================================================================================================
 ///
@@ -60,6 +61,7 @@ public:
     RifDataSourceForRftPlt( SourceType sourceType, RimSummaryCase* summaryCase, RimSummaryCaseCollection* ensemble );
     RifDataSourceForRftPlt( SourceType sourceType, RimWellLogFile* wellLogFile = nullptr );
     RifDataSourceForRftPlt( SourceType sourceType, RimObservedFmuRftData* observedFmuRftData );
+    RifDataSourceForRftPlt( SourceType sourceType, RimPressureDepthData* pressureDepthData );
 
     SourceType                sourceType() const;
     RimEclipseCase*           eclCase() const;
@@ -68,6 +70,7 @@ public:
     RimSummaryCase*           summaryCase() const;
     RimWellLogFile*           wellLogFile() const;
     RimObservedFmuRftData*    observedFmuRftData() const;
+    RimPressureDepthData*     pressureDepthData() const;
 
     static QString sourceTypeUiText( SourceType sourceType );
 
@@ -81,6 +84,7 @@ private:
     caf::PdmPointer<RimSummaryCaseCollection> m_ensemble;
     caf::PdmPointer<RimWellLogFile>           m_wellLogFile;
     caf::PdmPointer<RimObservedFmuRftData>    m_observedFmuRftData;
+    caf::PdmPointer<RimPressureDepthData>     m_pressureDepthData;
 };
 
 bool         operator==( const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPlt& addr2 );

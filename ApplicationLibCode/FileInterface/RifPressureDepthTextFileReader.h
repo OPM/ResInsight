@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <QDateTime>
 #include <QString>
 
 #include <memory>
@@ -42,4 +43,5 @@ private:
     static bool isUnitsLine( const QString& line );
 
     static std::optional<std::pair<double, double>> parseDataLine( const QString& line );
+    static std::optional<QDateTime>                 parseDateLine( const QString& line );
 };

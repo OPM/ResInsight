@@ -38,6 +38,7 @@
 #include "RimEnsembleCurveSetColorManager.h"
 #include "RimObservedFmuRftData.h"
 #include "RimOilField.h"
+#include "RimPressureDepthData.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSummaryCaseCollection.h"
@@ -516,11 +517,18 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
         else if ( curveDefToAdd.address().sourceType() == RifDataSourceForRftPlt::OBSERVED_FMU_RFT )
         {
             auto curve = new RimWellLogRftCurve();
-            curve->setErrorBarsVisible( m_showErrorInObservedData );
             plotTrack->addCurve( curve );
 
-            auto observedFmuRftData = curveDefToAdd.address().observedFmuRftData();
-            curve->setObservedFmuRftData( observedFmuRftData );
+            if ( auto observedFmuRftData = curveDefToAdd.address().observedFmuRftData() )
+            {
+                curve->setErrorBarsVisible( m_showErrorInObservedData );
+                curve->setObservedFmuRftData( observedFmuRftData );
+            }
+            else if ( auto pressureDepthData = curveDefToAdd.address().pressureDepthData() )
+            {
+                curve->setPressureDepthData( pressureDepthData );
+            }
+
             RifEclipseRftAddress address =
                 RifEclipseRftAddress::createAddress( m_wellPathNameOrSimWellName,
                                                      curveDefToAdd.timeStep(),
@@ -847,6 +855,22 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions( const caf::
             {
                 auto addr = RifDataSourceForRftPlt( RifDataSourceForRftPlt::OBSERVED_FMU_RFT, observedFmuRftCase );
                 auto item = caf::PdmOptionItemInfo( observedFmuRftCase->name(), QVariant::fromValue( addr ) );
+                item.setLevel( 1 );
+                options.push_back( item );
+            }
+        }
+        const std::vector<RimPressureDepthData*> pressureDepthData =
+            RimWellPlotTools::pressureDepthDataForWell( m_wellPathNameOrSimWellName );
+        if ( !pressureDepthData.empty() )
+        {
+            options.push_back( caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
+                                                                         RifDataSourceForRftPlt::OBSERVED_FMU_RFT ),
+                                                                     true ) );
+
+            for ( const auto& pd : pressureDepthData )
+            {
+                auto addr = RifDataSourceForRftPlt( RifDataSourceForRftPlt::OBSERVED_FMU_RFT, pd );
+                auto item = caf::PdmOptionItemInfo( pd->name(), QVariant::fromValue( addr ) );
                 item.setLevel( 1 );
                 options.push_back( item );
             }
