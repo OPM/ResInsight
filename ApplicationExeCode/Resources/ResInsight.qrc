@@ -194,7 +194,8 @@
         <file>draw_style_meshlines_24x24.png</file>
         <file>draw_style_surface_24x24.png</file>
         <file>draw_style_surface_w_fault_mesh_24x24.png</file>
-        <file>DrawStyleLines.svg</file>
+		<file>draw_style_deformation_24x24.png</file>
+		<file>DrawStyleLines.svg</file>
         <file>DrawStyleMeshLines.svg</file>
         <file>DrawStyleSurface.svg</file>
         <file>DrawLightingEnabled.svg</file>

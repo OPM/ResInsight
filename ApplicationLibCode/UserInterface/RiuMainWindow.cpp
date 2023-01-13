@@ -387,17 +387,18 @@ void RiuMainWindow::createActions()
     m_dsActionGroup = new QActionGroup( this );
 
     m_drawStyleLinesAction = new QAction( QIcon( ":/DrawStyleLines.svg" ), "&Mesh Only", this );
-    // connect(m_drawStyleLinesAction,        SIGNAL(triggered()), SLOT(slotDrawStyleLines()));
     m_dsActionGroup->addAction( m_drawStyleLinesAction );
 
     m_drawStyleLinesSolidAction = new QAction( QIcon( ":/DrawStyleMeshLines.svg" ), "Mesh And Surfaces", this );
-    // connect(m_drawStyleLinesSolidAction,    SIGNAL(triggered()), SLOT(slotDrawStyleLinesSolid()));
     m_dsActionGroup->addAction( m_drawStyleLinesSolidAction );
 
     m_drawStyleSurfOnlyAction = new QAction( QIcon( ":/DrawStyleSurface.svg" ), "&Surface Only", this );
-    new QAction( QIcon( ":/draw_style_surface_w_fault_mesh_24x24.png" ), "Fault Mesh And Surfaces", this );
-    // connect(m_drawStyleSurfOnlyAction,    SIGNAL(triggered()), SLOT(slotDrawStyleSurfOnly()));
     m_dsActionGroup->addAction( m_drawStyleSurfOnlyAction );
+
+    m_drawStyleDeformationsAction =
+        new QAction( QIcon( ":/draw_style_deformation_24x24.png" ), "Show &Displacements", this );
+    m_drawStyleDeformationsAction->setCheckable( true );
+    m_dsActionGroup->addAction( m_drawStyleDeformationsAction );
 
     connect( m_dsActionGroup, SIGNAL( triggered( QAction* ) ), SLOT( slotDrawStyleChanged( QAction* ) ) );
 
@@ -688,6 +689,7 @@ void RiuMainWindow::createToolBars()
         dsToolBar->addAction( m_drawStyleHideGridCellsAction );
         dsToolBar->addAction( m_toggleFaultsLabelAction );
         dsToolBar->addAction( m_showWellCellsAction );
+        dsToolBar->addAction( m_drawStyleDeformationsAction );
     }
 
     {
@@ -1556,6 +1558,17 @@ void RiuMainWindow::slotDrawStyleChanged( QAction* activatedAction )
     {
         RiaApplication::instance()->activeReservoirView()->setFaultMeshSurfDrawstyle();
     }
+    else if ( activatedAction == m_drawStyleDeformationsAction )
+    {
+        RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>( RiaApplication::instance()->activeReservoirView() );
+        if ( geoMechView )
+        {
+            geoMechView->setShowDisplacementsAndUpdate( !geoMechView->showDisplacements() );
+            m_drawStyleDeformationsAction->blockSignals( true );
+            m_drawStyleDeformationsAction->setChecked( geoMechView->showDisplacements() );
+            m_drawStyleDeformationsAction->blockSignals( false );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1600,6 +1613,7 @@ void RiuMainWindow::refreshDrawStyleActions()
 {
     RimGridView*              gridView     = RiaApplication::instance()->activeGridView();
     RimEclipseContourMapView* view2d       = dynamic_cast<RimEclipseContourMapView*>( gridView );
+    RimGeoMechView*           geoMechView  = dynamic_cast<RimGeoMechView*>( gridView );
     bool                      is2dMap      = view2d != nullptr;
     bool                      is3dGridView = gridView != nullptr && !is2dMap;
 
@@ -1610,6 +1624,7 @@ void RiuMainWindow::refreshDrawStyleActions()
     m_drawStyleLinesSolidAction->setEnabled( is3dView );
     m_drawStyleSurfOnlyAction->setEnabled( is3dView );
     m_drawStyleFaultLinesSolidAction->setEnabled( is3dView );
+    m_drawStyleDeformationsAction->setVisible( geoMechView != nullptr );
     m_enableLightingAction->setEnabled( is3dView );
 
     bool lightingEnabled = view ? !view->isLightingDisabled() : true;
@@ -1664,6 +1679,13 @@ void RiuMainWindow::refreshDrawStyleActions()
         m_toggleFaultsLabelAction->blockSignals( true );
         m_toggleFaultsLabelAction->setChecked( eclView->faultCollection()->showFaultLabel() );
         m_toggleFaultsLabelAction->blockSignals( false );
+    }
+
+    if ( geoMechView )
+    {
+        m_drawStyleDeformationsAction->blockSignals( true );
+        m_drawStyleDeformationsAction->setChecked( geoMechView->showDisplacements() );
+        m_drawStyleDeformationsAction->blockSignals( false );
     }
 }
 

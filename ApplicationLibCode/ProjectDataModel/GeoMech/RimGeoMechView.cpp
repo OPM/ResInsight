@@ -1014,7 +1014,6 @@ void RimGeoMechView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     nameConfig()->uiOrdering( uiConfigName, *nameGroup );
 
     auto displacementGroup = uiOrdering.addNewGroup( "Displacements" );
-    displacementGroup->add( &m_showDisplacement );
     displacementGroup->add( &m_displacementScaling );
 }
 
@@ -1078,4 +1077,13 @@ double RimGeoMechView::displacementScaleFactor() const
 bool RimGeoMechView::showDisplacements() const
 {
     return m_showDisplacement;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechView::setShowDisplacementsAndUpdate( bool show )
+{
+    m_showDisplacement = show;
+    createDisplayModelAndRedraw();
 }

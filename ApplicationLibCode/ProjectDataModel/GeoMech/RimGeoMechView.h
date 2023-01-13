@@ -110,6 +110,7 @@ public:
 
     double displacementScaleFactor() const;
     bool   showDisplacements() const;
+    void   setShowDisplacementsAndUpdate( bool show );
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
