@@ -12,6 +12,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Install Linux dependencies
+        if: "contains( matrix.os, 'ubuntu')"
+        run: |
+          sudo apt-get update
+          sudo apt-get install libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev
+
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
         with:
@@ -19,10 +25,6 @@ jobs:
           modules: qtscript
           dir: "${{ github.workspace }}/Qt/"
           cache: true
-
-      - name: Install Linux dependencies
-        if: "contains( matrix.os, 'ubuntu')"
-        run: sudo apt-get install libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev
 
       - name: Build AppFwk with Unit Tests
         uses: lukka/run-cmake@v3

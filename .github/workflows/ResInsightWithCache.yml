@@ -128,6 +128,12 @@ jobs:
         run: echo "${{github.workspace}}/buildcache/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
         shell: pwsh
 
+      - name: Install Linux dependencies
+        if: "contains( matrix.config.os, 'ubuntu')"
+        run: |
+          sudo apt-get update
+          sudo apt-get install libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev libhdf5-dev
+
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
         with:
@@ -135,10 +141,6 @@ jobs:
           modules: qtscript
           dir: "${{ github.workspace }}/Qt/"
           cache: true
-
-      - name: Install Linux dependencies
-        if: "contains( matrix.config.os, 'ubuntu')"
-        run: sudo apt-get install libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev libhdf5-dev
 
       - name: Set vcpkg's response file path used as part of cache's key.
         uses: lukka/set-shell-env@master
