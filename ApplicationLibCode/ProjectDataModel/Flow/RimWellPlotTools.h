@@ -39,6 +39,7 @@ class RimWellLogCurve;
 class RimWellLogFileChannel;
 class RimWellLogPlot;
 class RimWellPath;
+class RimPressureDepthData;
 class RiuWellRftPlot;
 class RigEclipseCaseData;
 class RigEclipseResultAddress;
@@ -133,6 +134,9 @@ public:
                                   FlowPhase                         flowPhase );
 
     static bool hasFlowData( const RimWellPath* wellPath );
+
+    static std::vector<RimPressureDepthData*> pressureDepthData();
+    static std::vector<RimPressureDepthData*> pressureDepthDataForWell( const QString& simWellName );
 
 private:
     friend class StaticFieldsInitializer;

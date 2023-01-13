@@ -18,6 +18,7 @@
 
 #include "RifPressureDepthTextFileReader.h"
 
+#include "RiaDateStringParser.h"
 #include "RiaDefines.h"
 
 #include "RigPressureDepthData.h"
@@ -52,12 +53,15 @@ std::pair<std::vector<RigPressureDepthData>, QString> RifPressureDepthTextFileRe
         {
             QStringList          headerValues = RifFileParseTools::splitLineAndTrim( line, separator );
             RigPressureDepthData data;
-            data.setWellName( headerValues[1] );
+            data.setWellName( headerValues[1].replace( "'", "" ) );
             items.push_back( data );
         }
         else if ( isDateLine( line ) )
         {
-            // TODO: parse date
+            if ( std::optional<QDateTime> date = parseDateLine( line ) )
+            {
+                items.back().setTimeStep( date.value() );
+            }
         }
         else if ( isPropertiesLine( line ) || isUnitsLine( line ) || isCommentLine( line ) )
         {
@@ -134,4 +138,22 @@ std::optional<std::pair<double, double>> RifPressureDepthTextFileReader::parseDa
     if ( !isOk ) return {};
 
     return std::make_pair( pressure, depth );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<QDateTime> RifPressureDepthTextFileReader::parseDateLine( const QString& line )
+{
+    // Expect two data values separated by one space
+    QStringList values = RifFileParseTools::splitLineAndTrim( line, " " );
+    if ( values.size() != 2 ) return {};
+
+    CAF_ASSERT( values[0] == "DATE" );
+
+    // Second value is depth
+    QDateTime dateTime = RiaDateStringParser::parseDateString( values[1], RiaDateStringParser::OrderPreference::DAY_FIRST );
+    if ( !dateTime.isValid() ) return {};
+
+    return dateTime;
 }

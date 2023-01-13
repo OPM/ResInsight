@@ -23,7 +23,7 @@
 
 class RimObservedFmuRftData;
 class RimObservedSummaryData;
-class QFile;
+class RimPressureDepthData;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -44,8 +44,10 @@ public:
                                                                                      bool           useSavedFieldsValuesInDialog,
                                                                                      QString*       errorText = nullptr );
     RimObservedFmuRftData*               createAndAddFmuRftDataFromPath( const QString& directoryPath );
+    RimPressureDepthData*                createAndAddPressureDepthDataFromPath( const QString& fileName );
     std::vector<RimObservedSummaryData*> allObservedSummaryData() const;
     std::vector<RimObservedFmuRftData*>  allObservedFmuRftData() const;
+    std::vector<RimPressureDepthData*>   allPressureDepthData() const;
 
 private:
     bool fileExists( const QString& fileName, QString* errorText = nullptr );
@@ -53,4 +55,5 @@ private:
 private:
     caf::PdmChildArrayField<RimObservedSummaryData*> m_observedDataArray;
     caf::PdmChildArrayField<RimObservedFmuRftData*>  m_observedFmuRftArray;
+    caf::PdmChildArrayField<RimPressureDepthData*>   m_observedPressureDepthArray;
 };
