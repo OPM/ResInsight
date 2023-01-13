@@ -1,0 +1,299 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2019-  Equinor ASA
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+#include "RifReaderPressureDepthData.h"
+
+#include "RiaLogging.h"
+
+#include "RifPressureDepthTextFileReader.h"
+
+#include "cafAssert.h"
+
+// #include <QDir>
+// #include <QFile>
+// #include <QFileInfo>
+// #include <QTextStream>
+
+// #include <limits>
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifReaderPressureDepthData::RifReaderPressureDepthData( const QString& filePath )
+    : m_filePath( filePath )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RifReaderPressureDepthData::labels( const RifEclipseRftAddress& rftAddress )
+{
+    std::vector<QString> formationLabels;
+
+    CAF_ASSERT( false && "Not implemented" );
+    // if ( m_allWellObservations.empty() )
+    // {
+    //     load();
+    // }
+
+    // auto it = m_allWellObservations.find( rftAddress.wellName() );
+    // if ( it != m_allWellObservations.end() )
+    // {
+    //     const std::vector<Observation>& observations = it->second.observations;
+    //     for ( const Observation& observation : observations )
+    //     {
+    //         formationLabels.push_back( QString( "%1 - Pressure: %2 +/- %3" )
+    //                                        .arg( observation.formation )
+    //                                        .arg( observation.pressure )
+    //                                        .arg( observation.pressureError ) );
+    //     }
+    // }
+    return formationLabels;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<RifEclipseRftAddress> RifReaderPressureDepthData::eclipseRftAddresses()
+{
+    if ( m_pressureDepthDataItems.empty() )
+    {
+        load();
+    }
+
+    std::set<RifEclipseRftAddress> allAddresses;
+    for ( const RigPressureDepthData& pressureDepthData : m_pressureDepthDataItems )
+    {
+        const QString&   wellName = pressureDepthData.wellName();
+        const QDateTime& dateTime = pressureDepthData.timeStep();
+
+        RifEclipseRftAddress tvdAddress =
+            RifEclipseRftAddress::createAddress( wellName, dateTime, RifEclipseRftAddress::RftWellLogChannelType::TVD );
+        RifEclipseRftAddress pressureAddress =
+            RifEclipseRftAddress::createAddress( wellName, dateTime, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
+        allAddresses.insert( tvdAddress );
+        allAddresses.insert( pressureAddress );
+    }
+
+    return allAddresses;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderPressureDepthData::values( const RifEclipseRftAddress& rftAddress, std::vector<double>* values )
+{
+    CAF_ASSERT( values );
+
+    if ( m_pressureDepthDataItems.empty() )
+    {
+        load();
+    }
+
+    for ( const RigPressureDepthData& pressureDepthData : m_pressureDepthDataItems )
+    {
+        if ( rftAddress.wellName() == pressureDepthData.wellName() &&
+             rftAddress.timeStep().date() == pressureDepthData.timeStep().date() )
+        {
+            switch ( rftAddress.wellLogChannel() )
+            {
+                case RifEclipseRftAddress::RftWellLogChannelType::TVD:
+                    *values = pressureDepthData.tvdmsl();
+                    break;
+                case RifEclipseRftAddress::RftWellLogChannelType::PRESSURE:
+                    *values = pressureDepthData.pressure();
+                    break;
+                default:
+                    CAF_ASSERT( false && "Wrong channel type sent to pressure depth data reader" );
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderPressureDepthData::load()
+{
+    //    QString errorMsg;
+
+    // QFileInfo fileInfo( m_filePath );
+    // if ( !( fileInfo.exists() && fileInfo.isDir() && fileInfo.isReadable() ) )
+    // {
+    //     errorMsg = QString( "File '%1' does not exist or isn't readable" ).arg( m_filePath );
+    //     RiaLogging::error( errorMsg );
+    //     return;
+    // }
+
+    auto [pressureDepthDataItems, errorMsg] = RifPressureDepthTextFileReader::readFile( m_filePath );
+    if ( !errorMsg.isEmpty() )
+    {
+        RiaLogging::error( errorMsg );
+    }
+    else
+    {
+        m_pressureDepthDataItems = pressureDepthDataItems;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<QDateTime>
+    RifReaderPressureDepthData::availableTimeSteps( const QString&                                     wellName,
+                                                    const RifEclipseRftAddress::RftWellLogChannelType& wellLogChannelName )
+{
+    if ( wellLogChannelName == RifEclipseRftAddress::RftWellLogChannelType::TVD ||
+         wellLogChannelName == RifEclipseRftAddress::RftWellLogChannelType::PRESSURE )
+    {
+        return availableTimeSteps( wellName );
+    }
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<QDateTime> RifReaderPressureDepthData::availableTimeSteps( const QString& wellName )
+{
+    if ( m_pressureDepthDataItems.empty() )
+    {
+        load();
+    }
+
+    std::set<QDateTime> timeSteps;
+    for ( const RigPressureDepthData& pressureDepthData : m_pressureDepthDataItems )
+    {
+        if ( wellName == pressureDepthData.wellName() )
+        {
+            timeSteps.insert( pressureDepthData.timeStep() );
+        }
+    }
+    return timeSteps;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<QDateTime> RifReaderPressureDepthData::availableTimeSteps(
+    const QString&                                               wellName,
+    const std::set<RifEclipseRftAddress::RftWellLogChannelType>& relevantChannels )
+{
+    if ( relevantChannels.count( RifEclipseRftAddress::RftWellLogChannelType::TVD ) ||
+         relevantChannels.count( RifEclipseRftAddress::RftWellLogChannelType::PRESSURE ) )
+    {
+        return availableTimeSteps( wellName );
+    }
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<RifEclipseRftAddress::RftWellLogChannelType>
+    RifReaderPressureDepthData::availableWellLogChannels( const QString& wellName )
+{
+    if ( m_pressureDepthDataItems.empty() )
+    {
+        load();
+    }
+
+    if ( !m_pressureDepthDataItems.empty() )
+    {
+        return { RifEclipseRftAddress::RftWellLogChannelType::TVD, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE };
+    }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<QString> RifReaderPressureDepthData::wellNames()
+{
+    if ( m_pressureDepthDataItems.empty() )
+    {
+        load();
+    }
+
+    std::set<QString> wellNames;
+    for ( const RigPressureDepthData& pressureDepthData : m_pressureDepthDataItems )
+    {
+        wellNames.insert( pressureDepthData.wellName() );
+    }
+    return wellNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+// RifReaderPressureDepthData::WellObservationMap RifReaderPressureDepthData::loadWellDates( QDir& dir, QString*
+// errorMsg )
+// {
+//     CAF_ASSERT( errorMsg );
+
+//     WellObservationMap validObservations;
+
+//     QFileInfo wellDateFileInfo( dir.absoluteFilePath( RifReaderPressureDepthData::wellPathFileName() ) );
+//     if ( !( wellDateFileInfo.exists() && wellDateFileInfo.isFile() && wellDateFileInfo.isReadable() ) )
+//     {
+//         *errorMsg =
+//             QString( "%1 cannot be found at '%s'" ).arg( RifReaderPressureDepthData::wellPathFileName() ).arg(
+//             m_filePath );
+//         return WellObservationMap();
+//     }
+
+//     {
+//         QFile wellDateFile( wellDateFileInfo.absoluteFilePath() );
+//         if ( !wellDateFile.open( QIODevice::Text | QIODevice::ReadOnly ) )
+//         {
+//             *errorMsg = QString( "Could not read '%1'" ).arg( wellDateFileInfo.absoluteFilePath() );
+//             return WellObservationMap();
+//         }
+//         QTextStream fileStream( &wellDateFile );
+//         while ( !fileStream.atEnd() )
+//         {
+//             QString line = fileStream.readLine();
+
+//             line = line.simplified();
+//             if ( line.isNull() || line.isEmpty() )
+//             {
+//                 continue;
+//             }
+
+//             QTextStream lineStream( &line );
+
+//             QString wellName;
+//             int     day, month, year, measurementIndex;
+
+//             lineStream >> wellName >> day >> month >> year >> measurementIndex;
+//             if ( lineStream.status() != QTextStream::Ok )
+//             {
+//                 *errorMsg = QString( "Failed to parse '%1'" ).arg( wellDateFileInfo.absoluteFilePath() );
+//                 return WellObservationMap();
+//             }
+
+//             QDateTime dateTime = RiaQDateTimeTools::createDateTime( QDate( year, month, day ) );
+//             dateTime.setTimeSpec( Qt::UTC );
+//             WellObservationSet observationSet( dateTime, measurementIndex );
+//             validObservations.insert( std::make_pair( wellName, observationSet ) );
+//         }
+//     }
+
+//     return validObservations;
+// }

@@ -29,6 +29,7 @@
 #include "RimObservedEclipseUserData.h"
 #include "RimObservedFmuRftData.h"
 #include "RimObservedSummaryData.h"
+#include "RimPressureDepthData.h"
 #include "RimProject.h"
 #include "RimSummaryObservedDataFile.h"
 
@@ -53,8 +54,10 @@ RimObservedDataCollection::RimObservedDataCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_observedDataArray, "ObservedDataArray", "" );
     CAF_PDM_InitFieldNoDefault( &m_observedFmuRftArray, "ObservedFmuRftDataArray", "" );
+    CAF_PDM_InitFieldNoDefault( &m_observedPressureDepthArray, "PressureDepthDataArray", "" );
     m_observedDataArray.uiCapability()->setUiTreeHidden( true );
     m_observedFmuRftArray.uiCapability()->setUiTreeHidden( true );
+    m_observedPressureDepthArray.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -64,6 +67,7 @@ RimObservedDataCollection::~RimObservedDataCollection()
 {
     m_observedDataArray.deleteChildren();
     m_observedFmuRftArray.deleteChildren();
+    m_observedPressureDepthArray.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------

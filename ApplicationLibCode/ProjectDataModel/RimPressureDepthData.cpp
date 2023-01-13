@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2023 -     Equinor ASA
+//  Copyright (C) 2023- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,90 +16,97 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RigPressureDepthData.h"
+#include "RimPressureDepthData.h"
+
+//==================================================================================================
+//
+//
+//
+//==================================================================================================
+CAF_PDM_SOURCE_INIT( RimPressureDepthData, "ObservedPressureDepthData" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigPressureDepthData::RigPressureDepthData()
+RimPressureDepthData::RimPressureDepthData()
 {
+    CAF_PDM_InitObject( "Observed Pressure/Depth Data", ":/ObservedRFTDataFile16x16.png" );
+    CAF_PDM_InitFieldNoDefault( &m_filePath, "File", "File" );
+    m_filePath.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_wells, "Wells", "Wells" );
+    m_wells.xmlCapability()->disableIO();
+    m_wells.uiCapability()->setUiReadOnly( true );
+    m_wells.registerGetMethod( this, &RimPressureDepthData::wells );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigPressureDepthData::~RigPressureDepthData()
+void RimPressureDepthData::setFilePath( const QString& path )
 {
+    m_filePath = path;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigPressureDepthData::setWellName( const QString& wellName )
+void RimPressureDepthData::createRftReaderInterface()
 {
-    m_wellName = wellName;
+    m_fmuRftReader = new RifReaderPressureDepthData( m_filePath );
+    m_fmuRftReader->load();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RigPressureDepthData::wellName() const
+RifReaderRftInterface* RimPressureDepthData::rftReader()
 {
-    return m_wellName;
+    if ( m_fmuRftReader.isNull() )
+    {
+        createRftReaderInterface();
+    }
+
+    return m_fmuRftReader.p();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigPressureDepthData::setTimeStep( const QDateTime& timeStep )
+bool RimPressureDepthData::hasWell( const QString& wellPathName ) const
 {
-    m_timeStep = timeStep;
+    std::vector<QString> allWells = wells();
+    for ( const QString& well : allWells )
+    {
+        if ( well == wellPathName )
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QDateTime RigPressureDepthData::timeStep() const
+std::vector<QString> RimPressureDepthData::wells() const
 {
-    return m_timeStep;
+    if ( m_fmuRftReader.p() )
+    {
+        std::set<QString> wellNames = const_cast<RifReaderPressureDepthData*>( m_fmuRftReader.p() )->wellNames();
+        return std::vector<QString>( wellNames.begin(), wellNames.end() );
+    }
+    return std::vector<QString>();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigPressureDepthData::addPressureAtDepth( double pressure, double depth )
+std::vector<QString> RimPressureDepthData::labels( const RifEclipseRftAddress& rftAddress )
 {
-    m_values.push_back( std::make_pair( pressure, depth ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<std::pair<double, double>> RigPressureDepthData::getPressureDepthValues() const
-{
-    return m_values;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RigPressureDepthData::tvdmsl() const
-{
-    std::vector<double> vals;
-    std::transform( std::begin( m_values ), std::end( m_values ), std::back_inserter( vals ), []( auto const& v ) {
-        return v.second;
-    } );
-    return vals;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<double> RigPressureDepthData::pressure() const
-{
-    std::vector<double> vals;
-    std::transform( std::begin( m_values ), std::end( m_values ), std::back_inserter( vals ), []( auto const& v ) {
-        return v.first;
-    } );
-    return vals;
+    if ( m_fmuRftReader.p() )
+    {
+        return const_cast<RifReaderPressureDepthData*>( m_fmuRftReader.p() )->labels( rftAddress );
+    }
+    return {};
 }

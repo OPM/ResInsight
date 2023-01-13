@@ -23,7 +23,7 @@
 
 class RimObservedFmuRftData;
 class RimObservedSummaryData;
-class QFile;
+class RimPressureDepthData;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -53,4 +53,5 @@ private:
 private:
     caf::PdmChildArrayField<RimObservedSummaryData*> m_observedDataArray;
     caf::PdmChildArrayField<RimObservedFmuRftData*>  m_observedFmuRftArray;
+    caf::PdmChildArrayField<RimPressureDepthData*>   m_observedPressureDepthArray;
 };
