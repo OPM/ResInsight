@@ -29,34 +29,27 @@ const std::string MONTH_NAMES[] =
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QDateTime RiaDateStringParser::parseDateString( const QString& dateString )
+QDateTime RiaDateStringParser::parseDateString( const QString& dateString, OrderPreference preference )
 {
-    return RiaDateStringParser::parseDateString( dateString.toStdString() );
+    return RiaDateStringParser::parseDateString( dateString.toStdString(), preference );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QDateTime RiaDateStringParser::parseDateString( const std::string& dateString )
+QDateTime RiaDateStringParser::parseDateString( const std::string& dateString, OrderPreference preference )
 {
     int  year = -1, month = -1, day = -1;
     bool parsedOk = false;
+
     if ( hasSeparators( dateString ) )
     {
-        parsedOk = tryParseYearFirst( dateString, year, month, day ) ||
-                   tryParseDayFirst( dateString, year, month, day ) || tryParseMonthFirst( dateString, year, month, day );
+        parsedOk = parseDateStringWithSeparators( dateString, year, month, day, preference );
     }
+
     if ( !parsedOk )
     {
-        auto firstNumerical = dateString.find_first_of( "0123456789" );
-        if ( firstNumerical != std::string::npos )
-        {
-            std::string subString = dateString.substr( firstNumerical );
-
-            parsedOk = tryParseYearFirstNoSeparators( subString, year, month, day ) ||
-                       tryParseDayFirstNoSeparators( subString, year, month, day ) ||
-                       tryParseMonthFirstNoSeparators( subString, year, month, day );
-        }
+        parsedOk = parseDateStringWithoutSeparators( dateString, year, month, day, preference );
     }
 
     QDateTime dt;
@@ -64,6 +57,63 @@ QDateTime RiaDateStringParser::parseDateString( const std::string& dateString )
     if ( parsedOk ) dt.setDate( QDate( year, month, day ) );
 
     return dt;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaDateStringParser::parseDateStringWithSeparators( const std::string& dateString,
+                                                         int&               year,
+                                                         int&               month,
+                                                         int&               day,
+                                                         OrderPreference    preference )
+{
+    auto tryParseAllYearFirst = []( const std::string& dateString, int& year, int& month, int& day ) {
+        return tryParseYearFirst( dateString, year, month, day ) || tryParseDayFirst( dateString, year, month, day ) ||
+               tryParseMonthFirst( dateString, year, month, day );
+    };
+
+    auto tryParseAllDayFirst = []( const std::string& dateString, int& year, int& month, int& day ) {
+        return tryParseDayFirst( dateString, year, month, day ) || tryParseYearFirst( dateString, year, month, day ) ||
+               tryParseMonthFirst( dateString, year, month, day );
+    };
+
+    return ( preference == OrderPreference::YEAR_FIRST ) ? tryParseAllYearFirst( dateString, year, month, day )
+                                                         : tryParseAllDayFirst( dateString, year, month, day );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaDateStringParser::parseDateStringWithoutSeparators( const std::string& dateString,
+                                                            int&               year,
+                                                            int&               month,
+                                                            int&               day,
+                                                            OrderPreference    preference )
+{
+    auto tryParseAllYearFirstNoSeparators = []( const std::string& dateString, int& year, int& month, int& day ) {
+        return tryParseYearFirstNoSeparators( dateString, year, month, day ) ||
+               tryParseDayFirstNoSeparators( dateString, year, month, day ) ||
+               tryParseMonthFirstNoSeparators( dateString, year, month, day );
+    };
+
+    auto tryParseAllDayFirstNoSeparators = []( const std::string& dateString, int& year, int& month, int& day ) {
+        return tryParseDayFirstNoSeparators( dateString, year, month, day ) ||
+               tryParseYearFirstNoSeparators( dateString, year, month, day ) ||
+               tryParseMonthFirstNoSeparators( dateString, year, month, day );
+    };
+
+    auto firstNumerical = dateString.find_first_of( "0123456789" );
+    if ( firstNumerical != std::string::npos )
+    {
+        std::string subString = dateString.substr( firstNumerical );
+
+        return ( preference == OrderPreference::YEAR_FIRST )
+                   ? tryParseAllYearFirstNoSeparators( subString, year, month, day )
+                   : tryParseAllDayFirstNoSeparators( subString, year, month, day );
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
