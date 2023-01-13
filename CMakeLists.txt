@@ -274,13 +274,6 @@ endif(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
 set(CMAKE_CXX_COMPILER_LAUNCHER ${TEMP_CMAKE_CXX_COMPILER_LAUNCHER})
 
 # ##############################################################################
-
-# ##############################################################################
-# Go through required git submodules #
-# ##############################################################################
-list(APPEND THIRD_PARTY_SUBMODULES fast_float qwt qtadvanceddocking)
-
-# ##############################################################################
 # Init GIT submodules if they haven't already #
 # ##############################################################################
 find_package(Git QUIET)
@@ -288,22 +281,19 @@ if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
   # Update submodules as needed
   option(GIT_SUBMODULE "Check submodules during build" ON)
   if(GIT_SUBMODULE)
-    foreach(SUBMODULE ${THIRD_PARTY_SUBMODULES})
-      set(SUBDIR "${PROJECT_SOURCE_DIR}/ThirdParty/${SUBMODULE}")
-      message(STATUS "Initializing GIT submodules")
-      execute_process(
-        COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive --
-                ${SUBDIR}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        RESULT_VARIABLE GIT_SUBMOD_RESULT
+    set(SUBDIR "${PROJECT_SOURCE_DIR}/ThirdParty")
+    message(STATUS "Initializing GIT submodules")
+    execute_process(
+      COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive -- ${SUBDIR}
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+      RESULT_VARIABLE GIT_SUBMOD_RESULT
+    )
+    if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+      message(
+        FATAL_ERROR
+          "git submodule update --init failed with ${GIT_SUBMOD_RESULT}, please checkout submodules"
       )
-      if(NOT GIT_SUBMOD_RESULT EQUAL "0")
-        message(
-          FATAL_ERROR
-            "git submodule update --init failed for ${SUBMODULE} with ${GIT_SUBMOD_RESULT}, please checkout submodules"
-        )
-      endif()
-    endforeach()
+    endif()
   endif()
 endif()
 
