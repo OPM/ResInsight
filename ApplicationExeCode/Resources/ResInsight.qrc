@@ -194,6 +194,7 @@
         <file>draw_style_meshlines_24x24.png</file>
         <file>draw_style_surface_24x24.png</file>
         <file>draw_style_surface_w_fault_mesh_24x24.png</file>
+        <file>draw_style_deformation_24x24.png</file>
         <file>DrawStyleLines.svg</file>
         <file>DrawStyleMeshLines.svg</file>
         <file>DrawStyleSurface.svg</file>
@@ -269,8 +270,8 @@
         <file>AppendNextCurve.png</file>
         <file>AppendPrevCurve.png</file>
         <file>CheckOverlay16x16.png</file>
-	    <file>Link3DandPlots.png</file>
-		<file>info.png</file>
+        <file>Link3DandPlots.png</file>
+        <file>info.png</file>
     </qresource>
     <qresource prefix="/Shader">
         <file>fs_CellFace.glsl</file>

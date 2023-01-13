@@ -269,6 +269,7 @@ private:
     QAction*      m_drawStyleFaultLinesSolidAction;
     QAction*      m_drawStyleSurfOnlyAction;
     QAction*      m_showWellCellsAction;
+    QAction*      m_drawStyleDeformationsAction;
 
     QToolBar* m_holoLensToolBar;
 
