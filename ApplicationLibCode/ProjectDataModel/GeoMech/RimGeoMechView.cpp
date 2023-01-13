@@ -1095,6 +1095,14 @@ const RimGeoMechPartCollection* RimGeoMechView::partsCollection() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::pair<int, int> RimGeoMechView::currentStepAndDataFrame() const
+{
+    return std::make_pair( m_currentInternalTimeStep, m_currentDataFrameIndex );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RimGeoMechView::displacementScaleFactor() const
 {
     return m_displacementScaling;
@@ -1106,12 +1114,4 @@ double RimGeoMechView::displacementScaleFactor() const
 bool RimGeoMechView::showDisplacements() const
 {
     return m_showDisplacement;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::pair<int, int> RimGeoMechView::currentStepAndDataFrame() const
-{
-    return std::make_pair( m_currentInternalTimeStep, m_currentDataFrameIndex );
 }
