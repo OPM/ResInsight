@@ -1118,6 +1118,14 @@ std::pair<int, int> RimGeoMechView::currentStepAndDataFrame() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::pair<int, int> RimGeoMechView::currentStepAndDataFrame() const
+{
+    return std::make_pair( m_currentInternalTimeStep, m_currentDataFrameIndex );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGeoMechView::setShowDisplacementsAndUpdate( bool show )
 {
     m_showDisplacement = show;
