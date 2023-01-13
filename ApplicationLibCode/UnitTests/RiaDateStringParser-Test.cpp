@@ -131,3 +131,27 @@ TEST( RiaDateStringParserTest, ParseWithoutSeparators )
         EXPECT_TRUE( nov24thDT == RiaDateStringParser::parseDateString( nov24thString ) );
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RiaDateStringParserTest, ParseDayFirst )
+{
+    std::vector<std::pair<QString, QDate>> dates = {
+        { "28-DEC-1985", QDate( 1985, 12, 28 ) },
+        { "15-jan-02", QDate( 2002, 1, 15 ) },
+        { "15-january-02", QDate( 2002, 1, 15 ) },
+        { "2023-january-17", QDate( 2023, 1, 17 ) },
+        { "150102", QDate( 2002, 1, 15 ) },
+        { "310102", QDate( 2002, 1, 31 ) },
+    };
+
+    for ( auto [dateString, expected] : dates )
+    {
+        QDateTime actual =
+            RiaDateStringParser::parseDateString( dateString, RiaDateStringParser::OrderPreference::DAY_FIRST );
+        EXPECT_EQ( expected.day(), actual.date().day() );
+        EXPECT_EQ( expected.month(), actual.date().month() );
+        EXPECT_EQ( expected.year(), actual.date().year() );
+    }
+}

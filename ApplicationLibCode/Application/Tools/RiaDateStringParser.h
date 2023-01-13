@@ -30,10 +30,29 @@
 class RiaDateStringParser
 {
 public:
-    static QDateTime parseDateString( const QString& dateString );
-    static QDateTime parseDateString( const std::string& dateString );
+    enum class OrderPreference
+    {
+        YEAR_FIRST,
+        DAY_FIRST
+    };
+
+    static QDateTime parseDateString( const QString& dateString, OrderPreference preference = OrderPreference::YEAR_FIRST );
+    static QDateTime parseDateString( const std::string& dateStringString,
+                                      OrderPreference    preference = OrderPreference::YEAR_FIRST );
 
 private:
+    static bool parseDateStringWithSeparators( const std::string& dateString,
+                                               int&               year,
+                                               int&               month,
+                                               int&               day,
+                                               OrderPreference    preference );
+
+    static bool parseDateStringWithoutSeparators( const std::string& dateString,
+                                                  int&               year,
+                                                  int&               month,
+                                                  int&               day,
+                                                  OrderPreference    preference );
+
     static bool tryParseYearFirst( const std::string& s, int& year, int& month, int& day );
     static bool tryParseDayFirst( const std::string& s, int& year, int& month, int& day );
     static bool tryParseMonthFirst( const std::string& s, int& year, int& month, int& day );
