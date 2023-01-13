@@ -161,6 +161,9 @@ RimWellLogRftCurve::RimWellLogRftCurve()
     CAF_PDM_InitFieldNoDefault( &m_observedFmuRftData, "ObservedFmuRftData", "Observed FMU RFT Data" );
     m_observedFmuRftData.uiCapability()->setUiTreeChildrenHidden( true );
 
+    CAF_PDM_InitFieldNoDefault( &m_pressureDepthData, "PressureDepthData", "Pressure Depth Data" );
+    m_pressureDepthData.uiCapability()->setUiTreeChildrenHidden( true );
+
     CAF_PDM_InitFieldNoDefault( &m_timeStep, "TimeStep", "Time Step" );
 
     CAF_PDM_InitFieldNoDefault( &m_wellName, "WellName", "Well Name" );
@@ -318,6 +321,22 @@ void RimWellLogRftCurve::setObservedFmuRftData( RimObservedFmuRftData* observedF
 RimObservedFmuRftData* RimWellLogRftCurve::observedFmuRftData() const
 {
     return m_observedFmuRftData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogRftCurve::setPressureDepthData( RimPressureDepthData* observedFmuRftData )
+{
+    m_pressureDepthData = observedFmuRftData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPressureDepthData* RimWellLogRftCurve::pressureDepthData() const
+{
+    return m_pressureDepthData;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -671,6 +690,12 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
             unitSystem     = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
             perPointLabels = this->perPointLabels();
         }
+        else if ( m_pressureDepthData )
+        {
+            // TODO: Read unit system for pressure data
+            unitSystem = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
+            // perPointLabels = this->perPointLabels();
+        }
         else
         {
             CVF_ASSERT( false && "Need to have either an eclipse result case, a summary case or an ensemble" );
@@ -1002,6 +1027,11 @@ RifReaderRftInterface* RimWellLogRftCurve::rftReader() const
         return m_observedFmuRftData()->rftReader();
     }
 
+    if ( m_pressureDepthData() )
+    {
+        return m_pressureDepthData()->rftReader();
+    }
+
     return nullptr;
 }
 
@@ -1276,6 +1306,12 @@ std::vector<double> RimWellLogRftCurve::measuredDepthValues()
             RifEclipseRftAddress::createAddress( m_wellName(), m_timeStep, RifEclipseRftAddress::RftWellLogChannelType::MD );
         reader->values( depthAddress, &values );
         return values;
+    }
+
+    if ( m_pressureDepthData && !m_ensemble && !m_summaryCase )
+    {
+        // Pressure depth data does not have MD
+        return {};
     }
 
     std::vector<double> measuredDepthForCells;

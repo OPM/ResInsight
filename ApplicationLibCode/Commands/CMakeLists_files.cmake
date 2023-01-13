@@ -86,6 +86,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicShowDataSourcesForRealization.h
     ${CMAKE_CURRENT_LIST_DIR}/RicDeleteUncheckedSubItemsFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicRenameSummaryCaseFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicImportPressureDepthDataFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -175,6 +176,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicShowDataSourcesForRealization.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicDeleteUncheckedSubItemsFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicRenameSummaryCaseFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicImportPressureDepthDataFeature.cpp
 )
 
 if(RESINSIGHT_USE_QT_CHARTS)
