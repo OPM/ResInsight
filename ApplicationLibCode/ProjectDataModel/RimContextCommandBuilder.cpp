@@ -1131,6 +1131,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 
         menuBuilder << "RicImportObservedDataFeature";
         menuBuilder << "RicImportObservedFmuDataFeature";
+        menuBuilder << "RicImportPressureDepthDataFeature";
         menuBuilder << "RicRenameSummaryCaseFeature";
         menuBuilder << "RicReloadSummaryCaseFeature";
         menuBuilder << "RicReplaceSummaryCaseFeature";

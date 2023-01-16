@@ -44,6 +44,7 @@ public:
                                                                                      bool           useSavedFieldsValuesInDialog,
                                                                                      QString*       errorText = nullptr );
     RimObservedFmuRftData*               createAndAddFmuRftDataFromPath( const QString& directoryPath );
+    RimPressureDepthData*                createAndAddPressureDepthDataFromPath( const QString& fileName );
     std::vector<RimObservedSummaryData*> allObservedSummaryData() const;
     std::vector<RimObservedFmuRftData*>  allObservedFmuRftData() const;
 

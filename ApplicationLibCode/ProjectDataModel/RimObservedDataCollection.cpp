@@ -253,3 +253,22 @@ RimObservedFmuRftData* RimObservedDataCollection::createAndAddFmuRftDataFromPath
 
     return fmuRftData;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPressureDepthData* RimObservedDataCollection::createAndAddPressureDepthDataFromPath( const QString& filePath )
+{
+    QString name = QString( "Imported Pressure/Depth Data %1" ).arg( m_observedPressureDepthArray.size() + 1 );
+
+    RimPressureDepthData* data = new RimPressureDepthData;
+    data->setFilePath( filePath );
+    data->createRftReaderInterface();
+    data->setName( name );
+    m_observedPressureDepthArray.push_back( data );
+
+    updateNewObservedDataCreated( data );
+    this->updateConnectedEditors();
+
+    return data;
+}
