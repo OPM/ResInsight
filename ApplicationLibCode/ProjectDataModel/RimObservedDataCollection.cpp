@@ -107,6 +107,14 @@ std::vector<RimObservedFmuRftData*> RimObservedDataCollection::allObservedFmuRft
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimPressureDepthData*> RimObservedDataCollection::allPressureDepthData() const
+{
+    return m_observedPressureDepthArray.children();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimObservedDataCollection::fileExists( const QString& fileName, QString* errorText /*= nullptr*/ )
 {
     QFile file( fileName );

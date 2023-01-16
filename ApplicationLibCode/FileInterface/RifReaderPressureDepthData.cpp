@@ -45,24 +45,23 @@ std::vector<QString> RifReaderPressureDepthData::labels( const RifEclipseRftAddr
 {
     std::vector<QString> formationLabels;
 
-    CAF_ASSERT( false && "Not implemented" );
-    // if ( m_allWellObservations.empty() )
-    // {
-    //     load();
-    // }
+    //    CAF_ASSERT( false && "Not implemented" );
+    if ( m_pressureDepthDataItems.empty() )
+    {
+        load();
+    }
 
-    // auto it = m_allWellObservations.find( rftAddress.wellName() );
-    // if ( it != m_allWellObservations.end() )
-    // {
-    //     const std::vector<Observation>& observations = it->second.observations;
-    //     for ( const Observation& observation : observations )
-    //     {
-    //         formationLabels.push_back( QString( "%1 - Pressure: %2 +/- %3" )
-    //                                        .arg( observation.formation )
-    //                                        .arg( observation.pressure )
-    //                                        .arg( observation.pressureError ) );
-    //     }
-    // }
+    for ( const RigPressureDepthData& pressureDepthData : m_pressureDepthDataItems )
+    {
+        if ( rftAddress.wellName() == pressureDepthData.wellName() &&
+             rftAddress.timeStep().date() == pressureDepthData.timeStep().date() )
+        {
+            formationLabels.push_back( QString( "%1 - Pressure: %2" )
+                                           .arg( pressureDepthData.wellName() )
+                                           .arg( pressureDepthData.timeStep().toString() ) );
+        }
+    }
+
     return formationLabels;
 }
 
@@ -119,7 +118,7 @@ void RifReaderPressureDepthData::values( const RifEclipseRftAddress& rftAddress,
                     *values = pressureDepthData.pressure();
                     break;
                 default:
-                    CAF_ASSERT( false && "Wrong channel type sent to pressure depth data reader" );
+                    *values = {};
             }
         }
     }
@@ -130,16 +129,6 @@ void RifReaderPressureDepthData::values( const RifEclipseRftAddress& rftAddress,
 //--------------------------------------------------------------------------------------------------
 void RifReaderPressureDepthData::load()
 {
-    //    QString errorMsg;
-
-    // QFileInfo fileInfo( m_filePath );
-    // if ( !( fileInfo.exists() && fileInfo.isDir() && fileInfo.isReadable() ) )
-    // {
-    //     errorMsg = QString( "File '%1' does not exist or isn't readable" ).arg( m_filePath );
-    //     RiaLogging::error( errorMsg );
-    //     return;
-    // }
-
     auto [pressureDepthDataItems, errorMsg] = RifPressureDepthTextFileReader::readFile( m_filePath );
     if ( !errorMsg.isEmpty() )
     {

@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "RimPressureDepthData.h"
 #include "RimWellLogCurve.h"
 
 #include "RifEclipseRftAddress.h"
@@ -38,6 +39,7 @@ class RimObservedFmuRftData;
 class RimSummaryCase;
 class RimSummaryCaseCollection;
 class RimWellPath;
+class RimPressureDepthData;
 
 //==================================================================================================
 ///
@@ -90,6 +92,9 @@ public:
 
     void                   setObservedFmuRftData( RimObservedFmuRftData* observedFmuRftData );
     RimObservedFmuRftData* observedFmuRftData() const;
+
+    void                  setPressureDepthData( RimPressureDepthData* observedFmuRftData );
+    RimPressureDepthData* pressureDepthData() const;
 
     void                 setRftAddress( RifEclipseRftAddress address );
     RifEclipseRftAddress rftAddress() const;
@@ -149,6 +154,7 @@ private:
     caf::PdmPtrField<RimSummaryCase*>           m_summaryCase;
     caf::PdmPtrField<RimSummaryCaseCollection*> m_ensemble;
     caf::PdmPtrField<RimObservedFmuRftData*>    m_observedFmuRftData;
+    caf::PdmPtrField<RimPressureDepthData*>     m_pressureDepthData;
     caf::PdmField<QDateTime>                    m_timeStep;
     caf::PdmField<QString>                      m_wellName;
     caf::PdmField<int>                          m_branchIndex;

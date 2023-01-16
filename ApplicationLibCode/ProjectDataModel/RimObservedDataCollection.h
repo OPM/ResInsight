@@ -47,6 +47,7 @@ public:
     RimPressureDepthData*                createAndAddPressureDepthDataFromPath( const QString& fileName );
     std::vector<RimObservedSummaryData*> allObservedSummaryData() const;
     std::vector<RimObservedFmuRftData*>  allObservedFmuRftData() const;
+    std::vector<RimPressureDepthData*>   allPressureDepthData() const;
 
 private:
     bool fileExists( const QString& fileName, QString* errorText = nullptr );

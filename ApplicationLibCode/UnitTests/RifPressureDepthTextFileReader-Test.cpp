@@ -24,6 +24,9 @@ TEST( RifPressureDepthTextFileReaderTest, LoadFile )
     ASSERT_EQ( 3u, items.size() );
 
     EXPECT_EQ( "'G-14'", items[0].wellName().toStdString() );
+    EXPECT_EQ( 28, items[0].timeStep().date().day() );
+    EXPECT_EQ( 12, items[0].timeStep().date().month() );
+    EXPECT_EQ( 1995, items[0].timeStep().date().year() );
     std::vector<std::pair<double, double>> values0 = items[0].getPressureDepthValues();
     EXPECT_EQ( 4u, values0.size() );
     double delta = 0.001;

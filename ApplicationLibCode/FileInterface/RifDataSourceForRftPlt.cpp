@@ -23,6 +23,7 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"
 #include "RimObservedFmuRftData.h"
+#include "RimPressureDepthData.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimWellLogFile.h"
@@ -103,6 +104,17 @@ RifDataSourceForRftPlt::RifDataSourceForRftPlt( SourceType sourceType, RimObserv
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RifDataSourceForRftPlt::RifDataSourceForRftPlt( SourceType sourceType, RimPressureDepthData* observedFmuRftData )
+{
+    CVF_ASSERT( sourceType == SourceType::OBSERVED_FMU_RFT );
+
+    m_sourceType        = sourceType;
+    m_pressureDepthData = observedFmuRftData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RifDataSourceForRftPlt::SourceType RifDataSourceForRftPlt::sourceType() const
 {
     return m_sourceType;
@@ -168,6 +180,14 @@ RimWellLogFile* RifDataSourceForRftPlt::wellLogFile() const
 RimObservedFmuRftData* RifDataSourceForRftPlt::observedFmuRftData() const
 {
     return m_observedFmuRftData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPressureDepthData* RifDataSourceForRftPlt::pressureDepthData() const
+{
+    return m_pressureDepthData;
 }
 
 //--------------------------------------------------------------------------------------------------
