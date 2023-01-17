@@ -223,15 +223,15 @@ void RifOpmCommonEclipseSummary::buildMetaData()
     else if ( m_standardReader )
     {
         keywords                   = m_standardReader->keywordList();
-        startOfSimulation          = m_enhancedReader->startdate();
-        daysSinceStartOfSimulation = m_enhancedReader->get( "TIME" );
+        startOfSimulation          = m_standardReader->startdate();
+        daysSinceStartOfSimulation = m_standardReader->get( "TIME" );
     }
 
-    auto   startAsTimeT    = std::chrono::system_clock::to_time_t( startOfSimulation );
-    double secondsInOneDay = 24 * 3600;
-    for ( const auto& d : daysSinceStartOfSimulation )
+    const auto   startAsTimeT    = std::chrono::system_clock::to_time_t( startOfSimulation );
+    const double secondsInOneDay = 24 * 3600;
+    for ( const auto& days : daysSinceStartOfSimulation )
     {
-        m_timeSteps.push_back( startAsTimeT + d * secondsInOneDay );
+        m_timeSteps.push_back( startAsTimeT + days * secondsInOneDay );
     }
 
     auto [addresses, addressMap] = RifOpmCommonSummaryTools::buildAddressesAndKeywordMap( keywords );
