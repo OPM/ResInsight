@@ -210,24 +210,28 @@ RiaDefines::EclipseUnitSystem RifOpmCommonEclipseSummary::unitSystem() const
 //--------------------------------------------------------------------------------------------------
 void RifOpmCommonEclipseSummary::buildMetaData()
 {
-    std::vector<Opm::time_point> dates;
-    std::vector<std::string>     keywords;
+    std::vector<std::string> keywords;
+    Opm::time_point          startOfSimulation;
+    std::vector<float>       daysSinceStartOfSimulation;
 
     if ( m_enhancedReader )
     {
-        dates    = m_enhancedReader->dates();
-        keywords = m_enhancedReader->keywordList();
+        keywords                   = m_enhancedReader->keywordList();
+        startOfSimulation          = m_enhancedReader->startdate();
+        daysSinceStartOfSimulation = m_enhancedReader->get( "TIME" );
     }
     else if ( m_standardReader )
     {
-        dates    = m_standardReader->dates();
-        keywords = m_standardReader->keywordList();
+        keywords                   = m_standardReader->keywordList();
+        startOfSimulation          = m_standardReader->startdate();
+        daysSinceStartOfSimulation = m_standardReader->get( "TIME" );
     }
 
-    for ( const auto& d : dates )
+    const auto   startAsTimeT    = std::chrono::system_clock::to_time_t( startOfSimulation );
+    const double secondsInOneDay = 24 * 3600;
+    for ( const auto& days : daysSinceStartOfSimulation )
     {
-        auto timeAsTimeT = std::chrono::system_clock::to_time_t( d );
-        m_timeSteps.push_back( timeAsTimeT );
+        m_timeSteps.push_back( startAsTimeT + days * secondsInOneDay );
     }
 
     auto [addresses, addressMap] = RifOpmCommonSummaryTools::buildAddressesAndKeywordMap( keywords );
