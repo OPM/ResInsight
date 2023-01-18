@@ -657,7 +657,8 @@ RiaRftPltCurveDefinition RimWellPlotTools::curveDefFromCurve( const RimWellLogCu
         }
         else if ( pressureDepthData != nullptr )
         {
-            return RiaRftPltCurveDefinition( RifDataSourceForRftPlt( RifDataSourceForRftPlt::OBSERVED_FMU_RFT, pressureDepthData ),
+            return RiaRftPltCurveDefinition( RifDataSourceForRftPlt( RifDataSourceForRftPlt::OBSERVED_FMU_RFT,
+                                                                     pressureDepthData ),
                                              wellName,
                                              timeStep );
         }
