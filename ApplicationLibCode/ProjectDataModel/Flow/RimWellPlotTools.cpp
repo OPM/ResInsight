@@ -622,6 +622,7 @@ RiaRftPltCurveDefinition RimWellPlotTools::curveDefFromCurve( const RimWellLogCu
         RimSummaryCase*           rftSummaryCase = rftCurve->summaryCase();
         RimSummaryCaseCollection* rftEnsemble    = rftCurve->ensemble();
         RimObservedFmuRftData*    rftFmuData     = rftCurve->observedFmuRftData();
+        RimPressureDepthData*     pressureDepthData = rftCurve->pressureDepthData();
 
         const RifEclipseRftAddress rftAddress = rftCurve->rftAddress();
         const QString&             wellName   = rftAddress.wellName();
@@ -651,6 +652,12 @@ RiaRftPltCurveDefinition RimWellPlotTools::curveDefFromCurve( const RimWellLogCu
         else if ( rftFmuData != nullptr )
         {
             return RiaRftPltCurveDefinition( RifDataSourceForRftPlt( RifDataSourceForRftPlt::OBSERVED_FMU_RFT, rftFmuData ),
+                                             wellName,
+                                             timeStep );
+        }
+        else if ( pressureDepthData != nullptr )
+        {
+            return RiaRftPltCurveDefinition( RifDataSourceForRftPlt( RifDataSourceForRftPlt::OBSERVED_FMU_RFT, pressureDepthData ),
                                              wellName,
                                              timeStep );
         }
