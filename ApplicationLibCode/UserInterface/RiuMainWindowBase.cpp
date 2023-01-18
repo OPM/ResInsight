@@ -159,7 +159,7 @@ void RiuMainWindowBase::loadWinGeoAndDockToolBarLayout()
         {
             if ( toolbarLayout.isValid() )
             {
-                restoreState( toolbarLayout.toByteArray(), 0 );
+                restoreState( toolbarLayout.toByteArray(), 1 );
             }
         }
     }
@@ -209,7 +209,7 @@ void RiuMainWindowBase::saveWinGeoAndDockToolBarLayout()
     QByteArray winGeo = saveGeometry();
     settings.setValue( QString( "%1/winGeometry" ).arg( registryFolderName() ), winGeo );
 
-    QByteArray layout = saveState( 0 );
+    QByteArray layout = saveState( 1 );
     settings.setValue( QString( "%1/toolBarLayout" ).arg( registryFolderName() ), layout );
 
     settings.setValue( QString( "%1/isMaximized" ).arg( registryFolderName() ), isMaximized() );
