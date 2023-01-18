@@ -338,12 +338,13 @@ std::vector<double> RimGeoMechContourMapProjection::retrieveParameterWeights()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimGeoMechContourMapProjection::generateResults( int timeStep )
+std::vector<double> RimGeoMechContourMapProjection::generateResults( int viewerStepIndex )
 {
     RimGeoMechCellColors* cellColors    = view()->cellResult();
     RigFemResultAddress   resultAddress = cellColors->resultAddress();
 
-    std::vector<double> aggregatedResults = generateResultsFromAddress( resultAddress, m_mapCellVisibility, timeStep );
+    std::vector<double> aggregatedResults =
+        generateResultsFromAddress( resultAddress, m_mapCellVisibility, viewerStepIndex );
 
     return aggregatedResults;
 }
@@ -353,14 +354,14 @@ std::vector<double> RimGeoMechContourMapProjection::generateResults( int timeSte
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimGeoMechContourMapProjection::generateResultsFromAddress( RigFemResultAddress      resultAddress,
                                                                                 const std::vector<bool>& mapCellVisibility,
-                                                                                int viewerTimeStep )
+                                                                                int viewerStepIndex )
 {
     RigGeoMechCaseData*          caseData         = geoMechCase()->geoMechData();
     RigFemPartResultsCollection* resultCollection = caseData->femPartResults();
     size_t                       nCells           = numberOfCells();
     std::vector<double> aggregatedResults = std::vector<double>( nCells, std::numeric_limits<double>::infinity() );
 
-    auto [stepIdx, frameIdx] = caseData->femPartResults()->stepListIndexToTimeStepAndDataFrameIndex( viewerTimeStep );
+    auto [stepIdx, frameIdx] = caseData->femPartResults()->stepListIndexToTimeStepAndDataFrameIndex( viewerStepIndex );
 
     bool wasInvalid = false;
     if ( !resultAddress.isValid() )

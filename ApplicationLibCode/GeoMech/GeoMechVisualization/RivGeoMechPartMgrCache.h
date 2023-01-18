@@ -40,7 +40,7 @@ public:
     public:
         Key()
             : m_geometryType( -1 )
-            , m_viewerTimeStep( -1 )
+            , m_viewerStepIndex( -1 )
         {
         }
 
@@ -48,13 +48,13 @@ public:
 
         void set( RivCellSetEnum aGeometryType, int aViewerTimeStep );
 
-        int            viewerTimeStepIndex() const { return m_viewerTimeStep; }
+        int            viewerStepIndex() const { return m_viewerStepIndex; }
         unsigned short geometryType() const { return m_geometryType; }
 
         bool operator<( const Key& other ) const;
 
     private:
-        int            m_viewerTimeStep;
+        int            m_viewerStepIndex;
         unsigned short m_geometryType;
     };
 

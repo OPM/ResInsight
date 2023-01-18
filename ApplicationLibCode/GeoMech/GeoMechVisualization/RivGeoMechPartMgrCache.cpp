@@ -89,8 +89,8 @@ RivGeoMechPartMgr* RivGeoMechPartMgrCache::partMgr( const Key& key )
 //--------------------------------------------------------------------------------------------------
 void RivGeoMechPartMgrCache::Key::set( RivCellSetEnum aGeometryType, int aViewerTimeStep )
 {
-    m_viewerTimeStep = aViewerTimeStep;
-    m_geometryType   = aGeometryType;
+    m_viewerStepIndex = aViewerTimeStep;
+    m_geometryType    = aGeometryType;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -98,9 +98,9 @@ void RivGeoMechPartMgrCache::Key::set( RivCellSetEnum aGeometryType, int aViewer
 //--------------------------------------------------------------------------------------------------
 bool RivGeoMechPartMgrCache::Key::operator<( const Key& other ) const
 {
-    if ( m_viewerTimeStep != other.m_viewerTimeStep )
+    if ( m_viewerStepIndex != other.m_viewerStepIndex )
     {
-        return ( m_viewerTimeStep < other.m_viewerTimeStep );
+        return ( m_viewerStepIndex < other.m_viewerStepIndex );
     }
     return ( m_geometryType < other.m_geometryType );
 }
@@ -110,6 +110,6 @@ bool RivGeoMechPartMgrCache::Key::operator<( const Key& other ) const
 //--------------------------------------------------------------------------------------------------
 RivGeoMechPartMgrCache::Key::Key( RivCellSetEnum aGeometryType, int aViewerTimeStep )
     : m_geometryType( aGeometryType )
-    , m_viewerTimeStep( aViewerTimeStep )
+    , m_viewerStepIndex( aViewerTimeStep )
 {
 }

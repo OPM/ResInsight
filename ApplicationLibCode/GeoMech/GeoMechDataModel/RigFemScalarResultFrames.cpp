@@ -56,23 +56,23 @@ int RigFemScalarResultFrames::timeStepCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RigFemScalarResultFrames::frameCount( int timeStep ) const
+int RigFemScalarResultFrames::frameCount( int timeStepIndex ) const
 {
-    if ( timeStep >= timeStepCount() ) return 0;
+    if ( timeStepIndex >= timeStepCount() ) return 0;
 
-    return static_cast<int>( m_dataForEachFrame[timeStep].size() );
+    return static_cast<int>( m_dataForEachFrame[timeStepIndex].size() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<float>& RigFemScalarResultFrames::frameData( int timeStep, int frameIndex )
+std::vector<float>& RigFemScalarResultFrames::frameData( int timeStepIndex, int frameIndex )
 {
-    CVF_ASSERT( timeStep < timeStepCount() );
+    CVF_ASSERT( timeStepIndex < timeStepCount() );
 
-    if ( m_isSingleStepResult ) timeStep = 0;
+    if ( m_isSingleStepResult ) timeStepIndex = 0;
 
-    int availFrames = int( m_dataForEachFrame[timeStep].size() );
+    int availFrames = int( m_dataForEachFrame[timeStepIndex].size() );
 
     // frame index == -1 means last available frame
     if ( frameIndex == -1 ) frameIndex = availFrames - 1;
@@ -81,22 +81,22 @@ std::vector<float>& RigFemScalarResultFrames::frameData( int timeStep, int frame
 
     if ( frameIndex >= availFrames )
     {
-        m_dataForEachFrame[timeStep].resize( size_t( frameIndex + 1 ) );
+        m_dataForEachFrame[timeStepIndex].resize( size_t( frameIndex + 1 ) );
     }
 
-    return m_dataForEachFrame[timeStep][frameIndex];
+    return m_dataForEachFrame[timeStepIndex][frameIndex];
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<float>& RigFemScalarResultFrames::frameData( int timeStep, int frameIndex ) const
+const std::vector<float>& RigFemScalarResultFrames::frameData( int timeStepIndex, int frameIndex ) const
 {
-    CVF_ASSERT( timeStep < timeStepCount() );
+    CVF_ASSERT( timeStepIndex < timeStepCount() );
 
-    if ( m_isSingleStepResult ) timeStep = 0;
+    if ( m_isSingleStepResult ) timeStepIndex = 0;
 
-    int availFrames = int( m_dataForEachFrame[timeStep].size() );
+    int availFrames = int( m_dataForEachFrame[timeStepIndex].size() );
 
     // frame index == -1 means last available frame
     if ( frameIndex == -1 ) frameIndex = availFrames - 1;
@@ -108,5 +108,5 @@ const std::vector<float>& RigFemScalarResultFrames::frameData( int timeStep, int
         return m_noData;
     }
 
-    return m_dataForEachFrame[timeStep][frameIndex];
+    return m_dataForEachFrame[timeStepIndex][frameIndex];
 }

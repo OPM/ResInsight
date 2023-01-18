@@ -33,10 +33,10 @@ public:
 
     void enableAsSingleStepResult();
 
-    std::vector<float>&       frameData( int timeStep, int frameIndex );
-    const std::vector<float>& frameData( int timeStep, int frameIndex ) const;
+    std::vector<float>&       frameData( int timeStepIndex, int frameIndex );
+    const std::vector<float>& frameData( int timeStepIndex, int frameIndex ) const;
     int                       timeStepCount() const;
-    int                       frameCount( int timeStep ) const;
+    int                       frameCount( int timeStepIndex ) const;
 
 private:
     std::vector<std::vector<std::vector<float>>> m_dataForEachFrame;

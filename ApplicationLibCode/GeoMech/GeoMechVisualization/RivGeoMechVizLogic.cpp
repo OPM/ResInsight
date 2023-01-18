@@ -221,7 +221,7 @@ RivGeoMechPartMgr* RivGeoMechVizLogic::getUpdatedPartMgr( RivGeoMechPartMgrCache
         caseData  = m_geomechView->geoMechCase()->geoMechData();
         partCount = caseData->femParts()->partCount();
         std::tie( timeStepIdx, frameIdx ) =
-            caseData->femPartResults()->stepListIndexToTimeStepAndDataFrameIndex( pMgrKey.viewerTimeStepIndex() );
+            caseData->femPartResults()->stepListIndexToTimeStepAndDataFrameIndex( pMgrKey.viewerStepIndex() );
     }
 
     if ( partMgrToUpdate->initializedFemPartCount() != partCount )

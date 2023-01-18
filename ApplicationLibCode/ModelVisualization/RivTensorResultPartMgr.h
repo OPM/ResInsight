@@ -51,8 +51,8 @@ public:
     ~RivTensorResultPartMgr() override;
 
     void appendDynamicGeometryPartsToModel( cvf::ModelBasicList* model,
-                                            int                  viewerTimeStep,
-                                            int                  localTimeStep,
+                                            int                  viewerStepIndex,
+                                            int                  localTimeStepIndex,
                                             int                  frameIndex ) const;
 
 private:

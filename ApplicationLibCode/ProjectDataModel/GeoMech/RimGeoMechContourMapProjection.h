@@ -66,10 +66,10 @@ protected:
     void                      updateGridInformation() override;
     std::vector<bool>         getMapCellVisibility() override;
     std::vector<double>       retrieveParameterWeights() override;
-    std::vector<double>       generateResults( int timeStep ) override;
+    std::vector<double>       generateResults( int viewerStepIndex ) override;
     std::vector<double>       generateResultsFromAddress( RigFemResultAddress      resultAddress,
                                                           const std::vector<bool>& mapCellVisibility,
-                                                          int                      timeStep );
+                                                          int                      viewerStepIndex );
     bool                      resultVariableChanged() const override;
     void                      clearResultVariable() override;
     RimGridView*              baseView() const override;

@@ -71,8 +71,8 @@ RivTensorResultPartMgr::~RivTensorResultPartMgr()
 ///
 //--------------------------------------------------------------------------------------------------
 void RivTensorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicList* model,
-                                                                int                  viewerTimeStep,
-                                                                int                  localTimeStep,
+                                                                int                  viewerStepIndex,
+                                                                int                  localTimeStepIndex,
                                                                 int                  frameIndex ) const
 {
     CVF_ASSERT( model );
@@ -96,7 +96,8 @@ void RivTensorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicL
 
     for ( int partIdx = 0; partIdx < femParts->partCount(); partIdx++ )
     {
-        std::vector<caf::Ten3f> vertexTensors = resultCollection->tensors( address, partIdx, localTimeStep, frameIndex );
+        std::vector<caf::Ten3f> vertexTensors =
+            resultCollection->tensors( address, partIdx, localTimeStepIndex, frameIndex );
         if ( vertexTensors.empty() ) continue;
 
         const RigFemPart* part = femParts->part( partIdx );
@@ -111,7 +112,7 @@ void RivTensorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicL
         calculatePrincipalsAndDirections( elmTensors, &elmPrincipals, &elmPrincipalDirections );
 
         std::vector<RivGeoMechPartMgrCache::Key> partKeys =
-            m_rimReservoirView->vizLogic()->keysToVisiblePartMgrs( viewerTimeStep );
+            m_rimReservoirView->vizLogic()->keysToVisiblePartMgrs( viewerStepIndex );
 
         RigFemPartNodes nodes = part->nodes();
 
