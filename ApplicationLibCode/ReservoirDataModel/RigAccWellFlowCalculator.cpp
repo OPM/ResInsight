@@ -874,8 +874,6 @@ void RigAccWellFlowCalculator::groupSmallContributions()
 
         std::vector<std::pair<QString, double>> totalTracerFractions = this->totalTracerFractions();
 
-        if ( totalTracerFractions.size() < 5 ) return; // No grouping for few legend items
-
         for ( const auto& tracerPair : totalTracerFractions )
         {
             if ( fabs( tracerPair.second ) <= m_smallContributionsThreshold &&
