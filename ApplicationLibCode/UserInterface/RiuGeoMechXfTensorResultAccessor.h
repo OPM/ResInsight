@@ -32,7 +32,9 @@ class RiuGeoMechXfTensorResultAccessor
 public:
     RiuGeoMechXfTensorResultAccessor( RigFemPartResultsCollection* femResCollection,
                                       const RigFemResultAddress&   resVarAddress,
-                                      int                          timeStepIdx );
+                                      int                          partIdx,
+                                      int                          timeStepIdx,
+                                      int                          frameIdx );
 
     void calculateInterpolatedValue( const cvf::Vec3f                   triangle[3],
                                      const RivIntersectionVertexWeights vertexWeights[3],

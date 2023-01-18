@@ -57,10 +57,10 @@ bool RigFemPartResultCalculatorShearST::isMatching( const RigFemResultAddress& r
 //--------------------------------------------------------------------------------------------------
 RigFemScalarResultFrames* RigFemPartResultCalculatorShearST::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
 {
-    caf::ProgressInfo frameCountProgress( m_resultCollection->frameCount() * 2, "" );
-    frameCountProgress.setProgressDescription(
+    caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 2, "" );
+    stepCountProgress.setProgressDescription(
         "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* srcSDataFrames =
         m_resultCollection->findOrLoadScalarResult( partIndex,
@@ -69,24 +69,27 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorShearST::calculate( int part
                                                                          resVarAddr.componentName ) );
     RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );
 
-    frameCountProgress.incrementProgress();
+    stepCountProgress.incrementProgress();
 
-    int frameCount = srcSDataFrames->frameCount();
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
+    const int timeSteps = srcSDataFrames->timeStepCount();
+    for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
-        const std::vector<float>& srcSFrameData = srcSDataFrames->frameData( fIdx );
-        std::vector<float>&       dstFrameData  = dstDataFrames->frameData( fIdx );
+        const int frameCount = srcSDataFrames->frameCount( stepIdx );
+        for ( int fIdx = 0; fIdx < frameCount; fIdx++ )
+        {
+            const std::vector<float>& srcSFrameData = srcSDataFrames->frameData( stepIdx, fIdx );
+            std::vector<float>&       dstFrameData  = dstDataFrames->frameData( stepIdx, fIdx );
 
-        size_t valCount = srcSFrameData.size();
-        dstFrameData.resize( valCount );
+            size_t valCount = srcSFrameData.size();
+            dstFrameData.resize( valCount );
 
 #pragma omp parallel for
-        for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
-        {
-            dstFrameData[vIdx] = -srcSFrameData[vIdx];
+            for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
+            {
+                dstFrameData[vIdx] = -srcSFrameData[vIdx];
+            }
         }
-
-        frameCountProgress.incrementProgress();
+        stepCountProgress.incrementProgress();
     }
 
     return dstDataFrames;

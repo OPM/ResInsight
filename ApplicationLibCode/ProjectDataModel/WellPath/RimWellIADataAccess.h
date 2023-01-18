@@ -45,12 +45,14 @@ public:
                         QString             componentName,
                         RigFemResultPosEnum resultType,
                         size_t              resultIndex,
-                        int                 timeStep );
+                        int                 timeStep,
+                        int                 frameId );
     double interpolatedResultValue( QString             fieldname,
                                     QString             componentName,
                                     RigFemResultPosEnum resultType,
                                     cvf::Vec3d          position,
-                                    int                 timeStep );
+                                    int                 timeStep,
+                                    int                 frameId );
 
 private:
     RimGeoMechCase*     m_case;

@@ -391,7 +391,8 @@ void RiuSelectionChangedHandler::updateResultInfo( const RiuSelectionItem* itemA
                                                  geomSelectionItem->m_resultDefinition,
                                                  (int)geomSelectionItem->m_gridIndex,
                                                  (int)geomSelectionItem->m_cellIndex,
-                                                 (int)geomSelectionItem->m_timestepIdx );
+                                                 (int)geomSelectionItem->m_timestepIdx,
+                                                 geomSelectionItem->m_frameIdx );
 
             textBuilder.setIntersectionPointInDisplay( geomSelectionItem->m_localIntersectionPointInDisplay );
             textBuilder.setFace( geomSelectionItem->m_elementFace );

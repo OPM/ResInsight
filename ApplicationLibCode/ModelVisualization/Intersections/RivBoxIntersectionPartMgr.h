@@ -56,7 +56,7 @@ public:
     explicit RivBoxIntersectionPartMgr( RimBoxIntersection* intersectionBox );
 
     void applySingleColorEffect();
-    void updateCellResultColor( size_t timeStepIndex );
+    void updateCellResultColor( int timeStepIndex );
 
     void appendNativeIntersectionFacesToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );
     void appendMeshLinePartsToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform );

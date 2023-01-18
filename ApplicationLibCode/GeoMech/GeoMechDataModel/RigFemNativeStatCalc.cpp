@@ -40,7 +40,10 @@ void RigFemNativeStatCalc::minMaxCellScalarValues( size_t timeStepIndex, double&
 {
     for ( int pIdx = 0; pIdx < m_resultsData->partCount(); ++pIdx )
     {
-        const std::vector<float>& values = m_resultsData->resultValues( m_resVarAddr, pIdx, (int)timeStepIndex );
+        auto frames = m_resultsData->findOrLoadScalarResult( pIdx, m_resVarAddr );
+
+        auto [stepIdx, frameIdx]         = m_resultsData->stepListIndexToTimeStepAndDataFrameIndex( timeStepIndex );
+        const std::vector<float>& values = frames->frameData( stepIdx, frameIdx );
 
         size_t i;
         for ( i = 0; i < values.size(); i++ )
@@ -49,7 +52,6 @@ void RigFemNativeStatCalc::minMaxCellScalarValues( size_t timeStepIndex, double&
             {
                 continue;
             }
-
             if ( values[i] < min )
             {
                 min = values[i];
@@ -70,7 +72,10 @@ void RigFemNativeStatCalc::posNegClosestToZero( size_t timeStepIndex, double& po
 {
     for ( int pIdx = 0; pIdx < m_resultsData->partCount(); ++pIdx )
     {
-        const std::vector<float>& values = m_resultsData->resultValues( m_resVarAddr, pIdx, (int)timeStepIndex );
+        auto frames = m_resultsData->findOrLoadScalarResult( pIdx, m_resVarAddr );
+
+        auto [stepIdx, frameIdx]         = m_resultsData->stepListIndexToTimeStepAndDataFrameIndex( timeStepIndex );
+        const std::vector<float>& values = frames->frameData( stepIdx, frameIdx );
 
         for ( size_t i = 0; i < values.size(); i++ )
         {
@@ -97,12 +102,14 @@ void RigFemNativeStatCalc::posNegClosestToZero( size_t timeStepIndex, double& po
 //--------------------------------------------------------------------------------------------------
 void RigFemNativeStatCalc::valueSumAndSampleCount( size_t timeStepIndex, double& valueSum, size_t& sampleCount )
 {
-    int tsIdx     = static_cast<int>( timeStepIndex );
     int partCount = m_resultsData->partCount();
 
     for ( int pIdx = 0; pIdx < partCount; ++pIdx )
     {
-        const std::vector<float>& values          = m_resultsData->resultValues( m_resVarAddr, pIdx, tsIdx );
+        auto frames              = m_resultsData->findOrLoadScalarResult( pIdx, m_resVarAddr );
+        auto [stepIdx, frameIdx] = m_resultsData->stepListIndexToTimeStepAndDataFrameIndex( timeStepIndex );
+
+        const std::vector<float>& values          = frames->frameData( stepIdx, frameIdx );
         size_t                    undefValueCount = 0;
         for ( size_t cIdx = 0; cIdx < values.size(); ++cIdx )
         {
@@ -129,8 +136,10 @@ void RigFemNativeStatCalc::addDataToHistogramCalculator( size_t timeStepIndex, R
     int partCount = m_resultsData->partCount();
     for ( int pIdx = 0; pIdx < partCount; ++pIdx )
     {
-        const std::vector<float>& values =
-            m_resultsData->resultValues( m_resVarAddr, pIdx, static_cast<int>( timeStepIndex ) );
+        auto frames = m_resultsData->findOrLoadScalarResult( pIdx, m_resVarAddr );
+
+        auto [stepIdx, frameIdx]         = m_resultsData->stepListIndexToTimeStepAndDataFrameIndex( timeStepIndex );
+        const std::vector<float>& values = frames->frameData( stepIdx, frameIdx );
 
         histogramCalculator.addData( values );
     }
@@ -143,7 +152,10 @@ void RigFemNativeStatCalc::uniqueValues( size_t timeStepIndex, std::set<int>& va
 {
     for ( int pIdx = 0; pIdx < m_resultsData->partCount(); ++pIdx )
     {
-        const std::vector<float>& floatValues = m_resultsData->resultValues( m_resVarAddr, pIdx, (int)timeStepIndex );
+        auto frames = m_resultsData->findOrLoadScalarResult( pIdx, m_resVarAddr );
+
+        auto [stepIdx, frameIdx] = m_resultsData->stepListIndexToTimeStepAndDataFrameIndex( timeStepIndex );
+        const std::vector<float>& floatValues = frames->frameData( stepIdx, frameIdx );
 
         for ( size_t i = 0; i < floatValues.size(); i++ )
         {
@@ -157,5 +169,5 @@ void RigFemNativeStatCalc::uniqueValues( size_t timeStepIndex, std::set<int>& va
 //--------------------------------------------------------------------------------------------------
 size_t RigFemNativeStatCalc::timeStepCount()
 {
-    return m_resultsData->frameCount();
+    return m_resultsData->totalSteps();
 }

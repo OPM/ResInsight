@@ -57,18 +57,24 @@ private:
     {
         int partCount = m_caseData->femParts()->partCount();
 
-        if ( m_resVarAddr.resultPosType == RIG_NODAL )
+        for ( int pIdx = 0; pIdx < partCount; ++pIdx )
         {
-            for ( int pIdx = 0; pIdx < partCount; ++pIdx )
-            {
-                RigFemPart*               part   = m_caseData->femParts()->part( pIdx );
-                const std::vector<float>& values = m_resultsData->resultValues( m_resVarAddr, pIdx, (int)timeStepIndex );
+            RigFemPart* part     = m_caseData->femParts()->part( pIdx );
+            int         elmCount = part->elementCount();
+            auto        frames   = m_resultsData->findOrLoadScalarResult( pIdx, m_resVarAddr );
 
+            auto [stepIdx, frameIdx] = m_resultsData->stepListIndexToTimeStepAndDataFrameIndex( timeStepIndex );
+
+            const std::vector<float>& values = m_resultsData->resultValues( m_resVarAddr, pIdx, stepIdx, frameIdx );
+
+            if ( values.empty() ) continue;
+
+            if ( m_resVarAddr.resultPosType == RIG_NODAL )
+            {
                 size_t          nodeCount = values.size();
                 cvf::UByteArray nodeVisibilities( nodeCount );
                 nodeVisibilities.setAll( false );
 
-                int elmCount = part->elementCount();
                 for ( int elmIdx = 0; elmIdx < elmCount; ++elmIdx )
                 {
                     if ( !( *m_cellVisibilities )[elmIdx] ) continue;
@@ -90,15 +96,9 @@ private:
                     }
                 }
             }
-        }
-        else if ( m_resVarAddr.resultPosType == RIG_ELEMENT )
-        {
-            for ( int pIdx = 0; pIdx < partCount; ++pIdx )
-            {
-                RigFemPart*               part   = m_caseData->femParts()->part( pIdx );
-                const std::vector<float>& values = m_resultsData->resultValues( m_resVarAddr, pIdx, (int)timeStepIndex );
-                int                       elmCount = part->elementCount();
 
+            else if ( m_resVarAddr.resultPosType == RIG_ELEMENT )
+            {
                 for ( int elmIdx = 0; elmIdx < elmCount; ++elmIdx )
                 {
                     if ( !( *m_cellVisibilities )[elmIdx] ) continue;
@@ -106,17 +106,9 @@ private:
                     accumulator.addValue( values[elmIdx] );
                 }
             }
-        }
-        else
-        {
-            for ( int pIdx = 0; pIdx < partCount; ++pIdx )
+
+            else
             {
-                RigFemPart*               part   = m_caseData->femParts()->part( pIdx );
-                const std::vector<float>& values = m_resultsData->resultValues( m_resVarAddr, pIdx, (int)timeStepIndex );
-                int                       elmCount = part->elementCount();
-
-                if ( values.empty() ) continue;
-
                 for ( int elmIdx = 0; elmIdx < elmCount; ++elmIdx )
                 {
                     if ( !( *m_cellVisibilities )[elmIdx] ) continue;

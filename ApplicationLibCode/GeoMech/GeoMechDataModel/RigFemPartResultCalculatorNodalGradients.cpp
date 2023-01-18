@@ -62,111 +62,116 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNodalGradients::calculate( i
     CVF_ASSERT( resVarAddr.fieldName == "POR-Bar" );
     CVF_ASSERT( resVarAddr.componentName == "X" || resVarAddr.componentName == "Y" || resVarAddr.componentName == "Z" );
 
-    caf::ProgressInfo frameCountProgress( m_resultCollection->frameCount() * 5, "" );
-    frameCountProgress.setProgressDescription(
+    caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 5, "" );
+    stepCountProgress.setProgressDescription(
         "Calculating gradient: " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* dataFramesX =
         m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( RIG_NODAL, resVarAddr.fieldName, "X" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    stepCountProgress.incrementProgress();
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* dataFramesY =
         m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( RIG_NODAL, resVarAddr.fieldName, "Y" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    stepCountProgress.incrementProgress();
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* dataFramesZ =
         m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( RIG_NODAL, resVarAddr.fieldName, "Z" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    stepCountProgress.incrementProgress();
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemResultAddress       porResultAddr( RIG_NODAL, "POR-Bar", "" );
     RigFemScalarResultFrames* srcDataFrames = m_resultCollection->findOrLoadScalarResult( partIndex, porResultAddr );
 
-    frameCountProgress.incrementProgress();
+    stepCountProgress.incrementProgress();
 
     const RigFemPart* femPart = m_resultCollection->parts()->part( partIndex );
-    float             inf     = std::numeric_limits<float>::infinity();
+    constexpr float   inf     = std::numeric_limits<float>::infinity();
 
     const std::vector<cvf::Vec3f>& nodeCoords = femPart->nodes().coordinates;
     size_t                         nodeCount  = femPart->nodes().nodeIds.size();
 
-    int frameCount = srcDataFrames->frameCount();
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
+    const int timeSteps = srcDataFrames->timeStepCount();
+    for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
-        const std::vector<float>& srcFrameData  = srcDataFrames->frameData( fIdx );
-        std::vector<float>&       dstFrameDataX = dataFramesX->frameData( fIdx );
-        std::vector<float>&       dstFrameDataY = dataFramesY->frameData( fIdx );
-        std::vector<float>&       dstFrameDataZ = dataFramesZ->frameData( fIdx );
+        const int frameCount = srcDataFrames->frameCount( stepIdx );
+        for ( int fIdx = 0; fIdx < frameCount; fIdx++ )
+        {
+            const std::vector<float>& srcFrameData  = srcDataFrames->frameData( stepIdx, fIdx );
+            std::vector<float>&       dstFrameDataX = dataFramesX->frameData( stepIdx, fIdx );
+            std::vector<float>&       dstFrameDataY = dataFramesY->frameData( stepIdx, fIdx );
+            std::vector<float>&       dstFrameDataZ = dataFramesZ->frameData( stepIdx, fIdx );
 
-        if ( srcFrameData.empty() ) continue; // Create empty results if we have no POR result.
+            if ( srcFrameData.empty() ) continue; // Create empty results if we have no POR result.
 
-        size_t valCount = femPart->elementNodeResultCount();
-        dstFrameDataX.resize( valCount, inf );
-        dstFrameDataY.resize( valCount, inf );
-        dstFrameDataZ.resize( valCount, inf );
+            size_t valCount = femPart->elementNodeResultCount();
+            dstFrameDataX.resize( valCount, inf );
+            dstFrameDataY.resize( valCount, inf );
+            dstFrameDataZ.resize( valCount, inf );
 
-        int elementCount = femPart->elementCount();
+            int elementCount = femPart->elementCount();
 
 #pragma omp parallel for schedule( dynamic )
-        for ( long nodeIdx = 0; nodeIdx < static_cast<long>( nodeCount ); nodeIdx++ )
-        {
-            const std::vector<int> elements = femPart->elementsUsingNode( nodeIdx );
-
-            // Compute the average of the elements contributing to this node
-            cvf::Vec3d result         = cvf::Vec3d::ZERO;
-            int        nValidElements = 0;
-            for ( int elmIdx : elements )
+            for ( long nodeIdx = 0; nodeIdx < static_cast<long>( nodeCount ); nodeIdx++ )
             {
-                RigElementType elmType = femPart->elementType( elmIdx );
-                if ( elmType == HEX8P )
+                const std::vector<int> elements = femPart->elementsUsingNode( nodeIdx );
+
+                // Compute the average of the elements contributing to this node
+                cvf::Vec3d result         = cvf::Vec3d::ZERO;
+                int        nValidElements = 0;
+                for ( int elmIdx : elements )
                 {
-                    // Find the corner coordinates and values for the node
-                    std::array<cvf::Vec3d, 8> hexCorners;
-                    std::array<double, 8>     cornerValues;
-
-                    int elmNodeCount = RigFemTypes::elementNodeCount( elmType );
-                    for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
+                    RigElementType elmType = femPart->elementType( elmIdx );
+                    if ( elmType == HEX8P )
                     {
-                        size_t elmNodResIdx   = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
-                        size_t resultValueIdx = femPart->resultValueIdxFromResultPosType( RIG_NODAL, elmIdx, elmNodIdx );
+                        // Find the corner coordinates and values for the node
+                        std::array<cvf::Vec3d, 8> hexCorners;
+                        std::array<double, 8>     cornerValues;
 
-                        cornerValues[elmNodIdx] = srcFrameData[resultValueIdx];
-                        hexCorners[elmNodIdx]   = cvf::Vec3d( nodeCoords[resultValueIdx] );
-                    }
-
-                    std::array<cvf::Vec3d, 8> gradients = RigHexGradientTools::gradients( hexCorners, cornerValues );
-
-                    for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
-                    {
-                        size_t elmNodResIdx   = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
-                        size_t resultValueIdx = femPart->resultValueIdxFromResultPosType( RIG_NODAL, elmIdx, elmNodIdx );
-                        // Only use the gradient for particular corner corresponding to the node
-                        if ( static_cast<size_t>( nodeIdx ) == resultValueIdx )
+                        int elmNodeCount = RigFemTypes::elementNodeCount( elmType );
+                        for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
                         {
-                            result.add( gradients[elmNodIdx] );
-                        }
-                    }
+                            size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
+                            size_t resultValueIdx =
+                                femPart->resultValueIdxFromResultPosType( RIG_NODAL, elmIdx, elmNodIdx );
 
-                    nValidElements++;
+                            cornerValues[elmNodIdx] = srcFrameData[resultValueIdx];
+                            hexCorners[elmNodIdx]   = cvf::Vec3d( nodeCoords[resultValueIdx] );
+                        }
+
+                        std::array<cvf::Vec3d, 8> gradients = RigHexGradientTools::gradients( hexCorners, cornerValues );
+
+                        for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
+                        {
+                            size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
+                            size_t resultValueIdx =
+                                femPart->resultValueIdxFromResultPosType( RIG_NODAL, elmIdx, elmNodIdx );
+                            // Only use the gradient for particular corner corresponding to the node
+                            if ( static_cast<size_t>( nodeIdx ) == resultValueIdx )
+                            {
+                                result.add( gradients[elmNodIdx] );
+                            }
+                        }
+
+                        nValidElements++;
+                    }
+                }
+
+                if ( nValidElements > 0 )
+                {
+                    // Round very small values to zero to avoid ugly coloring when gradients
+                    // are dominated by floating point math artifacts.
+                    double epsilon = 1.0e-6;
+                    result /= static_cast<double>( nValidElements );
+                    dstFrameDataX[nodeIdx] = std::abs( result.x() ) > epsilon ? result.x() : 0.0;
+                    dstFrameDataY[nodeIdx] = std::abs( result.y() ) > epsilon ? result.y() : 0.0;
+                    dstFrameDataZ[nodeIdx] = std::abs( result.z() ) > epsilon ? result.z() : 0.0;
                 }
             }
-
-            if ( nValidElements > 0 )
-            {
-                // Round very small values to zero to avoid ugly coloring when gradients
-                // are dominated by floating point math artifacts.
-                double epsilon = 1.0e-6;
-                result /= static_cast<double>( nValidElements );
-                dstFrameDataX[nodeIdx] = std::abs( result.x() ) > epsilon ? result.x() : 0.0;
-                dstFrameDataY[nodeIdx] = std::abs( result.y() ) > epsilon ? result.y() : 0.0;
-                dstFrameDataZ[nodeIdx] = std::abs( result.z() ) > epsilon ? result.z() : 0.0;
-            }
         }
-
-        frameCountProgress.incrementProgress();
+        stepCountProgress.incrementProgress();
     }
 
     RigFemScalarResultFrames* requestedGradient = m_resultCollection->findOrLoadScalarResult( partIndex, resVarAddr );

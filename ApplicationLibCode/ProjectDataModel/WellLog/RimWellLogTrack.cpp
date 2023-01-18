@@ -2604,7 +2604,7 @@ CurveSamplingPointData RimWellLogTrack::curveSamplingPointData( RigGeoMechWellLo
     curveData.tvd     = extractor->cellIntersectionTVDs();
     curveData.rkbDiff = extractor->wellPathGeometry()->rkbDiff();
 
-    extractor->curveData( resultAddress, 0, &curveData.data );
+    extractor->curveData( resultAddress, 0, 0, &curveData.data );
     return curveData;
 }
 
@@ -3190,6 +3190,9 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
         int          timeStep = wellBoreStabilityPlot->commonDataSource()->timeStepToApply();
         if ( geoMechCase && wellPath && timeStep >= 0 )
         {
+            auto [stepIdx, frameIdx] =
+                geoMechCase->geoMechData()->femPartResults()->stepListIndexToTimeStepAndDataFrameIndex( timeStep );
+
             RigGeoMechWellLogExtractor* geoMechWellLogExtractor = nullptr;
             geoMechWellLogExtractor =
                 RiaExtractionTools::findOrCreateWellLogExtractor( wellPath, dynamic_cast<RimGeoMechCase*>( geoMechCase ) );
@@ -3207,9 +3210,9 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
                 wbsPlot->applyWbsParametersToExtractor( geoMechWellLogExtractor );
             }
 
-            std::vector<double> ppSourceRegions      = geoMechWellLogExtractor->porePressureSourceRegions( timeStep );
-            std::vector<double> poissonSourceRegions = geoMechWellLogExtractor->poissonSourceRegions( timeStep );
-            std::vector<double> ucsSourceRegions     = geoMechWellLogExtractor->ucsSourceRegions( timeStep );
+            std::vector<double> ppSourceRegions = geoMechWellLogExtractor->porePressureSourceRegions( stepIdx, frameIdx );
+            std::vector<double> poissonSourceRegions = geoMechWellLogExtractor->poissonSourceRegions( stepIdx, frameIdx );
+            std::vector<double> ucsSourceRegions     = geoMechWellLogExtractor->ucsSourceRegions( stepIdx, frameIdx );
 
             {
                 caf::ColorTable colorTable( m_colorShadingLegend->colorArray() );

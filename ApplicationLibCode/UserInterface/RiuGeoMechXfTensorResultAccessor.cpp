@@ -93,23 +93,25 @@ float RiuGeoMechXfTensorResultAccessor::PCRIT( const caf::Ten3f& t ) const
 //--------------------------------------------------------------------------------------------------
 RiuGeoMechXfTensorResultAccessor::RiuGeoMechXfTensorResultAccessor( RigFemPartResultsCollection* femResCollection,
                                                                     const RigFemResultAddress&   resVarAddress,
-                                                                    int                          timeStepIdx )
+                                                                    int                          partIdx,
+                                                                    int                          timeStepIdx,
+                                                                    int                          frameIdx )
 {
     RigFemResultAddress tensComp = resVarAddress;
     tensComp.resultPosType       = RIG_ELEMENT_NODAL;
 
     tensComp.componentName = "S11";
-    tens11                 = &femResCollection->resultValues( tensComp, 0, timeStepIdx );
+    tens11                 = &femResCollection->resultValues( tensComp, partIdx, timeStepIdx, frameIdx );
     tensComp.componentName = "S22";
-    tens22                 = &femResCollection->resultValues( tensComp, 0, timeStepIdx );
+    tens22                 = &femResCollection->resultValues( tensComp, partIdx, timeStepIdx, frameIdx );
     tensComp.componentName = "S33";
-    tens33                 = &femResCollection->resultValues( tensComp, 0, timeStepIdx );
+    tens33                 = &femResCollection->resultValues( tensComp, partIdx, timeStepIdx, frameIdx );
     tensComp.componentName = "S12";
-    tens12                 = &femResCollection->resultValues( tensComp, 0, timeStepIdx );
+    tens12                 = &femResCollection->resultValues( tensComp, partIdx, timeStepIdx, frameIdx );
     tensComp.componentName = "S23";
-    tens23                 = &femResCollection->resultValues( tensComp, 0, timeStepIdx );
+    tens23                 = &femResCollection->resultValues( tensComp, partIdx, timeStepIdx, frameIdx );
     tensComp.componentName = "S13";
-    tens13                 = &femResCollection->resultValues( tensComp, 0, timeStepIdx );
+    tens13                 = &femResCollection->resultValues( tensComp, partIdx, timeStepIdx, frameIdx );
 
     if ( resVarAddress.componentName == "SN" )
     {

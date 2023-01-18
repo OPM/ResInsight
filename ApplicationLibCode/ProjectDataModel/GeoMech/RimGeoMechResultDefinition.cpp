@@ -249,7 +249,7 @@ QList<caf::PdmOptionItemInfo>
             std::vector<std::string> stepNames;
             if ( m_geomCase->geoMechData() )
             {
-                stepNames = m_geomCase->geoMechData()->femPartResults()->filteredStepNames();
+                stepNames = m_geomCase->geoMechData()->femPartResults()->stepNames();
             }
 
             options.push_back( caf::PdmOptionItemInfo( QString( "Disabled" ), RigFemResultAddress::noTimeLapseValue() ) );
@@ -265,7 +265,7 @@ QList<caf::PdmOptionItemInfo>
             std::vector<std::string> stepNames;
             if ( m_geomCase->geoMechData() )
             {
-                stepNames = m_geomCase->geoMechData()->femPartResults()->filteredStepNames();
+                stepNames = m_geomCase->geoMechData()->femPartResults()->stepNames();
             }
 
             for ( size_t stepIdx = 0; stepIdx < stepNames.size(); ++stepIdx )
@@ -698,14 +698,14 @@ QString RimGeoMechResultDefinition::diffResultUiName() const
     {
         if ( referenceCaseDependentResultSelected() )
         {
-            std::vector<std::string> stepNames      = m_geomCase->geoMechData()->femPartResults()->filteredStepNames();
-            QString                  timeStepString = QString::fromStdString( stepNames[m_referenceTimeStep()] );
+            std::vector<std::string> timeStepNames  = m_geomCase->geoMechData()->femPartResults()->stepNames();
+            QString                  timeStepString = QString::fromStdString( timeStepNames[m_referenceTimeStep()] );
             diffResultString += QString( "<b>Reference Time Step</b>: %1" ).arg( timeStepString );
         }
         else if ( m_timeLapseBaseTimestep != RigFemResultAddress::noTimeLapseValue() )
         {
-            std::vector<std::string> stepNames      = m_geomCase->geoMechData()->femPartResults()->filteredStepNames();
-            QString                  timeStepString = QString::fromStdString( stepNames[m_timeLapseBaseTimestep()] );
+            std::vector<std::string> timeStepNames = m_geomCase->geoMechData()->femPartResults()->stepNames();
+            QString timeStepString                 = QString::fromStdString( timeStepNames[m_timeLapseBaseTimestep()] );
             diffResultString += QString( "<b>Base Time Step</b>: %1" ).arg( timeStepString );
         }
     }
@@ -943,7 +943,7 @@ void RimGeoMechResultDefinition::setResultAddress( const RigFemResultAddress& re
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechResultDefinition::updateLegendTextAndRanges( RimRegularLegendConfig* legendConfigToUpdate,
                                                             const QString&          legendHeading,
-                                                            int                     timeStepIndex )
+                                                            int                     viewerStepIndex )
 {
     if ( !this->ownerCaseData() || !( this->resultAddress().isValid() ) )
     {
@@ -960,8 +960,14 @@ void RimGeoMechResultDefinition::updateLegendTextAndRanges( RimRegularLegendConf
 
     RigFemResultAddress resVarAddress = this->resultAddress();
 
-    gmCase->femPartResults()->minMaxScalarValues( resVarAddress, timeStepIndex, &localMin, &localMax );
-    gmCase->femPartResults()->posNegClosestToZero( resVarAddress, timeStepIndex, &localPosClosestToZero, &localNegClosestToZero );
+    auto [stepIdx, frameIdx] = gmCase->femPartResults()->stepListIndexToTimeStepAndDataFrameIndex( viewerStepIndex );
+
+    gmCase->femPartResults()->minMaxScalarValues( resVarAddress, stepIdx, frameIdx, &localMin, &localMax );
+    gmCase->femPartResults()->posNegClosestToZero( resVarAddress,
+                                                   stepIdx,
+                                                   frameIdx,
+                                                   &localPosClosestToZero,
+                                                   &localNegClosestToZero );
 
     gmCase->femPartResults()->minMaxScalarValues( resVarAddress, &globalMin, &globalMax );
     gmCase->femPartResults()->posNegClosestToZero( resVarAddress, &globalPosClosestToZero, &globalNegClosestToZero );

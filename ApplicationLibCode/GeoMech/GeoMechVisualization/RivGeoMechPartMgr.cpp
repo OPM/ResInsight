@@ -116,11 +116,11 @@ void RivGeoMechPartMgr::updateCellColor( cvf::Color4f color )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivGeoMechPartMgr::updateCellResultColor( size_t timeStepIndex, RimGeoMechCellColors* cellResultColors )
+void RivGeoMechPartMgr::updateCellResultColor( int timeStepIndex, int frameIndex, RimGeoMechCellColors* cellResultColors )
 {
     for ( size_t i = 0; i < m_femPartPartMgrs.size(); ++i )
     {
-        m_femPartPartMgrs[i]->updateCellResultColor( timeStepIndex, cellResultColors );
+        m_femPartPartMgrs[i]->updateCellResultColor( timeStepIndex, frameIndex, cellResultColors );
     }
 }
 

@@ -271,7 +271,7 @@ void RivFemPartPartMgr::updateCellColor( cvf::Color4f color )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivFemPartPartMgr::updateCellResultColor( size_t timeStepIndex, RimGeoMechCellColors* cellResultColors )
+void RivFemPartPartMgr::updateCellResultColor( int timeStepIndex, int frameIndex, RimGeoMechCellColors* cellResultColors )
 {
     CVF_ASSERT( cellResultColors );
 
@@ -297,7 +297,7 @@ void RivFemPartPartMgr::updateCellResultColor( size_t timeStepIndex, RimGeoMechC
         }
 
         const std::vector<float>& resultValues =
-            caseData->femPartResults()->resultValues( resVarAddress, m_partIdx, (int)timeStepIndex );
+            caseData->femPartResults()->resultValues( resVarAddress, m_partIdx, timeStepIndex, frameIndex );
 
         const std::vector<size_t>* vxToResultMapping = nullptr;
         int                        vxCount           = 0;

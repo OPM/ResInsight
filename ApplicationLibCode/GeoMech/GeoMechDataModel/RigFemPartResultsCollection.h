@@ -115,27 +115,41 @@ public:
     void   setWaterDensityShearSlipIndicator( double waterDensity );
 
     std::map<std::string, std::vector<std::string>> scalarFieldAndComponentNames( RigFemResultPosEnum resPos );
-    std::vector<std::string>                        filteredStepNames() const;
     bool                                            assertResultsLoaded( const RigFemResultAddress& resVarAddr );
 
     void deleteResult( const RigFemResultAddress& resVarAddr );
     void deleteResultForAllTimeSteps( const std::vector<RigFemResultAddress>& addresses );
-    void deleteResultFrame( const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex );
 
     std::vector<RigFemResultAddress> loadedResults() const;
 
-    const std::vector<float>& resultValues( const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex );
-    void globalResultValues( const RigFemResultAddress& resVarAddr, int timeStepIndex, std::vector<float>& resultValues );
+    const std::vector<float>&
+        resultValues( const RigFemResultAddress& resVarAddr, int partIndex, int stepIndex, int frameIndex );
 
-    std::vector<caf::Ten3f> tensors( const RigFemResultAddress& resVarAddr, int partIndex, int frameIndex );
+    void globalResultValues( const RigFemResultAddress& resVarAddr,
+                             int                        timeStepIndex,
+                             int                        frameIndex,
+                             std::vector<float>&        resultValues );
+
+    std::vector<caf::Ten3f> tensors( const RigFemResultAddress& resVarAddr, int partIndex, int stepIndex, int frameIndex );
 
     const RigFemPartCollection* parts() const;
     int                         partCount() const;
-    int                         frameCount();
+    int                         timeStepCount() const;
+    int                         frameCount( int timeStepIndex ) const;
 
-    void minMaxScalarValues( const RigFemResultAddress& resVarAddr, int frameIndex, double* localMin, double* localMax );
+    int                                     totalSteps();
+    const std::vector<std::pair<int, int>>& stepList();
+    std::vector<std::string>                stepNames() const;
+    const std::pair<int, int>               stepListIndexToTimeStepAndDataFrameIndex( int stepIndex ) const;
+
+    void minMaxScalarValues( const RigFemResultAddress& resVarAddr,
+                             int                        stepIndex,
+                             int                        frameIndex,
+                             double*                    localMin,
+                             double*                    localMax );
     void minMaxScalarValues( const RigFemResultAddress& resVarAddr, double* globalMin, double* globalMax );
     void posNegClosestToZero( const RigFemResultAddress& resVarAddr,
+                              int                        stepIndex,
                               int                        frameIndex,
                               double*                    localPosClosestToZero,
                               double*                    localNegClosestToZero );
@@ -143,15 +157,16 @@ public:
                               double*                    globalPosClosestToZero,
                               double*                    globalNegClosestToZero );
     void meanScalarValue( const RigFemResultAddress& resVarAddr, double* meanValue );
-    void meanScalarValue( const RigFemResultAddress& resVarAddr, int frameIndex, double* meanValue );
+    void meanScalarValue( const RigFemResultAddress& resVarAddr, int stepIndex, int frameIndex, double* meanValue );
     void p10p90ScalarValues( const RigFemResultAddress& resVarAddr, double* p10, double* p90 );
-    void p10p90ScalarValues( const RigFemResultAddress& resVarAddr, int frameIndex, double* p10, double* p90 );
+    void p10p90ScalarValues( const RigFemResultAddress& resVarAddr, int stepIndex, int frameIndex, double* p10, double* p90 );
     void sumScalarValue( const RigFemResultAddress& resVarAddr, double* sum );
-    void sumScalarValue( const RigFemResultAddress& resVarAddr, int frameIndex, double* sum );
+    void sumScalarValue( const RigFemResultAddress& resVarAddr, int stepIndex, int frameIndex, double* sum );
     const std::vector<size_t>& scalarValuesHistogram( const RigFemResultAddress& resVarAddr );
-    const std::vector<size_t>& scalarValuesHistogram( const RigFemResultAddress& resVarAddr, int frameIndex );
+    const std::vector<size_t>& scalarValuesHistogram( const RigFemResultAddress& resVarAddr, int stepIndex, int frameIndex );
 
     void minMaxScalarValuesOverAllTensorComponents( const RigFemResultAddress& resVarAddr,
+                                                    int                        stepIndex,
                                                     int                        frameIndex,
                                                     double*                    localMin,
                                                     double*                    localMax );
@@ -159,6 +174,7 @@ public:
                                                     double*                    globalMin,
                                                     double*                    globalMax );
     void posNegClosestToZeroOverAllTensorComponents( const RigFemResultAddress& resVarAddr,
+                                                     int                        stepIndex,
                                                      int                        frameIndex,
                                                      double*                    localPosClosestToZero,
                                                      double*                    localNegClosestToZero );
@@ -177,7 +193,8 @@ public:
     double normalizationAirGap() const;
 
     void setReferenceTimeStep( int referenceTimeStep );
-    int  referenceTimeStep() const;
+
+    std::pair<int, int> referenceStepAndFrameIndex() const;
 
     static std::set<RigFemResultAddress> referenceCaseDependentResults();
     static bool                          isReferenceCaseDependentResult( const RigFemResultAddress& result );
@@ -197,6 +214,7 @@ public:
 
 private:
     RigFemScalarResultFrames* calculateDerivedResult( int partIndex, const RigFemResultAddress& resVarAddr );
+    std::vector<std::string>  filteredTimeStepNames() const;
 
 private:
     cvf::Collection<RigFemPartResults>  m_femPartResults;
@@ -239,4 +257,7 @@ private:
     RigStatisticsDataCache*          statistics( const RigFemResultAddress& resVarAddr );
     std::vector<RigFemResultAddress> getResAddrToComponentsToRead( const RigFemResultAddress& resVarAddr );
     std::map<RigFemResultAddress, cvf::ref<RigStatisticsDataCache>> m_resultStatistics;
+
+    std::vector<std::pair<int, int>> m_stepList;
+    std::vector<std::string>         m_stepNames;
 };

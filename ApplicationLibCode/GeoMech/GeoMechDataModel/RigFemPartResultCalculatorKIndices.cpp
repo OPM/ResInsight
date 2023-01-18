@@ -59,22 +59,22 @@ bool RigFemPartResultCalculatorKIndices::isMatching( const RigFemResultAddress& 
 RigFemScalarResultFrames* RigFemPartResultCalculatorKIndices::calculate( int                        partIndex,
                                                                          const RigFemResultAddress& resVarAddr )
 {
-    caf::ProgressInfo frameCountProgress( 2, "" );
-    frameCountProgress.setProgressDescription(
+    caf::ProgressInfo stepCountProgress( 2, "" );
+    stepCountProgress.setProgressDescription(
         "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
 
     RigFemScalarResultFrames* resFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );
-    resFrames->enableAsSingleFrameResult();
+    resFrames->enableAsSingleStepResult();
 
     const RigFemPart*   femPart      = m_resultCollection->parts()->part( partIndex );
-    std::vector<float>& dstFrameData = resFrames->frameData( 0 );
+    std::vector<float>& dstFrameData = resFrames->frameData( 0, 0 );
 
     const size_t valCount = femPart->elementNodeResultCount();
     dstFrameData.resize( valCount, std::numeric_limits<float>::infinity() );
 
     const RigFormationNames* activeFormNames = m_resultCollection->activeFormationNames();
 
-    frameCountProgress.incrementProgress();
+    stepCountProgress.incrementProgress();
 
     if ( activeFormNames )
     {

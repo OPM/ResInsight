@@ -64,28 +64,28 @@ bool RigFemPartResultCalculatorPorosityPermeability::isMatching( const RigFemRes
 RigFemScalarResultFrames*
     RigFemPartResultCalculatorPorosityPermeability::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
 {
-    caf::ProgressInfo frameCountProgress( m_resultCollection->frameCount() * 6, "" );
-    frameCountProgress.setProgressDescription( "Calculating Porosity/Permeability" );
+    caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 6, "" );
+    stepCountProgress.setProgressDescription( "Calculating Porosity/Permeability" );
 
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* srcPorePressureDataFrames =
         m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_NODAL, "POR-Bar", "" ) );
-    frameCountProgress.incrementProgress();
+    stepCountProgress.incrementProgress();
 
     // Volumetric Strain
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
     RigFemScalarResultFrames* srcEVDataFrames =
         m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "NE", "EV" ) );
 
-    frameCountProgress.incrementProgress();
+    stepCountProgress.incrementProgress();
 
     // Pore Compressibility
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
     RigFemScalarResultFrames* poreCompressibilityFrames =
         m_resultCollection->findOrLoadScalarResult( partIndex,
                                                     RigFemResultAddress( resVarAddr.resultPosType, "COMPRESSIBILITY", "PORE" ) );
-    if ( poreCompressibilityFrames->frameData( 0 ).empty() )
+    if ( poreCompressibilityFrames->frameData( 0, 0 ).empty() )
     {
         QString txt = QString( "Failed to compute %1\n" ).arg( QString::fromStdString( resVarAddr.componentName ) );
         txt += "Missing pore compressibility data";
@@ -95,10 +95,10 @@ RigFemScalarResultFrames*
         return nullptr;
     }
 
-    frameCountProgress.incrementProgress();
+    stepCountProgress.incrementProgress();
 
     // Initial permeability (k0)
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
     RigFemScalarResultFrames* initialPermeabilityFrames = nullptr;
     if ( !m_resultCollection->initialPermeabilityAddress().isEmpty() )
     {
@@ -109,9 +109,9 @@ RigFemScalarResultFrames*
                                                                m_resultCollection->initialPermeabilityAddress().toStdString(),
                                                                "" ) );
     }
-    frameCountProgress.incrementProgress();
+    stepCountProgress.incrementProgress();
 
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* voidRatioFrames =
         m_resultCollection->findOrLoadScalarResult( partIndex,
@@ -126,127 +126,131 @@ RigFemScalarResultFrames*
     RigFemScalarResultFrames* permeabilityFrames =
         m_resultCollection->createScalarResult( partIndex,
                                                 RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "PERM" ) );
-    frameCountProgress.incrementProgress();
+    stepCountProgress.incrementProgress();
 
     const RigFemPart* femPart = m_resultCollection->parts()->part( partIndex );
     float             inf     = std::numeric_limits<float>::infinity();
 
-    frameCountProgress.setNextProgressIncrement( 1u );
+    stepCountProgress.setNextProgressIncrement( 1u );
 
-    int referenceFrameIdx = m_resultCollection->referenceTimeStep();
+    int refStepIdx, refFrameIdx;
+    std::tie( refStepIdx, refFrameIdx ) = m_resultCollection->referenceStepAndFrameIndex();
 
-    int frameCount = srcEVDataFrames->frameCount();
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
+    const int timeSteps = srcEVDataFrames->timeStepCount();
+    for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
-        const std::vector<float>& evData                = srcEVDataFrames->frameData( fIdx );
-        const std::vector<float>& referenceEvData       = srcEVDataFrames->frameData( referenceFrameIdx );
-        const std::vector<float>& voidRatioData         = voidRatioFrames->frameData( 0 );
-        const std::vector<float>& referencePorFrameData = srcPorePressureDataFrames->frameData( referenceFrameIdx );
-        const std::vector<float>& porFrameData          = srcPorePressureDataFrames->frameData( fIdx );
-        const std::vector<float>& poreCompressibilityFrameData = poreCompressibilityFrames->frameData( fIdx );
-
-        std::vector<float>& porosityFrameData      = porosityFrames->frameData( fIdx );
-        std::vector<float>& porosityDeltaFrameData = porosityDeltaFrames->frameData( fIdx );
-        std::vector<float>& permeabilityFrameData  = permeabilityFrames->frameData( fIdx );
-
-        size_t valCount = evData.size();
-        porosityFrameData.resize( valCount );
-        porosityDeltaFrameData.resize( valCount );
-        permeabilityFrameData.resize( valCount );
-
-        int elementCount = femPart->elementCount();
-
-        std::vector<float> initialPermeabilityData;
-        if ( initialPermeabilityFrames )
+        const int frameCount = srcEVDataFrames->frameCount( stepIdx );
+        for ( int fIdx = 0; fIdx < frameCount; fIdx++ )
         {
-            initialPermeabilityData = initialPermeabilityFrames->frameData( fIdx );
-        }
+            const std::vector<float>& evData          = srcEVDataFrames->frameData( stepIdx, fIdx );
+            const std::vector<float>& referenceEvData = srcEVDataFrames->frameData( refStepIdx, refFrameIdx );
+            const std::vector<float>& voidRatioData   = voidRatioFrames->frameData( 0, 0 );
+            const std::vector<float>& refPorFrameData = srcPorePressureDataFrames->frameData( refStepIdx, refFrameIdx );
+            const std::vector<float>& porFrameData    = srcPorePressureDataFrames->frameData( stepIdx, fIdx );
+            const std::vector<float>& poreCompressibilityFrameData = poreCompressibilityFrames->frameData( stepIdx, fIdx );
+
+            std::vector<float>& porosityFrameData      = porosityFrames->frameData( stepIdx, fIdx );
+            std::vector<float>& porosityDeltaFrameData = porosityDeltaFrames->frameData( stepIdx, fIdx );
+            std::vector<float>& permeabilityFrameData  = permeabilityFrames->frameData( stepIdx, fIdx );
+
+            size_t valCount = evData.size();
+            porosityFrameData.resize( valCount );
+            porosityDeltaFrameData.resize( valCount );
+            permeabilityFrameData.resize( valCount );
+
+            int elementCount = femPart->elementCount();
+
+            std::vector<float> initialPermeabilityData;
+            if ( initialPermeabilityFrames )
+            {
+                initialPermeabilityData = initialPermeabilityFrames->frameData( stepIdx, fIdx );
+            }
 
 #pragma omp parallel for
-        for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
-        {
-            RigElementType elmType = femPart->elementType( elmIdx );
-
-            int elmNodeCount = RigFemTypes::elementNodeCount( femPart->elementType( elmIdx ) );
-
-            if ( elmType == HEX8P )
+            for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
             {
-                for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
+                RigElementType elmType = femPart->elementType( elmIdx );
+
+                int elmNodeCount = RigFemTypes::elementNodeCount( femPart->elementType( elmIdx ) );
+
+                if ( elmType == HEX8P )
                 {
-                    size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
-                    if ( elmNodResIdx < evData.size() )
+                    for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
                     {
-                        // User provides initial permeability
-                        double initialPermeability = 1.0;
-                        if ( initialPermeabilityData.empty() )
+                        size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
+                        if ( elmNodResIdx < evData.size() )
                         {
-                            // 1. Same value for all cells
-                            initialPermeability = m_resultCollection->initialPermeabilityFixed();
+                            // User provides initial permeability
+                            double initialPermeability = 1.0;
+                            if ( initialPermeabilityData.empty() )
+                            {
+                                // 1. Same value for all cells
+                                initialPermeability = m_resultCollection->initialPermeabilityFixed();
+                            }
+                            else
+                            {
+                                // 2. From element property table
+                                initialPermeability = initialPermeabilityData[elmIdx];
+                            }
+
+                            int nodeIdx = femPart->nodeIdxFromElementNodeResultIdx( elmNodResIdx );
+
+                            // Calculate initial porosity
+                            double voidr           = voidRatioData[elmNodResIdx];
+                            double initialPorosity = voidr / ( 1.0 + voidr );
+
+                            // Calculate porosity change.
+                            // No change for geostatic timestep
+                            double deltaPorosity = 0.0;
+                            if ( fIdx != 0 )
+                            {
+                                // Calculate difference in pore pressure between reference state and this state,
+                                // and convert unit from Bar to Pascal.
+                                double referencePorePressure = refPorFrameData[nodeIdx];
+                                double framePorePressure     = porFrameData[nodeIdx];
+                                double deltaPorePressure =
+                                    RiaEclipseUnitTools::barToPascal( framePorePressure - referencePorePressure );
+
+                                // Pore compressibility. Convert from 1/GPa to 1/Pa.
+                                double poreCompressibility = poreCompressibilityFrameData[elmNodResIdx] / 1.0e9;
+
+                                // Volumetric strain
+                                double deltaEv = evData[elmNodResIdx] - referenceEvData[elmNodResIdx];
+
+                                // Porosity change between reference state and initial state (geostatic).
+                                deltaPorosity = initialPorosity * ( poreCompressibility * deltaPorePressure + deltaEv );
+                            }
+
+                            // Current porosity
+                            double currentPorosity = initialPorosity + deltaPorosity;
+
+                            // Permeability. Formula from Petunin, 2011.
+                            double permeabilityExponent = m_resultCollection->permeabilityExponent();
+                            double permeability         = initialPermeability *
+                                                  std::pow( currentPorosity / initialPorosity, permeabilityExponent );
+
+                            porosityFrameData[elmNodResIdx]      = currentPorosity;
+                            porosityDeltaFrameData[elmNodResIdx] = deltaPorosity;
+                            permeabilityFrameData[elmNodResIdx]  = permeability;
                         }
-                        else
-                        {
-                            // 2. From element property table
-                            initialPermeability = initialPermeabilityData[elmIdx];
-                        }
-
-                        int nodeIdx = femPart->nodeIdxFromElementNodeResultIdx( elmNodResIdx );
-
-                        // Calculate initial porosity
-                        double voidr           = voidRatioData[elmNodResIdx];
-                        double initialPorosity = voidr / ( 1.0 + voidr );
-
-                        // Calculate porosity change.
-                        // No change for geostatic timestep
-                        double deltaPorosity = 0.0;
-                        if ( fIdx != 0 )
-                        {
-                            // Calculate difference in pore pressure between reference state and this state,
-                            // and convert unit from Bar to Pascal.
-                            double referencePorePressure = referencePorFrameData[nodeIdx];
-                            double framePorePressure     = porFrameData[nodeIdx];
-                            double deltaPorePressure =
-                                RiaEclipseUnitTools::barToPascal( framePorePressure - referencePorePressure );
-
-                            // Pore compressibility. Convert from 1/GPa to 1/Pa.
-                            double poreCompressibility = poreCompressibilityFrameData[elmNodResIdx] / 1.0e9;
-
-                            // Volumetric strain
-                            double deltaEv = evData[elmNodResIdx] - referenceEvData[elmNodResIdx];
-
-                            // Porosity change between reference state and initial state (geostatic).
-                            deltaPorosity = initialPorosity * ( poreCompressibility * deltaPorePressure + deltaEv );
-                        }
-
-                        // Current porosity
-                        double currentPorosity = initialPorosity + deltaPorosity;
-
-                        // Permeability. Formula from Petunin, 2011.
-                        double permeabilityExponent = m_resultCollection->permeabilityExponent();
-                        double permeability =
-                            initialPermeability * std::pow( currentPorosity / initialPorosity, permeabilityExponent );
-
-                        porosityFrameData[elmNodResIdx]      = currentPorosity;
-                        porosityDeltaFrameData[elmNodResIdx] = deltaPorosity;
-                        permeabilityFrameData[elmNodResIdx]  = permeability;
                     }
                 }
-            }
-            else
-            {
-                for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
+                else
                 {
-                    size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
-                    if ( elmNodResIdx < poreCompressibilityFrameData.size() )
+                    for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
                     {
-                        porosityFrameData[elmNodResIdx]      = inf;
-                        porosityDeltaFrameData[elmNodResIdx] = inf;
-                        permeabilityFrameData[elmNodResIdx]  = inf;
+                        size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
+                        if ( elmNodResIdx < poreCompressibilityFrameData.size() )
+                        {
+                            porosityFrameData[elmNodResIdx]      = inf;
+                            porosityDeltaFrameData[elmNodResIdx] = inf;
+                            permeabilityFrameData[elmNodResIdx]  = inf;
+                        }
                     }
                 }
             }
         }
-
-        frameCountProgress.incrementProgress();
+        stepCountProgress.incrementProgress();
     }
 
     RigFemScalarResultFrames* requestedResultFrames = m_resultCollection->findOrLoadScalarResult( partIndex, resVarAddr );
