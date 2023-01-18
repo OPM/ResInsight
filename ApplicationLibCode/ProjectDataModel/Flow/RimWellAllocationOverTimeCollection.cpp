@@ -46,7 +46,7 @@ RimWellAllocationOverTimeCollection::RimWellAllocationOverTimeCollection(
     std::sort( m_timeStepDates.begin(), m_timeStepDates.end() );
 
     // Retrieve union of well names across all calculators
-    std::set<QString> allWellNames = {};
+    std::set<QString> allWellNames;
     for ( const auto& [date, calculator] : m_timeStepAndCalculatorPairs )
     {
         allWellNames.insert( calculator.tracerNames().begin(), calculator.tracerNames().end() );
@@ -181,7 +181,7 @@ void RimWellAllocationOverTimeCollection::fillWithAccumulatedFlowVolumePercentag
     for ( const auto& timeStep : m_timeStepDates )
     {
         double                    totalAccumulatedVolume = 0.0;
-        std::map<QString, double> timeStepWellValues     = {};
+        std::map<QString, double> timeStepWellValues;
 
         // Sum accumulated volumes at time step
         for ( auto& [well, values] : m_wellValuesMap )
@@ -216,15 +216,12 @@ void RimWellAllocationOverTimeCollection::fillWithAccumulatedFlowVolumePercentag
 void RimWellAllocationOverTimeCollection::groupAccumulatedFlowVolumes( std::map<QString, std::map<QDateTime, double>>& rWellValuesMap,
                                                                        double threshold )
 {
-    if ( m_timeStepDates.size() == 0 )
-    {
-        return;
-    }
+    if ( m_timeStepDates.empty() ) return;
 
     std::map<QString, std::map<QDateTime, double>> groupedWellValuesMap;
-    const QDateTime                                lastTimeStep                 = m_timeStepDates.back();
-    std::map<QString, double>                      lastAccumulatedWellValues    = {};
+    std::map<QString, double>                      lastAccumulatedWellValues;
     double                                         sumLastAccumulatedWellValues = 0.0;
+    const QDateTime                                lastTimeStep                 = m_timeStepDates.back();
     for ( auto& [well, values] : rWellValuesMap )
     {
         const double lastWellValue      = values[lastTimeStep];
@@ -233,11 +230,11 @@ void RimWellAllocationOverTimeCollection::groupAccumulatedFlowVolumes( std::map<
     }
 
     // Filter out wells with accumulated flow less than threshold and place among "others"
-    std::vector<QString> contributingWells = {};
-    std::vector<QString> groupedWells      = {};
+    std::vector<QString> contributingWells;
+    std::vector<QString> groupedWells;
     for ( const auto& [well, value] : lastAccumulatedWellValues )
     {
-        if ( ( value / sumLastAccumulatedWellValues ) < threshold )
+        if ( sumLastAccumulatedWellValues > 0.0 && ( value / sumLastAccumulatedWellValues ) < threshold )
         {
             groupedWells.push_back( well );
         }
@@ -288,8 +285,8 @@ void RimWellAllocationOverTimeCollection::groupAccumulatedFlowVolumePercentages(
         return maxValue;
     };
 
-    std::vector<QString> contributingWells = {};
-    std::vector<QString> groupedWells      = {};
+    std::vector<QString> contributingWells;
+    std::vector<QString> groupedWells;
     for ( const auto& [well, values] : rWellValuesMap )
     {
         const double maxValue = getMaxValue( values );

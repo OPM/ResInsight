@@ -47,8 +47,8 @@ private:
                                                 double                                          threshold );
 
 private:
-    const std::map<QDateTime, RigAccWellFlowCalculator>& m_timeStepAndCalculatorPairs = {};
-    std::vector<QDateTime>                               m_timeStepDates              = {};
-    std::map<QString, std::map<QDateTime, double>>       m_defaultWellValuesMap       = {};
-    std::map<QString, std::map<QDateTime, double>>       m_wellValuesMap              = {};
+    const std::map<QDateTime, RigAccWellFlowCalculator>& m_timeStepAndCalculatorPairs;
+    std::vector<QDateTime>                               m_timeStepDates;
+    std::map<QString, std::map<QDateTime, double>>       m_defaultWellValuesMap;
+    std::map<QString, std::map<QDateTime, double>>       m_wellValuesMap;
 };

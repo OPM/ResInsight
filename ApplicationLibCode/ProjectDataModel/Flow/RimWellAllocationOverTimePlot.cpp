@@ -64,14 +64,18 @@ namespace caf
 template <>
 void AppEnum<RimWellAllocationOverTimePlot::FlowValueType>::setUp()
 {
-    addItem( RimWellAllocationOverTimePlot::FLOW_RATE, "FLOW_RATE", "Flow Rates" );
-    addItem( RimWellAllocationOverTimePlot::FLOW_RATE_PERCENTAGE, "FLOW_RATE_PERCENTAGE", "Flow Rate Percentage" );
-    addItem( RimWellAllocationOverTimePlot::FLOW_VOLUME, "FLOW_VOLUME", "Flow Volumes" );
-    addItem( RimWellAllocationOverTimePlot::ACCUMULATED_FLOW_VOLUME, "ACCUMULATED_FLOW_VOLUME", "Accumulated Flow Volumes" );
-    addItem( RimWellAllocationOverTimePlot::ACCUMULATED_FLOW_VOLUME_PERCENTAGE,
+    addItem( RimWellAllocationOverTimePlot::FlowValueType::FLOW_RATE, "FLOW_RATE", "Flow Rates" );
+    addItem( RimWellAllocationOverTimePlot::FlowValueType::FLOW_RATE_PERCENTAGE,
+             "FLOW_RATE_PERCENTAGE",
+             "Flow Rate Percentage" );
+    addItem( RimWellAllocationOverTimePlot::FlowValueType::FLOW_VOLUME, "FLOW_VOLUME", "Flow Volumes" );
+    addItem( RimWellAllocationOverTimePlot::FlowValueType::ACCUMULATED_FLOW_VOLUME,
+             "ACCUMULATED_FLOW_VOLUME",
+             "Accumulated Flow Volumes" );
+    addItem( RimWellAllocationOverTimePlot::FlowValueType::ACCUMULATED_FLOW_VOLUME_PERCENTAGE,
              "ACCUMULATED_FLOW_VOLUME_PERCENTAGE",
              "Accumulated Flow Volume Percentage" );
-    setDefault( RimWellAllocationOverTimePlot::FLOW_RATE );
+    setDefault( RimWellAllocationOverTimePlot::FlowValueType::FLOW_RATE );
 }
 } // namespace caf
 

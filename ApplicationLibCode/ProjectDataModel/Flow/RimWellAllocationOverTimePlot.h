@@ -48,7 +48,7 @@ class RimWellAllocationOverTimePlot : public RimPlot
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum FlowValueType
+    enum class FlowValueType
     {
         FLOW_RATE,
         FLOW_RATE_PERCENTAGE,
