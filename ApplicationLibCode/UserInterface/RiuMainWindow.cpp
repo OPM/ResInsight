@@ -728,6 +728,16 @@ void RiuMainWindow::createToolBars()
     m_animationToolBar = new caf::AnimationToolBar( "Animation", this );
     addToolBar( m_animationToolBar );
 
+    {
+        QToolBar* toolbar = addToolBar( tr( "Timestep Slider" ) );
+        toolbar->setObjectName( toolbar->windowTitle() );
+
+        m_animationSlider       = new QSlider( Qt::Horizontal, toolbar );
+        m_animationSliderAction = toolbar->addWidget( m_animationSlider );
+
+        connect( m_animationSlider, SIGNAL( valueChanged( int ) ), SLOT( slotAnimationSliderMoved( int ) ) );
+    }
+
     refreshAnimationActions();
     refreshDrawStyleActions();
 }
@@ -1032,6 +1042,15 @@ void RiuMainWindow::refreshAnimationActions()
     m_animationToolBar->setCurrentTimeStepIndex( currentTimeStepIndex );
 
     m_animationToolBar->setEnabled( enableAnimControls );
+
+    m_animationSliderAction->setEnabled( enableAnimControls );
+    m_animationSlider->blockSignals( true );
+    m_animationSlider->setMaximum( timeStepStrings.size() - 1 );
+    m_animationSlider->setMinimum( 0 );
+    m_animationSlider->setSingleStep( 1 );
+    m_animationSlider->setPageStep( 1 );
+    m_animationSlider->setValue( currentTimeStepIndex );
+    m_animationSlider->blockSignals( false );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1860,6 +1879,18 @@ void RiuMainWindow::updateScaleValue()
     {
         m_scaleFactor->setEnabled( false );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::slotAnimationSliderMoved( int newValue )
+{
+    if ( RiaApplication::instance()->activeReservoirView() && RiaApplication::instance()->activeReservoirView()->viewer() )
+    {
+        RiaApplication::instance()->activeReservoirView()->viewer()->setCurrentFrame( newValue );
+    }
+    m_animationToolBar->setCurrentTimeStepIndex( newValue );
 }
 
 //--------------------------------------------------------------------------------------------------
