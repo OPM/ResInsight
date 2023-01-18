@@ -738,6 +738,9 @@ void RiuMainWindow::createToolBars()
         connect( m_animationSlider, SIGNAL( valueChanged( int ) ), SLOT( slotAnimationSliderMoved( int ) ) );
     }
 
+    // make sure slider updates if user uses animation toolbar
+    connect( m_animationToolBar, SIGNAL( frameChanged( int ) ), SLOT( slotAnimationControlFrameChanged( int ) ) );
+
     refreshAnimationActions();
     refreshDrawStyleActions();
 }
@@ -1051,6 +1054,19 @@ void RiuMainWindow::refreshAnimationActions()
     m_animationSlider->setPageStep( 1 );
     m_animationSlider->setValue( currentTimeStepIndex );
     m_animationSlider->blockSignals( false );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::slotAnimationControlFrameChanged( int frameIndex )
+{
+    if ( m_animationSlider )
+    {
+        m_animationSlider->blockSignals( true );
+        m_animationSlider->setValue( frameIndex );
+        m_animationSlider->blockSignals( false );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

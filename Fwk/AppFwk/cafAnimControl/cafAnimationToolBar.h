@@ -72,6 +72,9 @@ public:
 
     void setCurrentTimeStepIndex( int index );
 
+signals:
+    void frameChanged( int frameIndex );
+
 public slots:
     void slotUpdateTimestepList( int frameCount );
     void playPauseChanged();

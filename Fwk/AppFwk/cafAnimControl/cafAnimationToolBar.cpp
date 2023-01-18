@@ -377,6 +377,8 @@ void AnimationToolBar::slotUpdateAnimationGuiFromFrameIndex( int value )
     m_timestepCombo->setCurrentIndex( value );
     updateAnimationButtons();
     connect( m_timestepCombo, SIGNAL( currentIndexChanged( int ) ), m_activeAnimationControl, SLOT( setCurrentFrame( int ) ) );
+
+    emit frameChanged( value );
 }
 
 } // End namespace caf
