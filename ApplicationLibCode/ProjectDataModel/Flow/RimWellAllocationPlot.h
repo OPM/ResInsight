@@ -108,9 +108,6 @@ protected:
 
 private:
     void updateFromWell();
-
-    std::map<QString, const std::vector<double>*> findRelevantTracerCellFractions( const RigSimWellData* simWellData );
-
     void updateWellFlowPlotXAxisTitle( RimWellLogTrack* plotTrack );
 
     void addStackedCurve( const QString&             tracerName,
