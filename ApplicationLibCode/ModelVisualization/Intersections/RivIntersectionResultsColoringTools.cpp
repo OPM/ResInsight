@@ -51,7 +51,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 void RivIntersectionResultsColoringTools::calculateIntersectionResultColors(
-    size_t                                           timeStepIndex,
+    int                                              timeStepIndex,
     bool                                             useSeparateIntersectionResDefTimeStep,
     RimIntersection*                                 rimIntersectionHandle,
     const RivIntersectionGeometryGeneratorInterface* intersectionGeomGenIF,
@@ -227,7 +227,7 @@ void RivIntersectionResultsColoringTools::updateEclipseTernaryCellResultColors(
 //--------------------------------------------------------------------------------------------------
 void RivIntersectionResultsColoringTools::updateGeoMechCellResultColors(
     const RimGeoMechResultDefinition*                geomResultDef,
-    size_t                                           timeStepIndex,
+    int                                              viewerTimeStepIndex,
     const cvf::ScalarMapper*                         scalarColorMapper,
     bool                                             isLightingDisabled,
     const RivIntersectionGeometryGeneratorInterface* geomGenerator,
@@ -243,6 +243,8 @@ void RivIntersectionResultsColoringTools::updateGeoMechCellResultColors(
 
     if ( !caseData ) return;
 
+    auto [stepIdx, frameIdx] = caseData->femPartResults()->stepListIndexToTimeStepAndDataFrameIndex( viewerTimeStepIndex );
+
     const std::vector<size_t>&                       triangleToCellIdx = geomGenerator->triangleToCellIndex();
     const cvf::Vec3fArray*                           triangelVxes      = geomGenerator->triangleVxes();
     const std::vector<RivIntersectionVertexWeights>& vertexWeights =
@@ -253,7 +255,7 @@ void RivIntersectionResultsColoringTools::updateGeoMechCellResultColors(
         if ( caseData->femPartResults()->partCount() == 1 )
         {
             const std::vector<float>& resultValues =
-                caseData->femPartResults()->resultValues( resVarAddress, 0, (int)timeStepIndex );
+                caseData->femPartResults()->resultValues( resVarAddress, 0, stepIdx, frameIdx );
 
             RivIntersectionResultsColoringTools::calculateElementBasedGeoMechTextureCoords( intersectionFacesTextureCoords,
                                                                                             resultValues,
@@ -263,7 +265,7 @@ void RivIntersectionResultsColoringTools::updateGeoMechCellResultColors(
         else
         {
             std::vector<float> resultValues;
-            caseData->femPartResults()->globalResultValues( resVarAddress, (int)timeStepIndex, resultValues );
+            caseData->femPartResults()->globalResultValues( resVarAddress, stepIdx, frameIdx, resultValues );
 
             RivIntersectionResultsColoringTools::calculateElementBasedGeoMechTextureCoords( intersectionFacesTextureCoords,
                                                                                             resultValues,
@@ -291,7 +293,9 @@ void RivIntersectionResultsColoringTools::updateGeoMechCellResultColors(
                                                                                             vertexWeights,
                                                                                             caseData,
                                                                                             resVarAddress,
-                                                                                            (int)timeStepIndex,
+                                                                                            0,
+                                                                                            stepIdx,
+                                                                                            frameIdx,
                                                                                             scalarColorMapper );
             }
         }
@@ -311,7 +315,7 @@ void RivIntersectionResultsColoringTools::updateGeoMechCellResultColors(
         if ( caseData->femPartResults()->partCount() == 1 )
         {
             const std::vector<float>& resultValues =
-                caseData->femPartResults()->resultValues( resVarAddress, 0, (int)timeStepIndex );
+                caseData->femPartResults()->resultValues( resVarAddress, 0, stepIdx, frameIdx );
             RivIntersectionResultsColoringTools::calculateNodeOrElementNodeBasedGeoMechTextureCoords( intersectionFacesTextureCoords,
                                                                                                       vertexWeights,
                                                                                                       resultValues,
@@ -322,7 +326,7 @@ void RivIntersectionResultsColoringTools::updateGeoMechCellResultColors(
         else
         {
             std::vector<float> resultValues;
-            caseData->femPartResults()->globalResultValues( resVarAddress, (int)timeStepIndex, resultValues );
+            caseData->femPartResults()->globalResultValues( resVarAddress, stepIdx, frameIdx, resultValues );
 
             RivIntersectionResultsColoringTools::calculateNodeOrElementNodeBasedGeoMechTextureCoords( intersectionFacesTextureCoords,
                                                                                                       vertexWeights,
@@ -427,10 +431,12 @@ void RivIntersectionResultsColoringTools::calculateGeoMechTensorXfTextureCoords(
     const std::vector<RivIntersectionVertexWeights>& vertexWeights,
     RigGeoMechCaseData*                              caseData,
     const RigFemResultAddress&                       resVarAddress,
+    int                                              partIdx,
     int                                              timeStepIdx,
+    int                                              frameIdx,
     const cvf::ScalarMapper*                         mapper )
 {
-    RiuGeoMechXfTensorResultAccessor accessor( caseData->femPartResults(), resVarAddress, timeStepIdx );
+    RiuGeoMechXfTensorResultAccessor accessor( caseData->femPartResults(), resVarAddress, partIdx, timeStepIdx, frameIdx );
 
     textureCoords->resize( vertexWeights.size() );
     cvf::Vec2f* rawPtr   = textureCoords->ptr();

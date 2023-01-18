@@ -62,14 +62,14 @@ protected:
 
     // GeoMech implementation specific data generation methods
     cvf::ref<cvf::UByteArray> getCellVisibility() const override;
-    cvf::BoundingBox          calculateExpandedPorBarBBox( int timeStep ) const;
+    cvf::BoundingBox          calculateExpandedPorBarBBox( int timeStep, int frameIndex ) const;
     void                      updateGridInformation() override;
     std::vector<bool>         getMapCellVisibility() override;
     std::vector<double>       retrieveParameterWeights() override;
-    std::vector<double>       generateResults( int timeStep ) override;
+    std::vector<double>       generateResults( int viewerStepIndex ) override;
     std::vector<double>       generateResultsFromAddress( RigFemResultAddress      resultAddress,
                                                           const std::vector<bool>& mapCellVisibility,
-                                                          int                      timeStep );
+                                                          int                      viewerStepIndex );
     bool                      resultVariableChanged() const override;
     void                      clearResultVariable() override;
     RimGridView*              baseView() const override;
@@ -84,6 +84,8 @@ protected:
     std::vector<double>       gridCellValues( RigFemResultAddress resAddr, std::vector<float>& resultValues ) const;
     RimGeoMechCase*           geoMechCase() const;
     RimGeoMechContourMapView* view() const;
+
+    std::pair<double, double> minmaxValuesAllTimeSteps() override;
 
     void updateAfterResultGeneration( int timeStep ) override;
 

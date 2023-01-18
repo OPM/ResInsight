@@ -39,7 +39,8 @@ public:
     void   applyWbsParametersToExtractor( RigGeoMechWellLogExtractor* extractor );
     double userDefinedValue( const RigWbsParameter& parameter ) const;
     void   copyWbsParameters( const RimWbsParameters* wbsParameters );
-    void   setCaseWellPathAndTimeStep( RimGeoMechCase* geoMechCase, RimWellPath* wellPath, int timeStep );
+
+    void setCaseWellPathAndTimeStep( RimGeoMechCase* geoMechCase, RimWellPath* wellPath, int timeStep, int frameIndex = -1 );
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

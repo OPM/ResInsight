@@ -42,7 +42,7 @@ class ScalarMapper;
 class RivIntersectionResultsColoringTools
 {
 public:
-    static void calculateIntersectionResultColors( size_t           timeStepIndex,
+    static void calculateIntersectionResultColors( int              timeStepIndex,
                                                    bool             useSeparateIntersectionResDefTimeStep,
                                                    RimIntersection* rimIntersectionHandle,
                                                    const RivIntersectionGeometryGeneratorInterface* intersectionGeomGenIF,
@@ -69,7 +69,7 @@ private:
                                                       cvf::Vec2fArray* m_intersectionBoxFacesTextureCoords );
 
     static void updateGeoMechCellResultColors( const RimGeoMechResultDefinition*                geomResultDef,
-                                               size_t                                           timeStepIndex,
+                                               int                                              timeStepIndex,
                                                const cvf::ScalarMapper*                         scalarColorMapper,
                                                bool                                             isLightingDisabled,
                                                const RivIntersectionGeometryGeneratorInterface* geomGenerator,
@@ -99,7 +99,9 @@ private:
                                                        const std::vector<RivIntersectionVertexWeights>& vertexWeights,
                                                        RigGeoMechCaseData*                              caseData,
                                                        const RigFemResultAddress&                       resVarAddress,
+                                                       int                                              partIdx,
                                                        int                                              timeStepIdx,
+                                                       int                                              frameIdx,
                                                        const cvf::ScalarMapper*                         mapper );
 
     static void calculatePlaneAngleTextureCoords( cvf::Vec2fArray*           textureCoords,

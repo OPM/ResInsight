@@ -40,21 +40,21 @@ public:
     public:
         Key()
             : m_geometryType( -1 )
-            , m_frameIndex( -1 )
+            , m_viewerStepIndex( -1 )
         {
         }
 
-        Key( RivCellSetEnum aGeometryType, int aFrameIndex );
+        Key( RivCellSetEnum aGeometryType, int aViewerTimeStep );
 
-        void set( RivCellSetEnum aGeometryType, int aFrameIndex );
+        void set( RivCellSetEnum aGeometryType, int aViewerTimeStep );
 
-        int            frameIndex() const { return m_frameIndex; }
+        int            viewerStepIndex() const { return m_viewerStepIndex; }
         unsigned short geometryType() const { return m_geometryType; }
 
         bool operator<( const Key& other ) const;
 
     private:
-        int            m_frameIndex;
+        int            m_viewerStepIndex;
         unsigned short m_geometryType;
     };
 

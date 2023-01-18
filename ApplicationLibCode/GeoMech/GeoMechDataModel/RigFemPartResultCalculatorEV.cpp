@@ -60,10 +60,10 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorEV::calculate( int partIndex
 
     QString progressText = "Calculating " + QString::fromStdString( resAddr.fieldName + ": " + resAddr.componentName );
 
-    caf::ProgressInfo frameCountProgress( static_cast<size_t>( m_resultCollection->frameCount() ) * 4, progressText );
+    caf::ProgressInfo stepCountProgress( static_cast<size_t>( m_resultCollection->timeStepCount() ) * 4, progressText );
 
     auto loadFrameLambda = [&]( const QString& component ) {
-        auto task = frameCountProgress.task( "Loading " + component, m_resultCollection->frameCount() );
+        auto task = stepCountProgress.task( "Loading " + component, m_resultCollection->timeStepCount() );
         return m_resultCollection->findOrLoadScalarResult( partIndex, resAddr.copyWithComponent( component.toStdString() ) );
     };
 
@@ -73,25 +73,28 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorEV::calculate( int partIndex
 
     RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resAddr );
 
-    int frameCount = ea11->frameCount();
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
+    const int timeSteps = ea11->timeStepCount();
+    for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
-        auto task = frameCountProgress.task( QString( "Frame %1" ).arg( fIdx ) );
+        auto task = stepCountProgress.task( QString( "Step %1" ).arg( stepIdx ) );
 
-        const std::vector<float>& ea11Data = ea11->frameData( fIdx );
-        const std::vector<float>& ea22Data = ea22->frameData( fIdx );
-        const std::vector<float>& ea33Data = ea33->frameData( fIdx );
+        const int frameCount = ea11->frameCount( stepIdx );
+        for ( int fIdx = 0; fIdx < frameCount; fIdx++ )
+        {
+            const std::vector<float>& ea11Data = ea11->frameData( stepIdx, fIdx );
+            const std::vector<float>& ea22Data = ea22->frameData( stepIdx, fIdx );
+            const std::vector<float>& ea33Data = ea33->frameData( stepIdx, fIdx );
 
-        std::vector<float>& dstFrameData = dstDataFrames->frameData( fIdx );
-        size_t              valCount     = ea11Data.size();
-        dstFrameData.resize( valCount );
+            std::vector<float>& dstFrameData = dstDataFrames->frameData( stepIdx, fIdx );
+            size_t              valCount     = ea11Data.size();
+            dstFrameData.resize( valCount );
 
 #pragma omp parallel for
-        for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
-        {
-            dstFrameData[vIdx] = ( ea11Data[vIdx] + ea22Data[vIdx] + ea33Data[vIdx] );
+            for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
+            {
+                dstFrameData[vIdx] = ( ea11Data[vIdx] + ea22Data[vIdx] + ea33Data[vIdx] );
+            }
         }
     }
-
     return dstDataFrames;
 }

@@ -199,11 +199,11 @@ void RimTensorResults::mappingRange( double* min, double* max ) const
         Rim3dView* view = nullptr;
         firstAncestorOrThisOfType( view );
 
-        int currentTimeStep = view->currentTimeStep();
-
         RimGeoMechView*              geoMechView      = dynamic_cast<RimGeoMechView*>( view );
         RigFemPartResultsCollection* resultCollection = geoMechView->geoMechCase()->geoMechData()->femPartResults();
         if ( !resultCollection ) return;
+
+        auto [stepIdx, frameIdx] = geoMechView->currentStepAndDataFrame();
 
         if ( m_rangeMode == RimRegularLegendConfig::RangeModeType::AUTOMATIC_ALLTIMESTEPS )
         {
@@ -211,7 +211,7 @@ void RimTensorResults::mappingRange( double* min, double* max ) const
         }
         else if ( m_rangeMode == RimRegularLegendConfig::RangeModeType::AUTOMATIC_CURRENT_TIMESTEP )
         {
-            resultCollection->minMaxScalarValuesOverAllTensorComponents( selectedTensorResult(), currentTimeStep, min, max );
+            resultCollection->minMaxScalarValuesOverAllTensorComponents( selectedTensorResult(), stepIdx, frameIdx, min, max );
         }
     }
 }

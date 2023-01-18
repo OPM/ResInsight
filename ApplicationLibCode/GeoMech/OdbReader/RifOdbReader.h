@@ -47,6 +47,7 @@ public:
     std::vector<std::string> allStepNames() const override;
     std::vector<std::string> filteredStepNames() const override;
     std::vector<double>      frameTimes( int stepIndex ) const override;
+    int                      frameCount( int stepIndex ) const override;
 
     std::vector<std::string> elementSetNames( int partIndex ) override;
     std::vector<size_t>      elementSet( int partIndex, int setIndex ) override;

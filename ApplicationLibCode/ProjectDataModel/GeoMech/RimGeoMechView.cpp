@@ -83,6 +83,8 @@ CAF_PDM_SOURCE_INIT( RimGeoMechView, "GeoMechView" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimGeoMechView::RimGeoMechView( void )
+    : m_currentInternalTimeStep( 0 )
+    , m_currentDataFrameIndex( -1 )
 {
     CAF_PDM_InitScriptableObject( "Geomechanical View", ":/3DViewGeoMech16x16.png", "", "The Geomechanical 3d View" );
 
@@ -277,10 +279,9 @@ void RimGeoMechView::onCreateDisplayModel()
 
     if ( isTimeStepDependentDataVisibleInThisOrComparisonView() )
     {
-        // Create empty frames in the viewer
-
-        int frameCount = geoMechCase()->geoMechData()->femPartResults()->frameCount();
-        for ( int frameIndex = 0; frameIndex < frameCount; frameIndex++ )
+        // Create empty frames in the viewer, one per global timestep
+        const int totalSteps = geoMechCase()->geoMechData()->femPartResults()->totalSteps();
+        for ( int timeStepIndex = 0; timeStepIndex < totalSteps; timeStepIndex++ )
         {
             cvf::ref<cvf::Scene>          scene      = new cvf::Scene;
             cvf::ref<cvf::ModelBasicList> emptyModel = new cvf::ModelBasicList;
@@ -370,7 +371,11 @@ void RimGeoMechView::updateElementDisplacements()
         {
             std::string             errmsg;
             std::vector<cvf::Vec3f> displacements;
-            m_geomechCase->geoMechData()->readDisplacements( &errmsg, part->partId(), m_currentTimeStep, &displacements );
+            m_geomechCase->geoMechData()->readDisplacements( &errmsg,
+                                                             part->partId(),
+                                                             m_currentInternalTimeStep,
+                                                             m_currentDataFrameIndex,
+                                                             &displacements );
             part->setDisplacements( displacements );
         }
     }
@@ -379,6 +384,15 @@ void RimGeoMechView::updateElementDisplacements()
 
     // tell geometry generator to regenerate grid
     m_vizLogic->scheduleGeometryRegenOfVisiblePartMgrs( m_currentTimeStep );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<int, int> RimGeoMechView::viewerStepToTimeStepAndFrameIndex( int viewerTimeStep )
+{
+    // assuming callers check if the case etc. exists
+    return m_geomechCase->geoMechData()->femPartResults()->stepListIndexToTimeStepAndDataFrameIndex( viewerTimeStep );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -431,7 +445,10 @@ void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
 
                     cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
                     frameParts->setName( name );
-                    m_tensorPartMgr->appendDynamicGeometryPartsToModel( frameParts.p(), m_currentTimeStep );
+                    m_tensorPartMgr->appendDynamicGeometryPartsToModel( frameParts.p(),
+                                                                        m_currentTimeStep,
+                                                                        m_currentInternalTimeStep,
+                                                                        m_currentDataFrameIndex );
                     frameParts->updateBoundingBoxesRecursive();
 
                     if ( frameParts->partCount() != 0 )
@@ -445,7 +462,10 @@ void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
         bool hasGeneralCellResult = this->cellResult()->hasResult();
 
         if ( hasGeneralCellResult )
-            m_vizLogic->updateCellResultColor( m_currentTimeStep(), this->cellResult() );
+            m_vizLogic->updateCellResultColor( m_currentTimeStep(),
+                                               m_currentInternalTimeStep,
+                                               m_currentDataFrameIndex,
+                                               this->cellResult() );
         else
             m_vizLogic->updateStaticCellColors( m_currentTimeStep() );
 
@@ -466,8 +486,8 @@ void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
     {
         m_vizLogic->updateStaticCellColors( -1 );
 
-        m_intersectionCollection->updateCellResultColor( false, m_currentTimeStep );
-        if ( m_surfaceCollection ) m_surfaceCollection->updateCellResultColor( false, m_currentTimeStep );
+        m_intersectionCollection->updateCellResultColor( false, m_currentInternalTimeStep );
+        if ( m_surfaceCollection ) m_surfaceCollection->updateCellResultColor( false, m_currentInternalTimeStep );
 
         nativeOrOverrideViewer()->animationControl()->slotPause(); // To avoid animation timer spinning in the background
     }
@@ -589,7 +609,7 @@ void RimGeoMechView::onUpdateLegends()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechView::updateTensorLegendTextAndRanges( RimRegularLegendConfig* legendConfig, int timeStepIndex )
+void RimGeoMechView::updateTensorLegendTextAndRanges( RimRegularLegendConfig* legendConfig, int viewerTimeStep )
 {
     if ( !m_geomechCase || !m_geomechCase->geoMechData() ) return;
 
@@ -606,9 +626,16 @@ void RimGeoMechView::updateTensorLegendTextAndRanges( RimRegularLegendConfig* le
 
     RigFemResultAddress resVarAddress( resPos, resFieldName.toStdString(), "" );
 
-    gmCase->femPartResults()->minMaxScalarValuesOverAllTensorComponents( resVarAddress, timeStepIndex, &localMin, &localMax );
+    auto [timeStepIndex, frameIndex] = gmCase->femPartResults()->stepListIndexToTimeStepAndDataFrameIndex( viewerTimeStep );
+
+    gmCase->femPartResults()->minMaxScalarValuesOverAllTensorComponents( resVarAddress,
+                                                                         timeStepIndex,
+                                                                         frameIndex,
+                                                                         &localMin,
+                                                                         &localMax );
     gmCase->femPartResults()->posNegClosestToZeroOverAllTensorComponents( resVarAddress,
                                                                           timeStepIndex,
+                                                                          frameIndex,
                                                                           &localPosClosestToZero,
                                                                           &localNegClosestToZero );
 
@@ -793,15 +820,16 @@ RimGeoMechCase* RimGeoMechView::geoMechCase() const
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::onClampCurrentTimestep()
 {
-    int maxFrameCount = 0;
+    int maxSteps = 0;
 
     if ( m_geomechCase )
     {
-        maxFrameCount = m_geomechCase->geoMechData()->femPartResults()->frameCount();
+        maxSteps = m_geomechCase->geoMechData()->femPartResults()->totalSteps();
     }
-
-    if ( m_currentTimeStep >= maxFrameCount ) m_currentTimeStep = maxFrameCount - 1;
+    if ( m_currentTimeStep >= maxSteps ) m_currentTimeStep = maxSteps - 1;
     if ( m_currentTimeStep < 0 ) m_currentTimeStep = 0;
+
+    std::tie( m_currentInternalTimeStep, m_currentDataFrameIndex ) = viewerStepToTimeStepAndFrameIndex( m_currentTimeStep );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -811,7 +839,7 @@ size_t RimGeoMechView::onTimeStepCountRequested()
 {
     if ( m_geomechCase && m_geomechCase->geoMechData() && m_geomechCase->geoMechData()->femPartResults() )
     {
-        return m_geomechCase->geoMechData()->femPartResults()->frameCount();
+        return m_geomechCase->geoMechData()->femPartResults()->totalSteps();
     }
 
     return 0;
@@ -963,9 +991,9 @@ const RimGeoMechPropertyFilterCollection* RimGeoMechView::geoMechPropertyFilterC
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechView::calculateCurrentTotalCellVisibility( cvf::UByteArray* totalVisibility, int timeStep )
+void RimGeoMechView::calculateCurrentTotalCellVisibility( cvf::UByteArray* totalVisibility, int viewerTimeStep )
 {
-    m_vizLogic->calculateCurrentTotalCellVisibility( totalVisibility, timeStep );
+    m_vizLogic->calculateCurrentTotalCellVisibility( totalVisibility, viewerTimeStep );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1061,6 +1089,14 @@ const RimPropertyFilterCollection* RimGeoMechView::propertyFilterCollection() co
 const RimGeoMechPartCollection* RimGeoMechView::partsCollection() const
 {
     return m_partsCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<int, int> RimGeoMechView::currentStepAndDataFrame() const
+{
+    return std::make_pair( m_currentInternalTimeStep, m_currentDataFrameIndex );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -59,13 +59,13 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorStressAnisotropy::calculate(
 {
     CVF_ASSERT( isMatching( resVarAddr ) );
 
-    caf::ProgressInfo frameCountProgress( m_resultCollection->frameCount() * 4, "" );
-    frameCountProgress.setProgressDescription(
+    caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 4, "" );
+    stepCountProgress.setProgressDescription(
         "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
 
     RigFemScalarResultFrames* s1Frames = nullptr;
     {
-        auto task = frameCountProgress.task( "Loading S1.", m_resultCollection->frameCount() );
+        auto task = stepCountProgress.task( "Loading S1.", m_resultCollection->timeStepCount() );
         s1Frames  = m_resultCollection->findOrLoadScalarResult( partIndex,
                                                                RigFemResultAddress( resVarAddr.resultPosType,
                                                                                     resVarAddr.fieldName,
@@ -74,7 +74,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorStressAnisotropy::calculate(
 
     RigFemScalarResultFrames* s2Frames = nullptr;
     {
-        auto task = frameCountProgress.task( "Loading S2.", m_resultCollection->frameCount() );
+        auto task = stepCountProgress.task( "Loading S2.", m_resultCollection->timeStepCount() );
         s2Frames  = m_resultCollection->findOrLoadScalarResult( partIndex,
                                                                RigFemResultAddress( resVarAddr.resultPosType,
                                                                                     resVarAddr.fieldName,
@@ -83,7 +83,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorStressAnisotropy::calculate(
 
     RigFemScalarResultFrames* s3Frames = nullptr;
     {
-        auto task = frameCountProgress.task( "Loading S3.", m_resultCollection->frameCount() );
+        auto task = stepCountProgress.task( "Loading S3.", m_resultCollection->timeStepCount() );
         s3Frames  = m_resultCollection->findOrLoadScalarResult( partIndex,
                                                                RigFemResultAddress( resVarAddr.resultPosType,
                                                                                     resVarAddr.fieldName,
@@ -100,34 +100,37 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorStressAnisotropy::calculate(
         m_resultCollection->createScalarResult( partIndex,
                                                 RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "SA23" ) );
 
-    int frameCount = s1Frames->frameCount();
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
+    const int timeSteps = s1Frames->timeStepCount();
+    for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
-        auto task = frameCountProgress.task( QString( "Calculating %1/%2." ).arg( fIdx ).arg( frameCount - 1 ) );
+        auto task = stepCountProgress.task( QString( "Calculating %1/%2." ).arg( stepIdx ).arg( timeSteps - 1 ) );
 
-        const std::vector<float>& s1 = s1Frames->frameData( fIdx );
-        const std::vector<float>& s2 = s2Frames->frameData( fIdx );
-        const std::vector<float>& s3 = s3Frames->frameData( fIdx );
+        const int frameCount = s1Frames->frameCount( stepIdx );
+        for ( int fIdx = 0; fIdx < frameCount; fIdx++ )
+        {
+            const std::vector<float>& s1 = s1Frames->frameData( stepIdx, fIdx );
+            const std::vector<float>& s2 = s2Frames->frameData( stepIdx, fIdx );
+            const std::vector<float>& s3 = s3Frames->frameData( stepIdx, fIdx );
 
-        std::vector<float>& s12 = s12Frames->frameData( fIdx );
-        std::vector<float>& s13 = s13Frames->frameData( fIdx );
-        std::vector<float>& s23 = s23Frames->frameData( fIdx );
+            std::vector<float>& s12 = s12Frames->frameData( stepIdx, fIdx );
+            std::vector<float>& s13 = s13Frames->frameData( stepIdx, fIdx );
+            std::vector<float>& s23 = s23Frames->frameData( stepIdx, fIdx );
 
-        size_t valCount = s1.size();
+            size_t valCount = s1.size();
 
-        s12.resize( valCount );
-        s13.resize( valCount );
-        s23.resize( valCount );
+            s12.resize( valCount );
+            s13.resize( valCount );
+            s23.resize( valCount );
 
 #pragma omp parallel for schedule( dynamic )
-        for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
-        {
-            s12[vIdx] = 2.0 * ( s1[vIdx] - s2[vIdx] ) / ( s1[vIdx] + s2[vIdx] );
-            s13[vIdx] = 2.0 * ( s1[vIdx] - s3[vIdx] ) / ( s1[vIdx] + s3[vIdx] );
-            s23[vIdx] = 2.0 * ( s2[vIdx] - s3[vIdx] ) / ( s2[vIdx] + s3[vIdx] );
+            for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
+            {
+                s12[vIdx] = 2.0 * ( s1[vIdx] - s2[vIdx] ) / ( s1[vIdx] + s2[vIdx] );
+                s13[vIdx] = 2.0 * ( s1[vIdx] - s3[vIdx] ) / ( s1[vIdx] + s3[vIdx] );
+                s23[vIdx] = 2.0 * ( s2[vIdx] - s3[vIdx] ) / ( s2[vIdx] + s3[vIdx] );
+            }
         }
     }
-
     RigFemScalarResultFrames* requestedStress = m_resultCollection->findOrLoadScalarResult( partIndex, resVarAddr );
     return requestedStress;
 }
@@ -140,13 +143,13 @@ RigFemScalarResultFrames*
 {
     CVF_ASSERT( isMatching( resVarAddr ) );
 
-    caf::ProgressInfo frameCountProgress( m_resultCollection->frameCount() * 4, "" );
-    frameCountProgress.setProgressDescription(
+    caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 4, "" );
+    stepCountProgress.setProgressDescription(
         "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
 
     RigFemScalarResultFrames* s1Frames = nullptr;
     {
-        auto task = frameCountProgress.task( "Loading S1.", m_resultCollection->frameCount() );
+        auto task = stepCountProgress.task( "Loading S1.", m_resultCollection->timeStepCount() );
         s1Frames  = m_resultCollection->findOrLoadScalarResult( partIndex,
                                                                RigFemResultAddress( resVarAddr.resultPosType,
                                                                                     resVarAddr.fieldName,
@@ -155,7 +158,7 @@ RigFemScalarResultFrames*
 
     RigFemScalarResultFrames* s2Frames = nullptr;
     {
-        auto task = frameCountProgress.task( "Loading S2.", m_resultCollection->frameCount() );
+        auto task = stepCountProgress.task( "Loading S2.", m_resultCollection->timeStepCount() );
         s2Frames  = m_resultCollection->findOrLoadScalarResult( partIndex,
                                                                RigFemResultAddress( resVarAddr.resultPosType,
                                                                                     resVarAddr.fieldName,
@@ -164,7 +167,7 @@ RigFemScalarResultFrames*
 
     RigFemScalarResultFrames* s3Frames = nullptr;
     {
-        auto task = frameCountProgress.task( "Loading S3.", m_resultCollection->frameCount() );
+        auto task = stepCountProgress.task( "Loading S3.", m_resultCollection->timeStepCount() );
         s3Frames  = m_resultCollection->findOrLoadScalarResult( partIndex,
                                                                RigFemResultAddress( resVarAddr.resultPosType,
                                                                                     resVarAddr.fieldName,
@@ -190,59 +193,64 @@ RigFemScalarResultFrames*
                                                                      "SA23",
                                                                      resVarAddr.timeLapseBaseStepIdx ) );
 
-    float inf          = std::numeric_limits<float>::infinity();
-    int   frameCount   = s1Frames->frameCount();
-    int   baseTimeStep = resVarAddr.timeLapseBaseStepIdx;
+    constexpr float inf = std::numeric_limits<float>::infinity();
+    int             baseTimeStep, baseFrame;
+    std::tie( baseTimeStep, baseFrame ) =
+        m_resultCollection->stepListIndexToTimeStepAndDataFrameIndex( resVarAddr.timeLapseBaseStepIdx );
 
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
+    const int timeSteps = s1Frames->timeStepCount();
+    for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
-        auto task = frameCountProgress.task( QString( "Calculating %1/%2." ).arg( fIdx ).arg( frameCount - 1 ) );
+        auto task = stepCountProgress.task( QString( "Calculating %1 of %2." ).arg( stepIdx ).arg( timeSteps - 1 ) );
 
-        const std::vector<float>& s1t = s1Frames->frameData( fIdx );
-        const std::vector<float>& s2t = s2Frames->frameData( fIdx );
-        const std::vector<float>& s3t = s3Frames->frameData( fIdx );
-
-        const std::vector<float>& s1b = s1Frames->frameData( baseTimeStep );
-        const std::vector<float>& s2b = s2Frames->frameData( baseTimeStep );
-        const std::vector<float>& s3b = s3Frames->frameData( baseTimeStep );
-
-        std::vector<float>& s12 = s12Frames->frameData( fIdx );
-        std::vector<float>& s13 = s13Frames->frameData( fIdx );
-        std::vector<float>& s23 = s23Frames->frameData( fIdx );
-
-        size_t valCount = s1t.size();
-
-        s12.resize( valCount, 0.0 );
-        s13.resize( valCount, 0.0 );
-        s23.resize( valCount, 0.0 );
-
-        double epsilon = 0.0000001;
-#pragma omp parallel for schedule( dynamic )
-        for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
+        const int frameCount = s1Frames->frameCount( stepIdx );
+        for ( int fIdx = 0; fIdx < frameCount; fIdx++ )
         {
-            if ( fIdx != baseTimeStep )
+            const std::vector<float>& s1t = s1Frames->frameData( stepIdx, fIdx );
+            const std::vector<float>& s2t = s2Frames->frameData( stepIdx, fIdx );
+            const std::vector<float>& s3t = s3Frames->frameData( stepIdx, fIdx );
+
+            const std::vector<float>& s1b = s1Frames->frameData( baseTimeStep, baseFrame );
+            const std::vector<float>& s2b = s2Frames->frameData( baseTimeStep, baseFrame );
+            const std::vector<float>& s3b = s3Frames->frameData( baseTimeStep, baseFrame );
+
+            std::vector<float>& s12 = s12Frames->frameData( stepIdx, fIdx );
+            std::vector<float>& s13 = s13Frames->frameData( stepIdx, fIdx );
+            std::vector<float>& s23 = s23Frames->frameData( stepIdx, fIdx );
+
+            size_t valCount = s1t.size();
+
+            s12.resize( valCount, 0.0 );
+            s13.resize( valCount, 0.0 );
+            s23.resize( valCount, 0.0 );
+
+            double epsilon = 0.0000001;
+#pragma omp parallel for schedule( dynamic )
+            for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
             {
-                double diffS1 = s1t[vIdx] - s1b[vIdx];
-                double diffS2 = s2t[vIdx] - s2b[vIdx];
-                double diffS3 = s3t[vIdx] - s3b[vIdx];
-                if ( std::abs( diffS1 + diffS2 ) > epsilon )
-                    s12[vIdx] = 2.0 * ( diffS1 - diffS2 ) / ( diffS1 + diffS2 );
-                else
-                    s12[vIdx] = inf;
+                if ( fIdx != baseTimeStep )
+                {
+                    double diffS1 = s1t[vIdx] - s1b[vIdx];
+                    double diffS2 = s2t[vIdx] - s2b[vIdx];
+                    double diffS3 = s3t[vIdx] - s3b[vIdx];
+                    if ( std::abs( diffS1 + diffS2 ) > epsilon )
+                        s12[vIdx] = 2.0 * ( diffS1 - diffS2 ) / ( diffS1 + diffS2 );
+                    else
+                        s12[vIdx] = inf;
 
-                if ( std::abs( diffS1 + diffS3 ) > epsilon )
-                    s13[vIdx] = 2.0 * ( diffS1 - diffS3 ) / ( diffS1 + diffS3 );
-                else
-                    s13[vIdx] = inf;
+                    if ( std::abs( diffS1 + diffS3 ) > epsilon )
+                        s13[vIdx] = 2.0 * ( diffS1 - diffS3 ) / ( diffS1 + diffS3 );
+                    else
+                        s13[vIdx] = inf;
 
-                if ( std::abs( diffS2 + diffS3 ) > epsilon )
-                    s23[vIdx] = 2.0 * ( diffS2 - diffS3 ) / ( diffS2 + diffS3 );
-                else
-                    s23[vIdx] = inf;
+                    if ( std::abs( diffS2 + diffS3 ) > epsilon )
+                        s23[vIdx] = 2.0 * ( diffS2 - diffS3 ) / ( diffS2 + diffS3 );
+                    else
+                        s23[vIdx] = inf;
+                }
             }
         }
     }
-
     RigFemScalarResultFrames* requestedStress = m_resultCollection->findOrLoadScalarResult( partIndex, resVarAddr );
     return requestedStress;
 }

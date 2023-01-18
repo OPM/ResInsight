@@ -69,7 +69,7 @@ public:
     explicit RivExtrudedCurveIntersectionPartMgr( RimExtrudedCurveIntersection* rimIntersection, bool isFlattened = false );
 
     void applySingleColorEffect();
-    void updateCellResultColor( size_t                        timeStepIndex,
+    void updateCellResultColor( int                           timeStepIndex,
                                 const cvf::ScalarMapper*      explicitScalarColorMapper,
                                 const RivTernaryScalarMapper* explicitTernaryColorMapper );
 

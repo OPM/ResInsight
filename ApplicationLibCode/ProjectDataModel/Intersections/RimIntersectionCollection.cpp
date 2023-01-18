@@ -134,7 +134,7 @@ void RimIntersectionCollection::applySingleColorEffect()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionCollection::updateCellResultColor( bool hasGeneralCellResult, size_t timeStepIndex )
+void RimIntersectionCollection::updateCellResultColor( bool hasGeneralCellResult, int timeStepIndex )
 {
     if ( !this->isActive() ) return;
 

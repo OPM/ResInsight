@@ -50,7 +50,10 @@ public:
     RivTensorResultPartMgr( RimGeoMechView* reservoirView );
     ~RivTensorResultPartMgr() override;
 
-    void appendDynamicGeometryPartsToModel( cvf::ModelBasicList* model, size_t frameIndex ) const;
+    void appendDynamicGeometryPartsToModel( cvf::ModelBasicList* model,
+                                            int                  viewerStepIndex,
+                                            int                  localTimeStepIndex,
+                                            int                  frameIndex ) const;
 
 private:
     struct TensorVisualization

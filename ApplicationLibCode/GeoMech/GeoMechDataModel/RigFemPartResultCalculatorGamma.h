@@ -46,5 +46,5 @@ public:
                                           const RigFemScalarResultFrames* totalStressComponentDataFrames,
                                           const RigFemScalarResultFrames* srcPORDataFrames,
                                           RigFemScalarResultFrames*       dstDataFrames,
-                                          caf::ProgressInfo*              frameCountProgress );
+                                          caf::ProgressInfo*              stepCountProgress );
 };

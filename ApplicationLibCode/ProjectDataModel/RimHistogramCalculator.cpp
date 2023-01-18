@@ -288,13 +288,22 @@ RigHistogramData RimHistogramCalculator::histogramData( RimGeoMechView*         
                 }
                 else if ( timeRange == StatisticsTimeRangeType::CURRENT_TIMESTEP )
                 {
-                    int timeStepIdx = geoMechView->currentTimeStep();
-                    caseData->femPartResults()->meanScalarValue( resAddress, timeStepIdx, &histData.mean );
-                    caseData->femPartResults()->minMaxScalarValues( resAddress, timeStepIdx, &histData.min, &histData.max );
-                    caseData->femPartResults()->p10p90ScalarValues( resAddress, timeStepIdx, &histData.p10, &histData.p90 );
-                    caseData->femPartResults()->sumScalarValue( resAddress, timeStepIdx, &histData.sum );
+                    auto [timeStepIdx, frameIdx] = geoMechView->currentStepAndDataFrame();
+                    caseData->femPartResults()->meanScalarValue( resAddress, timeStepIdx, frameIdx, &histData.mean );
+                    caseData->femPartResults()->minMaxScalarValues( resAddress,
+                                                                    timeStepIdx,
+                                                                    frameIdx,
+                                                                    &histData.min,
+                                                                    &histData.max );
+                    caseData->femPartResults()->p10p90ScalarValues( resAddress,
+                                                                    timeStepIdx,
+                                                                    frameIdx,
+                                                                    &histData.p10,
+                                                                    &histData.p90 );
+                    caseData->femPartResults()->sumScalarValue( resAddress, timeStepIdx, frameIdx, &histData.sum );
 
-                    histData.histogram = caseData->femPartResults()->scalarValuesHistogram( resAddress, timeStepIdx );
+                    histData.histogram =
+                        caseData->femPartResults()->scalarValuesHistogram( resAddress, timeStepIdx, frameIdx );
                 }
             }
             else if ( cellRange == StatisticsCellRangeType::VISIBLE_CELLS )

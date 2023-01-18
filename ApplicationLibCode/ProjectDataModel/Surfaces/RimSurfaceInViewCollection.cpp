@@ -367,7 +367,7 @@ RimSurfaceInViewCollection*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSurfaceInViewCollection::updateCellResultColor( bool hasGeneralCellResult, size_t timeStepIndex )
+void RimSurfaceInViewCollection::updateCellResultColor( bool hasGeneralCellResult, int timeStepIndex )
 {
     if ( !this->isChecked() ) return;
 

@@ -81,7 +81,7 @@ void RivBoxIntersectionPartMgr::applySingleColorEffect()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivBoxIntersectionPartMgr::updateCellResultColor( size_t timeStepIndex )
+void RivBoxIntersectionPartMgr::updateCellResultColor( int timeStepIndex )
 {
     RivIntersectionResultsColoringTools::calculateIntersectionResultColors( timeStepIndex,
                                                                             true,

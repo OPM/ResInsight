@@ -58,41 +58,45 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorDSM::calculate( int partInde
 {
     CVF_ASSERT( resVarAddr.fieldName == "SE" && resVarAddr.componentName == "DSM" );
 
-    caf::ProgressInfo frameCountProgress( m_resultCollection->frameCount() * 3, "" );
-    frameCountProgress.setProgressDescription(
+    caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 3, "" );
+    stepCountProgress.setProgressDescription(
         "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* se1Frames =
         m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "SE", "S1" ) );
-    frameCountProgress.incrementProgress();
-    frameCountProgress.setNextProgressIncrement( m_resultCollection->frameCount() );
+    stepCountProgress.incrementProgress();
+    stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
     RigFemScalarResultFrames* se3Frames =
         m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "SE", "S3" ) );
 
     RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );
 
-    frameCountProgress.incrementProgress();
+    stepCountProgress.incrementProgress();
 
     float tanFricAng        = tan( m_resultCollection->parameterFrictionAngleRad() );
     float cohPrTanFricAngle = (float)( m_resultCollection->parameterCohesion() / tanFricAng );
-    int   frameCount        = se1Frames->frameCount();
-    for ( int fIdx = 0; fIdx < frameCount; ++fIdx )
-    {
-        const std::vector<float>& se1Data = se1Frames->frameData( fIdx );
-        const std::vector<float>& se3Data = se3Frames->frameData( fIdx );
 
-        std::vector<float>& dstFrameData = dstDataFrames->frameData( fIdx );
-        size_t              valCount     = se1Data.size();
-        dstFrameData.resize( valCount );
+    const int timeSteps = se1Frames->timeStepCount();
+    for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
+    {
+        const int frameCount = se1Frames->frameCount( stepIdx );
+        for ( int fIdx = 0; fIdx < frameCount; fIdx++ )
+        {
+            const std::vector<float>& se1Data = se1Frames->frameData( stepIdx, fIdx );
+            const std::vector<float>& se3Data = se3Frames->frameData( stepIdx, fIdx );
+
+            std::vector<float>& dstFrameData = dstDataFrames->frameData( stepIdx, fIdx );
+            size_t              valCount     = se1Data.size();
+            dstFrameData.resize( valCount );
 
 #pragma omp parallel for
-        for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
-        {
-            dstFrameData[vIdx] = dsm( se1Data[vIdx], se3Data[vIdx], tanFricAng, cohPrTanFricAngle );
+            for ( long vIdx = 0; vIdx < static_cast<long>( valCount ); ++vIdx )
+            {
+                dstFrameData[vIdx] = dsm( se1Data[vIdx], se3Data[vIdx], tanFricAng, cohPrTanFricAngle );
+            }
         }
-
-        frameCountProgress.incrementProgress();
+        stepCountProgress.incrementProgress();
     }
 
     return dstDataFrames;

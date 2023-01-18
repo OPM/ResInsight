@@ -135,6 +135,8 @@ RimWbsParameters::RimWbsParameters()
     m_wellPath.uiCapability()->setUiHidden( true );
     CAF_PDM_InitField( &m_timeStep, "TimeStep", -1, "TimeStep" );
     m_timeStep.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitField( &m_frameIndex, "FrameIndex", -1, "FrameIndex" );
+    m_frameIndex.uiCapability()->setUiHidden( true );
 
     m_parameterSourceFields = { { RigWbsParameter::PP_Reservoir(), &m_porePressureSource },
                                 { RigWbsParameter::PP_NonReservoir(), &m_porePressureNonReservoirSource },
@@ -182,6 +184,7 @@ RimWbsParameters& RimWbsParameters::operator=( const RimWbsParameters& copyFrom 
     m_geoMechCase = copyFrom.m_geoMechCase();
     m_wellPath    = copyFrom.m_wellPath();
     m_timeStep    = copyFrom.m_timeStep();
+    m_frameIndex  = copyFrom.m_frameIndex();
 
     for ( auto parameterSourcePair : m_parameterSourceFields )
     {
@@ -228,6 +231,14 @@ void RimWbsParameters::setWellPath( RimWellPath* wellPath )
 void RimWbsParameters::setTimeStep( int timeStep )
 {
     m_timeStep = timeStep;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWbsParameters::setFrameIndex( int frameIndex )
+{
+    m_frameIndex = frameIndex;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -425,7 +436,7 @@ bool RimWbsParameters::hasElementPropertyEntry( const RigFemResultAddress& resAd
         femPartResults = m_geoMechCase->geoMechData()->femPartResults();
         if ( femPartResults )
         {
-            return !femPartResults->resultValues( resAddr, 0, m_timeStep ).empty();
+            return !femPartResults->resultValues( resAddr, 0, m_timeStep, m_frameIndex ).empty();
         }
     }
     return false;

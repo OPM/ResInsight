@@ -43,13 +43,13 @@ public:
     ~RivGeoMechVizLogic() override;
 
     void appendNoAnimPartsToModel( cvf::ModelBasicList* model );
-    void appendPartsToModel( int timeStepIndex, cvf::ModelBasicList* model );
-    void updateCellResultColor( int timeStepIndex, RimGeoMechCellColors* cellResultColors );
-    void updateStaticCellColors( int timeStepIndex );
+    void appendPartsToModel( int viewerStepIndex, cvf::ModelBasicList* model );
+    void updateCellResultColor( int viewerStepIndex, int timeStepIndex, int frameIndex, RimGeoMechCellColors* cellResultColors );
+    void updateStaticCellColors( int viewerStepIndex );
     void scheduleGeometryRegen( RivCellSetEnum geometryType );
-    void scheduleGeometryRegenOfVisiblePartMgrs( int timeStepIndex );
-    void calculateCurrentTotalCellVisibility( cvf::UByteArray* totalVisibility, int timeStepIndex );
-    std::vector<RivGeoMechPartMgrCache::Key> keysToVisiblePartMgrs( int timeStepIndex ) const;
+    void scheduleGeometryRegenOfVisiblePartMgrs( int viewerStepIndex );
+    void calculateCurrentTotalCellVisibility( cvf::UByteArray* totalVisibility, int viewerStepIndex );
+    std::vector<RivGeoMechPartMgrCache::Key> keysToVisiblePartMgrs( int viewerStepIndex ) const;
     const cvf::ref<RivGeoMechPartMgrCache>   partMgrCache() const;
 
     static cvf::Color3f staticCellColor();

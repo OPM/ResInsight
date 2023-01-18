@@ -483,7 +483,7 @@ QStringList RimGeoMechCase::timeStepStrings() const
     const RigGeoMechCaseData* rigCaseData = geoMechData();
     if ( rigCaseData && rigCaseData->femPartResults() )
     {
-        std::vector<std::string> stepNames = rigCaseData->femPartResults()->filteredStepNames();
+        std::vector<std::string> stepNames = rigCaseData->femPartResults()->stepNames();
         for ( size_t i = 0; i < stepNames.size(); i++ )
         {
             stringList += QString::fromStdString( stepNames[i] );
@@ -496,15 +496,15 @@ QStringList RimGeoMechCase::timeStepStrings() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimGeoMechCase::timeStepName( int frameIdx ) const
+QString RimGeoMechCase::timeStepName( int timeStepIdx ) const
 {
     const RigGeoMechCaseData* rigCaseData = geoMechData();
     if ( rigCaseData && rigCaseData->femPartResults() )
     {
-        std::vector<std::string> stepNames = rigCaseData->femPartResults()->filteredStepNames();
-        if ( frameIdx < static_cast<int>( stepNames.size() ) )
+        std::vector<std::string> stepNames = rigCaseData->femPartResults()->stepNames();
+        if ( timeStepIdx < static_cast<int>( stepNames.size() ) )
         {
-            return QString::fromStdString( stepNames[frameIdx] );
+            return QString::fromStdString( stepNames[timeStepIdx] );
         }
     }
 
@@ -519,28 +519,31 @@ cvf::BoundingBox RimGeoMechCase::reservoirBoundingBox()
     cvf::BoundingBox boundingBox;
 
     RigGeoMechCaseData* rigCaseData = this->geoMechData();
-    if ( rigCaseData && rigCaseData->femPartResults() && rigCaseData->femParts()->part( 0 ) )
+    if ( rigCaseData && rigCaseData->femPartResults() && rigCaseData->femParts() )
     {
-        RigFemPart*           femPart     = rigCaseData->femParts()->part( 0 );
-        const RigFemPartGrid* femPartGrid = femPart->getOrCreateStructGrid();
-
-        RigFemResultAddress       porBarAddr( RigFemResultPosEnum::RIG_ELEMENT_NODAL, "POR-Bar", "" );
-        const std::vector<float>& resultValues = rigCaseData->femPartResults()->resultValues( porBarAddr, 0, 0 );
-
-        for ( int i = 0; i < femPart->elementCount(); ++i )
+        for ( int p = 0; p < rigCaseData->femParts()->partCount(); p++ )
         {
-            size_t resValueIdx = femPart->elementNodeResultIdx( (int)i, 0 );
-            CVF_ASSERT( resValueIdx < resultValues.size() );
-            double scalarValue   = resultValues[resValueIdx];
-            bool   validPorValue = scalarValue != std::numeric_limits<double>::infinity();
+            RigFemPart*           femPart     = rigCaseData->femParts()->part( p );
+            const RigFemPartGrid* femPartGrid = femPart->getOrCreateStructGrid();
 
-            if ( validPorValue )
+            RigFemResultAddress       porBarAddr( RigFemResultPosEnum::RIG_ELEMENT_NODAL, "POR-Bar", "" );
+            const std::vector<float>& resultValues = rigCaseData->femPartResults()->resultValues( porBarAddr, p, 0, 0 );
+
+            for ( int i = 0; i < femPart->elementCount(); ++i )
             {
-                std::array<cvf::Vec3d, 8> hexCorners;
-                femPartGrid->cellCornerVertices( i, hexCorners.data() );
-                for ( size_t c = 0; c < 8; ++c )
+                size_t resValueIdx = femPart->elementNodeResultIdx( (int)i, 0 );
+                CVF_ASSERT( resValueIdx < resultValues.size() );
+                double scalarValue   = resultValues[resValueIdx];
+                bool   validPorValue = scalarValue != std::numeric_limits<double>::infinity();
+
+                if ( validPorValue )
                 {
-                    boundingBox.add( hexCorners[c] );
+                    std::array<cvf::Vec3d, 8> hexCorners;
+                    femPartGrid->cellCornerVertices( i, hexCorners.data() );
+                    for ( size_t c = 0; c < 8; ++c )
+                    {
+                        boundingBox.add( hexCorners[c] );
+                    }
                 }
             }
         }

@@ -26,6 +26,7 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimExtrudedCurveIntersection.h"
+#include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechView.h"
 #include "RimIntersectionResultDefinition.h"
@@ -42,6 +43,8 @@
 #include "RivSourceInfo.h"
 
 #include "RigEclipseCaseData.h"
+#include "RigFemPartResultsCollection.h"
+#include "RigGeoMechCaseData.h"
 #include "RigMainGrid.h"
 #include "RigNNCData.h"
 
@@ -133,7 +136,9 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
     RimGeoMechResultDefinition*        geomResDef     = nullptr;
     RimEclipseResultDefinition*        eclResDef      = nullptr;
     size_t                             timestepIndex  = cvf::UNDEFINED_SIZE_T;
-    RimIntersectionResultDefinition*   sepInterResDef = nullptr;
+    int                                dataFrameIndex = -2; // needs to be less than -1, as -1 means last step
+
+    RimIntersectionResultDefinition* sepInterResDef = nullptr;
 
     // clang-format off
     if ( const RivSourceInfo* rivSourceInfo = dynamic_cast<const RivSourceInfo*>( firstHitPart->sourceInfo() ) )
@@ -199,14 +204,23 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
     {
         if ( sepInterResDef->isEclipseResultDefinition() )
         {
-            eclResDef = sepInterResDef->eclipseResultDefinition();
+            eclResDef     = sepInterResDef->eclipseResultDefinition();
+            timestepIndex = sepInterResDef->timeStep();
         }
         else
         {
+            RimGeoMechView* geomView = dynamic_cast<RimGeoMechView*>( mainOrComparisonView );
+            if ( geomView )
+            {
+                if ( geomView->geoMechCase() && geomView->geoMechCase()->geoMechData() )
+                {
+                    std::tie( timestepIndex, dataFrameIndex ) =
+                        geomView->geoMechCase()->geoMechData()->femPartResults()->stepListIndexToTimeStepAndDataFrameIndex(
+                            sepInterResDef->timeStep() );
+                }
+            }
             geomResDef = sepInterResDef->geoMechResultDefinition();
         }
-
-        timestepIndex = sepInterResDef->timeStep();
     }
 
     if ( gridLocalCellIndex == cvf::UNDEFINED_SIZE_T )
@@ -286,7 +300,11 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
             if ( geomView )
             {
                 if ( !geomResDef ) geomResDef = geomView->cellResult();
-                if ( timestepIndex == cvf::UNDEFINED_SIZE_T ) timestepIndex = geomView->currentTimeStep();
+
+                auto [stepIdx, frameIdx] = geomView->currentStepAndDataFrame();
+
+                if ( timestepIndex == cvf::UNDEFINED_SIZE_T ) timestepIndex = stepIdx;
+                if ( dataFrameIndex < -1 ) dataFrameIndex = frameIdx;
             }
         }
 
@@ -370,6 +388,7 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
                 selItem = new RiuGeoMechSelectionItem( associatedGridView,
                                                        geomResDef,
                                                        timestepIndex,
+                                                       dataFrameIndex,
                                                        gridIndex,
                                                        gridLocalCellIndex,
                                                        curveColor,
@@ -380,6 +399,7 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
                 selItem = new RiuGeoMechSelectionItem( associatedGridView,
                                                        geomResDef,
                                                        timestepIndex,
+                                                       dataFrameIndex,
                                                        gridIndex,
                                                        gridLocalCellIndex,
                                                        curveColor,
