@@ -39,6 +39,7 @@ class QToolButton;
 class QComboBox;
 class QTimer;
 class QUndoView;
+class QSlider;
 
 class Rim3dView;
 class RimCase;
@@ -224,6 +225,9 @@ private slots:
 
     void slotShowWellCellsAction( bool doAdd );
 
+    void slotAnimationSliderMoved( int newValue );
+    void slotAnimationControlFrameChanged( int newValue );
+
     // Debug slots
     void slotSnapshotAllViewsToFile();
 
@@ -270,6 +274,9 @@ private:
     QAction*      m_drawStyleSurfOnlyAction;
     QAction*      m_showWellCellsAction;
     QAction*      m_drawStyleDeformationsAction;
+    QAction*      m_animationSliderAction;
+
+    QSlider* m_animationSlider;
 
     QToolBar* m_holoLensToolBar;
 
