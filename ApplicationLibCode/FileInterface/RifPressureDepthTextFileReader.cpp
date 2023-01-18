@@ -53,7 +53,7 @@ std::pair<std::vector<RigPressureDepthData>, QString> RifPressureDepthTextFileRe
         {
             QStringList          headerValues = RifFileParseTools::splitLineAndTrim( line, separator );
             RigPressureDepthData data;
-            data.setWellName( headerValues[1] );
+            data.setWellName( headerValues[1].replace( "'", "" ) );
             items.push_back( data );
         }
         else if ( isDateLine( line ) )
@@ -152,7 +152,7 @@ std::optional<QDateTime> RifPressureDepthTextFileReader::parseDateLine( const QS
     CAF_ASSERT( values[0] == "DATE" );
 
     // Second value is depth
-    QDateTime dateTime = RiaDateStringParser::parseDateString( values[1] );
+    QDateTime dateTime = RiaDateStringParser::parseDateString( values[1], RiaDateStringParser::OrderPreference::DAY_FIRST );
     if ( !dateTime.isValid() ) return {};
 
     return dateTime;

@@ -23,7 +23,7 @@ TEST( RifPressureDepthTextFileReaderTest, LoadFile )
     EXPECT_TRUE( errorMessage.isEmpty() );
     ASSERT_EQ( 3u, items.size() );
 
-    EXPECT_EQ( "'G-14'", items[0].wellName().toStdString() );
+    EXPECT_EQ( "G-14", items[0].wellName().toStdString() );
     EXPECT_EQ( 28, items[0].timeStep().date().day() );
     EXPECT_EQ( 12, items[0].timeStep().date().month() );
     EXPECT_EQ( 1995, items[0].timeStep().date().year() );
@@ -33,7 +33,7 @@ TEST( RifPressureDepthTextFileReaderTest, LoadFile )
     EXPECT_NEAR( 418.88, values0[0].first, delta );
     EXPECT_NEAR( 2726.91, values0[0].second, delta );
 
-    EXPECT_EQ( "'G-14'", items[1].wellName().toStdString() );
+    EXPECT_EQ( "G-14", items[1].wellName().toStdString() );
     EXPECT_EQ( 28, items[1].timeStep().date().day() );
     EXPECT_EQ( 12, items[1].timeStep().date().month() );
     EXPECT_EQ( 1996, items[1].timeStep().date().year() );
@@ -41,7 +41,7 @@ TEST( RifPressureDepthTextFileReaderTest, LoadFile )
     EXPECT_NEAR( 418.88, values1[0].first, delta );
     EXPECT_NEAR( 2726.91, values1[0].second, delta );
 
-    EXPECT_EQ( "'F-56'", items[2].wellName().toStdString() );
+    EXPECT_EQ( "F-56", items[2].wellName().toStdString() );
     EXPECT_EQ( 15, items[2].timeStep().date().day() );
     EXPECT_EQ( 1, items[2].timeStep().date().month() );
     EXPECT_EQ( 2012, items[2].timeStep().date().year() );
