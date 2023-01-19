@@ -26,9 +26,9 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicExportLgrUi.h
     ${CMAKE_CURRENT_LIST_DIR}/RicEclipseCellResultToFileImpl.h
     ${CMAKE_CURRENT_LIST_DIR}/RicLgrSplitType.h
-	${CMAKE_CURRENT_LIST_DIR}/RicCreateDepthAdjustedLasFilesFeature.h
-	${CMAKE_CURRENT_LIST_DIR}/RicCreateDepthAdjustedLasFilesUi.h
-	${CMAKE_CURRENT_LIST_DIR}/RicCreateDepthAdjustedLasFilesImpl.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreateDepthAdjustedLasFilesFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreateDepthAdjustedLasFilesUi.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreateDepthAdjustedLasFilesImpl.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -58,9 +58,9 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicExportLgrFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicExportLgrUi.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicEclipseCellResultToFileImpl.cpp
-	${CMAKE_CURRENT_LIST_DIR}/RicCreateDepthAdjustedLasFilesFeature.cpp
-	${CMAKE_CURRENT_LIST_DIR}/RicCreateDepthAdjustedLasFilesUi.cpp
-	${CMAKE_CURRENT_LIST_DIR}/RicCreateDepthAdjustedLasFilesImpl.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreateDepthAdjustedLasFilesFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreateDepthAdjustedLasFilesUi.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicCreateDepthAdjustedLasFilesImpl.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
