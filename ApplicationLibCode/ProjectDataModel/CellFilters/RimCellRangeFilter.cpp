@@ -26,6 +26,7 @@
 #include "Rim3dView.h"
 #include "RimCase.h"
 
+#include "cafPdmUiLabelEditor.h"
 #include "cafPdmUiSliderEditor.h"
 
 #include "cvfAssert.h"
@@ -40,22 +41,34 @@ RimCellRangeFilter::RimCellRangeFilter()
 {
     CAF_PDM_InitObject( "Cell Range Filter", ":/CellFilter_Range.png" );
 
-    CAF_PDM_InitField( &startIndexI, "StartIndexI", 1, "Start Index I" );
+    CAF_PDM_InitField( &m_labelI, "LabelI", QString( "I" ), "I" );
+    m_labelI.uiCapability()->setUiEditorTypeName( caf::PdmUiLabelEditor::uiEditorTypeName() );
+    m_labelI.xmlCapability()->disableIO();
+
+    CAF_PDM_InitField( &startIndexI, "StartIndexI", 1, "I Start" );
     startIndexI.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &cellCountI, "CellCountI", 1, "Cell Count I" );
+    CAF_PDM_InitField( &cellCountI, "CellCountI", 1, "  Width" );
     cellCountI.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &startIndexJ, "StartIndexJ", 1, "Start Index J" );
+    CAF_PDM_InitField( &m_labelJ, "LabelJ", QString( "J" ), "J" );
+    m_labelJ.uiCapability()->setUiEditorTypeName( caf::PdmUiLabelEditor::uiEditorTypeName() );
+    m_labelJ.xmlCapability()->disableIO();
+
+    CAF_PDM_InitField( &startIndexJ, "StartIndexJ", 1, "J Start" );
     startIndexJ.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &cellCountJ, "CellCountJ", 1, "Cell Count J" );
+    CAF_PDM_InitField( &cellCountJ, "CellCountJ", 1, "  Width" );
     cellCountJ.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &startIndexK, "StartIndexK", 1, "Start Index K" );
+    CAF_PDM_InitField( &m_labelK, "LabelK", QString( "K" ), "K" );
+    m_labelK.uiCapability()->setUiEditorTypeName( caf::PdmUiLabelEditor::uiEditorTypeName() );
+    m_labelK.xmlCapability()->disableIO();
+
+    CAF_PDM_InitField( &startIndexK, "StartIndexK", 1, "K Start" );
     startIndexK.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &cellCountK, "CellCountK", 1, "Cell Count K" );
+    CAF_PDM_InitField( &cellCountK, "CellCountK", 1, "  Width" );
     cellCountK.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
     m_propagateToSubGrids = true;
@@ -293,29 +306,41 @@ void RimCellRangeFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
         max.y() = max.y() + 1;
         max.z() = max.z() + 1;
 
-        startIndexI.uiCapability()->setUiName( QString( "I Start (%1)" ).arg( min.x() ) );
-        startIndexJ.uiCapability()->setUiName( QString( "J Start (%1)" ).arg( min.y() ) );
-        startIndexK.uiCapability()->setUiName( QString( "K Start (%1)" ).arg( min.z() ) );
-        cellCountI.uiCapability()->setUiName( QString( "  Width (%1)" ).arg( max.x() - min.x() + 1 ) );
-        cellCountJ.uiCapability()->setUiName( QString( "  Width (%1)" ).arg( max.y() - min.y() + 1 ) );
-        cellCountK.uiCapability()->setUiName( QString( "  Width (%1)" ).arg( max.z() - min.z() + 1 ) );
+        QString label;
+
+        label =
+            QString( "I Active Cell Range %1 to %2, %3 cells" ).arg( min.x() ).arg( max.x() ).arg( max.x() - min.x() + 1 );
+
+        m_labelI.uiCapability()->setUiName( label );
+
+        label =
+            QString( "J Active Cell Range %1 to %2, %3 cells" ).arg( min.y() ).arg( max.y() ).arg( max.y() - min.y() + 1 );
+
+        m_labelJ.uiCapability()->setUiName( label );
+
+        label =
+            QString( "K Active Cell Range %1 to %2, %3 cells" ).arg( min.z() ).arg( max.z() ).arg( max.z() - min.z() + 1 );
+
+        m_labelK.uiCapability()->setUiName( label );
     }
     else
     {
-        startIndexI.uiCapability()->setUiName( QString( "I Start" ) );
-        startIndexJ.uiCapability()->setUiName( QString( "J Start" ) );
-        startIndexK.uiCapability()->setUiName( QString( "K Start" ) );
-        cellCountI.uiCapability()->setUiName( QString( "  Width" ) );
-        cellCountJ.uiCapability()->setUiName( QString( "  Width" ) );
-        cellCountK.uiCapability()->setUiName( QString( "  Width" ) );
+        m_labelI.uiCapability()->setUiName( "" );
+        m_labelJ.uiCapability()->setUiName( "" );
+        m_labelK.uiCapability()->setUiName( "" );
     }
 
     auto group = uiOrdering.addNewGroup( "Range Selection" );
 
+    group->add( &m_labelI );
     group->add( &startIndexI );
     group->add( &cellCountI );
+
+    group->add( &m_labelJ );
     group->add( &startIndexJ );
     group->add( &cellCountJ );
+
+    group->add( &m_labelK );
     group->add( &startIndexK );
     group->add( &cellCountK );
 

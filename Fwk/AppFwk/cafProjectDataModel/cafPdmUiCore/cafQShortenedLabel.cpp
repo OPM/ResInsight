@@ -130,7 +130,8 @@ QSize QShortenedLabel::sizeHint() const
         maxLineWidth = std::max( maxLineWidth, fontMetrics.width( line ) );
     }
 
-    return QSize( maxLineWidth, QLabel::sizeHint().height() );
+    // increase size hint with a few pixels to avoid linux gui issues
+    return QSize( maxLineWidth + 3, QLabel::sizeHint().height() );
 }
 
 //--------------------------------------------------------------------------------------------------
