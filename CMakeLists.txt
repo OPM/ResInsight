@@ -506,7 +506,6 @@ add_subdirectory(ThirdParty/roffcpp)
 list(APPEND THIRD_PARTY_LIBRARIES roffcpp)
 set_property(TARGET roffcpp-tests gtest gtest_main PROPERTY FOLDER "Thirdparty")
 
-
 # ##############################################################################
 # Thirdparty libraries are put in ThirdParty solution folder
 # ##############################################################################
