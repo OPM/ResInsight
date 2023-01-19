@@ -294,6 +294,14 @@ bool RigWellLogFile::hasTvdRkbChannel() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RigWellLogFile::getMissingValue() const
+{
+    return m_wellLogFile->GetContMissing();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiaDefines::DepthUnitType RigWellLogFile::depthUnit() const
 {
     RiaDefines::DepthUnitType unitType = RiaDefines::DepthUnitType::UNIT_METER;
