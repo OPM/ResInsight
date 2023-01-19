@@ -111,9 +111,9 @@ void RimFileWellPath::setWellPathIndexInFile( int index )
 void RimFileWellPath::setSurveyType( QString surveyType )
 {
     m_surveyType = surveyType;
-    if ( m_surveyType == "PLAN" )
+    if ( m_surveyType() == "PLAN" )
         setWellPathColor( cvf::Color3f( 0.999f, 0.333f, 0.0f ) );
-    else if ( m_surveyType == "PROTOTYPE" )
+    else if ( m_surveyType() == "PROTOTYPE" )
         setWellPathColor( cvf::Color3f( 0.0f, 0.333f, 0.999f ) );
 }
 

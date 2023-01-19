@@ -840,12 +840,12 @@ TEST( BaseTest, PdmObjectGroupCopyOfTypedObjects )
     std::vector<caf::PdmPointer<SimpleObj>> simpleObjList;
     og.createCopyByType( &simpleObjList, caf::PdmDefaultObjectFactory::instance() );
     EXPECT_EQ( size_t( 3 ), simpleObjList.size() );
-    EXPECT_EQ( 1000, simpleObjList[0]->m_position );
+    EXPECT_EQ( 1000, simpleObjList[0]->m_position() );
     EXPECT_EQ( size_t( 1 ), simpleObjList[0]->m_numbers.v().size() );
     EXPECT_EQ( 10, simpleObjList[0]->m_numbers.v()[0] );
 
-    EXPECT_EQ( 2000, simpleObjList[1]->m_position );
-    EXPECT_EQ( 3000, simpleObjList[2]->m_position );
+    EXPECT_EQ( 2000, simpleObjList[1]->m_position() );
+    EXPECT_EQ( 3000, simpleObjList[2]->m_position() );
 
     std::vector<caf::PdmPointer<InheritedDemoObj>> inheritObjList;
     og.createCopyByType( &inheritObjList, caf::PdmDefaultObjectFactory::instance() );

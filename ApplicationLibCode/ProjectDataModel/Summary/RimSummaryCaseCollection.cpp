@@ -72,7 +72,7 @@ void RimSummaryCaseCollection::sortByBinnedVariation( std::vector<RigEnsemblePar
         return;
     }
 
-    double delta = ( maxStdDev - minStdDev ) / RigEnsembleParameter::NR_OF_VARIATION_BINS;
+    double delta = ( maxStdDev - minStdDev ) / (float)( RigEnsembleParameter::NR_OF_VARIATION_BINS );
 
     std::vector<double> bins;
     bins.push_back( 0.0 );

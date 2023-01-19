@@ -17,6 +17,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
+// These includes need to be first to avoid compile errors when compiling with MSVC using c++20
+#include <algorithm>
+#include <ostream>
+
 #ifdef _MSC_VER
 // Get rid of warnings from compilation of ODB API
 #pragma warning( push )
@@ -38,7 +42,9 @@
 #include "RigFemTypes.h"
 
 #include "cafProgressInfo.h"
+
 #include <QString>
+
 #include <iostream>
 #include <limits>
 #include <map>

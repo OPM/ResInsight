@@ -519,7 +519,7 @@ bool RimCellEdgeColors::showTextResult() const
 //--------------------------------------------------------------------------------------------------
 void RimCellEdgeColors::updateIgnoredScalarValue()
 {
-    if ( m_resultVariable == "MULT" || m_resultVariable == "riMULT" )
+    if ( m_resultVariable() == "MULT" || m_resultVariable() == "riMULT" )
     {
         m_ignoredResultScalar = 1.0;
     }
