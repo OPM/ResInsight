@@ -193,7 +193,7 @@ void RimEclipseCellColors::initAfterRead()
 {
     RimEclipseResultDefinition::initAfterRead();
 
-    if ( this->m_legendConfigPtrField() && this->m_legendConfigPtrField()->resultVariableName == "" )
+    if ( this->m_legendConfigPtrField() && this->m_legendConfigPtrField()->resultVariableName() == "" )
     {
         this->m_legendConfigPtrField()->resultVariableName = this->resultVariable();
     }

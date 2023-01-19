@@ -1277,12 +1277,12 @@ void RimEclipseResultDefinition::initAfterRead()
         assignFlowSolutionFromCase();
     }
 
-    if ( m_resultVariable == "Formation Allen" )
+    if ( m_resultVariable() == "Formation Allen" )
     {
         m_resultVariable = RiaResultNames::formationAllanResultName();
         m_resultType     = RiaDefines::ResultCatType::ALLAN_DIAGRAMS;
     }
-    else if ( m_resultVariable == "Binary Formation Allen" )
+    else if ( m_resultVariable() == "Binary Formation Allen" )
     {
         m_resultVariable = RiaResultNames::formationBinaryAllanResultName();
         m_resultType     = RiaDefines::ResultCatType::ALLAN_DIAGRAMS;

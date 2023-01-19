@@ -526,7 +526,7 @@ TEST( BaseTest, PdmPtrField )
 
     // Operator ->
     ihd1->m_ptrField->m_texts = "Hei PtrField";
-    EXPECT_TRUE( ihd1->m_ptrField->m_texts == "Hei PtrField" );
+    EXPECT_TRUE( ihd1->m_ptrField->m_texts() == "Hei PtrField" );
 
     // Referencing system
     {

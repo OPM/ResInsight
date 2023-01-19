@@ -187,9 +187,19 @@ std::vector<std::string> RiaStdStringTools::splitString( const std::string& s, c
 //--------------------------------------------------------------------------------------------------
 std::string RiaStdStringTools::joinStrings( const std::vector<std::string>& s, char delimiter )
 {
-    std::string delimiterString( 1, delimiter );
+    std::string joinedString;
 
-    return join( s.begin(), s.end(), delimiterString );
+    for ( const auto& str : s )
+    {
+        if ( !joinedString.empty() )
+        {
+            joinedString += delimiter;
+        }
+
+        joinedString += str;
+    }
+
+    return joinedString;
 }
 
 //--------------------------------------------------------------------------------------------------
