@@ -597,7 +597,6 @@ if(RESINSIGHT_PRIVATE_INSTALL)
       TARGET "Boost::filesystem"
       PROPERTY LOCATION_RELEASE
     )
-    message("_filepath: ${_filepath}")
 
     # The location of Boost is based on the file structure as installed by vcpkg
     # The DLLs are located in the /bin folder
