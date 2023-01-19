@@ -5,3 +5,4 @@
 ^ApplicationExeCode/Resources/SouthView.svg
 ^ApplicationExeCode/Resources/WestView.svg
 ^ApplicationLibCode/ProjectDataModel/RimEclipseStatisticsCaseEvaluator.cpp
+^ApplicationLibCode/Commands/ExportCommands/RicCreateDepthAdjustedLasFilesImpl.cpp
