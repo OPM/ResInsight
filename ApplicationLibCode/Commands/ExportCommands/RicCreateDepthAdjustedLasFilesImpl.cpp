@@ -37,7 +37,7 @@
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
 
-#include "NRLib/nrlib/well/laswell.hpp"
+#include "NRLib/nrlib/well/las well.hpp"
 
 //--------------------------------------------------------------------------------------------------
 ///
