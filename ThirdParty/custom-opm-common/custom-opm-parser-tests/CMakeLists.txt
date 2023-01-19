@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 2.8.12)
 
 project ( opm-parser-tests )
 
@@ -15,7 +15,6 @@ endif()
 if (MSVC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11))
   # VS 2017 : Disable warnings from from gtest code, using deprecated code related to TR1 
   add_definitions(-D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING)
-  message(STATUS "Add flag to disable warings from gtest -  _SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING")
 endif()
 
 CONFIGURE_FILE( ${CMAKE_CURRENT_LIST_DIR}/OpmTestDataDirectory.h.cmake
