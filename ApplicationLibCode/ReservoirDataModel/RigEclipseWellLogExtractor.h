@@ -24,11 +24,32 @@
 class RigEclipseCaseData;
 class RigWellPath;
 class RigResultAccessor;
+class RimEclipseResultDefinition;
 
 namespace cvf
 {
 class BoundingBox;
 }
+
+class RigEclipseExtractorResultAddress : public RigExtractorResultAddress
+{
+public:
+    RigEclipseExtractorResultAddress( const RimEclipseResultDefinition* resultDefinition, size_t gridIndex, size_t timeStepIndex )
+        : m_resultDefinition( resultDefinition )
+        , m_gridIndex( gridIndex )
+        , m_timeStepIndex( timeStepIndex )
+    {
+    }
+
+    const RimEclipseResultDefinition* resultDefinition() const { return m_resultDefinition; }
+    size_t                            gridIndex() const { return m_gridIndex; }
+    size_t                            timeStepIndex() const { return m_timeStepIndex; }
+
+private:
+    const RimEclipseResultDefinition* m_resultDefinition;
+    size_t                            m_gridIndex;
+    size_t                            m_timeStepIndex;
+};
 
 //==================================================================================================
 ///
@@ -39,6 +60,8 @@ public:
     RigEclipseWellLogExtractor( gsl::not_null<const RigEclipseCaseData*> aCase,
                                 gsl::not_null<const RigWellPath*>        wellpath,
                                 const std::string&                       wellCaseErrorMsgName );
+
+    std::vector<double> curveData( const RigExtractorResultAddress* resultAddress ) override;
 
     void                      curveData( const RigResultAccessor* resultAccessor, std::vector<double>* values );
     const RigEclipseCaseData* caseData() { return m_caseData.p(); }

@@ -238,6 +238,21 @@ QString RigGeoMechWellLogExtractor::curveData( const RigFemResultAddress& resAdd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<double> RigGeoMechWellLogExtractor::curveData( const RigExtractorResultAddress* resultAddress )
+{
+    if ( auto femResultAddress = dynamic_cast<const RigGeoMechExtractorResultAddress*>( resultAddress ) )
+    {
+        std::vector<double> values;
+        curveData( femResultAddress->address(), femResultAddress->timeStepIndex(), femResultAddress->frameIndex(), &values );
+        return values;
+    }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
     RigGeoMechWellLogExtractor::calculateWbsParameterForAllSegments( const RigWbsParameter& parameter,
                                                                      WbsParameterSource     primarySource,
@@ -472,8 +487,8 @@ void RigGeoMechWellLogExtractor::wellPathAngles( const RigFemResultAddress& resA
         {
             double azimuth = HUGE_VAL;
 
-            // Azimuth is not defined when well path is vertical. We define it as infinite to avoid it showing up in the
-            // plot.
+            // Azimuth is not defined when well path is vertical. We define it as infinite to avoid it showing up in
+            // the plot.
             if ( cvf::Math::valueInRange( inclination, epsilon, 180.0 - epsilon ) )
             {
                 cvf::Vec3d projectedTangentXY = wellPathTangent;
@@ -917,8 +932,8 @@ T RigGeoMechWellLogExtractor::interpolateGridResultValue( RigFemResultPosEnum   
     {
         if ( resultPosType == RIG_ELEMENT_NODAL_FACE )
         {
-            return std::numeric_limits<T>::infinity(); // undefined value. ELEMENT_NODAL_FACE values are only defined on
-                                                       // a face.
+            return std::numeric_limits<T>::infinity(); // undefined value. ELEMENT_NODAL_FACE values are only
+                                                       // defined on a face.
         }
         // TODO: Should interpolate within the whole hexahedron. This requires converting to locals coordinates.
         // For now just pick the average value for the cell.

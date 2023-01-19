@@ -44,6 +44,24 @@ namespace cvf
 class BoundingBox;
 }
 
+class RigGeoMechExtractorResultAddress : public RigExtractorResultAddress
+{
+public:
+    RigGeoMechExtractorResultAddress( int frameIndex, int timeStepIndex, const RigFemResultAddress& address )
+        : m_frameIndex( frameIndex )
+        , m_timeStepIndex( timeStepIndex )
+        , m_femResultAddress( address ){};
+
+    const RigFemResultAddress& address() const { return m_femResultAddress; }
+    int                        frameIndex() const { return m_frameIndex; }
+    int                        timeStepIndex() const { return m_timeStepIndex; }
+
+private:
+    int                 m_frameIndex;
+    int                 m_timeStepIndex;
+    RigFemResultAddress m_femResultAddress;
+};
+
 //==================================================================================================
 ///
 //==================================================================================================
@@ -67,6 +85,8 @@ public:
                                     std::vector<double>* tvds,
                                     std::vector<double>* values,
                                     const double         smoothingTreshold );
+
+    std::vector<double> curveData( const RigExtractorResultAddress* resultAddress ) override;
 
     QString curveData( const RigFemResultAddress& resAddr, int timeStepIndex, int frameIndex, std::vector<double>* values );
     const RigGeoMechCaseData* caseData();

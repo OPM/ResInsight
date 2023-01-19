@@ -25,6 +25,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessor.h"
+#include "RigResultAccessorFactory.h"
 #include "RigWellLogExtractionTools.h"
 #include "RigWellPath.h"
 #include "RigWellPathIntersectionTools.h"
@@ -189,6 +190,32 @@ void RigEclipseWellLogExtractor::curveData( const RigResultAccessor* resultAcces
         cvf::StructGridInterface::FaceType cellFace = m_intersectedCellFaces[cpIdx];
         ( *values )[cpIdx]                          = resultAccessor->cellFaceScalarGlobIdx( cellIdx, cellFace );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigEclipseWellLogExtractor::curveData( const RigExtractorResultAddress* resultAddress )
+{
+    auto eclipseExtractorAddress = dynamic_cast<const RigEclipseExtractorResultAddress*>( resultAddress );
+    if ( !eclipseExtractorAddress ) return {};
+
+    if ( !m_caseData.isNull() )
+    {
+        std::vector<double> values;
+
+        cvf::ref<RigResultAccessor> rsAccessor =
+            RigResultAccessorFactory::createFromResultDefinition( m_caseData.p(),
+                                                                  eclipseExtractorAddress->gridIndex(),
+                                                                  eclipseExtractorAddress->timeStepIndex(),
+                                                                  eclipseExtractorAddress->resultDefinition() );
+
+        curveData( rsAccessor.p(), &values );
+
+        return values;
+    }
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------

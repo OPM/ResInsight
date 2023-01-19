@@ -55,6 +55,16 @@ class RigWellPath;
 //==================================================================================================
 ///
 //==================================================================================================
+class RigExtractorResultAddress
+{
+public:
+    RigExtractorResultAddress()          = default;
+    virtual ~RigExtractorResultAddress() = default;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
 class RigWellLogExtractor : public cvf::Object
 {
 public:
@@ -64,6 +74,8 @@ public:
     const std::vector<double>& cellIntersectionMDs() const;
     const std::vector<double>& cellIntersectionTVDs() const;
     const std::vector<size_t>& intersectedCellsGlobIdx() const;
+
+    virtual std::vector<double> curveData( const RigExtractorResultAddress* resultAddress ) = 0;
 
     const RigWellPath* wellPathGeometry() const;
 
