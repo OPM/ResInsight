@@ -81,10 +81,10 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNormalST::calculate( int    
 
     constexpr float inf = std::numeric_limits<float>::infinity();
 
-    const int timeSteps = srcPORDataFrames->timeStepCount();
+    const int timeSteps = srcSDataFrames->timeStepCount();
     for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )
     {
-        const int frameCount = srcPORDataFrames->frameCount( stepIdx );
+        const int frameCount = srcSDataFrames->frameCount( stepIdx );
         for ( int fIdx = 0; fIdx < frameCount; fIdx++ )
         {
             const std::vector<float>& srcSFrameData   = srcSDataFrames->frameData( stepIdx, fIdx );
