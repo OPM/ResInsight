@@ -7,7 +7,7 @@ set(VIZ_MODULES_FOLDER_NAME Fwk/VizFwk)
 
 cmake_policy(SET CMP0020 NEW)
 if(POLICY CMP0077)
-  cmake_policy(SET CMP0077 OLD)
+  cmake_policy(SET CMP0077 NEW)
 endif()
 
 if(UNIX)
