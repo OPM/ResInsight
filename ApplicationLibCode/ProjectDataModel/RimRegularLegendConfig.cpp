@@ -653,11 +653,11 @@ void RimRegularLegendConfig::setAutomaticRanges( double globalMin, double global
 //--------------------------------------------------------------------------------------------------
 void RimRegularLegendConfig::initAfterRead()
 {
-    if ( resultVariableName == "Binary Formation Allen" )
+    if ( resultVariableName() == "Binary Formation Allen" )
     {
         resultVariableName = RiaResultNames::formationBinaryAllanResultName();
     }
-    else if ( resultVariableName == "Formation Allen" )
+    else if ( resultVariableName() == "Formation Allen" )
     {
         resultVariableName = RiaResultNames::formationAllanResultName();
     }

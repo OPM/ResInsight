@@ -244,7 +244,7 @@ QString RimWellRftPlot::associatedSimWellName() const
 void RimWellRftPlot::applyInitialSelections()
 {
     std::map<QString, QStringList> wellSources = findWellSources();
-    if ( m_wellPathNameOrSimWellName == "None" && !wellSources.empty() )
+    if ( m_wellPathNameOrSimWellName() == "None" && !wellSources.empty() )
     {
         m_wellPathNameOrSimWellName = wellSources.begin()->first;
     }
