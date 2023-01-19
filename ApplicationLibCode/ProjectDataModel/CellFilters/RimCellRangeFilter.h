@@ -70,4 +70,8 @@ protected:
 
 private:
     void computeAndSetValidValues();
+
+    caf::PdmField<QString> m_labelI;
+    caf::PdmField<QString> m_labelJ;
+    caf::PdmField<QString> m_labelK;
 };
