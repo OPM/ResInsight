@@ -669,7 +669,8 @@ void RicExportFractureCompletionsImpl::calculateFractureToWellTransmissibilities
             const RigFractureCell& fractureWellCell = fractureGrid->cellFromIndex( fracWellCellIdx );
 
             double linearTrans = 0.0;
-            if ( intersection.hlength > 0.0 || intersection.vlength > 0.0 )
+            if ( ( intersection.hlength > 0.0 || intersection.vlength > 0.0 ) &&
+                 !std::isinf( fractureWellCell.getConductivityValue() ) )
             {
                 linearTrans =
                     RigFractureTransmissibilityEquations::fractureCellToWellLinearTrans( fractureWellCell.getConductivityValue(),
