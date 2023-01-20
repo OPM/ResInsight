@@ -754,7 +754,11 @@ void RimFracture::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& ui
             m_azimuth.uiCapability()->setUiReadOnly( false );
         }
 
-        if ( fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH )
+        fractureTemplate()->useUserDefinedPerforationLength();
+
+        if ( fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH ||
+             ( fractureTemplate()->orientationType() == RimFractureTemplate::AZIMUTH &&
+               fractureTemplate()->useUserDefinedPerforationLength() ) )
         {
             m_perforationEfficiency.uiCapability()->setUiHidden( false );
             m_perforationLength.uiCapability()->setUiHidden( false );
