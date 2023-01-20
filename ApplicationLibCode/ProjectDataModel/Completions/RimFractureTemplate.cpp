@@ -293,7 +293,7 @@ void RimFractureTemplate::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
                                             const QVariant&            oldValue,
                                             const QVariant&            newValue )
 {
-    bool createDisplayModelAndRedraw = false;
+    bool updateCompletionTypeResults = false;
     if ( changedField == &m_azimuthAngle || changedField == &m_orientationType )
     {
         for ( RimFracture* fracture : fracturesUsingThisTemplate() )
@@ -315,7 +315,7 @@ void RimFractureTemplate::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
                 }
             }
 
-            createDisplayModelAndRedraw = true;
+            updateCompletionTypeResults = true;
         }
     }
 
@@ -350,12 +350,13 @@ void RimFractureTemplate::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         fracture->clearCachedNonDarcyProperties();
     }
 
-    if ( changedField == &m_perforationLength )
+    if ( changedField == &m_perforationLength || changedField == &m_conductivityType ||
+         changedField == &m_userDefinedPerforationLength )
     {
-        createDisplayModelAndRedraw = true;
+        updateCompletionTypeResults = true;
     }
 
-    if ( createDisplayModelAndRedraw )
+    if ( updateCompletionTypeResults )
     {
         RimProject::current()->reloadCompletionTypeResultsInAllViews();
     }
