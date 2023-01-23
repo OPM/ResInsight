@@ -67,7 +67,6 @@ public:
     void            setTrajectoryTypeToApply( int val );
     RimWellPath*    wellPathToApply() const;
     void            setWellPathToApply( RimWellPath* val );
-    RimWellPath*    referenceWellPathToApply() const;
     int             branchIndexToApply() const;
     void            setBranchIndexToApply( int val );
     caf::Tristate   branchDetectionToApply() const;
@@ -123,7 +122,6 @@ private:
     caf::PdmPtrField<RimSummaryCase*> m_summaryCase;
     caf::PdmField<int>                m_trajectoryType;
     caf::PdmPtrField<RimWellPath*>    m_wellPath;
-    caf::PdmPtrField<RimWellPath*>    m_refWellPath;
     caf::PdmField<QString>            m_simWellName;
     caf::PdmField<bool>               m_allow3DSelectionLink;
     caf::PdmField<int>                m_branchIndex;

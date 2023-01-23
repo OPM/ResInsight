@@ -197,8 +197,6 @@ protected:
     void                 updatePlots();
     caf::PdmFieldHandle* userDescriptionField() override;
 
-    void updateReferenceWellPathInCurves();
-
 private:
     void cleanupBeforeClose();
     void updateSubPlotNames();

@@ -628,9 +628,8 @@ std::map<QString, QString> RimDepthTrackPlot::createNameKeyValueMap() const
 {
     std::map<QString, QString> variableValueMap;
 
-    RimCase*     commonCase        = m_commonDataSource->caseToApply();
-    RimWellPath* commonWellPath    = m_commonDataSource->wellPathToApply();
-    RimWellPath* commonRefWellPath = m_commonDataSource->referenceWellPathToApply();
+    RimCase*     commonCase     = m_commonDataSource->caseToApply();
+    RimWellPath* commonWellPath = m_commonDataSource->wellPathToApply();
 
     if ( commonCase )
     {
@@ -674,11 +673,6 @@ std::map<QString, QString> RimDepthTrackPlot::createNameKeyValueMap() const
     else if ( !m_commonDataSource->simWellNameToApply().isEmpty() )
     {
         variableValueMap[RiaDefines::namingVariableWell()] = m_commonDataSource->simWellNameToApply();
-    }
-
-    if ( commonRefWellPath && !commonRefWellPath->name().isEmpty() )
-    {
-        variableValueMap[RiaDefines::namingVariableRefWell()] = QString( "Ref. Well: %1" ).arg( commonRefWellPath->name() );
     }
 
     if ( commonWellPath )
@@ -1275,7 +1269,6 @@ void RimDepthTrackPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
 //--------------------------------------------------------------------------------------------------
 void RimDepthTrackPlot::onLoadDataAndUpdate()
 {
-    updateReferenceWellPathInCurves();
     updateMdiWindowVisibility();
     performAutoNameUpdate();
     updatePlots();
@@ -1305,21 +1298,6 @@ void RimDepthTrackPlot::updatePlots()
 caf::PdmFieldHandle* RimDepthTrackPlot::userDescriptionField()
 {
     return &m_plotWindowTitle;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimDepthTrackPlot::updateReferenceWellPathInCurves()
-{
-    for ( auto plot : this->plots() )
-    {
-        auto wellLogTrack = dynamic_cast<RimWellLogTrack*>( plot );
-        for ( auto curve : wellLogTrack->curves() )
-        {
-            curve->setReferenceWellPath( m_commonDataSource->referenceWellPathToApply() );
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
