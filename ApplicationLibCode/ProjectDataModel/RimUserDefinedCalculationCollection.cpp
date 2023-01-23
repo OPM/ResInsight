@@ -18,7 +18,6 @@
 
 #include "RimUserDefinedCalculationCollection.h"
 
-#include "RimCalculatedSummaryCase.h"
 #include "RimProject.h"
 #include "RimUserDefinedCalculation.h"
 

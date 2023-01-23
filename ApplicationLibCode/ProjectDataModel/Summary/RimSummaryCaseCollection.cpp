@@ -34,6 +34,7 @@
 #include "RimGridSummaryCase.h"
 #include "RimProject.h"
 #include "RimSummaryAddressCollection.h"
+#include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCase.h"
 
 #include "RifReaderEclipseRft.h"
@@ -328,6 +329,7 @@ std::set<RifEclipseSummaryAddress> RimSummaryCaseCollection::ensembleSummaryAddr
         const std::set<RifEclipseSummaryAddress>& addrs = m_cases[maxAddrIndex]->summaryReader()->allResultAddresses();
         addresses.insert( addrs.begin(), addrs.end() );
     }
+
     return addresses;
 }
 

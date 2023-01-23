@@ -32,8 +32,10 @@
 #include "RifReaderOpmRft.h"
 #include "RifSummaryReaderMultipleFiles.h"
 
+#include "RimCalculatedSummaryCurveReader.h"
 #include "RimProject.h"
 #include "RimRftCase.h"
+#include "RimSummaryCalculationCollection.h"
 #include "RimTools.h"
 
 #include "cafPdmFieldScriptingCapability.h"
@@ -116,13 +118,19 @@ void RimFileSummaryCase::createSummaryReaderInterfaceThreadSafe( RiaThreadSafeLo
 void RimFileSummaryCase::createSummaryReaderInterface()
 {
     RiaThreadSafeLogger threadSafeLogger;
-    m_fileSummaryReader  = RimFileSummaryCase::findRelatedFilesAndCreateReader( this->summaryHeaderFilename(),
+    m_fileSummaryReader = RimFileSummaryCase::findRelatedFilesAndCreateReader( this->summaryHeaderFilename(),
                                                                                m_includeRestartFiles,
                                                                                &threadSafeLogger );
+
+    RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
+    m_calculatedSummaryReader                 = new RifCalculatedSummaryCurveReader( calcColl, this );
+
     m_multiSummaryReader = new RifMultipleSummaryReaders;
     m_multiSummaryReader->addReader( m_fileSummaryReader.p() );
 
     openAndAttachAdditionalReader();
+
+    m_multiSummaryReader->addReader( m_calculatedSummaryReader.p() );
 
     auto messages = threadSafeLogger.messages();
     for ( const auto& m : messages )

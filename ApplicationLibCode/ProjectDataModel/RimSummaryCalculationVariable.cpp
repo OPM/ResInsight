@@ -69,6 +69,7 @@ void RimSummaryCalculationVariable::fieldChangedByUi( const caf::PdmFieldHandle*
         {
             RiuSummaryVectorSelectionDialog dlg( nullptr );
             dlg.hideEnsembles();
+            dlg.hideCalculationIncompatibleCategories();
 
             readDataFromApplicationStore( &dlg );
 

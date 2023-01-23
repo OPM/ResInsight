@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RifMultipleSummaryReaders.h"
+#include "RimCalculatedSummaryCurveReader.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -104,8 +105,12 @@ void RifMultipleSummaryReaders::rebuildMetaData()
     m_allErrorAddresses.clear();
     m_allResultAddresses.clear();
 
-    for ( const auto& reader : m_readers )
+    for ( auto& reader : m_readers )
     {
+        // TODO: hack. Find a better way to rebuild calculated summary meta data.
+        auto calcReader = dynamic_cast<RifCalculatedSummaryCurveReader*>( reader.p() );
+        if ( calcReader ) calcReader->buildMetaData();
+
         {
             auto resultAddresses = reader->allResultAddresses();
             m_allResultAddresses.insert( resultAddresses.begin(), resultAddresses.end() );

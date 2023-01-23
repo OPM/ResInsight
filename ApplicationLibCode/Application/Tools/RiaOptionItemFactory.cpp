@@ -113,9 +113,6 @@ caf::PdmOptionItemInfo
         case RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR:
             iconText = ":/summary/components/images/block.svg";
             break;
-        case RifEclipseSummaryAddress::SUMMARY_CALCULATED:
-            iconText = ":/summary/components/images/calculated.svg";
-            break;
         case RifEclipseSummaryAddress::SUMMARY_IMPORTED:
             iconText = ":/summary/components/images/others.svg";
             break;

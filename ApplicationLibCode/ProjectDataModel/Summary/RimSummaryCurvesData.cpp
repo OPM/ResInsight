@@ -224,7 +224,7 @@ void RimSummaryCurvesData::populateSummaryCurvesData( std::vector<RimSummaryCurv
 
         auto curveDataList = std::vector<CurveData>( { curveData } );
         if ( hasErrorData ) curveDataList.push_back( errorCurveData );
-        if ( curve->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
+        if ( curve->summaryAddressY().isCalculated() )
         {
             // We have calculated data, and it we cannot assume identical time axis
             curvesData->addCurveDataNoSearch( curveCaseName, ensembleName, curve->timeStepsY(), curveDataList );

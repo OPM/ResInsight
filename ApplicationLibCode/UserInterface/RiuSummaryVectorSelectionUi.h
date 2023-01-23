@@ -66,6 +66,7 @@ public:
     void hideDifferenceVectors( bool hide );
     void hideHistoryVectors( bool hide );
     void hideVectorsWithoutHistory( bool hide );
+    void hideCalculationIncompatibleCategories( bool hide );
 
     void setFieldChangedHandler( const std::function<void()>& handlerFunc );
 
@@ -88,8 +89,7 @@ private:
     std::set<RifEclipseSummaryAddress>
         findPossibleSummaryAddressesFromSelectedCases( const SummaryIdentifierAndField* identifierAndField ) const;
     std::set<RifEclipseSummaryAddress>
-                                       findPossibleSummaryAddressesFromSelectedObservedData( const SummaryIdentifierAndField* identifierAndField ) const;
-    std::set<RifEclipseSummaryAddress> findPossibleSummaryAddressesFromCalculated() const;
+        findPossibleSummaryAddressesFromSelectedObservedData( const SummaryIdentifierAndField* identifierAndField ) const;
 
     std::vector<SummaryIdentifierAndField*>
                                buildControllingFieldList( const SummaryIdentifierAndField* identifierAndField ) const;
@@ -134,6 +134,8 @@ private:
     bool m_hideHistoryVectors;
     bool m_hideVectorsWithoutHistory;
     bool m_hideDifferenceVectors;
+
+    bool m_hideCalculationIncompatibleCategories;
 
     std::function<void()> m_toggleChangedHandler;
 

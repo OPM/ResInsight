@@ -47,7 +47,6 @@ void caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::setUp()
     addItem( RifAdr::SUMMARY_WELL_SEGMENT, "SUMMARY_SEGMENT", RiaDefines::summarySegment() );
     addItem( RifAdr::SUMMARY_BLOCK, "SUMMARY_BLOCK", RiaDefines::summaryBlock() );
     addItem( RifAdr::SUMMARY_BLOCK_LGR, "SUMMARY_BLOCK_LGR", RiaDefines::summaryLgrBlock() );
-    addItem( RifAdr::SUMMARY_CALCULATED, "SUMMARY_CALCULATED", RiaDefines::summaryCalculated() );
     addItem( RifAdr::SUMMARY_IMPORTED, "SUMMARY_IMPORTED", "Imported" );
     addItem( RifAdr::SUMMARY_ENSEMBLE_STATISTICS, "SUMMARY_ENSEMBLE_STATISTICS", "Ensemble Statistics" );
     setDefault( RifAdr::SUMMARY_FIELD );
@@ -137,6 +136,7 @@ void RimSummaryAddress::setAddress( const RifEclipseSummaryAddress& addr )
     m_calculationId = addr.id();
 
     setUiName( m_vectorName );
+    setUiIconFromResourceString( iconResourceText() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -158,27 +158,6 @@ RifEclipseSummaryAddress RimSummaryAddress::address() const
                                      m_aquiferNumber,
                                      m_isErrorResult,
                                      m_calculationId );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryAddress::ensureCalculationIdIsAssigned()
-{
-    if ( m_category == RifEclipseSummaryAddress::SUMMARY_CALCULATED && m_calculationId == -1 )
-    {
-        RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
-
-        for ( const RimUserDefinedCalculation* c : calcColl->calculations() )
-        {
-            QString description = c->description();
-
-            if ( description == m_vectorName )
-            {
-                m_calculationId = c->id();
-            }
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -270,4 +249,14 @@ int RimSummaryAddress::ensembleId() const
 bool RimSummaryAddress::isEnsemble() const
 {
     return m_ensembleId >= 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryAddress::iconResourceText() const
+{
+    if ( m_calculationId != -1 ) return ":/summary/components/images/calculated.svg";
+
+    return ":/DataVector.png";
 }

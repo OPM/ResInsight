@@ -475,13 +475,9 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions( const caf:
     QList<caf::PdmOptionItemInfo> options = this->RimPlotCurve::calculateValueOptions( fieldNeedingOptions );
     if ( !options.isEmpty() ) return options;
 
-    if ( fieldNeedingOptions == &m_yValuesSummaryCase || fieldNeedingOptions == &m_xValuesSummaryCase )
-    {
-        RimProject* proj = RimProject::current();
-
+    auto createOptionsForSummaryCase = []( RimSummaryCase* summaryCase, QList<caf::PdmOptionItemInfo>& options ) {
+        RimProject*                  proj  = RimProject::current();
         std::vector<RimSummaryCase*> cases = proj->allSummaryCases();
-
-        cases.push_back( proj->calculationCollection->calculationSummaryCase() );
 
         options = RiaSummaryTools::optionsForSummaryCases( cases );
 
@@ -489,6 +485,15 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions( const caf:
         {
             options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
         }
+    };
+
+    if ( fieldNeedingOptions == &m_yValuesSummaryCase )
+    {
+        createOptionsForSummaryCase( m_yValuesSummaryCase, options );
+    }
+    else if ( fieldNeedingOptions == &m_xValuesSummaryCase )
+    {
+        createOptionsForSummaryCase( m_xValuesSummaryCase, options );
     }
     else if ( &m_yValuesSummaryAddressUiField == fieldNeedingOptions )
     {

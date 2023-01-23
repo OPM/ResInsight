@@ -51,9 +51,6 @@ public:
 
     std::vector<RimUserDefinedCalculationVariable*> allVariables() const;
 
-    const std::vector<double>& values() const;
-    const std::vector<time_t>& timeSteps() const;
-
     void    setExpression( const QString& expr );
     QString expression() const;
     QString unitName() const;
@@ -81,7 +78,7 @@ protected:
     RimUserDefinedCalculationVariable* addVariable( const QString& name );
     void                               deleteVariable( RimUserDefinedCalculationVariable* calcVariable );
 
-    QString buildCalculationName() const;
+    virtual QString buildCalculationName() const;
 
 protected:
     caf::PdmField<QString> m_description;
@@ -92,8 +89,8 @@ protected:
 
     caf::PdmChildArrayField<RimUserDefinedCalculationVariable*> m_variables;
 
-    caf::PdmField<std::vector<double>> m_calculatedValues;
-    caf::PdmField<std::vector<time_t>> m_timesteps;
+    caf::PdmField<std::vector<double>> m_calculatedValues_OBSOLETE;
+    caf::PdmField<std::vector<time_t>> m_timesteps_OBSOLETE;
     caf::PdmField<int>                 m_id;
 
     std::unique_ptr<RiuExpressionContextMenuManager> m_exprContextMenuMgr;
