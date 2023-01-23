@@ -1114,6 +1114,10 @@ const std::vector<float>& RigFemPartResultsCollection::resultValues( const RigFe
     CVF_ASSERT( resVarAddr.isValid() );
 
     RigFemScalarResultFrames* scalarResults = findOrLoadScalarResult( partIndex, resVarAddr );
+
+    static std::vector<float> empty;
+    if ( scalarResults->frameCount( stepIndex ) == 0 ) return empty;
+
     return scalarResults->frameData( stepIndex, frameIndex );
 }
 
