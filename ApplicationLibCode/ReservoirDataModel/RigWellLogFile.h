@@ -61,6 +61,8 @@ public:
     bool hasTvdMslChannel() const;
     bool hasTvdRkbChannel() const;
 
+    double getMissingValue() const;
+
 private:
     void    close();
     QString depthUnitString() const;
