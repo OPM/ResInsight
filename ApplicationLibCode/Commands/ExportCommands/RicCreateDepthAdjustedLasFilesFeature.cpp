@@ -1,4 +1,3 @@
-#include "RicCreateDepthAdjustedLasFilesFeature.h"
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2023- Equinor ASA
@@ -57,12 +56,6 @@ bool RicCreateDepthAdjustedLasFilesFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCreateDepthAdjustedLasFilesFeature::onActionTriggered( bool isChecked )
 {
-    auto allWellPaths = RimProject::current()->activeOilField()->wellPathCollection->allWellPaths();
-    for ( auto* well : allWellPaths )
-    {
-        auto wellLogFiles = well->wellLogFiles();
-    }
-
     RicCreateDepthAdjustedLasFilesUi featureUi;
     featureUi.setDefaultValues();
 

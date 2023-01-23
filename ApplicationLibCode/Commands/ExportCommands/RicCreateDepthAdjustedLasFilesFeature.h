@@ -45,6 +45,7 @@ private:
                                                         const std::vector<RimWellPath*> destinationWells,
                                                         const std::vector<QString>&     selectedResultProperties,
                                                         const QString&                  exportFolder );
+
     void createDepthAdjustedWellLogFileFromGeoMechCase( RimGeoMechCase*                 geoMechCase,
                                                         RimWellPath*                    sourceWell,
                                                         const std::vector<RimWellPath*> destinationWells,

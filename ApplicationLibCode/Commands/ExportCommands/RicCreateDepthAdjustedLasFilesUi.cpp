@@ -150,6 +150,9 @@ void RicCreateDepthAdjustedLasFilesUi::defineEditorAttribute( const caf::PdmFiel
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicCreateDepthAdjustedLasFilesUi::setDefaultValues()
 {
     // Default folder directory

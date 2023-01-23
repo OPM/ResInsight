@@ -68,6 +68,7 @@ void createDestinationWellsLasFiles( RimCase*                        selectedCas
                                      const std::vector<QString>&     selectedResultProperties,
                                      const QString&                  exportFolder,
                                      double                          rkbDiff );
+
 void createDestinationWellLasFile( const QString&                                wellName,
                                    const QString&                                caseDescription,
                                    const std::vector<double>&                    mdValues,

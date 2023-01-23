@@ -54,6 +54,9 @@ bool LasDepthValueAndIndexPerKLayer::hasKLayer( int kLayer ) const
     return m_kLayerIndexAndValuePairsMap.find( kLayer ) != m_kLayerIndexAndValuePairsMap.end();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::map<size_t, double> LasDepthValueAndIndexPerKLayer::indexAndValuePairs( int kLayer ) const
 {
     if ( !hasKLayer( kLayer ) ) return std::map<size_t, double>();
@@ -140,7 +143,6 @@ void RicCreateDepthAdjustedLasFilesImpl::createDestinationWellsLasFiles( RimCase
         {
             if ( !sourceWellDepthIndexAndPercValuePerKLayer.hasKLayer( indexK ) ) continue;
 
-            // Note destinationWellIndexKDepthsMap is retrieved from well extractors, and
             for ( const auto& [index, depthPerc] : sourceWellDepthIndexAndPercValuePerKLayer.indexAndValuePairs( indexK ) )
             {
                 if ( sourceWellLogData->hasTvdMslChannel() )
@@ -242,6 +244,9 @@ void RicCreateDepthAdjustedLasFilesImpl::createDestinationWellLasFile( const QSt
     lasFile.WriteToFile( fullPathName.toStdString(), commentHeader );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::string RicCreateDepthAdjustedLasFilesImpl::createDepthUnitText( RiaDefines::DepthUnitType depthUnitType )
 {
     return depthUnitType == RiaDefines::DepthUnitType::UNIT_METER
@@ -249,6 +254,9 @@ std::string RicCreateDepthAdjustedLasFilesImpl::createDepthUnitText( RiaDefines:
                : depthUnitType == RiaDefines::DepthUnitType::UNIT_FEET ? "FT" : "";
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::string RicCreateDepthAdjustedLasFilesImpl::createDepthUnitComment( RiaDefines::DepthUnitType depthUnitType )
 {
     return depthUnitType == RiaDefines::DepthUnitType::UNIT_METER
