@@ -1904,7 +1904,7 @@ void RiuMainWindow::slotAnimationSliderMoved( int newValue )
 {
     if ( RiaApplication::instance()->activeReservoirView() && RiaApplication::instance()->activeReservoirView()->viewer() )
     {
-        RiaApplication::instance()->activeReservoirView()->viewer()->setCurrentFrame( newValue );
+        RiaApplication::instance()->activeReservoirView()->viewer()->slotSetCurrentFrame( newValue );
     }
     m_animationToolBar->setCurrentTimeStepIndex( newValue );
 }
