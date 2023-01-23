@@ -581,7 +581,11 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
                     auto* scaleWidget = qobject_cast<QwtScaleWidget*>( childClicked );
                     if ( scaleWidget )
                     {
-                        onAxisSelected( scaleWidget, toggleItemInSelection );
+                        if ( m_plotDefinition && m_plotDefinition->isCurveHighlightSupported() )
+                        {
+                            onAxisSelected( scaleWidget, toggleItemInSelection );
+                        }
+
                         m_clickPosition = QPoint();
                         return true;
                     }

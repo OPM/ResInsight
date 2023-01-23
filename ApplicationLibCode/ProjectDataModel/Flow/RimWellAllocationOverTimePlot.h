@@ -57,6 +57,8 @@ public:
         ACCUMULATED_FLOW_VOLUME_PERCENTAGE,
     };
 
+    bool isCurveHighlightSupported() const override;
+
 public:
     RimWellAllocationOverTimePlot();
     ~RimWellAllocationOverTimePlot() override;
