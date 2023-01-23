@@ -82,6 +82,14 @@ void AppEnum<RimWellAllocationOverTimePlot::FlowValueType>::setUp()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimWellAllocationOverTimePlot::isCurveHighlightSupported() const
+{
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimWellAllocationOverTimePlot::RimWellAllocationOverTimePlot()
 {
     // TODO: Add icon
@@ -348,7 +356,21 @@ void RimWellAllocationOverTimePlot::updateFromWell()
     m_plotWidget->setPlotTitle( descriptionText + "<br>" + valueTypeText + "</br>" );
 
     m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), valueTypeText );
-    m_plotWidget->scheduleReplot();
+
+    if ( m_plotWidget->qwtPlot() )
+    {
+        m_plotWidget->qwtPlot()->replot();
+
+        // Workaround: For some reason, the ordering of items is not updated correctly. Adjusting the z-value of curves
+        // will trigger a replot of items in correct order.
+
+        auto plotItemList = m_plotWidget->qwtPlot()->itemList();
+        for ( QwtPlotItem* plotItem : plotItemList )
+        {
+            auto zValue = plotItem->z() + 1;
+            plotItem->setZ( zValue );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
