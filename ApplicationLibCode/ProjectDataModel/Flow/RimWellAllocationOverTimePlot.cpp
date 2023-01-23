@@ -313,7 +313,7 @@ void RimWellAllocationOverTimePlot::updateFromWell()
     {
         return;
     }
-    m_plotWidget->insertLegend( RiuPlotWidget::Legend::BOTTOM );
+    m_plotWidget->insertLegend( RiuPlotWidget::Legend::RIGHT );
     m_plotWidget->detachItems( RiuPlotWidget::PlotItemType::CURVE );
 
     // Retrieve collection of total fraction data for wells
