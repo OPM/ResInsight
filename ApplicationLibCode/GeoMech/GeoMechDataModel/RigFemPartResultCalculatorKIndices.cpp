@@ -72,35 +72,30 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorKIndices::calculate( int    
     const size_t valCount = femPart->elementNodeResultCount();
     dstFrameData.resize( valCount, std::numeric_limits<float>::infinity() );
 
-    const RigFormationNames* activeFormNames = m_resultCollection->activeFormationNames();
-
     stepCountProgress.incrementProgress();
 
-    if ( activeFormNames )
-    {
-        // Has to be done before the parallel loop because the first call allocates.
-        const RigFemPartGrid* structGrid = femPart->getOrCreateStructGrid();
+    // Has to be done before the parallel loop because the first call allocates.
+    const RigFemPartGrid* structGrid = femPart->getOrCreateStructGrid();
 
-        const int elementCount = femPart->elementCount();
+    const int elementCount = femPart->elementCount();
 
-        // Using max() as std::numeric_limits<size_t>::infinity() returns 0
-        constexpr size_t maxValue = std::numeric_limits<size_t>::max();
+    // Using max() as std::numeric_limits<size_t>::infinity() returns 0
+    constexpr size_t maxValue = std::numeric_limits<size_t>::max();
 
 #pragma omp parallel for
-        for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
-        {
-            RigElementType elmType      = femPart->elementType( elmIdx );
-            int            elmNodeCount = RigFemTypes::elementNodeCount( elmType );
+    for ( int elmIdx = 0; elmIdx < elementCount; ++elmIdx )
+    {
+        RigElementType elmType      = femPart->elementType( elmIdx );
+        int            elmNodeCount = RigFemTypes::elementNodeCount( elmType );
 
-            size_t i, j, k = maxValue;
-            bool   validIndex = structGrid->ijkFromCellIndex( elmIdx, &i, &j, &k );
-            if ( validIndex )
+        size_t i, j, k = maxValue;
+        bool   validIndex = structGrid->ijkFromCellIndex( elmIdx, &i, &j, &k );
+        if ( validIndex )
+        {
+            for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
             {
-                for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
-                {
-                    size_t elmNodResIdx        = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
-                    dstFrameData[elmNodResIdx] = k != maxValue ? static_cast<float>( k ) : HUGE_VALF;
-                }
+                size_t elmNodResIdx        = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
+                dstFrameData[elmNodResIdx] = k != maxValue ? static_cast<float>( k ) : HUGE_VALF;
             }
         }
     }
