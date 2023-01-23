@@ -101,6 +101,8 @@ RimWellLogExtractionCurve::RimWellLogExtractionCurve()
     CAF_PDM_InitFieldNoDefault( &m_wellPath, "CurveWellPath", "Well Name" );
     m_wellPath.uiCapability()->setUiTreeChildrenHidden( true );
 
+    CAF_PDM_InitFieldNoDefault( &m_refWellPath, "ReferenceWellPath", "Reference Well Path" );
+
     CAF_PDM_InitField( &m_simWellName, "SimulationWellName", QString( "" ), "Well Name" );
     CAF_PDM_InitField( &m_branchDetection,
                        "BranchDetection",
@@ -302,6 +304,11 @@ void RimWellLogExtractionCurve::fieldChangedByUi( const caf::PdmFieldHandle* cha
         this->loadDataAndUpdate( true );
     }
     else if ( changedField == &m_wellPath )
+    {
+        if ( m_wellPath == m_refWellPath ) m_refWellPath = nullptr;
+        this->loadDataAndUpdate( true );
+    }
+    else if ( changedField == &m_refWellPath )
     {
         this->loadDataAndUpdate( true );
     }
@@ -968,6 +975,11 @@ QList<caf::PdmOptionItemInfo>
     {
         RimTools::wellPathOptionItems( &options );
     }
+    if ( fieldNeedingOptions == &m_refWellPath )
+    {
+        options.push_back( caf::PdmOptionItemInfo( QString( "None" ), nullptr ) );
+        RimTools::wellPathOptionItemsSubset( { m_wellPath() }, &options );
+    }
     else if ( fieldNeedingOptions == &m_case )
     {
         RimTools::caseOptionItems( &options );
@@ -1015,6 +1027,7 @@ void RimWellLogExtractionCurve::defineUiOrdering( QString uiConfigName, caf::Pdm
         if ( m_trajectoryType() == WELL_PATH )
         {
             curveDataGroup->add( &m_wellPath );
+            curveDataGroup->add( &m_refWellPath );
             RimWellLogCurve::defineUiOrdering( uiConfigName, uiOrdering );
         }
         else
@@ -1031,6 +1044,7 @@ void RimWellLogExtractionCurve::defineUiOrdering( QString uiConfigName, caf::Pdm
     else if ( geomCase )
     {
         curveDataGroup->add( &m_wellPath );
+        curveDataGroup->add( &m_refWellPath );
         RimWellLogCurve::defineUiOrdering( uiConfigName, uiOrdering );
 
         m_geomResultDefinition->uiOrdering( uiConfigName, *curveDataGroup );
