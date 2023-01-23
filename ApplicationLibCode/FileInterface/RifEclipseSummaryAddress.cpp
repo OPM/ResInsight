@@ -20,6 +20,7 @@
 
 #include "RiaStdStringTools.h"
 
+#include "RifEclEclipseSummary.h"
 #include "RiuSummaryQuantityNameInfoProvider.h"
 
 #include <QStringList>
@@ -60,6 +61,7 @@ RifEclipseSummaryAddress::RifEclipseSummaryAddress( SummaryVarCategory          
             break;
         case SUMMARY_WELL:
             m_wellName = identifiers[INPUT_WELL_NAME];
+            m_wellName = identifiers[INPUT_ID];
             break;
         case SUMMARY_WELL_COMPLETION:
             m_wellName = identifiers[INPUT_WELL_NAME];
@@ -245,6 +247,22 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::miscAddress( const std::strin
     RifEclipseSummaryAddress addr;
     addr.m_variableCategory = SUMMARY_MISC;
     addr.m_vectorName       = vectorName;
+    return addr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifEclipseSummaryAddress RifEclipseSummaryAddress ::calculatedWellAddress( const std::string& vectorName,
+                                                                           const std::string& wellName,
+                                                                           int                calculationId )
+{
+    RifEclipseSummaryAddress addr;
+    addr.m_variableCategory = SUMMARY_WELL;
+    addr.m_vectorName       = vectorName;
+    addr.m_wellName         = wellName;
+    addr.m_id               = calculationId;
+
     return addr;
 }
 
