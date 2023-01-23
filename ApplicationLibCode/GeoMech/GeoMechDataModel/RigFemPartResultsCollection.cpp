@@ -67,8 +67,6 @@
 
 #include "RimMainPlotCollection.h"
 #include "RimMudWeightWindowParameters.h"
-#include "RimWellLogPlot.h"
-#include "RimWellLogPlotCollection.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -233,12 +231,6 @@ RigFemPartResultsCollection::~RigFemPartResultsCollection()
 void RigFemPartResultsCollection::setActiveFormationNames( RigFormationNames* activeFormationNames )
 {
     m_activeFormationNamesData = activeFormationNames;
-
-    RimWellLogPlotCollection* plotCollection = RimMainPlotCollection::current()->wellLogPlotCollection();
-    for ( auto wellLogPlot : plotCollection->wellLogPlots() )
-    {
-        wellLogPlot->loadDataAndUpdate();
-    }
 
     this->deleteResult( RigFemResultAddress( RIG_FORMATION_NAMES, "Active Formation Names", "" ) );
 }
@@ -1122,6 +1114,10 @@ const std::vector<float>& RigFemPartResultsCollection::resultValues( const RigFe
     CVF_ASSERT( resVarAddr.isValid() );
 
     RigFemScalarResultFrames* scalarResults = findOrLoadScalarResult( partIndex, resVarAddr );
+
+    static std::vector<float> empty;
+    if ( scalarResults->frameCount( stepIndex ) == 0 ) return empty;
+
     return scalarResults->frameData( stepIndex, frameIndex );
 }
 

@@ -924,6 +924,9 @@ void RimGeoMechCase::updateFormationNamesData()
             rigCaseData->femPartResults()->setActiveFormationNames( nullptr );
         }
 
+        RimWellLogPlotCollection* plotCollection = RimMainPlotCollection::current()->wellLogPlotCollection();
+        plotCollection->loadDataAndUpdateAllPlots();
+
         std::vector<Rim3dView*> views = this->views();
         for ( Rim3dView* view : views )
         {
