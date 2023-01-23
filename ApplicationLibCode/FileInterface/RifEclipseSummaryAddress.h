@@ -137,6 +137,9 @@ public:
     static RifEclipseSummaryAddress groupAddress( const std::string& vectorName, const std::string& groupName );
     static RifEclipseSummaryAddress wellAddress( const std::string& vectorName, const std::string& wellName );
     static RifEclipseSummaryAddress
+        calculatedWellAddress( const std::string& vectorName, const std::string& wellName, int calculationId );
+
+    static RifEclipseSummaryAddress
         wellCompletionAddress( const std::string& vectorName, const std::string& wellName, int i, int j, int k );
     static RifEclipseSummaryAddress
                                     wellLgrAddress( const std::string& vectorName, const std::string& lgrName, const std::string& wellName );
