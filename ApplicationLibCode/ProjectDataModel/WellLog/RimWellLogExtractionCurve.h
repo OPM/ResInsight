@@ -125,6 +125,7 @@ protected:
     caf::PdmPtrField<RimCase*>                  m_case;
     caf::PdmField<caf::AppEnum<TrajectoryType>> m_trajectoryType;
     caf::PdmPtrField<RimWellPath*>              m_wellPath;
+    caf::PdmPtrField<RimWellPath*>              m_refWellPath;
     caf::PdmField<QString>                      m_simWellName;
     caf::PdmField<int>                          m_branchIndex;
     caf::PdmField<bool>                         m_branchDetection;

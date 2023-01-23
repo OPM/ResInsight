@@ -49,7 +49,6 @@ public:
 
     const RigWellLogCurveData* curveData() const;
 
-    void setReferenceWellPath( RimWellPath* refWellPath );
     void updateCurveAppearance() override;
 
     virtual QString wellName() const             = 0;
@@ -67,13 +66,11 @@ public:
     double closestYValueForX( double xValue ) const override;
 
 protected:
-    void                          updateZoomInParentPlot() override;
-    void                          updateLegendsInPlot() override;
-    void                          setOverrideCurveDataPropertyValueRange( double minimumValue, double maximumValue );
-    void                          calculateCurveDataPropertyValueRange();
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+    void updateZoomInParentPlot() override;
+    void updateLegendsInPlot() override;
+    void setOverrideCurveDataPropertyValueRange( double minimumValue, double maximumValue );
+    void calculateCurveDataPropertyValueRange();
 
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     void setPropertyValuesAndDepths( const std::vector<double>& propertyValues,
@@ -112,10 +109,6 @@ protected:
     bool        isVerticalCurve() const;
     RiuPlotAxis depthAxis() const;
     RiuPlotAxis valueAxis() const;
-
-protected:
-    caf::PdmPtrField<RimWellPath*> m_refWellPath;
-    caf::PdmField<bool>            m_useRefWell;
 
 private:
     cvf::ref<RigWellLogCurveData> m_curveData;

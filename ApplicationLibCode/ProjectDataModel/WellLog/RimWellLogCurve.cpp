@@ -57,15 +57,6 @@ RimWellLogCurve::RimWellLogCurve()
     m_curveDataPropertyValueRange =
         std::make_pair( std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity() );
 
-    // Ref well path as Ui element for debug purpose. If not needed: Remove use of caf::PdmPtrField,
-    // and replace with regular non-ui ptr. The remove related code in calculateValueOptions() and
-    // defineUiOrdering().
-    CAF_PDM_InitFieldNoDefault( &m_refWellPath, "ReferenceWellPath", "Reference Well Path" );
-    m_refWellPath.uiCapability()->setUiHidden( !RiaApplication::enableDevelopmentFeatures() );
-    m_refWellPath.uiCapability()->setUiReadOnly( true );
-
-    CAF_PDM_InitField( &m_useRefWell, "UseReferenceWellPath", true, "Use Reference Well Path" );
-
     setDeletable( true );
 }
 
@@ -232,24 +223,6 @@ void RimWellLogCurve::setPropertyValuesWithMdAndTVD( const std::vector<double>& 
 const RigWellLogCurveData* RimWellLogCurve::curveData() const
 {
     return m_curveData.p();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellLogCurve::setReferenceWellPath( RimWellPath* refWellPath )
-{
-    m_refWellPath = refWellPath;
-
-    if ( m_refWellPath == nullptr )
-    {
-        m_useRefWell.uiCapability()->setUiHidden( true );
-        m_useRefWell = true;
-    }
-    else
-    {
-        m_useRefWell.uiCapability()->setUiHidden( false );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -442,37 +415,6 @@ void RimWellLogCurve::calculateCurveDataPropertyValueRange()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimWellLogCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
-{
-    auto options = RimStackablePlotCurve::calculateValueOptions( fieldNeedingOptions );
-    if ( fieldNeedingOptions == &m_refWellPath )
-    {
-        options.push_back( caf::PdmOptionItemInfo( QString( "None" ), nullptr ) );
-        RimTools::wellPathOptionItems( &options );
-    }
-    return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimWellLogCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
-{
-    RimStackablePlotCurve::defineUiOrdering( uiConfigName, uiOrdering );
-
-    auto group = uiOrdering.findGroup( "DataSource" );
-    if ( group != nullptr )
-    {
-        group->add( &m_refWellPath );
-        group->add( &m_useRefWell );
-    }
-
-    uiOrdering.skipRemainingFields( true );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimWellLogCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                         const QVariant&            oldValue,
                                         const QVariant&            newValue )
@@ -490,12 +432,6 @@ void RimWellLogCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     if ( changedField == &m_isStacked )
     {
         loadDataAndUpdate( true );
-    }
-
-    if ( changedField == &m_useRefWell )
-    {
-        loadDataAndUpdate( true );
-        updateConnectedEditors();
     }
 }
 
