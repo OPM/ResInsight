@@ -25,6 +25,20 @@
 ///
 ///
 //==================================================================================================
+class RimSummaryCalculationAddress
+{
+public:
+    RimSummaryCalculationAddress( RifEclipseSummaryAddress summaryAddress )
+        : m_summaryAddress( summaryAddress )
+    {
+    }
+
+    RifEclipseSummaryAddress address() const { return m_summaryAddress; }
+
+private:
+    RifEclipseSummaryAddress m_summaryAddress;
+};
+
 class RimSummaryCalculation : public RimUserDefinedCalculation
 {
     CAF_PDM_HEADER_INIT;
@@ -32,10 +46,34 @@ class RimSummaryCalculation : public RimUserDefinedCalculation
 public:
     RimSummaryCalculation();
 
+    std::vector<RimSummaryCalculationAddress> allAddressesForSummaryCase( RimSummaryCase* summaryCase ) const;
+
+    std::vector<double> values( RimSummaryCase* summaryCase, const RimSummaryCalculationAddress& addr );
+    std::vector<time_t> timeSteps( RimSummaryCase* summaryCase, const RimSummaryCalculationAddress& addr );
+
     bool calculate() override;
     void updateDependentObjects() override;
     void removeDependentObjects() override;
 
+    QString buildCalculationName() const override;
+
 protected:
     RimSummaryCalculationVariable* createVariable() override;
+
+    static std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
+        calculateResult( const QString&                                     expression,
+                         const std::vector<RimSummaryCalculationVariable*>& variables,
+                         RimSummaryCase*                                    summaryCase );
+
+    std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
+        calculateWithSubstitutions( RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& addr );
+
+    static void substituteVariables( std::vector<RimSummaryCalculationVariable*>& vars,
+                                     const RifEclipseSummaryAddress&              address );
+
+    std::vector<RimSummaryCalculationAddress>
+        allAddressesForCategory( RifEclipseSummaryAddress::SummaryVarCategory category,
+                                 const std::set<RifEclipseSummaryAddress>&    allResultAddresses ) const;
+
+    std::optional<std::vector<RimSummaryCalculationVariable*>> getVariables( bool showError = true ) const;
 };

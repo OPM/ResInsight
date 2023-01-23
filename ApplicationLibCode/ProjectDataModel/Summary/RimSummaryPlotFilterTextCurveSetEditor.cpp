@@ -30,6 +30,7 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 
+#include "RimCalculatedSummaryCase.h"
 #include "RimEclipseCase.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
@@ -401,7 +402,10 @@ std::vector<SummarySource*> RimSummaryPlotFilterTextCurveSetEditor::selectedSumm
     }
 
     // Always add the summary case for calculated curves as this case is not displayed in UI
-    sources.push_back( RimProject::current()->calculationCollection()->calculationSummaryCase() );
+    std::vector<RimCalculatedSummaryCase*> calculatedSummaryCases =
+        RimProject::current()->calculationCollection()->calculationSummaryCases();
+    for ( auto c : calculatedSummaryCases )
+        sources.push_back( c );
 
     return sources;
 }

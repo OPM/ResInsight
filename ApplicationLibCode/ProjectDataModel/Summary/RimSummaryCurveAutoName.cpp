@@ -214,7 +214,7 @@ QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress&
         {
             text = summaryAddress.vectorName();
         }
-        else if ( summaryAddress.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
+        else if ( summaryAddress.isCalculated() )
         {
             // Need to add case name for calculated summary
             RimProject*                      proj     = RimProject::current();

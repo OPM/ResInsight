@@ -26,10 +26,12 @@
 
 #include "RifEclipseSummaryAddress.h"
 
+#include "RimCalculatedSummaryCase.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryAddressCollection.h"
+#include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCaseCollection.h"
 
 #include "cafPdmFieldScriptingCapability.h"
@@ -244,7 +246,21 @@ void RimSummaryCase::buildChildNodes()
     RifSummaryReaderInterface* reader = summaryReader();
     if ( !reader ) return;
 
-    m_dataVectorFolders->updateFolderStructure( reader->allResultAddresses(), m_caseId );
+    auto addresses = reader->allResultAddresses();
+
+    RimSummaryCalculationCollection* calcColl       = RimProject::current()->calculationCollection();
+    RimCalculatedSummaryCase*        calculatedCase = calcColl->calculationSummaryCase( this );
+    if ( calculatedCase )
+    {
+        RifSummaryReaderInterface* reader = calculatedCase->summaryReader();
+        if ( reader )
+        {
+            const std::set<RifEclipseSummaryAddress>& addrs = reader->allResultAddresses();
+            addresses.insert( addrs.begin(), addrs.end() );
+        }
+    }
+
+    m_dataVectorFolders->updateFolderStructure( addresses, m_caseId );
 }
 
 //--------------------------------------------------------------------------------------------------

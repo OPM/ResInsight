@@ -180,7 +180,6 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
     auto* lgrwell       = getOrCreateSubfolder( CollectionContentType::WELL_LGR );
     auto* lgrcompletion = getOrCreateSubfolder( CollectionContentType::WELL_COMPLETION_LGR );
     auto* lgrblock      = getOrCreateSubfolder( CollectionContentType::BLOCK_LGR );
-    auto* calculated    = getOrCreateSubfolder( CollectionContentType::CALCULATED );
     auto* imported      = getOrCreateSubfolder( CollectionContentType::IMPORTED );
 
     for ( const auto& address : addresses )
@@ -299,14 +298,6 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
                                           address,
                                           caseId,
                                           ensembleId );
-                break;
-
-            case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_CALCULATED:
-                calculated->addToSubfolder( QString::fromStdString( address.itemUiText() ),
-                                            CollectionContentType::CALCULATED,
-                                            address,
-                                            caseId,
-                                            ensembleId );
                 break;
 
             default:

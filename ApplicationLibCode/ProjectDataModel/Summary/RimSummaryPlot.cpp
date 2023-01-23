@@ -50,6 +50,7 @@
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryAddressCollection.h"
+#include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
@@ -636,8 +637,11 @@ void RimSummaryPlot::copyAxisPropertiesFromOther( const RimSummaryPlot& sourceSu
     {
         QString data = ap->writeObjectToXmlString();
 
-        axisPropertiesForPlotAxis( ap->plotAxisType() )
-            ->readObjectFromXmlString( data, caf::PdmDefaultObjectFactory::instance() );
+        auto axisProperty = axisPropertiesForPlotAxis( ap->plotAxisType() );
+        if ( axisProperty )
+        {
+            axisProperty->readObjectFromXmlString( data, caf::PdmDefaultObjectFactory::instance() );
+        }
     }
 }
 
@@ -2252,6 +2256,22 @@ std::pair<int, std::vector<RimSummaryCurve*>> RimSummaryPlot::handleSummaryAddre
         auto summaryCase = RiaSummaryTools::summaryCaseById( summaryAddr->caseId() );
         if ( summaryCase )
         {
+            // Handle calculated addresses
+            if ( summaryAddr->address().isCalculated() )
+            {
+                RimSummaryCalculationCollection* calcColl       = RimProject::current()->calculationCollection();
+                RimSummaryCase*                  calculatedCase = calcColl->calculationSummaryCase( summaryCase );
+                if ( calculatedCase )
+                {
+                    RifSummaryReaderInterface* reader = calculatedCase->summaryReader();
+                    if ( reader )
+                    {
+                        curves.push_back( addNewCurveY( summaryAddr->address(), calculatedCase ) );
+                        newCurves++;
+                    }
+                }
+            }
+
             for ( const auto& droppedAddress : newCurveAddresses )
             {
                 if ( !summaryCase->summaryReader() || !summaryCase->summaryReader()->hasAddress( droppedAddress ) )
@@ -2610,7 +2630,7 @@ void RimSummaryPlot::updateNameHelperWithCurveData( RimSummaryPlotNameHelper* na
     {
         for ( RimSummaryCurve* curve : m_summaryCurveCollection->curves() )
         {
-            if ( curve->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
+            if ( curve->summaryAddressY().isCalculated() )
             {
                 RiaSummaryTools::getSummaryCasesAndAddressesForCalculation( curve->summaryAddressY().id(),
                                                                             sumCases,

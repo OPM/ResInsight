@@ -116,27 +116,6 @@ void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
     {
         for ( RimSummaryPlot* summaryPlot : multiPlot->summaryPlots() )
         {
-            // Update summary curves on calculated data
-            std::vector<RimSummaryCurve*> summaryCurves = summaryPlot->summaryCurves();
-            for ( RimSummaryCurve* summaryCurve : summaryCurves )
-            {
-                RifEclipseSummaryAddress summaryAddressY = summaryCurve->summaryAddressY();
-                if ( summaryAddressY.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED &&
-                     ids.find( summaryAddressY.id() ) != ids.end() )
-                {
-                    if ( calcColl )
-                    {
-                        RimUserDefinedCalculation* calculation = calcColl->findCalculationById( summaryAddressY.id() );
-                        QString                    description = calculation->description();
-
-                        RifEclipseSummaryAddress updatedAdr =
-                            RifEclipseSummaryAddress::calculatedAddress( description.toStdString(), calculation->id() );
-                        summaryCurve->setSummaryAddressYAndApplyInterpolation( updatedAdr );
-                        summaryCurve->loadDataAndUpdate( true );
-                    }
-                }
-            }
-
             summaryPlot->loadDataAndUpdate();
         }
         multiPlot->updatePlotTitles();
@@ -145,43 +124,6 @@ void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
     RimSummaryCrossPlotCollection* summaryCrossPlotColl = RiaSummaryTools::summaryCrossPlotCollection();
     for ( RimSummaryPlot* summaryPlot : summaryCrossPlotColl->plots() )
     {
-        // Update summary curves on calculated data
-        std::vector<RimSummaryCurve*> summaryCurves = summaryPlot->summaryCurves();
-        for ( RimSummaryCurve* summaryCurve : summaryCurves )
-        {
-            RifEclipseSummaryAddress summaryAddressX = summaryCurve->summaryAddressX();
-            if ( summaryAddressX.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED &&
-                 ids.find( summaryAddressX.id() ) != ids.end() )
-            {
-                if ( calcColl )
-                {
-                    RimUserDefinedCalculation* calculation = calcColl->findCalculationById( summaryAddressX.id() );
-                    QString                    description = calculation->description();
-
-                    RifEclipseSummaryAddress updatedAdr =
-                        RifEclipseSummaryAddress::calculatedAddress( description.toStdString(), calculation->id() );
-                    summaryCurve->setSummaryAddressX( updatedAdr );
-                    summaryCurve->loadDataAndUpdate( true );
-                }
-            }
-
-            RifEclipseSummaryAddress summaryAddressY = summaryCurve->summaryAddressY();
-            if ( summaryAddressY.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED &&
-                 ids.find( summaryAddressY.id() ) != ids.end() )
-            {
-                if ( calcColl )
-                {
-                    RimUserDefinedCalculation* calculation = calcColl->findCalculationById( summaryAddressX.id() );
-                    QString                    description = calculation->description();
-
-                    RifEclipseSummaryAddress updatedAdr =
-                        RifEclipseSummaryAddress::calculatedAddress( description.toStdString(), calculation->id() );
-                    summaryCurve->setSummaryAddressYAndApplyInterpolation( updatedAdr );
-                    summaryCurve->loadDataAndUpdate( true );
-                }
-            }
-        }
-
         summaryPlot->loadDataAndUpdate();
     }
 }

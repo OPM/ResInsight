@@ -922,11 +922,11 @@ bool RicSummaryPlotEditorUi::isObservedData( RimSummaryCase* sumCase ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCase* RicSummaryPlotEditorUi::calculatedSummaryCase()
+std::vector<RimCalculatedSummaryCase*> RicSummaryPlotEditorUi::calculatedSummaryCases()
 {
     RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
 
-    return calcColl->calculationSummaryCase();
+    return calcColl->calculationSummaryCases();
 }
 
 //--------------------------------------------------------------------------------------------------

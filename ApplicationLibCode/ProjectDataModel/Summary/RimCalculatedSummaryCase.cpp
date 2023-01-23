@@ -32,6 +32,8 @@ RimCalculatedSummaryCase::RimCalculatedSummaryCase()
 {
     CAF_PDM_InitObject( "Calculated", ":/SummaryCase.svg" );
 
+    CAF_PDM_InitFieldNoDefault( &m_summaryCase, "SummaryCase", "Summary Case" );
+
     m_calculatedCurveReader = nullptr;
     m_displayName           = RiaDefines::summaryCalculated();
 }
@@ -56,14 +58,14 @@ QString RimCalculatedSummaryCase::caseName() const
 //--------------------------------------------------------------------------------------------------
 void RimCalculatedSummaryCase::createSummaryReaderInterface()
 {
-    if ( !m_calculatedCurveReader )
+    if ( !m_calculatedCurveReader && m_summaryCase )
     {
         RimSummaryCalculationCollection* calculationCollection = nullptr;
         this->firstAncestorOrThisOfTypeAsserted( calculationCollection );
 
-        m_calculatedCurveReader.reset( new RifCalculatedSummaryCurveReader( calculationCollection ) );
+        m_calculatedCurveReader.reset( new RifCalculatedSummaryCurveReader( calculationCollection, m_summaryCase ) );
 
-        m_calculatedCurveReader->buildMetaData();
+        m_calculatedCurveReader->buildMetaData( m_summaryCase );
     }
 }
 
@@ -84,5 +86,21 @@ void RimCalculatedSummaryCase::buildMetaData()
 {
     if ( !m_calculatedCurveReader ) createSummaryReaderInterface();
 
-    m_calculatedCurveReader->buildMetaData();
+    m_calculatedCurveReader->buildMetaData( m_summaryCase );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCase* RimCalculatedSummaryCase::summaryCase() const
+{
+    return m_summaryCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCalculatedSummaryCase::setSummaryCase( RimSummaryCase* summaryCase )
+{
+    m_summaryCase = summaryCase;
 }
