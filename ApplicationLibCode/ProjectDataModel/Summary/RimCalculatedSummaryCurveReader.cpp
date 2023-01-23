@@ -18,6 +18,7 @@
 
 #include "RimCalculatedSummaryCurveReader.h"
 
+#include "RifEclipseSummaryAddress.h"
 #include "RimSummaryCalculation.h"
 #include "RimSummaryCalculationCollection.h"
 
@@ -75,6 +76,8 @@ std::string RifCalculatedSummaryCurveReader::unitName( const RifEclipseSummaryAd
     return "";
 }
 
+#include "RiaLogging.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -84,8 +87,14 @@ void RifCalculatedSummaryCurveReader::buildMetaData()
 
     for ( RimUserDefinedCalculation* calc : m_calculationCollection->calculations() )
     {
-        m_allResultAddresses.insert(
-            RifEclipseSummaryAddress::calculatedAddress( calc->description().toStdString(), calc->id() ) );
+        auto allAddresses = calc->allAddresses();
+        for ( auto addr : allAddresses )
+        {
+            RimSummaryCalculationAddress* calculationAddress = dynamic_cast<RimSummaryCalculationAddress*>( addr );
+            RiaLogging::info( QString( "Adding result for %1" ).arg( calculationAddress->address().uiText().c_str() ) );
+
+            m_allResultAddresses.insert( calculationAddress->address() );
+        }
     }
 }
 
@@ -95,7 +104,10 @@ void RifCalculatedSummaryCurveReader::buildMetaData()
 RimSummaryCalculation*
     RifCalculatedSummaryCurveReader::findCalculationByName( const RifEclipseSummaryAddress& resultAddress ) const
 {
-    if ( m_calculationCollection && resultAddress.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
+    if ( !m_calculationCollection ) return nullptr;
+
+    if ( resultAddress.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED ||
+         ( resultAddress.category() == RifEclipseSummaryAddress::SUMMARY_WELL && resultAddress.id() != -1 ) )
     {
         return dynamic_cast<RimSummaryCalculation*>( m_calculationCollection->findCalculationById( resultAddress.id() ) );
     }
