@@ -49,7 +49,6 @@ public:
 
     const RigWellLogCurveData* curveData() const;
 
-    void setReferenceWellPath( RimWellPath* refWellPath );
     void updateCurveAppearance() override;
 
     virtual QString wellName() const             = 0;
@@ -115,7 +114,6 @@ protected:
 
 protected:
     caf::PdmPtrField<RimWellPath*> m_refWellPath;
-    caf::PdmField<bool>            m_useRefWell;
 
 private:
     cvf::ref<RigWellLogCurveData> m_curveData;

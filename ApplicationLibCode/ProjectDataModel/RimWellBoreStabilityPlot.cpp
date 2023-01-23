@@ -27,11 +27,9 @@
 #include "RimGeoMechCase.h"
 #include "RimTools.h"
 #include "RimWbsParameters.h"
-#include "RimWellLogCurve.h"
 #include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogPlotNameConfig.h"
-#include "RimWellLogTrack.h"
 
 #include "cafPdmBase.h"
 #include "cafPdmFieldScriptingCapability.h"
@@ -50,7 +48,7 @@ RimWellBoreStabilityPlot::RimWellBoreStabilityPlot()
     CAF_PDM_InitScriptableObject( "Well Bore Stability Plot",
                                   ":/WellBoreStability16x16.png",
                                   "",
-                                  "A GeoMechanical Well Bore Stabilit Plot" );
+                                  "A GeoMechanical Well Bore Stability Plot" );
 
     CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_wbsParameters,
                                                            "WbsParameters",
@@ -221,6 +219,5 @@ void RimWellBoreStabilityPlot::applyDataSource()
     m_wbsParameters->setTimeStep( m_commonDataSource->timeStepToApply() );
     m_wbsParameters->setFrameIndex( -1 );
 
-    this->updateReferenceWellPathInCurves();
     this->updateConnectedEditors();
 }

@@ -549,7 +549,7 @@ RimWellLogExtractionCurve::WellLogExtractionCurveData
     }
 
     // Reference well adjustment does not support simulated wells
-    if ( m_trajectoryType == WELL_PATH && wellExtractor.notNull() && refWellExtractor.notNull() && m_useRefWell )
+    if ( m_trajectoryType == WELL_PATH && wellExtractor.notNull() && refWellExtractor.notNull() )
     {
         RigEclipseResultAddress indexKResAdr( RiaDefines::ResultCatType::STATIC_NATIVE,
                                               RiaResultNames::indexKResultName() );
@@ -639,7 +639,7 @@ RimWellLogExtractionCurve::WellLogExtractionCurveData
     const std::string fieldName            = m_geomResultDefinition->resultAddress().fieldName;
     const bool        isNeglectedFieldName = fieldName == RiaResultNames::wbsAzimuthResult().toStdString() ||
                                       fieldName == RiaResultNames::wbsInclinationResult().toStdString();
-    if ( !isNeglectedFieldName && wellExtractor.notNull() && refWellExtractor.notNull() && m_useRefWell )
+    if ( !isNeglectedFieldName && wellExtractor.notNull() && refWellExtractor.notNull() )
     {
         RigFemResultAddress indexKResAdr( RigFemResultPosEnum::RIG_ELEMENT_NODAL, "INDEX", "INDEX_K" );
 
@@ -1171,7 +1171,7 @@ QString RimWellLogExtractionCurve::createCurveAutoName()
         }
     }
 
-    if ( m_useRefWell && m_refWellPath && !m_refWellPath->name().isEmpty() )
+    if ( m_refWellPath() != nullptr && !m_refWellPath->name().isEmpty() )
     {
         generatedCurveName.push_back( QString( "Ref. Well: %1" ).arg( m_refWellPath->name() ) );
     }
