@@ -155,6 +155,7 @@ RimWellLogExtractionCurve::~RimWellLogExtractionCurve()
 void RimWellLogExtractionCurve::setWellPath( RimWellPath* wellPath )
 {
     m_wellPath = wellPath;
+    if ( m_wellPath == m_refWellPath ) m_refWellPath = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
