@@ -28,6 +28,15 @@
 
 class RimUserDefinedCalculationVariable;
 
+class RimUserDefinedCalculationAddress
+{
+public:
+    RimUserDefinedCalculationAddress() = default;
+
+    // TODO: only here to make the class polymorphic..
+    virtual std::string name() const = 0;
+};
+
 //==================================================================================================
 ///
 ///
@@ -49,7 +58,10 @@ public:
 
     caf::PdmChildArrayFieldHandle* variables();
 
-    std::vector<RimUserDefinedCalculationVariable*> allVariables() const;
+    std::vector<RimUserDefinedCalculationVariable*>        allVariables() const;
+    virtual std::vector<RimUserDefinedCalculationAddress*> allAddresses() const = 0;
+
+    const std::vector<double>& values( const RimUserDefinedCalculationAddress& addr ) const;
 
     const std::vector<double>& values() const;
     const std::vector<time_t>& timeSteps() const;

@@ -18,6 +18,7 @@
 
 #include "RimSummaryCalculation.h"
 
+#include "RifEclipseSummaryAddress.h"
 #include "expressionparser/ExpressionParser.h"
 
 #include "RiaCurveMerger.h"
@@ -198,4 +199,22 @@ void RimSummaryCalculation::updateDependentObjects()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCalculation::removeDependentObjects()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimUserDefinedCalculationAddress*> RimSummaryCalculation::allAddresses() const
+{
+    std::vector<RimUserDefinedCalculationAddress*> addresses;
+
+    std::vector<std::string> wells = { "B1-H", "B2-H", "B3-H" };
+
+    for ( auto well : wells )
+    {
+        addresses.push_back( new RimSummaryCalculationAddress(
+            RifEclipseSummaryAddress::calculatedWellAddress( description().toStdString(), well, m_id ) ) );
+    }
+
+    return addresses;
 }

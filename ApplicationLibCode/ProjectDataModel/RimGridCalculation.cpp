@@ -609,3 +609,12 @@ void RimGridCalculation::onChildrenUpdated( caf::PdmChildArrayFieldHandle*      
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimUserDefinedCalculationAddress*> RimGridCalculation::allAddresses() const
+{
+    std::vector<RimUserDefinedCalculationAddress*> addresses;
+    return addresses;
+}

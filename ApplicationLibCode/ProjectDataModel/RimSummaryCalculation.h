@@ -25,12 +25,30 @@
 ///
 ///
 //==================================================================================================
+class RimSummaryCalculationAddress : public RimUserDefinedCalculationAddress
+{
+public:
+    RimSummaryCalculationAddress( RifEclipseSummaryAddress summaryAddress )
+        : m_summaryAddress( summaryAddress )
+    {
+    }
+
+    std::string name() const override { return "Summary calculation"; }
+
+    RifEclipseSummaryAddress address() const { return m_summaryAddress; }
+
+private:
+    RifEclipseSummaryAddress m_summaryAddress;
+};
+
 class RimSummaryCalculation : public RimUserDefinedCalculation
 {
     CAF_PDM_HEADER_INIT;
 
 public:
     RimSummaryCalculation();
+
+    std::vector<RimUserDefinedCalculationAddress*> allAddresses() const override;
 
     bool calculate() override;
     void updateDependentObjects() override;
