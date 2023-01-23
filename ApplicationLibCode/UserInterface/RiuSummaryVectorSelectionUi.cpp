@@ -115,7 +115,8 @@ RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
               { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME ) } } },
           { RifEclipseSummaryAddress::SUMMARY_WELL,
             { { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_WELL_NAME ) },
-              { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME ) } } },
+              { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME ) },
+              { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_ID ) } } },
           { RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION,
             { { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_WELL_NAME ) },
               { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_CELL_IJK ) },
@@ -199,6 +200,9 @@ RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL][1]->pdmField(),
                                 "WellVectors",
                                 "Well Vectors" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL][2]->pdmField(),
+                                "CalculationIds",
+                                "Calculation Ids" );
 
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION][0]->pdmField(),
                                 "WellCompletionWellName",
@@ -695,7 +699,8 @@ void RiuSummaryVectorSelectionUi::setSelectedCurveDefinitions( const std::vector
                 avalue = avalue + QString( OBSERVED_DATA_AVALUE_POSTFIX );
             }
 
-            if ( isVectorField && summaryAddress.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
+            if ( isVectorField && ( summaryAddress.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED ||
+                                    summaryAddress.category() == RifEclipseSummaryAddress::SUMMARY_WELL ) )
             {
                 // Append calculation id to input vector name calculated data.
                 avalue = avalue + QString( ":%1" ).arg( summaryAddress.id() );
@@ -731,7 +736,8 @@ std::set<RifEclipseSummaryAddress> RiuSummaryVectorSelectionUi::findPossibleSumm
 {
     std::set<RifEclipseSummaryAddress> addressSet;
 
-    if ( m_currentSummaryCategory == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
+    if ( m_currentSummaryCategory == RifEclipseSummaryAddress::SUMMARY_CALCULATED ||
+         m_currentSummaryCategory == RifEclipseSummaryAddress::SUMMARY_WELL )
     {
         RimSummaryCase* calcSumCase = calculatedSummaryCase();
 
@@ -920,6 +926,7 @@ void RiuSummaryVectorSelectionUi::defineUiOrdering( QString uiConfigName, caf::P
         {
             caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( RiaDefines::summaryWell() + "s" );
             myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL][0]->pdmField() );
+            //            myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL][2]->pdmField() );
         }
 
         summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL][1]->pdmField();
@@ -1271,7 +1278,7 @@ void RiuSummaryVectorSelectionUi::buildAddressListForCategoryRecursively(
         auto idText = identifierText;
 
         // Calculated results have a id appended. E.g. "Calculation_3 ( NORNE_ATW2013, WOPR:B-4H ):3"
-        if ( category == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
+        if ( category == RifEclipseSummaryAddress::SUMMARY_CALCULATED || category == RifEclipseSummaryAddress::SUMMARY_WELL )
         {
             // Extract the calculation id
             QStringList tokens        = idText.split( ":" );
