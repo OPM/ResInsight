@@ -56,6 +56,8 @@ public:
 
     std::vector<RimEclipseCase*> inputCases() const;
 
+    std::vector<RimUserDefinedCalculationAddress*> allAddresses() const override;
+
 protected:
     void onChildrenUpdated( caf::PdmChildArrayFieldHandle*      childArray,
                             std::vector<caf::PdmObjectHandle*>& updatedObjects ) override;
