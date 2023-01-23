@@ -444,7 +444,7 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
     {
         curveData = extractEclipseData( eclipseCase, isUsingPseudoLength );
     }
-    else if ( geomCase )
+    else if ( geomCase && geomCase->geoMechData() )
     {
         curveData = extractGeomData( geomCase, isUsingPseudoLength, performDataSmoothing, smoothingThreshold );
     }
