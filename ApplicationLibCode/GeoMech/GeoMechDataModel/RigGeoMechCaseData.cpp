@@ -121,13 +121,15 @@ bool RigGeoMechCaseData::readTimeSteps( std::string* errorMessage, std::vector<s
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigGeoMechCaseData::readFemParts( std::string* errorMessage, const std::vector<size_t>& timeStepFilter )
+bool RigGeoMechCaseData::readFemParts( std::string*               errorMessage,
+                                       const std::vector<size_t>& timeStepFilter,
+                                       bool                       readOnlyLastFrame )
 {
     CVF_ASSERT( errorMessage );
 #ifdef USE_ODB_API
     if ( m_readerInterface.notNull() && m_readerInterface->isOpen() )
     {
-        m_readerInterface->setTimeStepFilter( timeStepFilter );
+        m_readerInterface->setTimeStepFilter( timeStepFilter, readOnlyLastFrame );
         m_femParts = new RigFemPartCollection();
 
         caf::ProgressInfo progress( 10, "" ); // Here because the next call uses progress

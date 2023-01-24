@@ -26,9 +26,11 @@
 
 #include "RimEclipseResultCase.h"
 #include "RimGeoMechCase.h"
+#include "RimProject.h"
 #include "RimReloadCaseTools.h"
 #include "RimReservoirCellResultsStorage.h"
 
+#include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
@@ -84,8 +86,22 @@ RimTimeStepFilter::RimTimeStepFilter()
     m_filteredTimeStepsUi.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
     m_filteredTimeStepsUi.xmlCapability()->disableIO();
 
+    CAF_PDM_InitField( &m_readOnlyLastFrame, "OnlyLastFrame", false, "Load Only Last Frame Of Each Time Step" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_readOnlyLastFrame );
+
     CAF_PDM_InitFieldNoDefault( &m_applyReloadOfCase, "ApplyReloadOfCase", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_applyReloadOfCase );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimTimeStepFilter::initAfterRead()
+{
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2023.1" ) )
+    {
+        m_readOnlyLastFrame = true;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -272,19 +288,18 @@ void RimTimeStepFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
     RimGeoMechCase*       rimGeoMechCase       = parentGeoMechCase();
     if ( changedField == &m_applyReloadOfCase )
     {
-        if ( updateFilteredTimeStepsFromUi() )
-        {
-            if ( rimEclipseResultCase )
-            {
-                RimReloadCaseTools::reloadAllEclipseGridData( rimEclipseResultCase );
-            }
-            else if ( rimGeoMechCase )
-            {
-                rimGeoMechCase->reloadDataAndUpdate();
-            }
+        updateFilteredTimeStepsFromUi();
 
-            return;
+        if ( rimEclipseResultCase )
+        {
+            RimReloadCaseTools::reloadAllEclipseGridData( rimEclipseResultCase );
         }
+        else if ( rimGeoMechCase )
+        {
+            rimGeoMechCase->reloadDataAndUpdate();
+        }
+
+        return;
     }
 
     if ( changedField == &m_filterType || changedField == &m_firstTimeStep || changedField == &m_lastTimeStep ||
@@ -448,6 +463,8 @@ void RimTimeStepFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     else if ( geoMechCase )
     {
         caseLoaded = geoMechCase->geoMechData() != nullptr;
+
+        uiOrdering.add( &m_readOnlyLastFrame );
     }
 
     if ( caseLoaded )
@@ -458,4 +475,20 @@ void RimTimeStepFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     updateFieldVisibility();
 
     uiOrdering.skipRemainingFields();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimTimeStepFilter::setReadOnlyLastFrame( bool onlyLast )
+{
+    m_readOnlyLastFrame = onlyLast;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimTimeStepFilter::readOnlyLastFrame() const
+{
+    return m_readOnlyLastFrame;
 }

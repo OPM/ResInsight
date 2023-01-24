@@ -73,10 +73,14 @@ public:
                                             int                               frameIndex,
                                             std::vector<std::vector<float>*>* resultValues ) = 0;
 
-    void setTimeStepFilter( const std::vector<size_t>& fileTimeStepIndices );
+    void setTimeStepFilter( const std::vector<size_t>& fileTimeStepIndices, bool readOnlyLastFrame );
     bool isTimeStepIncludedByFilter( int timeStepIndex ) const;
     int  timeStepIndexOnFile( int timeStepIndex ) const;
+    int  frameIndexOnFile( int frameIndex ) const;
+
+    bool shouldReadOnlyLastFrame() const;
 
 private:
     std::vector<int> m_fileTimeStepIndices;
+    bool             m_readOnlyLastFrame;
 };

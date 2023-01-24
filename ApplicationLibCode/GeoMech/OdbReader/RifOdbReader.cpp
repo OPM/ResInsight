@@ -476,11 +476,19 @@ std::vector<double> RifOdbReader::frameTimes( int stepIndex ) const
 
     std::vector<double> frameValues;
 
-    int numFrames = stepFrames.size();
-    for ( int f = 0; f < numFrames; f++ )
+    if ( shouldReadOnlyLastFrame() )
     {
-        odb_Frame frame = stepFrames.constGet( f );
+        odb_Frame frame = stepFrames.constGet( stepFrames.size() - 1 );
         frameValues.push_back( frame.frameValue() );
+    }
+    else
+    {
+        int numFrames = stepFrames.size();
+        for ( int f = 0; f < numFrames; f++ )
+        {
+            odb_Frame frame = stepFrames.constGet( f );
+            frameValues.push_back( frame.frameValue() );
+        }
     }
 
     return frameValues;
@@ -491,6 +499,8 @@ std::vector<double> RifOdbReader::frameTimes( int stepIndex ) const
 //--------------------------------------------------------------------------------------------------
 int RifOdbReader::frameCount( int stepIndex ) const
 {
+    if ( shouldReadOnlyLastFrame() ) return 1;
+
     return frameTimes( stepIndex ).size();
 }
 
@@ -597,12 +607,16 @@ const odb_Frame& RifOdbReader::stepFrame( int stepIndex, int frameIndex ) const
     const odb_StepRepository& stepRepository = m_odb->steps();
     const odb_StepList&       stepList       = stepRepository.stepList();
 
-    int stepFileIndex = this->timeStepIndexOnFile( stepIndex );
+    int stepFileIndex  = this->timeStepIndexOnFile( stepIndex );
+    int fileFrameIndex = this->frameIndexOnFile( frameIndex );
 
     const odb_Step&          step       = stepList.ConstGet( stepFileIndex );
     const odb_SequenceFrame& stepFrames = step.frames();
 
-    return stepFrames.constGet( frameIndex );
+    // should we only load the last frame (frameIndex < 0)?
+    if ( fileFrameIndex < 0 ) fileFrameIndex = stepFrames.size() - 1;
+
+    return stepFrames.constGet( fileFrameIndex );
 }
 
 //--------------------------------------------------------------------------------------------------
