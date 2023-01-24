@@ -86,8 +86,8 @@ RimTimeStepFilter::RimTimeStepFilter()
     m_filteredTimeStepsUi.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
     m_filteredTimeStepsUi.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &m_onlyLastFrame, "OnlyLastFrame", false, "Load Only Last Frame Of Each Time Step" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_onlyLastFrame );
+    CAF_PDM_InitField( &m_readOnlyLastFrame, "OnlyLastFrame", false, "Load Only Last Frame Of Each Time Step" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_readOnlyLastFrame );
 
     CAF_PDM_InitFieldNoDefault( &m_applyReloadOfCase, "ApplyReloadOfCase", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_applyReloadOfCase );
@@ -100,7 +100,7 @@ void RimTimeStepFilter::initAfterRead()
 {
     if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2023.1" ) )
     {
-        m_onlyLastFrame = true;
+        m_readOnlyLastFrame = true;
     }
 }
 
@@ -464,7 +464,7 @@ void RimTimeStepFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     {
         caseLoaded = geoMechCase->geoMechData() != nullptr;
 
-        uiOrdering.add( &m_onlyLastFrame );
+        uiOrdering.add( &m_readOnlyLastFrame );
     }
 
     if ( caseLoaded )
@@ -482,7 +482,7 @@ void RimTimeStepFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
 //--------------------------------------------------------------------------------------------------
 void RimTimeStepFilter::setReadOnlyLastFrame( bool onlyLast )
 {
-    m_onlyLastFrame = onlyLast;
+    m_readOnlyLastFrame = onlyLast;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -490,5 +490,5 @@ void RimTimeStepFilter::setReadOnlyLastFrame( bool onlyLast )
 //--------------------------------------------------------------------------------------------------
 bool RimTimeStepFilter::readOnlyLastFrame() const
 {
-    return m_onlyLastFrame;
+    return m_readOnlyLastFrame;
 }
