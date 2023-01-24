@@ -36,11 +36,6 @@ cvf::ref<RigResultModifier> RigResultModifierFactory::createResultModifier( RigE
 {
     if ( !eclipseCase ) return nullptr;
 
-    if ( !eclipseCase->results( porosityModel ) || !eclipseCase->activeCellInfo( porosityModel ) )
-    {
-        return nullptr;
-    }
-
     if ( !resVarAddr.isValid() )
     {
         return nullptr;
@@ -52,8 +47,15 @@ cvf::ref<RigResultModifier> RigResultModifierFactory::createResultModifier( RigE
         return nullptr;
     }
 
-    auto scalarSetResults = eclipseCase->results( porosityModel )->modifiableCellScalarResultTimesteps( resVarAddr );
+    if ( !eclipseCase->results( porosityModel ) || !eclipseCase->activeCellInfo( porosityModel ) )
+    {
+        return nullptr;
+    }
 
+    auto cellResultsData = eclipseCase->results( porosityModel );
+    if ( !cellResultsData->hasResultEntry( resVarAddr ) ) return nullptr;
+
+    auto scalarSetResults = cellResultsData->modifiableCellScalarResultTimesteps( resVarAddr );
     if ( timeStepIndex >= scalarSetResults->size() )
     {
         return nullptr;
@@ -67,16 +69,14 @@ cvf::ref<RigResultModifier> RigResultModifierFactory::createResultModifier( RigE
 
     if ( resultValues->empty() ) return nullptr;
 
-    bool useGlobalActiveIndex = eclipseCase->results( porosityModel )->isUsingGlobalActiveIndex( resVarAddr );
+    bool useGlobalActiveIndex = cellResultsData->isUsingGlobalActiveIndex( resVarAddr );
     if ( useGlobalActiveIndex )
     {
         cvf::ref<RigResultModifier> object =
             new RigActiveCellsResultModifier( grid, eclipseCase->activeCellInfo( porosityModel ), resultValues );
         return object;
     }
-    else
-    {
-        cvf::ref<RigResultModifier> object = new RigAllGridCellsResultModifier( grid, resultValues );
-        return object;
-    }
+
+    cvf::ref<RigResultModifier> object = new RigAllGridCellsResultModifier( grid, resultValues );
+    return object;
 }
