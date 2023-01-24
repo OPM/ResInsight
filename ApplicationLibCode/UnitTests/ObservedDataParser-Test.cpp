@@ -993,7 +993,7 @@ TEST( RifKeywordBasedRsmspecParserTest, TestAddressCreation )
 
     EXPECT_TRUE( address.isValid() );
     EXPECT_EQ( address.category(), RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR );
-    EXPECT_EQ( address.uiText(), "LCABC:lgrName:wellName:12, 14, 16" );
+    EXPECT_EQ( address.uiText(), "LCABC:lgrName:wellName:12,14,16" );
 }
 
 //--------------------------------------------------------------------------------------------------
