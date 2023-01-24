@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.12)
-
 project(ApplicationExeCode)
 
 # set packaging dir
@@ -605,8 +603,6 @@ if(RESINSIGHT_PRIVATE_INSTALL)
 
     # Use file clobbing, as the dlls are decorated with local compiler info
     file(GLOB RI_BOOST_DLLS ${_dir}/boost_filesystem*.dll)
-
-    message("RI_BOOST_DLLS : ${RI_BOOST_DLLS}")
 
     install(
       FILES ${RI_BOOST_DLLS}

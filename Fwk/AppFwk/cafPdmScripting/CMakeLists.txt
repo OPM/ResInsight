@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.12)
-
 project(cafPdmScripting)
 
 option(CAF_CVF_SCRIPTING "Enable CVF-data support in Scripting" OFF)

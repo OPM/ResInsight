@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.12)
-
 project(ResultStatisticsCache)
 
 include_directories(${LibCore_SOURCE_DIR})
