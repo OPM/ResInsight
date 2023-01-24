@@ -108,9 +108,6 @@ public:
     {
     }
 
-    bool operator==( T value ) const { return m_value == value; }
-    bool operator!=( T value ) const { return m_value != value; }
-
     operator T() const { return m_value; }
 
     T       value() const { return m_value; }
@@ -345,22 +342,6 @@ private:
 };
 
 } // namespace caf
-
-//==================================================================================================
-/// Cant remember why we need those comparison operators...
-//==================================================================================================
-
-template <class T>
-bool operator==( T value, const caf::AppEnum<T>& appEnum )
-{
-    return ( appEnum == value );
-}
-
-template <class T>
-bool operator!=( T value, const caf::AppEnum<T>& appEnum )
-{
-    return ( appEnum != value );
-}
 
 //==================================================================================================
 /// Implementation of stream operators to make PdmField<AppEnum<> > work smoothly

@@ -217,7 +217,6 @@ std::vector<caf::ContourLines::ListOfLineSegments> caf::ContourLines::create( co
                                                                               const std::vector<double>& yPositions,
                                                                               const std::vector<double>& contourLevels )
 {
-    const double                         eps = 1.0e-4;
     std::vector<std::vector<cvf::Vec2d>> contourLineSegments;
     caf::ContourLines::create( dataXY, xPositions, yPositions, contourLevels, &contourLineSegments );
 

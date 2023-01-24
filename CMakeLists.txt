@@ -7,7 +7,7 @@ set(VIZ_MODULES_FOLDER_NAME Fwk/VizFwk)
 
 cmake_policy(SET CMP0020 NEW)
 if(POLICY CMP0077)
-  cmake_policy(SET CMP0077 OLD)
+  cmake_policy(SET CMP0077 NEW)
 endif()
 
 if(UNIX)
@@ -504,6 +504,7 @@ list(APPEND THIRD_PARTY_LIBRARIES clipper)
 
 add_subdirectory(ThirdParty/roffcpp)
 list(APPEND THIRD_PARTY_LIBRARIES roffcpp)
+set_property(TARGET roffcpp-tests gtest gtest_main PROPERTY FOLDER "Thirdparty")
 
 # ##############################################################################
 # Thirdparty libraries are put in ThirdParty solution folder
@@ -615,11 +616,16 @@ add_subdirectory(Fwk/AppFwk/cafTensor)
 add_subdirectory(Fwk/AppFwk/cafHexInterpolator)
 
 if(MSVC)
-  target_compile_options(cafViewer PRIVATE /wd4996)
+  target_compile_options(cafAnimControl PRIVATE /wd5054)
+  target_compile_options(cafViewer PRIVATE /wd4996 /wd5054)
   target_compile_options(cafPdmCore PRIVATE /wd4996)
-  target_compile_options(cafPdmCore PRIVATE /wd4996)
+  target_compile_options(cafPdmUiCore PRIVATE /wd5054)
+  target_compile_options(cafCommandFeatures PRIVATE /wd4996 /wd5054)
+  target_compile_options(cafCommand PRIVATE /wd5054)
   target_compile_options(cafPdmXml PRIVATE /wd4996)
-  target_compile_options(cafUserInterface PRIVATE /wd4996)
+  target_compile_options(cafUserInterface PRIVATE /wd4996 /wd5054)
+  target_compile_options(qwt PRIVATE /wd5055)
+  target_compile_options(CommonCode PRIVATE /wd5054)
 endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
