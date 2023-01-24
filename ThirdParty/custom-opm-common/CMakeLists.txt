@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 2.8.12)
 
 # Languages and global compiler settings
 if(CMAKE_VERSION VERSION_LESS 3.8)

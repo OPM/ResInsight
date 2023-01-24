@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.12)
-
 project(cafTensor)
 
 set(PROJECT_FILES cafTensor3.cpp cafTensor3.h cafTensor3.inl)
