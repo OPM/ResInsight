@@ -572,9 +572,9 @@ if(RESINSIGHT_PRIVATE_INSTALL)
       # install additional DLLS not able to be found by windeployqt
       set(qt5_offscreen_name "$<IF:$<CONFIG:Debug>,qoffscreend,qoffscreen>")
       install(
-              FILES ${qt5_install_prefix}/plugins/platforms/${qt5_offscreen_name}.dll 
-              DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/platforms
-    )
+        FILES ${qt5_install_prefix}/plugins/platforms/${qt5_offscreen_name}.dll
+        DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/platforms
+      )
 
     endif()
 
