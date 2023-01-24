@@ -23,6 +23,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RifGeoMechReaderInterface::RifGeoMechReaderInterface()
+    : m_readOnlyLastFrame( false )
 {
 }
 
@@ -36,13 +37,15 @@ RifGeoMechReaderInterface::~RifGeoMechReaderInterface()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifGeoMechReaderInterface::setTimeStepFilter( const std::vector<size_t>& fileTimeStepIndices )
+void RifGeoMechReaderInterface::setTimeStepFilter( const std::vector<size_t>& fileTimeStepIndices, bool readOnlyLastFrame )
 {
     m_fileTimeStepIndices.reserve( fileTimeStepIndices.size() );
     for ( size_t stepIndex : fileTimeStepIndices )
     {
         m_fileTimeStepIndices.push_back( static_cast<int>( stepIndex ) );
     }
+
+    m_readOnlyLastFrame = readOnlyLastFrame;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,4 +85,21 @@ int RifGeoMechReaderInterface::timeStepIndexOnFile( int timeStepIndex ) const
     }
 
     return timeStepIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RifGeoMechReaderInterface::frameIndexOnFile( int frameIndex ) const
+{
+    if ( m_readOnlyLastFrame ) return -1;
+    return frameIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifGeoMechReaderInterface::shouldReadOnlyLastFrame() const
+{
+    return m_readOnlyLastFrame;
 }

@@ -60,6 +60,12 @@ public:
                                                      TimeStepFilterTypeEnum        filterType,
                                                      int                           interval );
 
+    void setReadOnlyLastFrame( bool onlyLast );
+    bool readOnlyLastFrame() const;
+
+protected:
+    void initAfterRead() override;
+
 private:
     static QDateTime incrementDateTime( const QDateTime& dateTime, TimeStepFilterTypeEnum filterType, int interval );
 
@@ -89,4 +95,5 @@ private:
     caf::PdmField<bool>                 m_applyReloadOfCase;
     caf::PdmField<QString>              m_dateFormat;
     caf::PdmField<std::vector<QString>> m_timeStepNamesFromFile;
+    caf::PdmField<bool>                 m_onlyLastFrame;
 };
