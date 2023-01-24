@@ -55,7 +55,7 @@ TEST( RiaSummaryAddressAnalyzer, WellCompletions )
 
     auto completionsForB = analyzer.wellCompletions( wellNameB );
     EXPECT_EQ( 3u, completionsForB.size() );
-    std::string tupleToFind = "5, 4, 30";
+    std::string tupleToFind = "5,4,30";
     EXPECT_TRUE( completionsForB.find( tupleToFind ) != completionsForB.end() );
 }
 

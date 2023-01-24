@@ -232,7 +232,12 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
             }
             else
             {
-                allCurveAddressFilters.push_back( arguments[optionIdx] );
+                // Remove space from address string https://github.com/OPM/ResInsight/issues/9707
+
+                QString stringWithoutSpaces = arguments[optionIdx];
+                stringWithoutSpaces.remove( " " );
+
+                allCurveAddressFilters.push_back( stringWithoutSpaces );
             }
         }
     }

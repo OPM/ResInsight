@@ -923,8 +923,9 @@ std::string RifEclipseSummaryAddress::baseVectorName( const std::string& vectorN
 //--------------------------------------------------------------------------------------------------
 std::string RifEclipseSummaryAddress::blockAsString() const
 {
-    return std::to_string( this->cellI() ) + ", " + std::to_string( this->cellJ() ) + ", " +
-           std::to_string( this->cellK() );
+    // Avoid space in address text https://github.com/OPM/ResInsight/issues/9707
+
+    return std::to_string( this->cellI() ) + "," + std::to_string( this->cellJ() ) + "," + std::to_string( this->cellK() );
 }
 
 //--------------------------------------------------------------------------------------------------
