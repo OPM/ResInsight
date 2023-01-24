@@ -363,7 +363,9 @@ RimGeoMechCase::CaseOpenStatus RimGeoMechCase::openGeoMechCase( std::string* err
     }
 
     // Continue reading the open file
-    if ( !geoMechCaseData->readFemParts( errorMessage, m_timeStepFilter->filteredTimeSteps() ) )
+    if ( !geoMechCaseData->readFemParts( errorMessage,
+                                         m_timeStepFilter->filteredTimeSteps(),
+                                         m_timeStepFilter->readOnlyLastFrame() ) )
     {
         return CASE_OPEN_ERROR;
     }
