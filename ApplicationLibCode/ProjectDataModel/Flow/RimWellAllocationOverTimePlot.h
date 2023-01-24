@@ -96,6 +96,8 @@ private:
     caf::PdmFieldHandle* userDescriptionField() override;
 
 private:
+    void doUpdateLayout() override;
+
     void                                updateFromWell();
     RimWellAllocationOverTimeCollection createWellAllocationOverTimeCollection() const;
     std::set<QString>                   findSortedWellNames();
@@ -112,6 +114,9 @@ private:
 
     void setValidTimeStepRangeForCase();
 
+    int axisTitleFontSize() const;
+    int axisValueFontSize() const;
+
 private:
     caf::PdmField<QString>                  m_userName;
     caf::PdmPtrField<RimEclipseResultCase*> m_case;
@@ -127,7 +132,9 @@ private:
     caf::PdmField<bool>                        m_groupSmallContributions;
     caf::PdmField<double>                      m_smallContributionsThreshold;
 
-    QPointer<RiuQwtPlotWidget> m_plotWidget;
+    QPointer<RiuQwtPlotWidget>                      m_plotWidget;
+    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisTitleFontSize;
+    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisValueFontSize;
 
     const int m_initialNumberOfTimeSteps = 10;
 };

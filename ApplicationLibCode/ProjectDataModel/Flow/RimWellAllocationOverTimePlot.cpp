@@ -50,6 +50,7 @@
 #include "RiuQwtPlotWidget.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
+#include "cafFontTools.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
@@ -114,6 +115,12 @@ RimWellAllocationOverTimePlot::RimWellAllocationOverTimePlot()
     CAF_PDM_InitFieldNoDefault( &m_flowValueType, "FlowValueType", "Value Type" );
     CAF_PDM_InitField( &m_groupSmallContributions, "GroupSmallContributions", true, "Group Small Contributions" );
     CAF_PDM_InitField( &m_smallContributionsThreshold, "SmallContributionsThreshold", 0.005, "Threshold" );
+
+    CAF_PDM_InitFieldNoDefault( &m_axisTitleFontSize, "AxisTitleFontSize", "Axis Title Font Size" );
+    CAF_PDM_InitFieldNoDefault( &m_axisValueFontSize, "AxisValueFontSize", "Axis Value Font Size" );
+    m_axisTitleFontSize = caf::FontTools::RelativeSize::Large;
+    m_axisValueFontSize = caf::FontTools::RelativeSize::Medium;
+    m_legendFontSize    = caf::FontTools::RelativeSize::Medium;
 
     setAsPlotMdiWindow();
     setShowWindow( false );
@@ -255,13 +262,18 @@ RiuPlotWidget* RimWellAllocationOverTimePlot::doCreatePlotViewWidget( QWidget* m
     new RiuContextMenuLauncher( plotWidget, menuBuilder );
 
     m_plotWidget = plotWidget;
-    m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
-
     RiuQwtPlotTools::enableDateBasedBottomXAxis( m_plotWidget->qwtPlot(),
                                                  RiaPreferences::current()->dateFormat(),
                                                  QString(),
                                                  RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY,
                                                  RiaDefines::TimeFormatComponents::TIME_FORMAT_NONE );
+
+    // Workaround: Enable axis title for bottom axis to activate correct font size for date axis
+    m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultBottom(), true );
+    m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
+    m_plotWidget->insertLegend( RiuPlotWidget::Legend::RIGHT );
+
+    m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultBottom(), "[Date]" );
 
     updateLegend();
     onLoadDataAndUpdate();
@@ -302,6 +314,25 @@ void RimWellAllocationOverTimePlot::onLoadDataAndUpdate()
     }
 
     updateFromWell();
+
+    // Must be called after curves are added to plot - to apply correct legend font size
+    doUpdateLayout();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellAllocationOverTimePlot::doUpdateLayout()
+{
+    if ( m_plotWidget == nullptr )
+    {
+        return;
+    }
+
+    m_plotWidget->setPlotTitleFontSize( titleFontSize() );
+    m_plotWidget->setLegendFontSize( legendFontSize() );
+    m_plotWidget->setAxisFontsAndAlignment( RiuPlotAxis::defaultBottom(), axisTitleFontSize(), axisValueFontSize() );
+    m_plotWidget->setAxisFontsAndAlignment( RiuPlotAxis::defaultLeft(), axisTitleFontSize(), axisValueFontSize() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -313,7 +344,6 @@ void RimWellAllocationOverTimePlot::updateFromWell()
     {
         return;
     }
-    m_plotWidget->insertLegend( RiuPlotWidget::Legend::RIGHT );
     m_plotWidget->detachItems( RiuPlotWidget::PlotItemType::CURVE );
 
     // Retrieve collection of total fraction data for wells
@@ -354,7 +384,6 @@ void RimWellAllocationOverTimePlot::updateFromWell()
     setDescription( newDescription );
     m_plotWidget->setWindowTitle( newDescription );
     m_plotWidget->setPlotTitle( descriptionText + "<br>" + valueTypeText + "</br>" );
-
     m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), valueTypeText );
 
     if ( m_plotWidget->qwtPlot() )
@@ -540,6 +569,12 @@ void RimWellAllocationOverTimePlot::defineUiOrdering( QString uiConfigName, caf:
     optionGroup.add( &m_smallContributionsThreshold );
     m_smallContributionsThreshold.uiCapability()->setUiReadOnly( !m_groupSmallContributions() );
 
+    caf::PdmUiGroup* fontGroup = uiOrdering.addNewGroup( "Fonts" );
+    fontGroup->setCollapsedByDefault();
+    RimPlotWindow::uiOrderingForFonts( uiConfigName, *fontGroup );
+    fontGroup->add( &m_axisTitleFontSize );
+    fontGroup->add( &m_axisValueFontSize );
+
     uiOrdering.skipRemainingFields( true );
 }
 
@@ -597,6 +632,10 @@ void RimWellAllocationOverTimePlot::fieldChangedByUi( const caf::PdmFieldHandle*
               changedField == &m_applyExcludeTimeSteps )
     {
         onLoadDataAndUpdate();
+    }
+    else if ( changedField == &m_axisTitleFontSize || changedField == &m_axisValueFontSize )
+    {
+        doUpdateLayout();
     }
 }
 
@@ -664,6 +703,10 @@ QList<caf::PdmOptionItemInfo>
             options.push_back( caf::PdmOptionItemInfo( timeStep.toString( dateFormatStr ), timeStep ) );
         }
     }
+    else if ( fieldNeedingOptions == &m_axisTitleFontSize || fieldNeedingOptions == &m_axisValueFontSize )
+    {
+        options = caf::FontTools::relativeSizeValueOptions( RiaPreferences::current()->defaultPlotFontSize() );
+    }
     return options;
 }
 
@@ -724,7 +767,7 @@ QString RimWellAllocationOverTimePlot::dateFormatString() const
 
 //--------------------------------------------------------------------------------------------------
 /// Update selected "From Time Step" and "To Time Step" according to selected case.
-/// If both selected time steps exist for case, keep as is. Otherwise set the 10 last time steps
+/// If both selected time steps exist for case, keep as is. Otherwise set the 10 first time steps
 /// for case. If less than 10 time steps exist, all are selected.
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationOverTimePlot::setValidTimeStepRangeForCase()
@@ -745,6 +788,22 @@ void RimWellAllocationOverTimePlot::setValidTimeStepRangeForCase()
     }
 
     int numTimeSteps       = m_case->timeStepDates().size();
-    m_selectedToTimeStep   = m_case->timeStepDates().back();
-    m_selectedFromTimeStep = m_case->timeStepDates().at( std::max( numTimeSteps - m_initialNumberOfTimeSteps, 0 ) );
+    m_selectedFromTimeStep = m_case->timeStepDates().front();
+    m_selectedToTimeStep   = m_case->timeStepDates().at( std::min( m_initialNumberOfTimeSteps - 1, numTimeSteps - 1 ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimWellAllocationOverTimePlot::axisTitleFontSize() const
+{
+    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_axisTitleFontSize() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimWellAllocationOverTimePlot::axisValueFontSize() const
+{
+    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_axisValueFontSize() );
 }
