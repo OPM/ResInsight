@@ -114,6 +114,8 @@ public:
 
     std::pair<int, int> currentStepAndDataFrame() const;
 
+    void resetVizLogic();
+
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;

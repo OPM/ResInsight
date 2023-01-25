@@ -23,6 +23,7 @@
 
 #include "cvfVector3.h"
 
+#include <utility>
 #include <vector>
 
 class RimGeoMechPart;
@@ -38,8 +39,8 @@ public:
 
     void syncWithCase( RimGeoMechCase* geoCase );
 
-    bool shouldRebuildPartVisualization( int currentTimeStep, bool showDisplacement, double scaleFactor );
-    bool shouldReloadDisplacements( int currentTimeStep, bool showDisplacement, double scaleFactor );
+    std::pair<bool, bool> needsReloadOrRebuildUpdate( int currentTimeStep, bool showDisplacement, double scaleFactor );
+
     bool shouldBeVisibleInTree() const;
 
     bool isPartEnabled( int partId ) const;
