@@ -234,8 +234,9 @@ void RimGeoMechCase::reloadDataAndUpdate()
         {
             RiaLogging::error( QString::fromStdString( errMsg ) );
         }
-        for ( auto v : geoMechViews() )
+        for ( auto& v : geoMechViews() )
         {
+            v->resetVizLogic();
             v->loadDataAndUpdate();
             v->setCurrentTimeStep( v->currentTimeStep() );
         }

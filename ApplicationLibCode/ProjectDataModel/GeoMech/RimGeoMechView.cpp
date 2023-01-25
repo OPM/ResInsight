@@ -362,10 +362,12 @@ RimPropertyFilterCollection* RimGeoMechView::nativePropertyFilterCollection()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechView::updateElementDisplacements()
 {
-    if ( !m_partsCollection->shouldRebuildPartVisualization( m_currentTimeStep, m_showDisplacement, m_displacementScaling ) )
-        return;
+    auto [reload, rebuild] =
+        m_partsCollection->needsReloadOrRebuildUpdate( m_currentTimeStep, m_showDisplacement, m_displacementScaling );
 
-    if ( m_partsCollection->shouldReloadDisplacements( m_currentTimeStep, m_showDisplacement, m_displacementScaling ) )
+    if ( !rebuild ) return;
+
+    if ( reload )
     {
         for ( auto part : m_partsCollection->parts() )
         {
@@ -1122,4 +1124,15 @@ void RimGeoMechView::setShowDisplacementsAndUpdate( bool show )
 {
     m_showDisplacement = show;
     createDisplayModelAndRedraw();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGeoMechView::resetVizLogic()
+{
+    if ( m_vizLogic.notNull() )
+    {
+        m_vizLogic->resetPartMgrs();
+    }
 }

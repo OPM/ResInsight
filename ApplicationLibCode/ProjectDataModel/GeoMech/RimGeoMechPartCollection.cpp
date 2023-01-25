@@ -67,20 +67,17 @@ void RimGeoMechPartCollection::syncWithCase( RimGeoMechCase* geoCase )
     {
         const int count = geoCase->geoMechData()->femParts()->partCount();
 
-        if ( count != (int)m_parts.size() )
+        m_parts.deleteChildren();
+
+        for ( int i = 0; i < count; i++ )
         {
-            m_parts.deleteChildren();
+            const auto& femPart = geoCase->geoMechData()->femParts()->part( i );
 
-            for ( int i = 0; i < count; i++ )
-            {
-                const auto& femPart = geoCase->geoMechData()->femParts()->part( i );
-
-                RimGeoMechPart* part = new RimGeoMechPart();
-                part->setPartId( i );
-                part->setName( QString( femPart->name().c_str() ) );
-                part->setCheckState( femPart->enabled() );
-                m_parts.push_back( part );
-            }
+            RimGeoMechPart* part = new RimGeoMechPart();
+            part->setPartId( i );
+            part->setName( QString( femPart->name().c_str() ) );
+            part->setCheckState( femPart->enabled() );
+            m_parts.push_back( part );
         }
     }
     updateConnectedEditors();
@@ -173,33 +170,25 @@ bool RimGeoMechPartCollection::isDisplacementsUsed() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimGeoMechPartCollection::shouldRebuildPartVisualization( int currentTimeStep, bool showDisplacement, double scaleFactor )
+std::pair<bool, bool>
+    RimGeoMechPartCollection::needsReloadOrRebuildUpdate( int currentTimeStep, bool showDisplacement, double scaleFactor )
 {
-    // if show flag has changed, we need to rebuild grid viz.
-    bool retVal = m_displacementsUsed != showDisplacement;
+    bool rebuild = m_displacementsUsed != showDisplacement || ( m_currentDisplacementTimeStep != currentTimeStep ) ||
+                   ( std::abs( m_currentScaleFactor - scaleFactor ) > 0.0001 );
 
-    // if scaling or timestep has changed, we need to rebuild grid if the displacement should be visible
+    bool reload = false;
+
     if ( showDisplacement )
-        retVal = retVal || ( m_currentDisplacementTimeStep != currentTimeStep ) ||
-                 ( std::abs( m_currentScaleFactor - scaleFactor ) > 0.0001 );
-
-    return retVal;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimGeoMechPartCollection::shouldReloadDisplacements( int currentTimeStep, bool showDisplacement, double scaleFactor )
-{
-    // no need to reload something we are not showing
-    if ( !showDisplacement ) return false;
-
-    // if we have no displacements at all, we need to reload.
-    for ( const auto& part : m_parts )
     {
-        if ( part->displacements().size() == 0 ) return true;
+        bool missingDisplacement = false;
+        for ( const auto& part : m_parts )
+        {
+            missingDisplacement = missingDisplacement || ( part->displacements().size() == 0 );
+        }
+
+        rebuild = rebuild || missingDisplacement;
+        reload  = ( m_currentDisplacementTimeStep != currentTimeStep ) || missingDisplacement;
     }
 
-    // if timestep has changed we need to reload
-    return m_currentDisplacementTimeStep != currentTimeStep;
+    return std::make_pair( reload, rebuild );
 }
