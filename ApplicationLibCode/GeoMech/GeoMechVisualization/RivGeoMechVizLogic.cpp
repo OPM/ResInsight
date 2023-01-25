@@ -332,3 +332,11 @@ void RivGeoMechVizLogic::calculateCurrentTotalCellVisibility( cvf::UByteArray* t
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivGeoMechVizLogic::resetPartMgrs()
+{
+    m_partMgrCache = new RivGeoMechPartMgrCache;
+}
