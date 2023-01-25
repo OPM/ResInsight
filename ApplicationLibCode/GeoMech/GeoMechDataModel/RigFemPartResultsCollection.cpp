@@ -20,6 +20,7 @@
 #include "RigFemPartResultsCollection.h"
 
 #include "RiaLogging.h"
+#include "RiaRegressionTestRunner.h"
 #include "RiaResultNames.h"
 
 #include "RifElementPropertyReader.h"
@@ -118,7 +119,17 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
             int frameIdx = 0;
             for ( auto& frame : m_readerInterface->frameTimes( stepIdx ) )
             {
-                m_stepNames.emplace_back( stepName + " (" + std::to_string( frame ) + ")" );
+                auto stepNameComplete = stepName;
+
+                if ( !( RiaRegressionTestRunner::instance()->isRunningRegressionTests() &&
+                        m_readerInterface->frameTimes( stepIdx ).size() == 1 ) )
+                {
+                    // Do not add postfix for time steps with a single frame to ensure identical generated snapshot
+                    // name used by regression tests
+                    stepNameComplete += " (" + std::to_string( frame ) + ")";
+                }
+
+                m_stepNames.emplace_back( stepNameComplete );
                 m_stepList.emplace_back( stepIdx, frameIdx );
                 frameIdx++;
             }
