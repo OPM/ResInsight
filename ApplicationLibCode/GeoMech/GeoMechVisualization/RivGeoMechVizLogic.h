@@ -49,6 +49,8 @@ public:
     void scheduleGeometryRegen( RivCellSetEnum geometryType );
     void scheduleGeometryRegenOfVisiblePartMgrs( int viewerStepIndex );
     void calculateCurrentTotalCellVisibility( cvf::UByteArray* totalVisibility, int viewerStepIndex );
+    void resetPartMgrs();
+
     std::vector<RivGeoMechPartMgrCache::Key> keysToVisiblePartMgrs( int viewerStepIndex ) const;
     const cvf::ref<RivGeoMechPartMgrCache>   partMgrCache() const;
 
