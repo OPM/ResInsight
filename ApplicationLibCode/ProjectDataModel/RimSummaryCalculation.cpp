@@ -208,7 +208,7 @@ std::vector<RimUserDefinedCalculationAddress*> RimSummaryCalculation::allAddress
 {
     std::vector<RimUserDefinedCalculationAddress*> addresses;
 
-    std::vector<std::string> wells = { "B1-H", "B2-H", "B3-H" };
+    std::vector<std::string> wells = { "B-1H", "B-2H", "B-3H" };
 
     for ( auto well : wells )
     {
