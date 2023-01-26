@@ -48,10 +48,11 @@ RimWellAllocationOverTimeCollection::RimWellAllocationOverTimeCollection(
     QDateTime prevValidTimeStep;
     for ( auto it = m_timeStepDates.rbegin(); it != m_timeStepDates.rend(); ++it )
     {
-        const QDateTime& timeStep = *it;
-        if ( timeStepAndCalculatorPairs.contains( timeStep ) )
+        const QDateTime& timeStep             = *it;
+        auto             timeStepCalculatorIt = timeStepAndCalculatorPairs.find( timeStep );
+        if ( timeStepCalculatorIt != timeStepAndCalculatorPairs.end() )
         {
-            m_timeStepAndCalculatorPairs.emplace( timeStep, timeStepAndCalculatorPairs.at( timeStep ) );
+            m_timeStepAndCalculatorPairs.emplace( timeStep, timeStepCalculatorIt->second );
             prevValidTimeStep = timeStep;
         }
         else if ( prevValidTimeStep.isValid() )
