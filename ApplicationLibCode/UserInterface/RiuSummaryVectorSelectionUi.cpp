@@ -1278,17 +1278,21 @@ void RiuSummaryVectorSelectionUi::buildAddressListForCategoryRecursively(
         auto idText = identifierText;
 
         // Calculated results have a id appended. E.g. "Calculation_3 ( NORNE_ATW2013, WOPR:B-4H ):3"
-        if ( category == RifEclipseSummaryAddress::SUMMARY_CALCULATED || category == RifEclipseSummaryAddress::SUMMARY_WELL )
+        if ( ( category == RifEclipseSummaryAddress::SUMMARY_CALCULATED ) ||
+             ( ( *identifierAndFieldItr )->summaryIdentifier() == RifEclipseSummaryAddress::INPUT_VECTOR_NAME ) )
         {
             // Extract the calculation id
-            QStringList tokens        = idText.split( ":" );
-            QString     calculationId = tokens.last();
+            QStringList tokens = idText.split( ":" );
+            if ( tokens.size() > 1 )
+            {
+                QString calculationId = tokens.last();
 
-            // Put the input vector name back together
-            tokens.pop_back();
-            idText = tokens.join( ":" );
+                // Put the input vector name back together
+                tokens.pop_back();
+                idText = tokens.join( ":" );
 
-            identifierPath.push_back( std::make_pair( RifEclipseSummaryAddress::INPUT_ID, calculationId ) );
+                identifierPath.push_back( std::make_pair( RifEclipseSummaryAddress::INPUT_ID, calculationId ) );
+            }
         }
 
         idText.remove( OBSERVED_DATA_AVALUE_POSTFIX );
