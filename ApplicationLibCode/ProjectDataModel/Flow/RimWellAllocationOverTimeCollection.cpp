@@ -33,14 +33,32 @@ RimWellAllocationOverTimeCollection::RimWellAllocationOverTimeCollection(
     const std::vector<QDateTime>&                        timeStepDates,
     const std::map<QDateTime, RigAccWellFlowCalculator>& timeStepAndCalculatorPairs )
     : m_timeStepDates( timeStepDates )
-    , m_timeStepAndCalculatorPairs( timeStepAndCalculatorPairs )
 {
-    for ( const auto& [date, calculator] : m_timeStepAndCalculatorPairs )
+    for ( const auto& [date, calculator] : timeStepAndCalculatorPairs )
     {
         std::string err = "Calculator for time step date " + date.toString().toStdString() +
                           " does not exist in time step dates vector ";
         CAF_ASSERT( std::find( m_timeStepDates.begin(), m_timeStepDates.end(), date ) != m_timeStepDates.end() &&
                     err.data() );
+    }
+
+    // Time steps not present in input map is considered "excluded" time steps
+    // Build new time step and calculator map using calculator for "next" valid time step for
+    // "excluded" time steps
+    QDateTime prevValidTimeStep;
+    for ( auto it = m_timeStepDates.rbegin(); it != m_timeStepDates.rend(); ++it )
+    {
+        const QDateTime& timeStep = *it;
+        if ( timeStepAndCalculatorPairs.contains( timeStep ) )
+        {
+            m_timeStepAndCalculatorPairs.emplace( timeStep, timeStepAndCalculatorPairs.at( timeStep ) );
+            prevValidTimeStep = timeStep;
+        }
+        else if ( prevValidTimeStep.isValid() )
+        {
+            // If no calculator for this time step, use the previous valid time step calculator
+            m_timeStepAndCalculatorPairs.emplace( timeStep, timeStepAndCalculatorPairs.at( prevValidTimeStep ) );
+        }
     }
 
     std::sort( m_timeStepDates.begin(), m_timeStepDates.end() );
