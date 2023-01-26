@@ -308,7 +308,7 @@ void RimPlot::handleWheelEvent( QWheelEvent* event )
 //--------------------------------------------------------------------------------------------------
 bool RimPlot::isCurveHighlightSupported() const
 {
-    return true;
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

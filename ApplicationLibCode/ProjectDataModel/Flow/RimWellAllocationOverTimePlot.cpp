@@ -253,14 +253,6 @@ QImage RimWellAllocationOverTimePlot::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimWellAllocationOverTimePlot::isCurveHighlightSupported() const
-{
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RiuPlotWidget* RimWellAllocationOverTimePlot::doCreatePlotViewWidget( QWidget* mainWindowParent )
 {
     // If called multiple times?

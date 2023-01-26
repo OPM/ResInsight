@@ -62,8 +62,6 @@ public:
         TIME_STEP_COUNT,
     };
 
-    bool isCurveHighlightSupported() const override;
-
 public:
     RimWellAllocationOverTimePlot();
     ~RimWellAllocationOverTimePlot() override;
