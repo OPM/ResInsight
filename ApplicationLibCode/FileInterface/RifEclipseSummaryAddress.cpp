@@ -987,6 +987,8 @@ bool operator==( const RifEclipseSummaryAddress& first, const RifEclipseSummaryA
 {
     if ( first.category() != second.category() ) return false;
     if ( first.vectorName() != second.vectorName() ) return false;
+    if ( first.id() != second.id() ) return false;
+
     switch ( first.category() )
     {
         case RifEclipseSummaryAddress::SUMMARY_REGION:
@@ -1083,6 +1085,7 @@ bool operator!=( const RifEclipseSummaryAddress& first, const RifEclipseSummaryA
 bool operator<( const RifEclipseSummaryAddress& first, const RifEclipseSummaryAddress& second )
 {
     if ( first.vectorName() != second.vectorName() ) return first.vectorName() < second.vectorName();
+    if ( first.id() != second.id() ) return first.id() < second.id();
 
     switch ( first.category() )
     {
