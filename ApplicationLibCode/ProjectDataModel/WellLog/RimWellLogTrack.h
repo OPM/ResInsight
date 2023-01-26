@@ -240,7 +240,6 @@ public:
 
     void setEnsembleWellLogCurveSet( RimEnsembleWellLogCurveSet* curveSet );
     void updateAxesVisibility( RiaDefines::Orientation orientation, bool isFirstTrack, bool isLastTrack );
-    bool isCurveHighlightSupported() const override;
     void updateDepthMarkerLine();
 
 protected:
