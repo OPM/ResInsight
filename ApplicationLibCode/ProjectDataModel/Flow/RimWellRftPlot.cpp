@@ -1071,6 +1071,15 @@ std::map<QString, QStringList> RimWellRftPlot::findWellSources()
                 }
             }
         }
+
+        const std::vector<RimPressureDepthData*> pressureDepthData = RimWellPlotTools::pressureDepthData();
+        for ( const auto& pd : pressureDepthData )
+        {
+            for ( const auto& wellName : pd->wellNames() )
+            {
+                wellNames[wellName].push_back( "Observed" );
+            }
+        }
     }
     return wellNames;
 }
@@ -1106,8 +1115,8 @@ void RimWellRftPlot::onLoadDataAndUpdate()
     createEnsembleCurveSets();
     updateEditorsFromCurves();
 
-    // Update of curve color must happen here when loading data from project file, as the curve color is blended by the
-    // background color. The background color is taken from the viewer.
+    // Update of curve color must happen here when loading data from project file, as the curve color is blended by
+    // the background color. The background color is taken from the viewer.
     RimWellLogTrack* const plotTrack = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
 
     if ( plotTrack && plotTrack->viewer() )
