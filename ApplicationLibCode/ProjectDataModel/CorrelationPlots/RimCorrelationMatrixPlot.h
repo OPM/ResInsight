@@ -59,6 +59,7 @@ public:
     void                    selectAllParameters();
     bool                    showTopNCorrelations() const;
     int                     topNFilterCount() const;
+    bool                    isCurveHighlightSupported() const override;
 
 private:
     // Overridden PDM methods

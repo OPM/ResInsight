@@ -131,6 +131,8 @@ public:
 
     bool isLogarithmicScaleEnabled( RiuPlotAxis plotAxis ) const;
 
+    bool isCurveHighlightSupported() const override;
+
     RimSummaryTimeAxisProperties* timeAxisProperties();
     time_t                        firstTimeStepOfFirstCurve();
 

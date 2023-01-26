@@ -47,6 +47,7 @@ public:
 
     // RimPlot implementations
     RiuPlotWidget* plotWidget() override;
+    bool           isCurveHighlightSupported() const override;
 
     void    setAutoScaleXEnabled( bool enabled ) override;
     void    setAutoScaleYEnabled( bool enabled ) override;
