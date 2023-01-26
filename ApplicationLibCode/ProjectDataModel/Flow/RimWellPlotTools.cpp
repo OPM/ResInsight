@@ -636,10 +636,12 @@ RiaRftPltCurveDefinition RimWellPlotTools::curveDefFromCurve( const RimWellLogCu
         }
         else if ( rftSummaryCase != nullptr )
         {
-            rftSummaryCase->firstAncestorOrThisOfTypeAsserted( rftEnsemble );
+            RimSummaryCaseCollection* parentEnsemble = nullptr;
+
+            rftSummaryCase->firstAncestorOrThisOfType( parentEnsemble );
             return RiaRftPltCurveDefinition( RifDataSourceForRftPlt( RifDataSourceForRftPlt::SUMMARY_RFT,
                                                                      rftSummaryCase,
-                                                                     rftEnsemble ),
+                                                                     parentEnsemble ),
                                              wellName,
                                              timeStep );
         }
