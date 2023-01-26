@@ -136,7 +136,7 @@ void RivTensorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicL
         {
             const RivGeoMechPartMgr* partMgr = partMgrCache->partMgr( partKey );
 
-            auto& mgr = partMgr->femPartMgrs()[partIdx];
+            auto mgr = partMgr->femPartMgrs()[partIdx];
             {
                 const RivFemPartGeometryGenerator* surfaceGenerator     = mgr->surfaceGenerator();
                 const std::vector<size_t>& quadVerticesToNodeIdxMapping = surfaceGenerator->quadVerticesToNodeIdxMapping();
