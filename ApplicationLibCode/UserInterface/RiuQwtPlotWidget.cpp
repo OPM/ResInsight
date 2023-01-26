@@ -1055,7 +1055,7 @@ void RiuQwtPlotWidget::resetPlotItemHighlighting( bool doUpdateCurveOrder )
 {
     if ( !m_originalZValues.empty() )
     {
-        auto plotItemList = m_plot->itemList();
+        const auto& plotItemList = m_plot->itemList();
         for ( QwtPlotItem* plotItem : plotItemList )
         {
             if ( auto* plotCurve = dynamic_cast<QwtPlotCurve*>( plotItem ) )
@@ -1071,21 +1071,25 @@ void RiuQwtPlotWidget::resetPlotItemHighlighting( bool doUpdateCurveOrder )
                     continue;
                 }
             }
-
-            auto* plotShapeItem = dynamic_cast<QwtPlotShapeItem*>( plotItem );
-            if ( plotShapeItem )
-            {
-                QPen pen = plotShapeItem->pen();
-
-                auto color = RiuGuiTheme::getColorByVariableName( "markerColor" );
-
-                pen.setColor( color );
-                pen.setWidth( 1 );
-                plotShapeItem->setPen( pen );
-                plotShapeItem->setZ( plotShapeItem->z() - 100.0 );
-            }
         }
         m_originalZValues.clear();
+    }
+
+    const auto& plotItemList = m_plot->itemList();
+    for ( QwtPlotItem* plotItem : plotItemList )
+    {
+        auto* plotShapeItem = dynamic_cast<QwtPlotShapeItem*>( plotItem );
+        if ( plotShapeItem )
+        {
+            QPen pen = plotShapeItem->pen();
+
+            auto color = RiuGuiTheme::getColorByVariableName( "markerColor" );
+
+            pen.setColor( color );
+            pen.setWidth( 1 );
+            plotShapeItem->setPen( pen );
+            plotShapeItem->setZ( plotShapeItem->z() - 100.0 );
+        }
     }
 
     resetPlotAxisHighlighting();
