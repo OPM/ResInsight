@@ -56,6 +56,11 @@ public:
         ACCUMULATED_FLOW_VOLUME,
         ACCUMULATED_FLOW_VOLUME_PERCENTAGE,
     };
+    enum class TimeStepFilterMode
+    {
+        NONE,
+        TIME_STEP_COUNT,
+    };
 
     bool isCurveHighlightSupported() const override;
 
@@ -117,15 +122,21 @@ private:
     int axisTitleFontSize() const;
     int axisValueFontSize() const;
 
+    std::vector<QDateTime>     getTimeStepsWithinSelectedRange( const std::vector<QDateTime>& timeSteps ) const;
+    std::set<QDateTime>        getSelectedTimeSteps( const std::vector<QDateTime>& timeSteps ) const;
+    static std::set<QDateTime> createEvenlyDistributedDates( const std::vector<QDateTime>& inputDates, int numDates );
+
 private:
     caf::PdmField<QString>                  m_userName;
     caf::PdmPtrField<RimEclipseResultCase*> m_case;
     caf::PdmField<QString>                  m_wellName;
 
-    caf::PdmField<QDateTime>              m_selectedFromTimeStep;
-    caf::PdmField<QDateTime>              m_selectedToTimeStep;
-    caf::PdmField<std::vector<QDateTime>> m_excludeTimeSteps;
-    caf::PdmField<bool>                   m_applyExcludeTimeSteps;
+    caf::PdmField<QDateTime>                        m_selectedFromTimeStep;
+    caf::PdmField<QDateTime>                        m_selectedToTimeStep;
+    caf::PdmField<caf::AppEnum<TimeStepFilterMode>> m_timeStepFilterMode;
+    caf::PdmField<int>                              m_timeStepCount;
+    caf::PdmField<std::vector<QDateTime>>           m_excludeTimeSteps;
+    caf::PdmField<bool>                             m_applyTimeStepSelections;
 
     caf::PdmPtrField<RimFlowDiagSolution*>     m_flowDiagSolution;
     caf::PdmField<caf::AppEnum<FlowValueType>> m_flowValueType;

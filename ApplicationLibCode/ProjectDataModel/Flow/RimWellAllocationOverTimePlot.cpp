@@ -83,10 +83,16 @@ void AppEnum<RimWellAllocationOverTimePlot::FlowValueType>::setUp()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimWellAllocationOverTimePlot::isCurveHighlightSupported() const
+namespace caf
 {
-    return false;
+template <>
+void AppEnum<RimWellAllocationOverTimePlot::TimeStepFilterMode>::setUp()
+{
+    addItem( RimWellAllocationOverTimePlot::TimeStepFilterMode::NONE, "NONE", "Show All Time Steps" );
+    addItem( RimWellAllocationOverTimePlot::TimeStepFilterMode::TIME_STEP_COUNT, "TIME_STEP_COUNT", "Time Step Count" );
+    setDefault( RimWellAllocationOverTimePlot::TimeStepFilterMode::TIME_STEP_COUNT );
 }
+} // namespace caf
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -106,10 +112,13 @@ RimWellAllocationOverTimePlot::RimWellAllocationOverTimePlot()
     m_selectedFromTimeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     CAF_PDM_InitFieldNoDefault( &m_selectedToTimeStep, "ToTimeStep", "To Time Step" );
     m_selectedToTimeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
+    CAF_PDM_InitFieldNoDefault( &m_timeStepFilterMode, "TimeStepFilterMode", "Filter" );
+    m_timeStepFilterMode.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
+    CAF_PDM_InitField( &m_timeStepCount, "TimeStepCount", m_initialNumberOfTimeSteps, "Number of Time Steps" );
     CAF_PDM_InitFieldNoDefault( &m_excludeTimeSteps, "ExcludeTimeSteps", "" );
     m_excludeTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
-    CAF_PDM_InitFieldNoDefault( &m_applyExcludeTimeSteps, "ApplyExcludeTimeSteps", "" );
-    caf::PdmUiPushButtonEditor::configureEditorForField( &m_applyExcludeTimeSteps );
+    CAF_PDM_InitFieldNoDefault( &m_applyTimeStepSelections, "ApplyTimeStepSelections", "" );
+    caf::PdmUiPushButtonEditor::configureEditorForField( &m_applyTimeStepSelections );
 
     CAF_PDM_InitFieldNoDefault( &m_flowDiagSolution, "FlowDiagSolution", "Plot Type" );
     CAF_PDM_InitFieldNoDefault( &m_flowValueType, "FlowValueType", "Value Type" );
@@ -239,6 +248,14 @@ QImage RimWellAllocationOverTimePlot::snapshotWindowContent()
     }
 
     return image;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellAllocationOverTimePlot::isCurveHighlightSupported() const
+{
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -434,21 +451,17 @@ RimWellAllocationOverTimeCollection RimWellAllocationOverTimePlot::createWellAll
                                                   ? m_smallContributionsThreshold
                                                   : 0.0;
 
-    auto isTimeStepInSelectedRange = [&]( const QDateTime& timeStep ) -> bool {
-        return m_selectedFromTimeStep() <= timeStep && timeStep <= m_selectedToTimeStep();
-    };
-
+    const bool                                    branchDetection = false;
     std::map<QDateTime, RigAccWellFlowCalculator> timeStepAndCalculatorPairs;
-    std::set<QDateTime>    excludedTimeSteps = std::set( m_excludeTimeSteps().begin(), m_excludeTimeSteps().end() );
-    std::vector<QDateTime> allTimeSteps      = m_case->timeStepDates();
-    std::vector<QDateTime> selectedTimeSteps;
-    std::copy_if( allTimeSteps.begin(), allTimeSteps.end(), std::back_inserter( selectedTimeSteps ), isTimeStepInSelectedRange );
+    std::vector<QDateTime>                        allTimeSteps      = m_case->timeStepDates();
+    std::set<QDateTime>                           selectedTimeSteps = getSelectedTimeSteps( allTimeSteps );
+    std::set<QDateTime> excludedTimeSteps = std::set( m_excludeTimeSteps().begin(), m_excludeTimeSteps().end() );
 
-    const bool branchDetection = false;
+    // NOTE: Must iterate all time step dates for case to have correct time step index for simulation well data
     for ( size_t i = 0; i < allTimeSteps.size(); ++i )
     {
-        // NOTE: Must have all time step dates for case due to have correct time step index for simulation well data
-        if ( !isTimeStepInSelectedRange( allTimeSteps[i] ) ||
+        // Time step must be among selected time steps and not excluded
+        if ( selectedTimeSteps.find( allTimeSteps[i] ) == selectedTimeSteps.end() ||
              excludedTimeSteps.find( allTimeSteps[i] ) != excludedTimeSteps.end() )
         {
             continue;
@@ -497,7 +510,8 @@ RimWellAllocationOverTimeCollection RimWellAllocationOverTimePlot::createWellAll
     }
 
     // Create collection
-    RimWellAllocationOverTimeCollection collection( selectedTimeSteps, timeStepAndCalculatorPairs );
+    const auto selectedTimeStepsVector = std::vector( selectedTimeSteps.begin(), selectedTimeSteps.end() );
+    RimWellAllocationOverTimeCollection collection( selectedTimeStepsVector, timeStepAndCalculatorPairs );
 
     if ( m_flowValueType == FlowValueType::FLOW_RATE_PERCENTAGE )
     {
@@ -557,10 +571,18 @@ void RimWellAllocationOverTimePlot::defineUiOrdering( QString uiConfigName, caf:
     caf::PdmUiGroup& timeStepGroup = *uiOrdering.addNewGroup( "Time Step" );
     timeStepGroup.add( &m_selectedFromTimeStep );
     timeStepGroup.add( &m_selectedToTimeStep );
+    timeStepGroup.add( &m_timeStepFilterMode );
+
+    if ( m_timeStepFilterMode == TimeStepFilterMode::TIME_STEP_COUNT )
+    {
+        timeStepGroup.add( &m_timeStepCount );
+    }
+
     caf::PdmUiGroup& excludeTimeStepGroup = *timeStepGroup.addNewGroup( "Exclude Time Steps" );
     excludeTimeStepGroup.add( &m_excludeTimeSteps );
-    excludeTimeStepGroup.add( &m_applyExcludeTimeSteps );
     excludeTimeStepGroup.setCollapsedByDefault();
+
+    timeStepGroup.add( &m_applyTimeStepSelections );
 
     caf::PdmUiGroup& optionGroup = *uiOrdering.addNewGroup( "Options" );
     optionGroup.add( &m_flowDiagSolution );
@@ -585,7 +607,7 @@ void RimWellAllocationOverTimePlot::defineEditorAttribute( const caf::PdmFieldHa
                                                            QString                    uiConfigName,
                                                            caf::PdmUiEditorAttribute* attribute )
 {
-    if ( field == &m_applyExcludeTimeSteps )
+    if ( field == &m_applyTimeStepSelections )
     {
         caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
         if ( attrib )
@@ -627,9 +649,15 @@ void RimWellAllocationOverTimePlot::fieldChangedByUi( const caf::PdmFieldHandle*
         onLoadDataAndUpdate();
     }
     else if ( changedField == &m_wellName || changedField == &m_flowDiagSolution || changedField == &m_flowValueType ||
-              changedField == &m_groupSmallContributions || changedField == &m_smallContributionsThreshold ||
-              changedField == &m_selectedFromTimeStep || changedField == &m_selectedToTimeStep ||
-              changedField == &m_applyExcludeTimeSteps )
+              changedField == &m_groupSmallContributions || changedField == &m_smallContributionsThreshold )
+    {
+        onLoadDataAndUpdate();
+    }
+    else if ( changedField == &m_timeStepCount && m_timeStepFilterMode == TimeStepFilterMode::TIME_STEP_COUNT )
+    {
+        m_excludeTimeSteps.setValue( {} );
+    }
+    else if ( changedField == &m_applyTimeStepSelections )
     {
         onLoadDataAndUpdate();
     }
@@ -693,12 +721,20 @@ QList<caf::PdmOptionItemInfo>
             options.push_back( caf::PdmOptionItemInfo( "Allocation", defaultFlowSolution ) );
         }
     }
-    else if ( m_case && ( fieldNeedingOptions == &m_excludeTimeSteps || fieldNeedingOptions == &m_selectedFromTimeStep ||
-                          fieldNeedingOptions == &m_selectedToTimeStep ) )
+    else if ( m_case && ( fieldNeedingOptions == &m_selectedFromTimeStep || fieldNeedingOptions == &m_selectedToTimeStep ) )
     {
         const QString dateFormatStr = dateFormatString();
         const auto    timeSteps     = m_case->timeStepDates();
         for ( const auto& timeStep : timeSteps )
+        {
+            options.push_back( caf::PdmOptionItemInfo( timeStep.toString( dateFormatStr ), timeStep ) );
+        }
+    }
+    else if ( m_case && ( fieldNeedingOptions == &m_excludeTimeSteps ) )
+    {
+        const QString dateFormatStr     = dateFormatString();
+        const auto    selectedTimeSteps = getSelectedTimeSteps( m_case->timeStepDates() );
+        for ( const auto& timeStep : selectedTimeSteps )
         {
             options.push_back( caf::PdmOptionItemInfo( timeStep.toString( dateFormatStr ), timeStep ) );
         }
@@ -787,9 +823,8 @@ void RimWellAllocationOverTimePlot::setValidTimeStepRangeForCase()
         return;
     }
 
-    int numTimeSteps       = m_case->timeStepDates().size();
     m_selectedFromTimeStep = m_case->timeStepDates().front();
-    m_selectedToTimeStep   = m_case->timeStepDates().at( std::min( m_initialNumberOfTimeSteps - 1, numTimeSteps - 1 ) );
+    m_selectedToTimeStep   = m_case->timeStepDates().back();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -806,4 +841,83 @@ int RimWellAllocationOverTimePlot::axisTitleFontSize() const
 int RimWellAllocationOverTimePlot::axisValueFontSize() const
 {
     return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_axisValueFontSize() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QDateTime>
+    RimWellAllocationOverTimePlot::getTimeStepsWithinSelectedRange( const std::vector<QDateTime>& timeSteps ) const
+{
+    std::vector<QDateTime> selectedTimeSteps;
+    auto                   isTimeStepInSelectedRange = [&]( const QDateTime& timeStep ) -> bool {
+        return m_selectedFromTimeStep() <= timeStep && timeStep <= m_selectedToTimeStep();
+    };
+    std::copy_if( timeSteps.begin(), timeSteps.end(), std::back_inserter( selectedTimeSteps ), isTimeStepInSelectedRange );
+
+    return selectedTimeSteps;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<QDateTime> RimWellAllocationOverTimePlot::getSelectedTimeSteps( const std::vector<QDateTime>& timeSteps ) const
+{
+    const auto timeStepsInRange = getTimeStepsWithinSelectedRange( timeSteps );
+    return m_timeStepFilterMode == TimeStepFilterMode::TIME_STEP_COUNT
+               ? createEvenlyDistributedDates( timeStepsInRange, m_timeStepCount )
+               : std::set( timeStepsInRange.begin(), timeStepsInRange.end() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<QDateTime>
+    RimWellAllocationOverTimePlot::createEvenlyDistributedDates( const std::vector<QDateTime>& inputDates, int numDates )
+{
+    std::set<QDateTime> outputDates;
+    if ( inputDates.empty() || numDates <= 0 )
+    {
+        return outputDates;
+    }
+    if ( numDates > inputDates.size() )
+    {
+        outputDates = std::set( inputDates.begin(), inputDates.end() );
+        return outputDates;
+    }
+    if ( numDates == 1 )
+    {
+        outputDates = { inputDates.front() };
+        return outputDates;
+    }
+
+    // Find the minimum and maximum dates in the input vector
+    QDateTime minDate = *std::min_element( inputDates.begin(), inputDates.end() );
+    QDateTime maxDate = *std::max_element( inputDates.begin(), inputDates.end() );
+
+    // Calculate the time step between each selected date
+    qint64 timeStep =
+        ( maxDate.toMSecsSinceEpoch() - minDate.toMSecsSinceEpoch() ) / ( static_cast<qint64>( numDates ) - 1 );
+
+    // Find the index of the input date that is closest to each new date
+    for ( int i = 0; i < numDates; ++i )
+    {
+        qint64 targetTime      = minDate.toMSecsSinceEpoch() + i * timeStep;
+        int    closestIndex    = 0;
+        qint64 closestTimeDiff = std::numeric_limits<qint64>::max();
+        for ( int j = 0; j < inputDates.size(); ++j )
+        {
+            qint64 timeDiff = std::abs( inputDates[j].toMSecsSinceEpoch() - targetTime );
+            if ( timeDiff < closestTimeDiff )
+            {
+                closestIndex    = j;
+                closestTimeDiff = timeDiff;
+            }
+        }
+
+        // Add the closest date to the output vector
+        outputDates.insert( inputDates[closestIndex] );
+    }
+
+    return outputDates;
 }
