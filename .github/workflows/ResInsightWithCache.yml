@@ -13,6 +13,10 @@ env:
   BUILDCACHE_DIR: ${{ github.workspace }}/buildcache_dir
   BUILDCACHE_ACCURACY: SLOPPY
 
+concurrency:
+  group: build-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+  
 jobs:
   ResInsight-x64-buildcache:
     runs-on: ${{ matrix.config.os }}
