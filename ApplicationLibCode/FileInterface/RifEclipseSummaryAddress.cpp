@@ -61,7 +61,7 @@ RifEclipseSummaryAddress::RifEclipseSummaryAddress( SummaryVarCategory          
             break;
         case SUMMARY_WELL:
             m_wellName = identifiers[INPUT_WELL_NAME];
-            m_wellName = identifiers[INPUT_ID];
+            m_id       = RiaStdStringTools::toInt( identifiers[INPUT_ID] );
             break;
         case SUMMARY_WELL_COMPLETION:
             m_wellName = identifiers[INPUT_WELL_NAME];
