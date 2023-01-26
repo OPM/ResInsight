@@ -56,6 +56,13 @@ public:
         ACCUMULATED_FLOW_VOLUME,
         ACCUMULATED_FLOW_VOLUME_PERCENTAGE,
     };
+    enum class TimeStepFilterMode
+    {
+        NONE,
+        TIME_STEP_COUNT,
+    };
+
+    bool isCurveHighlightSupported() const override;
 
 public:
     RimWellAllocationOverTimePlot();
@@ -94,6 +101,8 @@ private:
     caf::PdmFieldHandle* userDescriptionField() override;
 
 private:
+    void doUpdateLayout() override;
+
     void                                updateFromWell();
     RimWellAllocationOverTimeCollection createWellAllocationOverTimeCollection() const;
     std::set<QString>                   findSortedWellNames();
@@ -110,22 +119,33 @@ private:
 
     void setValidTimeStepRangeForCase();
 
+    int axisTitleFontSize() const;
+    int axisValueFontSize() const;
+
+    std::vector<QDateTime>     getTimeStepsWithinSelectedRange( const std::vector<QDateTime>& timeSteps ) const;
+    std::set<QDateTime>        getSelectedTimeSteps( const std::vector<QDateTime>& timeSteps ) const;
+    static std::set<QDateTime> createEvenlyDistributedDates( const std::vector<QDateTime>& inputDates, int numDates );
+
 private:
     caf::PdmField<QString>                  m_userName;
     caf::PdmPtrField<RimEclipseResultCase*> m_case;
     caf::PdmField<QString>                  m_wellName;
 
-    caf::PdmField<QDateTime>              m_selectedFromTimeStep;
-    caf::PdmField<QDateTime>              m_selectedToTimeStep;
-    caf::PdmField<std::vector<QDateTime>> m_excludeTimeSteps;
-    caf::PdmField<bool>                   m_applyExcludeTimeSteps;
+    caf::PdmField<QDateTime>                        m_selectedFromTimeStep;
+    caf::PdmField<QDateTime>                        m_selectedToTimeStep;
+    caf::PdmField<caf::AppEnum<TimeStepFilterMode>> m_timeStepFilterMode;
+    caf::PdmField<int>                              m_timeStepCount;
+    caf::PdmField<std::vector<QDateTime>>           m_excludeTimeSteps;
+    caf::PdmField<bool>                             m_applyTimeStepSelections;
 
     caf::PdmPtrField<RimFlowDiagSolution*>     m_flowDiagSolution;
     caf::PdmField<caf::AppEnum<FlowValueType>> m_flowValueType;
     caf::PdmField<bool>                        m_groupSmallContributions;
     caf::PdmField<double>                      m_smallContributionsThreshold;
 
-    QPointer<RiuQwtPlotWidget> m_plotWidget;
+    QPointer<RiuQwtPlotWidget>                      m_plotWidget;
+    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisTitleFontSize;
+    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisValueFontSize;
 
     const int m_initialNumberOfTimeSteps = 10;
 };

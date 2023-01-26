@@ -290,10 +290,24 @@ void RiuQwtPlotWidget::setInternalLegendVisible( bool visible )
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::insertLegend( RiuPlotWidget::Legend legendPosition )
 {
-    CAF_ASSERT( legendPosition == RiuPlotWidget::Legend::BOTTOM );
+    CAF_ASSERT( legendPosition == RiuPlotWidget::Legend::BOTTOM || legendPosition == RiuPlotWidget::Legend::TOP ||
+                legendPosition == RiuPlotWidget::Legend::LEFT || legendPosition == RiuPlotWidget::Legend::RIGHT );
 
+    QwtPlot::LegendPosition pos = QwtPlot::LegendPosition::BottomLegend;
+    if ( legendPosition == RiuPlotWidget::Legend::TOP )
+    {
+        pos = QwtPlot::LegendPosition::TopLegend;
+    }
+    else if ( legendPosition == RiuPlotWidget::Legend::LEFT )
+    {
+        pos = QwtPlot::LegendPosition::LeftLegend;
+    }
+    else if ( legendPosition == RiuPlotWidget::Legend::RIGHT )
+    {
+        pos = QwtPlot::LegendPosition::RightLegend;
+    }
     auto* legend = new QwtLegend( this );
-    m_plot->insertLegend( legend, QwtPlot::BottomLegend );
+    m_plot->insertLegend( legend, pos );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -581,7 +595,11 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
                     auto* scaleWidget = qobject_cast<QwtScaleWidget*>( childClicked );
                     if ( scaleWidget )
                     {
-                        onAxisSelected( scaleWidget, toggleItemInSelection );
+                        if ( m_plotDefinition && m_plotDefinition->isCurveHighlightSupported() )
+                        {
+                            onAxisSelected( scaleWidget, toggleItemInSelection );
+                        }
+
                         m_clickPosition = QPoint();
                         return true;
                     }
