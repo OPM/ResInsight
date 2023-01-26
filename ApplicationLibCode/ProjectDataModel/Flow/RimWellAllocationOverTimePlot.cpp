@@ -880,7 +880,7 @@ std::set<QDateTime>
     {
         return outputDates;
     }
-    if ( numDates > inputDates.size() )
+    if ( static_cast<size_t>( numDates ) > inputDates.size() )
     {
         outputDates = std::set( inputDates.begin(), inputDates.end() );
         return outputDates;
@@ -905,7 +905,7 @@ std::set<QDateTime>
         qint64 targetTime      = minDate.toMSecsSinceEpoch() + i * timeStep;
         int    closestIndex    = 0;
         qint64 closestTimeDiff = std::numeric_limits<qint64>::max();
-        for ( int j = 0; j < inputDates.size(); ++j )
+        for ( size_t j = 0; j < inputDates.size(); ++j )
         {
             qint64 timeDiff = std::abs( inputDates[j].toMSecsSinceEpoch() - targetTime );
             if ( timeDiff < closestTimeDiff )
