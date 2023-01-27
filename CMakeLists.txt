@@ -309,15 +309,20 @@ find_program(buildcache_program buildcache)
 if(buildcache_program)
   set(CMAKE_CXX_COMPILER_LAUNCHER "${buildcache_program}")
   message(STATUS "Found buildcache from : ${buildcache_program}")
-  
+
   if(MSVC)
-    # New concept for defining MSVC debug info flags introduced in 3.25. Evaluate this concept to simplify the setting of CXX-flags 
+    # New concept for defining MSVC debug info flags introduced in 3.25.
+    # Evaluate this concept to simplify the setting of CXX-flags
     # https://cmake.org/cmake/help/v3.25/prop_tgt/MSVC_DEBUG_INFORMATION_FORMAT.html#prop_tgt:MSVC_DEBUG_INFORMATION_FORMAT
     # https://cmake.org/cmake/help/v3.25/policy/CMP0141.html#policy:CMP0141
-    
+
     string(REGEX REPLACE "/Zi" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    string(REGEX REPLACE "/Zi" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
-    string(REGEX REPLACE "/Zi" "" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
+    string(REGEX REPLACE "/Zi" "" CMAKE_CXX_FLAGS_DEBUG
+                         "${CMAKE_CXX_FLAGS_DEBUG}"
+    )
+    string(REGEX REPLACE "/Zi" "" CMAKE_CXX_FLAGS_RELWITHDEBINFO
+                         "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}"
+    )
 
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Z7")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Z7")
