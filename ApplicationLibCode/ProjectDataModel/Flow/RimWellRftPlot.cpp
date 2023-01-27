@@ -1075,7 +1075,7 @@ std::map<QString, QStringList> RimWellRftPlot::findWellSources()
         }
 
         auto singleCases = RiaSummaryTools::singleTopLevelSummaryCases();
-        for ( auto* summaryCase : singleCases )
+        for ( auto summaryCase : singleCases )
         {
             if ( auto rftReader = summaryCase->rftReader() )
             {

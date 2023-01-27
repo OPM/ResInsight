@@ -57,7 +57,9 @@ RimSummaryMultiPlotCollection* RiaSummaryTools::summaryMultiPlotCollection()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCase*> RiaSummaryTools::singleTopLevelSummaryCases()
 {
-    return summaryCaseMainCollection()->topLevelSummaryCases();
+    if ( summaryCaseMainCollection() ) return summaryCaseMainCollection()->topLevelSummaryCases();
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
