@@ -60,6 +60,14 @@ public:
 protected:
     RimSummaryCalculationVariable* createVariable() override;
 
+    static std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
+        calculateResult( const QString& expression, const std::vector<RimSummaryCalculationVariable*>& variables );
+
+    std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
+        calculateWithSubstitutions( const RifEclipseSummaryAddress& addr );
+
+    std::optional<std::vector<RimSummaryCalculationVariable*>> getVariables() const;
+
     std::map<RifEclipseSummaryAddress, std::vector<double>> m_cachedResults;
     std::map<RifEclipseSummaryAddress, std::vector<time_t>> m_cachedTimesteps;
 };
