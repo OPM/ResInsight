@@ -835,7 +835,6 @@ std::map<std::string, std::vector<std::string>>
             fieldCompNames["ST"].push_back( "TPinc" );
             fieldCompNames["ST"].push_back( "TPH" );
             fieldCompNames["ST"].push_back( "TPQV" );
-            fieldCompNames["ST"].push_back( "FAULTMOB" );
             fieldCompNames["ST"].push_back( "PCRIT" );
         }
         else if ( resPos == RIG_ELEMENT )
