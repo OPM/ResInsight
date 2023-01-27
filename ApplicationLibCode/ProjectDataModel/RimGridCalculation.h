@@ -58,6 +58,8 @@ public:
 
     std::vector<RimUserDefinedCalculationAddress*> allAddresses() const override;
 
+    std::vector<double> values( const RimUserDefinedCalculationAddress& addr ) override;
+
 protected:
     void onChildrenUpdated( caf::PdmChildArrayFieldHandle*      childArray,
                             std::vector<caf::PdmObjectHandle*>& updatedObjects ) override;

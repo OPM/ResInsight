@@ -67,9 +67,10 @@ RimUserDefinedCalculation::RimUserDefinedCalculation()
     m_unit.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_variables, "Variables", "Variables" );
-    CAF_PDM_InitFieldNoDefault( &m_calculatedValues, "CalculatedValues", "Calculated Values" );
 
-    CAF_PDM_InitFieldNoDefault( &m_timesteps, "TimeSteps", "Time Steps" );
+    CAF_PDM_InitFieldNoDefault( &m_calculatedValues_OBSOLETE, "CalculatedValues", "Calculated Values" );
+    CAF_PDM_InitFieldNoDefault( &m_timesteps_OBSOLETE, "TimeSteps", "Time Steps" );
+
     CAF_PDM_InitField( &m_id, "Id", -1, "Id" );
     m_id.uiCapability()->setUiHidden( true );
 
@@ -150,20 +151,20 @@ void RimUserDefinedCalculation::deleteVariable( RimUserDefinedCalculationVariabl
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const std::vector<double>& RimUserDefinedCalculation::values() const
-{
-    return m_calculatedValues();
-}
+// ///
+// //--------------------------------------------------------------------------------------------------
+// const std::vector<double>& RimUserDefinedCalculation::values() const
+// {
+//     return m_calculatedValues();
+// }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const std::vector<time_t>& RimUserDefinedCalculation::timeSteps() const
-{
-    return m_timesteps();
-}
+// //--------------------------------------------------------------------------------------------------
+// ///
+// //--------------------------------------------------------------------------------------------------
+// const std::vector<time_t>& RimUserDefinedCalculation::timeSteps() const
+// {
+//     return m_timesteps();
+// }
 
 //--------------------------------------------------------------------------------------------------
 ///

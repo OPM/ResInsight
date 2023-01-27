@@ -126,8 +126,14 @@ bool RimSummaryCalculation::calculate()
 
     if ( evaluatedOk )
     {
-        m_timesteps.v().clear();
-        m_calculatedValues.v().clear();
+        RimSummaryCalculationVariable* v = dynamic_cast<RimSummaryCalculationVariable*>( m_variables[0] );
+
+        auto well = v->summaryAddress()->address().wellName();
+        auto addr = RifEclipseSummaryAddress::calculatedWellAddress( description().toStdString(), well, m_id );
+
+        // TODO: clear existing values
+        m_cachedResults.erase( addr );
+        m_cachedTimesteps.erase( addr );
 
         if ( timeHistoryCurveMerger.validIntervalsForAllXValues().size() > 0 )
         {
@@ -142,8 +148,8 @@ bool RimSummaryCalculation::calculate()
                 std::vector<double> validValues( resultValues.begin() + firstValidTimeStep,
                                                  resultValues.begin() + lastValidTimeStep );
 
-                m_timesteps        = validTimeSteps;
-                m_calculatedValues = validValues;
+                m_cachedResults[addr]   = validValues;
+                m_cachedTimesteps[addr] = validTimeSteps;
             }
         }
 
@@ -217,4 +223,44 @@ std::vector<RimUserDefinedCalculationAddress*> RimSummaryCalculation::allAddress
     }
 
     return addresses;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimSummaryCalculation::values( const RimUserDefinedCalculationAddress& addr )
+{
+    const RimSummaryCalculationAddress* address = dynamic_cast<const RimSummaryCalculationAddress*>( &addr );
+    if ( !address ) return {};
+
+    if ( auto it = m_cachedResults.find( address->address() ); it != m_cachedResults.end() )
+    {
+        RiaLogging::info( QString( "Hit values cached data! %1" ).arg( address->address().uiText().c_str() ) );
+        return it->second;
+    }
+    else
+    {
+        calculate();
+        RiaLogging::error( QString( "Missing values data! %1" ).arg( address->address().uiText().c_str() ) );
+        return {};
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<time_t>& RimSummaryCalculation::timeSteps( const RimUserDefinedCalculationAddress& addr )
+{
+    static std::vector<time_t> dummy;
+
+    const RimSummaryCalculationAddress* address = dynamic_cast<const RimSummaryCalculationAddress*>( &addr );
+    if ( !address ) return dummy;
+
+    if ( auto it = m_cachedTimesteps.find( address->address() ); it != m_cachedTimesteps.end() )
+    {
+        RiaLogging::info( QString( "Hit timesteps cached data! %1" ).arg( address->address().uiText().c_str() ) );
+        return it->second;
+    }
+
+    return dummy;
 }
