@@ -42,11 +42,10 @@ RicMswExportInfo::RicMswExportInfo( const RimWellPath*            wellPath,
     , m_lengthAndDepthText( lengthAndDepthText )
     , m_pressureDropText( pressureDropText )
     , m_hasSubGridIntersections( false )
-    , m_mainBoreBranch(
-          std::make_unique<RicMswBranch>( "Main Stem",
-                                          wellPath,
-                                          initialMD,
-                                          -wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( initialMD ).z() ) )
+    , m_mainBoreBranch( std::make_unique<RicMswBranch>( "Main Stem",
+                                                        wellPath,
+                                                        initialMD,
+                                                        -wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( initialMD ).z() ) )
 {
 }
 

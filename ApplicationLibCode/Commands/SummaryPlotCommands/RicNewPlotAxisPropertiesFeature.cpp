@@ -48,8 +48,7 @@ void RicNewPlotAxisPropertiesFeature::onActionTriggered( bool isChecked )
     auto* summaryPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot*>();
     if ( !summaryPlot ) return;
 
-    RimPlotAxisProperties* newPlotAxisProperties =
-        summaryPlot->addNewAxisProperties( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, "New Axis" );
+    RimPlotAxisProperties* newPlotAxisProperties = summaryPlot->addNewAxisProperties( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, "New Axis" );
     summaryPlot->plotWidget()->ensureAxisIsCreated( newPlotAxisProperties->plotAxisType() );
     newPlotAxisProperties->setNameForUnusedAxis();
 

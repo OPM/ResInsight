@@ -56,11 +56,7 @@ void RicNewWellPathStimPlanModelAtPosFeature::onActionTriggered( bool isChecked 
         timeStep    = activeView->currentTimeStep();
     }
 
-    RicNewStimPlanModelFeature::addStimPlanModel( wellPath,
-                                                  wellPathCollection,
-                                                  eclipseCase,
-                                                  timeStep,
-                                                  wellPathItem->m_measuredDepth );
+    RicNewStimPlanModelFeature::addStimPlanModel( wellPath, wellPathCollection, eclipseCase, timeStep, wellPathItem->m_measuredDepth );
 }
 
 //--------------------------------------------------------------------------------------------------

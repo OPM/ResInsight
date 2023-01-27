@@ -71,10 +71,7 @@ RimCase::RimCase()
     m_timeStepFilter.uiCapability()->setUiTreeChildrenHidden( true );
     m_timeStepFilter = new RimTimeStepFilter;
 
-    CAF_PDM_InitFieldNoDefault( &m_2dIntersectionViewCollection,
-                                "IntersectionViewCollection",
-                                "2D Intersection Views",
-                                ":/CrossSections16x16.png" );
+    CAF_PDM_InitFieldNoDefault( &m_2dIntersectionViewCollection, "IntersectionViewCollection", "2D Intersection Views", ":/CrossSections16x16.png" );
     m_2dIntersectionViewCollection.uiCapability()->setUiTreeHidden( true );
     m_2dIntersectionViewCollection = new Rim2dIntersectionViewCollection();
 }
@@ -274,10 +271,7 @@ QList<caf::PdmOptionItemInfo> RimCase::calculateValueOptions( const caf::PdmFiel
         {
             for ( RimFormationNames* fnames : proj->activeOilField()->formationNamesCollection()->formationNamesList() )
             {
-                options.push_back( caf::PdmOptionItemInfo( fnames->fileNameWoPath(),
-                                                           fnames,
-                                                           false,
-                                                           fnames->uiCapability()->uiIconProvider() ) );
+                options.push_back( caf::PdmOptionItemInfo( fnames->fileNameWoPath(), fnames, false, fnames->uiCapability()->uiIconProvider() ) );
             }
         }
 
@@ -292,8 +286,7 @@ QList<caf::PdmOptionItemInfo> RimCase::calculateValueOptions( const caf::PdmFiel
 //--------------------------------------------------------------------------------------------------
 void RimCase::updateOptionSensitivity()
 {
-    m_caseUserDescription.uiCapability()->setUiReadOnly( m_displayNameOption !=
-                                                         RimCaseDisplayNameTools::DisplayName::CUSTOM );
+    m_caseUserDescription.uiCapability()->setUiReadOnly( m_displayNameOption != RimCaseDisplayNameTools::DisplayName::CUSTOM );
 }
 
 //--------------------------------------------------------------------------------------------------

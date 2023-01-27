@@ -75,8 +75,7 @@ bool RigFemPartResultCalculatorCompaction::isMatching( const RigFemResultAddress
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultCalculatorCompaction::calculate( int                        partIndex,
-                                                                           const RigFemResultAddress& resVarAddr )
+RigFemScalarResultFrames* RigFemPartResultCalculatorCompaction::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
 {
     CVF_ASSERT( resVarAddr.fieldName == RigFemPartResultsCollection::FIELD_NAME_COMPACTION );
 
@@ -128,11 +127,11 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorCompaction::calculate( int  
 
                     cvf::Vec3f currentNodeCoord = part->nodes().coordinates[n];
                     if ( currentNodeCoord.z() >= refElement.intersectionPoint.z() )
-                        compactionFrame[n] = -( u3Frames->frameData( stepIdx, fIdx )[n] -
-                                                u3Frames->frameData( stepIdx, fIdx )[closestRefNodeIdx] );
+                        compactionFrame[n] =
+                            -( u3Frames->frameData( stepIdx, fIdx )[n] - u3Frames->frameData( stepIdx, fIdx )[closestRefNodeIdx] );
                     else
-                        compactionFrame[n] = -( u3Frames->frameData( stepIdx, fIdx )[closestRefNodeIdx] -
-                                                u3Frames->frameData( stepIdx, fIdx )[n] );
+                        compactionFrame[n] =
+                            -( u3Frames->frameData( stepIdx, fIdx )[closestRefNodeIdx] - u3Frames->frameData( stepIdx, fIdx )[n] );
                 }
                 else
                 {
@@ -196,10 +195,8 @@ void findReferenceElementForNode( const RigFemPart& part, size_t nodeIdx, size_t
                 {
                     cvf::ubyte faceNodes[4];
                     grid->cellFaceVertexIndices( intersection.m_face, faceNodes );
-                    std::vector<size_t> topFaceCoords( { nodeIndices[faceNodes[0]],
-                                                         nodeIndices[faceNodes[1]],
-                                                         nodeIndices[faceNodes[2]],
-                                                         nodeIndices[faceNodes[3]] } );
+                    std::vector<size_t> topFaceCoords(
+                        { nodeIndices[faceNodes[0]], nodeIndices[faceNodes[1]], nodeIndices[faceNodes[2]], nodeIndices[faceNodes[3]] } );
 
                     refElement->elementIdx                             = elemIdx;
                     refElement->intersectionPointToCurrentNodeDistance = nodeToIntersectionDistance;

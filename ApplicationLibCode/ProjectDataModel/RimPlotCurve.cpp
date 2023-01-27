@@ -62,8 +62,7 @@ RimPlotCurve::RimPlotCurve()
 
     CAF_PDM_InitFieldNoDefault( &m_curveName, "CurveName", "" );
 
-    auto templateText =
-        QString( "%1, %2" ).arg( RiaDefines::namingVariableCase() ).arg( RiaDefines::namingVariableResultName() );
+    auto templateText = QString( "%1, %2" ).arg( RiaDefines::namingVariableCase() ).arg( RiaDefines::namingVariableResultName() );
     CAF_PDM_InitField( &m_curveNameTemplateText, "TemplateText", templateText, "Template Text" );
     CAF_PDM_InitFieldNoDefault( &m_namingMethod, "CurveNamingMethod", "Curve Name" );
 
@@ -302,19 +301,17 @@ QList<caf::PdmOptionItemInfo> RimPlotCurve::calculateValueOptions( const caf::Pd
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &m_namingMethod )
     {
-        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::ObjectNamingMethod>::uiText(
-                                                       RiaDefines::ObjectNamingMethod::AUTO ),
+        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::ObjectNamingMethod>::uiText( RiaDefines::ObjectNamingMethod::AUTO ),
                                                    RiaDefines::ObjectNamingMethod::AUTO ) );
 
-        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::ObjectNamingMethod>::uiText(
-                                                       RiaDefines::ObjectNamingMethod::CUSTOM ),
+        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::ObjectNamingMethod>::uiText( RiaDefines::ObjectNamingMethod::CUSTOM ),
                                                    RiaDefines::ObjectNamingMethod::CUSTOM ) );
 
         if ( isCurveNameTemplateSupported() )
         {
-            options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::ObjectNamingMethod>::uiText(
-                                                           RiaDefines::ObjectNamingMethod::TEMPLATE ),
-                                                       RiaDefines::ObjectNamingMethod::TEMPLATE ) );
+            options.push_back(
+                caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::ObjectNamingMethod>::uiText( RiaDefines::ObjectNamingMethod::TEMPLATE ),
+                                        RiaDefines::ObjectNamingMethod::TEMPLATE ) );
         }
     }
     else if ( fieldNeedingOptions == &m_additionalDataSources )
@@ -801,9 +798,7 @@ bool RimPlotCurve::hasParentPlot() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::setSamplesFromXYValues( const std::vector<double>& xValues,
-                                           const std::vector<double>& yValues,
-                                           bool                       useLogarithmicScale )
+void RimPlotCurve::setSamplesFromXYValues( const std::vector<double>& xValues, const std::vector<double>& yValues, bool useLogarithmicScale )
 {
     if ( m_plotCurve )
     {
@@ -827,9 +822,7 @@ void RimPlotCurve::setSamplesFromDatesAndYValues( const std::vector<QDateTime>& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::setSamplesFromTimeTAndYValues( const std::vector<time_t>& dateTimes,
-                                                  const std::vector<double>& yValues,
-                                                  bool                       useLogarithmicScale )
+void RimPlotCurve::setSamplesFromTimeTAndYValues( const std::vector<time_t>& dateTimes, const std::vector<double>& yValues, bool useLogarithmicScale )
 {
     if ( m_plotCurve )
     {
@@ -899,8 +892,7 @@ void RimPlotCurve::updateLegendEntryVisibilityNoPlotUpdate()
             }
         }
 
-        if ( !anyCalculated && summaryPlot->ensembleCurveSetCollection()->curveSets().empty() &&
-             summaryPlot->curveCount() == 1 )
+        if ( !anyCalculated && summaryPlot->ensembleCurveSetCollection()->curveSets().empty() && summaryPlot->curveCount() == 1 )
         {
             // Disable display of legend if the summary plot has only one single curve
             showLegendInPlot = false;
@@ -973,8 +965,8 @@ void RimPlotCurve::updateCurveAppearance()
     RiuPlotCurveSymbol* symbol = nullptr;
     if ( m_curveAppearance->symbol() != RiuPlotCurveSymbol::SYMBOL_NONE )
     {
-        int legendFontSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(),
-                                                                caf::FontTools::RelativeSize::Small );
+        int legendFontSize =
+            caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), caf::FontTools::RelativeSize::Small );
 
         RimPlotWindow* plotWindow = nullptr;
         this->firstAncestorOrThisOfType( plotWindow );

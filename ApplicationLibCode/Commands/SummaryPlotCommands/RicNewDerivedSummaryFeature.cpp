@@ -101,8 +101,7 @@ void RicNewDerivedSummaryFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 RimSummaryCaseMainCollection* RicNewDerivedSummaryFeature::mainCollection()
 {
-    std::vector<RimSummaryCaseMainCollection*> mainColls =
-        caf::selectedObjectsByTypeStrict<RimSummaryCaseMainCollection*>();
+    std::vector<RimSummaryCaseMainCollection*> mainColls = caf::selectedObjectsByTypeStrict<RimSummaryCaseMainCollection*>();
 
     if ( mainColls.size() == 1 ) return mainColls.front();
 

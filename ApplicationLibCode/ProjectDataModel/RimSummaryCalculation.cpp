@@ -138,8 +138,7 @@ bool RimSummaryCalculation::calculate()
                 std::vector<time_t> validTimeSteps( timeHistoryCurveMerger.allXValues().begin() + firstValidTimeStep,
                                                     timeHistoryCurveMerger.allXValues().begin() + lastValidTimeStep );
 
-                std::vector<double> validValues( resultValues.begin() + firstValidTimeStep,
-                                                 resultValues.begin() + lastValidTimeStep );
+                std::vector<double> validValues( resultValues.begin() + firstValidTimeStep, resultValues.begin() + lastValidTimeStep );
 
                 m_timesteps        = validTimeSteps;
                 m_calculatedValues = validValues;

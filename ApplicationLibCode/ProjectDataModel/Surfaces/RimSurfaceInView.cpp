@@ -184,13 +184,11 @@ void RimSurfaceInView::updateLegendRangesTextAndVisibility( RiuViewer* nativeOrO
     {
         RimRegularLegendConfig* legendConfig = m_resultDefinition->legendConfig();
 
-        legendConfig->setTitle(
-            QString( "Surface : \n%1\n%2" ).arg( this->name() ).arg( m_resultDefinition->propertyName() ) );
+        legendConfig->setTitle( QString( "Surface : \n%1\n%2" ).arg( this->name() ).arg( m_resultDefinition->propertyName() ) );
 
         if ( this->isActive() && m_resultDefinition->isChecked() && legendConfig->showLegend() )
         {
-            nativeOrOverrideViewer->addColorLegendToBottomLeftCorner( legendConfig->titledOverlayFrame(),
-                                                                      isUsingOverrideViewer );
+            nativeOrOverrideViewer->addColorLegendToBottomLeftCorner( legendConfig->titledOverlayFrame(), isUsingOverrideViewer );
         }
     }
 }
@@ -198,9 +196,7 @@ void RimSurfaceInView::updateLegendRangesTextAndVisibility( RiuViewer* nativeOrO
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSurfaceInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                         const QVariant&            oldValue,
-                                         const QVariant&            newValue )
+void RimSurfaceInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     this->updateUiIconFromToggleField();
 

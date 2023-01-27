@@ -192,10 +192,8 @@ void RiuWellImportWizard::httpFinished()
     else if ( !redirectionTarget.isNull() )
     {
         QUrl newUrl = m_url.resolved( redirectionTarget.toUrl() );
-        if ( QMessageBox::question( this,
-                                    tr( "HTTP" ),
-                                    tr( "Redirect to %1 ?" ).arg( newUrl.toString() ),
-                                    QMessageBox::Yes | QMessageBox::No ) == QMessageBox::Yes )
+        if ( QMessageBox::question( this, tr( "HTTP" ), tr( "Redirect to %1 ?" ).arg( newUrl.toString() ), QMessageBox::Yes | QMessageBox::No ) ==
+             QMessageBox::Yes )
         {
             m_url = newUrl;
             m_reply->deleteLater();
@@ -223,8 +221,7 @@ void RiuWellImportWizard::httpFinished()
 
             if ( singleWellPathContent.indexOf( '{' ) > 0 )
             {
-                singleWellPathContent =
-                    singleWellPathContent.right( singleWellPathContent.size() - singleWellPathContent.indexOf( '{' ) );
+                singleWellPathContent = singleWellPathContent.right( singleWellPathContent.size() - singleWellPathContent.indexOf( '{' ) );
             }
 
             if ( singleWellPathContent[singleWellPathContent.size() - 1] == ']' )
@@ -653,11 +650,7 @@ void RiuWellImportWizard::parseWellsResponse( RimOilFieldEntry* oilFieldEntry )
                     QString                 requestUrl = m_webServiceAddress + linksMap["entity"].toString();
                     QString                 surveyType = surveyMap["surveyType"].toString();
                     RimWellPathEntry*       surveyWellPathEntry =
-                        RimWellPathEntry::createWellPathEntry( name,
-                                                               surveyType,
-                                                               requestUrl,
-                                                               m_destinationFolder,
-                                                               RimWellPathEntry::WELL_SURVEY );
+                        RimWellPathEntry::createWellPathEntry( name, surveyType, requestUrl, m_destinationFolder, RimWellPathEntry::WELL_SURVEY );
                     oilFieldEntry->wells.push_back( surveyWellPathEntry );
                 }
 
@@ -679,11 +672,7 @@ void RiuWellImportWizard::parseWellsResponse( RimOilFieldEntry* oilFieldEntry )
                         QString                 requestUrl = m_webServiceAddress + linksMap["entity"].toString();
                         QString                 surveyType = planMap["surveyType"].toString();
                         RimWellPathEntry*       surveyWellPathEntry =
-                            RimWellPathEntry::createWellPathEntry( name,
-                                                                   surveyType,
-                                                                   requestUrl,
-                                                                   m_destinationFolder,
-                                                                   RimWellPathEntry::WELL_PLAN );
+                            RimWellPathEntry::createWellPathEntry( name, surveyType, requestUrl, m_destinationFolder, RimWellPathEntry::WELL_PLAN );
                         oilFieldEntry->wells.push_back( surveyWellPathEntry );
                     }
 
@@ -962,8 +951,7 @@ WellSelectionPage::~WellSelectionPage()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void WellSelectionPage::selectedWellPathEntries( std::vector<DownloadEntity>& downloadEntities,
-                                                 caf::PdmObjectHandle*        objHandle )
+void WellSelectionPage::selectedWellPathEntries( std::vector<DownloadEntity>& downloadEntities, caf::PdmObjectHandle* objHandle )
 {
     if ( objHandle == nullptr )
     {
@@ -1117,8 +1105,8 @@ void WellSummaryPage::updateSummaryPage()
     size_t  wellPathCount = 0;
     QString errorString;
 
-    RiuWellImportWizard* wiz             = dynamic_cast<RiuWellImportWizard*>( wizard() );
-    WellSelectionPage* wellSelectionPage = dynamic_cast<WellSelectionPage*>( wiz->page( wiz->wellSelectionPageId() ) );
+    RiuWellImportWizard*        wiz               = dynamic_cast<RiuWellImportWizard*>( wizard() );
+    WellSelectionPage*          wellSelectionPage = dynamic_cast<WellSelectionPage*>( wiz->page( wiz->wellSelectionPageId() ) );
     std::vector<DownloadEntity> downloadEntities;
     wellSelectionPage->selectedWellPathEntries( downloadEntities, nullptr );
 
@@ -1130,9 +1118,8 @@ void WellSummaryPage::updateSummaryPage()
         }
         else
         {
-            errorString += QString( "Failed to get file '%1' from well '%2'\n" )
-                               .arg( downloadEntities[i].responseFilename )
-                               .arg( downloadEntities[i].name );
+            errorString +=
+                QString( "Failed to get file '%1' from well '%2'\n" ).arg( downloadEntities[i].responseFilename ).arg( downloadEntities[i].name );
         }
 
         SummaryPageDownloadEntity* sumPageEntity = new SummaryPageDownloadEntity;

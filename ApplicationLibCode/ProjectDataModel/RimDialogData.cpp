@@ -48,9 +48,7 @@ RimDialogData::RimDialogData()
     CAF_PDM_InitFieldNoDefault( &m_multipleFractionsData, "MultipleFractionsData", "Multiple Fractures Data" );
     m_multipleFractionsData = new RiuCreateMultipleFractionsUi();
 
-    CAF_PDM_InitFieldNoDefault( &m_holoLenseExportToFolderData,
-                                "HoloLenseExportToFolderData",
-                                "Holo Lens Export To Folder Data" );
+    CAF_PDM_InitFieldNoDefault( &m_holoLenseExportToFolderData, "HoloLenseExportToFolderData", "Holo Lens Export To Folder Data" );
     m_holoLenseExportToFolderData = new RicHoloLensExportToFolderUi();
 
     CAF_PDM_InitFieldNoDefault( &m_exportWellPathsData, "ExportwellPathsData", "Export Well Paths Data" );

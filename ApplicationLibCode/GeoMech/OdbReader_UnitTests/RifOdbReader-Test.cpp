@@ -58,12 +58,10 @@ TEST( OdbReaderTest, BasicTests )
     std::map<std::string, std::vector<std::string>> scalarNodeFieldsMap = reader->scalarNodeFieldAndComponentNames();
     EXPECT_EQ( 3, scalarNodeFieldsMap.size() );
 
-    std::map<std::string, std::vector<std::string>> scalarElementNodeFieldsMap =
-        reader->scalarElementNodeFieldAndComponentNames();
+    std::map<std::string, std::vector<std::string>> scalarElementNodeFieldsMap = reader->scalarElementNodeFieldAndComponentNames();
     EXPECT_EQ( 0, scalarElementNodeFieldsMap.size() );
 
-    std::map<std::string, std::vector<std::string>> scalarIntegrationPointFieldsMap =
-        reader->scalarIntegrationPointFieldAndComponentNames();
+    std::map<std::string, std::vector<std::string>> scalarIntegrationPointFieldsMap = reader->scalarIntegrationPointFieldAndComponentNames();
     EXPECT_EQ( 6, scalarIntegrationPointFieldsMap.size() );
 
     std::vector<float> displacementValues;

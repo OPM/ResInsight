@@ -401,8 +401,7 @@ void RiuQwtPlotWidget::setMajorAndMinorTickIntervals( RiuPlotAxis axis,
     auto* scaleEngine = dynamic_cast<RiuQwtLinearScaleEngine*>( m_plot->axisScaleEngine( qwtAxis ) );
     if ( scaleEngine )
     {
-        QwtScaleDiv scaleDiv =
-            scaleEngine->divideScaleWithExplicitIntervals( minValue, maxValue, majorTickInterval, minorTickInterval );
+        QwtScaleDiv scaleDiv = scaleEngine->divideScaleWithExplicitIntervals( minValue, maxValue, majorTickInterval, minorTickInterval );
 
         m_plot->setAxisScaleDiv( qwtAxis, scaleDiv );
     }
@@ -586,8 +585,7 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
 
         if ( watched == m_plot && !m_plot->canvas()->geometry().contains( mouseEvent->pos() ) )
         {
-            if ( mouseEvent->type() == QMouseEvent::MouseButtonPress && ( mouseEvent->button() == Qt::LeftButton ) &&
-                 !m_clickPosition.isNull() )
+            if ( mouseEvent->type() == QMouseEvent::MouseButtonPress && ( mouseEvent->button() == Qt::LeftButton ) && !m_clickPosition.isNull() )
             {
                 QWidget* childClicked = m_plot->childAt( m_clickPosition );
                 if ( childClicked )
@@ -615,8 +613,7 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
         }
         else if ( watched == m_plot->canvas() )
         {
-            if ( mouseEvent->type() == QMouseEvent::MouseButtonRelease && mouseEvent->button() == Qt::LeftButton &&
-                 !m_clickPosition.isNull() )
+            if ( mouseEvent->type() == QMouseEvent::MouseButtonRelease && mouseEvent->button() == Qt::LeftButton && !m_clickPosition.isNull() )
             {
                 endZoomOperations();
 
@@ -758,12 +755,10 @@ void RiuQwtPlotWidget::renderTo( QPainter* painter, const QRect& targetRect, dou
                 overlayRect.setSize( actualSize );
 
                 QPoint overlayBottomRightInWindowCoords = overlayRect.bottomRight();
-                overlayBottomRightInWindowCoords.setX(
-                    std::min( overlayBottomRightInWindowCoords.x(),
-                              canvasBottomRightInWindowCoords.x() - (int)scaling * m_overlayMargins ) );
-                overlayBottomRightInWindowCoords.setY(
-                    std::min( overlayBottomRightInWindowCoords.y(),
-                              canvasBottomRightInWindowCoords.y() - (int)scaling * m_overlayMargins ) );
+                overlayBottomRightInWindowCoords.setX( std::min( overlayBottomRightInWindowCoords.x(),
+                                                                 canvasBottomRightInWindowCoords.x() - (int)scaling * m_overlayMargins ) );
+                overlayBottomRightInWindowCoords.setY( std::min( overlayBottomRightInWindowCoords.y(),
+                                                                 canvasBottomRightInWindowCoords.y() - (int)scaling * m_overlayMargins ) );
                 overlayRect.moveBottomRight( overlayBottomRightInWindowCoords );
                 overlayFrame->renderTo( painter, overlayRect );
             }
@@ -857,10 +852,7 @@ QWidget* RiuQwtPlotWidget::getParentForOverlay() const
 //--------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::findClosestPlotItem( const QPoint& pos,
-                                            QwtPlotItem** closestItem,
-                                            int*          closestCurvePoint,
-                                            double*       distanceFromClick ) const
+void RiuQwtPlotWidget::findClosestPlotItem( const QPoint& pos, QwtPlotItem** closestItem, int* closestCurvePoint, double* distanceFromClick ) const
 {
     CAF_ASSERT( closestItem && closestCurvePoint && distanceFromClick );
 
@@ -887,8 +879,7 @@ void RiuQwtPlotWidget::findClosestPlotItem( const QPoint& pos,
         else if ( it->rtti() == QwtPlotItem::Rtti_PlotShape )
         {
             auto*   shapeItem = static_cast<QwtPlotShapeItem*>( it );
-            QPointF scalePos( m_plot->invTransform( QwtAxis::XBottom, pos.x() ),
-                              m_plot->invTransform( QwtAxis::YLeft, pos.y() ) );
+            QPointF scalePos( m_plot->invTransform( QwtAxis::XBottom, pos.x() ), m_plot->invTransform( QwtAxis::YLeft, pos.y() ) );
             if ( shapeItem->shape().boundingRect().contains( scalePos ) )
             {
                 *closestItem       = it;
@@ -898,15 +889,13 @@ void RiuQwtPlotWidget::findClosestPlotItem( const QPoint& pos,
         else if ( it->rtti() == QwtPlotItem::Rtti_PlotBarChart )
         {
             auto*   barChart = static_cast<QwtPlotBarChart*>( it );
-            QPointF scalePos( m_plot->invTransform( QwtAxis::XBottom, pos.x() ),
-                              m_plot->invTransform( QwtAxis::YLeft, pos.y() ) );
+            QPointF scalePos( m_plot->invTransform( QwtAxis::XBottom, pos.x() ), m_plot->invTransform( QwtAxis::YLeft, pos.y() ) );
 
             bool horizontal = barChart->orientation() == Qt::Horizontal;
             for ( size_t i = 0; i < barChart->dataSize(); ++i )
             {
                 QPointF samplePoint = barChart->sample( (int)i );
-                double  dist        = horizontal ? std::abs( samplePoint.x() - scalePos.y() )
-                                         : std::abs( samplePoint.x() - scalePos.x() );
+                double  dist        = horizontal ? std::abs( samplePoint.x() - scalePos.y() ) : std::abs( samplePoint.x() - scalePos.x() );
                 if ( dist < *distanceFromClick )
                 {
                     *closestItem       = it;
@@ -1062,8 +1051,7 @@ void RiuQwtPlotWidget::resetPlotItemHighlighting( bool doUpdateCurveOrder )
             {
                 auto* riuPlotCurve = dynamic_cast<RiuPlotCurve*>( plotItem );
 
-                if ( auto rimPlotCurve =
-                         dynamic_cast<RimPlotCurve*>( m_plotDefinition->findPdmObjectFromPlotCurve( riuPlotCurve ) ) )
+                if ( auto rimPlotCurve = dynamic_cast<RimPlotCurve*>( m_plotDefinition->findPdmObjectFromPlotCurve( riuPlotCurve ) ) )
                 {
                     rimPlotCurve->updateCurveAppearance();
                     double zValue = m_originalZValues[plotCurve];
@@ -1110,8 +1098,7 @@ void RiuQwtPlotWidget::resetPlotAxisHighlighting()
 
     // Use text color from theme
     QColor  textColor = RiuGuiTheme::getColorByVariableName( "text-color" );
-    QString style =
-        QString( "color: rgb(%1, %2, %3);" ).arg( textColor.red() ).arg( textColor.green() ).arg( textColor.blue() );
+    QString style     = QString( "color: rgb(%1, %2, %3);" ).arg( textColor.red() ).arg( textColor.green() ).arg( textColor.blue() );
 
     for ( auto pos : axisPositions )
     {

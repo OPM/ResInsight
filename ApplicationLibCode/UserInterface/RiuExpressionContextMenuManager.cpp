@@ -24,16 +24,13 @@ const std::map<QString, std::set<QString>> RiuExpressionContextMenuManager::MENU
     { { "Basic Operators", { "+", "-", "*", "/", "x^n" } },
       { "Assignment Operators", { ":=" } },
       { "If Statements",
-        { "VAR_1 := if((X < 0.01), 0.01, X)",
-          "VAR_1 := if((X < 0.01 AND Y > 2.5), 0.01, X)",
-          "VAR_1 := if((X < 0.01 OR Y > 2.5), 0.01, X)" } },
+        { "VAR_1 := if((X < 0.01), 0.01, X)", "VAR_1 := if((X < 0.01 AND Y > 2.5), 0.01, X)", "VAR_1 := if((X < 0.01 OR Y > 2.5), 0.01, X)" } },
       { "Scalar Functions", { "avg(x)", "max(x)", "min(x)", "sum(x)" } },
       { "Vector Functions",
         { "abs(x)", "ceil(x)", "floor(x)", "frac(x)", "log(x)", "log10(x)", "pow(x, n)", "round(x)", "sgn(x)", "sqrt(x)", "trunc(x)" } },
-      { "Trigonometry Functions",
-        { "acos(x)", "acosh(x)", "asin(x)",    "asinh(x)",    "atan(x)",    "atanh(x)",   "cos(x)",
-          "cosh(x)", "cot(x)",   "csc(x)",     "sec(x)",      "sin(x)",     "sinc(x)",    "sinh(x)",
-          "tan(x)",  "tanh(x)",  "rad2deg(x)", "deg2grad(x)", "deg2rad(x)", "grad2deg(x)" } } };
+      { "Trigonometry Functions", { "acos(x)", "acosh(x)", "asin(x)",    "asinh(x)",    "atan(x)",    "atanh(x)",   "cos(x)",
+                                    "cosh(x)", "cot(x)",   "csc(x)",     "sec(x)",      "sin(x)",     "sinc(x)",    "sinh(x)",
+                                    "tan(x)",  "tanh(x)",  "rad2deg(x)", "deg2grad(x)", "deg2rad(x)", "grad2deg(x)" } } };
 
 //--------------------------------------------------------------------------------------------------
 ///

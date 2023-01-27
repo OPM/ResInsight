@@ -134,8 +134,7 @@ void RimUserDefinedPolylinesAnnotation::appendTarget( const cvf::Vec3d& defaultP
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimUserDefinedPolylinesAnnotation::insertTarget( const RimPolylineTarget* targetToInsertBefore,
-                                                      RimPolylineTarget*       targetToInsert )
+void RimUserDefinedPolylinesAnnotation::insertTarget( const RimPolylineTarget* targetToInsertBefore, RimPolylineTarget* targetToInsert )
 {
     size_t index = m_targets.indexOf( targetToInsertBefore );
     if ( index < m_targets.size() )
@@ -278,8 +277,7 @@ void RimUserDefinedPolylinesAnnotation::fieldChangedByUi( const caf::PdmFieldHan
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimUserDefinedPolylinesAnnotation::defineObjectEditorAttribute( QString                    uiConfigName,
-                                                                     caf::PdmUiEditorAttribute* attribute )
+void RimUserDefinedPolylinesAnnotation::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     RicPolyline3dEditorAttribute* attrib = dynamic_cast<RicPolyline3dEditorAttribute*>( attribute );
     if ( attrib )

@@ -26,13 +26,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswSegment::RicMswSegment( const QString& label,
-                              double         startMD,
-                              double         endMD,
-                              double         startTVD,
-                              double         endTVD,
-                              size_t         subIndex,
-                              int            segmentNumber /*= -1*/ )
+RicMswSegment::RicMswSegment( const QString& label, double startMD, double endMD, double startTVD, double endTVD, size_t subIndex, int segmentNumber /*= -1*/ )
     : RicMswItem( label )
     , m_startMD( startMD )
     , m_endMD( endMD )

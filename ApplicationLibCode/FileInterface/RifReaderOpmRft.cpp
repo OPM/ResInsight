@@ -88,8 +88,7 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
         {
             auto data = segment.topology();
 
-            auto indices =
-                segment.segmentIndicesForBranchIndex( rftAddress.segmentBranchIndex(), rftAddress.segmentBranchType() );
+            auto indices = segment.segmentIndicesForBranchIndex( rftAddress.segmentBranchIndex(), rftAddress.segmentBranchType() );
             for ( const auto& i : indices )
             {
                 CAF_ASSERT( i < data.size() );
@@ -129,12 +128,12 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
                     // Connection results with size equal to length of result CONSEGNO. CONSEGNO defines the segment
                     // numbers the connection is connected to.
 
-                    const std::string consegResultName = "CONSEGNO";
-                    auto connnectionSegmentNumbers     = m_opm_rft->getRft<int>( consegResultName, wellName, y, m, d );
+                    const std::string consegResultName          = "CONSEGNO";
+                    auto              connnectionSegmentNumbers = m_opm_rft->getRft<int>( consegResultName, wellName, y, m, d );
                     if ( connnectionSegmentNumbers.empty() ) return;
 
-                    auto segmentNumbers = segment.segmentNumbersForBranchIndex( rftAddress.segmentBranchIndex(),
-                                                                                rftAddress.segmentBranchType() );
+                    auto segmentNumbers =
+                        segment.segmentNumbersForBranchIndex( rftAddress.segmentBranchIndex(), rftAddress.segmentBranchType() );
 
                     size_t resultDataIndex = 0;
                     for ( int segmentNumber : segmentNumbers )
@@ -154,8 +153,7 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
                 }
                 else
                 {
-                    auto indices = segment.segmentIndicesForBranchIndex( rftAddress.segmentBranchIndex(),
-                                                                         rftAddress.segmentBranchType() );
+                    auto indices = segment.segmentIndicesForBranchIndex( rftAddress.segmentBranchIndex(), rftAddress.segmentBranchType() );
                     for ( const auto& i : indices )
                     {
                         CAF_ASSERT( i < data.size() );
@@ -202,14 +200,12 @@ std::set<QDateTime> RifReaderOpmRft::availableTimeSteps( const QString& wellName
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<QDateTime>
-    RifReaderOpmRft::availableTimeSteps( const QString&                                     wellName,
-                                         const RifEclipseRftAddress::RftWellLogChannelType& wellLogChannelName )
+std::set<QDateTime> RifReaderOpmRft::availableTimeSteps( const QString&                                     wellName,
+                                                         const RifEclipseRftAddress::RftWellLogChannelType& wellLogChannelName )
 {
     openFiles();
 
-    if ( wellLogChannelName == RifEclipseRftAddress::RftWellLogChannelType::SEGMENT_VALUES )
-        return m_rftSegmentTimeSteps;
+    if ( wellLogChannelName == RifEclipseRftAddress::RftWellLogChannelType::SEGMENT_VALUES ) return m_rftSegmentTimeSteps;
 
     std::set<QDateTime> timeSteps;
 
@@ -226,9 +222,8 @@ std::set<QDateTime>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<QDateTime>
-    RifReaderOpmRft::availableTimeSteps( const QString&                                               wellName,
-                                         const std::set<RifEclipseRftAddress::RftWellLogChannelType>& relevantChannels )
+std::set<QDateTime> RifReaderOpmRft::availableTimeSteps( const QString&                                               wellName,
+                                                         const std::set<RifEclipseRftAddress::RftWellLogChannelType>& relevantChannels )
 {
     openFiles();
 
@@ -316,9 +311,8 @@ void RifReaderOpmRft::cellIndices( const RifEclipseRftAddress& rftAddress, std::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<int, int> RifReaderOpmRft::branchIdsAndOneBasedIndices( const QString&            wellName,
-                                                                 const QDateTime&          timeStep,
-                                                                 RiaDefines::RftBranchType branchType )
+std::map<int, int>
+    RifReaderOpmRft::branchIdsAndOneBasedIndices( const QString& wellName, const QDateTime& timeStep, RiaDefines::RftBranchType branchType )
 {
     int y = timeStep.date().year();
     int m = timeStep.date().month();
@@ -454,16 +448,12 @@ void RifReaderOpmRft::buildMetaData()
         auto resultNameAndSizes = segmentData.resultNameAndSize();
         for ( const auto& [name, arrayType, size] : resultNameAndSizes )
         {
-            auto adr = RifEclipseRftAddress::createSegmentAddress( QString::fromStdString( wellName ),
-                                                                   dt,
-                                                                   QString::fromStdString( name ) );
+            auto adr = RifEclipseRftAddress::createSegmentAddress( QString::fromStdString( wellName ), dt, QString::fromStdString( name ) );
 
             m_addresses.insert( adr );
         }
 
-        auto adr = RifEclipseRftAddress::createSegmentAddress( QString::fromStdString( wellName ),
-                                                               dt,
-                                                               RiaDefines::segmentNumberResultName() );
+        auto adr = RifEclipseRftAddress::createSegmentAddress( QString::fromStdString( wellName ), dt, RiaDefines::segmentNumberResultName() );
 
         m_addresses.insert( adr );
     }
@@ -545,12 +535,10 @@ void RifReaderOpmRft::buildSegmentData()
                 const auto& [name, arrayType, size] = rftResultMetaData;
 
                 bool isResultItemCountValid = false;
-                if ( m_segmentResultItemCount.count( wellName ) &&
-                     size == static_cast<int64_t>( m_segmentResultItemCount[wellName] ) )
+                if ( m_segmentResultItemCount.count( wellName ) && size == static_cast<int64_t>( m_segmentResultItemCount[wellName] ) )
                     isResultItemCountValid = true;
 
-                if ( m_connectionResultItemCount.count( wellName ) &&
-                     size == static_cast<int64_t>( m_connectionResultItemCount[wellName] ) )
+                if ( m_connectionResultItemCount.count( wellName ) && size == static_cast<int64_t>( m_connectionResultItemCount[wellName] ) )
                     isResultItemCountValid = true;
 
                 if ( isResultItemCountValid )
@@ -882,8 +870,7 @@ void RifReaderOpmRft::identifyDeviceBranches( RifRftSegment& segmentRef, const s
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<int>
-    RifReaderOpmRft::importWellData( const std::string& wellName, const std::string& propertyName, const RftDate& date ) const
+std::vector<int> RifReaderOpmRft::importWellData( const std::string& wellName, const std::string& propertyName, const RftDate& date ) const
 {
     // PERFORMANCE NOTE
     // Use method hasRft() that do not throw exception if RFT data is not available. Using this method and avoid
@@ -971,8 +958,7 @@ std::string RifReaderOpmRft::resultNameFromChannelType( RifEclipseRftAddress::Rf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<float>
-    RifReaderOpmRft::resultAsFloat( const std::string& resultName, const std::string& wellName, int year, int month, int day ) const
+std::vector<float> RifReaderOpmRft::resultAsFloat( const std::string& resultName, const std::string& wellName, int year, int month, int day ) const
 {
     Opm::EclIO::eclArrType resultDataType = Opm::EclIO::eclArrType::REAL;
 

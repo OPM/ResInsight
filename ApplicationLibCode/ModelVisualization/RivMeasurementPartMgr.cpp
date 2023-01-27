@@ -115,8 +115,7 @@ void RivMeasurementPartMgr::clearGeometryCache()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivMeasurementPartMgr::buildPolyLineParts( const cvf::Camera*                camera,
-                                                const caf::DisplayCoordTransform* displayCoordTransform )
+void RivMeasurementPartMgr::buildPolyLineParts( const cvf::Camera* camera, const caf::DisplayCoordTransform* displayCoordTransform )
 {
     auto pointsInDisplay = displayCoordTransform->transformToDisplayCoords( m_measurement->pointsInDomainCoords() );
 
@@ -147,8 +146,7 @@ void RivMeasurementPartMgr::buildPolyLineParts( const cvf::Camera*              
     }
 
     // Measurement points
-    cvf::ref<cvf::DrawableGeo> polylinePointsGeo =
-        RivPolylineGenerator::createPointsFromPolylineDrawable( pointsInDisplay );
+    cvf::ref<cvf::DrawableGeo> polylinePointsGeo = RivPolylineGenerator::createPointsFromPolylineDrawable( pointsInDisplay );
     if ( polylinePointsGeo.notNull() )
     {
         cvf::ref<cvf::Part> part = new cvf::Part;
@@ -179,7 +177,7 @@ void RivMeasurementPartMgr::buildPolyLineParts( const cvf::Camera*              
     if ( pointsInDisplay.size() > 1 )
     {
         bool       negativeXDir = false;
-        cvf::Vec3d lastV = pointsInDisplay[pointsInDisplay.size() - 1] - pointsInDisplay[pointsInDisplay.size() - 2];
+        cvf::Vec3d lastV        = pointsInDisplay[pointsInDisplay.size() - 1] - pointsInDisplay[pointsInDisplay.size() - 2];
         if ( lastV.x() < 0.0 )
         {
             negativeXDir = true;

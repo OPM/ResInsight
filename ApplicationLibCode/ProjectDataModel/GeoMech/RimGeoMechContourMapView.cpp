@@ -42,8 +42,7 @@
 
 CAF_PDM_SOURCE_INIT( RimGeoMechContourMapView, "RimGeoMechContourMapView" );
 
-const cvf::Mat4d RimGeoMechContourMapView::sm_defaultViewMatrix =
-    cvf::Mat4d( 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1000, 0, 0, 0, 1 );
+const cvf::Mat4d RimGeoMechContourMapView::sm_defaultViewMatrix = cvf::Mat4d( 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1000, 0, 0, 0, 1 );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -229,8 +228,7 @@ void RimGeoMechContourMapView::defineUiOrdering( QString uiConfigName, caf::PdmU
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechContourMapView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
-                                                     QString                 uiConfigName /*= ""*/ )
+void RimGeoMechContourMapView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
     uiTreeOrdering.add( m_overlayInfoConfig() );
     uiTreeOrdering.add( m_contourMapProjection );
@@ -335,9 +333,7 @@ void RimGeoMechContourMapView::appendContourLinesToModel()
 
             cvf::ref<caf::DisplayCoordTransform> transForm = this->displayCoordTransform();
 
-            m_contourMapProjectionPartMgr->appendContourLinesToModel( viewer()->mainCamera(),
-                                                                      contourMapLabelModelBasicList.p(),
-                                                                      transForm.p() );
+            m_contourMapProjectionPartMgr->appendContourLinesToModel( viewer()->mainCamera(), contourMapLabelModelBasicList.p(), transForm.p() );
             contourMapLabelModelBasicList->updateBoundingBoxesRecursive();
             frameScene->addModel( contourMapLabelModelBasicList.p() );
         }
@@ -362,8 +358,7 @@ void RimGeoMechContourMapView::appendPickPointVisToModel()
 
             cvf::ref<caf::DisplayCoordTransform> transForm = this->displayCoordTransform();
 
-            m_contourMapProjectionPartMgr->appendPickPointVisToModel( contourMapProjectionModelBasicList.p(),
-                                                                      transForm.p() );
+            m_contourMapProjectionPartMgr->appendPickPointVisToModel( contourMapProjectionModelBasicList.p(), transForm.p() );
             contourMapProjectionModelBasicList->updateBoundingBoxesRecursive();
             frameScene->addModel( contourMapProjectionModelBasicList.p() );
         }
@@ -443,9 +438,7 @@ void RimGeoMechContourMapView::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechContourMapView::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                 const QVariant&            oldValue,
-                                                 const QVariant&            newValue )
+void RimGeoMechContourMapView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimGeoMechView::fieldChangedByUi( changedField, oldValue, newValue );
 
@@ -506,7 +499,7 @@ void RimGeoMechContourMapView::onViewNavigationChanged()
 //--------------------------------------------------------------------------------------------------
 bool RimGeoMechContourMapView::zoomChangeAboveTreshold( const cvf::Vec3d& currentCameraPosition ) const
 {
-    double distance = std::max( std::fabs( m_cameraPositionLastUpdate.z() ), std::fabs( currentCameraPosition.z() ) );
+    double       distance  = std::max( std::fabs( m_cameraPositionLastUpdate.z() ), std::fabs( currentCameraPosition.z() ) );
     const double threshold = 0.05 * distance;
     return std::fabs( m_cameraPositionLastUpdate.z() - currentCameraPosition.z() ) > threshold;
 }
@@ -523,8 +516,7 @@ void RimGeoMechContourMapView::scheduleGeometryRegen( RivCellSetEnum geometryTyp
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechContourMapView::onLegendConfigChanged( const caf::SignalEmitter* emitter,
-                                                      RimLegendConfigChangeType changeType )
+void RimGeoMechContourMapView::onLegendConfigChanged( const caf::SignalEmitter* emitter, RimLegendConfigChangeType changeType )
 {
     using ChangeType = RimLegendConfigChangeType;
     if ( changeType == ChangeType::LEVELS || changeType == ChangeType::COLOR_MODE || changeType == ChangeType::RANGE ||

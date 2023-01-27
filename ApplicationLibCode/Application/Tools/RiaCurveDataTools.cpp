@@ -25,7 +25,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RiaCurveDataTools::CurveIntervals RiaCurveDataTools::calculateIntervalsOfValidValues( const std::vector<double>& values,
-                                                                                      bool includePositiveValuesOnly )
+                                                                                      bool                       includePositiveValuesOnly )
 {
     CurveIntervals intervals;
 

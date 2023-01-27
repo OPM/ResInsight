@@ -247,10 +247,7 @@ bool RivWindowEdgeAxesOverlayItem::pick( int oglXCoord, int oglYCoord, const Vec
 //--------------------------------------------------------------------------------------------------
 /// Set up camera/viewport and render
 //--------------------------------------------------------------------------------------------------
-void RivWindowEdgeAxesOverlayItem::renderGeneric( OpenGLContext* oglContext,
-                                                  const Vec2i&   position,
-                                                  const Vec2ui&  size,
-                                                  bool           software )
+void RivWindowEdgeAxesOverlayItem::renderGeneric( OpenGLContext* oglContext, const Vec2i& position, const Vec2ui& size, bool software )
 {
     if ( size.x() <= 0 || size.y() <= 0 || ( m_windowTickXValues.size() == 0 && m_windowTickYValues.size() == 0 ) )
     {
@@ -564,8 +561,7 @@ void RivWindowEdgeAxesOverlayItem::renderShaderFrameAndTickLines( OpenGLContext*
 
     // Triangle indices for the frame background
 
-    static const ushort backgroundTriangleIndices[] = { 0, 1, 5, 0, 5, 4, 1, 2, 6, 1, 6, 5,
-                                                        3, 0, 4, 3, 4, 7, 2, 3, 6, 3, 7, 6 };
+    static const ushort backgroundTriangleIndices[] = { 0, 1, 5, 0, 5, 4, 1, 2, 6, 1, 6, 5, 3, 0, 4, 3, 4, 7, 2, 3, 6, 3, 7, 6 };
 
     glDrawRangeElements( GL_TRIANGLES, 0, 7, 24, GL_UNSIGNED_SHORT, backgroundTriangleIndices );
 

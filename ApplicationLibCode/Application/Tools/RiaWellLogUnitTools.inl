@@ -153,9 +153,7 @@ std::vector<FloatType> RiaWellLogUnitTools<FloatType>::convertDepths( const std:
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FloatType>
-FloatType RiaWellLogUnitTools<FloatType>::convertDepth( FloatType                 depthIn,
-                                                        RiaDefines::DepthUnitType unitsIn,
-                                                        RiaDefines::DepthUnitType unitsOut )
+FloatType RiaWellLogUnitTools<FloatType>::convertDepth( FloatType depthIn, RiaDefines::DepthUnitType unitsIn, RiaDefines::DepthUnitType unitsOut )
 {
     FloatType factor = 1.0;
     if ( unitsOut == RiaDefines::DepthUnitType::UNIT_METER && unitsIn == RiaDefines::DepthUnitType::UNIT_FEET )
@@ -334,8 +332,7 @@ bool RiaWellLogUnitTools<FloatType>::convertValues( std::vector<std::pair<FloatT
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FloatType>
-std::vector<FloatType>
-    RiaWellLogUnitTools<FloatType>::tvdRKBs( const std::vector<FloatType>& measuredDepths, const RigWellPath* wellPath )
+std::vector<FloatType> RiaWellLogUnitTools<FloatType>::tvdRKBs( const std::vector<FloatType>& measuredDepths, const RigWellPath* wellPath )
 {
     if ( measuredDepths.empty() ) return {};
 
@@ -352,8 +349,8 @@ std::vector<FloatType>
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FloatType>
-std::vector<FloatType> RiaWellLogUnitTools<FloatType>::convertGpcm3ToBar( const std::vector<FloatType>& tvdRKBs,
-                                                                          const std::vector<FloatType>& valuesInGpcm3 )
+std::vector<FloatType>
+    RiaWellLogUnitTools<FloatType>::convertGpcm3ToBar( const std::vector<FloatType>& tvdRKBs, const std::vector<FloatType>& valuesInGpcm3 )
 {
     if ( tvdRKBs.empty() ) return {};
 
@@ -381,8 +378,8 @@ std::vector<FloatType> RiaWellLogUnitTools<FloatType>::convertGpcm3ToBar( const 
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FloatType>
-std::vector<FloatType> RiaWellLogUnitTools<FloatType>::convertBarToGpcm3( const std::vector<FloatType>& tvdRKBs,
-                                                                          const std::vector<FloatType>& valuesInBar )
+std::vector<FloatType>
+    RiaWellLogUnitTools<FloatType>::convertBarToGpcm3( const std::vector<FloatType>& tvdRKBs, const std::vector<FloatType>& valuesInBar )
 {
     if ( tvdRKBs.empty() ) return {};
 
@@ -410,9 +407,8 @@ std::vector<FloatType> RiaWellLogUnitTools<FloatType>::convertBarToGpcm3( const 
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FloatType>
-std::vector<FloatType>
-    RiaWellLogUnitTools<FloatType>::convertNormalizedByPPToBar( const std::vector<FloatType>& tvdRKBs,
-                                                                const std::vector<FloatType>& normalizedValues )
+std::vector<FloatType> RiaWellLogUnitTools<FloatType>::convertNormalizedByPPToBar( const std::vector<FloatType>& tvdRKBs,
+                                                                                   const std::vector<FloatType>& normalizedValues )
 {
     if ( tvdRKBs.empty() ) return {};
 
@@ -430,9 +426,8 @@ std::vector<FloatType>
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FloatType>
-std::vector<FloatType>
-    RiaWellLogUnitTools<FloatType>::convertBarToNormalizedByPP( const std::vector<FloatType>& tvdRKBs,
-                                                                const std::vector<FloatType>& valuesInBar )
+std::vector<FloatType> RiaWellLogUnitTools<FloatType>::convertBarToNormalizedByPP( const std::vector<FloatType>& tvdRKBs,
+                                                                                   const std::vector<FloatType>& valuesInBar )
 {
     if ( tvdRKBs.empty() ) return {};
 

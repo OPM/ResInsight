@@ -83,8 +83,7 @@ void RimEnsembleWellLogStatistics::calculate( const std::vector<RimWellLogFile*>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleWellLogStatistics::calculate( const std::vector<RimWellLogFile*>& wellLogFiles,
-                                              const QString&                      wellLogChannelName )
+void RimEnsembleWellLogStatistics::calculate( const std::vector<RimWellLogFile*>& wellLogFiles, const QString& wellLogChannelName )
 {
     RiaCurveMerger<double> curveMerger;
     RiaCurveMerger<double> tvdCurveMerger;
@@ -105,8 +104,7 @@ void RimEnsembleWellLogStatistics::calculate( const std::vector<RimWellLogFile*>
             m_depthUnit = depthUnitInFile;
 
             QString logChannelUnitString = fileData->wellLogChannelUnitString( wellLogChannelName );
-            if ( m_logChannelUnitString != RiaWellLogUnitTools<double>::noUnitString() &&
-                 m_logChannelUnitString != logChannelUnitString )
+            if ( m_logChannelUnitString != RiaWellLogUnitTools<double>::noUnitString() && m_logChannelUnitString != logChannelUnitString )
             {
                 RiaLogging::error( QString( "Unexpected unit in file %1." ).arg( wellLogFile->fileName() ) );
             }
@@ -148,12 +146,7 @@ void RimEnsembleWellLogStatistics::calculate( const std::vector<RimWellLogFile*>
             }
 
             double p10, p50, p90, mean;
-            RigStatisticsMath::calculateStatisticsCurves( valuesAtDepth,
-                                                          &p10,
-                                                          &p50,
-                                                          &p90,
-                                                          &mean,
-                                                          RigStatisticsMath::PercentileStyle::SWITCHED );
+            RigStatisticsMath::calculateStatisticsCurves( valuesAtDepth, &p10, &p50, &p90, &mean, RigStatisticsMath::PercentileStyle::SWITCHED );
 
             // TVD is the mean TVD at a given MD
             std::vector<double> tvdsAtDepth;
@@ -191,11 +184,9 @@ void RimEnsembleWellLogStatistics::calculate( const std::vector<RimWellLogFile*>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleWellLogStatistics::calculateByKLayer( const std::vector<RimWellLogFile*>& wellLogFiles,
-                                                      const QString&                      wellLogChannelName )
+void RimEnsembleWellLogStatistics::calculateByKLayer( const std::vector<RimWellLogFile*>& wellLogFiles, const QString& wellLogChannelName )
 {
-    std::shared_ptr<RigWellLogIndexDepthOffset> offsets =
-        RimEnsembleWellLogStatistics::calculateIndexDepthOffset( wellLogFiles );
+    std::shared_ptr<RigWellLogIndexDepthOffset> offsets = RimEnsembleWellLogStatistics::calculateIndexDepthOffset( wellLogFiles );
     if ( !offsets ) return;
 
     std::map<int, std::vector<double>> topValues;
@@ -250,12 +241,7 @@ void RimEnsembleWellLogStatistics::calculateByKLayer( const std::vector<RimWellL
         {
             std::vector<double> valuesAtDepth = topValues[kIndex];
             double              p10, p50, p90, mean;
-            RigStatisticsMath::calculateStatisticsCurves( valuesAtDepth,
-                                                          &p10,
-                                                          &p50,
-                                                          &p90,
-                                                          &mean,
-                                                          RigStatisticsMath::PercentileStyle::SWITCHED );
+            RigStatisticsMath::calculateStatisticsCurves( valuesAtDepth, &p10, &p50, &p90, &mean, RigStatisticsMath::PercentileStyle::SWITCHED );
             m_measuredDepths.push_back( offsets->getTopMd( kIndex ) );
             m_tvDepths.push_back( offsets->getTopTvd( kIndex ) );
             m_p10Data.push_back( p10 );
@@ -270,12 +256,7 @@ void RimEnsembleWellLogStatistics::calculateByKLayer( const std::vector<RimWellL
         {
             std::vector<double> valuesAtDepth = bottomValues[kIndex];
             double              p10, p50, p90, mean;
-            RigStatisticsMath::calculateStatisticsCurves( valuesAtDepth,
-                                                          &p10,
-                                                          &p50,
-                                                          &p90,
-                                                          &mean,
-                                                          RigStatisticsMath::PercentileStyle::SWITCHED );
+            RigStatisticsMath::calculateStatisticsCurves( valuesAtDepth, &p10, &p50, &p90, &mean, RigStatisticsMath::PercentileStyle::SWITCHED );
             m_measuredDepths.push_back( offsets->getBottomMd( kIndex ) );
             m_tvDepths.push_back( offsets->getBottomTvd( kIndex ) );
             m_p10Data.push_back( p10 );
@@ -372,8 +353,7 @@ std::shared_ptr<RigWellLogIndexDepthOffset>
 
     if ( minLayerK > maxLayerK )
     {
-        RiaLogging::error(
-            QString( "Invalid K layers found. Minimum: %1 > Maximum : %2" ).arg( minLayerK ).arg( maxLayerK ) );
+        RiaLogging::error( QString( "Invalid K layers found. Minimum: %1 > Maximum : %2" ).arg( minLayerK ).arg( maxLayerK ) );
         return nullptr;
     }
 

@@ -150,9 +150,7 @@ bool Rim3dWellLogCurve::isShowingCurve() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dWellLogCurve::curveValuesAndMdsAtTimeStep( std::vector<double>* values,
-                                                     std::vector<double>* measuredDepthValues,
-                                                     int                  timeStep ) const
+void Rim3dWellLogCurve::curveValuesAndMdsAtTimeStep( std::vector<double>* values, std::vector<double>* measuredDepthValues, int timeStep ) const
 {
     curveValuesAndMds( values, measuredDepthValues );
 }
@@ -215,9 +213,7 @@ caf::PdmFieldHandle* Rim3dWellLogCurve::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dWellLogCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                          const QVariant&            oldValue,
-                                          const QVariant&            newValue )
+void Rim3dWellLogCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted( proj );
@@ -246,12 +242,9 @@ void Rim3dWellLogCurve::configurationUiOrdering( caf::PdmUiOrdering& uiOrdering 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dWellLogCurve::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                               QString                    uiConfigName,
-                                               caf::PdmUiEditorAttribute* attribute )
+void Rim3dWellLogCurve::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
-    if ( m_minCurveDataValue == -std::numeric_limits<float>::infinity() &&
-         m_maxCurveDataValue == std::numeric_limits<float>::infinity() )
+    if ( m_minCurveDataValue == -std::numeric_limits<float>::infinity() && m_maxCurveDataValue == std::numeric_limits<float>::infinity() )
     {
         this->resetMinMaxValues();
     }
@@ -275,10 +268,7 @@ bool Rim3dWellLogCurve::findClosestPointOnCurve( const cvf::Vec3d& globalInterse
 {
     if ( m_geometryGenerator.notNull() )
     {
-        return m_geometryGenerator->findClosestPointOnCurve( globalIntersection,
-                                                             closestPoint,
-                                                             measuredDepthAtPoint,
-                                                             valueAtPoint );
+        return m_geometryGenerator->findClosestPointOnCurve( globalIntersection, closestPoint, measuredDepthAtPoint, valueAtPoint );
     }
     return false;
 }

@@ -30,8 +30,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPlotAxisLogRangeCalculator::RimPlotAxisLogRangeCalculator( RiaDefines::PlotAxis                    axis,
-                                                              const std::vector<const RimPlotCurve*>& curves )
+RimPlotAxisLogRangeCalculator::RimPlotAxisLogRangeCalculator( RiaDefines::PlotAxis axis, const std::vector<const RimPlotCurve*>& curves )
     : m_axis( axis )
     , m_curves( curves )
 {

@@ -57,10 +57,7 @@ RicCreateEnsembleWellLogUi::RicCreateEnsembleWellLogUi()
 {
     CAF_PDM_InitObject( "Create Ensemble Well Log" );
 
-    CAF_PDM_InitField( &m_autoCreateEnsembleWellLogs,
-                       "AutoCreateEnsembleWellLogs",
-                       true,
-                       "Create Ensemble Well Logs From Exported Files" );
+    CAF_PDM_InitField( &m_autoCreateEnsembleWellLogs, "AutoCreateEnsembleWellLogs", true, "Create Ensemble Well Logs From Exported Files" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_autoCreateEnsembleWellLogs );
 
     CAF_PDM_InitField( &m_timeStep, "TimeStep", 0, "Time Step" );
@@ -116,8 +113,7 @@ void RicCreateEnsembleWellLogUi::defineUiOrdering( QString uiConfigName, caf::Pd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RicCreateEnsembleWellLogUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RicCreateEnsembleWellLogUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -128,8 +124,7 @@ QList<caf::PdmOptionItemInfo>
         std::vector<RiaDefines::ResultCatType> resultCategories = validResultCategories();
         for ( auto catType : resultCategories )
         {
-            QList<caf::PdmOptionItemInfo> allOptions =
-                RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard( catType, resultData );
+            QList<caf::PdmOptionItemInfo> allOptions = RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard( catType, resultData );
 
             bool isFirstOfCategory = true;
             for ( caf::PdmOptionItemInfo option : allOptions )
@@ -140,8 +135,7 @@ QList<caf::PdmOptionItemInfo>
                     {
                         // Add the category title only when there is at least one valid result
                         options.push_back(
-                            caf::PdmOptionItemInfo::createHeader( caf::AppEnum<RiaDefines::ResultCatType>::uiText( catType ),
-                                                                  true ) );
+                            caf::PdmOptionItemInfo::createHeader( caf::AppEnum<RiaDefines::ResultCatType>::uiText( catType ), true ) );
                         isFirstOfCategory = false;
                     }
 
@@ -165,9 +159,7 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreateEnsembleWellLogUi::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                        QString                    uiConfigName,
-                                                        caf::PdmUiEditorAttribute* attribute )
+void RicCreateEnsembleWellLogUi::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_wellFilePath )
     {
@@ -195,16 +187,15 @@ std::vector<std::pair<QString, RiaDefines::ResultCatType>>
                                             const std::vector<RiaDefines::ResultCatType>& resultCategories,
                                             const RigEclipseCaseData*                     caseData )
 {
-    auto findResultCategory = []( const QString&                                keyword,
-                                  const std::vector<RiaDefines::ResultCatType>& categories,
-                                  const RigEclipseCaseData*                     caseData ) {
-        // Find the result category for a given keyword
-        auto resultData = caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-        for ( auto category : categories )
-            if ( resultData->hasResultEntry( RigEclipseResultAddress( category, keyword ) ) ) return category;
+    auto findResultCategory =
+        []( const QString& keyword, const std::vector<RiaDefines::ResultCatType>& categories, const RigEclipseCaseData* caseData ) {
+            // Find the result category for a given keyword
+            auto resultData = caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+            for ( auto category : categories )
+                if ( resultData->hasResultEntry( RigEclipseResultAddress( category, keyword ) ) ) return category;
 
-        return RiaDefines::ResultCatType::UNDEFINED;
-    };
+            return RiaDefines::ResultCatType::UNDEFINED;
+        };
 
     std::vector<std::pair<QString, RiaDefines::ResultCatType>> props;
     for ( auto keyword : resultNames )
@@ -229,9 +220,7 @@ std::vector<std::pair<QString, RiaDefines::ResultCatType>> RicCreateEnsembleWell
 //--------------------------------------------------------------------------------------------------
 std::vector<RiaDefines::ResultCatType> RicCreateEnsembleWellLogUi::validResultCategories() const
 {
-    return { RiaDefines::ResultCatType::STATIC_NATIVE,
-             RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-             RiaDefines::ResultCatType::INPUT_PROPERTY };
+    return { RiaDefines::ResultCatType::STATIC_NATIVE, RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaDefines::ResultCatType::INPUT_PROPERTY };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -291,9 +280,9 @@ void RicCreateEnsembleWellLogUi::setCaseData( RigEclipseCaseData* caseData )
 
     if ( m_selectedKeywords().empty() )
     {
-        RigCaseCellResultsData* resultData      = caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-        std::vector<QString>    defaultKeywords = { "INDEX_K", "PORO", "PERMX", "PRESSURE" };
-        std::vector<RiaDefines::ResultCatType> categories = validResultCategories();
+        RigCaseCellResultsData*                resultData      = caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+        std::vector<QString>                   defaultKeywords = { "INDEX_K", "PORO", "PERMX", "PRESSURE" };
+        std::vector<RiaDefines::ResultCatType> categories      = validResultCategories();
 
         for ( auto keyword : defaultKeywords )
         {

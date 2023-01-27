@@ -56,9 +56,7 @@ using namespace QtCharts;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQtChartsPlotWidget::RiuQtChartsPlotWidget( RimPlot*                      plotDefinition,
-                                              QWidget*                      parent,
-                                              RiuPlotCurveInfoTextProvider* plotCurveNameProvider )
+RiuQtChartsPlotWidget::RiuQtChartsPlotWidget( RimPlot* plotDefinition, QWidget* parent, RiuPlotCurveInfoTextProvider* plotCurveNameProvider )
     : RiuPlotWidget( plotDefinition, parent )
     , m_plotCurveNameProvider( plotCurveNameProvider )
     , m_dateScaleWrapper( new RiuQwtDateScaleWrapper() )
@@ -162,11 +160,7 @@ int RiuQtChartsPlotWidget::axisValueFontSize( RiuPlotAxis axis ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::setAxisFontsAndAlignment( RiuPlotAxis axis,
-                                                      int         titleFontSize,
-                                                      int         valueFontSize,
-                                                      bool        titleBold,
-                                                      int         alignment )
+void RiuQtChartsPlotWidget::setAxisFontsAndAlignment( RiuPlotAxis axis, int titleFontSize, int valueFontSize, bool titleBold, int alignment )
 {
     int titleFontPixelSize = caf::FontTools::pointSizeToPixelSize( titleFontSize );
     int valueFontPixelSize = caf::FontTools::pointSizeToPixelSize( valueFontSize );
@@ -436,9 +430,7 @@ void RiuQtChartsPlotWidget::setMajorAndMinorTickIntervalsAndRange( RiuPlotAxis a
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::setAutoTickIntervalCounts( RiuPlotAxis axis,
-                                                       int         maxMajorTickIntervalCount,
-                                                       int         maxMinorTickIntervalCount )
+void RiuQtChartsPlotWidget::setAutoTickIntervalCounts( RiuPlotAxis axis, int maxMajorTickIntervalCount, int maxMinorTickIntervalCount )
 {
     setAxisMaxMajor( axis, maxMajorTickIntervalCount );
     setAxisMaxMinor( axis, maxMinorTickIntervalCount );
@@ -999,11 +991,7 @@ void RiuQtChartsPlotWidget::attachSeriesToAxis( RiuPlotAxis axis, QAbstractSerie
             connect( newAxis, SIGNAL( rangeChanged( double, double ) ), this, SLOT( axisRangeChanged() ), Qt::UniqueConnection );
             if ( plotCurve )
             {
-                connect( newAxis,
-                         SIGNAL( rangeChanged( double, double ) ),
-                         plotCurve,
-                         SLOT( axisRangeChanged() ),
-                         Qt::UniqueConnection );
+                connect( newAxis, SIGNAL( rangeChanged( double, double ) ), plotCurve, SLOT( axisRangeChanged() ), Qt::UniqueConnection );
             }
         }
     }
@@ -1159,8 +1147,7 @@ QAbstractAxis* RiuQtChartsPlotWidget::plotAxis( RiuPlotAxis axis ) const
 //--------------------------------------------------------------------------------------------------
 Qt::Orientation RiuQtChartsPlotWidget::orientation( RiaDefines::PlotAxis axis ) const
 {
-    if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM || axis == RiaDefines::PlotAxis::PLOT_AXIS_TOP )
-        return Qt::Orientation::Horizontal;
+    if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM || axis == RiaDefines::PlotAxis::PLOT_AXIS_TOP ) return Qt::Orientation::Horizontal;
 
     return Qt::Orientation::Vertical;
 }

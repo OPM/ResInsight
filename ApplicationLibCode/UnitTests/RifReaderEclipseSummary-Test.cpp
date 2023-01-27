@@ -34,10 +34,9 @@
 //--------------------------------------------------------------------------------------------------
 TEST( DISABLED_RifEclipseSummaryTest, TestRestartSummaryFileReferences_01 )
 {
-    QString summaryFileName =
-        "d:/Dropbox/Dropbox (Ceetron Solutions)/Projects/20084 ResInsight Introduction and Advanced "
-        "courses/intro2020_data/reek_ensemble/3_r001_reek_50/realization-0/base_pred/eclipse/model/"
-        "3_R001_REEK-0.SMSPEC";
+    QString summaryFileName = "d:/Dropbox/Dropbox (Ceetron Solutions)/Projects/20084 ResInsight Introduction and Advanced "
+                              "courses/intro2020_data/reek_ensemble/3_r001_reek_50/realization-0/base_pred/eclipse/model/"
+                              "3_R001_REEK-0.SMSPEC";
 
     std::vector<QString>            warnings;
     std::vector<RifRestartFileInfo> originFileInfos = RifEclipseSummaryTools::getRestartFiles( summaryFileName, warnings );
@@ -49,8 +48,7 @@ TEST( DISABLED_RifEclipseSummaryTest, TestRestartSummaryFileReferences_01 )
 //--------------------------------------------------------------------------------------------------
 TEST( DISABLED_RifEclipseSummaryTest, TestRestartSummaryFileReferences_02 )
 {
-    QString summaryFileName =
-        "e:/models/reek_ensemble/3_r001_reek_50/realization-0/base_pred/eclipse/model/3_R001_REEK-0.SMSPEC";
+    QString summaryFileName = "e:/models/reek_ensemble/3_r001_reek_50/realization-0/base_pred/eclipse/model/3_R001_REEK-0.SMSPEC";
 
     std::vector<QString>            warnings;
     std::vector<RifRestartFileInfo> originFileInfos = RifEclipseSummaryTools::getRestartFiles( summaryFileName, warnings );

@@ -119,8 +119,7 @@ bool CellEdgeEffectGenerator::isEqual( const EffectGenerator* other ) const
     if ( otherCellFaceEffectGenerator && m_cellScalarMapper.p() == otherCellFaceEffectGenerator->m_cellScalarMapper.p() &&
          m_edgeScalarMapper.p() == otherCellFaceEffectGenerator->m_edgeScalarMapper.p() &&
          m_ternaryCellScalarMapper.p() == otherCellFaceEffectGenerator->m_ternaryCellScalarMapper.p() &&
-         m_cullBackfaces == otherCellFaceEffectGenerator->m_cullBackfaces &&
-         m_opacityLevel == otherCellFaceEffectGenerator->m_opacityLevel &&
+         m_cullBackfaces == otherCellFaceEffectGenerator->m_cullBackfaces && m_opacityLevel == otherCellFaceEffectGenerator->m_opacityLevel &&
          m_undefinedColor == otherCellFaceEffectGenerator->m_undefinedColor &&
          m_defaultCellColor == otherCellFaceEffectGenerator->m_defaultCellColor &&
          m_disableLighting == otherCellFaceEffectGenerator->m_disableLighting )
@@ -234,8 +233,7 @@ void CellEdgeEffectGenerator::updateForShaderBasedRendering( cvf::Effect* effect
     cvf::ref<cvf::ShaderProgram> prog = shaderGen.generate();
     eff->setShaderProgram( prog.p() );
 
-    if ( !m_disableLighting )
-        prog->setDefaultUniform( new cvf::UniformFloat( "u_ecLightPosition", cvf::Vec3f( 0.5, 5.0, 7.0 ) ) );
+    if ( !m_disableLighting ) prog->setDefaultUniform( new cvf::UniformFloat( "u_ecLightPosition", cvf::Vec3f( 0.5, 5.0, 7.0 ) ) );
 
     // Set up textures
 
@@ -252,9 +250,8 @@ void CellEdgeEffectGenerator::updateForShaderBasedRendering( cvf::Effect* effect
     else if ( m_cellScalarMapper.notNull() )
     {
         m_cellScalarMapper->updateTexture( m_cellTextureImage.p() );
-        modifiedCellTextImage = caf::ScalarMapperEffectGenerator::addAlphaAndUndefStripes( m_cellTextureImage.p(),
-                                                                                           m_undefinedColor,
-                                                                                           m_opacityLevel );
+        modifiedCellTextImage =
+            caf::ScalarMapperEffectGenerator::addAlphaAndUndefStripes( m_cellTextureImage.p(), m_undefinedColor, m_opacityLevel );
     }
     else
     {

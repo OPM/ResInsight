@@ -83,8 +83,7 @@ void RiuSelectionChangedHandler::handleSelectionDeleted() const
 
     RiuMainWindow::instance()->resultPlot()->deleteAllCurves();
 
-    RiuRelativePermeabilityPlotUpdater* relPermPlotUpdater =
-        RiuMainWindow::instance()->relativePermeabilityPlotPanel()->plotUpdater();
+    RiuRelativePermeabilityPlotUpdater* relPermPlotUpdater = RiuMainWindow::instance()->relativePermeabilityPlotPanel()->plotUpdater();
     relPermPlotUpdater->updateOnSelectionChanged( nullptr );
 
     RiuPvtPlotUpdater* pvtPlotUpdater = RiuMainWindow::instance()->pvtPlotPanel()->plotUpdater();
@@ -107,8 +106,7 @@ void RiuSelectionChangedHandler::handleItemAppended( const RiuSelectionItem* ite
 
     addCurveFromSelectionItem( item );
 
-    RiuRelativePermeabilityPlotUpdater* relPermUpdater =
-        RiuMainWindow::instance()->relativePermeabilityPlotPanel()->plotUpdater();
+    RiuRelativePermeabilityPlotUpdater* relPermUpdater = RiuMainWindow::instance()->relativePermeabilityPlotPanel()->plotUpdater();
     relPermUpdater->updateOnSelectionChanged( item );
 
     RiuPvtPlotUpdater* pvtPlotUpdater = RiuMainWindow::instance()->pvtPlotPanel()->plotUpdater();
@@ -156,8 +154,7 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem( const RiuEclipseSele
     {
         RiaDefines::PorosityModelType porosityModel = eclResDef->porosityModel();
 
-        std::vector<QDateTime> timeStepDates =
-            eclResDef->eclipseCase()->eclipseCaseData()->results( porosityModel )->timeStepDates();
+        std::vector<QDateTime> timeStepDates = eclResDef->eclipseCase()->eclipseCaseData()->results( porosityModel )->timeStepDates();
 
         QString curveName = eclResDef->eclipseCase()->caseUserDescription();
         curveName += ", ";
@@ -169,12 +166,11 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem( const RiuEclipseSele
                                                                           eclipseSelectionItem->m_gridIndex,
                                                                           eclipseSelectionItem->m_gridLocalCellIndex );
 
-        std::vector<double> timeHistoryValues =
-            RigTimeHistoryResultAccessor::timeHistoryValues( eclResDef->eclipseCase()->eclipseCaseData(),
-                                                             eclResDef,
-                                                             eclipseSelectionItem->m_gridIndex,
-                                                             eclipseSelectionItem->m_gridLocalCellIndex,
-                                                             timeStepDates.size() );
+        std::vector<double> timeHistoryValues = RigTimeHistoryResultAccessor::timeHistoryValues( eclResDef->eclipseCase()->eclipseCaseData(),
+                                                                                                 eclResDef,
+                                                                                                 eclipseSelectionItem->m_gridIndex,
+                                                                                                 eclipseSelectionItem->m_gridLocalCellIndex,
+                                                                                                 timeStepDates.size() );
         CVF_ASSERT( timeStepDates.size() == timeHistoryValues.size() );
 
         RiuMainWindow::instance()->resultPlot()->addCurve( eclResDef->eclipseCase(),
@@ -196,8 +192,8 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem( const RiuGeoMechSele
     {
         std::unique_ptr<RiuFemTimeHistoryResultAccessor> timeHistResultAccessor;
 
-        cvf::Vec3d intersectionPointInDomain = geomSelectionItem->m_view->displayCoordTransform()->translateToDomainCoord(
-            geomSelectionItem->m_localIntersectionPointInDisplay );
+        cvf::Vec3d intersectionPointInDomain =
+            geomSelectionItem->m_view->displayCoordTransform()->translateToDomainCoord( geomSelectionItem->m_localIntersectionPointInDisplay );
 
         if ( geomSelectionItem->m_hasIntersectionTriangle )
         {
@@ -233,13 +229,11 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem( const RiuGeoMechSele
         {
             if ( geomSelectionItem->m_elementFace >= 0 )
             {
-                curveName.append( ", " + caf::AppEnum<cvf::StructGridInterface::FaceType>::textFromIndex(
-                                             geomSelectionItem->m_elementFace ) );
+                curveName.append( ", " + caf::AppEnum<cvf::StructGridInterface::FaceType>::textFromIndex( geomSelectionItem->m_elementFace ) );
             }
             else
             {
-                curveName.append( ", from N[" + QString::number( timeHistResultAccessor->closestNodeId() ) +
-                                  "] transformed onto intersection" );
+                curveName.append( ", from N[" + QString::number( timeHistResultAccessor->closestNodeId() ) + "] transformed onto intersection" );
             }
         }
         curveName.append( "\n" );
@@ -308,8 +302,7 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem( const RiuSelectionIt
     }
     else if ( itemAdded->type() == RiuSelectionItem::INTERSECTION_SELECTION_OBJECT )
     {
-        const Riu2dIntersectionSelectionItem* _2dSelectionItem =
-            static_cast<const Riu2dIntersectionSelectionItem*>( itemAdded );
+        const Riu2dIntersectionSelectionItem* _2dSelectionItem = static_cast<const Riu2dIntersectionSelectionItem*>( itemAdded );
 
         addCurveFromSelectionItem( _2dSelectionItem );
     }

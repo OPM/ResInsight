@@ -46,12 +46,8 @@ RimWellPathAicdParameters::RimWellPathAicdParameters()
     CAF_PDM_InitFieldNoDefault( &m_aicdParameterFields[AICD_VISCOSITY_CALIB_FLUID],
                                 "ViscosityCalibrationFluid",
                                 "Calibration Fluid Viscosity (cP)" );
-    CAF_PDM_InitFieldNoDefault( &m_aicdParameterFields[AICD_VOL_FLOW_EXP],
-                                "VolumeFlowRateExponent",
-                                "Volume Flow Rate Exponent" );
-    CAF_PDM_InitFieldNoDefault( &m_aicdParameterFields[AICD_VISOSITY_FUNC_EXP],
-                                "ViscosityFunctionExponent",
-                                "Viscosity Function Exponent" );
+    CAF_PDM_InitFieldNoDefault( &m_aicdParameterFields[AICD_VOL_FLOW_EXP], "VolumeFlowRateExponent", "Volume Flow Rate Exponent" );
+    CAF_PDM_InitFieldNoDefault( &m_aicdParameterFields[AICD_VISOSITY_FUNC_EXP], "ViscosityFunctionExponent", "Viscosity Function Exponent" );
 
     CAF_PDM_InitField( &m_aicdParameterFields[AICD_CRITICAL_WATER_IN_LIQUID_FRAC],
                        "CriticalWaterLiquidFractionEmul",
@@ -65,22 +61,13 @@ RimWellPathAicdParameters::RimWellPathAicdParameters()
                        "MaxRatioOfEmulsionVisc",
                        QString( "1*" ),
                        "Max Ratio of Emulsion to Continuous Viscosity" );
-    CAF_PDM_InitField( &m_aicdParameterFields[AICD_MAX_FLOW_RATE],
-                       "MaxFlowRate",
-                       QString( "1*" ),
-                       "Max Flow Rate for AICD Device (m^3 / day)" );
-    CAF_PDM_InitField( &m_aicdParameterFields[AICD_EXP_OIL_FRAC_DENSITY],
-                       "ExponentOilDensity",
-                       QString( "1*" ),
-                       "Density Exponent of Oil Fraction" );
+    CAF_PDM_InitField( &m_aicdParameterFields[AICD_MAX_FLOW_RATE], "MaxFlowRate", QString( "1*" ), "Max Flow Rate for AICD Device (m^3 / day)" );
+    CAF_PDM_InitField( &m_aicdParameterFields[AICD_EXP_OIL_FRAC_DENSITY], "ExponentOilDensity", QString( "1*" ), "Density Exponent of Oil Fraction" );
     CAF_PDM_InitField( &m_aicdParameterFields[AICD_EXP_WATER_FRAC_DENSITY],
                        "ExponentWaterDensity",
                        QString( "1*" ),
                        "Density Exponent of Water Fraction" );
-    CAF_PDM_InitField( &m_aicdParameterFields[AICD_EXP_GAS_FRAC_DENSITY],
-                       "ExponentGasDensity",
-                       QString( "1*" ),
-                       "Density Exponent of Gas Fraction" );
+    CAF_PDM_InitField( &m_aicdParameterFields[AICD_EXP_GAS_FRAC_DENSITY], "ExponentGasDensity", QString( "1*" ), "Density Exponent of Gas Fraction" );
     CAF_PDM_InitField( &m_aicdParameterFields[AICD_EXP_OIL_FRAC_VISCOSITY],
                        "ExponentOilViscosity",
                        QString( "1*" ),
@@ -187,9 +174,7 @@ void RimWellPathAicdParameters::defineUiOrdering( QString uiConfigName, caf::Pdm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathAicdParameters::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                       QString                    uiConfigName,
-                                                       caf::PdmUiEditorAttribute* attribute )
+void RimWellPathAicdParameters::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     const caf::PdmField<QString>*  stringField    = dynamic_cast<const caf::PdmField<QString>*>( field );
     caf::PdmUiLineEditorAttribute* lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
@@ -226,17 +211,13 @@ void RimWellPathAicdParameters::setUnitLabels()
 {
     if ( isMetric() )
     {
-        m_aicdParameterFields[AICD_DENSITY_CALIB_FLUID].uiCapability()->setUiName(
-            "Calibration Fluid Density (kg / m ^ 3)" );
-        m_aicdParameterFields[AICD_MAX_FLOW_RATE].uiCapability()->setUiName(
-            "Max Flow Rate for AICD Device(m ^ 3 / day)" );
+        m_aicdParameterFields[AICD_DENSITY_CALIB_FLUID].uiCapability()->setUiName( "Calibration Fluid Density (kg / m ^ 3)" );
+        m_aicdParameterFields[AICD_MAX_FLOW_RATE].uiCapability()->setUiName( "Max Flow Rate for AICD Device(m ^ 3 / day)" );
     }
     else
     {
-        m_aicdParameterFields[AICD_DENSITY_CALIB_FLUID].uiCapability()->setUiName(
-            "Calibration Fluid Density (lb / ft ^3)" );
-        m_aicdParameterFields[AICD_MAX_FLOW_RATE].uiCapability()->setUiName(
-            "Max Flow Rate for AICD Device(ft ^ 3 / day)" );
+        m_aicdParameterFields[AICD_DENSITY_CALIB_FLUID].uiCapability()->setUiName( "Calibration Fluid Density (lb / ft ^3)" );
+        m_aicdParameterFields[AICD_MAX_FLOW_RATE].uiCapability()->setUiName( "Max Flow Rate for AICD Device(ft ^ 3 / day)" );
     }
 }
 

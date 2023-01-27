@@ -96,18 +96,14 @@ void RicExportEclipseSectorModelFeature::executeCommand( RimEclipseView*        
                                                          const RicExportEclipseSectorModelUi& exportSettings,
                                                          const QString&                       logPrefix )
 {
-    int resultProgressPercentage =
-        exportSettings.exportParameters() ? std::min( (int)exportSettings.selectedKeywords().size(), 20 ) : 0;
+    int resultProgressPercentage = exportSettings.exportParameters() ? std::min( (int)exportSettings.selectedKeywords().size(), 20 ) : 0;
 
     int faultsProgressPercentage = exportSettings.exportFaults() ? 10 : 0;
 
     int               gridProgressPercentage = 100 - resultProgressPercentage - faultsProgressPercentage;
-    caf::ProgressInfo progress( gridProgressPercentage + resultProgressPercentage + faultsProgressPercentage,
-                                "Export Eclipse Sector Model" );
+    caf::ProgressInfo progress( gridProgressPercentage + resultProgressPercentage + faultsProgressPercentage, "Export Eclipse Sector Model" );
 
-    cvf::Vec3st refinement( exportSettings.refinementCountI(),
-                            exportSettings.refinementCountJ(),
-                            exportSettings.refinementCountK() );
+    cvf::Vec3st refinement( exportSettings.refinementCountI(), exportSettings.refinementCountJ(), exportSettings.refinementCountK() );
 
     CVF_ASSERT( refinement.x() > 0u && refinement.y() > 0u && refinement.z() > 0u );
 
@@ -120,9 +116,8 @@ void RicExportEclipseSectorModelFeature::executeCommand( RimEclipseView*        
 
     if ( exportSettings.exportGrid() )
     {
-        const cvf::UByteArray* cellVisibilityForActnum = exportSettings.makeInvisibleCellsInactive() ? &cellVisibility
-                                                                                                     : nullptr;
-        auto task = progress.task( "Export Grid", gridProgressPercentage );
+        const cvf::UByteArray* cellVisibilityForActnum = exportSettings.makeInvisibleCellsInactive() ? &cellVisibility : nullptr;
+        auto                   task                    = progress.task( "Export Grid", gridProgressPercentage );
 
         bool worked = RifEclipseInputFileTools::exportGrid( exportSettings.exportGridFilename(),
                                                             view->eclipseCase()->eclipseCaseData(),
@@ -242,14 +237,12 @@ void RicExportEclipseSectorModelFeature::executeCommand( RimEclipseView*        
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<cvf::Vec3i, cvf::Vec3i>
-    RicExportEclipseSectorModelFeature::getVisibleCellRange( RimEclipseView* view, const cvf::UByteArray& cellVisibillity )
+std::pair<cvf::Vec3i, cvf::Vec3i> RicExportEclipseSectorModelFeature::getVisibleCellRange( RimEclipseView*        view,
+                                                                                           const cvf::UByteArray& cellVisibillity )
 {
     const RigMainGrid* mainGrid = view->eclipseCase()->mainGrid();
     cvf::Vec3i         max      = cvf::Vec3i::ZERO;
-    cvf::Vec3i         min      = cvf::Vec3i( int( mainGrid->cellCountI() - 1 ),
-                                 int( mainGrid->cellCountJ() - 1 ),
-                                 int( mainGrid->cellCountK() - 1 ) );
+    cvf::Vec3i min = cvf::Vec3i( int( mainGrid->cellCountI() - 1 ), int( mainGrid->cellCountJ() - 1 ), int( mainGrid->cellCountK() - 1 ) );
 
     size_t cellCount = mainGrid->cellCount();
     for ( size_t index = 0; index < cellCount; ++index )

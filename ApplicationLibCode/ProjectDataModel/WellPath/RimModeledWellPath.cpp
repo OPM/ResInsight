@@ -46,15 +46,9 @@ CAF_PDM_SOURCE_INIT( RimModeledWellPath, "ModeledWellPath" );
 //--------------------------------------------------------------------------------------------------
 RimModeledWellPath::RimModeledWellPath()
 {
-    CAF_PDM_InitScriptableObject( "Modeled Well Path",
-                                  ":/EditableWell.png",
-                                  "",
-                                  "A Well Path created interactively in ResInsight" );
+    CAF_PDM_InitScriptableObject( "Modeled Well Path", ":/EditableWell.png", "", "A Well Path created interactively in ResInsight" );
 
-    CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_geometryDefinition,
-                                                           "WellPathGeometryDef",
-                                                           "WellPathGeometry",
-                                                           "Trajectory" );
+    CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_geometryDefinition, "WellPathGeometryDef", "WellPathGeometry", "Trajectory" );
     m_geometryDefinition = new RimWellPathGeometryDef;
     m_geometryDefinition->changed.connect( this, &RimModeledWellPath::onGeometryDefinitionChanged );
 
@@ -143,12 +137,11 @@ QString RimModeledWellPath::wellPlanText()
     formatter.setTableRowLineAppendText( "" );
 
     std::vector<RifTextDataTableColumn> tableHeader;
-    std::vector<QString> columns = { "MDRKB", "CL", "Inc", "Azi", "TVDMSL", "NS", "EW", "Dogleg", "Build", "Turn" };
+    std::vector<QString>                columns = { "MDRKB", "CL", "Inc", "Azi", "TVDMSL", "NS", "EW", "Dogleg", "Build", "Turn" };
     for ( QString column : columns )
     {
         tableHeader.push_back(
-            RifTextDataTableColumn( column,
-                                    RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_FLOAT, 2 ) ) );
+            RifTextDataTableColumn( column, RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_FLOAT, 2 ) ) );
     }
 
     formatter.header( tableHeader );
@@ -207,9 +200,7 @@ void RimModeledWellPath::onGeometryDefinitionChanged( const caf::SignalEmitter* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimModeledWellPath::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                           const QVariant&            oldValue,
-                                           const QVariant&            newValue )
+void RimModeledWellPath::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     // TODO remove if nothing happens here
 
@@ -266,9 +257,8 @@ void RimModeledWellPath::updateTieInLocationFromParentWell()
              !parentWellPath->wellPathGeometry()->measuredDepths().empty() )
         {
             auto [pointVector, measuredDepths] =
-                parentWellPath->wellPathGeometry()
-                    ->clippedPointSubset( parentWellPath->wellPathGeometry()->measuredDepths().front(),
-                                          tieIn->tieInMeasuredDepth() );
+                parentWellPath->wellPathGeometry()->clippedPointSubset( parentWellPath->wellPathGeometry()->measuredDepths().front(),
+                                                                        tieIn->tieInMeasuredDepth() );
 
             if ( pointVector.size() >= 2u )
             {

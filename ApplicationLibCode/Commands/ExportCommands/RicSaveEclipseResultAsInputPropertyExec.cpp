@@ -83,8 +83,7 @@ void RicSaveEclipseResultAsInputPropertyExec::redo()
             projectFolder = m_cellColors->reservoirView()->eclipseCase()->locationOnDisc();
         }
 
-        QString outputFileName = projectFolder + "/" +
-                                 caf::Utils::makeValidFileBasename( m_cellColors->resultVariableUiShortName() ) +
+        QString outputFileName = projectFolder + "/" + caf::Utils::makeValidFileBasename( m_cellColors->resultVariableUiShortName() ) +
                                  ".GRDECL";
 
         exportSettings.fileName = outputFileName;
@@ -101,16 +100,15 @@ void RicSaveEclipseResultAsInputPropertyExec::redo()
         size_t timeStep = m_cellColors->reservoirView()->currentTimeStep();
 
         QString errMsg;
-        bool    isOk = RicEclipseCellResultToFileImpl::writeBinaryResultToTextFile( exportSettings.fileName,
-                                                                                 m_cellColors->reservoirView()
-                                                                                     ->eclipseCase()
-                                                                                     ->eclipseCaseData(),
-                                                                                 timeStep,
-                                                                                 m_cellColors,
-                                                                                 exportSettings.eclipseKeyword,
-                                                                                 exportSettings.undefinedValue,
-                                                                                 "saveEclipseResultAsInputPropertyExec",
-                                                                                 &errMsg );
+        bool    isOk =
+            RicEclipseCellResultToFileImpl::writeBinaryResultToTextFile( exportSettings.fileName,
+                                                                         m_cellColors->reservoirView()->eclipseCase()->eclipseCaseData(),
+                                                                         timeStep,
+                                                                         m_cellColors,
+                                                                         exportSettings.eclipseKeyword,
+                                                                         exportSettings.undefinedValue,
+                                                                         "saveEclipseResultAsInputPropertyExec",
+                                                                         &errMsg );
         if ( !isOk )
         {
             QString fullError =

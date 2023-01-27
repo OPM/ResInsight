@@ -153,9 +153,7 @@ void RimSummaryPlotManager::onSelectionManagerSelectionChanged( const std::set<i
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlotManager::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                              const QVariant&            oldValue,
-                                              const QVariant&            newValue )
+void RimSummaryPlotManager::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_summaryPlot || changedField == &m_filterText || changedField == &m_includeDiffCurves ||
          changedField == &m_selectedDataSources )
@@ -291,9 +289,7 @@ std::vector<QString> RimSummaryPlotManager::dataSourceDisplayNames() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlotManager::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                   QString                    uiConfigName,
-                                                   caf::PdmUiEditorAttribute* attribute )
+void RimSummaryPlotManager::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     {
         auto attr = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
@@ -577,8 +573,7 @@ void RimSummaryPlotManager::setFocusToEditorWidget( caf::PdmUiFieldHandle* uiFie
 //--------------------------------------------------------------------------------------------------
 QStringList RimSummaryPlotManager::extractDataSourceFilters() const
 {
-    auto [addressFilters, dataSourceFilters] =
-        RiaSummaryStringTools::splitIntoAddressAndDataSourceFilters( m_filterText() );
+    auto [addressFilters, dataSourceFilters] = RiaSummaryStringTools::splitIntoAddressAndDataSourceFilters( m_filterText() );
 
     return dataSourceFilters;
 }
@@ -594,8 +589,7 @@ void RimSummaryPlotManager::findFilteredSummaryCasesAndEnsembles( std::vector<Ri
     {
         auto selectedDataSources = m_selectedDataSources();
 
-        if ( std::find( selectedDataSources.begin(), selectedDataSources.end(), dataSourceName ) ==
-             std::end( selectedDataSources ) )
+        if ( std::find( selectedDataSources.begin(), selectedDataSources.end(), dataSourceName ) == std::end( selectedDataSources ) )
             continue;
 
         auto summaryCase = dynamic_cast<RimSummaryCase*>( dataSource );

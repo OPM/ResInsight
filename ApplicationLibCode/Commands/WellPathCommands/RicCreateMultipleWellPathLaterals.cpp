@@ -158,8 +158,7 @@ void RicCreateMultipleWellPathLaterals::slotAppendFractures()
             RimModeledWellPath* newModeledWellPath = dynamic_cast<RimModeledWellPath*>(
                 sourceLateral->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
 
-            auto nameOfNewWell =
-                RicNewWellPathLateralAtDepthFeature::updateNameOfParentAndFindNameOfSideStep( parentWellPath );
+            auto nameOfNewWell = RicNewWellPathLateralAtDepthFeature::updateNameOfParentAndFindNameOfSideStep( parentWellPath );
             newModeledWellPath->setName( nameOfNewWell );
 
             newModeledWellPath->wellPathTieIn()->setTieInMeasuredDepth( measuredDepth );

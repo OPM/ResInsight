@@ -73,9 +73,7 @@ QString RicWellPathFractureTextReportFeatureImpl::wellPathFractureReport(
     QString     text;
     QTextStream textStream( &text );
 
-    textStream
-        << lineStart
-        << "========================================================================================================\n";
+    textStream << lineStart << "========================================================================================================\n";
 
     textStream << lineStart << " RESINSIGHT DATA\n";
 
@@ -268,8 +266,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createWellFileLocationText( co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicWellPathFractureTextReportFeatureImpl::createStimPlanFileLocationText(
-    const std::vector<RimMeshFractureTemplate*>& stimPlanTemplates ) const
+QString RicWellPathFractureTextReportFeatureImpl::createStimPlanFileLocationText( const std::vector<RimMeshFractureTemplate*>& stimPlanTemplates ) const
 {
     if ( stimPlanTemplates.empty() ) return "";
 
@@ -306,8 +303,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createStimPlanFileLocationText
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicWellPathFractureTextReportFeatureImpl::createStimPlanFractureText(
-    const std::vector<RimMeshFractureTemplate*>& stimPlanTemplates ) const
+QString RicWellPathFractureTextReportFeatureImpl::createStimPlanFractureText( const std::vector<RimMeshFractureTemplate*>& stimPlanTemplates ) const
 {
     if ( stimPlanTemplates.empty() ) return "";
 
@@ -358,8 +354,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createStimPlanFractureText(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicWellPathFractureTextReportFeatureImpl::createEllipseFractureText(
-    const std::vector<RimEllipseFractureTemplate*>& ellipseTemplates ) const
+QString RicWellPathFractureTextReportFeatureImpl::createEllipseFractureText( const std::vector<RimEllipseFractureTemplate*>& ellipseTemplates ) const
 {
     if ( ellipseTemplates.empty() ) return "";
 
@@ -408,8 +403,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createEllipseFractureText(
         formatter.add( ellipseTemplate->halfLength() );
         formatter.add( ellipseTemplate->height() );
 
-        formatter.add(
-            RigTransmissibilityEquations::permeability( ellipseTemplate->conductivity(), ellipseTemplate->width() ) );
+        formatter.add( RigTransmissibilityEquations::permeability( ellipseTemplate->conductivity(), ellipseTemplate->width() ) );
         formatter.add( ellipseTemplate->width() );
 
         formatter.add( ellipseTemplate->wellDiameter() );
@@ -426,8 +420,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createEllipseFractureText(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicWellPathFractureTextReportFeatureImpl::createFractureText(
-    const std::vector<RimFractureTemplate*>& fractureTemplates ) const
+QString RicWellPathFractureTextReportFeatureImpl::createFractureText( const std::vector<RimFractureTemplate*>& fractureTemplates ) const
 {
     if ( fractureTemplates.empty() ) return "";
 
@@ -507,8 +500,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureText(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicWellPathFractureTextReportFeatureImpl::createFractureInstancesText(
-    const std::vector<RimWellPathFracture*>& fractures ) const
+QString RicWellPathFractureTextReportFeatureImpl::createFractureInstancesText( const std::vector<RimWellPathFracture*>& fractures ) const
 {
     if ( fractures.empty() ) return "";
 
@@ -583,10 +575,9 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureInstancesText(
         formatter.add( fracture->dip() );
         formatter.add( fracture->tilt() );
 
-        if ( fracture->fractureTemplate() &&
-             ( fracture->fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH ||
-               ( fracture->fractureTemplate()->orientationType() == RimFractureTemplate::AZIMUTH &&
-                 fracture->fractureTemplate()->useUserDefinedPerforationLength() ) ) )
+        if ( fracture->fractureTemplate() && ( fracture->fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH ||
+                                               ( fracture->fractureTemplate()->orientationType() == RimFractureTemplate::AZIMUTH &&
+                                                 fracture->fractureTemplate()->useUserDefinedPerforationLength() ) ) )
         {
             formatter.add( fracture->perforationLength() );
         }
@@ -741,8 +732,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createFracturePressureDepletio
         {
             if ( !createdTable )
             {
-                formatter.comment(
-                    QString( "Pressure Depletion Time step: %1" ).arg( reportItem.pressureDepletionTimeStepString() ) );
+                formatter.comment( QString( "Pressure Depletion Time step: %1" ).arg( reportItem.pressureDepletionTimeStepString() ) );
                 formatter.comment( QString( "WBHP Source: %1" ).arg( reportItem.pressureDepletionWBHPString() ) );
                 formatter.comment( QString( "User Defined WBHP: %1" ).arg( reportItem.pressureDepletionUserWBHP() ) );
 

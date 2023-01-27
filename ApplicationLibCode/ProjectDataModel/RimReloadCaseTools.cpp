@@ -68,8 +68,7 @@ void RimReloadCaseTools::reloadAllEclipseData( RimEclipseCase* eclipseCase, bool
 
     eclipseCase->reloadEclipseGridFile();
 
-    std::vector<RimGridCalculation*> gridCalculations =
-        RimProject::current()->gridCalculationCollection()->sortedGridCalculations();
+    std::vector<RimGridCalculation*> gridCalculations = RimProject::current()->gridCalculationCollection()->sortedGridCalculations();
 
     for ( auto gridCalculation : gridCalculations )
     {
@@ -109,8 +108,7 @@ void RimReloadCaseTools::clearAllGridData( RigEclipseCaseData* eclipseCaseData )
         matrixModelResults->clearAllResults();
     }
 
-    RigCaseCellResultsData* stimPlanModelResults =
-        eclipseCaseData->results( RiaDefines::PorosityModelType::FRACTURE_MODEL );
+    RigCaseCellResultsData* stimPlanModelResults = eclipseCaseData->results( RiaDefines::PorosityModelType::FRACTURE_MODEL );
     if ( stimPlanModelResults )
     {
         stimPlanModelResults->clearAllResults();

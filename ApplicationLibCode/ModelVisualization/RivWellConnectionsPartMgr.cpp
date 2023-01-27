@@ -66,12 +66,10 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBas
     if ( !m_rimWell->showWell() ) return;
     if ( !m_rimWell->simWellData()->hasWellResult( frameIndex ) ) return;
     if ( !m_rimWell->simWellData()->wellResultFrame( frameIndex )->m_isOpen ) return;
-    if ( m_rimWell->simWellData()->wellResultFrame( frameIndex )->m_productionType ==
-         RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE )
+    if ( m_rimWell->simWellData()->wellResultFrame( frameIndex )->m_productionType == RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE )
         return;
 
-    bool   isProducer = ( m_rimWell->simWellData()->wellResultFrame( frameIndex )->m_productionType ==
-                        RiaDefines::WellProductionType::PRODUCER );
+    bool isProducer = ( m_rimWell->simWellData()->wellResultFrame( frameIndex )->m_productionType == RiaDefines::WellProductionType::PRODUCER );
     double pipeRadius = m_rimWell->pipeRadius();
 
     cvf::Vec3d                           wellHeadTop;
@@ -105,8 +103,8 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBas
         wellHeadBottom = displayCordXf->transformToDisplayCoord( wellHeadBottom );
         wellHeadTop.z() += characteristicCellSize;
 
-        cvf::Vec3d activeCellsBoundingBoxMax = displayCordXf->transformToDisplayCoord(
-            m_rimReservoirView->currentActiveCellInfo()->geometryBoundingBox().max() );
+        cvf::Vec3d activeCellsBoundingBoxMax =
+            displayCordXf->transformToDisplayCoord( m_rimReservoirView->currentActiveCellInfo()->geometryBoundingBox().max() );
         mainArrowZHeight = activeCellsBoundingBoxMax.z() + 1.5 * characteristicCellSize; // Above the bbox somewhat;
 
         if ( isProducer )
@@ -139,8 +137,8 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBas
              RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE )
             continue;
 
-        bool isOtherProducer = ( otherWell->simWellData()->wellResultFrame( frameIndex )->m_productionType ==
-                                 RiaDefines::WellProductionType::PRODUCER );
+        bool isOtherProducer =
+            ( otherWell->simWellData()->wellResultFrame( frameIndex )->m_productionType == RiaDefines::WellProductionType::PRODUCER );
 
         {
             std::string otherWellName   = otherWell->name().toStdString();
@@ -177,9 +175,7 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBas
         std::pair<double, double> injProdFluxPair =
             flowResults->injectorProducerPairFluxes( injectorName, producerName, static_cast<int>( frameIndex ) );
         std::pair<double, double> injProdFluxPairXF =
-            flowResults->injectorProducerPairFluxes( crossFlowInjectorName,
-                                                     crossFlowProducerName,
-                                                     static_cast<int>( frameIndex ) );
+            flowResults->injectorProducerPairFluxes( crossFlowInjectorName, crossFlowProducerName, static_cast<int>( frameIndex ) );
 
         const double fluxThreshold = 0.0; // Todo : Needs threshold in Gui
 
@@ -202,8 +198,7 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBas
         {
             cvf::Vec3f startPoint = cvf::Vec3f( 0.5 * ( wellHeadTop + otherWellHeadTop ) );
             if ( m_useCurvedArrows ) startPoint.z() = mainArrowZHeight;
-            cvf::Vec3f endPoint =
-                cvf::Vec3f( wellHeadTop + ( 3 * pipeRadius * ( otherWellHeadTop - wellHeadTop ).getNormalized() ) );
+            cvf::Vec3f   endPoint = cvf::Vec3f( wellHeadTop + ( 3 * pipeRadius * ( otherWellHeadTop - wellHeadTop ).getNormalized() ) );
             cvf::Color4f arrowColor( otherWell->wellPipeColor() );
 
             if ( fabs( injProdFluxPair.first ) > fluxThreshold && fabs( injProdFluxPair.second ) > fluxThreshold )
@@ -213,8 +208,7 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBas
                     startPoint.z() -= 0.5 * characteristicCellSize;
                     endPoint.z() -= 0.5 * characteristicCellSize;
                 }
-                cvf::ref<cvf::Part> arrowPart =
-                    createArrowPart( startPoint, endPoint, width, isProducer, arrowColor, enableLighting );
+                cvf::ref<cvf::Part> arrowPart = createArrowPart( startPoint, endPoint, width, isProducer, arrowColor, enableLighting );
                 model->addPart( arrowPart.p() );
             }
 
@@ -222,8 +216,7 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBas
             {
                 startPoint.z() -= 0.5 * characteristicCellSize;
                 endPoint.z() -= 0.5 * characteristicCellSize;
-                cvf::ref<cvf::Part> arrowPart =
-                    createArrowPart( startPoint, endPoint, widthXf, !isProducer, arrowColor, enableLighting );
+                cvf::ref<cvf::Part> arrowPart = createArrowPart( startPoint, endPoint, widthXf, !isProducer, arrowColor, enableLighting );
                 model->addPart( arrowPart.p() );
             }
         }
@@ -259,10 +252,8 @@ cvf::ref<cvf::Part> RivWellConnectionsPartMgr::createArrowPart( const cvf::Vec3f
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RivWellConnectionsPartMgr::createArrowGeometry( const cvf::Vec3f& startPoint,
-                                                                           const cvf::Vec3f& endPoint,
-                                                                           double            width,
-                                                                           bool              useArrowEnd )
+cvf::ref<cvf::DrawableGeo>
+    RivWellConnectionsPartMgr::createArrowGeometry( const cvf::Vec3f& startPoint, const cvf::Vec3f& endPoint, double width, bool useArrowEnd )
 {
     // Vertex layout
     //              _ -  _
@@ -276,10 +267,9 @@ cvf::ref<cvf::DrawableGeo> RivWellConnectionsPartMgr::createArrowGeometry( const
                                                                 4, 6,  7,  9,  8,  4, 8,  9,  11, 10, 4, 10, 11, 20, 19,
                                                                 4, 19, 20, 13, 12, 4, 12, 13, 15, 14, 3, 16, 17, 18 };
 
-    static const cvf::uint injectorArrowFaceList[8 * 5 + 8] = { 4,  0,  1,  3,  2,  4,  2,  3,  5,  4,  4,  4,
-                                                                5,  7,  6,  4,  6,  7,  9,  8,  4,  8,  9,  11,
-                                                                10, 4,  10, 11, 20, 19, 4,  19, 20, 13, 12, 4,
-                                                                12, 13, 15, 14, 3,  14, 18, 16, 3,  18, 15, 17 };
+    static const cvf::uint injectorArrowFaceList[8 * 5 + 8] = { 4,  0,  1,  3, 2,  4,  2,  3,  5,  4,  4,  4,  5,  7,  6,  4,
+                                                                6,  7,  9,  8, 4,  8,  9,  11, 10, 4,  10, 11, 20, 19, 4,  19,
+                                                                20, 13, 12, 4, 12, 13, 15, 14, 3,  14, 18, 16, 3,  18, 15, 17 };
 
     cvf::Vec3f endPointInTopPlane = endPoint;
     if ( m_useCurvedArrows ) endPointInTopPlane.z() = startPoint.z();
@@ -309,26 +299,26 @@ cvf::ref<cvf::DrawableGeo> RivWellConnectionsPartMgr::createArrowGeometry( const
     ( *arrowVertexArray )[2] = endStart * fromTo + startPoint + widthVector;
     ( *arrowVertexArray )[3] = endStart * fromTo + startPoint - widthVector;
 
-    ( *arrowVertexArray )[4] = ( 1 * endStep + endStart ) * fromTo + startPoint + widthVector +
-                               0.250f * heightScaleVec; // 0.0250f * heightDiff;
-    ( *arrowVertexArray )[5] = ( 1 * endStep + endStart ) * fromTo + startPoint - widthVector +
-                               0.250f * heightScaleVec; // 0.0250f * heightDiff;
-    ( *arrowVertexArray )[6] = ( 2 * endStep + endStart ) * fromTo + startPoint + widthVector +
-                               0.750f * heightScaleVec; // 0.0750f * heightDiff;
-    ( *arrowVertexArray )[7] = ( 2 * endStep + endStart ) * fromTo + startPoint - widthVector +
-                               0.750f * heightScaleVec; // 0.0750f * heightDiff;
-    ( *arrowVertexArray )[8] = ( 3 * endStep + endStart ) * fromTo + startPoint + widthVector +
-                               1.000f * heightScaleVec; // 0.1000f * heightDiff;
-    ( *arrowVertexArray )[9] = ( 3 * endStep + endStart ) * fromTo + startPoint - widthVector +
-                               1.000f * heightScaleVec; // 0.1000f * heightDiff;
-    ( *arrowVertexArray )[10] = ( 4 * endStep + endStart ) * fromTo + startPoint + widthVector +
-                                0.875f * heightScaleVec; // 0.0875f * heightDiff;
-    ( *arrowVertexArray )[11] = ( 4 * endStep + endStart ) * fromTo + startPoint - widthVector +
-                                0.875f * heightScaleVec; // 0.0875f * heightDiff;
-    ( *arrowVertexArray )[19] = ( 4.7f * endStep + endStart ) * fromTo + startPoint + widthVector +
-                                0.400f * heightScaleVec; // 0.0875f * heightDiff;
-    ( *arrowVertexArray )[20] = ( 4.7f * endStep + endStart ) * fromTo + startPoint - widthVector +
-                                0.400f * heightScaleVec; // 0.0875f * heightDiff;
+    ( *arrowVertexArray )[4] = ( 1 * endStep + endStart ) * fromTo + startPoint + widthVector + 0.250f * heightScaleVec; // 0.0250f *
+                                                                                                                         // heightDiff;
+    ( *arrowVertexArray )[5] = ( 1 * endStep + endStart ) * fromTo + startPoint - widthVector + 0.250f * heightScaleVec; // 0.0250f *
+                                                                                                                         // heightDiff;
+    ( *arrowVertexArray )[6] = ( 2 * endStep + endStart ) * fromTo + startPoint + widthVector + 0.750f * heightScaleVec; // 0.0750f *
+                                                                                                                         // heightDiff;
+    ( *arrowVertexArray )[7] = ( 2 * endStep + endStart ) * fromTo + startPoint - widthVector + 0.750f * heightScaleVec; // 0.0750f *
+                                                                                                                         // heightDiff;
+    ( *arrowVertexArray )[8] = ( 3 * endStep + endStart ) * fromTo + startPoint + widthVector + 1.000f * heightScaleVec; // 0.1000f *
+                                                                                                                         // heightDiff;
+    ( *arrowVertexArray )[9] = ( 3 * endStep + endStart ) * fromTo + startPoint - widthVector + 1.000f * heightScaleVec; // 0.1000f *
+                                                                                                                         // heightDiff;
+    ( *arrowVertexArray )[10] = ( 4 * endStep + endStart ) * fromTo + startPoint + widthVector + 0.875f * heightScaleVec; // 0.0875f *
+                                                                                                                          // heightDiff;
+    ( *arrowVertexArray )[11] = ( 4 * endStep + endStart ) * fromTo + startPoint - widthVector + 0.875f * heightScaleVec; // 0.0875f *
+                                                                                                                          // heightDiff;
+    ( *arrowVertexArray )[19] = ( 4.7f * endStep + endStart ) * fromTo + startPoint + widthVector + 0.400f * heightScaleVec; // 0.0875f *
+                                                                                                                             // heightDiff;
+    ( *arrowVertexArray )[20] = ( 4.7f * endStep + endStart ) * fromTo + startPoint - widthVector + 0.400f * heightScaleVec; // 0.0875f *
+                                                                                                                             // heightDiff;
 
     ( *arrowVertexArray )[12] = ( 5 * endStep + endStart ) * fromTo + startPoint + widthVector;
     ( *arrowVertexArray )[13] = ( 5 * endStep + endStart ) * fromTo + startPoint - widthVector;
@@ -338,10 +328,8 @@ cvf::ref<cvf::DrawableGeo> RivWellConnectionsPartMgr::createArrowGeometry( const
 
     if ( useArrowEnd )
     {
-        ( *arrowVertexArray )[16] = ( 6 * endStep + endStart ) * fromTo + startPoint + 1.6f * widthVector -
-                                    0.5f * heightDiff;
-        ( *arrowVertexArray )[17] = ( 6 * endStep + endStart ) * fromTo + startPoint - 1.6f * widthVector -
-                                    0.5f * heightDiff;
+        ( *arrowVertexArray )[16] = ( 6 * endStep + endStart ) * fromTo + startPoint + 1.6f * widthVector - 0.5f * heightDiff;
+        ( *arrowVertexArray )[17] = ( 6 * endStep + endStart ) * fromTo + startPoint - 1.6f * widthVector - 0.5f * heightDiff;
         ( *arrowVertexArray )[18] = 1.0f * fromTo + startPoint - 1.0f * heightDiff;
     }
     else

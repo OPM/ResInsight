@@ -54,18 +54,14 @@ bool RifStimPlanModelPerfsFrkExporter::writeToFile( RimStimPlanModel* stimPlanMo
     QTextStream stream( &data );
     appendHeaderToStream( stream );
 
-    bool isTransverse =
-        ( stimPlanModel->fractureOrientation() == RimStimPlanModel::FractureOrientation::TRANSVERSE_WELL_PATH ||
-          stimPlanModel->fractureOrientation() == RimStimPlanModel::FractureOrientation::AZIMUTH );
+    bool isTransverse = ( stimPlanModel->fractureOrientation() == RimStimPlanModel::FractureOrientation::TRANSVERSE_WELL_PATH ||
+                          stimPlanModel->fractureOrientation() == RimStimPlanModel::FractureOrientation::AZIMUTH );
 
     appendFractureOrientationToStream( stream, isTransverse );
 
     // Unit: meter
     auto [topMD, bottomMD] = calculateTopAndBottomMeasuredDepth( stimPlanModel, wellPath );
-    appendPerforationToStream( stream,
-                               1,
-                               RiaEclipseUnitTools::meterToFeet( topMD ),
-                               RiaEclipseUnitTools::meterToFeet( bottomMD ) );
+    appendPerforationToStream( stream, 1, RiaEclipseUnitTools::meterToFeet( topMD ), RiaEclipseUnitTools::meterToFeet( bottomMD ) );
 
     appendFooterToStream( stream );
 
@@ -114,8 +110,7 @@ void RifStimPlanModelPerfsFrkExporter::appendFooterToStream( QTextStream& stream
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RifStimPlanModelPerfsFrkExporter::computeMeasuredDepthForPosition( const RimWellPath* wellPath,
-                                                                          const cvf::Vec3d&  position )
+double RifStimPlanModelPerfsFrkExporter::computeMeasuredDepthForPosition( const RimWellPath* wellPath, const cvf::Vec3d& position )
 {
     const RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
 
@@ -159,9 +154,8 @@ double RifStimPlanModelPerfsFrkExporter::computeMeasuredDepthForPosition( const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, double>
-    RifStimPlanModelPerfsFrkExporter::calculateTopAndBottomMeasuredDepth( RimStimPlanModel* stimPlanModel,
-                                                                          RimWellPath*      wellPath )
+std::pair<double, double> RifStimPlanModelPerfsFrkExporter::calculateTopAndBottomMeasuredDepth( RimStimPlanModel* stimPlanModel,
+                                                                                                RimWellPath*      wellPath )
 {
     double perforationLength = stimPlanModel->perforationLength();
 

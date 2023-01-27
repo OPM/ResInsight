@@ -54,18 +54,14 @@ void RivWellPathsPartMgr::appendStaticGeometryPartsToModel( cvf::ModelBasicList*
 
     for ( auto& partMgr : m_wellPathsPartMgrs )
     {
-        partMgr->appendStaticGeometryPartsToModel( model,
-                                                   displayCoordTransform,
-                                                   characteristicCellSize,
-                                                   wellPathClipBoundingBox );
+        partMgr->appendStaticGeometryPartsToModel( model, displayCoordTransform, characteristicCellSize, wellPathClipBoundingBox );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivWellPathsPartMgr::appendStaticFracturePartsToModel( cvf::ModelBasicList*    model,
-                                                            const cvf::BoundingBox& wellPathClipBoundingBox )
+void RivWellPathsPartMgr::appendStaticFracturePartsToModel( cvf::ModelBasicList* model, const cvf::BoundingBox& wellPathClipBoundingBox )
 {
     if ( !isWellPathVisible() ) return;
 
@@ -90,11 +86,7 @@ void RivWellPathsPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicList
 
     for ( auto& partMgr : m_wellPathsPartMgrs )
     {
-        partMgr->appendDynamicGeometryPartsToModel( model,
-                                                    timeStepIndex,
-                                                    displayCoordTransform,
-                                                    characteristicCellSize,
-                                                    wellPathClipBoundingBox );
+        partMgr->appendDynamicGeometryPartsToModel( model, timeStepIndex, displayCoordTransform, characteristicCellSize, wellPathClipBoundingBox );
     }
 }
 

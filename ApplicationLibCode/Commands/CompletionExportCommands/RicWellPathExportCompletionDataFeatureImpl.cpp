@@ -84,8 +84,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::vector<RimWellPath*>&      wellPaths,
-                                                                    const std::vector<RimSimWellInView*>& simWells,
+void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::vector<RimWellPath*>&         wellPaths,
+                                                                    const std::vector<RimSimWellInView*>&    simWells,
                                                                     const RicExportCompletionDataSettingsUi& exportSettings )
 {
     if ( exportSettings.caseToApply() == nullptr || exportSettings.caseToApply()->eclipseCaseData() == nullptr )
@@ -130,8 +130,8 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
             fractureTransmissibilityExportInformationFile.setFileName( fractureTransmisibillityExportInformationPath );
             if ( !fractureTransmissibilityExportInformationFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
             {
-                RiaLogging::error( QString( "Export Completions Data: Could not open the file: %1" )
-                                       .arg( fractureTransmisibillityExportInformationPath ) );
+                RiaLogging::error(
+                    QString( "Export Completions Data: Could not open the file: %1" ).arg( fractureTransmisibillityExportInformationPath ) );
             }
             else
             {
@@ -155,8 +155,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
                 else
                 {
                     int     caseId = exportSettings.caseToApply->caseId();
-                    QString format = QString(
-                        "Unit systems for well path \"%1\" must match unit system of chosen eclipse case \"%2\"" );
+                    QString format = QString( "Unit systems for well path \"%1\" must match unit system of chosen eclipse case \"%2\"" );
                     QString errMsg = format.arg( wellPath->name() ).arg( caseId );
                     RiaLogging::error( errMsg );
                 }
@@ -184,8 +183,8 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
                     if ( exportSettings.includeFishbones )
                     {
                         std::vector<RigCompletionData> fishbonesCompletionData =
-                            RicFishbonesTransmissibilityCalculationFeatureImp::
-                                generateFishboneCompdatValuesUsingAdjustedCellVolume( wellPathLateral, exportSettings );
+                            RicFishbonesTransmissibilityCalculationFeatureImp::generateFishboneCompdatValuesUsingAdjustedCellVolume( wellPathLateral,
+                                                                                                                                     exportSettings );
 
                         appendCompletionData( &completionsPerEclipseCellAllCompletionTypes, fishbonesCompletionData );
                         appendCompletionData( &completionsPerEclipseCellFishbones, fishbonesCompletionData );
@@ -205,8 +204,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
                                                                   PressureDepletionParameters( exportSettings.performTransScaling(),
                                                                                                exportSettings.transScalingTimeStep(),
                                                                                                exportSettings.transScalingWBHPSource(),
-                                                                                               exportSettings
-                                                                                                   .transScalingWBHP() ) );
+                                                                                               exportSettings.transScalingWBHP() ) );
 
                         appendCompletionData( &completionsPerEclipseCellAllCompletionTypes, fractureCompletionData );
                         appendCompletionData( &completionsPerEclipseCellFracture, fractureCompletionData );
@@ -326,8 +324,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
                                                 exportSettings.exportWelspec() );
             }
         }
-        else if ( exportSettings.fileSplit ==
-                  RicExportCompletionDataSettingsUi::ExportSplit::SPLIT_ON_WELL_AND_COMPLETION_TYPE )
+        else if ( exportSettings.fileSplit == RicExportCompletionDataSettingsUi::ExportSplit::SPLIT_ON_WELL_AND_COMPLETION_TYPE )
         {
             std::vector<RigCompletionData::CompletionType> completionTypes;
             completionTypes.push_back( RigCompletionData::CompletionType::FISHBONES );
@@ -366,15 +363,11 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
 
                     {
                         QString completionTypeText;
-                        if ( completionType == RigCompletionData::CompletionType::FISHBONES )
-                            completionTypeText = "Fishbones";
-                        if ( completionType == RigCompletionData::CompletionType::FRACTURE )
-                            completionTypeText = "Fracture";
-                        if ( completionType == RigCompletionData::CompletionType::PERFORATION )
-                            completionTypeText = "Perforation";
+                        if ( completionType == RigCompletionData::CompletionType::FISHBONES ) completionTypeText = "Fishbones";
+                        if ( completionType == RigCompletionData::CompletionType::FRACTURE ) completionTypeText = "Fracture";
+                        if ( completionType == RigCompletionData::CompletionType::PERFORATION ) completionTypeText = "Perforation";
 
-                        QString fileName =
-                            QString( "%1_%2_%3" ).arg( wellPath->name() ).arg( completionTypeText ).arg( eclipseCaseName );
+                        QString fileName = QString( "%1_%2_%3" ).arg( wellPath->name() ).arg( completionTypeText ).arg( eclipseCaseName );
                         sortAndExportCompletionsToFile( exportSettings.caseToApply,
                                                         exportSettings.folder,
                                                         fileName,
@@ -427,9 +420,8 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigCompletionData>
-    RicWellPathExportCompletionDataFeatureImpl::computeStaticCompletionsForWellPath( RimWellPath*    wellPath,
-                                                                                     RimEclipseCase* eclipseCase )
+std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::computeStaticCompletionsForWellPath( RimWellPath*    wellPath,
+                                                                                                                RimEclipseCase* eclipseCase )
 {
     std::vector<RigCompletionData> completionsPerEclipseCell;
 
@@ -464,10 +456,9 @@ std::vector<RigCompletionData>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigCompletionData>
-    RicWellPathExportCompletionDataFeatureImpl::computeDynamicCompletionsForWellPath( RimWellPath*    wellPath,
-                                                                                      RimEclipseCase* eclipseCase,
-                                                                                      size_t          timeStepIndex )
+std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::computeDynamicCompletionsForWellPath( RimWellPath*    wellPath,
+                                                                                                                 RimEclipseCase* eclipseCase,
+                                                                                                                 size_t timeStepIndex )
 {
     std::vector<RigCompletionData> completionsPerEclipseCell;
 
@@ -481,9 +472,7 @@ std::vector<RigCompletionData>
         exportSettings.includeFractures    = true;
 
         completionsPerEclipseCell =
-            generatePerforationsCompdatValues( wellPath,
-                                               wellPath->perforationIntervalCollection()->perforations(),
-                                               exportSettings );
+            generatePerforationsCompdatValues( wellPath, wellPath->perforationIntervalCollection()->perforations(), exportSettings );
     }
 
     return completionsPerEclipseCell;
@@ -492,9 +481,8 @@ std::vector<RigCompletionData>
 //==================================================================================================
 ///
 //==================================================================================================
-RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCellCompletions(
-    const std::vector<RigCompletionData>&    completions,
-    const RicExportCompletionDataSettingsUi& settings )
+RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCellCompletions( const std::vector<RigCompletionData>& completions,
+                                                                                             const RicExportCompletionDataSettingsUi& settings )
 {
     CVF_ASSERT( !completions.empty() );
 
@@ -544,14 +532,12 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
         for ( const RigCompletionData& completion : completions )
         {
             resultCompletion.m_metadata.reserve( resultCompletion.m_metadata.size() + completion.m_metadata.size() );
-            resultCompletion.m_metadata.insert( resultCompletion.m_metadata.end(),
-                                                completion.m_metadata.begin(),
-                                                completion.m_metadata.end() );
+            resultCompletion.m_metadata.insert( resultCompletion.m_metadata.end(), completion.m_metadata.begin(), completion.m_metadata.end() );
 
             if ( completion.wellName() != firstCompletion.wellName() )
             {
-                QString errorMessage = QString( "Cannot combine completions of different types in same cell %1" )
-                                           .arg( cellIndexIJK.oneBasedLocalCellIndexString() );
+                QString errorMessage =
+                    QString( "Cannot combine completions of different types in same cell %1" ).arg( cellIndexIJK.oneBasedLocalCellIndexString() );
                 RiaLogging::error( errorMessage );
                 resultCompletion.addMetadata( "ERROR", errorMessage );
                 return resultCompletion; // Returning empty completion, should not be exported
@@ -559,8 +545,8 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
 
             if ( completion.transmissibility() == HUGE_VAL )
             {
-                QString errorMessage = QString( "Transmissibility calculation has failed for cell %1" )
-                                           .arg( cellIndexIJK.oneBasedLocalCellIndexString() );
+                QString errorMessage =
+                    QString( "Transmissibility calculation has failed for cell %1" ).arg( cellIndexIJK.oneBasedLocalCellIndexString() );
                 RiaLogging::error( errorMessage );
                 resultCompletion.addMetadata( "ERROR", errorMessage );
                 return resultCompletion; // Returning empty completion, should not be exported
@@ -587,8 +573,7 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
                                                          cellDirection,
                                                          completionType );
     }
-    else if ( settings.compdatExport ==
-              RicExportCompletionDataSettingsUi::CompdatExport::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS )
+    else if ( settings.compdatExport == RicExportCompletionDataSettingsUi::CompdatExport::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS )
     {
         // calculate trans for main bore - but as Eclipse will do it!
         double transmissibilityEclipseCalculation =
@@ -716,7 +701,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWellPathFractureReport(
 void RicWellPathExportCompletionDataFeatureImpl::exportWelspecsToFile( RimEclipseCase*                       gridCase,
                                                                        QFilePtr                              exportFile,
                                                                        const std::vector<RigCompletionData>& completions,
-                                                                       bool exportDataSourceAsComment )
+                                                                       bool                                  exportDataSourceAsComment )
 {
     QTextStream stream( exportFile.get() );
 
@@ -783,10 +768,9 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspecsToFile( RimEclips
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeatureImpl::exportWelspeclToFile(
-    RimEclipseCase*                                          gridCase,
-    QFilePtr                                                 exportFile,
-    const std::map<QString, std::vector<RigCompletionData>>& completions )
+void RicWellPathExportCompletionDataFeatureImpl::exportWelspeclToFile( RimEclipseCase*                                          gridCase,
+                                                                       QFilePtr                                                 exportFile,
+                                                                       const std::map<QString, std::vector<RigCompletionData>>& completions )
 {
     QTextStream stream( exportFile.get() );
 
@@ -819,8 +803,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspeclToFile(
     {
         for ( const auto& completion : completionsForLgr.second )
         {
-            const auto wellPath =
-                RicWellPathExportCompletionsFileTools::findWellPathFromExportName( completion.wellName() );
+            const auto wellPath = RicWellPathExportCompletionsFileTools::findWellPathFromExportName( completion.wellName() );
             wellPathToLgrNameMap[wellPath].insert( completionsForLgr.first );
         }
     }
@@ -829,8 +812,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspeclToFile(
     {
         const RimWellPath* wellPath = wellPathsForLgr.first;
 
-        std::tuple<double, cvf::Vec2i, QString> itemWithLowestMD =
-            std::make_tuple( std::numeric_limits<double>::max(), cvf::Vec2i(), "" );
+        std::tuple<double, cvf::Vec2i, QString> itemWithLowestMD = std::make_tuple( std::numeric_limits<double>::max(), cvf::Vec2i(), "" );
 
         // Find first LGR-intersection along the well path
 
@@ -895,10 +877,7 @@ void RicWellPathExportCompletionDataFeatureImpl::sortAndExportCompletionsToFile(
         {
             QFileInfo              fi( fileName );
             std::shared_ptr<QFile> exportFile =
-                RicWellPathExportCompletionsFileTools::openFileForExport( folderName,
-                                                                          fi.baseName(),
-                                                                          fi.suffix(),
-                                                                          exportDataSourceAsComment );
+                RicWellPathExportCompletionsFileTools::openFileForExport( folderName, fi.baseName(), fi.suffix(), exportDataSourceAsComment );
 
             std::map<QString, std::vector<RigCompletionData>> completionsForGrid;
             completionsForGrid.insert( std::pair<QString, std::vector<RigCompletionData>>( "", completionsForMainGrid ) );
@@ -923,10 +902,7 @@ void RicWellPathExportCompletionDataFeatureImpl::sortAndExportCompletionsToFile(
 
             QString                lgrFileName = fi.baseName() + "_LGR";
             std::shared_ptr<QFile> exportFile =
-                RicWellPathExportCompletionsFileTools::openFileForExport( folderName,
-                                                                          lgrFileName,
-                                                                          fi.suffix(),
-                                                                          exportDataSourceAsComment );
+                RicWellPathExportCompletionsFileTools::openFileForExport( folderName, lgrFileName, fi.suffix(), exportDataSourceAsComment );
 
             exportWellPathFractureReport( eclipseCase, exportFile, wellPathFractureReportItems );
             if ( exportWelspec )
@@ -982,10 +958,9 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatAndWpimultTables(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeatureImpl::exportCompdatTableUsingFormatter(
-    RifTextDataTableFormatter&            formatter,
-    const QString&                        gridName,
-    const std::vector<RigCompletionData>& completionData )
+void RicWellPathExportCompletionDataFeatureImpl::exportCompdatTableUsingFormatter( RifTextDataTableFormatter&            formatter,
+                                                                                   const QString&                        gridName,
+                                                                                   const std::vector<RigCompletionData>& completionData )
 {
     if ( gridName.isEmpty() )
     {
@@ -997,17 +972,11 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatTableUsingFormatte
               RifTextDataTableColumn( "", "K2" ),
               RifTextDataTableColumn( "OPEN", "SHUT" ),
               RifTextDataTableColumn( "SAT", "TAB" ),
-              RifTextDataTableColumn( "CONN",
-                                      "FACT",
-                                      RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
+              RifTextDataTableColumn( "CONN", "FACT", RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
               RifTextDataTableColumn( "WELL", "DIA" ),
-              RifTextDataTableColumn( "KH",
-                                      "FACT",
-                                      RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
+              RifTextDataTableColumn( "KH", "FACT", RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
               RifTextDataTableColumn( "SKIN", "FACT" ),
-              RifTextDataTableColumn( "D",
-                                      "FACT",
-                                      RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
+              RifTextDataTableColumn( "D", "FACT", RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
               RifTextDataTableColumn( "DIR", "PEN" ) };
 
         formatter.header( header );
@@ -1024,17 +993,11 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatTableUsingFormatte
               RifTextDataTableColumn( "", "K2" ),
               RifTextDataTableColumn( "OPEN", "SHUT" ),
               RifTextDataTableColumn( "SAT", "TAB" ),
-              RifTextDataTableColumn( "CONN",
-                                      "FACT",
-                                      RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
+              RifTextDataTableColumn( "CONN", "FACT", RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
               RifTextDataTableColumn( "WELL", "DIA" ),
-              RifTextDataTableColumn( "KH",
-                                      "FACT",
-                                      RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
+              RifTextDataTableColumn( "KH", "FACT", RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
               RifTextDataTableColumn( "SKIN", "FACT" ),
-              RifTextDataTableColumn( "D",
-                                      "FACT",
-                                      RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
+              RifTextDataTableColumn( "D", "FACT", RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_SCIENTIFIC ) ),
               RifTextDataTableColumn( "DIR", "PEN" ) };
 
         formatter.header( header );
@@ -1116,10 +1079,9 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompdatTableUsingFormatte
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeatureImpl::exportWpimultTableUsingFormatter(
-    RifTextDataTableFormatter&            formatter,
-    const QString&                        gridName,
-    const std::vector<RigCompletionData>& completionData )
+void RicWellPathExportCompletionDataFeatureImpl::exportWpimultTableUsingFormatter( RifTextDataTableFormatter&            formatter,
+                                                                                   const QString&                        gridName,
+                                                                                   const std::vector<RigCompletionData>& completionData )
 {
     std::vector<RifTextDataTableColumn> header;
 
@@ -1176,10 +1138,10 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWpimultTableUsingFormatte
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::generatePerforationsCompdatValues(
-    gsl::not_null<const RimWellPath*>                 wellPath,
-    const std::vector<const RimPerforationInterval*>& intervals,
-    const RicExportCompletionDataSettingsUi&          settings )
+std::vector<RigCompletionData>
+    RicWellPathExportCompletionDataFeatureImpl::generatePerforationsCompdatValues( gsl::not_null<const RimWellPath*> wellPath,
+                                                                                   const std::vector<const RimPerforationInterval*>& intervals,
+                                                                                   const RicExportCompletionDataSettingsUi& settings )
 {
     RiaDefines::EclipseUnitSystem unitSystem = settings.caseToApply->eclipseCaseData()->unitsType();
 
@@ -1192,8 +1154,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::gener
     if ( !wellPathGeometry ) return completionData;
     auto timeSteps = settings.caseToApply->timeStepDates();
 
-    const RimNonDarcyPerforationParameters* nonDarcyParameters =
-        wellPath->perforationIntervalCollection()->nonDarcyParameters();
+    const RimNonDarcyPerforationParameters* nonDarcyParameters = wellPath->perforationIntervalCollection()->nonDarcyParameters();
 
     if ( wellPath->perforationIntervalCollection()->isChecked() )
     {
@@ -1219,8 +1180,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::gener
                 if ( !cellIsActive ) continue;
 
                 RigCompletionData completion( wellPath->completionSettings()->wellNameForExport(),
-                                              RigCompletionDataGridCell( cell.globCellIndex,
-                                                                         settings.caseToApply->mainGrid() ),
+                                              RigCompletionDataGridCell( cell.globCellIndex, settings.caseToApply->mainGrid() ),
                                               cell.startMD );
 
                 RigCompletionData::CellDirection direction =
@@ -1299,9 +1259,8 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::gener
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeatureImpl::appendCompletionData(
-    std::map<size_t, std::vector<RigCompletionData>>* completionData,
-    const std::vector<RigCompletionData>&             completionsToAppend )
+void RicWellPathExportCompletionDataFeatureImpl::appendCompletionData( std::map<size_t, std::vector<RigCompletionData>>* completionData,
+                                                                       const std::vector<RigCompletionData>& completionsToAppend )
 {
     for ( const auto& completion : completionsToAppend )
     {
@@ -1312,9 +1271,8 @@ void RicWellPathExportCompletionDataFeatureImpl::appendCompletionData(
         }
         else
         {
-            completionData->insert(
-                std::pair<size_t, std::vector<RigCompletionData>>( completion.completionDataGridCell().globalCellIndex(),
-                                                                   std::vector<RigCompletionData>{ completion } ) );
+            completionData->insert( std::pair<size_t, std::vector<RigCompletionData>>( completion.completionDataGridCell().globalCellIndex(),
+                                                                                       std::vector<RigCompletionData>{ completion } ) );
         }
     }
 }
@@ -1322,37 +1280,30 @@ void RicWellPathExportCompletionDataFeatureImpl::appendCompletionData(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigCompletionData::CellDirection
-    RicWellPathExportCompletionDataFeatureImpl::calculateCellMainDirection( RimEclipseCase*   eclipseCase,
-                                                                            size_t            globalCellIndex,
-                                                                            const cvf::Vec3d& lengthsInCell )
+RigCompletionData::CellDirection RicWellPathExportCompletionDataFeatureImpl::calculateCellMainDirection( RimEclipseCase*   eclipseCase,
+                                                                                                         size_t            globalCellIndex,
+                                                                                                         const cvf::Vec3d& lengthsInCell )
 {
     RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
 
-    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
-        ->ensureKnownResultLoaded( RigEclipseResultAddress( "DX" ) );
-    cvf::ref<RigResultAccessor> dxAccessObject =
-        RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
-                                                           0,
-                                                           RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                           0,
-                                                           RigEclipseResultAddress( "DX" ) );
-    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
-        ->ensureKnownResultLoaded( RigEclipseResultAddress( "DY" ) );
-    cvf::ref<RigResultAccessor> dyAccessObject =
-        RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
-                                                           0,
-                                                           RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                           0,
-                                                           RigEclipseResultAddress( "DY" ) );
-    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
-        ->ensureKnownResultLoaded( RigEclipseResultAddress( "DZ" ) );
-    cvf::ref<RigResultAccessor> dzAccessObject =
-        RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
-                                                           0,
-                                                           RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                           0,
-                                                           RigEclipseResultAddress( "DZ" ) );
+    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( RigEclipseResultAddress( "DX" ) );
+    cvf::ref<RigResultAccessor> dxAccessObject = RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
+                                                                                                    0,
+                                                                                                    RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                                                                    0,
+                                                                                                    RigEclipseResultAddress( "DX" ) );
+    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( RigEclipseResultAddress( "DY" ) );
+    cvf::ref<RigResultAccessor> dyAccessObject = RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
+                                                                                                    0,
+                                                                                                    RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                                                                    0,
+                                                                                                    RigEclipseResultAddress( "DY" ) );
+    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( RigEclipseResultAddress( "DZ" ) );
+    cvf::ref<RigResultAccessor> dzAccessObject = RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
+                                                                                                    0,
+                                                                                                    RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                                                                    0,
+                                                                                                    RigEclipseResultAddress( "DZ" ) );
 
     double xLengthFraction = fabs( lengthsInCell.x() / dxAccessObject->cellScalarGlobIdx( globalCellIndex ) );
     double yLengthFraction = fabs( lengthsInCell.y() / dyAccessObject->cellScalarGlobIdx( globalCellIndex ) );
@@ -1375,62 +1326,53 @@ RigCompletionData::CellDirection
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TransmissibilityData RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityData(
-    RimEclipseCase*                  eclipseCase,
-    const RimWellPath*               wellPath,
-    const cvf::Vec3d&                internalCellLengths,
-    double                           skinFactor,
-    double                           wellRadius,
-    size_t                           globalCellIndex,
-    bool                             useLateralNTG,
-    size_t                           volumeScaleConstant,
-    RigCompletionData::CellDirection directionForVolumeScaling )
+TransmissibilityData
+    RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityData( RimEclipseCase*                  eclipseCase,
+                                                                               const RimWellPath*               wellPath,
+                                                                               const cvf::Vec3d&                internalCellLengths,
+                                                                               double                           skinFactor,
+                                                                               double                           wellRadius,
+                                                                               size_t                           globalCellIndex,
+                                                                               bool                             useLateralNTG,
+                                                                               size_t                           volumeScaleConstant,
+                                                                               RigCompletionData::CellDirection directionForVolumeScaling )
 {
     RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
 
-    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
-        ->ensureKnownResultLoaded( RigEclipseResultAddress( "DX" ) );
-    cvf::ref<RigResultAccessor> dxAccessObject =
-        RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
-                                                           0,
-                                                           RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                           0,
-                                                           RigEclipseResultAddress( "DX" ) );
-    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
-        ->ensureKnownResultLoaded( RigEclipseResultAddress( "DY" ) );
-    cvf::ref<RigResultAccessor> dyAccessObject =
-        RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
-                                                           0,
-                                                           RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                           0,
-                                                           RigEclipseResultAddress( "DY" ) );
-    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
-        ->ensureKnownResultLoaded( RigEclipseResultAddress( "DZ" ) );
-    cvf::ref<RigResultAccessor> dzAccessObject =
-        RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
-                                                           0,
-                                                           RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                           0,
-                                                           RigEclipseResultAddress( "DZ" ) );
+    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( RigEclipseResultAddress( "DX" ) );
+    cvf::ref<RigResultAccessor> dxAccessObject = RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
+                                                                                                    0,
+                                                                                                    RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                                                                    0,
+                                                                                                    RigEclipseResultAddress( "DX" ) );
+    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( RigEclipseResultAddress( "DY" ) );
+    cvf::ref<RigResultAccessor> dyAccessObject = RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
+                                                                                                    0,
+                                                                                                    RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                                                                    0,
+                                                                                                    RigEclipseResultAddress( "DY" ) );
+    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( RigEclipseResultAddress( "DZ" ) );
+    cvf::ref<RigResultAccessor> dzAccessObject = RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
+                                                                                                    0,
+                                                                                                    RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                                                                    0,
+                                                                                                    RigEclipseResultAddress( "DZ" ) );
 
-    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
-        ->ensureKnownResultLoaded( RigEclipseResultAddress( "PERMX" ) );
+    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( RigEclipseResultAddress( "PERMX" ) );
     cvf::ref<RigResultAccessor> permxAccessObject =
         RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                            0,
                                                            RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                            0,
                                                            RigEclipseResultAddress( "PERMX" ) );
-    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
-        ->ensureKnownResultLoaded( RigEclipseResultAddress( "PERMY" ) );
+    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( RigEclipseResultAddress( "PERMY" ) );
     cvf::ref<RigResultAccessor> permyAccessObject =
         RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                            0,
                                                            RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                            0,
                                                            RigEclipseResultAddress( "PERMY" ) );
-    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
-        ->ensureKnownResultLoaded( RigEclipseResultAddress( "PERMZ" ) );
+    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( RigEclipseResultAddress( "PERMZ" ) );
     cvf::ref<RigResultAccessor> permzAccessObject =
         RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                            0,
@@ -1447,8 +1389,7 @@ TransmissibilityData RicWellPathExportCompletionDataFeatureImpl::calculateTransm
     double ntg = 1.0;
     {
         // Trigger loading from file
-        eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
-            ->ensureKnownResultLoaded( RigEclipseResultAddress( "NTG" ) );
+        eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( RigEclipseResultAddress( "NTG" ) );
 
         cvf::ref<RigResultAccessor> ntgAccessObject =
             RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
@@ -1473,8 +1414,7 @@ TransmissibilityData RicWellPathExportCompletionDataFeatureImpl::calculateTransm
 
     const double totalKh = RigTransmissibilityEquations::totalKh( permx, permy, permz, internalCellLengths, latNtg, ntg );
 
-    const double effectiveK =
-        RigTransmissibilityEquations::effectiveK( permx, permy, permz, internalCellLengths, latNtg, ntg );
+    const double effectiveK = RigTransmissibilityEquations::effectiveK( permx, permy, permz, internalCellLengths, latNtg, ntg );
     const double effectiveH = RigTransmissibilityEquations::effectiveH( internalCellLengths, latNtg, ntg );
 
     double darcy = RiaEclipseUnitTools::darcysConstant( wellPath->unitSystem() );
@@ -1521,11 +1461,11 @@ TransmissibilityData RicWellPathExportCompletionDataFeatureImpl::calculateTransm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicWellPathExportCompletionDataFeatureImpl::calculateDFactor( RimEclipseCase* eclipseCase,
-                                                                     double          effectiveH,
-                                                                     size_t          globalCellIndex,
+double RicWellPathExportCompletionDataFeatureImpl::calculateDFactor( RimEclipseCase*                         eclipseCase,
+                                                                     double                                  effectiveH,
+                                                                     size_t                                  globalCellIndex,
                                                                      const RimNonDarcyPerforationParameters* nonDarcyParameters,
-                                                                     const double effectivePermeability )
+                                                                     const double                            effectivePermeability )
 {
     using EQ = RigPerforationTransmissibilityEquations;
 
@@ -1538,8 +1478,7 @@ double RicWellPathExportCompletionDataFeatureImpl::calculateDFactor( RimEclipseC
 
     double porosity = 0.0;
     {
-        eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
-            ->ensureKnownResultLoaded( RigEclipseResultAddress( "PORO" ) );
+        eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( RigEclipseResultAddress( "PORO" ) );
         cvf::ref<RigResultAccessor> poroAccessObject =
             RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                                0,
@@ -1573,57 +1512,48 @@ double RicWellPathExportCompletionDataFeatureImpl::calculateDFactor( RimEclipseC
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityAsEclipseDoes( RimEclipseCase* eclipseCase,
-                                                                                           double          skinFactor,
-                                                                                           double          wellRadius,
-                                                                                           size_t globalCellIndex,
+double RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityAsEclipseDoes( RimEclipseCase*                  eclipseCase,
+                                                                                           double                           skinFactor,
+                                                                                           double                           wellRadius,
+                                                                                           size_t                           globalCellIndex,
                                                                                            RigCompletionData::CellDirection direction )
 {
     RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
 
-    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
-        ->ensureKnownResultLoaded( RigEclipseResultAddress( "DX" ) );
-    cvf::ref<RigResultAccessor> dxAccessObject =
-        RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
-                                                           0,
-                                                           RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                           0,
-                                                           RigEclipseResultAddress( "DX" ) );
-    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
-        ->ensureKnownResultLoaded( RigEclipseResultAddress( "DY" ) );
-    cvf::ref<RigResultAccessor> dyAccessObject =
-        RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
-                                                           0,
-                                                           RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                           0,
-                                                           RigEclipseResultAddress( "DY" ) );
-    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
-        ->ensureKnownResultLoaded( RigEclipseResultAddress( "DZ" ) );
-    cvf::ref<RigResultAccessor> dzAccessObject =
-        RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
-                                                           0,
-                                                           RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                           0,
-                                                           RigEclipseResultAddress( "DZ" ) );
+    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( RigEclipseResultAddress( "DX" ) );
+    cvf::ref<RigResultAccessor> dxAccessObject = RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
+                                                                                                    0,
+                                                                                                    RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                                                                    0,
+                                                                                                    RigEclipseResultAddress( "DX" ) );
+    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( RigEclipseResultAddress( "DY" ) );
+    cvf::ref<RigResultAccessor> dyAccessObject = RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
+                                                                                                    0,
+                                                                                                    RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                                                                    0,
+                                                                                                    RigEclipseResultAddress( "DY" ) );
+    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( RigEclipseResultAddress( "DZ" ) );
+    cvf::ref<RigResultAccessor> dzAccessObject = RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
+                                                                                                    0,
+                                                                                                    RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                                                                    0,
+                                                                                                    RigEclipseResultAddress( "DZ" ) );
 
-    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
-        ->ensureKnownResultLoaded( RigEclipseResultAddress( "PERMX" ) );
+    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( RigEclipseResultAddress( "PERMX" ) );
     cvf::ref<RigResultAccessor> permxAccessObject =
         RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                            0,
                                                            RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                            0,
                                                            RigEclipseResultAddress( "PERMX" ) );
-    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
-        ->ensureKnownResultLoaded( RigEclipseResultAddress( "PERMY" ) );
+    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( RigEclipseResultAddress( "PERMY" ) );
     cvf::ref<RigResultAccessor> permyAccessObject =
         RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                            0,
                                                            RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                            0,
                                                            RigEclipseResultAddress( "PERMY" ) );
-    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
-        ->ensureKnownResultLoaded( RigEclipseResultAddress( "PERMZ" ) );
+    eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( RigEclipseResultAddress( "PERMZ" ) );
     cvf::ref<RigResultAccessor> permzAccessObject =
         RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
                                                            0,
@@ -1632,8 +1562,7 @@ double RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityAsEc
                                                            RigEclipseResultAddress( "PERMZ" ) );
 
     double ntg = 1.0;
-    if ( eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
-             ->ensureKnownResultLoaded( RigEclipseResultAddress( "NTG" ) ) )
+    if ( eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->ensureKnownResultLoaded( RigEclipseResultAddress( "NTG" ) ) )
     {
         cvf::ref<RigResultAccessor> ntgAccessObject =
             RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
@@ -1657,36 +1586,16 @@ double RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityAsEc
     double trans = cvf::UNDEFINED_DOUBLE;
     if ( direction == RigCompletionData::CellDirection::DIR_I )
     {
-        trans = RigTransmissibilityEquations::wellBoreTransmissibilityComponent( dx,
-                                                                                 permy,
-                                                                                 permz,
-                                                                                 dy,
-                                                                                 dz,
-                                                                                 wellRadius,
-                                                                                 skinFactor,
-                                                                                 darcy );
+        trans = RigTransmissibilityEquations::wellBoreTransmissibilityComponent( dx, permy, permz, dy, dz, wellRadius, skinFactor, darcy );
     }
     else if ( direction == RigCompletionData::CellDirection::DIR_J )
     {
-        trans = RigTransmissibilityEquations::wellBoreTransmissibilityComponent( dy,
-                                                                                 permx,
-                                                                                 permz,
-                                                                                 dx,
-                                                                                 dz,
-                                                                                 wellRadius,
-                                                                                 skinFactor,
-                                                                                 darcy );
+        trans = RigTransmissibilityEquations::wellBoreTransmissibilityComponent( dy, permx, permz, dx, dz, wellRadius, skinFactor, darcy );
     }
     else if ( direction == RigCompletionData::CellDirection::DIR_K )
     {
-        trans = RigTransmissibilityEquations::wellBoreTransmissibilityComponent( dz * ntg,
-                                                                                 permy,
-                                                                                 permx,
-                                                                                 dy,
-                                                                                 dx,
-                                                                                 wellRadius,
-                                                                                 skinFactor,
-                                                                                 darcy );
+        trans =
+            RigTransmissibilityEquations::wellBoreTransmissibilityComponent( dz * ntg, permy, permx, dy, dx, wellRadius, skinFactor, darcy );
     }
 
     return trans;
@@ -1695,10 +1604,10 @@ double RicWellPathExportCompletionDataFeatureImpl::calculateTransmissibilityAsEc
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, cvf::Vec2i> RicWellPathExportCompletionDataFeatureImpl::wellPathUpperGridIntersectionIJ(
-    gsl::not_null<const RimEclipseCase*> gridCase,
-    gsl::not_null<const RimWellPath*>    wellPath,
-    const QString&                       gridName )
+std::pair<double, cvf::Vec2i>
+    RicWellPathExportCompletionDataFeatureImpl::wellPathUpperGridIntersectionIJ( gsl::not_null<const RimEclipseCase*> gridCase,
+                                                                                 gsl::not_null<const RimWellPath*>    wellPath,
+                                                                                 const QString&                       gridName )
 {
     const RigEclipseCaseData* caseData       = gridCase->eclipseCaseData();
     const RigMainGrid*        mainGrid       = caseData->mainGrid();
@@ -1725,8 +1634,7 @@ std::pair<double, cvf::Vec2i> RicWellPathExportCompletionDataFeatureImpl::wellPa
     for ( WellPathCellIntersectionInfo intersection : intersections )
     {
         size_t             gridLocalCellIndex = 0;
-        const RigGridBase* grid =
-            mainGrid->gridAndGridLocalIdxFromGlobalCellIdx( intersection.globCellIndex, &gridLocalCellIndex );
+        const RigGridBase* grid = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx( intersection.globCellIndex, &gridLocalCellIndex );
 
         if ( grid->gridId() == gridId && activeCellInfo->isActive( intersection.globCellIndex ) )
         {
@@ -1762,8 +1670,7 @@ RimWellPath* RicWellPathExportCompletionDataFeatureImpl::topLevelWellPath( const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeatureImpl::exportCarfinForTemporaryLgrs( const RimEclipseCase* sourceCase,
-                                                                               const QString&        folder )
+void RicWellPathExportCompletionDataFeatureImpl::exportCarfinForTemporaryLgrs( const RimEclipseCase* sourceCase, const QString& folder )
 {
     if ( !sourceCase || !sourceCase->mainGrid() ) return;
 

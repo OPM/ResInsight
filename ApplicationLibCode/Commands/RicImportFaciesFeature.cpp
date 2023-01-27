@@ -56,10 +56,7 @@ void RicImportFaciesFeature::onActionTriggered( bool isChecked )
 
     QString filterText = QString( "Roff ascii file (*.roff);;All Files (*.*)" );
 
-    QString fileName = RiuFileDialogTools::getOpenFileName( Riu3DMainWindowTools::mainWindowWidget(),
-                                                            "Import Facies",
-                                                            defaultDir,
-                                                            filterText );
+    QString fileName = RiuFileDialogTools::getOpenFileName( Riu3DMainWindowTools::mainWindowWidget(), "Import Facies", defaultDir, filterText );
 
     if ( fileName.isEmpty() ) return;
 

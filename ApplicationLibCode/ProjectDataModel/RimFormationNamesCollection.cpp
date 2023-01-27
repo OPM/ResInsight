@@ -115,8 +115,7 @@ std::vector<RimFormationNames*> RimFormationNamesCollection::importFiles( const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFormationNamesCollection::updateFilePathsFromProjectPath( const QString& newProjectPath,
-                                                                  const QString& oldProjectPath )
+void RimFormationNamesCollection::updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath )
 {
     for ( RimFormationNames* fmNames : m_formationNamesList )
     {

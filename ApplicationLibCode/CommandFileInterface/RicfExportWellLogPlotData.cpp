@@ -92,10 +92,7 @@ caf::PdmScriptResponse RicfExportWellLogPlotData::execute()
                 if ( m_format() == ExportFormat::ASCII )
                 {
                     QString validFileName =
-                        RicAsciiExportWellLogPlotFeature::makeValidExportFileName( plot,
-                                                                                   m_folder(),
-                                                                                   m_filePrefix(),
-                                                                                   m_capitalizeFileNames() );
+                        RicAsciiExportWellLogPlotFeature::makeValidExportFileName( plot, m_folder(), m_filePrefix(), m_capitalizeFileNames() );
                     if ( RicAsciiExportWellLogPlotFeature::exportAsciiForWellLogPlot( validFileName, plot ) )
                     {
                         result->exportedFiles.v().push_back( validFileName );
@@ -103,24 +100,21 @@ caf::PdmScriptResponse RicfExportWellLogPlotData::execute()
                 }
                 else
                 {
-                    std::vector<QString> exportedFiles =
-                        RicExportToLasFileFeature::exportToLasFiles( m_folder(),
-                                                                     m_filePrefix(),
-                                                                     plot,
-                                                                     m_exportTvdRkb(),
-                                                                     m_capitalizeFileNames(),
-                                                                     true,
-                                                                     m_resampleInterval(),
-                                                                     m_convertCurveUnits() );
+                    std::vector<QString> exportedFiles = RicExportToLasFileFeature::exportToLasFiles( m_folder(),
+                                                                                                      m_filePrefix(),
+                                                                                                      plot,
+                                                                                                      m_exportTvdRkb(),
+                                                                                                      m_capitalizeFileNames(),
+                                                                                                      true,
+                                                                                                      m_resampleInterval(),
+                                                                                                      m_convertCurveUnits() );
                     if ( exportedFiles.empty() )
                     {
                         errorMessages << QString( "No files exported for '%1'" ).arg( plot->description() );
                     }
                     else
                     {
-                        result->exportedFiles.v().insert( result->exportedFiles.v().end(),
-                                                          exportedFiles.begin(),
-                                                          exportedFiles.end() );
+                        result->exportedFiles.v().insert( result->exportedFiles.v().end(), exportedFiles.begin(), exportedFiles.end() );
                     }
                 }
             }

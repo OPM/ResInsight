@@ -136,8 +136,7 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
         readerEclipseOutput->setFilenamesWithFaults( this->filesContainingFaults() );
         readerEclipseOutput->setReaderSettings( m_readerSettings );
 
-        cvf::ref<RifEclipseRestartDataAccess> restartDataAccess =
-            RifEclipseOutputFileTools::createDynamicResultAccess( gridFileName() );
+        cvf::ref<RifEclipseRestartDataAccess> restartDataAccess = RifEclipseOutputFileTools::createDynamicResultAccess( gridFileName() );
 
         {
             std::vector<QDateTime> timeSteps;
@@ -280,8 +279,7 @@ bool RimEclipseResultCase::openAndReadActiveCellData( RigEclipseCaseData* mainEc
         CVF_ASSERT( mainEclipseCase && mainEclipseCase->mainGrid() );
         eclipseCase->setMainGrid( mainEclipseCase->mainGrid() );
 
-        std::vector<QDateTime> timeStepDates =
-            mainEclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->timeStepDates();
+        std::vector<QDateTime> timeStepDates = mainEclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->timeStepDates();
         cvf::ref<RifReaderEclipseOutput> readerEclipseOutput = new RifReaderEclipseOutput;
         if ( !readerEclipseOutput->openAndReadActiveCellData( gridFileName(), timeStepDates, eclipseCase.p() ) )
         {
@@ -421,13 +419,9 @@ cvf::ref<RifReaderInterface> RimEclipseResultCase::createMockModel( QString mode
         offsetZ = 0;
 
         mockFileInterface->setWorldCoordinates( cvf::Vec3d( startX + offsetX, startY + offsetY, startZ + offsetZ ),
-                                                cvf::Vec3d( startX + widthX + offsetX,
-                                                            startY + widthY + offsetY,
-                                                            startZ + widthZ + offsetZ ) );
+                                                cvf::Vec3d( startX + widthX + offsetX, startY + widthY + offsetY, startZ + widthZ + offsetZ ) );
         mockFileInterface->setGridPointDimensions( cvf::Vec3st( 50, 100, 200 ) );
-        mockFileInterface->addLocalGridRefinement( cvf::Vec3st( 0, 30, 30 ),
-                                                   cvf::Vec3st( 1, 40, 90 ),
-                                                   cvf::Vec3st( 2, 2, 2 ) );
+        mockFileInterface->addLocalGridRefinement( cvf::Vec3st( 0, 30, 30 ), cvf::Vec3st( 1, 40, 90 ), cvf::Vec3st( 2, 2, 2 ) );
         mockFileInterface->setResultInfo( 3, 10 );
 
         mockFileInterface->open( "", reservoir.p() );
@@ -461,12 +455,9 @@ cvf::ref<RifReaderInterface> RimEclipseResultCase::createMockModel( QString mode
             double offsetZ = 0;
 
             mockFileInterface->setWorldCoordinates( cvf::Vec3d( startX + offsetX, startY + offsetY, startZ + offsetZ ),
-                                                    cvf::Vec3d( startX + widthX + offsetX,
-                                                                startY + widthY + offsetY,
-                                                                startZ + widthZ + offsetZ ) );
-            mockFileInterface->setGridPointDimensions( cvf::Vec3st( mockModelSettings->cellCountX + 1,
-                                                                    mockModelSettings->cellCountY + 1,
-                                                                    mockModelSettings->cellCountZ + 1 ) );
+                                                    cvf::Vec3d( startX + widthX + offsetX, startY + widthY + offsetY, startZ + widthZ + offsetZ ) );
+            mockFileInterface->setGridPointDimensions(
+                cvf::Vec3st( mockModelSettings->cellCountX + 1, mockModelSettings->cellCountY + 1, mockModelSettings->cellCountZ + 1 ) );
             mockFileInterface->setResultInfo( mockModelSettings->resultCount, mockModelSettings->timeStepCount );
             mockFileInterface->enableWellData( false );
 
@@ -612,9 +603,7 @@ void RimEclipseResultCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseResultCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                             const QVariant&            oldValue,
-                                             const QVariant&            newValue )
+void RimEclipseResultCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_sourSimFileName )
     {
@@ -627,9 +616,7 @@ void RimEclipseResultCase::fieldChangedByUi( const caf::PdmFieldHandle* changedF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseResultCase::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                  QString                    uiConfigName,
-                                                  caf::PdmUiEditorAttribute* attribute )
+void RimEclipseResultCase::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_sourSimFileName )
     {

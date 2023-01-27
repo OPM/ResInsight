@@ -60,9 +60,7 @@ std::vector<cvf::Vec3d> RigConvexHull::compute2d( const std::vector<cvf::Vec3d>&
 std::vector<cvf::Vec3d> RigConvexHull::sortPoints( const std::vector<cvf::Vec3d>& unsorted )
 {
     // Returns true if a is left of b
-    auto isLeftOf = []( const cvf::Vec3d& a, const cvf::Vec3d& b ) {
-        return ( a.x() < b.x() || ( a.x() == b.x() && a.y() < b.y() ) );
-    };
+    auto isLeftOf = []( const cvf::Vec3d& a, const cvf::Vec3d& b ) { return ( a.x() < b.x() || ( a.x() == b.x() && a.y() < b.y() ) ); };
 
     std::vector<cvf::Vec3d> sorted = unsorted;
     std::sort( sorted.begin(), sorted.end(), isLeftOf );

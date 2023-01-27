@@ -244,9 +244,7 @@ QString RimSurface::fullName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSurface::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                        QString                    uiConfigName,
-                                        caf::PdmUiEditorAttribute* attribute )
+void RimSurface::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     auto doubleSliderAttrib = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
     if ( doubleSliderAttrib )

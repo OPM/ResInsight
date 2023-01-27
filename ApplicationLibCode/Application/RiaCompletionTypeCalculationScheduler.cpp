@@ -61,8 +61,7 @@ void RiaCompletionTypeCalculationScheduler::scheduleRecalculateCompletionTypeAnd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaCompletionTypeCalculationScheduler::scheduleRecalculateCompletionTypeAndRedrawAllViews(
-    const std::vector<RimEclipseCase*>& eclipseCases )
+void RiaCompletionTypeCalculationScheduler::scheduleRecalculateCompletionTypeAndRedrawAllViews( const std::vector<RimEclipseCase*>& eclipseCases )
 {
     clearCompletionTypeResults( eclipseCases );
 

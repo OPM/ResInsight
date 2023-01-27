@@ -94,8 +94,7 @@ caf::PdmScriptResponse RicfComputeCaseGroupStatistics::execute()
 
         if ( !foundCase )
         {
-            QString warning =
-                QString( "computeCaseGroupStatistics: Could not find statistics case with ID %1." ).arg( caseId );
+            QString warning = QString( "computeCaseGroupStatistics: Could not find statistics case with ID %1." ).arg( caseId );
 
             RiaLogging::warning( warning );
             response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warning );

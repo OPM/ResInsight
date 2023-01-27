@@ -35,7 +35,7 @@
 //--------------------------------------------------------------------------------------------------
 void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack( RimWellLogTrack*                     destTrack,
                                                                    const std::vector<RimWellLogCurve*>& curves,
-                                                                   int insertAtPosition )
+                                                                   int                                  insertAtPosition )
 {
     CVF_ASSERT( destTrack );
 

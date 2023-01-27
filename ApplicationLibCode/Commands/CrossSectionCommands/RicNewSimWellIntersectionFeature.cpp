@@ -72,8 +72,7 @@ void RicNewSimWellIntersectionFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicNewSimWellIntersectionCmd::RicNewSimWellIntersectionCmd( RimIntersectionCollection* intersectionCollection,
-                                                            RimSimWellInView*          simWell )
+RicNewSimWellIntersectionCmd::RicNewSimWellIntersectionCmd( RimIntersectionCollection* intersectionCollection, RimSimWellInView* simWell )
     : CmdExecuteCommand( nullptr )
     , m_intersectionCollection( intersectionCollection )
     , m_simWell( simWell )

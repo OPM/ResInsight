@@ -64,8 +64,7 @@ void RicRenamePlotTemplateFeature::onActionTriggered( bool isChecked )
     QWidget* parent = RiuPlotMainWindow::instance();
 
     bool    ok;
-    QString newname =
-        QInputDialog::getText( parent, "Rename Plot Template", "Enter new name:", QLineEdit::Normal, fi.baseName(), &ok );
+    QString newname = QInputDialog::getText( parent, "Rename Plot Template", "Enter new name:", QLineEdit::Normal, fi.baseName(), &ok );
 
     if ( !ok ) return;
 

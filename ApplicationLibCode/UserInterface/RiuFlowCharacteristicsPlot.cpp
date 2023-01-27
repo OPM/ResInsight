@@ -95,8 +95,8 @@ RiuFlowCharacteristicsPlot::RiuFlowCharacteristicsPlot( RimFlowCharacteristicsPl
     addWindowZoom( m_sweepEffPlot );
     m_sweepEffPlot->setTitle( "Sweep Efficiency" );
 
-    int legendFontSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(),
-                                                            caf::FontTools::RelativeSize::Small );
+    int legendFontSize =
+        caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), caf::FontTools::RelativeSize::Small );
 
     {
         QwtText axisTitle = m_sweepEffPlot->axisTitle( QwtAxis::XBottom );
@@ -176,11 +176,7 @@ void RiuFlowCharacteristicsPlot::setLorenzCurve( const QStringList&            d
 
             QString curveName = dateTimeStrings[static_cast<int>( tsIdx )];
 
-            RiuFlowCharacteristicsPlot::addCurveWithLargeSymbol( m_lorenzPlot,
-                                                                 curveName,
-                                                                 m_dateToColorMap[dateTime],
-                                                                 dateTime,
-                                                                 timeHistoryValue );
+            RiuFlowCharacteristicsPlot::addCurveWithLargeSymbol( m_lorenzPlot, curveName, m_dateToColorMap[dateTime], dateTime, timeHistoryValue );
         }
     }
 
@@ -220,8 +216,7 @@ void RiuFlowCharacteristicsPlot::addCurveWithLargeSymbol( QwtPlot*         plot,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQwtPlotCurve*
-    RiuFlowCharacteristicsPlot::createEmptyCurve( QwtPlot* plot, const QString& curveName, const QColor& curveColor )
+RiuQwtPlotCurve* RiuFlowCharacteristicsPlot::createEmptyCurve( QwtPlot* plot, const QString& curveName, const QColor& curveColor )
 {
     RiuQwtPlotCurve* plotCurve = new RiuQwtPlotCurve( nullptr, curveName );
 
@@ -240,9 +235,8 @@ void RiuFlowCharacteristicsPlot::addFlowCapStorageCapCurve( const QDateTime&    
 {
     CVF_ASSERT( !m_dateToColorMap.empty() );
 
-    RiuQwtPlotCurve* plotCurve =
-        createEmptyCurve( m_flowCapVsStorageCapPlot, dateTime.toString(), m_dateToColorMap[dateTime] );
-    bool useLogarithmicScale = false;
+    RiuQwtPlotCurve* plotCurve           = createEmptyCurve( m_flowCapVsStorageCapPlot, dateTime.toString(), m_dateToColorMap[dateTime] );
+    bool             useLogarithmicScale = false;
     plotCurve->setSamplesFromXValuesAndYValues( xVals, yVals, useLogarithmicScale );
     m_flowCapVsStorageCapPlot->replot();
 }
@@ -256,7 +250,7 @@ void RiuFlowCharacteristicsPlot::addSweepEfficiencyCurve( const QDateTime&      
 {
     CVF_ASSERT( !m_dateToColorMap.empty() );
 
-    RiuQwtPlotCurve* plotCurve = createEmptyCurve( m_sweepEffPlot, dateTime.toString(), m_dateToColorMap[dateTime] );
+    RiuQwtPlotCurve* plotCurve           = createEmptyCurve( m_sweepEffPlot, dateTime.toString(), m_dateToColorMap[dateTime] );
     bool             useLogarithmicScale = false;
     plotCurve->setSamplesFromXValuesAndYValues( xVals, yVals, useLogarithmicScale );
 
@@ -386,8 +380,8 @@ void RiuFlowCharacteristicsPlot::initializeColors( const std::vector<QDateTime>&
 {
     CVF_ASSERT( m_dateToColorMap.empty() );
 
-    const caf::ColorTable& palette = RiaColorTables::timestepsPaletteColors();
-    cvf::Color3ubArray colorArray = caf::ColorTable::interpolateColorArray( palette.color3ubArray(), dateTimes.size() );
+    const caf::ColorTable& palette    = RiaColorTables::timestepsPaletteColors();
+    cvf::Color3ubArray     colorArray = caf::ColorTable::interpolateColorArray( palette.color3ubArray(), dateTimes.size() );
 
     for ( size_t tsIdx = 0; tsIdx < dateTimes.size(); ++tsIdx )
     {

@@ -188,9 +188,9 @@ bool RicShowPlotDataFeature::isCommandEnabled()
             return false;
         }
 
-        if ( dynamic_cast<RimSummaryPlot*>( plot ) || dynamic_cast<RimWellLogPlot*>( plot ) ||
-             dynamic_cast<RimWellLogTrack*>( plot ) || dynamic_cast<RimGridCrossPlot*>( plot ) ||
-             dynamic_cast<RimVfpPlot*>( plot ) || dynamic_cast<RimWellAllocationOverTimePlot*>( plot ) )
+        if ( dynamic_cast<RimSummaryPlot*>( plot ) || dynamic_cast<RimWellLogPlot*>( plot ) || dynamic_cast<RimWellLogTrack*>( plot ) ||
+             dynamic_cast<RimGridCrossPlot*>( plot ) || dynamic_cast<RimVfpPlot*>( plot ) ||
+             dynamic_cast<RimWellAllocationOverTimePlot*>( plot ) )
         {
             validPlots++;
         }

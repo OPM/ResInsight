@@ -63,12 +63,7 @@ CAF_PDM_SOURCE_INIT( RimSimWellInView, "Well" );
 //--------------------------------------------------------------------------------------------------
 RimSimWellInView::RimSimWellInView()
 {
-    CAF_PDM_InitScriptableObjectWithNameAndComment( "Simulation Well",
-                                                    ":/Well.svg",
-                                                    "",
-                                                    "",
-                                                    "SimulationWell",
-                                                    "An Eclipse Simulation Well" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Simulation Well", ":/Well.svg", "", "", "SimulationWell", "An Eclipse Simulation Well" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &name, "Name", "Name" );
     name.registerKeywordAlias( "WellName" );
@@ -124,9 +119,7 @@ caf::PdmFieldHandle* RimSimWellInView::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSimWellInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                         const QVariant&            oldValue,
-                                         const QVariant&            newValue )
+void RimSimWellInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimEclipseView* reservoirView = nullptr;
     this->firstAncestorOrThisOfType( reservoirView );
@@ -202,12 +195,10 @@ std::vector<const RigWellPath*> RimSimWellInView::wellPipeBranches() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSimWellInView::calculateWellPipeStaticCenterLine( std::vector<std::vector<cvf::Vec3d>>& pipeBranchesCLCoords,
+void RimSimWellInView::calculateWellPipeStaticCenterLine( std::vector<std::vector<cvf::Vec3d>>&         pipeBranchesCLCoords,
                                                           std::vector<std::vector<RigWellResultPoint>>& pipeBranchesCellIds )
 {
-    RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( this,
-                                                                              pipeBranchesCLCoords,
-                                                                              pipeBranchesCellIds );
+    RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( this, pipeBranchesCLCoords, pipeBranchesCellIds );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -297,8 +288,7 @@ double RimSimWellInView::pipeRadius()
 
     double characteristicCellSize = rigReservoir->mainGrid()->characteristicIJCellSize();
 
-    double pipeRadius =
-        reservoirView->wellCollection()->pipeScaleFactor() * this->pipeScaleFactor() * characteristicCellSize;
+    double pipeRadius = reservoirView->wellCollection()->pipeScaleFactor() * this->pipeScaleFactor() * characteristicCellSize;
 
     return pipeRadius;
 }
@@ -341,9 +331,8 @@ bool RimSimWellInView::intersectsWellCellsFilteredCells( const RigWellResultFram
 
     for ( const RivCellSetEnum& visGridPart : visGridParts )
     {
-        if ( visGridPart == ALL_WELL_CELLS || visGridPart == VISIBLE_WELL_CELLS ||
-             visGridPart == VISIBLE_WELL_FENCE_CELLS || visGridPart == VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER ||
-             visGridPart == VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER )
+        if ( visGridPart == ALL_WELL_CELLS || visGridPart == VISIBLE_WELL_CELLS || visGridPart == VISIBLE_WELL_FENCE_CELLS ||
+             visGridPart == VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER || visGridPart == VISIBLE_WELL_FENCE_CELLS_OUTSIDE_RANGE_FILTER )
         {
             // Exclude all cells related to well cells
             continue;
@@ -503,8 +492,7 @@ bool RimSimWellInView::isWellCellsVisible() const
 
     if ( reservoirView->intersectionCollection()->hasActiveIntersectionForSimulationWell( this ) ) return true;
 
-    if ( reservoirView->wellCollection()->showWellsIntersectingVisibleCells() &&
-         reservoirView->cellFilterCollection()->hasActiveFilters() )
+    if ( reservoirView->wellCollection()->showWellsIntersectingVisibleCells() && reservoirView->cellFilterCollection()->hasActiveFilters() )
     {
         return intersectsStaticWellCellsFilteredCells();
     }
@@ -545,8 +533,7 @@ bool RimSimWellInView::isWellPipeVisible( size_t frameIndex ) const
     if ( reservoirView->intersectionCollection()->hasActiveIntersectionForSimulationWell( this ) ) return true;
 
     if ( reservoirView->wellCollection()->showWellsIntersectingVisibleCells() &&
-         ( reservoirView->cellFilterCollection()->hasActiveFilters() ||
-           reservoirView->propertyFilterCollection()->hasActiveFilters() ) )
+         ( reservoirView->cellFilterCollection()->hasActiveFilters() || reservoirView->propertyFilterCollection()->hasActiveFilters() ) )
     {
         return intersectsDynamicWellCellsFilteredCells( frameIndex );
     }
@@ -586,8 +573,7 @@ bool RimSimWellInView::isWellSpheresVisible( size_t frameIndex ) const
 
     if ( reservoirView->intersectionCollection()->hasActiveIntersectionForSimulationWell( this ) ) return true;
 
-    if ( reservoirView->wellCollection()->showWellsIntersectingVisibleCells() &&
-         reservoirView->cellFilterCollection()->hasActiveFilters() )
+    if ( reservoirView->wellCollection()->showWellsIntersectingVisibleCells() && reservoirView->cellFilterCollection()->hasActiveFilters() )
     {
         return intersectsDynamicWellCellsFilteredCells( frameIndex );
     }
@@ -708,11 +694,8 @@ double RimSimWellInView::calculateInjectionProductionFractions( const RimWellDis
 
     if ( wellDiskConfig.isSingleProperty() )
     {
-        double singleProperty = RimSimWellInViewTools::extractValueForTimeStep( summaryReader,
-                                                                                name(),
-                                                                                wellDiskConfig.getSingleProperty(),
-                                                                                currentDate,
-                                                                                isOk );
+        double singleProperty =
+            RimSimWellInViewTools::extractValueForTimeStep( summaryReader, name(), wellDiskConfig.getSingleProperty(), currentDate, isOk );
         if ( !( *isOk ) )
         {
             m_isValidDisk = false;
@@ -791,9 +774,7 @@ cvf::BoundingBox RimSimWellInView::boundingBoxInDomainCoords() const
     std::vector<std::vector<RigWellResultPoint>> pipeBranchesCellIds;
 
     auto noConst = const_cast<RimSimWellInView*>( this );
-    RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( noConst,
-                                                                              pipeBranchesCLCoords,
-                                                                              pipeBranchesCellIds );
+    RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( noConst, pipeBranchesCLCoords, pipeBranchesCellIds );
 
     cvf::BoundingBox bb;
     for ( auto branch : pipeBranchesCLCoords )
@@ -865,8 +846,7 @@ Rim2dIntersectionView* corresponding2dIntersectionView( RimSimWellInView* simWel
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSimWellInView::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                                       std::vector<caf::PdmObjectHandle*>& referringObjects )
+void RimSimWellInView::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     RimEclipseView* view = nullptr;
     this->firstAncestorOrThisOfType( view );

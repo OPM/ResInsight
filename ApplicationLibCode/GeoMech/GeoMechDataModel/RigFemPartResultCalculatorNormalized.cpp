@@ -51,15 +51,13 @@ RigFemPartResultCalculatorNormalized::~RigFemPartResultCalculatorNormalized()
 //--------------------------------------------------------------------------------------------------
 bool RigFemPartResultCalculatorNormalized::isMatching( const RigFemResultAddress& resVarAddr ) const
 {
-    return ( resVarAddr.normalizeByHydrostaticPressure() &&
-             RigFemPartResultsCollection::isNormalizableResult( resVarAddr ) );
+    return ( resVarAddr.normalizeByHydrostaticPressure() && RigFemPartResultsCollection::isNormalizableResult( resVarAddr ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultCalculatorNormalized::calculate( int                        partIndex,
-                                                                           const RigFemResultAddress& resVarAddr )
+RigFemScalarResultFrames* RigFemPartResultCalculatorNormalized::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
 {
     CVF_ASSERT( resVarAddr.normalizeByHydrostaticPressure() && isNormalizableResult( resVarAddr ) );
 
@@ -77,9 +75,8 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNormalized::calculate( int  
     RigFemScalarResultFrames* dstDataFrames = nullptr;
 
     {
-        auto task = stepCountProgress.task( "Loading POR Result", m_resultCollection->timeStepCount() );
-        porDataFrames =
-            m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_ELEMENT_NODAL, "POR-Bar", "" ) );
+        auto task     = stepCountProgress.task( "Loading POR Result", m_resultCollection->timeStepCount() );
+        porDataFrames = m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_ELEMENT_NODAL, "POR-Bar", "" ) );
         if ( !porDataFrames ) return nullptr;
     }
 
@@ -89,7 +86,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNormalized::calculate( int  
         if ( !srcDataFrames ) return nullptr;
     }
     {
-        auto task = stepCountProgress.task( "Creating Space for Normalized Result", m_resultCollection->timeStepCount() );
+        auto task     = stepCountProgress.task( "Creating Space for Normalized Result", m_resultCollection->timeStepCount() );
         dstDataFrames = m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( resVarAddr ) );
         if ( !dstDataFrames ) return nullptr;
     }
@@ -142,22 +139,19 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNormalized::calculate( int  
                         // This is in the POR-region. Use hydrostatic pressure from the individual nodes
                         for ( int elmLocalNodeIdx = 0; elmLocalNodeIdx < 8; ++elmLocalNodeIdx )
                         {
-                            size_t    elmNodeResIdx = femPart->elementNodeResultIdx( elmIdx, elmLocalNodeIdx );
-                            const int nodeIdx       = femPart->nodeIdxFromElementNodeResultIdx( elmNodeResIdx );
-                            double    tvdRKB        = std::abs( nodeCoords[nodeIdx].z() ) +
-                                            m_resultCollection->normalizationAirGap();
-                            double hydrostaticPressure = RiaWellLogUnitTools<double>::hydrostaticPorePressureBar( tvdRKB );
+                            size_t    elmNodeResIdx       = femPart->elementNodeResultIdx( elmIdx, elmLocalNodeIdx );
+                            const int nodeIdx             = femPart->nodeIdxFromElementNodeResultIdx( elmNodeResIdx );
+                            double    tvdRKB              = std::abs( nodeCoords[nodeIdx].z() ) + m_resultCollection->normalizationAirGap();
+                            double    hydrostaticPressure = RiaWellLogUnitTools<double>::hydrostaticPorePressureBar( tvdRKB );
                             dstFrameData[elmNodeResIdx] /= hydrostaticPressure;
                         }
                     }
                     else
                     {
                         // Over/under/sideburden. Use hydrostatic pressure from cell centroid.
-                        cvf::Vec3d cellCentroid       = femPartGrid->cellCentroid( elmIdx );
-                        double     cellCentroidTvdRKB = std::abs( cellCentroid.z() ) +
-                                                    m_resultCollection->normalizationAirGap();
-                        double cellCenterHydroStaticPressure =
-                            RiaWellLogUnitTools<double>::hydrostaticPorePressureBar( cellCentroidTvdRKB );
+                        cvf::Vec3d cellCentroid              = femPartGrid->cellCentroid( elmIdx );
+                        double     cellCentroidTvdRKB        = std::abs( cellCentroid.z() ) + m_resultCollection->normalizationAirGap();
+                        double cellCenterHydroStaticPressure = RiaWellLogUnitTools<double>::hydrostaticPorePressureBar( cellCentroidTvdRKB );
 
                         for ( int elmLocalNodeIdx = 0; elmLocalNodeIdx < 8; ++elmLocalNodeIdx )
                         {

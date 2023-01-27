@@ -95,9 +95,7 @@ RiaDefines::CurveProperty RimStimPlanModelCurve::curveProperty() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStimPlanModelCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                              const QVariant&            oldValue,
-                                              const QVariant&            newValue )
+void RimStimPlanModelCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimWellLogExtractionCurve::fieldChangedByUi( changedField, oldValue, newValue );
     RimStimPlanModelPlot* stimPlanModelPlot;

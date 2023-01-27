@@ -67,12 +67,11 @@ public:
     RicCreateMultipleFracturesOptionItemUi* uiOption;
 };
 
-std::vector<MultipleFracturesOption>
-    fractureOptions( const RigEclipseCaseData*                                   caseData,
-                     const RimWellPath*                                          wellPath,
-                     const std::vector<RicCreateMultipleFracturesOptionItemUi*>& allUiOptions );
-RicCreateMultipleFracturesOptionItemUi*
-    firstUiOptionContainingK( size_t k, const std::vector<RicCreateMultipleFracturesOptionItemUi*>& allUiOptions );
+std::vector<MultipleFracturesOption>    fractureOptions( const RigEclipseCaseData*                                   caseData,
+                                                         const RimWellPath*                                          wellPath,
+                                                         const std::vector<RicCreateMultipleFracturesOptionItemUi*>& allUiOptions );
+RicCreateMultipleFracturesOptionItemUi* firstUiOptionContainingK( size_t                                                      k,
+                                                                  const std::vector<RicCreateMultipleFracturesOptionItemUi*>& allUiOptions );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -112,9 +111,7 @@ void RiuCreateMultipleFractionsUi::setParentDialog( QPointer<caf::PdmUiPropertyV
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuCreateMultipleFractionsUi::setValues( RimEclipseCase* eclipseCase,
-                                              double          minimumDistanceFromWellToe,
-                                              int             maxFracturesPerWell )
+void RiuCreateMultipleFractionsUi::setValues( RimEclipseCase* eclipseCase, double minimumDistanceFromWellToe, int maxFracturesPerWell )
 {
     m_sourceCase            = eclipseCase;
     m_minDistanceFromWellTd = minimumDistanceFromWellToe;
@@ -191,8 +188,7 @@ void RiuCreateMultipleFractionsUi::clearWellPaths()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RiuCreateMultipleFractionsUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RiuCreateMultipleFractionsUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -207,9 +203,7 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuCreateMultipleFractionsUi::defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu,
-                                                            QMenu*                     menu,
-                                                            QWidget*                   fieldEditorWidget )
+void RiuCreateMultipleFractionsUi::defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget )
 {
     caf::CmdFeatureMenuBuilder menuBuilder;
 
@@ -248,9 +242,8 @@ QString RiuCreateMultipleFractionsUi::summaryText() const
 
         for ( auto fracTemplate : fracTemplateSet )
         {
-            header.push_back( RifTextDataTableColumn( fracTemplate->name(),
-                                                      RifTextDataTableDoubleFormatting(),
-                                                      RifTextDataTableAlignment::RIGHT ) );
+            header.push_back(
+                RifTextDataTableColumn( fracTemplate->name(), RifTextDataTableDoubleFormatting(), RifTextDataTableAlignment::RIGHT ) );
         }
 
         formatter.header( header );
@@ -348,8 +341,7 @@ std::vector<LocationForNewFracture> RiuCreateMultipleFractionsUi::locationsForNe
                     }
                     else
                     {
-                        double spacing =
-                            std::max( options[i - 1].uiOption->minimumSpacing(), option.uiOption->minimumSpacing() );
+                        double spacing  = std::max( options[i - 1].uiOption->minimumSpacing(), option.uiOption->minimumSpacing() );
                         fracMdCandidate = lastFracMd - spacing;
                     }
 
@@ -417,10 +409,9 @@ void RiuCreateMultipleFractionsUi::updateButtonsEnableState()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<MultipleFracturesOption>
-    fractureOptions( const RigEclipseCaseData*                                   caseData,
-                     const RimWellPath*                                          wellPath,
-                     const std::vector<RicCreateMultipleFracturesOptionItemUi*>& allUiOptions )
+std::vector<MultipleFracturesOption> fractureOptions( const RigEclipseCaseData*                                   caseData,
+                                                      const RimWellPath*                                          wellPath,
+                                                      const std::vector<RicCreateMultipleFracturesOptionItemUi*>& allUiOptions )
 {
     std::vector<MultipleFracturesOption> options;
 
@@ -488,8 +479,8 @@ std::vector<MultipleFracturesOption>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicCreateMultipleFracturesOptionItemUi*
-    firstUiOptionContainingK( size_t k, const std::vector<RicCreateMultipleFracturesOptionItemUi*>& allUiOptions )
+RicCreateMultipleFracturesOptionItemUi* firstUiOptionContainingK( size_t                                                      k,
+                                                                  const std::vector<RicCreateMultipleFracturesOptionItemUi*>& allUiOptions )
 {
     for ( auto uiOption : allUiOptions )
     {

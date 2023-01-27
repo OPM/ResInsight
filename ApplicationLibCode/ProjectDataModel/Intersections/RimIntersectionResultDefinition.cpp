@@ -138,8 +138,7 @@ QString RimIntersectionResultDefinition::autoName() const
     else if ( geomCase )
     {
         m_geomResultDefinition->setGeoMechCase( geomCase );
-        resultVarUiName = m_geomResultDefinition->resultFieldUiName() + ":" +
-                          m_geomResultDefinition->resultComponentUiName();
+        resultVarUiName = m_geomResultDefinition->resultFieldUiName() + ":" + m_geomResultDefinition->resultComponentUiName();
     }
 
     return resultVarUiName + " " + timestepName + " " + caseName;
@@ -247,8 +246,7 @@ void RimIntersectionResultDefinition::updateLegendRangesTextAndVisibility( const
          ( !this->isEclipseResultDefinition() && m_geomResultDefinition()->hasCategoryResult() ) )
     {
         regularLegendConfig()->setMappingMode( RimRegularLegendConfig::MappingType::CATEGORY_INTEGER );
-        regularLegendConfig()->setColorLegend(
-            RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::CATEGORY ) );
+        regularLegendConfig()->setColorLegend( RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::CATEGORY ) );
     }
     else
     {
@@ -260,32 +258,26 @@ void RimIntersectionResultDefinition::updateLegendRangesTextAndVisibility( const
         if ( regularLegendConfig()->colorLegend() ==
              RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::CATEGORY ) )
         {
-            regularLegendConfig()->setColorLegend(
-                RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::NORMAL ) );
+            regularLegendConfig()->setColorLegend( RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::NORMAL ) );
         }
     }
 
     if ( this->isEclipseResultDefinition() )
     {
         RimEclipseResultDefinition* eclResultDef = this->eclipseResultDefinition();
-        eclResultDef->updateRangesForExplicitLegends( this->regularLegendConfig(),
-                                                      this->ternaryLegendConfig(),
-                                                      this->timeStep() );
+        eclResultDef->updateRangesForExplicitLegends( this->regularLegendConfig(), this->ternaryLegendConfig(), this->timeStep() );
 
         eclResultDef->updateLegendTitle( this->regularLegendConfig(), title );
 
         if ( this->regularLegendConfig()->showLegend() && eclResultDef->hasResult() )
         {
-            nativeOrOverrideViewer->addColorLegendToBottomLeftCorner( this->regularLegendConfig()->titledOverlayFrame(),
-                                                                      isUsingOverrideViewer );
+            nativeOrOverrideViewer->addColorLegendToBottomLeftCorner( this->regularLegendConfig()->titledOverlayFrame(), isUsingOverrideViewer );
         }
-        else if ( eclResultDef->isTernarySaturationSelected() &&
-                  eclResultDef->currentGridCellResults()->maxTimeStepCount() > 1 &&
+        else if ( eclResultDef->isTernarySaturationSelected() && eclResultDef->currentGridCellResults()->maxTimeStepCount() > 1 &&
                   this->ternaryLegendConfig()->showLegend() && this->ternaryLegendConfig()->titledOverlayFrame() )
         {
             this->ternaryLegendConfig()->setTitle( title );
-            nativeOrOverrideViewer->addColorLegendToBottomLeftCorner( this->ternaryLegendConfig()->titledOverlayFrame(),
-                                                                      isUsingOverrideViewer );
+            nativeOrOverrideViewer->addColorLegendToBottomLeftCorner( this->ternaryLegendConfig()->titledOverlayFrame(), isUsingOverrideViewer );
         }
     }
     else
@@ -294,8 +286,7 @@ void RimIntersectionResultDefinition::updateLegendRangesTextAndVisibility( const
 
         if ( this->geoMechResultDefinition()->hasResult() && this->regularLegendConfig()->showLegend() )
         {
-            nativeOrOverrideViewer->addColorLegendToBottomLeftCorner( this->regularLegendConfig()->titledOverlayFrame(),
-                                                                      isUsingOverrideViewer );
+            nativeOrOverrideViewer->addColorLegendToBottomLeftCorner( this->regularLegendConfig()->titledOverlayFrame(), isUsingOverrideViewer );
         }
     }
 }
@@ -319,9 +310,7 @@ caf::PdmFieldHandle* RimIntersectionResultDefinition::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                        const QVariant&            oldValue,
-                                                        const QVariant&            newValue )
+void RimIntersectionResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     bool reDraw = false;
 
@@ -396,20 +385,15 @@ void RimIntersectionResultDefinition::setDefaultEclipseLegendConfig()
     bool isCategoryResult     = m_eclipseResultDefinition->hasCategoryResult();
 
     auto eclResultDef = this->eclipseResultDefinition();
-    eclResultDef->updateRangesForExplicitLegends( this->regularLegendConfig(),
-                                                  this->ternaryLegendConfig(),
-                                                  this->timeStep() );
+    eclResultDef->updateRangesForExplicitLegends( this->regularLegendConfig(), this->ternaryLegendConfig(), this->timeStep() );
 
-    m_legendConfig->setDefaultConfigForResultName( m_eclipseResultDefinition->resultVariable(),
-                                                   useDiscreteLogLevels,
-                                                   isCategoryResult );
+    m_legendConfig->setDefaultConfigForResultName( m_eclipseResultDefinition->resultVariable(), useDiscreteLogLevels, isCategoryResult );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimIntersectionResultDefinition::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RimIntersectionResultDefinition::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -444,8 +428,7 @@ void RimIntersectionResultDefinition::defineUiOrdering( QString uiConfigName, ca
         m_geomResultDefinition->uiOrdering( uiConfigName, uiOrdering );
     }
 
-    if ( ( eclipseCase && m_eclipseResultDefinition->hasDynamicResult() ||
-           m_eclipseResultDefinition->isTernarySaturationSelected() ) ||
+    if ( ( eclipseCase && m_eclipseResultDefinition->hasDynamicResult() || m_eclipseResultDefinition->isTernarySaturationSelected() ) ||
          geomCase )
     {
         uiOrdering.add( &m_timeStep );
@@ -457,8 +440,7 @@ void RimIntersectionResultDefinition::defineUiOrdering( QString uiConfigName, ca
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionResultDefinition::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
-                                                            QString                 uiConfigName /*= ""*/ )
+void RimIntersectionResultDefinition::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
     RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>( m_case.value() );
 

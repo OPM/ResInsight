@@ -85,15 +85,12 @@ void RimEllipseFractureTemplate::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEllipseFractureTemplate::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                   const QVariant&            oldValue,
-                                                   const QVariant&            newValue )
+void RimEllipseFractureTemplate::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimFractureTemplate::fieldChangedByUi( changedField, oldValue, newValue );
 
-    if ( changedField == &m_halfLength || changedField == &m_height || changedField == &m_width ||
-         changedField == &m_permeability || changedField == &m_scaleApplyButton ||
-         changedField == &m_wellPathDepthAtFracture )
+    if ( changedField == &m_halfLength || changedField == &m_height || changedField == &m_width || changedField == &m_permeability ||
+         changedField == &m_scaleApplyButton || changedField == &m_wellPathDepthAtFracture )
     {
         m_scaleApplyButton = false;
 
@@ -226,8 +223,7 @@ cvf::cref<RigFractureGrid> RimEllipseFractureTemplate::createFractureGrid( doubl
 
             // The well path is intersecting the fracture at origo in the fracture coordinate system
             // Find the fracture cell where the well path is intersecting
-            if ( ( cellPolygon[0].x() <= 0.0 && cellPolygon[1].x() >= 0.0 ) &&
-                 ( cellPolygon[1].y() <= 0.0 && cellPolygon[2].y() >= 0.0 ) )
+            if ( ( cellPolygon[0].x() <= 0.0 && cellPolygon[1].x() >= 0.0 ) && ( cellPolygon[1].y() <= 0.0 && cellPolygon[2].y() >= 0.0 ) )
             {
                 wellCenterFractureCellIJ = std::make_pair( fractureCell.getI(), fractureCell.getJ() );
             }
@@ -247,8 +243,7 @@ cvf::cref<RigFractureGrid> RimEllipseFractureTemplate::createFractureGrid( doubl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-WellFractureIntersectionData
-    RimEllipseFractureTemplate::wellFractureIntersectionData( const RimFracture* fractureInstance ) const
+WellFractureIntersectionData RimEllipseFractureTemplate::wellFractureIntersectionData( const RimFracture* fractureInstance ) const
 {
     WellFractureIntersectionData values;
     values.m_width        = m_width;
@@ -260,28 +255,25 @@ WellFractureIntersectionData
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimEllipseFractureTemplate::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RimEllipseFractureTemplate::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
     if ( fieldNeedingOptions == &m_fractureWidthType )
     {
-        options.push_back(
-            caf::PdmOptionItemInfo( caf::AppEnum<WidthEnum>::uiText( USER_DEFINED_WIDTH ), USER_DEFINED_WIDTH ) );
-        options.push_back(
-            caf::PdmOptionItemInfo( caf::AppEnum<WidthEnum>::uiText( WIDTH_FROM_FRACTURE ), WIDTH_FROM_FRACTURE ) );
+        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<WidthEnum>::uiText( USER_DEFINED_WIDTH ), USER_DEFINED_WIDTH ) );
+        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<WidthEnum>::uiText( WIDTH_FROM_FRACTURE ), WIDTH_FROM_FRACTURE ) );
     }
 
     if ( fieldNeedingOptions == &m_betaFactorType )
     {
-        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<BetaFactorEnum>::uiText( USER_DEFINED_BETA_FACTOR ),
-                                                   USER_DEFINED_BETA_FACTOR ) );
+        options.push_back(
+            caf::PdmOptionItemInfo( caf::AppEnum<BetaFactorEnum>::uiText( USER_DEFINED_BETA_FACTOR ), USER_DEFINED_BETA_FACTOR ) );
 
         if ( isBetaFactorAvailableOnFile() )
         {
-            options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<BetaFactorEnum>::uiText( BETA_FACTOR_FROM_FRACTURE ),
-                                                       BETA_FACTOR_FROM_FRACTURE ) );
+            options.push_back(
+                caf::PdmOptionItemInfo( caf::AppEnum<BetaFactorEnum>::uiText( BETA_FACTOR_FROM_FRACTURE ), BETA_FACTOR_FROM_FRACTURE ) );
         }
     }
 
@@ -397,8 +389,7 @@ void RimEllipseFractureTemplate::onLoadDataAndUpdateGeometryHasChanged()
     this->firstAncestorOrThisOfType( eclipseCase );
     if ( eclipseCase )
     {
-        RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews(
-            { eclipseCase } );
+        RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews( { eclipseCase } );
     }
     else
     {

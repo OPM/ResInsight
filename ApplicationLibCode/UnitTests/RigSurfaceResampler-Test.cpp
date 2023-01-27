@@ -30,9 +30,9 @@ TEST( RigSurfaceResamplerTests, sameFlatGeometry )
     cvf::ref<RigSurface> surface       = cvf::make_ref<RigSurface>();
 
     // Make single triangle, and assign to both surfaces
-    double                  z        = 2.0;
-    std::vector<cvf::Vec3d> vertices = { cvf::Vec3d( -1.0, -1.0, z ), cvf::Vec3d( 1.0, -1.0, z ), cvf::Vec3d( -1.0, 1.0, z ) };
-    std::vector<unsigned int> indices = { 2, 1, 0 };
+    double                    z        = 2.0;
+    std::vector<cvf::Vec3d>   vertices = { cvf::Vec3d( -1.0, -1.0, z ), cvf::Vec3d( 1.0, -1.0, z ), cvf::Vec3d( -1.0, 1.0, z ) };
+    std::vector<unsigned int> indices  = { 2, 1, 0 };
 
     targetSurface->setTriangleData( indices, vertices );
     surface->setTriangleData( indices, vertices );
@@ -53,15 +53,11 @@ TEST( RigSurfaceResamplerTests, flatGeometryLargerSource )
     // Make two triangle: target smaller than the surface
     std::vector<unsigned int> indices = { 2, 1, 0 };
 
-    std::vector<cvf::Vec3d> targetVertices = { cvf::Vec3d( -1.0, -1.0, 1.0 ),
-                                               cvf::Vec3d( 1.0, -1.0, 1.0 ),
-                                               cvf::Vec3d( -1.0, 1.0, 1.0 ) };
+    std::vector<cvf::Vec3d> targetVertices = { cvf::Vec3d( -1.0, -1.0, 1.0 ), cvf::Vec3d( 1.0, -1.0, 1.0 ), cvf::Vec3d( -1.0, 1.0, 1.0 ) };
 
     targetSurface->setTriangleData( indices, targetVertices );
 
-    std::vector<cvf::Vec3d> surfaceVertices = { cvf::Vec3d( -2.0, -2.0, 2.0 ),
-                                                cvf::Vec3d( 2.0, -2.0, 2.0 ),
-                                                cvf::Vec3d( -2.0, 2.0, 2.0 ) };
+    std::vector<cvf::Vec3d> surfaceVertices = { cvf::Vec3d( -2.0, -2.0, 2.0 ), cvf::Vec3d( 2.0, -2.0, 2.0 ), cvf::Vec3d( -2.0, 2.0, 2.0 ) };
 
     surface->setTriangleData( indices, surfaceVertices );
 

@@ -114,9 +114,7 @@ void RimWellPathAttributeCollection::deleteAllAttributes()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathAttributeCollection::defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu,
-                                                              QMenu*                     menu,
-                                                              QWidget*                   fieldEditorWidget )
+void RimWellPathAttributeCollection::defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget )
 {
     caf::CmdFeatureMenuBuilder menuBuilder;
 
@@ -157,8 +155,7 @@ void RimWellPathAttributeCollection::defineUiOrdering( QString uiConfigName, caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathAttributeCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
-                                                           QString                 uiConfigName /*= ""*/ )
+void RimWellPathAttributeCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
     uiTreeOrdering.skipRemainingChildren( true );
 }
@@ -166,9 +163,7 @@ void RimWellPathAttributeCollection::defineUiTreeOrdering( caf::PdmUiTreeOrderin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathAttributeCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                       const QVariant&            oldValue,
-                                                       const QVariant&            newValue )
+void RimWellPathAttributeCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == this->objectToggleField() )
     {

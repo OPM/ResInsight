@@ -203,8 +203,7 @@ void RimFlowCharacteristicsPlot::setTimeSteps( const std::vector<int>& timeSteps
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFlowCharacteristicsPlot::setInjectorsAndProducers( const std::vector<QString>& injectors,
-                                                           const std::vector<QString>& producers )
+void RimFlowCharacteristicsPlot::setInjectorsAndProducers( const std::vector<QString>& injectors, const std::vector<QString>& producers )
 {
     std::vector<QString> allTracers;
 
@@ -261,8 +260,7 @@ void RimFlowCharacteristicsPlot::updateFonts()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimFlowCharacteristicsPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RimFlowCharacteristicsPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -296,8 +294,7 @@ QList<caf::PdmOptionItemInfo>
             options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
             for ( RimFlowDiagSolution* flowSol : flowSols )
             {
-                options.push_back(
-                    caf::PdmOptionItemInfo( flowSol->userDescription(), flowSol, false, flowSol->uiIconProvider() ) );
+                options.push_back( caf::PdmOptionItemInfo( flowSol->userDescription(), flowSol, false, flowSol->uiIconProvider() ) );
             }
         }
     }
@@ -373,9 +370,7 @@ QList<caf::PdmOptionItemInfo>
 
             std::sort( sortedTracerNames.begin(),
                        sortedTracerNames.end(),
-                       []( const std::pair<QString, QString>& a, const std::pair<QString, QString>& b ) -> bool {
-                           return a.first < b.first;
-                       } );
+                       []( const std::pair<QString, QString>& a, const std::pair<QString, QString>& b ) -> bool { return a.first < b.first; } );
 
             for ( auto& tracer : sortedTracerNames )
             {
@@ -431,8 +426,8 @@ void RimFlowCharacteristicsPlot::defineUiOrdering( QString uiConfigName, caf::Pd
     {
         caf::PdmUiGroup* regionGroup = uiOrdering.addNewGroup( "Region" );
         regionGroup->add( &m_cellFilter );
-        if ( m_cellFilter() == RigFlowDiagResults::CELLS_COMMUNICATION ||
-             m_cellFilter() == RigFlowDiagResults::CELLS_DRAINED || m_cellFilter() == RigFlowDiagResults::CELLS_FLOODED )
+        if ( m_cellFilter() == RigFlowDiagResults::CELLS_COMMUNICATION || m_cellFilter() == RigFlowDiagResults::CELLS_DRAINED ||
+             m_cellFilter() == RigFlowDiagResults::CELLS_FLOODED )
         {
             regionGroup->add( &m_tracerFilter );
             regionGroup->add( &m_selectedTracerNames );
@@ -467,9 +462,7 @@ void RimFlowCharacteristicsPlot::defineUiOrdering( QString uiConfigName, caf::Pd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFlowCharacteristicsPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                        QString                    uiConfigName,
-                                                        caf::PdmUiEditorAttribute* attribute )
+void RimFlowCharacteristicsPlot::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_applyTimeSteps )
     {
@@ -508,9 +501,7 @@ void RimFlowCharacteristicsPlot::zoomAll()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFlowCharacteristicsPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                   const QVariant&            oldValue,
-                                                   const QVariant&            newValue )
+void RimFlowCharacteristicsPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimViewWindow::fieldChangedByUi( changedField, oldValue, newValue );
 
@@ -542,11 +533,10 @@ void RimFlowCharacteristicsPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
         {
             if ( m_cellFilter() != RigFlowDiagResults::CELLS_ACTIVE )
             {
-                RimEclipseView* view =
-                    RicSelectOrCreateViewFeatureImpl::showViewSelection( m_case,
-                                                                         "FlowCharacteristicsLastUsedView",
-                                                                         "RegionView",
-                                                                         "Show Region in View" );
+                RimEclipseView* view = RicSelectOrCreateViewFeatureImpl::showViewSelection( m_case,
+                                                                                            "FlowCharacteristicsLastUsedView",
+                                                                                            "RegionView",
+                                                                                            "Show Region in View" );
 
                 if ( view != nullptr )
                 {
@@ -569,8 +559,8 @@ void RimFlowCharacteristicsPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
                     {
                         if ( m_flowDiagSolution )
                         {
-                            std::vector<int> timeSteps = m_flowDiagSolution()->flowDiagResults()->calculatedTimeSteps(
-                                RigFlowDiagResultAddress::PHASE_ALL );
+                            std::vector<int> timeSteps =
+                                m_flowDiagSolution()->flowDiagResults()->calculatedTimeSteps( RigFlowDiagResultAddress::PHASE_ALL );
                             if ( !timeSteps.empty() )
                             {
                                 timeStep = timeSteps[0];
@@ -686,8 +676,7 @@ void RimFlowCharacteristicsPlot::onLoadDataAndUpdate()
                     m_cellFilterView()->calculateCurrentTotalCellVisibility( &visibleCells, timeStepIdx );
                 }
 
-                RigActiveCellInfo* activeCellInfo =
-                    m_case()->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+                RigActiveCellInfo* activeCellInfo = m_case()->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
                 std::vector<char> visibleActiveCells( activeCellInfo->reservoirActiveCellCount(), 0 );
 
                 for ( size_t i = 0; i < visibleCells.size(); ++i )
@@ -699,8 +688,7 @@ void RimFlowCharacteristicsPlot::onLoadDataAndUpdate()
                     }
                 }
 
-                auto flowCharResults =
-                    flowResult->flowCharacteristicsResults( timeStepIdx, visibleActiveCells, m_maxPvFraction() );
+                auto flowCharResults = flowResult->flowCharacteristicsResults( timeStepIdx, visibleActiveCells, m_maxPvFraction() );
                 timeStepToFlowResultMap[timeStepIdx] = flowCharResults;
             }
             else
@@ -830,8 +818,7 @@ QString RimFlowCharacteristicsPlot::curveDataAsText() const
             for ( const auto storageCapacity : storageCapacitySamplingValues )
             {
                 {
-                    double flowCapacity =
-                        interpolate( storageCapacityValues, flowCapacityValues, storageCapacity, extrapolate );
+                    double flowCapacity = interpolate( storageCapacityValues, flowCapacityValues, storageCapacity, extrapolate );
                     flowCapacitySamplingValues.push_back( flowCapacity );
                 }
             }
@@ -847,8 +834,7 @@ QString RimFlowCharacteristicsPlot::curveDataAsText() const
             {
                 double dimensionLessTimeValue = i * step;
                 dimensionLessTimeSamplingValues.push_back( dimensionLessTimeValue );
-                double sweepEffValue =
-                    interpolate( dimensionLessTimeValues, sweepEffValues, dimensionLessTimeValue, extrapolate );
+                double sweepEffValue = interpolate( dimensionLessTimeValues, sweepEffValues, dimensionLessTimeValue, extrapolate );
                 sweepEffSamplingValues.push_back( sweepEffValue );
             }
 

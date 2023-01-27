@@ -198,9 +198,7 @@ void RigFault::accumulateFaultsPrCell( RigFaultsPrCellAccumulator* faultsPrCellA
         // >= 0)
 
         faultsPrCellAcc->setFaultIdx( ff.m_nativeReservoirCellIndex, ff.m_nativeFace, faultIdx );
-        faultsPrCellAcc->setFaultIdx( ff.m_oppositeReservoirCellIndex,
-                                      cvf::StructGridInterface::oppositeFace( ff.m_nativeFace ),
-                                      faultIdx );
+        faultsPrCellAcc->setFaultIdx( ff.m_oppositeReservoirCellIndex, cvf::StructGridInterface::oppositeFace( ff.m_nativeFace ), faultIdx );
     }
 }
 

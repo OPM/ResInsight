@@ -84,9 +84,9 @@ cvf::ref<RigResultAccessor> RicCreateDepthAdjustedLasFilesImpl::createIndexKResu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-LasDepthValueAndIndexPerKLayer RicCreateDepthAdjustedLasFilesImpl::createLasDepthIndexAndPercValuePerKLayerFromMap(
-    const std::vector<double>&            lasWellDepths,
-    const std::map<int, IndexKDepthData>& indexKDepthDataMap )
+LasDepthValueAndIndexPerKLayer
+    RicCreateDepthAdjustedLasFilesImpl::createLasDepthIndexAndPercValuePerKLayerFromMap( const std::vector<double>& lasWellDepths,
+                                                                                         const std::map<int, IndexKDepthData>& indexKDepthDataMap )
 {
     // Create container of depth value (in percent) and its original index in a LAS file vector
     // categorized by K-layer. Depth value as percentage value between MD top and MD bottom for K-layer.
@@ -115,9 +115,9 @@ LasDepthValueAndIndexPerKLayer RicCreateDepthAdjustedLasFilesImpl::createLasDept
 void RicCreateDepthAdjustedLasFilesImpl::createDestinationWellsLasFiles( RimCase*                        selectedCase,
                                                                          RimWellPath*                    sourceWell,
                                                                          const std::vector<RimWellPath*> destinationWells,
-                                                                         const std::vector<QString>& selectedResultProperties,
-                                                                         const QString&              exportFolder,
-                                                                         double                      rkbDiff )
+                                                                         const std::vector<QString>&     selectedResultProperties,
+                                                                         const QString&                  exportFolder,
+                                                                         double                          rkbDiff )
 {
     auto*      sourceWellLogData  = sourceWell->wellLogFiles()[0]->wellLogFileData();
     const auto defaultPropertyMap = createDefaultPropertyMap( selectedResultProperties, sourceWellLogData );
@@ -130,8 +130,7 @@ void RicCreateDepthAdjustedLasFilesImpl::createDestinationWellsLasFiles( RimCase
                                                          createIndexKDepthDataMapFromCase( selectedCase, sourceWell ) );
     for ( RimWellPath* well : destinationWells )
     {
-        const std::map<int, IndexKDepthData> destinationWellIndexKDepthsMap =
-            createIndexKDepthDataMapFromCase( selectedCase, well );
+        const std::map<int, IndexKDepthData> destinationWellIndexKDepthsMap = createIndexKDepthDataMapFromCase( selectedCase, well );
 
         if ( destinationWellIndexKDepthsMap.empty() ) continue;
 
@@ -152,8 +151,7 @@ void RicCreateDepthAdjustedLasFilesImpl::createDestinationWellsLasFiles( RimCase
                 }
                 if ( sourceWellLogData->hasTvdRkbChannel() )
                 {
-                    const double tvdRkbValue = depthPerc * ( depthData.tvdBottom - depthData.tvdTop ) +
-                                               depthData.tvdTop + rkbDiff;
+                    const double tvdRkbValue = depthPerc * ( depthData.tvdBottom - depthData.tvdTop ) + depthData.tvdTop + rkbDiff;
                     tvdRkbValues.push_back( tvdRkbValue );
                 }
 
@@ -181,14 +179,14 @@ void RicCreateDepthAdjustedLasFilesImpl::createDestinationWellsLasFiles( RimCase
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreateDepthAdjustedLasFilesImpl::createDestinationWellLasFile( const QString&             wellName,
-                                                                       const QString&             caseDescription,
-                                                                       const std::vector<double>& mdValues,
-                                                                       const std::vector<double>& tvdMslValues,
-                                                                       const std::vector<double>& tvdRkbValues,
+void RicCreateDepthAdjustedLasFilesImpl::createDestinationWellLasFile( const QString&                                wellName,
+                                                                       const QString&                                caseDescription,
+                                                                       const std::vector<double>&                    mdValues,
+                                                                       const std::vector<double>&                    tvdMslValues,
+                                                                       const std::vector<double>&                    tvdRkbValues,
                                                                        const std::map<QString, std::vector<double>>& propertyMap,
-                                                                       const RigWellLogFile* sourceWellLogData,
-                                                                       const QString&        exportFolder )
+                                                                       const RigWellLogFile*                         sourceWellLogData,
+                                                                       const QString&                                exportFolder )
 {
     const auto depthUnitText    = createDepthUnitText( sourceWellLogData->depthUnit() );
     const auto depthUnitComment = createDepthUnitComment( sourceWellLogData->depthUnit() );
@@ -213,23 +211,15 @@ void RicCreateDepthAdjustedLasFilesImpl::createDestinationWellLasFile( const QSt
     // Add tvd msl values if existing
     if ( !tvdMslValues.empty() )
     {
-        const auto unitText =
-            sourceWellLogData->wellLogChannelUnitString( RiaDefines::propertyNameTvdMslDepth(), deptUnit ).toStdString();
-        lasFile.AddLog( RiaDefines::propertyNameTvdMslDepth().toStdString(),
-                        unitText,
-                        "True vertical depth " + depthUnitComment,
-                        tvdMslValues );
+        const auto unitText = sourceWellLogData->wellLogChannelUnitString( RiaDefines::propertyNameTvdMslDepth(), deptUnit ).toStdString();
+        lasFile.AddLog( RiaDefines::propertyNameTvdMslDepth().toStdString(), unitText, "True vertical depth " + depthUnitComment, tvdMslValues );
     }
 
     // Add tvd rkb values if existing
     if ( !tvdRkbValues.empty() )
     {
-        const auto unitText =
-            sourceWellLogData->wellLogChannelUnitString( RiaDefines::propertyNameTvdRkbDepth(), deptUnit ).toStdString();
-        lasFile.AddLog( RiaDefines::propertyNameTvdRkbDepth().toStdString(),
-                        unitText,
-                        "True vertical depth (Rotary Kelly Bushing)",
-                        tvdRkbValues );
+        const auto unitText = sourceWellLogData->wellLogChannelUnitString( RiaDefines::propertyNameTvdRkbDepth(), deptUnit ).toStdString();
+        lasFile.AddLog( RiaDefines::propertyNameTvdRkbDepth().toStdString(), unitText, "True vertical depth (Rotary Kelly Bushing)", tvdRkbValues );
     }
 
     // Add property values
@@ -249,9 +239,7 @@ void RicCreateDepthAdjustedLasFilesImpl::createDestinationWellLasFile( const QSt
 //--------------------------------------------------------------------------------------------------
 std::string RicCreateDepthAdjustedLasFilesImpl::createDepthUnitText( RiaDefines::DepthUnitType depthUnitType )
 {
-    return depthUnitType == RiaDefines::DepthUnitType::UNIT_METER
-               ? "M"
-               : depthUnitType == RiaDefines::DepthUnitType::UNIT_FEET ? "FT" : "";
+    return depthUnitType == RiaDefines::DepthUnitType::UNIT_METER ? "M" : depthUnitType == RiaDefines::DepthUnitType::UNIT_FEET ? "FT" : "";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -276,8 +264,7 @@ std::map<int, RicCreateDepthAdjustedLasFilesImpl::IndexKDepthData>
     RimWellLogPlotCollection* wellLogCollection = RimMainPlotCollection::current()->wellLogPlotCollection();
     if ( eclipseCase != nullptr )
     {
-        cvf::ref<RigEclipseWellLogExtractor> wellExtractor =
-            wellLogCollection->findOrCreateExtractor( wellPath, eclipseCase );
+        cvf::ref<RigEclipseWellLogExtractor> wellExtractor = wellLogCollection->findOrCreateExtractor( wellPath, eclipseCase );
         if ( wellExtractor.isNull() )
         {
             RiaLogging::info( QString( "Could not create RigEclipseWellLogExtractor for %1" ).arg( wellPath->name() ) );
@@ -317,9 +304,7 @@ std::map<int, RicCreateDepthAdjustedLasFilesImpl::IndexKDepthData>
 {
     std::vector<double> wellIndexKValues;
     wellExtractor->curveData( indexKResAcc.p(), &wellIndexKValues );
-    return createIndexKDepthDataMapFromVectors( wellExtractor->cellIntersectionMDs(),
-                                                wellExtractor->cellIntersectionTVDs(),
-                                                wellIndexKValues );
+    return createIndexKDepthDataMapFromVectors( wellExtractor->cellIntersectionMDs(), wellExtractor->cellIntersectionTVDs(), wellIndexKValues );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -333,9 +318,7 @@ std::map<int, RicCreateDepthAdjustedLasFilesImpl::IndexKDepthData>
     RigFemResultAddress indexKResAdr( RigFemResultPosEnum::RIG_ELEMENT_NODAL, "INDEX", "INDEX_K" );
     std::vector<double> wellIndexKValues;
     wellExtractor->curveData( indexKResAdr, timeStepIdx, frameIdx, &wellIndexKValues );
-    return createIndexKDepthDataMapFromVectors( wellExtractor->cellIntersectionMDs(),
-                                                wellExtractor->cellIntersectionTVDs(),
-                                                wellIndexKValues );
+    return createIndexKDepthDataMapFromVectors( wellExtractor->cellIntersectionMDs(), wellExtractor->cellIntersectionTVDs(), wellIndexKValues );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -391,9 +374,8 @@ std::map<QString, std::vector<double>>
     RicCreateDepthAdjustedLasFilesImpl::createDefaultPropertyMap( const std::vector<QString>& selectedProperties,
                                                                   const RigWellLogFile*       wellLogFile )
 {
-    const QStringList    lasDepthNames = QStringList( { RiaDefines::propertyNameMeasuredDepth(),
-                                                     RiaDefines::propertyNameTvdMslDepth(),
-                                                     RiaDefines::propertyNameTvdRkbDepth() } );
+    const QStringList lasDepthNames = QStringList(
+        { RiaDefines::propertyNameMeasuredDepth(), RiaDefines::propertyNameTvdMslDepth(), RiaDefines::propertyNameTvdRkbDepth() } );
     std::vector<QString> validPropertyNames;
     for ( const auto& propertyName : selectedProperties )
     {

@@ -72,8 +72,7 @@ void RicImportEnsembleFeature::onActionTriggered( bool isChecked )
 {
     QString pathCacheName = "ENSEMBLE_FILES";
     auto [fileNames, ensembleGroupingMode] =
-        RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialogWithGrouping( "Import Ensemble",
-                                                                                           pathCacheName );
+        RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialogWithGrouping( "Import Ensemble", pathCacheName );
 
     if ( fileNames.isEmpty() ) return;
 
@@ -84,8 +83,7 @@ void RicImportEnsembleFeature::onActionTriggered( bool isChecked )
     }
     else
     {
-        std::vector<QStringList> groupedByEnsemble =
-            RiaEnsembleNameTools::groupFilesByEnsemble( fileNames, ensembleGroupingMode );
+        std::vector<QStringList> groupedByEnsemble = RiaEnsembleNameTools::groupFilesByEnsemble( fileNames, ensembleGroupingMode );
         for ( const QStringList& groupedFileNames : groupedByEnsemble )
         {
             bool useEnsembleNameDialog = false;
@@ -112,8 +110,7 @@ void RicImportEnsembleFeature::importSingleEnsemble( const QStringList&         
 
     if ( cases.empty() ) return;
 
-    RimSummaryCaseCollection* ensemble =
-        RicCreateSummaryCaseCollectionFeature::groupSummaryCases( cases, ensembleName, true );
+    RimSummaryCaseCollection* ensemble = RicCreateSummaryCaseCollectionFeature::groupSummaryCases( cases, ensembleName, true );
 
     if ( ensemble )
     {
@@ -150,10 +147,9 @@ QString RicImportEnsembleFeature::askForEnsembleName( const QString& suggestion 
 {
     RimProject*                            project = RimProject::current();
     std::vector<RimSummaryCaseCollection*> groups  = project->summaryGroups();
-    int                                    ensemblesStartingWithRoot =
-        std::count_if( groups.begin(), groups.end(), [suggestion]( RimSummaryCaseCollection* group ) {
-            return group->isEnsemble() && group->name().startsWith( suggestion );
-        } );
+    int ensemblesStartingWithRoot = std::count_if( groups.begin(), groups.end(), [suggestion]( RimSummaryCaseCollection* group ) {
+        return group->isEnsemble() && group->name().startsWith( suggestion );
+    } );
 
     QInputDialog dialog;
     dialog.setInputMode( QInputDialog::TextInput );

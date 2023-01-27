@@ -134,8 +134,7 @@ void RifSurfaceImporter::readGocadFile( const QString& filename, RigGocadData* g
                             for ( size_t i = 0; i < propertyNames.size(); i++ )
                             {
                                 auto tokenIndex = 5 + i;
-                                if ( tokenIndex < tokens.size() )
-                                    RiaStdStringTools::toDouble( tokens[tokenIndex], value );
+                                if ( tokenIndex < tokens.size() ) RiaStdStringTools::toDouble( tokens[tokenIndex], value );
 
                                 propertyValues[i].push_back( static_cast<float>( value ) );
                             }
@@ -335,8 +334,8 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceImporter::re
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>>
-    RifSurfaceImporter::readOpenWorksXyzFile( const QString& filename, double preferredPointDistance )
+std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceImporter::readOpenWorksXyzFile( const QString& filename,
+                                                                                                    double         preferredPointDistance )
 {
     size_t estimatedPointCount = 0;
     {
@@ -376,14 +375,12 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>>
 
     // Checks if the given vector is a possible new candidate for an axis vector and adds it to the given list
     // of axesVectorCandidates. Also increases the number of occurrences of vector candidates.
-    auto maybeInsertAxisVectorCandidate =
-        [epsilon]( const cvf::Vec2d                              vector,
-                   std::map<cvf::Vec2d, double, vec2dCompare>&   axesVectorCandidates,
-                   std::map<cvf::Vec2d, unsigned, vec2dCompare>& axesVectorCandidatesNum ) -> bool {
+    auto maybeInsertAxisVectorCandidate = [epsilon]( const cvf::Vec2d                              vector,
+                                                     std::map<cvf::Vec2d, double, vec2dCompare>&   axesVectorCandidates,
+                                                     std::map<cvf::Vec2d, unsigned, vec2dCompare>& axesVectorCandidatesNum ) -> bool {
         double     length           = vector.length();
         cvf::Vec2d normalizedVector = vector.getNormalized();
-        for ( std::map<cvf::Vec2d, double, vec2dCompare>::iterator iter = axesVectorCandidates.begin();
-              iter != axesVectorCandidates.end();
+        for ( std::map<cvf::Vec2d, double, vec2dCompare>::iterator iter = axesVectorCandidates.begin(); iter != axesVectorCandidates.end();
               ++iter )
         {
             if ( vectorFuzzyCompare( iter->first, normalizedVector, 0.1 ) )
@@ -451,9 +448,7 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>>
                 if ( surfacePoints.size() > 1 )
                 {
                     cvf::Vec3d pointToPointVector = surfacePoints.back() - surfacePoints[surfacePoints.size() - 2];
-                    maybeInsertAxisVectorCandidate( to2d( pointToPointVector ),
-                                                    axesVectorCandidates,
-                                                    axesVectorCandidatesNum );
+                    maybeInsertAxisVectorCandidate( to2d( pointToPointVector ), axesVectorCandidates, axesVectorCandidatesNum );
                 }
             }
             else // Probably a comment line, skip
@@ -495,13 +490,9 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>>
                                                                                    const cvf::Vec2d linePoint2,
                                                                                    const cvf::Vec2d point ) -> int {
         double     normalizedIntersection = 0.0;
-        cvf::Vec2d projectedPoint         = to2d( cvf::GeometryTools::projectPointOnLine( to3d( linePoint1 ),
-                                                                                  to3d( linePoint2 ),
-                                                                                  to3d( point ),
-                                                                                  &normalizedIntersection ) );
-        if ( vectorFuzzyCompare( ( projectedPoint - to2d( surfacePoints[0] ) ).getNormalized(),
-                                 primaryAxisVector.getNormalized(),
-                                 epsilon ) )
+        cvf::Vec2d projectedPoint =
+            to2d( cvf::GeometryTools::projectPointOnLine( to3d( linePoint1 ), to3d( linePoint2 ), to3d( point ), &normalizedIntersection ) );
+        if ( vectorFuzzyCompare( ( projectedPoint - to2d( surfacePoints[0] ) ).getNormalized(), primaryAxisVector.getNormalized(), epsilon ) )
             return static_cast<int>( ( projectedPoint - to2d( surfacePoints[0] ) ).length() / primaryAxisVector.length() );
         else
             return static_cast<int>( -( projectedPoint - to2d( surfacePoints[0] ) ).length() / primaryAxisVector.length() );
@@ -653,6 +644,5 @@ bool RifSurfaceImporter::vectorFuzzyCompare( const cvf::Vec2d& vector1, const cv
         if ( diff <= largest * maxRelDiff ) return true;
         return false;
     };
-    return ( AlmostEqualRelativeAndAbs( vector1.x(), vector2.x(), epsilon ) &&
-             AlmostEqualRelativeAndAbs( vector1.y(), vector2.y(), epsilon ) );
+    return ( AlmostEqualRelativeAndAbs( vector1.x(), vector2.x(), epsilon ) && AlmostEqualRelativeAndAbs( vector1.y(), vector2.y(), epsilon ) );
 }

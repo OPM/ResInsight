@@ -117,9 +117,8 @@ double RimCustomObjectiveFunction::value( RimSummaryCase* summaryCase ) const
     double value = 0.0;
     for ( auto weight : m_weights )
     {
-        double functionValue =
-            objectiveFunction( weight->objectiveFunction() )
-                ->value( summaryCase, weight->summaryAddresses(), parentCurveSet()->objectiveFunctionTimeConfig() );
+        double functionValue = objectiveFunction( weight->objectiveFunction() )
+                                   ->value( summaryCase, weight->summaryAddresses(), parentCurveSet()->objectiveFunctionTimeConfig() );
 
         value += weight->weightValue() * functionValue;
     }
@@ -233,10 +232,9 @@ QString RimCustomObjectiveFunction::formulaString( std::vector<RifEclipseSummary
     QStringList weightFormulae;
     for ( auto weight : weights() )
     {
-        weightFormulae
-            << QString( "%0 * %1" )
-                   .arg( weight->weightValue() )
-                   .arg( objectiveFunction( weight->objectiveFunction() )->formulaString( vectorSummaryAddresses ) );
+        weightFormulae << QString( "%0 * %1" )
+                              .arg( weight->weightValue() )
+                              .arg( objectiveFunction( weight->objectiveFunction() )->formulaString( vectorSummaryAddresses ) );
     }
     formula += weightFormulae.join( " + " );
     return formula;
@@ -269,8 +267,7 @@ void RimCustomObjectiveFunction::onObjectiveFunctionChanged( const caf::SignalEm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCustomObjectiveFunction::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
-                                                       QString                 uiConfigName /* = "" */ )
+void RimCustomObjectiveFunction::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /* = "" */ )
 {
     for ( auto weight : weights() )
     {
@@ -282,9 +279,7 @@ void RimCustomObjectiveFunction::defineUiTreeOrdering( caf::PdmUiTreeOrdering& u
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCustomObjectiveFunction::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                        QString                    uiConfigName,
-                                                        caf::PdmUiEditorAttribute* attribute )
+void RimCustomObjectiveFunction::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_customFunctionTitle )
     {

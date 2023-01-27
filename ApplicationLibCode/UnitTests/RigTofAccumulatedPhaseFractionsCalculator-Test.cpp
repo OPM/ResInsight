@@ -73,8 +73,7 @@ TEST( RigTofAccumulatedPhaseFractionsCalculator, sortTofAndCalculateAccPhaseFrac
     EXPECT_LT( tofInIncreasingOrder[0], tofInIncreasingOrder[1] );
     EXPECT_LT( tofInIncreasingOrder[1], tofInIncreasingOrder[2] );
 
-    double sumForOneTOF = accumulatedPhaseFractionSwat[2] + accumulatedPhaseFractionSoil[2] +
-                          accumulatedPhaseFractionSgas[2];
+    double sumForOneTOF = accumulatedPhaseFractionSwat[2] + accumulatedPhaseFractionSoil[2] + accumulatedPhaseFractionSgas[2];
     EXPECT_DOUBLE_EQ( sumForOneTOF, 1.00 );
 
     EXPECT_DOUBLE_EQ( accumulatedPhaseFractionSwat[0], 0.1000 );
@@ -140,8 +139,7 @@ TEST( RigTofAccumulatedPhaseFractionsCalculator, sortTofAndCalculateAccPhaseFrac
                                                                                               accumulatedPhaseFractionSgas2 );
     EXPECT_EQ( size_t( 3 ), tofInIncreasingOrder2.size() );
 
-    double sumForOneTOF = accumulatedPhaseFractionSwat2[2] + accumulatedPhaseFractionSoil2[2] +
-                          accumulatedPhaseFractionSgas2[2];
+    double sumForOneTOF = accumulatedPhaseFractionSwat2[2] + accumulatedPhaseFractionSoil2[2] + accumulatedPhaseFractionSgas2[2];
     EXPECT_DOUBLE_EQ( sumForOneTOF, 1.00 );
 
     EXPECT_LT( tofInIncreasingOrder2[0], tofInIncreasingOrder2[1] );

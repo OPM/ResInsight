@@ -32,12 +32,12 @@
 //--------------------------------------------------------------------------------------------------
 bool RifEnsembleFractureStatisticsExporter::writeAsStimPlanXml( const std::vector<std::shared_ptr<RigSlice2D>>& statistics,
                                                                 const std::vector<std::pair<QString, QString>>& properties,
-                                                                const QString&                             filePath,
-                                                                const std::vector<double>&                 gridXs,
-                                                                const std::vector<double>&                 gridYs,
-                                                                double                                     time,
-                                                                RiaDefines::EclipseUnitSystem              unitSystem,
-                                                                RigStimPlanFractureDefinition::Orientation orientation )
+                                                                const QString&                                  filePath,
+                                                                const std::vector<double>&                      gridXs,
+                                                                const std::vector<double>&                      gridYs,
+                                                                double                                          time,
+                                                                RiaDefines::EclipseUnitSystem                   unitSystem,
+                                                                RigStimPlanFractureDefinition::Orientation      orientation )
 {
     QFile data( filePath );
     if ( !data.open( QFile::WriteOnly | QFile::Truncate ) )
@@ -66,12 +66,11 @@ void RifEnsembleFractureStatisticsExporter::appendHeaderToStream( QTextStream& s
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifEnsembleFractureStatisticsExporter::appendPropertiesToStream(
-    QTextStream&                                    stream,
-    const std::vector<std::shared_ptr<RigSlice2D>>& statistics,
-    const std::vector<std::pair<QString, QString>>& properties,
-    const std::vector<double>&                      gridYs,
-    double                                          time )
+void RifEnsembleFractureStatisticsExporter::appendPropertiesToStream( QTextStream&                                    stream,
+                                                                      const std::vector<std::shared_ptr<RigSlice2D>>& statistics,
+                                                                      const std::vector<std::pair<QString, QString>>& properties,
+                                                                      const std::vector<double>&                      gridYs,
+                                                                      double                                          time )
 {
     CAF_ASSERT( statistics.size() == properties.size() );
 
@@ -109,7 +108,7 @@ void RifEnsembleFractureStatisticsExporter::appendPropertiesToStream(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifEnsembleFractureStatisticsExporter::appendOrientationToStream( QTextStream& stream,
+void RifEnsembleFractureStatisticsExporter::appendOrientationToStream( QTextStream&                               stream,
                                                                        RigStimPlanFractureDefinition::Orientation orientation )
 {
     if ( orientation != RigStimPlanFractureDefinition::Orientation::UNDEFINED )

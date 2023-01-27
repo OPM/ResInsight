@@ -64,12 +64,8 @@ RimGeoMechContourMapProjection::RimGeoMechContourMapProjection()
     CAF_PDM_InitObject( "RimContourMapProjection", ":/2DMapProjection16x16.png" );
     CAF_PDM_InitField( &m_limitToPorePressureRegions, "LimitToPorRegion", true, "Limit to Pore Pressure regions" );
     CAF_PDM_InitField( &m_applyPPRegionLimitVertically, "VerticalLimit", false, "Apply Limit Vertically" );
-    CAF_PDM_InitField( &m_paddingAroundPorePressureRegion,
-                       "PaddingAroundPorRegion",
-                       0.0,
-                       "Horizontal Padding around PP regions" );
-    m_paddingAroundPorePressureRegion.uiCapability()->setUiEditorTypeName(
-        caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    CAF_PDM_InitField( &m_paddingAroundPorePressureRegion, "PaddingAroundPorRegion", 0.0, "Horizontal Padding around PP regions" );
+    m_paddingAroundPorePressureRegion.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
     setName( "Map Projection" );
     nameField()->uiCapability()->setUiReadOnly( true );
 }
@@ -86,8 +82,7 @@ RimGeoMechContourMapProjection::~RimGeoMechContourMapProjection()
 //--------------------------------------------------------------------------------------------------
 QString RimGeoMechContourMapProjection::resultDescriptionText() const
 {
-    QString resultText =
-        QString( "%1, %2" ).arg( resultAggregationText() ).arg( view()->cellResult()->resultFieldUiName() );
+    QString resultText = QString( "%1, %2" ).arg( resultAggregationText() ).arg( view()->cellResult()->resultFieldUiName() );
     return resultText;
 }
 
@@ -343,8 +338,7 @@ std::vector<double> RimGeoMechContourMapProjection::generateResults( int viewerS
     RimGeoMechCellColors* cellColors    = view()->cellResult();
     RigFemResultAddress   resultAddress = cellColors->resultAddress();
 
-    std::vector<double> aggregatedResults =
-        generateResultsFromAddress( resultAddress, m_mapCellVisibility, viewerStepIndex );
+    std::vector<double> aggregatedResults = generateResultsFromAddress( resultAddress, m_mapCellVisibility, viewerStepIndex );
 
     return aggregatedResults;
 }
@@ -354,12 +348,12 @@ std::vector<double> RimGeoMechContourMapProjection::generateResults( int viewerS
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimGeoMechContourMapProjection::generateResultsFromAddress( RigFemResultAddress      resultAddress,
                                                                                 const std::vector<bool>& mapCellVisibility,
-                                                                                int viewerStepIndex )
+                                                                                int                      viewerStepIndex )
 {
-    RigGeoMechCaseData*          caseData         = geoMechCase()->geoMechData();
-    RigFemPartResultsCollection* resultCollection = caseData->femPartResults();
-    size_t                       nCells           = numberOfCells();
-    std::vector<double> aggregatedResults = std::vector<double>( nCells, std::numeric_limits<double>::infinity() );
+    RigGeoMechCaseData*          caseData          = geoMechCase()->geoMechData();
+    RigFemPartResultsCollection* resultCollection  = caseData->femPartResults();
+    size_t                       nCells            = numberOfCells();
+    std::vector<double>          aggregatedResults = std::vector<double>( nCells, std::numeric_limits<double>::infinity() );
 
     auto [stepIdx, frameIdx] = caseData->femPartResults()->stepListIndexToTimeStepAndDataFrameIndex( viewerStepIndex );
 
@@ -512,8 +506,7 @@ double RimGeoMechContourMapProjection::calculateRayLengthInCell( size_t         
 
     if ( RigHexIntersectionTools::lineHexCellIntersection( highestPoint, lowestPoint, hexCorners.data(), 0, &intersections ) )
     {
-        double lengthInCell =
-            ( intersections.back().m_intersectionPoint - intersections.front().m_intersectionPoint ).length();
+        double lengthInCell = ( intersections.back().m_intersectionPoint - intersections.front().m_intersectionPoint ).length();
         return lengthInCell;
     }
     return 0.0;
@@ -522,8 +515,7 @@ double RimGeoMechContourMapProjection::calculateRayLengthInCell( size_t         
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimGeoMechContourMapProjection::getParameterWeightForCell( size_t                     globalCellIdx,
-                                                                  const std::vector<double>& parameterWeights ) const
+double RimGeoMechContourMapProjection::getParameterWeightForCell( size_t globalCellIdx, const std::vector<double>& parameterWeights ) const
 {
     if ( parameterWeights.empty() ) return 1.0;
 
@@ -533,8 +525,7 @@ double RimGeoMechContourMapProjection::getParameterWeightForCell( size_t        
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimGeoMechContourMapProjection::gridCellValues( RigFemResultAddress resAddr,
-                                                                    std::vector<float>& resultValues ) const
+std::vector<double> RimGeoMechContourMapProjection::gridCellValues( RigFemResultAddress resAddr, std::vector<float>& resultValues ) const
 {
     std::vector<double> gridCellValues( m_femPart->elementCount(), std::numeric_limits<double>::infinity() );
     for ( size_t globalCellIdx = 0; globalCellIdx < static_cast<size_t>( m_femPart->elementCount() ); ++globalCellIdx )
@@ -551,9 +542,8 @@ std::vector<double> RimGeoMechContourMapProjection::gridCellValues( RigFemResult
             RiaWeightedMeanCalculator<float> cellAverage;
             for ( int i = 0; i < 8; ++i )
             {
-                size_t gridResultValueIdx = m_femPart->resultValueIdxFromResultPosType( resAddr.resultPosType,
-                                                                                        static_cast<int>( globalCellIdx ),
-                                                                                        i );
+                size_t gridResultValueIdx =
+                    m_femPart->resultValueIdxFromResultPosType( resAddr.resultPosType, static_cast<int>( globalCellIdx ), i );
                 cellAverage.addValueAndWeight( resultValues[gridResultValueIdx], 1.0 );
             }
 
@@ -608,9 +598,7 @@ void RimGeoMechContourMapProjection::updateAfterResultGeneration( int timeStep )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechContourMapProjection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                       const QVariant&            oldValue,
-                                                       const QVariant&            newValue )
+void RimGeoMechContourMapProjection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimContourMapProjection::fieldChangedByUi( changedField, oldValue, newValue );
     if ( changedField == &m_limitToPorePressureRegions || changedField == &m_applyPPRegionLimitVertically ||
@@ -623,20 +611,14 @@ void RimGeoMechContourMapProjection::fieldChangedByUi( const caf::PdmFieldHandle
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimGeoMechContourMapProjection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RimGeoMechContourMapProjection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
     if ( fieldNeedingOptions == &m_resultAggregation )
     {
-        std::vector<ResultAggregationEnum> validOptions = { RESULTS_TOP_VALUE,
-                                                            RESULTS_MEAN_VALUE,
-                                                            RESULTS_GEOM_VALUE,
-                                                            RESULTS_HARM_VALUE,
-                                                            RESULTS_MIN_VALUE,
-                                                            RESULTS_MAX_VALUE,
-                                                            RESULTS_SUM };
+        std::vector<ResultAggregationEnum> validOptions =
+            { RESULTS_TOP_VALUE, RESULTS_MEAN_VALUE, RESULTS_GEOM_VALUE, RESULTS_HARM_VALUE, RESULTS_MIN_VALUE, RESULTS_MAX_VALUE, RESULTS_SUM };
 
         for ( ResultAggregationEnum option : validOptions )
         {
@@ -702,8 +684,8 @@ std::pair<double, double> RimGeoMechContourMapProjection::minmaxValuesAllTimeSte
                 if ( stepIdx == m_currentResultTimestep ) continue;
 
                 std::vector<double> aggregatedResults = generateResults( stepIdx );
-                m_minResultAllTimeSteps = std::min( m_minResultAllTimeSteps, minValue( aggregatedResults ) );
-                m_maxResultAllTimeSteps = std::max( m_maxResultAllTimeSteps, maxValue( aggregatedResults ) );
+                m_minResultAllTimeSteps               = std::min( m_minResultAllTimeSteps, minValue( aggregatedResults ) );
+                m_maxResultAllTimeSteps               = std::max( m_maxResultAllTimeSteps, maxValue( aggregatedResults ) );
             }
         }
     }

@@ -35,7 +35,7 @@ TEST( RigWellPathGeometryTools, VerticalPath )
     std::vector<double> mdValues      = { 100, 500, 1000 };
     std::vector<double> tvdValues     = { 100, 500, 1000 };
     std::vector<double> fullTVDValues = { 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000 };
-    std::vector<double> fullMDValues = RigWellPathGeometryTools::interpolateMdFromTvd( mdValues, tvdValues, fullTVDValues );
+    std::vector<double> fullMDValues  = RigWellPathGeometryTools::interpolateMdFromTvd( mdValues, tvdValues, fullTVDValues );
 
     EXPECT_EQ( fullTVDValues.size(), fullMDValues.size() );
     for ( size_t i = 0; i < fullTVDValues.size(); ++i )
@@ -110,8 +110,7 @@ TEST( RigWellPathGeometryTools, QuadraticPath )
         fullTvdValues.push_back( quadraticFunction( md ) );
     }
 
-    std::vector<double> estimatedFullMDValues =
-        RigWellPathGeometryTools::interpolateMdFromTvd( mdValues, tvdValues, fullTvdValues );
+    std::vector<double> estimatedFullMDValues = RigWellPathGeometryTools::interpolateMdFromTvd( mdValues, tvdValues, fullTvdValues );
     EXPECT_EQ( estimatedFullMDValues.size(), fullMDValues.size() );
     for ( size_t i = 0; i < estimatedFullMDValues.size(); ++i )
     {
@@ -142,8 +141,7 @@ TEST( RigWellPathGeometryTools, CubicPath )
         fullTvdValues.push_back( cubicFunction( md ) );
     }
 
-    std::vector<double> estimatedFullMDValues =
-        RigWellPathGeometryTools::interpolateMdFromTvd( mdValues, tvdValues, fullTvdValues );
+    std::vector<double> estimatedFullMDValues = RigWellPathGeometryTools::interpolateMdFromTvd( mdValues, tvdValues, fullTvdValues );
     EXPECT_EQ( estimatedFullMDValues.size(), fullMDValues.size() );
     for ( size_t i = 0; i < estimatedFullMDValues.size(); ++i )
     {
@@ -169,8 +167,7 @@ TEST( RigWellPathGeometryTools, CubicPathPoorSampling )
         fullTvdValues.push_back( cubicFunction( md ) );
     }
 
-    std::vector<double> estimatedFullMDValues =
-        RigWellPathGeometryTools::interpolateMdFromTvd( mdValues, tvdValues, fullTvdValues );
+    std::vector<double> estimatedFullMDValues = RigWellPathGeometryTools::interpolateMdFromTvd( mdValues, tvdValues, fullTvdValues );
     EXPECT_EQ( estimatedFullMDValues.size(), fullMDValues.size() );
     for ( size_t i = 0; i < estimatedFullMDValues.size(); ++i )
     {

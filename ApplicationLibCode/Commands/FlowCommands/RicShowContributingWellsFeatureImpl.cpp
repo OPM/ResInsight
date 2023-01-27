@@ -43,15 +43,13 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseView* RicShowContributingWellsFeatureImpl::manipulateSelectedView( RimEclipseResultCase* eclipseResultCase,
-                                                                             QString               wellName,
-                                                                             int                   timeStep )
+RimEclipseView*
+    RicShowContributingWellsFeatureImpl::manipulateSelectedView( RimEclipseResultCase* eclipseResultCase, QString wellName, int timeStep )
 {
-    RimEclipseView* viewToManipulate =
-        RicSelectOrCreateViewFeatureImpl::showViewSelection( eclipseResultCase,
-                                                             "lastUsedWellAllocationView",
-                                                             "ContributingWells_" + wellName,
-                                                             "Show Contributing Wells in View" );
+    RimEclipseView* viewToManipulate = RicSelectOrCreateViewFeatureImpl::showViewSelection( eclipseResultCase,
+                                                                                            "lastUsedWellAllocationView",
+                                                                                            "ContributingWells_" + wellName,
+                                                                                            "Show Contributing Wells in View" );
 
     if ( !viewToManipulate ) return nullptr;
 
@@ -68,9 +66,7 @@ RimEclipseView* RicShowContributingWellsFeatureImpl::manipulateSelectedView( Rim
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells( RimEclipseView* viewToModify,
-                                                                             const QString&  wellName,
-                                                                             int             timeStep )
+void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells( RimEclipseView* viewToModify, const QString& wellName, int timeStep )
 {
     CVF_ASSERT( viewToModify );
 
@@ -100,10 +96,8 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells( Rim
     // assert(flowDiagSolution);
     CVF_ASSERT( flowDiagSolution );
 
-    RimFlowDiagSolution::TracerStatusType tracerStatus =
-        flowDiagSolution->tracerStatusInTimeStep( selectedWell->name(), timeStep );
-    if ( !( tracerStatus == RimFlowDiagSolution::TracerStatusType::INJECTOR ||
-            tracerStatus == RimFlowDiagSolution::TracerStatusType::PRODUCER ) )
+    RimFlowDiagSolution::TracerStatusType tracerStatus = flowDiagSolution->tracerStatusInTimeStep( selectedWell->name(), timeStep );
+    if ( !( tracerStatus == RimFlowDiagSolution::TracerStatusType::INJECTOR || tracerStatus == RimFlowDiagSolution::TracerStatusType::PRODUCER ) )
     {
         return;
     }
@@ -130,13 +124,11 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells( Rim
     viewToModify->cellResult()->loadDataAndUpdate();
     viewToModify->cellResult()->updateConnectedEditors();
 
-    std::vector<QString> tracerNames =
-        findContributingTracerNames( flowDiagSolution, selectedWell->simWellData(), timeStep );
+    std::vector<QString> tracerNames = findContributingTracerNames( flowDiagSolution, selectedWell->simWellData(), timeStep );
 
     for ( RimSimWellInView* w : viewToModify->wellCollection()->wells() )
     {
-        if ( std::find( tracerNames.begin(), tracerNames.end(), w->name() ) != tracerNames.end() ||
-             selectedWell->name() == w->name() )
+        if ( std::find( tracerNames.begin(), tracerNames.end(), w->name() ) != tracerNames.end() || selectedWell->name() == w->name() )
         {
             w->showWell = true;
         }
@@ -177,10 +169,9 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells( Rim
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<QString>
-    RicShowContributingWellsFeatureImpl::findContributingTracerNames( const RimFlowDiagSolution* flowDiagSolution,
-                                                                      const RigSimWellData*      simWellData,
-                                                                      int                        timeStep )
+std::vector<QString> RicShowContributingWellsFeatureImpl::findContributingTracerNames( const RimFlowDiagSolution* flowDiagSolution,
+                                                                                       const RigSimWellData*      simWellData,
+                                                                                       int                        timeStep )
 {
     std::vector<QString> tracerCellFractionValues;
 
@@ -189,8 +180,7 @@ std::vector<QString>
         RimFlowDiagSolution::TracerStatusType requestedTracerType = RimFlowDiagSolution::TracerStatusType::UNDEFINED;
 
         const RiaDefines::WellProductionType prodType = simWellData->wellProductionType( timeStep );
-        if ( prodType == RiaDefines::WellProductionType::PRODUCER ||
-             prodType == RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE )
+        if ( prodType == RiaDefines::WellProductionType::PRODUCER || prodType == RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE )
         {
             requestedTracerType = RimFlowDiagSolution::TracerStatusType::INJECTOR;
         }

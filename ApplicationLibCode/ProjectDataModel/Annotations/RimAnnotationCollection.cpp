@@ -44,9 +44,7 @@ RimAnnotationCollection::RimAnnotationCollection()
     CAF_PDM_InitObject( "Annotations", ":/Annotations16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_reachCircleAnnotations, "ReachCircleAnnotations", "Reach Circle Annotations" );
-    CAF_PDM_InitFieldNoDefault( &m_userDefinedPolylineAnnotations,
-                                "UserDefinedPolylineAnnotations",
-                                "User Defined Polyline Annotations" );
+    CAF_PDM_InitFieldNoDefault( &m_userDefinedPolylineAnnotations, "UserDefinedPolylineAnnotations", "User Defined Polyline Annotations" );
     CAF_PDM_InitFieldNoDefault( &m_polylineFromFileAnnotations, "PolylineFromFileAnnotations", "Polylines From File" );
 
     m_reachCircleAnnotations.uiCapability()->setUiTreeHidden( true );
@@ -58,10 +56,8 @@ RimAnnotationCollection::RimAnnotationCollection()
     m_polylineFromFileAnnotations    = new RimAnnotationGroupCollection();
 
     m_reachCircleAnnotations->uiCapability()->setUiName( RimAnnotationGroupCollection::REACH_CIRCLE_ANNOTATION_UI_NAME );
-    m_userDefinedPolylineAnnotations->uiCapability()->setUiName(
-        RimAnnotationGroupCollection::USED_DEFINED_POLYLINE_ANNOTATION_UI_NAME );
-    m_polylineFromFileAnnotations->uiCapability()->setUiName(
-        RimAnnotationGroupCollection::POLYLINE_FROM_FILE_ANNOTATION_UI_NAME );
+    m_userDefinedPolylineAnnotations->uiCapability()->setUiName( RimAnnotationGroupCollection::USED_DEFINED_POLYLINE_ANNOTATION_UI_NAME );
+    m_polylineFromFileAnnotations->uiCapability()->setUiName( RimAnnotationGroupCollection::POLYLINE_FROM_FILE_ANNOTATION_UI_NAME );
 
     m_reachCircleAnnotations->uiCapability()->setUiIconFromResourceString( ":/ReachCircle16x16.png" );
     m_userDefinedPolylineAnnotations->uiCapability()->setUiIconFromResourceString( ":/PolylinesFromFile16x16.png" );
@@ -241,12 +237,8 @@ std::vector<caf::PdmObject*> RimAnnotationCollection::allPdmAnnotations() const
     std::vector<caf::PdmObject*> all;
     all.insert( all.end(), m_textAnnotations->m_annotations.begin(), m_textAnnotations->m_annotations.end() );
     all.insert( all.end(), m_reachCircleAnnotations->m_annotations.begin(), m_reachCircleAnnotations->m_annotations.end() );
-    all.insert( all.end(),
-                m_userDefinedPolylineAnnotations->m_annotations.begin(),
-                m_userDefinedPolylineAnnotations->m_annotations.end() );
-    all.insert( all.end(),
-                m_polylineFromFileAnnotations->m_annotations.begin(),
-                m_polylineFromFileAnnotations->m_annotations.end() );
+    all.insert( all.end(), m_userDefinedPolylineAnnotations->m_annotations.begin(), m_userDefinedPolylineAnnotations->m_annotations.end() );
+    all.insert( all.end(), m_polylineFromFileAnnotations->m_annotations.begin(), m_polylineFromFileAnnotations->m_annotations.end() );
     return all;
 }
 
@@ -285,8 +277,7 @@ void RimAnnotationCollection::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnnotationCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                                              std::vector<caf::PdmObjectHandle*>& referringObjects )
+void RimAnnotationCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     onAnnotationDeleted();
 }

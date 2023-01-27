@@ -86,8 +86,8 @@ bool RimEnsembleStatisticsSurface::onLoadData()
 //--------------------------------------------------------------------------------------------------
 RimSurface* RimEnsembleStatisticsSurface::createCopy()
 {
-    auto* newSurface = dynamic_cast<RimEnsembleStatisticsSurface*>(
-        xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+    auto* newSurface =
+        dynamic_cast<RimEnsembleStatisticsSurface*>( xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
 
     if ( !newSurface->onLoadData() )
     {
@@ -134,8 +134,8 @@ std::vector<cvf::Vec3d> RimEnsembleStatisticsSurface::extractStatisticalDepthFor
     CVF_ASSERT( surface );
     std::vector<cvf::Vec3d> verts = surface->vertices();
 
-    const auto& meanValues = surface->propertyValues(
-        caf::AppEnum<RigSurfaceStatisticsCalculator::StatisticsType>::text( m_statisticsType.v() ) );
+    const auto& meanValues =
+        surface->propertyValues( caf::AppEnum<RigSurfaceStatisticsCalculator::StatisticsType>::text( m_statisticsType.v() ) );
 
     for ( size_t i = 0; i < verts.size(); i++ )
     {

@@ -332,8 +332,8 @@ private:
 RiuGroupedBarChartBuilder::RiuGroupedBarChartBuilder( bool sortGroupsByMaxValueInGroup )
     : m_isSortingByMaxValueInGroups( sortGroupsByMaxValueInGroup )
 {
-    m_labelPointSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(),
-                                                          caf::FontTools::RelativeSize::Medium );
+    m_labelPointSize =
+        caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), caf::FontTools::RelativeSize::Medium );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -441,16 +441,15 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
         {
             if ( !barDef.m_majTickText.isEmpty() )
             {
-                auto it_IsInsertedPair =
-                    maxValuesPerMajGroup.insert( std::make_pair( barDef.m_majTickText, barDef.m_sortValue ) );
+                auto it_IsInsertedPair = maxValuesPerMajGroup.insert( std::make_pair( barDef.m_majTickText, barDef.m_sortValue ) );
                 if ( !it_IsInsertedPair.second )
                     it_IsInsertedPair.first->second = std::max( it_IsInsertedPair.first->second, barDef.m_sortValue );
             }
 
             if ( !barDef.m_midTickText.isEmpty() )
             {
-                auto it_IsInsertedPair = maxValuesPerMidGroup[barDef.m_majTickText].insert(
-                    std::make_pair( barDef.m_midTickText, barDef.m_sortValue ) );
+                auto it_IsInsertedPair =
+                    maxValuesPerMidGroup[barDef.m_majTickText].insert( std::make_pair( barDef.m_midTickText, barDef.m_sortValue ) );
                 if ( !it_IsInsertedPair.second )
                     it_IsInsertedPair.first->second = std::max( it_IsInsertedPair.first->second, barDef.m_sortValue );
             }
@@ -692,8 +691,7 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
 
         QColor textColor = RiuGuiTheme::getColorByVariableName( "textColor" );
 
-        RiuBarChartScaleDraw* scaleDrawer =
-            new RiuBarChartScaleDraw( groupPositionedAxisTexts, m_labelPointSize, textColor );
+        RiuBarChartScaleDraw* scaleDrawer = new RiuBarChartScaleDraw( groupPositionedAxisTexts, m_labelPointSize, textColor );
 
         plot->setAxisScaleDraw( axis, scaleDrawer );
         plot->setAxisScaleDiv( axis, groupAxisScaleDiv );
@@ -820,8 +818,7 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
 
         QColor textColor = RiuGuiTheme::getColorByVariableName( "textColor" );
 
-        RiuBarChartScaleDraw* barTextScaleDrawer =
-            new RiuBarChartScaleDraw( positionedBarLabels, m_labelPointSize, textColor );
+        RiuBarChartScaleDraw* barTextScaleDrawer = new RiuBarChartScaleDraw( positionedBarLabels, m_labelPointSize, textColor );
         barTextScaleDrawer->setAlignment( alignment );
         barTextScaleDrawer->setLabelRotation( labelRotation );
         barTextScaleDrawer->setLabelAlignment( labelAlignment );

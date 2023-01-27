@@ -111,7 +111,7 @@ QString RimTools::relocateFile( const QString&        originalFileName,
     // First check in the new project file directory
     {
         QString fileNameWithoutPath = QFileInfo( fileName ).fileName();
-        QString candidate = QDir::fromNativeSeparators( newProjectPath + QDir::separator() + fileNameWithoutPath );
+        QString candidate           = QDir::fromNativeSeparators( newProjectPath + QDir::separator() + fileNameWithoutPath );
         if ( searchedPaths ) searchedPaths->push_back( candidate );
 
         if ( caf::Utils::fileExists( candidate ) )
@@ -138,8 +138,7 @@ QString RimTools::relocateFile( const QString&        originalFileName,
     bool pathStartsAreEqual = false;
     bool pathEndsDiffer     = false;
     int  firstDiffIdx       = 0;
-    for ( firstDiffIdx = 0; firstDiffIdx < fileNamePathElements.size() && firstDiffIdx < oldProjPathElements.size();
-          ++firstDiffIdx )
+    for ( firstDiffIdx = 0; firstDiffIdx < fileNamePathElements.size() && firstDiffIdx < oldProjPathElements.size(); ++firstDiffIdx )
     {
 #ifdef WIN32
         // When comparing parts of a file path, the drive letter has been seen to be a mix of
@@ -234,8 +233,7 @@ QString RimTools::relocateFile( const QString&        originalFileName,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimTools::wellPathOptionItemsSubset( const std::vector<RimWellPath*>& wellPathsToExclude,
-                                          QList<caf::PdmOptionItemInfo>*   options )
+void RimTools::wellPathOptionItemsSubset( const std::vector<RimWellPath*>& wellPathsToExclude, QList<caf::PdmOptionItemInfo>* options )
 {
     if ( !options ) return;
 
@@ -386,8 +384,7 @@ void RimTools::colorLegendOptionItems( QList<caf::PdmOptionItemInfo>* options )
 
     for ( RimColorLegend* colorLegend : colorLegends )
     {
-        options->push_back(
-            caf::PdmOptionItemInfo( colorLegend->colorLegendName(), colorLegend, false, colorLegend->paletteIconProvider() ) );
+        options->push_back( caf::PdmOptionItemInfo( colorLegend->colorLegendName(), colorLegend, false, colorLegend->paletteIconProvider() ) );
     }
 }
 
@@ -426,8 +423,7 @@ void RimTools::timeStepsForCase( RimCase* gridCase, QList<caf::PdmOptionItemInfo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimTools::optionItemsForSpecifiedWellPaths( const std::vector<RimWellPath*>& wellPaths,
-                                                 QList<caf::PdmOptionItemInfo>*   options )
+void RimTools::optionItemsForSpecifiedWellPaths( const std::vector<RimWellPath*>& wellPaths, QList<caf::PdmOptionItemInfo>* options )
 {
     if ( !options ) return;
 

@@ -52,8 +52,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<int> RigVisibleCategoriesCalculator::visibleFlowDiagCategories( RimEclipseView&     eclView,
-                                                                         RigFlowDiagResults& flowDiagResults,
+std::set<int> RigVisibleCategoriesCalculator::visibleFlowDiagCategories( RimEclipseView&                 eclView,
+                                                                         RigFlowDiagResults&             flowDiagResults,
                                                                          const RigFlowDiagResultAddress& resVarAddr,
                                                                          size_t                          timeStepIndex )
 {
@@ -123,10 +123,7 @@ std::set<int> RigVisibleCategoriesCalculator::visibleCategories( RimEclipseView*
         RimEclipseResultDefinition* resDef = eclView->cellResult();
 
         cvf::ref<RigResultAccessor> resultAccessor =
-            RigResultAccessorFactory::createFromResultDefinition( eclView->eclipseCase()->eclipseCaseData(),
-                                                                  0,
-                                                                  eclView->currentTimeStep(),
-                                                                  resDef );
+            RigResultAccessorFactory::createFromResultDefinition( eclView->eclipseCase()->eclipseCaseData(), 0, eclView->currentTimeStep(), resDef );
 
         if ( resultAccessor.notNull() )
         {

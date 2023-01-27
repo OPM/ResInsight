@@ -59,8 +59,8 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorQ::calculate( int partIndex,
     CVF_ASSERT( resVarAddr.fieldName == "ST" && resVarAddr.componentName == "Q" );
 
     caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 5, "" );
-    stepCountProgress.setProgressDescription(
-        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
+    stepCountProgress.setProgressDescription( "Calculating " +
+                                              QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
     stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* st11 =

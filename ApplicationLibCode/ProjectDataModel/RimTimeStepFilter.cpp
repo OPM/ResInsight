@@ -280,9 +280,7 @@ std::vector<int> RimTimeStepFilter::filteredTimeStepIndices( const std::vector<Q
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimTimeStepFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                          const QVariant&            oldValue,
-                                          const QVariant&            newValue )
+void RimTimeStepFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimEclipseResultCase* rimEclipseResultCase = parentEclipseResultCase();
     RimGeoMechCase*       rimGeoMechCase       = parentGeoMechCase();
@@ -302,8 +300,7 @@ void RimTimeStepFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
         return;
     }
 
-    if ( changedField == &m_filterType || changedField == &m_firstTimeStep || changedField == &m_lastTimeStep ||
-         changedField == &m_interval )
+    if ( changedField == &m_filterType || changedField == &m_firstTimeStep || changedField == &m_lastTimeStep || changedField == &m_interval )
     {
         m_filteredTimeStepsUi = filteredTimeStepIndicesFromUi();
     }
@@ -340,8 +337,7 @@ QList<caf::PdmOptionItemInfo> RimTimeStepFilter::calculateValueOptions( const ca
         {
             if ( filteredIndex < static_cast<int>( m_timeStepNamesFromFile().size() ) )
             {
-                optionItems.push_back( caf::PdmOptionItemInfo( m_timeStepNamesFromFile()[filteredIndex],
-                                                               static_cast<int>( filteredIndex ) ) );
+                optionItems.push_back( caf::PdmOptionItemInfo( m_timeStepNamesFromFile()[filteredIndex], static_cast<int>( filteredIndex ) ) );
             }
         }
     }
@@ -352,9 +348,7 @@ QList<caf::PdmOptionItemInfo> RimTimeStepFilter::calculateValueOptions( const ca
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimTimeStepFilter::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                               QString                    uiConfigName,
-                                               caf::PdmUiEditorAttribute* attribute )
+void RimTimeStepFilter::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_applyReloadOfCase )
     {

@@ -646,11 +646,7 @@ odb_Instance* RifOdbReader::instance( int instanceIndex )
 //--------------------------------------------------------------------------------------------------
 /// Get the number of result items (== #nodes or #elements)
 //--------------------------------------------------------------------------------------------------
-size_t RifOdbReader::resultItemCount( const std::string& fieldName,
-                                      int                partIndex,
-                                      int                stepIndex,
-                                      int                frameIndex,
-                                      ResultPosition     resultPosition )
+size_t RifOdbReader::resultItemCount( const std::string& fieldName, int partIndex, int stepIndex, int frameIndex, ResultPosition resultPosition )
 {
     odb_Instance* partInstance = instance( partIndex );
     CVF_ASSERT( partInstance != NULL );
@@ -828,10 +824,10 @@ void RifOdbReader::readNodeField( const std::string&                fieldName,
         }
     }
 
-    const odb_Frame&       frame               = stepFrame( stepIndex, frameIndex );
-    const odb_FieldOutput& instanceFieldOutput = frame.fieldOutputs()[fieldName.c_str()].getSubset( *partInstance );
-    const odb_FieldOutput& fieldOutput         = instanceFieldOutput.getSubset( odb_Enum::NODAL );
-    const odb_SequenceFieldBulkData& seqFieldBulkData = fieldOutput.bulkDataBlocks();
+    const odb_Frame&                 frame               = stepFrame( stepIndex, frameIndex );
+    const odb_FieldOutput&           instanceFieldOutput = frame.fieldOutputs()[fieldName.c_str()].getSubset( *partInstance );
+    const odb_FieldOutput&           fieldOutput         = instanceFieldOutput.getSubset( odb_Enum::NODAL );
+    const odb_SequenceFieldBulkData& seqFieldBulkData    = fieldOutput.bulkDataBlocks();
 
     int numBlocks = seqFieldBulkData.size();
     for ( int block = 0; block < numBlocks; block++ )
@@ -883,10 +879,10 @@ void RifOdbReader::readElementNodeField( const std::string&                field
         }
     }
 
-    const odb_Frame&       frame               = stepFrame( stepIndex, frameIndex );
-    const odb_FieldOutput& instanceFieldOutput = frame.fieldOutputs()[fieldName.c_str()].getSubset( *partInstance );
-    const odb_FieldOutput& fieldOutput         = instanceFieldOutput.getSubset( odb_Enum::ELEMENT_NODAL );
-    const odb_SequenceFieldBulkData& seqFieldBulkData = fieldOutput.bulkDataBlocks();
+    const odb_Frame&                 frame               = stepFrame( stepIndex, frameIndex );
+    const odb_FieldOutput&           instanceFieldOutput = frame.fieldOutputs()[fieldName.c_str()].getSubset( *partInstance );
+    const odb_FieldOutput&           fieldOutput         = instanceFieldOutput.getSubset( odb_Enum::ELEMENT_NODAL );
+    const odb_SequenceFieldBulkData& seqFieldBulkData    = fieldOutput.bulkDataBlocks();
 
     std::map<int, int>& elementIdToIdxMap = m_elementIdToIdxMaps[partIndex];
     CVF_ASSERT( elementIdToIdxMap.size() > 0 );
@@ -955,10 +951,10 @@ void RifOdbReader::readIntegrationPointField( const std::string&                
         }
     }
 
-    const odb_Frame&       frame               = stepFrame( stepIndex, frameIndex );
-    const odb_FieldOutput& instanceFieldOutput = frame.fieldOutputs()[fieldName.c_str()].getSubset( *partInstance );
-    const odb_FieldOutput& fieldOutput         = instanceFieldOutput.getSubset( odb_Enum::INTEGRATION_POINT );
-    const odb_SequenceFieldBulkData& seqFieldBulkData = fieldOutput.bulkDataBlocks();
+    const odb_Frame&                 frame               = stepFrame( stepIndex, frameIndex );
+    const odb_FieldOutput&           instanceFieldOutput = frame.fieldOutputs()[fieldName.c_str()].getSubset( *partInstance );
+    const odb_FieldOutput&           fieldOutput         = instanceFieldOutput.getSubset( odb_Enum::INTEGRATION_POINT );
+    const odb_SequenceFieldBulkData& seqFieldBulkData    = fieldOutput.bulkDataBlocks();
 
     std::map<int, int>& elementIdToIdxMap = m_elementIdToIdxMaps[partIndex];
     CVF_ASSERT( elementIdToIdxMap.size() > 0 );

@@ -275,8 +275,7 @@ QString RimWellPathGroup::createGroupName() const
     {
         if ( wellPath )
         {
-            bool groupOrLateral = dynamic_cast<RimWellPathGroup*>( wellPath ) ||
-                                  dynamic_cast<RimModeledWellPath*>( wellPath );
+            bool groupOrLateral = dynamic_cast<RimWellPathGroup*>( wellPath ) || dynamic_cast<RimModeledWellPath*>( wellPath );
             if ( !groupOrLateral )
             {
                 allNames.push_back( wellPath->name() );
@@ -420,8 +419,7 @@ void RimWellPathGroup::makeMoreLevelsIfNecessary()
                 {
                     m_childWellPaths().removeChild( wellPath );
                     newGroup->addChildWellPath( wellPath );
-                    newGroup->wellPathGeometry()->setUniqueStartAndEndIndex( childStartIndex,
-                                                                             std::numeric_limits<size_t>::max() );
+                    newGroup->wellPathGeometry()->setUniqueStartAndEndIndex( childStartIndex, std::numeric_limits<size_t>::max() );
                 }
                 m_childWellPaths().push_back( newGroup );
             }

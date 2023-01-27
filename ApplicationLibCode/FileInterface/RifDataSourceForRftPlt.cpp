@@ -79,9 +79,7 @@ RifDataSourceForRftPlt::RifDataSourceForRftPlt( SourceType sourceType, RimSummar
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifDataSourceForRftPlt::RifDataSourceForRftPlt( SourceType                sourceType,
-                                                RimSummaryCase*           summaryCase,
-                                                RimSummaryCaseCollection* ensemble )
+RifDataSourceForRftPlt::RifDataSourceForRftPlt( SourceType sourceType, RimSummaryCase* summaryCase, RimSummaryCaseCollection* ensemble )
 {
     CVF_ASSERT( sourceType == SourceType::SUMMARY_RFT );
 
@@ -218,9 +216,9 @@ QString RifDataSourceForRftPlt::sourceTypeUiText( SourceType sourceType )
 //--------------------------------------------------------------------------------------------------
 bool operator==( const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPlt& addr2 )
 {
-    return addr1.sourceType() == addr2.sourceType() && addr1.eclCase() == addr2.eclCase() &&
-           addr1.wellLogFile() == addr2.wellLogFile() && addr1.summaryCase() == addr2.summaryCase() &&
-           addr1.ensemble() == addr2.ensemble() && addr1.observedFmuRftData() == addr2.observedFmuRftData();
+    return addr1.sourceType() == addr2.sourceType() && addr1.eclCase() == addr2.eclCase() && addr1.wellLogFile() == addr2.wellLogFile() &&
+           addr1.summaryCase() == addr2.summaryCase() && addr1.ensemble() == addr2.ensemble() &&
+           addr1.observedFmuRftData() == addr2.observedFmuRftData();
 }
 
 //--------------------------------------------------------------------------------------------------

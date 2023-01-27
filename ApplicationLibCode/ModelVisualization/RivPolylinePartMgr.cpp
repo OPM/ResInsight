@@ -46,9 +46,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivPolylinePartMgr::RivPolylinePartMgr( Rim3dView*                 view,
-                                        RimPolylinesDataInterface* polylineInterface,
-                                        caf::PdmObject*            collection )
+RivPolylinePartMgr::RivPolylinePartMgr( Rim3dView* view, RimPolylinesDataInterface* polylineInterface, caf::PdmObject* collection )
     : m_rimView( view )
     , m_polylineInterface( polylineInterface )
     , m_viewCollection( collection )
@@ -65,8 +63,7 @@ RivPolylinePartMgr::~RivPolylinePartMgr()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RivPolylinePartMgr::isPolylinesInBoundingBox( std::vector<std::vector<cvf::Vec3d>> polyline,
-                                                   const cvf::BoundingBox&              boundingBox )
+bool RivPolylinePartMgr::isPolylinesInBoundingBox( std::vector<std::vector<cvf::Vec3d>> polyline, const cvf::BoundingBox& boundingBox )
 {
     auto effectiveBoundingBox = RiaBoundingBoxTools::inflate( boundingBox, 3 );
     for ( const auto& pts : polyline )
@@ -82,8 +79,7 @@ bool RivPolylinePartMgr::isPolylinesInBoundingBox( std::vector<std::vector<cvf::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivPolylinePartMgr::buildPolylineParts( const caf::DisplayCoordTransform* displayXf,
-                                             const cvf::BoundingBox&           boundingBox )
+void RivPolylinePartMgr::buildPolylineParts( const caf::DisplayCoordTransform* displayXf, const cvf::BoundingBox& boundingBox )
 {
     auto polylineDef = m_polylineInterface->polyLinesData();
     if ( polylineDef.isNull() || polylineDef->polyLines().size() == 0 )

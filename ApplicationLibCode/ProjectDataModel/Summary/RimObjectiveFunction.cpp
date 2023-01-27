@@ -57,10 +57,7 @@ RimObjectiveFunction::RimObjectiveFunction()
 
     CAF_PDM_InitFieldNoDefault( &m_functionType, "FunctionType", "Function Type" );
 
-    CAF_PDM_InitField( &m_normalizeByNumberOfObservations,
-                       "NormalizeByNumberOfObservations",
-                       true,
-                       "Normalize by Number of Observations" );
+    CAF_PDM_InitField( &m_normalizeByNumberOfObservations, "NormalizeByNumberOfObservations", true, "Normalize by Number of Observations" );
 
     CAF_PDM_InitField( &m_normalizeByNumberOfVectors, "NormalizeByNumberOfVectors", true, "Normalize by Number of Vectors" );
 
@@ -111,8 +108,7 @@ double RimObjectiveFunction::value( RimSummaryCase*                             
             std::string s = vectorSummaryAddress.vectorName() + RifReaderEclipseSummary::differenceIdentifier();
             if ( !vectorSummaryAddress.vectorName().empty() )
             {
-                if ( vectorSummaryAddress.vectorName().find( RifReaderEclipseSummary::differenceIdentifier() ) !=
-                     std::string::npos )
+                if ( vectorSummaryAddress.vectorName().find( RifReaderEclipseSummary::differenceIdentifier() ) != std::string::npos )
                 {
                     s = vectorSummaryAddress.vectorName();
                 }
@@ -120,13 +116,12 @@ double RimObjectiveFunction::value( RimSummaryCase*                             
                 vectorSummaryAddressDiff.setVectorName( s );
 
                 RifEclipseSummaryAddress vectorSummaryAddressHistory = vectorSummaryAddress;
-                vectorSummaryAddressHistory.setVectorName( vectorSummaryAddress.vectorName() +
-                                                           RifReaderEclipseSummary::historyIdentifier() );
+                vectorSummaryAddressHistory.setVectorName( vectorSummaryAddress.vectorName() + RifReaderEclipseSummary::historyIdentifier() );
 
                 if ( readerInterface->allResultAddresses().count( vectorSummaryAddressDiff ) )
                 {
-                    const std::vector<time_t>& allTimeSteps    = readerInterface->timeSteps( vectorSummaryAddressDiff );
-                    std::vector<size_t> timeStepsForEvaluation = timeStepIndicesForEvaluation( allTimeSteps, timeConfig );
+                    const std::vector<time_t>& allTimeSteps           = readerInterface->timeSteps( vectorSummaryAddressDiff );
+                    std::vector<size_t>        timeStepsForEvaluation = timeStepIndicesForEvaluation( allTimeSteps, timeConfig );
 
                     std::vector<double> summaryDiffValues;
                     std::vector<double> summaryHistoryValues;
@@ -134,8 +129,7 @@ double RimObjectiveFunction::value( RimSummaryCase*                             
                     if ( readerInterface->values( vectorSummaryAddressDiff, &summaryDiffValues ) &&
                          readerInterface->values( vectorSummaryAddressHistory, &summaryHistoryValues ) )
                     {
-                        const double functionValue =
-                            computeFunctionValue( summaryDiffValues, summaryHistoryValues, timeStepsForEvaluation );
+                        const double functionValue = computeFunctionValue( summaryDiffValues, summaryHistoryValues, timeStepsForEvaluation );
 
                         if ( functionValue != std::numeric_limits<double>::infinity() )
                         {
@@ -175,10 +169,9 @@ double RimObjectiveFunction::value( RimSummaryCase*                             
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, double>
-    RimObjectiveFunction::minMaxValues( const std::vector<RimSummaryCase*>&          summaryCases,
-                                        const std::vector<RifEclipseSummaryAddress>& vectorSummaryAddresses,
-                                        const ObjectiveFunctionTimeConfig&           timeConfig ) const
+std::pair<double, double> RimObjectiveFunction::minMaxValues( const std::vector<RimSummaryCase*>&          summaryCases,
+                                                              const std::vector<RifEclipseSummaryAddress>& vectorSummaryAddresses,
+                                                              const ObjectiveFunctionTimeConfig&           timeConfig ) const
 {
     double minValue = std::numeric_limits<double>::infinity();
     double maxValue = -std::numeric_limits<double>::infinity();
@@ -244,9 +237,7 @@ void RimObjectiveFunction::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimObjectiveFunction::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                             const QVariant&            oldValue,
-                                             const QVariant&            newValue )
+void RimObjectiveFunction::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     double estimate           = m_errorEstimatePercentage;
     m_errorEstimatePercentage = std::clamp( estimate, 0.0, 100.0 );

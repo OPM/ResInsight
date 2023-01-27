@@ -57,8 +57,7 @@ TEST( RifEclipseTextFileReader, DISABLED_ReadKeywordsAndValuesPerformanceTest )
 
         auto                          end  = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> diff = end - aggregatedStart;
-        std::cout << "RifEclipseTextFileReader MM [" << iterationCount << " runs] : " << std::setw( 9 ) << diff.count()
-                  << " s\n";
+        std::cout << "RifEclipseTextFileReader MM [" << iterationCount << " runs] : " << std::setw( 9 ) << diff.count() << " s\n";
     }
 
     {
@@ -77,8 +76,7 @@ TEST( RifEclipseTextFileReader, DISABLED_ReadKeywordsAndValuesPerformanceTest )
 
         auto                          end  = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> diff = end - aggregatedStart;
-        std::cout << "RifEclipseTextFileReader File [" << iterationCount << " runs] : " << std::setw( 9 )
-                  << diff.count() << " s\n";
+        std::cout << "RifEclipseTextFileReader File [" << iterationCount << " runs] : " << std::setw( 9 ) << diff.count() << " s\n";
     }
 }
 

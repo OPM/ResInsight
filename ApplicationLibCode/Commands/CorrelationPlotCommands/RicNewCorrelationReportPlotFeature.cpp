@@ -86,10 +86,7 @@ void RicNewCorrelationReportPlotFeature::onActionTriggered( bool isChecked )
             QString     mainQuantityName = params.mainQuantityName;
             std::time_t timeStep         = params.timeStep;
 
-            newPlot = correlationPlotColl->createCorrelationReportPlot( ensemble,
-                                                                        includedQuantityNames,
-                                                                        mainQuantityName,
-                                                                        timeStep );
+            newPlot = correlationPlotColl->createCorrelationReportPlot( ensemble, includedQuantityNames, mainQuantityName, timeStep );
         }
     }
 

@@ -104,9 +104,7 @@ QList<caf::PdmOptionItemInfo> RimPolylineTarget::calculateValueOptions( const ca
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolylineTarget::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                          const QVariant&            oldValue,
-                                          const QVariant&            newValue )
+void RimPolylineTarget::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     triggerVisualizationUpdate();
 }

@@ -226,8 +226,7 @@ QString RigWellLogFile::depthUnitString() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RigWellLogFile::wellLogChannelUnitString( const QString&            wellLogChannelName,
-                                                  RiaDefines::DepthUnitType displayDepthUnit ) const
+QString RigWellLogFile::wellLogChannelUnitString( const QString& wellLogChannelName, RiaDefines::DepthUnitType displayDepthUnit ) const
 {
     QString unit;
 

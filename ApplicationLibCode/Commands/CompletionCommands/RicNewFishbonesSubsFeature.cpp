@@ -111,8 +111,7 @@ RimFishbonesCollection* RicNewFishbonesSubsFeature::selectedFishbonesCollection(
         {
             return wellPaths[0]->fishbonesCollection();
         }
-        RimWellPathCompletions* completions =
-            caf::SelectionManager::instance()->selectedItemOfType<RimWellPathCompletions>();
+        RimWellPathCompletions* completions = caf::SelectionManager::instance()->selectedItemOfType<RimWellPathCompletions>();
         if ( completions )
         {
             return completions->fishbonesCollection();

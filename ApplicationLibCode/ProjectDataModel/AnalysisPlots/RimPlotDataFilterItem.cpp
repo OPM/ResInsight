@@ -238,9 +238,7 @@ std::vector<time_t> RimPlotDataFilterItem::explicitlySelectedTimeSteps() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotDataFilterItem::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                              const QVariant&            oldValue,
-                                              const QVariant&            newValue )
+void RimPlotDataFilterItem::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_filterTarget )
     {
@@ -285,12 +283,11 @@ QList<caf::PdmOptionItemInfo> RimPlotDataFilterItem::calculateValueOptions( cons
             {
                 if ( address.isErrorResult() ) continue;
 
-                options.push_back( caf::PdmOptionItemInfo( QString::fromStdString( address.uiText() ),
-                                                           QVariant::fromValue( address ) ) );
+                options.push_back( caf::PdmOptionItemInfo( QString::fromStdString( address.uiText() ), QVariant::fromValue( address ) ) );
             }
 
-            options.push_front( caf::PdmOptionItemInfo( RiaResultNames::undefinedResultName(),
-                                                        QVariant::fromValue( RifEclipseSummaryAddress() ) ) );
+            options.push_front(
+                caf::PdmOptionItemInfo( RiaResultNames::undefinedResultName(), QVariant::fromValue( RifEclipseSummaryAddress() ) ) );
         }
     }
     else if ( fieldNeedingOptions == &m_filterEnsembleParameter )
@@ -389,9 +386,7 @@ void RimPlotDataFilterItem::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotDataFilterItem::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                   QString                    uiConfigName,
-                                                   caf::PdmUiEditorAttribute* attribute )
+void RimPlotDataFilterItem::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_min || field == &m_max )
     {

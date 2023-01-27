@@ -37,29 +37,15 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::DecimalSeparatorEnum::setUp()
 template <>
 void RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormatEnum::setUp()
 {
-    addItem( RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_DDMMYYYY_DOT_SEPARATED,
-             "dd.MM.yyyy",
-             "Day.Month.Year (dd.MM.yyyy)" );
-    addItem( RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_DDMMYYYY_DASH_SEPARATED,
-             "dd-MM-yyyy",
-             "Day-Month-Year (dd-MM-yyyy)" );
-    addItem( RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_DDMMYYYY_SLASH_SEPARATED,
-             "dd/MM/yyyy",
-             "Day/Month/Year (dd/MM/yyyy)" );
+    addItem( RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_DDMMYYYY_DOT_SEPARATED, "dd.MM.yyyy", "Day.Month.Year (dd.MM.yyyy)" );
+    addItem( RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_DDMMYYYY_DASH_SEPARATED, "dd-MM-yyyy", "Day-Month-Year (dd-MM-yyyy)" );
+    addItem( RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_DDMMYYYY_SLASH_SEPARATED, "dd/MM/yyyy", "Day/Month/Year (dd/MM/yyyy)" );
 
-    addItem( RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_YYYYMMDD_DOT_SEPARATED,
-             "yyyy.MM.dd",
-             "Year.Month.Day (yyyy.MM.dd)" );
-    addItem( RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_YYYYMMDD_DASH_SEPARATED,
-             "yyyy-MM-dd",
-             "Year-Month-Day (yyyy-MM-dd)" );
-    addItem( RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_YYYYMMDD_SLASH_SEPARATED,
-             "yyyy/MM/dd",
-             "Year/Month/Day (yyyy/MM/dd)" );
+    addItem( RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_YYYYMMDD_DOT_SEPARATED, "yyyy.MM.dd", "Year.Month.Day (yyyy.MM.dd)" );
+    addItem( RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_YYYYMMDD_DASH_SEPARATED, "yyyy-MM-dd", "Year-Month-Day (yyyy-MM-dd)" );
+    addItem( RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_YYYYMMDD_SLASH_SEPARATED, "yyyy/MM/dd", "Year/Month/Day (yyyy/MM/dd)" );
 
-    addItem( RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_MMDDYYYY_SLASH_SEPARATED,
-             "MM/dd/yyyy",
-             "Month/Day/Year (MM/dd/yyyy)" );
+    addItem( RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_MMDDYYYY_SLASH_SEPARATED, "MM/dd/yyyy", "Month/Day/Year (MM/dd/yyyy)" );
     addItem( RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_MMDDYY_SLASH_SEPARATED, "MM/dd/yy", "Month/Day/Year (MM/dd/yy)" );
 
     setDefault( RicPasteAsciiDataToSummaryPlotFeatureUi::DATE_DDMMYYYY_DOT_SEPARATED );
@@ -71,9 +57,7 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::TimeFormatEnum::setUp()
     addItem( RicPasteAsciiDataToSummaryPlotFeatureUi::TIME_NONE, "", "None" );
     addItem( RicPasteAsciiDataToSummaryPlotFeatureUi::TIME_HHMM, "hh:mm", "Hour:Minute (hh:mm)" );
     addItem( RicPasteAsciiDataToSummaryPlotFeatureUi::TIME_HHMMSS, "hh:mm:ss", "Hour:Minute:Second (hh:mm:ss)" );
-    addItem( RicPasteAsciiDataToSummaryPlotFeatureUi::TIME_HHMMSSZZZ,
-             "hh:mm:ss.zzz",
-             "Hour:Minute:Second.Millisecond (hh:mm:ss.zzz)" );
+    addItem( RicPasteAsciiDataToSummaryPlotFeatureUi::TIME_HHMMSSZZZ, "hh:mm:ss.zzz", "Hour:Minute:Second.Millisecond (hh:mm:ss.zzz)" );
     setDefault( RicPasteAsciiDataToSummaryPlotFeatureUi::TIME_NONE );
 }
 
@@ -185,23 +169,13 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::RicPasteAsciiDataToSummaryPlotFeatureUi
     CAF_PDM_InitFieldNoDefault( &m_dateFormat, "DateFormat", "Date Format" );
     CAF_PDM_InitFieldNoDefault( &m_timeFormat, "TimeFormat", "Time Format" );
     CAF_PDM_InitField( &m_useCustomDateFormat, "UseCustomDateFormat", false, "Use Custom Date Time Format" );
-    CAF_PDM_InitField( &m_customDateTimeFormat,
-                       "CustomDateTimeFormat",
-                       QString(),
-                       "Custom Date Time Format",
-                       "",
-                       DATETIME_FORMAT_TOOLTIP,
-                       "" );
+    CAF_PDM_InitField( &m_customDateTimeFormat, "CustomDateTimeFormat", QString(), "Custom Date Time Format", "", DATETIME_FORMAT_TOOLTIP, "" );
 
     CAF_PDM_InitField( &m_curveLineStyle,
                        "LineStyle",
-                       caf::AppEnum<RiuQwtPlotCurveDefines::LineStyleEnum>(
-                           RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE ),
+                       caf::AppEnum<RiuQwtPlotCurveDefines::LineStyleEnum>( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE ),
                        "Line Style" );
-    CAF_PDM_InitField( &m_curveSymbol,
-                       "Symbol",
-                       caf::AppEnum<RiuPlotCurveSymbol::PointSymbolEnum>( RiuQwtSymbol::SYMBOL_ELLIPSE ),
-                       "Symbol" );
+    CAF_PDM_InitField( &m_curveSymbol, "Symbol", caf::AppEnum<RiuPlotCurveSymbol::PointSymbolEnum>( RiuQwtSymbol::SYMBOL_ELLIPSE ), "Symbol" );
     CAF_PDM_InitField( &m_curveSymbolSkipDistance, "SymbolSkipDinstance", 0.0f, "Symbol Skip Distance" );
 
     CAF_PDM_InitFieldNoDefault( &m_cellSeparator, "CellSeparator", "Cell Separator" );
@@ -297,8 +271,8 @@ const AsciiDataParseOptions RicPasteAsciiDataToSummaryPlotFeatureUi::parseOption
         }
         if ( m_timeFormat() == TimeFormat::TIME_NONE )
         {
-            parseOptions.fallbackDateTimeFormat =
-                parseOptions.dateFormat + " " + RicPasteAsciiDataToSummaryPlotFeatureUi::TimeFormatEnum::text( TIME_HHMM );
+            parseOptions.fallbackDateTimeFormat = parseOptions.dateFormat + " " +
+                                                  RicPasteAsciiDataToSummaryPlotFeatureUi::TimeFormatEnum::text( TIME_HHMM );
         }
     }
 
@@ -324,8 +298,7 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::setCreateNewPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat
-    RicPasteAsciiDataToSummaryPlotFeatureUi::dateFormatFromString( const QString& dateString )
+RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat RicPasteAsciiDataToSummaryPlotFeatureUi::dateFormatFromString( const QString& dateString )
 {
     std::vector<int> values;
 
@@ -363,8 +336,7 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat
             values.push_back( split.at( 1 ).toInt() );
             values.push_back( split.at( 2 ).toInt() );
 
-            if ( split.at( 0 ).size() == 2 && split.at( 1 ).size() == 2 && split.at( 2 ).size() == 2 )
-                return DATE_MMDDYY_SLASH_SEPARATED;
+            if ( split.at( 0 ).size() == 2 && split.at( 1 ).size() == 2 && split.at( 2 ).size() == 2 ) return DATE_MMDDYY_SLASH_SEPARATED;
 
             if ( values[0] > 31 )
             {
@@ -439,8 +411,8 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::defineUiOrdering( QString uiConfig
     }
 
     {
-        caf::PdmUiGroup* previewGroup = uiOrdering.addNewGroup(
-            QString( "Preview - First %1 lines, Pretty Print" ).arg( QString::number( PREVIEW_TEXT_LINE_COUNT ) ) );
+        caf::PdmUiGroup* previewGroup =
+            uiOrdering.addNewGroup( QString( "Preview - First %1 lines, Pretty Print" ).arg( QString::number( PREVIEW_TEXT_LINE_COUNT ) ) );
 
         previewGroup->add( &m_previewText );
     }
@@ -451,8 +423,7 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::defineUiOrdering( QString uiConfig
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RicPasteAsciiDataToSummaryPlotFeatureUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RicPasteAsciiDataToSummaryPlotFeatureUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     CVF_ASSERT( m_uiMode != UI_MODE_NONE );
 

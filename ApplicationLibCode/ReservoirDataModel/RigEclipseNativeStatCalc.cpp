@@ -28,8 +28,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigEclipseNativeStatCalc::RigEclipseNativeStatCalc( RigCaseCellResultsData*        cellResultsData,
-                                                    const RigEclipseResultAddress& eclipseResultAddress )
+RigEclipseNativeStatCalc::RigEclipseNativeStatCalc( RigCaseCellResultsData* cellResultsData, const RigEclipseResultAddress& eclipseResultAddress )
     : m_resultsData( cellResultsData )
     , m_eclipseResultAddress( eclipseResultAddress )
 {
@@ -122,8 +121,7 @@ void RigEclipseNativeStatCalc::posNegClosestToZero( size_t timeStepIndex, double
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseNativeStatCalc::addDataToHistogramCalculator( size_t                  timeStepIndex,
-                                                             RigHistogramCalculator& histogramCalculator )
+void RigEclipseNativeStatCalc::addDataToHistogramCalculator( size_t timeStepIndex, RigHistogramCalculator& histogramCalculator )
 {
     traverseCells( histogramCalculator, timeStepIndex );
 }
@@ -162,8 +160,7 @@ size_t RigEclipseNativeStatCalc::timeStepCount()
 //--------------------------------------------------------------------------------------------------
 void RigEclipseNativeStatCalc::mobileVolumeWeightedMean( size_t timeStepIndex, double& mean )
 {
-    RigEclipseResultAddress mobPorvAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                            RiaResultNames::mobilePoreVolumeName() );
+    RigEclipseResultAddress mobPorvAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::mobilePoreVolumeName() );
 
     // For statistics result cases, the pore volume is not available, as
     // RigCaseCellResultsData::createPlaceholderResultEntries has not been executed

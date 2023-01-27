@@ -162,13 +162,7 @@ bool RimGridCalculation::calculate()
         {
             if ( m_cellFilterView() )
             {
-                filterResults( m_cellFilterView(),
-                               values,
-                               m_defaultValueType(),
-                               m_defaultValue(),
-                               resultValues,
-                               porosityModel,
-                               outputEclipseCase() );
+                filterResults( m_cellFilterView(), values, m_defaultValueType(), m_defaultValue(), resultValues, porosityModel, outputEclipseCase() );
             }
 
             scalarResultFrames->at( tsId ) = resultValues;
@@ -371,7 +365,7 @@ RigEclipseResultAddress RimGridCalculation::outputAddress() const
 std::vector<double> RimGridCalculation::getInputVectorForVariable( RimGridCalculationVariable*   v,
                                                                    size_t                        tsId,
                                                                    RiaDefines::PorosityModelType porosityModel,
-                                                                   RimEclipseCase* outputEclipseCase ) const
+                                                                   RimEclipseCase*               outputEclipseCase ) const
 {
     int timeStep = v->timeStep();
 
@@ -405,11 +399,7 @@ std::vector<double> RimGridCalculation::getInputVectorForVariable( RimGridCalcul
         auto grid = mainGrid->gridByIndex( gridIdx );
 
         cvf::ref<RigResultAccessor> sourceResultAccessor =
-            RigResultAccessorFactory::createFromResultAddress( v->eclipseCase()->eclipseCaseData(),
-                                                               gridIdx,
-                                                               porosityModel,
-                                                               timeStepToUse,
-                                                               resAddr );
+            RigResultAccessorFactory::createFromResultAddress( v->eclipseCase()->eclipseCaseData(), gridIdx, porosityModel, timeStepToUse, resAddr );
 
 #pragma omp parallel for
         for ( int localGridCellIdx = 0; localGridCellIdx < static_cast<int>( grid->cellCount() ); localGridCellIdx++ )
@@ -491,15 +481,10 @@ void RimGridCalculation::filterResults( RimGridView*                            
     if ( defaultValueType == RimGridCalculation::DefaultValueType::FROM_PROPERTY )
     {
         if ( m_defaultPropertyVariableIndex < static_cast<int>( values.size() ) )
-            replaceFilteredValuesWithVector( values[m_defaultPropertyVariableIndex],
-                                             visibility,
-                                             resultValues,
-                                             porosityModel,
-                                             outputEclipseCase );
+            replaceFilteredValuesWithVector( values[m_defaultPropertyVariableIndex], visibility, resultValues, porosityModel, outputEclipseCase );
         else
         {
-            QString errorMessage =
-                "Invalid input data for default result property, no data assigned to non-visible cells.";
+            QString errorMessage = "Invalid input data for default result property, no data assigned to non-visible cells.";
             RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", errorMessage );
         }
     }
@@ -541,8 +526,7 @@ void RimGridCalculation::removeDependentObjects()
         // Select "None" result if the result that is being removed were displayed in a view.
         for ( auto v : eclipseCase->reservoirViews() )
         {
-            if ( v->cellResult()->resultType() == resAddr.resultCatType() &&
-                 v->cellResult()->resultVariable() == resAddr.resultName() )
+            if ( v->cellResult()->resultType() == resAddr.resultCatType() && v->cellResult()->resultVariable() == resAddr.resultName() )
             {
                 v->cellResult()->setResultType( RiaDefines::ResultCatType::GENERATED );
                 v->cellResult()->setResultVariable( "None" );
@@ -595,8 +579,7 @@ std::pair<bool, QString> RimGridCalculation::validateVariables()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCalculation::onChildrenUpdated( caf::PdmChildArrayFieldHandle*      childArray,
-                                            std::vector<caf::PdmObjectHandle*>& updatedObjects )
+void RimGridCalculation::onChildrenUpdated( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& updatedObjects )
 {
     if ( childArray == &m_variables )
     {

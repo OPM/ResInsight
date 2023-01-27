@@ -169,19 +169,14 @@ void RivFemPartGeometryGenerator::computeArrays( const std::vector<cvf::Vec3f>& 
                     continue; // Invisible face
                 }
 
-                int        faceNodeCount = 0;
-                const int* localElmNodeIndicesForFace =
-                    RigFemTypes::localElmNodeIndicesForFace( eType, lfIdx, &faceNodeCount );
+                int        faceNodeCount              = 0;
+                const int* localElmNodeIndicesForFace = RigFemTypes::localElmNodeIndicesForFace( eType, lfIdx, &faceNodeCount );
                 if ( faceNodeCount == 4 )
                 {
-                    cvf::Vec3f quadVxs0( cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[0]]] ) -
-                                         m_displayOffset );
-                    cvf::Vec3f quadVxs1( cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[1]]] ) -
-                                         m_displayOffset );
-                    cvf::Vec3f quadVxs2( cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[2]]] ) -
-                                         m_displayOffset );
-                    cvf::Vec3f quadVxs3( cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[3]]] ) -
-                                         m_displayOffset );
+                    cvf::Vec3f quadVxs0( cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[0]]] ) - m_displayOffset );
+                    cvf::Vec3f quadVxs1( cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[1]]] ) - m_displayOffset );
+                    cvf::Vec3f quadVxs2( cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[2]]] ) - m_displayOffset );
+                    cvf::Vec3f quadVxs3( cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[3]]] ) - m_displayOffset );
 
                     int qNodeIdx[4];
                     qNodeIdx[0] = elmNodeIndices[localElmNodeIndicesForFace[0]];
@@ -253,10 +248,9 @@ void RivFemPartGeometryGenerator::setElementVisibility( const cvf::UByteArray* c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo>
-    RivFemPartGeometryGenerator::createMeshDrawableFromSingleElement( const RigFemPart* part,
-                                                                      size_t            elmIdx,
-                                                                      const cvf::Vec3d& displayModelOffset )
+cvf::ref<cvf::DrawableGeo> RivFemPartGeometryGenerator::createMeshDrawableFromSingleElement( const RigFemPart* part,
+                                                                                             size_t            elmIdx,
+                                                                                             const cvf::Vec3d& displayModelOffset )
 {
     cvf::ref<cvf::Vec3fArray> quadVertices;
 
@@ -276,14 +270,14 @@ cvf::ref<cvf::DrawableGeo>
             const int* localElmNodeIndicesForFace = RigFemTypes::localElmNodeIndicesForFace( eType, lfIdx, &faceNodeCount );
             if ( faceNodeCount == 4 )
             {
-                vertices.push_back( cvf::Vec3f(
-                    cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[0]]] ) - displayModelOffset ) );
-                vertices.push_back( cvf::Vec3f(
-                    cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[1]]] ) - displayModelOffset ) );
-                vertices.push_back( cvf::Vec3f(
-                    cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[2]]] ) - displayModelOffset ) );
-                vertices.push_back( cvf::Vec3f(
-                    cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[3]]] ) - displayModelOffset ) );
+                vertices.push_back(
+                    cvf::Vec3f( cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[0]]] ) - displayModelOffset ) );
+                vertices.push_back(
+                    cvf::Vec3f( cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[1]]] ) - displayModelOffset ) );
+                vertices.push_back(
+                    cvf::Vec3f( cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[2]]] ) - displayModelOffset ) );
+                vertices.push_back(
+                    cvf::Vec3f( cvf::Vec3d( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[3]]] ) - displayModelOffset ) );
             }
             else
             {

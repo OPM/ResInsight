@@ -91,7 +91,7 @@ QImage RiuPlotCurveSymbolImageCreator::createSymbolImage( RiuPlotCurveSymbol::Po
 //--------------------------------------------------------------------------------------------------
 QImage RiuPlotCurveSymbolImageCreator::createSymbolImage( RiuPlotCurveSymbol::RiuPlotCurveSymbol::PointSymbolEnum symbolStyle,
                                                           const QSize&                                            size,
-                                                          const QColor& color )
+                                                          const QColor&                                           color )
 {
     QPen defaultPen;
     return createSymbolImage( symbolStyle, size, defaultPen, color );
@@ -101,9 +101,9 @@ QImage RiuPlotCurveSymbolImageCreator::createSymbolImage( RiuPlotCurveSymbol::Ri
 /// Adapted from QwtSymbol::qwtDrawTriangleSymbols
 //--------------------------------------------------------------------------------------------------
 QImage RiuPlotCurveSymbolImageCreator::createTriangleImage( RiuPlotCurveSymbol::RiuPlotCurveSymbol::PointSymbolEnum symbolStyle,
-                                                            const QSize&  size,
-                                                            const QPen&   m_pen,
-                                                            const QColor& color )
+                                                            const QSize&                                            size,
+                                                            const QPen&                                             m_pen,
+                                                            const QColor&                                           color )
 {
     QImage star( size, QImage::Format_ARGB32 );
     star.fill( Qt::transparent );

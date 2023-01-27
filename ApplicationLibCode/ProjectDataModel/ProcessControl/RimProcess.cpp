@@ -140,10 +140,7 @@ bool RimProcess::execute()
 
     RiaLogging::info( QString( "Start process %1: %2" ).arg( m_id ).arg( cmd ) );
 
-    QObject::connect( proc,
-                      SIGNAL( finished( int, QProcess::ExitStatus ) ),
-                      m_monitor,
-                      SLOT( finished( int, QProcess::ExitStatus ) ) );
+    QObject::connect( proc, SIGNAL( finished( int, QProcess::ExitStatus ) ), m_monitor, SLOT( finished( int, QProcess::ExitStatus ) ) );
     QObject::connect( proc, SIGNAL( readyReadStandardOutput() ), m_monitor, SLOT( readyReadStandardOutput() ) );
     QObject::connect( proc, SIGNAL( readyReadStandardError() ), m_monitor, SLOT( readyReadStandardError() ) );
     QObject::connect( proc, SIGNAL( started() ), m_monitor, SLOT( started() ) );
@@ -175,8 +172,7 @@ QString RimProcess::optionalCommandInterpreter() const
 {
     if ( m_command.value().isNull() ) return "";
 
-    if ( m_command.value().endsWith( ".cmd", Qt::CaseInsensitive ) ||
-         m_command.value().endsWith( ".bat", Qt::CaseInsensitive ) )
+    if ( m_command.value().endsWith( ".cmd", Qt::CaseInsensitive ) || m_command.value().endsWith( ".bat", Qt::CaseInsensitive ) )
     {
         return "cmd.exe /c ";
     }

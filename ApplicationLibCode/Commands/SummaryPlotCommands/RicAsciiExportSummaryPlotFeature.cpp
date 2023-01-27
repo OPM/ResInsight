@@ -76,10 +76,7 @@ void RicAsciiExportSummaryPlotFeature::onActionTriggered( bool isChecked )
         caf::ProgressInfo pi( selectedSummaryPlots.size(), QString( "Exporting plot data to ASCII" ) );
         size_t            progress = 0;
 
-        RicAsciiExportSummaryPlotFeature::exportAsciiForSummaryPlot( fileName,
-                                                                     summaryPlot,
-                                                                     result.period,
-                                                                     prefs->showSummaryTimeAsLongString() );
+        RicAsciiExportSummaryPlotFeature::exportAsciiForSummaryPlot( fileName, summaryPlot, result.period, prefs->showSummaryTimeAsLongString() );
 
         progress++;
         pi.setProgress( progress );
@@ -134,8 +131,7 @@ QString RicAsciiExportSummaryPlotFeature::defaultExportDir()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicAsciiExportSummaryPlotFeature::getFileNameFromUserDialog( const QString& fileNameCandidate,
-                                                                     const QString& defaultDir )
+QString RicAsciiExportSummaryPlotFeature::getFileNameFromUserDialog( const QString& fileNameCandidate, const QString& defaultDir )
 {
     QString defaultFileName = defaultDir + "/" + caf::Utils::makeValidFileBasename( fileNameCandidate ) + ".ascii";
     QString fileName        = RiuFileDialogTools::getSaveFileName( nullptr,

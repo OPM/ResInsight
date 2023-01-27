@@ -29,9 +29,7 @@ namespace caf
 template <>
 void RiaPreferencesSystem::EclipseTextFileReaderModeType::setUp()
 {
-    addItem( RiaPreferencesSystem::EclipseTextFileReaderMode::MEMORY_MAPPED_FILE,
-             "MEMORY_MAPPED_FILE",
-             "Memory Mapped File Import" );
+    addItem( RiaPreferencesSystem::EclipseTextFileReaderMode::MEMORY_MAPPED_FILE, "MEMORY_MAPPED_FILE", "Memory Mapped File Import" );
     addItem( RiaPreferencesSystem::EclipseTextFileReaderMode::FILE, "FILE", "Default File Import" );
 
     setDefault( RiaPreferencesSystem::EclipseTextFileReaderMode::FILE );
@@ -53,10 +51,7 @@ RiaPreferencesSystem::RiaPreferencesSystem()
     CAF_PDM_InitField( &m_appendClassNameToUiText, "appendClassNameToUiText", false, "Show Class Names" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_appendClassNameToUiText );
 
-    CAF_PDM_InitField( &m_appendFieldKeywordToToolTipText,
-                       "appendFieldKeywordToToolTipText",
-                       false,
-                       "Show Field Keyword in ToolTip" );
+    CAF_PDM_InitField( &m_appendFieldKeywordToToolTipText, "appendFieldKeywordToToolTipText", false, "Show Field Keyword in ToolTip" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_appendFieldKeywordToToolTipText );
 
     CAF_PDM_InitField( &m_showViewIdInProjectTree, "showViewIdInTree", false, "Show View Id in Project Tree" );
@@ -65,10 +60,7 @@ RiaPreferencesSystem::RiaPreferencesSystem()
     CAF_PDM_InitField( &m_showTestToolbar, "showTestToolbar", false, "Enable Test Toolbar" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showTestToolbar );
 
-    CAF_PDM_InitField( &m_includeFractureDebugInfoFile,
-                       "includeFractureDebugInfoFile",
-                       false,
-                       "Include Fracture Debug Info for Completion Export" );
+    CAF_PDM_InitField( &m_includeFractureDebugInfoFile, "includeFractureDebugInfoFile", false, "Include Fracture Debug Info for Completion Export" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_includeFractureDebugInfoFile );
 
     CAF_PDM_InitFieldNoDefault( &m_holoLensExportFolder, "holoLensExportFolder", "HoloLens Export Folder" );
@@ -273,9 +265,7 @@ QList<caf::PdmOptionItemInfo> RiaPreferencesSystem::calculateValueOptions( const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaPreferencesSystem::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                  QString                    uiConfigName,
-                                                  caf::PdmUiEditorAttribute* attribute )
+void RiaPreferencesSystem::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_holoLensExportFolder )
     {

@@ -66,8 +66,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addDefaultCurvesToPlot( RimSummaryPlot* plot,
-                                                                                 RimSummaryCase* summaryCase )
+std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addDefaultCurvesToPlot( RimSummaryPlot* plot, RimSummaryCase* summaryCase )
 {
     RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
 
@@ -82,8 +81,7 @@ std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addDefaultCurvesToPlot(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCurve* RicSummaryPlotFeatureImpl::createHistoryCurve( const RifEclipseSummaryAddress& addr,
-                                                                RimSummaryCase*                 summaryCasesToUse )
+RimSummaryCurve* RicSummaryPlotFeatureImpl::createHistoryCurve( const RifEclipseSummaryAddress& addr, RimSummaryCase* summaryCasesToUse )
 {
     RifEclipseSummaryAddress historyAddr = addr;
     historyAddr.setVectorName( historyAddr.vectorName() + "H" );
@@ -127,8 +125,7 @@ std::vector<RigGridCellResultAddress> RigGridCellResultAddress::createGridCellAd
 
             if ( allOk )
             {
-                addresses.emplace_back(
-                    RigGridCellResultAddress( gridIdx, i - 1, j - 1, k - 1, RigEclipseResultAddress( resultVarName ) ) );
+                addresses.emplace_back( RigGridCellResultAddress( gridIdx, i - 1, j - 1, k - 1, RigEclipseResultAddress( resultVarName ) ) );
             }
         }
     }
@@ -342,13 +339,12 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
             }
             else // Multiple plots, one for each separate summary address, put them all in a summary multiplot
             {
-                std::vector<RimSummaryPlot*> summaryPlots =
-                    createMultipleSummaryPlotsFromAddresses( summaryCasesToUse,
-                                                             ensemble,
-                                                             summaryAddressFilters,
-                                                             addHistoryCurves,
-                                                             ensembleColoringStyle,
-                                                             ensembleColoringParameter );
+                std::vector<RimSummaryPlot*> summaryPlots = createMultipleSummaryPlotsFromAddresses( summaryCasesToUse,
+                                                                                                     ensemble,
+                                                                                                     summaryAddressFilters,
+                                                                                                     addHistoryCurves,
+                                                                                                     ensembleColoringStyle,
+                                                                                                     ensembleColoringParameter );
 
                 lastPlotCreated = summaryPlots.back();
 
@@ -402,8 +398,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                                                                    cellResAddr.k,
                                                                    cellResAddr.eclipseResultAddress );
                             newCurve->setLineThickness( 2 );
-                            cvf::Color3f curveColor =
-                                RicWellLogPlotCurveFeatureImpl::curveColorFromTable( curveColorIndex );
+                            cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( curveColorIndex );
                             newCurve->setColor( curveColor );
                             if ( !isEnsembleMode ) ++curveColorIndex;
 
@@ -461,8 +456,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                                                                    cellResAddr.k,
                                                                    cellResAddr.eclipseResultAddress );
                             newCurve->setLineThickness( 2 );
-                            cvf::Color3f curveColor =
-                                RicWellLogPlotCurveFeatureImpl::curveColorFromTable( curveColorIndex );
+                            cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( curveColorIndex );
                             newCurve->setColor( curveColor );
                             if ( !isEnsembleMode ) ++curveColorIndex;
                             createdCurves.push_back( newCurve );
@@ -515,10 +509,10 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
 
 RimSummaryPlot* RicSummaryPlotFeatureImpl::createSummaryPlotForEnsemble( const std::vector<RimSummaryCase*>& summaryCasesToUse,
                                                                          RimSummaryCaseCollection*           ensemble,
-                                                                         QStringList          summaryAddressFilters,
-                                                                         bool                 addHistoryCurves,
-                                                                         EnsembleColoringType ensembleColoringStyle,
-                                                                         QString ensembleColoringParameter )
+                                                                         QStringList                         summaryAddressFilters,
+                                                                         bool                                addHistoryCurves,
+                                                                         EnsembleColoringType                ensembleColoringStyle,
+                                                                         QString                             ensembleColoringParameter )
 {
     RimSummaryPlot* newPlot = new RimSummaryPlot();
     newPlot->enableAutoPlotTitle( true );
@@ -552,15 +546,14 @@ RimSummaryPlot* RicSummaryPlotFeatureImpl::createSummaryPlotForEnsemble( const s
 RimEnsembleCurveSet* RicSummaryPlotFeatureImpl::createCurveSet( RimSummaryCaseCollection*       ensemble,
                                                                 const RifEclipseSummaryAddress& addr,
                                                                 EnsembleColoringType            ensembleColoringStyle,
-                                                                QString ensembleColoringParameter )
+                                                                QString                         ensembleColoringParameter )
 {
     auto curveSet = new RimEnsembleCurveSet();
 
     curveSet->setSummaryCaseCollection( ensemble );
     curveSet->setSummaryAddress( addr );
 
-    if ( ensembleColoringStyle == EnsembleColoringType::PARAMETER ||
-         ensembleColoringStyle == EnsembleColoringType::LOG_PARAMETER )
+    if ( ensembleColoringStyle == EnsembleColoringType::PARAMETER || ensembleColoringStyle == EnsembleColoringType::LOG_PARAMETER )
     {
         curveSet->setColorMode( RimEnsembleCurveSet::ColorMode::BY_ENSEMBLE_PARAM );
         curveSet->setEnsembleParameter( ensembleColoringParameter );
@@ -578,8 +571,8 @@ RimEnsembleCurveSet* RicSummaryPlotFeatureImpl::createCurveSet( RimSummaryCaseCo
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlot* RicSummaryPlotFeatureImpl::createSummaryPlotForCases( const std::vector<RimSummaryCase*>& summaryCasesToUse,
-                                                                      QStringList summaryAddressFilters,
-                                                                      bool        addHistoryCurves /*= false */ )
+                                                                      QStringList                         summaryAddressFilters,
+                                                                      bool                                addHistoryCurves /*= false */ )
 {
     RimSummaryPlot* newPlot = new RimSummaryPlot();
     newPlot->enableAutoPlotTitle( true );
@@ -665,7 +658,7 @@ std::vector<RimSummaryPlot*> RicSummaryPlotFeatureImpl::createMultipleSummaryPlo
 //--------------------------------------------------------------------------------------------------
 std::set<RifEclipseSummaryAddress>
     RicSummaryPlotFeatureImpl::applySummaryAddressFiltersToCases( const std::vector<RimSummaryCase*>& summaryCasesToUse,
-                                                                  const QStringList& summaryAddressFilters )
+                                                                  const QStringList&                  summaryAddressFilters )
 {
     std::set<RifEclipseSummaryAddress> filteredAdressesFromCases;
     for ( RimSummaryCase* sumCase : summaryCasesToUse )
@@ -690,8 +683,7 @@ std::set<RifEclipseSummaryAddress>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCurve* RicSummaryPlotFeatureImpl::createCurve( RimSummaryCase*                 summaryCase,
-                                                         const RifEclipseSummaryAddress& address )
+RimSummaryCurve* RicSummaryPlotFeatureImpl::createCurve( RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& address )
 {
     auto curve = new RimSummaryCurve();
     curve->setSummaryCaseY( summaryCase );
@@ -704,9 +696,9 @@ RimSummaryCurve* RicSummaryPlotFeatureImpl::createCurve( RimSummaryCase*        
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addCurvesFromAddressFiltersToPlot( const QStringList& curveFilters,
-                                                                                            RimSummaryPlot* plot,
-                                                                                            RimSummaryCase* summaryCase,
-                                                                                            bool addHistoryCurves )
+                                                                                            RimSummaryPlot*    plot,
+                                                                                            RimSummaryCase*    summaryCase,
+                                                                                            bool               addHistoryCurves )
 {
     std::vector<RimSummaryCurve*> createdCurves;
 
@@ -724,8 +716,8 @@ std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addCurvesFromAddressFil
     {
         if ( !usedFilters[cfIdx] )
         {
-            RiaLogging::warning( "Vector filter \"" + curveFilters[static_cast<int>( cfIdx )] +
-                                 "\" did not match anything in case: \"" + summaryCase->nativeCaseName() + "\"" );
+            RiaLogging::warning( "Vector filter \"" + curveFilters[static_cast<int>( cfIdx )] + "\" did not match anything in case: \"" +
+                                 summaryCase->nativeCaseName() + "\"" );
         }
     }
 
@@ -766,8 +758,8 @@ std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addCurvesFromAddressFil
 //--------------------------------------------------------------------------------------------------
 void RicSummaryPlotFeatureImpl::insertFilteredAddressesInSet( const QStringList&                        curveFilters,
                                                               const std::set<RifEclipseSummaryAddress>& allAddressesInCase,
-                                                              std::set<RifEclipseSummaryAddress>* setToInsertFilteredAddressesIn,
-                                                              std::vector<bool>*                  usedFilters )
+                                                              std::set<RifEclipseSummaryAddress>*       setToInsertFilteredAddressesIn,
+                                                              std::vector<bool>*                        usedFilters )
 {
     if ( allAddressesInCase.empty() ) return;
 

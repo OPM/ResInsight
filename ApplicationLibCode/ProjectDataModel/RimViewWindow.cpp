@@ -42,12 +42,7 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimViewWindow, "ViewWindow" ); // Do not use. 
 //--------------------------------------------------------------------------------------------------
 RimViewWindow::RimViewWindow( void )
 {
-    CAF_PDM_InitScriptableObjectWithNameAndComment( "View window",
-                                                    "",
-                                                    "",
-                                                    "",
-                                                    "ViewWindow",
-                                                    "The Base Class for all Views and Plots in ResInsight" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "View window", "", "", "", "ViewWindow", "The Base Class for all Views and Plots in ResInsight" );
 
     CAF_PDM_InitFieldNoDefault( &m_windowController, "WindowController", "" );
     m_windowController.uiCapability()->setUiTreeHidden( true );
@@ -251,9 +246,7 @@ caf::PdmFieldHandle* RimViewWindow::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewWindow::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                      const QVariant&            oldValue,
-                                      const QVariant&            newValue )
+void RimViewWindow::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_showWindow )
     {

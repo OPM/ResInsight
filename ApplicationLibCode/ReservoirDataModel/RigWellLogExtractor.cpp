@@ -25,8 +25,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigWellLogExtractor::RigWellLogExtractor( gsl::not_null<const RigWellPath*> wellpath,
-                                          const std::string&                wellCaseErrorMsgName )
+RigWellLogExtractor::RigWellLogExtractor( gsl::not_null<const RigWellPath*> wellpath, const std::string& wellCaseErrorMsgName )
     : m_wellPathGeometry( wellpath )
     , m_wellCaseErrorMsgName( wellCaseErrorMsgName )
 {
@@ -78,8 +77,7 @@ std::vector<WellPathCellIntersectionInfo> RigWellLogExtractor::cellIntersectionI
         cellInfo.intersectedCellFaceIn  = m_intersectedCellFaces[i];
         cellInfo.intersectedCellFaceOut = m_intersectedCellFaces[i + 1];
 
-        cellInfo.intersectionLengthsInCellCS =
-            this->calculateLengthInCell( cellInfo.globCellIndex, cellInfo.startPoint, cellInfo.endPoint );
+        cellInfo.intersectionLengthsInCellCS = this->calculateLengthInCell( cellInfo.globCellIndex, cellInfo.startPoint, cellInfo.endPoint );
 
         infoVector.push_back( cellInfo );
     }
@@ -106,12 +104,12 @@ const RigWellPath* RigWellLogExtractor::wellPathGeometry() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigWellLogExtractor::insertIntersectionsInMap( const std::vector<HexIntersectionInfo>& intersections,
-                                                    cvf::Vec3d                              p1,
-                                                    double                                  md1,
-                                                    cvf::Vec3d                              p2,
-                                                    double                                  md2,
-                                                    double                                  tolerance,
+void RigWellLogExtractor::insertIntersectionsInMap( const std::vector<HexIntersectionInfo>&                   intersections,
+                                                    cvf::Vec3d                                                p1,
+                                                    double                                                    md1,
+                                                    cvf::Vec3d                                                p2,
+                                                    double                                                    md2,
+                                                    double                                                    tolerance,
                                                     std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo>* uniqueIntersections )
 {
     for ( size_t intIdx = 0; intIdx < intersections.size(); ++intIdx )
@@ -157,9 +155,7 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
             ++it2;
             if ( it2 != uniqueIntersections.end() )
             {
-                if ( RigWellLogExtractionTools::isEqualDepth( it1->first.measuredDepth,
-                                                              it2->first.measuredDepth,
-                                                              it1->first.tolerance ) )
+                if ( RigWellLogExtractionTools::isEqualDepth( it1->first.measuredDepth, it2->first.measuredDepth, it1->first.tolerance ) )
                 {
                     if ( it1->first.hexIndex == it2->first.hexIndex )
                     {
@@ -188,11 +184,9 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
         std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo>::iterator it = uniqueIntersections.begin();
         while ( it != uniqueIntersections.end() )
         {
-            sortedUniqueIntersections.insert( std::make_pair( RigMDEnterLeaveCellIdxKey( it->first.measuredDepth,
-                                                                                         it->first.isEnteringCell,
-                                                                                         it->first.hexIndex,
-                                                                                         it->first.tolerance ),
-                                                              it->second ) );
+            sortedUniqueIntersections.insert(
+                std::make_pair( RigMDEnterLeaveCellIdxKey( it->first.measuredDepth, it->first.isEnteringCell, it->first.hexIndex, it->first.tolerance ),
+                                it->second ) );
             ++it;
         }
     }
@@ -211,17 +205,15 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
             firstLeavingPoint.m_face                   = cvf::StructGridInterface::NO_FACE;
             firstLeavingPoint.m_isIntersectionEntering = true;
 
-            sortedUniqueIntersections.insert(
-                std::make_pair( RigMDEnterLeaveCellIdxKey( m_wellPathGeometry->measuredDepths()[0],
-                                                           true,
-                                                           firstLeavingPoint.m_hexIndex,
-                                                           it->first.tolerance ),
-                                firstLeavingPoint ) );
+            sortedUniqueIntersections.insert( std::make_pair( RigMDEnterLeaveCellIdxKey( m_wellPathGeometry->measuredDepths()[0],
+                                                                                         true,
+                                                                                         firstLeavingPoint.m_hexIndex,
+                                                                                         it->first.tolerance ),
+                                                              firstLeavingPoint ) );
         }
 
         // Add an intersection for the well endpoint possibly inside the last cell.
-        std::map<RigMDEnterLeaveCellIdxKey, HexIntersectionInfo>::reverse_iterator rit =
-            sortedUniqueIntersections.rbegin();
+        std::map<RigMDEnterLeaveCellIdxKey, HexIntersectionInfo>::reverse_iterator rit = sortedUniqueIntersections.rbegin();
         if ( rit != sortedUniqueIntersections.rend() && rit->first.isEnteringCell ) // Entering a cell as last
                                                                                     // intersection. Well ends inside a
                                                                                     // cell.
@@ -232,12 +224,11 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
             lastEnterPoint.m_isIntersectionEntering = false;
             lastEnterPoint.m_face                   = cvf::StructGridInterface::NO_FACE;
 
-            sortedUniqueIntersections.insert(
-                std::make_pair( RigMDEnterLeaveCellIdxKey( m_wellPathGeometry->measuredDepths().back(),
-                                                           false,
-                                                           lastEnterPoint.m_hexIndex,
-                                                           rit->first.tolerance ),
-                                lastEnterPoint ) );
+            sortedUniqueIntersections.insert( std::make_pair( RigMDEnterLeaveCellIdxKey( m_wellPathGeometry->measuredDepths().back(),
+                                                                                         false,
+                                                                                         lastEnterPoint.m_hexIndex,
+                                                                                         rit->first.tolerance ),
+                                                              lastEnterPoint ) );
         }
     }
 
@@ -296,9 +287,8 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
                     }
                     else
                     {
-                        errorMessages +=
-                            QString( "Well Log Extraction : " ) + QString::fromStdString( m_wellCaseErrorMsgName ) +
-                            ( " Discards a point at MD:  " ) + QString::number( (double)( it1->first.measuredDepth ) );
+                        errorMessages += QString( "Well Log Extraction : " ) + QString::fromStdString( m_wellCaseErrorMsgName ) +
+                                         ( " Discards a point at MD:  " ) + QString::number( (double)( it1->first.measuredDepth ) );
 
                         // Found that 8 to 10 is not connected, after finding 7 to 9
                         it1 = it21; // Discard 8 by Jumping to 10
@@ -307,9 +297,8 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
                 }
                 else
                 {
-                    errorMessages += QString( "Well Log Extraction : " ) +
-                                     QString::fromStdString( m_wellCaseErrorMsgName ) + ( " Discards a point at MD:  " ) +
-                                     QString::number( (double)( it1->first.measuredDepth ) );
+                    errorMessages += QString( "Well Log Extraction : " ) + QString::fromStdString( m_wellCaseErrorMsgName ) +
+                                     ( " Discards a point at MD:  " ) + QString::number( (double)( it1->first.measuredDepth ) );
 
                     // Found that 10 to 11 is not connected, and not 10 to 12 either
                     ++it1; // Discard 10 and jump to 11 and hope that recovers us
@@ -343,9 +332,8 @@ void RigWellLogExtractor::appendIntersectionToArrays( double                    
         double       diff         = std::fabs( measuredDepth - m_intersectionMeasuredDepths.back() );
         if ( diff > warningLimit )
         {
-            errorMessage +=
-                QString( "Well Log Extraction : %1 does not have a monotonically increasing measured depth." )
-                    .arg( QString::fromStdString( m_wellCaseErrorMsgName ) );
+            errorMessage += QString( "Well Log Extraction : %1 does not have a monotonically increasing measured depth." )
+                                .arg( QString::fromStdString( m_wellCaseErrorMsgName ) );
         }
 
         // Allow alterations of up to 0.1 percent as long as we keep the measured depth monotonically increasing.

@@ -26,8 +26,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaOptionItemFactory::appendOptionItemFromViewNameAndCaseName( Rim3dView*                     view,
-                                                                    QList<caf::PdmOptionItemInfo>* optionItems )
+void RiaOptionItemFactory::appendOptionItemFromViewNameAndCaseName( Rim3dView* view, QList<caf::PdmOptionItemInfo>* optionItems )
 {
     if ( !view || !optionItems ) return;
 
@@ -57,8 +56,7 @@ void RiaOptionItemFactory::appendOptionItemsForEnsembleCurveSets( QList<caf::Pdm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmOptionItemInfo
-    RiaOptionItemFactory::optionItemFromSummaryType( RifEclipseSummaryAddress::SummaryVarCategory summaryType )
+caf::PdmOptionItemInfo RiaOptionItemFactory::optionItemFromSummaryType( RifEclipseSummaryAddress::SummaryVarCategory summaryType )
 {
     auto uiText = caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::uiText( summaryType );
 

@@ -49,7 +49,7 @@ QSize RiuAbstractLegendFrame::sizeHint() const
     layoutInfo( &layout );
 
     QFontMetrics fontMetrics( this->font() );
-    QRect titleRect = fontMetrics.boundingRect( QRect( 0, 0, 200, 200 ), Qt::AlignLeft | Qt::TextWordWrap, m_title );
+    QRect        titleRect = fontMetrics.boundingRect( QRect( 0, 0, 200, 200 ), Qt::AlignLeft | Qt::TextWordWrap, m_title );
 
     int preferredContentHeight = titleRect.height() + labelCount() * layout.lineSpacing + 1.0 * layout.lineSpacing;
     int preferredHeight        = preferredContentHeight + layout.margins.top() + layout.margins.bottom();
@@ -64,8 +64,7 @@ QSize RiuAbstractLegendFrame::sizeHint() const
         maxTickTextWidth    = std::max( maxTickTextWidth, textWidth );
     }
 
-    int preferredWidth = layout.tickEndX + layout.margins.left() + layout.margins.right() + layout.tickTextLeadSpace +
-                         maxTickTextWidth;
+    int preferredWidth = layout.tickEndX + layout.margins.left() + layout.margins.right() + layout.tickTextLeadSpace + maxTickTextWidth;
 
     preferredWidth = std::max( preferredWidth, titleWidth );
     preferredWidth = std::min( preferredWidth, 200 );
@@ -102,8 +101,7 @@ QSize RiuAbstractLegendFrame::minimumSizeHint() const
     int lastTextWidth    = fontMetrics.boundingRect( label( labelCount() - 1 ) ).width();
     int maxTickTextWidth = std::max( firstTextWidth, lastTextWidth );
 
-    int preferredWidth = layout.tickEndX + layout.margins.left() + layout.margins.right() + layout.tickTextLeadSpace +
-                         maxTickTextWidth;
+    int preferredWidth = layout.tickEndX + layout.margins.left() + layout.margins.right() + layout.tickTextLeadSpace + maxTickTextWidth;
 
     preferredWidth = std::max( preferredWidth, titleWidth );
     preferredWidth = std::min( preferredWidth, 400 );
@@ -136,9 +134,8 @@ void RiuAbstractLegendFrame::renderTo( QPainter* painter, const QRect& targetRec
         td.setDocumentMargin( 0.0 );
         td.setDefaultFont( this->font() );
         QString formattedTitle = m_title;
-        td.setHtml( QString( "<body><font color='%1'>%2</font></body>" )
-                        .arg( textColor.name() )
-                        .arg( formattedTitle.replace( "\n", "<br />" ) ) );
+        td.setHtml(
+            QString( "<body><font color='%1'>%2</font></body>" ).arg( textColor.name() ).arg( formattedTitle.replace( "\n", "<br />" ) ) );
         td.drawContents( painter );
         painter->restore();
     }

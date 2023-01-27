@@ -218,8 +218,7 @@ caf::PdmObject* cafObjectReferenceTreeNode::referencedObject() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void cafObjectReferenceTreeNode::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
-                                                       QString                 uiConfigName /*= "" */ )
+void cafObjectReferenceTreeNode::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= "" */ )
 {
     if ( m_referencedObject )
     {

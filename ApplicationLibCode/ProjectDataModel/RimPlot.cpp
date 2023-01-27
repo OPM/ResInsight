@@ -246,8 +246,7 @@ void RimPlot::onWheelEvent( QWheelEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlot::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                              std::vector<caf::PdmObjectHandle*>& referringObjects )
+void RimPlot::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     loadDataAndUpdate();
 }

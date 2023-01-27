@@ -67,9 +67,7 @@ void RimEclipseFaultColors::setReservoirView( RimEclipseView* ownerReservoirView
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseFaultColors::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                              const QVariant&            oldValue,
-                                              const QVariant&            newValue )
+void RimEclipseFaultColors::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     this->updateUiIconFromToggleField();
 

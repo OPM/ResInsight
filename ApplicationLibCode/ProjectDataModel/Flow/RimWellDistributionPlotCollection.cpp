@@ -64,10 +64,7 @@ RimWellDistributionPlotCollection::RimWellDistributionPlotCollection()
     CAF_PDM_InitField( &m_timeStepIndex, "TimeStepIndex", -1, "Time Step" );
     CAF_PDM_InitField( &m_wellName, "WellName", QString( "None" ), "Well" );
     CAF_PDM_InitField( &m_groupSmallContributions, "GroupSmallContributions", true, "Group Small Contributions" );
-    CAF_PDM_InitField( &m_smallContributionsRelativeThreshold,
-                       "SmallContributionsRelativeThreshold",
-                       0.005,
-                       "Relative Threshold [0, 1]" );
+    CAF_PDM_InitField( &m_smallContributionsRelativeThreshold, "SmallContributionsRelativeThreshold", 0.005, "Relative Threshold [0, 1]" );
 
     CAF_PDM_InitField( &m_maximumTof, "MaximumTOF", 20.0, "Maximum Time of Flight [0, 200]" );
 
@@ -248,8 +245,7 @@ void RimWellDistributionPlotCollection::defineUiOrdering( QString uiConfigName, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimWellDistributionPlotCollection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RimWellDistributionPlotCollection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options = RimPlotWindow::calculateValueOptions( fieldNeedingOptions );
 
@@ -307,9 +303,8 @@ void RimWellDistributionPlotCollection::fieldChangedByUi( const caf::PdmFieldHan
 
     bool shouldRecalculatePlotData = false;
     if ( changedField == &m_case || changedField == &m_timeStepIndex || changedField == &m_wellName ||
-         changedField == &m_groupSmallContributions || changedField == &m_smallContributionsRelativeThreshold ||
-         changedField == &m_maximumTof || changedField == &m_showOil || changedField == &m_showGas ||
-         changedField == &m_showWater || changedField == &m_showWindow )
+         changedField == &m_groupSmallContributions || changedField == &m_smallContributionsRelativeThreshold || changedField == &m_maximumTof ||
+         changedField == &m_showOil || changedField == &m_showGas || changedField == &m_showWater || changedField == &m_showWindow )
     {
         applyPlotParametersToContainedPlots();
         shouldRecalculatePlotData = true;

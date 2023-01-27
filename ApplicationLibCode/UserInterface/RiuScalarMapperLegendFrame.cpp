@@ -166,10 +166,8 @@ void RiuScalarMapperLegendFrame::renderRect( QPainter* painter, const LayoutInfo
     QColor startQColor( startColor.r(), startColor.g(), startColor.b() );
     QColor endQColor( endColor.r(), endColor.g(), endColor.b() );
 
-    QRectF gradientRect( QPointF( layout.tickStartX,
-                                  layout.colorBarRect.bottom() - layout.tickYPixelPos[rectIndexFromBottom] + 1 ),
-                         QPointF( layout.tickStartX,
-                                  layout.colorBarRect.bottom() - layout.tickYPixelPos[rectIndexFromBottom + 1] + 1 ) );
+    QRectF gradientRect( QPointF( layout.tickStartX, layout.colorBarRect.bottom() - layout.tickYPixelPos[rectIndexFromBottom] + 1 ),
+                         QPointF( layout.tickStartX, layout.colorBarRect.bottom() - layout.tickYPixelPos[rectIndexFromBottom + 1] + 1 ) );
 
     QLinearGradient gradient( gradientRect.topLeft(), gradientRect.bottomRight() );
     gradient.setCoordinateMode( QGradient::LogicalMode );
@@ -177,18 +175,13 @@ void RiuScalarMapperLegendFrame::renderRect( QPainter* painter, const LayoutInfo
     gradient.setColorAt( 1.0, endQColor );
 
     QRectF rect( QPointF( layout.tickStartX, layout.colorBarRect.bottom() - layout.tickYPixelPos[rectIndexFromBottom] + 1 ),
-                 QPointF( layout.tickMidX,
-                          layout.colorBarRect.bottom() - layout.tickYPixelPos[rectIndexFromBottom + 1] + 1 ) );
+                 QPointF( layout.tickMidX, layout.colorBarRect.bottom() - layout.tickYPixelPos[rectIndexFromBottom + 1] + 1 ) );
 
     painter->fillRect( rect, QBrush( gradient ) );
-    painter->drawLine( QPointF( layout.tickStartX,
-                                layout.colorBarRect.bottom() - layout.tickYPixelPos[rectIndexFromBottom] + 1 ),
-                       QPointF( layout.tickEndX,
-                                layout.colorBarRect.bottom() - layout.tickYPixelPos[rectIndexFromBottom] + 1 ) );
-    painter->drawLine( QPointF( layout.tickStartX,
-                                layout.colorBarRect.bottom() - layout.tickYPixelPos[rectIndexFromBottom + 1] + 1 ),
-                       QPointF( layout.tickEndX,
-                                layout.colorBarRect.bottom() - layout.tickYPixelPos[rectIndexFromBottom + 1] + 1 ) );
+    painter->drawLine( QPointF( layout.tickStartX, layout.colorBarRect.bottom() - layout.tickYPixelPos[rectIndexFromBottom] + 1 ),
+                       QPointF( layout.tickEndX, layout.colorBarRect.bottom() - layout.tickYPixelPos[rectIndexFromBottom] + 1 ) );
+    painter->drawLine( QPointF( layout.tickStartX, layout.colorBarRect.bottom() - layout.tickYPixelPos[rectIndexFromBottom + 1] + 1 ),
+                       QPointF( layout.tickEndX, layout.colorBarRect.bottom() - layout.tickYPixelPos[rectIndexFromBottom + 1] + 1 ) );
 }
 
 //--------------------------------------------------------------------------------------------------

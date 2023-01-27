@@ -33,9 +33,7 @@ RigTernaryResultAccessor::RigTernaryResultAccessor()
 //--------------------------------------------------------------------------------------------------
 /// Requires at least two data objects present, asserts if more than one data accessor is nullptr
 //--------------------------------------------------------------------------------------------------
-void RigTernaryResultAccessor::setTernaryResultAccessors( RigResultAccessor* soil,
-                                                          RigResultAccessor* sgas,
-                                                          RigResultAccessor* swat )
+void RigTernaryResultAccessor::setTernaryResultAccessors( RigResultAccessor* soil, RigResultAccessor* sgas, RigResultAccessor* swat )
 {
     m_soilAccessor = soil;
     m_sgasAccessor = sgas;
@@ -94,8 +92,7 @@ cvf::Vec2d RigTernaryResultAccessor::cellScalar( size_t gridLocalCellIndex ) con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec2d RigTernaryResultAccessor::cellFaceScalar( size_t                             gridLocalCellIndex,
-                                                     cvf::StructGridInterface::FaceType faceId ) const
+cvf::Vec2d RigTernaryResultAccessor::cellFaceScalar( size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId ) const
 {
     return cellScalar( gridLocalCellIndex );
 }

@@ -67,9 +67,7 @@ RimSummaryMultiPlot* RicSummaryPlotTemplateTools::createMultiPlotFromTemplateFil
     QString objectAsText = stream.readAll();
 
     caf::PdmObjectHandle* obj =
-        caf::PdmXmlObjectHandle::readUnknownObjectFromXmlString( objectAsText,
-                                                                 caf::PdmDefaultObjectFactory::instance(),
-                                                                 true );
+        caf::PdmXmlObjectHandle::readUnknownObjectFromXmlString( objectAsText, caf::PdmDefaultObjectFactory::instance(), true );
 
     return dynamic_cast<RimSummaryMultiPlot*>( obj );
 }
@@ -111,12 +109,9 @@ RimSummaryMultiPlot* RicSummaryPlotTemplateTools::create( const QString& fileNam
             }
         }
 
-        if ( !analyzer.wellNames().empty() )
-            wellNames.push_back( QString::fromStdString( *( analyzer.wellNames().begin() ) ) );
-        if ( !analyzer.groupNames().empty() )
-            groupNames.push_back( QString::fromStdString( *( analyzer.groupNames().begin() ) ) );
-        if ( !analyzer.regionNumbers().empty() )
-            regions.push_back( QString::number( *( analyzer.regionNumbers().begin() ) ) );
+        if ( !analyzer.wellNames().empty() ) wellNames.push_back( QString::fromStdString( *( analyzer.wellNames().begin() ) ) );
+        if ( !analyzer.groupNames().empty() ) groupNames.push_back( QString::fromStdString( *( analyzer.groupNames().begin() ) ) );
+        if ( !analyzer.regionNumbers().empty() ) regions.push_back( QString::number( *( analyzer.regionNumbers().begin() ) ) );
     }
     else
     {
@@ -161,12 +156,7 @@ RimSummaryMultiPlot* RicSummaryPlotTemplateTools::create( const QString& fileNam
     collections->addSummaryMultiPlot( newSummaryPlot );
     newSummaryPlot->resolveReferencesRecursively();
 
-    RicSummaryPlotTemplateTools::setValuesForPlaceholders( newSummaryPlot,
-                                                           sumCases,
-                                                           sumCaseCollections,
-                                                           wellNames,
-                                                           groupNames,
-                                                           regions );
+    RicSummaryPlotTemplateTools::setValuesForPlaceholders( newSummaryPlot, sumCases, sumCaseCollections, wellNames, groupNames, regions );
     newSummaryPlot->initAfterReadRecursively();
     newSummaryPlot->loadDataAndUpdate();
 
@@ -205,12 +195,9 @@ RimSummaryMultiPlot* RicSummaryPlotTemplateTools::create( const QString&        
         }
     }
 
-    if ( !analyzer.wellNames().empty() )
-        wellNames.push_back( QString::fromStdString( *( analyzer.wellNames().begin() ) ) );
-    if ( !analyzer.groupNames().empty() )
-        groupNames.push_back( QString::fromStdString( *( analyzer.groupNames().begin() ) ) );
-    if ( !analyzer.regionNumbers().empty() )
-        regions.push_back( QString::number( *( analyzer.regionNumbers().begin() ) ) );
+    if ( !analyzer.wellNames().empty() ) wellNames.push_back( QString::fromStdString( *( analyzer.wellNames().begin() ) ) );
+    if ( !analyzer.groupNames().empty() ) groupNames.push_back( QString::fromStdString( *( analyzer.groupNames().begin() ) ) );
+    if ( !analyzer.regionNumbers().empty() ) regions.push_back( QString::number( *( analyzer.regionNumbers().begin() ) ) );
 
     auto collections = RimMainPlotCollection::current()->summaryMultiPlotCollection();
 
@@ -231,8 +218,8 @@ RimSummaryMultiPlot* RicSummaryPlotTemplateTools::create( const QString&        
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryPlotTemplateTools::setValuesForPlaceholders( RimSummaryMultiPlot*                summaryMultiPlot,
-                                                            const std::vector<RimSummaryCase*>& selectedSummaryCases,
+void RicSummaryPlotTemplateTools::setValuesForPlaceholders( RimSummaryMultiPlot*                          summaryMultiPlot,
+                                                            const std::vector<RimSummaryCase*>&           selectedSummaryCases,
                                                             const std::vector<RimSummaryCaseCollection*>& selectedEnsembles,
                                                             const std::vector<QString>&                   wellNames,
                                                             const std::vector<QString>&                   groupNames,
@@ -243,16 +230,15 @@ void RicSummaryPlotTemplateTools::setValuesForPlaceholders( RimSummaryMultiPlot*
     for ( auto p : plots )
     {
         auto summaryPlot = dynamic_cast<RimSummaryPlot*>( p );
-        if ( summaryPlot )
-            setValuesForPlaceholders( summaryPlot, selectedSummaryCases, selectedEnsembles, wellNames, groupNames, regions );
+        if ( summaryPlot ) setValuesForPlaceholders( summaryPlot, selectedSummaryCases, selectedEnsembles, wellNames, groupNames, regions );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryPlotTemplateTools::setValuesForPlaceholders( RimSummaryPlot*                     summaryPlot,
-                                                            const std::vector<RimSummaryCase*>& selectedSummaryCases,
+void RicSummaryPlotTemplateTools::setValuesForPlaceholders( RimSummaryPlot*                               summaryPlot,
+                                                            const std::vector<RimSummaryCase*>&           selectedSummaryCases,
                                                             const std::vector<RimSummaryCaseCollection*>& selectedEnsembles,
                                                             const std::vector<QString>&                   wellNames,
                                                             const std::vector<QString>&                   groupNames,
@@ -271,8 +257,7 @@ void RicSummaryPlotTemplateTools::setValuesForPlaceholders( RimSummaryPlot*     
                 const QString placeholderString = RicSummaryPlotTemplateTools::placeholderTextForSummaryCase();
 
                 auto referenceString = fieldHandle->xmlCapability()->referenceString();
-                int  indexValue =
-                    RicSummaryPlotTemplateTools::findValueForKeyword( placeholderString, referenceString, &conversionOk );
+                int  indexValue = RicSummaryPlotTemplateTools::findValueForKeyword( placeholderString, referenceString, &conversionOk );
 
                 if ( conversionOk && indexValue >= 0 && indexValue < static_cast<int>( selectedSummaryCases.size() ) )
                 {
@@ -300,8 +285,7 @@ void RicSummaryPlotTemplateTools::setValuesForPlaceholders( RimSummaryPlot*     
                 const QString placeholderString = RicSummaryPlotTemplateTools::placeholderTextForSummaryGroup();
 
                 auto referenceString = fieldHandle->xmlCapability()->referenceString();
-                int  indexValue =
-                    RicSummaryPlotTemplateTools::findValueForKeyword( placeholderString, referenceString, &conversionOk );
+                int  indexValue = RicSummaryPlotTemplateTools::findValueForKeyword( placeholderString, referenceString, &conversionOk );
 
                 if ( conversionOk && indexValue >= 0 && indexValue < static_cast<int>( selectedEnsembles.size() ) )
                 {
@@ -323,9 +307,9 @@ void RicSummaryPlotTemplateTools::setValuesForPlaceholders( RimSummaryPlot*     
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicSummaryPlotTemplateTools::htmlTextFromPlotAndSelection( const RimSummaryPlot* templatePlot,
+QString RicSummaryPlotTemplateTools::htmlTextFromPlotAndSelection( const RimSummaryPlot*                     templatePlot,
                                                                    const std::set<RifEclipseSummaryAddress>& selectedSummaryAddresses,
-                                                                   const std::vector<caf::PdmObject*>& selectedSources )
+                                                                   const std::vector<caf::PdmObject*>&       selectedSources )
 {
     QString text;
 
@@ -552,9 +536,8 @@ QString RicSummaryPlotTemplateTools::placeholderTextForGroup()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress
-    RicSummaryPlotTemplateTools::firstAddressByQuantity( const RifEclipseSummaryAddress&           sourceAddress,
-                                                         const std::set<RifEclipseSummaryAddress>& allAddresses )
+RifEclipseSummaryAddress RicSummaryPlotTemplateTools::firstAddressByQuantity( const RifEclipseSummaryAddress&           sourceAddress,
+                                                                              const std::set<RifEclipseSummaryAddress>& allAddresses )
 {
     for ( const auto& a : allAddresses )
     {
@@ -606,8 +589,7 @@ int RicSummaryPlotTemplateTools::findValueForKeyword( const QString& keyword, co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryPlotTemplateTools::setPlaceholderWellName( RifEclipseSummaryAddress*   summaryAddress,
-                                                          const std::vector<QString>& wellNames )
+void RicSummaryPlotTemplateTools::setPlaceholderWellName( RifEclipseSummaryAddress* summaryAddress, const std::vector<QString>& wellNames )
 {
     if ( wellNames.empty() ) return;
 
@@ -625,8 +607,7 @@ void RicSummaryPlotTemplateTools::setPlaceholderWellName( RifEclipseSummaryAddre
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryPlotTemplateTools::setPlaceholderGroupName( RifEclipseSummaryAddress*   summaryAddress,
-                                                           const std::vector<QString>& groupNames )
+void RicSummaryPlotTemplateTools::setPlaceholderGroupName( RifEclipseSummaryAddress* summaryAddress, const std::vector<QString>& groupNames )
 {
     if ( groupNames.empty() ) return;
 
@@ -644,8 +625,7 @@ void RicSummaryPlotTemplateTools::setPlaceholderGroupName( RifEclipseSummaryAddr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryPlotTemplateTools::setPlaceholderRegion( RifEclipseSummaryAddress*   summaryAddress,
-                                                        const std::vector<QString>& regions )
+void RicSummaryPlotTemplateTools::setPlaceholderRegion( RifEclipseSummaryAddress* summaryAddress, const std::vector<QString>& regions )
 {
     CAF_ASSERT( summaryAddress );
     if ( regions.empty() ) return;

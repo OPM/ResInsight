@@ -129,8 +129,7 @@ double RimCustomObjectiveFunctionWeight::weightValue() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimCustomObjectiveFunctionWeight::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RimCustomObjectiveFunctionWeight::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -140,9 +139,7 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCustomObjectiveFunctionWeight::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                         const QVariant&            oldValue,
-                                                         const QVariant&            newValue )
+void RimCustomObjectiveFunctionWeight::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_objectiveValuesSummaryAddressesUiField )
     {
@@ -268,6 +265,5 @@ void RimCustomObjectiveFunctionWeight::updateAddressesUiField()
     {
         addressVector.push_back( address->address() );
     }
-    m_objectiveValuesSummaryAddressesUiField =
-        QString::fromStdString( RifEclipseSummaryAddress::generateStringFromAddresses( addressVector ) );
+    m_objectiveValuesSummaryAddressesUiField = QString::fromStdString( RifEclipseSummaryAddress::generateStringFromAddresses( addressVector ) );
 }

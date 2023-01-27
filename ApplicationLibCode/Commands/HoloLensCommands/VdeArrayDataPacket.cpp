@@ -175,8 +175,7 @@ unsigned char VdeArrayDataPacket::imageComponentCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<VdeArrayDataPacket>
-    VdeArrayDataPacket::fromFloat32Arr( int arrayId, const float* srcArr, size_t srcArrElementCount )
+std::unique_ptr<VdeArrayDataPacket> VdeArrayDataPacket::fromFloat32Arr( int arrayId, const float* srcArr, size_t srcArrElementCount )
 {
     size_t      payloadByteCount = srcArrElementCount * sizeof( float );
     const char* rawSrcPtr        = reinterpret_cast<const char*>( srcArr );
@@ -189,8 +188,7 @@ std::unique_ptr<VdeArrayDataPacket>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unique_ptr<VdeArrayDataPacket>
-    VdeArrayDataPacket::fromUint32Arr( int arrayId, const unsigned int* srcArr, size_t srcArrElementCount )
+std::unique_ptr<VdeArrayDataPacket> VdeArrayDataPacket::fromUint32Arr( int arrayId, const unsigned int* srcArr, size_t srcArrElementCount )
 {
     size_t      payloadByteCount = srcArrElementCount * sizeof( unsigned int );
     const char* rawSrcPtr        = reinterpret_cast<const char*>( srcArr );
@@ -221,8 +219,7 @@ std::unique_ptr<VdeArrayDataPacket> VdeArrayDataPacket::fromUint8ImageRGBArr( in
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-VdeArrayDataPacket
-    VdeArrayDataPacket::fromRawPacketBuffer( const char* rawPacketBuffer, size_t bufferSize, std::string* errString )
+VdeArrayDataPacket VdeArrayDataPacket::fromRawPacketBuffer( const char* rawPacketBuffer, size_t bufferSize, std::string* errString )
 {
     if ( bufferSize < VDE_HEADER_SIZE )
     {

@@ -122,8 +122,7 @@ bool RigCell::isLongPyramidCell( double maxHeightFactor, double nodeNearToleranc
     int face;
     for ( face = 0; face < 6; ++face )
     {
-        cvf::StructGridInterface::cellFaceVertexIndices( static_cast<cvf::StructGridInterface::FaceType>( face ),
-                                                         faceVertexIndices );
+        cvf::StructGridInterface::cellFaceVertexIndices( static_cast<cvf::StructGridInterface::FaceType>( face ), faceVertexIndices );
         int zeroLengthEdgeCount = 0;
 
         const cvf::Vec3d& c0 = nodes[m_cornerIndices[faceVertexIndices[0]]];
@@ -227,14 +226,12 @@ bool RigCell::isLongPyramidCell( double maxHeightFactor, double nodeNearToleranc
         {
             double e0SquareLength = ( c1 - c0 ).lengthSquared();
             double e2SquareLength = ( c3 - c2 ).lengthSquared();
-            if ( e0SquareLength / e2SquareLength > squaredMaxHeightFactor ||
-                 e2SquareLength / e0SquareLength > squaredMaxHeightFactor )
+            if ( e0SquareLength / e2SquareLength > squaredMaxHeightFactor || e2SquareLength / e0SquareLength > squaredMaxHeightFactor )
             {
                 double e1SquareLength = ( c2 - c1 ).lengthSquared();
                 double e3SquareLength = ( c0 - c3 ).lengthSquared();
 
-                if ( e1SquareLength / e3SquareLength > squaredMaxHeightFactor ||
-                     e3SquareLength / e1SquareLength > squaredMaxHeightFactor )
+                if ( e1SquareLength / e3SquareLength > squaredMaxHeightFactor || e3SquareLength / e1SquareLength > squaredMaxHeightFactor )
                 {
                     return true;
                 }
@@ -258,8 +255,7 @@ bool RigCell::isCollapsedCell( double nodeNearTolerance ) const
     int face;
     for ( face = 0; face < 6; face += 2 )
     {
-        cvf::StructGridInterface::cellFaceVertexIndices( static_cast<cvf::StructGridInterface::FaceType>( face ),
-                                                         faceVertexIndices );
+        cvf::StructGridInterface::cellFaceVertexIndices( static_cast<cvf::StructGridInterface::FaceType>( face ), faceVertexIndices );
         cvf::StructGridInterface::cellFaceVertexIndices( cvf::StructGridInterface::oppositeFace(
                                                              static_cast<cvf::StructGridInterface::FaceType>( face ) ),
                                                          oppFaceVertexIndices );
@@ -376,8 +372,7 @@ int RigCell::firstIntersectionPoint( const cvf::Ray& ray, cvf::Vec3d* intersecti
 
     for ( face = 0; face < 6; ++face )
     {
-        cvf::StructGridInterface::cellFaceVertexIndices( static_cast<cvf::StructGridInterface::FaceType>( face ),
-                                                         faceVertexIndices );
+        cvf::StructGridInterface::cellFaceVertexIndices( static_cast<cvf::StructGridInterface::FaceType>( face ), faceVertexIndices );
         cvf::Vec3d intersection;
         cvf::Vec3d faceCenter = this->faceCenter( static_cast<cvf::StructGridInterface::FaceType>( face ) );
 

@@ -136,9 +136,8 @@ void RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( const QS
                 RimGridView* rigv = dynamic_cast<RimGridView*>( riv );
                 if ( rigv )
                 {
-                    QImage img = rigv->overlayInfoConfig()->statisticsDialogScreenShotImage();
-                    absoluteFileName =
-                        caf::Utils::constructFullFileName( absSnapshotPath, fileName + "_Statistics", ".png" );
+                    QImage img       = rigv->overlayInfoConfig()->statisticsDialogScreenShotImage();
+                    absoluteFileName = caf::Utils::constructFullFileName( absSnapshotPath, fileName + "_Statistics", ".png" );
                     RicSnapshotViewToFileFeature::saveSnapshotAs( absoluteFileName, img );
                 }
             }

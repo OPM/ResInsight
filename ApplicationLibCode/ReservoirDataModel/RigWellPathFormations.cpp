@@ -23,9 +23,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigWellPathFormations::RigWellPathFormations( const std::vector<RigWellPathFormation>& formations,
-                                              const QString&                           filePath,
-                                              const QString&                           key )
+RigWellPathFormations::RigWellPathFormations( const std::vector<RigWellPathFormation>& formations, const QString& filePath, const QString& key )
 {
     m_filePath  = filePath;
     m_keyInFile = key;
@@ -49,8 +47,8 @@ RigWellPathFormations::RigWellPathFormations( const std::vector<RigWellPathForma
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigWellPathFormations::depthAndFormationNamesWithoutDuplicatesOnDepth( std::vector<QString>* names,
-                                                                            std::vector<double>*  measuredDepths,
+void RigWellPathFormations::depthAndFormationNamesWithoutDuplicatesOnDepth( std::vector<QString>*         names,
+                                                                            std::vector<double>*          measuredDepths,
                                                                             RimWellLogPlot::DepthTypeEnum depthType ) const
 {
     std::map<double, bool, DepthComp> tempMakeVectorUniqueOnMeasuredDepth;
@@ -147,12 +145,11 @@ void RigWellPathFormations::depthAndFormationNamesWithoutDuplicatesOnDepth( std:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigWellPathFormations::evaluateFormationsForOnePosition(
-    const std::vector<std::pair<RigWellPathFormation, FormationLevel>>& formations,
-    const FormationLevel&                                               maxLevel,
-    const PickPosition&                                                 position,
-    std::map<double, LevelAndName, DepthComp>*                          uniqueListMaker,
-    RimWellLogPlot::DepthTypeEnum                                       depthType ) const
+void RigWellPathFormations::evaluateFormationsForOnePosition( const std::vector<std::pair<RigWellPathFormation, FormationLevel>>& formations,
+                                                              const FormationLevel&                                               maxLevel,
+                                                              const PickPosition&                                                 position,
+                                                              std::map<double, LevelAndName, DepthComp>* uniqueListMaker,
+                                                              RimWellLogPlot::DepthTypeEnum              depthType ) const
 {
     QString postFix;
 
@@ -207,10 +204,10 @@ void RigWellPathFormations::evaluateFormationsForOnePosition(
 ///
 //--------------------------------------------------------------------------------------------------
 void RigWellPathFormations::evaluateFormations( const std::vector<std::pair<RigWellPathFormation, FormationLevel>>& formations,
-                                                const FormationLevel&         maxLevel,
-                                                std::vector<QString>*         names,
-                                                std::vector<double>*          depths,
-                                                RimWellLogPlot::DepthTypeEnum depthType ) const
+                                                const FormationLevel&                                               maxLevel,
+                                                std::vector<QString>*                                               names,
+                                                std::vector<double>*                                                depths,
+                                                RimWellLogPlot::DepthTypeEnum                                       depthType ) const
 {
     std::map<double, LevelAndName, DepthComp> tempMakeVectorUniqueOnDepth;
 

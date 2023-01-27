@@ -24,8 +24,7 @@ namespace cvf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d
-    GeometryTools::computeFaceCenter( const cvf::Vec3d& v0, const cvf::Vec3d& v1, const cvf::Vec3d& v2, const cvf::Vec3d& v3 )
+cvf::Vec3d GeometryTools::computeFaceCenter( const cvf::Vec3d& v0, const cvf::Vec3d& v1, const cvf::Vec3d& v2, const cvf::Vec3d& v3 )
 {
     cvf::Vec3d centerCoord = v0;
     centerCoord += v1;
@@ -194,8 +193,7 @@ double GeometryTools::signedAreaPlanarPolygon( const cvf::Vec3d& planeNormal, co
     double signedArea = 0.0;
     for ( size_t i = 0; i < polygon.size(); ++i )
     {
-        signedArea += ( polygon[( i + 1 ) % polygon.size()][X] - polygon[i][X] ) *
-                      ( polygon[( i + 1 ) % polygon.size()][Y] + polygon[i][Y] );
+        signedArea += ( polygon[( i + 1 ) % polygon.size()][X] - polygon[i][X] ) * ( polygon[( i + 1 ) % polygon.size()][Y] + polygon[i][Y] );
     }
     return signedArea;
 }
@@ -218,8 +216,7 @@ double closestAxisSignedAreaPlanarPolygon( const cvf::Vec3d& planeNormal, const 
     double signedArea = 0.0;
     for ( size_t i = 0; i < polygon.size(); ++i )
     {
-        signedArea += ( polygon[( i + 1 ) % polygon.size()][X] + polygon[i][X] ) *
-                      ( polygon[( i + 1 ) % polygon.size()][Y] - polygon[i][Y] );
+        signedArea += ( polygon[( i + 1 ) % polygon.size()][X] + polygon[i][X] ) * ( polygon[( i + 1 ) % polygon.size()][Y] - polygon[i][Y] );
     }
 
     return ( planeNormal[Z] > 0 ) ? signedArea : -signedArea;
@@ -309,10 +306,8 @@ GeometryTools::IntersectionStatus inPlaneLineIntersect( double  x1,
         /// if two, select the one furthest from the start
         bool pt3IsInside = false;
         bool pt4IsInside = false;
-        if ( ( 0.0 - l1NormalizedTolerance ) <= normDist13 && normDist13 <= ( 1.0 + l1NormalizedTolerance ) )
-            pt3IsInside = true;
-        if ( ( 0.0 - l1NormalizedTolerance ) <= normDist14 && normDist14 <= ( 1.0 + l1NormalizedTolerance ) )
-            pt4IsInside = true;
+        if ( ( 0.0 - l1NormalizedTolerance ) <= normDist13 && normDist13 <= ( 1.0 + l1NormalizedTolerance ) ) pt3IsInside = true;
+        if ( ( 0.0 - l1NormalizedTolerance ) <= normDist14 && normDist14 <= ( 1.0 + l1NormalizedTolerance ) ) pt4IsInside = true;
 
         if ( pt3IsInside && !pt4IsInside )
         {
@@ -384,8 +379,8 @@ GeometryTools::IntersectionStatus inPlaneLineIntersect( double  x1,
     {
         return GeometryTools::LINES_INTERSECT_OUTSIDE;
     }
-    else if ( fabs( mua ) < l1NormalizedTolerance || fabs( 1 - mua ) < l1NormalizedTolerance ||
-              fabs( mub ) < l2NormalizedTolerance || fabs( 1 - mub ) < l2NormalizedTolerance )
+    else if ( fabs( mua ) < l1NormalizedTolerance || fabs( 1 - mua ) < l1NormalizedTolerance || fabs( mub ) < l2NormalizedTolerance ||
+              fabs( 1 - mub ) < l2NormalizedTolerance )
     {
         if ( fabs( mua ) < l1NormalizedTolerance ) *fractionAlongLine1 = 0;
         if ( fabs( 1 - mua ) < l1NormalizedTolerance ) *fractionAlongLine1 = 1;
@@ -424,20 +419,8 @@ GeometryTools::IntersectionStatus GeometryTools::inPlaneLineIntersect3D( const c
     double l1NormTol = tolerance / ( p2 - p1 ).length();
     double l2NormTol = tolerance / ( p4 - p3 ).length();
 
-    IntersectionStatus intersectionStatus = inPlaneLineIntersect( p1[X],
-                                                                  p1[Y],
-                                                                  p2[X],
-                                                                  p2[Y],
-                                                                  p3[X],
-                                                                  p3[Y],
-                                                                  p4[X],
-                                                                  p4[Y],
-                                                                  l1NormTol,
-                                                                  l2NormTol,
-                                                                  &x,
-                                                                  &y,
-                                                                  fractionAlongLine1,
-                                                                  fractionAlongLine2 );
+    IntersectionStatus intersectionStatus =
+        inPlaneLineIntersect( p1[X], p1[Y], p2[X], p2[Y], p3[X], p3[Y], p4[X], p4[Y], l1NormTol, l2NormTol, &x, &y, fractionAlongLine1, fractionAlongLine2 );
 
     // Check if we have a valid intersection point
     if ( intersectionStatus == NO_INTERSECTION || intersectionStatus == LINES_OVERLAP )
@@ -456,10 +439,7 @@ GeometryTools::IntersectionStatus GeometryTools::inPlaneLineIntersect3D( const c
 /// Compute projection of point p3 on the line p1 - p2
 //  If projection is out side the line segment, the end of line is returned
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d GeometryTools::projectPointOnLine( const cvf::Vec3d& p1,
-                                              const cvf::Vec3d& p2,
-                                              const cvf::Vec3d& p3,
-                                              double*           normalizedIntersection )
+cvf::Vec3d GeometryTools::projectPointOnLine( const cvf::Vec3d& p1, const cvf::Vec3d& p2, const cvf::Vec3d& p3, double* normalizedIntersection )
 {
     cvf::Vec3d v31 = p3 - p1;
     cvf::Vec3d v21 = p2 - p1;
@@ -630,8 +610,7 @@ inline double TriArea2D( double x1, double y1, double x2, double y2, double x3, 
 // These can be used as weights for interpolating scalar values across the triangle
 // Based on section 3.4 in "Real Time collision detection" by Christer Ericson
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d
-    GeometryTools::barycentricCoords( const cvf::Vec3d& t0, const cvf::Vec3d& t1, const cvf::Vec3d& t2, const cvf::Vec3d& p )
+cvf::Vec3d GeometryTools::barycentricCoords( const cvf::Vec3d& t0, const cvf::Vec3d& t1, const cvf::Vec3d& t2, const cvf::Vec3d& p )
 {
     // Unnormalized triangle normal
     cvf::Vec3d m = ( ( t1 - t0 ) ^ ( t2 - t0 ) );
@@ -685,11 +664,8 @@ inline double triArea3D( const cvf::Vec3d& v0, const cvf::Vec3d& v1, const cvf::
 /// a_i = Area(v_(i-1), v_i, v_(i+1))*Area(p, v_(i-2), v_(i-1))*Area(p, v_(i+1), v_(i+2))
 
 //--------------------------------------------------------------------------------------------------
-cvf::Vec4d GeometryTools::barycentricCoords( const cvf::Vec3d& v0,
-                                             const cvf::Vec3d& v1,
-                                             const cvf::Vec3d& v2,
-                                             const cvf::Vec3d& v3,
-                                             const cvf::Vec3d& p )
+cvf::Vec4d
+    GeometryTools::barycentricCoords( const cvf::Vec3d& v0, const cvf::Vec3d& v1, const cvf::Vec3d& v2, const cvf::Vec3d& v3, const cvf::Vec3d& p )
 {
     cvf::Vec4d w;
     cvf::Vec4d a;
@@ -735,10 +711,8 @@ void GeometryTools::addMidEdgeNodes( std::list<std::pair<cvf::uint, bool>>* poly
         if ( !edgeSplitStorage.findSplitPoint( it->first, it2->first, &midPointIndex ) )
         {
             midEdgeCoord.setZero();
-            midEdgeCoord += ( it->first < nodes.size() ) ? nodes[it->first]
-                                                         : ( *createdVertexes )[it->first - nodes.size()];
-            midEdgeCoord += ( it2->first < nodes.size() ) ? nodes[it2->first]
-                                                          : ( *createdVertexes )[it2->first - nodes.size()];
+            midEdgeCoord += ( it->first < nodes.size() ) ? nodes[it->first] : ( *createdVertexes )[it->first - nodes.size()];
+            midEdgeCoord += ( it2->first < nodes.size() ) ? nodes[it2->first] : ( *createdVertexes )[it2->first - nodes.size()];
             midEdgeCoord *= 0.5;
 
             midPointIndex = newVertexIndex;
@@ -1041,8 +1015,7 @@ EarClipTesselator::TriangleStatus EarClipTesselator::calculateTriangleStatus( st
     cvf::Vec3d B = ( *m_nodeCoords )[*v];
     cvf::Vec3d C = ( *m_nodeCoords )[*w];
 
-    double mainAxisProjectedArea = ( ( B[m_X] - A[m_X] ) * ( C[m_Y] - A[m_Y] ) ) -
-                                   ( ( B[m_Y] - A[m_Y] ) * ( C[m_X] - A[m_X] ) );
+    double mainAxisProjectedArea = ( ( B[m_X] - A[m_X] ) * ( C[m_Y] - A[m_Y] ) ) - ( ( B[m_Y] - A[m_Y] ) * ( C[m_X] - A[m_X] ) );
     if ( -m_areaTolerance > mainAxisProjectedArea )
     {
         // Definite negative triangle
@@ -1095,10 +1068,7 @@ EarClipTesselator::TriangleStatus EarClipTesselator::calculateTriangleStatus( st
 /// If cross product is negative, the point is outside
 //--------------------------------------------------------------------------------------------------
 
-bool EarClipTesselator::isPointInsideTriangle( const cvf::Vec3d& A,
-                                               const cvf::Vec3d& B,
-                                               const cvf::Vec3d& C,
-                                               const cvf::Vec3d& P ) const
+bool EarClipTesselator::isPointInsideTriangle( const cvf::Vec3d& A, const cvf::Vec3d& B, const cvf::Vec3d& C, const cvf::Vec3d& P ) const
 {
     CVF_ASSERT( m_X > -1 && m_Y > -1 );
 
@@ -1140,8 +1110,7 @@ double EarClipTesselator::calculateProjectedPolygonArea() const
     std::list<size_t>::const_iterator q = m_polygonIndices.begin();
     while ( q != m_polygonIndices.end() )
     {
-        A += ( *m_nodeCoords )[*p][m_X] * ( *m_nodeCoords )[*q][m_Y] -
-             ( *m_nodeCoords )[*q][m_X] * ( *m_nodeCoords )[*p][m_Y];
+        A += ( *m_nodeCoords )[*p][m_X] * ( *m_nodeCoords )[*q][m_Y] - ( *m_nodeCoords )[*q][m_X] * ( *m_nodeCoords )[*p][m_Y];
 
         p = q;
         ++q;
@@ -1289,8 +1258,7 @@ bool FanEarClipTesselator::isTriangleValid( size_t u, size_t v, size_t w )
     cvf::Vec3d B = ( *m_nodeCoords )[v];
     cvf::Vec3d C = ( *m_nodeCoords )[w];
 
-    if ( m_areaTolerance > ( ( ( B[m_X] - A[m_X] ) * ( C[m_Y] - A[m_Y] ) ) - ( ( B[m_Y] - A[m_Y] ) * ( C[m_X] - A[m_X] ) ) ) )
-        return false;
+    if ( m_areaTolerance > ( ( ( B[m_X] - A[m_X] ) * ( C[m_Y] - A[m_Y] ) ) - ( ( B[m_Y] - A[m_Y] ) * ( C[m_X] - A[m_X] ) ) ) ) return false;
 
     std::list<size_t>::const_iterator c;
     for ( c = m_polygonIndices.begin(); c != m_polygonIndices.end(); ++c )

@@ -161,7 +161,7 @@ void RimPlotCellPropertyFilter::updateCellVisibilityFromFilter( size_t timeStepI
 
         if ( !resDef->currentGridCellResults()->hasResultEntry( rigEclipseAddress ) ) return;
 
-        size_t clampedIndex = std::min( timeStepIndex, cellResultsData->timeStepCount( rigEclipseAddress ) - 1 );
+        size_t                     clampedIndex     = std::min( timeStepIndex, cellResultsData->timeStepCount( rigEclipseAddress ) - 1 );
         const std::vector<double>& cellResultValues = cellResultsData->cellScalarResults( rigEclipseAddress, clampedIndex );
         if ( cellResultValues.empty() ) return;
 
@@ -170,9 +170,8 @@ void RimPlotCellPropertyFilter::updateCellVisibilityFromFilter( size_t timeStepI
 
         if ( visibleCells->size() < totalReservoirCellCount )
         {
-            QString message = QString( "Size of visible Cells (%1) is less than total cell count (%2)" )
-                                  .arg( visibleCells->size() )
-                                  .arg( totalReservoirCellCount );
+            QString message =
+                QString( "Size of visible Cells (%1) is less than total cell count (%2)" ).arg( visibleCells->size() ).arg( totalReservoirCellCount );
 
             RiaLogging::error( message );
 
@@ -224,9 +223,7 @@ void RimPlotCellPropertyFilter::updateCellVisibilityFromFilter( size_t timeStepI
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotCellPropertyFilter::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                       QString                    uiConfigName,
-                                                       caf::PdmUiEditorAttribute* attribute )
+void RimPlotCellPropertyFilter::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_lowerBound || field == &m_upperBound )
     {

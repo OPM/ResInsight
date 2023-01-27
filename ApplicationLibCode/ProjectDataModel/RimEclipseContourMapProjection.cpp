@@ -200,12 +200,9 @@ std::vector<double> RimEclipseContourMapProjection::generateResults( int timeSte
             if ( isColumnResult() )
             {
                 m_currentResultName = "";
-                gridCellResult->ensureKnownResultLoaded(
-                    RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PORO" ) );
-                gridCellResult->ensureKnownResultLoaded(
-                    RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "NTG" ) );
-                gridCellResult->ensureKnownResultLoaded(
-                    RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "DZ" ) );
+                gridCellResult->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PORO" ) );
+                gridCellResult->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "NTG" ) );
+                gridCellResult->ensureKnownResultLoaded( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "DZ" ) );
                 if ( m_resultAggregation == RESULTS_OIL_COLUMN || m_resultAggregation == RESULTS_HC_COLUMN )
                 {
                     gridCellResult->ensureKnownResultLoaded(
@@ -230,8 +227,7 @@ std::vector<double> RimEclipseContourMapProjection::generateResults( int timeSte
 
                 // When loading a project file, grid calculator results are not computed the first time this function is
                 // called. Must check if result is loaded. See RimReloadCaseTools::updateAll3dViews()
-                if ( resAddr.isValid() && gridCellResult->hasResultEntry( resAddr ) &&
-                     gridCellResult->isResultLoaded( resAddr ) )
+                if ( resAddr.isValid() && gridCellResult->hasResultEntry( resAddr ) && gridCellResult->isResultLoaded( resAddr ) )
                 {
                     gridResultValues = gridCellResult->cellScalarResults( resAddr, timeStep );
                 }
@@ -281,12 +277,9 @@ void RimEclipseContourMapProjection::clearResultVariable()
 std::vector<double> RimEclipseContourMapProjection::calculateColumnResult( ResultAggregation resultAggregation ) const
 {
     const RigCaseCellResultsData* resultData = eclipseCase()->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    bool                          hasPoroResult =
-        resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PORO" ) );
-    bool hasNtgResult =
-        resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "NTG" ) );
-    bool hasDzResult =
-        resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "DZ" ) );
+    bool hasPoroResult = resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "PORO" ) );
+    bool hasNtgResult  = resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "NTG" ) );
+    bool hasDzResult   = resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "DZ" ) );
 
     if ( !( hasPoroResult && hasNtgResult && hasDzResult ) )
     {
@@ -309,8 +302,7 @@ std::vector<double> RimEclipseContourMapProjection::calculateColumnResult( Resul
     if ( resultAggregation == RESULTS_OIL_COLUMN || resultAggregation == RESULTS_HC_COLUMN )
     {
         const std::vector<double>& soilResults =
-            resultData->cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                                    RiaResultNames::soil() ),
+            resultData->cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() ),
                                            timeStep );
         for ( size_t cellResultIdx = 0; cellResultIdx < resultValues.size(); ++cellResultIdx )
         {
@@ -320,13 +312,12 @@ std::vector<double> RimEclipseContourMapProjection::calculateColumnResult( Resul
 
     if ( resultAggregation == RESULTS_GAS_COLUMN || resultAggregation == RESULTS_HC_COLUMN )
     {
-        bool hasGasResult = resultData->hasResultEntry(
-            RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() ) );
+        bool hasGasResult =
+            resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() ) );
         if ( hasGasResult )
         {
             const std::vector<double>& sgasResults =
-                resultData->cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                                        RiaResultNames::sgas() ),
+                resultData->cellScalarResults( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() ),
                                                timeStep );
             for ( size_t cellResultIdx = 0; cellResultIdx < resultValues.size(); ++cellResultIdx )
             {
@@ -481,8 +472,7 @@ double RimEclipseContourMapProjection::calculateRayLengthInCell( size_t         
 
     if ( RigHexIntersectionTools::lineHexCellIntersection( highestPoint, lowestPoint, hexCorners.data(), 0, &intersections ) )
     {
-        double lengthInCell =
-            ( intersections.back().m_intersectionPoint - intersections.front().m_intersectionPoint ).length();
+        double lengthInCell = ( intersections.back().m_intersectionPoint - intersections.front().m_intersectionPoint ).length();
         return lengthInCell;
     }
     return 0.0;
@@ -491,8 +481,7 @@ double RimEclipseContourMapProjection::calculateRayLengthInCell( size_t         
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimEclipseContourMapProjection::getParameterWeightForCell( size_t                     cellResultIdx,
-                                                                  const std::vector<double>& cellWeights ) const
+double RimEclipseContourMapProjection::getParameterWeightForCell( size_t cellResultIdx, const std::vector<double>& cellWeights ) const
 {
     if ( cellWeights.empty() ) return 1.0;
 
@@ -538,9 +527,7 @@ void RimEclipseContourMapProjection::updateAfterResultGeneration( int timeStep )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapProjection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                       const QVariant&            oldValue,
-                                                       const QVariant&            newValue )
+void RimEclipseContourMapProjection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimContourMapProjection::fieldChangedByUi( changedField, oldValue, newValue );
     if ( changedField == &m_weightByParameter || changedField == &m_weightingResult )

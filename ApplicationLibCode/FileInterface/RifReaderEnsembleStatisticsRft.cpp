@@ -59,11 +59,10 @@ std::set<RifEclipseRftAddress> RifReaderEnsembleStatisticsRft::eclipseRftAddress
         }
         else if ( regularAddress.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::PRESSURE )
         {
-            std::set<RifEclipseRftAddress::RftWellLogChannelType> statChannels =
-                { RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P10,
-                  RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P50,
-                  RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P90,
-                  RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_MEAN };
+            std::set<RifEclipseRftAddress::RftWellLogChannelType> statChannels = { RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P10,
+                                                                                   RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P50,
+                                                                                   RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P90,
+                                                                                   RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_MEAN };
             for ( auto channel : statChannels )
             {
                 statisticsAddresses.insert(
@@ -114,9 +113,8 @@ std::set<QDateTime> RifReaderEnsembleStatisticsRft::availableTimeSteps( const QS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<QDateTime>
-    RifReaderEnsembleStatisticsRft::availableTimeSteps( const QString&                                     wellName,
-                                                        const RifEclipseRftAddress::RftWellLogChannelType& wellLogChannelName )
+std::set<QDateTime> RifReaderEnsembleStatisticsRft::availableTimeSteps( const QString&                                     wellName,
+                                                                        const RifEclipseRftAddress::RftWellLogChannelType& wellLogChannelName )
 {
     std::set<QDateTime> allTimeSteps;
     for ( auto summaryCase : m_summaryCaseCollection->allSummaryCases() )
@@ -133,9 +131,9 @@ std::set<QDateTime>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<QDateTime> RifReaderEnsembleStatisticsRft::availableTimeSteps(
-    const QString&                                               wellName,
-    const std::set<RifEclipseRftAddress::RftWellLogChannelType>& relevantChannels )
+std::set<QDateTime>
+    RifReaderEnsembleStatisticsRft::availableTimeSteps( const QString&                                               wellName,
+                                                        const std::set<RifEclipseRftAddress::RftWellLogChannelType>& relevantChannels )
 {
     std::set<QDateTime> allTimeSteps;
     for ( auto summaryCase : m_summaryCaseCollection->allSummaryCases() )
@@ -152,8 +150,7 @@ std::set<QDateTime> RifReaderEnsembleStatisticsRft::availableTimeSteps(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<RifEclipseRftAddress::RftWellLogChannelType>
-    RifReaderEnsembleStatisticsRft::availableWellLogChannels( const QString& wellName )
+std::set<RifEclipseRftAddress::RftWellLogChannelType> RifReaderEnsembleStatisticsRft::availableWellLogChannels( const QString& wellName )
 {
     std::set<RifEclipseRftAddress::RftWellLogChannelType> allWellLogChannels;
     for ( auto summaryCase : m_summaryCaseCollection->allSummaryCases() )
@@ -247,12 +244,7 @@ void RifReaderEnsembleStatisticsRft::calculateStatistics( const RifEclipseRftAdd
                 pressuresAtDepth.push_back( curvePressures[depthIdx] );
             }
             double p10, p50, p90, mean;
-            RigStatisticsMath::calculateStatisticsCurves( pressuresAtDepth,
-                                                          &p10,
-                                                          &p50,
-                                                          &p90,
-                                                          &mean,
-                                                          RigStatisticsMath::PercentileStyle::SWITCHED );
+            RigStatisticsMath::calculateStatisticsCurves( pressuresAtDepth, &p10, &p50, &p90, &mean, RigStatisticsMath::PercentileStyle::SWITCHED );
 
             m_cachedValues[depthAddress].push_back( allDepths[depthIdx] );
 

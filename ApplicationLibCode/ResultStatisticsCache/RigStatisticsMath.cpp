@@ -123,8 +123,7 @@ void RigStatisticsMath::calculateStatisticsCurves( const std::vector<double>& va
     for ( int i = P10; i <= P90; i++ )
     {
         // Check valid params
-        if ( ( percentiles[i] < 1.0 / ( (double)valueCount + 1 ) ) ||
-             ( percentiles[i] > (double)valueCount / ( (double)valueCount + 1 ) ) )
+        if ( ( percentiles[i] < 1.0 / ( (double)valueCount + 1 ) ) || ( percentiles[i] > (double)valueCount / ( (double)valueCount + 1 ) ) )
             continue;
 
         double rank = percentiles[i] * ( valueCount + 1 ) - 1;
@@ -165,8 +164,8 @@ void RigStatisticsMath::calculateStatisticsCurves( const std::vector<double>& va
 /// the inputValues does not contain any valid values
 //--------------------------------------------------------------------------------------------------
 
-std::vector<double> RigStatisticsMath::calculateNearestRankPercentiles( const std::vector<double>& inputValues,
-                                                                        const std::vector<double>& pValPositions,
+std::vector<double> RigStatisticsMath::calculateNearestRankPercentiles( const std::vector<double>&         inputValues,
+                                                                        const std::vector<double>&         pValPositions,
                                                                         RigStatisticsMath::PercentileStyle percentileStyle )
 {
     std::vector<double> sortedValues;
@@ -209,8 +208,8 @@ std::vector<double> RigStatisticsMath::calculateNearestRankPercentiles( const st
 /// This method treats HUGE_VAL as "undefined" values, and ignores these. Will return HUGE_VAL if
 /// the inputValues does not contain any valid values
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigStatisticsMath::calculateInterpolatedPercentiles( const std::vector<double>& inputValues,
-                                                                         const std::vector<double>& pValPositions,
+std::vector<double> RigStatisticsMath::calculateInterpolatedPercentiles( const std::vector<double>&         inputValues,
+                                                                         const std::vector<double>&         pValPositions,
                                                                          RigStatisticsMath::PercentileStyle percentileStyle )
 {
     std::vector<double> sortedValues;
@@ -246,8 +245,7 @@ std::vector<double> RigStatisticsMath::calculateInterpolatedPercentiles( const s
 
             if ( upperValueIndex < sortedValues.size() )
             {
-                pVal = ( 1.0 - upperValueWeight ) * sortedValues[lowerValueIndex] +
-                       upperValueWeight * sortedValues[upperValueIndex];
+                pVal = ( 1.0 - upperValueWeight ) * sortedValues[lowerValueIndex] + upperValueWeight * sortedValues[upperValueIndex];
             }
             else
             {

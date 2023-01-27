@@ -138,11 +138,9 @@ void RifEclipseSummaryTools::dumpMetaData( RifSummaryReaderInterface* readerEcli
 
     for ( int category = 0; category < RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR; category++ )
     {
-        RifEclipseSummaryAddress::SummaryVarCategory categoryEnum =
-            RifEclipseSummaryAddress::SummaryVarCategory( category );
+        RifEclipseSummaryAddress::SummaryVarCategory categoryEnum = RifEclipseSummaryAddress::SummaryVarCategory( category );
 
-        std::vector<RifEclipseSummaryAddress> catAddresses =
-            RiaSummaryAddressAnalyzer::addressesForCategory( addresses, categoryEnum );
+        std::vector<RifEclipseSummaryAddress> catAddresses = RiaSummaryAddressAnalyzer::addressesForCategory( addresses, categoryEnum );
 
         if ( !catAddresses.empty() )
         {
@@ -151,11 +149,10 @@ void RifEclipseSummaryTools::dumpMetaData( RifSummaryReaderInterface* readerEcli
 
             for ( const auto& catAddresse : catAddresses )
             {
-                std::cout << catAddresse.vectorName() << " " << catAddresse.regionNumber() << " "
-                          << catAddresse.regionNumber2() << " " << catAddresse.groupName() << " "
-                          << catAddresse.wellName() << " " << catAddresse.wellSegmentNumber() << " "
-                          << catAddresse.lgrName() << " " << catAddresse.cellI() << " " << catAddresse.cellJ() << " "
-                          << catAddresse.cellK() << std::endl;
+                std::cout << catAddresse.vectorName() << " " << catAddresse.regionNumber() << " " << catAddresse.regionNumber2() << " "
+                          << catAddresse.groupName() << " " << catAddresse.wellName() << " " << catAddresse.wellSegmentNumber() << " "
+                          << catAddresse.lgrName() << " " << catAddresse.cellI() << " " << catAddresse.cellJ() << " " << catAddresse.cellK()
+                          << std::endl;
             }
 
             std::cout << std::endl;
@@ -166,8 +163,7 @@ void RifEclipseSummaryTools::dumpMetaData( RifSummaryReaderInterface* readerEcli
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RifRestartFileInfo> RifEclipseSummaryTools::getRestartFiles( const QString&        headerFileName,
-                                                                         std::vector<QString>& warnings )
+std::vector<RifRestartFileInfo> RifEclipseSummaryTools::getRestartFiles( const QString& headerFileName, std::vector<QString>& warnings )
 {
     std::vector<RifRestartFileInfo> restartFiles;
 
@@ -197,11 +193,10 @@ std::vector<RifRestartFileInfo> RifEclipseSummaryTools::getRestartFiles( const Q
                 if ( formattedHeaderFileInfo.lastModified() < nonformattedHeaderFileInfo.lastModified() &&
                      formattedHeaderFileInfo.exists() && !formattedDateFileInfo.exists() )
                 {
-                    warnings.push_back(
-                        QString( "RifReaderEclipseSummary: Formatted summary header file without an\n" ) +
-                        QString( "associated data file detected.\n" ) +
-                        QString( "This may cause a failure reading summary origin data.\n" ) +
-                        QString( "To avoid this problem, please delete or rename the.FSMSPEC file." ) );
+                    warnings.push_back( QString( "RifReaderEclipseSummary: Formatted summary header file without an\n" ) +
+                                        QString( "associated data file detected.\n" ) +
+                                        QString( "This may cause a failure reading summary origin data.\n" ) +
+                                        QString( "To avoid this problem, please delete or rename the.FSMSPEC file." ) );
                     break;
                 }
             }
@@ -248,20 +243,13 @@ RifRestartFileInfo RifEclipseSummaryTools::getFileInfo( const QString& headerFil
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifEclipseSummaryTools::findSummaryHeaderFileInfo( const QString& inputFile,
-                                                        QString*       headerFile,
-                                                        QString*       path,
-                                                        QString*       base,
-                                                        bool*          isFormatted )
+void RifEclipseSummaryTools::findSummaryHeaderFileInfo( const QString& inputFile, QString* headerFile, QString* path, QString* base, bool* isFormatted )
 {
     char* myPath        = nullptr;
     char* myBase        = nullptr;
     bool  formattedFile = true;
 
-    util_alloc_file_components( RiaStringEncodingTools::toNativeEncoded( QDir::toNativeSeparators( inputFile ) ).data(),
-                                &myPath,
-                                &myBase,
-                                nullptr );
+    util_alloc_file_components( RiaStringEncodingTools::toNativeEncoded( QDir::toNativeSeparators( inputFile ) ).data(), &myPath, &myBase, nullptr );
 
     char* myHeaderFile = ecl_util_alloc_exfilename( myPath, myBase, ECL_SUMMARY_HEADER_FILE, true, -1 );
     if ( !myHeaderFile )
@@ -292,8 +280,7 @@ RifRestartFileInfo RifEclipseSummaryTools::getRestartFile( const QString& header
 
     const ecl_smspec_type* smspec  = ecl_sum ? ecl_sum_get_smspec( ecl_sum ) : nullptr;
     const char*            rstCase = smspec ? ecl_smspec_get_restart_case( smspec ) : nullptr;
-    QString                restartCase =
-        rstCase ? RiaFilePathTools::canonicalPath( RiaStringEncodingTools::fromNativeEncoded( rstCase ) ) : "";
+    QString restartCase            = rstCase ? RiaFilePathTools::canonicalPath( RiaStringEncodingTools::fromNativeEncoded( rstCase ) ) : "";
     closeEclSum( ecl_sum );
 
     if ( !restartCase.isEmpty() )
@@ -301,13 +288,12 @@ RifRestartFileInfo RifEclipseSummaryTools::getRestartFile( const QString& header
         QString path        = QFileInfo( restartCase ).dir().path();
         QString restartBase = QDir( restartCase ).dirName();
 
-        char*   smspec_header = ecl_util_alloc_exfilename( path.toStdString().data(),
+        char*   smspec_header   = ecl_util_alloc_exfilename( path.toStdString().data(),
                                                          restartBase.toStdString().data(),
                                                          ECL_SUMMARY_HEADER_FILE,
                                                          false /*unformatted*/,
                                                          0 );
-        QString restartFileName =
-            RiaFilePathTools::toInternalSeparator( RiaStringEncodingTools::fromNativeEncoded( smspec_header ) );
+        QString restartFileName = RiaFilePathTools::toInternalSeparator( RiaStringEncodingTools::fromNativeEncoded( smspec_header ) );
         free( smspec_header );
 
         return getFileInfo( restartFileName );

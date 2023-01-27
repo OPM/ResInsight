@@ -276,9 +276,7 @@ void RimReservoirCellResultsStorage::setCellResults( RigCaseCellResultsData* cel
                                         // Diagnostics...
         reportNumbers.resize( resInfo->m_timeStepDates().size() );
         std::vector<RigEclipseTimeStepInfo> timeStepInfos =
-            RigEclipseTimeStepInfo::createTimeStepInfos( resInfo->m_timeStepDates(),
-                                                         reportNumbers,
-                                                         resInfo->m_daysSinceSimulationStart() );
+            RigEclipseTimeStepInfo::createTimeStepInfos( resInfo->m_timeStepDates(), reportNumbers, resInfo->m_daysSinceSimulationStart() );
 
         m_cellResults->setTimeStepInfos( resAddr, timeStepInfos );
 
@@ -319,10 +317,7 @@ RimReservoirCellResultsStorageEntryInfo::RimReservoirCellResultsStorageEntryInfo
 {
     CAF_PDM_InitObject( "Cache Entry" );
 
-    CAF_PDM_InitField( &m_resultType,
-                       "ResultType",
-                       caf::AppEnum<RiaDefines::ResultCatType>( RiaDefines::ResultCatType::REMOVED ),
-                       "ResultType" );
+    CAF_PDM_InitField( &m_resultType, "ResultType", caf::AppEnum<RiaDefines::ResultCatType>( RiaDefines::ResultCatType::REMOVED ), "ResultType" );
     CAF_PDM_InitField( &m_resultName, "ResultName", QString(), "ResultName" );
     CAF_PDM_InitFieldNoDefault( &m_timeStepDates, "TimeSteps", "TimeSteps" );
     CAF_PDM_InitFieldNoDefault( &m_daysSinceSimulationStart, "DaysSinceSimulationStart", "DaysSinceSimulationStart" );

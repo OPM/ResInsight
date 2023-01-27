@@ -95,8 +95,7 @@ std::vector<RimWellPath*> RicLinkWellPathFeature::wellPaths()
     auto wellPathSelectionItem = RiuWellPathSelectionItem::wellPathSelectionItem();
     if ( wellPathSelectionItem && wellPathSelectionItem->m_wellpath )
     {
-        if ( auto modeledWellPath =
-                 dynamic_cast<RimModeledWellPath*>( wellPathSelectionItem->m_wellpath->topLevelWellPath() ) )
+        if ( auto modeledWellPath = dynamic_cast<RimModeledWellPath*>( wellPathSelectionItem->m_wellpath->topLevelWellPath() ) )
         {
             wellPaths.push_back( modeledWellPath );
         }

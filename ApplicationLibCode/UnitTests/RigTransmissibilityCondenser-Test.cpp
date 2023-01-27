@@ -142,69 +142,27 @@ TEST( RigTransmissibilityCondenser, BasicTest )
         condenser.addNeighborTransmissibility( { false, RiCa::STIMPLAN, 6 }, { true, RiCa::ECLIPSE, 12 }, 0.09016000 );
         condenser.addNeighborTransmissibility( { false, RiCa::STIMPLAN, 6 }, { true, RiCa::STIMPLAN, 13 }, 0.19219491 );
 
-        EXPECT_NEAR( 0.00402732,
-                     condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 1 + 6 }, { true, RiCa::ECLIPSE, 2 + 6 } ),
-                     1e-6 );
-        EXPECT_NEAR( 0.00027347,
-                     condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 1 + 6 }, { true, RiCa::ECLIPSE, 3 + 6 } ),
-                     1e-6 );
-        EXPECT_NEAR( 0.03879174,
-                     condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 1 + 6 }, { true, RiCa::ECLIPSE, 4 + 6 } ),
-                     1e-6 );
-        EXPECT_NEAR( 0.00400489,
-                     condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 1 + 6 }, { true, RiCa::ECLIPSE, 5 + 6 } ),
-                     1e-6 );
-        EXPECT_NEAR( 0.00026172,
-                     condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 1 + 6 }, { true, RiCa::ECLIPSE, 6 + 6 } ),
-                     1e-6 );
-        EXPECT_NEAR( 0.00055791,
-                     condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 1 + 6 }, { true, RiCa::STIMPLAN, 7 + 6 } ),
-                     1e-6 );
-        EXPECT_NEAR( 0.00245697,
-                     condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 2 + 6 }, { true, RiCa::ECLIPSE, 3 + 6 } ),
-                     1e-6 );
-        EXPECT_NEAR( 0.00401064,
-                     condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 2 + 6 }, { true, RiCa::ECLIPSE, 4 + 6 } ),
-                     1e-6 );
-        EXPECT_NEAR( 0.03442773,
-                     condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 2 + 6 }, { true, RiCa::ECLIPSE, 5 + 6 } ),
-                     1e-6 );
-        EXPECT_NEAR( 0.00233846,
-                     condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 2 + 6 }, { true, RiCa::ECLIPSE, 6 + 6 } ),
-                     1e-6 );
-        EXPECT_NEAR( 0.00498491,
-                     condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 2 + 6 }, { true, RiCa::STIMPLAN, 7 + 6 } ),
-                     1e-6 );
-        EXPECT_NEAR( 0.00027351,
-                     condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 3 + 6 }, { true, RiCa::ECLIPSE, 4 + 6 } ),
-                     1e-6 );
-        EXPECT_NEAR( 0.00246579,
-                     condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 3 + 6 }, { true, RiCa::ECLIPSE, 5 + 6 } ),
-                     1e-6 );
-        EXPECT_NEAR( 0.01956640,
-                     condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 3 + 6 }, { true, RiCa::ECLIPSE, 6 + 6 } ),
-                     1e-6 );
-        EXPECT_NEAR( 0.04170988,
-                     condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 3 + 6 }, { true, RiCa::STIMPLAN, 7 + 6 } ),
-                     1e-6 );
-        EXPECT_NEAR( 0.00402105,
-                     condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 4 + 6 }, { true, RiCa::ECLIPSE, 5 + 6 } ),
-                     1e-6 );
-        EXPECT_NEAR( 0.00026189,
-                     condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 4 + 6 }, { true, RiCa::ECLIPSE, 6 + 6 } ),
-                     1e-6 );
-        EXPECT_NEAR( 0.00055827,
-                     condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 4 + 6 }, { true, RiCa::STIMPLAN, 7 + 6 } ),
-                     1e-6 );
-        EXPECT_NEAR( 0.00237402,
-                     condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 5 + 6 }, { true, RiCa::ECLIPSE, 6 + 6 } ),
-                     1e-6 );
-        EXPECT_NEAR( 0.00506073,
-                     condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 5 + 6 }, { true, RiCa::STIMPLAN, 7 + 6 } ),
-                     1e-6 );
-        EXPECT_NEAR( 0.04448791,
-                     condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 6 + 6 }, { true, RiCa::STIMPLAN, 7 + 6 } ),
-                     1e-6 );
+        EXPECT_NEAR( 0.00402732, condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 1 + 6 }, { true, RiCa::ECLIPSE, 2 + 6 } ), 1e-6 );
+        EXPECT_NEAR( 0.00027347, condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 1 + 6 }, { true, RiCa::ECLIPSE, 3 + 6 } ), 1e-6 );
+        EXPECT_NEAR( 0.03879174, condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 1 + 6 }, { true, RiCa::ECLIPSE, 4 + 6 } ), 1e-6 );
+        EXPECT_NEAR( 0.00400489, condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 1 + 6 }, { true, RiCa::ECLIPSE, 5 + 6 } ), 1e-6 );
+        EXPECT_NEAR( 0.00026172, condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 1 + 6 }, { true, RiCa::ECLIPSE, 6 + 6 } ), 1e-6 );
+        EXPECT_NEAR( 0.00055791, condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 1 + 6 }, { true, RiCa::STIMPLAN, 7 + 6 } ), 1e-6 );
+        EXPECT_NEAR( 0.00245697, condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 2 + 6 }, { true, RiCa::ECLIPSE, 3 + 6 } ), 1e-6 );
+        EXPECT_NEAR( 0.00401064, condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 2 + 6 }, { true, RiCa::ECLIPSE, 4 + 6 } ), 1e-6 );
+        EXPECT_NEAR( 0.03442773, condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 2 + 6 }, { true, RiCa::ECLIPSE, 5 + 6 } ), 1e-6 );
+        EXPECT_NEAR( 0.00233846, condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 2 + 6 }, { true, RiCa::ECLIPSE, 6 + 6 } ), 1e-6 );
+        EXPECT_NEAR( 0.00498491, condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 2 + 6 }, { true, RiCa::STIMPLAN, 7 + 6 } ), 1e-6 );
+        EXPECT_NEAR( 0.00027351, condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 3 + 6 }, { true, RiCa::ECLIPSE, 4 + 6 } ), 1e-6 );
+        EXPECT_NEAR( 0.00246579, condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 3 + 6 }, { true, RiCa::ECLIPSE, 5 + 6 } ), 1e-6 );
+        EXPECT_NEAR( 0.01956640, condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 3 + 6 }, { true, RiCa::ECLIPSE, 6 + 6 } ), 1e-6 );
+        EXPECT_NEAR( 0.04170988, condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 3 + 6 }, { true, RiCa::STIMPLAN, 7 + 6 } ), 1e-6 );
+        EXPECT_NEAR( 0.00402105, condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 4 + 6 }, { true, RiCa::ECLIPSE, 5 + 6 } ), 1e-6 );
+        EXPECT_NEAR( 0.00026189, condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 4 + 6 }, { true, RiCa::ECLIPSE, 6 + 6 } ), 1e-6 );
+        EXPECT_NEAR( 0.00055827, condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 4 + 6 }, { true, RiCa::STIMPLAN, 7 + 6 } ), 1e-6 );
+        EXPECT_NEAR( 0.00237402, condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 5 + 6 }, { true, RiCa::ECLIPSE, 6 + 6 } ), 1e-6 );
+        EXPECT_NEAR( 0.00506073, condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 5 + 6 }, { true, RiCa::STIMPLAN, 7 + 6 } ), 1e-6 );
+        EXPECT_NEAR( 0.04448791, condenser.condensedTransmissibility( { true, RiCa::ECLIPSE, 6 + 6 }, { true, RiCa::STIMPLAN, 7 + 6 } ), 1e-6 );
     }
 #endif
 }

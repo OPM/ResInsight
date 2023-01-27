@@ -59,9 +59,7 @@ std::vector<RimPressureTableItem*> RimPressureTable::items() const
     std::vector<RimPressureTableItem*> pressureTableItems = m_pressureTableItems.children();
 
     // Sort by depth
-    std::sort( pressureTableItems.begin(), pressureTableItems.end(), []( auto const& a, auto const& b ) {
-        return a->depth() < b->depth();
-    } );
+    std::sort( pressureTableItems.begin(), pressureTableItems.end(), []( auto const& a, auto const& b ) { return a->depth() < b->depth(); } );
 
     return pressureTableItems;
 }
@@ -103,9 +101,7 @@ void RimPressureTable::deleteAllItems()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPressureTable::defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu,
-                                                QMenu*                     menu,
-                                                QWidget*                   fieldEditorWidget )
+void RimPressureTable::defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget )
 {
     caf::CmdFeatureMenuBuilder menuBuilder;
 
@@ -119,9 +115,7 @@ void RimPressureTable::defineCustomContextMenu( const caf::PdmFieldHandle* field
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPressureTable::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                              QString                    uiConfigName,
-                                              caf::PdmUiEditorAttribute* attribute )
+void RimPressureTable::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_pressureTableItems )
     {
@@ -155,9 +149,7 @@ void RimPressureTable::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrder
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPressureTable::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                         const QVariant&            oldValue,
-                                         const QVariant&            newValue )
+void RimPressureTable::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_pressureDate ) updatePressureDate();
 

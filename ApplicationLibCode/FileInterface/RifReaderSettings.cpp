@@ -36,10 +36,7 @@ RifReaderSettings::RifReaderSettings()
     CAF_PDM_InitField( &importNNCs, "importSimulationNNCs", true, "Import NNCs" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &importNNCs );
 
-    CAF_PDM_InitField( &includeInactiveCellsInFaultGeometry,
-                       "includeInactiveCellsInFaultGeometry",
-                       false,
-                       "Include Inactive Cells" );
+    CAF_PDM_InitField( &includeInactiveCellsInFaultGeometry, "includeInactiveCellsInFaultGeometry", false, "Include Inactive Cells" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &includeInactiveCellsInFaultGeometry );
 
     CAF_PDM_InitField( &importAdvancedMswData, "importAdvancedMswData", false, "Import Advanced MSW Data" );

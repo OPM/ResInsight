@@ -305,9 +305,7 @@ void RimMultipleValveLocations::defineUiOrdering( QString uiConfigName, caf::Pdm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultipleValveLocations::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                  const QVariant&            oldValue,
-                                                  const QVariant&            newValue )
+void RimMultipleValveLocations::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     bool recomputeLocations = false;
 
@@ -336,15 +334,13 @@ void RimMultipleValveLocations::fieldChangedByUi( const caf::PdmFieldHandle* cha
         if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
         {
             double minimumDistanceFeet = RiaEclipseUnitTools::meterToFeet( minimumDistanceMeter );
-            m_rangeValveSpacing        = std::clamp( m_rangeValveSpacing(),
-                                              minimumDistanceFeet,
-                                              std::max( m_rangeValveSpacing(), minimumDistanceFeet ) );
+            m_rangeValveSpacing =
+                std::clamp( m_rangeValveSpacing(), minimumDistanceFeet, std::max( m_rangeValveSpacing(), minimumDistanceFeet ) );
         }
         else
         {
-            m_rangeValveSpacing = std::clamp( m_rangeValveSpacing(),
-                                              minimumDistanceMeter,
-                                              std::max( m_rangeValveSpacing(), minimumDistanceMeter ) );
+            m_rangeValveSpacing =
+                std::clamp( m_rangeValveSpacing(), minimumDistanceMeter, std::max( m_rangeValveSpacing(), minimumDistanceMeter ) );
         }
     }
 

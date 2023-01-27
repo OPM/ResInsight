@@ -66,10 +66,7 @@ RicfExportVisibleCells::RicfExportVisibleCells()
     CAF_PDM_InitScriptableField( &m_caseId, "caseId", -1, "Case ID" );
     CAF_PDM_InitScriptableField( &m_viewId, "viewId", -1, "View ID" );
     CAF_PDM_InitScriptableField( &m_viewName, "viewName", QString(), "View Name" );
-    CAF_PDM_InitScriptableField( &m_exportKeyword,
-                                 "exportKeyword",
-                                 caf::AppEnum<RicfExportVisibleCells::ExportKeyword>(),
-                                 "Export Keyword" );
+    CAF_PDM_InitScriptableField( &m_exportKeyword, "exportKeyword", caf::AppEnum<RicfExportVisibleCells::ExportKeyword>(), "Export Keyword" );
     CAF_PDM_InitScriptableField( &m_visibleActiveCellsValue, "visibleActiveCellsValue", 1, "Visible Active Cells Value" );
     CAF_PDM_InitScriptableField( &m_hiddenActiveCellsValue, "hiddenActiveCellsValue", 0, "Hidden Active Cells Value" );
     CAF_PDM_InitScriptableField( &m_inactiveCellsValue, "inactiveCellsValue", 0, "Inactive Cells Value" );
@@ -97,10 +94,8 @@ caf::PdmScriptResponse RicfExportVisibleCells::execute()
     }
     if ( !eclipseView )
     {
-        QString error( QString( "exportVisibleCells: Could not find view of id %1 or named '%2' in case ID %3" )
-                           .arg( m_viewId )
-                           .arg( m_viewName )
-                           .arg( m_caseId ) );
+        QString error(
+            QString( "exportVisibleCells: Could not find view of id %1 or named '%2' in case ID %3" ).arg( m_viewId ).arg( m_viewName ).arg( m_caseId ) );
         RiaLogging::error( error );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
@@ -123,8 +118,7 @@ caf::PdmScriptResponse RicfExportVisibleCells::execute()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicfExportVisibleCells::buildExportSettings( const QString&                     exportFolder,
-                                                  RicSaveEclipseInputVisibleCellsUi* exportSettings )
+void RicfExportVisibleCells::buildExportSettings( const QString& exportFolder, RicSaveEclipseInputVisibleCellsUi* exportSettings )
 {
     QDir baseDir( exportFolder );
     exportSettings->exportFilename = baseDir.absoluteFilePath( QString( "%1.grdecl" ).arg( m_exportKeyword().text() ) );

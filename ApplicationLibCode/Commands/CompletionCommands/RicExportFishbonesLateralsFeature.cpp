@@ -73,8 +73,7 @@ void RicExportFishbonesLateralsFeature::onActionTriggered( bool isChecked )
 
             for ( const auto& [subIndex, lateralIndex] : fishbone->installedLateralIndices() )
             {
-                std::vector<std::pair<cvf::Vec3d, double>> coordsAndMD =
-                    fishbone->coordsAndMDForLateral( subIndex, lateralIndex );
+                std::vector<std::pair<cvf::Vec3d, double>> coordsAndMD = fishbone->coordsAndMDForLateral( subIndex, lateralIndex );
 
                 std::vector<cvf::Vec3d> lateralCoords;
                 std::vector<double>     lateralMDs;

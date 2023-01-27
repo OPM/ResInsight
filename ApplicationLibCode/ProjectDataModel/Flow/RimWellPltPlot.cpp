@@ -303,18 +303,15 @@ class RigRftResultPointCalculator : public RigResultPointCalculator
 public:
     RigRftResultPointCalculator( const QString& wellPathName, RimEclipseResultCase* eclCase, QDateTime m_timeStep )
     {
-        RifEclipseRftAddress gasRateAddress =
-            RifEclipseRftAddress::createAddress( RimWellPlotTools::simWellName( wellPathName ),
-                                                 m_timeStep,
-                                                 RifEclipseRftAddress::RftWellLogChannelType::GRAT );
-        RifEclipseRftAddress oilRateAddress =
-            RifEclipseRftAddress::createAddress( RimWellPlotTools::simWellName( wellPathName ),
-                                                 m_timeStep,
-                                                 RifEclipseRftAddress::RftWellLogChannelType::ORAT );
-        RifEclipseRftAddress watRateAddress =
-            RifEclipseRftAddress::createAddress( RimWellPlotTools::simWellName( wellPathName ),
-                                                 m_timeStep,
-                                                 RifEclipseRftAddress::RftWellLogChannelType::WRAT );
+        RifEclipseRftAddress gasRateAddress = RifEclipseRftAddress::createAddress( RimWellPlotTools::simWellName( wellPathName ),
+                                                                                   m_timeStep,
+                                                                                   RifEclipseRftAddress::RftWellLogChannelType::GRAT );
+        RifEclipseRftAddress oilRateAddress = RifEclipseRftAddress::createAddress( RimWellPlotTools::simWellName( wellPathName ),
+                                                                                   m_timeStep,
+                                                                                   RifEclipseRftAddress::RftWellLogChannelType::ORAT );
+        RifEclipseRftAddress watRateAddress = RifEclipseRftAddress::createAddress( RimWellPlotTools::simWellName( wellPathName ),
+                                                                                   m_timeStep,
+                                                                                   RifEclipseRftAddress::RftWellLogChannelType::WRAT );
 
         std::vector<caf::VecIjk> rftIndices;
         eclCase->rftReader()->cellIndices( gasRateAddress, &rftIndices );
@@ -335,8 +332,8 @@ public:
 
         for ( size_t rftCellIdx = 0; rftCellIdx < rftIndices.size(); rftCellIdx++ )
         {
-            caf::VecIjk ijkIndex        = rftIndices[rftCellIdx];
-            size_t      globalCellIndex = mainGrid->cellIndexFromIJK( ijkIndex.i(), ijkIndex.j(), ijkIndex.k() );
+            caf::VecIjk ijkIndex                       = rftIndices[rftCellIdx];
+            size_t      globalCellIndex                = mainGrid->cellIndexFromIJK( ijkIndex.i(), ijkIndex.j(), ijkIndex.k() );
             globCellIdxToIdxInRftFile[globalCellIndex] = rftCellIdx;
         }
 
@@ -370,9 +367,8 @@ public:
             resPoint.m_gridCellIndex = globCellIdx; // Shortcut, since we only have
                                                     // main grid results from RFT
 
-            resPoint.m_gasRate =
-                RiaEclipseUnitTools::convertSurfaceGasFlowRateToOilEquivalents( eclCase->eclipseCaseData()->unitsType(),
-                                                                                gasRates[it->second] );
+            resPoint.m_gasRate   = RiaEclipseUnitTools::convertSurfaceGasFlowRateToOilEquivalents( eclCase->eclipseCaseData()->unitsType(),
+                                                                                                 gasRates[it->second] );
             resPoint.m_oilRate   = oilRates[it->second];
             resPoint.m_waterRate = watRates[it->second];
 
@@ -413,8 +409,7 @@ public:
 
         const RimWellPath*    wellPath = RimWellPlotTools::wellPathByWellPathNameOrSimWellName( wellPathName );
         const RigSimWellData* simWell =
-            wellPath != nullptr ? eclCase->eclipseCaseData()->findSimWellData( wellPath->associatedSimulationWellName() )
-                                : nullptr;
+            wellPath != nullptr ? eclCase->eclipseCaseData()->findSimWellData( wellPath->associatedSimulationWellName() ) : nullptr;
 
         if ( !simWell ) return;
 
@@ -426,12 +421,11 @@ public:
 
         for ( size_t brIdx = 0; brIdx < resFrame->m_wellResultBranches.size(); ++brIdx )
         {
-            const std::vector<RigWellResultPoint>& branchResPoints =
-                resFrame->m_wellResultBranches[brIdx].m_branchResultPoints;
+            const std::vector<RigWellResultPoint>& branchResPoints = resFrame->m_wellResultBranches[brIdx].m_branchResultPoints;
             for ( size_t wrpIdx = 0; wrpIdx < branchResPoints.size(); wrpIdx++ )
             {
-                const RigGridBase* grid = mainGrid->gridByIndex( branchResPoints[wrpIdx].m_gridIndex );
-                size_t globalCellIndex  = grid->reservoirCellIndex( branchResPoints[wrpIdx].m_gridCellIndex );
+                const RigGridBase* grid            = mainGrid->gridByIndex( branchResPoints[wrpIdx].m_gridIndex );
+                size_t             globalCellIndex = grid->reservoirCellIndex( branchResPoints[wrpIdx].m_gridCellIndex );
 
                 globCellIdxToIdxInSimWellBranch[globalCellIndex] = std::make_pair( brIdx, wrpIdx );
             }
@@ -463,8 +457,7 @@ public:
             m_pipeBranchCLCoords.push_back( intersections[wpExIdx].endPoint );
             m_pipeBranchMeasuredDepths.push_back( intersections[wpExIdx].endMD );
 
-            const RigWellResultPoint& resPoint =
-                resFrame->m_wellResultBranches[it->second.first].m_branchResultPoints[it->second.second];
+            const RigWellResultPoint& resPoint = resFrame->m_wellResultBranches[it->second.first].m_branchResultPoints[it->second.second];
 
             m_pipeBranchWellResultPoints.push_back( resPoint );
             if ( wpExIdx < intersections.size() - 1 )
@@ -555,11 +548,9 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
 
                     const std::vector<double>& depthValues = wfTotalAccumulator.pseudoLengthFromTop( 0 );
 
-                    QString curveUnitText =
-                        RimWellPlotTools::flowUnitText( RimWellLogFile::WELL_FLOW_COND_RESERVOIR, unitSet );
+                    QString curveUnitText = RimWellPlotTools::flowUnitText( RimWellLogFile::WELL_FLOW_COND_RESERVOIR, unitSet );
 
-                    const std::vector<double> accFlow =
-                        wfTotalAccumulator.accumulatedTracerFlowPrPseudoLength( RIG_FLOW_TOTAL_NAME, 0 );
+                    const std::vector<double> accFlow = wfTotalAccumulator.accumulatedTracerFlowPrPseudoLength( RIG_FLOW_TOTAL_NAME, 0 );
                     addStackedCurve( curveName + ", " + RIG_FLOW_TOTAL_NAME + " " + curveUnitText,
                                      depthValues,
                                      accFlow,
@@ -585,8 +576,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                                          ? cvf::Color3f::DARK_GREEN
                                          : tracerName == RIG_FLOW_GAS_NAME
                                                ? cvf::Color3f::DARK_RED
-                                               : tracerName == RIG_FLOW_WATER_NAME ? cvf::Color3f::BLUE
-                                                                                   : cvf::Color3f::DARK_GRAY;
+                                               : tracerName == RIG_FLOW_WATER_NAME ? cvf::Color3f::BLUE : cvf::Color3f::DARK_GRAY;
 
                         if ( tracerName == RIG_FLOW_OIL_NAME && selectedPhases.count( FLOW_PHASE_OIL ) ||
                              tracerName == RIG_FLOW_GAS_NAME && selectedPhases.count( FLOW_PHASE_GAS ) ||
@@ -602,8 +592,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                             QString curveUnitText =
                                 RimWellPlotTools::curveUnitText( RimWellLogFile::WELL_FLOW_COND_STANDARD, unitSet, flowPhase );
 
-                            const std::vector<double>& accFlow =
-                                wfPhaseAccumulator.accumulatedTracerFlowPrPseudoLength( tracerName, 0 );
+                            const std::vector<double>& accFlow = wfPhaseAccumulator.accumulatedTracerFlowPrPseudoLength( tracerName, 0 );
                             addStackedCurve( curveName + ", " + tracerName + " " + curveUnitText,
                                              depthValues,
                                              accFlow,
@@ -641,8 +630,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                         channelData[chIdx]  = wellLogFileData->values( channelName );
                         if ( !channelData[chIdx].empty() )
                         {
-                            sortedChannels.insert(
-                                ChannelValNameIdxTuple( -fabs( channelData[chIdx].front() ), channelName, chIdx ) );
+                            sortedChannels.insert( ChannelValNameIdxTuple( -fabs( channelData[chIdx].front() ), channelName, chIdx ) );
                         }
                     }
 
@@ -659,9 +647,8 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                                              ? cvf::Color3f::DARK_GREEN
                                              : RimWellPlotTools::isGasFlowChannel( channelName )
                                                    ? cvf::Color3f::DARK_RED
-                                                   : RimWellPlotTools::isWaterFlowChannel( channelName )
-                                                         ? cvf::Color3f::BLUE
-                                                         : cvf::Color3f::DARK_GRAY;
+                                                   : RimWellPlotTools::isWaterFlowChannel( channelName ) ? cvf::Color3f::BLUE
+                                                                                                         : cvf::Color3f::DARK_GRAY;
 
                             FlowPhase flowPhase = FLOW_PHASE_NONE;
                             if ( RimWellPlotTools::isOilFlowChannel( channelName ) )
@@ -786,8 +773,7 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions( const caf::
 
         for ( const auto& rftCase : rftCases )
         {
-            std::set<RifEclipseRftAddress::RftWellLogChannelType> channelTypesToUse =
-                RifEclipseRftAddress::pltPlotChannelTypes();
+            std::set<RifEclipseRftAddress::RftWellLogChannelType> channelTypesToUse = RifEclipseRftAddress::pltPlotChannelTypes();
 
             std::set<QDateTime> rftTimes = rftCase->rftReader()->availableTimeSteps( simWellName, channelTypesToUse );
             if ( !rftTimes.empty() )
@@ -798,9 +784,8 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions( const caf::
 
         if ( !availableRftSources.empty() )
         {
-            options.push_back( caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
-                                                                         RifDataSourceForRftPlt::RFT ),
-                                                                     true ) );
+            options.push_back(
+                caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText( RifDataSourceForRftPlt::RFT ), true ) );
 
             for ( const auto& addr : availableRftSources )
             {
@@ -813,9 +798,8 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions( const caf::
         const std::vector<RimEclipseResultCase*> gridCases = RimWellPlotTools::gridCasesForWell( simWellName );
         if ( !gridCases.empty() )
         {
-            options.push_back( caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
-                                                                         RifDataSourceForRftPlt::GRID ),
-                                                                     true ) );
+            options.push_back(
+                caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText( RifDataSourceForRftPlt::GRID ), true ) );
         }
 
         for ( const auto& gridCase : gridCases )
@@ -828,9 +812,8 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions( const caf::
 
         if ( !RimWellPlotTools::wellLogFilesContainingFlow( m_wellPathName ).empty() )
         {
-            options.push_back( caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
-                                                                         RifDataSourceForRftPlt::OBSERVED ),
-                                                                     true ) );
+            options.push_back(
+                caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText( RifDataSourceForRftPlt::OBSERVED ), true ) );
 
             auto addr = RifDataSourceForRftPlt( RifDataSourceForRftPlt::OBSERVED );
             auto item = caf::PdmOptionItemInfo( "Observed Data", QVariant::fromValue( addr ) );
@@ -841,8 +824,7 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions( const caf::
     }
     else if ( fieldNeedingOptions == &m_selectedTimeSteps )
     {
-        std::set<RifEclipseRftAddress::RftWellLogChannelType> channelTypesToUse =
-            RifEclipseRftAddress::pltPlotChannelTypes();
+        std::set<RifEclipseRftAddress::RftWellLogChannelType> channelTypesToUse = RifEclipseRftAddress::pltPlotChannelTypes();
 
         RimWellPlotTools::calculateValueOptionsForTimeSteps( RimWellPlotTools::simWellName( m_wellPathName ),
                                                              selectedSourcesExpanded(),
@@ -864,9 +846,7 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions( const caf::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPltPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                       const QVariant&            oldValue,
-                                       const QVariant&            newValue )
+void RimWellPltPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimWellLogPlot::fieldChangedByUi( changedField, oldValue, newValue );
 
@@ -894,8 +874,7 @@ void RimWellPltPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         {
             for ( const RifDataSourceForRftPlt& address : m_selectedSources() )
             {
-                if ( address.sourceType() == RifDataSourceForRftPlt::RFT ||
-                     address.sourceType() == RifDataSourceForRftPlt::GRID )
+                if ( address.sourceType() == RifDataSourceForRftPlt::RFT || address.sourceType() == RifDataSourceForRftPlt::GRID )
                 {
                     if ( !wellPath->wellPathGeometry() )
                     {
@@ -928,8 +907,7 @@ void RimWellPltPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         updateZoom();
     }
 
-    if ( changedField == &m_useStandardConditionCurves || changedField == &m_useReservoirConditionCurves ||
-         changedField == &m_phases )
+    if ( changedField == &m_useStandardConditionCurves || changedField == &m_useReservoirConditionCurves || changedField == &m_phases )
     {
         syncCurvesFromUiSelection();
 
@@ -993,9 +971,7 @@ void RimWellPltPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPltPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                            QString                    uiConfigName,
-                                            caf::PdmUiEditorAttribute* attribute )
+void RimWellPltPlot::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_phases )
     {

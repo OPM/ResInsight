@@ -163,10 +163,7 @@ Rim3dWellLogCurve* Rim3dWellLogCurveCollection::checkForCurveIntersection( const
         cvf::Vec3d closestPointOnCurve;
         double     measuredDepthAtPointOnCurve;
         double     valueAtPointOnCurve;
-        if ( wellLogCurve->findClosestPointOnCurve( globalIntersection,
-                                                    &closestPointOnCurve,
-                                                    &measuredDepthAtPointOnCurve,
-                                                    &valueAtPointOnCurve ) )
+        if ( wellLogCurve->findClosestPointOnCurve( globalIntersection, &closestPointOnCurve, &measuredDepthAtPointOnCurve, &valueAtPointOnCurve ) )
         {
             double distance = globalIntersection.pointDistance( closestPointOnCurve );
             if ( distance < smallestDistance )
@@ -184,9 +181,7 @@ Rim3dWellLogCurve* Rim3dWellLogCurveCollection::checkForCurveIntersection( const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dWellLogCurveCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                    const QVariant&            oldValue,
-                                                    const QVariant&            newValue )
+void Rim3dWellLogCurveCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted( proj );
@@ -219,8 +214,7 @@ void Rim3dWellLogCurveCollection::defineEditorAttribute( const caf::PdmFieldHand
                                                          QString                    uiConfigName,
                                                          caf::PdmUiEditorAttribute* attribute )
 {
-    caf::PdmUiDoubleSliderEditorAttribute* widthAttribute =
-        dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
+    caf::PdmUiDoubleSliderEditorAttribute* widthAttribute = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
     if ( widthAttribute )
     {
         widthAttribute->m_minimum = 0.25;

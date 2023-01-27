@@ -27,9 +27,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuSimpleHistogramWidget::RiuSimpleHistogramWidget( const QString&  objectName,
-                                                    QWidget*        parent /*= 0*/,
-                                                    Qt::WindowFlags f /*= 0*/ )
+RiuSimpleHistogramWidget::RiuSimpleHistogramWidget( const QString& objectName, QWidget* parent /*= 0*/, Qt::WindowFlags f /*= 0*/ )
     : QWidget( parent, f )
 {
     m_minPercentile     = HUGE_VAL;

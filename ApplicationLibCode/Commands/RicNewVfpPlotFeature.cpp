@@ -61,10 +61,8 @@ void RicNewVfpPlotFeature::onActionTriggered( bool isChecked )
 
     const QString vfpDataKey = "VFP_DATA";
     QString       defaultDir = app->lastUsedDialogDirectory( vfpDataKey );
-    QStringList   fileNames  = RiuFileDialogTools::getOpenFileNames( mpw,
-                                                                  "Import VFP Files",
-                                                                  defaultDir,
-                                                                  "VFP Text Files (*.ecl *.vfp);;All Files (*.*)" );
+    QStringList   fileNames =
+        RiuFileDialogTools::getOpenFileNames( mpw, "Import VFP Files", defaultDir, "VFP Text Files (*.ecl *.vfp);;All Files (*.*)" );
 
     if ( fileNames.isEmpty() ) return;
 

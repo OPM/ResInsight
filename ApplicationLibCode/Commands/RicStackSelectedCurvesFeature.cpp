@@ -42,8 +42,7 @@ RicStackSelectedCurvesFeature::RicStackSelectedCurvesFeature()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimStackablePlotCurve*>
-    RicStackSelectedCurvesFeature::plotCurvesFromSelection( const std::vector<caf::PdmUiItem*>& selectedItems )
+std::vector<RimStackablePlotCurve*> RicStackSelectedCurvesFeature::plotCurvesFromSelection( const std::vector<caf::PdmUiItem*>& selectedItems )
 {
     std::vector<RimStackablePlotCurve*> selectedPlotCurves;
 
@@ -63,8 +62,7 @@ std::vector<RimStackablePlotCurve*>
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimStackablePlotCurve*>
-    RicStackSelectedCurvesFeature::subsetOfPlotCurvesFromStacking( const std::vector<RimStackablePlotCurve*>& plotCurves,
-                                                                   bool isStacked )
+    RicStackSelectedCurvesFeature::subsetOfPlotCurvesFromStacking( const std::vector<RimStackablePlotCurve*>& plotCurves, bool isStacked )
 {
     std::vector<RimStackablePlotCurve*> matchingPlotCurves;
 

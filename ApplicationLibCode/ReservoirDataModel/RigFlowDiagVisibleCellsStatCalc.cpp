@@ -76,8 +76,7 @@ void RigFlowDiagVisibleCellsStatCalc::valueSumAndSampleCount( size_t timeStepInd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFlowDiagVisibleCellsStatCalc::addDataToHistogramCalculator( size_t                  timeStepIndex,
-                                                                    RigHistogramCalculator& histogramCalculator )
+void RigFlowDiagVisibleCellsStatCalc::addDataToHistogramCalculator( size_t timeStepIndex, RigHistogramCalculator& histogramCalculator )
 {
     traverseElementNodes( histogramCalculator, timeStepIndex );
 }

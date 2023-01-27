@@ -78,9 +78,7 @@ bool RifHdf5SummaryExporter::ensureHdf5FileIsCreatedMultithreaded( const std::ve
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifHdf5SummaryExporter::ensureHdf5FileIsCreated( const std::string& smspecFileName,
-                                                      const std::string& h5FileName,
-                                                      size_t&            hdfFilesCreatedCount )
+bool RifHdf5SummaryExporter::ensureHdf5FileIsCreated( const std::string& smspecFileName, const std::string& h5FileName, size_t& hdfFilesCreatedCount )
 {
     if ( !std::filesystem::exists( smspecFileName ) ) return false;
 
@@ -129,8 +127,7 @@ bool RifHdf5SummaryExporter::ensureHdf5FileIsCreated( const std::string& smspecF
         }
         catch ( std::exception& e )
         {
-            QString txt =
-                QString( "HDF export to file %1 failed : %3" ).arg( QString::fromStdString( smspecFileName ), e.what() );
+            QString txt = QString( "HDF export to file %1 failed : %3" ).arg( QString::fromStdString( smspecFileName ), e.what() );
 
             RiaLogging::error( txt );
 
@@ -206,8 +203,7 @@ bool RifHdf5SummaryExporter::writeSummaryVectors( RifHdf5Exporter& exporter, Opm
     const std::string datasetName( "values" );
 
     std::map<std::string, std::vector<RifEclipseSummaryAddress>> mapVectorNameToSummaryAddresses;
-    auto [addresses, addressToKeywordMap] =
-        RifOpmCommonSummaryTools::buildAddressesAndKeywordMap( sourceSummaryData.keywordList() );
+    auto [addresses, addressToKeywordMap] = RifOpmCommonSummaryTools::buildAddressesAndKeywordMap( sourceSummaryData.keywordList() );
     for ( const auto& adr : addresses )
     {
         auto vectorName = adr.vectorName();
@@ -240,8 +236,8 @@ bool RifHdf5SummaryExporter::writeSummaryVectors( RifHdf5Exporter& exporter, Opm
 
             try
             {
-                const std::vector<float>& values = sourceSummaryData.get( keyword );
-                auto dataValuesGroup = exporter.createGroup( &keywordGroup, smspecKeywordText.toStdString() );
+                const std::vector<float>& values          = sourceSummaryData.get( keyword );
+                auto                      dataValuesGroup = exporter.createGroup( &keywordGroup, smspecKeywordText.toStdString() );
 
                 exporter.writeDataset( dataValuesGroup, datasetName, values );
                 dataValuesGroup.close();

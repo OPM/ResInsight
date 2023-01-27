@@ -70,10 +70,7 @@ RimGridTimeHistoryCurve::RimGridTimeHistoryCurve()
     m_geometrySelectionItem.uiCapability()->setUiTreeHidden( true );
     m_geometrySelectionItem.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitField( &m_plotAxis,
-                       "PlotAxis",
-                       caf::AppEnum<RiaDefines::PlotAxis>( RiaDefines::PlotAxis::PLOT_AXIS_LEFT ),
-                       "Axis" );
+    CAF_PDM_InitField( &m_plotAxis, "PlotAxis", caf::AppEnum<RiaDefines::PlotAxis>( RiaDefines::PlotAxis::PLOT_AXIS_LEFT ), "Axis" );
 
     setDeletable( true );
 }
@@ -294,13 +291,11 @@ QString RimGridTimeHistoryCurve::quantityName() const
         {
             if ( geoMechTopItem->m_elementFace >= 0 )
             {
-                text.append( ", " + caf::AppEnum<cvf::StructGridInterface::FaceType>::textFromIndex(
-                                        geoMechTopItem->m_elementFace ) );
+                text.append( ", " + caf::AppEnum<cvf::StructGridInterface::FaceType>::textFromIndex( geoMechTopItem->m_elementFace ) );
             }
             else
             {
-                text.append( ", from N[" + QString::number( timeHistResultAccessor->closestNodeId() ) +
-                             "] transformed onto intersection" );
+                text.append( ", from N[" + QString::number( timeHistResultAccessor->closestNodeId() ) + "] transformed onto intersection" );
             }
         }
 
@@ -419,9 +414,7 @@ void RimGridTimeHistoryCurve::onLoadDataAndUpdate( bool updateParentPlot )
             }
             else
             {
-                m_plotCurve->setSamplesFromTimeTAndYValues( std::vector<time_t>(),
-                                                            std::vector<double>(),
-                                                            useLogarithmicScale );
+                m_plotCurve->setSamplesFromTimeTAndYValues( std::vector<time_t>(), std::vector<double>(), useLogarithmicScale );
             }
         }
         else
@@ -441,9 +434,7 @@ void RimGridTimeHistoryCurve::onLoadDataAndUpdate( bool updateParentPlot )
             }
             else
             {
-                m_plotCurve->setSamplesFromTimeTAndYValues( std::vector<time_t>(),
-                                                            std::vector<double>(),
-                                                            useLogarithmicScale );
+                m_plotCurve->setSamplesFromTimeTAndYValues( std::vector<time_t>(), std::vector<double>(), useLogarithmicScale );
             }
         }
 
@@ -607,9 +598,7 @@ void RimGridTimeHistoryCurve::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridTimeHistoryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                const QVariant&            oldValue,
-                                                const QVariant&            newValue )
+void RimGridTimeHistoryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_plotAxis )
     {
@@ -722,8 +711,7 @@ std::unique_ptr<RiuFemTimeHistoryResultAccessor> RimGridTimeHistoryCurve::femTim
 {
     std::unique_ptr<RiuFemTimeHistoryResultAccessor> timeHistResultAccessor;
 
-    if ( geoMechGeomSelectionItem() && geoMechGeomSelectionItem()->geoMechCase() &&
-         geoMechGeomSelectionItem()->geoMechCase()->geoMechData() )
+    if ( geoMechGeomSelectionItem() && geoMechGeomSelectionItem()->geoMechCase() && geoMechGeomSelectionItem()->geoMechCase()->geoMechData() )
     {
         RimGeoMechGeometrySelectionItem* geoMechTopItem = geoMechGeomSelectionItem();
         if ( geoMechTopItem->m_hasIntersectionTriangle )

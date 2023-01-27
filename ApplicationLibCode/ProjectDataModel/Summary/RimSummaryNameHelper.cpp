@@ -82,8 +82,7 @@ QString RimSummaryNameHelper::aggregatedPlotTitle( const RimSummaryNameHelper& o
     if ( ( other.titleVectorName() != this->titleVectorName() ) && ( !vectorName.empty() ) )
     {
         if ( !title.isEmpty() ) title += ", ";
-        title += QString::fromStdString(
-            RiuSummaryQuantityNameInfoProvider::instance()->longNameFromVectorName( vectorName, true ) );
+        title += QString::fromStdString( RiuSummaryQuantityNameInfoProvider::instance()->longNameFromVectorName( vectorName, true ) );
     }
 
     return title;

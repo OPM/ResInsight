@@ -61,7 +61,7 @@ RiuPickItemInfo RiuPickItemInfo::extractPickItemInfo( const cvf::HitItem* hitIte
 //--------------------------------------------------------------------------------------------------
 std::vector<RiuPickItemInfo> RiuPickItemInfo::convertToPickItemInfos( const cvf::HitItemCollection& hitItems,
                                                                       const cvf::Vec3d&             globalRayOrigin,
-                                                                      double coincidentRayDistanceTolerance )
+                                                                      double                        coincidentRayDistanceTolerance )
 {
     sm_rayDistanceTolerance = coincidentRayDistanceTolerance;
 

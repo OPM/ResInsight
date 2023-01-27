@@ -104,9 +104,7 @@ void RimEnsembleStatistics::disableMeanCurve( bool disable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleStatistics::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                              const QVariant&            oldValue,
-                                              const QVariant&            newValue )
+void RimEnsembleStatistics::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_active || changedField == &m_basedOnFilteredCases || changedField == &m_showP10Curve ||
          changedField == &m_showP50Curve || changedField == &m_showP90Curve || changedField == &m_showMeanCurve ||

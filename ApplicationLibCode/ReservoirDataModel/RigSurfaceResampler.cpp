@@ -44,8 +44,7 @@ cvf::ref<RigSurface> RigSurfaceResampler::resampleSurface( cvf::ref<RigSurface> 
 
         cvf::Vec3d intersectionPoint;
         bool       foundMatch = resamplePoint( surface.p(), pointAbove, pointBelow, intersectionPoint );
-        if ( !foundMatch )
-            intersectionPoint = cvf::Vec3d( targetVert.x(), targetVert.y(), std::numeric_limits<double>::infinity() );
+        if ( !foundMatch ) intersectionPoint = cvf::Vec3d( targetVert.x(), targetVert.y(), std::numeric_limits<double>::infinity() );
 
         resampledVerts.push_back( intersectionPoint );
     }
@@ -58,10 +57,7 @@ cvf::ref<RigSurface> RigSurfaceResampler::resampleSurface( cvf::ref<RigSurface> 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigSurfaceResampler::resamplePoint( RigSurface*       surface,
-                                         const cvf::Vec3d& pointAbove,
-                                         const cvf::Vec3d& pointBelow,
-                                         cvf::Vec3d&       intersectionPoint )
+bool RigSurfaceResampler::resamplePoint( RigSurface* surface, const cvf::Vec3d& pointAbove, const cvf::Vec3d& pointBelow, cvf::Vec3d& intersectionPoint )
 {
     surface->ensureIntersectionSearchTreeIsBuilt();
 

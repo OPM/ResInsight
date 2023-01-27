@@ -61,9 +61,7 @@ RimFileSummaryCase::RimFileSummaryCase()
     CAF_PDM_InitScriptableField( &m_includeRestartFiles, "IncludeRestartFiles", false, "Include Restart Files" );
     m_includeRestartFiles.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_additionalSummaryFilePath,
-                                "AdditionalSummaryFilePath",
-                                "Additional File Path (set invisible when ready)" );
+    CAF_PDM_InitFieldNoDefault( &m_additionalSummaryFilePath, "AdditionalSummaryFilePath", "Additional File Path (set invisible when ready)" );
     m_additionalSummaryFilePath.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_rftCase, "RftCase", "RFT Case" );
@@ -100,9 +98,8 @@ QString RimFileSummaryCase::caseName() const
 //--------------------------------------------------------------------------------------------------
 void RimFileSummaryCase::createSummaryReaderInterfaceThreadSafe( RiaThreadSafeLogger* threadSafeLogger )
 {
-    m_fileSummaryReader = RimFileSummaryCase::findRelatedFilesAndCreateReader( this->summaryHeaderFilename(),
-                                                                               m_includeRestartFiles,
-                                                                               threadSafeLogger );
+    m_fileSummaryReader =
+        RimFileSummaryCase::findRelatedFilesAndCreateReader( this->summaryHeaderFilename(), m_includeRestartFiles, threadSafeLogger );
 
     m_multiSummaryReader = new RifMultipleSummaryReaders;
     m_multiSummaryReader->addReader( m_fileSummaryReader.p() );
@@ -116,9 +113,8 @@ void RimFileSummaryCase::createSummaryReaderInterfaceThreadSafe( RiaThreadSafeLo
 void RimFileSummaryCase::createSummaryReaderInterface()
 {
     RiaThreadSafeLogger threadSafeLogger;
-    m_fileSummaryReader  = RimFileSummaryCase::findRelatedFilesAndCreateReader( this->summaryHeaderFilename(),
-                                                                               m_includeRestartFiles,
-                                                                               &threadSafeLogger );
+    m_fileSummaryReader =
+        RimFileSummaryCase::findRelatedFilesAndCreateReader( this->summaryHeaderFilename(), m_includeRestartFiles, &threadSafeLogger );
     m_multiSummaryReader = new RifMultipleSummaryReaders;
     m_multiSummaryReader->addReader( m_fileSummaryReader.p() );
 
@@ -178,22 +174,20 @@ void RimFileSummaryCase::createRftReaderInterface()
         }
     }
 
-    m_summaryEclipseRftReader =
-        RimFileSummaryCase::findRftDataAndCreateReader( rftFileName, m_rftCase->dataDeckFilePath() );
+    m_summaryEclipseRftReader = RimFileSummaryCase::findRftDataAndCreateReader( rftFileName, m_rftCase->dataDeckFilePath() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifSummaryReaderInterface* RimFileSummaryCase::findRelatedFilesAndCreateReader( const QString& headerFileName,
-                                                                                bool           includeRestartFiles,
+RifSummaryReaderInterface* RimFileSummaryCase::findRelatedFilesAndCreateReader( const QString&       headerFileName,
+                                                                                bool                 includeRestartFiles,
                                                                                 RiaThreadSafeLogger* threadSafeLogger )
 {
     if ( includeRestartFiles )
     {
         std::vector<QString>            warnings;
-        std::vector<RifRestartFileInfo> restartFileInfos =
-            RifEclipseSummaryTools::getRestartFiles( headerFileName, warnings );
+        std::vector<RifRestartFileInfo> restartFileInfos = RifEclipseSummaryTools::getRestartFiles( headerFileName, warnings );
 
         if ( !restartFileInfos.empty() )
         {
@@ -249,9 +243,7 @@ RifReaderOpmRft* RimFileSummaryCase::findRftDataAndCreateReader( const QString& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFileSummaryCase::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                QString                    uiConfigName,
-                                                caf::PdmUiEditorAttribute* attribute )
+void RimFileSummaryCase::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_additionalSummaryFilePath )
     {

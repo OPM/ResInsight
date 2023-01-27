@@ -79,10 +79,10 @@ void RicNewWellLogCurveExtractionFeature::onActionTriggered( bool isChecked )
     }
     else
     {
-        RimWellPath*                wellPath    = caf::SelectionManager::instance()->selectedItemOfType<RimWellPath>();
-        int                         branchIndex = -1;
-        RimSimWellInView*           simWell     = RicWellLogTools::selectedSimulationWell( &branchIndex );
-        Rim3dView*                  view        = RiaApplication::instance()->activeMainOrComparisonGridView();
+        RimWellPath*                wellPath           = caf::SelectionManager::instance()->selectedItemOfType<RimWellPath>();
+        int                         branchIndex        = -1;
+        RimSimWellInView*           simWell            = RicWellLogTools::selectedSimulationWell( &branchIndex );
+        Rim3dView*                  view               = RiaApplication::instance()->activeMainOrComparisonGridView();
         bool                        useBranchDetection = true;
         RimSimWellInViewCollection* simWellColl        = nullptr;
         if ( simWell )
@@ -93,8 +93,7 @@ void RicNewWellLogCurveExtractionFeature::onActionTriggered( bool isChecked )
 
         if ( wellPath || simWell )
         {
-            RimWellLogTrack* newWellLogPlotTrack =
-                RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( true, "", wellLogPlot );
+            RimWellLogTrack* newWellLogPlotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( true, "", wellLogPlot );
             if ( wellPath )
             {
                 newWellLogPlotTrack->setFormationWellPath( wellPath );
@@ -115,13 +114,7 @@ void RicNewWellLogCurveExtractionFeature::onActionTriggered( bool isChecked )
                 newWellLogPlotTrack->setFormationCase( view->ownerCase() );
             }
 
-            RicWellLogTools::addWellLogExtractionCurve( newWellLogPlotTrack,
-                                                        ownerCase,
-                                                        view,
-                                                        wellPath,
-                                                        simWell,
-                                                        branchIndex,
-                                                        useBranchDetection );
+            RicWellLogTools::addWellLogExtractionCurve( newWellLogPlotTrack, ownerCase, view, wellPath, simWell, branchIndex, useBranchDetection );
         }
     }
     RiuPlotMainWindowTools::refreshToolbars();

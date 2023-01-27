@@ -96,8 +96,8 @@ void QssSyntaxHighligter::highlightBlock( const QString& text )
 
     if ( previousBlockState() == -1 )
     {
-        QRegularExpression expression = QRegularExpression( "([a-zA-z0-9_-]+)(::[a-zA-Z0-9_-]+)?(:[a-zA-Z0-9_-]+)?" );
-        QRegularExpressionMatchIterator i = expression.globalMatch( text );
+        QRegularExpression              expression = QRegularExpression( "([a-zA-z0-9_-]+)(::[a-zA-Z0-9_-]+)?(:[a-zA-Z0-9_-]+)?" );
+        QRegularExpressionMatchIterator i          = expression.globalMatch( text );
         while ( i.hasNext() )
         {
             QRegularExpressionMatch matchClass = i.next();

@@ -50,8 +50,7 @@ bool RifReaderFmuRft::Observation::valid() const
 {
     return utmx != std::numeric_limits<double>::infinity() && utmy != std::numeric_limits<double>::infinity() &&
            mdrkb != std::numeric_limits<double>::infinity() && tvdmsl != std::numeric_limits<double>::infinity() &&
-           pressure != std::numeric_limits<double>::infinity() &&
-           pressureError != std::numeric_limits<double>::infinity();
+           pressure != std::numeric_limits<double>::infinity() && pressureError != std::numeric_limits<double>::infinity();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -165,10 +164,8 @@ std::vector<QString> RifReaderFmuRft::labels( const RifEclipseRftAddress& rftAdd
         const std::vector<Observation>& observations = it->second.observations;
         for ( const Observation& observation : observations )
         {
-            formationLabels.push_back( QString( "%1 - Pressure: %2 +/- %3" )
-                                           .arg( observation.formation )
-                                           .arg( observation.pressure )
-                                           .arg( observation.pressureError ) );
+            formationLabels.push_back(
+                QString( "%1 - Pressure: %2 +/- %3" ).arg( observation.formation ).arg( observation.pressure ).arg( observation.pressureError ) );
         }
     }
     return formationLabels;
@@ -196,19 +193,13 @@ std::set<RifEclipseRftAddress> RifReaderFmuRft::eclipseRftAddresses()
             if ( observation.valid() )
             {
                 RifEclipseRftAddress tvdAddress =
-                    RifEclipseRftAddress::createAddress( wellName,
-                                                         dateTime,
-                                                         RifEclipseRftAddress::RftWellLogChannelType::TVD );
+                    RifEclipseRftAddress::createAddress( wellName, dateTime, RifEclipseRftAddress::RftWellLogChannelType::TVD );
                 RifEclipseRftAddress mdAddress =
                     RifEclipseRftAddress::createAddress( wellName, dateTime, RifEclipseRftAddress::RftWellLogChannelType::MD );
                 RifEclipseRftAddress pressureAddress =
-                    RifEclipseRftAddress::createAddress( wellName,
-                                                         dateTime,
-                                                         RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
+                    RifEclipseRftAddress::createAddress( wellName, dateTime, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
                 RifEclipseRftAddress pressureErrorAddress =
-                    RifEclipseRftAddress::createAddress( wellName,
-                                                         dateTime,
-                                                         RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_ERROR );
+                    RifEclipseRftAddress::createAddress( wellName, dateTime, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_ERROR );
                 allAddresses.insert( tvdAddress );
                 allAddresses.insert( mdAddress );
                 allAddresses.insert( pressureAddress );
@@ -316,9 +307,8 @@ void RifReaderFmuRft::load()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<QDateTime>
-    RifReaderFmuRft::availableTimeSteps( const QString&                                     wellName,
-                                         const RifEclipseRftAddress::RftWellLogChannelType& wellLogChannelName )
+std::set<QDateTime> RifReaderFmuRft::availableTimeSteps( const QString&                                     wellName,
+                                                         const RifEclipseRftAddress::RftWellLogChannelType& wellLogChannelName )
 {
     if ( wellLogChannelName == RifEclipseRftAddress::RftWellLogChannelType::TVD ||
          wellLogChannelName == RifEclipseRftAddress::RftWellLogChannelType::MD ||
@@ -350,9 +340,8 @@ std::set<QDateTime> RifReaderFmuRft::availableTimeSteps( const QString& wellName
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<QDateTime>
-    RifReaderFmuRft::availableTimeSteps( const QString&                                               wellName,
-                                         const std::set<RifEclipseRftAddress::RftWellLogChannelType>& relevantChannels )
+std::set<QDateTime> RifReaderFmuRft::availableTimeSteps( const QString&                                               wellName,
+                                                         const std::set<RifEclipseRftAddress::RftWellLogChannelType>& relevantChannels )
 {
     if ( relevantChannels.count( RifEclipseRftAddress::RftWellLogChannelType::TVD ) ||
          relevantChannels.count( RifEclipseRftAddress::RftWellLogChannelType::MD ) ||

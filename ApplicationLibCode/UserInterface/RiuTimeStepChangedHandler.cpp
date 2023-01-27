@@ -63,8 +63,7 @@ void RiuTimeStepChangedHandler::handleTimeStepChanged( Rim3dView* changedView ) 
 {
     if ( !RiaGuiApplication::isRunning() ) return;
 
-    RiuRelativePermeabilityPlotUpdater* relPermPlotUpdater =
-        RiuMainWindow::instance()->relativePermeabilityPlotPanel()->plotUpdater();
+    RiuRelativePermeabilityPlotUpdater* relPermPlotUpdater = RiuMainWindow::instance()->relativePermeabilityPlotPanel()->plotUpdater();
     relPermPlotUpdater->updateOnTimeStepChanged( changedView );
 
     RiuPvtPlotUpdater* pvtPlotUpdater = RiuMainWindow::instance()->pvtPlotPanel()->plotUpdater();

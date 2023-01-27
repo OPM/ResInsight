@@ -33,10 +33,9 @@ RigEclipseTimeStepInfo::RigEclipseTimeStepInfo( const QDateTime& date, int repor
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigEclipseTimeStepInfo>
-    RigEclipseTimeStepInfo::createTimeStepInfos( std::vector<QDateTime> dates,
-                                                 std::vector<int>       reportNumbers,
-                                                 std::vector<double>    daysSinceSimulationStarts )
+std::vector<RigEclipseTimeStepInfo> RigEclipseTimeStepInfo::createTimeStepInfos( std::vector<QDateTime> dates,
+                                                                                 std::vector<int>       reportNumbers,
+                                                                                 std::vector<double>    daysSinceSimulationStarts )
 {
     CVF_ASSERT( dates.size() == reportNumbers.size() );
     CVF_ASSERT( dates.size() == daysSinceSimulationStarts.size() );

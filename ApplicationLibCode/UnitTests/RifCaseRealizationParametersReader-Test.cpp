@@ -8,8 +8,7 @@
 #include <QString>
 #include <numeric>
 
-static const QString CASE_REAL_TEST_DATA_DIRECTORY_01 =
-    QString( "%1/RifCaseRealizationParametersReader/" ).arg( TEST_DATA_DIR );
+static const QString CASE_REAL_TEST_DATA_DIRECTORY_01 = QString( "%1/RifCaseRealizationParametersReader/" ).arg( TEST_DATA_DIR );
 
 //--------------------------------------------------------------------------------------------------
 ///

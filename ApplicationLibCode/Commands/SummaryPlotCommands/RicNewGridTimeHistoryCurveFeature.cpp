@@ -56,8 +56,7 @@ CAF_CMD_SOURCE_INIT( RicNewGridTimeHistoryCurveFeature, "RicNewGridTimeHistoryCu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewGridTimeHistoryCurveFeature::createCurveFromSelectionItem( const RiuSelectionItem* selectionItem,
-                                                                      RimSummaryPlot*         plot )
+void RicNewGridTimeHistoryCurveFeature::createCurveFromSelectionItem( const RiuSelectionItem* selectionItem, RimSummaryPlot* plot )
 {
     CVF_ASSERT( selectionItem );
     CVF_ASSERT( plot );
@@ -93,8 +92,8 @@ RimSummaryPlot* RicNewGridTimeHistoryCurveFeature::userSelectedSummaryPlot()
     RimSummaryPlot* defaultSelectedPlot = nullptr;
     {
         QString         lastUsedPlotRef = app->cacheDataObject( lastUsedSummaryPlotKey ).toString();
-        RimSummaryPlot* lastUsedPlot    = dynamic_cast<RimSummaryPlot*>(
-            caf::PdmReferenceHelper::objectFromReference( app->project(), lastUsedPlotRef ) );
+        RimSummaryPlot* lastUsedPlot =
+            dynamic_cast<RimSummaryPlot*>( caf::PdmReferenceHelper::objectFromReference( app->project(), lastUsedPlotRef ) );
         if ( lastUsedPlot )
         {
             defaultSelectedPlot = lastUsedPlot;

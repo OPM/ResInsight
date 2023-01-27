@@ -163,8 +163,7 @@ RimStimPlanModelCollection* RicNewStimPlanModelFeature::selectedStimPlanModelCol
         RimWellPath* wellPath = dynamic_cast<RimWellPath*>( objHandle );
         if ( wellPath ) return wellPath->stimPlanModelCollection();
 
-        RimWellPathCompletions* completions =
-            caf::SelectionManager::instance()->selectedItemOfType<RimWellPathCompletions>();
+        RimWellPathCompletions* completions = caf::SelectionManager::instance()->selectedItemOfType<RimWellPathCompletions>();
         if ( completions ) return completions->stimPlanModelCollection();
     }
     return nullptr;

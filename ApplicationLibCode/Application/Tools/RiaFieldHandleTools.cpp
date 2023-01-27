@@ -36,8 +36,7 @@ void RiaFieldHandleTools::disableWriteAndSetFieldHidden( caf::PdmFieldHandle* fi
 
     if ( fieldHandle->uiCapability() )
     {
-        if ( dynamic_cast<caf::PdmChildFieldHandle*>( fieldHandle ) ||
-             dynamic_cast<caf::PdmChildArrayFieldHandle*>( fieldHandle ) )
+        if ( dynamic_cast<caf::PdmChildFieldHandle*>( fieldHandle ) || dynamic_cast<caf::PdmChildArrayFieldHandle*>( fieldHandle ) )
             fieldHandle->uiCapability()->setUiTreeHidden( true );
         else
             fieldHandle->uiCapability()->setUiHidden( true );
@@ -52,9 +51,7 @@ void RiaFieldHandleTools::disableWriteAndSetFieldHidden( caf::PdmFieldHandle* fi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaFieldHandleTools::updateOverrideStateAndLabel( caf::PdmFieldHandle* fieldHandle,
-                                                       bool                 isOverridden,
-                                                       const QString&       toolTip )
+void RiaFieldHandleTools::updateOverrideStateAndLabel( caf::PdmFieldHandle* fieldHandle, bool isOverridden, const QString& toolTip )
 {
     // Get the label text as given by the init_field macro
     QString labelText = fieldHandle->uiCapability()->uiName( fieldHandle->uiCapability()->uiConfigNameForStaticData() );

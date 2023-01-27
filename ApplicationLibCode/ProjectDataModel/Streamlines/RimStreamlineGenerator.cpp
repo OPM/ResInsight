@@ -64,10 +64,7 @@ RimStreamlineGenerator::~RimStreamlineGenerator()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStreamlineGenerator::generateTracer( RigCell                    cell,
-                                             double                     direction,
-                                             QString                    simWellName,
-                                             std::list<RimStreamline*>& outStreamlines )
+void RimStreamlineGenerator::generateTracer( RigCell cell, double direction, QString simWellName, std::list<RimStreamline*>& outStreamlines )
 {
     RiaDefines::PhaseType dominantPhase = m_phases.front();
 
@@ -108,10 +105,7 @@ void RimStreamlineGenerator::generateTracer( RigCell                    cell,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStreamlineGenerator::growStreamline( RimStreamline*                     streamline,
-                                             size_t                             cellIdx,
-                                             cvf::StructGridInterface::FaceType faceIdx,
-                                             double                             direction )
+void RimStreamlineGenerator::growStreamline( RimStreamline* streamline, size_t cellIdx, cvf::StructGridInterface::FaceType faceIdx, double direction )
 {
     // get the cell
     RigCell cell = m_dataAccess->grid()->cell( cellIdx );
@@ -125,8 +119,7 @@ void RimStreamlineGenerator::growStreamline( RimStreamline*                     
     rate *= direction;
 
     // grow from start cell center to face center, exiting if we reach the max length
-    if ( !growStreamlineFromTo( streamline, cell.center(), cell.faceCenter( faceIdx ), rate, dominantPhaseOut ) )
-        return;
+    if ( !growStreamlineFromTo( streamline, cell.center(), cell.faceCenter( faceIdx ), rate, dominantPhaseOut ) ) return;
 
     while ( rate >= m_flowThreshold )
     {
@@ -136,8 +129,7 @@ void RimStreamlineGenerator::growStreamline( RimStreamline*                     
         faceIdx = cvf::StructGridInterface::oppositeFace( faceIdx );
 
         // grow from given face center to cell center, exiting if we reach the max length
-        if ( !growStreamlineFromTo( streamline, cell.faceCenter( faceIdx ), cell.center(), rate, dominantPhaseOut ) )
-            break;
+        if ( !growStreamlineFromTo( streamline, cell.faceCenter( faceIdx ), cell.center(), rate, dominantPhaseOut ) ) break;
 
         const size_t cellIdx = cell.gridLocalCellIndex();
 
@@ -158,7 +150,7 @@ void RimStreamlineGenerator::growStreamline( RimStreamline*                     
             if ( face == faceIdx ) continue;
 
             RiaDefines::PhaseType tempDominantFace;
-            double faceRate = m_dataAccess->combinedFaceRate( cell, face, m_phases, direction, tempDominantFace );
+            double                faceRate = m_dataAccess->combinedFaceRate( cell, face, m_phases, direction, tempDominantFace );
 
             // if we go backwards from a producer, the rate needs to be flipped
             faceRate *= direction;
@@ -181,15 +173,13 @@ void RimStreamlineGenerator::growStreamline( RimStreamline*                     
         {
             if ( kvp.first == exitFace ) continue;
 
-            if ( kvp.second >= m_flowThreshold )
-                m_seeds.push( StreamlineSeedPoint( kvp.second, cell.gridLocalCellIndex(), kvp.first ) );
+            if ( kvp.second >= m_flowThreshold ) m_seeds.push( StreamlineSeedPoint( kvp.second, cell.gridLocalCellIndex(), kvp.first ) );
         }
 
         rate = maxRate;
 
         // grow from cell center to exit face center, stopping if we reach the max point limit
-        if ( !growStreamlineFromTo( streamline, cell.center(), cell.faceCenter( exitFace ), rate, dominantPhaseOut ) )
-            break;
+        if ( !growStreamlineFromTo( streamline, cell.center(), cell.faceCenter( exitFace ), rate, dominantPhaseOut ) ) break;
 
         faceIdx = exitFace;
     }

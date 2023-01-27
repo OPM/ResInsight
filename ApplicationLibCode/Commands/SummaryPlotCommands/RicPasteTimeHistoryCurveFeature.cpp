@@ -38,8 +38,7 @@ CAF_CMD_SOURCE_INIT( RicPasteTimeHistoryCurveFeature, "RicPasteTimeHistoryCurveF
 //--------------------------------------------------------------------------------------------------
 bool RicPasteTimeHistoryCurveFeature::isCommandEnabled()
 {
-    caf::PdmObjectHandle* destinationObject =
-        dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
+    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
 
     if ( !destinationObject )
     {
@@ -61,8 +60,7 @@ bool RicPasteTimeHistoryCurveFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicPasteTimeHistoryCurveFeature::onActionTriggered( bool isChecked )
 {
-    caf::PdmObjectHandle* destinationObject =
-        dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
+    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
     CVF_ASSERT( destinationObject );
 
     RimSummaryPlot* summaryPlot = nullptr;
@@ -72,8 +70,7 @@ void RicPasteTimeHistoryCurveFeature::onActionTriggered( bool isChecked )
         return;
     }
 
-    std::vector<caf::PdmPointer<RimGridTimeHistoryCurve>> sourceObjects =
-        RicPasteTimeHistoryCurveFeature::timeHistoryCurves();
+    std::vector<caf::PdmPointer<RimGridTimeHistoryCurve>> sourceObjects = RicPasteTimeHistoryCurveFeature::timeHistoryCurves();
 
     for ( size_t i = 0; i < sourceObjects.size(); i++ )
     {

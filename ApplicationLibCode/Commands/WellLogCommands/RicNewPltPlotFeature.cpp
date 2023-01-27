@@ -148,7 +148,7 @@ RimWellPath* RicNewPltPlotFeature::selectedWellPath() const
 //--------------------------------------------------------------------------------------------------
 RimSimWellInView* RicNewPltPlotFeature::selectedSimulationWell( int* branchIndex ) const
 {
-    RiuSelectionItem* selItem = Riu3dSelectionManager::instance()->selectedItem( Riu3dSelectionManager::RUI_TEMPORARY );
+    RiuSelectionItem*        selItem        = Riu3dSelectionManager::instance()->selectedItem( Riu3dSelectionManager::RUI_TEMPORARY );
     RiuSimWellSelectionItem* simWellSelItem = dynamic_cast<RiuSimWellSelectionItem*>( selItem );
     if ( simWellSelItem )
     {

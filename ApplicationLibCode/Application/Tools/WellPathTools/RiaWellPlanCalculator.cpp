@@ -26,8 +26,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaWellPlanCalculator::RiaWellPlanCalculator( const cvf::Vec3d&              startTangent,
-                                              const std::vector<cvf::Vec3d>& lineArcEndPoints )
+RiaWellPlanCalculator::RiaWellPlanCalculator( const cvf::Vec3d& startTangent, const std::vector<cvf::Vec3d>& lineArcEndPoints )
     : m_startTangent( startTangent )
     , m_lineArcEndPoints( lineArcEndPoints )
 {
@@ -123,10 +122,10 @@ void RiaWellPlanCalculator::addArcSegment( cvf::Vec3d t1, cvf::Vec3d p1, cvf::Ve
     segment.EW     = p2.x();
     segment.dogleg = cvf::Math::toDegrees( 30.0 / arcCalc.radius() );
     RiaOffshoreSphericalCoords startAziIncRad( t1 );
-    double buildInRadsPrLength = ( arcCalc.endInclination() - startAziIncRad.inc() ) / arcCalc.arcLength();
-    double turnInRadsPrLength  = ( arcCalc.endAzimuth() - startAziIncRad.azi() ) / arcCalc.arcLength();
-    segment.build              = 30 * cvf::Math::toDegrees( buildInRadsPrLength );
-    segment.turn               = 30 * cvf::Math::toDegrees( turnInRadsPrLength );
+    double                     buildInRadsPrLength = ( arcCalc.endInclination() - startAziIncRad.inc() ) / arcCalc.arcLength();
+    double                     turnInRadsPrLength  = ( arcCalc.endAzimuth() - startAziIncRad.azi() ) / arcCalc.arcLength();
+    segment.build                                  = 30 * cvf::Math::toDegrees( buildInRadsPrLength );
+    segment.turn                                   = 30 * cvf::Math::toDegrees( turnInRadsPrLength );
 
     m_wpResult.push_back( segment );
 

@@ -86,9 +86,7 @@ std::vector<std::pair<double, double>> RigPressureDepthData::getPressureDepthVal
 std::vector<double> RigPressureDepthData::tvdmsl() const
 {
     std::vector<double> vals;
-    std::transform( std::begin( m_values ), std::end( m_values ), std::back_inserter( vals ), []( auto const& v ) {
-        return v.second;
-    } );
+    std::transform( std::begin( m_values ), std::end( m_values ), std::back_inserter( vals ), []( auto const& v ) { return v.second; } );
     return vals;
 }
 
@@ -98,8 +96,6 @@ std::vector<double> RigPressureDepthData::tvdmsl() const
 std::vector<double> RigPressureDepthData::pressure() const
 {
     std::vector<double> vals;
-    std::transform( std::begin( m_values ), std::end( m_values ), std::back_inserter( vals ), []( auto const& v ) {
-        return v.first;
-    } );
+    std::transform( std::begin( m_values ), std::end( m_values ), std::back_inserter( vals ), []( auto const& v ) { return v.first; } );
     return vals;
 }

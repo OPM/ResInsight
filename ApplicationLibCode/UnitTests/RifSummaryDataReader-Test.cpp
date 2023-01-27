@@ -55,8 +55,7 @@ TEST( DISABLED_RifSummaryDataTest, OpmCommonAllData )
 
             auto                          end  = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> diff = end - start;
-            std::cout << "OPM Read data " << std::setw( 9 ) << totalValuesRead << "totalValueCount" << diff.count()
-                      << " s\n";
+            std::cout << "OPM Read data " << std::setw( 9 ) << totalValuesRead << "totalValueCount" << diff.count() << " s\n";
         }
     }
 }
@@ -106,8 +105,7 @@ TEST( DISABLED_RifSummaryDataTest, LibEclAllData )
 
             auto                          end  = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> diff = end - start;
-            std::cout << "LibEcl read data" << std::setw( 9 ) << totalValuesRead << "totalValueCount" << diff.count()
-                      << " s\n";
+            std::cout << "LibEcl read data" << std::setw( 9 ) << totalValuesRead << "totalValueCount" << diff.count() << " s\n";
         }
     }
 }

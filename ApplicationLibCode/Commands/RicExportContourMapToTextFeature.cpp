@@ -156,8 +156,7 @@ void RicExportContourMapToTextFeature::writeMetaDataToStream( QTextStream&      
     stream << "# property name : " << contourMapProjection->resultDescriptionText() << "\n";
     if ( exportLocalCoordinates )
     {
-        stream << "# UTM offset : x=" << contourMapProjection->origin3d().x()
-               << " y=" << contourMapProjection->origin3d().y() << "\n";
+        stream << "# UTM offset : x=" << contourMapProjection->origin3d().x() << " y=" << contourMapProjection->origin3d().y() << "\n";
     }
     stream << "\n\n";
 }
@@ -226,8 +225,7 @@ std::pair<RimEclipseContourMapView*, RimGeoMechContourMapView*> RicExportContour
     RimEclipseContourMapView* existingEclipseContourMap = nullptr;
     RimGeoMechContourMapView* existingGeoMechContourMap = nullptr;
 
-    auto contextMenuWidget =
-        dynamic_cast<RiuViewer*>( caf::CmdFeatureManager::instance()->currentContextMenuTargetWidget() );
+    auto contextMenuWidget = dynamic_cast<RiuViewer*>( caf::CmdFeatureManager::instance()->currentContextMenuTargetWidget() );
 
     if ( contextMenuWidget )
     {

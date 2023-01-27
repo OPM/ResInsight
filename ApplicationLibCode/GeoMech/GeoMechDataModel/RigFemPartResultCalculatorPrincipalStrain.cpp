@@ -32,8 +32,8 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RigFemPartResultCalculatorPrincipalStrain::RigFemPartResultCalculatorPrincipalStrain( RigFemPartResultsCollection& collection,
-                                                                                      const std::string fieldName,
-                                                                                      const std::string componentPrefix )
+                                                                                      const std::string            fieldName,
+                                                                                      const std::string            componentPrefix )
     : RigFemPartResultCalculator( collection )
     , m_fieldName( fieldName )
     , m_componentPrefix( componentPrefix )
@@ -67,8 +67,7 @@ bool RigFemPartResultCalculatorPrincipalStrain::isMatching( const RigFemResultAd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultCalculatorPrincipalStrain::calculate( int                        partIndex,
-                                                                                const RigFemResultAddress& resAddr )
+RigFemScalarResultFrames* RigFemPartResultCalculatorPrincipalStrain::calculate( int partIndex, const RigFemResultAddress& resAddr )
 {
     CVF_ASSERT( resAddr.componentName == m_componentNames[0] || resAddr.componentName == m_componentNames[1] ||
                 resAddr.componentName == m_componentNames[2] );
@@ -78,8 +77,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorPrincipalStrain::calculate( 
     caf::ProgressInfo stepCountProgress( static_cast<size_t>( m_resultCollection->timeStepCount() ) * 7, progressText );
 
     auto loadFrameLambda = [&]( const std::string& component ) {
-        auto task = stepCountProgress.task( QString::fromStdString( "Loading " + component ),
-                                            m_resultCollection->timeStepCount() );
+        auto task = stepCountProgress.task( QString::fromStdString( "Loading " + component ), m_resultCollection->timeStepCount() );
         return m_resultCollection->findOrLoadScalarResult( partIndex, resAddr.copyWithComponent( component ) );
     };
 
@@ -90,12 +88,9 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorPrincipalStrain::calculate( 
     RigFemScalarResultFrames* e13Frames = loadFrameLambda( m_componentPrefix + "13" );
     RigFemScalarResultFrames* e23Frames = loadFrameLambda( m_componentPrefix + "23" );
 
-    RigFemScalarResultFrames* e1Frames =
-        m_resultCollection->createScalarResult( partIndex, resAddr.copyWithComponent( m_componentNames[0] ) );
-    RigFemScalarResultFrames* e2Frames =
-        m_resultCollection->createScalarResult( partIndex, resAddr.copyWithComponent( m_componentNames[1] ) );
-    RigFemScalarResultFrames* e3Frames =
-        m_resultCollection->createScalarResult( partIndex, resAddr.copyWithComponent( m_componentNames[2] ) );
+    RigFemScalarResultFrames* e1Frames = m_resultCollection->createScalarResult( partIndex, resAddr.copyWithComponent( m_componentNames[0] ) );
+    RigFemScalarResultFrames* e2Frames = m_resultCollection->createScalarResult( partIndex, resAddr.copyWithComponent( m_componentNames[1] ) );
+    RigFemScalarResultFrames* e3Frames = m_resultCollection->createScalarResult( partIndex, resAddr.copyWithComponent( m_componentNames[2] ) );
 
     const int timeSteps = e11Frames->timeStepCount();
     for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )

@@ -79,17 +79,16 @@ void RivScalarMapperUtils::applyTernaryTextureResultsToPart( cvf::Part*         
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Effect>
-    RivScalarMapperUtils::createCellEdgeEffect( cvf::DrawableGeo*                          dg,
-                                                const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper,
-                                                size_t                                     gridIndex,
-                                                size_t                                     timeStepIndex,
-                                                RimEclipseCellColors*                      cellResultColors,
-                                                RimCellEdgeColors*                         cellEdgeResultColors,
-                                                float                                      opacityLevel,
-                                                cvf::Color3f                               defaultColor,
-                                                caf::FaceCulling                           faceCulling,
-                                                bool                                       disableLighting )
+cvf::ref<cvf::Effect> RivScalarMapperUtils::createCellEdgeEffect( cvf::DrawableGeo*                          dg,
+                                                                  const cvf::StructGridQuadToCellFaceMapper* quadToCellFaceMapper,
+                                                                  size_t                                     gridIndex,
+                                                                  size_t                                     timeStepIndex,
+                                                                  RimEclipseCellColors*                      cellResultColors,
+                                                                  RimCellEdgeColors*                         cellEdgeResultColors,
+                                                                  float                                      opacityLevel,
+                                                                  cvf::Color3f                               defaultColor,
+                                                                  caf::FaceCulling                           faceCulling,
+                                                                  bool                                       disableLighting )
 {
     CellEdgeEffectGenerator cellFaceEffectGen( cellEdgeResultColors->legendConfig()->scalarMapper() );
 
@@ -170,7 +169,7 @@ cvf::ref<cvf::Effect> RivScalarMapperUtils::createScalarMapperEffect( const cvf:
 cvf::ref<cvf::Effect> RivScalarMapperUtils::createTernaryScalarMapperEffect( const RivTernaryScalarMapper* mapper,
                                                                              float                         opacityLevel,
                                                                              caf::FaceCulling              faceCulling,
-                                                                             bool disableLighting )
+                                                                             bool                          disableLighting )
 {
     CVF_ASSERT( mapper );
 

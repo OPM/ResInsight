@@ -46,10 +46,7 @@ void caf::AppEnum<RimFractureTemplate::FracOrientationEnum>::setUp()
 {
     addItem( RimFractureTemplate::AZIMUTH, "Azimuth", "Azimuth", QStringList( "Az" ) );
     addItem( RimFractureTemplate::ALONG_WELL_PATH, "Longitudinal", "Along Well Path", QStringList( "AlongWellPath" ) );
-    addItem( RimFractureTemplate::TRANSVERSE_WELL_PATH,
-             "Transverse",
-             "Transverse (normal) to Well Path",
-             QStringList( "TransverseWellPath" ) );
+    addItem( RimFractureTemplate::TRANSVERSE_WELL_PATH, "Transverse", "Transverse (normal) to Well Path", QStringList( "TransverseWellPath" ) );
 
     setDefault( RimFractureTemplate::TRANSVERSE_WELL_PATH );
 }
@@ -133,10 +130,7 @@ RimFractureTemplate::RimFractureTemplate()
                                  caf::AppEnum<FracOrientationEnum>( TRANSVERSE_WELL_PATH ),
                                  "Fracture Orientation" );
 
-    CAF_PDM_InitScriptableField( &m_userDefinedPerforationLength,
-                                 "UserDefinedPerforationLength",
-                                 false,
-                                 "User-defined Perforation Length" );
+    CAF_PDM_InitScriptableField( &m_userDefinedPerforationLength, "UserDefinedPerforationLength", false, "User-defined Perforation Length" );
     CAF_PDM_InitScriptableField( &m_azimuthAngle, "AzimuthAngle", 0.0f, "Azimuth Angle" );
 
     CAF_PDM_InitField( &m_skinFactor, "SkinFactor", 0.0f, "Skin Factor" );
@@ -169,10 +163,7 @@ RimFractureTemplate::RimFractureTemplate()
     CAF_PDM_InitField( &m_fractureWidth, "FractureWidth", 0.01, "Fracture Width (h)" );
 
     CAF_PDM_InitFieldNoDefault( &m_betaFactorType, "BetaFactorType", "Type" );
-    CAF_PDM_InitField( &m_inertialCoefficient,
-                       "InertialCoefficient",
-                       0.006083236,
-                       "<html>Inertial Coefficient (&beta;)</html> [Forch. unit]" );
+    CAF_PDM_InitField( &m_inertialCoefficient, "InertialCoefficient", 0.006083236, "<html>Inertial Coefficient (&beta;)</html> [Forch. unit]" );
 
     CAF_PDM_InitFieldNoDefault( &m_permeabilityType, "PermeabilityType", "Type" );
     CAF_PDM_InitField( &m_relativePermeability, "RelativePermeability", 1.0, "Relative Permeability" );
@@ -289,9 +280,7 @@ caf::PdmFieldHandle* RimFractureTemplate::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFractureTemplate::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                            const QVariant&            oldValue,
-                                            const QVariant&            newValue )
+void RimFractureTemplate::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     bool updateCompletionTypeResults = false;
     if ( changedField == &m_azimuthAngle || changedField == &m_orientationType )
@@ -323,13 +312,11 @@ void RimFractureTemplate::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     {
         for ( RimFracture* fracture : fracturesUsingThisTemplate() )
         {
-            if ( changedField == &m_perforationLength &&
-                 ( fabs( oldValue.toDouble() - fracture->m_perforationLength() ) < 1e-5 ) )
+            if ( changedField == &m_perforationLength && ( fabs( oldValue.toDouble() - fracture->m_perforationLength() ) < 1e-5 ) )
             {
                 fracture->m_perforationLength = m_perforationLength;
             }
-            if ( changedField == &m_perforationEfficiency &&
-                 ( fabs( oldValue.toDouble() - fracture->m_perforationEfficiency() ) < 1e-5 ) )
+            if ( changedField == &m_perforationEfficiency && ( fabs( oldValue.toDouble() - fracture->m_perforationEfficiency() ) < 1e-5 ) )
             {
                 fracture->m_perforationEfficiency = m_perforationEfficiency;
             }
@@ -350,8 +337,7 @@ void RimFractureTemplate::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         fracture->clearCachedNonDarcyProperties();
     }
 
-    if ( changedField == &m_perforationLength || changedField == &m_conductivityType ||
-         changedField == &m_userDefinedPerforationLength )
+    if ( changedField == &m_perforationLength || changedField == &m_conductivityType || changedField == &m_userDefinedPerforationLength )
     {
         updateCompletionTypeResults = true;
     }
@@ -431,9 +417,7 @@ void RimFractureTemplate::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFractureTemplate::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                 QString                    uiConfigName,
-                                                 caf::PdmUiEditorAttribute* attribute )
+void RimFractureTemplate::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_perforationEfficiency )
     {
@@ -497,8 +481,7 @@ void RimFractureTemplate::prepareFieldsForUiDisplay()
         m_fractureWidth.uiCapability()->setUiName( "Fracture Width [ft]" );
     }
 
-    if ( m_orientationType == RimFractureTemplate::ALONG_WELL_PATH ||
-         m_orientationType == RimFractureTemplate::TRANSVERSE_WELL_PATH )
+    if ( m_orientationType == RimFractureTemplate::ALONG_WELL_PATH || m_orientationType == RimFractureTemplate::TRANSVERSE_WELL_PATH )
     {
         m_azimuthAngle.uiCapability()->setUiHidden( true );
         m_userDefinedPerforationLength.uiCapability()->setUiHidden( true );
@@ -518,8 +501,7 @@ void RimFractureTemplate::prepareFieldsForUiDisplay()
     {
         m_perforationEfficiency.uiCapability()->setUiHidden( true );
 
-        bool hidePerforationLength =
-            !( m_orientationType == RimFractureTemplate::AZIMUTH && m_userDefinedPerforationLength() );
+        bool hidePerforationLength = !( m_orientationType == RimFractureTemplate::AZIMUTH && m_userDefinedPerforationLength() );
         m_perforationLength.uiCapability()->setUiHidden( hidePerforationLength );
     }
 
@@ -826,10 +808,7 @@ void RimFractureTemplate::setScaleFactors( double halfLengthScale, double height
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFractureTemplate::scaleFactors( double* halfLengthScale,
-                                        double* heightScale,
-                                        double* dFactorScale,
-                                        double* conductivityScale ) const
+void RimFractureTemplate::scaleFactors( double* halfLengthScale, double* heightScale, double* dFactorScale, double* conductivityScale ) const
 {
     CVF_ASSERT( halfLengthScale && heightScale && dFactorScale && conductivityScale );
 

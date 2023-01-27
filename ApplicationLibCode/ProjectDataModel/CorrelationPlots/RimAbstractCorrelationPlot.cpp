@@ -132,9 +132,7 @@ void RimAbstractCorrelationPlot::setTimeStep( std::time_t timeStep )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAbstractCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                   const QVariant&            oldValue,
-                                                   const QVariant&            newValue )
+void RimAbstractCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimPlot::fieldChangedByUi( changedField, oldValue, newValue );
     if ( changedField == &m_pushButtonSelectSummaryAddress )
@@ -179,8 +177,8 @@ void RimAbstractCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
     {
         this->updatePlotTitle();
     }
-    else if ( changedField == &m_labelFontSize || changedField == &m_axisTitleFontSize ||
-              changedField == &m_axisValueFontSize || changedField == &m_legendFontSize || changedField == &m_titleFontSize )
+    else if ( changedField == &m_labelFontSize || changedField == &m_axisTitleFontSize || changedField == &m_axisValueFontSize ||
+              changedField == &m_legendFontSize || changedField == &m_titleFontSize )
     {
         this->loadDataAndUpdate();
     }
@@ -230,9 +228,7 @@ void RimAbstractCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAbstractCorrelationPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                        QString                    uiConfigName,
-                                                        caf::PdmUiEditorAttribute* attribute )
+void RimAbstractCorrelationPlot::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
     if ( attrib )
@@ -252,8 +248,7 @@ caf::PdmFieldHandle* RimAbstractCorrelationPlot::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimAbstractCorrelationPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RimAbstractCorrelationPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options = RimPlot::calculateValueOptions( fieldNeedingOptions );
 
@@ -275,12 +270,10 @@ QList<caf::PdmOptionItemInfo>
         std::vector<int> filteredTimeStepIndices =
             RimTimeStepFilter::filteredTimeStepIndices( allDateTimes, 0, (int)allDateTimes.size() - 1, m_timeStepFilter(), 1 );
 
-        QString dateFormatString =
-            RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
-                                                 RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
-        QString timeFormatString =
-            RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),
-                                                 RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
+        QString dateFormatString     = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
+                                                                        RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
+        QString timeFormatString     = RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),
+                                                                        RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
         QString dateTimeFormatString = QString( "%1 %2" ).arg( dateFormatString ).arg( timeFormatString );
 
         bool showTime = m_timeStepFilter == RimTimeStepFilter::TS_ALL || RimTimeStepFilter::TS_INTERVAL_DAYS;
@@ -292,15 +285,12 @@ QList<caf::PdmOptionItemInfo>
             if ( showTime && dateTime.time() != QTime( 0, 0, 0 ) )
             {
                 options.push_back(
-                    caf::PdmOptionItemInfo( RiaQDateTimeTools::toStringUsingApplicationLocale( dateTime,
-                                                                                               dateTimeFormatString ),
-                                            dateTime ) );
+                    caf::PdmOptionItemInfo( RiaQDateTimeTools::toStringUsingApplicationLocale( dateTime, dateTimeFormatString ), dateTime ) );
             }
             else
             {
                 options.push_back(
-                    caf::PdmOptionItemInfo( RiaQDateTimeTools::toStringUsingApplicationLocale( dateTime, dateFormatString ),
-                                            dateTime ) );
+                    caf::PdmOptionItemInfo( RiaQDateTimeTools::toStringUsingApplicationLocale( dateTime, dateFormatString ), dateTime ) );
             }
         }
     }
@@ -378,8 +368,7 @@ RiaSummaryCurveDefinitionAnalyser* RimAbstractCorrelationPlot::getOrCreateSelect
 {
     if ( !m_analyserOfSelectedCurveDefs )
     {
-        m_analyserOfSelectedCurveDefs =
-            std::unique_ptr<RiaSummaryCurveDefinitionAnalyser>( new RiaSummaryCurveDefinitionAnalyser );
+        m_analyserOfSelectedCurveDefs = std::unique_ptr<RiaSummaryCurveDefinitionAnalyser>( new RiaSummaryCurveDefinitionAnalyser );
     }
 
     m_analyserOfSelectedCurveDefs->setCurveDefinitions( this->curveDefinitions() );
@@ -608,12 +597,10 @@ QDateTime RimAbstractCorrelationPlot::timeStep() const
 //--------------------------------------------------------------------------------------------------
 QString RimAbstractCorrelationPlot::timeStepString() const
 {
-    QString dateFormatString =
-        RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
-                                             RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
-    QString timeFormatString =
-        RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),
-                                             RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
+    QString dateFormatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
+                                                                    RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
+    QString timeFormatString = RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),
+                                                                    RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
 
     return timeStep().toString( dateFormatString ) + " " + timeStep().toString( timeFormatString );
 }

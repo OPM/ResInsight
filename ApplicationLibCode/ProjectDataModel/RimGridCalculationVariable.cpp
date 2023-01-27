@@ -82,8 +82,7 @@ void RimGridCalculationVariable::defineUiOrdering( QString uiConfigName, caf::Pd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimGridCalculationVariable::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RimGridCalculationVariable::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -187,9 +186,7 @@ int RimGridCalculationVariable::allTimeStepsValue()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCalculationVariable::handleDroppedMimeData( const QMimeData*     data,
-                                                        Qt::DropAction       action,
-                                                        caf::PdmFieldHandle* destinationField )
+void RimGridCalculationVariable::handleDroppedMimeData( const QMimeData* data, Qt::DropAction action, caf::PdmFieldHandle* destinationField )
 {
     auto objects = RiuDragDrop::convertToObjects( data );
     if ( !objects.empty() )

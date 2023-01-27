@@ -202,11 +202,10 @@ void RivSimWellPipesPartMgr::buildWellPipeParts( const caf::DisplayCoordTransfor
 
         if ( doFlatten )
         {
-            std::vector<cvf::Mat4d> flatningCSs =
-                RivSectionFlattener::calculateFlatteningCSsForPolyline( m_pipeBranchesCLCoords[brIdx],
-                                                                        cvf::Vec3d::Z_AXIS,
-                                                                        flattenedStartOffset,
-                                                                        &flattenedStartOffset );
+            std::vector<cvf::Mat4d> flatningCSs = RivSectionFlattener::calculateFlatteningCSsForPolyline( m_pipeBranchesCLCoords[brIdx],
+                                                                                                          cvf::Vec3d::Z_AXIS,
+                                                                                                          flattenedStartOffset,
+                                                                                                          &flattenedStartOffset );
             for ( size_t cIdx = 0; cIdx < cvfCoords->size(); ++cIdx )
             {
                 ( *cvfCoords )[cIdx] = ( ( *cvfCoords )[cIdx] ).getTransformedPoint( flatningCSs[cIdx] );
@@ -280,18 +279,15 @@ void RivSimWellPipesPartMgr::buildWellPipeParts( const caf::DisplayCoordTransfor
 
                     const RigWellPath* wellPath = wellPaths[brIdx];
 
-                    RigEclipseWellLogExtractor* extractor =
-                        RiaExtractionTools::findOrCreateSimWellExtractor( m_simWellInView, wellPath );
+                    RigEclipseWellLogExtractor* extractor = RiaExtractionTools::findOrCreateSimWellExtractor( m_simWellInView, wellPath );
                     if ( extractor )
                     {
-                        std::vector<WellPathCellIntersectionInfo> wellPathCellIntersections =
-                            extractor->cellIntersectionInfosAlongWellPath();
+                        std::vector<WellPathCellIntersectionInfo> wellPathCellIntersections = extractor->cellIntersectionInfosAlongWellPath();
 
                         for ( const auto& intersectionInfo : wellPathCellIntersections )
                         {
                             size_t                    globalCellIndex = intersectionInfo.globCellIndex;
-                            const RigWellResultPoint* wResCell =
-                                wResFrame->findResultCellWellHeadIncluded( 0, globalCellIndex );
+                            const RigWellResultPoint* wResCell        = wResFrame->findResultCellWellHeadIncluded( 0, globalCellIndex );
 
                             if ( !wResCell || !wResCell->isValid() )
                             {
@@ -332,18 +328,15 @@ void RivSimWellPipesPartMgr::buildWellPipeParts( const caf::DisplayCoordTransfor
                     radius *= 2.0; // Enlarge the radius slightly to make the connection factor visible if geometry
                                    // scale factor is set to 1.0
 
-                    pbd.m_connectionFactorGeometryGenerator =
-                        new RivWellConnectionFactorGeometryGenerator( completionVizDataItems, radius );
+                    pbd.m_connectionFactorGeometryGenerator = new RivWellConnectionFactorGeometryGenerator( completionVizDataItems, radius );
 
                     cvf::ScalarMapper*  scalarMapper = virtualPerforationResult->legendConfig()->scalarMapper();
                     cvf::ref<cvf::Part> part =
-                        pbd.m_connectionFactorGeometryGenerator->createSurfacePart( scalarMapper,
-                                                                                    eclipseView->isLightingDisabled() );
+                        pbd.m_connectionFactorGeometryGenerator->createSurfacePart( scalarMapper, eclipseView->isLightingDisabled() );
                     if ( part.notNull() )
                     {
                         cvf::ref<RivSimWellConnectionSourceInfo> simWellSourceInfo =
-                            new RivSimWellConnectionSourceInfo( m_simWellInView,
-                                                                pbd.m_connectionFactorGeometryGenerator.p() );
+                            new RivSimWellConnectionSourceInfo( m_simWellInView, pbd.m_connectionFactorGeometryGenerator.p() );
                         part->setSourceInfo( simWellSourceInfo.p() );
                     }
 
@@ -424,8 +417,7 @@ void RivSimWellPipesPartMgr::updatePipeResultColor( size_t frameIndex )
 
                 if ( cellIds[wcIdx].isCell() )
                 {
-                    wResCell = wResFrame->findResultCellWellHeadExcluded( cellIds[wcIdx].m_gridIndex,
-                                                                          cellIds[wcIdx].m_gridCellIndex );
+                    wResCell = wResFrame->findResultCellWellHeadExcluded( cellIds[wcIdx].m_gridIndex, cellIds[wcIdx].m_gridCellIndex );
                 }
 
                 if ( wResCell )
@@ -467,8 +459,7 @@ void RivSimWellPipesPartMgr::updatePipeResultColor( size_t frameIndex )
 
         if ( wellBranch.m_surfaceDrawable.notNull() )
         {
-            cvf::ref<cvf::Vec2fArray> surfTexCoords =
-                const_cast<cvf::Vec2fArray*>( wellBranch.m_surfaceDrawable->textureCoordArray() );
+            cvf::ref<cvf::Vec2fArray> surfTexCoords = const_cast<cvf::Vec2fArray*>( wellBranch.m_surfaceDrawable->textureCoordArray() );
             if ( surfTexCoords.isNull() )
             {
                 surfTexCoords = new cvf::Vec2fArray;
@@ -497,8 +488,7 @@ void RivSimWellPipesPartMgr::updatePipeResultColor( size_t frameIndex )
         // Find or create texture coords array for pipe center line
         if ( wellBranch.m_centerLineDrawable.notNull() )
         {
-            cvf::ref<cvf::Vec2fArray> lineTexCoords =
-                const_cast<cvf::Vec2fArray*>( wellBranch.m_centerLineDrawable->textureCoordArray() );
+            cvf::ref<cvf::Vec2fArray> lineTexCoords = const_cast<cvf::Vec2fArray*>( wellBranch.m_centerLineDrawable->textureCoordArray() );
 
             if ( lineTexCoords.isNull() )
             {

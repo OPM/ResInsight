@@ -49,13 +49,7 @@ RimTernaryLegendConfig::RimTernaryLegendConfig()
     CAF_PDM_InitObject( "Ternary Color Legend", ":/Legend.png" );
     CAF_PDM_InitField( &m_showLegend, "ShowTernaryLegend", true, "Show Ternary Legend" );
     m_showLegend.uiCapability()->setUiHidden( true );
-    CAF_PDM_InitField( &precision,
-                       "Precision",
-                       2,
-                       "Significant digits",
-                       "",
-                       "The number of significant digits displayed in the legend numbers",
-                       "" );
+    CAF_PDM_InitField( &precision, "Precision", 2, "Significant digits", "", "The number of significant digits displayed in the legend numbers", "" );
     CAF_PDM_InitField( &rangeMode,
                        "RangeType",
                        RangeModeEnum( RangeModeType::USER_DEFINED ),
@@ -110,9 +104,7 @@ RimTernaryLegendConfig::~RimTernaryLegendConfig()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimTernaryLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                               const QVariant&            oldValue,
-                                               const QVariant&            newValue )
+void RimTernaryLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &applyLocalMinMax )
     {
@@ -188,21 +180,18 @@ void RimTernaryLegendConfig::updateLegend()
 
     int numberPrecision = 1;
     {
-        QString tmpString = QString::number( soilLower, 'g', numberPrecision ) + " - " +
-                            QString::number( soilUpper, 'g', numberPrecision );
-        soilRange = cvfqt::Utils::toString( tmpString );
+        QString tmpString = QString::number( soilLower, 'g', numberPrecision ) + " - " + QString::number( soilUpper, 'g', numberPrecision );
+        soilRange         = cvfqt::Utils::toString( tmpString );
     }
 
     {
-        QString tmpString = QString::number( sgasLower, 'g', numberPrecision ) + " - " +
-                            QString::number( sgasUpper, 'g', numberPrecision );
-        sgasRange = cvfqt::Utils::toString( tmpString );
+        QString tmpString = QString::number( sgasLower, 'g', numberPrecision ) + " - " + QString::number( sgasUpper, 'g', numberPrecision );
+        sgasRange         = cvfqt::Utils::toString( tmpString );
     }
 
     {
-        QString tmpString = QString::number( swatLower, 'g', numberPrecision ) + " - " +
-                            QString::number( swatUpper, 'g', numberPrecision );
-        swatRange = cvfqt::Utils::toString( tmpString );
+        QString tmpString = QString::number( swatLower, 'g', numberPrecision ) + " - " + QString::number( swatUpper, 'g', numberPrecision );
+        swatRange         = cvfqt::Utils::toString( tmpString );
     }
 
     if ( !m_legend.isNull() )
@@ -216,11 +205,7 @@ void RimTernaryLegendConfig::updateLegend()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimTernaryLegendConfig::setAutomaticRanges( TernaryArrayIndex ternaryIndex,
-                                                 double            globalMin,
-                                                 double            globalMax,
-                                                 double            localMin,
-                                                 double            localMax )
+void RimTernaryLegendConfig::setAutomaticRanges( TernaryArrayIndex ternaryIndex, double globalMin, double globalMax, double localMin, double localMax )
 {
     double candidateGlobalAutoMin = RiaNumericalTools::roundToNumSignificantDigits( globalMin, precision );
     double candidateGlobalAutoMax = RiaNumericalTools::roundToNumSignificantDigits( globalMax, precision );
@@ -325,9 +310,7 @@ void RimTernaryLegendConfig::setTitle( const QString& title )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimTernaryLegendConfig::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                    QString                    uiConfigName,
-                                                    caf::PdmUiEditorAttribute* attribute )
+void RimTernaryLegendConfig::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( &applyLocalMinMax == field )
     {
@@ -405,14 +388,14 @@ void RimTernaryLegendConfig::updateLabelText()
 
         if ( m_globalAutoMin[TERNARY_SOIL_IDX] != cvf::UNDEFINED_DOUBLE )
         {
-            userDefinedMinValueSoil.uiCapability()->setUiName(
-                QString( "Min " ) + "(" + QString::number( m_globalAutoMin[TERNARY_SOIL_IDX], 'g', precision ) + ")" );
+            userDefinedMinValueSoil.uiCapability()->setUiName( QString( "Min " ) + "(" +
+                                                               QString::number( m_globalAutoMin[TERNARY_SOIL_IDX], 'g', precision ) + ")" );
         }
 
         if ( m_globalAutoMax[TERNARY_SOIL_IDX] != cvf::UNDEFINED_DOUBLE )
         {
-            userDefinedMaxValueSoil.uiCapability()->setUiName(
-                QString( "Max " ) + "(" + QString::number( m_globalAutoMax[TERNARY_SOIL_IDX], 'g', precision ) + ")" );
+            userDefinedMaxValueSoil.uiCapability()->setUiName( QString( "Max " ) + "(" +
+                                                               QString::number( m_globalAutoMax[TERNARY_SOIL_IDX], 'g', precision ) + ")" );
         }
     }
 
@@ -422,14 +405,14 @@ void RimTernaryLegendConfig::updateLabelText()
 
         if ( m_globalAutoMin[TERNARY_SGAS_IDX] != cvf::UNDEFINED_DOUBLE )
         {
-            userDefinedMinValueSgas.uiCapability()->setUiName(
-                QString( "Min " ) + "(" + QString::number( m_globalAutoMin[TERNARY_SGAS_IDX], 'g', precision ) + ")" );
+            userDefinedMinValueSgas.uiCapability()->setUiName( QString( "Min " ) + "(" +
+                                                               QString::number( m_globalAutoMin[TERNARY_SGAS_IDX], 'g', precision ) + ")" );
         }
 
         if ( m_globalAutoMax[TERNARY_SGAS_IDX] != cvf::UNDEFINED_DOUBLE )
         {
-            userDefinedMaxValueSgas.uiCapability()->setUiName(
-                QString( "Max " ) + "(" + QString::number( m_globalAutoMax[TERNARY_SGAS_IDX], 'g', precision ) + ")" );
+            userDefinedMaxValueSgas.uiCapability()->setUiName( QString( "Max " ) + "(" +
+                                                               QString::number( m_globalAutoMax[TERNARY_SGAS_IDX], 'g', precision ) + ")" );
         }
     }
 
@@ -439,26 +422,26 @@ void RimTernaryLegendConfig::updateLabelText()
 
         if ( m_globalAutoMin[TERNARY_SWAT_IDX] != cvf::UNDEFINED_DOUBLE )
         {
-            userDefinedMinValueSwat.uiCapability()->setUiName(
-                QString( "Min " ) + "(" + QString::number( m_globalAutoMin[TERNARY_SWAT_IDX], 'g', precision ) + ")" );
+            userDefinedMinValueSwat.uiCapability()->setUiName( QString( "Min " ) + "(" +
+                                                               QString::number( m_globalAutoMin[TERNARY_SWAT_IDX], 'g', precision ) + ")" );
         }
 
         if ( m_globalAutoMax[TERNARY_SWAT_IDX] != cvf::UNDEFINED_DOUBLE )
         {
-            userDefinedMaxValueSwat.uiCapability()->setUiName(
-                QString( "Max " ) + "(" + QString::number( m_globalAutoMax[TERNARY_SWAT_IDX], 'g', precision ) + ")" );
+            userDefinedMaxValueSwat.uiCapability()->setUiName( QString( "Max " ) + "(" +
+                                                               QString::number( m_globalAutoMax[TERNARY_SWAT_IDX], 'g', precision ) + ")" );
         }
     }
 
     if ( rangeMode == RangeModeType::AUTOMATIC_ALLTIMESTEPS )
     {
         QString tmpString;
-        tmpString = QString( "SOIL : " ) + QString::number( m_globalAutoMin[TERNARY_SOIL_IDX], 'g', precision ) +
-                    " - " + QString::number( m_globalAutoMax[TERNARY_SOIL_IDX], 'g', precision ) + "\n";
-        tmpString += QString( "SGAS : " ) + QString::number( m_globalAutoMin[TERNARY_SGAS_IDX], 'g', precision ) +
-                     " - " + QString::number( m_globalAutoMax[TERNARY_SGAS_IDX], 'g', precision ) + "\n";
-        tmpString += QString( "SWAT : " ) + QString::number( m_globalAutoMin[TERNARY_SWAT_IDX], 'g', precision ) +
-                     " - " + QString::number( m_globalAutoMax[TERNARY_SWAT_IDX], 'g', precision ) + "\n";
+        tmpString = QString( "SOIL : " ) + QString::number( m_globalAutoMin[TERNARY_SOIL_IDX], 'g', precision ) + " - " +
+                    QString::number( m_globalAutoMax[TERNARY_SOIL_IDX], 'g', precision ) + "\n";
+        tmpString += QString( "SGAS : " ) + QString::number( m_globalAutoMin[TERNARY_SGAS_IDX], 'g', precision ) + " - " +
+                     QString::number( m_globalAutoMax[TERNARY_SGAS_IDX], 'g', precision ) + "\n";
+        tmpString += QString( "SWAT : " ) + QString::number( m_globalAutoMin[TERNARY_SWAT_IDX], 'g', precision ) + " - " +
+                     QString::number( m_globalAutoMax[TERNARY_SWAT_IDX], 'g', precision ) + "\n";
 
         ternaryRangeSummary = tmpString;
     }
@@ -467,10 +450,10 @@ void RimTernaryLegendConfig::updateLabelText()
         QString tmpString;
         tmpString = QString( "SOIL : " ) + QString::number( m_localAutoMin[TERNARY_SOIL_IDX], 'g', precision ) + " - " +
                     QString::number( m_localAutoMax[TERNARY_SOIL_IDX], 'g', precision ) + "\n";
-        tmpString += QString( "SGAS : " ) + QString::number( m_localAutoMin[TERNARY_SGAS_IDX], 'g', precision ) +
-                     " - " + QString::number( m_localAutoMax[TERNARY_SGAS_IDX], 'g', precision ) + "\n";
-        tmpString += QString( "SWAT : " ) + QString::number( m_localAutoMin[TERNARY_SWAT_IDX], 'g', precision ) +
-                     " - " + QString::number( m_localAutoMax[TERNARY_SWAT_IDX], 'g', precision ) + "\n";
+        tmpString += QString( "SGAS : " ) + QString::number( m_localAutoMin[TERNARY_SGAS_IDX], 'g', precision ) + " - " +
+                     QString::number( m_localAutoMax[TERNARY_SGAS_IDX], 'g', precision ) + "\n";
+        tmpString += QString( "SWAT : " ) + QString::number( m_localAutoMin[TERNARY_SWAT_IDX], 'g', precision ) + " - " +
+                     QString::number( m_localAutoMax[TERNARY_SWAT_IDX], 'g', precision ) + "\n";
 
         ternaryRangeSummary = tmpString;
     }

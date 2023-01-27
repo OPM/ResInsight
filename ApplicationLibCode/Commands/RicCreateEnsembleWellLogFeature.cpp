@@ -71,13 +71,12 @@ void RicCreateEnsembleWellLogFeature::openDialogAndExecuteCommand()
     QString pathFilter( "*" );
     QString fileNameFilter( "*" );
 
-    RicRecursiveFileSearchDialogResult result =
-        RicRecursiveFileSearchDialog::runRecursiveSearchDialog( nullptr,
-                                                                "Choose Eclipse Cases",
-                                                                defaultDir,
-                                                                pathFilter,
-                                                                fileNameFilter,
-                                                                { ".GRDECL", ".EGRID" } );
+    RicRecursiveFileSearchDialogResult result = RicRecursiveFileSearchDialog::runRecursiveSearchDialog( nullptr,
+                                                                                                        "Choose Eclipse Cases",
+                                                                                                        defaultDir,
+                                                                                                        pathFilter,
+                                                                                                        fileNameFilter,
+                                                                                                        { ".GRDECL", ".EGRID" } );
 
     if ( !result.ok || result.files.isEmpty() )
     {
@@ -99,10 +98,7 @@ void RicCreateEnsembleWellLogFeature::openDialogAndExecuteCommand()
         ui->setWellPathFromProject( wellPath );
     }
 
-    RiuPropertyViewTabWidget propertyDialog( Riu3DMainWindowTools::mainWindowWidget(),
-                                             ui,
-                                             "Create Ensemble Well Log",
-                                             ui->tabNames() );
+    RiuPropertyViewTabWidget propertyDialog( Riu3DMainWindowTools::mainWindowWidget(), ui, "Create Ensemble Well Log", ui->tabNames() );
 
     if ( propertyDialog.exec() == QDialog::Accepted && !ui->properties().empty() )
     {
@@ -114,8 +110,7 @@ void RicCreateEnsembleWellLogFeature::openDialogAndExecuteCommand()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreateEnsembleWellLogFeature::executeCommand( const RicCreateEnsembleWellLogUi& ui,
-                                                      const std::list<QString>&         fileNames )
+void RicCreateEnsembleWellLogFeature::executeCommand( const RicCreateEnsembleWellLogUi& ui, const std::list<QString>& fileNames )
 {
     caf::ProgressInfo progress( fileNames.size(), "Creating ensemble well log" );
 
@@ -134,8 +129,7 @@ void RicCreateEnsembleWellLogFeature::executeCommand( const RicCreateEnsembleWel
         wellPathFilePaths << ui.wellPathFilePath();
         bool                      importGrouped = false;
         QStringList               errorMessages;
-        std::vector<RimWellPath*> wellPaths =
-            RicImportWellPaths::importWellPaths( wellPathFilePaths, importGrouped, &errorMessages );
+        std::vector<RimWellPath*> wellPaths = RicImportWellPaths::importWellPaths( wellPathFilePaths, importGrouped, &errorMessages );
         if ( wellPaths.empty() ) return;
 
         wellPath = wellPaths[0];
@@ -163,13 +157,11 @@ void RicCreateEnsembleWellLogFeature::executeCommand( const RicCreateEnsembleWel
         }
 
         // Create the well log plot
-        RimWellLogPlot* wellLogPlot =
-            RimcWellLogPlotCollection_newWellLogPlot::createWellLogPlot( plotCollection, wellPath, eclipseCase );
+        RimWellLogPlot* wellLogPlot = RimcWellLogPlotCollection_newWellLogPlot::createWellLogPlot( plotCollection, wellPath, eclipseCase );
 
         // Create well log track
-        QString          title = "Track";
-        RimWellLogTrack* wellLogTrack =
-            RimcWellLogPlot_newWellLogTrack::createWellLogTrack( wellLogPlot, eclipseCase, wellPath, title );
+        QString          title        = "Track";
+        RimWellLogTrack* wellLogTrack = RimcWellLogPlot_newWellLogTrack::createWellLogTrack( wellLogPlot, eclipseCase, wellPath, title );
 
         // Create a well log curve for each property
         for ( const auto& property : properties )
@@ -177,12 +169,7 @@ void RicCreateEnsembleWellLogFeature::executeCommand( const RicCreateEnsembleWel
             QString                   propertyName       = property.first;
             RiaDefines::ResultCatType resultCategoryType = property.second;
             int                       timeStep           = ui.timeStep();
-            RimcWellLogTrack_addExtractionCurve::addExtractionCurve( wellLogTrack,
-                                                                     eclipseCase,
-                                                                     wellPath,
-                                                                     propertyName,
-                                                                     resultCategoryType,
-                                                                     timeStep );
+            RimcWellLogTrack_addExtractionCurve::addExtractionCurve( wellLogTrack, eclipseCase, wellPath, propertyName, resultCategoryType, timeStep );
         }
 
         {
@@ -294,10 +281,8 @@ RimEclipseCase* RicCreateEnsembleWellLogFeature::loadEclipseCase( const QString&
     bool createPlot = false;
 
     std::shared_ptr<RifReaderSettings> readerSettings = RifReaderSettings::createGridOnlyReaderSettings();
-    auto openResult = RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList( { absolutePath } ),
-                                                                                  createPlot,
-                                                                                  createView,
-                                                                                  readerSettings );
+    auto                               openResult =
+        RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList( { absolutePath } ), createPlot, createView, readerSettings );
 
     if ( !openResult.createdCaseIds.empty() )
     {
