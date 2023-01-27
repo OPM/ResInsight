@@ -97,6 +97,40 @@ if(RESINSIGHT_USE_OPENMP)
 endif()
 
 # ##############################################################################
+# buildcache
+# ##############################################################################
+find_program(buildcache_program buildcache)
+if(buildcache_program)
+  set(CMAKE_CXX_COMPILER_LAUNCHER "${buildcache_program}")
+  message(STATUS "Found buildcache from : ${buildcache_program}")
+
+  if(MSVC)
+    # New concept for defining MSVC debug info flags introduced in 3.25.
+    # Evaluate this concept to simplify the setting of CXX-flags
+    # https://cmake.org/cmake/help/v3.25/prop_tgt/MSVC_DEBUG_INFORMATION_FORMAT.html#prop_tgt:MSVC_DEBUG_INFORMATION_FORMAT
+    # https://cmake.org/cmake/help/v3.25/policy/CMP0141.html#policy:CMP0141
+
+    # It is required to use compiler flag /Z7 to be able to use buildcache
+    # https://github.com/mbitsnbites/buildcache/blob/master/doc/usage.md
+    # https://learn.microsoft.com/en-us/cpp/build/reference/z7-zi-zi-debug-information-format?view=msvc-170
+
+    string(REGEX REPLACE "/Zi" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    string(REGEX REPLACE "/Zi" "" CMAKE_CXX_FLAGS_DEBUG
+                         "${CMAKE_CXX_FLAGS_DEBUG}"
+    )
+    string(REGEX REPLACE "/Zi" "" CMAKE_CXX_FLAGS_RELWITHDEBINFO
+                         "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}"
+    )
+
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Z7")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Z7")
+    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /Z7")
+  endif()
+else()
+  message(STATUS "No buildcache found")
+endif()
+
+# ##############################################################################
 # ABAQUS ODB
 # ##############################################################################
 set(RESINSIGHT_ODB_API_DIR
@@ -296,41 +330,6 @@ if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
   endif()
 endif()
 
-# ##############################################################################
-# buildcache
-#
-# buildcache will be used if found in path It is required to use compiler flag
-# /Zi to be able to use buildcache See
-# https://docs.microsoft.com/en-us/cpp/build/reference/z7-zi-zi-debug-information-format?view=vs-2019
-# The adjustments of build flags must also be placed after libecl, as the
-# adjustments cause compiler issues for libecl
-# ##############################################################################
-find_program(buildcache_program buildcache)
-if(buildcache_program)
-  set(CMAKE_CXX_COMPILER_LAUNCHER "${buildcache_program}")
-  message(STATUS "Found buildcache from : ${buildcache_program}")
-
-  if(MSVC)
-    # New concept for defining MSVC debug info flags introduced in 3.25.
-    # Evaluate this concept to simplify the setting of CXX-flags
-    # https://cmake.org/cmake/help/v3.25/prop_tgt/MSVC_DEBUG_INFORMATION_FORMAT.html#prop_tgt:MSVC_DEBUG_INFORMATION_FORMAT
-    # https://cmake.org/cmake/help/v3.25/policy/CMP0141.html#policy:CMP0141
-
-    string(REGEX REPLACE "/Zi" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    string(REGEX REPLACE "/Zi" "" CMAKE_CXX_FLAGS_DEBUG
-                         "${CMAKE_CXX_FLAGS_DEBUG}"
-    )
-    string(REGEX REPLACE "/Zi" "" CMAKE_CXX_FLAGS_RELWITHDEBINFO
-                         "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}"
-    )
-
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Z7")
-    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Z7")
-    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /Z7")
-  endif()
-else()
-  message(STATUS "No buildcache found")
-endif()
 
 # ##############################################################################
 # HDF5
