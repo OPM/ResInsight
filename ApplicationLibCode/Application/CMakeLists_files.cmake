@@ -75,12 +75,9 @@ list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
 
 set(QT_MOC_HEADERS
-    ${QT_MOC_HEADERS}
-    ${CMAKE_CURRENT_LIST_DIR}/RiaConsoleApplication.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaGuiApplication.h
+    ${QT_MOC_HEADERS} ${CMAKE_CURRENT_LIST_DIR}/RiaConsoleApplication.h ${CMAKE_CURRENT_LIST_DIR}/RiaGuiApplication.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaCompletionTypeCalculationScheduler.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaPlotWindowRedrawScheduler.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaScheduler.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaPlotWindowRedrawScheduler.h ${CMAKE_CURRENT_LIST_DIR}/RiaScheduler.h
 )
 
 source_group(

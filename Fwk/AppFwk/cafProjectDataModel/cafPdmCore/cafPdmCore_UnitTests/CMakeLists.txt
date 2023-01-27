@@ -11,8 +11,7 @@ find_package(
 set(QT_LIBRARIES Qt5::Core Qt5::Widgets Qt5::Gui)
 
 if(MSVC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11))
-  # VS 2017 : Disable warnings from from gtest code, using deprecated code
-  # related to TR1
+  # VS 2017 : Disable warnings from from gtest code, using deprecated code related to TR1
   add_definitions(-D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING)
 endif()
 
@@ -43,16 +42,13 @@ if(Qt5Core_FOUND)
   set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
 endif()
 
-target_link_libraries(
-  ${PROJECT_NAME} cafPdmCore ${QT_LIBRARIES} ${THREAD_LIBRARY}
-)
+target_link_libraries(${PROJECT_NAME} cafPdmCore ${QT_LIBRARIES} ${THREAD_LIBRARY})
 
 # Copy Qt Dlls
 foreach(qtlib ${QT_LIBRARIES})
   add_custom_command(
     TARGET ${PROJECT_NAME}
     POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${qtlib}>
-            $<TARGET_FILE_DIR:${PROJECT_NAME}>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${qtlib}> $<TARGET_FILE_DIR:${PROJECT_NAME}>
   )
 endforeach(qtlib)

@@ -49,13 +49,11 @@ list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 
 list(APPEND COMMAND_CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
 
-set(COMMAND_QT_MOC_HEADERS
-    ${COMMAND_QT_MOC_HEADERS} ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensRestClient.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicExportToSharingServerScheduler.h
+set(COMMAND_QT_MOC_HEADERS ${COMMAND_QT_MOC_HEADERS} ${CMAKE_CURRENT_LIST_DIR}/RicHoloLensRestClient.h
+                           ${CMAKE_CURRENT_LIST_DIR}/RicExportToSharingServerScheduler.h
 )
 
 source_group(
-  "CommandFeature\\HoloLens"
-  FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+  "CommandFeature\\HoloLens" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
+                                   ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
 )

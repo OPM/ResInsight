@@ -45,7 +45,6 @@ list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
 
 source_group(
-  "ProjectDataModel\\Flow"
-  FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+  "ProjectDataModel\\Flow" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
+                                 ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
 )

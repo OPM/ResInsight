@@ -53,9 +53,7 @@ find_package(Eigen3 REQUIRED)
 qt5_wrap_cpp(COMMAND_MOC_SOURCE_FILES ${COMMAND_QT_MOC_HEADERS})
 
 add_library(
-  ${PROJECT_NAME} OBJECT
-  ${COMMAND_CODE_SOURCE_FILES} ${COMMAND_CODE_HEADER_FILES}
-  ${COMMAND_MOC_SOURCE_FILES}
+  ${PROJECT_NAME} OBJECT ${COMMAND_CODE_SOURCE_FILES} ${COMMAND_CODE_HEADER_FILES} ${COMMAND_MOC_SOURCE_FILES}
 )
 
 target_include_directories(
@@ -100,27 +98,22 @@ if(RESINSIGHT_TREAT_WARNINGS_AS_ERRORS)
 endif()
 
 if(MSVC)
-  # The following warnings are supposed to be used in ResInsight, but
-  # temporarily disabled to avoid too much noise warning C4245: 'return':
-  # conversion from 'int' to 'size_t', signed/unsigned mismatch warning C4005:
-  # Macro redefinition for math constants (M_PI, M_SQRT2 etc)
+  # The following warnings are supposed to be used in ResInsight, but temporarily disabled to avoid too much noise
+  # warning C4245: 'return': conversion from 'int' to 'size_t', signed/unsigned mismatch warning C4005: Macro
+  # redefinition for math constants (M_PI, M_SQRT2 etc)
 
-  # If possible, the following command is supposed to be the final target
-  # set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W3 /wd4190
-  # /wd4100 /wd4127")
+  # If possible, the following command is supposed to be the final target set_target_properties(${PROJECT_NAME}
+  # PROPERTIES COMPILE_FLAGS "/W3 /wd4190 /wd4100 /wd4127")
 
   set(BUILD_FLAGS_FOR_MSVC "/wd4190 /wd4100 /wd4127 /wd4245 /wd4005 /wd4573")
 
   if(CMAKE_CXX_COMPILER_VERSION LESS_EQUAL 19.14)
-    # The following warning is generated over 800 times from a qwt header only
-    # using VS2015 Disabling temporarily warning C4505 'function' : unreferenced
-    # local function has been removed
+    # The following warning is generated over 800 times from a qwt header only using VS2015 Disabling temporarily
+    # warning C4505 'function' : unreferenced local function has been removed
     set(BUILD_FLAGS_FOR_MSVC "${BUILD_FLAGS_FOR_MSVC} /wd4505")
   endif()
 
-  set_target_properties(
-    ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS ${BUILD_FLAGS_FOR_MSVC}
-  )
+  set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS ${BUILD_FLAGS_FOR_MSVC})
 
 endif()
 

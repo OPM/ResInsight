@@ -34,19 +34,12 @@ if(USE_COMMAND_FRAMEWORK)
   add_definitions(-DTAP_USE_COMMAND_FRAMEWORK)
 endif(USE_COMMAND_FRAMEWORK)
 
-include_directories(
-  ${cafPdmCore_SOURCE_DIR} ${cafPdmUiCore_SOURCE_DIR} ${cafPdmXml_SOURCE_DIR}
-  ${cafPdmCvf_SOURCE_DIR}
-)
+include_directories(${cafPdmCore_SOURCE_DIR} ${cafPdmUiCore_SOURCE_DIR} ${cafPdmXml_SOURCE_DIR} ${cafPdmCvf_SOURCE_DIR})
 
-set(PROJECT_FILES Main.cpp MainWindow.cpp WidgetLayoutTest.cpp
-                  TapCvfSpecialization.cpp TapProject.cpp
-)
+set(PROJECT_FILES Main.cpp MainWindow.cpp WidgetLayoutTest.cpp TapCvfSpecialization.cpp TapProject.cpp)
 
 # add the executable
-add_executable(
-  ${PROJECT_NAME} ${PROJECT_FILES} ${MOC_SOURCE_FILES} ${QRC_FILES_CPP}
-)
+add_executable(${PROJECT_NAME} ${PROJECT_FILES} ${MOC_SOURCE_FILES} ${QRC_FILES_CPP})
 
 set(TAP_LINK_LIBRARIES cafUserInterface cafPdmXml cafPdmCvf ${QT_LIBRARIES})
 
@@ -62,7 +55,6 @@ foreach(qtlib ${QT_LIBRARIES})
   add_custom_command(
     TARGET ${PROJECT_NAME}
     POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${qtlib}>
-            $<TARGET_FILE_DIR:${PROJECT_NAME}>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${qtlib}> $<TARGET_FILE_DIR:${PROJECT_NAME}>
   )
 endforeach(qtlib)

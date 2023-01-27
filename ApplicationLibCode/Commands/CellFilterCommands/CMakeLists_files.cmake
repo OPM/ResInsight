@@ -27,7 +27,6 @@ list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 list(APPEND COMMAND_CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
 
 source_group(
-  "CommandFeature\\CellFilterCommands"
-  FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+  "CommandFeature\\CellFilterCommands" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
+                                             ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
 )

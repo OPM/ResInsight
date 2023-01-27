@@ -237,8 +237,7 @@ if(RESINSIGHT_USE_QT_CHARTS)
   )
 
   list(APPEND QT_MOC_HEADERS ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotWidget.h
-       ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQtChartsPlot.h
-       ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotCurve.h
+       ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQtChartsPlot.h ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotCurve.h
   )
 endif()
 
@@ -303,7 +302,6 @@ list(
 list(APPEND QT_UI_FILES)
 
 source_group(
-  "UserInterface"
-  FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+  "UserInterface" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
+                        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
 )

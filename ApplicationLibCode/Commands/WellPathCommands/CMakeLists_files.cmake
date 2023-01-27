@@ -84,7 +84,6 @@ list(
 )
 
 source_group(
-  "CommandFeature\\WellPath"
-  FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+  "CommandFeature\\WellPath" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
+                                   ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
 )

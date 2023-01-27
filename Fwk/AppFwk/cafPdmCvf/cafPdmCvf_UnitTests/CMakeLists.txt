@@ -15,13 +15,12 @@ endif(Qt5Core_FOUND)
 project(cafPdmCvf_UnitTests)
 
 include_directories(
-  ${CMAKE_CURRENT_SOURCE_DIR} ${cafPdmCore_SOURCE_DIR} ${cafPdmXml_SOURCE_DIR}
-  ${cafPdmCvf_SOURCE_DIR} ${LibCore_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR} ${cafPdmCore_SOURCE_DIR} ${cafPdmXml_SOURCE_DIR} ${cafPdmCvf_SOURCE_DIR}
+  ${LibCore_SOURCE_DIR}
 )
 
-set(PROJECT_FILES
-    cafPdmCvf_UnitTests.cpp gtest/gtest-all.cpp cafPdmCoreVec3dTest.cpp
-    cafPdmCoreColor3fTest.cpp cafPdmCoreMat4dTest.cpp
+set(PROJECT_FILES cafPdmCvf_UnitTests.cpp gtest/gtest-all.cpp cafPdmCoreVec3dTest.cpp cafPdmCoreColor3fTest.cpp
+                  cafPdmCoreMat4dTest.cpp
 )
 
 # add the executable
@@ -33,9 +32,7 @@ endif()
 
 source_group("" FILES ${PROJECT_FILES})
 
-target_link_libraries(
-  ${PROJECT_NAME} cafPdmCore cafPdmXml LibCore cafPdmCvf ${QT_LIBRARIES}
-)
+target_link_libraries(${PROJECT_NAME} cafPdmCore cafPdmXml LibCore cafPdmCvf ${QT_LIBRARIES})
 
 # Copy Qt Dlls
 if(Qt5Core_FOUND)
@@ -43,8 +40,7 @@ if(Qt5Core_FOUND)
     add_custom_command(
       TARGET ${PROJECT_NAME}
       POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${qtlib}>
-              $<TARGET_FILE_DIR:${PROJECT_NAME}>
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${qtlib}> $<TARGET_FILE_DIR:${PROJECT_NAME}>
     )
   endforeach(qtlib)
   # Copy Qt Dlls
@@ -56,14 +52,12 @@ else()
 
       # Debug
       execute_process(
-        COMMAND cmake -E copy_if_different ${QT_BINARY_DIR}/${qtlib}d4.dll
-                ${CMAKE_BINARY_DIR}/Debug/${qtlib}d4.dll
+        COMMAND cmake -E copy_if_different ${QT_BINARY_DIR}/${qtlib}d4.dll ${CMAKE_BINARY_DIR}/Debug/${qtlib}d4.dll
       )
 
       # Release
       execute_process(
-        COMMAND cmake -E copy_if_different ${QT_BINARY_DIR}/${qtlib}4.dll
-                ${CMAKE_BINARY_DIR}/Release/${qtlib}4.dll
+        COMMAND cmake -E copy_if_different ${QT_BINARY_DIR}/${qtlib}4.dll ${CMAKE_BINARY_DIR}/Release/${qtlib}4.dll
       )
     endforeach(qtlib)
   endif(MSVC)

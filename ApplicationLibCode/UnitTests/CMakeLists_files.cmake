@@ -1,6 +1,5 @@
 configure_file(
-  ${CMAKE_CURRENT_LIST_DIR}/RiaTestDataDirectory.h.cmake
-  ${CMAKE_BINARY_DIR}/Generated/RiaTestDataDirectory.h
+  ${CMAKE_CURRENT_LIST_DIR}/RiaTestDataDirectory.h.cmake ${CMAKE_BINARY_DIR}/Generated/RiaTestDataDirectory.h
 )
 
 set(SOURCE_GROUP_HEADER_FILES)
@@ -89,9 +88,7 @@ set(SOURCE_GROUP_SOURCE_FILES
 )
 
 if(RESINSIGHT_ENABLE_GRPC)
-  list(APPEND GPRC_UNIT_TEST_SOURCE_FILES
-       ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcInterface-Test.cpp
-  )
+  list(APPEND GPRC_UNIT_TEST_SOURCE_FILES ${CMAKE_CURRENT_LIST_DIR}/RiaGrpcInterface-Test.cpp)
   list(APPEND SOURCE_GROUP_SOURCE_FILES ${GRPC_UNIT_TEST_SOURCE_FILES})
 endif(RESINSIGHT_ENABLE_GRPC)
 
