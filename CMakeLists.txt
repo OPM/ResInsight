@@ -32,9 +32,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 option(RESINSIGHT_BUNDLE_TESTMODELS "Copy TestModels into the installation" OFF)
 
-option(VCPKG_AUTO_INSTALL
-       "Automatically download build pre-requisites with VCPKG" OFF
-)
+option(VCPKG_AUTO_INSTALL "Automatically download build pre-requisites with VCPKG" OFF)
 if(VCPKG_AUTO_INSTALL)
   include(AutoVcpkg)
   set(AUTO_VCPKG_ROOT "${CMAKE_SOURCE_DIR}/ThirdParty/vcpkg")
@@ -44,23 +42,21 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# ##############################################################################
+# ##################################################################################################
 # OPTIONAL: Configuration of ccache for MSVC
-# ##############################################################################
+# ##################################################################################################
 find_program(ccache_exe ccache)
 if(ccache_exe)
   file(COPY_FILE ${ccache_exe} ${CMAKE_BINARY_DIR}/cl.exe ONLY_IF_DIFFERENT)
 
-  set(CMAKE_VS_GLOBALS
-      "CLToolExe=cl.exe" "CLToolPath=${CMAKE_BINARY_DIR}"
-      "TrackFileAccess=false" "UseMultiToolTask=true"
-      "DebugInformationFormat=OldStyle"
+  set(CMAKE_VS_GLOBALS "CLToolExe=cl.exe" "CLToolPath=${CMAKE_BINARY_DIR}" "TrackFileAccess=false"
+                       "UseMultiToolTask=true" "DebugInformationFormat=OldStyle"
   )
 endif()
 
-# ##############################################################################
+# ##################################################################################################
 # Setup the main platform defines
-# ##############################################################################
+# ##################################################################################################
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   add_definitions(-DCVF_LINUX)
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -78,9 +74,9 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNO_DEBUG")
 endif()
 
-# ##############################################################################
+# ##################################################################################################
 # OpenMP
-# ##############################################################################
+# ##################################################################################################
 option(RESINSIGHT_USE_OPENMP "Enable OpenMP parallellization in the code" ON)
 if(RESINSIGHT_USE_OPENMP)
   find_package(OpenMP)
@@ -88,25 +84,23 @@ if(RESINSIGHT_USE_OPENMP)
     message(STATUS "Enabling OpenMP support")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} -DUSE_OPENMP")
-    set(CMAKE_EXE_LINKER_FLAGS
-        "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}"
-    )
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
   else()
     message(STATUS "Disabling OpenMP support")
   endif()
 endif()
 
-# ##############################################################################
+# ##################################################################################################
 # buildcache
-# ##############################################################################
+# ##################################################################################################
 find_program(buildcache_program buildcache)
 if(buildcache_program)
   set(CMAKE_CXX_COMPILER_LAUNCHER "${buildcache_program}")
   message(STATUS "Found buildcache from : ${buildcache_program}")
 
   if(MSVC)
-    # New concept for defining MSVC debug info flags introduced in 3.25.
-    # Evaluate this concept to simplify the setting of CXX-flags
+    # New concept for defining MSVC debug info flags introduced in 3.25. Evaluate this concept to
+    # simplify the setting of CXX-flags
     # https://cmake.org/cmake/help/v3.25/prop_tgt/MSVC_DEBUG_INFORMATION_FORMAT.html#prop_tgt:MSVC_DEBUG_INFORMATION_FORMAT
     # https://cmake.org/cmake/help/v3.25/policy/CMP0141.html#policy:CMP0141
 
@@ -115,9 +109,7 @@ if(buildcache_program)
     # https://learn.microsoft.com/en-us/cpp/build/reference/z7-zi-zi-debug-information-format?view=msvc-170
 
     string(REGEX REPLACE "/Zi" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    string(REGEX REPLACE "/Zi" "" CMAKE_CXX_FLAGS_DEBUG
-                         "${CMAKE_CXX_FLAGS_DEBUG}"
-    )
+    string(REGEX REPLACE "/Zi" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
     string(REGEX REPLACE "/Zi" "" CMAKE_CXX_FLAGS_RELWITHDEBINFO
                          "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}"
     )
@@ -130,9 +122,9 @@ else()
   message(STATUS "No buildcache found")
 endif()
 
-# ##############################################################################
+# ##################################################################################################
 # ABAQUS ODB
-# ##############################################################################
+# ##################################################################################################
 set(RESINSIGHT_ODB_API_DIR
     ""
     CACHE
@@ -145,25 +137,23 @@ if(NOT ${RESINSIGHT_ODB_API_DIR} EQUAL "")
   message(STATUS "Using ODB-Api from : ${RESINSIGHT_ODB_API_DIR}")
 endif()
 
-# ##############################################################################
+# ##################################################################################################
 # Version number
-# ##############################################################################
+# ##################################################################################################
 include(ResInsightVersion.cmake)
 
-# ##############################################################################
+# ##################################################################################################
 # Octave
-# ##############################################################################
+# ##################################################################################################
 find_package(Octave)
 
-# ##############################################################################
+# ##################################################################################################
 # Grpc
-# ##############################################################################
+# ##################################################################################################
 option(RESINSIGHT_ENABLE_GRPC "Enable the gRPC scripting framework" OFF)
 if(RESINSIGHT_ENABLE_GRPC)
-  option(
-    RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE
-    "Download the gRPC python modules to enable generation of Python interface"
-    ON
+  option(RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE
+         "Download the gRPC python modules to enable generation of Python interface" ON
   )
   option(RESINSIGHT_GRPC_BUNDLE_PYTHON_MODULE
          "Bundle the gRPC python modules into the install folder" OFF
@@ -171,13 +161,13 @@ if(RESINSIGHT_ENABLE_GRPC)
   add_definitions(-DENABLE_GRPC)
 endif()
 
-# ##############################################################################
+# ##################################################################################################
 # Unity Build
-# ##############################################################################
+# ##################################################################################################
 
 # CMAKE_UNITY_BUILD was introduced in CMake 3.16.2
-option(RESINSIGHT_ENABLE_UNITY_BUILD
-       "Experimental speedup of compilation using CMake Unity Build" OFF
+option(RESINSIGHT_ENABLE_UNITY_BUILD "Experimental speedup of compilation using CMake Unity Build"
+       OFF
 )
 mark_as_advanced(FORCE RESINSIGHT_ENABLE_UNITY_BUILD)
 if(RESINSIGHT_ENABLE_UNITY_BUILD)
@@ -185,18 +175,18 @@ if(RESINSIGHT_ENABLE_UNITY_BUILD)
   set(CVF_ENABLE_UNITY_BUILD true)
 endif()
 
-# ##############################################################################
+# ##################################################################################################
 # ERT
-# ##############################################################################
+# ##################################################################################################
 
-# Use of CMAKE_CXX_COMPILER_LAUNCHER is not working with libecl. Disable by
-# temporarily setting compiler launcher to nothing
+# Use of CMAKE_CXX_COMPILER_LAUNCHER is not working with libecl. Disable by temporarily setting
+# compiler launcher to nothing
 set(TEMP_CMAKE_CXX_COMPILER_LAUNCHER ${CMAKE_CXX_COMPILER_LAUNCHER})
 set(CMAKE_CXX_COMPILER_LAUNCHER)
 
 if(NOT MSVC)
-  # Linux: Optional configuration of externally installed ERT, requires path to
-  # libraries and includes
+  # Linux: Optional configuration of externally installed ERT, requires path to libraries and
+  # includes
   set(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT
       ""
       CACHE PATH "Path to installed ERT libraries"
@@ -208,19 +198,14 @@ if(NOT MSVC)
 endif()
 
 if(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
-  if(NOT (RESINSIGHT_ERT_EXTERNAL_LIB_ROOT
-          AND RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
-  )
+  if(NOT (RESINSIGHT_ERT_EXTERNAL_LIB_ROOT AND RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT))
     message(
       FATAL_ERROR
         "Both RESINSIGHT_ERT_EXTERNAL_LIB_ROOT and RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT must be defined"
     )
   endif()
 
-  message(
-    FATAL_ERROR
-      "TODO: Building using and external system installed ERT is broken."
-  )
+  message(FATAL_ERROR "TODO: Building using and external system installed ERT is broken.")
 
   list(APPEND ERT_INCLUDE_DIRS ${RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT})
 
@@ -228,8 +213,7 @@ if(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
 
 else()
 
-  # Disable install of ERT libs and headers, as Ert code is compiled and linked
-  # directly
+  # Disable install of ERT libs and headers, as Ert code is compiled and linked directly
   set(INSTALL_ERT
       OFF
       CACHE BOOL "ERT: Install library"
@@ -252,15 +236,13 @@ else()
         CACHE STRING "Path to ERT CMakeList.txt (source path)"
     )
 
-    # Force dynamic linking on other platforms Copy of libraries into install
-    # folder of ResInsight is done a bit further down in this file
+    # Force dynamic linking on other platforms Copy of libraries into install folder of ResInsight
+    # is done a bit further down in this file
     set(BUILD_SHARED_LIBS ON)
   endif()
 
   if(RESINSIGHT_ERT_EXTERNAL_SOURCE_ROOT)
-    add_subdirectory(
-      ${RESINSIGHT_ERT_EXTERNAL_SOURCE_ROOT} ${CMAKE_BINARY_DIR}/ThirdParty/Ert
-    )
+    add_subdirectory(${RESINSIGHT_ERT_EXTERNAL_SOURCE_ROOT} ${CMAKE_BINARY_DIR}/ThirdParty/Ert)
   else()
     add_subdirectory(ThirdParty/Ert)
   endif()
@@ -275,10 +257,7 @@ else()
     )
   elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     set_target_properties(
-      ecl
-      PROPERTIES
-        COMPILE_FLAGS
-        "-Wno-deprecated -Wno-deprecated-declarations -Wno-sign-compare"
+      ecl PROPERTIES COMPILE_FLAGS "-Wno-deprecated -Wno-deprecated-declarations -Wno-sign-compare"
     )
   else()
     set_target_properties(
@@ -288,9 +267,7 @@ else()
         "-Wno-deprecated -Wno-deprecated-declarations -Wno-clobbered -Wno-int-in-bool-context"
     )
 
-    target_compile_options(
-      ecl PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-Wno-class-memaccess>
-    )
+    target_compile_options(ecl PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-Wno-class-memaccess>)
 
   endif()
 
@@ -306,9 +283,9 @@ endif(RESINSIGHT_ERT_EXTERNAL_LIB_ROOT OR RESINSIGHT_ERT_EXTERNAL_INCLUDE_ROOT)
 # restore buildcache when libecl has been configured
 set(CMAKE_CXX_COMPILER_LAUNCHER ${TEMP_CMAKE_CXX_COMPILER_LAUNCHER})
 
-# ##############################################################################
+# ##################################################################################################
 # Init GIT submodules if they haven't already #
-# ##############################################################################
+# ##################################################################################################
 find_package(Git QUIET)
 if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
   # Update submodules as needed
@@ -330,10 +307,9 @@ if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
   endif()
 endif()
 
-
-# ##############################################################################
+# ##################################################################################################
 # HDF5
-# ##############################################################################
+# ##################################################################################################
 if(MSVC)
   set(RESINSIGHT_HDF5_DIR
       ""
@@ -374,9 +350,9 @@ else()
   endif() # HDF5_FOUND
 endif() # MSVC
 
-# ##############################################################################
+# ##################################################################################################
 # Opm
-# ##############################################################################
+# ##################################################################################################
 
 if(VCPKG_AUTO_INSTALL)
   vcpkg_install(boost-filesystem)
@@ -389,37 +365,31 @@ add_subdirectory(ThirdParty/custom-opm-flowdiag-app)
 add_subdirectory(ThirdParty/custom-opm-common)
 add_subdirectory(ThirdParty/custom-opm-common/custom-opm-parser-tests)
 
-list(APPEND OPM_LIBRARIES custom-opm-flowdiagnostics custom-opm-flowdiag-app
-     custom-opm-common
-)
+list(APPEND OPM_LIBRARIES custom-opm-flowdiagnostics custom-opm-flowdiag-app custom-opm-common)
 
-set_property(
-  TARGET ${OPM_LIBRARIES} opm-parser-tests PROPERTY FOLDER "Thirdparty/OPM"
-)
+set_property(TARGET ${OPM_LIBRARIES} opm-parser-tests PROPERTY FOLDER "Thirdparty/OPM")
 
-# ##############################################################################
+# ##################################################################################################
 # NRLib
-# ##############################################################################
+# ##################################################################################################
 
 add_subdirectory(ThirdParty/NRLib)
 
 list(APPEND THIRD_PARTY_LIBRARIES NRLib)
 
-# ##############################################################################
+# ##################################################################################################
 # Qt
-# ##############################################################################
+# ##################################################################################################
 set(RI_QT_MINIMUM_VERSION 5.12)
 
-find_package(
-  Qt5 ${RI_QT_MINIMUM_VERSION} COMPONENTS Core Gui OpenGL Network Widgets
-)
+find_package(Qt5 ${RI_QT_MINIMUM_VERSION} COMPONENTS Core Gui OpenGL Network Widgets)
 
 # Open GL
 find_package(OpenGL)
 
-# ##############################################################################
+# ##################################################################################################
 # QtCharts
-# ##############################################################################
+# ##################################################################################################
 option(RESINSIGHT_USE_QT_CHARTS "Enable QtCharts in the code" ON)
 if(RESINSIGHT_USE_QT_CHARTS)
   find_package(Qt5 OPTIONAL_COMPONENTS Charts)
@@ -433,9 +403,9 @@ if(RESINSIGHT_USE_QT_CHARTS)
   endif()
 endif()
 
-# ##############################################################################
+# ##################################################################################################
 # Qwt
-# ##############################################################################
+# ##################################################################################################
 
 add_subdirectory(ThirdParty/qwt)
 
@@ -449,9 +419,9 @@ endif()
 
 list(APPEND THIRD_PARTY_LIBRARIES qwt)
 
-# ##############################################################################
+# ##################################################################################################
 # Qt Advanced Docking System
-# ##############################################################################
+# ##################################################################################################
 set(ADS_VERSION "3.8.2")
 
 add_subdirectory(ThirdParty/qtadvanceddocking EXCLUDE_FROM_ALL)
@@ -466,9 +436,9 @@ endif()
 
 list(APPEND THIRD_PARTY_LIBRARIES qtadvanceddocking)
 
-# ##############################################################################
+# ##################################################################################################
 # Nightcharts
-# ##############################################################################
+# ##################################################################################################
 
 add_subdirectory(ThirdParty/nightcharts)
 if(MSVC)
@@ -479,9 +449,9 @@ endif()
 
 list(APPEND THIRD_PARTY_LIBRARIES nightcharts)
 
-# ##############################################################################
+# ##################################################################################################
 # C++ Mathematical Expression Parsing And Evaluation Library
-# ##############################################################################
+# ##################################################################################################
 
 add_subdirectory(ThirdParty/expressionparser)
 
@@ -491,9 +461,9 @@ endif()
 
 list(APPEND THIRD_PARTY_LIBRARIES expressionparser)
 
-# ##############################################################################
+# ##################################################################################################
 # clipper
-# ##############################################################################
+# ##################################################################################################
 
 add_subdirectory(ThirdParty/clipper)
 
@@ -503,39 +473,38 @@ endif()
 
 list(APPEND THIRD_PARTY_LIBRARIES clipper)
 
-# ##############################################################################
+# ##################################################################################################
 # roffcpp
-# ##############################################################################
+# ##################################################################################################
 
 add_subdirectory(ThirdParty/roffcpp)
 list(APPEND THIRD_PARTY_LIBRARIES roffcpp)
 set_property(TARGET roffcpp-tests gtest gtest_main PROPERTY FOLDER "Thirdparty")
 
-# ##############################################################################
+# ##################################################################################################
 # Thirdparty libraries are put in ThirdParty solution folder
-# ##############################################################################
+# ##################################################################################################
 set_property(TARGET ${THIRD_PARTY_LIBRARIES} PROPERTY FOLDER "Thirdparty")
 
-# ##############################################################################
+# ##################################################################################################
 # Unity Build
-# ##############################################################################
+# ##################################################################################################
 if(RESINSIGHT_ENABLE_UNITY_BUILD)
   message("Cmake Unity build is enabled on : qwt")
   set_property(TARGET qwt PROPERTY UNITY_BUILD true)
   message("Cmake Unity build is enabled on : custom-opm-flowdiagnostics")
   set_property(TARGET custom-opm-flowdiagnostics PROPERTY UNITY_BUILD true)
-  # message("Cmake Unity build is enabled on : custom-opm-common")
-  # set_property(TARGET custom-opm-common PROPERTY UNITY_BUILD true)
+  # message("Cmake Unity build is enabled on : custom-opm-common") set_property(TARGET
+  # custom-opm-common PROPERTY UNITY_BUILD true)
   message("Cmake Unity build is enabled on : qtadvanceddocking")
   set_property(TARGET qtadvanceddocking PROPERTY UNITY_BUILD true)
 endif()
 
-# ##############################################################################
+# ##################################################################################################
 # Vizualization Framework
-# ##############################################################################
+# ##################################################################################################
 
-# Allow use of non-threadsafe reference counter in cvf::Object on systems with
-# no atomics support
+# Allow use of non-threadsafe reference counter in cvf::Object on systems with no atomics support
 if(CMAKE_COMPILER_IS_GNUCC)
 
   if(NOT DEFINED HAVE_GCC_SYNC_FUNCTIONS)
@@ -591,9 +560,9 @@ endif()
 
 set_property(TARGET ${VIZ_FWK_LIBRARIES} PROPERTY FOLDER "VizFwk")
 
-# ##############################################################################
+# ##################################################################################################
 # Application Framework
-# ##############################################################################
+# ##################################################################################################
 
 add_subdirectory(Fwk/AppFwk/cafAnimControl)
 add_subdirectory(Fwk/AppFwk/cafViewer)
@@ -638,9 +607,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-  target_compile_options(
-    CommonCode PRIVATE -Wno-deprecated-copy -Wno-undefined-var-template
-  )
+  target_compile_options(CommonCode PRIVATE -Wno-deprecated-copy -Wno-undefined-var-template)
   target_compile_options(
     cafCommandFeatures PRIVATE -Wno-deprecated-copy -Wno-undefined-var-template
   )
@@ -677,13 +644,9 @@ mark_as_advanced(FORCE RESINSIGHT_INCLUDE_APPFWK_TESTS)
 if(RESINSIGHT_INCLUDE_APPFWK_TESTS)
   # Unit Tests
   add_subdirectory(Fwk/AppFwk/cafProjectDataModel/cafProjectDataModel_UnitTests)
-  set_property(
-    TARGET cafProjectDataModel_UnitTests PROPERTY FOLDER "AppFwkTests"
-  )
+  set_property(TARGET cafProjectDataModel_UnitTests PROPERTY FOLDER "AppFwkTests")
 
-  add_subdirectory(
-    Fwk/AppFwk/cafProjectDataModel/cafPdmCore/cafPdmCore_UnitTests
-  )
+  add_subdirectory(Fwk/AppFwk/cafProjectDataModel/cafPdmCore/cafPdmCore_UnitTests)
   set_property(TARGET cafPdmCore_UnitTests PROPERTY FOLDER "AppFwkTests")
 
   add_subdirectory(Fwk/AppFwk/cafProjectDataModel/cafPdmXml/cafPdmXml_UnitTests)
@@ -703,25 +666,24 @@ if(RESINSIGHT_INCLUDE_APPFWK_TESTS)
   set_property(TARGET cafTestCvfApplication PROPERTY FOLDER "AppFwkTests")
 endif()
 
-# ##############################################################################
+# ##################################################################################################
 # Installation settings
-# ##############################################################################
+# ##################################################################################################
 
 set(RESINSIGHT_INSTALL_FOLDER ".")
 
 # override system install prefix if private installation chosen
 option(RESINSIGHT_PRIVATE_INSTALL
-       "Linux only: Install the libecl shared libraries along the executable"
-       ON
+       "Linux only: Install the libecl shared libraries along the executable" ON
 )
 mark_as_advanced(FORCE RESINSIGHT_PRIVATE_INSTALL)
 
 if(RESINSIGHT_PRIVATE_INSTALL)
 
-  # ############################################################################
-  # ERT shared library files Install procedure will copy so-files from ERT into
-  # same install folder as ResInsight
-  # ############################################################################
+  # ################################################################################################
+  # ERT shared library files Install procedure will copy so-files from ERT into same install folder
+  # as ResInsight
+  # ################################################################################################
 
   if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(ERT_SHARED_LIB_FILES
@@ -729,9 +691,7 @@ if(RESINSIGHT_PRIVATE_INSTALL)
         ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so.2
         ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.so.2.4
     )
-    install(FILES ${ERT_SHARED_LIB_FILES}
-            DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
-    )
+    install(FILES ${ERT_SHARED_LIB_FILES} DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
   endif()
 
   if(APPLE)
@@ -740,9 +700,8 @@ if(RESINSIGHT_PRIVATE_INSTALL)
         ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.2.dylib
         ${CMAKE_BINARY_DIR}/ThirdParty/Ert/${CMAKE_INSTALL_LIBDIR}/libecl.2.4.dylib
     )
-    install(
-      FILES ${ERT_SHARED_LIB_FILES}
-      DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/ResInsight.app/Contents/MacOS
+    install(FILES ${ERT_SHARED_LIB_FILES}
+            DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/ResInsight.app/Contents/MacOS
     )
   endif()
 
@@ -750,29 +709,25 @@ endif(RESINSIGHT_PRIVATE_INSTALL)
 
 if(RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
   if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    # find all file names with text hdf5 use file globbing to also copy the
-    # symlinks to make sure the dependencies from ResInsight runtime is correct
+    # find all file names with text hdf5 use file globbing to also copy the symlinks to make sure
+    # the dependencies from ResInsight runtime is correct
     foreach(FILE_TO_COPY ${HDF5_LIBRARIES})
       string(FIND ${FILE_TO_COPY} "hdf5" POS_IN_STRING)
       if(${POS_IN_STRING} GREATER -1)
         file(GLOB FILE_AND_SYMLINKS ${FILE_TO_COPY}*)
-        install(FILES ${FILE_AND_SYMLINKS}
-                DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
-        )
+        install(FILES ${FILE_AND_SYMLINKS} DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
       endif()
     endforeach()
   endif()
 endif(RESINSIGHT_HDF5_BUNDLE_LIBRARIES)
 
 if(RESINSIGHT_BUNDLE_TESTMODELS)
-  install(DIRECTORY ${CMAKE_SOURCE_DIR}/TestModels
-          DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
-  )
+  install(DIRECTORY ${CMAKE_SOURCE_DIR}/TestModels DESTINATION ${RESINSIGHT_INSTALL_FOLDER})
 endif()
 
-# ##############################################################################
+# ##################################################################################################
 # Application
-# ##############################################################################
+# ##################################################################################################
 add_subdirectory(ApplicationLibCode)
 if(RESINSIGHT_ENABLE_GRPC)
   add_subdirectory(GrpcInterface)
@@ -784,24 +739,17 @@ if(OCTAVE_MKOCTFILE)
 
   add_subdirectory(OctavePlugin)
 else(OCTAVE_MKOCTFILE)
-  message(
-    STATUS "Could not find OCTAVE_MKOCTFILE, skipping OctavePlugin library"
-  )
+  message(STATUS "Could not find OCTAVE_MKOCTFILE, skipping OctavePlugin library")
 endif(OCTAVE_MKOCTFILE)
 
-# ##############################################################################
+# ##################################################################################################
 # Code documentation using Doxygen
-# ##############################################################################
-option(RESINSIGHT_BUILD_DOCUMENTATION
-       "Use Doxygen to create the HTML based API documentation" OFF
-)
+# ##################################################################################################
+option(RESINSIGHT_BUILD_DOCUMENTATION "Use Doxygen to create the HTML based API documentation" OFF)
 if(RESINSIGHT_BUILD_DOCUMENTATION)
   find_package(Doxygen)
   if(NOT DOXYGEN_FOUND)
-    message(
-      FATAL_ERROR
-        "Doxygen is needed to build the documentation. Please install it correctly"
-    )
+    message(FATAL_ERROR "Doxygen is needed to build the documentation. Please install it correctly")
   endif()
   # -- Configure the Template Doxyfile for our specific project
   configure_file(Doxyfile.in ${PROJECT_BINARY_DIR}/Doxyfile @ONLY IMMEDIATE)
@@ -811,6 +759,6 @@ if(RESINSIGHT_BUILD_DOCUMENTATION)
     COMMAND ${DOXYGEN_EXECUTABLE} ${PROJECT_BINARY_DIR}/Doxyfile
     SOURCES ${PROJECT_BINARY_DIR}/Doxyfile
   )
-  # IF you do NOT want the documentation to be generated EVERY time you build
-  # the project then leave out the 'ALL' keyword from the above command.
+  # IF you do NOT want the documentation to be generated EVERY time you build the project then leave
+  # out the 'ALL' keyword from the above command.
 endif(RESINSIGHT_BUILD_DOCUMENTATION)

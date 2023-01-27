@@ -1,11 +1,9 @@
-set(SOURCE_GROUP_HEADER_FILES
-    ${CMAKE_CURRENT_LIST_DIR}/RimPlotTemplateFolderItem.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimPlotTemplateFileItem.h
+set(SOURCE_GROUP_HEADER_FILES ${CMAKE_CURRENT_LIST_DIR}/RimPlotTemplateFolderItem.h
+                              ${CMAKE_CURRENT_LIST_DIR}/RimPlotTemplateFileItem.h
 )
 
-set(SOURCE_GROUP_SOURCE_FILES
-    ${CMAKE_CURRENT_LIST_DIR}/RimPlotTemplateFolderItem.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimPlotTemplateFileItem.cpp
+set(SOURCE_GROUP_SOURCE_FILES ${CMAKE_CURRENT_LIST_DIR}/RimPlotTemplateFolderItem.cpp
+                              ${CMAKE_CURRENT_LIST_DIR}/RimPlotTemplateFileItem.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
@@ -13,7 +11,6 @@ list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
 
 source_group(
-  "ProjectDataModel\\PlotTemplates"
-  FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+  "ProjectDataModel\\PlotTemplates" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
+                                          ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
 )

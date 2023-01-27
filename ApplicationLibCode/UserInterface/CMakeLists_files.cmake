@@ -303,7 +303,6 @@ list(
 list(APPEND QT_UI_FILES)
 
 source_group(
-  "UserInterface"
-  FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+  "UserInterface" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
+                        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
 )

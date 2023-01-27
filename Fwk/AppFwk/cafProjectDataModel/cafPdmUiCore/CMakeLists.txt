@@ -72,10 +72,9 @@ set(PROJECT_FILES
     cafFontTools.h
 )
 
-# NOTE! Resources in this subfolder appends to the variable QRC_FILES in parent
-# scope CMakeList.txt in the application folder (parent scope) must use the
-# following syntax to make sure the QRC_FILES variable contains appended files
-# in subfolders
+# NOTE! Resources in this subfolder appends to the variable QRC_FILES in parent scope CMakeList.txt
+# in the application folder (parent scope) must use the following syntax to make sure the QRC_FILES
+# variable contains appended files in subfolders
 
 # set( QRC_FILES ${QRC_FILES} Resources/MyaApplication.qrc )
 
@@ -91,9 +90,7 @@ target_link_libraries(${PROJECT_NAME} cafPdmCore ${QT_LIBRARIES})
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 if(MSVC)
-  set_target_properties(
-    ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127"
-  )
+  set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W4 /wd4100 /wd4127")
 endif()
 
 source_group("" FILES ${PROJECT_FILES})

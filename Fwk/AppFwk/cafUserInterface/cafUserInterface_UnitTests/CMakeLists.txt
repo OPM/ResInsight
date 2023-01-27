@@ -20,9 +20,7 @@ add_executable(${PROJECT_NAME} ${PROJECT_FILES})
 
 source_group("" FILES ${PROJECT_FILES})
 
-target_link_libraries(
-  ${PROJECT_NAME} cafUserInterface ${QT_LIBRARIES} ${THREAD_LIBRARY}
-)
+target_link_libraries(${PROJECT_NAME} cafUserInterface ${QT_LIBRARIES} ${THREAD_LIBRARY})
 
 # Copy Qt Dlls
 foreach(qtlib ${QT_LIBRARIES})

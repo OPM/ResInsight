@@ -11,17 +11,13 @@ if(RESINSIGHT_ENABLE_UNITY_BUILD)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX)
-  set(CMAKE_CXX_FLAGS
-      "${CMAKE_CXX_FLAGS} -Wno-deprecated -Wno-deprecated-declarations"
-  )
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -Wno-deprecated-declarations")
 endif()
 
 # Open GL
 find_package(OpenGL)
 
-option(RESINSIGHT_TREAT_WARNINGS_AS_ERRORS
-       "Treat warnings as errors (stops build)" OFF
-)
+option(RESINSIGHT_TREAT_WARNINGS_AS_ERRORS "Treat warnings as errors (stops build)" OFF)
 
 find_package(Qt5 ${RI_QT_MINIMUM_VERSION} COMPONENTS Core)
 
@@ -55,8 +51,8 @@ if(Qt5Core_FOUND)
   endif(Qt5Charts_FOUND)
 endif(Qt5Core_FOUND)
 
-# NB: The generated file is written to Cmake binary folder to avoid source tree
-# pollution This folder is added to include_directories
+# NB: The generated file is written to Cmake binary folder to avoid source tree pollution This
+# folder is added to include_directories
 configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/Adm/RiaVersionInfo.h.cmake
   ${CMAKE_BINARY_DIR}/Generated/RiaVersionInfo.h
@@ -125,18 +121,18 @@ include_directories(
   ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-# ##############################################################################
+# ##################################################################################################
 # Eigen
-# ##############################################################################
+# ##################################################################################################
 if(VCPKG_AUTO_INSTALL)
   vcpkg_install(eigen3)
 endif()
 
 find_package(Eigen3 REQUIRED)
 
-# ##############################################################################
+# ##################################################################################################
 # Defining all the source (and header) files
-# ##############################################################################
+# ##################################################################################################
 
 # Use all h files in the subdirectories to make them available in the project
 file(GLOB_RECURSE HEADER_FILES *.h)
@@ -204,18 +200,14 @@ list(
   CommandFileInterface/Core/CMakeLists_files.cmake
 )
 
-option(RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS
-       "Include ApplicationCode Unit Tests" OFF
-)
+option(RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS "Include ApplicationCode Unit Tests" OFF)
 mark_as_advanced(FORCE RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS)
 if(RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS)
   add_definitions(-DUSE_UNIT_TESTS)
 
   list(APPEND REFERENCED_CMAKE_FILES UnitTests/CMakeLists_files.cmake)
 
-  list(APPEND CPP_SOURCES
-       ${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc
-  )
+  list(APPEND CPP_SOURCES ${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc)
 
 endif()
 
@@ -226,9 +218,9 @@ endforeach(referencedfile)
 
 list(APPEND CPP_SOURCES ${CODE_SOURCE_FILES})
 
-# ##############################################################################
+# ##################################################################################################
 # Sub-directory projects
-# ##############################################################################
+# ##################################################################################################
 
 add_subdirectory(ResultStatisticsCache)
 add_subdirectory(Commands)
@@ -284,22 +276,21 @@ if(RESINSIGHT_FOUND_HDF5)
 
 endif()
 
-# ##############################################################################
+# ##################################################################################################
 # Qt specifics: Moc, ui, resources
-# ##############################################################################
+# ##################################################################################################
 
 set(QT_MOC_HEADERS
     ${QT_MOC_HEADERS} ProjectDataModel/RimMimeData.h
-    ProjectDataModel/Intersections/RimBoxIntersection.h
-    SocketInterface/RiaSocketServer.h
+    ProjectDataModel/Intersections/RimBoxIntersection.h SocketInterface/RiaSocketServer.h
 )
 
 qt5_wrap_cpp(MOC_SOURCE_FILES ${QT_MOC_HEADERS})
 qt5_wrap_ui(FORM_FILES_CPP ${QT_UI_FILES})
 
-# ##############################################################################
+# ##################################################################################################
 # Create source groups - see also included CMakeLists_files.cmake
-# ##############################################################################
+# ##################################################################################################
 source_group("ModelVisualization" FILES ${MODEL_VISUALIZATION_FILES})
 source_group("SocketInterface" FILES ${SOCKET_INTERFACE_FILES})
 source_group("UnitTests" FILES ${UNIT_TEST_FILES})
@@ -327,15 +318,14 @@ if(RESINSIGHT_ENABLE_PRECOMPILED_HEADERS)
   target_precompile_headers(ApplicationLibCode PRIVATE pch.h)
 
   set_source_files_properties(
-    ${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc
-    PROPERTIES SKIP_PRECOMPILE_HEADERS ON
+    ${ResInsight_SOURCE_DIR}/ThirdParty/gtest/gtest-all.cc PROPERTIES SKIP_PRECOMPILE_HEADERS ON
   )
 endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   target_compile_options(
-    ApplicationLibCode PRIVATE -Wall -Wno-unused-parameter -Wno-reorder
-                               -Wno-parentheses -Wno-switch
+    ApplicationLibCode PRIVATE -Wall -Wno-unused-parameter -Wno-reorder -Wno-parentheses
+                               -Wno-switch
   )
 endif()
 
@@ -373,34 +363,29 @@ if(RESINSIGHT_TREAT_WARNINGS_AS_ERRORS)
 endif()
 
 if(MSVC)
-  # The following warnings are supposed to be used in ResInsight, but
-  # temporarily disabled to avoid too much noise warning C4245: 'return':
-  # conversion from 'int' to 'size_t', signed/unsigned mismatch warning C4005:
-  # Macro redefinition for math constants (M_PI, M_SQRT2 etc)
+  # The following warnings are supposed to be used in ResInsight, but temporarily disabled to avoid
+  # too much noise warning C4245: 'return': conversion from 'int' to 'size_t', signed/unsigned
+  # mismatch warning C4005: Macro redefinition for math constants (M_PI, M_SQRT2 etc)
 
   # If possible, the following command is supposed to be the final target
-  # set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W3 /wd4190
-  # /wd4100 /wd4127")
+  # set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W3 /wd4190 /wd4100 /wd4127")
 
   set(BUILD_FLAGS_FOR_MSVC "/wd4190 /wd4100 /wd4127 /wd4245 /wd4005 /wd4251")
 
   if(CMAKE_CXX_COMPILER_VERSION LESS_EQUAL 19.14)
-    # The following warning is generated over 800 times from a qwt header only
-    # using VS2015 Disabling temporarily warning C4505 'function' : unreferenced
-    # local function has been removed
+    # The following warning is generated over 800 times from a qwt header only using VS2015
+    # Disabling temporarily warning C4505 'function' : unreferenced local function has been removed
     set(BUILD_FLAGS_FOR_MSVC "${BUILD_FLAGS_FOR_MSVC} /wd4505")
   endif()
 
   message(STATUS "BUILD_FLAGS_FOR_MSVC ${BUILD_FLAGS_FOR_MSVC}")
-  set_target_properties(
-    ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS ${BUILD_FLAGS_FOR_MSVC}
-  )
+  set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS ${BUILD_FLAGS_FOR_MSVC})
 
 endif()
 
-# ##############################################################################
+# ##################################################################################################
 # Set up libraries and dependent projects to link with
-# ##############################################################################
+# ##################################################################################################
 
 set(LINK_LIBRARIES
     Eigen3::Eigen
@@ -419,9 +404,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   list(APPEND EXTERNAL_LINK_LIBRARIES rt)
 endif()
 
-target_link_libraries(
-  ${PROJECT_NAME} ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES}
-)
+target_link_libraries(${PROJECT_NAME} ${LINK_LIBRARIES} ${EXTERNAL_LINK_LIBRARIES})
 
 target_include_directories(
   ${PROJECT_NAME}
@@ -442,9 +425,9 @@ target_include_directories(
          ${CMAKE_SOURCE_DIR}/ApplicationLibCode/UserInterface
 )
 
-# ##############################################################################
+# ##################################################################################################
 # Unity builds
-# ##############################################################################
+# ##################################################################################################
 
 set(UNITY_EXCLUDE_FILES
     # forever is used as variable name, and this symbol is defined by Qt and
@@ -460,8 +443,6 @@ set(UNITY_EXCLUDE_FILES
 
 if(RESINSIGHT_ENABLE_UNITY_BUILD)
   foreach(fileToExclude ${UNITY_EXCLUDE_FILES})
-    set_source_files_properties(
-      ${fileToExclude} PROPERTIES SKIP_UNITY_BUILD_INCLUSION TRUE
-    )
+    set_source_files_properties(${fileToExclude} PROPERTIES SKIP_UNITY_BUILD_INCLUSION TRUE)
   endforeach(fileToExclude)
 endif()

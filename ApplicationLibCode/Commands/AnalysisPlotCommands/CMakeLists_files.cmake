@@ -1,11 +1,9 @@
-set(SOURCE_GROUP_HEADER_FILES
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewAnalysisPlotFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewPlotDataFilterFeature.h
+set(SOURCE_GROUP_HEADER_FILES ${CMAKE_CURRENT_LIST_DIR}/RicNewAnalysisPlotFeature.h
+                              ${CMAKE_CURRENT_LIST_DIR}/RicNewPlotDataFilterFeature.h
 )
 
-set(SOURCE_GROUP_SOURCE_FILES
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewAnalysisPlotFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewPlotDataFilterFeature.cpp
+set(SOURCE_GROUP_SOURCE_FILES ${CMAKE_CURRENT_LIST_DIR}/RicNewAnalysisPlotFeature.cpp
+                              ${CMAKE_CURRENT_LIST_DIR}/RicNewPlotDataFilterFeature.cpp
 )
 
 list(APPEND COMMAND_COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

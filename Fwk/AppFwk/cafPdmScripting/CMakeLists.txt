@@ -35,13 +35,9 @@ set(PROJECT_FILES
 set(CAF_LIBS cafProjectDataModel)
 
 if(CAF_CVF_SCRIPTING)
-  list(
-    APPEND
-    PROJECT_FILES
-    cafPdmFieldScriptingCapabilityCvfColor3.h
-    cafPdmFieldScriptingCapabilityCvfColor3.cpp
-    cafPdmFieldScriptingCapabilityCvfVec3d.h
-    cafPdmFieldScriptingCapabilityCvfVec3d.cpp
+  list(APPEND PROJECT_FILES cafPdmFieldScriptingCapabilityCvfColor3.h
+       cafPdmFieldScriptingCapabilityCvfColor3.cpp cafPdmFieldScriptingCapabilityCvfVec3d.h
+       cafPdmFieldScriptingCapabilityCvfVec3d.cpp
   )
   list(APPEND CAF_LIBS cafPdmCvf)
 endif()

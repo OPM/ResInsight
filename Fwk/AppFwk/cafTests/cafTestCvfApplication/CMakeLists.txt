@@ -39,14 +39,12 @@ include_directories(
   ${cafPdmCvf_SOURCE_DIR}
 )
 
-set(PROJECT_FILES Main.cpp MainWindow.cpp WidgetLayoutTest.cpp
-                  TapCvfSpecialization.cpp TapProject.cpp
+set(PROJECT_FILES Main.cpp MainWindow.cpp WidgetLayoutTest.cpp TapCvfSpecialization.cpp
+                  TapProject.cpp
 )
 
 # add the executable
-add_executable(
-  ${PROJECT_NAME} ${PROJECT_FILES} ${MOC_SOURCE_FILES} ${QRC_FILES_CPP}
-)
+add_executable(${PROJECT_NAME} ${PROJECT_FILES} ${MOC_SOURCE_FILES} ${QRC_FILES_CPP})
 
 set(TAP_LINK_LIBRARIES cafUserInterface cafPdmXml cafPdmCvf ${QT_LIBRARIES})
 

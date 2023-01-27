@@ -47,8 +47,7 @@ add_library(
 )
 
 target_include_directories(
-  ${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
-                         ${CMAKE_CURRENT_SOURCE_DIR}/cafPdmMat3d
+  ${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/cafPdmMat3d
 )
 
 target_link_libraries(${PROJECT_NAME} cafUserInterface LibCore ${QT_LIBRARIES})

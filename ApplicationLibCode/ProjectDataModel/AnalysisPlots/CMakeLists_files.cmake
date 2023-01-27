@@ -21,7 +21,6 @@ list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
 list(APPEND QT_MOC_HEADERS)
 
 source_group(
-  "ProjectDataModel\\AnalysisPlots"
-  FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+  "ProjectDataModel\\AnalysisPlots" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
+                                          ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
 )

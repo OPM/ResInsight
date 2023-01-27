@@ -111,7 +111,6 @@ list(APPEND QT_MOC_HEADERS ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlot.h
 )
 
 source_group(
-  "ProjectDataModel\\Summary"
-  FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+  "ProjectDataModel\\Summary" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
+                                    ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
 )

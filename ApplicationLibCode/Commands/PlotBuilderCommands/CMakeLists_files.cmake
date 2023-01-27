@@ -37,7 +37,6 @@ list(APPEND COMMAND_CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
 list(APPEND COMMAND_QT_MOC_HEADERS)
 
 source_group(
-  "CommandFeature\\PlotBuilder"
-  FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+  "CommandFeature\\PlotBuilder" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
+                                      ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
 )

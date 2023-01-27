@@ -108,7 +108,6 @@ list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
 set(QT_MOC_HEADERS ${QT_MOC_HEADERS})
 
 source_group(
-  "Application\\Tools"
-  FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
-        ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
+  "Application\\Tools" FILES ${SOURCE_GROUP_HEADER_FILES} ${SOURCE_GROUP_SOURCE_FILES}
+                             ${CMAKE_CURRENT_LIST_DIR}/CMakeLists_files.cmake
 )
