@@ -53,6 +53,8 @@ public:
     static RimSummaryCaseMainCollection*  summaryCaseMainCollection();
     static RimSummaryMultiPlotCollection* summaryMultiPlotCollection();
 
+    static std::vector<RimSummaryCase*> singleTopLevelSummaryCases();
+
     static void notifyCalculatedCurveNameHasChanged( int calculationId, const QString& currentCurveName );
 
     static RimSummaryPlot*                parentSummaryPlot( caf::PdmObject* object );

@@ -40,8 +40,7 @@ public:
     RifReaderRftInterface* rftReader();
 
     bool                 hasWell( const QString& wellPathName ) const;
-    std::vector<QString> wells() const;
-    std::vector<QString> labels( const RifEclipseRftAddress& rftAddress );
+    std::vector<QString> wellNames() const;
 
 private:
     cvf::ref<RifReaderPressureDepthData> m_fmuRftReader;

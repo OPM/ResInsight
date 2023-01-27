@@ -23,6 +23,7 @@
 #include "RiaDateStringParser.h"
 #include "RiaPlotDefines.h"
 #include "RiaSimWellBranchTools.h"
+#include "RiaSummaryTools.h"
 
 #include "RifReaderEclipseRft.h"
 
@@ -41,6 +42,7 @@
 #include "RimPressureDepthData.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
+#include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimTools.h"
 #include "RimWellLogExtractionCurve.h"
@@ -816,6 +818,28 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions( const caf::
             }
         }
 
+        auto singleCases = RiaSummaryTools::singleTopLevelSummaryCases();
+        if ( !singleCases.empty() )
+        {
+            options.push_back( caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
+                                                                         RifDataSourceForRftPlt::SUMMARY_RFT ),
+                                                                     true ) );
+            for ( auto summaryCase : singleCases )
+            {
+                if ( summaryCase->rftReader() &&
+                     summaryCase->rftReader()->wellNames().contains( m_wellPathNameOrSimWellName ) )
+                {
+                    RimSummaryCaseCollection* parentEnsemble = nullptr;
+                    summaryCase->firstAncestorOrThisOfType( parentEnsemble );
+                    auto addr = RifDataSourceForRftPlt( RifDataSourceForRftPlt::SUMMARY_RFT, summaryCase, parentEnsemble );
+
+                    auto item = caf::PdmOptionItemInfo( summaryCase->displayCaseName(), QVariant::fromValue( addr ) );
+                    item.setLevel( 1 );
+                    options.push_back( item );
+                }
+            }
+        }
+
         const std::vector<RimEclipseResultCase*> gridCases = RimWellPlotTools::gridCasesForWell( simWellName );
         if ( !gridCases.empty() )
         {
@@ -1046,6 +1070,19 @@ std::map<QString, QStringList> RimWellRftPlot::findWellSources()
                 wellNames[simWellName].push_back( "Sim.Well" );
             }
         }
+
+        auto singleCases = RiaSummaryTools::singleTopLevelSummaryCases();
+        for ( auto summaryCase : singleCases )
+        {
+            if ( auto rftReader = summaryCase->rftReader() )
+            {
+                for ( const QString& wellName : rftReader->wellNames() )
+                {
+                    wellNames[wellName].push_back( "Summary" );
+                }
+            }
+        }
+
         const std::vector<RimSummaryCaseCollection*> rftEnsembles = RimWellPlotTools::rftEnsembles();
         // Ensemble RFT wells
         {
@@ -1069,6 +1106,15 @@ std::map<QString, QStringList> RimWellRftPlot::findWellSources()
                 {
                     wellNames[wellName].push_back( "Observed" );
                 }
+            }
+        }
+
+        const std::vector<RimPressureDepthData*> pressureDepthData = RimWellPlotTools::pressureDepthData();
+        for ( const auto& pd : pressureDepthData )
+        {
+            for ( const auto& wellName : pd->wellNames() )
+            {
+                wellNames[wellName].push_back( "Observed" );
             }
         }
     }
@@ -1106,8 +1152,8 @@ void RimWellRftPlot::onLoadDataAndUpdate()
     createEnsembleCurveSets();
     updateEditorsFromCurves();
 
-    // Update of curve color must happen here when loading data from project file, as the curve color is blended by the
-    // background color. The background color is taken from the viewer.
+    // Update of curve color must happen here when loading data from project file, as the curve color is blended by
+    // the background color. The background color is taken from the viewer.
     RimWellLogTrack* const plotTrack = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
 
     if ( plotTrack && plotTrack->viewer() )

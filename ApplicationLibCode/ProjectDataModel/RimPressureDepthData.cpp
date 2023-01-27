@@ -37,7 +37,7 @@ RimPressureDepthData::RimPressureDepthData()
     CAF_PDM_InitFieldNoDefault( &m_wells, "Wells", "Wells" );
     m_wells.xmlCapability()->disableIO();
     m_wells.uiCapability()->setUiReadOnly( true );
-    m_wells.registerGetMethod( this, &RimPressureDepthData::wells );
+    m_wells.registerGetMethod( this, &RimPressureDepthData::wellNames );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -75,7 +75,7 @@ RifReaderRftInterface* RimPressureDepthData::rftReader()
 //--------------------------------------------------------------------------------------------------
 bool RimPressureDepthData::hasWell( const QString& wellPathName ) const
 {
-    std::vector<QString> allWells = wells();
+    std::vector<QString> allWells = wellNames();
     for ( const QString& well : allWells )
     {
         if ( well == wellPathName )
@@ -89,24 +89,12 @@ bool RimPressureDepthData::hasWell( const QString& wellPathName ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> RimPressureDepthData::wells() const
+std::vector<QString> RimPressureDepthData::wellNames() const
 {
     if ( m_fmuRftReader.p() )
     {
         std::set<QString> wellNames = const_cast<RifReaderPressureDepthData*>( m_fmuRftReader.p() )->wellNames();
         return std::vector<QString>( wellNames.begin(), wellNames.end() );
-    }
-    return std::vector<QString>();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<QString> RimPressureDepthData::labels( const RifEclipseRftAddress& rftAddress )
-{
-    if ( m_fmuRftReader.p() )
-    {
-        return const_cast<RifReaderPressureDepthData*>( m_fmuRftReader.p() )->labels( rftAddress );
     }
     return {};
 }

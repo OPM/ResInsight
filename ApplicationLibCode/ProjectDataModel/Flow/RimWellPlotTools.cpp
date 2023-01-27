@@ -636,10 +636,12 @@ RiaRftPltCurveDefinition RimWellPlotTools::curveDefFromCurve( const RimWellLogCu
         }
         else if ( rftSummaryCase != nullptr )
         {
-            rftSummaryCase->firstAncestorOrThisOfTypeAsserted( rftEnsemble );
+            RimSummaryCaseCollection* parentEnsemble = nullptr;
+
+            rftSummaryCase->firstAncestorOrThisOfType( parentEnsemble );
             return RiaRftPltCurveDefinition( RifDataSourceForRftPlt( RifDataSourceForRftPlt::SUMMARY_RFT,
                                                                      rftSummaryCase,
-                                                                     rftEnsemble ),
+                                                                     parentEnsemble ),
                                              wellName,
                                              timeStep );
         }
@@ -851,6 +853,23 @@ std::set<RiaRftPltCurveDefinition>
                     if ( selectedTimeStepSet.count( time ) )
                     {
                         curveDefs.insert( RiaRftPltCurveDefinition( addr, wellPathNameOrSimWellName, time ) );
+                    }
+                }
+            }
+        }
+        else if ( addr.sourceType() == RifDataSourceForRftPlt::SUMMARY_RFT )
+        {
+            auto summaryCase = addr.summaryCase();
+            if ( summaryCase && summaryCase->rftReader() )
+            {
+                RifDataSourceForRftPlt summaryAddr( RifDataSourceForRftPlt::SUMMARY_RFT, summaryCase, addr.ensemble() );
+
+                std::set<QDateTime> timeSteps = summaryCase->rftReader()->availableTimeSteps( wellPathNameOrSimWellName );
+                for ( const QDateTime& time : timeSteps )
+                {
+                    if ( selectedTimeStepSet.count( time ) )
+                    {
+                        curveDefs.insert( RiaRftPltCurveDefinition( summaryAddr, wellPathNameOrSimWellName, time ) );
                     }
                 }
             }
@@ -1280,6 +1299,8 @@ std::map<QDateTime, std::set<RifDataSourceForRftPlt>> RimWellPlotTools::calculat
             RimWellPlotTools::findMatchingOrAdjacentTimeSteps( baseTimeSteps, gridTimeSteps );
         std::set<QDateTime> filteredEnsembleRftTimeSteps =
             RimWellPlotTools::findMatchingOrAdjacentTimeSteps( baseTimeSteps, ensembleRftTimeSteps );
+        std::set<QDateTime> filteredSummaryRftTimeSteps =
+            RimWellPlotTools::findMatchingOrAdjacentTimeSteps( baseTimeSteps, summaryRftTimeSteps );
 
         if ( addFirstTimestep && gridTimeSteps.size() )
         {
@@ -1292,6 +1313,7 @@ std::map<QDateTime, std::set<RifDataSourceForRftPlt>> RimWellPlotTools::calculat
         std::set<QDateTime>& allFilteredTimesteps = filteredRftTimeSteps;
         allFilteredTimesteps.insert( filteredEnsembleRftTimeSteps.begin(), filteredEnsembleRftTimeSteps.end() );
         allFilteredTimesteps.insert( filteredGridTimeSteps.begin(), filteredGridTimeSteps.end() );
+        allFilteredTimesteps.insert( filteredSummaryRftTimeSteps.begin(), filteredSummaryRftTimeSteps.end() );
 
         for ( const QDateTime& time : allFilteredTimesteps )
         {
@@ -1380,6 +1402,9 @@ void RimWellPlotTools::calculateValueOptionsForTimeSteps(
                     break;
                 case RifDataSourceForRftPlt::ENSEMBLE_RFT:
                     hasEnsemble = true;
+                    break;
+                case RifDataSourceForRftPlt::SUMMARY_RFT:
+                    hasRft = true;
                     break;
             }
         }
