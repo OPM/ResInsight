@@ -90,7 +90,7 @@ protected:
     RimUserDefinedCalculationVariable* addVariable( const QString& name );
     void                               deleteVariable( RimUserDefinedCalculationVariable* calcVariable );
 
-    QString buildCalculationName() const;
+    virtual QString buildCalculationName() const;
 
 protected:
     caf::PdmField<QString> m_description;

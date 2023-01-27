@@ -63,11 +63,9 @@ RimSummaryCalculationVariable* RimSummaryCalculation::createVariable()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryCalculation::calculate()
+std::optional<std::vector<RimSummaryCalculationVariable*>> RimSummaryCalculation::getVariables() const
 {
-    QString leftHandSideVariableName = RimSummaryCalculation::findLeftHandSide( m_expression );
-
-    RiaTimeHistoryCurveMerger timeHistoryCurveMerger;
+    std::vector<RimSummaryCalculationVariable*> variables;
 
     for ( size_t i = 0; i < m_variables.size(); i++ )
     {
@@ -79,8 +77,7 @@ bool RimSummaryCalculation::calculate()
             RiaLogging::errorInMessageBox( nullptr,
                                            "Expression Parser",
                                            QString( "No summary case defined for variable : %1" ).arg( v->name() ) );
-
-            return false;
+            return {};
         }
 
         if ( !v->summaryAddress() )
@@ -88,9 +85,99 @@ bool RimSummaryCalculation::calculate()
             RiaLogging::errorInMessageBox( nullptr,
                                            "Expression Parser",
                                            QString( "No summary address defined for variable : %1" ).arg( v->name() ) );
-
-            return false;
+            return {};
         }
+
+        variables.push_back( v );
+    }
+
+    return variables;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryCalculation::calculate()
+{
+    auto variables = getVariables();
+    if ( !variables ) return false;
+
+    RimSummaryCalculationVariable* v = variables.value()[0];
+
+    auto well = v->summaryAddress()->address().wellName();
+    auto addr = RifEclipseSummaryAddress::calculatedWellAddress( description().toStdString(), well, m_id );
+
+    // Clear existing values
+    m_cachedResults.erase( addr );
+    m_cachedTimesteps.erase( addr );
+
+    auto result = calculateResult( m_expression, variables.value() );
+    if ( result )
+    {
+        auto [validValues, validTimeSteps] = result.value();
+        m_cachedResults[addr]              = validValues;
+        m_cachedTimesteps[addr]            = validTimeSteps;
+
+        m_isDirty = false;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
+    RimSummaryCalculation::calculateWithSubstitutions( const RifEclipseSummaryAddress& addr )
+{
+    auto variables = getVariables();
+    if ( !variables ) return {};
+
+    auto substituteVariables = []( std::vector<RimSummaryCalculationVariable*>& vars,
+                                   const RifEclipseSummaryAddress&              address ) {
+        for ( auto v : vars )
+        {
+            if ( v->summaryAddress()->address().category() == address.category() )
+            {
+                RiaLogging::info( QString( "Replacing [%1] with [%2]" )
+                                      .arg( v->summaryAddress()->address().wellName().c_str() )
+                                      .arg( address.wellName().c_str() ) );
+                auto copyOfAddress = v->summaryAddress()->address();
+                copyOfAddress.setWellName( address.wellName() );
+
+                RimSummaryAddress summaryAddress;
+                summaryAddress.setAddress( copyOfAddress );
+                v->setSummaryAddress( summaryAddress );
+                RiaLogging::info( QString( "Vector name: %1" ).arg( v->summaryAddress()->address().uiText().c_str() ) );
+            }
+        }
+    };
+
+    auto vars = variables.value();
+    substituteVariables( vars, addr );
+
+    return calculateResult( m_expression, vars );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
+    RimSummaryCalculation::calculateResult( const QString&                                     expression,
+                                            const std::vector<RimSummaryCalculationVariable*>& variables )
+
+{
+    QString leftHandSideVariableName = RimSummaryCalculation::findLeftHandSide( expression );
+
+    RiaTimeHistoryCurveMerger timeHistoryCurveMerger;
+
+    for ( size_t i = 0; i < variables.size(); i++ )
+    {
+        RimSummaryCalculationVariable* v = variables[i];
+        CAF_ASSERT( v != nullptr );
 
         RiaSummaryCurveDefinition curveDef( v->summaryCase(), v->summaryAddress()->address(), false );
 
@@ -108,9 +195,9 @@ bool RimSummaryCalculation::calculate()
     timeHistoryCurveMerger.computeInterpolatedValues();
 
     ExpressionParser parser;
-    for ( size_t i = 0; i < m_variables.size(); i++ )
+    for ( size_t i = 0; i < variables.size(); i++ )
     {
-        RimSummaryCalculationVariable* v = dynamic_cast<RimSummaryCalculationVariable*>( m_variables[i] );
+        RimSummaryCalculationVariable* v = variables[i];
         CAF_ASSERT( v != nullptr );
 
         parser.assignVector( v->name(), timeHistoryCurveMerger.interpolatedYValuesForAllXValues( i ) );
@@ -122,19 +209,10 @@ bool RimSummaryCalculation::calculate()
     parser.assignVector( leftHandSideVariableName, resultValues );
 
     QString errorText;
-    bool    evaluatedOk = parser.expandIfStatementsAndEvaluate( m_expression, &errorText );
+    bool    evaluatedOk = parser.expandIfStatementsAndEvaluate( expression, &errorText );
 
     if ( evaluatedOk )
     {
-        RimSummaryCalculationVariable* v = dynamic_cast<RimSummaryCalculationVariable*>( m_variables[0] );
-
-        auto well = v->summaryAddress()->address().wellName();
-        auto addr = RifEclipseSummaryAddress::calculatedWellAddress( description().toStdString(), well, m_id );
-
-        // TODO: clear existing values
-        m_cachedResults.erase( addr );
-        m_cachedTimesteps.erase( addr );
-
         if ( timeHistoryCurveMerger.validIntervalsForAllXValues().size() > 0 )
         {
             size_t firstValidTimeStep = timeHistoryCurveMerger.validIntervalsForAllXValues().front().first;
@@ -148,12 +226,9 @@ bool RimSummaryCalculation::calculate()
                 std::vector<double> validValues( resultValues.begin() + firstValidTimeStep,
                                                  resultValues.begin() + lastValidTimeStep );
 
-                m_cachedResults[addr]   = validValues;
-                m_cachedTimesteps[addr] = validTimeSteps;
+                return std::make_pair( validValues, validTimeSteps );
             }
         }
-
-        m_isDirty = false;
     }
     else
     {
@@ -163,7 +238,7 @@ bool RimSummaryCalculation::calculate()
         RiaLogging::errorInMessageBox( nullptr, "Expression Parser", s );
     }
 
-    return evaluatedOk;
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -235,15 +310,21 @@ std::vector<double> RimSummaryCalculation::values( const RimUserDefinedCalculati
 
     if ( auto it = m_cachedResults.find( address->address() ); it != m_cachedResults.end() )
     {
-        RiaLogging::info( QString( "Hit values cached data! %1" ).arg( address->address().uiText().c_str() ) );
         return it->second;
     }
     else
     {
-        calculate();
-        RiaLogging::error( QString( "Missing values data! %1" ).arg( address->address().uiText().c_str() ) );
-        return {};
+        auto result = calculateWithSubstitutions( address->address() );
+        if ( result )
+        {
+            auto [validValues, validTimeSteps]    = result.value();
+            m_cachedResults[address->address()]   = validValues;
+            m_cachedTimesteps[address->address()] = validTimeSteps;
+            return validValues;
+        }
     }
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -258,7 +339,6 @@ const std::vector<time_t>& RimSummaryCalculation::timeSteps( const RimUserDefine
 
     if ( auto it = m_cachedTimesteps.find( address->address() ); it != m_cachedTimesteps.end() )
     {
-        RiaLogging::info( QString( "Hit timesteps cached data! %1" ).arg( address->address().uiText().c_str() ) );
         return it->second;
     }
 
