@@ -618,3 +618,12 @@ std::vector<RimUserDefinedCalculationAddress*> RimGridCalculation::allAddresses(
     std::vector<RimUserDefinedCalculationAddress*> addresses;
     return addresses;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimGridCalculation::values( const RimUserDefinedCalculationAddress& addr )
+{
+    // TODO: this wrong, but satisifise the interface
+    return {};
+}

@@ -50,10 +50,16 @@ public:
 
     std::vector<RimUserDefinedCalculationAddress*> allAddresses() const override;
 
+    std::vector<double>        values( const RimUserDefinedCalculationAddress& addr ) override;
+    const std::vector<time_t>& timeSteps( const RimUserDefinedCalculationAddress& addr );
+
     bool calculate() override;
     void updateDependentObjects() override;
     void removeDependentObjects() override;
 
 protected:
     RimSummaryCalculationVariable* createVariable() override;
+
+    std::map<RifEclipseSummaryAddress, std::vector<double>> m_cachedResults;
+    std::map<RifEclipseSummaryAddress, std::vector<time_t>> m_cachedTimesteps;
 };

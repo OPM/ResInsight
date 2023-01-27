@@ -21,6 +21,7 @@
 #include "RifEclipseSummaryAddress.h"
 #include "RimSummaryCalculation.h"
 #include "RimSummaryCalculationCollection.h"
+#include "RimUserDefinedCalculation.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -38,7 +39,8 @@ const std::vector<time_t>& RifCalculatedSummaryCurveReader::timeSteps( const Rif
     RimSummaryCalculation* calc = findCalculationByName( resultAddress );
     if ( calc )
     {
-        return calc->timeSteps();
+        RimSummaryCalculationAddress address( resultAddress );
+        return calc->timeSteps( address );
     }
 
     static std::vector<time_t> dummy;
@@ -54,7 +56,8 @@ bool RifCalculatedSummaryCurveReader::values( const RifEclipseSummaryAddress& re
     RimSummaryCalculation* calc = findCalculationByName( resultAddress );
     if ( calc )
     {
-        *values = calc->values();
+        RimSummaryCalculationAddress address( resultAddress );
+        *values = calc->values( address );
 
         return true;
     }
