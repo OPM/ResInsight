@@ -824,21 +824,18 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions( const caf::
             options.push_back( caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
                                                                          RifDataSourceForRftPlt::SUMMARY_RFT ),
                                                                      true ) );
-            for ( auto* summaryCase : singleCases )
+            for ( auto summaryCase : singleCases )
             {
-                if ( auto rftReader = summaryCase->rftReader() )
+                if ( summaryCase->rftReader() &&
+                     summaryCase->rftReader()->wellNames().contains( m_wellPathNameOrSimWellName ) )
                 {
-                    if ( rftReader->wellNames().contains( m_wellPathNameOrSimWellName ) )
-                    {
-                        RimSummaryCaseCollection* parentEnsemble = nullptr;
-                        summaryCase->firstAncestorOrThisOfType( parentEnsemble );
-                        auto addr =
-                            RifDataSourceForRftPlt( RifDataSourceForRftPlt::SUMMARY_RFT, summaryCase, parentEnsemble );
+                    RimSummaryCaseCollection* parentEnsemble = nullptr;
+                    summaryCase->firstAncestorOrThisOfType( parentEnsemble );
+                    auto addr = RifDataSourceForRftPlt( RifDataSourceForRftPlt::SUMMARY_RFT, summaryCase, parentEnsemble );
 
-                        auto item = caf::PdmOptionItemInfo( summaryCase->displayCaseName(), QVariant::fromValue( addr ) );
-                        item.setLevel( 1 );
-                        options.push_back( item );
-                    }
+                    auto item = caf::PdmOptionItemInfo( summaryCase->displayCaseName(), QVariant::fromValue( addr ) );
+                    item.setLevel( 1 );
+                    options.push_back( item );
                 }
             }
         }
