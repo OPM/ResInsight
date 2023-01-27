@@ -59,6 +59,7 @@ private:
         MohrsCirclesInfo( cvf::Vec3f                        principals,
                           size_t                            gridIndex,
                           size_t                            elmIndex,
+                          int                               elmId,
                           size_t                            i,
                           size_t                            j,
                           size_t                            k,
@@ -68,6 +69,7 @@ private:
             : principals( principals )
             , gridIndex( gridIndex )
             , elmIndex( elmIndex )
+            , elmId( elmId )
             , i( i )
             , j( j )
             , k( k )
@@ -80,6 +82,7 @@ private:
         cvf::Vec3f                        principals;
         size_t                            gridIndex;
         size_t                            elmIndex;
+        int                               elmId;
         size_t                            i, j, k;
         const RimGeoMechResultDefinition* geomResDef;
         double                            factorOfSafety;
@@ -104,6 +107,7 @@ private:
                             int                               frameIndex,
                             size_t                            gridIndex,
                             size_t                            elmIndex,
+                            int                               elmId,
                             const cvf::Color3ub&              color );
     void updatePlot();
 
