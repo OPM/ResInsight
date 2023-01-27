@@ -69,8 +69,7 @@ RimGridView* RicHoloLensExportToFolderUi::viewForExport() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RicHoloLensExportToFolderUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RicHoloLensExportToFolderUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

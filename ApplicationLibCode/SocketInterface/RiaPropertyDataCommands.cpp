@@ -77,17 +77,16 @@ public:
         {
             if ( rimCase->results( porosityModelEnum )->ensureKnownResultLoaded( RigEclipseResultAddress( propertyName ) ) )
             {
-                scalarResultFrames = rimCase->results( porosityModelEnum )
-                                         ->modifiableCellScalarResultTimesteps( RigEclipseResultAddress( propertyName ) );
+                scalarResultFrames =
+                    rimCase->results( porosityModelEnum )->modifiableCellScalarResultTimesteps( RigEclipseResultAddress( propertyName ) );
             }
         }
 
         if ( scalarResultFrames == nullptr )
         {
-            server->showErrorMessage( RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
-                                      RiaSocketServer::tr( "Could not find the %1 model property named: \"%2\"" )
-                                          .arg( porosityModelName )
-                                          .arg( propertyName ) );
+            server->showErrorMessage(
+                RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
+                RiaSocketServer::tr( "Could not find the %1 model property named: \"%2\"" ).arg( porosityModelName ).arg( propertyName ) );
         }
 
         // Write data back : timeStepCount, bytesPrTimestep, dataForTimestep0 ... dataForTimestepN
@@ -131,9 +130,8 @@ public:
 
                 if ( timeStepReadError )
                 {
-                    server->showErrorMessage(
-                        RiaSocketServer::tr( "ResInsight SocketServer: riGetActiveCellProperty : \n" ) +
-                        RiaSocketServer::tr( "An error occurred while interpreting the requested timesteps." ) );
+                    server->showErrorMessage( RiaSocketServer::tr( "ResInsight SocketServer: riGetActiveCellProperty : \n" ) +
+                                              RiaSocketServer::tr( "An error occurred while interpreting the requested timesteps." ) );
                 }
             }
 
@@ -143,7 +141,7 @@ public:
 
             // then the byte-size of the result values in one timestep
 
-            const RigActiveCellInfo* activeInfo = rimCase->eclipseCaseData()->activeCellInfo( porosityModelEnum );
+            const RigActiveCellInfo* activeInfo          = rimCase->eclipseCaseData()->activeCellInfo( porosityModelEnum );
             size_t                   timestepResultCount = activeInfo->reservoirActiveCellCount();
 
             quint64 timestepByteCount = ( quint64 )( timestepResultCount * sizeof( double ) );
@@ -201,10 +199,7 @@ public:
             }
 
             // Write remaining data
-            if ( !RiaSocketTools::writeBlockData( server,
-                                                  server->currentClient(),
-                                                  (const char*)values.data(),
-                                                  valueIndex * sizeof( double ) ) )
+            if ( !RiaSocketTools::writeBlockData( server, server->currentClient(), (const char*)values.data(), valueIndex * sizeof( double ) ) )
             {
                 return false;
             }
@@ -213,8 +208,8 @@ public:
     }
 };
 
-static bool RiaGetActiveCellProperty_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetActiveCellProperty>(
-    RiaGetActiveCellProperty::commandName() );
+static bool RiaGetActiveCellProperty_init =
+    RiaSocketCommandFactory::instance()->registerCreator<RiaGetActiveCellProperty>( RiaGetActiveCellProperty::commandName() );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -269,10 +264,9 @@ public:
 
         if ( !isResultsLoaded )
         {
-            server->showErrorMessage( RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
-                                      RiaSocketServer::tr( "Could not find the %1 model property named: \"%2\"" )
-                                          .arg( porosityModelName )
-                                          .arg( propertyName ) );
+            server->showErrorMessage(
+                RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
+                RiaSocketServer::tr( "Could not find the %1 model property named: \"%2\"" ).arg( porosityModelName ).arg( propertyName ) );
 
             // No data available
             socketStream << (quint64)0 << (quint64)0 << (quint64)0 << (quint64)0;
@@ -311,9 +305,8 @@ public:
 
             if ( timeStepReadError )
             {
-                server->showErrorMessage(
-                    RiaSocketServer::tr( "ResInsight SocketServer: riGetGridProperty : \n" ) +
-                    RiaSocketServer::tr( "An error occurred while interpreting the requested timesteps." ) );
+                server->showErrorMessage( RiaSocketServer::tr( "ResInsight SocketServer: riGetGridProperty : \n" ) +
+                                          RiaSocketServer::tr( "An error occurred while interpreting the requested timesteps." ) );
             }
         }
 
@@ -360,10 +353,7 @@ public:
 
                 if ( valueIndex >= valueCount )
                 {
-                    if ( !RiaSocketTools::writeBlockData( server,
-                                                          server->currentClient(),
-                                                          (const char*)values.data(),
-                                                          valueIndex * sizeof( double ) ) )
+                    if ( !RiaSocketTools::writeBlockData( server, server->currentClient(), (const char*)values.data(), valueIndex * sizeof( double ) ) )
                     {
                         return false;
                     }
@@ -373,10 +363,7 @@ public:
             }
 
             // Write remaining data
-            if ( !RiaSocketTools::writeBlockData( server,
-                                                  server->currentClient(),
-                                                  (const char*)values.data(),
-                                                  valueIndex * sizeof( double ) ) )
+            if ( !RiaSocketTools::writeBlockData( server, server->currentClient(), (const char*)values.data(), valueIndex * sizeof( double ) ) )
             {
                 return false;
             }
@@ -440,7 +427,7 @@ public:
                 rimCase->results( m_porosityModelEnum )->setTimeStepInfos( eclResAddr, timeStepInfos );
             }
 
-            scalarResultFrames = rimCase->results( m_porosityModelEnum )->modifiableCellScalarResultTimesteps( eclResAddr );
+            scalarResultFrames   = rimCase->results( m_porosityModelEnum )->modifiableCellScalarResultTimesteps( eclResAddr );
             size_t timeStepCount = rimCase->results( m_porosityModelEnum )->maxTimeStepCount();
             scalarResultFrames->resize( timeStepCount );
 
@@ -450,10 +437,9 @@ public:
 
         if ( scalarResultFrames == nullptr )
         {
-            server->showErrorMessage( RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
-                                      RiaSocketServer::tr( "Could not find the %1 model property named: \"%2\"" )
-                                          .arg( porosityModelName )
-                                          .arg( propertyName ) );
+            server->showErrorMessage(
+                RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
+                RiaSocketServer::tr( "Could not find the %1 model property named: \"%2\"" ).arg( porosityModelName ).arg( propertyName ) );
             return true;
         }
 
@@ -500,17 +486,15 @@ public:
 
             if ( timeStepReadError )
             {
-                server->showErrorMessage(
-                    RiaSocketServer::tr( "ResInsight SocketServer: riGetActiveCellProperty : \n" ) +
-                    RiaSocketServer::tr( "An error occurred while interpreting the requested timesteps." ) );
+                server->showErrorMessage( RiaSocketServer::tr( "ResInsight SocketServer: riGetActiveCellProperty : \n" ) +
+                                          RiaSocketServer::tr( "An error occurred while interpreting the requested timesteps." ) );
             }
         }
 
         if ( !m_requestedTimesteps.size() )
         {
-            server->showErrorMessage(
-                RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
-                RiaSocketServer::tr( "No time steps specified" ).arg( porosityModelName ).arg( propertyName ) );
+            server->showErrorMessage( RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
+                                      RiaSocketServer::tr( "No time steps specified" ).arg( porosityModelName ).arg( propertyName ) );
 
             return true;
         }
@@ -553,17 +537,17 @@ public:
 
         if ( cellCountFromOctave != activeCellCountReservoir )
         {
-            server->showErrorMessage(
-                RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
-                RiaSocketServer::tr( "The number of cells in the data coming from octave does not match the case" ) +
-                ":\"" + m_currentReservoir->caseUserDescription() +
-                "\"\n"
-                "   Octave: " +
-                QString::number( cellCountFromOctave ) +
-                "\n"
-                "  " +
-                m_currentReservoir->caseUserDescription() + ": Active cell count: " +
-                QString::number( activeCellCountReservoir ) + " Total cell count: " + QString::number( totalCellCount ) );
+            server->showErrorMessage( RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
+                                      RiaSocketServer::tr( "The number of cells in the data coming from octave does not match the case" ) +
+                                      ":\"" + m_currentReservoir->caseUserDescription() +
+                                      "\"\n"
+                                      "   Octave: " +
+                                      QString::number( cellCountFromOctave ) +
+                                      "\n"
+                                      "  " +
+                                      m_currentReservoir->caseUserDescription() +
+                                      ": Active cell count: " + QString::number( activeCellCountReservoir ) +
+                                      " Total cell count: " + QString::number( totalCellCount ) );
 
             cellCountFromOctave              = 0;
             m_invalidActiveCellCountDetected = true;
@@ -611,10 +595,7 @@ public:
             internalMatrixData = m_scalarResultsToAdd->at( m_requestedTimesteps[m_currentTimeStepNumberToRead] ).data();
 
             QStringList errorMessages;
-            if ( !RiaSocketDataTransfer::readBlockDataFromSocket( currentClient,
-                                                                  (char*)( internalMatrixData ),
-                                                                  m_bytesPerTimeStepToRead,
-                                                                  errorMessages ) )
+            if ( !RiaSocketDataTransfer::readBlockDataFromSocket( currentClient, (char*)( internalMatrixData ), m_bytesPerTimeStepToRead, errorMessages ) )
             {
                 for ( int i = 0; i < errorMessages.size(); i++ )
                 {
@@ -638,8 +619,7 @@ public:
                 RimEclipseInputCase* inputRes = dynamic_cast<RimEclipseInputCase*>( m_currentReservoir );
                 if ( inputRes )
                 {
-                    RimEclipseInputProperty* inputProperty =
-                        inputRes->inputPropertyCollection()->findInputProperty( m_currentPropertyName );
+                    RimEclipseInputProperty* inputProperty = inputRes->inputPropertyCollection()->findInputProperty( m_currentPropertyName );
                     if ( !inputProperty )
                     {
                         inputProperty                 = new RimEclipseInputProperty;
@@ -659,8 +639,7 @@ public:
                     if ( m_requestedTimesteps.size() == 1 && m_currentEclResultAddress.isValid() )
                     {
                         std::vector<std::vector<double>>* scalarResultFrames =
-                            m_currentReservoir->results( m_porosityModelEnum )
-                                ->modifiableCellScalarResultTimesteps( m_currentEclResultAddress );
+                            m_currentReservoir->results( m_porosityModelEnum )->modifiableCellScalarResultTimesteps( m_currentEclResultAddress );
                         size_t lastIndexWithDataPresent = cvf::UNDEFINED_SIZE_T;
                         for ( size_t i = 0; i < scalarResultFrames->size(); i++ )
                         {
@@ -676,9 +655,7 @@ public:
                         }
                     }
 
-                    m_currentReservoir->eclipseCaseData()
-                        ->results( m_porosityModelEnum )
-                        ->recalculateStatistics( m_currentEclResultAddress );
+                    m_currentReservoir->eclipseCaseData()->results( m_porosityModelEnum )->recalculateStatistics( m_currentEclResultAddress );
                 }
 
                 for ( size_t i = 0; i < m_currentReservoir->reservoirViews.size(); ++i )
@@ -691,9 +668,7 @@ public:
                         // It is usually not needed to create new display model, but if any derived geometry based on
                         // generated data (from Octave) a full display model rebuild is required
                         m_currentReservoir->reservoirViews[i]->scheduleCreateDisplayModelAndRedraw();
-                        m_currentReservoir->reservoirViews[i]
-                            ->intersectionCollection()
-                            ->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+                        m_currentReservoir->reservoirViews[i]->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
                     }
                 }
             }
@@ -719,8 +694,8 @@ private:
     bool m_invalidActiveCellCountDetected;
 };
 
-static bool RiaSetActiveCellProperty_init = RiaSocketCommandFactory::instance()->registerCreator<RiaSetActiveCellProperty>(
-    RiaSetActiveCellProperty::commandName() );
+static bool RiaSetActiveCellProperty_init =
+    RiaSocketCommandFactory::instance()->registerCreator<RiaSetActiveCellProperty>( RiaSetActiveCellProperty::commandName() );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -766,9 +741,8 @@ public:
         RigGridBase* grid = rimCase->eclipseCaseData()->grid( m_currentGridIndex );
         if ( !grid )
         {
-            server->showErrorMessage(
-                RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
-                RiaSocketServer::tr( "Could not find the grid index : %1" ).arg( m_currentGridIndex ) );
+            server->showErrorMessage( RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
+                                      RiaSocketServer::tr( "Could not find the grid index : %1" ).arg( m_currentGridIndex ) );
             return true;
         }
 
@@ -789,8 +763,7 @@ public:
         {
             server->showErrorMessage(
                 RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
-                RiaSocketServer::tr( "Destination grid size do not match incoming grid size for grid index : %1" )
-                    .arg( m_currentGridIndex ) );
+                RiaSocketServer::tr( "Destination grid size do not match incoming grid size for grid index : %1" ).arg( m_currentGridIndex ) );
             return true;
         }
 
@@ -799,9 +772,8 @@ public:
 
         if ( m_timeStepCountToRead == 0 || m_bytesPerTimeStepToRead == 0 )
         {
-            server->showErrorMessage( RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
-                                      RiaSocketServer::tr( "Zero data to read for " ) + ":\"" +
-                                      m_currentReservoir->caseUserDescription() + "\"\n" );
+            server->showErrorMessage( RiaSocketServer::tr( "ResInsight SocketServer: \n" ) + RiaSocketServer::tr( "Zero data to read for " ) +
+                                      ":\"" + m_currentReservoir->caseUserDescription() + "\"\n" );
 
             return true;
         }
@@ -818,9 +790,8 @@ public:
             }
 
             m_currentResultAddress = resAddr;
-            scalarResultFrames =
-                rimCase->results( m_porosityModelEnum )->modifiableCellScalarResultTimesteps( m_currentResultAddress );
-            size_t timeStepCount = rimCase->results( m_porosityModelEnum )->maxTimeStepCount();
+            scalarResultFrames     = rimCase->results( m_porosityModelEnum )->modifiableCellScalarResultTimesteps( m_currentResultAddress );
+            size_t timeStepCount   = rimCase->results( m_porosityModelEnum )->maxTimeStepCount();
             scalarResultFrames->resize( timeStepCount );
 
             m_currentPropertyName = propertyName;
@@ -828,10 +799,9 @@ public:
 
         if ( scalarResultFrames == nullptr )
         {
-            server->showErrorMessage( RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
-                                      RiaSocketServer::tr( "Could not find the %1 model property named: \"%2\"" )
-                                          .arg( porosityModelName )
-                                          .arg( propertyName ) );
+            server->showErrorMessage(
+                RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
+                RiaSocketServer::tr( "Could not find the %1 model property named: \"%2\"" ).arg( porosityModelName ).arg( propertyName ) );
             return true;
         }
 
@@ -867,18 +837,16 @@ public:
 
             if ( timeStepReadError )
             {
-                server->showErrorMessage(
-                    RiaSocketServer::tr( "ResInsight SocketServer: riGetActiveCellProperty : \n" ) +
-                    RiaSocketServer::tr( "An error occurred while interpreting the requested timesteps." ) );
+                server->showErrorMessage( RiaSocketServer::tr( "ResInsight SocketServer: riGetActiveCellProperty : \n" ) +
+                                          RiaSocketServer::tr( "An error occurred while interpreting the requested timesteps." ) );
                 return true;
             }
         }
 
         if ( !m_requestedTimesteps.size() )
         {
-            server->showErrorMessage(
-                RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
-                RiaSocketServer::tr( "No time steps specified" ).arg( porosityModelName ).arg( propertyName ) );
+            server->showErrorMessage( RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
+                                      RiaSocketServer::tr( "No time steps specified" ).arg( porosityModelName ).arg( propertyName ) );
 
             return true;
         }
@@ -911,9 +879,8 @@ public:
         RigGridBase* grid = m_currentReservoir->eclipseCaseData()->grid( m_currentGridIndex );
         if ( !grid )
         {
-            server->showErrorMessage( RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
-                                      RiaSocketServer::tr( "No grid found" ) + ":\"" +
-                                      m_currentReservoir->caseUserDescription() + "\"\n" );
+            server->showErrorMessage( RiaSocketServer::tr( "ResInsight SocketServer: \n" ) + RiaSocketServer::tr( "No grid found" ) +
+                                      ":\"" + m_currentReservoir->caseUserDescription() + "\"\n" );
 
             m_invalidDataDetected = true;
             currentClient->abort(); // Hmmm... should we not let the server handle this ?
@@ -933,11 +900,10 @@ public:
 
         if ( cellCountFromOctave != grid->cellCount() )
         {
-            server->showErrorMessage(
-                RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
-                RiaSocketServer::tr( "Mismatch between expected and received data. Expected : %1, Received : %2" )
-                    .arg( grid->cellCount() )
-                    .arg( cellCountFromOctave ) );
+            server->showErrorMessage( RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
+                                      RiaSocketServer::tr( "Mismatch between expected and received data. Expected : %1, Received : %2" )
+                                          .arg( grid->cellCount() )
+                                          .arg( cellCountFromOctave ) );
 
             m_invalidDataDetected = true;
             currentClient->abort();
@@ -1024,8 +990,7 @@ public:
                 RimEclipseInputCase* inputRes = dynamic_cast<RimEclipseInputCase*>( m_currentReservoir );
                 if ( inputRes )
                 {
-                    RimEclipseInputProperty* inputProperty =
-                        inputRes->inputPropertyCollection()->findInputProperty( m_currentPropertyName );
+                    RimEclipseInputProperty* inputProperty = inputRes->inputPropertyCollection()->findInputProperty( m_currentPropertyName );
                     if ( !inputProperty )
                     {
                         inputProperty                 = new RimEclipseInputProperty;
@@ -1078,9 +1043,7 @@ public:
                         // It is usually not needed to create new display model, but if any derived geometry based on
                         // generated data (from Octave) a full display model rebuild is required
                         m_currentReservoir->reservoirViews[i]->scheduleCreateDisplayModelAndRedraw();
-                        m_currentReservoir->reservoirViews[i]
-                            ->intersectionCollection()
-                            ->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+                        m_currentReservoir->reservoirViews[i]->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
                     }
                 }
             }
@@ -1232,9 +1195,7 @@ public:
         if ( args.size() < 5 )
         {
             // Select all
-            for ( size_t tsIdx = 0;
-                  tsIdx < rimCase->results( porosityModel )->timeStepCount( RigEclipseResultAddress( propertyName ) );
-                  ++tsIdx )
+            for ( size_t tsIdx = 0; tsIdx < rimCase->results( porosityModel )->timeStepCount( RigEclipseResultAddress( propertyName ) ); ++tsIdx )
             {
                 requestedTimesteps.push_back( tsIdx );
             }
@@ -1259,9 +1220,8 @@ public:
 
             if ( timeStepReadError )
             {
-                server->showErrorMessage(
-                    RiaSocketServer::tr( "ResInsight SocketServer: riGetGridProperty : \n" ) +
-                    RiaSocketServer::tr( "An error occurred while interpreting the requested time steps." ) );
+                server->showErrorMessage( RiaSocketServer::tr( "ResInsight SocketServer: riGetGridProperty : \n" ) +
+                                          RiaSocketServer::tr( "An error occurred while interpreting the requested time steps." ) );
             }
         }
         if ( !( rimCase && rimCase->eclipseCaseData() && rimCase->eclipseCaseData()->mainGrid() ) )
@@ -1305,10 +1265,7 @@ public:
                 valueIndex++;
                 if ( valueIndex >= valueCount )
                 {
-                    if ( !RiaSocketTools::writeBlockData( server,
-                                                          server->currentClient(),
-                                                          (const char*)values.data(),
-                                                          valueIndex * sizeof( double ) ) )
+                    if ( !RiaSocketTools::writeBlockData( server, server->currentClient(), (const char*)values.data(), valueIndex * sizeof( double ) ) )
                     {
                         return false;
                     }
@@ -1319,10 +1276,7 @@ public:
         }
 
         // Write remaining data
-        if ( !RiaSocketTools::writeBlockData( server,
-                                              server->currentClient(),
-                                              (const char*)values.data(),
-                                              valueIndex * sizeof( double ) ) )
+        if ( !RiaSocketTools::writeBlockData( server, server->currentClient(), (const char*)values.data(), valueIndex * sizeof( double ) ) )
         {
             return false;
         }
@@ -1363,6 +1317,5 @@ public:
     }
 };
 
-static bool RiaGetGridPropertyForSelectedCells_init =
-    RiaSocketCommandFactory::instance()->registerCreator<RiaGetGridPropertyForSelectedCells>(
-        RiaGetGridPropertyForSelectedCells::commandName() );
+static bool RiaGetGridPropertyForSelectedCells_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetGridPropertyForSelectedCells>(
+    RiaGetGridPropertyForSelectedCells::commandName() );

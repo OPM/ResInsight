@@ -188,9 +188,9 @@ void RicCloseCaseFeature::deleteEclipseCase( RimEclipseCase* eclipseCase )
     RimEclipseResultCase* resultCase = dynamic_cast<RimEclipseResultCase*>( eclipseCase );
     if ( resultCase )
     {
-        RimProject*                   project = RimProject::current();
-        RimSummaryCaseMainCollection* sumCaseColl =
-            project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection() : nullptr;
+        RimProject*                   project     = RimProject::current();
+        RimSummaryCaseMainCollection* sumCaseColl = project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection()
+                                                                              : nullptr;
         if ( sumCaseColl )
         {
             RimSummaryCase* summaryCase = sumCaseColl->findSummaryCaseFromEclipseResultCase( resultCase );
@@ -295,8 +295,8 @@ bool RicCloseCaseFeature::userConfirmedGridCaseGroupChange( const std::vector<Ri
         QString questionText;
         if ( gridCaseGroups.size() == 1 )
         {
-            questionText = QString( "This operation will invalidate statistics results in grid case group\n\"%1\".\n" )
-                               .arg( gridCaseGroups[0]->name() );
+            questionText =
+                QString( "This operation will invalidate statistics results in grid case group\n\"%1\".\n" ).arg( gridCaseGroups[0]->name() );
             questionText += "Computed results in this group will be deleted if you continue.";
         }
         else

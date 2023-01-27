@@ -53,8 +53,7 @@ void RicExportStimPlanModelToFileFeature::onActionTriggered( bool isChecked )
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( "FRACTURE_MODEL_EXPORT" );
 
-    QString directoryPath =
-        RiuFileDialogTools::getExistingDirectory( nullptr, "Select Directory for StimPlan Model Export", defaultDir );
+    QString directoryPath = RiuFileDialogTools::getExistingDirectory( nullptr, "Select Directory for StimPlan Model Export", defaultDir );
 
     if ( directoryPath.isEmpty() ) return;
 

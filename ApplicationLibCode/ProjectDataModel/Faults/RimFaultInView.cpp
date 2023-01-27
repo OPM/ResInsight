@@ -63,9 +63,7 @@ caf::PdmFieldHandle* RimFaultInView::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaultInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                       const QVariant&            oldValue,
-                                       const QVariant&            newValue )
+void RimFaultInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     this->updateUiIconFromToggleField();
 

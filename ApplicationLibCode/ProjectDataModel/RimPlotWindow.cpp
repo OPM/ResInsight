@@ -307,9 +307,7 @@ int RimPlotWindow::bottomMargin() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotWindow::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                      const QVariant&            oldValue,
-                                      const QVariant&            newValue )
+void RimPlotWindow::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimViewWindow::fieldChangedByUi( changedField, oldValue, newValue );
 
@@ -318,9 +316,8 @@ void RimPlotWindow::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         updateWindowVisibility();
     }
 
-    if ( changedField == &m_showPlotLegends || changedField == &m_plotLegendsHorizontal ||
-         changedField == &m_legendFontSize || changedField == &m_titleFontSize || changedField == &m_legendPosition ||
-         changedField == &m_legendItemsClickable )
+    if ( changedField == &m_showPlotLegends || changedField == &m_plotLegendsHorizontal || changedField == &m_legendFontSize ||
+         changedField == &m_titleFontSize || changedField == &m_legendPosition || changedField == &m_legendItemsClickable )
     {
         updateLayout();
     }

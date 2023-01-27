@@ -43,8 +43,7 @@ bool RicHideIntersectionFeature::isCommandEnabled()
     RiuGeneralSelectionItem* generalSelectionItem = static_cast<RiuGeneralSelectionItem*>( selItem );
     if ( !generalSelectionItem ) return false;
 
-    RimExtrudedCurveIntersection* intersection =
-        dynamic_cast<RimExtrudedCurveIntersection*>( generalSelectionItem->m_object );
+    RimExtrudedCurveIntersection* intersection = dynamic_cast<RimExtrudedCurveIntersection*>( generalSelectionItem->m_object );
     if ( intersection )
     {
         return true;
@@ -66,8 +65,7 @@ void RicHideIntersectionFeature::onActionTriggered( bool isChecked )
     RiuGeneralSelectionItem* generalSelectionItem = static_cast<RiuGeneralSelectionItem*>( selItem );
     if ( !generalSelectionItem ) return;
 
-    RimExtrudedCurveIntersection* intersection =
-        dynamic_cast<RimExtrudedCurveIntersection*>( generalSelectionItem->m_object );
+    RimExtrudedCurveIntersection* intersection = dynamic_cast<RimExtrudedCurveIntersection*>( generalSelectionItem->m_object );
     if ( intersection )
     {
         intersection->setActive( false );

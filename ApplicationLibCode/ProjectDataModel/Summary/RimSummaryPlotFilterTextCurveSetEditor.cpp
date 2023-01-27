@@ -171,8 +171,7 @@ void RimSummaryPlotFilterTextCurveSetEditor::updateTextFilter()
         }
     }
 
-    std::vector<caf::PdmPointer<SummarySource>> usedSources( sourcesFromExistingCurves.begin(),
-                                                             sourcesFromExistingCurves.end() );
+    std::vector<caf::PdmPointer<SummarySource>> usedSources( sourcesFromExistingCurves.begin(), sourcesFromExistingCurves.end() );
 
     if ( !usedSources.empty() )
     {
@@ -183,15 +182,11 @@ void RimSummaryPlotFilterTextCurveSetEditor::updateTextFilter()
     // Check if existing filter text matches all the curves
     // Todo: possibly check grid time history curves also
 
-    QStringList allCurveAddressFilters =
-        RiaTextStringTools::splitSkipEmptyParts( curveFilterTextWithoutOutdatedLabel(), QRegExp( "\\s+" ) );
+    QStringList allCurveAddressFilters = RiaTextStringTools::splitSkipEmptyParts( curveFilterTextWithoutOutdatedLabel(), QRegExp( "\\s+" ) );
 
     std::vector<bool>                  usedFilters;
     std::set<RifEclipseSummaryAddress> filteredAddressesFromSource;
-    RicSummaryPlotFeatureImpl::insertFilteredAddressesInSet( allCurveAddressFilters,
-                                                             addressesInUse,
-                                                             &filteredAddressesFromSource,
-                                                             &usedFilters );
+    RicSummaryPlotFeatureImpl::insertFilteredAddressesInSet( allCurveAddressFilters, addressesInUse, &filteredAddressesFromSource, &usedFilters );
 
     if ( filteredAddressesFromSource != addressesInUse )
     {
@@ -296,8 +291,7 @@ void RimSummaryPlotFilterTextCurveSetEditor::defineEditorAttribute( const caf::P
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimSummaryPlotFilterTextCurveSetEditor::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RimSummaryPlotFilterTextCurveSetEditor::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &m_selectedSources )
@@ -449,10 +443,7 @@ void RimSummaryPlotFilterTextCurveSetEditor::updateParentPlot()
 
             std::vector<bool>                  usedFilters;
             std::set<RifEclipseSummaryAddress> filteredAddressesFromSource;
-            insertFilteredAddressesInSet( allCurveAddressFilters,
-                                          allAddressesFromSource,
-                                          &filteredAddressesFromSource,
-                                          &usedFilters );
+            insertFilteredAddressesInSet( allCurveAddressFilters, allAddressesFromSource, &filteredAddressesFromSource, &usedFilters );
 
             for ( size_t fIdx = 0; fIdx < accumulatedUsedFilters.size(); ++fIdx )
             {
@@ -617,11 +608,10 @@ std::set<RifEclipseSummaryAddress> RimSummaryPlotFilterTextCurveSetEditor::addre
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlotFilterTextCurveSetEditor::insertFilteredAddressesInSet(
-    const QStringList&                        curveFilters,
-    const std::set<RifEclipseSummaryAddress>& allAddressesInCase,
-    std::set<RifEclipseSummaryAddress>*       setToInsertFilteredAddressesIn,
-    std::vector<bool>*                        usedFilters )
+void RimSummaryPlotFilterTextCurveSetEditor::insertFilteredAddressesInSet( const QStringList&                        curveFilters,
+                                                                           const std::set<RifEclipseSummaryAddress>& allAddressesInCase,
+                                                                           std::set<RifEclipseSummaryAddress>* setToInsertFilteredAddressesIn,
+                                                                           std::vector<bool>*                  usedFilters )
 {
     std::set<RifEclipseSummaryAddress> candidateAddresses;
     RicSummaryPlotFeatureImpl::insertFilteredAddressesInSet( curveFilters, allAddressesInCase, &candidateAddresses, usedFilters );

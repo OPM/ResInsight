@@ -90,19 +90,11 @@ void RicCreateDepthAdjustedLasFilesFeature::onActionTriggered( bool isChecked )
 
             if ( eclipseCase != nullptr )
             {
-                createDepthAdjustedWellLogFileFromEclipseCase( eclipseCase,
-                                                               sourceWell,
-                                                               destinationWells,
-                                                               selectedResultProperties,
-                                                               exportFolder );
+                createDepthAdjustedWellLogFileFromEclipseCase( eclipseCase, sourceWell, destinationWells, selectedResultProperties, exportFolder );
             }
             else if ( geomCase != nullptr )
             {
-                createDepthAdjustedWellLogFileFromGeoMechCase( geomCase,
-                                                               sourceWell,
-                                                               destinationWells,
-                                                               selectedResultProperties,
-                                                               exportFolder );
+                createDepthAdjustedWellLogFileFromGeoMechCase( geomCase, sourceWell, destinationWells, selectedResultProperties, exportFolder );
             }
         }
     }
@@ -119,18 +111,16 @@ void RicCreateDepthAdjustedLasFilesFeature::setupActionLook( QAction* actionToSe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreateDepthAdjustedLasFilesFeature::createDepthAdjustedWellLogFileFromEclipseCase(
-    RimEclipseCase*                 eclipseCase,
-    RimWellPath*                    sourceWell,
-    const std::vector<RimWellPath*> destinationWells,
-    const std::vector<QString>&     selectedResultProperties,
-    const QString&                  exportFolder )
+void RicCreateDepthAdjustedLasFilesFeature::createDepthAdjustedWellLogFileFromEclipseCase( RimEclipseCase*                 eclipseCase,
+                                                                                           RimWellPath*                    sourceWell,
+                                                                                           const std::vector<RimWellPath*> destinationWells,
+                                                                                           const std::vector<QString>& selectedResultProperties,
+                                                                                           const QString&              exportFolder )
 {
     if ( sourceWell->wellLogFiles().empty() ) return;
 
-    RimWellLogPlotCollection*            wellLogCollection = RimMainPlotCollection::current()->wellLogPlotCollection();
-    cvf::ref<RigEclipseWellLogExtractor> sourceWellExtractor =
-        wellLogCollection->findOrCreateExtractor( sourceWell, eclipseCase );
+    RimWellLogPlotCollection*            wellLogCollection   = RimMainPlotCollection::current()->wellLogPlotCollection();
+    cvf::ref<RigEclipseWellLogExtractor> sourceWellExtractor = wellLogCollection->findOrCreateExtractor( sourceWell, eclipseCase );
     if ( sourceWellExtractor.isNull() )
     {
         RiaLogging::info( QString( "Could not create RigEclipseWellLogExtractor for %1" ).arg( sourceWell->name() ) );
@@ -148,19 +138,17 @@ void RicCreateDepthAdjustedLasFilesFeature::createDepthAdjustedWellLogFileFromEc
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreateDepthAdjustedLasFilesFeature::createDepthAdjustedWellLogFileFromGeoMechCase(
-    RimGeoMechCase*                 geoMechCase,
-    RimWellPath*                    sourceWell,
-    const std::vector<RimWellPath*> destinationWells,
-    const std::vector<QString>&     selectedResultProperties,
-    const QString&                  exportFolder )
+void RicCreateDepthAdjustedLasFilesFeature::createDepthAdjustedWellLogFileFromGeoMechCase( RimGeoMechCase*                 geoMechCase,
+                                                                                           RimWellPath*                    sourceWell,
+                                                                                           const std::vector<RimWellPath*> destinationWells,
+                                                                                           const std::vector<QString>& selectedResultProperties,
+                                                                                           const QString&              exportFolder )
 {
     if ( sourceWell->wellLogFiles().empty() ) return;
 
-    auto*                                wellLogFileData   = sourceWell->wellLogFiles()[0]->wellLogFileData();
-    RimWellLogPlotCollection*            wellLogCollection = RimMainPlotCollection::current()->wellLogPlotCollection();
-    cvf::ref<RigGeoMechWellLogExtractor> sourceWellExtractor =
-        wellLogCollection->findOrCreateExtractor( sourceWell, geoMechCase );
+    auto*                                wellLogFileData     = sourceWell->wellLogFiles()[0]->wellLogFileData();
+    RimWellLogPlotCollection*            wellLogCollection   = RimMainPlotCollection::current()->wellLogPlotCollection();
+    cvf::ref<RigGeoMechWellLogExtractor> sourceWellExtractor = wellLogCollection->findOrCreateExtractor( sourceWell, geoMechCase );
     if ( sourceWellExtractor.isNull() )
     {
         RiaLogging::info( QString( "Could not create RigGeoMechWellLogExtractor for %1" ).arg( sourceWell->name() ) );

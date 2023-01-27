@@ -45,12 +45,7 @@ bool RifStimPlanModelAsymmetricFrkExporter::writeToFile( RimStimPlanModel* stimP
     double barrierDip           = stimPlanModel->barrierDip();
     int    wellPenetrationLayer = stimPlanModel->wellPenetrationLayer();
 
-    appendBarrierDataToStream( stream,
-                               bedDipDeg,
-                               hasBarrier,
-                               RiaEclipseUnitTools::meterToFeet( distanceToBarrier ),
-                               barrierDip,
-                               wellPenetrationLayer );
+    appendBarrierDataToStream( stream, bedDipDeg, hasBarrier, RiaEclipseUnitTools::meterToFeet( distanceToBarrier ), barrierDip, wellPenetrationLayer );
 
     appendFooterToStream( stream );
 

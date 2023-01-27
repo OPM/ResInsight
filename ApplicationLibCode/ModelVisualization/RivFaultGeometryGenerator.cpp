@@ -198,8 +198,7 @@ void RivFaultGeometryGenerator::computeArrays( bool onlyShowFacesWithDefinedNeig
 
             if ( !( *m_cellVisibility )[cellIndex] ) continue;
 
-            if ( onlyShowFacesWithDefinedNeighbors && !hasConnection( cellIndex, face, connections, connIndices ) )
-                continue;
+            if ( onlyShowFacesWithDefinedNeighbors && !hasConnection( cellIndex, face, connections, connIndices ) ) continue;
 
             m_grid->cellCornerVertices( cellIndex, cornerVerts );
             m_grid->cellFaceVertexIndices( face, faceConn );

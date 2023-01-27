@@ -65,8 +65,7 @@ void RicImportEnsembleFractureStatisticsFeature::onActionTriggered( bool isCheck
     }
     else
     {
-        std::vector<QStringList> groupedByEnsemble =
-            RiaEnsembleNameTools::groupFilesByEnsemble( fileNames, groupByEnsemble );
+        std::vector<QStringList> groupedByEnsemble = RiaEnsembleNameTools::groupFilesByEnsemble( fileNames, groupByEnsemble );
         for ( const QStringList& groupedFileNames : groupedByEnsemble )
         {
             importSingleEnsembleFractureStatistics( groupedFileNames );
@@ -81,8 +80,7 @@ void RicImportEnsembleFractureStatisticsFeature::importSingleEnsembleFractureSta
 {
     auto    fractureGroupStatistics = new RimEnsembleFractureStatistics;
     QString ensembleNameSuggestion =
-        RiaEnsembleNameTools::findSuitableEnsembleName( fileNames,
-                                                        RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE );
+        RiaEnsembleNameTools::findSuitableEnsembleName( fileNames, RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE );
     fractureGroupStatistics->setName( ensembleNameSuggestion );
 
     caf::ProgressInfo progInfo( fileNames.size() + 1, "Creating Ensemble Fracture Statistics" );
@@ -128,19 +126,17 @@ void RicImportEnsembleFractureStatisticsFeature::setupActionLook( QAction* actio
 ///
 //--------------------------------------------------------------------------------------------------
 std::pair<QStringList, RiaEnsembleNameTools::EnsembleGroupingMode>
-    RicImportEnsembleFractureStatisticsFeature::runRecursiveFileSearchDialog( const QString& dialogTitle,
-                                                                              const QString& pathCacheName )
+    RicImportEnsembleFractureStatisticsFeature::runRecursiveFileSearchDialog( const QString& dialogTitle, const QString& pathCacheName )
 {
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( pathCacheName );
 
-    RicRecursiveFileSearchDialogResult result =
-        RicRecursiveFileSearchDialog::runRecursiveSearchDialog( nullptr,
-                                                                dialogTitle,
-                                                                defaultDir,
-                                                                m_pathFilter,
-                                                                m_fileNameFilter,
-                                                                QStringList( ".xml" ) );
+    RicRecursiveFileSearchDialogResult result = RicRecursiveFileSearchDialog::runRecursiveSearchDialog( nullptr,
+                                                                                                        dialogTitle,
+                                                                                                        defaultDir,
+                                                                                                        m_pathFilter,
+                                                                                                        m_fileNameFilter,
+                                                                                                        QStringList( ".xml" ) );
 
     // Remember filters
     m_pathFilter     = result.pathFilter;

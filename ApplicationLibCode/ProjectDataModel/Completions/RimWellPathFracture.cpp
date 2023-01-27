@@ -71,9 +71,7 @@ void RimWellPathFracture::setMeasuredDepth( double mdValue )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathFracture::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                            const QVariant&            oldValue,
-                                            const QVariant&            newValue )
+void RimWellPathFracture::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimFracture::fieldChangedByUi( changedField, oldValue, newValue );
 
@@ -162,9 +160,8 @@ cvf::Vec3d RimWellPathFracture::computeFractureDirectionNormal() const
     else if ( fractureTemplate()->orientationType() == RimFractureTemplate::AZIMUTH )
     {
         // Azimuth angle of fracture is relative to north.
-        double     wellAzimuth = wellPathGeometry->wellPathAzimuthAngle( fracturePosition() );
-        cvf::Mat3d azimuthRotation =
-            cvf::Mat3d::fromRotation( cvf::Vec3d::Z_AXIS, cvf::Math::toRadians( wellAzimuth - m_azimuth - 90.0 ) );
+        double     wellAzimuth     = wellPathGeometry->wellPathAzimuthAngle( fracturePosition() );
+        cvf::Mat3d azimuthRotation = cvf::Mat3d::fromRotation( cvf::Vec3d::Z_AXIS, cvf::Math::toRadians( wellAzimuth - m_azimuth - 90.0 ) );
         fractureDirectionNormal.transformVector( azimuthRotation );
     }
 
@@ -318,9 +315,7 @@ void RimWellPathFracture::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathFracture::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                 QString                    uiConfigName,
-                                                 caf::PdmUiEditorAttribute* attribute )
+void RimWellPathFracture::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     RimFracture::defineEditorAttribute( field, uiConfigName, attribute );
 

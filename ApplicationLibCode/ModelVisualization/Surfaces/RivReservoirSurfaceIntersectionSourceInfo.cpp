@@ -23,8 +23,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivReservoirSurfaceIntersectionSourceInfo::RivReservoirSurfaceIntersectionSourceInfo(
-    RivSurfaceIntersectionGeometryGenerator* geometryGenerator )
+RivReservoirSurfaceIntersectionSourceInfo::RivReservoirSurfaceIntersectionSourceInfo( RivSurfaceIntersectionGeometryGenerator* geometryGenerator )
     : m_intersectionGeometryGenerator( geometryGenerator )
 {
     CVF_ASSERT( m_intersectionGeometryGenerator.notNull() );

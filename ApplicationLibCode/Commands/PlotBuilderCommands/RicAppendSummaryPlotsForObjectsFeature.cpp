@@ -55,7 +55,7 @@ bool RicAppendSummaryPlotsForObjectsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot* summaryMultiPlot,
+void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot*                             summaryMultiPlot,
                                                           const std::vector<RimSummaryAddressCollection*>& sumAddressCollections )
 {
     if ( sumAddressCollections.empty() ) return;
@@ -121,12 +121,11 @@ void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot* s
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot*                summaryMultiPlot,
-                                                          const std::vector<RimSummaryCase*>& cases,
+void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot*                          summaryMultiPlot,
+                                                          const std::vector<RimSummaryCase*>&           cases,
                                                           const std::vector<RimSummaryCaseCollection*>& ensembles )
 {
-    auto addressCollectionsToBeDeleted =
-        RicAppendSummaryPlotsForObjectsFeature::createAddressCollections( cases, ensembles );
+    auto addressCollectionsToBeDeleted = RicAppendSummaryPlotsForObjectsFeature::createAddressCollections( cases, ensembles );
     RicAppendSummaryPlotsForObjectsFeature::appendPlots( summaryMultiPlot, addressCollectionsToBeDeleted );
 
     for ( auto obj : addressCollectionsToBeDeleted )
@@ -139,7 +138,7 @@ void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot*  
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryAddressCollection*>
-    RicAppendSummaryPlotsForObjectsFeature::createAddressCollections( const std::vector<RimSummaryCase*>& cases,
+    RicAppendSummaryPlotsForObjectsFeature::createAddressCollections( const std::vector<RimSummaryCase*>&           cases,
                                                                       const std::vector<RimSummaryCaseCollection*>& ensembles )
 {
     std::vector<RimSummaryAddressCollection*> addresses;
@@ -195,7 +194,7 @@ void RicAppendSummaryPlotsForObjectsFeature::setupActionLook( QAction* actionToS
     if ( !addresses.empty() )
     {
         auto firstAdr = addresses.front();
-        objectType = caf::AppEnum<RimSummaryAddressCollection::CollectionContentType>::uiText( firstAdr->contentType() );
+        objectType    = caf::AppEnum<RimSummaryAddressCollection::CollectionContentType>::uiText( firstAdr->contentType() );
     }
 
     auto text = QString( "Append Plots For " ) + objectType;
@@ -229,9 +228,8 @@ std::vector<RimSummaryAddressCollection*> RicAppendSummaryPlotsForObjectsFeature
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicAppendSummaryPlotsForObjectsFeature::isSelectionCompatibleWithPlot(
-    const std::vector<RimSummaryAddressCollection*>& selection,
-    RimSummaryMultiPlot*                             summaryMultiPlot )
+bool RicAppendSummaryPlotsForObjectsFeature::isSelectionCompatibleWithPlot( const std::vector<RimSummaryAddressCollection*>& selection,
+                                                                            RimSummaryMultiPlot* summaryMultiPlot )
 {
     if ( !summaryMultiPlot ) return false;
     if ( selection.empty() ) return false;
@@ -289,9 +287,8 @@ bool RicAppendSummaryPlotsForObjectsFeature::isSelectionCompatibleWithPlot(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress
-    RicAppendSummaryPlotsForObjectsFeature::modifyAddress( const RifEclipseSummaryAddress& sourceAddress,
-                                                           RimSummaryAddressCollection*    summaryAddressCollection )
+RifEclipseSummaryAddress RicAppendSummaryPlotsForObjectsFeature::modifyAddress( const RifEclipseSummaryAddress& sourceAddress,
+                                                                                RimSummaryAddressCollection*    summaryAddressCollection )
 {
     CAF_ASSERT( summaryAddressCollection );
 
@@ -329,9 +326,9 @@ RifEclipseSummaryAddress
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryPlot*> RicAppendSummaryPlotsForObjectsFeature::plotsForOneInstanceOfObjectType(
-    const std::vector<RimSummaryPlot*>&                sourcePlots,
-    RimSummaryAddressCollection::CollectionContentType objectType )
+std::vector<RimSummaryPlot*>
+    RicAppendSummaryPlotsForObjectsFeature::plotsForOneInstanceOfObjectType( const std::vector<RimSummaryPlot*>&                sourcePlots,
+                                                                             RimSummaryAddressCollection::CollectionContentType objectType )
 {
     std::vector<RimSummaryPlot*> plotsForOneInstance;
 

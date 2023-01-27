@@ -36,9 +36,7 @@ RimExportInputSettings::RimExportInputSettings()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimExportInputSettings::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                    QString                    uiConfigName,
-                                                    caf::PdmUiEditorAttribute* attribute )
+void RimExportInputSettings::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &fileName )
     {

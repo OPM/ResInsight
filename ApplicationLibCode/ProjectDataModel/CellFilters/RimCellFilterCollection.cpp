@@ -133,9 +133,7 @@ void RimCellFilterCollection::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCellFilterCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                const QVariant&            oldValue,
-                                                const QVariant&            newValue )
+void RimCellFilterCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     updateIconState();
     uiCapability()->updateConnectedEditors();
@@ -184,8 +182,7 @@ void RimCellFilterCollection::updateIconState()
     this->firstAncestorOrThisOfType( rimView );
     RimViewController* viewController = rimView->viewController();
 
-    bool isControlled = viewController &&
-                        ( viewController->isCellFiltersControlled() || viewController->isVisibleCellsOveridden() );
+    bool isControlled = viewController && ( viewController->isCellFiltersControlled() || viewController->isVisibleCellsOveridden() );
 
     if ( isControlled )
     {
@@ -263,8 +260,7 @@ RimUserDefinedFilter* RimCellFilterCollection::addNewUserDefinedFilter( RimCase*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimCellRangeFilter*
-    RimCellFilterCollection::addNewCellRangeFilter( RimCase* srcCase, int gridIndex, int sliceDirection, int defaultSlice )
+RimCellRangeFilter* RimCellFilterCollection::addNewCellRangeFilter( RimCase* srcCase, int gridIndex, int sliceDirection, int defaultSlice )
 {
     RimCellRangeFilter* pFilter = new RimCellRangeFilter();
     addFilter( pFilter );
@@ -317,8 +313,7 @@ void RimCellFilterCollection::setAutoName( RimCellFilter* pFilter )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCellFilterCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                                              std::vector<caf::PdmObjectHandle*>& referringObjects )
+void RimCellFilterCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     onFilterUpdated( nullptr );
 }

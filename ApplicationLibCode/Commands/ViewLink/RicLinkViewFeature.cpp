@@ -47,8 +47,7 @@ public:
 
     bool prepareToExecute()
     {
-        auto contextViewer =
-            dynamic_cast<RiuViewer*>( caf::CmdFeatureManager::instance()->currentContextMenuTargetWidget() );
+        auto contextViewer = dynamic_cast<RiuViewer*>( caf::CmdFeatureManager::instance()->currentContextMenuTargetWidget() );
 
         if ( contextViewer )
         {

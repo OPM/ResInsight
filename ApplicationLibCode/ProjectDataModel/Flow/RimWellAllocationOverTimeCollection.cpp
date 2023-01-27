@@ -29,17 +29,14 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellAllocationOverTimeCollection::RimWellAllocationOverTimeCollection(
-    const std::vector<QDateTime>&                        timeStepDates,
-    const std::map<QDateTime, RigAccWellFlowCalculator>& timeStepAndCalculatorPairs )
+RimWellAllocationOverTimeCollection::RimWellAllocationOverTimeCollection( const std::vector<QDateTime>& timeStepDates,
+                                                                          const std::map<QDateTime, RigAccWellFlowCalculator>& timeStepAndCalculatorPairs )
     : m_timeStepDates( timeStepDates )
 {
     for ( const auto& [date, calculator] : timeStepAndCalculatorPairs )
     {
-        std::string err = "Calculator for time step date " + date.toString().toStdString() +
-                          " does not exist in time step dates vector ";
-        CAF_ASSERT( std::find( m_timeStepDates.begin(), m_timeStepDates.end(), date ) != m_timeStepDates.end() &&
-                    err.data() );
+        std::string err = "Calculator for time step date " + date.toString().toStdString() + " does not exist in time step dates vector ";
+        CAF_ASSERT( std::find( m_timeStepDates.begin(), m_timeStepDates.end(), date ) != m_timeStepDates.end() && err.data() );
     }
 
     // Time steps not present in input map is considered "excluded" time steps
@@ -111,9 +108,9 @@ void RimWellAllocationOverTimeCollection::fillWithFlowRateValues()
     {
         for ( const auto& wellName : calculator.tracerNames() )
         {
-            const auto& accumulatedConnectionFlows = calculator.accumulatedTracerFlowPrConnection( wellName, branchIdx );
-            const double topConnectionFlow = accumulatedConnectionFlows.empty() ? 0.0 : accumulatedConnectionFlows.back();
-            m_wellValuesMap[wellName][timeStep] = topConnectionFlow;
+            const auto&  accumulatedConnectionFlows = calculator.accumulatedTracerFlowPrConnection( wellName, branchIdx );
+            const double topConnectionFlow          = accumulatedConnectionFlows.empty() ? 0.0 : accumulatedConnectionFlows.back();
+            m_wellValuesMap[wellName][timeStep]     = topConnectionFlow;
         }
     }
 }
@@ -232,7 +229,7 @@ void RimWellAllocationOverTimeCollection::fillWithAccumulatedFlowVolumePercentag
 /// threshold value.
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationOverTimeCollection::groupAccumulatedFlowVolumes( std::map<QString, std::map<QDateTime, double>>& rWellValuesMap,
-                                                                       double threshold )
+                                                                       double                                          threshold )
 {
     if ( m_timeStepDates.empty() ) return;
 
@@ -290,9 +287,8 @@ void RimWellAllocationOverTimeCollection::groupAccumulatedFlowVolumes( std::map<
 /// time step. If percentage value is above threshold for one time step or more, show data for well
 /// at every time step.
 //--------------------------------------------------------------------------------------------------
-void RimWellAllocationOverTimeCollection::groupAccumulatedFlowVolumePercentages(
-    std::map<QString, std::map<QDateTime, double>>& rWellValuesMap,
-    double                                          thresholdPercent )
+void RimWellAllocationOverTimeCollection::groupAccumulatedFlowVolumePercentages( std::map<QString, std::map<QDateTime, double>>& rWellValuesMap,
+                                                                                 double thresholdPercent )
 {
     auto getMaxValue = []( const std::map<QDateTime, double>& valuesMap ) -> double {
         double maxValue = 0.0;

@@ -126,8 +126,7 @@ TEST( RifElasticPropertiesReaderTest, ReadCorrectInputFileWithCustomSeparator )
 //--------------------------------------------------------------------------------------------------
 /// Helper to check exception messages when reading invalid files
 //--------------------------------------------------------------------------------------------------
-::testing::AssertionResult readingElasticPropertiesThrowsException( const QStringList& filePaths,
-                                                                    const QString&     expectedMessage )
+::testing::AssertionResult readingElasticPropertiesThrowsException( const QStringList& filePaths, const QString& expectedMessage )
 {
     std::vector<RifElasticProperties> elasticProperties;
     try
@@ -154,8 +153,7 @@ TEST( RifElasticPropertiesReaderTest, ReadMissingFileThrows )
     QStringList filePaths;
     QString     nonExistingFile( "this/is/a/file/which/does/not/exist.csv" );
     filePaths.append( nonExistingFile );
-    ASSERT_TRUE( readingElasticPropertiesThrowsException( filePaths,
-                                                          QString( "Unable to open file: %1" ).arg( nonExistingFile ) ) );
+    ASSERT_TRUE( readingElasticPropertiesThrowsException( filePaths, QString( "Unable to open file: %1" ).arg( nonExistingFile ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -174,9 +172,7 @@ TEST( RifElasticPropertiesReaderTest, ReadShortLinesFileThrows )
 
     QStringList filePaths;
     filePaths.append( file.fileName() );
-    ASSERT_TRUE(
-        readingElasticPropertiesThrowsException( filePaths,
-                                                 QString( "Incomplete data on line 2: %1" ).arg( file.fileName() ) ) );
+    ASSERT_TRUE( readingElasticPropertiesThrowsException( filePaths, QString( "Incomplete data on line 2: %1" ).arg( file.fileName() ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -196,8 +192,7 @@ TEST( RifElasticPropertiesReaderTest, ReadEmptyFieldNameThrows )
     QStringList filePaths;
     filePaths.append( file.fileName() );
     ASSERT_TRUE( readingElasticPropertiesThrowsException( filePaths,
-                                                          QString( "Unexpected empty 'Field Name' on line 2: %1" )
-                                                              .arg( file.fileName() ) ) );
+                                                          QString( "Unexpected empty 'Field Name' on line 2: %1" ).arg( file.fileName() ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -217,8 +212,7 @@ TEST( RifElasticPropertiesReaderTest, ReadInvalidMeasureDepthThrows )
     QStringList filePaths;
     filePaths.append( file.fileName() );
     ASSERT_TRUE( readingElasticPropertiesThrowsException( filePaths,
-                                                          QString( "Invalid number for 'Porosity' on line 2: %1" )
-                                                              .arg( file.fileName() ) ) );
+                                                          QString( "Invalid number for 'Porosity' on line 2: %1" ).arg( file.fileName() ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------

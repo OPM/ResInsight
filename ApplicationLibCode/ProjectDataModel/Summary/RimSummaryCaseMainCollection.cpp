@@ -57,7 +57,7 @@ CAF_PDM_SOURCE_INIT( RimSummaryCaseMainCollection, "SummaryCaseCollection" );
 void addCaseRealizationParametersIfFound( RimSummaryCase& sumCase, const QString modelFolderOrFile )
 {
     std::shared_ptr<RigCaseRealizationParameters> parameters;
-    QString parametersFile = RifCaseRealizationParametersFileLocator::locate( modelFolderOrFile );
+    QString                                       parametersFile = RifCaseRealizationParametersFileLocator::locate( modelFolderOrFile );
     if ( !parametersFile.isEmpty() )
     {
         auto reader = RifCaseRealizationReader::createReaderFromFileName( parametersFile );
@@ -113,8 +113,7 @@ RimSummaryCaseMainCollection::~RimSummaryCaseMainCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCase*
-    RimSummaryCaseMainCollection::findSummaryCaseFromEclipseResultCase( const RimEclipseResultCase* eclipseResultCase ) const
+RimSummaryCase* RimSummaryCaseMainCollection::findSummaryCaseFromEclipseResultCase( const RimEclipseResultCase* eclipseResultCase ) const
 {
     for ( RimSummaryCase* summaryCase : m_cases )
     {
@@ -133,8 +132,7 @@ RimSummaryCase*
         for ( RimSummaryCase* sumCase : collection->allSummaryCases() )
         {
             RimGridSummaryCase* gridSummaryCase = dynamic_cast<RimGridSummaryCase*>( sumCase );
-            if ( gridSummaryCase &&
-                 gridSummaryCase->associatedEclipseCase()->gridFileName() == eclipseResultCase->gridFileName() )
+            if ( gridSummaryCase && gridSummaryCase->associatedEclipseCase()->gridFileName() == eclipseResultCase->gridFileName() )
             {
                 return gridSummaryCase;
             }
@@ -293,11 +291,10 @@ void RimSummaryCaseMainCollection::removeCases( std::vector<RimSummaryCase*>& ca
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCaseCollection*
-    RimSummaryCaseMainCollection::addCaseCollection( std::vector<RimSummaryCase*>               summaryCases,
-                                                     const QString&                             collectionName,
-                                                     bool                                       isEnsemble,
-                                                     std::function<RimSummaryCaseCollection*()> allocator )
+RimSummaryCaseCollection* RimSummaryCaseMainCollection::addCaseCollection( std::vector<RimSummaryCase*>               summaryCases,
+                                                                           const QString&                             collectionName,
+                                                                           bool                                       isEnsemble,
+                                                                           std::function<RimSummaryCaseCollection*()> allocator )
 {
     RimSummaryCaseCollection* summaryCaseCollection = allocator();
     if ( !collectionName.isEmpty() ) summaryCaseCollection->setName( collectionName );
@@ -499,8 +496,7 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileS
     // If h5 mode, check all summary files and create or recreate h5 files if required
 #ifdef USE_HDF5
     {
-        if ( prefs->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON &&
-             prefs->createH5SummaryDataFiles() )
+        if ( prefs->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON && prefs->createH5SummaryDataFiles() )
         {
             int threadCount = 1;
 #ifdef USE_OPENMP
@@ -560,8 +556,7 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileS
     auto numberOfEsmryFilesCreated = RifOpmCommonEclipseSummary::numberOfEnhancedSummaryFileCreated();
     if ( numberOfEsmryFilesCreated > 0 )
     {
-        RiaLogging::info(
-            QString( "Summary Files : Converted and created %1 '*.ESMRY' files on disk." ).arg( numberOfEsmryFilesCreated ) );
+        RiaLogging::info( QString( "Summary Files : Converted and created %1 '*.ESMRY' files on disk." ).arg( numberOfEsmryFilesCreated ) );
     }
 
     // This loop is not thread safe, use serial loop
@@ -578,8 +573,7 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseMainCollection::reassignSummaryCurves( const RimGridSummaryCase* gridSummaryCase,
-                                                          RimFileSummaryCase*       fileSummaryCase )
+void RimSummaryCaseMainCollection::reassignSummaryCurves( const RimGridSummaryCase* gridSummaryCase, RimFileSummaryCase* fileSummaryCase )
 {
     std::vector<caf::PdmFieldHandle*> referringFields;
     gridSummaryCase->referringPtrFields( referringFields );
@@ -628,9 +622,9 @@ void RimSummaryCaseMainCollection::onCaseNameChanged( const SignalEmitter* emitt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::createSummaryCasesFromFileInfos(
-    const std::vector<RifSummaryCaseFileResultInfo>& summaryHeaderFileInfos,
-    bool                                             showProgress )
+std::vector<RimSummaryCase*>
+    RimSummaryCaseMainCollection::createSummaryCasesFromFileInfos( const std::vector<RifSummaryCaseFileResultInfo>& summaryHeaderFileInfos,
+                                                                   bool                                             showProgress )
 {
     RimProject* project = RimProject::current();
 
@@ -649,9 +643,8 @@ std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::createSummaryCasesFro
 
         for ( const RifSummaryCaseFileResultInfo& fileInfo : summaryHeaderFileInfos )
         {
-            RimEclipseCase* eclCase = nullptr;
-            QString         gridCaseFile =
-                RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile( fileInfo.summaryFileName() );
+            RimEclipseCase* eclCase      = nullptr;
+            QString         gridCaseFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile( fileInfo.summaryFileName() );
             if ( !gridCaseFile.isEmpty() )
             {
                 eclCase = project->eclipseCaseFromGridFileName( gridCaseFile );

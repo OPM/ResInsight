@@ -54,17 +54,15 @@ bool RigFemPartResultCalculatorEnIpPorBar::isMatching( const RigFemResultAddress
 //--------------------------------------------------------------------------------------------------
 /// Convert POR NODAL result to POR-Bar Element Nodal result
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultCalculatorEnIpPorBar::calculate( int                        partIndex,
-                                                                           const RigFemResultAddress& resVarAddr )
+RigFemScalarResultFrames* RigFemPartResultCalculatorEnIpPorBar::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
 {
     caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 2, "" );
-    stepCountProgress.setProgressDescription(
-        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
+    stepCountProgress.setProgressDescription( "Calculating " +
+                                              QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
     stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemResultAddress       unconvertedResultAddr( RIG_NODAL, "POR", "" );
-    RigFemScalarResultFrames* srcDataFrames =
-        m_resultCollection->findOrLoadScalarResult( partIndex, unconvertedResultAddr );
+    RigFemScalarResultFrames* srcDataFrames = m_resultCollection->findOrLoadScalarResult( partIndex, unconvertedResultAddr );
     RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );
 
     stepCountProgress.incrementProgress();

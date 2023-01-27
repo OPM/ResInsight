@@ -56,8 +56,7 @@ void RicReplaceSummaryCaseFeature::updateRequredCalculatedCurves( RimSummaryCase
 
     for ( RimUserDefinedCalculation* summaryCalculation : calcColl->calculations() )
     {
-        bool needsUpdate =
-            RicReplaceSummaryCaseFeature::checkIfCalculationNeedsUpdate( summaryCalculation, sourceSummaryCase );
+        bool needsUpdate = RicReplaceSummaryCaseFeature::checkIfCalculationNeedsUpdate( summaryCalculation, sourceSummaryCase );
         if ( needsUpdate )
         {
             summaryCalculation->parseExpression();
@@ -150,8 +149,7 @@ void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
         for ( RimSummaryCurve* summaryCurve : summaryCurves )
         {
             RifEclipseSummaryAddress summaryAddressX = summaryCurve->summaryAddressX();
-            if ( summaryAddressX.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED &&
-                 ids.find( summaryAddressX.id() ) != ids.end() )
+            if ( summaryAddressX.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED && ids.find( summaryAddressX.id() ) != ids.end() )
             {
                 if ( calcColl )
                 {
@@ -166,8 +164,7 @@ void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
             }
 
             RifEclipseSummaryAddress summaryAddressY = summaryCurve->summaryAddressY();
-            if ( summaryAddressY.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED &&
-                 ids.find( summaryAddressY.id() ) != ids.end() )
+            if ( summaryAddressY.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED && ids.find( summaryAddressY.id() ) != ids.end() )
             {
                 if ( calcColl )
                 {

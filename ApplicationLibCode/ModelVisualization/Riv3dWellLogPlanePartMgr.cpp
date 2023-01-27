@@ -91,17 +91,12 @@ void Riv3dWellLogPlanePartMgr::appendPlaneToModel( cvf::ModelBasicList*         
 
     for ( Rim3dWellLogCurve* rim3dWellLogCurve : m_wellPath->rim3dWellLogCurveCollection()->vectorOf3dWellLogCurves() )
     {
-        if ( rim3dWellLogCurve->showInView( m_gridView ) &&
-             rim3dWellLogCurve->isShowingTimeDependentResult() != isStaticResult )
+        if ( rim3dWellLogCurve->showInView( m_gridView ) && rim3dWellLogCurve->isShowingTimeDependentResult() != isStaticResult )
         {
             auto it = m_3dWellLogDrawSurfaceGeometryGenerators.find( rim3dWellLogCurve->drawPlane() );
             if ( it != m_3dWellLogDrawSurfaceGeometryGenerators.end() )
             {
-                append3dWellLogCurveToModel( model,
-                                             displayCoordTransform,
-                                             wellPathClipBoundingBox,
-                                             rim3dWellLogCurve,
-                                             it->second->vertices() );
+                append3dWellLogCurveToModel( model, displayCoordTransform, wellPathClipBoundingBox, rim3dWellLogCurve, it->second->vertices() );
             }
         }
     }
@@ -225,13 +220,13 @@ void Riv3dWellLogPlanePartMgr::appendDrawSurfaceToModel( cvf::ModelBasicList*   
         backgroundEffectGen.enableDepthWrite( false );
     }
 
-    bool drawSurfaceCreated = m_3dWellLogDrawSurfaceGeometryGenerators[drawPlane]
-                                  ->createDrawSurface( displayCoordTransform,
-                                                       wellPathClipBoundingBox,
-                                                       Rim3dWellLogCurve::drawPlaneAngle( drawPlane ),
-                                                       wellPathCenterToPlotStartOffset( drawPlane ),
-                                                       planeWidth(),
-                                                       samplingInterval );
+    bool drawSurfaceCreated =
+        m_3dWellLogDrawSurfaceGeometryGenerators[drawPlane]->createDrawSurface( displayCoordTransform,
+                                                                                wellPathClipBoundingBox,
+                                                                                Rim3dWellLogCurve::drawPlaneAngle( drawPlane ),
+                                                                                wellPathCenterToPlotStartOffset( drawPlane ),
+                                                                                planeWidth(),
+                                                                                samplingInterval );
     if ( !drawSurfaceCreated ) return;
 
     cvf::ref<cvf::Effect> backgroundEffect   = backgroundEffectGen.generateCachedEffect();

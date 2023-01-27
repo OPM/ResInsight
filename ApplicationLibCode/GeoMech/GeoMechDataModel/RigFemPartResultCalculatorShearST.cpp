@@ -48,8 +48,8 @@ RigFemPartResultCalculatorShearST::~RigFemPartResultCalculatorShearST()
 //--------------------------------------------------------------------------------------------------
 bool RigFemPartResultCalculatorShearST::isMatching( const RigFemResultAddress& resVarAddr ) const
 {
-    return ( ( resVarAddr.fieldName == "ST" ) && ( resVarAddr.componentName == "S12" || resVarAddr.componentName == "S13" ||
-                                                   resVarAddr.componentName == "S23" ) );
+    return ( ( resVarAddr.fieldName == "ST" ) &&
+             ( resVarAddr.componentName == "S12" || resVarAddr.componentName == "S13" || resVarAddr.componentName == "S23" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -58,15 +58,13 @@ bool RigFemPartResultCalculatorShearST::isMatching( const RigFemResultAddress& r
 RigFemScalarResultFrames* RigFemPartResultCalculatorShearST::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
 {
     caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 2, "" );
-    stepCountProgress.setProgressDescription(
-        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
+    stepCountProgress.setProgressDescription( "Calculating " +
+                                              QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
     stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* srcSDataFrames =
         m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( resVarAddr.resultPosType,
-                                                                         "S-Bar",
-                                                                         resVarAddr.componentName ) );
+                                                    RigFemResultAddress( resVarAddr.resultPosType, "S-Bar", resVarAddr.componentName ) );
     RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );
 
     stepCountProgress.incrementProgress();

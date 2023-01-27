@@ -132,9 +132,7 @@ void RimScriptCollection::readContentFromDisc( int folderLevelsLeft )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimScriptCollection::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                 QString                    uiConfigName,
-                                                 caf::PdmUiEditorAttribute* attribute )
+void RimScriptCollection::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &directory )
     {

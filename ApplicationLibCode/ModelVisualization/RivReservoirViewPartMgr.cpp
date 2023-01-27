@@ -248,16 +248,14 @@ void RivReservoirViewPartMgr::ensureDynamicGeometryPartsCreated( RivCellSetEnum 
 {
     if ( geometryType == PROPERTY_FILTERED )
     {
-        if ( frameIndex >= m_propFilteredGeometryFramesNeedsRegen.size() ||
-             m_propFilteredGeometryFramesNeedsRegen[frameIndex] )
+        if ( frameIndex >= m_propFilteredGeometryFramesNeedsRegen.size() || m_propFilteredGeometryFramesNeedsRegen[frameIndex] )
         {
             createPropertyFilteredNoneWellCellGeometry( frameIndex );
         }
     }
     else if ( geometryType == PROPERTY_FILTERED_WELL_CELLS )
     {
-        if ( frameIndex >= m_propFilteredWellGeometryFramesNeedsRegen.size() ||
-             m_propFilteredWellGeometryFramesNeedsRegen[frameIndex] )
+        if ( frameIndex >= m_propFilteredWellGeometryFramesNeedsRegen.size() || m_propFilteredWellGeometryFramesNeedsRegen[frameIndex] )
         {
             createPropertyFilteredWellGeometry( frameIndex );
         }
@@ -291,10 +289,7 @@ void RivReservoirViewPartMgr::createGeometry( RivCellSetEnum geometryType )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivReservoirViewPartMgr::computeVisibility( cvf::UByteArray* cellVisibility,
-                                                 RivCellSetEnum   geometryType,
-                                                 RigGridBase*     grid,
-                                                 size_t           gridIdx )
+void RivReservoirViewPartMgr::computeVisibility( cvf::UByteArray* cellVisibility, RivCellSetEnum geometryType, RigGridBase* grid, size_t gridIdx )
 {
     RigEclipseCaseData* eclipseCase    = m_reservoirView->eclipseCase()->eclipseCaseData();
     auto                activeCellInfo = m_reservoirView->currentActiveCellInfo();
@@ -305,13 +300,7 @@ void RivReservoirViewPartMgr::computeVisibility( cvf::UByteArray* cellVisibility
             computeOverriddenCellVisibility( cellVisibility, grid );
             break;
         case ACTIVE:
-            computeNativeVisibility( cellVisibility,
-                                     grid,
-                                     activeCellInfo,
-                                     eclipseCase->wellCellsInGrid( gridIdx ),
-                                     false,
-                                     false,
-                                     true );
+            computeNativeVisibility( cellVisibility, grid, activeCellInfo, eclipseCase->wellCellsInGrid( gridIdx ), false, false, true );
             break;
         case ALL_WELL_CELLS:
             copyByteArray( cellVisibility, eclipseCase->wellCellsInGrid( gridIdx ) );
@@ -363,11 +352,7 @@ void RivReservoirViewPartMgr::computeVisibility( cvf::UByteArray* cellVisibility
             ensureStaticGeometryPartsCreated( ACTIVE );
 
             nativeVisibility = m_geometries[ACTIVE].cellVisibility( gridIdx );
-            computeFilterVisibility( geometryType,
-                                     cellVisibility,
-                                     grid,
-                                     nativeVisibility.p(),
-                                     m_reservoirView->cellFilterCollection() );
+            computeFilterVisibility( geometryType, cellVisibility, grid, nativeVisibility.p(), m_reservoirView->cellFilterCollection() );
         }
         break;
         case RANGE_FILTERED_INACTIVE:
@@ -376,11 +361,7 @@ void RivReservoirViewPartMgr::computeVisibility( cvf::UByteArray* cellVisibility
             ensureStaticGeometryPartsCreated( INACTIVE );
 
             nativeVisibility = m_geometries[INACTIVE].cellVisibility( gridIdx );
-            computeFilterVisibility( geometryType,
-                                     cellVisibility,
-                                     grid,
-                                     nativeVisibility.p(),
-                                     m_reservoirView->cellFilterCollection() );
+            computeFilterVisibility( geometryType, cellVisibility, grid, nativeVisibility.p(), m_reservoirView->cellFilterCollection() );
         }
         break;
         case RANGE_FILTERED_WELL_CELLS:
@@ -389,11 +370,7 @@ void RivReservoirViewPartMgr::computeVisibility( cvf::UByteArray* cellVisibility
             ensureStaticGeometryPartsCreated( ALL_WELL_CELLS );
 
             nativeVisibility = m_geometries[ALL_WELL_CELLS].cellVisibility( gridIdx );
-            computeFilterVisibility( geometryType,
-                                     cellVisibility,
-                                     grid,
-                                     nativeVisibility.p(),
-                                     m_reservoirView->cellFilterCollection() );
+            computeFilterVisibility( geometryType, cellVisibility, grid, nativeVisibility.p(), m_reservoirView->cellFilterCollection() );
         }
         break;
         case VISIBLE_WELL_CELLS_OUTSIDE_RANGE_FILTER:
@@ -455,12 +432,9 @@ void RivReservoirViewPartMgr::createPropertyFilteredNoneWellCellGeometry( size_t
         m_propFilteredGeometryFramesNeedsRegen.resize( frameIndex + 1, true );
     }
 
-    if ( m_propFilteredGeometryFrames[frameIndex].isNull() )
-        m_propFilteredGeometryFrames[frameIndex] = new RivReservoirPartMgr;
+    if ( m_propFilteredGeometryFrames[frameIndex].isNull() ) m_propFilteredGeometryFrames[frameIndex] = new RivReservoirPartMgr;
 
-    m_propFilteredGeometryFrames[frameIndex]->clearAndSetReservoir( PROPERTY_FILTERED,
-                                                                    m_reservoirView->eclipseCase(),
-                                                                    m_reservoirView );
+    m_propFilteredGeometryFrames[frameIndex]->clearAndSetReservoir( PROPERTY_FILTERED, m_reservoirView->eclipseCase(), m_reservoirView );
     m_propFilteredGeometryFrames[frameIndex]->setTransform( m_scaleTransform.p() );
 
     std::vector<RigGridBase*> grids;
@@ -538,8 +512,7 @@ void RivReservoirViewPartMgr::createPropertyFilteredWellGeometry( size_t frameIn
         m_propFilteredWellGeometryFramesNeedsRegen.resize( frameIndex + 1, true );
     }
 
-    if ( m_propFilteredWellGeometryFrames[frameIndex].isNull() )
-        m_propFilteredWellGeometryFrames[frameIndex] = new RivReservoirPartMgr;
+    if ( m_propFilteredWellGeometryFrames[frameIndex].isNull() ) m_propFilteredWellGeometryFrames[frameIndex] = new RivReservoirPartMgr;
 
     m_propFilteredWellGeometryFrames[frameIndex]->clearAndSetReservoir( PROPERTY_FILTERED_WELL_CELLS,
                                                                         m_reservoirView->eclipseCase(),
@@ -671,8 +644,7 @@ void RivReservoirViewPartMgr::computeOverriddenCellVisibility( cvf::UByteArray* 
     cvf::ref<cvf::UByteArray> totCellVisibility = masterView->currentTotalCellVisibility();
 #else
     // Could get something more like
-    std::vector<std::vector<cvf::UByteArray*>> gridsWithCellSetVisibility =
-        masterView->getAllGridsCurrentCellSetsCellVisibility();
+    std::vector<std::vector<cvf::UByteArray*>> gridsWithCellSetVisibility = masterView->getAllGridsCurrentCellSetsCellVisibility();
 #endif
 
     CVF_ASSERT( cellVisibility != nullptr );
@@ -706,8 +678,7 @@ void RivReservoirViewPartMgr::computeOverriddenCellVisibility( cvf::UByteArray* 
             int cellSetCount = gridsWithCellSetVisibility[masterCaseCells.gridIndex[mcIdx]].size();
             for ( int csIdx = 0; csIdx < cellSetCount; ++csIdx )
             {
-                ( *cellVisibility )[lcIdx] |=
-                    gridsWithCellSetVisibility[masterCaseCells.gridIndex[mcIdx]][masterCaseCells.cellIndex[mcIdx]];
+                ( *cellVisibility )[lcIdx] |= gridsWithCellSetVisibility[masterCaseCells.gridIndex[mcIdx]][masterCaseCells.cellIndex[mcIdx]];
             }
         }
 #endif
@@ -781,8 +752,7 @@ void RivReservoirViewPartMgr::computeFilterVisibility( RivCellSetEnum           
             parentGridVisibilities = reservoirGridPartMgr->cellVisibility( parentGridIndex );
         }
 
-        bool hasAdditiveFilters = cellFilterColl->hasActiveIncludeFilters() ||
-                                  m_reservoirView->wellCollection()->hasVisibleWellCells();
+        bool hasAdditiveFilters = cellFilterColl->hasActiveIncludeFilters() || m_reservoirView->wellCollection()->hasVisibleWellCells();
 
 #pragma omp parallel for
         for ( int cellIndex = 0; cellIndex < static_cast<int>( grid->cellCount() ); cellIndex++ )
@@ -809,8 +779,7 @@ void RivReservoirViewPartMgr::computeFilterVisibility( RivCellSetEnum           
 
                 if ( hasAdditiveFilters )
                 {
-                    nativeRangeVisibility =
-                        gridCellRangeFilter.isCellVisible( mainGridI, mainGridJ, mainGridK, isInSubGridArea );
+                    nativeRangeVisibility = gridCellRangeFilter.isCellVisible( mainGridI, mainGridJ, mainGridK, isInSubGridArea );
                 }
                 else
                 {
@@ -818,9 +787,8 @@ void RivReservoirViewPartMgr::computeFilterVisibility( RivCellSetEnum           
                     nativeRangeVisibility = ( *nativeVisibility )[cellIndex];
                 }
 
-                ( *cellVisibility )[cellIndex] =
-                    ( visibleDueToParentGrid || nativeRangeVisibility ) &&
-                    !gridCellRangeFilter.isCellExcluded( mainGridI, mainGridJ, mainGridK, isInSubGridArea );
+                ( *cellVisibility )[cellIndex] = ( visibleDueToParentGrid || nativeRangeVisibility ) &&
+                                                 !gridCellRangeFilter.isCellExcluded( mainGridI, mainGridJ, mainGridK, isInSubGridArea );
             }
         }
     }
@@ -947,9 +915,7 @@ void RivReservoirViewPartMgr::updateCellColor( RivCellSetEnum geometryType, size
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivReservoirViewPartMgr::updateCellResultColor( RivCellSetEnum        geometryType,
-                                                     size_t                timeStepIndex,
-                                                     RimEclipseCellColors* cellResultColors )
+void RivReservoirViewPartMgr::updateCellResultColor( RivCellSetEnum geometryType, size_t timeStepIndex, RimEclipseCellColors* cellResultColors )
 {
     RivReservoirPartMgr* pmgr = reservoirPartManager( geometryType, timeStepIndex );
     pmgr->updateCellResultColor( timeStepIndex, cellResultColors );
@@ -982,14 +948,12 @@ void RivReservoirViewPartMgr::updateFaultCellEdgeResultColor( RivCellSetEnum    
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const cvf::UByteArray*
-    RivReservoirViewPartMgr::cellVisibility( RivCellSetEnum geometryType, size_t gridIndex, size_t timeStepIndex )
+const cvf::UByteArray* RivReservoirViewPartMgr::cellVisibility( RivCellSetEnum geometryType, size_t gridIndex, size_t timeStepIndex )
 {
     ensureDynamicGeometryPartsCreated( geometryType, timeStepIndex );
     ensureStaticGeometryPartsCreated( geometryType );
 
-    RivReservoirPartMgr* pmgr =
-        ( const_cast<RivReservoirViewPartMgr*>( this ) )->reservoirPartManager( geometryType, timeStepIndex );
+    RivReservoirPartMgr* pmgr = ( const_cast<RivReservoirViewPartMgr*>( this ) )->reservoirPartManager( geometryType, timeStepIndex );
 
     return pmgr->cellVisibility( gridIndex ).p();
 }
@@ -1016,9 +980,7 @@ RivReservoirPartMgr* RivReservoirViewPartMgr::reservoirPartManager( RivCellSetEn
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivReservoirViewPartMgr::updateFaultColors( RivCellSetEnum        geometryType,
-                                                 size_t                timeStepIndex,
-                                                 RimEclipseCellColors* cellResultColors )
+void RivReservoirViewPartMgr::updateFaultColors( RivCellSetEnum geometryType, size_t timeStepIndex, RimEclipseCellColors* cellResultColors )
 {
     if ( geometryType == PROPERTY_FILTERED && timeStepIndex >= m_propFilteredGeometryFrames.size() )
     {
@@ -1037,8 +999,7 @@ void RivReservoirViewPartMgr::updateFaultColors( RivCellSetEnum        geometryT
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivReservoirViewPartMgr::appendFaultsStaticGeometryPartsToModel( cvf::ModelBasicList* model,
-                                                                      RivCellSetEnum       geometryType )
+void RivReservoirViewPartMgr::appendFaultsStaticGeometryPartsToModel( cvf::ModelBasicList* model, RivCellSetEnum geometryType )
 {
     if ( geometryType >= PROPERTY_FILTERED ) return;
 
@@ -1103,9 +1064,7 @@ void RivReservoirViewPartMgr::appendFaultsStaticGeometryPartsToModel( cvf::Model
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivReservoirViewPartMgr::appendFaultsDynamicGeometryPartsToModel( cvf::ModelBasicList* model,
-                                                                       RivCellSetEnum       geometryType,
-                                                                       size_t               frameIndex )
+void RivReservoirViewPartMgr::appendFaultsDynamicGeometryPartsToModel( cvf::ModelBasicList* model, RivCellSetEnum geometryType, size_t frameIndex )
 {
     if ( geometryType == PROPERTY_FILTERED )
     {
@@ -1125,7 +1084,7 @@ void RivReservoirViewPartMgr::appendFaultsDynamicGeometryPartsToModel( cvf::Mode
 ///
 //--------------------------------------------------------------------------------------------------
 RivCellSetEnum RivReservoirViewPartMgr::geometryTypeForFaultLabels( const std::set<RivCellSetEnum>& geometryTypes,
-                                                                    bool showFaultsOutsideFilters ) const
+                                                                    bool                            showFaultsOutsideFilters ) const
 {
     for ( RivCellSetEnum cellSetType : geometryTypes )
     {
@@ -1149,8 +1108,7 @@ RivCellSetEnum RivReservoirViewPartMgr::geometryTypeForFaultLabels( const std::s
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivReservoirViewPartMgr::appendFaultLabelsStaticGeometryPartsToModel( cvf::ModelBasicList* model,
-                                                                           RivCellSetEnum       geometryType )
+void RivReservoirViewPartMgr::appendFaultLabelsStaticGeometryPartsToModel( cvf::ModelBasicList* model, RivCellSetEnum geometryType )
 {
     ensureStaticGeometryPartsCreated( geometryType );
     m_geometries[geometryType].appendFaultLabelPartsToModel( model );
@@ -1200,8 +1158,7 @@ void RivReservoirViewPartMgr::forceWatertightGeometryOnForType( RivCellSetEnum g
     {
         for ( size_t i = 0; i < m_propFilteredWellGeometryFrames.size(); ++i )
         {
-            if ( m_propFilteredWellGeometryFrames[i].p() )
-                m_propFilteredWellGeometryFrames[i]->forceWatertightGeometryOn();
+            if ( m_propFilteredWellGeometryFrames[i].p() ) m_propFilteredWellGeometryFrames[i]->forceWatertightGeometryOn();
         }
     }
     else
@@ -1223,8 +1180,7 @@ void RivReservoirViewPartMgr::clearWatertightGeometryFlags()
 
     for ( size_t i = 0; i < m_propFilteredWellGeometryFrames.size(); ++i )
     {
-        if ( m_propFilteredWellGeometryFrames[i].p() )
-            m_propFilteredWellGeometryFrames[i]->clearWatertightGeometryFlag();
+        if ( m_propFilteredWellGeometryFrames[i].p() ) m_propFilteredWellGeometryFrames[i]->clearWatertightGeometryFlag();
     }
 
     for ( int i = 0; i < PROPERTY_FILTERED; i++ )

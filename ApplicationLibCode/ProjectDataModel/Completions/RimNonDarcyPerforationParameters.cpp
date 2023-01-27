@@ -163,9 +163,7 @@ double RimNonDarcyPerforationParameters::porosityScalingFactor() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimNonDarcyPerforationParameters::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                         const QVariant&            oldValue,
-                                                         const QVariant&            newValue )
+void RimNonDarcyPerforationParameters::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_nonDarcyFlowType )
     {

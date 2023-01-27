@@ -115,7 +115,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
         RiaDefines::ResultCatType     resultType = resultSpecification[i].m_resType;
         QString                       resultName = resultSpecification[i].m_resVarName;
 
-        size_t activeCellCount = m_destinationCase->activeCellInfo( poroModel )->reservoirActiveCellCount();
+        size_t                  activeCellCount     = m_destinationCase->activeCellInfo( poroModel )->reservoirActiveCellCount();
         RigCaseCellResultsData* destCellResultsData = m_destinationCase->results( poroModel );
 
         // Placeholder data used to be created here,
@@ -190,16 +190,14 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
                     // NB! Many other functions are based on loading of all time steps at the same time
                     // Use this concept carefully
                     sourceCase->results( poroModel )
-                        ->findOrLoadKnownScalarResultForTimeStep( RigEclipseResultAddress( resultType, resultName ),
-                                                                  dataAccessTimeStepIndex );
+                        ->findOrLoadKnownScalarResultForTimeStep( RigEclipseResultAddress( resultType, resultName ), dataAccessTimeStepIndex );
 
                     cvf::ref<RigResultAccessor> resultAccessor =
                         RigResultAccessorFactory::createFromResultAddress( sourceCase->eclipseCaseData(),
                                                                            gridIdx,
                                                                            poroModel,
                                                                            dataAccessTimeStepIndex,
-                                                                           RigEclipseResultAddress( resultType,
-                                                                                                    resultName ) );
+                                                                           RigEclipseResultAddress( resultType, resultName ) );
                     if ( resultAccessor.notNull() )
                     {
                         sourceDataAccessList.push_back( resultAccessor.p() );
@@ -230,8 +228,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
                                                                         grid->gridIndex(),
                                                                         poroModel,
                                                                         dataAccessTimeStepIndex,
-                                                                        RigEclipseResultAddress( resultType,
-                                                                                                 statisticalResultNames[stIdx] ) );
+                                                                        RigEclipseResultAddress( resultType, statisticalResultNames[stIdx] ) );
                     destinationDataAccessList.push_back( resultModifier.p() );
                 }
 
@@ -257,8 +254,7 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
                             // Replace huge_val with zero in the statistical computation for the following case
                             if ( m_useZeroAsInactiveCellValue || resultName.toUpper() == "ACTNUM" )
                             {
-                                if ( m_identicalGridCaseGroup->unionOfActiveCells( poroModel )->isActive( reservoirCellIndex ) &&
-                                     val == HUGE_VAL )
+                                if ( m_identicalGridCaseGroup->unionOfActiveCells( poroModel )->isActive( reservoirCellIndex ) && val == HUGE_VAL )
                                 {
                                     val = 0.0;
                                 }
@@ -305,18 +301,14 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
                                     std::vector<size_t>    histogram;
                                     RigHistogramCalculator histCalc( statParams[MIN], statParams[MAX], 100, &histogram );
                                     histCalc.addData( values );
-                                    statParams[PMIN] =
-                                        histCalc.calculatePercentil( m_statisticsConfig.m_pMinPos / 100.0,
-                                                                     RigStatisticsMath::PercentileStyle::SWITCHED );
-                                    statParams[PMID] =
-                                        histCalc.calculatePercentil( m_statisticsConfig.m_pMidPos / 100.0,
-                                                                     RigStatisticsMath::PercentileStyle::SWITCHED );
-                                    statParams[PMAX] =
-                                        histCalc.calculatePercentil( m_statisticsConfig.m_pMaxPos / 100.0,
-                                                                     RigStatisticsMath::PercentileStyle::SWITCHED );
+                                    statParams[PMIN] = histCalc.calculatePercentil( m_statisticsConfig.m_pMinPos / 100.0,
+                                                                                    RigStatisticsMath::PercentileStyle::SWITCHED );
+                                    statParams[PMID] = histCalc.calculatePercentil( m_statisticsConfig.m_pMidPos / 100.0,
+                                                                                    RigStatisticsMath::PercentileStyle::SWITCHED );
+                                    statParams[PMAX] = histCalc.calculatePercentil( m_statisticsConfig.m_pMaxPos / 100.0,
+                                                                                    RigStatisticsMath::PercentileStyle::SWITCHED );
                                 }
-                                else if ( m_statisticsConfig.m_pValMethod ==
-                                          RimEclipseStatisticsCase::INTERPOLATED_OBSERVATION )
+                                else if ( m_statisticsConfig.m_pValMethod == RimEclipseStatisticsCase::INTERPOLATED_OBSERVATION )
                                 {
                                     std::vector<double> pValPoss;
                                     pValPoss.push_back( m_statisticsConfig.m_pMinPos );
@@ -374,10 +366,10 @@ void RimEclipseStatisticsCaseEvaluator::evaluateForResults( const QList<ResSpec>
 ///
 //--------------------------------------------------------------------------------------------------
 RimEclipseStatisticsCaseEvaluator::RimEclipseStatisticsCaseEvaluator( const std::vector<RimEclipseCase*>& sourceCases,
-                                                                      const std::vector<size_t>& timeStepIndices,
-                                                                      const RimStatisticsConfig& statisticsConfig,
-                                                                      RigEclipseCaseData*        destinationCase,
-                                                                      RimIdenticalGridCaseGroup* identicalGridCaseGroup )
+                                                                      const std::vector<size_t>&          timeStepIndices,
+                                                                      const RimStatisticsConfig&          statisticsConfig,
+                                                                      RigEclipseCaseData*                 destinationCase,
+                                                                      RimIdenticalGridCaseGroup*          identicalGridCaseGroup )
     : m_sourceCases( sourceCases )
     , m_statisticsConfig( statisticsConfig )
     , m_destinationCase( destinationCase )

@@ -125,9 +125,8 @@ RigHistogramData RimHistogramCalculator::histogramData( RimGeoMechContourMapView
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         eclipseView,
-                                                        StatisticsCellRangeType cellRange,
-                                                        StatisticsTimeRangeType timeRange )
+RigHistogramData
+    RimHistogramCalculator::histogramData( RimEclipseView* eclipseView, StatisticsCellRangeType cellRange, StatisticsTimeRangeType timeRange )
 {
     if ( eclipseView )
     {
@@ -260,9 +259,8 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigHistogramData RimHistogramCalculator::histogramData( RimGeoMechView*         geoMechView,
-                                                        StatisticsCellRangeType cellRange,
-                                                        StatisticsTimeRangeType timeRange )
+RigHistogramData
+    RimHistogramCalculator::histogramData( RimGeoMechView* geoMechView, StatisticsCellRangeType cellRange, StatisticsTimeRangeType timeRange )
 {
     RigHistogramData histData;
 
@@ -290,20 +288,11 @@ RigHistogramData RimHistogramCalculator::histogramData( RimGeoMechView*         
                 {
                     auto [timeStepIdx, frameIdx] = geoMechView->currentStepAndDataFrame();
                     caseData->femPartResults()->meanScalarValue( resAddress, timeStepIdx, frameIdx, &histData.mean );
-                    caseData->femPartResults()->minMaxScalarValues( resAddress,
-                                                                    timeStepIdx,
-                                                                    frameIdx,
-                                                                    &histData.min,
-                                                                    &histData.max );
-                    caseData->femPartResults()->p10p90ScalarValues( resAddress,
-                                                                    timeStepIdx,
-                                                                    frameIdx,
-                                                                    &histData.p10,
-                                                                    &histData.p90 );
+                    caseData->femPartResults()->minMaxScalarValues( resAddress, timeStepIdx, frameIdx, &histData.min, &histData.max );
+                    caseData->femPartResults()->p10p90ScalarValues( resAddress, timeStepIdx, frameIdx, &histData.p10, &histData.p90 );
                     caseData->femPartResults()->sumScalarValue( resAddress, timeStepIdx, frameIdx, &histData.sum );
 
-                    histData.histogram =
-                        caseData->femPartResults()->scalarValuesHistogram( resAddress, timeStepIdx, frameIdx );
+                    histData.histogram = caseData->femPartResults()->scalarValuesHistogram( resAddress, timeStepIdx, frameIdx );
                 }
             }
             else if ( cellRange == StatisticsCellRangeType::VISIBLE_CELLS )
@@ -347,7 +336,7 @@ void RimHistogramCalculator::updateVisCellStatsIfNeeded( RimGeoMechView* geoMech
     if ( geoMechView )
     {
         RigFemResultAddress resAddress = geoMechView->cellResultResultDefinition()->resultAddress();
-        calc = new RigFemNativeVisibleCellsStatCalc( geoMechView->geoMechCase()->geoMechData(),
+        calc                           = new RigFemNativeVisibleCellsStatCalc( geoMechView->geoMechCase()->geoMechData(),
                                                      resAddress,
                                                      geoMechView->currentTotalCellVisibility().p() );
     }
@@ -359,8 +348,7 @@ void RimHistogramCalculator::updateVisCellStatsIfNeeded( RimGeoMechView* geoMech
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimHistogramCalculator::updateVisCellStatsIfNeeded( RimEclipseView*             eclipseView,
-                                                         RimEclipseResultDefinition* eclResultDefinition )
+void RimHistogramCalculator::updateVisCellStatsIfNeeded( RimEclipseView* eclipseView, RimEclipseResultDefinition* eclResultDefinition )
 {
     CVF_ASSERT( eclipseView );
     CVF_ASSERT( eclResultDefinition );
@@ -439,8 +427,7 @@ std::vector<RigEclipseResultAddress> RimHistogramCalculator::sourcesForMultiProp
           { RiaResultNames::combinedRiAreaNormTranResultName(),
             { RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::riAreaNormTranXResultName() ),
               RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::riAreaNormTranYResultName() ),
-              RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                       RiaResultNames::riAreaNormTranZResultName() ) } },
+              RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::riAreaNormTranZResultName() ) } },
           { RiaResultNames::combinedWaterFluxResultName(),
             { RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRWATI+" ),
               RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "FLRWATJ+" ),

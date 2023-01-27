@@ -103,7 +103,7 @@ RimSummaryPlotAxisFormatter::RimSummaryPlotAxisFormatter( RimPlotAxisProperties*
                                                           const std::vector<RimSummaryCurve*>&          summaryCurves,
                                                           const std::vector<RiaSummaryCurveDefinition>& curveDefinitions,
                                                           const std::vector<RimAsciiDataCurve*>&        asciiCurves,
-                                                          const std::set<QString>& timeHistoryCurveQuantities )
+                                                          const std::set<QString>&                      timeHistoryCurveQuantities )
     : m_axisProperties( axisProperties )
     , m_summaryCurves( summaryCurves )
     , m_curveDefinitions( curveDefinitions )
@@ -135,11 +135,7 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuPlotWidget* plot
         plotWidget->setAxisTitleText( axis, axisTitle );
 
         bool titleBold = false;
-        plotWidget->setAxisFontsAndAlignment( axis,
-                                              m_axisProperties->titleFontSize(),
-                                              m_axisProperties->valuesFontSize(),
-                                              titleBold,
-                                              titleAlignment );
+        plotWidget->setAxisFontsAndAlignment( axis, m_axisProperties->titleFontSize(), m_axisProperties->valuesFontSize(), titleBold, titleAlignment );
         plotWidget->setAxisTitleEnabled( axis, true );
     }
 
@@ -148,8 +144,7 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuPlotWidget* plot
     {
         auto qwtAxisId = qwtPlotWidget->toQwtPlotAxis( axis );
 
-        if ( m_axisProperties->numberFormat() == RimPlotAxisProperties::NUMBER_FORMAT_AUTO &&
-             m_axisProperties->scaleFactor() == 1.0 )
+        if ( m_axisProperties->numberFormat() == RimPlotAxisProperties::NUMBER_FORMAT_AUTO && m_axisProperties->scaleFactor() == 1.0 )
         {
             // Default to Qwt's own scale draw to avoid changing too much for default values
             qwtPlotWidget->qwtPlot()->setAxisScaleDraw( qwtAxisId, new QwtScaleDraw );

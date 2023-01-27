@@ -81,13 +81,11 @@ bool RicPolylineTargetsPickEventHandler::handle3dPickEvent( const Ric3dPickEvent
     {
         Rim3dView* rimView = eventObject.m_view;
 
-        const auto& firstPickItem = eventObject.m_pickItemInfos.front();
-        auto        targetPointInDomain =
-            rimView->displayCoordTransform()->transformToDomainCoord( firstPickItem.globalPickedPoint() );
+        const auto& firstPickItem       = eventObject.m_pickItemInfos.front();
+        auto        targetPointInDomain = rimView->displayCoordTransform()->transformToDomainCoord( firstPickItem.globalPickedPoint() );
 
         auto* newTarget = new RimPolylineTarget();
-        newTarget->setAsPointTargetXYD(
-            cvf::Vec3d( targetPointInDomain.x(), targetPointInDomain.y(), -targetPointInDomain.z() ) );
+        newTarget->setAsPointTargetXYD( cvf::Vec3d( targetPointInDomain.x(), targetPointInDomain.y(), -targetPointInDomain.z() ) );
 
         m_objectDef->insertTarget( nullptr, newTarget );
         m_objectDef->updateEditorsAndVisualization();

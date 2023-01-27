@@ -86,11 +86,9 @@ void RicAdvancedSnapshotExportFeature::onActionTriggered( bool isChecked )
         }
 
         {
-            QString fallbackFolderName =
-                RiaApplication::instance()->createAbsolutePathFromProjectRelativePath( "snapshots" );
+            QString fallbackFolderName = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath( "snapshots" );
             QString folderName =
-                RiaApplication::instance()->lastUsedDialogDirectoryWithFallback( "ADVANCED_SNAPSHOT_EXPORT",
-                                                                                 fallbackFolderName );
+                RiaApplication::instance()->lastUsedDialogDirectoryWithFallback( "ADVANCED_SNAPSHOT_EXPORT", fallbackFolderName );
             dlg.setExportFolder( folderName );
         }
 
@@ -189,9 +187,7 @@ void RicAdvancedSnapshotExportFeature::exportMultipleSnapshots( const QString& f
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicAdvancedSnapshotExportFeature::exportViewVariations( Rim3dView*                           rimView,
-                                                             RimAdvancedSnapshotExportDefinition* msd,
-                                                             const QString&                       folder )
+void RicAdvancedSnapshotExportFeature::exportViewVariations( Rim3dView* rimView, RimAdvancedSnapshotExportDefinition* msd, const QString& folder )
 {
     if ( !msd->selectedEclipseResults().empty() )
     {
@@ -262,7 +258,7 @@ void RicAdvancedSnapshotExportFeature::exportViewVariationsToFolder( RimGridView
         }
         else
         {
-            int                 gridIndex = 0;
+            int                 gridIndex   = 0;
             RimCellRangeFilter* rangeFilter = rimView->cellFilterCollection()->addNewCellRangeFilter( rimCase, gridIndex );
 
             bool rangeFilterInitState = rimView->cellFilterCollection()->isActive();

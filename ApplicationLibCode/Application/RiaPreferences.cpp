@@ -84,13 +84,7 @@ RiaPreferences::RiaPreferences()
                        caf::AppEnum<RiaDefines::RINavigationPolicy>( RiaDefines::RINavigationPolicy::NAVIGATION_POLICY_RMS ),
                        "Navigation Mode" );
 
-    CAF_PDM_InitField( &enableGrpcServer,
-                       "enableGrpcServer",
-                       true,
-                       "Enable Python Script Server",
-                       "",
-                       "Remote Procedure Call Scripting Engine",
-                       "" );
+    CAF_PDM_InitField( &enableGrpcServer, "enableGrpcServer", true, "Enable Python Script Server", "", "Remote Procedure Call Scripting Engine", "" );
     CAF_PDM_InitField( &defaultGrpcPortNumber, "defaultGrpcPort", 50051, "Default Python Script Server Port" );
 
     CAF_PDM_InitFieldNoDefault( &scriptDirectories, "scriptDirectory", "Shared Script Folder(s)" );
@@ -195,10 +189,7 @@ RiaPreferences::RiaPreferences()
                        "Disable SSL Certificate Verification (HoloLens)" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &holoLensDisableCertificateVerification );
 
-    CAF_PDM_InitField( &csvTextExportFieldSeparator,
-                       "csvTextExportFieldSeparator",
-                       QString( "," ),
-                       "CSV Text Export Field Separator" );
+    CAF_PDM_InitField( &csvTextExportFieldSeparator, "csvTextExportFieldSeparator", QString( "," ), "CSV Text Export Field Separator" );
 
     CAF_PDM_InitFieldNoDefault( &m_readerSettings, "readerSettings", "Reader Settings" );
     m_readerSettings = new RifReaderSettings;
@@ -215,10 +206,7 @@ RiaPreferences::RiaPreferences()
 
     CAF_PDM_InitFieldNoDefault( &m_plotTemplateFolders, "plotTemplateFolders", "Plot Template Folder(s)" );
     m_plotTemplateFolders.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
-    CAF_PDM_InitField( &m_maxPlotTemplateFoldersDepth,
-                       "MaxPlotTemplateFoldersDepth",
-                       2,
-                       "Maximum Plot Template Folder Search Depth" );
+    CAF_PDM_InitField( &m_maxPlotTemplateFoldersDepth, "MaxPlotTemplateFoldersDepth", 2, "Maximum Plot Template Folder Search Depth" );
 
     CAF_PDM_InitFieldNoDefault( &m_lastUsedPlotTemplate, "defaultPlotTemplate", "Default Plot Template" );
 
@@ -284,9 +272,7 @@ RiaPreferences* RiaPreferences::current()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                            QString                    uiConfigName,
-                                            caf::PdmUiEditorAttribute* attribute )
+void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     m_readerSettings->defineEditorAttribute( field, uiConfigName, attribute );
     m_summaryPreferences->defineEditorAttribute( field, uiConfigName, attribute );
@@ -317,8 +303,7 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field,
         caf::PdmUiLineEditorAttribute* myAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
         if ( myAttr )
         {
-            myAttr->validator =
-                new RiaValidRegExpValidator( RiaPreferences::current()->defaultMultiLateralWellNamePattern() );
+            myAttr->validator = new RiaValidRegExpValidator( RiaPreferences::current()->defaultMultiLateralWellNamePattern() );
         }
     }
 }
@@ -468,8 +453,7 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions( const caf::
         {
             QDate   exampleDate = QDate( 2019, 8, 16 );
             QString fullDateFormat =
-                RiaQDateTimeTools::dateFormatString( dateFormat,
-                                                     RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
+                RiaQDateTimeTools::dateFormatString( dateFormat, RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
             QString uiText = QString( "%1 (%2)" ).arg( fullDateFormat ).arg( exampleDate.toString( fullDateFormat ) );
             uiText.replace( "AP", "AM/PM" );
             options.push_back( caf::PdmOptionItemInfo( uiText, QVariant::fromValue( dateFormat ) ) );
@@ -481,8 +465,7 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions( const caf::
         {
             QTime   exampleTime = QTime( 15, 48, 22 );
             QString timeFormatString =
-                RiaQDateTimeTools::timeFormatString( timeFormat,
-                                                     RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND );
+                RiaQDateTimeTools::timeFormatString( timeFormat, RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND );
             QString uiText = QString( "%1 (%2)" ).arg( timeFormatString ).arg( exampleTime.toString( timeFormatString ) );
             uiText.replace( "AP", "AM/PM" );
             options.push_back( caf::PdmOptionItemInfo( uiText, QVariant::fromValue( timeFormat ) ) );
@@ -502,9 +485,7 @@ void RiaPreferences::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaPreferences::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                       const QVariant&            oldValue,
-                                       const QVariant&            newValue )
+void RiaPreferences::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_pageSize )
     {
@@ -662,8 +643,7 @@ const QString& RiaPreferences::timeFormat() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaPreferences::dateTimeFormat( RiaDefines::DateFormatComponents dateComponents,
-                                        RiaDefines::TimeFormatComponents timeComponents ) const
+QString RiaPreferences::dateTimeFormat( RiaDefines::DateFormatComponents dateComponents, RiaDefines::TimeFormatComponents timeComponents ) const
 {
     return QString( "%1 %2" )
         .arg( RiaQDateTimeTools::dateFormatString( m_dateFormat(), dateComponents ) )

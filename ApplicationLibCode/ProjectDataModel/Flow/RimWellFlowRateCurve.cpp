@@ -254,9 +254,7 @@ void RimWellFlowRateCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellFlowRateCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                             const QVariant&            oldValue,
-                                             const QVariant&            newValue )
+void RimWellFlowRateCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_showCurve )
     {
@@ -301,13 +299,7 @@ void RimWellFlowRateCurve::setFlowValuesPrDepthValue( const QString&            
                                                       const std::vector<double>& flowRates )
 {
     bool useLogarithmicScale = false;
-    this->setPropertyValuesAndDepths( flowRates,
-                                      depthValues,
-                                      depthType,
-                                      0.0,
-                                      RiaDefines::DepthUnitType::UNIT_NONE,
-                                      false,
-                                      useLogarithmicScale );
+    this->setPropertyValuesAndDepths( flowRates, depthValues, depthType, 0.0, RiaDefines::DepthUnitType::UNIT_NONE, false, useLogarithmicScale );
 
     m_curveAutoName = curveName;
 }

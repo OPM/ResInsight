@@ -207,8 +207,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
     }
 
     m_isCurrentPickInComparisonView = m_viewer->isMousePosWithinComparisonView( event->x(), event->y() );
-    Rim3dView* mainOrComparisonView = m_isCurrentPickInComparisonView ? m_reservoirView->activeComparisonView()
-                                                                      : m_reservoirView.p();
+    Rim3dView* mainOrComparisonView = m_isCurrentPickInComparisonView ? m_reservoirView->activeComparisonView() : m_reservoirView.p();
 
     // Find the following data
 
@@ -247,7 +246,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
         if ( mainOrComparisonView )
         {
             cvf::ref<caf::DisplayCoordTransform> transForm = mainOrComparisonView->displayCoordTransform();
-            m_currentPickPositionInDomainCoords = transForm->transformToDomainCoord( globalIntersectionPoint );
+            m_currentPickPositionInDomainCoords            = transForm->transformToDomainCoord( globalIntersectionPoint );
         }
     }
 
@@ -280,8 +279,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
         const RivBoxIntersectionSourceInfo* intersectionBoxSourceInfo =
             dynamic_cast<const RivBoxIntersectionSourceInfo*>( firstHitPart->sourceInfo() );
 
-        if ( rivSourceInfo || femSourceInfo || crossSectionSourceInfo || intersectionBoxSourceInfo ||
-             surfIntersectSourceInfo )
+        if ( rivSourceInfo || femSourceInfo || crossSectionSourceInfo || intersectionBoxSourceInfo || surfIntersectSourceInfo )
         {
             if ( rivSourceInfo )
             {
@@ -387,15 +385,9 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
 
                     menuBuilder.subMenuStart( "Range Filter Slice", QIcon( ":/CellFilter_Range.png" ) );
 
-                    menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature",
-                                                           "I-slice Range Filter",
-                                                           iSliceList );
-                    menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature",
-                                                           "J-slice Range Filter",
-                                                           jSliceList );
-                    menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature",
-                                                           "K-slice Range Filter",
-                                                           kSliceList );
+                    menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature", "I-slice Range Filter", iSliceList );
+                    menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature", "J-slice Range Filter", jSliceList );
+                    menuBuilder.addCmdFeatureWithUserData( "RicNewRangeFilterSlice3dviewFeature", "K-slice Range Filter", kSliceList );
 
                     menuBuilder.subMenuEnd();
                 }
@@ -426,8 +418,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
             if ( eclipseView )
             {
                 // fault commands
-                const RigFault* fault =
-                    eclipseView->mainGrid()->findFaultFromCellIndexAndCellFace( m_currentCellIndex, m_currentFaceIndex );
+                const RigFault* fault = eclipseView->mainGrid()->findFaultFromCellIndexAndCellFace( m_currentCellIndex, m_currentFaceIndex );
                 if ( fault )
                 {
                     menuBuilder.addSeparator();
@@ -438,9 +429,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
                     hideFaultList.push_back( currentCellIndex );
                     hideFaultList.push_back( m_currentFaceIndex );
 
-                    menuBuilder.addCmdFeatureWithUserData( "RicEclipseHideFaultFeature",
-                                                           QString( "Hide " ) + faultName,
-                                                           hideFaultList );
+                    menuBuilder.addCmdFeatureWithUserData( "RicEclipseHideFaultFeature", QString( "Hide " ) + faultName, hideFaultList );
 
                     menuBuilder.addCmdFeatureWithUserData( "RicEclipseShowOnlyFaultFeature",
                                                            QString( "Show " ) + faultName + QString( " - Others Off" ),
@@ -458,9 +447,8 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
     // Well log curve creation commands
     if ( firstHitPart && firstHitPart->sourceInfo() )
     {
-        RimWellPath*                 wellPath = nullptr;
-        const RivWellPathSourceInfo* wellPathSourceInfo =
-            dynamic_cast<const RivWellPathSourceInfo*>( firstHitPart->sourceInfo() );
+        RimWellPath*                 wellPath           = nullptr;
+        const RivWellPathSourceInfo* wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>( firstHitPart->sourceInfo() );
         if ( wellPathSourceInfo )
         {
             wellPath = wellPathSourceInfo->wellPath();
@@ -469,8 +457,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
         RimWellPathComponentInterface* wellPathComponent = nullptr;
         if ( additionalHitPart )
         {
-            const RivObjectSourceInfo* objectSourceInfo =
-                dynamic_cast<const RivObjectSourceInfo*>( additionalHitPart->sourceInfo() );
+            const RivObjectSourceInfo* objectSourceInfo = dynamic_cast<const RivObjectSourceInfo*>( additionalHitPart->sourceInfo() );
             if ( objectSourceInfo )
             {
                 wellPathComponent = dynamic_cast<RimWellPathComponentInterface*>( objectSourceInfo->object() );
@@ -484,13 +471,11 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
                 cvf::Vec3d pickedPositionInUTM = m_currentPickPositionInDomainCoords;
                 if ( int2dView ) pickedPositionInUTM = int2dView->transformToUtm( pickedPositionInUTM );
 
-                double measuredDepth = wellPathSourceInfo->measuredDepth( firstPartTriangleIndex, pickedPositionInUTM );
+                double     measuredDepth = wellPathSourceInfo->measuredDepth( firstPartTriangleIndex, pickedPositionInUTM );
                 cvf::Vec3d closestPointOnCenterLine =
                     wellPathSourceInfo->closestPointOnCenterLine( firstPartTriangleIndex, pickedPositionInUTM );
-                RiuSelectionItem* selItem = new RiuWellPathSelectionItem( wellPathSourceInfo,
-                                                                          closestPointOnCenterLine,
-                                                                          measuredDepth,
-                                                                          wellPathComponent );
+                RiuSelectionItem* selItem =
+                    new RiuWellPathSelectionItem( wellPathSourceInfo, closestPointOnCenterLine, measuredDepth, wellPathComponent );
                 Riu3dSelectionManager::instance()->setSelectedItem( selItem, Riu3dSelectionManager::RUI_TEMPORARY );
             }
 
@@ -549,8 +534,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
             menuBuilder << "RicLinkWellPathFeature";
         }
 
-        const RivSimWellPipeSourceInfo* eclipseWellSourceInfo =
-            dynamic_cast<const RivSimWellPipeSourceInfo*>( firstHitPart->sourceInfo() );
+        const RivSimWellPipeSourceInfo* eclipseWellSourceInfo = dynamic_cast<const RivSimWellPipeSourceInfo*>( firstHitPart->sourceInfo() );
         if ( eclipseWellSourceInfo )
         {
             RimSimWellInView* well = eclipseWellSourceInfo->well();
@@ -679,8 +663,7 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
     }
 
     m_isCurrentPickInComparisonView = m_viewer->isMousePosWithinComparisonView( winPosX, winPosY );
-    Rim3dView* mainOrComparisonView = m_isCurrentPickInComparisonView ? m_reservoirView->activeComparisonView()
-                                                                      : m_reservoirView.p();
+    Rim3dView* mainOrComparisonView = m_isCurrentPickInComparisonView ? m_reservoirView->activeComparisonView() : m_reservoirView.p();
 
     // Make pickEventHandlers do their stuff
 
@@ -751,8 +734,7 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
                             {
                                 auto selectedFractureTemplate = dynamic_cast<RimFractureTemplate*>( uiItems[0] );
 
-                                if ( selectedFractureTemplate != nullptr &&
-                                     selectedFractureTemplate == fracture->fractureTemplate() )
+                                if ( selectedFractureTemplate != nullptr && selectedFractureTemplate == fracture->fractureTemplate() )
                                 {
                                     blockSelectionOfFracture = true;
                                 }
@@ -765,8 +747,8 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
                         }
                     }
 
-                    RimMeshFractureTemplate* stimPlanTempl =
-                        fracture ? dynamic_cast<RimMeshFractureTemplate*>( fracture->fractureTemplate() ) : nullptr;
+                    RimMeshFractureTemplate* stimPlanTempl = fracture ? dynamic_cast<RimMeshFractureTemplate*>( fracture->fractureTemplate() )
+                                                                      : nullptr;
                     RimEllipseFractureTemplate* ellipseTempl =
                         fracture ? dynamic_cast<RimEllipseFractureTemplate*>( fracture->fractureTemplate() ) : nullptr;
                     if ( stimPlanTempl || ellipseTempl )
@@ -774,19 +756,18 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
                         // Set fracture resultInfo text
                         QString resultInfoText;
 
-                        cvf::ref<caf::DisplayCoordTransform> transForm = mainOrComparisonView->displayCoordTransform();
-                        cvf::Vec3d domainCoord = transForm->transformToDomainCoord( globalIntersectionPoint );
+                        cvf::ref<caf::DisplayCoordTransform> transForm   = mainOrComparisonView->displayCoordTransform();
+                        cvf::Vec3d                           domainCoord = transForm->transformToDomainCoord( globalIntersectionPoint );
 
                         RimEclipseView*         eclView = dynamic_cast<RimEclipseView*>( mainOrComparisonView );
                         RivWellFracturePartMgr* partMgr = fracture->fracturePartManager();
                         if ( eclView ) resultInfoText = partMgr->resultInfoText( *eclView, domainCoord );
 
                         // Set intersection point result text
-                        QString intersectionPointText =
-                            QString( "Intersection point : Global [E: %1, N: %2, Depth: %3]" )
-                                .arg( domainCoord.x(), 5, 'f', 2 )
-                                .arg( domainCoord.y(), 5, 'f', 2 )
-                                .arg( -domainCoord.z(), 5, 'f', 2 );
+                        QString intersectionPointText = QString( "Intersection point : Global [E: %1, N: %2, Depth: %3]" )
+                                                            .arg( domainCoord.x(), 5, 'f', 2 )
+                                                            .arg( domainCoord.y(), 5, 'f', 2 )
+                                                            .arg( -domainCoord.z(), 5, 'f', 2 );
                         resultInfoText.append( intersectionPointText );
 
                         // Display result info text
@@ -804,8 +785,8 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
                 if ( surf )
                 {
                     RiuMainWindow::instance()->selectAsCurrentItem( surf, true );
-                    cvf::ref<caf::DisplayCoordTransform> transForm = mainOrComparisonView->displayCoordTransform();
-                    cvf::Vec3d domainCoord = transForm->transformToDomainCoord( globalIntersectionPoint );
+                    cvf::ref<caf::DisplayCoordTransform> transForm   = mainOrComparisonView->displayCoordTransform();
+                    cvf::Vec3d                           domainCoord = transForm->transformToDomainCoord( globalIntersectionPoint );
 
                     // Set surface resultInfo text
                     QString resultInfoText = "Surface: " + surf->name() + "\n\n";
@@ -835,8 +816,7 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
             {
                 bool allowActiveViewChange = dynamic_cast<Rim2dIntersectionView*>( m_viewer->ownerViewWindow() ) == nullptr;
 
-                RiuMainWindow::instance()->selectAsCurrentItem( crossSectionSourceInfo->intersection(),
-                                                                allowActiveViewChange );
+                RiuMainWindow::instance()->selectAsCurrentItem( crossSectionSourceInfo->intersection(), allowActiveViewChange );
             }
             else if ( const RivBoxIntersectionSourceInfo* intersectionBoxSourceInfo =
                           dynamic_cast<const RivBoxIntersectionSourceInfo*>( firstHitPart->sourceInfo() ) )
@@ -854,8 +834,7 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
             {
                 bool allowActiveViewChange = dynamic_cast<Rim2dIntersectionView*>( m_viewer->ownerViewWindow() ) == nullptr;
 
-                size_t globalCellIndex =
-                    wellConnectionSourceInfo->globalCellIndexFromTriangleIndex( firstPartTriangleIndex );
+                size_t globalCellIndex = wellConnectionSourceInfo->globalCellIndexFromTriangleIndex( firstPartTriangleIndex );
 
                 RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( mainOrComparisonView );
                 if ( eclipseView )
@@ -863,19 +842,16 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
                     RimEclipseCase* eclipseCase = nullptr;
                     eclipseView->firstAncestorOrThisOfTypeAsserted( eclipseCase );
 
-                    if ( eclipseCase->eclipseCaseData() &&
-                         eclipseCase->eclipseCaseData()->virtualPerforationTransmissibilities() )
+                    if ( eclipseCase->eclipseCaseData() && eclipseCase->eclipseCaseData()->virtualPerforationTransmissibilities() )
                     {
                         std::vector<RigCompletionData> completionsForOneCell;
 
                         {
-                            auto connectionFactors =
-                                eclipseCase->eclipseCaseData()->virtualPerforationTransmissibilities();
-                            size_t timeStep = eclipseView->currentTimeStep();
+                            auto   connectionFactors = eclipseCase->eclipseCaseData()->virtualPerforationTransmissibilities();
+                            size_t timeStep          = eclipseView->currentTimeStep();
 
                             const auto& multipleCompletions =
-                                connectionFactors->multipleCompletionsPerEclipseCell( wellConnectionSourceInfo->wellPath(),
-                                                                                      timeStep );
+                                connectionFactors->multipleCompletionsPerEclipseCell( wellConnectionSourceInfo->wellPath(), timeStep );
 
                             auto completionDataIt = multipleCompletions.find( globalCellIndex );
                             if ( completionDataIt != multipleCompletions.end() )
@@ -893,8 +869,7 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
                             }
 
                             QString resultInfoText;
-                            resultInfoText +=
-                                QString( "<b>Well Connection Factor :</b> %1<br><br>" ).arg( aggregatedConnectionFactor );
+                            resultInfoText += QString( "<b>Well Connection Factor :</b> %1<br><br>" ).arg( aggregatedConnectionFactor );
 
                             {
                                 RiuResultTextBuilder textBuilder( eclipseView,
@@ -911,9 +886,8 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
                             {
                                 for ( const auto& metaData : completionData.metadata() )
                                 {
-                                    resultInfoText += QString( "<b>Name</b> %1 <b>Description</b> %2 <br>" )
-                                                          .arg( metaData.name )
-                                                          .arg( metaData.comment );
+                                    resultInfoText +=
+                                        QString( "<b>Name</b> %1 <b>Description</b> %2 <br>" ).arg( metaData.name ).arg( metaData.comment );
                                 }
                             }
 
@@ -922,8 +896,7 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
                     }
                 }
 
-                RiuMainWindow::instance()->selectAsCurrentItem( wellConnectionSourceInfo->wellPath(),
-                                                                allowActiveViewChange );
+                RiuMainWindow::instance()->selectAsCurrentItem( wellConnectionSourceInfo->wellPath(), allowActiveViewChange );
             }
             else if ( dynamic_cast<const RivSimWellConnectionSourceInfo*>( firstHitPart->sourceInfo() ) )
             {
@@ -932,10 +905,8 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
 
                 bool allowActiveViewChange = dynamic_cast<Rim2dIntersectionView*>( m_viewer->ownerViewWindow() ) == nullptr;
 
-                size_t globalCellIndex =
-                    simWellConnectionSourceInfo->globalCellIndexFromTriangleIndex( firstPartTriangleIndex );
-                double connectionFactor =
-                    simWellConnectionSourceInfo->connectionFactorFromTriangleIndex( firstPartTriangleIndex );
+                size_t globalCellIndex  = simWellConnectionSourceInfo->globalCellIndexFromTriangleIndex( firstPartTriangleIndex );
+                double connectionFactor = simWellConnectionSourceInfo->connectionFactorFromTriangleIndex( firstPartTriangleIndex );
 
                 RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( mainOrComparisonView );
                 if ( eclipseView )
@@ -943,15 +914,13 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
                     RimEclipseCase* eclipseCase = nullptr;
                     eclipseView->firstAncestorOrThisOfTypeAsserted( eclipseCase );
 
-                    if ( eclipseCase->eclipseCaseData() &&
-                         eclipseCase->eclipseCaseData()->virtualPerforationTransmissibilities() )
+                    if ( eclipseCase->eclipseCaseData() && eclipseCase->eclipseCaseData()->virtualPerforationTransmissibilities() )
                     {
-                        auto connectionFactors = eclipseCase->eclipseCaseData()->virtualPerforationTransmissibilities();
-                        size_t timeStep        = eclipseView->currentTimeStep();
+                        auto   connectionFactors = eclipseCase->eclipseCaseData()->virtualPerforationTransmissibilities();
+                        size_t timeStep          = eclipseView->currentTimeStep();
 
                         const auto& completionData =
-                            connectionFactors->completionsForSimWell( simWellConnectionSourceInfo->simWellInView()->simWellData(),
-                                                                      timeStep );
+                            connectionFactors->completionsForSimWell( simWellConnectionSourceInfo->simWellInView()->simWellData(), timeStep );
 
                         for ( const auto& compData : completionData )
                         {
@@ -978,8 +947,7 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
                         }
                     }
                 }
-                RiuMainWindow::instance()->selectAsCurrentItem( simWellConnectionSourceInfo->simWellInView(),
-                                                                allowActiveViewChange );
+                RiuMainWindow::instance()->selectAsCurrentItem( simWellConnectionSourceInfo->simWellInView(), allowActiveViewChange );
             }
         }
     }
@@ -1136,8 +1104,7 @@ void RiuViewerCommands::findFirstItems( Rim3dView*                          main
         {
             if ( nncNearFirstItemIndex == cvf::UNDEFINED_SIZE_T && canFindRelvantNNC )
             {
-                cvf::Vec3d distFirstNonNNCToCandidate = firstOrFirstNonNncIntersectionPoint -
-                                                        pickItemInfos[i].globalPickedPoint();
+                cvf::Vec3d distFirstNonNNCToCandidate = firstOrFirstNonNncIntersectionPoint - pickItemInfos[i].globalPickedPoint();
 
                 // This candidate is an NNC hit
                 if ( distFirstNonNNCToCandidate.lengthSquared() < pickDepthThresholdSquared )
@@ -1158,8 +1125,7 @@ void RiuViewerCommands::findFirstItems( Rim3dView*                          main
             }
         }
 
-        if ( firstNonNncHitIndex != cvf::UNDEFINED_SIZE_T &&
-             ( nncNearFirstItemIndex != cvf::UNDEFINED_SIZE_T || !canFindRelvantNNC ) )
+        if ( firstNonNncHitIndex != cvf::UNDEFINED_SIZE_T && ( nncNearFirstItemIndex != cvf::UNDEFINED_SIZE_T || !canFindRelvantNNC ) )
         {
             break; // Found what can be found
         }
@@ -1172,12 +1138,7 @@ void RiuViewerCommands::findFirstItems( Rim3dView*                          main
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuViewerCommands::ijkFromCellIndex( Rim3dView* mainOrComparisonView,
-                                          size_t     gridIdx,
-                                          size_t     cellIndex,
-                                          size_t*    i,
-                                          size_t*    j,
-                                          size_t*    k )
+void RiuViewerCommands::ijkFromCellIndex( Rim3dView* mainOrComparisonView, size_t gridIdx, size_t cellIndex, size_t* i, size_t* j, size_t* k )
 {
     RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( mainOrComparisonView );
     RimGeoMechView* geomView    = dynamic_cast<RimGeoMechView*>( mainOrComparisonView );
@@ -1216,8 +1177,7 @@ bool RiuViewerCommands::handleOverlayItemPicking( int winPosX, int winPosY )
             std::vector<RimLegendConfig*> legendConfigs = m_reservoirView->legendConfigs();
             if ( m_reservoirView->activeComparisonView() )
             {
-                std::vector<RimLegendConfig*> compViewLegendConfigs =
-                    m_reservoirView->activeComparisonView()->legendConfigs();
+                std::vector<RimLegendConfig*> compViewLegendConfigs = m_reservoirView->activeComparisonView()->legendConfigs();
                 legendConfigs.insert( legendConfigs.end(), compViewLegendConfigs.begin(), compViewLegendConfigs.end() );
             }
 

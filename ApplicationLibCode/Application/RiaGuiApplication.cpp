@@ -230,10 +230,8 @@ QString RiaGuiApplication::promptForProjectSaveAsFileName() const
         startPath += "/ResInsightProject.rsp";
     }
 
-    QString fileName = RiuFileDialogTools::getSaveFileName( nullptr,
-                                                            tr( "Save File" ),
-                                                            startPath,
-                                                            tr( "Project Files (*.rsp);;All files(*.*)" ) );
+    QString fileName =
+        RiuFileDialogTools::getSaveFileName( nullptr, tr( "Save File" ), startPath, tr( "Project Files (*.rsp);;All files(*.*)" ) );
     return fileName;
 }
 
@@ -242,8 +240,7 @@ QString RiaGuiApplication::promptForProjectSaveAsFileName() const
 //--------------------------------------------------------------------------------------------------
 bool RiaGuiApplication::askUserToSaveModifiedProject()
 {
-    if ( RiaPreferencesSystem::current()->showProjectChangedDialog() &&
-         caf::PdmUiModelChangeDetector::instance()->isModelChanged() )
+    if ( RiaPreferencesSystem::current()->showProjectChangedDialog() && caf::PdmUiModelChangeDetector::instance()->isModelChanged() )
     {
         QMessageBox msgBox;
         msgBox.setIcon( QMessageBox::Question );
@@ -641,8 +638,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
             {
                 // One argument is available, use replace case for first occurrence in the project
 
-                std::vector<QString> gridFileNames =
-                    readFileListFromTextFile( cvfqt::Utils::toQString( o.safeValue( 0 ) ) );
+                std::vector<QString> gridFileNames = readFileListFromTextFile( cvfqt::Utils::toQString( o.safeValue( 0 ) ) );
                 projectModifier->setReplaceSourceCasesFirstOccurrence( gridFileNames );
             }
             else
@@ -650,9 +646,8 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
                 size_t optionIdx = 0;
                 while ( optionIdx < o.valueCount() )
                 {
-                    const int            groupId = o.safeValue( optionIdx++ ).toInt( -1 );
-                    std::vector<QString> gridFileNames =
-                        readFileListFromTextFile( cvfqt::Utils::toQString( o.safeValue( optionIdx++ ) ) );
+                    const int            groupId       = o.safeValue( optionIdx++ ).toInt( -1 );
+                    std::vector<QString> gridFileNames = readFileListFromTextFile( cvfqt::Utils::toQString( o.safeValue( optionIdx++ ) ) );
 
                     if ( groupId != -1 && !gridFileNames.empty() )
                     {
@@ -694,8 +689,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
 
     if ( cvf::Option o = progOpt->option( "case" ) )
     {
-        QStringList fileNames =
-            RicImportGeneralDataFeature::fileNamesFromCaseNames( cvfqt::Utils::toQStringList( o.values() ) );
+        QStringList fileNames = RicImportGeneralDataFeature::fileNamesFromCaseNames( cvfqt::Utils::toQStringList( o.values() ) );
 
         bool createView = true;
         bool createPlot = true;
@@ -1104,8 +1098,7 @@ bool RiaGuiApplication::isMainPlotWindowVisible() const
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::addToRecentFiles( const QString& fileName )
 {
-    CVF_ASSERT( m_recentFileActionProvider &&
-                "The provider needs to be created before any attempts to use the recent file actions" );
+    CVF_ASSERT( m_recentFileActionProvider && "The provider needs to be created before any attempts to use the recent file actions" );
     m_recentFileActionProvider->addFileName( fileName );
 }
 
@@ -1114,8 +1107,7 @@ void RiaGuiApplication::addToRecentFiles( const QString& fileName )
 //--------------------------------------------------------------------------------------------------
 std::vector<QAction*> RiaGuiApplication::recentFileActions() const
 {
-    CVF_ASSERT( m_recentFileActionProvider &&
-                "The provider needs to be created before any attempts to use the recent file actions" );
+    CVF_ASSERT( m_recentFileActionProvider && "The provider needs to be created before any attempts to use the recent file actions" );
     return m_recentFileActionProvider->actions();
 }
 
@@ -1459,22 +1451,20 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences*              
             auto rim3dView = dynamic_cast<Rim3dView*>( viewWindow );
             if ( rim3dView )
             {
-                if ( oldPreferences &&
-                     ( applySettingsToAllViews || rim3dView->meshMode() == oldPreferences->defaultMeshModeType() ) )
+                if ( oldPreferences && ( applySettingsToAllViews || rim3dView->meshMode() == oldPreferences->defaultMeshModeType() ) )
                 {
                     rim3dView->meshMode = m_preferences->defaultMeshModeType();
                 }
 
-                if ( oldPreferences && ( applySettingsToAllViews || rim3dView->backgroundColor() ==
-                                                                        oldPreferences->defaultViewerBackgroundColor() ) )
+                if ( oldPreferences &&
+                     ( applySettingsToAllViews || rim3dView->backgroundColor() == oldPreferences->defaultViewerBackgroundColor() ) )
                 {
                     rim3dView->setBackgroundColor( m_preferences->defaultViewerBackgroundColor() );
                     rim3dView->applyBackgroundColorAndFontChanges();
                 }
 
                 if ( oldPreferences &&
-                     ( applySettingsToAllViews ||
-                       rim3dView->scaleZ() == static_cast<double>( oldPreferences->defaultScaleFactorZ() ) ) )
+                     ( applySettingsToAllViews || rim3dView->scaleZ() == static_cast<double>( oldPreferences->defaultScaleFactorZ() ) ) )
                 {
                     rim3dView->setScaleZ( static_cast<double>( m_preferences->defaultScaleFactorZ() ) );
                     rim3dView->updateScaling();
@@ -1487,8 +1477,8 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences*              
                 RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( rim3dView );
                 if ( eclipseView )
                 {
-                    if ( oldPreferences && ( applySettingsToAllViews || eclipseView->wellCollection()->wellLabelColor() ==
-                                                                            oldPreferences->defaultWellLabelColor() ) )
+                    if ( oldPreferences && ( applySettingsToAllViews ||
+                                             eclipseView->wellCollection()->wellLabelColor() == oldPreferences->defaultWellLabelColor() ) )
                     {
                         eclipseView->wellCollection()->wellLabelColor = m_preferences->defaultWellLabelColor();
                     }
@@ -1642,8 +1632,7 @@ void RiaGuiApplication::runMultiCaseSnapshots( const QString&       templateProj
     if ( !m_mainWindow ) return;
 
     QByteArray curState = m_mainWindow->dockManager()->saveState( 0 );
-    m_mainWindow->dockManager()->restoreState(
-        RiuDockWidgetTools::defaultDockState( RiuDockWidgetTools::dockStateHideAll3DWindowName() ) );
+    m_mainWindow->dockManager()->restoreState( RiuDockWidgetTools::defaultDockState( RiuDockWidgetTools::dockStateHideAll3DWindowName() ) );
 
     const size_t numGridFiles = gridFileNames.size();
     for ( size_t i = 0; i < numGridFiles; i++ )
@@ -1675,11 +1664,10 @@ bool RiaGuiApplication::notify( QObject* receiver, QEvent* event )
     if ( !memoryExhaustedBox && !allocatingMessageBox )
     {
         allocatingMessageBox = true;
-        memoryExhaustedBox =
-            new QMessageBox( QMessageBox::Critical,
-                             "ResInsight Exhausted Memory",
-                             "Memory is Exhausted!\n ResInsight could not allocate the memory needed, and is now "
-                             "unstable and will probably crash soon." );
+        memoryExhaustedBox   = new QMessageBox( QMessageBox::Critical,
+                                              "ResInsight Exhausted Memory",
+                                              "Memory is Exhausted!\n ResInsight could not allocate the memory needed, and is now "
+                                              "unstable and will probably crash soon." );
     }
 
     bool done = false;

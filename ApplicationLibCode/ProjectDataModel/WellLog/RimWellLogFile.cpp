@@ -252,8 +252,8 @@ void RimWellLogFile::updateFilePathsFromProjectPath( const QString& newProjectPa
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<std::pair<double, double>> RimWellLogFile::findMdAndChannelValuesForWellPath( const RimWellPath* wellPath,
-                                                                                          const QString& channelName,
-                                                                                          QString* unitString /*=nullptr*/ )
+                                                                                          const QString&     channelName,
+                                                                                          QString*           unitString /*=nullptr*/ )
 {
     CVF_ASSERT( wellPath );
     std::vector<RimWellLogFile*> wellLogFiles;
@@ -314,9 +314,7 @@ void RimWellLogFile::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogFile::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                       const QVariant&            oldValue,
-                                       const QVariant&            newValue )
+void RimWellLogFile::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_date )
     {
@@ -328,9 +326,7 @@ void RimWellLogFile::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogFile::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                            QString                    uiConfigName,
-                                            caf::PdmUiEditorAttribute* attribute )
+void RimWellLogFile::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     caf::PdmUiDateEditorAttribute* attrib = dynamic_cast<caf::PdmUiDateEditorAttribute*>( attribute );
     if ( attrib != nullptr )

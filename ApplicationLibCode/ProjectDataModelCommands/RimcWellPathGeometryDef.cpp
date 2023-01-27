@@ -27,9 +27,7 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmFieldScriptingCapabilityCvfVec3d.h"
 
-CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPathGeometryDef,
-                                   RimcRimWellPathGeometryDef_appendNewWellTarget,
-                                   "AppendWellTarget" );
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimWellPathGeometryDef, RimcRimWellPathGeometryDef_appendNewWellTarget, "AppendWellTarget" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -63,8 +61,7 @@ caf::PdmObjectHandle* RimcRimWellPathGeometryDef_appendNewWellTarget::execute()
     }
 
     auto newTarget = new RimWellPathTarget;
-    newTarget->setAsPointTargetXYD(
-        cvf::Vec3d( relativeTargetPoint.x(), relativeTargetPoint.y(), -relativeTargetPoint.z() ) );
+    newTarget->setAsPointTargetXYD( cvf::Vec3d( relativeTargetPoint.x(), relativeTargetPoint.y(), -relativeTargetPoint.z() ) );
 
     if ( m_useFixedAzimuth )
     {

@@ -63,8 +63,8 @@ RimEquilibriumAxisAnnotation::RimEquilibriumAxisAnnotation()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEquilibriumAxisAnnotation::setEquilibriumData( RimEclipseCase* eclipseCase,
-                                                       int             zeroBasedEquilRegionIndex,
+void RimEquilibriumAxisAnnotation::setEquilibriumData( RimEclipseCase*                                      eclipseCase,
+                                                       int                                                  zeroBasedEquilRegionIndex,
                                                        RimEquilibriumAxisAnnotation::PlotAxisAnnotationType annotationType )
 {
     m_sourceCase     = eclipseCase;
@@ -111,8 +111,7 @@ QColor RimEquilibriumAxisAnnotation::color() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimEquilibriumAxisAnnotation::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RimEquilibriumAxisAnnotation::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -193,8 +192,7 @@ void RimEquilibriumAxisAnnotation::updateName()
     if ( m_annotationType() == PlotAxisAnnotationType::PL_EQUIL_WATER_OIL_CONTACT ||
          m_annotationType() == PlotAxisAnnotationType::PL_EQUIL_GAS_OIL_CONTACT )
     {
-        double diffBetweenTwoContactDepths =
-            std::fabs( selectedItem().gasOilContactDepth() - selectedItem().waterOilContactDepth() );
+        double diffBetweenTwoContactDepths = std::fabs( selectedItem().gasOilContactDepth() - selectedItem().waterOilContactDepth() );
 
         if ( diffBetweenTwoContactDepths < 0.1 )
         {

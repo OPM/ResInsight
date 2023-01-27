@@ -37,8 +37,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuEditPerforationCollectionWidget::RiuEditPerforationCollectionWidget( QWidget*                  parent,
-                                                                        RimPerforationCollection* perforationCollection )
+RiuEditPerforationCollectionWidget::RiuEditPerforationCollectionWidget( QWidget* parent, RimPerforationCollection* perforationCollection )
     : QDialog( parent, RiuTools::defaultDialogFlags() )
     , m_perforationCollection( perforationCollection )
 {
@@ -52,9 +51,7 @@ RiuEditPerforationCollectionWidget::RiuEditPerforationCollectionWidget( QWidget*
     m_pdmTableView->tableView()->setContextMenuPolicy( Qt::CustomContextMenu );
     m_pdmTableView->enableHeaderText( false );
 
-    connect( m_pdmTableView->tableView(),
-             SIGNAL( customContextMenuRequested( QPoint ) ),
-             SLOT( customMenuRequested( QPoint ) ) );
+    connect( m_pdmTableView->tableView(), SIGNAL( customContextMenuRequested( QPoint ) ), SLOT( customMenuRequested( QPoint ) ) );
 
     m_pdmTableView->setChildArrayField( &( m_perforationCollection->m_perforations ) );
 

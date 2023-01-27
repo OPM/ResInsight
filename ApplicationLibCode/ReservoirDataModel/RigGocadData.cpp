@@ -76,8 +76,7 @@ void RigGocadData::setGeometryData( const std::vector<cvf::Vec3d>& nodeCoord, co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigGocadData::addPropertyData( const std::vector<QString>&      propertyNames,
-                                    std::vector<std::vector<float>>& propertyValues )
+void RigGocadData::addPropertyData( const std::vector<QString>& propertyNames, std::vector<std::vector<float>>& propertyValues )
 {
     m_propertyNames  = propertyNames;
     m_propertyValues = propertyValues;

@@ -55,7 +55,7 @@ std::vector<std::vector<double>>
     RigThermalFractureResultUtil::getDataAtTimeIndex( std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
                                                       const QString&                                      resultName,
                                                       const QString&                                      unitName,
-                                                      size_t timeStepIndex )
+                                                      size_t                                              timeStepIndex )
 {
     std::vector<std::vector<double>> vec;
 
@@ -97,9 +97,8 @@ std::vector<std::vector<double>>
 
             if ( RigCellGeometryTools::pointInsidePolygon2D( bb.center(), fractureBoundary ) )
             {
-                double value =
-                    interpolateProperty( bb.center(), relativePos, fractureDefinition, propertyIndex, timeStepIndex );
-                vec[j][i] = value;
+                double value = interpolateProperty( bb.center(), relativePos, fractureDefinition, propertyIndex, timeStepIndex );
+                vec[j][i]    = value;
             }
         }
     }
@@ -110,14 +109,13 @@ std::vector<std::vector<double>>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigThermalFractureResultUtil::createFractureTriangleGeometry(
-    std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
-    int                                                 activeTimeStepIndex,
-    double                                              xScaleFactor,
-    double                                              yScaleFactor,
-    double                                              wellPathIntersectionAtFractureDepth,
-    std::vector<cvf::Vec3f>*                            vertices,
-    std::vector<cvf::uint>*                             triangleIndices )
+void RigThermalFractureResultUtil::createFractureTriangleGeometry( std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
+                                                                   int                                                 activeTimeStepIndex,
+                                                                   double                                              xScaleFactor,
+                                                                   double                                              yScaleFactor,
+                                                                   double                   wellPathIntersectionAtFractureDepth,
+                                                                   std::vector<cvf::Vec3f>* vertices,
+                                                                   std::vector<cvf::uint>*  triangleIndices )
 {
     // Convert to coordinates relative to center node
     std::vector<cvf::Vec3d> points = getRelativeCoordinates( fractureDefinition, activeTimeStepIndex );
@@ -177,11 +175,10 @@ void RigThermalFractureResultUtil::createFractureTriangleGeometry(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double>
-    RigThermalFractureResultUtil::fractureGridResults( std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
-                                                       const QString&                                      resultName,
-                                                       const QString&                                      unitName,
-                                                       size_t timeStepIndex )
+std::vector<double> RigThermalFractureResultUtil::fractureGridResults( std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
+                                                                       const QString&                                      resultName,
+                                                                       const QString&                                      unitName,
+                                                                       size_t                                              timeStepIndex )
 {
     std::vector<double>                     fractureGridResults;
     const std::vector<std::vector<double>>& resultValuesAtTimeStep =
@@ -191,8 +188,7 @@ std::vector<double>
     {
         for ( int j = 0; j < static_cast<int>( NUM_SAMPLES_Y ) - 2; j++ )
         {
-            if ( j + 1 < static_cast<int>( resultValuesAtTimeStep.size() ) &&
-                 i + 1 < static_cast<int>( resultValuesAtTimeStep[j + 1].size() ) )
+            if ( j + 1 < static_cast<int>( resultValuesAtTimeStep.size() ) && i + 1 < static_cast<int>( resultValuesAtTimeStep[j + 1].size() ) )
             {
                 fractureGridResults.push_back( resultValuesAtTimeStep[j + 1][i + 1] );
             }
@@ -212,9 +208,9 @@ std::vector<double>
 cvf::cref<RigFractureGrid>
     RigThermalFractureResultUtil::createFractureGrid( std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
                                                       const QString&                                      resultName,
-                                                      int                           activeTimeStepIndex,
-                                                      double                        xScaleFactor,
-                                                      double                        yScaleFactor,
+                                                      int                                                 activeTimeStepIndex,
+                                                      double                                              xScaleFactor,
+                                                      double                                              yScaleFactor,
                                                       double                        wellPathIntersectionAtFractureDepth,
                                                       RiaDefines::EclipseUnitSystem requiredUnitSet )
 {
@@ -374,10 +370,7 @@ std::pair<std::vector<double>, std::vector<double>>
 //--------------------------------------------------------------------------------------------------
 /// TODO: duplicated from RimEnsembleFractureStatistics. Extract to util.
 //--------------------------------------------------------------------------------------------------
-double RigThermalFractureResultUtil::linearSampling( double               minValue,
-                                                     double               maxValue,
-                                                     int                  numSamples,
-                                                     std::vector<double>& samples )
+double RigThermalFractureResultUtil::linearSampling( double minValue, double maxValue, int numSamples, std::vector<double>& samples )
 {
     CAF_ASSERT( numSamples > 0 );
     double sampleDistance = ( maxValue - minValue ) / numSamples;
@@ -411,8 +404,7 @@ std::vector<double> RigThermalFractureResultUtil::scaleVector( const std::vector
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigThermalFractureResultUtil::adjustedYCoordsAroundWellPathPosition( const std::vector<double>& ys,
-                                                                                         double offset )
+std::vector<double> RigThermalFractureResultUtil::adjustedYCoordsAroundWellPathPosition( const std::vector<double>& ys, double offset )
 {
     std::vector<double> adjusted;
     for ( auto p : ys )
@@ -425,10 +417,10 @@ std::vector<double> RigThermalFractureResultUtil::adjustedYCoordsAroundWellPathP
 ///
 //--------------------------------------------------------------------------------------------------
 void RigThermalFractureResultUtil::appendDataToResultStatistics( std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
-                                                                 const QString&     resultName,
-                                                                 const QString&     unit,
-                                                                 MinMaxAccumulator& minMaxAccumulator,
-                                                                 PosNegAccumulator& posNegAccumulator )
+                                                                 const QString&                                      resultName,
+                                                                 const QString&                                      unit,
+                                                                 MinMaxAccumulator&                                  minMaxAccumulator,
+                                                                 PosNegAccumulator&                                  posNegAccumulator )
 {
     int propertyIndex = fractureDefinition->getPropertyIndex( resultName );
     if ( propertyIndex < 0 ) return;
@@ -450,7 +442,7 @@ void RigThermalFractureResultUtil::appendDataToResultStatistics( std::shared_ptr
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3d>
     RigThermalFractureResultUtil::getRelativeCoordinates( std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
-                                                          size_t timeStepIndex )
+                                                          size_t                                              timeStepIndex )
 {
     std::vector<cvf::Vec3d> relativePos = fractureDefinition->relativeCoordinates( static_cast<int>( timeStepIndex ) );
     CAF_ASSERT( relativePos.size() == fractureDefinition->numNodes() );
@@ -475,7 +467,7 @@ std::vector<cvf::Vec3d>
     plane.setFromPoints( p0, p1, p2 );
 
     cvf::Vec3d planeNormal = plane.normal().getNormalized();
-    auto rotMat = cvf::GeometryTools::rotationMatrixBetweenVectors( planeNormal, ( cvf::Vec3d::Z_AXIS ).getNormalized() );
+    auto       rotMat      = cvf::GeometryTools::rotationMatrixBetweenVectors( planeNormal, ( cvf::Vec3d::Z_AXIS ).getNormalized() );
 
     for ( auto& r : relativePos )
     {
@@ -527,9 +519,9 @@ std::vector<cvf::Vec3d>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<cvf::Vec3d, cvf::Vec3d> RigThermalFractureResultUtil::computePositionAndRotation(
-    std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
-    size_t                                              timeStepIndex )
+std::pair<cvf::Vec3d, cvf::Vec3d>
+    RigThermalFractureResultUtil::computePositionAndRotation( std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
+                                                              size_t                                              timeStepIndex )
 {
     std::vector<cvf::Vec3d> relativePos = fractureDefinition->relativeCoordinates( static_cast<int>( timeStepIndex ) );
     CAF_ASSERT( relativePos.size() == fractureDefinition->numNodes() );
@@ -545,8 +537,7 @@ std::pair<cvf::Vec3d, cvf::Vec3d> RigThermalFractureResultUtil::computePositionA
     plane.setFromPoints( p0, p1, p2 );
 
     cvf::Vec3d planeNormal = plane.normal().getNormalized();
-    RiaLogging::info(
-        QString( "Plane normal: [%1 %2 %3]" ).arg( planeNormal.x() ).arg( planeNormal.y() ).arg( planeNormal.z() ) );
+    RiaLogging::info( QString( "Plane normal: [%1 %2 %3]" ).arg( planeNormal.x() ).arg( planeNormal.y() ).arg( planeNormal.z() ) );
 
     cvf::Plane xyPlane;
     xyPlane.setFromPointAndNormal( cvf::Vec3d::ZERO, cvf::Vec3d::Z_AXIS );
@@ -571,8 +562,8 @@ std::pair<cvf::Vec3d, cvf::Vec3d> RigThermalFractureResultUtil::computePositionA
 double RigThermalFractureResultUtil::interpolateProperty( const cvf::Vec3d&                                   position,
                                                           const std::vector<cvf::Vec3d>&                      points,
                                                           std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
-                                                          int    propertyIndex,
-                                                          size_t timeStepIndex )
+                                                          int                                                 propertyIndex,
+                                                          size_t                                              timeStepIndex )
 {
     // Compute the distance to the other points
     std::vector<std::pair<double, int>> distances;
@@ -594,7 +585,7 @@ double RigThermalFractureResultUtil::interpolateProperty( const cvf::Vec3d&     
     for ( size_t i = 0; i < numPoints; i++ )
     {
         auto [distance, nodeIndex] = distances[i];
-        double value = fractureDefinition->getPropertyValue( propertyIndex, nodeIndex, static_cast<int>( timeStepIndex ) );
+        double value               = fractureDefinition->getPropertyValue( propertyIndex, nodeIndex, static_cast<int>( timeStepIndex ) );
         calc.addValueAndWeight( value, std::pow( 1.0 / distance, 2.0 ) );
     }
 
@@ -604,9 +595,8 @@ double RigThermalFractureResultUtil::interpolateProperty( const cvf::Vec3d&     
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, double>
-    RigThermalFractureResultUtil::minMaxDepth( std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
-                                               int                                                 activeTimeStepIndex )
+std::pair<double, double> RigThermalFractureResultUtil::minMaxDepth( std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
+                                                                     int activeTimeStepIndex )
 {
     auto getBoundingBox = []( const std::vector<cvf::Vec3d>& coords ) {
         cvf::BoundingBox bb;

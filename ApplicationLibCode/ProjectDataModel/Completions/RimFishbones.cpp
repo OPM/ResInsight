@@ -96,10 +96,7 @@ RimFishbones::RimFishbones()
 
     CAF_PDM_InitField( &m_lateralTubingDiameter, "LateralTubingDiameter", 8.0, "Tubing Diameter [mm]" );
 
-    CAF_PDM_InitField( &m_lateralOpenHoleRoghnessFactor,
-                       "LateralOpenHoleRoghnessFactor",
-                       0.001,
-                       "Open Hole Roghness Factor [m]" );
+    CAF_PDM_InitField( &m_lateralOpenHoleRoghnessFactor, "LateralOpenHoleRoghnessFactor", 0.001, "Open Hole Roghness Factor [m]" );
     CAF_PDM_InitField( &m_lateralTubingRoghnessFactor, "LateralTubingRoghnessFactor", 1e-5, "Tubing Roghness Factor [m]" );
 
     CAF_PDM_InitField( &m_lateralInstallSuccessFraction, "LateralInstallSuccessFraction", 1.0, "Install Success Rate [0..1]" );
@@ -120,9 +117,7 @@ RimFishbones::RimFishbones()
                        caf::AppEnum<LateralsOrientationType>( FB_LATERAL_ORIENTATION_RANDOM ),
                        "Orientation" );
 
-    CAF_PDM_InitFieldNoDefault( &m_installationRotationAngles,
-                                "InstallationRotationAngles",
-                                "Installation Rotation Angles [deg]" );
+    CAF_PDM_InitFieldNoDefault( &m_installationRotationAngles, "InstallationRotationAngles", "Installation Rotation Angles [deg]" );
     m_installationRotationAngles.uiCapability()->setUiHidden( true );
     CAF_PDM_InitField( &m_fixedInstallationRotationAngle, "FixedInstallationRotationAngle", 0.0, "  Fixed Angle [deg]" );
 
@@ -156,8 +151,7 @@ bool RimFishbones::isActive() const
 //--------------------------------------------------------------------------------------------------
 QString RimFishbones::generatedName() const
 {
-    caf::PdmChildArrayField<RimFishbones*>* container =
-        dynamic_cast<caf::PdmChildArrayField<RimFishbones*>*>( this->parentField() );
+    caf::PdmChildArrayField<RimFishbones*>* container = dynamic_cast<caf::PdmChildArrayField<RimFishbones*>*>( this->parentField() );
     CVF_ASSERT( container );
 
     size_t index = container->indexOf( this ) + 1;
@@ -292,13 +286,11 @@ double RimFishbones::openHoleRoughnessFactor( RiaDefines::EclipseUnitSystem unit
 {
     RimWellPath* wellPath;
     firstAncestorOrThisOfTypeAsserted( wellPath );
-    if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD &&
-         unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
+    if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD && unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
         return RiaEclipseUnitTools::feetToMeter( m_lateralOpenHoleRoghnessFactor() );
     }
-    else if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC &&
-              unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
+    else if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC && unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
         return RiaEclipseUnitTools::meterToFeet( m_lateralOpenHoleRoghnessFactor() );
     }
@@ -388,8 +380,7 @@ const std::vector<RimFishbones::SubAndLateralIndex>& RimFishbones::installedLate
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3d> RimFishbones::coordsForLateral( size_t subIndex, size_t lateralIndex ) const
 {
-    std::vector<std::pair<cvf::Vec3d, double>> coordsAndMD =
-        m_rigFishbonesGeometry->coordsForLateral( subIndex, lateralIndex );
+    std::vector<std::pair<cvf::Vec3d, double>> coordsAndMD = m_rigFishbonesGeometry->coordsForLateral( subIndex, lateralIndex );
 
     std::vector<cvf::Vec3d> domainCoords;
     for ( const auto& coordMD : coordsAndMD )
@@ -726,10 +717,7 @@ void RimFishbones::computeSubLateralIndices()
 //--------------------------------------------------------------------------------------------------
 void RimFishbones::initialiseObsoleteFields()
 {
-    CAF_PDM_InitField( &m_subsLocationMode_OBSOLETE,
-                       "SubsLocationMode",
-                       caf::AppEnum<LocationType>( FB_SUB_UNDEFINED ),
-                       "Location Defined By" );
+    CAF_PDM_InitField( &m_subsLocationMode_OBSOLETE, "SubsLocationMode", caf::AppEnum<LocationType>( FB_SUB_UNDEFINED ), "Location Defined By" );
     m_subsLocationMode_OBSOLETE.xmlCapability()->setIOWritable( false );
 
     CAF_PDM_InitField( &m_rangeStart_OBSOLETE, "RangeStart", std::numeric_limits<double>::infinity(), "Start MD [m]" );

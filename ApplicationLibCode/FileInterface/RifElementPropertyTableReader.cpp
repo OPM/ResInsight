@@ -128,8 +128,7 @@ void RifElementPropertyTableReader::readData( const RifElementPropertyMetadata* 
                     {
                         if ( dataBlockFound )
                         {
-                            throw FileParseException(
-                                QString( "Number of columns mismatch at %1:%2" ).arg( metadata->fileName ).arg( lineNo ) );
+                            throw FileParseException( QString( "Number of columns mismatch at %1:%2" ).arg( metadata->fileName ).arg( lineNo ) );
                         }
                         collectedCols.clear();
                     }
@@ -151,8 +150,7 @@ void RifElementPropertyTableReader::readData( const RifElementPropertyMetadata* 
                     }
                     else if ( collectedCols.size() > expectedColumnCount )
                     {
-                        throw FileParseException(
-                            QString( "Number of columns mismatch at %1:%2" ).arg( metadata->fileName ).arg( lineNo ) );
+                        throw FileParseException( QString( "Number of columns mismatch at %1:%2" ).arg( metadata->fileName ).arg( lineNo ) );
                     }
                     else
                     {
@@ -174,8 +172,7 @@ void RifElementPropertyTableReader::readData( const RifElementPropertyMetadata* 
                         int elementId = parts.last().toInt( &parseOk );
                         if ( !parseOk )
                         {
-                            throw FileParseException(
-                                QString( "Parse failed at %1:%2" ).arg( metadata->fileName ).arg( lineNo ) );
+                            throw FileParseException( QString( "Parse failed at %1:%2" ).arg( metadata->fileName ).arg( lineNo ) );
                         }
                         table->elementIds.push_back( elementId );
                     }
@@ -184,8 +181,7 @@ void RifElementPropertyTableReader::readData( const RifElementPropertyMetadata* 
                         float value = cols[c].toFloat( &parseOk );
                         if ( !parseOk )
                         {
-                            throw FileParseException(
-                                QString( "Parse failed at %1:%2" ).arg( metadata->fileName ).arg( lineNo ) );
+                            throw FileParseException( QString( "Parse failed at %1:%2" ).arg( metadata->fileName ).arg( lineNo ) );
                         }
                         table->data[c - 1].push_back( value );
                     }

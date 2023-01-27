@@ -103,9 +103,7 @@ RimMainPlotCollection::RimMainPlotCollection()
     CAF_PDM_InitFieldNoDefault( &m_gridCrossPlotCollection, "Rim3dCrossPlotCollection", "3d Cross Plots" );
     m_gridCrossPlotCollection.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_saturationPressurePlotCollection,
-                                "RimSaturationPressurePlotCollection",
-                                "Saturation Pressure Plots" );
+    CAF_PDM_InitFieldNoDefault( &m_saturationPressurePlotCollection, "RimSaturationPressurePlotCollection", "Saturation Pressure Plots" );
     m_saturationPressurePlotCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_multiPlotCollection, "RimMultiPlotCollection", "Multi Plots" );
@@ -187,9 +185,7 @@ void RimMainPlotCollection::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMainPlotCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                              const QVariant&            oldValue,
-                                              const QVariant&            newValue )
+void RimMainPlotCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
 }
 

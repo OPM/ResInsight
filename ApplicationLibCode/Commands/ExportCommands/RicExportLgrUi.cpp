@@ -207,9 +207,7 @@ QList<caf::PdmOptionItemInfo> RicExportLgrUi::calculateValueOptions( const caf::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportLgrUi::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                       const QVariant&            oldValue,
-                                       const QVariant&            newValue )
+void RicExportLgrUi::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_caseToApply )
     {
@@ -243,9 +241,7 @@ void RicExportLgrUi::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportLgrUi::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                            QString                    uiConfigName,
-                                            caf::PdmUiEditorAttribute* attribute )
+void RicExportLgrUi::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_exportFolder )
     {

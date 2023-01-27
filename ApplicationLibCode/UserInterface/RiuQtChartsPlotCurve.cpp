@@ -123,7 +123,7 @@ void RiuQtChartsPlotCurve::setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum 
                                           RiuQwtPlotCurveDefines::CurveInterpolationEnum interpolationType,
                                           int                                            requestedCurveThickness,
                                           const QColor&                                  curveColor,
-                                          const QBrush& fillBrush /* = QBrush( Qt::NoBrush )*/ )
+                                          const QBrush&                                  fillBrush /* = QBrush( Qt::NoBrush )*/ )
 {
     if ( !isQtChartObjectsPresent() ) return;
 

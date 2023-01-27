@@ -111,9 +111,7 @@ template <typename KeyType, typename ValueType>
 class CorrelationMatrixRowOrColumn
 {
 public:
-    CorrelationMatrixRowOrColumn( const KeyType&                key,
-                                  const std::vector<double>&    correlations,
-                                  const std::vector<ValueType>& values )
+    CorrelationMatrixRowOrColumn( const KeyType& key, const std::vector<double>& correlations, const std::vector<ValueType>& values )
         : m_key( key )
         , m_correlations( correlations )
         , m_values( values )
@@ -159,10 +157,7 @@ RimCorrelationMatrixPlot::RimCorrelationMatrixPlot()
     CAF_PDM_InitField( &m_showAbsoluteValues, "CorrelationAbsValues", false, "Show Absolute Values" );
     CAF_PDM_InitFieldNoDefault( &m_sortByValues, "CorrelationSorting", "Sort Matrix by Values" );
     CAF_PDM_InitField( &m_sortByAbsoluteValues, "CorrelationAbsSorting", true, "Sort by Absolute Values" );
-    CAF_PDM_InitField( &m_excludeParametersWithoutVariation,
-                       "ExcludeParamsWithoutVariation",
-                       true,
-                       "Exclude Parameters Without Variation" );
+    CAF_PDM_InitField( &m_excludeParametersWithoutVariation, "ExcludeParamsWithoutVariation", true, "Exclude Parameters Without Variation" );
     CAF_PDM_InitField( &m_showOnlyTopNCorrelations, "ShowOnlyTopNCorrelations", true, "Show Only Top Correlations" );
     CAF_PDM_InitField( &m_topNFilterCount, "TopNFilterCount", 20, "Number rows/columns" );
     CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendConfig", "" );
@@ -172,8 +167,7 @@ RimCorrelationMatrixPlot::RimCorrelationMatrixPlot()
 
     m_legendConfig = new RimRegularLegendConfig();
     m_legendConfig->setAutomaticRanges( -1.0, 1.0, -1.0, 1.0 );
-    m_legendConfig->setColorLegend(
-        RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::BLUE_WHITE_RED ) );
+    m_legendConfig->setColorLegend( RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::BLUE_WHITE_RED ) );
 
     setLegendsVisible( false );
 
@@ -258,18 +252,15 @@ bool RimCorrelationMatrixPlot::isCurveHighlightSupported() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCorrelationMatrixPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                 const QVariant&            oldValue,
-                                                 const QVariant&            newValue )
+void RimCorrelationMatrixPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimAbstractCorrelationPlot::fieldChangedByUi( changedField, oldValue, newValue );
 
     bool sendSelectedSignal = false;
 
-    if ( changedField == &m_showAbsoluteValues || changedField == &m_sortByValues ||
-         changedField == &m_sortByAbsoluteValues || changedField == &m_showOnlyTopNCorrelations ||
-         changedField == &m_topNFilterCount || changedField == &m_excludeParametersWithoutVariation ||
-         changedField == &m_selectedParametersList )
+    if ( changedField == &m_showAbsoluteValues || changedField == &m_sortByValues || changedField == &m_sortByAbsoluteValues ||
+         changedField == &m_showOnlyTopNCorrelations || changedField == &m_topNFilterCount ||
+         changedField == &m_excludeParametersWithoutVariation || changedField == &m_selectedParametersList )
     {
         if ( changedField == &m_excludeParametersWithoutVariation )
         {
@@ -410,11 +401,7 @@ void RimCorrelationMatrixPlot::updateAxes()
     m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtAxis::YLeft, new RiuQwtLinearScaleEngine );
     m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), "Result Vector" );
     m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
-    m_plotWidget->setAxisFontsAndAlignment( RiuPlotAxis::defaultLeft(),
-                                            axisTitleFontSize(),
-                                            axisValueFontSize(),
-                                            false,
-                                            Qt::AlignCenter );
+    m_plotWidget->setAxisFontsAndAlignment( RiuPlotAxis::defaultLeft(), axisTitleFontSize(), axisValueFontSize(), false, Qt::AlignCenter );
     m_plotWidget->setAxisLabelsAndTicksEnabled( RiuPlotAxis::defaultLeft(), true, false );
     m_plotWidget->setAxisRange( RiuPlotAxis::defaultLeft(), 0.0, (double)m_resultLabels.size() + 1 );
     m_plotWidget->setMajorAndMinorTickIntervalsAndRange( RiuPlotAxis::defaultLeft(),
@@ -553,8 +540,7 @@ void RimCorrelationMatrixPlot::createMatrix()
                                 const std::vector<time_t>& timeSteps = reader->timeSteps( address );
                                 for ( size_t i = 0; i < timeSteps.size(); ++i )
                                 {
-                                    if ( timeDiff( timeSteps[i], selectedTimestep ) <
-                                         timeDiff( selectedTimestep, closestTimeStep ) )
+                                    if ( timeDiff( timeSteps[i], selectedTimestep ) < timeDiff( selectedTimestep, closestTimeStep ) )
                                     {
                                         closestValue    = values[i];
                                         closestTimeStep = timeSteps[i];
@@ -599,8 +585,7 @@ void RimCorrelationMatrixPlot::createMatrix()
 
         if ( m_showOnlyTopNCorrelations && (size_t)m_topNFilterCount < correlationMatrixColumns.size() )
         {
-            correlationMatrixColumns.erase( correlationMatrixColumns.begin() + m_topNFilterCount(),
-                                            correlationMatrixColumns.end() );
+            correlationMatrixColumns.erase( correlationMatrixColumns.begin() + m_topNFilterCount(), correlationMatrixColumns.end() );
         }
     }
 

@@ -66,7 +66,7 @@ RivBoxIntersectionPartMgr::RivBoxIntersectionPartMgr( RimBoxIntersection* inters
     m_intersectionBoxFacesTextureCoords = new cvf::Vec2fArray;
 
     cvf::ref<RivIntersectionHexGridInterface> hexGrid = intersectionBox->createHexGridInterface();
-    m_intersectionBoxGenerator = new RivBoxIntersectionGeometryGenerator( m_rimIntersectionBox, hexGrid.p() );
+    m_intersectionBoxGenerator                        = new RivBoxIntersectionGeometryGenerator( m_rimIntersectionBox, hexGrid.p() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -185,8 +185,7 @@ void RivBoxIntersectionPartMgr::updatePartEffect()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivBoxIntersectionPartMgr::appendNativeIntersectionFacesToModel( cvf::ModelBasicList* model,
-                                                                      cvf::Transform*      scaleTransform )
+void RivBoxIntersectionPartMgr::appendNativeIntersectionFacesToModel( cvf::ModelBasicList* model, cvf::Transform* scaleTransform )
 {
     if ( m_intersectionBoxFaces.isNull() && m_intersectionBoxGridLines.isNull() )
     {

@@ -91,7 +91,7 @@ RimValveTemplate* RicNewValveTemplateFeature::createNewValveTemplate()
     if ( valveTemplateColl )
     {
         RimValveTemplate* valveTemplate = new RimValveTemplate();
-        QString userLabel = QString( "Valve Template #%1" ).arg( valveTemplateColl->valveTemplates().size() + 1 );
+        QString           userLabel     = QString( "Valve Template #%1" ).arg( valveTemplateColl->valveTemplates().size() + 1 );
         valveTemplate->setUserLabel( userLabel );
         valveTemplateColl->addValveTemplate( valveTemplate );
         valveTemplate->setUnitSystem( valveTemplateColl->defaultUnitSystemType() );

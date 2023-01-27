@@ -229,8 +229,7 @@ QString RiuResultQwtPlot::asciiDataForUiSelectedCurves() const
             }
             out += "\n";
 
-            QString dateString =
-                RiaQDateTimeTools::toStringUsingApplicationLocale( m_timeSteps.at( caseId )[i], "yyyy-MM-dd hh:mm:ss " );
+            QString dateString = RiaQDateTimeTools::toStringUsingApplicationLocale( m_timeSteps.at( caseId )[i], "yyyy-MM-dd hh:mm:ss " );
 
             out += dateString;
 

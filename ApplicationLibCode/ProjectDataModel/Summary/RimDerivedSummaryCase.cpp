@@ -174,8 +174,7 @@ void RimDerivedSummaryCase::calculate( const RifEclipseSummaryAddress& address )
     }
 
     auto itAndIsInsertedPair = m_dataCache.insert(
-        std::make_pair( address,
-                        calculateDerivedValues( reader1, fixedTimeStepCase1, reader2, fixedTimeStepCase2, m_operator(), address ) ) );
+        std::make_pair( address, calculateDerivedValues( reader1, fixedTimeStepCase1, reader2, fixedTimeStepCase2, m_operator(), address ) ) );
 
     // Check if we got any data. If not, erase the map entry to comply with previous behavior
 
@@ -188,13 +187,12 @@ void RimDerivedSummaryCase::calculate( const RifEclipseSummaryAddress& address )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<std::vector<time_t>, std::vector<double>>
-    RimDerivedSummaryCase::calculateDerivedValues( RifSummaryReaderInterface*      reader1,
-                                                   int                             fixedTimeStepCase1,
-                                                   RifSummaryReaderInterface*      reader2,
-                                                   int                             fixedTimeStepCase2,
-                                                   DerivedSummaryOperator          m_operator,
-                                                   const RifEclipseSummaryAddress& address )
+std::pair<std::vector<time_t>, std::vector<double>> RimDerivedSummaryCase::calculateDerivedValues( RifSummaryReaderInterface* reader1,
+                                                                                                   int fixedTimeStepCase1,
+                                                                                                   RifSummaryReaderInterface* reader2,
+                                                                                                   int fixedTimeStepCase2,
+                                                                                                   DerivedSummaryOperator m_operator,
+                                                                                                   const RifEclipseSummaryAddress& address )
 {
     using ResultPair = std::pair<std::vector<time_t>, std::vector<double>>;
 
@@ -413,8 +411,7 @@ void RimDerivedSummaryCase::updateDisplayNameFromCases()
         operatorText = "Sum";
 
     QString name;
-    if ( case1Name == case2Name && m_summaryCase1 && m_summaryCase2 && m_summaryCase1->ensemble() &&
-         m_summaryCase2->ensemble() )
+    if ( case1Name == case2Name && m_summaryCase1 && m_summaryCase2 && m_summaryCase1->ensemble() && m_summaryCase2->ensemble() )
     {
         QString ensembleName1 = m_summaryCase1->ensemble()->name();
         QString ensembleName2 = m_summaryCase2->ensemble()->name();
@@ -510,9 +507,7 @@ QList<caf::PdmOptionItemInfo> RimDerivedSummaryCase::calculateValueOptions( cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDerivedSummaryCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                              const QVariant&            oldValue,
-                                              const QVariant&            newValue )
+void RimDerivedSummaryCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     bool reloadData = false;
     if ( changedField == &m_summaryCase2 || changedField == &m_summaryCase1 )
@@ -565,9 +560,7 @@ void RimDerivedSummaryCase::fieldChangedByUi( const caf::PdmFieldHandle* changed
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDerivedSummaryCase::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                   QString                    uiConfigName,
-                                                   caf::PdmUiEditorAttribute* attribute )
+void RimDerivedSummaryCase::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( &m_fixedTimeStepIndex == field )
     {

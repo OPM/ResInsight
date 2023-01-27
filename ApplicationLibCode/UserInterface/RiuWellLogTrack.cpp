@@ -159,9 +159,8 @@ public:
 
                 // Use template to get as short label as possible. The default curve name will often
                 // contain too much and redundant information.
-                QString templateText = RiaDefines::namingVariableResultName() + ", " +
-                                       RiaDefines::namingVariableResultType();
-                auto resultName = annotationCurve->createCurveNameFromTemplate( templateText );
+                QString templateText = RiaDefines::namingVariableResultName() + ", " + RiaDefines::namingVariableResultType();
+                auto    resultName   = annotationCurve->createCurveNameFromTemplate( templateText );
 
                 propertyNameValues.push_back( std::make_pair( resultName, propertyValue ) );
             }
@@ -240,9 +239,8 @@ void RiuWellLogTrack::createAnnotationsInPlot( const std::vector<RimPlotAxisAnno
     m_plotDefinition->firstAncestorOfType( depthTrackPlot );
     if ( !depthTrackPlot ) return;
 
-    auto orientation = depthTrackPlot->depthOrientation() == RiaDefines::Orientation::HORIZONTAL
-                           ? RiaDefines::Orientation::VERTICAL
-                           : RiaDefines::Orientation::HORIZONTAL;
+    auto orientation = depthTrackPlot->depthOrientation() == RiaDefines::Orientation::HORIZONTAL ? RiaDefines::Orientation::VERTICAL
+                                                                                                 : RiaDefines::Orientation::HORIZONTAL;
     for ( auto annotation : annotations )
     {
         m_annotationTool->attachAnnotation( qwtPlot(), annotation, orientation );

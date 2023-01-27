@@ -151,9 +151,7 @@ std::vector<RimGridView*> RimAnnotationCollectionBase::gridViewsContainingAnnota
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnnotationCollectionBase::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                    const QVariant&            oldValue,
-                                                    const QVariant&            newValue )
+void RimAnnotationCollectionBase::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_isActive )
     {

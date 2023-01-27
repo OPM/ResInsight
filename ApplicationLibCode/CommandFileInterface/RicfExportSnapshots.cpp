@@ -85,13 +85,11 @@ caf::PdmScriptResponse RicfExportSnapshots::execute()
     CVF_ASSERT( mainWnd );
 
     QByteArray curState = mainWnd->dockManager()->saveState( 0 );
-    mainWnd->dockManager()->restoreState(
-        RiuDockWidgetTools::defaultDockState( RiuDockWidgetTools::dockStateHideAll3DWindowName() ) );
+    mainWnd->dockManager()->restoreState( RiuDockWidgetTools::defaultDockState( RiuDockWidgetTools::dockStateHideAll3DWindowName() ) );
 
     RiaGuiApplication::instance()->processEvents();
 
-    QString absolutePathToSnapshotDir =
-        RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::ExportType::SNAPSHOTS );
+    QString absolutePathToSnapshotDir = RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::ExportType::SNAPSHOTS );
 
     if ( !m_exportFolder().isEmpty() )
     {
@@ -99,8 +97,7 @@ caf::PdmScriptResponse RicfExportSnapshots::execute()
     }
     if ( absolutePathToSnapshotDir.isNull() )
     {
-        absolutePathToSnapshotDir =
-            RiaApplication::instance()->createAbsolutePathFromProjectRelativePath( "snapshots" );
+        absolutePathToSnapshotDir = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath( "snapshots" );
     }
     if ( m_type == RicfExportSnapshots::SnapshotsType::VIEWS || m_type == RicfExportSnapshots::SnapshotsType::ALL )
     {
@@ -111,10 +108,7 @@ caf::PdmScriptResponse RicfExportSnapshots::execute()
             QApplication::processEvents();
         }
 
-        RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( absolutePathToSnapshotDir,
-                                                                           m_prefix,
-                                                                           m_caseId(),
-                                                                           m_viewId() );
+        RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( absolutePathToSnapshotDir, m_prefix, m_caseId(), m_viewId() );
     }
     if ( m_type == RicfExportSnapshots::SnapshotsType::PLOTS || m_type == RicfExportSnapshots::SnapshotsType::ALL )
     {
@@ -132,11 +126,7 @@ caf::PdmScriptResponse RicfExportSnapshots::execute()
 
         QString fileSuffix = ".png";
         if ( m_plotOutputFormat == PlotOutputFormat::PDF ) fileSuffix = ".pdf";
-        RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( absolutePathToSnapshotDir,
-                                                                           activateWidget,
-                                                                           m_prefix,
-                                                                           m_viewId(),
-                                                                           fileSuffix );
+        RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( absolutePathToSnapshotDir, activateWidget, m_prefix, m_viewId(), fileSuffix );
     }
 
     RiaGuiApplication::instance()->processEvents();

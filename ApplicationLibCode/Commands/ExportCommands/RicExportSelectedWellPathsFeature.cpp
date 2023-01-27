@@ -66,13 +66,7 @@ void RicExportSelectedWellPathsFeature::exportWellPath( gsl::not_null<const RimW
     std::vector<double> mdValues;
 
     bool showTextMdRkb = false;
-    RigWellPathGeometryExporter::computeWellPathDataForExport( wellPath,
-                                                               mdStepSize,
-                                                               xValues,
-                                                               yValues,
-                                                               tvdValues,
-                                                               mdValues,
-                                                               showTextMdRkb );
+    RigWellPathGeometryExporter::computeWellPathDataForExport( wellPath, mdStepSize, xValues, yValues, tvdValues, mdValues, showTextMdRkb );
 
     writeWellPathGeometryToStream( *stream, wellPath->name(), xValues, yValues, tvdValues, mdValues, showTextMdRkb, writeProjectInfo );
     filePtr->close();
@@ -96,13 +90,7 @@ void RicExportSelectedWellPathsFeature::writeWellPathGeometryToStream( QTextStre
     std::vector<double> tvdValues;
     std::vector<double> mdValues;
 
-    RigWellPathGeometryExporter::computeWellPathDataForExport( wellPathGeom,
-                                                               mdStepSize,
-                                                               rkbOffset,
-                                                               xValues,
-                                                               yValues,
-                                                               tvdValues,
-                                                               mdValues );
+    RigWellPathGeometryExporter::computeWellPathDataForExport( wellPathGeom, mdStepSize, rkbOffset, xValues, yValues, tvdValues, mdValues );
     writeWellPathGeometryToStream( stream, exportName, xValues, yValues, tvdValues, mdValues, showTextMdRkb, writeProjectInfo );
 }
 
@@ -261,11 +249,7 @@ RicExportWellPathsUi* RicExportSelectedWellPathsFeature::openDialog()
         featureUi->setExportFolder( startPath );
     }
 
-    caf::PdmUiPropertyViewDialog propertyDialog( nullptr,
-                                                 featureUi,
-                                                 "Export Well Paths",
-                                                 "",
-                                                 QDialogButtonBox::Ok | QDialogButtonBox::Cancel );
+    caf::PdmUiPropertyViewDialog propertyDialog( nullptr, featureUi, "Export Well Paths", "", QDialogButtonBox::Ok | QDialogButtonBox::Cancel );
     propertyDialog.resize( QSize( 600, 60 ) );
 
     if ( propertyDialog.exec() == QDialog::Accepted && !featureUi->exportFolder().isEmpty() )

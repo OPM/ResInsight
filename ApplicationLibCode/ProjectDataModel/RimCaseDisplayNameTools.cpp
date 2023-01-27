@@ -38,9 +38,7 @@ void AppEnum<RimCaseDisplayNameTools::DisplayName>::setUp()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimCaseDisplayNameTools::uniqueShortName( const QString&           caseName,
-                                                  const std::set<QString>& allAutoShortNames,
-                                                  int                      shortNameLengthLimit )
+QString RimCaseDisplayNameTools::uniqueShortName( const QString& caseName, const std::set<QString>& allAutoShortNames, int shortNameLengthLimit )
 {
     bool foundUnique = false;
 

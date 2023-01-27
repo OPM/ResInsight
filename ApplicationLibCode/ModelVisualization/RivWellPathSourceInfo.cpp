@@ -81,8 +81,7 @@ double RivWellPathSourceInfo::measuredDepth( size_t triangleIndex, const cvf::Ve
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d RivWellPathSourceInfo::closestPointOnCenterLine( size_t            triangleIndex,
-                                                            const cvf::Vec3d& globalIntersectionInDomain ) const
+cvf::Vec3d RivWellPathSourceInfo::closestPointOnCenterLine( size_t triangleIndex, const cvf::Vec3d& globalIntersectionInDomain ) const
 {
     size_t firstSegmentIndex = cvf::UNDEFINED_SIZE_T;
     double norm              = 0.0;
@@ -130,6 +129,5 @@ void RivWellPathSourceInfo::normalizedIntersection( size_t            triangleIn
 size_t RivWellPathSourceInfo::segmentIndex( size_t triangleIndex ) const
 {
     CAF_ASSERT( m_wellPath.notNull() );
-    return m_pipeGeomGenerator->segmentIndexFromTriangleIndex( triangleIndex ) +
-           m_wellPath->wellPathGeometry()->uniqueStartIndex();
+    return m_pipeGeomGenerator->segmentIndexFromTriangleIndex( triangleIndex ) + m_wellPath->wellPathGeometry()->uniqueStartIndex();
 }

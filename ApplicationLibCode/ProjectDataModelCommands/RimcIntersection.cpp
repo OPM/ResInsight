@@ -100,7 +100,7 @@ RimcTriangleGeometry* RimcTriangleGeometry::createFromVertices( const std::vecto
 ///
 //--------------------------------------------------------------------------------------------------
 RimcTriangleGeometry* RimcTriangleGeometry::createFromVerticesAndConnections( const std::vector<cvf::Vec3f>& vertices,
-                                                                              const std::vector<int>& connections )
+                                                                              const std::vector<int>&        connections )
 {
     auto [xVals, yVals, zVals] = assignCoordinatesToSeparateVectors( vertices );
 
@@ -266,15 +266,14 @@ std::unique_ptr<RivIntersectionGeometryGeneratorInterface>
     auto       polyLines = intersection->polyLines( &flattenedPolylineStartPoint );
     if ( !polyLines.empty() )
     {
-        auto direction = intersection->extrusionDirection();
-        auto hexGrid   = intersection->createHexGridInterface();
-        auto intersectionGeoGenerator =
-            std::make_unique<RivExtrudedCurveIntersectionGeometryGenerator>( intersection,
-                                                                             polyLines,
-                                                                             direction,
-                                                                             hexGrid.p(),
-                                                                             isFlat,
-                                                                             flattenedPolylineStartPoint );
+        auto direction                = intersection->extrusionDirection();
+        auto hexGrid                  = intersection->createHexGridInterface();
+        auto intersectionGeoGenerator = std::make_unique<RivExtrudedCurveIntersectionGeometryGenerator>( intersection,
+                                                                                                         polyLines,
+                                                                                                         direction,
+                                                                                                         hexGrid.p(),
+                                                                                                         isFlat,
+                                                                                                         flattenedPolylineStartPoint );
 
         intersectionGeoGenerator->ensureGeometryIsCalculated();
 
@@ -284,9 +283,7 @@ std::unique_ptr<RivIntersectionGeometryGeneratorInterface>
     return nullptr;
 }
 
-CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimExtrudedCurveIntersection,
-                                   RimcExtrudedCurveIntersection_geometryResult,
-                                   "geometryResult" );
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimExtrudedCurveIntersection, RimcExtrudedCurveIntersection_geometryResult, "geometryResult" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -328,10 +325,7 @@ caf::PdmObjectHandle* RimcExtrudedCurveIntersection_geometryResult::execute()
 
         size_t                      gridIndex = 0;
         cvf::ref<RigResultAccessor> resultAccessor =
-            RigResultAccessorFactory::createFromResultDefinition( eclipseCase,
-                                                                  gridIndex,
-                                                                  eclView->currentTimeStep(),
-                                                                  eclResultDef );
+            RigResultAccessorFactory::createFromResultDefinition( eclipseCase, gridIndex, eclView->currentTimeStep(), eclResultDef );
 
         auto                triToCellIndex = geoGenerator->triangleToCellIndex();
         std::vector<double> values;

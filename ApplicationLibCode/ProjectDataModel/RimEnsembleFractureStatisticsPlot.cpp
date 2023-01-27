@@ -102,8 +102,7 @@ void RimEnsembleFractureStatisticsPlot::defineUiOrdering( QString uiConfigName, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimEnsembleFractureStatisticsPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RimEnsembleFractureStatisticsPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options = RimStatisticsPlot::calculateValueOptions( fieldNeedingOptions );
 
@@ -134,9 +133,7 @@ bool RimEnsembleFractureStatisticsPlot::hasStatisticsData() const
 RigHistogramData RimEnsembleFractureStatisticsPlot::createStatisticsData() const
 {
     RigHistogramData histogramData =
-        RigEnsembleFractureStatisticsCalculator::createStatisticsData( m_ensembleFractureStatistics(),
-                                                                       m_property(),
-                                                                       m_numHistogramBins() );
+        RigEnsembleFractureStatisticsCalculator::createStatisticsData( m_ensembleFractureStatistics(), m_property(), m_numHistogramBins() );
 
     return histogramData;
 }

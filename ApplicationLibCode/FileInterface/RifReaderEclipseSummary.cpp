@@ -92,16 +92,13 @@ bool RifReaderEclipseSummary::open( const QString& headerFileName, RiaThreadSafe
         bool h5FileFound = QFile::exists( h5FileName );
 
         if ( !prefSummary->createEnhancedSummaryDataFiles() &&
-             ( h5FileFound ||
-               ( prefSummary->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON ) ) )
+             ( h5FileFound || ( prefSummary->summaryDataReader() == RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON ) ) )
         {
 #ifdef USE_HDF5
             if ( prefSummary->createH5SummaryDataFiles() )
             {
                 size_t createdH5FileCount = 0;
-                RifHdf5SummaryExporter::ensureHdf5FileIsCreated( headerFileName.toStdString(),
-                                                                 h5FileName.toStdString(),
-                                                                 createdH5FileCount );
+                RifHdf5SummaryExporter::ensureHdf5FileIsCreated( headerFileName.toStdString(), h5FileName.toStdString(), createdH5FileCount );
 
                 if ( createdH5FileCount > 0 )
                 {
@@ -182,8 +179,7 @@ bool RifReaderEclipseSummary::values( const RifEclipseSummaryAddress& resultAddr
     if ( m_differenceAddresses.count( resultAddress ) )
     {
         const std::string& quantityName = resultAddress.vectorName();
-        auto historyQuantity = quantityName.substr( 0, quantityName.size() - differenceIdentifier().size() ) +
-                               historyIdentifier();
+        auto historyQuantity = quantityName.substr( 0, quantityName.size() - differenceIdentifier().size() ) + historyIdentifier();
 
         RifEclipseSummaryAddress nativeAdrNoHistory = resultAddress;
         nativeAdrNoHistory.setVectorName( historyQuantity );
@@ -355,8 +351,7 @@ RifReaderEclipseSummary::ValuesCache::~ValuesCache()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifReaderEclipseSummary::ValuesCache::insertValues( const RifEclipseSummaryAddress& address,
-                                                         const std::vector<double>&      values )
+void RifReaderEclipseSummary::ValuesCache::insertValues( const RifEclipseSummaryAddress& address, const std::vector<double>& values )
 {
     m_cachedValues[address] = values;
 }

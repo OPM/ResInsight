@@ -76,8 +76,7 @@ void RicEclipsePropertyFilterFeatureImpl::addPropertyFilter( RimEclipsePropertyF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicEclipsePropertyFilterFeatureImpl::insertPropertyFilter( RimEclipsePropertyFilterCollection* propertyFilterCollection,
-                                                                size_t                              index )
+void RicEclipsePropertyFilterFeatureImpl::insertPropertyFilter( RimEclipsePropertyFilterCollection* propertyFilterCollection, size_t index )
 {
     RimEclipsePropertyFilter* propertyFilter = new RimEclipsePropertyFilter();
     propertyFilterCollection->propertyFiltersField().insertAt( static_cast<int>( index ), propertyFilter );

@@ -73,7 +73,7 @@ void RicFaciesPropertiesImportTools::importFaciesPropertiesFromFile( const QStri
     {
         const caf::ColorTable&    colorTable            = RiaColorTables::contrastCategoryPaletteColors();
         RimColorLegendCollection* colorLegendCollection = RimProject::current()->colorLegendCollection;
-        RimColorLegend* rockTypeColorLegend = colorLegendCollection->findByName( RiaDefines::rockTypeColorLegendName() );
+        RimColorLegend*           rockTypeColorLegend   = colorLegendCollection->findByName( RiaDefines::rockTypeColorLegendName() );
 
         RimColorLegend* colorLegend = new RimColorLegend;
         colorLegend->setColorLegendName( RiaDefines::faciesColorLegendName() );
@@ -84,8 +84,7 @@ void RicFaciesPropertiesImportTools::importFaciesPropertiesFromFile( const QStri
 
             // Try to find a color from the rock type color legend by fuzzy matching names
             cvf::Color3f color;
-            if ( !predefinedColorMatch( it.second, rockTypeColorLegend, color ) &&
-                 !matchByName( it.second, rockTypeColorLegend, color ) )
+            if ( !predefinedColorMatch( it.second, rockTypeColorLegend, color ) && !matchByName( it.second, rockTypeColorLegend, color ) )
             {
                 // No match use a random color
                 color = colorTable.cycledColor3f( it.first );
@@ -163,9 +162,7 @@ int RicFaciesPropertiesImportTools::computeEditDistance( const QString& a, const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicFaciesPropertiesImportTools::predefinedColorMatch( const QString&  name,
-                                                           RimColorLegend* colorLegend,
-                                                           cvf::Color3f&   color )
+bool RicFaciesPropertiesImportTools::predefinedColorMatch( const QString& name, RimColorLegend* colorLegend, cvf::Color3f& color )
 {
     // Calcite should use limestone color
     if ( name.toLower().trimmed() == QString( "calcite" ) )

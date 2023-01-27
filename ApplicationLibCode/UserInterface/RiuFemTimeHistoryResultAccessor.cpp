@@ -56,12 +56,12 @@ RiuFemTimeHistoryResultAccessor::RiuFemTimeHistoryResultAccessor( RigGeoMechCase
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuFemTimeHistoryResultAccessor::RiuFemTimeHistoryResultAccessor( RigGeoMechCaseData* geomData,
-                                                                  RigFemResultAddress femResultAddress,
-                                                                  size_t              gridIndex,
-                                                                  int                 elementIndex,
-                                                                  int                 face,
-                                                                  const cvf::Vec3d&   intersectionPointInDomain,
+RiuFemTimeHistoryResultAccessor::RiuFemTimeHistoryResultAccessor( RigGeoMechCaseData*              geomData,
+                                                                  RigFemResultAddress              femResultAddress,
+                                                                  size_t                           gridIndex,
+                                                                  int                              elementIndex,
+                                                                  int                              face,
+                                                                  const cvf::Vec3d&                intersectionPointInDomain,
                                                                   const std::array<cvf::Vec3f, 3>& intersectionTriangle )
     : m_geoMechCaseData( geomData )
     , m_femResultAddress( new RigFemResultAddress( femResultAddress ) )
@@ -91,10 +91,7 @@ QString RiuFemTimeHistoryResultAccessor::geometrySelectionText() const
         size_t i = 0;
         size_t j = 0;
         size_t k = 0;
-        if ( m_geoMechCaseData->femParts()
-                 ->part( m_gridIndex )
-                 ->getOrCreateStructGrid()
-                 ->ijkFromCellIndex( m_elementIndex, &i, &j, &k ) )
+        if ( m_geoMechCaseData->femParts()->part( m_gridIndex )->getOrCreateStructGrid()->ijkFromCellIndex( m_elementIndex, &i, &j, &k ) )
         {
             // Adjust to 1-based Eclipse indexing
             i++;
@@ -108,8 +105,7 @@ QString RiuFemTimeHistoryResultAccessor::geometrySelectionText() const
             auto yTxt = RiaNumberFormat::valueToText( domainCoord.y(), RiaNumberFormat::NumberFormatType::FIXED, 2 );
             auto zTxt = RiaNumberFormat::valueToText( -domainCoord.z(), RiaNumberFormat::NumberFormatType::FIXED, 2 );
 
-            QString formattedText =
-                QString( "Intersection point : [E: %1, N: %2, Depth: %3]" ).arg( xTxt ).arg( yTxt ).arg( zTxt );
+            QString formattedText = QString( "Intersection point : [E: %1, N: %2, Depth: %3]" ).arg( xTxt ).arg( yTxt ).arg( zTxt );
 
             text += formattedText;
         }
@@ -162,13 +158,8 @@ void RiuFemTimeHistoryResultAccessor::computeTimeHistoryData()
             const int frameCount = femPartResultsColl->frameCount( stepIdx );
             for ( int frameIdx = 0; frameIdx < frameCount; frameIdx++ )
             {
-                RiuGeoMechXfTensorResultAccessor stressXfAccessor( femPartResultsColl,
-                                                                   *m_femResultAddress,
-                                                                   m_gridIndex,
-                                                                   stepIdx,
-                                                                   frameIdx );
-                float                            scalarValue =
-                    stressXfAccessor.calculateElmNodeValue( m_intersectionTriangle, closestElmNodeResIndex );
+                RiuGeoMechXfTensorResultAccessor stressXfAccessor( femPartResultsColl, *m_femResultAddress, m_gridIndex, stepIdx, frameIdx );
+                float scalarValue = stressXfAccessor.calculateElmNodeValue( m_intersectionTriangle, closestElmNodeResIndex );
                 m_timeHistoryValues.push_back( scalarValue );
             }
         }
@@ -184,10 +175,7 @@ void RiuFemTimeHistoryResultAccessor::computeTimeHistoryData()
             for ( int frameIdx = 0; frameIdx < frameCount; frameIdx++ )
             {
                 const std::vector<float>& scalarResults =
-                    m_geoMechCaseData->femPartResults()->resultValues( *m_femResultAddress,
-                                                                       static_cast<int>( m_gridIndex ),
-                                                                       stepIdx,
-                                                                       frameIdx );
+                    m_geoMechCaseData->femPartResults()->resultValues( *m_femResultAddress, static_cast<int>( m_gridIndex ), stepIdx, frameIdx );
                 if ( scalarResults.size() )
                 {
                     float scalarValue = scalarResults[scalarResultIndex];

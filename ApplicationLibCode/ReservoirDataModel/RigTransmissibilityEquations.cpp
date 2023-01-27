@@ -44,10 +44,8 @@ double RigTransmissibilityEquations::wellBoreTransmissibilityComponent( double c
 
     double nominator = cDarcyForRelevantUnit * 2 * cvf::PI_D * K * cellPerforationVectorComponent;
 
-    double peaceManRad = peacemanRadius( permeabilityNormalDirection1,
-                                         permeabilityNormalDirection2,
-                                         cellSizeNormalDirection1,
-                                         cellSizeNormalDirection2 );
+    double peaceManRad =
+        peacemanRadius( permeabilityNormalDirection1, permeabilityNormalDirection2, cellSizeNormalDirection1, cellSizeNormalDirection2 );
 
     double denominator = log( peaceManRad / wellRadius ) + skinFactor;
 
@@ -154,9 +152,9 @@ double RigTransmissibilityEquations::peacemanRadius( double permeabilityNormalDi
                                                      double cellSizeNormalDirection1,
                                                      double cellSizeNormalDirection2 )
 {
-    double numerator = cvf::Math::sqrt(
-        pow( cellSizeNormalDirection2, 2.0 ) * pow( permeabilityNormalDirection1 / permeabilityNormalDirection2, 0.5 ) +
-        pow( cellSizeNormalDirection1, 2.0 ) * pow( permeabilityNormalDirection2 / permeabilityNormalDirection1, 0.5 ) );
+    double numerator =
+        cvf::Math::sqrt( pow( cellSizeNormalDirection2, 2.0 ) * pow( permeabilityNormalDirection1 / permeabilityNormalDirection2, 0.5 ) +
+                         pow( cellSizeNormalDirection1, 2.0 ) * pow( permeabilityNormalDirection2 / permeabilityNormalDirection1, 0.5 ) );
 
     double denominator = pow( ( permeabilityNormalDirection1 / permeabilityNormalDirection2 ), 0.25 ) +
                          pow( ( permeabilityNormalDirection2 / permeabilityNormalDirection1 ), 0.25 );

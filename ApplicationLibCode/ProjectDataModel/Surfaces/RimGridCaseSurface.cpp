@@ -86,8 +86,7 @@ bool RimGridCaseSurface::onLoadData()
 //--------------------------------------------------------------------------------------------------
 RimSurface* RimGridCaseSurface::createCopy()
 {
-    auto* newSurface = dynamic_cast<RimGridCaseSurface*>(
-        xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+    auto* newSurface = dynamic_cast<RimGridCaseSurface*>( xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
     newSurface->setCase( m_case.value() ); // TODO: case seems to get lost in the xml copy, investigate later
 
     if ( !newSurface->onLoadData() )
@@ -117,9 +116,7 @@ QList<caf::PdmOptionItemInfo> RimGridCaseSurface::calculateValueOptions( const c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCaseSurface::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                QString                    uiConfigName,
-                                                caf::PdmUiEditorAttribute* attribute )
+void RimGridCaseSurface::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     RimSurface::defineEditorAttribute( field, uiConfigName, attribute );
 
@@ -137,9 +134,7 @@ void RimGridCaseSurface::defineEditorAttribute( const caf::PdmFieldHandle* field
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCaseSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                           const QVariant&            oldValue,
-                                           const QVariant&            newValue )
+void RimGridCaseSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimSurface::fieldChangedByUi( changedField, oldValue, newValue );
 
@@ -240,8 +235,7 @@ void RimGridCaseSurface::extractStructuredSurfaceFromGridData()
 
                         size_t cellIndex     = 0;
                         size_t cellFaceIndex = 0;
-                        if ( !findValidCellIndex( grid, faceType, cellIndex, row, column, zeroBasedLayerIndex, cellFaceIndex ) )
-                            return;
+                        if ( !findValidCellIndex( grid, faceType, cellIndex, row, column, zeroBasedLayerIndex, cellFaceIndex ) ) return;
 
                         cvf::Vec3d cornerVerts[8];
                         grid->cellCornerVertices( cellIndex, cornerVerts );
@@ -249,8 +243,7 @@ void RimGridCaseSurface::extractStructuredSurfaceFromGridData()
                         cvf::ubyte faceConn[4];
                         grid->cellFaceVertexIndices( faceType, faceConn );
 
-                        structGridVertexIndices.emplace_back( static_cast<cvf::uint>( column + 1 ),
-                                                              static_cast<cvf::uint>( row + 1 ) );
+                        structGridVertexIndices.emplace_back( static_cast<cvf::uint>( column + 1 ), static_cast<cvf::uint>( row + 1 ) );
 
                         vertices.push_back( cornerVerts[faceConn[cellFaceIndex]] );
 

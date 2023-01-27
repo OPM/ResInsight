@@ -104,8 +104,7 @@ void RicEditPreferencesFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 std::unique_ptr<RiaPreferences> RicEditPreferencesFeature::clonePreferences( const RiaPreferences* preferences )
 {
-    caf::PdmObjectHandle* pdmClone =
-        preferences->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() );
+    caf::PdmObjectHandle* pdmClone = preferences->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() );
 
     return std::unique_ptr<RiaPreferences>( dynamic_cast<RiaPreferences*>( pdmClone ) );
 }

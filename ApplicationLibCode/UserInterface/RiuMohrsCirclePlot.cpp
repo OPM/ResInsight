@@ -228,8 +228,7 @@ void RiuMohrsCirclePlot::addOrUpdateMohrCircleCurves( const MohrsCirclesInfo& mo
         if ( i == 0 )
         {
             QString textBuilder;
-            textBuilder.append(
-                QString( "<b>FOS</b>: %1, " ).arg( QString::number( mohrsCirclesInfo.factorOfSafety, 'f', 2 ) ) );
+            textBuilder.append( QString( "<b>FOS</b>: %1, " ).arg( QString::number( mohrsCirclesInfo.factorOfSafety, 'f', 2 ) ) );
 
             textBuilder.append( QString( "<b>Element Id</b>: %1, <b>ijk</b>[%2, %3, %4]," )
                                     .arg( mohrsCirclesInfo.elmIndex )
@@ -405,15 +404,8 @@ bool RiuMohrsCirclePlot::addOrUpdateCurves( const RimGeoMechResultDefinition* ge
     CVF_ASSERT( validIndex );
     if ( validIndex )
     {
-        MohrsCirclesInfo mohrsCircle( principals,
-                                      gridIndex,
-                                      elmIndex,
-                                      i,
-                                      j,
-                                      k,
-                                      geomResDef,
-                                      calculateFOS( principals, frictionAngleDeg, cohesion ),
-                                      color );
+        MohrsCirclesInfo
+            mohrsCircle( principals, gridIndex, elmIndex, i, j, k, geomResDef, calculateFOS( principals, frictionAngleDeg, cohesion ), color );
 
         m_mohrsCiclesInfos.push_back( mohrsCircle );
 
@@ -582,8 +574,7 @@ QColor RiuMohrsCirclePlot::envelopeColor( const RimGeoMechCase* geomCase )
 {
     if ( m_envolopeColors.find( geomCase ) == m_envolopeColors.end() )
     {
-        cvf::Color3ub cvfColor =
-            RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3ub( m_envolopeColors.size() );
+        cvf::Color3ub cvfColor = RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3ub( m_envolopeColors.size() );
 
         QColor color( cvfColor.r(), cvfColor.g(), cvfColor.b() );
 
@@ -723,8 +714,7 @@ void RiuMohrsCirclePlot::setAxesScaleAndReplot()
     this->replot();
 }
 
-RiuGeoMechSelectionItem* RiuMohrsCirclePlot::extractGeoMechSelectionItem( const RiuSelectionItem* selectionItem,
-                                                                          Rim3dView*&             newFollowAnimView )
+RiuGeoMechSelectionItem* RiuMohrsCirclePlot::extractGeoMechSelectionItem( const RiuSelectionItem* selectionItem, Rim3dView*& newFollowAnimView )
 {
     newFollowAnimView                             = nullptr;
     RiuGeoMechSelectionItem* geoMechSelectionItem = nullptr;

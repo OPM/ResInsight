@@ -43,8 +43,8 @@ TEST( RicElementPropertyTableReaderTest, ParseFailedForTooManyColumns )
 {
     try
     {
-        RifElementPropertyMetadata metadata = RifElementPropertyTableReader::readMetadata(
-            ELEM_PROP_TEST_DATA_DIRECTORY + "ELASTIC_TABLE_error_too_many_columns.inp" );
+        RifElementPropertyMetadata metadata =
+            RifElementPropertyTableReader::readMetadata( ELEM_PROP_TEST_DATA_DIRECTORY + "ELASTIC_TABLE_error_too_many_columns.inp" );
 
         RifElementPropertyTable table;
         RifElementPropertyTableReader::readData( &metadata, &table );
@@ -64,8 +64,8 @@ TEST( RicElementPropertyTableReaderTest, ParseFailedForTooFewColumns )
 {
     try
     {
-        RifElementPropertyMetadata metadata = RifElementPropertyTableReader::readMetadata(
-            ELEM_PROP_TEST_DATA_DIRECTORY + "ELASTIC_TABLE_error_too_few_columns.inp" );
+        RifElementPropertyMetadata metadata =
+            RifElementPropertyTableReader::readMetadata( ELEM_PROP_TEST_DATA_DIRECTORY + "ELASTIC_TABLE_error_too_few_columns.inp" );
 
         RifElementPropertyTable table;
         RifElementPropertyTableReader::readData( &metadata, &table );
@@ -83,8 +83,8 @@ TEST( RicElementPropertyTableReaderTest, ParseFailedForTooFewColumns )
 //--------------------------------------------------------------------------------------------------
 TEST( RicElementPropertyTableReaderTest, MoreThanEightColumns )
 {
-    RifElementPropertyMetadata metadata = RifElementPropertyTableReader::readMetadata(
-        ELEM_PROP_TEST_DATA_DIRECTORY + "ELASTIC_TABLE_morethan8columns.inp" );
+    RifElementPropertyMetadata metadata =
+        RifElementPropertyTableReader::readMetadata( ELEM_PROP_TEST_DATA_DIRECTORY + "ELASTIC_TABLE_morethan8columns.inp" );
 
     RifElementPropertyTable table;
     RifElementPropertyTableReader::readData( &metadata, &table );

@@ -224,9 +224,8 @@ void RimFractureTemplateCollection::createAndAssignTemplateCopyForNonMatchingUni
                 {
                     if ( !templateWithMatchingUnit )
                     {
-                        templateWithMatchingUnit =
-                            dynamic_cast<RimFractureTemplate*>( fractureTemplate->xmlCapability()->copyByXmlSerialization(
-                                caf::PdmDefaultObjectFactory::instance() ) );
+                        templateWithMatchingUnit = dynamic_cast<RimFractureTemplate*>(
+                            fractureTemplate->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
 
                         auto currentUnit = fractureTemplate->fractureTemplateUnit();
                         auto neededUnit  = RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
@@ -248,9 +247,8 @@ void RimFractureTemplateCollection::createAndAssignTemplateCopyForNonMatchingUni
                         templatesToBeAdded.push_back( templateWithMatchingUnit );
                     }
 
-                    RiaLogging::warning(
-                        "Detected fracture with different unit than fracture template. Creating copy of template "
-                        "with matching unit." );
+                    RiaLogging::warning( "Detected fracture with different unit than fracture template. Creating copy of template "
+                                         "with matching unit." );
 
                     CVF_ASSERT( templateWithMatchingUnit->fractureTemplateUnit() == fracture->fractureUnit() );
                     fracture->setFractureTemplateNoUpdate( templateWithMatchingUnit );
@@ -283,8 +281,7 @@ void RimFractureTemplateCollection::loadAndUpdateData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFractureTemplateCollection::updateFilePathsFromProjectPath( const QString& newProjectPath,
-                                                                    const QString& oldProjectPath )
+void RimFractureTemplateCollection::updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath )
 {
     for ( RimFractureTemplate* f : m_fractureDefinitions() )
     {

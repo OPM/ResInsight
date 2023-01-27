@@ -170,8 +170,7 @@ bool RimGeoMechPartCollection::isDisplacementsUsed() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<bool, bool>
-    RimGeoMechPartCollection::needsReloadOrRebuildUpdate( int currentTimeStep, bool showDisplacement, double scaleFactor )
+std::pair<bool, bool> RimGeoMechPartCollection::needsReloadOrRebuildUpdate( int currentTimeStep, bool showDisplacement, double scaleFactor )
 {
     bool rebuild = m_displacementsUsed != showDisplacement || ( m_currentDisplacementTimeStep != currentTimeStep ) ||
                    ( std::abs( m_currentScaleFactor - scaleFactor ) > 0.0001 );

@@ -90,8 +90,7 @@ void VdePacketDirectory::pruneUnreferencedPackets( const std::vector<int>& packe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool VdePacketDirectory::getPacketsAsCombinedBuffer( const std::vector<int>& packetIdsToGet,
-                                                     QByteArray*             combinedPacketArr ) const
+bool VdePacketDirectory::getPacketsAsCombinedBuffer( const std::vector<int>& packetIdsToGet, QByteArray* combinedPacketArr ) const
 {
     for ( const int arrayId : packetIdsToGet )
     {
@@ -102,8 +101,7 @@ bool VdePacketDirectory::getPacketsAsCombinedBuffer( const std::vector<int>& pac
         }
 
         const VdeArrayDataPacket& packet = *it->second;
-        *combinedPacketArr +=
-            QByteArray::fromRawData( packet.fullPacketRawPtr(), static_cast<int>( packet.fullPacketSize() ) );
+        *combinedPacketArr += QByteArray::fromRawData( packet.fullPacketRawPtr(), static_cast<int>( packet.fullPacketSize() ) );
     }
 
     return true;

@@ -54,13 +54,7 @@ bool RifStimPlanModelDeviationFrkExporter::writeToFile( RimStimPlanModel* stimPl
     std::vector<double> yValues;
     std::vector<double> tvdValues;
     std::vector<double> mdValues;
-    RigWellPathGeometryExporter::computeWellPathDataForExport( wellPath,
-                                                               mdStepSize,
-                                                               xValues,
-                                                               yValues,
-                                                               tvdValues,
-                                                               mdValues,
-                                                               showTextMdRkb );
+    RigWellPathGeometryExporter::computeWellPathDataForExport( wellPath, mdStepSize, xValues, yValues, tvdValues, mdValues, showTextMdRkb );
     convertFromMeterToFeet( mdValues );
     convertFromMeterToFeet( tvdValues );
 
@@ -87,9 +81,7 @@ void RifStimPlanModelDeviationFrkExporter::appendHeaderToStream( QTextStream& st
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifStimPlanModelDeviationFrkExporter::appendToStream( QTextStream&               stream,
-                                                           const QString&             label,
-                                                           const std::vector<double>& values )
+void RifStimPlanModelDeviationFrkExporter::appendToStream( QTextStream& stream, const QString& label, const std::vector<double>& values )
 {
     stream.setRealNumberPrecision( 20 );
     stream << "<cNamedSet>" << '\n'

@@ -112,8 +112,7 @@ QList<caf::PdmOptionItemInfo> RimIntersection::calculateValueOptions( const caf:
 
     if ( fieldNeedingOptions == &m_separateDataSource )
     {
-        std::vector<RimIntersectionResultDefinition*> iResDefs =
-            findSeparateResultsCollection()->intersectionResultsDefinitions();
+        std::vector<RimIntersectionResultDefinition*> iResDefs = findSeparateResultsCollection()->intersectionResultsDefinitions();
 
         for ( auto iresdef : iResDefs )
         {
@@ -153,8 +152,7 @@ void RimIntersection::defineSeparateDataSourceUi( QString uiConfigName, caf::Pdm
         inactiveText = " (Inactive)";
     }
 
-    caf::PdmUiGroup* separateResultsGroup =
-        uiOrdering.addNewGroupWithKeyword( "Result Reference" + inactiveText, "SeparateResultReference" );
+    caf::PdmUiGroup* separateResultsGroup = uiOrdering.addNewGroupWithKeyword( "Result Reference" + inactiveText, "SeparateResultReference" );
     separateResultsGroup->setCollapsedByDefault();
     separateResultsGroup->add( &m_useSeparateDataSource );
     separateResultsGroup->add( &m_separateDataSource );

@@ -58,15 +58,13 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorSM::calculate( int partIndex
 {
     CVF_ASSERT( isMatching( resVarAddr ) );
 
-    QString progressText = "Calculating " +
-                           QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName );
+    QString progressText = "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName );
 
     caf::ProgressInfo stepCountProgress( static_cast<size_t>( m_resultCollection->timeStepCount() ) * 4, progressText );
 
     auto loadFrameLambda = [&]( const QString& component ) {
         auto task = stepCountProgress.task( component );
-        return m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                           resVarAddr.copyWithComponent( component.toStdString() ) );
+        return m_resultCollection->findOrLoadScalarResult( partIndex, resVarAddr.copyWithComponent( component.toStdString() ) );
     };
 
     RigFemScalarResultFrames* st11 = loadFrameLambda( "S11" );

@@ -35,10 +35,7 @@ RicCreateEnsembleSurfaceUi::RicCreateEnsembleSurfaceUi()
     CAF_PDM_InitObject( "Export Multiple Surfaces" );
 
     CAF_PDM_InitFieldNoDefault( &m_layers, "Layers", "Layers" );
-    CAF_PDM_InitField( &m_autoCreateEnsembleSurfaces,
-                       "AutoCreateEnsembleSurfaces",
-                       false,
-                       "Create Ensemble Surfaces From Exported Files" );
+    CAF_PDM_InitField( &m_autoCreateEnsembleSurfaces, "AutoCreateEnsembleSurfaces", false, "Create Ensemble Surfaces From Exported Files" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_autoCreateEnsembleSurfaces );
 
     CAF_PDM_InitFieldNoDefault( &m_minLayer, "MinLayer", "MinLayer" );
@@ -74,9 +71,7 @@ void RicCreateEnsembleSurfaceUi::setLayersMinMax( int minLayer, int maxLayer )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreateEnsembleSurfaceUi::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                        QString                    uiConfigName,
-                                                        caf::PdmUiEditorAttribute* attribute )
+void RicCreateEnsembleSurfaceUi::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_layers )
     {
@@ -104,8 +99,7 @@ void RicCreateEnsembleSurfaceUi::defineUiOrdering( QString uiConfigName, caf::Pd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RicCreateEnsembleSurfaceUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RicCreateEnsembleSurfaceUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &m_layers )

@@ -86,9 +86,7 @@ void RimPropertyFilterCollection::onChildAdded( caf::PdmFieldHandle* containerFo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPropertyFilterCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                    const QVariant&            oldValue,
-                                                    const QVariant&            newValue )
+void RimPropertyFilterCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     updateIconState();
     uiCapability()->updateConnectedEditors();

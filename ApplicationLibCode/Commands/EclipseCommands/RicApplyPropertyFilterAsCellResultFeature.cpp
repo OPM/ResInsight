@@ -102,8 +102,7 @@ void RicApplyPropertyFilterAsCellResultFeature::onActionTriggered( bool isChecke
             propertyFilter->firstAncestorOrThisOfType( geoMechView );
             if ( !geoMechView ) return;
 
-            geoMechView->cellResultResultDefinition()->setResultAddress(
-                propertyFilter->resultDefinition()->resultAddress() );
+            geoMechView->cellResultResultDefinition()->setResultAddress( propertyFilter->resultDefinition()->resultAddress() );
             geoMechView->cellResultResultDefinition()->updateConnectedEditors();
 
             geoMechView->scheduleCreateDisplayModelAndRedraw();

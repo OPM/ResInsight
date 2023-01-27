@@ -62,8 +62,7 @@ std::vector<RimGridCalculation*> RimGridCalculationCollection::sortedGridCalcula
         for ( auto v : other->allVariables() )
         {
             auto gridVariable = dynamic_cast<RimGridCalculationVariable*>( v );
-            if ( gridVariable->eclipseCase() == outputCase &&
-                 outputAdr.resultCatType() == gridVariable->resultCategoryType() &&
+            if ( gridVariable->eclipseCase() == outputCase && outputAdr.resultCatType() == gridVariable->resultCategoryType() &&
                  outputAdr.resultName() == gridVariable->resultVariable() )
             {
                 return true;
@@ -81,8 +80,7 @@ std::vector<RimGridCalculation*> RimGridCalculationCollection::sortedGridCalcula
 
             if ( isSourceDependingOnOther( source, other ) && isSourceDependingOnOther( other, source ) )
             {
-                QString txt = "Detected circular dependency between " + source->description() + " and " +
-                              other->description();
+                QString txt = "Detected circular dependency between " + source->description() + " and " + other->description();
                 RiaLogging::error( txt );
 
                 return sortedCalculations;

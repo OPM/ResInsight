@@ -171,8 +171,7 @@ void RiuGeoMechXfTensorResultAccessor::calculateInterpolatedValue( const cvf::Ve
         return;
     }
 
-    cvf::Mat3f triangleXf =
-        cvf::GeometryTools::computePlaneHorizontalRotationMx( triangle[1] - triangle[0], triangle[2] - triangle[0] );
+    cvf::Mat3f triangleXf = cvf::GeometryTools::computePlaneHorizontalRotationMx( triangle[1] - triangle[0], triangle[2] - triangle[0] );
 
     for ( int triangleVxIdx = 0; triangleVxIdx < 3; ++triangleVxIdx )
     {
@@ -196,9 +195,9 @@ void RiuGeoMechXfTensorResultAccessor::calculateInterpolatedValue( const cvf::Ve
             ipT13 += ( *tens13 )[resIdx] * interpolationWeight;
         }
 
-        if ( ipT11 == HUGE_VAL || ipT11 != ipT11 || ipT22 == HUGE_VAL || ipT22 != ipT22 || ipT33 == HUGE_VAL ||
-             ipT33 != ipT33 || ipT12 == HUGE_VAL || ipT12 != ipT12 || ipT23 == HUGE_VAL || ipT23 != ipT23 ||
-             ipT13 == HUGE_VAL || ipT13 != ipT13 ) // a != a is true for NAN's
+        if ( ipT11 == HUGE_VAL || ipT11 != ipT11 || ipT22 == HUGE_VAL || ipT22 != ipT22 || ipT33 == HUGE_VAL || ipT33 != ipT33 ||
+             ipT12 == HUGE_VAL || ipT12 != ipT12 || ipT23 == HUGE_VAL || ipT23 != ipT23 || ipT13 == HUGE_VAL ||
+             ipT13 != ipT13 ) // a != a is true for NAN's
         {
             returnValues[triangleVxIdx] = std::numeric_limits<float>::infinity();
         }
@@ -215,13 +214,11 @@ void RiuGeoMechXfTensorResultAccessor::calculateInterpolatedValue( const cvf::Ve
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-float RiuGeoMechXfTensorResultAccessor::calculateElmNodeValue( const std::array<cvf::Vec3f, 3>& triangle,
-                                                               int                              globalElmNodeResIndex )
+float RiuGeoMechXfTensorResultAccessor::calculateElmNodeValue( const std::array<cvf::Vec3f, 3>& triangle, int globalElmNodeResIndex )
 {
     if ( tens11->size() == 0 ) return std::numeric_limits<float>::infinity();
 
-    cvf::Mat3f triangleXf =
-        cvf::GeometryTools::computePlaneHorizontalRotationMx( triangle[1] - triangle[0], triangle[2] - triangle[0] );
+    cvf::Mat3f triangleXf = cvf::GeometryTools::computePlaneHorizontalRotationMx( triangle[1] - triangle[0], triangle[2] - triangle[0] );
 
     float ipT11 = ( *tens11 )[globalElmNodeResIndex];
     float ipT22 = ( *tens22 )[globalElmNodeResIndex];
@@ -230,9 +227,9 @@ float RiuGeoMechXfTensorResultAccessor::calculateElmNodeValue( const std::array<
     float ipT23 = ( *tens23 )[globalElmNodeResIndex];
     float ipT13 = ( *tens13 )[globalElmNodeResIndex];
 
-    if ( ipT11 == HUGE_VAL || ipT11 != ipT11 || ipT22 == HUGE_VAL || ipT22 != ipT22 || ipT33 == HUGE_VAL ||
-         ipT33 != ipT33 || ipT12 == HUGE_VAL || ipT12 != ipT12 || ipT23 == HUGE_VAL || ipT23 != ipT23 ||
-         ipT13 == HUGE_VAL || ipT13 != ipT13 ) // a != a is true for NAN's
+    if ( ipT11 == HUGE_VAL || ipT11 != ipT11 || ipT22 == HUGE_VAL || ipT22 != ipT22 || ipT33 == HUGE_VAL || ipT33 != ipT33 ||
+         ipT12 == HUGE_VAL || ipT12 != ipT12 || ipT23 == HUGE_VAL || ipT23 != ipT23 || ipT13 == HUGE_VAL || ipT13 != ipT13 ) // a != a is true
+                                                                                                                             // for NAN's
     {
         return std::numeric_limits<float>::infinity();
     }

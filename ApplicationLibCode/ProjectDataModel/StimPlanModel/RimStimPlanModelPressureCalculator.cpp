@@ -202,33 +202,27 @@ bool RimStimPlanModelPressureCalculator::extractValuesForProperty( RiaDefines::C
 
         if ( hasMissingValues( values ) )
         {
-            if ( useEqlnumForPressureInterpolation && !interpolateInitialPressureByEquilibrationRegion( curveProperty,
-                                                                                                        stimPlanModel,
-                                                                                                        timeStep,
-                                                                                                        measuredDepthValues,
-                                                                                                        tvDepthValues,
-                                                                                                        values ) )
+            if ( useEqlnumForPressureInterpolation &&
+                 !interpolateInitialPressureByEquilibrationRegion( curveProperty, stimPlanModel, timeStep, measuredDepthValues, tvDepthValues, values ) )
             {
                 RiaLogging::error( "Pressure interpolation by equilibration region failed." );
             }
 
             // Fill in regions where it was not possible top interpolate with equilibration regions.
-            if ( hasMissingValues( values ) )
-                RiaInterpolationTools::interpolateMissingValues( measuredDepthValues, values );
+            if ( hasMissingValues( values ) ) RiaInterpolationTools::interpolateMissingValues( measuredDepthValues, values );
         }
     }
     else if ( curveProperty == RiaDefines::CurveProperty::PRESSURE_GRADIENT )
     {
         std::vector<double> initialPressureValues = values;
         values.clear();
-        if ( useEqlnumForPressureInterpolation &&
-             !interpolatePressureDifferenceByEquilibrationRegion( curveProperty,
-                                                                  stimPlanModel,
-                                                                  timeStep,
-                                                                  measuredDepthValues,
-                                                                  tvDepthValues,
-                                                                  initialPressureValues,
-                                                                  values ) )
+        if ( useEqlnumForPressureInterpolation && !interpolatePressureDifferenceByEquilibrationRegion( curveProperty,
+                                                                                                       stimPlanModel,
+                                                                                                       timeStep,
+                                                                                                       measuredDepthValues,
+                                                                                                       tvDepthValues,
+                                                                                                       initialPressureValues,
+                                                                                                       values ) )
         {
             RiaLogging::error( "Pressure interpolation by equilibration region failed." );
         }
@@ -367,8 +361,7 @@ bool RimStimPlanModelPressureCalculator::extractPressureDataFromTable( RiaDefine
     const std::vector<double>& mdValuesOfWellPath  = wellPathGeometry->measuredDepths();
     const std::vector<double>& tvdValuesOfWellPath = wellPathGeometry->trueVerticalDepths();
 
-    measuredDepthValues =
-        RigWellPathGeometryTools::interpolateMdFromTvd( mdValuesOfWellPath, tvdValuesOfWellPath, tvDepthValues );
+    measuredDepthValues = RigWellPathGeometryTools::interpolateMdFromTvd( mdValuesOfWellPath, tvdValuesOfWellPath, tvDepthValues );
     CVF_ASSERT( measuredDepthValues.size() == tvDepthValues.size() );
 
     return true;
@@ -410,10 +403,8 @@ void RimStimPlanModelPressureCalculator::binByDepthAndAverage( DepthValuePairVec
     double minDepth = std::floor( depthValuePairs.front().first );
     double maxDepth = std::ceil( depthValuePairs.back().first );
 
-    RiaLogging::debug( QString( "Binning: min depth=%1 max depth=%2. Vec size=%3." )
-                           .arg( minDepth )
-                           .arg( maxDepth )
-                           .arg( depthValuePairs.size() ) );
+    RiaLogging::debug(
+        QString( "Binning: min depth=%1 max depth=%2. Vec size=%3." ).arg( minDepth ).arg( maxDepth ).arg( depthValuePairs.size() ) );
 
     double binSize = 1.0;
 
@@ -481,13 +472,9 @@ bool RimStimPlanModelPressureCalculator::buildPressureTablesPerEqlNum( const Rim
 
     RiaDefines::PorosityModelType porosityModel = RiaDefines::PorosityModelType::MATRIX_MODEL;
     const std::vector<double>&    eqlNumValues =
-        RimStimPlanModelWellLogCalculator::loadResults( eqlNumCaseData,
-                                                        porosityModel,
-                                                        RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                        "EQLNUM" );
+        RimStimPlanModelWellLogCalculator::loadResults( eqlNumCaseData, porosityModel, RiaDefines::ResultCatType::STATIC_NATIVE, "EQLNUM" );
 
-    RimEclipseCase* pressureEclipseCase =
-        stimPlanModel->eclipseCaseForProperty( RiaDefines::CurveProperty::INITIAL_PRESSURE );
+    RimEclipseCase* pressureEclipseCase = stimPlanModel->eclipseCaseForProperty( RiaDefines::CurveProperty::INITIAL_PRESSURE );
     CAF_ASSERT( pressureEclipseCase != nullptr );
 
     const RigGridBase* pressureGrid = pressureEclipseCase->mainGrid()->gridByIndex( gridIndex );
@@ -497,18 +484,15 @@ bool RimStimPlanModelPressureCalculator::buildPressureTablesPerEqlNum( const Rim
     CAF_ASSERT( pressureCaseData );
 
     const std::vector<double>& pressureValues =
-        RimStimPlanModelWellLogCalculator::loadResults( pressureCaseData,
-                                                        porosityModel,
-                                                        RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                        "PRESSURE" );
+        RimStimPlanModelWellLogCalculator::loadResults( pressureCaseData, porosityModel, RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" );
 
     auto   eqlNumActiveCellInfo = eqlNumCaseData->activeCellInfo( porosityModel );
     size_t eqlNumCellCount      = eqlNumActiveCellInfo->reservoirCellCount();
 
     auto pressureActiveCellInfo = pressureCaseData->activeCellInfo( porosityModel );
 
-    if ( eqlNumGrid->cellCountI() != pressureGrid->cellCountI() ||
-         eqlNumGrid->cellCountJ() != pressureGrid->cellCountJ() || eqlNumGrid->cellCountK() != pressureGrid->cellCountK() )
+    if ( eqlNumGrid->cellCountI() != pressureGrid->cellCountI() || eqlNumGrid->cellCountJ() != pressureGrid->cellCountJ() ||
+         eqlNumGrid->cellCountK() != pressureGrid->cellCountK() )
     {
         RiaLogging::error( "Unexpected number of cells when building pressure per EQLNUM table. " );
         RiaLogging::error( "Grid needs to have identical geometry." );
@@ -553,9 +537,7 @@ bool RimStimPlanModelPressureCalculator::buildPressureTablesPerEqlNum( const Rim
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimStimPlanModelPressureCalculator::interpolatePressure( const DepthValuePairVector& depthValuePairs,
-                                                                double                      depth,
-                                                                int                         eqlNum )
+double RimStimPlanModelPressureCalculator::interpolatePressure( const DepthValuePairVector& depthValuePairs, double depth, int eqlNum )
 {
     std::vector<double> depths;
     for ( auto dvp : depthValuePairs )
@@ -597,13 +579,12 @@ double RimStimPlanModelPressureCalculator::interpolatePressure( const DepthValue
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimStimPlanModelPressureCalculator::interpolateInitialPressureByEquilibrationRegion(
-    RiaDefines::CurveProperty  curveProperty,
-    const RimStimPlanModel*    stimPlanModel,
-    int                        timeStep,
-    const std::vector<double>& measuredDepthValues,
-    const std::vector<double>& tvDepthValues,
-    std::vector<double>&       values ) const
+bool RimStimPlanModelPressureCalculator::interpolateInitialPressureByEquilibrationRegion( RiaDefines::CurveProperty  curveProperty,
+                                                                                          const RimStimPlanModel*    stimPlanModel,
+                                                                                          int                        timeStep,
+                                                                                          const std::vector<double>& measuredDepthValues,
+                                                                                          const std::vector<double>& tvDepthValues,
+                                                                                          std::vector<double>&       values ) const
 {
     std::vector<double> eqlNumValues;
     std::vector<double> eqlNumMeasuredDepthsValues;
@@ -634,10 +615,8 @@ bool RimStimPlanModelPressureCalculator::interpolateInitialPressureByEquilibrati
     // EQLNUM data has values for over/underburden, but the pressure values does not.
     if ( eqlNumValues.size() != ( values.size() + 4 ) )
     {
-        RiaLogging::error(
-            QString( "Failed to build EQLNUM pressure data for initial pressure: result length mismatch." ) );
-        RiaLogging::error(
-            QString( "EQLNUM length: %1 PRESSURE length: %2" ).arg( eqlNumValues.size() ).arg( values.size() ) );
+        RiaLogging::error( QString( "Failed to build EQLNUM pressure data for initial pressure: result length mismatch." ) );
+        RiaLogging::error( QString( "EQLNUM length: %1 PRESSURE length: %2" ).arg( eqlNumValues.size() ).arg( values.size() ) );
         return false;
     }
 
@@ -664,14 +643,13 @@ bool RimStimPlanModelPressureCalculator::interpolateInitialPressureByEquilibrati
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimStimPlanModelPressureCalculator::interpolatePressureDifferenceByEquilibrationRegion(
-    RiaDefines::CurveProperty  curveProperty,
-    const RimStimPlanModel*    stimPlanModel,
-    int                        timeStep,
-    const std::vector<double>& measuredDepthValues,
-    const std::vector<double>& tvDepthValues,
-    const std::vector<double>& initialPressureValues,
-    std::vector<double>&       values ) const
+bool RimStimPlanModelPressureCalculator::interpolatePressureDifferenceByEquilibrationRegion( RiaDefines::CurveProperty  curveProperty,
+                                                                                             const RimStimPlanModel*    stimPlanModel,
+                                                                                             int                        timeStep,
+                                                                                             const std::vector<double>& measuredDepthValues,
+                                                                                             const std::vector<double>& tvDepthValues,
+                                                                                             const std::vector<double>& initialPressureValues,
+                                                                                             std::vector<double>&       values ) const
 {
     std::vector<double> eqlNumValues;
     std::vector<double> eqlNumMeasuredDepthsValues;
@@ -706,8 +684,7 @@ bool RimStimPlanModelPressureCalculator::interpolatePressureDifferenceByEquilibr
     if ( eqlNumValues.size() != ( values.size() + 4 ) )
     {
         RiaLogging::error( QString( "Failed to build EQLNUM pressure data: result length mismatch." ) );
-        RiaLogging::error(
-            QString( "EQLNUM length: %1 PRESSURE length: %2" ).arg( eqlNumValues.size() ).arg( values.size() ) );
+        RiaLogging::error( QString( "EQLNUM length: %1 PRESSURE length: %2" ).arg( eqlNumValues.size() ).arg( values.size() ) );
         return false;
     }
 
@@ -791,8 +768,7 @@ bool RimStimPlanModelPressureCalculator::handleFaciesWithInitialPressure( const 
             double currentPressure = values[i];
             double initialPressure = initialPressureValues[i];
             auto   faciesConfig    = faciesWithInitialPressure.find( faciesValue );
-            if ( faciesConfig != faciesWithInitialPressure.end() && !std::isinf( currentPressure ) &&
-                 !std::isinf( initialPressure ) )
+            if ( faciesConfig != faciesWithInitialPressure.end() && !std::isinf( currentPressure ) && !std::isinf( initialPressure ) )
             {
                 double fraction = faciesConfig->second;
                 double value    = initialPressure - ( initialPressure - currentPressure ) * fraction;

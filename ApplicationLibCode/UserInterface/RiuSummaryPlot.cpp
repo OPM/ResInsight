@@ -103,9 +103,7 @@ void RiuSummaryPlot::showContextMenu( QPoint pos )
                     if ( curveClicked )
                     {
                         QVariant curveVariant( QVariant::fromValue( static_cast<void*>( summaryCurve ) ) );
-                        menuBuilder.addCmdFeatureWithUserData( "RicNewSummaryPlotFromCurveFeature",
-                                                               "Create New Plot from Curve",
-                                                               curveVariant );
+                        menuBuilder.addCmdFeatureWithUserData( "RicNewSummaryPlotFromCurveFeature", "Create New Plot from Curve", curveVariant );
                     }
                 }
             }
@@ -126,7 +124,7 @@ void RiuSummaryPlot::showContextMenu( QPoint pos )
 
             if ( !curveClicked )
             {
-                auto* summaryPlot = static_cast<RimSummaryPlot*>( plotWidget()->plotDefinition() );
+                auto*                             summaryPlot = static_cast<RimSummaryPlot*>( plotWidget()->plotDefinition() );
                 std::vector<RimEnsembleCurveSet*> allCurveSetsInPlot;
                 summaryPlot->descendantsOfType( allCurveSetsInPlot );
                 for ( auto curveSet : allCurveSetsInPlot )
@@ -158,20 +156,13 @@ void RiuSummaryPlot::showContextMenu( QPoint pos )
                     {
                         if ( curveClicked )
                         {
-                            menuBuilder.addCmdFeatureWithUserData( "RicNewCorrelationPlotFeature",
-                                                                   "New Tornado Plot",
-                                                                   variant );
+                            menuBuilder.addCmdFeatureWithUserData( "RicNewCorrelationPlotFeature", "New Tornado Plot", variant );
                         }
-                        menuBuilder.addCmdFeatureWithUserData( "RicNewCorrelationMatrixPlotFeature",
-                                                               "New Matrix Plot",
-                                                               variant );
-                        menuBuilder.addCmdFeatureWithUserData( "RicNewCorrelationReportPlotFeature",
-                                                               "New Report Plot",
-                                                               variant );
+                        menuBuilder.addCmdFeatureWithUserData( "RicNewCorrelationMatrixPlotFeature", "New Matrix Plot", variant );
+                        menuBuilder.addCmdFeatureWithUserData( "RicNewCorrelationReportPlotFeature", "New Report Plot", variant );
                         if ( curveClicked )
                         {
-                            menuBuilder.subMenuStart( "Cross Plots",
-                                                      *caf::IconProvider( ":/CorrelationCrossPlot16x16.png" ).icon() );
+                            menuBuilder.subMenuStart( "Cross Plots", *caf::IconProvider( ":/CorrelationCrossPlot16x16.png" ).icon() );
                             std::vector<std::pair<RigEnsembleParameter, double>> ensembleParameters =
                                 ensemble->parameterCorrelations( clickedEnsembleCurveSet->summaryAddress(), timeStep );
                             std::sort( ensembleParameters.begin(),

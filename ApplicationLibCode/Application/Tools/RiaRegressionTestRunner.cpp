@@ -179,8 +179,7 @@ void RiaRegressionTestRunner::runRegressionTest()
         }
     }
 
-    QString htmlReportFileName =
-        generateHtmlReport( folderList, baseFolderName, generatedFolderName, diffFolderName, testDir );
+    QString htmlReportFileName = generateHtmlReport( folderList, baseFolderName, generatedFolderName, diffFolderName, testDir );
 
     if ( regressionTestConfig.openReportInBrowser() )
     {
@@ -201,8 +200,7 @@ void RiaRegressionTestRunner::runRegressionTest()
     {
         QDir testCaseFolder( folderFileInfo.filePath() );
 
-        bool anyCommandFilesExecuted =
-            findAndExecuteCommandFiles( testCaseFolder, regressionTestConfig, htmlReportFileName );
+        bool anyCommandFilesExecuted = findAndExecuteCommandFiles( testCaseFolder, regressionTestConfig, htmlReportFileName );
 
         if ( !anyCommandFilesExecuted )
         {
@@ -231,9 +229,7 @@ void RiaRegressionTestRunner::runRegressionTest()
                 }
                 logInfoTextWithTimeInSeconds( timeStamp, "Initializing test :" + testCaseFolder.absolutePath() );
 
-                app->loadProject( testCaseFolder.filePath( projectFileName ),
-                                  RiaApplication::ProjectLoadAction::PLA_NONE,
-                                  projectModifier.p() );
+                app->loadProject( testCaseFolder.filePath( projectFileName ), RiaApplication::ProjectLoadAction::PLA_NONE, projectModifier.p() );
 
                 // Wait until all command objects have completed
                 app->waitUntilCommandObjectsHasBeenProcessed();
@@ -270,8 +266,8 @@ void RiaRegressionTestRunner::runRegressionTest()
             }
             else
             {
-                RiaLogging::error( "Could not find a regression test file named : " + testCaseFolder.absolutePath() +
-                                   "/" + regTestProjectName + ".rsp" );
+                RiaLogging::error( "Could not find a regression test file named : " + testCaseFolder.absolutePath() + "/" +
+                                   regTestProjectName + ".rsp" );
             }
         }
 
@@ -289,9 +285,7 @@ void RiaRegressionTestRunner::runRegressionTest()
         {
             QString             fileName = baseImageFileNames[fIdx];
             RiaImageFileCompare imgComparator( RegTestNames::imageCompareExeName );
-            bool                ok = imgComparator.runComparison( genDir.filePath( fileName ),
-                                                   baseDir.filePath( fileName ),
-                                                   diffDir.filePath( fileName ) );
+            bool ok = imgComparator.runComparison( genDir.filePath( fileName ), baseDir.filePath( fileName ), diffDir.filePath( fileName ) );
             if ( !ok )
             {
                 qDebug() << "Error comparing :" << imgComparator.errorMessage() << "\n" << imgComparator.errorDetails();
@@ -432,9 +426,8 @@ bool RiaRegressionTestRunner::findAndExecuteCommandFiles( const QDir&           
 
                 html += "<table>\n";
                 html += "  <tr>\n";
-                html +=
-                    "    <td colspan=\"3\" bgcolor=\"darkblue\" height=\"40\">  <b><font color=\"white\" size=\"3\"> " +
-                    headerText + " </font></b> </td>\n";
+                html += "    <td colspan=\"3\" bgcolor=\"darkblue\" height=\"40\">  <b><font color=\"white\" size=\"3\"> " + headerText +
+                        " </font></b> </td>\n";
                 html += "  </tr>\n";
 
                 textFileCompare.runComparison( baseFilesFolderName, generatedFilesFolderName );
@@ -626,8 +619,7 @@ QFileInfoList RiaRegressionTestRunner::subDirectoriesForTestExecution( const QDi
         for ( const auto& s : m_testFilter )
         {
             QString trimmed = s.trimmed();
-            if ( ( m_appendAllTestsAfterLastItemInFilter && anyMatchFound ) ||
-                 baseName.compare( trimmed, Qt::CaseInsensitive ) == 0 )
+            if ( ( m_appendAllTestsAfterLastItemInFilter && anyMatchFound ) || baseName.compare( trimmed, Qt::CaseInsensitive ) == 0 )
             {
                 foldersMatchingTestFilter.push_back( fi );
                 anyMatchFound = true;
@@ -667,8 +659,7 @@ void RiaRegressionTestRunner::executeRegressionTests( const QString& regressionT
     {
         mainWnd->statusBar()->close();
         QByteArray curState = mainWnd->dockManager()->saveState( 0 );
-        mainWnd->dockManager()->restoreState(
-            RiuDockWidgetTools::defaultDockState( RiuDockWidgetTools::dockStateHideAll3DWindowName() ) );
+        mainWnd->dockManager()->restoreState( RiuDockWidgetTools::defaultDockState( RiuDockWidgetTools::dockStateHideAll3DWindowName() ) );
 
         mainWnd->setDefaultWindowSize();
 

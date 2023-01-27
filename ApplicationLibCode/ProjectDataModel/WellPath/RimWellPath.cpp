@@ -943,8 +943,7 @@ void RimWellPath::setFormationsGeometry( cvf::ref<RigWellPathFormations> wellPat
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimWellPath::readWellPathFormationsFile( QString*                       errorMessage,
-                                              RifWellPathFormationsImporter* wellPathFormationsImporter )
+bool RimWellPath::readWellPathFormationsFile( QString* errorMessage, RifWellPathFormationsImporter* wellPathFormationsImporter )
 {
     if ( m_wellPathFormationFilePath().path().isEmpty() )
     {
@@ -953,8 +952,8 @@ bool RimWellPath::readWellPathFormationsFile( QString*                       err
 
     if ( caf::Utils::fileExists( m_wellPathFormationFilePath().path() ) )
     {
-        m_wellPathFormations = wellPathFormationsImporter->readWellPathFormations( m_wellPathFormationFilePath().path(),
-                                                                                   m_formationKeyInFile() );
+        m_wellPathFormations =
+            wellPathFormationsImporter->readWellPathFormations( m_wellPathFormationFilePath().path(), m_formationKeyInFile() );
         if ( m_name().isEmpty() )
         {
             setName( m_formationKeyInFile() );
@@ -963,8 +962,7 @@ bool RimWellPath::readWellPathFormationsFile( QString*                       err
     }
     else
     {
-        if ( errorMessage )
-            ( *errorMessage ) = "Could not find the well pick file: " + m_wellPathFormationFilePath().path();
+        if ( errorMessage ) ( *errorMessage ) = "Could not find the well pick file: " + m_wellPathFormationFilePath().path();
         return false;
     }
 }
@@ -972,8 +970,7 @@ bool RimWellPath::readWellPathFormationsFile( QString*                       err
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimWellPath::reloadWellPathFormationsFile( QString*                       errorMessage,
-                                                RifWellPathFormationsImporter* wellPathFormationsImporter )
+bool RimWellPath::reloadWellPathFormationsFile( QString* errorMessage, RifWellPathFormationsImporter* wellPathFormationsImporter )
 {
     if ( m_wellPathFormationFilePath().path().isEmpty() )
     {
@@ -982,14 +979,13 @@ bool RimWellPath::reloadWellPathFormationsFile( QString*                       e
 
     if ( caf::Utils::fileExists( m_wellPathFormationFilePath().path() ) )
     {
-        m_wellPathFormations = wellPathFormationsImporter->reloadWellPathFormations( m_wellPathFormationFilePath().path(),
-                                                                                     m_formationKeyInFile() );
+        m_wellPathFormations =
+            wellPathFormationsImporter->reloadWellPathFormations( m_wellPathFormationFilePath().path(), m_formationKeyInFile() );
         return true;
     }
     else
     {
-        if ( errorMessage )
-            ( *errorMessage ) = "Could not find the well pick file: " + m_wellPathFormationFilePath().path();
+        if ( errorMessage ) ( *errorMessage ) = "Could not find the well pick file: " + m_wellPathFormationFilePath().path();
         return false;
     }
 }
@@ -1092,8 +1088,7 @@ bool RimWellPath::isAssociatedWithSimulationWell() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPath::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                                  std::vector<caf::PdmObjectHandle*>& referringObjects )
+void RimWellPath::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     RimProject::current()->reloadCompletionTypeResultsInAllViews();
 

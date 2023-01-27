@@ -89,8 +89,7 @@ void RicChangeDataSourceFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicChangeDataSourceFeature::selectedTracksAndCurves( std::vector<RimWellLogCurve*>* curves,
-                                                          std::vector<RimWellLogTrack*>* tracks )
+bool RicChangeDataSourceFeature::selectedTracksAndCurves( std::vector<RimWellLogCurve*>* curves, std::vector<RimWellLogTrack*>* tracks )
 {
     CVF_ASSERT( curves && tracks );
     std::vector<caf::PdmObject*> selectedObjects;

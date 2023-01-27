@@ -62,8 +62,7 @@ void RiuQwtPlotWheelZoomer::zoomOnAxis( QwtPlot* plot, QwtAxis::Position axis, d
     {
         // Handle inverted axes as well by not assuming maxValue > minValue
         double minValue = std::max( RIU_LOGARITHMIC_MINIMUM, 0.1 * std::min( axisRange.minValue(), axisRange.maxValue() ) );
-        double maxValue =
-            std::max( RIU_LOGARITHMIC_MINIMUM, 10.0 * std::max( axisRange.minValue(), axisRange.maxValue() ) );
+        double maxValue = std::max( RIU_LOGARITHMIC_MINIMUM, 10.0 * std::max( axisRange.minValue(), axisRange.maxValue() ) );
 
         newMin = std::clamp( newMin, minValue, maxValue );
         newMax = std::clamp( newMax, minValue, maxValue );

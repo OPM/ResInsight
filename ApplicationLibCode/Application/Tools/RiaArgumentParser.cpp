@@ -67,19 +67,10 @@ bool RiaArgumentParser::parseArguments( cvf::ProgramOptions* progOpt )
                              "If <filename> has extension .SMSPEC, import the summary file (does not open the "
                              "corresponding grid file)",
                              cvf::ProgramOptions::MULTI_VALUE );
-    progOpt->registerOption( "size",
-                             "<width> <height>",
-                             "Set size of the main application window.",
-                             cvf::ProgramOptions::MULTI_VALUE );
+    progOpt->registerOption( "size", "<width> <height>", "Set size of the main application window.", cvf::ProgramOptions::MULTI_VALUE );
     progOpt->registerOption( "console", "", "Launch as a console application without graphics" );
-    progOpt->registerOption( "server",
-                             "[<portnumber>]",
-                             "Launch as a GRPC server. Default port is 50051",
-                             cvf::ProgramOptions::SINGLE_VALUE );
-    progOpt->registerOption( "portnumberfile",
-                             "[<filename>]",
-                             "Write the port number to this file.",
-                             cvf::ProgramOptions::SINGLE_VALUE );
+    progOpt->registerOption( "server", "[<portnumber>]", "Launch as a GRPC server. Default port is 50051", cvf::ProgramOptions::SINGLE_VALUE );
+    progOpt->registerOption( "portnumberfile", "[<filename>]", "Write the port number to this file.", cvf::ProgramOptions::SINGLE_VALUE );
 
     progOpt->registerOption( "startdir", "<folder>", "Set startup directory.\n", cvf::ProgramOptions::SINGLE_VALUE );
 
@@ -101,10 +92,7 @@ bool RiaArgumentParser::parseArguments( cvf::ProgramOptions* progOpt )
                              "'commandFileReplaceCases'.\n",
                              cvf::ProgramOptions::SINGLE_VALUE );
 
-    progOpt->registerOption( "snapshotsize",
-                             "<width> <height>",
-                             "Set size of exported snapshot images.",
-                             cvf::ProgramOptions::MULTI_VALUE );
+    progOpt->registerOption( "snapshotsize", "<width> <height>", "Set size of exported snapshot images.", cvf::ProgramOptions::MULTI_VALUE );
     progOpt->registerOption( "snapshotfolder",
                              "<folder>",
                              "Set the destination folder for exported snapshot images.\n",

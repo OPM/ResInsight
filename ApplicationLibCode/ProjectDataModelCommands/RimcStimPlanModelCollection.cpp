@@ -31,9 +31,7 @@
 #include "cafPdmAbstractFieldScriptingCapability.h"
 #include "cafPdmFieldScriptingCapability.h"
 
-CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimStimPlanModelCollection,
-                                   RimcStimPlanModelCollection_appendStimPlanModel,
-                                   "AppendStimPlanModel" );
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimStimPlanModelCollection, RimcStimPlanModelCollection_appendStimPlanModel, "AppendStimPlanModel" );
 
 //--------------------------------------------------------------------------------------------------
 ///

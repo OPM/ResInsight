@@ -95,9 +95,7 @@ caf::PdmScriptResponse RicfSingleCaseReplace::execute()
         projectModifier->setReplaceCase( m_caseId(), filePath );
     }
 
-    if ( !RiaApplication::instance()->loadProject( projectPath,
-                                                   RiaApplication::ProjectLoadAction::PLA_NONE,
-                                                   projectModifier.p() ) )
+    if ( !RiaApplication::instance()->loadProject( projectPath, RiaApplication::ProjectLoadAction::PLA_NONE, projectModifier.p() ) )
     {
         QString errMsg( "Could not reload project" );
         RiaLogging::error( errMsg );
@@ -167,9 +165,7 @@ caf::PdmScriptResponse RicfMultiCaseReplace::execute()
         }
     }
 
-    if ( !RiaApplication::instance()->loadProject( lastProjectPath,
-                                                   RiaApplication::ProjectLoadAction::PLA_NONE,
-                                                   projectModifier.p() ) )
+    if ( !RiaApplication::instance()->loadProject( lastProjectPath, RiaApplication::ProjectLoadAction::PLA_NONE, projectModifier.p() ) )
     {
         QString errMsg( "Could not reload project" );
         RiaLogging::error( errMsg );

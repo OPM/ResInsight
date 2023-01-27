@@ -74,8 +74,7 @@ void RicCopyReferencesToClipboardFeature::onActionTriggered( bool isChecked )
         if ( RicCopyReferencesToClipboardFeature::isCopyOfObjectSupported( pdmObject ) )
         {
             QString itemRef =
-                caf::PdmReferenceHelper::referenceFromRootToObject( caf::SelectionManager::instance()->pdmRootObject(),
-                                                                    pdmObject );
+                caf::PdmReferenceHelper::referenceFromRootToObject( caf::SelectionManager::instance()->pdmRootObject(), pdmObject );
 
             referenceList.push_back( itemRef );
         }

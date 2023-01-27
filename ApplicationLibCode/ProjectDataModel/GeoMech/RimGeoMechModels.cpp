@@ -88,8 +88,8 @@ RimGeoMechCase* RimGeoMechModels::copyCase( RimGeoMechCase* thecase, const QStri
     RimGeoMechCase* copy = thecase->createCopy( newInputFileName );
     if ( !copy )
     {
-        RiaLogging::warning( "Could not create a copy of the geomech case" + thecase->caseUserDescription() +
-                             " using the new input file " + newInputFileName );
+        RiaLogging::warning( "Could not create a copy of the geomech case" + thecase->caseUserDescription() + " using the new input file " +
+                             newInputFileName );
         return nullptr;
     }
 

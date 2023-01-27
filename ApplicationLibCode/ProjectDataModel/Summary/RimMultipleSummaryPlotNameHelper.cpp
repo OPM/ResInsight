@@ -67,9 +67,7 @@ bool RimMultiSummaryPlotNameHelper::isPlotDisplayingSingleVectorName() const
 //--------------------------------------------------------------------------------------------------
 bool RimMultiSummaryPlotNameHelper::isWellNameInTitle() const
 {
-    return std::any_of( m_nameHelpers.begin(), m_nameHelpers.end(), []( auto nameHelper ) {
-        return nameHelper->isWellNameInTitle();
-    } );
+    return std::any_of( m_nameHelpers.begin(), m_nameHelpers.end(), []( auto nameHelper ) { return nameHelper->isWellNameInTitle(); } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,9 +75,7 @@ bool RimMultiSummaryPlotNameHelper::isWellNameInTitle() const
 //--------------------------------------------------------------------------------------------------
 bool RimMultiSummaryPlotNameHelper::isGroupNameInTitle() const
 {
-    return std::any_of( m_nameHelpers.begin(), m_nameHelpers.end(), []( auto nameHelper ) {
-        return nameHelper->isGroupNameInTitle();
-    } );
+    return std::any_of( m_nameHelpers.begin(), m_nameHelpers.end(), []( auto nameHelper ) { return nameHelper->isGroupNameInTitle(); } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,9 +83,7 @@ bool RimMultiSummaryPlotNameHelper::isGroupNameInTitle() const
 //--------------------------------------------------------------------------------------------------
 bool RimMultiSummaryPlotNameHelper::isRegionInTitle() const
 {
-    return std::any_of( m_nameHelpers.begin(), m_nameHelpers.end(), []( auto nameHelper ) {
-        return nameHelper->isRegionInTitle();
-    } );
+    return std::any_of( m_nameHelpers.begin(), m_nameHelpers.end(), []( auto nameHelper ) { return nameHelper->isRegionInTitle(); } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -97,9 +91,7 @@ bool RimMultiSummaryPlotNameHelper::isRegionInTitle() const
 //--------------------------------------------------------------------------------------------------
 bool RimMultiSummaryPlotNameHelper::isCaseInTitle() const
 {
-    return std::any_of( m_nameHelpers.begin(), m_nameHelpers.end(), []( auto nameHelper ) {
-        return nameHelper->isCaseInTitle();
-    } );
+    return std::any_of( m_nameHelpers.begin(), m_nameHelpers.end(), []( auto nameHelper ) { return nameHelper->isCaseInTitle(); } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -107,9 +99,7 @@ bool RimMultiSummaryPlotNameHelper::isCaseInTitle() const
 //--------------------------------------------------------------------------------------------------
 bool RimMultiSummaryPlotNameHelper::isBlockInTitle() const
 {
-    return std::any_of( m_nameHelpers.begin(), m_nameHelpers.end(), []( auto nameHelper ) {
-        return nameHelper->isBlockInTitle();
-    } );
+    return std::any_of( m_nameHelpers.begin(), m_nameHelpers.end(), []( auto nameHelper ) { return nameHelper->isBlockInTitle(); } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -117,9 +107,7 @@ bool RimMultiSummaryPlotNameHelper::isBlockInTitle() const
 //--------------------------------------------------------------------------------------------------
 bool RimMultiSummaryPlotNameHelper::isSegmentInTitle() const
 {
-    return std::any_of( m_nameHelpers.begin(), m_nameHelpers.end(), []( auto nameHelper ) {
-        return nameHelper->isSegmentInTitle();
-    } );
+    return std::any_of( m_nameHelpers.begin(), m_nameHelpers.end(), []( auto nameHelper ) { return nameHelper->isSegmentInTitle(); } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -127,9 +115,7 @@ bool RimMultiSummaryPlotNameHelper::isSegmentInTitle() const
 //--------------------------------------------------------------------------------------------------
 bool RimMultiSummaryPlotNameHelper::isCompletionInTitle() const
 {
-    return std::any_of( m_nameHelpers.begin(), m_nameHelpers.end(), []( auto nameHelper ) {
-        return nameHelper->isCompletionInTitle();
-    } );
+    return std::any_of( m_nameHelpers.begin(), m_nameHelpers.end(), []( auto nameHelper ) { return nameHelper->isCompletionInTitle(); } );
 }
 
 //--------------------------------------------------------------------------------------------------

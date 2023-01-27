@@ -8,8 +8,7 @@
 #include <QFile>
 #include <QTextStream>
 
-static const QString CASE_REAL_TEST_DATA_DIRECTORY_04 =
-    QString( "%1/RifPressureDepthTextFileReader/" ).arg( TEST_DATA_DIR );
+static const QString CASE_REAL_TEST_DATA_DIRECTORY_04 = QString( "%1/RifPressureDepthTextFileReader/" ).arg( TEST_DATA_DIR );
 
 //--------------------------------------------------------------------------------------------------
 ///

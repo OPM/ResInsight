@@ -199,9 +199,7 @@ void RimPlotTemplateFolderItem::searchForFileAndFolderNames( int levelsLeft )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotTemplateFolderItem::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                       QString                    uiConfigName,
-                                                       caf::PdmUiEditorAttribute* attribute )
+void RimPlotTemplateFolderItem::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_folderName )
     {
@@ -230,8 +228,8 @@ void RimPlotTemplateFolderItem::defineUiOrdering( QString uiConfigName, caf::Pdm
 ///
 //--------------------------------------------------------------------------------------------------
 void RimPlotTemplateFolderItem::appendOptionItemsForPlotTemplatesRecursively( QList<caf::PdmOptionItemInfo>& options,
-                                                                              RimPlotTemplateFolderItem* templateFolderItem,
-                                                                              int                        menuLevel )
+                                                                              RimPlotTemplateFolderItem*     templateFolderItem,
+                                                                              int                            menuLevel )
 {
     {
         auto subFolders = templateFolderItem->subFolders();

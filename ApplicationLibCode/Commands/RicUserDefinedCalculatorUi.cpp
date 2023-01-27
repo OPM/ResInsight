@@ -94,9 +94,7 @@ bool RicUserDefinedCalculatorUi::parseExpression() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicUserDefinedCalculatorUi::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                   const QVariant&            oldValue,
-                                                   const QVariant&            newValue )
+void RicUserDefinedCalculatorUi::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_newCalculation )
     {
@@ -150,8 +148,7 @@ void RicUserDefinedCalculatorUi::defineUiOrdering( QString uiConfigName, caf::Pd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RicUserDefinedCalculatorUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RicUserDefinedCalculatorUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &m_currentCalculation )
@@ -223,9 +220,7 @@ bool RicUserDefinedCalculatorUi::calculate() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicUserDefinedCalculatorUi::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                        QString                    uiConfigName,
-                                                        caf::PdmUiEditorAttribute* attribute )
+void RicUserDefinedCalculatorUi::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( &m_newCalculation == field )
     {

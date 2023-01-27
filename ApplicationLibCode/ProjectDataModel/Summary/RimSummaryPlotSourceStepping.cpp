@@ -69,10 +69,7 @@ RimSummaryPlotSourceStepping::RimSummaryPlotSourceStepping()
 
     CAF_PDM_InitFieldNoDefault( &m_summaryCase, "CurveCase", "Case" );
 
-    CAF_PDM_InitField( &m_includeEnsembleCasesForCaseStepping,
-                       "IncludeEnsembleCasesForCaseStepping",
-                       true,
-                       "Include Ensemble Cases in Case List" );
+    CAF_PDM_InitField( &m_includeEnsembleCasesForCaseStepping, "IncludeEnsembleCasesForCaseStepping", true, "Include Ensemble Cases in Case List" );
 
     CAF_PDM_InitFieldNoDefault( &m_wellName, "WellName", "Well Name" );
     CAF_PDM_InitFieldNoDefault( &m_groupName, "GroupName", "Group Name" );
@@ -168,12 +165,11 @@ void RimSummaryPlotSourceStepping::defineUiOrdering( QString uiConfigName, caf::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimSummaryPlotSourceStepping::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RimSummaryPlotSourceStepping::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     if ( ( fieldNeedingOptions == &m_placeholderForLabel ) || ( fieldNeedingOptions == &m_indexLabel ) ||
-         ( fieldNeedingOptions == &m_autoUpdateAppearance ) ||
-         ( fieldNeedingOptions == &m_includeEnsembleCasesForCaseStepping ) || ( fieldNeedingOptions == &m_stepDimension ) )
+         ( fieldNeedingOptions == &m_autoUpdateAppearance ) || ( fieldNeedingOptions == &m_includeEnsembleCasesForCaseStepping ) ||
+         ( fieldNeedingOptions == &m_stepDimension ) )
     {
         return {};
     }
@@ -321,9 +317,7 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                     const QVariant&            oldValue,
-                                                     const QVariant&            newValue )
+void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     std::vector<RimSummaryCurve*> curves;
     if ( dataSourceSteppingObject() ) curves = dataSourceSteppingObject()->allCurves( m_sourceSteppingType );
@@ -368,7 +362,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
         if ( m_summaryCase() )
         {
             caf::PdmPointer<caf::PdmObjectHandle> variantHandle = oldValue.value<caf::PdmPointer<caf::PdmObjectHandle>>();
-            RimSummaryCase*                       previousCase = dynamic_cast<RimSummaryCase*>( variantHandle.p() );
+            RimSummaryCase*                       previousCase  = dynamic_cast<RimSummaryCase*>( variantHandle.p() );
 
             for ( auto curve : curves )
             {
@@ -406,8 +400,8 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
     {
         if ( m_ensemble() && dataSourceSteppingObject() )
         {
-            caf::PdmPointer<caf::PdmObjectHandle> variantHandle = oldValue.value<caf::PdmPointer<caf::PdmObjectHandle>>();
-            RimSummaryCaseCollection* previousCollection = dynamic_cast<RimSummaryCaseCollection*>( variantHandle.p() );
+            caf::PdmPointer<caf::PdmObjectHandle> variantHandle      = oldValue.value<caf::PdmPointer<caf::PdmObjectHandle>>();
+            RimSummaryCaseCollection*             previousCollection = dynamic_cast<RimSummaryCaseCollection*>( variantHandle.p() );
 
             for ( auto curveSet : dataSourceSteppingObject()->curveSets() )
             {
@@ -434,8 +428,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
             for ( auto curveSet : dataSourceSteppingObject()->curveSets() )
             {
                 auto adr = curveSet->summaryAddress();
-                if ( RimDataSourceSteppingTools::updateQuantityIfMatching( oldValue, newValue, &adr ) )
-                    curveSet->setSummaryAddress( adr );
+                if ( RimDataSourceSteppingTools::updateQuantityIfMatching( oldValue, newValue, &adr ) ) curveSet->setSummaryAddress( adr );
             }
         }
 
@@ -616,8 +609,7 @@ std::set<RifEclipseSummaryAddress> RimSummaryPlotSourceStepping::adressesForSour
         }
 
         std::vector<RimSummaryCurve*> curves;
-        if ( dataSourceSteppingObject() )
-            curves = dataSourceSteppingObject()->curvesForStepping( m_sourceSteppingType );
+        if ( dataSourceSteppingObject() ) curves = dataSourceSteppingObject()->curvesForStepping( m_sourceSteppingType );
 
         for ( auto curve : curves )
         {
@@ -655,8 +647,7 @@ std::set<RifEclipseSummaryAddress> RimSummaryPlotSourceStepping::addressesForCur
         }
 
         std::vector<RimSummaryCurve*> curves;
-        if ( dataSourceSteppingObject() )
-            curves = dataSourceSteppingObject()->curvesForStepping( m_sourceSteppingType );
+        if ( dataSourceSteppingObject() ) curves = dataSourceSteppingObject()->curvesForStepping( m_sourceSteppingType );
 
         for ( auto curve : curves )
         {
@@ -810,7 +801,7 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::activeFieldsForD
 
             if ( analyzer.wellCompletions( m_wellName().toStdString() ).size() == 1 )
             {
-                QString txt = QString::fromStdString( *( analyzer.wellCompletions( m_wellName().toStdString() ).begin() ) );
+                QString txt  = QString::fromStdString( *( analyzer.wellCompletions( m_wellName().toStdString() ).begin() ) );
                 m_completion = txt;
 
                 fieldsCommonForAllCurves.push_back( &m_completion );
@@ -1285,15 +1276,13 @@ void RimSummaryPlotSourceStepping::updateVectorNameInCurves( std::vector<RimSumm
         if ( isYAxisStepping() )
         {
             auto adr = curve->summaryAddressY();
-            if ( RimDataSourceSteppingTools::updateQuantityIfMatching( oldValue, newValue, &adr ) )
-                curve->setSummaryAddressY( adr );
+            if ( RimDataSourceSteppingTools::updateQuantityIfMatching( oldValue, newValue, &adr ) ) curve->setSummaryAddressY( adr );
         }
 
         if ( isXAxisStepping() )
         {
             auto adr = curve->summaryAddressX();
-            if ( RimDataSourceSteppingTools::updateQuantityIfMatching( oldValue, newValue, &adr ) )
-                curve->setSummaryAddressX( adr );
+            if ( RimDataSourceSteppingTools::updateQuantityIfMatching( oldValue, newValue, &adr ) ) curve->setSummaryAddressX( adr );
         }
 
         if ( m_autoUpdateAppearance )

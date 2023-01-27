@@ -636,12 +636,9 @@ caf::ColorTable RiaColorTables::createBrightnessBasedColorTable( cvf::Color3ub b
 //--------------------------------------------------------------------------------------------------
 std::map<RiaDefines::PhaseType, caf::ColorTable> RiaColorTables::phaseColors()
 {
-    static std::vector<cvf::Color3ub> waterColors{ cvf::Color3ub( cvf::Color3::DARK_BLUE ),
-                                                   cvf::Color3ub( cvf::Color3::SKY_BLUE ) };
-    static std::vector<cvf::Color3ub> gasColors{ cvf::Color3ub( cvf::Color3::DARK_RED ),
-                                                 cvf::Color3ub( cvf::Color3::PINK ) };
-    static std::vector<cvf::Color3ub> oilColors{ cvf::Color3ub( cvf::Color3::DARK_GREEN ),
-                                                 cvf::Color3ub( cvf::Color3::YELLOW_GREEN ) };
+    static std::vector<cvf::Color3ub> waterColors{ cvf::Color3ub( cvf::Color3::DARK_BLUE ), cvf::Color3ub( cvf::Color3::SKY_BLUE ) };
+    static std::vector<cvf::Color3ub> gasColors{ cvf::Color3ub( cvf::Color3::DARK_RED ), cvf::Color3ub( cvf::Color3::PINK ) };
+    static std::vector<cvf::Color3ub> oilColors{ cvf::Color3ub( cvf::Color3::DARK_GREEN ), cvf::Color3ub( cvf::Color3::YELLOW_GREEN ) };
 
     return { { RiaDefines::PhaseType::WATER_PHASE, caf::ColorTable( waterColors ) },
              { RiaDefines::PhaseType::GAS_PHASE, caf::ColorTable( gasColors ) },

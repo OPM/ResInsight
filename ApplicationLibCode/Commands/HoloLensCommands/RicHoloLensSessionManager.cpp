@@ -48,9 +48,7 @@ RicHoloLensSessionManager* RicHoloLensSessionManager::instance()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicHoloLensSessionManager::createSession( const QString& serverUrl,
-                                               const QString& sessionName,
-                                               const QString& sessionPinCode )
+bool RicHoloLensSessionManager::createSession( const QString& serverUrl, const QString& sessionName, const QString& sessionPinCode )
 {
     if ( m_session )
     {
@@ -58,10 +56,8 @@ bool RicHoloLensSessionManager::createSession( const QString& serverUrl,
         return false;
     }
 
-    RiaLogging::info( QString( "Creating HoloLens session: '%1' with pin code: %2, server url: %3" )
-                          .arg( sessionName )
-                          .arg( sessionPinCode )
-                          .arg( serverUrl ) );
+    RiaLogging::info(
+        QString( "Creating HoloLens session: '%1' with pin code: %2, server url: %3" ).arg( sessionName ).arg( sessionPinCode ).arg( serverUrl ) );
     m_session = RicHoloLensSession::createSession( serverUrl, sessionName, sessionPinCode.toLatin1(), this );
 
     refreshToolbarState();

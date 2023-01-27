@@ -50,8 +50,7 @@ void RicNewStimPlanModelTemplateFeature::onActionTriggered( bool isChecked )
     RimOilField* oilfield = project->activeOilField();
     if ( !oilfield ) return;
 
-    RimStimPlanModelTemplateCollection* fracModColl =
-        oilfield->completionTemplateCollection->stimPlanModelTemplateCollection();
+    RimStimPlanModelTemplateCollection* fracModColl = oilfield->completionTemplateCollection->stimPlanModelTemplateCollection();
     if ( !fracModColl ) return;
 
     RimStimPlanModelTemplate* stimPlanModelTemplate = new RimStimPlanModelTemplate;

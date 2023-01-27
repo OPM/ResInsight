@@ -80,12 +80,8 @@ void caf::AppEnum<RimMudWeightWindowParameters::LowerLimitType>::setUp()
 template <>
 void caf::AppEnum<RimMudWeightWindowParameters::FractureGradientCalculationType>::setUp()
 {
-    addItem( RimMudWeightWindowParameters::FractureGradientCalculationType::DERIVED_FROM_K0FG,
-             "DERIVED_FROM_K0FG",
-             "FG derived from K0_FG" );
-    addItem( RimMudWeightWindowParameters::FractureGradientCalculationType::PROPORTIONAL_TO_SH,
-             "PROPORTIONAL_TO_SH",
-             "Proportional to SH" );
+    addItem( RimMudWeightWindowParameters::FractureGradientCalculationType::DERIVED_FROM_K0FG, "DERIVED_FROM_K0FG", "FG derived from K0_FG" );
+    addItem( RimMudWeightWindowParameters::FractureGradientCalculationType::PROPORTIONAL_TO_SH, "PROPORTIONAL_TO_SH", "Proportional to SH" );
     setDefault( RimMudWeightWindowParameters::FractureGradientCalculationType::DERIVED_FROM_K0FG );
 }
 
@@ -93,9 +89,7 @@ template <>
 void caf::AppEnum<RimMudWeightWindowParameters::NonReservoirPorePressureType>::setUp()
 {
     addItem( RimMudWeightWindowParameters::NonReservoirPorePressureType::HYDROSTATIC, "HYDROSTATIC", "Hydrostatic" );
-    addItem( RimMudWeightWindowParameters::NonReservoirPorePressureType::PER_ELEMENT,
-             "PER_ELEMENT",
-             "From element properties" );
+    addItem( RimMudWeightWindowParameters::NonReservoirPorePressureType::PER_ELEMENT, "PER_ELEMENT", "From element properties" );
     setDefault( RimMudWeightWindowParameters::NonReservoirPorePressureType::HYDROSTATIC );
 }
 
@@ -162,14 +156,11 @@ RimMudWeightWindowParameters::RimMudWeightWindowParameters( void )
         std::make_tuple( &m_wellDeviationType, &m_wellDeviationFixed, &m_wellDeviationAddress );
     m_parameterFields[RimMudWeightWindowParameters::ParameterType::WELL_AZIMUTH] =
         std::make_tuple( &m_wellAzimuthType, &m_wellAzimuthFixed, &m_wellAzimuthAddress );
-    m_parameterFields[RimMudWeightWindowParameters::ParameterType::UCS] =
-        std::make_tuple( &m_UCSType, &m_UCSFixed, &m_UCSAddress );
+    m_parameterFields[RimMudWeightWindowParameters::ParameterType::UCS] = std::make_tuple( &m_UCSType, &m_UCSFixed, &m_UCSAddress );
     m_parameterFields[RimMudWeightWindowParameters::ParameterType::POISSONS_RATIO] =
         std::make_tuple( &m_poissonsRatioType, &m_poissonsRatioFixed, &m_poissonsRatioAddress );
-    m_parameterFields[RimMudWeightWindowParameters::ParameterType::K0_FG] =
-        std::make_tuple( &m_K0_FGType, &m_K0_FGFixed, &m_K0_FGAddress );
-    m_parameterFields[RimMudWeightWindowParameters::ParameterType::OBG0] =
-        std::make_tuple( &m_obg0Type, &m_obg0Fixed, &m_obg0Address );
+    m_parameterFields[RimMudWeightWindowParameters::ParameterType::K0_FG] = std::make_tuple( &m_K0_FGType, &m_K0_FGFixed, &m_K0_FGAddress );
+    m_parameterFields[RimMudWeightWindowParameters::ParameterType::OBG0]  = std::make_tuple( &m_obg0Type, &m_obg0Fixed, &m_obg0Address );
 
     CAF_PDM_InitField( &m_airGap, "AirGap", 0.0, "Air Gap" );
 
@@ -178,8 +169,7 @@ RimMudWeightWindowParameters::RimMudWeightWindowParameters( void )
     caf::AppEnum<UpperLimitType> defaultUpperLimitType = RimMudWeightWindowParameters::UpperLimitType::FG;
     CAF_PDM_InitField( &m_upperLimitType, "UpperLimitType", defaultUpperLimitType, "Upper Limit Type" );
 
-    caf::AppEnum<LowerLimitType> defaultLowerLimitType =
-        RimMudWeightWindowParameters::LowerLimitType::MAX_OF_PORE_PRESSURE_AND_SFG;
+    caf::AppEnum<LowerLimitType> defaultLowerLimitType = RimMudWeightWindowParameters::LowerLimitType::MAX_OF_PORE_PRESSURE_AND_SFG;
     CAF_PDM_InitField( &m_lowerLimitType, "LowerLimitType", defaultLowerLimitType, "Lower Limit Type" );
 
     caf::AppEnum<FractureGradientCalculationType> defaultFractureGradientCalculationType =
@@ -336,9 +326,7 @@ double RimMudWeightWindowParameters::airGap() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMudWeightWindowParameters::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                     const QVariant&            oldValue,
-                                                     const QVariant&            newValue )
+void RimMudWeightWindowParameters::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimGeoMechCase* geoMechCase = nullptr;
     firstAncestorOrThisOfType( geoMechCase );
@@ -347,8 +335,7 @@ void RimMudWeightWindowParameters::fieldChangedByUi( const caf::PdmFieldHandle* 
         return;
     }
 
-    if ( changedField == &m_wellDeviationFixed || changedField == &m_wellDeviationType ||
-         changedField == &m_wellDeviationAddress )
+    if ( changedField == &m_wellDeviationFixed || changedField == &m_wellDeviationType || changedField == &m_wellDeviationAddress )
     {
         handleFieldChanged( geoMechCase,
                             ParameterType::WELL_DEVIATION,
@@ -357,8 +344,7 @@ void RimMudWeightWindowParameters::fieldChangedByUi( const caf::PdmFieldHandle* 
                             &m_wellDeviationAddress,
                             changedField == &m_wellDeviationType );
     }
-    else if ( changedField == &m_wellAzimuthFixed || changedField == &m_wellAzimuthType ||
-              changedField == &m_wellAzimuthAddress )
+    else if ( changedField == &m_wellAzimuthFixed || changedField == &m_wellAzimuthType || changedField == &m_wellAzimuthAddress )
     {
         handleFieldChanged( geoMechCase,
                             ParameterType::WELL_AZIMUTH,
@@ -371,8 +357,7 @@ void RimMudWeightWindowParameters::fieldChangedByUi( const caf::PdmFieldHandle* 
     {
         handleFieldChanged( geoMechCase, ParameterType::UCS, &m_UCSType, &m_UCSFixed, &m_UCSAddress, changedField == &m_UCSType );
     }
-    else if ( changedField == &m_poissonsRatioFixed || changedField == &m_poissonsRatioType ||
-              changedField == &m_poissonsRatioAddress )
+    else if ( changedField == &m_poissonsRatioFixed || changedField == &m_poissonsRatioType || changedField == &m_poissonsRatioAddress )
     {
         handleFieldChanged( geoMechCase,
                             ParameterType::POISSONS_RATIO,
@@ -383,21 +368,16 @@ void RimMudWeightWindowParameters::fieldChangedByUi( const caf::PdmFieldHandle* 
     }
     else if ( changedField == &m_K0_FGFixed || changedField == &m_K0_FGType || changedField == &m_K0_FGAddress )
     {
-        handleFieldChanged( geoMechCase,
-                            ParameterType::K0_FG,
-                            &m_K0_FGType,
-                            &m_K0_FGFixed,
-                            &m_K0_FGAddress,
-                            changedField == &m_K0_FGType );
+        handleFieldChanged( geoMechCase, ParameterType::K0_FG, &m_K0_FGType, &m_K0_FGFixed, &m_K0_FGAddress, changedField == &m_K0_FGType );
     }
     else if ( changedField == &m_obg0Fixed || changedField == &m_obg0Type || changedField == &m_obg0Address )
     {
         handleFieldChanged( geoMechCase, ParameterType::OBG0, &m_obg0Type, &m_obg0Fixed, &m_obg0Address, changedField == &m_obg0Type );
     }
     else if ( changedField == &m_airGap || changedField == &m_upperLimitType || changedField == &m_lowerLimitType ||
-              changedField == &m_referenceLayer || changedField == &m_fractureGradientCalculationType ||
-              changedField == &m_shMultiplier || changedField == &m_porePressureNonReservoirSource ||
-              changedField == &m_userDefinedPPNonReservoir || changedField == &m_porePressureNonReservoirAddress )
+              changedField == &m_referenceLayer || changedField == &m_fractureGradientCalculationType || changedField == &m_shMultiplier ||
+              changedField == &m_porePressureNonReservoirSource || changedField == &m_userDefinedPPNonReservoir ||
+              changedField == &m_porePressureNonReservoirAddress )
     {
         RigGeoMechCaseData* rigCaseData = geoMechCase->geoMechData();
         if ( rigCaseData && rigCaseData->femPartResults() )
@@ -443,11 +423,10 @@ void RimMudWeightWindowParameters::handleFieldChanged( RimGeoMechCase*          
                 std::vector<std::string> elementProperties = geoMechCase->possibleElementPropertyFieldNames();
                 if ( elementProperties.empty() )
                 {
-                    QString title = caf::AppEnum<ParameterType>::uiText( parameterType );
-                    QString importMessage =
-                        QString( "Please import '%1' from file by "
-                                 "selecting 'Import Element Property Table' on the Geomechanical Model." )
-                            .arg( title );
+                    QString title         = caf::AppEnum<ParameterType>::uiText( parameterType );
+                    QString importMessage = QString( "Please import '%1' from file by "
+                                                     "selecting 'Import Element Property Table' on the Geomechanical Model." )
+                                                .arg( title );
                     RiaLogging::info( importMessage );
                     // Set back to default value
                     *typeField = typeField->defaultValue();
@@ -465,9 +444,7 @@ void RimMudWeightWindowParameters::handleFieldChanged( RimGeoMechCase*          
                 }
             }
 
-            rigCaseData->femPartResults()->setCalculationParameters( parameterType,
-                                                                     addressField->value(),
-                                                                     fixedField->value() );
+            rigCaseData->femPartResults()->setCalculationParameters( parameterType, addressField->value(), fixedField->value() );
         }
     }
 
@@ -496,32 +473,27 @@ void RimMudWeightWindowParameters::defineUiOrdering( QString uiConfigName, caf::
 
     if ( rigCaseData && m_referenceLayer == -1 )
     {
-        m_referenceLayer =
-            (int)rigCaseData->femParts()->part( 0 )->getOrCreateStructGrid()->reservoirIJKBoundingBox().first.z();
+        m_referenceLayer = (int)rigCaseData->femParts()->part( 0 )->getOrCreateStructGrid()->reservoirIJKBoundingBox().first.z();
     }
 
     uiOrdering.add( &m_fractureGradientCalculationType );
     uiOrdering.add( &m_shMultiplier );
     defineGroup( uiOrdering, "K0 for Fracture Gradient Factor for Shale", &m_K0_FGType, &m_K0_FGFixed, &m_K0_FGAddress );
 
-    m_shMultiplier.uiCapability()->setUiHidden( m_fractureGradientCalculationType !=
-                                                FractureGradientCalculationType::PROPORTIONAL_TO_SH );
+    m_shMultiplier.uiCapability()->setUiHidden( m_fractureGradientCalculationType != FractureGradientCalculationType::PROPORTIONAL_TO_SH );
 
     bool isDerivedFromK0_FG = m_fractureGradientCalculationType == FractureGradientCalculationType::DERIVED_FROM_K0FG;
     m_K0_FGType.uiCapability()->setUiHidden( !isDerivedFromK0_FG );
-    m_K0_FGFixed.uiCapability()->setUiHidden(
-        !( isDerivedFromK0_FG && m_K0_FGType == RimMudWeightWindowParameters::SourceType::FIXED ) );
+    m_K0_FGFixed.uiCapability()->setUiHidden( !( isDerivedFromK0_FG && m_K0_FGType == RimMudWeightWindowParameters::SourceType::FIXED ) );
     m_K0_FGAddress.uiCapability()->setUiHidden(
         !( isDerivedFromK0_FG && m_K0_FGType == RimMudWeightWindowParameters::SourceType::PER_ELEMENT ) );
 
     defineGroup( uiOrdering, "Initial Overburden Gradient", &m_obg0Type, &m_obg0Fixed, &m_obg0Address );
     m_obg0Type.uiCapability()->setUiHidden( !isDerivedFromK0_FG );
     m_obg0Fixed.uiCapability()->setUiHidden( true );
-    m_obg0Address.uiCapability()->setUiHidden(
-        !( isDerivedFromK0_FG && m_obg0Type == RimMudWeightWindowParameters::SourceType::PER_ELEMENT ) );
+    m_obg0Address.uiCapability()->setUiHidden( !( isDerivedFromK0_FG && m_obg0Type == RimMudWeightWindowParameters::SourceType::PER_ELEMENT ) );
 
-    bool ppNonResPerElement =
-        ( m_porePressureNonReservoirSource == RimMudWeightWindowParameters::NonReservoirPorePressureType::PER_ELEMENT );
+    bool ppNonResPerElement = ( m_porePressureNonReservoirSource == RimMudWeightWindowParameters::NonReservoirPorePressureType::PER_ELEMENT );
     m_userDefinedPPNonReservoir.uiCapability()->setUiHidden( ppNonResPerElement );
     m_porePressureNonReservoirAddress.uiCapability()->setUiHidden( !ppNonResPerElement );
 }
@@ -563,8 +535,7 @@ void RimMudWeightWindowParameters::defineEditorAttribute( const caf::PdmFieldHan
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimMudWeightWindowParameters::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RimMudWeightWindowParameters::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -582,8 +553,7 @@ QList<caf::PdmOptionItemInfo>
             }
         }
         else if ( fieldNeedingOptions == &m_wellDeviationType || fieldNeedingOptions == &m_wellAzimuthType ||
-                  fieldNeedingOptions == &m_UCSType || fieldNeedingOptions == &m_poissonsRatioType ||
-                  fieldNeedingOptions == &m_K0_FGType )
+                  fieldNeedingOptions == &m_UCSType || fieldNeedingOptions == &m_poissonsRatioType || fieldNeedingOptions == &m_K0_FGType )
         {
             std::vector<SourceType> sourceTypes = { SourceType::FIXED, SourceType::PER_ELEMENT };
             for ( auto sourceType : sourceTypes )
@@ -619,8 +589,7 @@ QList<caf::PdmOptionItemInfo>
         {
             if ( geoMechCase->geoMechData() )
             {
-                size_t kCount =
-                    geoMechCase->geoMechData()->femParts()->part( 0 )->getOrCreateStructGrid()->gridPointCountK() - 1;
+                size_t kCount = geoMechCase->geoMechData()->femParts()->part( 0 )->getOrCreateStructGrid()->gridPointCountK() - 1;
                 for ( size_t layerIdx = 0; layerIdx < kCount; ++layerIdx )
                 {
                     options.push_back( caf::PdmOptionItemInfo( QString::number( layerIdx + 1 ), (int)layerIdx ) );
@@ -659,8 +628,7 @@ void RimMudWeightWindowParameters::updateFemPartResults() const
     int referenceLayer = m_referenceLayer();
     if ( referenceLayer == -1 )
     {
-        referenceLayer =
-            (int)rigCaseData->femParts()->part( 0 )->getOrCreateStructGrid()->reservoirIJKBoundingBox().first.z();
+        referenceLayer = (int)rigCaseData->femParts()->part( 0 )->getOrCreateStructGrid()->reservoirIJKBoundingBox().first.z();
     }
 
     rigCaseData->femPartResults()->setMudWeightWindowParameters( m_airGap,
@@ -677,8 +645,7 @@ void RimMudWeightWindowParameters::updateFemPartResults() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMudWeightWindowParameters::updateFemPartsForParameter( ParameterType       parameterType,
-                                                               RigGeoMechCaseData* rigCaseData ) const
+void RimMudWeightWindowParameters::updateFemPartsForParameter( ParameterType parameterType, RigGeoMechCaseData* rigCaseData ) const
 {
     auto it = m_parameterFields.find( parameterType );
     if ( it == m_parameterFields.end() ) return;
@@ -696,9 +663,7 @@ void RimMudWeightWindowParameters::updateFemPartsForParameter( ParameterType    
         }
         else if ( typeField->value() == RimMudWeightWindowParameters::SourceType::PER_ELEMENT )
         {
-            rigCaseData->femPartResults()->setCalculationParameters( parameterType,
-                                                                     addressField->value(),
-                                                                     fixedField->value() );
+            rigCaseData->femPartResults()->setCalculationParameters( parameterType, addressField->value(), fixedField->value() );
         }
     }
 }

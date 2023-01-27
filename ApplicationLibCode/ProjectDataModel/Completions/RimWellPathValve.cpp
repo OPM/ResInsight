@@ -86,8 +86,7 @@ void RimWellPathValve::perforationIntervalUpdated()
         double endMD    = perfInterval->endMD();
         m_measuredDepth = std::clamp( m_measuredDepth(), std::min( startMD, endMD ), std::max( startMD, endMD ) );
     }
-    else if ( componentType() == RiaDefines::WellPathComponentType::ICD ||
-              componentType() == RiaDefines::WellPathComponentType::AICD )
+    else if ( componentType() == RiaDefines::WellPathComponentType::ICD || componentType() == RiaDefines::WellPathComponentType::AICD )
     {
         m_multipleValveLocations->perforationIntervalUpdated();
     }
@@ -128,8 +127,7 @@ std::vector<double> RimWellPathValve::valveLocations() const
     {
         valveDepths.push_back( m_measuredDepth );
     }
-    else if ( componentType() == RiaDefines::WellPathComponentType::ICD ||
-              componentType() == RiaDefines::WellPathComponentType::AICD )
+    else if ( componentType() == RiaDefines::WellPathComponentType::ICD || componentType() == RiaDefines::WellPathComponentType::AICD )
     {
         valveDepths = m_multipleValveLocations->valveLocations();
     }
@@ -485,9 +483,7 @@ QList<caf::PdmOptionItemInfo> RimWellPathValve::calculateValueOptions( const caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathValve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                         const QVariant&            oldValue,
-                                         const QVariant&            newValue )
+void RimWellPathValve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_valveTemplate )
     {
@@ -535,8 +531,7 @@ void RimWellPathValve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 
     if ( uiConfigName != "TemplateOnly" )
     {
-        if ( componentType() == RiaDefines::WellPathComponentType::ICV ||
-             componentType() == RiaDefines::WellPathComponentType::ICD )
+        if ( componentType() == RiaDefines::WellPathComponentType::ICV || componentType() == RiaDefines::WellPathComponentType::ICD )
         {
             if ( componentType() == RiaDefines::WellPathComponentType::ICV )
             {
@@ -557,8 +552,7 @@ void RimWellPathValve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
             }
         }
 
-        if ( componentType() == RiaDefines::WellPathComponentType::ICD ||
-             componentType() == RiaDefines::WellPathComponentType::AICD )
+        if ( componentType() == RiaDefines::WellPathComponentType::ICD || componentType() == RiaDefines::WellPathComponentType::AICD )
         {
             caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Multiple Valve Locations" );
             m_multipleValveLocations->uiOrdering( uiConfigName, *group );
@@ -576,9 +570,7 @@ void RimWellPathValve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathValve::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                              QString                    uiConfigName,
-                                              caf::PdmUiEditorAttribute* attribute )
+void RimWellPathValve::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_measuredDepth )
     {

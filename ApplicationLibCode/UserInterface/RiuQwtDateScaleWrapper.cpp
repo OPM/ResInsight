@@ -40,23 +40,13 @@ void RiuQwtDateScaleWrapper::setFormatStrings( const QString&                   
                                                RiaDefines::DateFormatComponents dateComponents,
                                                RiaDefines::TimeFormatComponents timeComponents )
 {
-    std::set<QwtDate::IntervalType> intervals = { QwtDate::Year,
-                                                  QwtDate::Month,
-                                                  QwtDate::Week,
-                                                  QwtDate::Day,
-                                                  QwtDate::Hour,
-                                                  QwtDate::Minute,
-                                                  QwtDate::Second,
-                                                  QwtDate::Millisecond };
+    std::set<QwtDate::IntervalType> intervals =
+        { QwtDate::Year, QwtDate::Month, QwtDate::Week, QwtDate::Day, QwtDate::Hour, QwtDate::Minute, QwtDate::Second, QwtDate::Millisecond };
 
     for ( QwtDate::IntervalType interval : intervals )
     {
         m_scaleDraw.setDateFormat( interval,
-                                   RiuQwtPlotTools::dateTimeFormatForInterval( interval,
-                                                                               dateFormat,
-                                                                               timeFormat,
-                                                                               dateComponents,
-                                                                               timeComponents ) );
+                                   RiuQwtPlotTools::dateTimeFormatForInterval( interval, dateFormat, timeFormat, dateComponents, timeComponents ) );
     }
 }
 
@@ -112,8 +102,7 @@ std::vector<std::pair<double, QString>> RiuQwtDateScaleWrapper::positionsAndLabe
 
     m_scaleDraw.setScaleDiv( scaleDiv );
 
-    auto formatString =
-        formatStringForRange( QDateTime::fromMSecsSinceEpoch( min ), QDateTime::fromMSecsSinceEpoch( max ) );
+    auto formatString = formatStringForRange( QDateTime::fromMSecsSinceEpoch( min ), QDateTime::fromMSecsSinceEpoch( max ) );
 
     std::vector<std::pair<double, QString>> valueAndLabel;
     for ( auto t : ticks )

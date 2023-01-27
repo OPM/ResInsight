@@ -47,8 +47,7 @@ std::vector<WellPathCellIntersectionInfo>
 
     std::string errorIdName = ( wellPathName + " " + caseData->ownerCase()->caseUserDescription() ).toStdString();
 
-    cvf::ref<RigEclipseWellLogExtractor> extractor =
-        new RigEclipseWellLogExtractor( caseData, dummyWellPath.p(), errorIdName );
+    cvf::ref<RigEclipseWellLogExtractor> extractor = new RigEclipseWellLogExtractor( caseData, dummyWellPath.p(), errorIdName );
 
     return extractor->cellIntersectionInfosAlongWellPath();
 }
@@ -56,9 +55,8 @@ std::vector<WellPathCellIntersectionInfo>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<size_t>
-    RigWellPathIntersectionTools::findIntersectedGlobalCellIndicesForWellPath( const RigEclipseCaseData* caseData,
-                                                                               const RigWellPath*        wellPath )
+std::set<size_t> RigWellPathIntersectionTools::findIntersectedGlobalCellIndicesForWellPath( const RigEclipseCaseData* caseData,
+                                                                                            const RigWellPath*        wellPath )
 {
     std::set<size_t> globalCellIndices;
 
@@ -80,9 +78,9 @@ std::set<size_t>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<size_t> RigWellPathIntersectionTools::findIntersectedGlobalCellIndices( const RigEclipseCaseData* caseData,
+std::set<size_t> RigWellPathIntersectionTools::findIntersectedGlobalCellIndices( const RigEclipseCaseData*      caseData,
                                                                                  const std::vector<cvf::Vec3d>& coords,
-                                                                                 const std::vector<double>& measuredDepths )
+                                                                                 const std::vector<double>&     measuredDepths )
 {
     std::set<size_t> globalCellIndices;
 
@@ -153,9 +151,9 @@ cvf::Vec3d RigWellPathIntersectionTools::calculateLengthInCell( const RigMainGri
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<WellPathCellIntersectionInfo> RigWellPathIntersectionTools::buildContinuousIntersections(
-    const std::vector<WellPathCellIntersectionInfo>& originalIntersections,
-    const cvf::StructGridInterface*                  grid )
+std::vector<WellPathCellIntersectionInfo>
+    RigWellPathIntersectionTools::buildContinuousIntersections( const std::vector<WellPathCellIntersectionInfo>& originalIntersections,
+                                                                const cvf::StructGridInterface*                  grid )
 {
     std::vector<WellPathCellIntersectionInfo> intersectionsNoGap;
 
@@ -208,14 +206,13 @@ std::vector<WellPathCellIntersectionInfo> RigWellPathIntersectionTools::buildCon
                 RiaLogging::info( text );
             }
 
-            extraIntersection.globCellIndex = std::numeric_limits<size_t>::max();
-            extraIntersection.startPoint    = current.endPoint;
-            extraIntersection.endPoint      = next.startPoint;
-            extraIntersection.startMD       = current.endMD;
-            extraIntersection.endMD         = next.startMD;
-            extraIntersection.intersectedCellFaceIn =
-                cvf::StructGridInterface::oppositeFace( current.intersectedCellFaceOut );
-            extraIntersection.intersectedCellFaceOut = cvf::StructGridInterface::oppositeFace( next.intersectedCellFaceIn );
+            extraIntersection.globCellIndex               = std::numeric_limits<size_t>::max();
+            extraIntersection.startPoint                  = current.endPoint;
+            extraIntersection.endPoint                    = next.startPoint;
+            extraIntersection.startMD                     = current.endMD;
+            extraIntersection.endMD                       = next.startMD;
+            extraIntersection.intersectedCellFaceIn       = cvf::StructGridInterface::oppositeFace( current.intersectedCellFaceOut );
+            extraIntersection.intersectedCellFaceOut      = cvf::StructGridInterface::oppositeFace( next.intersectedCellFaceIn );
             extraIntersection.intersectionLengthsInCellCS = cvf::Vec3d::ZERO;
 
             intersectionsNoGap.push_back( extraIntersection );

@@ -47,9 +47,7 @@ RigNNCData::RigNNCData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigNNCData::setSourceDataForProcessing( RigMainGrid*             mainGrid,
-                                             const RigActiveCellInfo* activeCellInfo,
-                                             bool                     includeInactiveCells )
+void RigNNCData::setSourceDataForProcessing( RigMainGrid* mainGrid, const RigActiveCellInfo* activeCellInfo, bool includeInactiveCells )
 {
     m_mainGrid                   = mainGrid;
     m_activeCellInfo             = activeCellInfo;
@@ -77,18 +75,14 @@ void RigNNCData::buildPolygonsForEclipseConnections()
         std::vector<cvf::Vec3d>            connectionIntersections;
         cvf::StructGridInterface::FaceType connectionFace = cvf::StructGridInterface::NO_FACE;
 
-        connectionFace = RigCellFaceGeometryTools::calculateCellFaceOverlap( c1,
-                                                                             c2,
-                                                                             *m_mainGrid,
-                                                                             &connectionPolygon,
-                                                                             &connectionIntersections );
+        connectionFace =
+            RigCellFaceGeometryTools::calculateCellFaceOverlap( c1, c2, *m_mainGrid, &connectionPolygon, &connectionIntersections );
 
         if ( connectionFace != cvf::StructGridInterface::NO_FACE )
         {
             m_connections[cnIdx].setFace( connectionFace );
-            m_connections[cnIdx].setPolygon( RigCellFaceGeometryTools::extractPolygon( m_mainGrid->nodes(),
-                                                                                       connectionPolygon,
-                                                                                       connectionIntersections ) );
+            m_connections[cnIdx].setPolygon(
+                RigCellFaceGeometryTools::extractPolygon( m_mainGrid->nodes(), connectionPolygon, connectionIntersections ) );
         }
     }
 
@@ -98,9 +92,7 @@ void RigNNCData::buildPolygonsForEclipseConnections()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigNNCData::computeAdditionalNncs( const RigMainGrid*       mainGrid,
-                                        const RigActiveCellInfo* activeCellInfo,
-                                        bool                     includeInactiveCells )
+void RigNNCData::computeAdditionalNncs( const RigMainGrid* mainGrid, const RigActiveCellInfo* activeCellInfo, bool includeInactiveCells )
 {
     RigConnectionContainer otherConnections =
         RigCellFaceGeometryTools::computeOtherNncs( mainGrid, m_connections, activeCellInfo, includeInactiveCells );
@@ -143,8 +135,7 @@ size_t RigNNCData::connectionsWithNoCommonArea( QStringList& connectionTextFirst
                 {
                     size_t             gridLocalCellIndex;
                     const RigGridBase* hostGrid =
-                        m_mainGrid->gridAndGridLocalIdxFromGlobalCellIdx( m_connections[connIndex].c1GlobIdx(),
-                                                                          &gridLocalCellIndex );
+                        m_mainGrid->gridAndGridLocalIdxFromGlobalCellIdx( m_connections[connIndex].c1GlobIdx(), &gridLocalCellIndex );
 
                     size_t i, j, k;
                     if ( hostGrid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k ) )
@@ -166,8 +157,7 @@ size_t RigNNCData::connectionsWithNoCommonArea( QStringList& connectionTextFirst
                 {
                     size_t             gridLocalCellIndex;
                     const RigGridBase* hostGrid =
-                        m_mainGrid->gridAndGridLocalIdxFromGlobalCellIdx( m_connections[connIndex].c2GlobIdx(),
-                                                                          &gridLocalCellIndex );
+                        m_mainGrid->gridAndGridLocalIdxFromGlobalCellIdx( m_connections[connIndex].c2GlobIdx(), &gridLocalCellIndex );
 
                     size_t i, j, k;
                     if ( hostGrid->ijkFromCellIndex( gridLocalCellIndex, &i, &j, &k ) )
@@ -363,8 +353,7 @@ std::vector<std::vector<double>>& RigNNCData::makeDynamicConnectionScalarResult(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<std::vector<double>>*
-    RigNNCData::dynamicConnectionScalarResult( const RigEclipseResultAddress& resVarAddr ) const
+const std::vector<std::vector<double>>* RigNNCData::dynamicConnectionScalarResult( const RigEclipseResultAddress& resVarAddr ) const
 {
     QString nncDataType = getNNCDataTypeFromScalarResultIndex( resVarAddr );
     if ( nncDataType.isNull() ) return nullptr;
@@ -384,8 +373,7 @@ const std::vector<std::vector<double>>*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>* RigNNCData::dynamicConnectionScalarResult( const RigEclipseResultAddress& resVarAddr,
-                                                                      size_t                         timeStep ) const
+const std::vector<double>* RigNNCData::dynamicConnectionScalarResult( const RigEclipseResultAddress& resVarAddr, size_t timeStep ) const
 {
     QString nncDataType = getNNCDataTypeFromScalarResultIndex( resVarAddr );
     if ( nncDataType.isNull() ) return nullptr;
@@ -444,8 +432,7 @@ std::vector<std::vector<double>>& RigNNCData::makeGeneratedConnectionScalarResul
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<std::vector<double>>*
-    RigNNCData::generatedConnectionScalarResult( const RigEclipseResultAddress& resVarAddr ) const
+const std::vector<std::vector<double>>* RigNNCData::generatedConnectionScalarResult( const RigEclipseResultAddress& resVarAddr ) const
 {
     QString nncDataType = getNNCDataTypeFromScalarResultIndex( resVarAddr );
     if ( nncDataType.isNull() ) return nullptr;
@@ -465,8 +452,7 @@ const std::vector<std::vector<double>>*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>* RigNNCData::generatedConnectionScalarResult( const RigEclipseResultAddress& resVarAddr,
-                                                                        size_t                         timeStep ) const
+const std::vector<double>* RigNNCData::generatedConnectionScalarResult( const RigEclipseResultAddress& resVarAddr, size_t timeStep ) const
 {
     QString nncDataType = getNNCDataTypeFromScalarResultIndex( resVarAddr );
     if ( nncDataType.isNull() ) return nullptr;
@@ -539,8 +525,7 @@ const std::vector<std::vector<double>>* RigNNCData::generatedConnectionScalarRes
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>* RigNNCData::generatedConnectionScalarResultByName( const QString& nncDataType,
-                                                                              size_t         timeStep ) const
+const std::vector<double>* RigNNCData::generatedConnectionScalarResultByName( const QString& nncDataType, size_t timeStep ) const
 {
     auto it = m_connectionResults.find( nncDataType );
     if ( it != m_connectionResults.end() )
@@ -591,13 +576,11 @@ std::vector<QString> RigNNCData::availableProperties( NNCResultType resultType )
 
     for ( auto it : m_connectionResults )
     {
-        if ( resultType == NNCResultType::NNC_STATIC && it.second.size() == 1 && it.second[0].size() > 0 &&
-             isNative( it.first ) )
+        if ( resultType == NNCResultType::NNC_STATIC && it.second.size() == 1 && it.second[0].size() > 0 && isNative( it.first ) )
         {
             properties.push_back( it.first );
         }
-        else if ( resultType == NNCResultType::NNC_DYNAMIC && it.second.size() > 1 && it.second[0].size() > 0 &&
-                  isNative( it.first ) )
+        else if ( resultType == NNCResultType::NNC_DYNAMIC && it.second.size() > 1 && it.second[0].size() > 0 && isNative( it.first ) )
         {
             properties.push_back( it.first );
         }
@@ -661,8 +644,7 @@ bool RigNNCData::generateScalarValues( const RigEclipseResultAddress& resVarAddr
         for ( size_t dataIdx = 0; dataIdx < m_connections.size(); dataIdx++ )
         {
             double area = 0.0;
-            if ( m_connections[dataIdx].hasCommonArea() )
-                area = cvf::GeometryTools::polygonArea( m_connections[dataIdx].polygon() );
+            if ( m_connections[dataIdx].hasCommonArea() ) area = cvf::GeometryTools::polygonArea( m_connections[dataIdx].polygon() );
             areas[dataIdx] = area;
         }
 

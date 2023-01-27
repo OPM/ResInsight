@@ -68,8 +68,7 @@ RiuWellPathComponentPlotItem::RiuWellPathComponentPlotItem( const RimWellPath* w
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuWellPathComponentPlotItem::RiuWellPathComponentPlotItem( const RimWellPath*                   wellPath,
-                                                            const RimWellPathComponentInterface* component )
+RiuWellPathComponentPlotItem::RiuWellPathComponentPlotItem( const RimWellPath* wellPath, const RimWellPathComponentInterface* component )
     : m_wellPath( wellPath )
     , m_columnOffset( 0.0 )
     , m_depthType( RiaDefines::DepthTypeEnum::MEASURED_DEPTH )
@@ -153,11 +152,10 @@ void RiuWellPathComponentPlotItem::calculateColumnOffsets( const RimWellPathComp
         const RimWellPathAttribute* myAttribute = dynamic_cast<const RimWellPathAttribute*>( component );
         if ( myAttribute && myAttribute->componentType() == RiaDefines::WellPathComponentType::CASING )
         {
-            int nNarrowerCasings = std::count_if( uniqueCasingDiameters.begin(),
-                                                  uniqueCasingDiameters.end(),
-                                                  [myAttribute]( double otherCasingDiameter ) {
-                                                      return otherCasingDiameter < myAttribute->diameterInInches();
-                                                  } );
+            int nNarrowerCasings =
+                std::count_if( uniqueCasingDiameters.begin(), uniqueCasingDiameters.end(), [myAttribute]( double otherCasingDiameter ) {
+                    return otherCasingDiameter < myAttribute->diameterInInches();
+                } );
 
             m_columnOffset = nNarrowerCasings * 0.25;
         }
@@ -197,23 +195,13 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
             addMarker( posMax, endDepth, 12, RiuPlotCurveSymbol::SYMBOL_LEFT_ANGLED_TRIANGLE, componentColor() );
         }
 
-        addMarker( casingTrackEnd,
-                   endDepth,
-                   12,
-                   RiuPlotCurveSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE,
-                   componentColor( 0.0 ),
-                   label() );
+        addMarker( casingTrackEnd, endDepth, 12, RiuPlotCurveSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE, componentColor( 0.0 ), label() );
     }
     else if ( m_componentType == RiaDefines::WellPathComponentType::LINER )
     {
         addColumnFeature( -0.5, -0.25, startDepth, endDepth, componentColor() );
         addColumnFeature( 0.25, 0.5, startDepth, endDepth, componentColor() );
-        addMarker( casingTrackEnd,
-                   endDepth,
-                   10,
-                   RiuPlotCurveSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE,
-                   componentColor( 0.0 ),
-                   label() );
+        addMarker( casingTrackEnd, endDepth, 10, RiuPlotCurveSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE, componentColor( 0.0 ), label() );
     }
     else if ( m_componentType == RiaDefines::WellPathComponentType::PERFORATION_INTERVAL )
     {
@@ -240,18 +228,11 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
 
             markerDepth += markerSpacing;
         }
-        addMarker( casingTrackEnd,
-                   midDepth,
-                   10,
-                   RiuPlotCurveSymbol::SYMBOL_RIGHT_ALIGNED_TRIANGLE,
-                   componentColor( 0.0 ),
-                   label() );
+        addMarker( casingTrackEnd, midDepth, 10, RiuPlotCurveSymbol::SYMBOL_RIGHT_ALIGNED_TRIANGLE, componentColor( 0.0 ), label() );
 
-        QwtPlotItem* legendItem1 =
-            createMarker( 16.0, 0.0, 6, RiuPlotCurveSymbol::SYMBOL_RIGHT_ALIGNED_TRIANGLE, componentColor() );
+        QwtPlotItem* legendItem1 = createMarker( 16.0, 0.0, 6, RiuPlotCurveSymbol::SYMBOL_RIGHT_ALIGNED_TRIANGLE, componentColor() );
         legendItem1->setLegendIconSize( QSize( 4, 8 ) );
-        QwtPlotItem* legendItem2 =
-            createMarker( 16.0, 8.0, 6, RiuPlotCurveSymbol::SYMBOL_RIGHT_ALIGNED_TRIANGLE, componentColor() );
+        QwtPlotItem* legendItem2 = createMarker( 16.0, 8.0, 6, RiuPlotCurveSymbol::SYMBOL_RIGHT_ALIGNED_TRIANGLE, componentColor() );
         legendItem2->setLegendIconSize( QSize( 4, 8 ) );
         m_combinedComponentGroup.addLegendItem( legendItem1 );
         m_combinedComponentGroup.addLegendItem( legendItem2 );
@@ -260,12 +241,7 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
     {
         addColumnFeature( -casingTrackEnd, -0.25, startDepth, endDepth, componentColor(), Qt::BDiagPattern );
         addColumnFeature( 0.25, casingTrackEnd, startDepth, endDepth, componentColor(), Qt::FDiagPattern );
-        addMarker( casingTrackEnd,
-                   midDepth,
-                   10,
-                   RiuPlotCurveSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE,
-                   componentColor( 0.0 ),
-                   label() );
+        addMarker( casingTrackEnd, midDepth, 10, RiuPlotCurveSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE, componentColor( 0.0 ), label() );
     }
     else if ( m_componentType == RiaDefines::WellPathComponentType::FRACTURE )
     {
@@ -301,66 +277,31 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
     {
         for ( double md : m_subMDs )
         {
-            addMarker( 0.0,
-                       md,
-                       16,
-                       RiuPlotCurveSymbol::SYMBOL_ELLIPSE,
-                       componentColor(),
-                       "",
-                       Qt::AlignCenter,
-                       Qt::Horizontal,
-                       false,
-                       true );
+            addMarker( 0.0, md, 16, RiuPlotCurveSymbol::SYMBOL_ELLIPSE, componentColor(), "", Qt::AlignCenter, Qt::Horizontal, false, true );
         }
-        m_combinedComponentGroup.addLegendItem(
-            createMarker( 0.0, 0.0, 12.0, RiuPlotCurveSymbol::SYMBOL_ELLIPSE, componentColor() ) );
+        m_combinedComponentGroup.addLegendItem( createMarker( 0.0, 0.0, 12.0, RiuPlotCurveSymbol::SYMBOL_ELLIPSE, componentColor() ) );
     }
     else if ( m_componentType == RiaDefines::WellPathComponentType::ICV )
     {
         for ( double md : m_subMDs )
         {
-            addMarker( 0.0,
-                       md,
-                       16,
-                       RiuPlotCurveSymbol::SYMBOL_ELLIPSE,
-                       componentColor(),
-                       "",
-                       Qt::AlignCenter,
-                       Qt::Horizontal,
-                       false,
-                       true );
+            addMarker( 0.0, md, 16, RiuPlotCurveSymbol::SYMBOL_ELLIPSE, componentColor(), "", Qt::AlignCenter, Qt::Horizontal, false, true );
         }
-        m_combinedComponentGroup.addLegendItem(
-            createMarker( 0.0, 0.0, 12.0, RiuPlotCurveSymbol::SYMBOL_ELLIPSE, componentColor() ) );
+        m_combinedComponentGroup.addLegendItem( createMarker( 0.0, 0.0, 12.0, RiuPlotCurveSymbol::SYMBOL_ELLIPSE, componentColor() ) );
     }
     else if ( m_componentType == RiaDefines::WellPathComponentType::AICD )
     {
         for ( double md : m_subMDs )
         {
-            addMarker( 0.0,
-                       md,
-                       16,
-                       RiuPlotCurveSymbol::SYMBOL_ELLIPSE,
-                       componentColor(),
-                       "",
-                       Qt::AlignCenter,
-                       Qt::Horizontal,
-                       false,
-                       true );
+            addMarker( 0.0, md, 16, RiuPlotCurveSymbol::SYMBOL_ELLIPSE, componentColor(), "", Qt::AlignCenter, Qt::Horizontal, false, true );
         }
-        m_combinedComponentGroup.addLegendItem(
-            createMarker( 0.0, 0.0, 12.0, RiuPlotCurveSymbol::SYMBOL_ELLIPSE, componentColor() ) );
+        m_combinedComponentGroup.addLegendItem( createMarker( 0.0, 0.0, 12.0, RiuPlotCurveSymbol::SYMBOL_ELLIPSE, componentColor() ) );
     }
     else if ( m_componentType == RiaDefines::WellPathComponentType::PACKER )
     {
         addColumnFeature( -1.1 * casingTrackEnd, -0.25, startDepth, endDepth, componentColor(), Qt::DiagCrossPattern );
         addColumnFeature( 0.25, 1.1 * casingTrackEnd, startDepth, endDepth, componentColor(), Qt::DiagCrossPattern );
-        addMarker( casingTrackEnd,
-                   midDepth,
-                   10,
-                   RiuPlotCurveSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE,
-                   componentColor( 0.0 ),
-                   label() );
+        addMarker( casingTrackEnd, midDepth, 10, RiuPlotCurveSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE, componentColor( 0.0 ), label() );
     }
     m_combinedComponentGroup.setTitle( legendTitle() );
     m_combinedComponentGroup.setLegendIconSize( QSize( 20, 16 ) );
@@ -374,8 +315,7 @@ std::pair<double, double> RiuWellPathComponentPlotItem::depthsOfDepthType() cons
     double startDepth = m_startMD;
     double endDepth   = m_endMD;
 
-    if ( m_depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH ||
-         m_depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB )
+    if ( m_depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH || m_depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB )
     {
         endDepth       = -m_wellPath->wellPathGeometry()->interpolatedPointAlongWellPath( m_endMD ).z();
         double rkbDiff = m_wellPath->wellPathGeometry()->rkbDiff();
@@ -418,10 +358,10 @@ void RiuWellPathComponentPlotItem::addMarker( double                            
                                               RiuPlotCurveSymbol::PointSymbolEnum symbolType,
                                               cvf::Color4f                        baseColor,
                                               const QString&                      label /*= QString( "" )*/,
-                                              Qt::Alignment   labelAlignment /*= Qt::AlignVCenter | Qt::AlignRight*/,
-                                              Qt::Orientation labelOrientation /*= Qt::Horizontal*/,
-                                              bool            drawLine /*= false*/,
-                                              bool            contrastTextColor /*= false */ )
+                                              Qt::Alignment                       labelAlignment /*= Qt::AlignVCenter | Qt::AlignRight*/,
+                                              Qt::Orientation                     labelOrientation /*= Qt::Horizontal*/,
+                                              bool                                drawLine /*= false*/,
+                                              bool                                contrastTextColor /*= false */ )
 {
     QwtPlotItem* marker =
         createMarker( position, depth, size, symbolType, baseColor, label, labelAlignment, labelOrientation, drawLine, contrastTextColor );
@@ -431,17 +371,16 @@ void RiuWellPathComponentPlotItem::addMarker( double                            
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QwtPlotItem*
-    RiuWellPathComponentPlotItem::createMarker( double                              position,
-                                                double                              depth,
-                                                int                                 size,
-                                                RiuPlotCurveSymbol::PointSymbolEnum symbolType,
-                                                cvf::Color4f                        baseColor,
-                                                const QString&                      label /*= QString( "" )*/,
-                                                Qt::Alignment   labelAlignment /*= Qt::AlignVCenter | Qt::AlignRight*/,
-                                                Qt::Orientation labelOrientation /*= Qt::Horizontal*/,
-                                                bool            drawLine /*= false*/,
-                                                bool            contrastTextColor /*= false */ )
+QwtPlotItem* RiuWellPathComponentPlotItem::createMarker( double                              position,
+                                                         double                              depth,
+                                                         int                                 size,
+                                                         RiuPlotCurveSymbol::PointSymbolEnum symbolType,
+                                                         cvf::Color4f                        baseColor,
+                                                         const QString&                      label /*= QString( "" )*/,
+                                                         Qt::Alignment   labelAlignment /*= Qt::AlignVCenter | Qt::AlignRight*/,
+                                                         Qt::Orientation labelOrientation /*= Qt::Horizontal*/,
+                                                         bool            drawLine /*= false*/,
+                                                         bool            contrastTextColor /*= false */ )
 {
     QColor bgColor   = RiaColorTools::toQColor( baseColor );
     QColor textColor = RiaColorTools::toQColor( baseColor.toColor3f(), 1.0 );
@@ -530,8 +469,7 @@ void RiuWellPathComponentPlotItem::addColumnFeature( double         startPositio
             RiuQwtPlotTools::createBoxShape( label(), startX, endX, startY, endY, semiTransparentWhite, Qt::SolidPattern );
         m_combinedComponentGroup.addPlotItem( backgroundShape );
 
-        QwtPlotItem* patternShape =
-            RiuQwtPlotTools::createBoxShape( label(), startX, endX, startY, endY, baseQColor, brushStyle );
+        QwtPlotItem* patternShape = RiuQwtPlotTools::createBoxShape( label(), startX, endX, startY, endY, baseQColor, brushStyle );
         m_combinedComponentGroup.addPlotItem( patternShape );
         if ( endX >= 0.0 )
         {
@@ -539,21 +477,18 @@ void RiuWellPathComponentPlotItem::addColumnFeature( double         startPositio
                 RiuQwtPlotTools::createBoxShape( label(), 0.0, 16.0, 0.0, 16.0, semiTransparentWhite, Qt::SolidPattern );
             m_combinedComponentGroup.addLegendItem( legendBGShape );
 
-            QwtPlotItem* legendShape =
-                RiuQwtPlotTools::createBoxShape( label(), 0.0, 16.0, 0.0, 16.0, baseQColor, brushStyle );
+            QwtPlotItem* legendShape = RiuQwtPlotTools::createBoxShape( label(), 0.0, 16.0, 0.0, 16.0, baseQColor, brushStyle );
             m_combinedComponentGroup.addLegendItem( legendShape );
         }
     }
     else
     {
-        QwtPlotItem* backgroundShape =
-            RiuQwtPlotTools::createBoxShape( label(), startX, endX, startY, endY, baseQColor, Qt::SolidPattern );
+        QwtPlotItem* backgroundShape = RiuQwtPlotTools::createBoxShape( label(), startX, endX, startY, endY, baseQColor, Qt::SolidPattern );
         m_combinedComponentGroup.addPlotItem( backgroundShape );
 
         if ( endX >= 0.0 )
         {
-            QwtPlotItem* legendShape =
-                RiuQwtPlotTools::createBoxShape( label(), 0.0, 16.0, 0.0, 16.0, baseQColor, Qt::SolidPattern );
+            QwtPlotItem* legendShape = RiuQwtPlotTools::createBoxShape( label(), 0.0, 16.0, 0.0, 16.0, baseQColor, Qt::SolidPattern );
             m_combinedComponentGroup.addLegendItem( legendShape );
         }
     }

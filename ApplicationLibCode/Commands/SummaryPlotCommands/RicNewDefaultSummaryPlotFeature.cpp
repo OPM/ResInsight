@@ -95,8 +95,7 @@ RimSummaryPlot* RicNewDefaultSummaryPlotFeature::createFromSummaryCases( const s
 //--------------------------------------------------------------------------------------------------
 bool RicNewDefaultSummaryPlotFeature::isCommandEnabled()
 {
-    RimSummaryMultiPlot* multiPlot =
-        dynamic_cast<RimSummaryMultiPlot*>( caf::SelectionManager::instance()->selectedItem() );
+    RimSummaryMultiPlot* multiPlot = dynamic_cast<RimSummaryMultiPlot*>( caf::SelectionManager::instance()->selectedItem() );
     if ( multiPlot )
     {
         return true;
@@ -109,7 +108,7 @@ bool RicNewDefaultSummaryPlotFeature::isCommandEnabled()
 
     RimCustomObjectiveFunctionCollection* customObjFuncCollection = nullptr;
     RimEnsembleCurveFilter*               curveFilter             = nullptr;
-    caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
+    caf::PdmObject*                       selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
     if ( selObj )
     {
         selObj->firstAncestorOrThisOfType( customObjFuncCollection );
@@ -127,8 +126,7 @@ bool RicNewDefaultSummaryPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewDefaultSummaryPlotFeature::onActionTriggered( bool isChecked )
 {
-    RimSummaryMultiPlot* multiPlot =
-        dynamic_cast<RimSummaryMultiPlot*>( caf::SelectionManager::instance()->selectedItem() );
+    RimSummaryMultiPlot* multiPlot = dynamic_cast<RimSummaryMultiPlot*>( caf::SelectionManager::instance()->selectedItem() );
     if ( multiPlot )
     {
         RimSummaryPlot* plot = new RimSummaryPlot();

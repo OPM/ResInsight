@@ -20,8 +20,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<RifEclipseRftAddress> RifReaderRftInterface::eclipseRftAddresses( const QString&   wellName,
-                                                                           const QDateTime& timeStep )
+std::set<RifEclipseRftAddress> RifReaderRftInterface::eclipseRftAddresses( const QString& wellName, const QDateTime& timeStep )
 {
     std::set<RifEclipseRftAddress> matchingAddresses;
     std::set<RifEclipseRftAddress> allAddresses = this->eclipseRftAddresses();

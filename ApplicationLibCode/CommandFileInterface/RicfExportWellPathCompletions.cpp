@@ -48,10 +48,7 @@ RicfExportWellPathCompletions::RicfExportWellPathCompletions()
     CAF_PDM_InitScriptableField( &m_wellPathNames, "wellPathNames", std::vector<QString>(), "Well Path Names" );
 
     CAF_PDM_InitScriptableField( &m_fileSplit, "fileSplit", RicExportCompletionDataSettingsUi::ExportSplitType(), "File Split" );
-    CAF_PDM_InitScriptableField( &m_compdatExport,
-                                 "compdatExport",
-                                 RicExportCompletionDataSettingsUi::CompdatExportType(),
-                                 "Compdat Export" );
+    CAF_PDM_InitScriptableField( &m_compdatExport, "compdatExport", RicExportCompletionDataSettingsUi::CompdatExportType(), "Compdat Export" );
     CAF_PDM_InitScriptableField( &m_combinationMode,
                                  "combinationMode",
                                  RicExportCompletionDataSettingsUi::CombinationModeType(),
@@ -63,16 +60,10 @@ RicfExportWellPathCompletions::RicfExportWellPathCompletions()
     CAF_PDM_InitScriptableField( &m_includeFishbones, "includeFishbones", true, "Include Fishbones" );
     CAF_PDM_InitScriptableField( &m_includeFractures, "includeFractures", true, "Include Fractures" );
 
-    CAF_PDM_InitScriptableField( &m_excludeMainBoreForFishbones,
-                                 "excludeMainBoreForFishbones",
-                                 false,
-                                 "Exclude Main Bore for Fishbones" );
+    CAF_PDM_InitScriptableField( &m_excludeMainBoreForFishbones, "excludeMainBoreForFishbones", false, "Exclude Main Bore for Fishbones" );
 
     CAF_PDM_InitScriptableField( &m_performTransScaling, "performTransScaling", false, "Perform Transmissibility Scaling" );
-    CAF_PDM_InitScriptableField( &m_transScalingTimeStep,
-                                 "transScalingTimeStep",
-                                 0,
-                                 "Transmissibility Scaling Pressure Time Step" );
+    CAF_PDM_InitScriptableField( &m_transScalingTimeStep, "transScalingTimeStep", 0, "Transmissibility Scaling Pressure Time Step" );
     CAF_PDM_InitScriptableField( &m_transScalingInitialWBHP,
                                  "transScalingWBHPFromSummary",
                                  RicExportCompletionDataSettingsUi::TransScalingWBHPSource(),
@@ -134,8 +125,7 @@ caf::PdmScriptResponse RicfExportWellPathCompletions::execute()
         exportSettings.caseToApply = eclipseCase;
     }
 
-    QString exportFolder =
-        RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::ExportType::COMPLETIONS );
+    QString exportFolder = RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::ExportType::COMPLETIONS );
     if ( exportFolder.isNull() )
     {
         exportFolder = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath( "completions" );
@@ -159,16 +149,14 @@ caf::PdmScriptResponse RicfExportWellPathCompletions::execute()
     {
         for ( const QString& wellPathName : m_wellPathNames() )
         {
-            RimWellPath* wellPath =
-                RimProject::current()->activeOilField()->wellPathCollection->wellPathByName( wellPathName );
+            RimWellPath* wellPath = RimProject::current()->activeOilField()->wellPathCollection->wellPathByName( wellPathName );
             if ( wellPath )
             {
                 wellPaths.push_back( wellPath );
             }
             else
             {
-                QString warning =
-                    QString( "exportWellPathCompletions: Could not find well path with name %1" ).arg( wellPathName );
+                QString warning = QString( "exportWellPathCompletions: Could not find well path with name %1" ).arg( wellPathName );
                 RiaLogging::warning( warning );
                 response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warning );
             }

@@ -104,8 +104,7 @@ void RicElasticPropertiesImportTools::importElasticPropertiesFromFile( const QSt
         for ( RifElasticProperties item : rifElasticProperties )
         {
             if ( item.fieldName.compare( fieldName, Qt::CaseInsensitive ) == 0 &&
-                 ( item.formationName.compare( formationName, Qt::CaseInsensitive ) == 0 ||
-                   item.formationName == formationWildCard ) &&
+                 ( item.formationName.compare( formationName, Qt::CaseInsensitive ) == 0 || item.formationName == formationWildCard ) &&
                  item.faciesName.compare( faciesName, Qt::CaseInsensitive ) == 0 )
             {
                 matchingFacies.push_back( item );
@@ -113,9 +112,9 @@ void RicElasticPropertiesImportTools::importElasticPropertiesFromFile( const QSt
         }
 
         // Sort the matching items by porosity
-        std::sort( matchingFacies.begin(),
-                   matchingFacies.end(),
-                   []( const RifElasticProperties& a, const RifElasticProperties& b ) { return a.porosity < b.porosity; } );
+        std::sort( matchingFacies.begin(), matchingFacies.end(), []( const RifElasticProperties& a, const RifElasticProperties& b ) {
+            return a.porosity < b.porosity;
+        } );
 
         std::vector<QString> matchingFormations;
         if ( formationName == formationWildCard )

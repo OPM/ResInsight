@@ -203,8 +203,7 @@ public:
         {
             quint64 valueIndex = 0;
 
-            for ( size_t reservoirCellIndex = 0; reservoirCellIndex < mainGrid->globalCellArray().size();
-                  reservoirCellIndex++ )
+            for ( size_t reservoirCellIndex = 0; reservoirCellIndex < mainGrid->globalCellArray().size(); reservoirCellIndex++ )
             {
                 if ( !actCellInfo->isActive( reservoirCellIndex ) ) continue;
 
@@ -223,8 +222,8 @@ public:
     }
 };
 
-static bool RiaGetActiveCellCenters_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetActiveCellCenters>(
-    RiaGetActiveCellCenters::commandName() );
+static bool RiaGetActiveCellCenters_init =
+    RiaSocketCommandFactory::instance()->registerCreator<RiaGetActiveCellCenters>( RiaGetActiveCellCenters::commandName() );
 
 // NB: Match this mapping with the mapping in RifReaderEclipseOutput.cpp
 static const size_t cellCornerMappingEclipse[8] = { 0, 1, 3, 2, 4, 5, 7, 6 };
@@ -299,18 +298,14 @@ public:
                             size_t gridLocalCellIndex = rigGrid->cellIndexFromIJK( i, j, k );
                             rigGrid->cellCornerVertices( gridLocalCellIndex, cornerVerts );
 
-                            doubleValues[valueIndex++] =
-                                getCellCornerWithPositiveDepth( cornerVerts, cornerIndexMapping, coordIdx );
+                            doubleValues[valueIndex++] = getCellCornerWithPositiveDepth( cornerVerts, cornerIndexMapping, coordIdx );
                         }
                     }
                 }
 
                 CVF_ASSERT( valueIndex == cellCount );
 
-                RiaSocketTools::writeBlockData( server,
-                                                server->currentClient(),
-                                                (const char*)doubleValues.data(),
-                                                blockByteCount );
+                RiaSocketTools::writeBlockData( server, server->currentClient(), (const char*)doubleValues.data(), blockByteCount );
             }
         }
 
@@ -382,23 +377,18 @@ public:
 
                 quint64 valueIndex = 0;
 
-                for ( size_t reservoirCellIndex = 0; reservoirCellIndex < mainGrid->globalCellArray().size();
-                      reservoirCellIndex++ )
+                for ( size_t reservoirCellIndex = 0; reservoirCellIndex < mainGrid->globalCellArray().size(); reservoirCellIndex++ )
                 {
                     if ( !actCellInfo->isActive( reservoirCellIndex ) ) continue;
 
                     mainGrid->cellCornerVertices( reservoirCellIndex, cornerVerts );
 
-                    doubleValues[valueIndex++] =
-                        getCellCornerWithPositiveDepth( cornerVerts, cornerIndexMapping, coordIdx );
+                    doubleValues[valueIndex++] = getCellCornerWithPositiveDepth( cornerVerts, cornerIndexMapping, coordIdx );
                 }
 
                 CVF_ASSERT( valueIndex == activeCellCount );
 
-                RiaSocketTools::writeBlockData( server,
-                                                server->currentClient(),
-                                                (const char*)doubleValues.data(),
-                                                blockByteCount );
+                RiaSocketTools::writeBlockData( server, server->currentClient(), (const char*)doubleValues.data(), blockByteCount );
             }
         }
 
@@ -406,5 +396,5 @@ public:
     }
 };
 
-static bool RiaGetActiveCellCorners_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetActiveCellCorners>(
-    RiaGetActiveCellCorners::commandName() );
+static bool RiaGetActiveCellCorners_init =
+    RiaSocketCommandFactory::instance()->registerCreator<RiaGetActiveCellCorners>( RiaGetActiveCellCorners::commandName() );

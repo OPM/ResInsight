@@ -113,8 +113,7 @@ bool RicPointTangentManipulator::eventFilter( QObject* obj, QEvent* inputEvent )
 
                 if ( m_partManager->isManipulatorActive() )
                 {
-                    m_isDraggingInComparisonView =
-                        m_viewer->isMousePosWithinComparisonView( mouseEvent->x(), mouseEvent->y() );
+                    m_isDraggingInComparisonView = m_viewer->isMousePosWithinComparisonView( mouseEvent->x(), mouseEvent->y() );
 
                     emit notifySelected();
 
@@ -130,9 +129,7 @@ bool RicPointTangentManipulator::eventFilter( QObject* obj, QEvent* inputEvent )
             auto* mouseEvent = static_cast<QMouseEvent*>( inputEvent );
 
             cvf::ref<cvf::RayIntersectSpec> rayIs =
-                m_viewer->rayIntersectSpecFromWindowCoordinates( mouseEvent->pos().x(),
-                                                                 mouseEvent->pos().y(),
-                                                                 m_isDraggingInComparisonView );
+                m_viewer->rayIntersectSpecFromWindowCoordinates( mouseEvent->pos().x(), mouseEvent->pos().y(), m_isDraggingInComparisonView );
 
             if ( !rayIs.isNull() && rayIs->ray() )
             {

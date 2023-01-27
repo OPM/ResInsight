@@ -98,13 +98,7 @@ RimPlotCurveAppearance::RimPlotCurveAppearance()
     CAF_PDM_InitFieldNoDefault( &m_pointSymbol, "PointSymbol", "Symbol" );
     CAF_PDM_InitField( &m_symbolEdgeColor, "SymbolEdgeColor", RiaColorTools::textColor3f(), "Symbol Edge Color" );
 
-    CAF_PDM_InitField( &m_symbolSkipPixelDistance,
-                       "SymbolSkipPxDist",
-                       0.0f,
-                       "Symbol Skip Distance",
-                       "",
-                       "Minimum pixel distance between symbols",
-                       "" );
+    CAF_PDM_InitField( &m_symbolSkipPixelDistance, "SymbolSkipPxDist", 0.0f, "Symbol Skip Distance", "", "Minimum pixel distance between symbols", "" );
 
     CAF_PDM_InitField( &m_curveFittingTolerance,
                        "CurveFittingTolerance",
@@ -129,9 +123,7 @@ RimPlotCurveAppearance::~RimPlotCurveAppearance()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurveAppearance::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                               const QVariant&            oldValue,
-                                               const QVariant&            newValue )
+void RimPlotCurveAppearance::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( &m_pointSymbol == changedField )
     {
@@ -141,8 +133,7 @@ void RimPlotCurveAppearance::fieldChangedByUi( const caf::PdmFieldHandle* change
     else if ( &m_lineStyle == changedField )
     {
         m_curveThickness.uiCapability()->setUiReadOnly( m_lineStyle() == RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
-        m_curveInterpolation.uiCapability()->setUiReadOnly( m_lineStyle() ==
-                                                            RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
+        m_curveInterpolation.uiCapability()->setUiReadOnly( m_lineStyle() == RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
     }
     else if ( &m_fillColor == changedField )
     {
@@ -199,8 +190,7 @@ void RimPlotCurveAppearance::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     uiOrdering.add( &m_curveThickness );
 
     uiOrdering.add( &m_curveFittingTolerance );
-    m_curveFittingTolerance.uiCapability()->setUiReadOnly( m_lineStyle() ==
-                                                           RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
+    m_curveFittingTolerance.uiCapability()->setUiReadOnly( m_lineStyle() == RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
     uiOrdering.add( &m_fillStyle );
     m_fillStyle.uiCapability()->setUiHidden( !m_fillOptionsVisible );
 

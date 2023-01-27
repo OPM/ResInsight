@@ -95,9 +95,7 @@ void RicShowCumulativePhasePlotFeature::setupActionLook( QAction* actionToSetup 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseResultCase* RicShowCumulativePhasePlotFeature::getDataFromSimWell( RimSimWellInView* simWell,
-                                                                             QString&          wellName,
-                                                                             int&              timeStepIndex )
+RimEclipseResultCase* RicShowCumulativePhasePlotFeature::getDataFromSimWell( RimSimWellInView* simWell, QString& wellName, int& timeStepIndex )
 {
     RimEclipseResultCase* resultCase = nullptr;
 
@@ -122,9 +120,8 @@ RimEclipseResultCase* RicShowCumulativePhasePlotFeature::getDataFromSimWell( Rim
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseResultCase* RicShowCumulativePhasePlotFeature::getDataFromWellAllocation( RimWellAllocationPlot* wap,
-                                                                                    QString&               wellName,
-                                                                                    int& timeStepIndex )
+RimEclipseResultCase*
+    RicShowCumulativePhasePlotFeature::getDataFromWellAllocation( RimWellAllocationPlot* wap, QString& wellName, int& timeStepIndex )
 {
     RimEclipseResultCase* resultCase = nullptr;
 

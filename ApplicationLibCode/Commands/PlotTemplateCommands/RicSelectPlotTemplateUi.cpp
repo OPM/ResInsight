@@ -113,9 +113,7 @@ QList<caf::PdmOptionItemInfo> RicSelectPlotTemplateUi::calculateValueOptions( co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSelectPlotTemplateUi::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                     QString                    uiConfigName,
-                                                     caf::PdmUiEditorAttribute* attribute )
+void RicSelectPlotTemplateUi::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( &m_selectedPlotTemplates == field )
     {

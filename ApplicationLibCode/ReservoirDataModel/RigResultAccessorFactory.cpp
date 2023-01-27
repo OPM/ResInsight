@@ -39,11 +39,10 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultAccessor>
-    RigResultAccessorFactory::createFromResultDefinition( const RigEclipseCaseData*         eclipseCase,
-                                                          size_t                            gridIndex,
-                                                          size_t                            timeStepIndex,
-                                                          const RimEclipseResultDefinition* resultDefinition )
+cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultDefinition( const RigEclipseCaseData*         eclipseCase,
+                                                                                  size_t                            gridIndex,
+                                                                                  size_t                            timeStepIndex,
+                                                                                  const RimEclipseResultDefinition* resultDefinition )
 {
     if ( resultDefinition->isFlowDiagOrInjectionFlooding() )
     {
@@ -59,9 +58,7 @@ cvf::ref<RigResultAccessor>
         if ( !grid ) return new RigHugeValResultAccessor;
 
         cvf::ref<RigResultAccessor> object =
-            new RigActiveCellsResultAccessor( grid,
-                                              resultValues,
-                                              eclipseCase->activeCellInfo( resultDefinition->porosityModel() ) );
+            new RigActiveCellsResultAccessor( grid, resultValues, eclipseCase->activeCellInfo( resultDefinition->porosityModel() ) );
 
         return object;
     }
@@ -78,10 +75,10 @@ cvf::ref<RigResultAccessor>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultAddress( const RigEclipseCaseData* eclipseCase,
-                                                                               size_t                    gridIndex,
-                                                                               RiaDefines::PorosityModelType porosityModel,
-                                                                               size_t timeStepIndex,
+cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultAddress( const RigEclipseCaseData*      eclipseCase,
+                                                                               size_t                         gridIndex,
+                                                                               RiaDefines::PorosityModelType  porosityModel,
+                                                                               size_t                         timeStepIndex,
                                                                                const RigEclipseResultAddress& resVarAddr )
 {
     if ( !eclipseCase || !eclipseCase->results( porosityModel ) || !eclipseCase->activeCellInfo( porosityModel ) )
@@ -120,12 +117,11 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultAddress( c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultAccessor>
-    RigResultAccessorFactory::createCombinedResultAccessor( const RigEclipseCaseData*      eclipseCase,
-                                                            size_t                         gridIndex,
-                                                            RiaDefines::PorosityModelType  porosityModel,
-                                                            size_t                         timeStepIndex,
-                                                            const RigEclipseResultAddress& resVarAddr )
+cvf::ref<RigResultAccessor> RigResultAccessorFactory::createCombinedResultAccessor( const RigEclipseCaseData*      eclipseCase,
+                                                                                    size_t                         gridIndex,
+                                                                                    RiaDefines::PorosityModelType  porosityModel,
+                                                                                    size_t                         timeStepIndex,
+                                                                                    const RigEclipseResultAddress& resVarAddr )
 {
     CVF_ASSERT( gridIndex < eclipseCase->gridCount() );
     CVF_ASSERT( eclipseCase );
@@ -142,25 +138,13 @@ cvf::ref<RigResultAccessor>
         cvf::ref<RigCombTransResultAccessor> cellFaceAccessObject = new RigCombTransResultAccessor( grid );
         nativeAddr.setResultName( "TRANX" );
         cvf::ref<RigResultAccessor> xTransAccessor =
-            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase,
-                                                                     gridIndex,
-                                                                     porosityModel,
-                                                                     timeStepIndex,
-                                                                     nativeAddr );
+            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase, gridIndex, porosityModel, timeStepIndex, nativeAddr );
         nativeAddr.setResultName( "TRANY" );
         cvf::ref<RigResultAccessor> yTransAccessor =
-            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase,
-                                                                     gridIndex,
-                                                                     porosityModel,
-                                                                     timeStepIndex,
-                                                                     nativeAddr );
+            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase, gridIndex, porosityModel, timeStepIndex, nativeAddr );
         nativeAddr.setResultName( "TRANZ" );
         cvf::ref<RigResultAccessor> zTransAccessor =
-            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase,
-                                                                     gridIndex,
-                                                                     porosityModel,
-                                                                     timeStepIndex,
-                                                                     nativeAddr );
+            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase, gridIndex, porosityModel, timeStepIndex, nativeAddr );
 
         cellFaceAccessObject->setTransResultAccessors( xTransAccessor.p(), yTransAccessor.p(), zTransAccessor.p() );
 
@@ -173,44 +157,25 @@ cvf::ref<RigResultAccessor>
         cvf::ref<RigCombMultResultAccessor> cellFaceAccessObject = new RigCombMultResultAccessor( grid );
 
         nativeAddr.setResultName( "MULTX" );
-        cvf::ref<RigResultAccessor> multXPos = RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase,
-                                                                                                        gridIndex,
-                                                                                                        porosityModel,
-                                                                                                        timeStepIndex,
-                                                                                                        nativeAddr );
+        cvf::ref<RigResultAccessor> multXPos =
+            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase, gridIndex, porosityModel, timeStepIndex, nativeAddr );
         nativeAddr.setResultName( "MULTX-" );
-        cvf::ref<RigResultAccessor> multXNeg = RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase,
-                                                                                                        gridIndex,
-                                                                                                        porosityModel,
-                                                                                                        timeStepIndex,
-                                                                                                        nativeAddr );
+        cvf::ref<RigResultAccessor> multXNeg =
+            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase, gridIndex, porosityModel, timeStepIndex, nativeAddr );
         nativeAddr.setResultName( "MULTY" );
-        cvf::ref<RigResultAccessor> multYPos = RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase,
-                                                                                                        gridIndex,
-                                                                                                        porosityModel,
-                                                                                                        timeStepIndex,
-                                                                                                        nativeAddr );
+        cvf::ref<RigResultAccessor> multYPos =
+            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase, gridIndex, porosityModel, timeStepIndex, nativeAddr );
         nativeAddr.setResultName( "MULTY-" );
-        cvf::ref<RigResultAccessor> multYNeg = RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase,
-                                                                                                        gridIndex,
-                                                                                                        porosityModel,
-                                                                                                        timeStepIndex,
-                                                                                                        nativeAddr );
+        cvf::ref<RigResultAccessor> multYNeg =
+            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase, gridIndex, porosityModel, timeStepIndex, nativeAddr );
         nativeAddr.setResultName( "MULTZ" );
-        cvf::ref<RigResultAccessor> multZPos = RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase,
-                                                                                                        gridIndex,
-                                                                                                        porosityModel,
-                                                                                                        timeStepIndex,
-                                                                                                        nativeAddr );
+        cvf::ref<RigResultAccessor> multZPos =
+            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase, gridIndex, porosityModel, timeStepIndex, nativeAddr );
         nativeAddr.setResultName( "MULTZ-" );
-        cvf::ref<RigResultAccessor> multZNeg = RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase,
-                                                                                                        gridIndex,
-                                                                                                        porosityModel,
-                                                                                                        timeStepIndex,
-                                                                                                        nativeAddr );
+        cvf::ref<RigResultAccessor> multZNeg =
+            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase, gridIndex, porosityModel, timeStepIndex, nativeAddr );
 
-        cellFaceAccessObject
-            ->setMultResultAccessors( multXPos.p(), multXNeg.p(), multYPos.p(), multYNeg.p(), multZPos.p(), multZNeg.p() );
+        cellFaceAccessObject->setMultResultAccessors( multXPos.p(), multXNeg.p(), multYPos.p(), multYNeg.p(), multZPos.p(), multZNeg.p() );
 
         return cellFaceAccessObject;
     }
@@ -222,25 +187,13 @@ cvf::ref<RigResultAccessor>
 
         nativeAddr.setResultName( RiaResultNames::riTranXResultName() );
         cvf::ref<RigResultAccessor> xTransAccessor =
-            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase,
-                                                                     gridIndex,
-                                                                     porosityModel,
-                                                                     timeStepIndex,
-                                                                     nativeAddr );
+            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase, gridIndex, porosityModel, timeStepIndex, nativeAddr );
         nativeAddr.setResultName( RiaResultNames::riTranYResultName() );
         cvf::ref<RigResultAccessor> yTransAccessor =
-            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase,
-                                                                     gridIndex,
-                                                                     porosityModel,
-                                                                     timeStepIndex,
-                                                                     nativeAddr );
+            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase, gridIndex, porosityModel, timeStepIndex, nativeAddr );
         nativeAddr.setResultName( RiaResultNames::riTranZResultName() );
         cvf::ref<RigResultAccessor> zTransAccessor =
-            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase,
-                                                                     gridIndex,
-                                                                     porosityModel,
-                                                                     timeStepIndex,
-                                                                     nativeAddr );
+            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase, gridIndex, porosityModel, timeStepIndex, nativeAddr );
 
         cellFaceAccessObject->setTransResultAccessors( xTransAccessor.p(), yTransAccessor.p(), zTransAccessor.p() );
 
@@ -253,25 +206,13 @@ cvf::ref<RigResultAccessor>
         cvf::ref<RigCombTransResultAccessor> cellFaceAccessObject = new RigCombTransResultAccessor( grid );
         nativeAddr.setResultName( RiaResultNames::riMultXResultName() );
         cvf::ref<RigResultAccessor> xRiMultAccessor =
-            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase,
-                                                                     gridIndex,
-                                                                     porosityModel,
-                                                                     timeStepIndex,
-                                                                     nativeAddr );
+            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase, gridIndex, porosityModel, timeStepIndex, nativeAddr );
         nativeAddr.setResultName( RiaResultNames::riMultYResultName() );
         cvf::ref<RigResultAccessor> yRiMultAccessor =
-            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase,
-                                                                     gridIndex,
-                                                                     porosityModel,
-                                                                     timeStepIndex,
-                                                                     nativeAddr );
+            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase, gridIndex, porosityModel, timeStepIndex, nativeAddr );
         nativeAddr.setResultName( RiaResultNames::riMultZResultName() );
         cvf::ref<RigResultAccessor> zRiMultAccessor =
-            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase,
-                                                                     gridIndex,
-                                                                     porosityModel,
-                                                                     timeStepIndex,
-                                                                     nativeAddr );
+            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase, gridIndex, porosityModel, timeStepIndex, nativeAddr );
 
         cellFaceAccessObject->setTransResultAccessors( xRiMultAccessor.p(), yRiMultAccessor.p(), zRiMultAccessor.p() );
 
@@ -286,29 +227,15 @@ cvf::ref<RigResultAccessor>
 
         nativeAddr.setResultName( RiaResultNames::riAreaNormTranXResultName() );
         cvf::ref<RigResultAccessor> xRiAreaNormTransAccessor =
-            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase,
-                                                                     gridIndex,
-                                                                     porosityModel,
-                                                                     timeStepIndex,
-                                                                     nativeAddr );
+            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase, gridIndex, porosityModel, timeStepIndex, nativeAddr );
         nativeAddr.setResultName( RiaResultNames::riAreaNormTranYResultName() );
         cvf::ref<RigResultAccessor> yRiAreaNormTransAccessor =
-            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase,
-                                                                     gridIndex,
-                                                                     porosityModel,
-                                                                     timeStepIndex,
-                                                                     nativeAddr );
+            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase, gridIndex, porosityModel, timeStepIndex, nativeAddr );
         nativeAddr.setResultName( RiaResultNames::riAreaNormTranZResultName() );
         cvf::ref<RigResultAccessor> zRiAreaNormTransAccessor =
-            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase,
-                                                                     gridIndex,
-                                                                     porosityModel,
-                                                                     timeStepIndex,
-                                                                     nativeAddr );
+            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase, gridIndex, porosityModel, timeStepIndex, nativeAddr );
 
-        cellFaceAccessObject->setTransResultAccessors( xRiAreaNormTransAccessor.p(),
-                                                       yRiAreaNormTransAccessor.p(),
-                                                       zRiAreaNormTransAccessor.p() );
+        cellFaceAccessObject->setTransResultAccessors( xRiAreaNormTransAccessor.p(), yRiAreaNormTransAccessor.p(), zRiAreaNormTransAccessor.p() );
 
         return cellFaceAccessObject;
     }
@@ -319,29 +246,15 @@ cvf::ref<RigResultAccessor>
 
         nativeAddr.setResultName( "FLRWATI+" );
         cvf::ref<RigResultAccessor> xRiAreaNormTransAccessor =
-            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase,
-                                                                     gridIndex,
-                                                                     porosityModel,
-                                                                     timeStepIndex,
-                                                                     nativeAddr );
+            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase, gridIndex, porosityModel, timeStepIndex, nativeAddr );
         nativeAddr.setResultName( "FLRWATJ+" );
         cvf::ref<RigResultAccessor> yRiAreaNormTransAccessor =
-            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase,
-                                                                     gridIndex,
-                                                                     porosityModel,
-                                                                     timeStepIndex,
-                                                                     nativeAddr );
+            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase, gridIndex, porosityModel, timeStepIndex, nativeAddr );
         nativeAddr.setResultName( "FLRWATK+" );
         cvf::ref<RigResultAccessor> zRiAreaNormTransAccessor =
-            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase,
-                                                                     gridIndex,
-                                                                     porosityModel,
-                                                                     timeStepIndex,
-                                                                     nativeAddr );
+            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase, gridIndex, porosityModel, timeStepIndex, nativeAddr );
 
-        cellFaceAccessObject->setTransResultAccessors( xRiAreaNormTransAccessor.p(),
-                                                       yRiAreaNormTransAccessor.p(),
-                                                       zRiAreaNormTransAccessor.p() );
+        cellFaceAccessObject->setTransResultAccessors( xRiAreaNormTransAccessor.p(), yRiAreaNormTransAccessor.p(), zRiAreaNormTransAccessor.p() );
 
         return cellFaceAccessObject;
     }
@@ -351,29 +264,15 @@ cvf::ref<RigResultAccessor>
 
         nativeAddr.setResultName( "FLROILI+" );
         cvf::ref<RigResultAccessor> xRiAreaNormTransAccessor =
-            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase,
-                                                                     gridIndex,
-                                                                     porosityModel,
-                                                                     timeStepIndex,
-                                                                     nativeAddr );
+            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase, gridIndex, porosityModel, timeStepIndex, nativeAddr );
         nativeAddr.setResultName( "FLROILJ+" );
         cvf::ref<RigResultAccessor> yRiAreaNormTransAccessor =
-            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase,
-                                                                     gridIndex,
-                                                                     porosityModel,
-                                                                     timeStepIndex,
-                                                                     nativeAddr );
+            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase, gridIndex, porosityModel, timeStepIndex, nativeAddr );
         nativeAddr.setResultName( "FLROILK+" );
         cvf::ref<RigResultAccessor> zRiAreaNormTransAccessor =
-            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase,
-                                                                     gridIndex,
-                                                                     porosityModel,
-                                                                     timeStepIndex,
-                                                                     nativeAddr );
+            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase, gridIndex, porosityModel, timeStepIndex, nativeAddr );
 
-        cellFaceAccessObject->setTransResultAccessors( xRiAreaNormTransAccessor.p(),
-                                                       yRiAreaNormTransAccessor.p(),
-                                                       zRiAreaNormTransAccessor.p() );
+        cellFaceAccessObject->setTransResultAccessors( xRiAreaNormTransAccessor.p(), yRiAreaNormTransAccessor.p(), zRiAreaNormTransAccessor.p() );
 
         return cellFaceAccessObject;
     }
@@ -383,55 +282,32 @@ cvf::ref<RigResultAccessor>
 
         nativeAddr.setResultName( "FLRGASI+" );
         cvf::ref<RigResultAccessor> xRiAreaNormTransAccessor =
-            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase,
-                                                                     gridIndex,
-                                                                     porosityModel,
-                                                                     timeStepIndex,
-                                                                     nativeAddr );
+            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase, gridIndex, porosityModel, timeStepIndex, nativeAddr );
         nativeAddr.setResultName( "FLRGASJ+" );
         cvf::ref<RigResultAccessor> yRiAreaNormTransAccessor =
-            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase,
-                                                                     gridIndex,
-                                                                     porosityModel,
-                                                                     timeStepIndex,
-                                                                     nativeAddr );
+            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase, gridIndex, porosityModel, timeStepIndex, nativeAddr );
         nativeAddr.setResultName( "FLRGASK+" );
         cvf::ref<RigResultAccessor> zRiAreaNormTransAccessor =
-            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase,
-                                                                     gridIndex,
-                                                                     porosityModel,
-                                                                     timeStepIndex,
-                                                                     nativeAddr );
+            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase, gridIndex, porosityModel, timeStepIndex, nativeAddr );
 
-        cellFaceAccessObject->setTransResultAccessors( xRiAreaNormTransAccessor.p(),
-                                                       yRiAreaNormTransAccessor.p(),
-                                                       zRiAreaNormTransAccessor.p() );
+        cellFaceAccessObject->setTransResultAccessors( xRiAreaNormTransAccessor.p(), yRiAreaNormTransAccessor.p(), zRiAreaNormTransAccessor.p() );
 
         return cellFaceAccessObject;
     }
     else if ( resVarAddr.resultName().endsWith( "IJK" ) )
     {
         cvf::ref<RigCombTransResultAccessor> cellFaceAccessObject = new RigCombTransResultAccessor( grid );
-        QString baseName = resVarAddr.resultName().left( resVarAddr.resultName().size() - 3 );
+        QString                              baseName             = resVarAddr.resultName().left( resVarAddr.resultName().size() - 3 );
 
         nativeAddr.setResultName( QString( "%1I" ).arg( baseName ) );
-        cvf::ref<RigResultAccessor> iAccessor = RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase,
-                                                                                                         gridIndex,
-                                                                                                         porosityModel,
-                                                                                                         timeStepIndex,
-                                                                                                         nativeAddr );
+        cvf::ref<RigResultAccessor> iAccessor =
+            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase, gridIndex, porosityModel, timeStepIndex, nativeAddr );
         nativeAddr.setResultName( QString( "%1J" ).arg( baseName ) );
-        cvf::ref<RigResultAccessor> jAccessor = RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase,
-                                                                                                         gridIndex,
-                                                                                                         porosityModel,
-                                                                                                         timeStepIndex,
-                                                                                                         nativeAddr );
+        cvf::ref<RigResultAccessor> jAccessor =
+            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase, gridIndex, porosityModel, timeStepIndex, nativeAddr );
         nativeAddr.setResultName( QString( "%1K" ).arg( baseName ) );
-        cvf::ref<RigResultAccessor> kAccessor = RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase,
-                                                                                                         gridIndex,
-                                                                                                         porosityModel,
-                                                                                                         timeStepIndex,
-                                                                                                         nativeAddr );
+        cvf::ref<RigResultAccessor> kAccessor =
+            RigResultAccessorFactory::createNativeFromResultAddress( eclipseCase, gridIndex, porosityModel, timeStepIndex, nativeAddr );
 
         cellFaceAccessObject->setTransResultAccessors( iAccessor.p(), jAccessor.p(), kAccessor.p() );
 
@@ -444,12 +320,11 @@ cvf::ref<RigResultAccessor>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultAccessor>
-    RigResultAccessorFactory::createNativeFromResultAddress( const RigEclipseCaseData*      eclipseCase,
-                                                             size_t                         gridIndex,
-                                                             RiaDefines::PorosityModelType  porosityModel,
-                                                             size_t                         timeStepIndex,
-                                                             const RigEclipseResultAddress& resultAddress )
+cvf::ref<RigResultAccessor> RigResultAccessorFactory::createNativeFromResultAddress( const RigEclipseCaseData*      eclipseCase,
+                                                                                     size_t                         gridIndex,
+                                                                                     RiaDefines::PorosityModelType  porosityModel,
+                                                                                     size_t                         timeStepIndex,
+                                                                                     const RigEclipseResultAddress& resultAddress )
 {
     if ( !eclipseCase || !eclipseCase->results( porosityModel ) || !eclipseCase->activeCellInfo( porosityModel ) )
     {
@@ -472,8 +347,7 @@ cvf::ref<RigResultAccessor>
         return nullptr;
     }
 
-    const std::vector<std::vector<double>>& scalarSetResults =
-        eclipseCase->results( porosityModel )->cellScalarResults( resultAddress );
+    const std::vector<std::vector<double>>& scalarSetResults = eclipseCase->results( porosityModel )->cellScalarResults( resultAddress );
 
     if ( timeStepIndex >= scalarSetResults.size() )
     {

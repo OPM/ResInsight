@@ -49,9 +49,7 @@ RimMockModelSettings::~RimMockModelSettings()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMockModelSettings::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                             const QVariant&            oldValue,
-                                             const QVariant&            newValue )
+void RimMockModelSettings::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     totalCellCount = cellCountX * cellCountY * cellCountZ;
 

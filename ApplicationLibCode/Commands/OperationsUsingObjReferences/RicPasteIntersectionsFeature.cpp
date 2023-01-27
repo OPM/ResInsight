@@ -52,8 +52,7 @@ bool RicPasteIntersectionsFeature::isCommandEnabled()
         return false;
     }
 
-    caf::PdmObjectHandle* destinationObject =
-        dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
+    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
 
     if ( findIntersectionCollection( destinationObject ) )
     {
@@ -68,11 +67,9 @@ bool RicPasteIntersectionsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicPasteIntersectionsFeature::onActionTriggered( bool isChecked )
 {
-    caf::PdmObjectHandle* destinationObject =
-        dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
+    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
 
-    RimIntersectionCollection* intersectionCollection =
-        RicPasteIntersectionsFeature::findIntersectionCollection( destinationObject );
+    RimIntersectionCollection* intersectionCollection = RicPasteIntersectionsFeature::findIntersectionCollection( destinationObject );
 
     CAF_ASSERT( intersectionCollection );
 

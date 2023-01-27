@@ -67,8 +67,7 @@ bool isExcplicitHandled( char secondChar )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCurveAppearanceCalculator::RimSummaryCurveAppearanceCalculator(
-    const std::vector<RiaSummaryCurveDefinition>& curveDefinitions )
+RimSummaryCurveAppearanceCalculator::RimSummaryCurveAppearanceCalculator( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions )
 {
     init( curveDefinitions );
 }
@@ -120,17 +119,14 @@ void RimSummaryCurveAppearanceCalculator::assignDimensions( CurveAppearanceType 
 void RimSummaryCurveAppearanceCalculator::updateApperanceIndices()
 {
     {
-        std::map<std::string, size_t> caseAppearanceIndices =
-            mapNameToAppearanceIndex( m_caseAppearanceType, m_allSummaryCaseNames );
+        std::map<std::string, size_t> caseAppearanceIndices = mapNameToAppearanceIndex( m_caseAppearanceType, m_allSummaryCaseNames );
         for ( auto& pair : m_caseToAppearanceIdxMap )
         {
-            pair.second =
-                static_cast<int>( caseAppearanceIndices[pair.first->summaryHeaderFilename().toUtf8().constData()] );
+            pair.second = static_cast<int>( caseAppearanceIndices[pair.first->summaryHeaderFilename().toUtf8().constData()] );
         }
     }
     {
-        std::map<std::string, size_t> wellAppearanceIndices =
-            mapNameToAppearanceIndex( m_wellAppearanceType, m_allSummaryWellNames );
+        std::map<std::string, size_t> wellAppearanceIndices = mapNameToAppearanceIndex( m_wellAppearanceType, m_allSummaryWellNames );
         for ( auto& pair : m_welToAppearanceIdxMap )
         {
             pair.second = static_cast<int>( wellAppearanceIndices[pair.first] );
@@ -164,9 +160,8 @@ void RimSummaryCurveAppearanceCalculator::updateApperanceIndices()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<std::string, size_t>
-    RimSummaryCurveAppearanceCalculator::mapNameToAppearanceIndex( CurveAppearanceType&         appearance,
-                                                                   const std::set<std::string>& names )
+std::map<std::string, size_t> RimSummaryCurveAppearanceCalculator::mapNameToAppearanceIndex( CurveAppearanceType&         appearance,
+                                                                                             const std::set<std::string>& names )
 {
     std::map<std::string, size_t> nameToIndex;
     size_t                        numOptions;
@@ -391,8 +386,7 @@ cvf::Color3f RimSummaryCurveAppearanceCalculator::assignColorByPhase( const RifE
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Color3f RimSummaryCurveAppearanceCalculator::computeTintedCurveColorForAddress( const RifEclipseSummaryAddress& address,
-                                                                                     int colorIndex )
+cvf::Color3f RimSummaryCurveAppearanceCalculator::computeTintedCurveColorForAddress( const RifEclipseSummaryAddress& address, int colorIndex )
 {
     bool usePhaseColor = RiaPreferencesSummary::current()->colorCurvesByPhase();
 
@@ -425,12 +419,9 @@ void RimSummaryCurveAppearanceCalculator::init( const std::vector<RiaSummaryCurv
     for ( const RiaSummaryCurveDefinition& curveDef : curveDefinitions )
     {
         if ( curveDef.summaryCase() ) m_caseToAppearanceIdxMap[curveDef.summaryCase()] = -1;
-        if ( !curveDef.summaryAddress().wellName().empty() )
-            m_welToAppearanceIdxMap[curveDef.summaryAddress().wellName()] = -1;
-        if ( !curveDef.summaryAddress().groupName().empty() )
-            m_grpToAppearanceIdxMap[curveDef.summaryAddress().groupName()] = -1;
-        if ( !( curveDef.summaryAddress().regionNumber() == -1 ) )
-            m_regToAppearanceIdxMap[curveDef.summaryAddress().regionNumber()] = -1;
+        if ( !curveDef.summaryAddress().wellName().empty() ) m_welToAppearanceIdxMap[curveDef.summaryAddress().wellName()] = -1;
+        if ( !curveDef.summaryAddress().groupName().empty() ) m_grpToAppearanceIdxMap[curveDef.summaryAddress().groupName()] = -1;
+        if ( !( curveDef.summaryAddress().regionNumber() == -1 ) ) m_regToAppearanceIdxMap[curveDef.summaryAddress().regionNumber()] = -1;
 
         if ( !curveDef.summaryAddress().vectorName().empty() )
         {

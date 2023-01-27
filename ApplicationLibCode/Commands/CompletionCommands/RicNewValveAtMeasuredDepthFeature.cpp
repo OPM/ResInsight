@@ -49,7 +49,7 @@ void RicNewValveAtMeasuredDepthFeature::onActionTriggered( bool isChecked )
 
     if ( !RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem( wellPath ) ) return;
 
-    RimPerforationInterval* perfInterval = dynamic_cast<RimPerforationInterval*>( wellPathSelItem->m_wellPathComponent );
+    RimPerforationInterval* perfInterval  = dynamic_cast<RimPerforationInterval*>( wellPathSelItem->m_wellPathComponent );
     double                  measuredDepth = wellPathSelItem->m_measuredDepth;
 
     RimWellPathValve* valve = new RimWellPathValve;

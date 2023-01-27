@@ -135,9 +135,7 @@ void RimFaciesProperties::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaciesProperties::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                 QString                    uiConfigName,
-                                                 caf::PdmUiEditorAttribute* attribute )
+void RimFaciesProperties::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_propertiesTable )
     {
@@ -153,9 +151,7 @@ void RimFaciesProperties::defineEditorAttribute( const caf::PdmFieldHandle* fiel
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaciesProperties::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                            const QVariant&            oldValue,
-                                            const QVariant&            newValue )
+void RimFaciesProperties::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     changed.send();
 }

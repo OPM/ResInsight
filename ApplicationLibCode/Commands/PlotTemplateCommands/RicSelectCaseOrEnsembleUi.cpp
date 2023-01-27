@@ -73,8 +73,7 @@ void RicSelectCaseOrEnsembleUi::setEnsembleSelectionMode( bool ensembleMode )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RicSelectCaseOrEnsembleUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RicSelectCaseOrEnsembleUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

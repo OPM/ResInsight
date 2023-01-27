@@ -189,17 +189,16 @@ void RifSummaryCaseRestartSelector::determineFilesToImportByAskingUser( const st
     caf::ProgressInfo progress( initialFiles.size(), QString( "Importing files" ) );
     for ( const RifSummaryCaseFileImportInfo& initialFile : initialFiles )
     {
-        RicSummaryCaseRestartDialogResult result =
-            RicSummaryCaseRestartDialog::openDialog( initialFile.summaryFileName(),
-                                                     initialFile.gridFileName(),
-                                                     initialFile.failOnSummaryFileError(),
-                                                     enableApplyToAllField,
-                                                     m_ensembleOrGroupMode,
-                                                     defaultSummaryImportMode,
-                                                     defaultGridImportMode,
-                                                     m_ensembleOrGroupMode,
-                                                     &lastResult,
-                                                     nullptr );
+        RicSummaryCaseRestartDialogResult result = RicSummaryCaseRestartDialog::openDialog( initialFile.summaryFileName(),
+                                                                                            initialFile.gridFileName(),
+                                                                                            initialFile.failOnSummaryFileError(),
+                                                                                            enableApplyToAllField,
+                                                                                            m_ensembleOrGroupMode,
+                                                                                            defaultSummaryImportMode,
+                                                                                            defaultGridImportMode,
+                                                                                            m_ensembleOrGroupMode,
+                                                                                            &lastResult,
+                                                                                            nullptr );
 
         if ( result.status == RicSummaryCaseRestartDialogResult::SUMMARY_CANCELLED )
         {
@@ -290,12 +289,10 @@ void RifSummaryCaseRestartSelector::determineFilesToImportUsingPrefs( const std:
                 m_summaryFileInfos.push_back( RifSummaryCaseFileResultInfo( initialSummaryFile, false ) );
 
                 std::vector<QString>            warnings;
-                std::vector<RifRestartFileInfo> restartFileInfos =
-                    RifEclipseSummaryTools::getRestartFiles( initialSummaryFile, warnings );
+                std::vector<RifRestartFileInfo> restartFileInfos = RifEclipseSummaryTools::getRestartFiles( initialSummaryFile, warnings );
                 for ( const auto& rfi : restartFileInfos )
                 {
-                    RifSummaryCaseFileResultInfo resultFileInfo( RiaFilePathTools::toInternalSeparator( rfi.fileName ),
-                                                                 false );
+                    RifSummaryCaseFileResultInfo resultFileInfo( RiaFilePathTools::toInternalSeparator( rfi.fileName ), false );
                     if ( !vectorContains( m_summaryFileInfos, resultFileInfo ) )
                     {
                         m_summaryFileInfos.push_back( resultFileInfo );
@@ -313,8 +310,7 @@ void RifSummaryCaseRestartSelector::determineFilesToImportUsingPrefs( const std:
             {
                 std::vector<QString> warnings;
 
-                std::vector<RifRestartFileInfo> restartFileInfos =
-                    RifEclipseSummaryTools::getRestartFiles( initialSummaryFile, warnings );
+                std::vector<RifRestartFileInfo> restartFileInfos = RifEclipseSummaryTools::getRestartFiles( initialSummaryFile, warnings );
                 for ( const auto& rfi : restartFileInfos )
                 {
                     QString gridFileName = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile( rfi.fileName );

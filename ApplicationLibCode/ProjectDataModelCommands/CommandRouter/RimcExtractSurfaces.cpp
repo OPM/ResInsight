@@ -63,7 +63,7 @@ caf::PdmObjectHandle* RimcCommandRouter_extractSurfaces::execute()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<bool, QStringList> RimcCommandRouter_extractSurfaces::extractSurfaces( const QString& gridModelFilename,
+std::pair<bool, QStringList> RimcCommandRouter_extractSurfaces::extractSurfaces( const QString&          gridModelFilename,
                                                                                  const std::vector<int>& layers,
                                                                                  int                     minI,
                                                                                  int                     maxI,
@@ -138,8 +138,7 @@ std::pair<bool, QStringList> RimcCommandRouter_extractSurfaces::extractSurfaces(
             }
 
             // Write to TS file on disk
-            QString surfaceFilename = fi.absoluteDir().absolutePath() +
-                                      QString( "/%1/layer-%2.ts" ).arg( surfaceExportDirName ).arg( layer );
+            QString surfaceFilename = fi.absoluteDir().absolutePath() + QString( "/%1/layer-%2.ts" ).arg( surfaceExportDirName ).arg( layer );
 
             // TODO: Add more info in surface comment
             if ( !RifSurfaceExporter::writeGocadTSurfFile( surfaceFilename, "Surface comment", vertices, triangleIndices ) )

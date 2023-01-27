@@ -72,7 +72,7 @@ void RicImportEnsembleSurfaceFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicImportEnsembleSurfaceFeature::importEnsembleSurfaceFromFiles( const QStringList& fileNames,
+void RicImportEnsembleSurfaceFeature::importEnsembleSurfaceFromFiles( const QStringList&                         fileNames,
                                                                       RiaEnsembleNameTools::EnsembleGroupingMode groupingMode )
 {
     if ( fileNames.isEmpty() ) return;
@@ -87,7 +87,7 @@ void RicImportEnsembleSurfaceFeature::importEnsembleSurfaceFromFiles( const QStr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicImportEnsembleSurfaceFeature::importSingleEnsembleSurfaceFromFiles( const QStringList& fileNames,
+void RicImportEnsembleSurfaceFeature::importSingleEnsembleSurfaceFromFiles( const QStringList&                         fileNames,
                                                                             RiaEnsembleNameTools::EnsembleGroupingMode groupingMode )
 {
     // Create a list of file names for each layer
@@ -115,8 +115,7 @@ void RicImportEnsembleSurfaceFeature::importSingleEnsembleSurfaceFromFiles( cons
 
         if ( ensembleName.isEmpty() ) ensembleName = "Ensemble Surface";
 
-        std::map<QString, QStringList> keyFileComponentsForAllFiles =
-            RiaFilePathTools::keyPathComponentsForEachFilePath( layerFileNames );
+        std::map<QString, QStringList> keyFileComponentsForAllFiles = RiaFilePathTools::keyPathComponentsForEachFilePath( layerFileNames );
 
         std::vector<RimFileSurface*> surfaces;
         for ( int i = 0; i < layerFileNames.size(); i++ )
@@ -133,8 +132,7 @@ void RicImportEnsembleSurfaceFeature::importSingleEnsembleSurfaceFromFiles( cons
             auto fileSurface = surfaces[i];
             fileSurface->setSurfaceFilePath( fileName );
 
-            auto shortName =
-                RiaEnsembleNameTools::uniqueShortNameFromComponents( fileName, keyFileComponentsForAllFiles, ensembleName );
+            auto shortName = RiaEnsembleNameTools::uniqueShortNameFromComponents( fileName, keyFileComponentsForAllFiles, ensembleName );
             fileSurface->setUserDescription( shortName );
 
             auto isOk = fileSurface->onLoadData();
@@ -196,9 +194,8 @@ std::pair<QStringList, RiaEnsembleNameTools::EnsembleGroupingMode>
                                                                                                         defaultDir,
                                                                                                         m_pathFilter,
                                                                                                         m_fileNameFilter,
-                                                                                                        QStringList()
-                                                                                                            << ".TS"
-                                                                                                            << ".ts" );
+                                                                                                        QStringList() << ".TS"
+                                                                                                                      << ".ts" );
 
     // Remember filters
     m_pathFilter     = result.pathFilter;

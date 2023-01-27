@@ -88,8 +88,7 @@ void RimGeoMechCellColors::updateLegendCategorySettings()
     if ( this->hasCategoryResult() )
     {
         legendConfig->setMappingMode( RimRegularLegendConfig::MappingType::CATEGORY_INTEGER );
-        legendConfig->setColorLegend(
-            RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::CATEGORY ) );
+        legendConfig->setColorLegend( RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::CATEGORY ) );
     }
     else
     {
@@ -98,11 +97,9 @@ void RimGeoMechCellColors::updateLegendCategorySettings()
             legendConfig->setMappingMode( RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS );
         }
 
-        if ( legendConfig->colorLegend() ==
-             RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::CATEGORY ) )
+        if ( legendConfig->colorLegend() == RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::CATEGORY ) )
         {
-            legendConfig->setColorLegend(
-                RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::NORMAL ) );
+            legendConfig->setColorLegend( RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::NORMAL ) );
         }
     }
 }

@@ -70,7 +70,7 @@ void RicImportEnsembleWellLogsFeature::onActionTriggered( bool isChecked )
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimEnsembleWellLogs*>
-    RicImportEnsembleWellLogsFeature::createEnsembleWellLogsFromFiles( const QStringList& fileNames,
+    RicImportEnsembleWellLogsFeature::createEnsembleWellLogsFromFiles( const QStringList&                         fileNames,
                                                                        RiaEnsembleNameTools::EnsembleGroupingMode groupingMode )
 {
     std::vector<RimEnsembleWellLogs*> ensembleWellLogs;
@@ -88,9 +88,9 @@ std::vector<RimEnsembleWellLogs*>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEnsembleWellLogs* RicImportEnsembleWellLogsFeature::createSingleEnsembleWellLogsFromFiles(
-    const QStringList&                         fileNames,
-    RiaEnsembleNameTools::EnsembleGroupingMode groupingMode )
+RimEnsembleWellLogs*
+    RicImportEnsembleWellLogsFeature::createSingleEnsembleWellLogsFromFiles( const QStringList&                         fileNames,
+                                                                             RiaEnsembleNameTools::EnsembleGroupingMode groupingMode )
 {
     if ( fileNames.isEmpty() ) return nullptr;
 
@@ -144,9 +144,8 @@ std::pair<QStringList, RiaEnsembleNameTools::EnsembleGroupingMode>
                                                                                                         defaultDir,
                                                                                                         m_pathFilter,
                                                                                                         m_fileNameFilter,
-                                                                                                        QStringList()
-                                                                                                            << ".LAS"
-                                                                                                            << ".las" );
+                                                                                                        QStringList() << ".LAS"
+                                                                                                                      << ".las" );
 
     // Remember filters
     m_pathFilter     = result.pathFilter;

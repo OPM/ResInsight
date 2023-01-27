@@ -124,8 +124,7 @@ void RimSummaryCurveCollection::loadDataAndUpdate( bool updateParentPlot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveCollection::onChildrenUpdated( caf::PdmChildArrayFieldHandle*      childArray,
-                                                   std::vector<caf::PdmObjectHandle*>& updatedObjects )
+void RimSummaryCurveCollection::onChildrenUpdated( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& updatedObjects )
 {
     if ( childArray == &m_curves )
     {
@@ -259,8 +258,7 @@ std::vector<RimSummaryCurve*> RimSummaryCurveCollection::curves() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryCurve*>
-    RimSummaryCurveCollection::curvesForSourceStepping( RimSummaryDataSourceStepping::Axis steppingType ) const
+std::vector<RimSummaryCurve*> RimSummaryCurveCollection::curvesForSourceStepping( RimSummaryDataSourceStepping::Axis steppingType ) const
 {
     std::vector<RimSummaryCurve*> stepCurves;
 
@@ -298,16 +296,14 @@ std::vector<RimSummaryCurve*>
             {
                 if ( steppingType == RimSummaryDataSourceStepping::Axis::X_AXIS )
                 {
-                    if ( c->summaryCaseX() == m_curveForSourceStepping->summaryCaseX() &&
-                         c->summaryAddressX().vectorName() == candidateName )
+                    if ( c->summaryCaseX() == m_curveForSourceStepping->summaryCaseX() && c->summaryAddressX().vectorName() == candidateName )
                     {
                         stepCurves.push_back( c );
                     }
                 }
                 else if ( steppingType == RimSummaryDataSourceStepping::Axis::Y_AXIS )
                 {
-                    if ( c->summaryCaseY() == m_curveForSourceStepping->summaryCaseY() &&
-                         c->summaryAddressY().vectorName() == candidateName )
+                    if ( c->summaryCaseY() == m_curveForSourceStepping->summaryCaseY() && c->summaryAddressY().vectorName() == candidateName )
                     {
                         stepCurves.push_back( c );
                     }
@@ -438,8 +434,7 @@ RimSummaryCurve* RimSummaryCurveCollection::curveForSourceStepping() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlotSourceStepping*
-    RimSummaryCurveCollection::sourceSteppingObject( RimSummaryDataSourceStepping::Axis sourceSteppingType ) const
+RimSummaryPlotSourceStepping* RimSummaryCurveCollection::sourceSteppingObject( RimSummaryDataSourceStepping::Axis sourceSteppingType ) const
 {
     if ( sourceSteppingType == RimSummaryDataSourceStepping::Axis::X_AXIS )
     {
@@ -460,9 +455,7 @@ RimSummaryPlotSourceStepping*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                  const QVariant&            oldValue,
-                                                  const QVariant&            newValue )
+void RimSummaryCurveCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_showCurves )
     {
@@ -483,9 +476,7 @@ void RimSummaryCurveCollection::fieldChangedByUi( const caf::PdmFieldHandle* cha
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveCollection::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                       QString                    uiConfigName,
-                                                       caf::PdmUiEditorAttribute* attribute )
+void RimSummaryCurveCollection::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( &m_editPlot == field )
     {
@@ -509,8 +500,7 @@ void RimSummaryCurveCollection::onCurvesReordered( const SignalEmitter* emitter 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                                                std::vector<caf::PdmObjectHandle*>& referringObjects )
+void RimSummaryCurveCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     curvesChanged.send();
 }

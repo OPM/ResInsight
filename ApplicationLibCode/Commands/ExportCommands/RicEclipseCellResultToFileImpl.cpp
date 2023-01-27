@@ -45,24 +45,17 @@ bool RicEclipseCellResultToFileImpl::writePropertyToTextFile( const QString&    
     CVF_TIGHT_ASSERT( eclipseCase );
     if ( !eclipseCase ) return false;
 
-    cvf::ref<RigResultAccessor> resultAccessor =
-        RigResultAccessorFactory::createFromResultAddress( eclipseCase,
-                                                           0,
-                                                           RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                           timeStep,
-                                                           RigEclipseResultAddress( resultName ) );
+    cvf::ref<RigResultAccessor> resultAccessor = RigResultAccessorFactory::createFromResultAddress( eclipseCase,
+                                                                                                    0,
+                                                                                                    RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                                                                    timeStep,
+                                                                                                    RigEclipseResultAddress( resultName ) );
     if ( resultAccessor.isNull() )
     {
         return false;
     }
 
-    return writeResultToTextFile( fileName,
-                                  eclipseCase,
-                                  resultAccessor.p(),
-                                  eclipseKeyword,
-                                  undefinedValue,
-                                  "writePropertyToTextFile",
-                                  errorMsg );
+    return writeResultToTextFile( fileName, eclipseCase, resultAccessor.p(), eclipseKeyword, undefinedValue, "writePropertyToTextFile", errorMsg );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -135,9 +128,7 @@ bool RicEclipseCellResultToFileImpl::writeResultToTextFile( const QString&      
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicEclipseCellResultToFileImpl::writeDataToTextFile( QFile*                     file,
-                                                          const QString&             eclipseKeyword,
-                                                          const std::vector<double>& resultData )
+void RicEclipseCellResultToFileImpl::writeDataToTextFile( QFile* file, const QString& eclipseKeyword, const std::vector<double>& resultData )
 {
     QTextStream textstream( file );
     textstream << "\n";

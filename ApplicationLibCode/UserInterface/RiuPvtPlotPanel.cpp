@@ -202,8 +202,7 @@ void RiuPvtPlotWidget::plotCurves( RiaDefines::EclipseUnitSystem                
         for ( size_t i = 0; i < curveArr.size(); i++ )
         {
             const RigFlowDiagSolverInterface::PvtCurve& curve = curveArr[i];
-            if ( curve.phase == RigFlowDiagSolverInterface::PvtCurve::OIL && curve.pressureVals.size() > 0 &&
-                 curve.yVals.size() > 0 )
+            if ( curve.phase == RigFlowDiagSolverInterface::PvtCurve::OIL && curve.pressureVals.size() > 0 && curve.yVals.size() > 0 )
             {
                 xVals.push_back( curve.pressureVals[0] );
                 yVals.push_back( curve.yVals[0] );
@@ -310,8 +309,7 @@ void RiuPvtPlotWidget::plotCurves( RiaDefines::EclipseUnitSystem                
 
     m_qwtPlot->setTitle( plotTitle );
 
-    m_qwtPlot->setAxisTitle( QwtAxis::XBottom,
-                             QString( "Pressure [%1]" ).arg( RiaEclipseUnitTools::unitStringPressure( unitSystem ) ) );
+    m_qwtPlot->setAxisTitle( QwtAxis::XBottom, QString( "Pressure [%1]" ).arg( RiaEclipseUnitTools::unitStringPressure( unitSystem ) ) );
     m_qwtPlot->setAxisTitle( QwtAxis::YLeft, yAxisTitle );
 
     updateTrackerPlotMarkerAndLabelFromPicker();
@@ -682,22 +680,15 @@ void RiuPvtPlotPanel::plotUiSelectedCurves()
             }
         }
 
-        const QString plotTitle  = QString( "%1 Formation Volume Factor" ).arg( phaseString );
-        const QString yAxisTitle = QString( "%1 Formation Volume Factor [%2]" )
-                                       .arg( phaseString )
-                                       .arg( unitLabelFromCurveIdent( m_unitSystem, curveIdentToPlot ) );
-        m_fvfPlot->plotCurves( m_unitSystem,
-                               selectedFvfCurves,
-                               m_cellValues.pressure,
-                               pointMarkerFvfValue,
-                               pointMarkerLabel,
-                               plotTitle,
-                               yAxisTitle );
+        const QString plotTitle = QString( "%1 Formation Volume Factor" ).arg( phaseString );
+        const QString yAxisTitle =
+            QString( "%1 Formation Volume Factor [%2]" ).arg( phaseString ).arg( unitLabelFromCurveIdent( m_unitSystem, curveIdentToPlot ) );
+        m_fvfPlot->plotCurves( m_unitSystem, selectedFvfCurves, m_cellValues.pressure, pointMarkerFvfValue, pointMarkerLabel, plotTitle, yAxisTitle );
     }
 
     // Viscosity plot
     {
-        RigFlowDiagSolverInterface::PvtCurve::Ident curveIdentToPlot = RigFlowDiagSolverInterface::PvtCurve::Unknown;
+        RigFlowDiagSolverInterface::PvtCurve::Ident curveIdentToPlot          = RigFlowDiagSolverInterface::PvtCurve::Unknown;
         double                                      pointMarkerViscosityValue = HUGE_VAL;
         QString                                     pointMarkerLabel          = "";
 
@@ -705,7 +696,7 @@ void RiuPvtPlotPanel::plotUiSelectedCurves()
         {
             curveIdentToPlot          = RigFlowDiagSolverInterface::PvtCurve::Visc_g;
             pointMarkerViscosityValue = m_viscosityDynProps.mu_g;
-            pointMarkerLabel = QString( "%1 (%2)" ).arg( pointMarkerViscosityValue ).arg( m_cellValues.pressure );
+            pointMarkerLabel          = QString( "%1 (%2)" ).arg( pointMarkerViscosityValue ).arg( m_cellValues.pressure );
             if ( m_cellValues.rv != HUGE_VAL )
             {
                 pointMarkerLabel += QString( "\nRv = %1" ).arg( m_cellValues.rv );
@@ -715,7 +706,7 @@ void RiuPvtPlotPanel::plotUiSelectedCurves()
         {
             curveIdentToPlot          = RigFlowDiagSolverInterface::PvtCurve::Visc_o;
             pointMarkerViscosityValue = m_viscosityDynProps.mu_o;
-            pointMarkerLabel = QString( "%1 (%2)" ).arg( pointMarkerViscosityValue ).arg( m_cellValues.pressure );
+            pointMarkerLabel          = QString( "%1 (%2)" ).arg( pointMarkerViscosityValue ).arg( m_cellValues.pressure );
             if ( m_cellValues.rs != HUGE_VAL )
             {
                 pointMarkerLabel += QString( "\nRs = %1" ).arg( m_cellValues.rs );
@@ -787,8 +778,7 @@ QString RiuPvtPlotPanel::unitLabelFromCurveIdent( RiaDefines::EclipseUnitSystem 
                 return "";
         }
     }
-    else if ( curveIdent == RigFlowDiagSolverInterface::PvtCurve::Visc_o ||
-              curveIdent == RigFlowDiagSolverInterface::PvtCurve::Visc_g )
+    else if ( curveIdent == RigFlowDiagSolverInterface::PvtCurve::Visc_o || curveIdent == RigFlowDiagSolverInterface::PvtCurve::Visc_g )
     {
         switch ( unitSystem )
         {

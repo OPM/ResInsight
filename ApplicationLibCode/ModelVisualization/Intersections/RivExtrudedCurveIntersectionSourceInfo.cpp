@@ -25,9 +25,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivExtrudedCurveIntersectionSourceInfo::RivExtrudedCurveIntersectionSourceInfo(
-    RivExtrudedCurveIntersectionGeometryGenerator* geometryGenerator,
-    RimExtrudedCurveIntersection*                  intersection )
+RivExtrudedCurveIntersectionSourceInfo::RivExtrudedCurveIntersectionSourceInfo( RivExtrudedCurveIntersectionGeometryGenerator* geometryGenerator,
+                                                                                RimExtrudedCurveIntersection* intersection )
     : m_intersectionGeometryGenerator( geometryGenerator )
     , m_intersection( intersection )
 {

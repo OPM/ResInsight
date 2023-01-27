@@ -40,8 +40,7 @@ RicCaseAndFileExportSettingsUi::RicCaseAndFileExportSettingsUi()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RicCaseAndFileExportSettingsUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RicCaseAndFileExportSettingsUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

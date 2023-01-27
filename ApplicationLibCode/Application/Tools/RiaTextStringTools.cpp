@@ -143,8 +143,7 @@ QStringList RiaTextStringTools::splitSkipEmptyParts( const QString& text, const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaTextStringTools::replaceTemplateTextWithValues( const QString&                    templateText,
-                                                           const std::map<QString, QString>& valueMap )
+QString RiaTextStringTools::replaceTemplateTextWithValues( const QString& templateText, const std::map<QString, QString>& valueMap )
 {
     QString resolvedText = templateText;
 

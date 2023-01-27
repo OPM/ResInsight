@@ -88,11 +88,11 @@ void RivFemElmVisibilityCalculator::computeRangeVisibility( cvf::UByteArray*    
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivFemElmVisibilityCalculator::computePropertyVisibility( cvf::UByteArray*       cellVisibility,
-                                                               const RigFemPart*      part,
-                                                               int                    timeStepIndex,
-                                                               int                    frameIndex,
-                                                               const cvf::UByteArray* rangeFilterVisibility,
+void RivFemElmVisibilityCalculator::computePropertyVisibility( cvf::UByteArray*                    cellVisibility,
+                                                               const RigFemPart*                   part,
+                                                               int                                 timeStepIndex,
+                                                               int                                 frameIndex,
+                                                               const cvf::UByteArray*              rangeFilterVisibility,
                                                                RimGeoMechPropertyFilterCollection* propFilterColl )
 {
     CVF_ASSERT( cellVisibility != nullptr );

@@ -82,12 +82,7 @@ cvf::ref<RigSurface> RigSurfaceStatisticsCalculator::computeStatistics( const st
         double p10;
         double p50;
         double p90;
-        RigStatisticsMath::calculateStatisticsCurves( samples,
-                                                      &p10,
-                                                      &p50,
-                                                      &p90,
-                                                      &mean,
-                                                      RigStatisticsMath::PercentileStyle::SWITCHED );
+        RigStatisticsMath::calculateStatisticsCurves( samples, &p10, &p50, &p90, &mean, RigStatisticsMath::PercentileStyle::SWITCHED );
 
         // TODO: improve handling of these cases
         auto makeValid = []( double val ) {

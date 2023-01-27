@@ -23,8 +23,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::array<cvf::Vec3d, 8> RigHexGradientTools::gradients( const std::array<cvf::Vec3d, 8>& hexCorners,
-                                                          const std::array<double, 8>&     values )
+std::array<cvf::Vec3d, 8> RigHexGradientTools::gradients( const std::array<cvf::Vec3d, 8>& hexCorners, const std::array<double, 8>& values )
 {
     //
     std::array<cvf::Vec3d, 8> gradientsUVW;

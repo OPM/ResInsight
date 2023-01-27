@@ -121,10 +121,7 @@ RimEclipseResultDefinition::RimEclipseResultDefinition( caf::PdmUiItemInfo::Labe
     CAF_PDM_InitFieldNoDefault( &m_flowSolution, "FlowDiagSolution", "Solution" );
     m_flowSolution.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_timeLapseBaseTimestep,
-                       "TimeLapseBaseTimeStep",
-                       RigEclipseResultAddress::noTimeLapseValue(),
-                       "Base Time Step" );
+    CAF_PDM_InitField( &m_timeLapseBaseTimestep, "TimeLapseBaseTimeStep", RigEclipseResultAddress::noTimeLapseValue(), "Base Time Step" );
 
     CAF_PDM_InitFieldNoDefault( &m_differenceCase, "DifferenceCase", "Difference Case" );
 
@@ -179,14 +176,12 @@ RimEclipseResultDefinition::RimEclipseResultDefinition( caf::PdmUiItemInfo::Labe
 
     CAF_PDM_InitFieldNoDefault( &m_selectedInjectorTracersUiField, "MSelectedInjectorTracers", "Injector Tracers" );
     m_selectedInjectorTracersUiField.xmlCapability()->disableIO();
-    m_selectedInjectorTracersUiField.uiCapability()->setUiEditorTypeName(
-        caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_selectedInjectorTracersUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedInjectorTracersUiField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedProducerTracersUiField, "MSelectedProducerTracers", "Producer Tracers" );
     m_selectedProducerTracersUiField.xmlCapability()->disableIO();
-    m_selectedProducerTracersUiField.uiCapability()->setUiEditorTypeName(
-        caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_selectedProducerTracersUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedProducerTracersUiField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     CAF_PDM_InitFieldNoDefault( &m_selectedSouringTracersUiField, "MSelectedSouringTracers", "Tracers" );
@@ -261,12 +256,9 @@ RigCaseCellResultsData* RimEclipseResultDefinition::currentGridCellResults() con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                   const QVariant&            oldValue,
-                                                   const QVariant&            newValue )
+void RimEclipseResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( &m_flowSolutionUiField == changedField || &m_resultTypeUiField == changedField ||
-         &m_porosityModelUiField == changedField )
+    if ( &m_flowSolutionUiField == changedField || &m_resultTypeUiField == changedField || &m_porosityModelUiField == changedField )
     {
         // If the user are seeing the list with the actually selected result,
         // select that result in the list. Otherwise select nothing.
@@ -275,8 +267,8 @@ void RimEclipseResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
 
         bool isFlowDiagFieldsRelevant = ( m_resultType() == RiaDefines::ResultCatType::FLOW_DIAGNOSTICS );
 
-        if ( ( m_flowSolutionUiField() == m_flowSolution() || !isFlowDiagFieldsRelevant ) &&
-             m_resultTypeUiField() == m_resultType() && m_porosityModelUiField() == m_porosityModel() )
+        if ( ( m_flowSolutionUiField() == m_flowSolution() || !isFlowDiagFieldsRelevant ) && m_resultTypeUiField() == m_resultType() &&
+             m_porosityModelUiField() == m_porosityModel() )
         {
             if ( varList.contains( resultVariable() ) )
             {
@@ -433,9 +425,8 @@ void RimEclipseResultDefinition::changedTracerSelectionField( bool injector )
 {
     m_flowSolution = m_flowSolutionUiField();
 
-    std::vector<QString>& selectedTracers = injector ? m_selectedInjectorTracers.v() : m_selectedProducerTracers.v();
-    const std::vector<QString>& selectedTracersUi = injector ? m_selectedInjectorTracersUiField.v()
-                                                             : m_selectedProducerTracersUiField.v();
+    std::vector<QString>&       selectedTracers   = injector ? m_selectedInjectorTracers.v() : m_selectedProducerTracers.v();
+    const std::vector<QString>& selectedTracersUi = injector ? m_selectedInjectorTracersUiField.v() : m_selectedProducerTracersUiField.v();
 
     selectedTracers = selectedTracersUi;
 
@@ -652,8 +643,7 @@ void RimEclipseResultDefinition::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimEclipseResultDefinition::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -708,8 +698,8 @@ QList<caf::PdmOptionItemInfo>
                 continue;
             }
 
-            if ( resType == RiaDefines::ResultCatType::FLOW_DIAGNOSTICS && m_eclipseCase &&
-                 m_eclipseCase->eclipseCaseData() && m_eclipseCase->eclipseCaseData()->hasFractureResults() )
+            if ( resType == RiaDefines::ResultCatType::FLOW_DIAGNOSTICS && m_eclipseCase && m_eclipseCase->eclipseCaseData() &&
+                 m_eclipseCase->eclipseCaseData()->hasFractureResults() )
             {
                 // Flow diagnostics is not supported for dual porosity models
                 continue;
@@ -745,10 +735,8 @@ QList<caf::PdmOptionItemInfo>
             if ( m_phaseSelection() == RigFlowDiagResultAddress::PHASE_ALL )
             {
                 options.push_back( caf::PdmOptionItemInfo( "Tracer Cell Fraction (Sum)", RIG_FLD_CELL_FRACTION_RESNAME ) );
-                options.push_back(
-                    caf::PdmOptionItemInfo( maxFractionTracerString( false ), RIG_FLD_MAX_FRACTION_TRACER_RESNAME ) );
-                options.push_back(
-                    caf::PdmOptionItemInfo( "Injector Producer Communication", RIG_FLD_COMMUNICATION_RESNAME ) );
+                options.push_back( caf::PdmOptionItemInfo( maxFractionTracerString( false ), RIG_FLD_MAX_FRACTION_TRACER_RESNAME ) );
+                options.push_back( caf::PdmOptionItemInfo( "Injector Producer Communication", RIG_FLD_COMMUNICATION_RESNAME ) );
             }
         }
         else if ( fieldNeedingOptions == &m_flowSolutionUiField )
@@ -779,8 +767,7 @@ QList<caf::PdmOptionItemInfo>
             RigCaseCellResultsData* cellResultsStorage = currentGridCellResults();
             if ( cellResultsStorage )
             {
-                QStringList dynamicResultNames =
-                    cellResultsStorage->resultNames( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
+                QStringList dynamicResultNames = cellResultsStorage->resultNames( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
 
                 for ( const QString& resultName : dynamicResultNames )
                 {
@@ -825,12 +812,11 @@ QList<caf::PdmOptionItemInfo>
 
                     if ( otherCase->eclipseCaseData() && otherCase->eclipseCaseData()->mainGrid() )
                     {
-                        options.push_back( caf::PdmOptionItemInfo( QString( "%1 (#%2)" )
-                                                                       .arg( otherCase->caseUserDescription() )
-                                                                       .arg( otherCase->caseId() ),
-                                                                   otherCase,
-                                                                   false,
-                                                                   otherCase->uiIconProvider() ) );
+                        options.push_back(
+                            caf::PdmOptionItemInfo( QString( "%1 (#%2)" ).arg( otherCase->caseUserDescription() ).arg( otherCase->caseId() ),
+                                                    otherCase,
+                                                    false,
+                                                    otherCase->uiIconProvider() ) );
                     }
                 }
             }
@@ -886,11 +872,7 @@ RigEclipseResultAddress RimEclipseResultDefinition::eclipseResultAddress() const
             diffCaseId = m_differenceCase->caseId();
         }
 
-        return RigEclipseResultAddress( m_resultType(),
-                                        m_resultVariable(),
-                                        timelapseTimeStep,
-                                        diffCaseId,
-                                        isDivideByCellFaceAreaActive() );
+        return RigEclipseResultAddress( m_resultType(), m_resultVariable(), timelapseTimeStep, diffCaseId, isDivideByCellFaceAreaActive() );
     }
     else
     {
@@ -985,8 +967,7 @@ RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
                 {
                     for ( const QString& tracerName : tracerNames )
                     {
-                        RimFlowDiagSolution::TracerStatusType status =
-                            flowSol->tracerStatusInTimeStep( tracerName, timeStep );
+                        RimFlowDiagSolution::TracerStatusType status = flowSol->tracerStatusInTimeStep( tracerName, timeStep );
                         if ( status == RimFlowDiagSolution::TracerStatusType::INJECTOR )
                         {
                             selTracerNames.insert( tracerName.toStdString() );
@@ -998,8 +979,7 @@ RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
                 {
                     for ( const QString& tracerName : tracerNames )
                     {
-                        RimFlowDiagSolution::TracerStatusType status =
-                            flowSol->tracerStatusInTimeStep( tracerName, timeStep );
+                        RimFlowDiagSolution::TracerStatusType status = flowSol->tracerStatusInTimeStep( tracerName, timeStep );
                         if ( status == RimFlowDiagSolution::TracerStatusType::PRODUCER )
                         {
                             selTracerNames.insert( tracerName.toStdString() );
@@ -1018,9 +998,7 @@ RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
         {
             selTracerNames.insert( selectedTracerName.toUtf8().constData() );
         }
-        return RigFlowDiagResultAddress( m_resultVariable().toStdString(),
-                                         RigFlowDiagResultAddress::PHASE_ALL,
-                                         selTracerNames );
+        return RigFlowDiagResultAddress( m_resultVariable().toStdString(), RigFlowDiagResultAddress::PHASE_ALL, selTracerNames );
     }
 }
 
@@ -1082,9 +1060,8 @@ QString RimEclipseResultDefinition::additionalResultText() const
         if ( gridCellResults )
         {
             stepDates = gridCellResults->timeStepDates();
-            resultText +=
-                QString( "<b>Base Time Step</b>: %1" )
-                    .arg( stepDates[m_timeLapseBaseTimestep()].toString( RiaQDateTimeTools::dateFormatString() ) );
+            resultText += QString( "<b>Base Time Step</b>: %1" )
+                              .arg( stepDates[m_timeLapseBaseTimestep()].toString( RiaQDateTimeTools::dateFormatString() ) );
         }
     }
     if ( isDeltaCaseActive() )
@@ -1470,9 +1447,8 @@ void RimEclipseResultDefinition::enableDeltaResults( bool enable )
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseResultDefinition::isTernarySaturationSelected() const
 {
-    bool isTernary =
-        ( m_resultType() == RiaDefines::ResultCatType::DYNAMIC_NATIVE ) &&
-        ( m_resultVariable().compare( RiaResultNames::ternarySaturationResultName(), Qt::CaseInsensitive ) == 0 );
+    bool isTernary = ( m_resultType() == RiaDefines::ResultCatType::DYNAMIC_NATIVE ) &&
+                     ( m_resultVariable().compare( RiaResultNames::ternarySaturationResultName(), Qt::CaseInsensitive ) == 0 );
 
     return isTernary;
 }
@@ -1482,8 +1458,7 @@ bool RimEclipseResultDefinition::isTernarySaturationSelected() const
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseResultDefinition::isCompletionTypeSelected() const
 {
-    return ( m_resultType() == RiaDefines::ResultCatType::DYNAMIC_NATIVE &&
-             m_resultVariable() == RiaResultNames::completionTypeResultName() );
+    return ( m_resultType() == RiaDefines::ResultCatType::DYNAMIC_NATIVE && m_resultVariable() == RiaResultNames::completionTypeResultName() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1491,16 +1466,15 @@ bool RimEclipseResultDefinition::isCompletionTypeSelected() const
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseResultDefinition::hasCategoryResult() const
 {
-    if ( this->m_resultType() == RiaDefines::ResultCatType::FORMATION_NAMES && m_eclipseCase &&
-         m_eclipseCase->eclipseCaseData() && !m_eclipseCase->eclipseCaseData()->formationNames().empty() )
+    if ( this->m_resultType() == RiaDefines::ResultCatType::FORMATION_NAMES && m_eclipseCase && m_eclipseCase->eclipseCaseData() &&
+         !m_eclipseCase->eclipseCaseData()->formationNames().empty() )
         return true;
 
     if ( this->m_resultType() == RiaDefines::ResultCatType::DYNAMIC_NATIVE &&
          this->resultVariable() == RiaResultNames::completionTypeResultName() )
         return true;
 
-    if ( this->m_resultType() == RiaDefines::ResultCatType::FLOW_DIAGNOSTICS &&
-         m_resultVariable() == RIG_FLD_MAX_FRACTION_TRACER_RESNAME )
+    if ( this->m_resultType() == RiaDefines::ResultCatType::FLOW_DIAGNOSTICS && m_resultVariable() == RIG_FLD_MAX_FRACTION_TRACER_RESNAME )
         return true;
 
     if ( this->resultVariable() == RiaResultNames::formationAllanResultName() ||
@@ -1639,9 +1613,7 @@ void RimEclipseResultDefinition::defineUiOrdering( QString uiConfigName, caf::Pd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseResultDefinition::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                        QString                    uiConfigName,
-                                                        caf::PdmUiEditorAttribute* attribute )
+void RimEclipseResultDefinition::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( m_resultTypeUiField() == RiaDefines::ResultCatType::FLOW_DIAGNOSTICS )
     {
@@ -1655,8 +1627,7 @@ void RimEclipseResultDefinition::defineEditorAttribute( const caf::PdmFieldHandl
         }
         else if ( field == &m_syncInjectorToProducerSelection || field == &m_syncProducerToInjectorSelection )
         {
-            caf::PdmUiToolButtonEditorAttribute* toolButtonAttr =
-                dynamic_cast<caf::PdmUiToolButtonEditorAttribute*>( attribute );
+            caf::PdmUiToolButtonEditorAttribute* toolButtonAttr = dynamic_cast<caf::PdmUiToolButtonEditorAttribute*>( attribute );
             if ( toolButtonAttr )
             {
                 toolButtonAttr->m_sizePolicy.setHorizontalPolicy( QSizePolicy::MinimumExpanding );
@@ -1755,15 +1726,13 @@ QString RimEclipseResultDefinition::flowDiagResUiText( bool shortLabel, int maxT
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard( RiaDefines::ResultCatType     resultCatType,
-                                                                       const RigCaseCellResultsData* results,
-                                                                       bool showDerivedResultsFirst,
-                                                                       bool addPerCellFaceOptionItems,
-                                                                       bool ternaryEnabled )
+QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard( RiaDefines::ResultCatType resultCatType,
+                                                                                                 const RigCaseCellResultsData* results,
+                                                                                                 bool showDerivedResultsFirst,
+                                                                                                 bool addPerCellFaceOptionItems,
+                                                                                                 bool ternaryEnabled )
 {
-    CVF_ASSERT( resultCatType != RiaDefines::ResultCatType::FLOW_DIAGNOSTICS &&
-                resultCatType != RiaDefines::ResultCatType::INJECTION_FLOODING );
+    CVF_ASSERT( resultCatType != RiaDefines::ResultCatType::FLOW_DIAGNOSTICS && resultCatType != RiaDefines::ResultCatType::INJECTION_FLOODING );
 
     if ( results )
     {
@@ -1831,8 +1800,7 @@ QList<caf::PdmOptionItemInfo>
             }
         }
 
-        optionList.push_front(
-            caf::PdmOptionItemInfo( RiaResultNames::undefinedResultName(), RiaResultNames::undefinedResultName() ) );
+        optionList.push_front( caf::PdmOptionItemInfo( RiaResultNames::undefinedResultName(), RiaResultNames::undefinedResultName() ) );
 
         return optionList;
     }
@@ -1866,8 +1834,7 @@ bool operator<( const cvf::Color3ub first, const cvf::Color3ub second )
 class TupleCompare
 {
 public:
-    bool operator()( const std::tuple<QString, int, cvf::Color3ub>& t1,
-                     const std::tuple<QString, int, cvf::Color3ub>& t2 ) const
+    bool operator()( const std::tuple<QString, int, cvf::Color3ub>& t1, const std::tuple<QString, int, cvf::Color3ub>& t2 ) const
     {
         using namespace std;
         if ( get<0>( t1 ) != get<0>( t2 ) ) return get<0>( t1 ) < get<0>( t2 );
@@ -1943,8 +1910,8 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
                     {
                         cvf::Color3ub color( cvf::Color3::GRAY );
 
-                        RimSimWellInView* well = eclView->wellCollection()->findWell(
-                            RimFlowDiagSolution::removeCrossFlowEnding( tracerName ) );
+                        RimSimWellInView* well =
+                            eclView->wellCollection()->findWell( RimFlowDiagSolution::removeCrossFlowEnding( tracerName ) );
 
                         if ( well ) color = cvf::Color3ub( well->wellPipeColor() );
 
@@ -1957,10 +1924,7 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
                     if ( m_showOnlyVisibleCategoriesInLegend )
                     {
                         std::set<int> visibleTracers =
-                            RigVisibleCategoriesCalculator::visibleFlowDiagCategories( *eclView,
-                                                                                       *flowResultsData,
-                                                                                       resAddr,
-                                                                                       currentTimeStep );
+                            RigVisibleCategoriesCalculator::visibleFlowDiagCategories( *eclView, *flowResultsData, resAddr, currentTimeStep );
                         for ( auto tupIt : categories )
                         {
                             int tracerIndex = std::get<1>( tupIt );
@@ -1993,19 +1957,14 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
             double globalPosClosestToZero, globalNegClosestToZero;
 
             cellResultsData->minMaxCellScalarValues( this->eclipseResultAddress(), globalMin, globalMax );
-            cellResultsData->posNegClosestToZero( this->eclipseResultAddress(),
-                                                  globalPosClosestToZero,
-                                                  globalNegClosestToZero );
+            cellResultsData->posNegClosestToZero( this->eclipseResultAddress(), globalPosClosestToZero, globalNegClosestToZero );
 
             double localMin, localMax;
             double localPosClosestToZero, localNegClosestToZero;
             if ( this->hasDynamicResult() && currentTimeStep >= 0 )
             {
                 cellResultsData->minMaxCellScalarValues( this->eclipseResultAddress(), currentTimeStep, localMin, localMax );
-                cellResultsData->posNegClosestToZero( this->eclipseResultAddress(),
-                                                      currentTimeStep,
-                                                      localPosClosestToZero,
-                                                      localNegClosestToZero );
+                cellResultsData->posNegClosestToZero( this->eclipseResultAddress(), currentTimeStep, localPosClosestToZero, localNegClosestToZero );
             }
             else
             {
@@ -2078,11 +2037,9 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
                             cvf::Color3f formationColor1 = cvf::Color3f( formationColorMapper->mapToColor( frmIdx1 ) );
                             cvf::Color3f formationColor2 = cvf::Color3f( formationColorMapper->mapToColor( frmIdx2 ) );
 
-                            cvf::Color3ub blendColor =
-                                cvf::Color3ub( RiaColorTools::blendCvfColors( formationColor1, formationColor2 ) );
+                            cvf::Color3ub blendColor = cvf::Color3ub( RiaColorTools::blendCvfColors( formationColor1, formationColor2 ) );
 
-                            categories.emplace_back(
-                                std::make_tuple( frmName1 + "-" + frmName2, categoryIndex, blendColor ) );
+                            categories.emplace_back( std::make_tuple( frmName1 + "-" + frmName2, categoryIndex, blendColor ) );
                         }
 
                         legendConfigToUpdate->setCategoryItems( categories );
@@ -2099,29 +2056,23 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
                 else if ( this->resultType() == RiaDefines::ResultCatType::DYNAMIC_NATIVE &&
                           this->resultVariable() == RiaResultNames::completionTypeResultName() )
                 {
-                    const std::vector<int>& visibleCategories =
-                        cellResultsData->uniqueCellScalarValues( this->eclipseResultAddress() );
+                    const std::vector<int>& visibleCategories = cellResultsData->uniqueCellScalarValues( this->eclipseResultAddress() );
 
-                    std::vector<RiaDefines::WellPathComponentType> supportedCompletionTypes =
-                        { RiaDefines::WellPathComponentType::WELL_PATH,
-                          RiaDefines::WellPathComponentType::FISHBONES,
-                          RiaDefines::WellPathComponentType::PERFORATION_INTERVAL,
-                          RiaDefines::WellPathComponentType::FRACTURE };
+                    std::vector<RiaDefines::WellPathComponentType> supportedCompletionTypes = { RiaDefines::WellPathComponentType::WELL_PATH,
+                                                                                                RiaDefines::WellPathComponentType::FISHBONES,
+                                                                                                RiaDefines::WellPathComponentType::PERFORATION_INTERVAL,
+                                                                                                RiaDefines::WellPathComponentType::FRACTURE };
 
                     RiaColorTables::WellPathComponentColors colors = RiaColorTables::wellPathComponentColors();
 
                     std::vector<std::tuple<QString, int, cvf::Color3ub>> categories;
                     for ( auto completionType : supportedCompletionTypes )
                     {
-                        if ( std::find( visibleCategories.begin(),
-                                        visibleCategories.end(),
-                                        static_cast<int>( completionType ) ) != visibleCategories.end() )
+                        if ( std::find( visibleCategories.begin(), visibleCategories.end(), static_cast<int>( completionType ) ) !=
+                             visibleCategories.end() )
                         {
-                            QString categoryText =
-                                caf::AppEnum<RiaDefines::WellPathComponentType>::uiText( completionType );
-                            categories.push_back( std::make_tuple( categoryText,
-                                                                   static_cast<int>( completionType ),
-                                                                   colors[completionType] ) );
+                            QString categoryText = caf::AppEnum<RiaDefines::WellPathComponentType>::uiText( completionType );
+                            categories.push_back( std::make_tuple( categoryText, static_cast<int>( completionType ), colors[completionType] ) );
                         }
                     }
 
@@ -2156,8 +2107,7 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
                             // intersection results), but this requires some refactoring
                             if ( eclView->cellResult() == this )
                             {
-                                std::set<int> visibleCategorySet =
-                                    RigVisibleCategoriesCalculator::visibleCategories( eclView );
+                                std::set<int> visibleCategorySet = RigVisibleCategoriesCalculator::visibleCategories( eclView );
 
                                 visibleCategoryValues.clear();
                                 visibleCategoryValues.insert( visibleCategoryValues.begin(),
@@ -2348,8 +2298,7 @@ QString RimEclipseResultDefinition::timeOfFlightString( bool shorter ) const
         tofString = shorter ? "TOF" : "Time of Flight";
     }
 
-    multipleSelected = multipleSelected || injectorSelectionState() >= MULTIPLE_SELECTED ||
-                       producerSelectionState() >= MULTIPLE_SELECTED;
+    multipleSelected = multipleSelected || injectorSelectionState() >= MULTIPLE_SELECTED || producerSelectionState() >= MULTIPLE_SELECTED;
 
     if ( multipleSelected && !shorter )
     {
@@ -2498,8 +2447,8 @@ std::set<QString, RimEclipseResultDefinition::TracerComp> RimEclipseResultDefini
         std::vector<QString> tracerNames = allTracerNames();
         for ( const QString& tracerName : tracerNames )
         {
-            RimFlowDiagSolution::TracerStatusType status = flowSol->tracerStatusOverall( tracerName );
-            bool includeTracer                           = status == RimFlowDiagSolution::TracerStatusType::VARYING ||
+            RimFlowDiagSolution::TracerStatusType status        = flowSol->tracerStatusOverall( tracerName );
+            bool                                  includeTracer = status == RimFlowDiagSolution::TracerStatusType::VARYING ||
                                  status == RimFlowDiagSolution::TracerStatusType::UNDEFINED;
             includeTracer |= injector && status == RimFlowDiagSolution::TracerStatusType::INJECTOR;
             includeTracer |= !injector && status == RimFlowDiagSolution::TracerStatusType::PRODUCER;
@@ -2594,9 +2543,7 @@ void RimEclipseResultDefinition::syncInjectorToProducerSelection()
             for ( const QString& producer : producers )
             {
                 std::pair<double, double> commFluxes =
-                    flowSol->flowDiagResults()->injectorProducerPairFluxes( selectedInjector.toStdString(),
-                                                                            producer.toStdString(),
-                                                                            timeStep );
+                    flowSol->flowDiagResults()->injectorProducerPairFluxes( selectedInjector.toStdString(), producer.toStdString(), timeStep );
                 if ( std::abs( commFluxes.first ) > epsilon || std::abs( commFluxes.second ) > epsilon )
                 {
                     newProducerSelection.insert( producer );
@@ -2640,9 +2587,7 @@ void RimEclipseResultDefinition::syncProducerToInjectorSelection()
             for ( const QString& injector : injectors )
             {
                 std::pair<double, double> commFluxes =
-                    flowSol->flowDiagResults()->injectorProducerPairFluxes( injector.toStdString(),
-                                                                            selectedProducer.toStdString(),
-                                                                            timeStep );
+                    flowSol->flowDiagResults()->injectorProducerPairFluxes( injector.toStdString(), selectedProducer.toStdString(), timeStep );
                 if ( std::abs( commFluxes.first ) > epsilon || std::abs( commFluxes.second ) > epsilon )
                 {
                     newInjectorSelection.insert( injector );
@@ -2672,8 +2617,7 @@ bool RimEclipseResultDefinition::isDeltaResultEnabled() const
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseResultDefinition::isDeltaTimeStepPossible() const
 {
-    return isDeltaResultEnabled() && m_resultTypeUiField() == RiaDefines::ResultCatType::DYNAMIC_NATIVE &&
-           !isTernarySaturationSelected();
+    return isDeltaResultEnabled() && m_resultTypeUiField() == RiaDefines::ResultCatType::DYNAMIC_NATIVE && !isTernarySaturationSelected();
 }
 
 //--------------------------------------------------------------------------------------------------

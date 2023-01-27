@@ -197,8 +197,7 @@ QString RimEnsembleFractureStatistics::generateFilePathsTable()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimEnsembleFractureStatistics::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RimEnsembleFractureStatistics::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &m_selectedStatisticsType )
@@ -266,9 +265,7 @@ void RimEnsembleFractureStatistics::defineEditorAttribute( const caf::PdmFieldHa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleFractureStatistics::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                      const QVariant&            oldValue,
-                                                      const QVariant&            newValue )
+void RimEnsembleFractureStatistics::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_computeStatistics )
     {
@@ -364,16 +361,14 @@ void RimEnsembleFractureStatistics::loadAndUpdateData()
     CAF_ASSERT( area.size() == conductivity.size() );
     for ( size_t i = 0; i < okFilePaths.size(); i++ )
     {
-        RiaLogging::info(
-            QString( "%1 Area: %2 Conductivity: %3" ).arg( okFilePaths[i] ).arg( area[i] ).arg( conductivity[i] ) );
+        RiaLogging::info( QString( "%1 Area: %2 Conductivity: %3" ).arg( okFilePaths[i] ).arg( area[i] ).arg( conductivity[i] ) );
     }
 
     if ( m_excludeZeroWidthFractures() )
     {
-        size_t numBeforeFiltering = stimPlanFractureDefinitions.size();
-        stimPlanFractureDefinitions =
-            RigEnsembleFractureStatisticsCalculator::removeZeroWidthDefinitions( stimPlanFractureDefinitions );
-        size_t numRemoved = numBeforeFiltering - stimPlanFractureDefinitions.size();
+        size_t numBeforeFiltering   = stimPlanFractureDefinitions.size();
+        stimPlanFractureDefinitions = RigEnsembleFractureStatisticsCalculator::removeZeroWidthDefinitions( stimPlanFractureDefinitions );
+        size_t numRemoved           = numBeforeFiltering - stimPlanFractureDefinitions.size();
         RiaLogging::info( QString( "Excluded %1 zero width fractures." ).arg( numRemoved ) );
     }
 
@@ -391,8 +386,7 @@ std::vector<QString> RimEnsembleFractureStatistics::computeStatistics()
 
     if ( m_excludeZeroWidthFractures() )
     {
-        stimPlanFractureDefinitions =
-            RigEnsembleFractureStatisticsCalculator::removeZeroWidthDefinitions( stimPlanFractureDefinitions );
+        stimPlanFractureDefinitions = RigEnsembleFractureStatisticsCalculator::removeZeroWidthDefinitions( stimPlanFractureDefinitions );
     }
 
     std::set<std::pair<QString, QString>> availableResults = findAllResultNames( stimPlanFractureDefinitions );
@@ -414,8 +408,7 @@ std::vector<QString> RimEnsembleFractureStatistics::computeStatistics()
             referenceDepth += computeDepthOfWellPathAtFracture( definition );
             // Take the first orientation which is defined (all the fractures
             // should have the same orientation).
-            if ( orientation == RigStimPlanFractureDefinition::Orientation::UNDEFINED )
-                orientation = definition->orientation();
+            if ( orientation == RigStimPlanFractureDefinition::Orientation::UNDEFINED ) orientation = definition->orientation();
         }
         referenceDepth /= stimPlanFractureDefinitions.size();
     }
@@ -423,8 +416,7 @@ std::vector<QString> RimEnsembleFractureStatistics::computeStatistics()
     std::vector<double> gridXs;
     std::vector<double> gridYs;
     auto [minX, maxX, minY, maxY] = findSamplingIntervals( stimPlanFractureDefinitions, gridXs, gridYs );
-    RiaLogging::info(
-        QString( "Ensemble Fracture Size: X = [%1, %2] Y = [%3, %4]" ).arg( minX ).arg( maxX ).arg( minY ).arg( maxY ) );
+    RiaLogging::info( QString( "Ensemble Fracture Size: X = [%1, %2] Y = [%3, %4]" ).arg( minX ).arg( maxX ).arg( minY ).arg( maxY ) );
 
     for ( auto result : availableResults )
     {
@@ -568,8 +560,8 @@ bool RimEnsembleFractureStatistics::excludeZeroWidthFractures() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<std::pair<QString, QString>> RimEnsembleFractureStatistics::findAllResultNames(
-    const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions )
+std::set<std::pair<QString, QString>>
+    RimEnsembleFractureStatistics::findAllResultNames( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions )
 {
     std::set<std::pair<QString, QString>> resultNames;
     for ( auto stimPlanFractureDefinitionData : stimPlanFractureDefinitions )
@@ -586,11 +578,11 @@ std::set<std::pair<QString, QString>> RimEnsembleFractureStatistics::findAllResu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::cref<RigFractureGrid>> RimEnsembleFractureStatistics::createFractureGrids(
-    const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
-    RiaDefines::EclipseUnitSystem                               unitSystem,
-    const QString&                                              resultNameOnFile,
-    MeshAlignmentType                                           meshAlignmentType )
+std::vector<cvf::cref<RigFractureGrid>>
+    RimEnsembleFractureStatistics::createFractureGrids( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
+                                                        RiaDefines::EclipseUnitSystem                               unitSystem,
+                                                        const QString&                                              resultNameOnFile,
+                                                        MeshAlignmentType                                           meshAlignmentType )
 {
     // Defaults to avoid scaling
     double halfLengthScaleFactor = 1.0;
@@ -607,13 +599,12 @@ std::vector<cvf::cref<RigFractureGrid>> RimEnsembleFractureStatistics::createFra
         std::vector<double> timeSteps           = stimPlanFractureDefinitionData->timeSteps();
         int                 activeTimeStepIndex = static_cast<int>( timeSteps.size() - 1 );
 
-        cvf::cref<RigFractureGrid> fractureGrid =
-            stimPlanFractureDefinitionData->createFractureGrid( resultNameOnFile,
-                                                                activeTimeStepIndex,
-                                                                halfLengthScaleFactor,
-                                                                heightScaleFactor,
-                                                                wellPathDepthAtFracture,
-                                                                unitSystem );
+        cvf::cref<RigFractureGrid> fractureGrid = stimPlanFractureDefinitionData->createFractureGrid( resultNameOnFile,
+                                                                                                      activeTimeStepIndex,
+                                                                                                      halfLengthScaleFactor,
+                                                                                                      heightScaleFactor,
+                                                                                                      wellPathDepthAtFracture,
+                                                                                                      unitSystem );
 
         if ( fractureGrid.notNull() )
         {
@@ -627,10 +618,10 @@ std::vector<cvf::cref<RigFractureGrid>> RimEnsembleFractureStatistics::createFra
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::tuple<double, double, double, double> RimEnsembleFractureStatistics::findSamplingIntervals(
-    const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
-    std::vector<double>&                                        gridXs,
-    std::vector<double>&                                        gridYs ) const
+std::tuple<double, double, double, double>
+    RimEnsembleFractureStatistics::findSamplingIntervals( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
+                                                          std::vector<double>&                                        gridXs,
+                                                          std::vector<double>&                                        gridYs ) const
 {
     // Find min and max extent of all the grids
     auto [minX, maxX, minY, maxY] = findMaxGridExtents( stimPlanFractureDefinitions, m_meshAlignmentType() );
@@ -654,9 +645,9 @@ std::tuple<double, double, double, double> RimEnsembleFractureStatistics::findSa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::tuple<double, double, double, double> RimEnsembleFractureStatistics::findMaxGridExtents(
-    const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
-    MeshAlignmentType                                           meshAlignmentType )
+std::tuple<double, double, double, double>
+    RimEnsembleFractureStatistics::findMaxGridExtents( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
+                                                       MeshAlignmentType                                           meshAlignmentType )
 {
     double minX = std::numeric_limits<double>::max();
     double maxX = -std::numeric_limits<double>::max();
@@ -669,8 +660,7 @@ std::tuple<double, double, double, double> RimEnsembleFractureStatistics::findMa
         maxX = std::max( maxX, def->xs().back() );
 
         double offset = 0.0;
-        if ( meshAlignmentType == MeshAlignmentType::PERFORATION_DEPTH )
-            offset = computeDepthOfWellPathAtFracture( def );
+        if ( meshAlignmentType == MeshAlignmentType::PERFORATION_DEPTH ) offset = computeDepthOfWellPathAtFracture( def );
 
         minY = std::min( minY, offset + def->ys().back() );
         maxY = std::max( maxY, offset + def->ys().front() );
@@ -708,14 +698,13 @@ void RimEnsembleFractureStatistics::generateUniformMesh( double               mi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleFractureStatistics::generateNaiveMesh(
-    double                                                      minX,
-    double                                                      maxX,
-    double                                                      minY,
-    double                                                      maxY,
-    const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
-    std::vector<double>&                                        gridXs,
-    std::vector<double>&                                        gridYs ) const
+void RimEnsembleFractureStatistics::generateNaiveMesh( double                                                      minX,
+                                                       double                                                      maxX,
+                                                       double                                                      minY,
+                                                       double                                                      maxY,
+                                                       const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
+                                                       std::vector<double>&                                        gridXs,
+                                                       std::vector<double>&                                        gridYs ) const
 {
     // Find max number of cells in x direction
     int maxNx = 0;
@@ -731,8 +720,7 @@ void RimEnsembleFractureStatistics::generateNaiveMesh(
     for ( auto def : stimPlanFractureDefinitions )
     {
         double offset = 0.0;
-        if ( m_meshAlignmentType() == MeshAlignmentType::PERFORATION_DEPTH )
-            offset = computeDepthOfWellPathAtFracture( def );
+        if ( m_meshAlignmentType() == MeshAlignmentType::PERFORATION_DEPTH ) offset = computeDepthOfWellPathAtFracture( def );
 
         for ( double y : def->ys() )
         {
@@ -747,14 +735,13 @@ void RimEnsembleFractureStatistics::generateNaiveMesh(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleFractureStatistics::generateAdaptiveMesh(
-    double                                                      minX,
-    double                                                      maxX,
-    double                                                      minY,
-    double                                                      maxY,
-    const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
-    std::vector<double>&                                        gridXs,
-    std::vector<double>&                                        gridYs ) const
+void RimEnsembleFractureStatistics::generateAdaptiveMesh( double                                                      minX,
+                                                          double                                                      maxX,
+                                                          double                                                      minY,
+                                                          double                                                      maxY,
+                                                          const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
+                                                          std::vector<double>&                                        gridXs,
+                                                          std::vector<double>&                                        gridYs ) const
 {
     // Find max number of cells in x direction
     int maxNx = 0;
@@ -775,10 +762,8 @@ void RimEnsembleFractureStatistics::generateAdaptiveMesh(
     double totalDepth = maxY - minY;
     double binSize    = totalDepth / targetNumLayers;
 
-    RiaLogging::info( QString( "Adaptive mesh. Total depth: %1. Number of layers: %2. Layer thickness: %3" )
-                          .arg( totalDepth )
-                          .arg( targetNumLayers )
-                          .arg( binSize ) );
+    RiaLogging::info(
+        QString( "Adaptive mesh. Total depth: %1. Number of layers: %2. Layer thickness: %3" ).arg( totalDepth ).arg( targetNumLayers ).arg( binSize ) );
 
     std::vector<double> baseDepth;
     std::vector<double> means;
@@ -914,16 +899,14 @@ void RimEnsembleFractureStatistics::computeMeanThicknessPerLayer( const std::vec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleFractureStatistics::generateAllLayers(
-    const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
-    std::vector<Layer>&                                         layers,
-    MeshAlignmentType                                           meshAlignmentType )
+void RimEnsembleFractureStatistics::generateAllLayers( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
+                                                       std::vector<Layer>&                                         layers,
+                                                       MeshAlignmentType                                           meshAlignmentType )
 {
     for ( auto def : stimPlanFractureDefinitions )
     {
         double offset = 0.0;
-        if ( meshAlignmentType == MeshAlignmentType::PERFORATION_DEPTH )
-            offset = computeDepthOfWellPathAtFracture( def );
+        if ( meshAlignmentType == MeshAlignmentType::PERFORATION_DEPTH ) offset = computeDepthOfWellPathAtFracture( def );
 
         bool   isFirst  = true;
         double topDepth = 0.0;
@@ -942,16 +925,13 @@ void RimEnsembleFractureStatistics::generateAllLayers(
         }
     }
 
-    std::sort( layers.begin(), layers.end(), []( const Layer& a, const Layer& b ) {
-        return a.centerDepth() > b.centerDepth();
-    } );
+    std::sort( layers.begin(), layers.end(), []( const Layer& a, const Layer& b ) { return a.centerDepth() > b.centerDepth(); } );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimEnsembleFractureStatistics::getTargetNumberOfLayers(
-    const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions ) const
+int RimEnsembleFractureStatistics::getTargetNumberOfLayers( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions ) const
 {
     if ( m_adaptiveNumLayersType() == AdaptiveNumLayersType::USER_DEFINED )
     {
@@ -984,10 +964,7 @@ int RimEnsembleFractureStatistics::getTargetNumberOfLayers(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimEnsembleFractureStatistics::linearSampling( double               minValue,
-                                                      double               maxValue,
-                                                      int                  numSamples,
-                                                      std::vector<double>& samples )
+double RimEnsembleFractureStatistics::linearSampling( double minValue, double maxValue, int numSamples, std::vector<double>& samples )
 {
     CAF_ASSERT( numSamples > 0 );
     double sampleDistance = ( maxValue - minValue ) / numSamples;
@@ -1004,8 +981,7 @@ double RimEnsembleFractureStatistics::linearSampling( double               minVa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimEnsembleFractureStatistics::computeDepthOfWellPathAtFracture(
-    cvf::ref<RigStimPlanFractureDefinition> stimPlanFractureDefinitionData )
+double RimEnsembleFractureStatistics::computeDepthOfWellPathAtFracture( cvf::ref<RigStimPlanFractureDefinition> stimPlanFractureDefinitionData )
 {
     double firstTvd = stimPlanFractureDefinitionData->topPerfTvd();
     double lastTvd  = stimPlanFractureDefinitionData->bottomPerfTvd();
@@ -1062,10 +1038,10 @@ void RimEnsembleFractureStatistics::sampleAllGrids( const std::vector<cvf::cref<
 
                 // Find distance to the fracture grid well path intersection for the given
                 // cell center position (X, Y).
-                std::pair<size_t, size_t> centerIJ = fractureGrid->fractureCellAtWellCenter();
-                size_t centerIdx = fractureGrid->getGlobalIndexFromIJ( centerIJ.first, centerIJ.second );
-                const RigFractureCell& centerCell = fractureGrid->cellFromIndex( centerIdx );
-                const cvf::Vec3d&      centerPos  = centerCell.centerPosition();
+                std::pair<size_t, size_t> centerIJ   = fractureGrid->fractureCellAtWellCenter();
+                size_t                    centerIdx  = fractureGrid->getGlobalIndexFromIJ( centerIJ.first, centerIJ.second );
+                const RigFractureCell&    centerCell = fractureGrid->cellFromIndex( centerIdx );
+                const cvf::Vec3d&         centerPos  = centerCell.centerPosition();
 
                 sumDistance += pos.pointDistance( centerPos );
             }
@@ -1197,11 +1173,8 @@ void RimEnsembleFractureStatistics::generateStatisticsGrids(
             statisticsGrids[statisticsType] =
                 setCellsToFillTargetArea( meanGrid, occurrenceGrid, *areaGrid, *distanceGrid, areaMapping[statisticsType] );
         else
-            statisticsGrids[statisticsType] = setCellsToFillTargetArea( occurrenceGrid,
-                                                                        occurrenceGrid,
-                                                                        *areaGrid,
-                                                                        *distanceGrid,
-                                                                        areaMapping[statisticsType] );
+            statisticsGrids[statisticsType] =
+                setCellsToFillTargetArea( occurrenceGrid, occurrenceGrid, *areaGrid, *distanceGrid, areaMapping[statisticsType] );
     }
 }
 
@@ -1324,12 +1297,10 @@ QString RimEnsembleFractureStatistics::generateStatisticsTable(
 
     for ( auto propertyType : propertyTypes )
     {
-        QString name    = caf::AppEnum<RigEnsembleFractureStatisticsCalculator::PropertyType>::uiText( propertyType );
-        int     numBins = 50;
+        QString          name    = caf::AppEnum<RigEnsembleFractureStatisticsCalculator::PropertyType>::uiText( propertyType );
+        int              numBins = 50;
         RigHistogramData histogramData =
-            RigEnsembleFractureStatisticsCalculator::createStatisticsData( stimPlanFractureDefinitions,
-                                                                           propertyType,
-                                                                           numBins );
+            RigEnsembleFractureStatisticsCalculator::createStatisticsData( stimPlanFractureDefinitions, propertyType, numBins );
 
         auto [numberFormat, precision] = RigEnsembleFractureStatisticsCalculator::numberFormatForProperty( propertyType );
         text += QString( "<tr>"

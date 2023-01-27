@@ -41,8 +41,7 @@ RiaPlotWindowRedrawScheduler* RiaPlotWindowRedrawScheduler::instance()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaPlotWindowRedrawScheduler::scheduleMultiPlotBookUpdate( RiuMultiPlotBook*                   plotBook,
-                                                                RiaDefines::MultiPlotPageUpdateType updateType )
+void RiaPlotWindowRedrawScheduler::scheduleMultiPlotBookUpdate( RiuMultiPlotBook* plotBook, RiaDefines::MultiPlotPageUpdateType updateType )
 {
     if ( m_plotBooksToUpdate.count( plotBook ) == 0 )
     {
@@ -59,8 +58,7 @@ void RiaPlotWindowRedrawScheduler::scheduleMultiPlotBookUpdate( RiuMultiPlotBook
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaPlotWindowRedrawScheduler::scheduleMultiPlotPageUpdate( RiuMultiPlotPage*                   plotPage,
-                                                                RiaDefines::MultiPlotPageUpdateType updateType )
+void RiaPlotWindowRedrawScheduler::scheduleMultiPlotPageUpdate( RiuMultiPlotPage* plotPage, RiaDefines::MultiPlotPageUpdateType updateType )
 {
     if ( m_plotPagesToUpdate.count( plotPage ) == 0 )
     {
@@ -170,10 +168,7 @@ void RiaPlotWindowRedrawScheduler::startTimer( int msecs )
     if ( !m_plotWindowUpdateTimer )
     {
         m_plotWindowUpdateTimer.reset( new QTimer( this ) );
-        connect( m_plotWindowUpdateTimer.data(),
-                 SIGNAL( timeout() ),
-                 this,
-                 SLOT( slotUpdateAndReplotScheduledItemsWhenReady() ) );
+        connect( m_plotWindowUpdateTimer.data(), SIGNAL( timeout() ), this, SLOT( slotUpdateAndReplotScheduledItemsWhenReady() ) );
     }
 
     if ( !m_plotWindowUpdateTimer->isActive() )

@@ -54,8 +54,7 @@ bool RigFemPartResultCalculatorInitialPorosity::isMatching( const RigFemResultAd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultCalculatorInitialPorosity::calculate( int                        partIndex,
-                                                                                const RigFemResultAddress& resVarAddr )
+RigFemScalarResultFrames* RigFemPartResultCalculatorInitialPorosity::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
 {
     caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 2, "" );
     stepCountProgress.setProgressDescription( "Calculating Initial Porosity" );
@@ -63,12 +62,10 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorInitialPorosity::calculate( 
     stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* voidRatioFrames =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( resVarAddr.resultPosType, "VOIDR", "" ) );
+        m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "VOIDR", "" ) );
 
     RigFemScalarResultFrames* porosityFrames =
-        m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "PHI0" ) );
+        m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "PHI0" ) );
     stepCountProgress.incrementProgress();
 
     const RigFemPart* femPart = m_resultCollection->parts()->part( partIndex );

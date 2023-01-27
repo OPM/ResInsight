@@ -109,25 +109,24 @@ void RiaImageCompareReporter::generateHTMLReport( const std::string& fileName, c
             html += "  <tr>\n";
             if ( m_showOriginal )
             {
-                html += "    <td>  <img src=\"" + baseImageFolder + "/" + baseImageNames[fIdx] +
-                        "\" width=\"100%\" alt=\"" + baseImageFolder + "/" + baseImageNames[fIdx] + "\" >  </td>\n";
+                html += "    <td>  <img src=\"" + baseImageFolder + "/" + baseImageNames[fIdx] + "\" width=\"100%\" alt=\"" +
+                        baseImageFolder + "/" + baseImageNames[fIdx] + "\" >  </td>\n";
             }
 
             if ( m_showGenerated )
             {
-                html += "    <td>  <img src=\"" + genImageFolder + "/" + baseImageNames[fIdx] +
-                        "\" width=\"100%\" alt=\"" + genImageFolder + "/" + baseImageNames[fIdx] + "\" >  </td>\n";
+                html += "    <td>  <img src=\"" + genImageFolder + "/" + baseImageNames[fIdx] + "\" width=\"100%\" alt=\"" +
+                        genImageFolder + "/" + baseImageNames[fIdx] + "\" >  </td>\n";
             }
 
             if ( m_showInteractiveDiff )
             {
-                html += "    <td> <div class = \"image-slider\"> <div> <img src=\"" + baseImageFolder + "/" +
-                        baseImageNames[fIdx] + "\" > </div> <img src = \"" + genImageFolder + "/" +
-                        baseImageNames[fIdx] + "\" > </div> </td>\n";
+                html += "    <td> <div class = \"image-slider\"> <div> <img src=\"" + baseImageFolder + "/" + baseImageNames[fIdx] +
+                        "\" > </div> <img src = \"" + genImageFolder + "/" + baseImageNames[fIdx] + "\" > </div> </td>\n";
             }
 
-            html += "    <td>  <img src=\"" + diffImageFolder + "/" + baseImageNames[fIdx] +
-                    "\" width=\"100%\" alt=\"" + diffImageFolder + "/" + baseImageNames[fIdx] + "\" >  </td>\n";
+            html += "    <td>  <img src=\"" + diffImageFolder + "/" + baseImageNames[fIdx] + "\" width=\"100%\" alt=\"" + diffImageFolder +
+                    "/" + baseImageNames[fIdx] + "\" >  </td>\n";
             html += "  </tr>\n";
 
             // A little air between images

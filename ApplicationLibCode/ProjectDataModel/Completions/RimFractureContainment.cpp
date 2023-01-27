@@ -176,9 +176,7 @@ void RimFractureContainment::defineUiOrdering( QString uiConfigName, caf::PdmUiO
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFractureContainment::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                               const QVariant&            oldValue,
-                                               const QVariant&            newValue )
+void RimFractureContainment::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     {
         RimProject* proj;

@@ -73,9 +73,7 @@ bool VdeFileExporter::exportToFile( const QString&            modelMetaJsonStr,
         }
     }
 
-    cvf::Trace::show( "Data exported (%d packets) to folder: %s",
-                      packetIdsToExport.size(),
-                      m_absOutputFolder.toLatin1().constData() );
+    cvf::Trace::show( "Data exported (%d packets) to folder: %s", packetIdsToExport.size(), m_absOutputFolder.toLatin1().constData() );
 
     return true;
 }

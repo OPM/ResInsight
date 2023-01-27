@@ -109,8 +109,7 @@ bool RimStimPlanModelLayerCalculator::calculate( RiaDefines::CurveProperty curve
         return false;
     }
 
-    CurveSamplingPointData curveData =
-        RimWellLogTrack::curveSamplingPointData( &eclExtractor, formationResultAccessor.p() );
+    CurveSamplingPointData curveData = RimWellLogTrack::curveSamplingPointData( &eclExtractor, formationResultAccessor.p() );
 
     std::vector<QString> formationNamesVector = RimWellLogTrack::formationNamesVector( eclipseCase );
 
@@ -127,16 +126,14 @@ bool RimStimPlanModelLayerCalculator::calculate( RiaDefines::CurveProperty curve
     }
 
     // Extract facies data
-    std::vector<double> faciesValues =
-        m_stimPlanModelCalculator->extractValues( RiaDefines::CurveProperty::FACIES, timeStep );
+    std::vector<double> faciesValues = m_stimPlanModelCalculator->extractValues( RiaDefines::CurveProperty::FACIES, timeStep );
     if ( faciesValues.empty() )
     {
         RiaLogging::error( QString( "Empty facies data found for layer curve." ) );
         return false;
     }
 
-    std::vector<double> netToGrossValues =
-        m_stimPlanModelCalculator->extractValues( RiaDefines::CurveProperty::NET_TO_GROSS, timeStep );
+    std::vector<double> netToGrossValues = m_stimPlanModelCalculator->extractValues( RiaDefines::CurveProperty::NET_TO_GROSS, timeStep );
     if ( netToGrossValues.empty() )
     {
         RiaLogging::warning( QString( "Empty net-to-gross data found for layer curve." ) );
@@ -159,7 +156,7 @@ bool RimStimPlanModelLayerCalculator::calculate( RiaDefines::CurveProperty curve
     if ( stimPlanModel->stimPlanModelTemplate() && stimPlanModel->stimPlanModelTemplate()->nonNetLayers() )
     {
         netToGrossCutoff = stimPlanModel->stimPlanModelTemplate()->nonNetLayers()->cutOff();
-        useNetToGross = !netToGrossValues.empty() && stimPlanModel->stimPlanModelTemplate()->nonNetLayers()->isChecked();
+        useNetToGross    = !netToGrossValues.empty() && stimPlanModel->stimPlanModelTemplate()->nonNetLayers()->isChecked();
     }
 
     for ( size_t i = 0; i < faciesValues.size(); i++ )

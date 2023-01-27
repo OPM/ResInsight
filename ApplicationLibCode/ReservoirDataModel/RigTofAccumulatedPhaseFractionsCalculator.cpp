@@ -56,28 +56,24 @@ RigTofAccumulatedPhaseFractionsCalculator::RigTofAccumulatedPhaseFractionsCalcul
                                                                             RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                                             RiaResultNames::sgas(),
                                                                             timestep );
-    const std::vector<double>* porvResults = eclipseCaseData->resultValues( RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                                            RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                                            "PORV",
-                                                                            0 );
+    const std::vector<double>* porvResults =
+        eclipseCaseData->resultValues( RiaDefines::PorosityModelType::MATRIX_MODEL, RiaDefines::ResultCatType::STATIC_NATIVE, "PORV", 0 );
 
     RimFlowDiagSolution* flowDiagSolution = caseToApply->defaultFlowDiagSolution();
 
     std::string                resultNameTof = "TOF";
     const std::vector<double>* tofData =
-        flowDiagSolution->flowDiagResults()
-            ->resultValues( RigFlowDiagResultAddress( resultNameTof,
-                                                      RigFlowDiagResultAddress::PhaseSelection::PHASE_ALL,
-                                                      wellname.toStdString() ),
-                            timestep );
+        flowDiagSolution->flowDiagResults()->resultValues( RigFlowDiagResultAddress( resultNameTof,
+                                                                                     RigFlowDiagResultAddress::PhaseSelection::PHASE_ALL,
+                                                                                     wellname.toStdString() ),
+                                                           timestep );
 
     std::string                resultNameFraction = "Fraction";
     const std::vector<double>* fractionData =
-        flowDiagSolution->flowDiagResults()
-            ->resultValues( RigFlowDiagResultAddress( resultNameFraction,
-                                                      RigFlowDiagResultAddress::PhaseSelection::PHASE_ALL,
-                                                      wellname.toStdString() ),
-                            timestep );
+        flowDiagSolution->flowDiagResults()->resultValues( RigFlowDiagResultAddress( resultNameFraction,
+                                                                                     RigFlowDiagResultAddress::PhaseSelection::PHASE_ALL,
+                                                                                     wellname.toStdString() ),
+                                                           timestep );
 
     sortTofAndCalculateAccPhaseFraction( tofData,
                                          fractionData,
@@ -94,17 +90,16 @@ RigTofAccumulatedPhaseFractionsCalculator::RigTofAccumulatedPhaseFractionsCalcul
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigTofAccumulatedPhaseFractionsCalculator::sortTofAndCalculateAccPhaseFraction(
-    const std::vector<double>* tofData,
-    const std::vector<double>* fractionData,
-    const std::vector<double>* porvResults,
-    const std::vector<double>* swatResults,
-    const std::vector<double>* soilResults,
-    const std::vector<double>* sgasResults,
-    std::vector<double>&       tofInIncreasingOrder,
-    std::vector<double>&       accumulatedPhaseFractionSwat,
-    std::vector<double>&       accumulatedPhaseFractionSoil,
-    std::vector<double>&       accumulatedPhaseFractionSgas )
+void RigTofAccumulatedPhaseFractionsCalculator::sortTofAndCalculateAccPhaseFraction( const std::vector<double>* tofData,
+                                                                                     const std::vector<double>* fractionData,
+                                                                                     const std::vector<double>* porvResults,
+                                                                                     const std::vector<double>* swatResults,
+                                                                                     const std::vector<double>* soilResults,
+                                                                                     const std::vector<double>* sgasResults,
+                                                                                     std::vector<double>&       tofInIncreasingOrder,
+                                                                                     std::vector<double>& accumulatedPhaseFractionSwat,
+                                                                                     std::vector<double>& accumulatedPhaseFractionSoil,
+                                                                                     std::vector<double>& accumulatedPhaseFractionSgas )
 
 {
     if ( tofData == nullptr || fractionData == nullptr )

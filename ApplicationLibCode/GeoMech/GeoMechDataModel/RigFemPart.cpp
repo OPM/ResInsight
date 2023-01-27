@@ -342,9 +342,8 @@ void RigFemPart::calculateElmNeighbors()
                 bool isNeighborFound = false;
                 for ( int nbcFaceIdx = 0; nbcFaceIdx < nbcFaceCount; ++nbcFaceIdx )
                 {
-                    int        nbcFaceNodeCount = 0;
-                    const int* nbcLocalFaceIndices =
-                        RigFemTypes::localElmNodeIndicesForFace( nbcElmType, nbcFaceIdx, &nbcFaceNodeCount );
+                    int        nbcFaceNodeCount    = 0;
+                    const int* nbcLocalFaceIndices = RigFemTypes::localElmNodeIndicesForFace( nbcElmType, nbcFaceIdx, &nbcFaceNodeCount );
 
                     // Compare faces
                     if ( fComp.isSameButOposite( nbcElmNodes, nbcLocalFaceIndices, nbcFaceNodeCount ) )
@@ -487,8 +486,7 @@ void RigFemPart::findIntersectingCells( const cvf::BoundingBox& inputBB, std::ve
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFemPart::findIntersectingCellsWithExistingSearchTree( const cvf::BoundingBox& inputBB,
-                                                              std::vector<size_t>*    elementIndices ) const
+void RigFemPart::findIntersectingCellsWithExistingSearchTree( const cvf::BoundingBox& inputBB, std::vector<size_t>* elementIndices ) const
 {
     CVF_ASSERT( m_elementSearchTree.notNull() );
     m_elementSearchTree->findIntersections( inputBB, elementIndices );

@@ -413,8 +413,7 @@ void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     dataSourceGroup->setCollapsedByDefault();
     m_sourceStepping()->uiOrdering( uiConfigName, *dataSourceGroup );
 
-    if ( m_sourceStepping->stepDimension() == SourceSteppingDimension::WELL )
-        dataSourceGroup->add( &m_allow3DSelectionLink );
+    if ( m_sourceStepping->stepDimension() == SourceSteppingDimension::WELL ) dataSourceGroup->add( &m_allow3DSelectionLink );
 
     auto titlesGroup = uiOrdering.addNewGroup( "Main Plot Settings" );
     titlesGroup->setCollapsedByDefault();
@@ -444,9 +443,7 @@ void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                            const QVariant&            oldValue,
-                                            const QVariant&            newValue )
+void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_autoPlotTitle || changedField == &m_autoSubPlotTitle )
     {
@@ -457,8 +454,7 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     {
         updateTimeAxisRangesFromFirstPlot();
     }
-    else if ( changedField == &m_linkSubPlotAxes || changedField == &m_axisRangeAggregation ||
-              changedField == &m_linkTimeAxis )
+    else if ( changedField == &m_linkSubPlotAxes || changedField == &m_axisRangeAggregation || changedField == &m_linkTimeAxis )
     {
         setAutoValueStates();
         syncAxisRanges();
@@ -513,9 +509,7 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                 QString                    uiConfigName,
-                                                 caf::PdmUiEditorAttribute* attribute )
+void RimSummaryMultiPlot::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( &m_hidePlotsWithValuesBelow == field )
     {
@@ -885,7 +879,7 @@ void RimSummaryMultiPlot::syncAxisRanges()
                 else
                 {
                     auto& [currentMin, currentMax] = axisRanges[key];
-                    axisRanges[key] = std::make_pair( std::min( currentMin, minVal ), std::max( currentMax, maxVal ) );
+                    axisRanges[key]                = std::make_pair( std::min( currentMin, minVal ), std::max( currentMax, maxVal ) );
                 }
             }
         }
@@ -946,28 +940,27 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
         return values;
     };
 
-    auto findMinMaxForSummaryCase =
-        [readValues]( RimSummaryCase* summaryCase, RifEclipseSummaryAddress addr, bool onlyPositiveValues ) {
-            auto values = readValues( summaryCase, addr );
-            if ( onlyPositiveValues )
+    auto findMinMaxForSummaryCase = [readValues]( RimSummaryCase* summaryCase, RifEclipseSummaryAddress addr, bool onlyPositiveValues ) {
+        auto values = readValues( summaryCase, addr );
+        if ( onlyPositiveValues )
+        {
+            std::vector<double> positiveValues;
+
+            for ( const auto& v : values )
             {
-                std::vector<double> positiveValues;
-
-                for ( const auto& v : values )
-                {
-                    if ( v > 0.0 ) positiveValues.push_back( v );
-                }
-
-                values = positiveValues;
+                if ( v > 0.0 ) positiveValues.push_back( v );
             }
-            if ( values.empty() ) return std::make_pair( HUGE_VAL, -HUGE_VAL );
 
-            auto   minMaxPair  = std::minmax_element( values.begin(), values.end() );
-            double caseMinimum = *minMaxPair.first;
-            double caseMaximum = *minMaxPair.second;
+            values = positiveValues;
+        }
+        if ( values.empty() ) return std::make_pair( HUGE_VAL, -HUGE_VAL );
 
-            return std::make_pair( caseMinimum, caseMaximum );
-        };
+        auto   minMaxPair  = std::minmax_element( values.begin(), values.end() );
+        double caseMinimum = *minMaxPair.first;
+        double caseMaximum = *minMaxPair.second;
+
+        return std::make_pair( caseMinimum, caseMaximum );
+    };
 
     auto summaryCasesForCurve = []( RimSummaryCurve* curve, AxisRangeAggregation axisRangeAggregation ) {
         std::vector<RimSummaryCase*> summaryCases;
@@ -987,8 +980,7 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
                 }
             }
         }
-        else if ( axisRangeAggregation == AxisRangeAggregation::WELLS ||
-                  axisRangeAggregation == AxisRangeAggregation::REGIONS )
+        else if ( axisRangeAggregation == AxisRangeAggregation::WELLS || axisRangeAggregation == AxisRangeAggregation::REGIONS )
         {
             // Use only the current summary case when aggregation across wells/regions
             summaryCases.push_back( curve->summaryCaseY() );
@@ -1005,8 +997,7 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
             RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::fieldAddress( curve->summaryAddressY().vectorName() );
             addresses                     = { addr };
         }
-        else if ( axisRangeAggregation == AxisRangeAggregation::WELLS ||
-                  axisRangeAggregation == AxisRangeAggregation::REGIONS )
+        else if ( axisRangeAggregation == AxisRangeAggregation::WELLS || axisRangeAggregation == AxisRangeAggregation::REGIONS )
         {
             RiaSummaryAddressAnalyzer  fallbackAnalyzer;
             RiaSummaryAddressAnalyzer* analyzer = nullptr;
@@ -1031,8 +1022,7 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
                 {
                     for ( const auto& wellName : analyzer->wellNames() )
                     {
-                        addresses.push_back(
-                            RifEclipseSummaryAddress::wellAddress( curve->summaryAddressY().vectorName(), wellName ) );
+                        addresses.push_back( RifEclipseSummaryAddress::wellAddress( curve->summaryAddressY().vectorName(), wellName ) );
                     }
                 }
 
@@ -1040,8 +1030,7 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
                 {
                     for ( auto regionNumber : analyzer->regionNumbers() )
                     {
-                        addresses.push_back( RifEclipseSummaryAddress::regionAddress( curve->summaryAddressY().vectorName(),
-                                                                                      regionNumber ) );
+                        addresses.push_back( RifEclipseSummaryAddress::regionAddress( curve->summaryAddressY().vectorName(), regionNumber ) );
                     }
                 }
             }
@@ -1050,24 +1039,23 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
         return addresses;
     };
 
-    auto findMinMaxForAddressesInSummaryCases =
-        [findMinMaxForSummaryCase]( const std::vector<RifEclipseSummaryAddress>& addresses,
-                                    const std::vector<RimSummaryCase*>&          summaryCases,
-                                    bool                                         onlyPositiveValues ) {
-            double minimum = HUGE_VAL;
-            double maximum = -HUGE_VAL;
-            for ( auto summaryCase : summaryCases )
+    auto findMinMaxForAddressesInSummaryCases = [findMinMaxForSummaryCase]( const std::vector<RifEclipseSummaryAddress>& addresses,
+                                                                            const std::vector<RimSummaryCase*>&          summaryCases,
+                                                                            bool onlyPositiveValues ) {
+        double minimum = HUGE_VAL;
+        double maximum = -HUGE_VAL;
+        for ( auto summaryCase : summaryCases )
+        {
+            for ( const auto& addr : addresses )
             {
-                for ( const auto& addr : addresses )
-                {
-                    auto [caseMinimum, caseMaximum] = findMinMaxForSummaryCase( summaryCase, addr, onlyPositiveValues );
-                    minimum                         = std::min( minimum, caseMinimum );
-                    maximum                         = std::max( maximum, caseMaximum );
-                }
+                auto [caseMinimum, caseMaximum] = findMinMaxForSummaryCase( summaryCase, addr, onlyPositiveValues );
+                minimum                         = std::min( minimum, caseMinimum );
+                maximum                         = std::max( maximum, caseMaximum );
             }
+        }
 
-            return std::make_pair( minimum, maximum );
-        };
+        return std::make_pair( minimum, maximum );
+    };
 
     // gather current min/max values for each category (axis label)
     for ( auto plot : summaryPlots() )
@@ -1080,13 +1068,12 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
             {
                 if ( curve->axisY() == axis->plotAxisType() )
                 {
-                    std::vector<RimSummaryCase*> summaryCases = summaryCasesForCurve( curve, m_axisRangeAggregation() );
-                    std::vector<RifEclipseSummaryAddress> addresses = addressesForCurve( curve, m_axisRangeAggregation() );
+                    std::vector<RimSummaryCase*>          summaryCases = summaryCasesForCurve( curve, m_axisRangeAggregation() );
+                    std::vector<RifEclipseSummaryAddress> addresses    = addressesForCurve( curve, m_axisRangeAggregation() );
 
                     bool onlyPositiveValues = axis->isLogarithmicScaleEnabled();
 
-                    auto [minimum, maximum] =
-                        findMinMaxForAddressesInSummaryCases( addresses, summaryCases, onlyPositiveValues );
+                    auto [minimum, maximum] = findMinMaxForAddressesInSummaryCases( addresses, summaryCases, onlyPositiveValues );
 
                     if ( axisRanges.count( axis->plotAxisType() ) == 0 )
                     {
@@ -1094,9 +1081,8 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
                     }
                     else
                     {
-                        auto& [currentMin, currentMax] = axisRanges[axis->plotAxisType()];
-                        axisRanges[axis->plotAxisType()] =
-                            std::make_pair( std::min( currentMin, minimum ), std::max( currentMax, maximum ) );
+                        auto& [currentMin, currentMax]   = axisRanges[axis->plotAxisType()];
+                        axisRanges[axis->plotAxisType()] = std::make_pair( std::min( currentMin, minimum ), std::max( currentMax, maximum ) );
                     }
                 }
             }
@@ -1117,8 +1103,7 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
 
                         auto curve = curves.front();
 
-                        std::vector<RifEclipseSummaryAddress> addresses =
-                            addressesForCurve( curve, m_axisRangeAggregation() );
+                        std::vector<RifEclipseSummaryAddress> addresses = addressesForCurve( curve, m_axisRangeAggregation() );
 
                         for ( const auto& adr : addresses )
                         {
@@ -1135,9 +1120,8 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
                     }
                     else
                     {
-                        auto& [currentMin, currentMax] = axisRanges[axis->plotAxisType()];
-                        axisRanges[axis->plotAxisType()] =
-                            std::make_pair( std::min( currentMin, minimum ), std::max( currentMax, maximum ) );
+                        auto& [currentMin, currentMax]   = axisRanges[axis->plotAxisType()];
+                        axisRanges[axis->plotAxisType()] = std::make_pair( std::min( currentMin, minimum ), std::max( currentMax, maximum ) );
                     }
                 }
             }
@@ -1207,9 +1191,7 @@ void RimSummaryMultiPlot::setAutoValueStates()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::setAutoValueStatesForPlot( RimSummaryPlot* summaryPlot,
-                                                     bool            enableAutoValueMinMax,
-                                                     bool            enableAutoValueAppearance )
+void RimSummaryMultiPlot::setAutoValueStatesForPlot( RimSummaryPlot* summaryPlot, bool enableAutoValueMinMax, bool enableAutoValueAppearance )
 {
     auto timeAxisProp = summaryPlot->timeAxisProperties();
     if ( timeAxisProp ) timeAxisProp->enableAutoValueForMajorTickmarkCount( enableAutoValueAppearance );
@@ -1266,8 +1248,7 @@ void RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
             analyzer.appendAddresses( addresses );
         }
 
-        bool canShowOneAxisTitlePerRow = analyzer.isSingleQuantityIgnoreHistory() &&
-                                         ( m_axisRangeAggregation() != AxisRangeAggregation::NONE );
+        bool canShowOneAxisTitlePerRow = analyzer.isSingleQuantityIgnoreHistory() && ( m_axisRangeAggregation() != AxisRangeAggregation::NONE );
 
         for ( auto p : summaryPlots() )
         {

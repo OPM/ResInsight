@@ -165,8 +165,7 @@ bool Rim3dWellLogExtractionCurve::followAnimationTimeStep() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dWellLogExtractionCurve::curveValuesAndMds( std::vector<double>* values,
-                                                     std::vector<double>* measuredDepthValues ) const
+void Rim3dWellLogExtractionCurve::curveValuesAndMds( std::vector<double>* values, std::vector<double>* measuredDepthValues ) const
 {
     CVF_ASSERT( m_timeStep() >= 0 );
 
@@ -189,8 +188,7 @@ void Rim3dWellLogExtractionCurve::curveValuesAndMdsAtTimeStep( std::vector<doubl
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case() );
     if ( eclipseCase )
     {
-        cvf::ref<RigEclipseWellLogExtractor> eclExtractor =
-            RiaExtractionTools::findOrCreateWellLogExtractor( wellPath, eclipseCase );
+        cvf::ref<RigEclipseWellLogExtractor> eclExtractor = RiaExtractionTools::findOrCreateWellLogExtractor( wellPath, eclipseCase );
         if ( eclExtractor.notNull() )
         {
             *measuredDepthValues = eclExtractor->cellIntersectionMDs();
@@ -198,10 +196,7 @@ void Rim3dWellLogExtractionCurve::curveValuesAndMdsAtTimeStep( std::vector<doubl
             m_eclipseResultDefinition->loadResult();
 
             cvf::ref<RigResultAccessor> resAcc =
-                RigResultAccessorFactory::createFromResultDefinition( eclipseCase->eclipseCaseData(),
-                                                                      0,
-                                                                      timeStep,
-                                                                      m_eclipseResultDefinition );
+                RigResultAccessorFactory::createFromResultDefinition( eclipseCase->eclipseCaseData(), 0, timeStep, m_eclipseResultDefinition );
             if ( resAcc.notNull() )
             {
                 eclExtractor->curveData( resAcc.p(), values );
@@ -213,8 +208,7 @@ void Rim3dWellLogExtractionCurve::curveValuesAndMdsAtTimeStep( std::vector<doubl
         RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>( m_case() );
         if ( geomCase )
         {
-            cvf::ref<RigGeoMechWellLogExtractor> geomExtractor =
-                RiaExtractionTools::findOrCreateWellLogExtractor( wellPath, geomCase );
+            cvf::ref<RigGeoMechWellLogExtractor> geomExtractor = RiaExtractionTools::findOrCreateWellLogExtractor( wellPath, geomCase );
 
             if ( geomExtractor.notNull() )
             {
@@ -224,8 +218,7 @@ void Rim3dWellLogExtractionCurve::curveValuesAndMdsAtTimeStep( std::vector<doubl
 
                 m_geomResultDefinition->loadResult();
 
-                auto [stepIndex, frameIndex] =
-                    geomCase->geoMechData()->femPartResults()->stepListIndexToTimeStepAndDataFrameIndex( timeStep );
+                auto [stepIndex, frameIndex] = geomCase->geoMechData()->femPartResults()->stepListIndexToTimeStepAndDataFrameIndex( timeStep );
 
                 geomExtractor->curveData( m_geomResultDefinition->resultAddress(), stepIndex, frameIndex, values );
             }
@@ -329,8 +322,7 @@ QString Rim3dWellLogExtractionCurve::createAutoName() const
 
         if ( eclipseCase )
         {
-            addTimeStep = addTimeStep &&
-                          m_eclipseResultDefinition->resultType() != RiaDefines::ResultCatType::STATIC_NATIVE;
+            addTimeStep              = addTimeStep && m_eclipseResultDefinition->resultType() != RiaDefines::ResultCatType::STATIC_NATIVE;
             RigEclipseCaseData* data = eclipseCase->eclipseCaseData();
             if ( data )
             {
@@ -429,9 +421,7 @@ caf::PdmFieldHandle* Rim3dWellLogExtractionCurve::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dWellLogExtractionCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                    const QVariant&            oldValue,
-                                                    const QVariant&            newValue )
+void Rim3dWellLogExtractionCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_case )
     {
@@ -461,8 +451,7 @@ void Rim3dWellLogExtractionCurve::fieldChangedByUi( const caf::PdmFieldHandle* c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    Rim3dWellLogExtractionCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> Rim3dWellLogExtractionCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

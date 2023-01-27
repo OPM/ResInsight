@@ -92,7 +92,7 @@ void RicNewWellPathListTargetFeature::onActionTriggered( bool isChecked )
             double                     inc                        = sphTangent.inc();
             double                     horizontalLengthFromTarget = radius - radius * cvf::Math::cos( inc );
 
-            newPos = afterBeforePair.second->targetPointXYZ() - horizontalLengthFromTarget * tangentInHorizontalPlane;
+            newPos     = afterBeforePair.second->targetPointXYZ() - horizontalLengthFromTarget * tangentInHorizontalPlane;
             newPos.z() = -wellGeomDef->anchorPointXyz().z();
 
             isSeaLevelTarget = true;

@@ -48,9 +48,7 @@ caf::PdmFieldHandle* RimWellAllocationPlotLegend::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellAllocationPlotLegend::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                    const QVariant&            oldValue,
-                                                    const QVariant&            newValue )
+void RimWellAllocationPlotLegend::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_showLegend )
     {
