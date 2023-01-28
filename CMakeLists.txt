@@ -122,7 +122,6 @@ if(buildcache_program)
                          "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}"
     )
 
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Z7")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Z7")
     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /Z7")
   endif()
