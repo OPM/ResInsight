@@ -59,9 +59,11 @@ void RimDataSourceForRftPlt::setAddress( const RifDataSourceForRftPlt& address )
 {
     m_sourceType         = address.sourceType();
     m_eclCase            = address.eclCase();
-    m_wellLogFile        = address.wellLogFile();
+    m_summaryCase        = address.summaryCase();
     m_ensemble           = address.ensemble();
+    m_wellLogFile        = address.wellLogFile();
     m_observedFmuRftData = address.observedFmuRftData();
+    m_pressureDepthData  = address.pressureDepthData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -106,12 +108,16 @@ void RimDataSourceForRftPlt::InitPdmObject()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+/*
 RimDataSourceForRftPlt& RimDataSourceForRftPlt::operator=( const RimDataSourceForRftPlt& other )
 {
     m_sourceType         = other.m_sourceType();
     m_eclCase            = other.m_eclCase();
-    m_wellLogFile        = other.m_wellLogFile();
+    m_summaryCase        = other.m_summaryCase();
     m_ensemble           = other.m_ensemble();
+    m_wellLogFile        = other.m_wellLogFile();
     m_observedFmuRftData = other.m_observedFmuRftData();
+    m_pressureDepthData  = other.m_pressureDepthData();
     return *this;
 }
+*/

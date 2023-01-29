@@ -50,14 +50,13 @@ public:
     RimDataSourceForRftPlt();
     RimDataSourceForRftPlt( const RifDataSourceForRftPlt& addr );
 
-    void                   setAddress( const RifDataSourceForRftPlt& address );
     RifDataSourceForRftPlt address() const;
-
-    RimDataSourceForRftPlt& operator=( const RimDataSourceForRftPlt& other );
 
 private:
     void InitPdmObject();
+    void setAddress( const RifDataSourceForRftPlt& address );
 
+private:
     caf::PdmField<caf::AppEnum<RifDataSourceForRftPlt::SourceType>> m_sourceType;
 
     caf::PdmPtrField<RimEclipseCase*>           m_eclCase;
