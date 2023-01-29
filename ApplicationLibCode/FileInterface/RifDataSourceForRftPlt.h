@@ -75,6 +75,8 @@ public:
 
     static QString sourceTypeUiText( SourceType sourceType );
 
+    std::vector<RiaDefines::EclipseUnitSystem> availableUnitSystems() const;
+
     friend QTextStream& operator>>( QTextStream& str, RifDataSourceForRftPlt& addr );
     friend bool         operator<( const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPlt& addr2 );
 

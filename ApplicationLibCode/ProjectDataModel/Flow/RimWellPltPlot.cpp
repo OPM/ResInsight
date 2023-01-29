@@ -158,23 +158,14 @@ RimWellPltPlot::~RimWellPltPlot()
 void RimWellPltPlot::setPlotXAxisTitles( RimWellLogTrack* plotTrack )
 {
     std::set<RiaDefines::EclipseUnitSystem> presentUnitSystems;
-    for ( const RifDataSourceForRftPlt& source : m_selectedSources.v() )
+    for ( const auto& source : m_selectedSources() )
     {
-        if ( source.eclCase() && source.eclCase()->eclipseCaseData() )
+        auto systems = source.availableUnitSystems();
+        for ( const auto& s : systems )
         {
-            presentUnitSystems.insert( source.eclCase()->eclipseCaseData()->unitsType() );
-        }
-
-        if ( source.wellLogFile() )
-        {
-            if ( source.wellLogFile()->wellLogFileData() )
-            {
-                auto eclipseUnit = RiaDefines::fromDepthUnit( source.wellLogFile()->wellLogFileData()->depthUnit() );
-                presentUnitSystems.insert( eclipseUnit );
-            }
+            presentUnitSystems.insert( s );
         }
     }
-
     if ( presentUnitSystems.size() > 1 )
     {
         RiaLogging::errorInMessageBox( nullptr, "ResInsight PLT Plot", "Inconsistent units in PLT plot" );

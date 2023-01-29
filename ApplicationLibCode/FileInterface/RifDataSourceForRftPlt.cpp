@@ -19,6 +19,7 @@
 #include "RifDataSourceForRftPlt.h"
 
 #include "RifReaderEclipseRft.h"
+#include "RigEclipseCaseData.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"
@@ -139,21 +140,50 @@ RimEclipseCase* RifDataSourceForRftPlt::eclCase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RiaDefines::EclipseUnitSystem> RifDataSourceForRftPlt::availableUnitSystems() const
+{
+    std::vector<RiaDefines::EclipseUnitSystem> systems;
+
+    if ( m_eclCase && m_eclCase->eclipseCaseData() )
+    {
+        systems.push_back( m_eclCase->eclipseCaseData()->unitsType() );
+    }
+
+    if ( m_wellLogFile && m_wellLogFile->wellLogFileData() )
+    {
+        auto eclipseUnit = RiaDefines::fromDepthUnit( m_wellLogFile->wellLogFileData()->depthUnit() );
+        systems.push_back( eclipseUnit );
+    }
+
+    return systems;
+}
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RifReaderRftInterface* RifDataSourceForRftPlt::rftReader() const
 {
-    if ( m_sourceType == RFT )
+    if ( m_sourceType == SourceType::GRID || m_sourceType == SourceType::RFT )
     {
-        auto eclResCase = dynamic_cast<RimEclipseResultCase*>( m_eclCase.p() );
+        // TODO: Consider changing to RimEclipseResultCase to avoid casting
+        auto eclResCase = dynamic_cast<RimEclipseResultCase*>( eclCase() );
 
         if ( eclResCase ) return eclResCase->rftReader();
     }
-    else if ( m_sourceType == SUMMARY_RFT )
+    else if ( m_sourceType == SourceType::SUMMARY_RFT )
     {
         if ( m_summaryCase ) return m_summaryCase->rftReader();
     }
-    else if ( m_sourceType == ENSEMBLE_RFT )
+    else if ( m_sourceType == SourceType::ENSEMBLE_RFT )
     {
         if ( m_ensemble ) return m_ensemble->rftStatisticsReader();
+    }
+    else if ( m_sourceType == SourceType::OBSERVED_FMU_RFT )
+    {
+        if ( m_observedFmuRftData ) return m_observedFmuRftData->rftReader();
+    }
+    else if ( m_sourceType == SourceType::OBSERVED_PRESSURE_DEPTH )
+    {
+        if ( m_pressureDepthData ) return m_pressureDepthData->rftReader();
     }
     return nullptr;
 }
