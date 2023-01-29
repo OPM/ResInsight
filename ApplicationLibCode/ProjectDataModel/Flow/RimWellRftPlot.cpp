@@ -787,121 +787,7 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions( const caf::
     }
     else if ( fieldNeedingOptions == &m_selectedSources )
     {
-        const std::vector<RimEclipseResultCase*> rftCases = RimWellPlotTools::rftCasesForWell( simWellName );
-        if ( !rftCases.empty() )
-        {
-            options.push_back( caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
-                                                                         RifDataSourceForRftPlt::RFT ),
-                                                                     true ) );
-
-            for ( const auto& rftCase : rftCases )
-            {
-                auto addr = RifDataSourceForRftPlt( RifDataSourceForRftPlt::RFT, rftCase );
-                auto item = caf::PdmOptionItemInfo( rftCase->caseUserDescription(), QVariant::fromValue( addr ) );
-                item.setLevel( 1 );
-                options.push_back( item );
-            }
-        }
-
-        const std::vector<RimSummaryCaseCollection*> rftEnsembles =
-            RimWellPlotTools::rftEnsemblesForWell( m_wellPathNameOrSimWellName );
-        if ( !rftEnsembles.empty() )
-        {
-            options.push_back( caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
-                                                                         RifDataSourceForRftPlt::ENSEMBLE_RFT ),
-                                                                     true ) );
-
-            for ( RimSummaryCaseCollection* rftEnsemble : rftEnsembles )
-            {
-                auto addr = RifDataSourceForRftPlt( rftEnsemble );
-                auto item = caf::PdmOptionItemInfo( rftEnsemble->name(), QVariant::fromValue( addr ) );
-                item.setLevel( 1 );
-                options.push_back( item );
-            }
-        }
-
-        auto singleCases = RiaSummaryTools::singleTopLevelSummaryCases();
-        if ( !singleCases.empty() )
-        {
-            options.push_back( caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
-                                                                         RifDataSourceForRftPlt::SUMMARY_RFT ),
-                                                                     true ) );
-            for ( auto summaryCase : singleCases )
-            {
-                if ( summaryCase->rftReader() &&
-                     summaryCase->rftReader()->wellNames().contains( m_wellPathNameOrSimWellName ) )
-                {
-                    RimSummaryCaseCollection* parentEnsemble = nullptr;
-                    summaryCase->firstAncestorOrThisOfType( parentEnsemble );
-                    auto addr = RifDataSourceForRftPlt( summaryCase, parentEnsemble );
-
-                    auto item = caf::PdmOptionItemInfo( summaryCase->displayCaseName(), QVariant::fromValue( addr ) );
-                    item.setLevel( 1 );
-                    options.push_back( item );
-                }
-            }
-        }
-
-        const std::vector<RimEclipseResultCase*> gridCases = RimWellPlotTools::gridCasesForWell( simWellName );
-        if ( !gridCases.empty() )
-        {
-            options.push_back( caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
-                                                                         RifDataSourceForRftPlt::GRID ),
-                                                                     true ) );
-
-            for ( const auto& gridCase : gridCases )
-            {
-                auto addr = RifDataSourceForRftPlt( RifDataSourceForRftPlt::GRID, gridCase );
-                auto item = caf::PdmOptionItemInfo( gridCase->caseUserDescription(), QVariant::fromValue( addr ) );
-                item.setLevel( 1 );
-                options.push_back( item );
-            }
-        }
-
-        if ( !RimWellPlotTools::wellLogFilesContainingPressure( m_wellPathNameOrSimWellName ).empty() )
-        {
-            options.push_back( caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
-                                                                         RifDataSourceForRftPlt::OBSERVED ),
-                                                                     true ) );
-
-            RimWellLogFile* dummy = nullptr;
-            auto            addr  = RifDataSourceForRftPlt( RifDataSourceForRftPlt::OBSERVED, dummy );
-            auto            item  = caf::PdmOptionItemInfo( "Observed Data", QVariant::fromValue( addr ) );
-            item.setLevel( 1 );
-            options.push_back( item );
-        }
-        const std::vector<RimObservedFmuRftData*> observedFmuRftCases =
-            RimWellPlotTools::observedFmuRftDataForWell( m_wellPathNameOrSimWellName );
-        if ( !observedFmuRftCases.empty() )
-        {
-            options.push_back( caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
-                                                                         RifDataSourceForRftPlt::OBSERVED_FMU_RFT ),
-                                                                     true ) );
-
-            for ( const auto& observedFmuRftCase : observedFmuRftCases )
-            {
-                auto addr = RifDataSourceForRftPlt( observedFmuRftCase );
-                auto item = caf::PdmOptionItemInfo( observedFmuRftCase->name(), QVariant::fromValue( addr ) );
-                item.setLevel( 1 );
-                options.push_back( item );
-            }
-        }
-        const std::vector<RimPressureDepthData*> pressureDepthData =
-            RimWellPlotTools::pressureDepthDataForWell( m_wellPathNameOrSimWellName );
-        if ( !pressureDepthData.empty() )
-        {
-            options.push_back( caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
-                                                                         RifDataSourceForRftPlt::OBSERVED_FMU_RFT ),
-                                                                     true ) );
-
-            for ( const auto& pd : pressureDepthData )
-            {
-                auto addr = RifDataSourceForRftPlt( pd );
-                auto item = caf::PdmOptionItemInfo( pd->name(), QVariant::fromValue( addr ) );
-                item.setLevel( 1 );
-                options.push_back( item );
-            }
-        }
+        options = calculateValueOptionsForSources();
     }
     else if ( fieldNeedingOptions == &m_selectedTimeSteps )
     {
@@ -919,6 +805,133 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions( const caf::
 
         options = RiaSimWellBranchTools::valueOptionsForBranchIndexField( simulationWellBranches );
     }
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptionsForSources() const
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    const QString simWellName = associatedSimWellName();
+
+    const std::vector<RimEclipseResultCase*> rftCases = RimWellPlotTools::rftCasesForWell( simWellName );
+    if ( !rftCases.empty() )
+    {
+        options.push_back(
+            caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText( RifDataSourceForRftPlt::RFT ),
+                                                  true ) );
+
+        for ( const auto& rftCase : rftCases )
+        {
+            auto addr = RifDataSourceForRftPlt( RifDataSourceForRftPlt::RFT, rftCase );
+            auto item = caf::PdmOptionItemInfo( rftCase->caseUserDescription(), QVariant::fromValue( addr ) );
+            item.setLevel( 1 );
+            options.push_back( item );
+        }
+    }
+
+    const std::vector<RimSummaryCaseCollection*> rftEnsembles =
+        RimWellPlotTools::rftEnsemblesForWell( m_wellPathNameOrSimWellName );
+    if ( !rftEnsembles.empty() )
+    {
+        options.push_back( caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
+                                                                     RifDataSourceForRftPlt::ENSEMBLE_RFT ),
+                                                                 true ) );
+
+        for ( RimSummaryCaseCollection* rftEnsemble : rftEnsembles )
+        {
+            auto addr = RifDataSourceForRftPlt( rftEnsemble );
+            auto item = caf::PdmOptionItemInfo( rftEnsemble->name(), QVariant::fromValue( addr ) );
+            item.setLevel( 1 );
+            options.push_back( item );
+        }
+    }
+
+    auto singleCases = RiaSummaryTools::singleTopLevelSummaryCases();
+    if ( !singleCases.empty() )
+    {
+        options.push_back( caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
+                                                                     RifDataSourceForRftPlt::SUMMARY_RFT ),
+                                                                 true ) );
+        for ( auto summaryCase : singleCases )
+        {
+            if ( summaryCase->rftReader() && summaryCase->rftReader()->wellNames().contains( m_wellPathNameOrSimWellName ) )
+            {
+                RimSummaryCaseCollection* parentEnsemble = nullptr;
+                summaryCase->firstAncestorOrThisOfType( parentEnsemble );
+                auto addr = RifDataSourceForRftPlt( summaryCase, parentEnsemble );
+
+                auto item = caf::PdmOptionItemInfo( summaryCase->displayCaseName(), QVariant::fromValue( addr ) );
+                item.setLevel( 1 );
+                options.push_back( item );
+            }
+        }
+    }
+
+    const std::vector<RimEclipseResultCase*> gridCases = RimWellPlotTools::gridCasesForWell( simWellName );
+    if ( !gridCases.empty() )
+    {
+        options.push_back(
+            caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText( RifDataSourceForRftPlt::GRID ),
+                                                  true ) );
+
+        for ( const auto& gridCase : gridCases )
+        {
+            auto addr = RifDataSourceForRftPlt( RifDataSourceForRftPlt::GRID, gridCase );
+            auto item = caf::PdmOptionItemInfo( gridCase->caseUserDescription(), QVariant::fromValue( addr ) );
+            item.setLevel( 1 );
+            options.push_back( item );
+        }
+    }
+
+    if ( !RimWellPlotTools::wellLogFilesContainingPressure( m_wellPathNameOrSimWellName ).empty() )
+    {
+        options.push_back( caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
+                                                                     RifDataSourceForRftPlt::OBSERVED ),
+                                                                 true ) );
+
+        RimWellLogFile* dummy = nullptr;
+        auto            addr  = RifDataSourceForRftPlt( RifDataSourceForRftPlt::OBSERVED, dummy );
+        auto            item  = caf::PdmOptionItemInfo( "Observed Data", QVariant::fromValue( addr ) );
+        item.setLevel( 1 );
+        options.push_back( item );
+    }
+    const std::vector<RimObservedFmuRftData*> observedFmuRftCases =
+        RimWellPlotTools::observedFmuRftDataForWell( m_wellPathNameOrSimWellName );
+    if ( !observedFmuRftCases.empty() )
+    {
+        options.push_back( caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
+                                                                     RifDataSourceForRftPlt::OBSERVED_FMU_RFT ),
+                                                                 true ) );
+
+        for ( const auto& observedFmuRftCase : observedFmuRftCases )
+        {
+            auto addr = RifDataSourceForRftPlt( observedFmuRftCase );
+            auto item = caf::PdmOptionItemInfo( observedFmuRftCase->name(), QVariant::fromValue( addr ) );
+            item.setLevel( 1 );
+            options.push_back( item );
+        }
+    }
+    const std::vector<RimPressureDepthData*> pressureDepthData =
+        RimWellPlotTools::pressureDepthDataForWell( m_wellPathNameOrSimWellName );
+    if ( !pressureDepthData.empty() )
+    {
+        options.push_back( caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
+                                                                     RifDataSourceForRftPlt::OBSERVED_FMU_RFT ),
+                                                                 true ) );
+
+        for ( const auto& pd : pressureDepthData )
+        {
+            auto addr = RifDataSourceForRftPlt( pd );
+            auto item = caf::PdmOptionItemInfo( pd->name(), QVariant::fromValue( addr ) );
+            item.setLevel( 1 );
+            options.push_back( item );
+        }
+    }
+
     return options;
 }
 
