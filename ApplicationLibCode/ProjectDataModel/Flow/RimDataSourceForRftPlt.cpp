@@ -19,11 +19,14 @@
 #include "RimDataSourceForRftPlt.h"
 #include "RimEclipseCase.h"
 #include "RimObservedFmuRftData.h"
+#include "RimPressureDepthData.h"
+#include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimWellLogFile.h"
 
 #include "cafAppEnum.h"
 #include "cvfAssert.h"
+
 #include <QString>
 #include <QTextStream>
 
@@ -69,16 +72,19 @@ RifDataSourceForRftPlt RimDataSourceForRftPlt::address() const
     switch ( m_sourceType() )
     {
         case RifDataSourceForRftPlt::OBSERVED:
-            return RifDataSourceForRftPlt( m_sourceType(), m_wellLogFile );
+            return RifDataSourceForRftPlt( RifDataSourceForRftPlt::OBSERVED, m_wellLogFile );
         case RifDataSourceForRftPlt::RFT:
+            return RifDataSourceForRftPlt( RifDataSourceForRftPlt::RFT, m_eclCase );
         case RifDataSourceForRftPlt::GRID:
-            return RifDataSourceForRftPlt( m_sourceType(), m_eclCase );
+            return RifDataSourceForRftPlt( RifDataSourceForRftPlt::GRID, m_eclCase );
+        case RifDataSourceForRftPlt::SUMMARY_RFT:
+            return RifDataSourceForRftPlt( m_summaryCase, m_ensemble );
         case RifDataSourceForRftPlt::ENSEMBLE_RFT:
-            return RifDataSourceForRftPlt( m_sourceType(), m_ensemble );
+            return RifDataSourceForRftPlt( m_ensemble );
         case RifDataSourceForRftPlt::OBSERVED_FMU_RFT:
-            return RifDataSourceForRftPlt( m_sourceType(), m_observedFmuRftData );
-        default:
-            break;
+            return RifDataSourceForRftPlt( m_observedFmuRftData );
+        case RifDataSourceForRftPlt::OBSERVED_PRESSURE_DEPTH:
+            return RifDataSourceForRftPlt( m_pressureDepthData );
     }
     return RifDataSourceForRftPlt();
 }
@@ -90,9 +96,11 @@ void RimDataSourceForRftPlt::InitPdmObject()
 {
     CAF_PDM_InitFieldNoDefault( &m_sourceType, "SourceType", "Source Type" );
     CAF_PDM_InitFieldNoDefault( &m_eclCase, "EclipseCase", "Eclipse Case" );
-    CAF_PDM_InitFieldNoDefault( &m_wellLogFile, "WellLogFile", "Well Log File" );
+    CAF_PDM_InitFieldNoDefault( &m_summaryCase, "SummaryCase", "Summary Case" );
     CAF_PDM_InitFieldNoDefault( &m_ensemble, "Ensemble", "Ensemble" );
+    CAF_PDM_InitFieldNoDefault( &m_wellLogFile, "WellLogFile", "Well Log File" );
     CAF_PDM_InitFieldNoDefault( &m_observedFmuRftData, "ObservedFmuRftData", "Observed FMU Data" );
+    CAF_PDM_InitFieldNoDefault( &m_pressureDepthData, "PressureDepthData", "Pressure/Depth Data" );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -832,8 +832,9 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions( const caf::
                                                                          RifDataSourceForRftPlt::OBSERVED ),
                                                                      true ) );
 
-            auto addr = RifDataSourceForRftPlt( RifDataSourceForRftPlt::OBSERVED );
-            auto item = caf::PdmOptionItemInfo( "Observed Data", QVariant::fromValue( addr ) );
+            RimWellLogFile* dummy = nullptr;
+            auto            addr  = RifDataSourceForRftPlt( RifDataSourceForRftPlt::OBSERVED, dummy );
+            auto            item  = caf::PdmOptionItemInfo( "Observed Data", QVariant::fromValue( addr ) );
             item.setLevel( 1 );
             options.push_back( item );
             optionAddresses.insert( addr );

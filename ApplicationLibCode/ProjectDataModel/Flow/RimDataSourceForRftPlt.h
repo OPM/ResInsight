@@ -59,8 +59,11 @@ private:
     void InitPdmObject();
 
     caf::PdmField<caf::AppEnum<RifDataSourceForRftPlt::SourceType>> m_sourceType;
-    caf::PdmPtrField<RimEclipseCase*>                               m_eclCase;
-    caf::PdmPtrField<RimWellLogFile*>                               m_wellLogFile;
-    caf::PdmPtrField<RimSummaryCaseCollection*>                     m_ensemble;
-    caf::PdmPtrField<RimObservedFmuRftData*>                        m_observedFmuRftData;
+
+    caf::PdmPtrField<RimEclipseCase*>           m_eclCase;
+    caf::PdmPtrField<RimSummaryCase*>           m_summaryCase;
+    caf::PdmPtrField<RimSummaryCaseCollection*> m_ensemble;
+    caf::PdmPtrField<RimWellLogFile*>           m_wellLogFile;
+    caf::PdmPtrField<RimObservedFmuRftData*>    m_observedFmuRftData;
+    caf::PdmPtrField<RimPressureDepthData*>     m_pressureDepthData;
 };

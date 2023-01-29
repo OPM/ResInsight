@@ -79,32 +79,25 @@ RifDataSourceForRftPlt::RifDataSourceForRftPlt( SourceType sourceType, RimEclips
 RifDataSourceForRftPlt::RifDataSourceForRftPlt( SourceType sourceType, RimWellLogFile* wellLogFile )
 {
     CVF_ASSERT( sourceType == SourceType::OBSERVED );
-
-    m_sourceType  = sourceType;
+    m_sourceType  = SourceType::OBSERVED;
     m_wellLogFile = wellLogFile;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifDataSourceForRftPlt::RifDataSourceForRftPlt( SourceType sourceType, RimSummaryCaseCollection* ensemble )
+RifDataSourceForRftPlt::RifDataSourceForRftPlt( RimSummaryCaseCollection* ensemble )
 {
-    CVF_ASSERT( sourceType == SourceType::ENSEMBLE_RFT );
-
-    m_sourceType = sourceType;
+    m_sourceType = SourceType::ENSEMBLE_RFT;
     m_ensemble   = ensemble;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifDataSourceForRftPlt::RifDataSourceForRftPlt( SourceType                sourceType,
-                                                RimSummaryCase*           summaryCase,
-                                                RimSummaryCaseCollection* ensemble )
+RifDataSourceForRftPlt::RifDataSourceForRftPlt( RimSummaryCase* summaryCase, RimSummaryCaseCollection* ensemble )
 {
-    CVF_ASSERT( sourceType == SourceType::SUMMARY_RFT );
-
-    m_sourceType  = sourceType;
+    m_sourceType  = SourceType::SUMMARY_RFT;
     m_summaryCase = summaryCase;
     m_ensemble    = ensemble;
 }
@@ -112,22 +105,18 @@ RifDataSourceForRftPlt::RifDataSourceForRftPlt( SourceType                source
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifDataSourceForRftPlt::RifDataSourceForRftPlt( SourceType sourceType, RimObservedFmuRftData* observedFmuRftData )
+RifDataSourceForRftPlt::RifDataSourceForRftPlt( RimObservedFmuRftData* observedFmuRftData )
 {
-    CVF_ASSERT( sourceType == SourceType::OBSERVED_FMU_RFT );
-
-    m_sourceType         = sourceType;
+    m_sourceType         = SourceType::OBSERVED_FMU_RFT;
     m_observedFmuRftData = observedFmuRftData;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifDataSourceForRftPlt::RifDataSourceForRftPlt( SourceType sourceType, RimPressureDepthData* observedFmuRftData )
+RifDataSourceForRftPlt::RifDataSourceForRftPlt( RimPressureDepthData* observedFmuRftData )
 {
-    CVF_ASSERT( sourceType == SourceType::OBSERVED_FMU_RFT );
-
-    m_sourceType        = sourceType;
+    m_sourceType        = SourceType::OBSERVED_FMU_RFT;
     m_pressureDepthData = observedFmuRftData;
 }
 

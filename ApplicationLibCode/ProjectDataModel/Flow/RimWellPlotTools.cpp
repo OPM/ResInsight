@@ -639,30 +639,19 @@ RiaRftPltCurveDefinition RimWellPlotTools::curveDefFromCurve( const RimWellLogCu
             RimSummaryCaseCollection* parentEnsemble = nullptr;
 
             rftSummaryCase->firstAncestorOrThisOfType( parentEnsemble );
-            return RiaRftPltCurveDefinition( RifDataSourceForRftPlt( RifDataSourceForRftPlt::SUMMARY_RFT,
-                                                                     rftSummaryCase,
-                                                                     parentEnsemble ),
-                                             wellName,
-                                             timeStep );
+            return RiaRftPltCurveDefinition( RifDataSourceForRftPlt( rftSummaryCase, parentEnsemble ), wellName, timeStep );
         }
         else if ( rftEnsemble != nullptr )
         {
-            return RiaRftPltCurveDefinition( RifDataSourceForRftPlt( RifDataSourceForRftPlt::ENSEMBLE_RFT, rftEnsemble ),
-                                             wellName,
-                                             timeStep );
+            return RiaRftPltCurveDefinition( RifDataSourceForRftPlt( rftEnsemble ), wellName, timeStep );
         }
         else if ( rftFmuData != nullptr )
         {
-            return RiaRftPltCurveDefinition( RifDataSourceForRftPlt( RifDataSourceForRftPlt::OBSERVED_FMU_RFT, rftFmuData ),
-                                             wellName,
-                                             timeStep );
+            return RiaRftPltCurveDefinition( RifDataSourceForRftPlt( rftFmuData ), wellName, timeStep );
         }
         else if ( pressureDepthData != nullptr )
         {
-            return RiaRftPltCurveDefinition( RifDataSourceForRftPlt( RifDataSourceForRftPlt::OBSERVED_FMU_RFT,
-                                                                     pressureDepthData ),
-                                             wellName,
-                                             timeStep );
+            return RiaRftPltCurveDefinition( RifDataSourceForRftPlt( pressureDepthData ), wellName, timeStep );
         }
     }
     else if ( gridCurve != nullptr )
@@ -831,7 +820,7 @@ std::set<RiaRftPltCurveDefinition>
             {
                 if ( summaryCase && summaryCase->rftReader() )
                 {
-                    RifDataSourceForRftPlt summaryAddr( RifDataSourceForRftPlt::SUMMARY_RFT, summaryCase, addr.ensemble() );
+                    RifDataSourceForRftPlt summaryAddr( summaryCase, addr.ensemble() );
 
                     std::set<QDateTime> timeSteps =
                         summaryCase->rftReader()->availableTimeSteps( wellPathNameOrSimWellName );
@@ -862,7 +851,7 @@ std::set<RiaRftPltCurveDefinition>
             auto summaryCase = addr.summaryCase();
             if ( summaryCase && summaryCase->rftReader() )
             {
-                RifDataSourceForRftPlt summaryAddr( RifDataSourceForRftPlt::SUMMARY_RFT, summaryCase, addr.ensemble() );
+                RifDataSourceForRftPlt summaryAddr( summaryCase, addr.ensemble() );
 
                 std::set<QDateTime> timeSteps = summaryCase->rftReader()->availableTimeSteps( wellPathNameOrSimWellName );
                 for ( const QDateTime& time : timeSteps )
