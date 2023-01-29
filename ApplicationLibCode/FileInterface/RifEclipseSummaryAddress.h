@@ -208,6 +208,8 @@ public:
 
     static std::string baseVectorName( const std::string& vectorName );
 
+    auto operator<=>( const RifEclipseSummaryAddress& rhs ) const = default;
+
 private:
     static RifEclipseSummaryAddress fromTokens( const std::vector<std::string>& tokens );
 
@@ -231,11 +233,6 @@ private:
     bool               m_isErrorResult;
     int32_t            m_id;
 };
-
-bool operator==( const RifEclipseSummaryAddress& first, const RifEclipseSummaryAddress& second );
-bool operator!=( const RifEclipseSummaryAddress& first, const RifEclipseSummaryAddress& second );
-
-bool operator<( const RifEclipseSummaryAddress& first, const RifEclipseSummaryAddress& second );
 
 QTextStream& operator<<( QTextStream& str, const RifEclipseSummaryAddress& sobj );
 
