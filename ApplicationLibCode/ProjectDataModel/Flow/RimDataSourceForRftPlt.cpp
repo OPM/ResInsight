@@ -27,20 +27,6 @@
 #include <QString>
 #include <QTextStream>
 
-namespace caf
-{
-template <>
-void caf::AppEnum<RifDataSourceForRftPlt::SourceType>::setUp()
-{
-    addItem( RifDataSourceForRftPlt::SourceType::RFT, "RFT", "RFT Cases" );
-    addItem( RifDataSourceForRftPlt::SourceType::GRID, "GRID", "Grid Cases" );
-    addItem( RifDataSourceForRftPlt::SourceType::OBSERVED, "OBSERVED", "Observed Data" );
-    addItem( RifDataSourceForRftPlt::SourceType::ENSEMBLE_RFT, "ENSEMBLE", "Ensembles with RFT Data" );
-    addItem( RifDataSourceForRftPlt::SourceType::OBSERVED_FMU_RFT, "OBSERVED_FMU", "Observed FMU Data" );
-    setDefault( RifDataSourceForRftPlt::SourceType::NONE );
-}
-} // namespace caf
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------

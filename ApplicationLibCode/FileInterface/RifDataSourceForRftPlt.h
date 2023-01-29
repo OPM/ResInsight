@@ -52,7 +52,8 @@ public:
         GRID,
         ENSEMBLE_RFT,
         SUMMARY_RFT,
-        OBSERVED_FMU_RFT
+        OBSERVED_FMU_RFT,
+        OBSERVED_PRESSURE_DEPTH
     };
 
     RifDataSourceForRftPlt();

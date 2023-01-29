@@ -34,6 +34,25 @@
 #include <QString>
 #include <QTextStream>
 
+namespace caf
+{
+template <>
+void caf::AppEnum<RifDataSourceForRftPlt::SourceType>::setUp()
+{
+    addItem( RifDataSourceForRftPlt::SourceType::NONE, "NONE", "None" );
+    addItem( RifDataSourceForRftPlt::SourceType::OBSERVED, "OBSERVED", "Observed Data" );
+    addItem( RifDataSourceForRftPlt::SourceType::RFT, "RFT", "RFT Data" );
+    addItem( RifDataSourceForRftPlt::SourceType::GRID, "GRID", "Grid Cases" );
+    addItem( RifDataSourceForRftPlt::SourceType::SUMMARY_RFT, "SUMMARY_RFT", "Summary Data" );
+    addItem( RifDataSourceForRftPlt::SourceType::ENSEMBLE_RFT, "ENSEMBLE", "Ensembles with RFT Data" );
+    addItem( RifDataSourceForRftPlt::SourceType::OBSERVED_FMU_RFT, "OBSERVED_FMU", "Observed FMU Data" );
+    addItem( RifDataSourceForRftPlt::SourceType::OBSERVED_PRESSURE_DEPTH,
+             "OBSERVED_PRESSURE_DEPTH",
+             "Observed Pressure/Depth Data" );
+    setDefault( RifDataSourceForRftPlt::SourceType::NONE );
+}
+} // namespace caf
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
