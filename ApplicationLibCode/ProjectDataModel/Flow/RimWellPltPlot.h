@@ -104,8 +104,6 @@ private:
                                                         int                        curveGroupId,
                                                         bool                       doFillCurve );
 
-    std::vector<RifDataSourceForRftPlt> selectedSourcesExpanded() const;
-
     // RimViewWindow overrides
 
     void setPlotXAxisTitles( RimWellLogTrack* plotTrack );

@@ -97,6 +97,7 @@ protected:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptionsForSources() const;
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void onLoadDataAndUpdate() override;

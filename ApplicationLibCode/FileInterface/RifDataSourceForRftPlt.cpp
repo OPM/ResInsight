@@ -19,6 +19,7 @@
 #include "RifDataSourceForRftPlt.h"
 
 #include "RifReaderEclipseRft.h"
+#include "RigEclipseCaseData.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"
@@ -34,6 +35,25 @@
 #include <QString>
 #include <QTextStream>
 
+namespace caf
+{
+template <>
+void caf::AppEnum<RifDataSourceForRftPlt::SourceType>::setUp()
+{
+    addItem( RifDataSourceForRftPlt::SourceType::NONE, "NONE", "None" );
+    addItem( RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE, "OBSERVED", "Observed Data" );
+    addItem( RifDataSourceForRftPlt::SourceType::RFT_SIM_WELL_DATA, "RFT", "RFT Data" );
+    addItem( RifDataSourceForRftPlt::SourceType::GRID_MODEL_CELL_DATA, "GRID", "Grid Cases" );
+    addItem( RifDataSourceForRftPlt::SourceType::SUMMARY_RFT, "SUMMARY_RFT", "Summary Data" );
+    addItem( RifDataSourceForRftPlt::SourceType::ENSEMBLE_RFT, "ENSEMBLE", "Ensembles with RFT Data" );
+    addItem( RifDataSourceForRftPlt::SourceType::OBSERVED_FMU_RFT, "OBSERVED_FMU", "Observed FMU Data" );
+    addItem( RifDataSourceForRftPlt::SourceType::OBSERVED_PRESSURE_DEPTH,
+             "OBSERVED_PRESSURE_DEPTH",
+             "Observed Pressure/Depth Data" );
+    setDefault( RifDataSourceForRftPlt::SourceType::NONE );
+}
+} // namespace caf
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -47,7 +67,7 @@ RifDataSourceForRftPlt::RifDataSourceForRftPlt()
 //--------------------------------------------------------------------------------------------------
 RifDataSourceForRftPlt::RifDataSourceForRftPlt( SourceType sourceType, RimEclipseCase* eclCase )
 {
-    CVF_ASSERT( sourceType == SourceType::RFT || sourceType == SourceType::GRID );
+    CVF_ASSERT( sourceType == SourceType::RFT_SIM_WELL_DATA || sourceType == SourceType::GRID_MODEL_CELL_DATA );
     CVF_ASSERT( eclCase != nullptr );
 
     m_sourceType = sourceType;
@@ -57,35 +77,27 @@ RifDataSourceForRftPlt::RifDataSourceForRftPlt( SourceType sourceType, RimEclips
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifDataSourceForRftPlt::RifDataSourceForRftPlt( SourceType sourceType, RimWellLogFile* wellLogFile )
+RifDataSourceForRftPlt::RifDataSourceForRftPlt( RimWellLogFile* wellLogFile )
 {
-    CVF_ASSERT( sourceType == SourceType::OBSERVED );
-
-    m_sourceType  = sourceType;
+    m_sourceType  = SourceType::OBSERVED_LAS_FILE;
     m_wellLogFile = wellLogFile;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifDataSourceForRftPlt::RifDataSourceForRftPlt( SourceType sourceType, RimSummaryCaseCollection* ensemble )
+RifDataSourceForRftPlt::RifDataSourceForRftPlt( RimSummaryCaseCollection* ensemble )
 {
-    CVF_ASSERT( sourceType == SourceType::ENSEMBLE_RFT );
-
-    m_sourceType = sourceType;
+    m_sourceType = SourceType::ENSEMBLE_RFT;
     m_ensemble   = ensemble;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifDataSourceForRftPlt::RifDataSourceForRftPlt( SourceType                sourceType,
-                                                RimSummaryCase*           summaryCase,
-                                                RimSummaryCaseCollection* ensemble )
+RifDataSourceForRftPlt::RifDataSourceForRftPlt( RimSummaryCase* summaryCase, RimSummaryCaseCollection* ensemble )
 {
-    CVF_ASSERT( sourceType == SourceType::SUMMARY_RFT );
-
-    m_sourceType  = sourceType;
+    m_sourceType  = SourceType::SUMMARY_RFT;
     m_summaryCase = summaryCase;
     m_ensemble    = ensemble;
 }
@@ -93,22 +105,18 @@ RifDataSourceForRftPlt::RifDataSourceForRftPlt( SourceType                source
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifDataSourceForRftPlt::RifDataSourceForRftPlt( SourceType sourceType, RimObservedFmuRftData* observedFmuRftData )
+RifDataSourceForRftPlt::RifDataSourceForRftPlt( RimObservedFmuRftData* observedFmuRftData )
 {
-    CVF_ASSERT( sourceType == SourceType::OBSERVED_FMU_RFT );
-
-    m_sourceType         = sourceType;
+    m_sourceType         = SourceType::OBSERVED_FMU_RFT;
     m_observedFmuRftData = observedFmuRftData;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifDataSourceForRftPlt::RifDataSourceForRftPlt( SourceType sourceType, RimPressureDepthData* observedFmuRftData )
+RifDataSourceForRftPlt::RifDataSourceForRftPlt( RimPressureDepthData* observedFmuRftData )
 {
-    CVF_ASSERT( sourceType == SourceType::OBSERVED_FMU_RFT );
-
-    m_sourceType        = sourceType;
+    m_sourceType        = SourceType::OBSERVED_FMU_RFT;
     m_pressureDepthData = observedFmuRftData;
 }
 
@@ -131,21 +139,50 @@ RimEclipseCase* RifDataSourceForRftPlt::eclCase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RiaDefines::EclipseUnitSystem> RifDataSourceForRftPlt::availableUnitSystems() const
+{
+    std::vector<RiaDefines::EclipseUnitSystem> systems;
+
+    if ( m_eclCase && m_eclCase->eclipseCaseData() )
+    {
+        systems.push_back( m_eclCase->eclipseCaseData()->unitsType() );
+    }
+
+    if ( m_wellLogFile && m_wellLogFile->wellLogFileData() )
+    {
+        auto eclipseUnit = RiaDefines::fromDepthUnit( m_wellLogFile->wellLogFileData()->depthUnit() );
+        systems.push_back( eclipseUnit );
+    }
+
+    return systems;
+}
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RifReaderRftInterface* RifDataSourceForRftPlt::rftReader() const
 {
-    if ( m_sourceType == RFT )
+    if ( m_sourceType == SourceType::GRID_MODEL_CELL_DATA || m_sourceType == SourceType::RFT_SIM_WELL_DATA )
     {
-        auto eclResCase = dynamic_cast<RimEclipseResultCase*>( m_eclCase.p() );
+        // TODO: Consider changing to RimEclipseResultCase to avoid casting
+        auto eclResCase = dynamic_cast<RimEclipseResultCase*>( eclCase() );
 
         if ( eclResCase ) return eclResCase->rftReader();
     }
-    else if ( m_sourceType == SUMMARY_RFT )
+    else if ( m_sourceType == SourceType::SUMMARY_RFT )
     {
         if ( m_summaryCase ) return m_summaryCase->rftReader();
     }
-    else if ( m_sourceType == ENSEMBLE_RFT )
+    else if ( m_sourceType == SourceType::ENSEMBLE_RFT )
     {
         if ( m_ensemble ) return m_ensemble->rftStatisticsReader();
+    }
+    else if ( m_sourceType == SourceType::OBSERVED_FMU_RFT )
+    {
+        if ( m_observedFmuRftData ) return m_observedFmuRftData->rftReader();
+    }
+    else if ( m_sourceType == SourceType::OBSERVED_PRESSURE_DEPTH )
+    {
+        if ( m_pressureDepthData ) return m_pressureDepthData->rftReader();
     }
     return nullptr;
 }
@@ -197,11 +234,11 @@ QString RifDataSourceForRftPlt::sourceTypeUiText( SourceType sourceType )
 {
     switch ( sourceType )
     {
-        case SourceType::RFT:
+        case SourceType::RFT_SIM_WELL_DATA:
             return QString( "RFT File Cases" );
-        case SourceType::GRID:
+        case SourceType::GRID_MODEL_CELL_DATA:
             return QString( "Grid Cases" );
-        case SourceType::OBSERVED:
+        case SourceType::OBSERVED_LAS_FILE:
             return QString( "Observed Data" );
         case SourceType::ENSEMBLE_RFT:
             return QString( "Ensembles with RFT Data" );
@@ -254,9 +291,9 @@ bool operator<( const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPl
         return addr1.m_sourceType < addr2.m_sourceType;
     }
 
-    if ( addr1.m_sourceType == RifDataSourceForRftPlt::NONE ) return false; //
+    if ( addr1.m_sourceType == RifDataSourceForRftPlt::SourceType::NONE ) return false; //
 
-    if ( addr1.m_sourceType == RifDataSourceForRftPlt::OBSERVED )
+    if ( addr1.m_sourceType == RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE )
     {
         if ( addr1.wellLogFile() && addr2.wellLogFile() )
         {
@@ -264,7 +301,7 @@ bool operator<( const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPl
         }
         return addr1.wellLogFile() < addr2.wellLogFile();
     }
-    else if ( addr1.m_sourceType == RifDataSourceForRftPlt::SUMMARY_RFT )
+    else if ( addr1.m_sourceType == RifDataSourceForRftPlt::SourceType::SUMMARY_RFT )
     {
         if ( addr1.summaryCase() && addr2.summaryCase() )
         {
@@ -280,7 +317,7 @@ bool operator<( const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPl
         }
         return addr1.summaryCase() < addr2.summaryCase();
     }
-    else if ( addr1.m_sourceType == RifDataSourceForRftPlt::ENSEMBLE_RFT )
+    else if ( addr1.m_sourceType == RifDataSourceForRftPlt::SourceType::ENSEMBLE_RFT )
     {
         if ( addr1.ensemble() && addr2.ensemble() )
         {
@@ -288,7 +325,7 @@ bool operator<( const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPl
         }
         return addr1.ensemble() < addr2.ensemble();
     }
-    else if ( addr1.m_sourceType == RifDataSourceForRftPlt::OBSERVED_FMU_RFT )
+    else if ( addr1.m_sourceType == RifDataSourceForRftPlt::SourceType::OBSERVED_FMU_RFT )
     {
         if ( addr1.observedFmuRftData() && addr2.observedFmuRftData() )
         {

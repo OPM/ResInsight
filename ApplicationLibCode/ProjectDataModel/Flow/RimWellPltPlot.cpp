@@ -158,23 +158,14 @@ RimWellPltPlot::~RimWellPltPlot()
 void RimWellPltPlot::setPlotXAxisTitles( RimWellLogTrack* plotTrack )
 {
     std::set<RiaDefines::EclipseUnitSystem> presentUnitSystems;
-    for ( const RifDataSourceForRftPlt& source : m_selectedSources.v() )
+    for ( const auto& source : m_selectedSources() )
     {
-        if ( source.eclCase() && source.eclCase()->eclipseCaseData() )
+        auto systems = source.availableUnitSystems();
+        for ( const auto& s : systems )
         {
-            presentUnitSystems.insert( source.eclCase()->eclipseCaseData()->unitsType() );
-        }
-
-        if ( source.wellLogFile() )
-        {
-            if ( source.wellLogFile()->wellLogFileData() )
-            {
-                auto eclipseUnit = RiaDefines::fromDepthUnit( source.wellLogFile()->wellLogFileData()->depthUnit() );
-                presentUnitSystems.insert( eclipseUnit );
-            }
+            presentUnitSystems.insert( s );
         }
     }
-
     if ( presentUnitSystems.size() > 1 )
     {
         RiaLogging::errorInMessageBox( nullptr, "ResInsight PLT Plot", "Inconsistent units in PLT plot" );
@@ -261,7 +252,7 @@ std::set<RiaRftPltCurveDefinition> RimWellPltPlot::selectedCurveDefs() const
     return RimWellPlotTools::curveDefsFromTimesteps( RimWellPlotTools::simWellName( m_wellPathName ),
                                                      m_selectedTimeSteps.v(),
                                                      false,
-                                                     selectedSourcesExpanded(),
+                                                     m_selectedSources(),
                                                      channelTypesToUse );
 }
 
@@ -519,18 +510,18 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
         {
             curveName += sourceDef.eclCase() ? sourceDef.eclCase()->caseUserDescription() : "";
             curveName += sourceDef.wellLogFile() ? sourceDef.wellLogFile()->name() : "";
-            if ( sourceDef.sourceType() == RifDataSourceForRftPlt::RFT ) curveName += ", RFT";
+            if ( sourceDef.sourceType() == RifDataSourceForRftPlt::SourceType::RFT_SIM_WELL_DATA ) curveName += ", RFT";
 
             curveName += ", " + RiaQDateTimeTools::toStringUsingApplicationLocale( timeStep, dateFormatString );
         }
 
         RimEclipseResultCase* rimEclipseResultCase = dynamic_cast<RimEclipseResultCase*>( sourceDef.eclCase() );
 
-        if ( sourceDef.sourceType() == RifDataSourceForRftPlt::RFT )
+        if ( sourceDef.sourceType() == RifDataSourceForRftPlt::SourceType::RFT_SIM_WELL_DATA )
         {
             resultPointCalc.reset( new RigRftResultPointCalculator( m_wellPathName, rimEclipseResultCase, timeStep ) );
         }
-        else if ( sourceDef.sourceType() == RifDataSourceForRftPlt::GRID )
+        else if ( sourceDef.sourceType() == RifDataSourceForRftPlt::SourceType::GRID_MODEL_CELL_DATA )
         {
             resultPointCalc.reset( new RigSimWellResultPointCalculator( m_wellPathName, rimEclipseResultCase, timeStep ) );
         }
@@ -546,7 +537,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
             if ( !resultPointCalc->pipeBranchCLCoords().empty() )
             {
                 if ( selectedPhases.count( FLOW_PHASE_TOTAL ) && m_useReservoirConditionCurves() &&
-                     sourceDef.sourceType() == RifDataSourceForRftPlt::GRID )
+                     sourceDef.sourceType() == RifDataSourceForRftPlt::SourceType::GRID_MODEL_CELL_DATA )
                 {
                     RigAccWellFlowCalculator wfTotalAccumulator( resultPointCalc->pipeBranchCLCoords(),
                                                                  resultPointCalc->pipeBranchWellResultPoints(),
@@ -616,7 +607,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                 }
             }
         }
-        else if ( sourceDef.sourceType() == RifDataSourceForRftPlt::OBSERVED )
+        else if ( sourceDef.sourceType() == RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE )
         {
             if ( sourceDef.wellLogFile() && sourceDef.wellLogFile()->wellLogFileData() )
             {
@@ -730,27 +721,6 @@ void RimWellPltPlot::addStackedCurve( const QString&             curveName,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RifDataSourceForRftPlt> RimWellPltPlot::selectedSourcesExpanded() const
-{
-    std::vector<RifDataSourceForRftPlt> sources;
-    for ( const RifDataSourceForRftPlt& addr : m_selectedSources() )
-    {
-        if ( addr.sourceType() == RifDataSourceForRftPlt::OBSERVED )
-        {
-            for ( RimWellLogFile* const wellLogFile : RimWellPlotTools::wellLogFilesContainingFlow( m_wellPathName ) )
-            {
-                sources.push_back( RifDataSourceForRftPlt( RifDataSourceForRftPlt::OBSERVED, wellLogFile ) );
-            }
-        }
-        else
-            sources.push_back( addr );
-    }
-    return sources;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimWellPltPlot::setCurrentWellName( const QString& currWellName )
 {
     m_wellPathName = currWellName;
@@ -779,8 +749,6 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions( const caf::
     }
     else if ( fieldNeedingOptions == &m_selectedSources )
     {
-        std::set<RifDataSourceForRftPlt> optionAddresses;
-
         const std::vector<RimEclipseResultCase*> rftCases = RimWellPlotTools::rftCasesForWell( simWellName );
         std::set<RifDataSourceForRftPlt>         availableRftSources;
 
@@ -792,15 +760,17 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions( const caf::
             std::set<QDateTime> rftTimes = rftCase->rftReader()->availableTimeSteps( simWellName, channelTypesToUse );
             if ( !rftTimes.empty() )
             {
-                availableRftSources.insert( RifDataSourceForRftPlt( RifDataSourceForRftPlt::RFT, rftCase ) );
+                availableRftSources.insert(
+                    RifDataSourceForRftPlt( RifDataSourceForRftPlt::SourceType::RFT_SIM_WELL_DATA, rftCase ) );
             }
         }
 
         if ( !availableRftSources.empty() )
         {
-            options.push_back( caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
-                                                                         RifDataSourceForRftPlt::RFT ),
-                                                                     true ) );
+            options.push_back(
+                caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
+                                                          RifDataSourceForRftPlt::SourceType::RFT_SIM_WELL_DATA ),
+                                                      true ) );
 
             for ( const auto& addr : availableRftSources )
             {
@@ -813,30 +783,35 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions( const caf::
         const std::vector<RimEclipseResultCase*> gridCases = RimWellPlotTools::gridCasesForWell( simWellName );
         if ( !gridCases.empty() )
         {
-            options.push_back( caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
-                                                                         RifDataSourceForRftPlt::GRID ),
-                                                                     true ) );
+            options.push_back(
+                caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
+                                                          RifDataSourceForRftPlt::SourceType::GRID_MODEL_CELL_DATA ),
+                                                      true ) );
         }
 
         for ( const auto& gridCase : gridCases )
         {
-            auto addr = RifDataSourceForRftPlt( RifDataSourceForRftPlt::GRID, gridCase );
+            auto addr = RifDataSourceForRftPlt( RifDataSourceForRftPlt::SourceType::GRID_MODEL_CELL_DATA, gridCase );
             auto item = caf::PdmOptionItemInfo( gridCase->caseUserDescription(), QVariant::fromValue( addr ) );
             item.setLevel( 1 );
             options.push_back( item );
         }
 
-        if ( !RimWellPlotTools::wellLogFilesContainingFlow( m_wellPathName ).empty() )
+        auto wellLogFiles = RimWellPlotTools::wellLogFilesContainingFlow( m_wellPathName );
+        if ( !wellLogFiles.empty() )
         {
-            options.push_back( caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
-                                                                         RifDataSourceForRftPlt::OBSERVED ),
-                                                                     true ) );
+            options.push_back(
+                caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
+                                                          RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE ),
+                                                      true ) );
 
-            auto addr = RifDataSourceForRftPlt( RifDataSourceForRftPlt::OBSERVED );
-            auto item = caf::PdmOptionItemInfo( "Observed Data", QVariant::fromValue( addr ) );
-            item.setLevel( 1 );
-            options.push_back( item );
-            optionAddresses.insert( addr );
+            for ( const auto& wellLogFile : wellLogFiles )
+            {
+                auto addr = RifDataSourceForRftPlt( wellLogFile );
+                auto item = caf::PdmOptionItemInfo( wellLogFile->name(), QVariant::fromValue( addr ) );
+                item.setLevel( 1 );
+                options.push_back( item );
+            }
         }
     }
     else if ( fieldNeedingOptions == &m_selectedTimeSteps )
@@ -845,7 +820,7 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions( const caf::
             RifEclipseRftAddress::pltPlotChannelTypes();
 
         RimWellPlotTools::calculateValueOptionsForTimeSteps( RimWellPlotTools::simWellName( m_wellPathName ),
-                                                             selectedSourcesExpanded(),
+                                                             m_selectedSources(),
                                                              channelTypesToUse,
                                                              options );
     }
@@ -894,8 +869,8 @@ void RimWellPltPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         {
             for ( const RifDataSourceForRftPlt& address : m_selectedSources() )
             {
-                if ( address.sourceType() == RifDataSourceForRftPlt::RFT ||
-                     address.sourceType() == RifDataSourceForRftPlt::GRID )
+                if ( address.sourceType() == RifDataSourceForRftPlt::SourceType::RFT_SIM_WELL_DATA ||
+                     address.sourceType() == RifDataSourceForRftPlt::SourceType::GRID_MODEL_CELL_DATA )
                 {
                     if ( !wellPath->wellPathGeometry() )
                     {
