@@ -68,6 +68,9 @@ protected:
     std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
         calculateWithSubstitutions( const RifEclipseSummaryAddress& addr );
 
+    static void substituteVariables( std::vector<RimSummaryCalculationVariable*>& vars,
+                                     const RifEclipseSummaryAddress&              address );
+
     std::optional<std::vector<RimSummaryCalculationVariable*>> getVariables() const;
 
     std::map<RifEclipseSummaryAddress, std::vector<double>> m_cachedResults;

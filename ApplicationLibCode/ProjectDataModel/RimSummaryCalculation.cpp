@@ -25,6 +25,7 @@
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaSummaryTools.h"
 
+#include "RimDataSourceSteppingTools.h"
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryCalculationCollection.h"
@@ -132,31 +133,46 @@ bool RimSummaryCalculation::calculate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCalculation::substituteVariables( std::vector<RimSummaryCalculationVariable*>& vars,
+                                                 const RifEclipseSummaryAddress&              address )
+{
+    auto firstVariable = vars.front();
+
+    QVariant oldValue;
+    QVariant newValue;
+    if ( firstVariable->summaryAddress()->address().category() == RifEclipseSummaryAddress::SUMMARY_WELL )
+    {
+        oldValue = QString::fromStdString( firstVariable->summaryAddress()->address().wellName() );
+        newValue = QString::fromStdString( address.wellName() );
+    }
+
+    for ( auto v : vars )
+    {
+        if ( v->summaryAddress()->address().category() == address.category() )
+        {
+            std::string oldVectorName = v->summaryAddress()->address().uiText();
+
+            auto copyOfAddress = v->summaryAddress()->address();
+            RimDataSourceSteppingTools::updateAddressIfMatching( oldValue, newValue, address.category(), &copyOfAddress );
+
+            RimSummaryAddress summaryAddress;
+            summaryAddress.setAddress( copyOfAddress );
+            v->setSummaryAddress( summaryAddress );
+            std::string newVectorName = v->summaryAddress()->address().uiText();
+            RiaLogging::info(
+                QString( "Substitution: %1 ==> %2" ).arg( oldVectorName.c_str() ).arg( newVectorName.c_str() ) );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
     RimSummaryCalculation::calculateWithSubstitutions( const RifEclipseSummaryAddress& addr )
 {
     auto variables = getVariables();
     if ( !variables ) return {};
-
-    auto substituteVariables = []( std::vector<RimSummaryCalculationVariable*>& vars,
-                                   const RifEclipseSummaryAddress&              address ) {
-        for ( auto v : vars )
-        {
-            if ( v->summaryAddress()->address().category() == address.category() )
-            {
-                RiaLogging::info( QString( "Replacing [%1] with [%2]" )
-                                      .arg( v->summaryAddress()->address().wellName().c_str() )
-                                      .arg( address.wellName().c_str() ) );
-                auto copyOfAddress = v->summaryAddress()->address();
-                copyOfAddress.setWellName( address.wellName() );
-
-                RimSummaryAddress summaryAddress;
-                summaryAddress.setAddress( copyOfAddress );
-                v->setSummaryAddress( summaryAddress );
-                RiaLogging::info( QString( "Vector name: %1" ).arg( v->summaryAddress()->address().uiText().c_str() ) );
-            }
-        }
-    };
 
     auto vars = variables.value();
     substituteVariables( vars, addr );
