@@ -47,11 +47,11 @@ public:
     enum SourceType
     {
         NONE,
-        OBSERVED,
-        RFT,
-        GRID,
-        ENSEMBLE_RFT,
+        RFT_SIM_WELL_DATA,
+        GRID_MODEL_CELL_DATA,
         SUMMARY_RFT,
+        ENSEMBLE_RFT,
+        OBSERVED_LAS_FILE,
         OBSERVED_FMU_RFT,
         OBSERVED_PRESSURE_DEPTH
     };
@@ -64,11 +64,12 @@ public:
     RifDataSourceForRftPlt( RimObservedFmuRftData* observedFmuRftData );
     RifDataSourceForRftPlt( RimPressureDepthData* pressureDepthData );
 
-    SourceType                sourceType() const;
+    SourceType             sourceType() const;
+    RifReaderRftInterface* rftReader() const;
+
     RimEclipseCase*           eclCase() const;
-    RifReaderRftInterface*    rftReader() const;
-    RimSummaryCaseCollection* ensemble() const;
     RimSummaryCase*           summaryCase() const;
+    RimSummaryCaseCollection* ensemble() const;
     RimWellLogFile*           wellLogFile() const;
     RimObservedFmuRftData*    observedFmuRftData() const;
     RimPressureDepthData*     pressureDepthData() const;
@@ -81,7 +82,8 @@ public:
     friend bool         operator<( const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPlt& addr2 );
 
 private:
-    SourceType                                m_sourceType;
+    SourceType m_sourceType;
+
     caf::PdmPointer<RimEclipseCase>           m_eclCase;
     caf::PdmPointer<RimSummaryCase>           m_summaryCase;
     caf::PdmPointer<RimSummaryCaseCollection> m_ensemble;

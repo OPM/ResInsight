@@ -41,9 +41,9 @@ template <>
 void caf::AppEnum<RifDataSourceForRftPlt::SourceType>::setUp()
 {
     addItem( RifDataSourceForRftPlt::SourceType::NONE, "NONE", "None" );
-    addItem( RifDataSourceForRftPlt::SourceType::OBSERVED, "OBSERVED", "Observed Data" );
-    addItem( RifDataSourceForRftPlt::SourceType::RFT, "RFT", "RFT Data" );
-    addItem( RifDataSourceForRftPlt::SourceType::GRID, "GRID", "Grid Cases" );
+    addItem( RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE, "OBSERVED", "Observed Data" );
+    addItem( RifDataSourceForRftPlt::SourceType::RFT_SIM_WELL_DATA, "RFT", "RFT Data" );
+    addItem( RifDataSourceForRftPlt::SourceType::GRID_MODEL_CELL_DATA, "GRID", "Grid Cases" );
     addItem( RifDataSourceForRftPlt::SourceType::SUMMARY_RFT, "SUMMARY_RFT", "Summary Data" );
     addItem( RifDataSourceForRftPlt::SourceType::ENSEMBLE_RFT, "ENSEMBLE", "Ensembles with RFT Data" );
     addItem( RifDataSourceForRftPlt::SourceType::OBSERVED_FMU_RFT, "OBSERVED_FMU", "Observed FMU Data" );
@@ -67,7 +67,7 @@ RifDataSourceForRftPlt::RifDataSourceForRftPlt()
 //--------------------------------------------------------------------------------------------------
 RifDataSourceForRftPlt::RifDataSourceForRftPlt( SourceType sourceType, RimEclipseCase* eclCase )
 {
-    CVF_ASSERT( sourceType == SourceType::RFT || sourceType == SourceType::GRID );
+    CVF_ASSERT( sourceType == SourceType::RFT_SIM_WELL_DATA || sourceType == SourceType::GRID_MODEL_CELL_DATA );
     CVF_ASSERT( eclCase != nullptr );
 
     m_sourceType = sourceType;
@@ -79,8 +79,8 @@ RifDataSourceForRftPlt::RifDataSourceForRftPlt( SourceType sourceType, RimEclips
 //--------------------------------------------------------------------------------------------------
 RifDataSourceForRftPlt::RifDataSourceForRftPlt( SourceType sourceType, RimWellLogFile* wellLogFile )
 {
-    CVF_ASSERT( sourceType == SourceType::OBSERVED );
-    m_sourceType  = SourceType::OBSERVED;
+    CVF_ASSERT( sourceType == SourceType::OBSERVED_LAS_FILE );
+    m_sourceType  = SourceType::OBSERVED_LAS_FILE;
     m_wellLogFile = wellLogFile;
 }
 
@@ -162,7 +162,7 @@ std::vector<RiaDefines::EclipseUnitSystem> RifDataSourceForRftPlt::availableUnit
 //--------------------------------------------------------------------------------------------------
 RifReaderRftInterface* RifDataSourceForRftPlt::rftReader() const
 {
-    if ( m_sourceType == SourceType::GRID || m_sourceType == SourceType::RFT )
+    if ( m_sourceType == SourceType::GRID_MODEL_CELL_DATA || m_sourceType == SourceType::RFT_SIM_WELL_DATA )
     {
         // TODO: Consider changing to RimEclipseResultCase to avoid casting
         auto eclResCase = dynamic_cast<RimEclipseResultCase*>( eclCase() );
@@ -235,11 +235,11 @@ QString RifDataSourceForRftPlt::sourceTypeUiText( SourceType sourceType )
 {
     switch ( sourceType )
     {
-        case SourceType::RFT:
+        case SourceType::RFT_SIM_WELL_DATA:
             return QString( "RFT File Cases" );
-        case SourceType::GRID:
+        case SourceType::GRID_MODEL_CELL_DATA:
             return QString( "Grid Cases" );
-        case SourceType::OBSERVED:
+        case SourceType::OBSERVED_LAS_FILE:
             return QString( "Observed Data" );
         case SourceType::ENSEMBLE_RFT:
             return QString( "Ensembles with RFT Data" );
@@ -294,7 +294,7 @@ bool operator<( const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPl
 
     if ( addr1.m_sourceType == RifDataSourceForRftPlt::NONE ) return false; //
 
-    if ( addr1.m_sourceType == RifDataSourceForRftPlt::OBSERVED )
+    if ( addr1.m_sourceType == RifDataSourceForRftPlt::OBSERVED_LAS_FILE )
     {
         if ( addr1.wellLogFile() && addr2.wellLogFile() )
         {

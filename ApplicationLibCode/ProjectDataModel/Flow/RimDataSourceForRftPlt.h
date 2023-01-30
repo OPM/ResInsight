@@ -53,7 +53,7 @@ public:
     RifDataSourceForRftPlt address() const;
 
 private:
-    void InitPdmObject();
+    void initPdmObject();
     void setAddress( const RifDataSourceForRftPlt& address );
 
 private:

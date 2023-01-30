@@ -510,18 +510,18 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
         {
             curveName += sourceDef.eclCase() ? sourceDef.eclCase()->caseUserDescription() : "";
             curveName += sourceDef.wellLogFile() ? sourceDef.wellLogFile()->name() : "";
-            if ( sourceDef.sourceType() == RifDataSourceForRftPlt::RFT ) curveName += ", RFT";
+            if ( sourceDef.sourceType() == RifDataSourceForRftPlt::RFT_SIM_WELL_DATA ) curveName += ", RFT";
 
             curveName += ", " + RiaQDateTimeTools::toStringUsingApplicationLocale( timeStep, dateFormatString );
         }
 
         RimEclipseResultCase* rimEclipseResultCase = dynamic_cast<RimEclipseResultCase*>( sourceDef.eclCase() );
 
-        if ( sourceDef.sourceType() == RifDataSourceForRftPlt::RFT )
+        if ( sourceDef.sourceType() == RifDataSourceForRftPlt::RFT_SIM_WELL_DATA )
         {
             resultPointCalc.reset( new RigRftResultPointCalculator( m_wellPathName, rimEclipseResultCase, timeStep ) );
         }
-        else if ( sourceDef.sourceType() == RifDataSourceForRftPlt::GRID )
+        else if ( sourceDef.sourceType() == RifDataSourceForRftPlt::GRID_MODEL_CELL_DATA )
         {
             resultPointCalc.reset( new RigSimWellResultPointCalculator( m_wellPathName, rimEclipseResultCase, timeStep ) );
         }
@@ -537,7 +537,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
             if ( !resultPointCalc->pipeBranchCLCoords().empty() )
             {
                 if ( selectedPhases.count( FLOW_PHASE_TOTAL ) && m_useReservoirConditionCurves() &&
-                     sourceDef.sourceType() == RifDataSourceForRftPlt::GRID )
+                     sourceDef.sourceType() == RifDataSourceForRftPlt::GRID_MODEL_CELL_DATA )
                 {
                     RigAccWellFlowCalculator wfTotalAccumulator( resultPointCalc->pipeBranchCLCoords(),
                                                                  resultPointCalc->pipeBranchWellResultPoints(),
@@ -607,7 +607,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                 }
             }
         }
-        else if ( sourceDef.sourceType() == RifDataSourceForRftPlt::OBSERVED )
+        else if ( sourceDef.sourceType() == RifDataSourceForRftPlt::OBSERVED_LAS_FILE )
         {
             if ( sourceDef.wellLogFile() && sourceDef.wellLogFile()->wellLogFileData() )
             {
@@ -726,11 +726,11 @@ std::vector<RifDataSourceForRftPlt> RimWellPltPlot::selectedSourcesExpanded() co
     std::vector<RifDataSourceForRftPlt> sources;
     for ( const RifDataSourceForRftPlt& addr : m_selectedSources() )
     {
-        if ( addr.sourceType() == RifDataSourceForRftPlt::OBSERVED )
+        if ( addr.sourceType() == RifDataSourceForRftPlt::OBSERVED_LAS_FILE )
         {
             for ( RimWellLogFile* const wellLogFile : RimWellPlotTools::wellLogFilesContainingFlow( m_wellPathName ) )
             {
-                sources.push_back( RifDataSourceForRftPlt( RifDataSourceForRftPlt::OBSERVED, wellLogFile ) );
+                sources.push_back( RifDataSourceForRftPlt( RifDataSourceForRftPlt::OBSERVED_LAS_FILE, wellLogFile ) );
             }
         }
         else
@@ -783,14 +783,14 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions( const caf::
             std::set<QDateTime> rftTimes = rftCase->rftReader()->availableTimeSteps( simWellName, channelTypesToUse );
             if ( !rftTimes.empty() )
             {
-                availableRftSources.insert( RifDataSourceForRftPlt( RifDataSourceForRftPlt::RFT, rftCase ) );
+                availableRftSources.insert( RifDataSourceForRftPlt( RifDataSourceForRftPlt::RFT_SIM_WELL_DATA, rftCase ) );
             }
         }
 
         if ( !availableRftSources.empty() )
         {
             options.push_back( caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
-                                                                         RifDataSourceForRftPlt::RFT ),
+                                                                         RifDataSourceForRftPlt::RFT_SIM_WELL_DATA ),
                                                                      true ) );
 
             for ( const auto& addr : availableRftSources )
@@ -805,13 +805,13 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions( const caf::
         if ( !gridCases.empty() )
         {
             options.push_back( caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
-                                                                         RifDataSourceForRftPlt::GRID ),
+                                                                         RifDataSourceForRftPlt::GRID_MODEL_CELL_DATA ),
                                                                      true ) );
         }
 
         for ( const auto& gridCase : gridCases )
         {
-            auto addr = RifDataSourceForRftPlt( RifDataSourceForRftPlt::GRID, gridCase );
+            auto addr = RifDataSourceForRftPlt( RifDataSourceForRftPlt::GRID_MODEL_CELL_DATA, gridCase );
             auto item = caf::PdmOptionItemInfo( gridCase->caseUserDescription(), QVariant::fromValue( addr ) );
             item.setLevel( 1 );
             options.push_back( item );
@@ -820,11 +820,11 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions( const caf::
         if ( !RimWellPlotTools::wellLogFilesContainingFlow( m_wellPathName ).empty() )
         {
             options.push_back( caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
-                                                                         RifDataSourceForRftPlt::OBSERVED ),
+                                                                         RifDataSourceForRftPlt::OBSERVED_LAS_FILE ),
                                                                      true ) );
 
             RimWellLogFile* dummy = nullptr;
-            auto            addr  = RifDataSourceForRftPlt( RifDataSourceForRftPlt::OBSERVED, dummy );
+            auto            addr  = RifDataSourceForRftPlt( RifDataSourceForRftPlt::OBSERVED_LAS_FILE, dummy );
             auto            item  = caf::PdmOptionItemInfo( "Observed Data", QVariant::fromValue( addr ) );
             item.setLevel( 1 );
             options.push_back( item );
@@ -886,8 +886,8 @@ void RimWellPltPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         {
             for ( const RifDataSourceForRftPlt& address : m_selectedSources() )
             {
-                if ( address.sourceType() == RifDataSourceForRftPlt::RFT ||
-                     address.sourceType() == RifDataSourceForRftPlt::GRID )
+                if ( address.sourceType() == RifDataSourceForRftPlt::RFT_SIM_WELL_DATA ||
+                     address.sourceType() == RifDataSourceForRftPlt::GRID_MODEL_CELL_DATA )
                 {
                     if ( !wellPath->wellPathGeometry() )
                     {
