@@ -78,8 +78,7 @@ RimIdenticalGridCaseGroup* RimEclipseCaseCollection::createIdenticalCaseGroupFro
 {
     CVF_ASSERT( mainCase );
 
-    RigMainGrid* equalGrid = registerCaseInGridCollection( mainCase );
-    CVF_ASSERT( equalGrid );
+    registerCaseInGridCollection( mainCase );
 
     RimIdenticalGridCaseGroup* group = new RimIdenticalGridCaseGroup;
     assert( RimProject::current() );
