@@ -252,7 +252,7 @@ std::set<RiaRftPltCurveDefinition> RimWellPltPlot::selectedCurveDefs() const
     return RimWellPlotTools::curveDefsFromTimesteps( RimWellPlotTools::simWellName( m_wellPathName ),
                                                      m_selectedTimeSteps.v(),
                                                      false,
-                                                     selectedSourcesExpanded(),
+                                                     m_selectedSources(),
                                                      channelTypesToUse );
 }
 
@@ -721,27 +721,6 @@ void RimWellPltPlot::addStackedCurve( const QString&             curveName,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RifDataSourceForRftPlt> RimWellPltPlot::selectedSourcesExpanded() const
-{
-    std::vector<RifDataSourceForRftPlt> sources;
-    for ( const RifDataSourceForRftPlt& addr : m_selectedSources() )
-    {
-        if ( addr.sourceType() == RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE )
-        {
-            for ( RimWellLogFile* const wellLogFile : RimWellPlotTools::wellLogFilesContainingFlow( m_wellPathName ) )
-            {
-                sources.push_back( RifDataSourceForRftPlt( wellLogFile ) );
-            }
-        }
-        else
-            sources.push_back( addr );
-    }
-    return sources;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimWellPltPlot::setCurrentWellName( const QString& currWellName )
 {
     m_wellPathName = currWellName;
@@ -829,7 +808,7 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions( const caf::
             for ( const auto& wellLogFile : wellLogFiles )
             {
                 auto addr = RifDataSourceForRftPlt( wellLogFile );
-                auto item = caf::PdmOptionItemInfo( "Observed Data", QVariant::fromValue( addr ) );
+                auto item = caf::PdmOptionItemInfo( wellLogFile->name(), QVariant::fromValue( addr ) );
                 item.setLevel( 1 );
                 options.push_back( item );
             }
@@ -841,7 +820,7 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions( const caf::
             RifEclipseRftAddress::pltPlotChannelTypes();
 
         RimWellPlotTools::calculateValueOptionsForTimeSteps( RimWellPlotTools::simWellName( m_wellPathName ),
-                                                             selectedSourcesExpanded(),
+                                                             m_selectedSources(),
                                                              channelTypesToUse,
                                                              options );
     }
