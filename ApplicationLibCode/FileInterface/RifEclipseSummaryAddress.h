@@ -105,8 +105,12 @@ public:
     static RifEclipseSummaryAddress miscAddress( const std::string& vectorName );
     static RifEclipseSummaryAddress regionAddress( const std::string& vectorName, int regionNumber );
     static RifEclipseSummaryAddress
+        calculatedRegionAddress( const std::string& vectorName, int regionNumber, int calculationId );
+    static RifEclipseSummaryAddress
                                     regionToRegionAddress( const std::string& vectorName, int regionNumber, int region2Number );
     static RifEclipseSummaryAddress groupAddress( const std::string& vectorName, const std::string& groupName );
+    static RifEclipseSummaryAddress
+                                    calculatedGroupAddress( const std::string& vectorName, const std::string& groupName, int calculationId );
     static RifEclipseSummaryAddress wellAddress( const std::string& vectorName, const std::string& wellName );
     static RifEclipseSummaryAddress
         calculatedWellAddress( const std::string& vectorName, const std::string& wellName, int calculationId );

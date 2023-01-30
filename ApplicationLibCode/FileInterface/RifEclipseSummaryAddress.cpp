@@ -50,6 +50,7 @@ RifEclipseSummaryAddress::RifEclipseSummaryAddress( SummaryVarCategory          
     {
         case SUMMARY_REGION:
             m_regionNumber = RiaStdStringTools::toInt16( identifiers[INPUT_REGION_NUMBER] );
+            m_id           = RiaStdStringTools::toInt( identifiers[INPUT_ID] );
             break;
         case SUMMARY_REGION_2_REGION:
             reg2regPair     = regionToRegionPairFromUiText( identifiers[INPUT_REGION_2_REGION] );
@@ -58,6 +59,7 @@ RifEclipseSummaryAddress::RifEclipseSummaryAddress( SummaryVarCategory          
             break;
         case SUMMARY_GROUP:
             m_groupName = identifiers[INPUT_GROUP_NAME];
+            m_id        = RiaStdStringTools::toInt( identifiers[INPUT_ID] );
             break;
         case SUMMARY_WELL:
             m_wellName = identifiers[INPUT_WELL_NAME];
@@ -219,6 +221,17 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fieldAddress( const std::stri
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RifEclipseSummaryAddress
+    RifEclipseSummaryAddress::calculatedRegionAddress( const std::string& vectorName, int regionNumber, int calculationId )
+{
+    RifEclipseSummaryAddress addr = regionAddress( vectorName, regionNumber );
+    addr.m_id                     = calculationId;
+    return addr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress RifEclipseSummaryAddress::aquiferAddress( const std::string& vectorName, int aquiferNumber )
 {
     RifEclipseSummaryAddress addr;
@@ -242,6 +255,18 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::networkAddress( const std::st
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RifEclipseSummaryAddress RifEclipseSummaryAddress::calculatedGroupAddress( const std::string& vectorName,
+                                                                           const std::string& groupName,
+                                                                           int                calculationId )
+{
+    RifEclipseSummaryAddress addr = groupAddress( vectorName, groupName );
+    addr.m_id                     = calculationId;
+    return addr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress RifEclipseSummaryAddress::miscAddress( const std::string& vectorName )
 {
     RifEclipseSummaryAddress addr;
@@ -257,12 +282,8 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress ::calculatedWellAddress( const
                                                                            const std::string& wellName,
                                                                            int                calculationId )
 {
-    RifEclipseSummaryAddress addr;
-    addr.m_variableCategory = SUMMARY_WELL;
-    addr.m_vectorName       = vectorName;
-    addr.m_wellName         = wellName;
-    addr.m_id               = calculationId;
-
+    RifEclipseSummaryAddress addr = wellAddress( vectorName, wellName );
+    addr.m_id                     = calculationId;
     return addr;
 }
 

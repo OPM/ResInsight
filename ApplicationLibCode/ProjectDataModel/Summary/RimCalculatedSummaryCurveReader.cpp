@@ -107,15 +107,9 @@ void RifCalculatedSummaryCurveReader::buildMetaData()
 RimSummaryCalculation*
     RifCalculatedSummaryCurveReader::findCalculationByName( const RifEclipseSummaryAddress& resultAddress ) const
 {
-    if ( !m_calculationCollection ) return nullptr;
+    if ( !m_calculationCollection || !resultAddress.isCalculated() ) return nullptr;
 
-    if ( resultAddress.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED ||
-         ( resultAddress.category() == RifEclipseSummaryAddress::SUMMARY_WELL && resultAddress.id() != -1 ) )
-    {
-        return dynamic_cast<RimSummaryCalculation*>( m_calculationCollection->findCalculationById( resultAddress.id() ) );
-    }
-
-    return nullptr;
+    return dynamic_cast<RimSummaryCalculation*>( m_calculationCollection->findCalculationById( resultAddress.id() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
