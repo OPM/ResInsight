@@ -25,11 +25,13 @@
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaSummaryTools.h"
 
+#include "RifSummaryReaderInterface.h"
 #include "RimDataSourceSteppingTools.h"
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCalculationVariable.h"
+#include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
@@ -144,6 +146,16 @@ void RimSummaryCalculation::substituteVariables( std::vector<RimSummaryCalculati
     {
         oldValue = QString::fromStdString( firstVariable->summaryAddress()->address().wellName() );
         newValue = QString::fromStdString( address.wellName() );
+    }
+    else if ( firstVariable->summaryAddress()->address().category() == RifEclipseSummaryAddress::SUMMARY_REGION )
+    {
+        oldValue = firstVariable->summaryAddress()->address().regionNumber();
+        newValue = address.regionNumber();
+    }
+    else if ( firstVariable->summaryAddress()->address().category() == RifEclipseSummaryAddress::SUMMARY_GROUP )
+    {
+        oldValue = QString::fromStdString( firstVariable->summaryAddress()->address().groupName() );
+        newValue = QString::fromStdString( address.groupName() );
     }
 
     for ( auto v : vars )
@@ -313,7 +325,9 @@ std::vector<RimUserDefinedCalculationAddress*> RimSummaryCalculation::allAddress
         // The first variable is the substituable one. Use its category to
         // provide all available addresses.
 
-        auto firstVariable = variables.value().front();
+        auto firstVariable      = variables.value().front();
+        auto allResultAddresses = firstVariable->summaryCase()->summaryReader()->allResultAddresses();
+
         if ( firstVariable->summaryAddress()->address().category() == RifEclipseSummaryAddress::SUMMARY_WELL )
         {
             auto wells = RimProject::current()->simulationWellNames();
@@ -322,6 +336,32 @@ std::vector<RimUserDefinedCalculationAddress*> RimSummaryCalculation::allAddress
             {
                 addresses.push_back( new RimSummaryCalculationAddress(
                     RifEclipseSummaryAddress::calculatedWellAddress( description().toStdString(), well.toStdString(), m_id ) ) );
+            }
+        }
+        else if ( firstVariable->summaryAddress()->address().category() == RifEclipseSummaryAddress::SUMMARY_GROUP )
+        {
+            std::set<std::string> uniqueGroupNames;
+            std::for_each( allResultAddresses.begin(), allResultAddresses.end(), [&]( const auto& addr ) {
+                uniqueGroupNames.insert( addr.groupName() );
+            } );
+
+            for ( auto groupName : uniqueGroupNames )
+            {
+                addresses.push_back( new RimSummaryCalculationAddress(
+                    RifEclipseSummaryAddress::calculatedGroupAddress( description().toStdString(), groupName, m_id ) ) );
+            }
+        }
+        else if ( firstVariable->summaryAddress()->address().category() == RifEclipseSummaryAddress::SUMMARY_REGION )
+        {
+            std::set<int> uniqueRegionNumbers;
+            std::for_each( allResultAddresses.begin(), allResultAddresses.end(), [&]( const auto& addr ) {
+                uniqueRegionNumbers.insert( addr.regionNumber() );
+            } );
+
+            for ( auto regionNumber : uniqueRegionNumbers )
+            {
+                addresses.push_back( new RimSummaryCalculationAddress(
+                    RifEclipseSummaryAddress::calculatedRegionAddress( description().toStdString(), regionNumber, m_id ) ) );
             }
         }
     }

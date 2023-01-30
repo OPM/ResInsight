@@ -106,13 +106,15 @@ RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
             { { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME ) } } },
           { RifEclipseSummaryAddress::SUMMARY_REGION,
             { { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_REGION_NUMBER ) },
-              { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME ) } } },
+              { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME ) },
+              { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_ID ) } } },
           { RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION,
             { { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_REGION_2_REGION ) },
               { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME ) } } },
           { RifEclipseSummaryAddress::SUMMARY_GROUP,
             { { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_GROUP_NAME ) },
-              { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME ) } } },
+              { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME ) },
+              { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_ID ) } } },
           { RifEclipseSummaryAddress::SUMMARY_WELL,
             { { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_WELL_NAME ) },
               { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME ) },
@@ -179,6 +181,9 @@ RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_REGION][1]->pdmField(),
                                 "RegionsVectors",
                                 "Regions Vectors" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_REGION][2]->pdmField(),
+                                "RegionCalculationIds",
+                                "Calculation Ids" );
 
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION][0]->pdmField(),
                                 "Region2RegionRegions",
@@ -193,6 +198,9 @@ RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_GROUP][1]->pdmField(),
                                 "WellGroupVectors",
                                 "Well Group Vectors" );
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_GROUP][2]->pdmField(),
+                                "WellGroupCalculationIds",
+                                "Calculation Ids" );
 
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL][0]->pdmField(),
                                 "WellWellName",
@@ -201,7 +209,7 @@ RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
                                 "WellVectors",
                                 "Well Vectors" );
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL][2]->pdmField(),
-                                "CalculationIds",
+                                "WellCalculationIds",
                                 "Calculation Ids" );
 
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION][0]->pdmField(),
@@ -699,8 +707,7 @@ void RiuSummaryVectorSelectionUi::setSelectedCurveDefinitions( const std::vector
                 avalue = avalue + QString( OBSERVED_DATA_AVALUE_POSTFIX );
             }
 
-            if ( isVectorField && ( summaryAddress.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED ||
-                                    summaryAddress.category() == RifEclipseSummaryAddress::SUMMARY_WELL ) )
+            if ( isVectorField && summaryAddress.isCalculated() )
             {
                 // Append calculation id to input vector name calculated data.
                 avalue = avalue + QString( ":%1" ).arg( summaryAddress.id() );
@@ -737,7 +744,9 @@ std::set<RifEclipseSummaryAddress> RiuSummaryVectorSelectionUi::findPossibleSumm
     std::set<RifEclipseSummaryAddress> addressSet;
 
     if ( m_currentSummaryCategory == RifEclipseSummaryAddress::SUMMARY_CALCULATED ||
-         m_currentSummaryCategory == RifEclipseSummaryAddress::SUMMARY_WELL )
+         m_currentSummaryCategory == RifEclipseSummaryAddress::SUMMARY_WELL ||
+         m_currentSummaryCategory == RifEclipseSummaryAddress::SUMMARY_GROUP ||
+         m_currentSummaryCategory == RifEclipseSummaryAddress::SUMMARY_REGION )
     {
         RimSummaryCase* calcSumCase = calculatedSummaryCase();
 
@@ -926,7 +935,6 @@ void RiuSummaryVectorSelectionUi::defineUiOrdering( QString uiConfigName, caf::P
         {
             caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( RiaDefines::summaryWell() + "s" );
             myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL][0]->pdmField() );
-            //            myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL][2]->pdmField() );
         }
 
         summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL][1]->pdmField();
