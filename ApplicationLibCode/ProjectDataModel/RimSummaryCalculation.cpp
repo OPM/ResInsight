@@ -19,13 +19,13 @@
 #include "RimSummaryCalculation.h"
 
 #include "RifEclipseSummaryAddress.h"
-#include "expressionparser/ExpressionParser.h"
 
 #include "RiaCurveMerger.h"
 #include "RiaLogging.h"
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaSummaryTools.h"
 
+#include "RimProject.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCalculationVariable.h"
@@ -39,6 +39,8 @@
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTextEditor.h"
+
+#include "expressionparser/ExpressionParser.h"
 
 #include <algorithm>
 
@@ -343,4 +345,19 @@ const std::vector<time_t>& RimSummaryCalculation::timeSteps( const RimUserDefine
     }
 
     return dummy;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryCalculation::buildCalculationName() const
+{
+    QString name = "Default Calculation Name";
+
+    if ( !m_expression.v().isEmpty() )
+    {
+        name = m_expression;
+    }
+
+    return name;
 }

@@ -57,6 +57,8 @@ public:
     void updateDependentObjects() override;
     void removeDependentObjects() override;
 
+    QString buildCalculationName() const override;
+
 protected:
     RimSummaryCalculationVariable* createVariable() override;
 
