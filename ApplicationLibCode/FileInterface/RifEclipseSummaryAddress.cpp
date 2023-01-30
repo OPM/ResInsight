@@ -983,6 +983,14 @@ std::pair<int16_t, int16_t> RifEclipseSummaryAddress::regionToRegionPairFromUiTe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RifEclipseSummaryAddress::isCalculated() const
+{
+    return m_id != -1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool operator==( const RifEclipseSummaryAddress& first, const RifEclipseSummaryAddress& second )
 {
     if ( first.category() != second.category() ) return false;

@@ -211,6 +211,8 @@ public:
 
     static std::string baseVectorName( const std::string& vectorName );
 
+    bool isCalculated() const;
+
 private:
     static RifEclipseSummaryAddress fromTokens( const std::vector<std::string>& tokens );
 
