@@ -71,6 +71,7 @@
 #include "RimStimPlanColors.h"
 #include "RimStimPlanModel.h"
 #include "RimStimPlanModelCollection.h"
+#include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -543,6 +544,8 @@ bool RiaApplication::loadProject( const QString&      projectFileName,
             oilField->summaryCaseMainCollection = std::make_unique<RimSummaryCaseMainCollection>();
         }
         oilField->summaryCaseMainCollection()->loadAllSummaryCaseData();
+
+        m_project->calculationCollection()->rebuildCaseMetaData();
 
         if ( !oilField->observedDataCollection() )
         {
