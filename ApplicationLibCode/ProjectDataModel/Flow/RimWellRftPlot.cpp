@@ -164,13 +164,13 @@ void RimWellRftPlot::applyCurveAppearance( RimWellLogCurve* curve )
     RiuQwtPlotCurveDefines::LineStyleEnum lineStyle = RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID;
 
     RiuPlotCurveSymbol::PointSymbolEnum currentSymbol = RiuPlotCurveSymbol::SYMBOL_NONE;
-    if ( curveDef.address().sourceType() != RifDataSourceForRftPlt::ENSEMBLE_RFT )
+    if ( curveDef.address().sourceType() != RifDataSourceForRftPlt::SourceType::ENSEMBLE_RFT )
     {
         currentSymbol = m_timeStepSymbols[curveDef.timeStep()];
     }
 
-    bool isObservedData = curveDef.address().sourceType() == RifDataSourceForRftPlt::OBSERVED_LAS_FILE ||
-                          curveDef.address().sourceType() == RifDataSourceForRftPlt::OBSERVED_FMU_RFT;
+    bool isObservedData = curveDef.address().sourceType() == RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE ||
+                          curveDef.address().sourceType() == RifDataSourceForRftPlt::SourceType::OBSERVED_FMU_RFT;
     // Observed data
     lineStyle = isObservedData ? RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE
                                : RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID;
@@ -257,12 +257,14 @@ void RimWellRftPlot::applyInitialSelections()
 
     for ( RimEclipseResultCase* const rftCase : RimWellPlotTools::rftCasesForWell( simWellName ) )
     {
-        sourcesToSelect.push_back( RifDataSourceForRftPlt( RifDataSourceForRftPlt::RFT_SIM_WELL_DATA, rftCase ) );
+        sourcesToSelect.push_back(
+            RifDataSourceForRftPlt( RifDataSourceForRftPlt::SourceType::RFT_SIM_WELL_DATA, rftCase ) );
     }
 
     for ( RimEclipseResultCase* const gridCase : RimWellPlotTools::gridCasesForWell( simWellName ) )
     {
-        sourcesToSelect.push_back( RifDataSourceForRftPlt( RifDataSourceForRftPlt::GRID_MODEL_CELL_DATA, gridCase ) );
+        sourcesToSelect.push_back(
+            RifDataSourceForRftPlt( RifDataSourceForRftPlt::SourceType::GRID_MODEL_CELL_DATA, gridCase ) );
     }
 
     for ( RimSummaryCaseCollection* const ensemble : RimWellPlotTools::rftEnsemblesForWell( simWellName ) )
@@ -276,7 +278,8 @@ void RimWellRftPlot::applyInitialSelections()
     {
         for ( RimWellLogFile* const wellLogFile : wellLogFiles )
         {
-            sourcesToSelect.push_back( RifDataSourceForRftPlt( RifDataSourceForRftPlt::OBSERVED_LAS_FILE, wellLogFile ) );
+            sourcesToSelect.push_back(
+                RifDataSourceForRftPlt( RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE, wellLogFile ) );
         }
     }
 
@@ -377,12 +380,12 @@ void RimWellRftPlot::updateEditorsFromCurves()
 
     for ( const RiaRftPltCurveDefinition& curveDef : curveDefsFromCurves() )
     {
-        if ( curveDef.address().sourceType() == RifDataSourceForRftPlt::OBSERVED_LAS_FILE )
+        if ( curveDef.address().sourceType() == RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE )
         {
             RimWellLogFile* dummy = nullptr;
-            selectedSources.insert( RifDataSourceForRftPlt( RifDataSourceForRftPlt::OBSERVED_LAS_FILE, dummy ) );
+            selectedSources.insert( RifDataSourceForRftPlt( RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE, dummy ) );
         }
-        else if ( curveDef.address().sourceType() == RifDataSourceForRftPlt::SUMMARY_RFT )
+        else if ( curveDef.address().sourceType() == RifDataSourceForRftPlt::SourceType::SUMMARY_RFT )
         {
             selectedSources.insert( RifDataSourceForRftPlt( curveDef.address().ensemble() ) );
         }
@@ -500,7 +503,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
     // Add new curves
     for ( const RiaRftPltCurveDefinition& curveDefToAdd : allCurveDefs )
     {
-        if ( curveDefToAdd.address().sourceType() == RifDataSourceForRftPlt::RFT_SIM_WELL_DATA )
+        if ( curveDefToAdd.address().sourceType() == RifDataSourceForRftPlt::SourceType::RFT_SIM_WELL_DATA )
         {
             auto curve = new RimWellLogRftCurve();
             plotTrack->addCurve( curve );
@@ -518,7 +521,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
 
             applyCurveAppearance( curve );
         }
-        else if ( curveDefToAdd.address().sourceType() == RifDataSourceForRftPlt::OBSERVED_FMU_RFT )
+        else if ( curveDefToAdd.address().sourceType() == RifDataSourceForRftPlt::SourceType::OBSERVED_FMU_RFT )
         {
             auto curve = new RimWellLogRftCurve();
             plotTrack->addCurve( curve );
@@ -542,7 +545,8 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
                 RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_SINGLE_CURVE_OBSERVED ) );
             applyCurveAppearance( curve );
         }
-        else if ( m_showEnsembleCurves && curveDefToAdd.address().sourceType() == RifDataSourceForRftPlt::SUMMARY_RFT )
+        else if ( m_showEnsembleCurves &&
+                  curveDefToAdd.address().sourceType() == RifDataSourceForRftPlt::SourceType::SUMMARY_RFT )
         {
             auto curve = new RimWellLogRftCurve();
             plotTrack->addCurve( curve );
@@ -564,7 +568,8 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
             curve->setShowInLegend( isFirstSummaryCurveInEnsemble );
             ensemblesWithSummaryCurves.insert( curveDefToAdd.address().ensemble() );
         }
-        else if ( m_showStatisticsCurves && curveDefToAdd.address().sourceType() == RifDataSourceForRftPlt::ENSEMBLE_RFT )
+        else if ( m_showStatisticsCurves &&
+                  curveDefToAdd.address().sourceType() == RifDataSourceForRftPlt::SourceType::ENSEMBLE_RFT )
         {
             RimSummaryCaseCollection*      ensemble = curveDefToAdd.address().ensemble();
             std::set<RifEclipseRftAddress> rftAddresses =
@@ -608,7 +613,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
             }
         }
 
-        else if ( curveDefToAdd.address().sourceType() == RifDataSourceForRftPlt::GRID_MODEL_CELL_DATA )
+        else if ( curveDefToAdd.address().sourceType() == RifDataSourceForRftPlt::SourceType::GRID_MODEL_CELL_DATA )
         {
             auto curve = new RimWellLogExtractionCurve();
             plotTrack->addCurve( curve );
@@ -645,7 +650,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
                 applyCurveAppearance( curve );
             }
         }
-        else if ( curveDefToAdd.address().sourceType() == RifDataSourceForRftPlt::OBSERVED_LAS_FILE )
+        else if ( curveDefToAdd.address().sourceType() == RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE )
         {
             RimWellLogFile* const wellLogFile = curveDefToAdd.address().wellLogFile();
             RimWellPath* const    wellPath    = RimWellPlotTools::wellPathFromWellLogFile( wellLogFile );
@@ -685,12 +690,13 @@ std::vector<RifDataSourceForRftPlt> RimWellRftPlot::selectedSourcesExpanded() co
     std::vector<RifDataSourceForRftPlt> sources;
     for ( const RifDataSourceForRftPlt& addr : m_selectedSources() )
     {
-        if ( addr.sourceType() == RifDataSourceForRftPlt::OBSERVED_LAS_FILE )
+        if ( addr.sourceType() == RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE )
         {
             for ( RimWellLogFile* const wellLogFile :
                   RimWellPlotTools::wellLogFilesContainingPressure( m_wellPathNameOrSimWellName ) )
             {
-                sources.push_back( RifDataSourceForRftPlt( RifDataSourceForRftPlt::OBSERVED_LAS_FILE, wellLogFile ) );
+                sources.push_back(
+                    RifDataSourceForRftPlt( RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE, wellLogFile ) );
             }
         }
         else
@@ -821,12 +827,12 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptionsForSources() 
     if ( !rftCases.empty() )
     {
         options.push_back( caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
-                                                                     RifDataSourceForRftPlt::RFT_SIM_WELL_DATA ),
+                                                                     RifDataSourceForRftPlt::SourceType::RFT_SIM_WELL_DATA ),
                                                                  true ) );
 
         for ( const auto& rftCase : rftCases )
         {
-            auto addr = RifDataSourceForRftPlt( RifDataSourceForRftPlt::RFT_SIM_WELL_DATA, rftCase );
+            auto addr = RifDataSourceForRftPlt( RifDataSourceForRftPlt::SourceType::RFT_SIM_WELL_DATA, rftCase );
             auto item = caf::PdmOptionItemInfo( rftCase->caseUserDescription(), QVariant::fromValue( addr ) );
             item.setLevel( 1 );
             options.push_back( item );
@@ -838,7 +844,7 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptionsForSources() 
     if ( !rftEnsembles.empty() )
     {
         options.push_back( caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
-                                                                     RifDataSourceForRftPlt::ENSEMBLE_RFT ),
+                                                                     RifDataSourceForRftPlt::SourceType::ENSEMBLE_RFT ),
                                                                  true ) );
 
         for ( RimSummaryCaseCollection* rftEnsemble : rftEnsembles )
@@ -854,7 +860,7 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptionsForSources() 
     if ( !singleCases.empty() )
     {
         options.push_back( caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
-                                                                     RifDataSourceForRftPlt::SUMMARY_RFT ),
+                                                                     RifDataSourceForRftPlt::SourceType::SUMMARY_RFT ),
                                                                  true ) );
         for ( auto summaryCase : singleCases )
         {
@@ -874,13 +880,14 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptionsForSources() 
     const std::vector<RimEclipseResultCase*> gridCases = RimWellPlotTools::gridCasesForWell( simWellName );
     if ( !gridCases.empty() )
     {
-        options.push_back( caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
-                                                                     RifDataSourceForRftPlt::GRID_MODEL_CELL_DATA ),
-                                                                 true ) );
+        options.push_back(
+            caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
+                                                      RifDataSourceForRftPlt::SourceType::GRID_MODEL_CELL_DATA ),
+                                                  true ) );
 
         for ( const auto& gridCase : gridCases )
         {
-            auto addr = RifDataSourceForRftPlt( RifDataSourceForRftPlt::GRID_MODEL_CELL_DATA, gridCase );
+            auto addr = RifDataSourceForRftPlt( RifDataSourceForRftPlt::SourceType::GRID_MODEL_CELL_DATA, gridCase );
             auto item = caf::PdmOptionItemInfo( gridCase->caseUserDescription(), QVariant::fromValue( addr ) );
             item.setLevel( 1 );
             options.push_back( item );
@@ -890,11 +897,11 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptionsForSources() 
     if ( !RimWellPlotTools::wellLogFilesContainingPressure( m_wellPathNameOrSimWellName ).empty() )
     {
         options.push_back( caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
-                                                                     RifDataSourceForRftPlt::OBSERVED_LAS_FILE ),
+                                                                     RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE ),
                                                                  true ) );
 
         RimWellLogFile* dummy = nullptr;
-        auto            addr  = RifDataSourceForRftPlt( RifDataSourceForRftPlt::OBSERVED_LAS_FILE, dummy );
+        auto            addr  = RifDataSourceForRftPlt( RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE, dummy );
         auto            item  = caf::PdmOptionItemInfo( "Observed Data", QVariant::fromValue( addr ) );
         item.setLevel( 1 );
         options.push_back( item );
@@ -904,7 +911,7 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptionsForSources() 
     if ( !observedFmuRftCases.empty() )
     {
         options.push_back( caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
-                                                                     RifDataSourceForRftPlt::OBSERVED_FMU_RFT ),
+                                                                     RifDataSourceForRftPlt::SourceType::OBSERVED_FMU_RFT ),
                                                                  true ) );
 
         for ( const auto& observedFmuRftCase : observedFmuRftCases )
@@ -920,7 +927,7 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptionsForSources() 
     if ( !pressureDepthData.empty() )
     {
         options.push_back( caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
-                                                                     RifDataSourceForRftPlt::OBSERVED_FMU_RFT ),
+                                                                     RifDataSourceForRftPlt::SourceType::OBSERVED_FMU_RFT ),
                                                                  true ) );
 
         for ( const auto& pd : pressureDepthData )
@@ -1297,7 +1304,7 @@ cvf::Color3f RimWellRftPlot::findCurveColor( RimWellLogCurve* curve )
     RiaRftPltCurveDefinition curveDef = RimWellPlotTools::curveDefFromCurve( curve );
 
     cvf::Color3f curveColor;
-    if ( curveDef.address().sourceType() == RifDataSourceForRftPlt::SUMMARY_RFT )
+    if ( curveDef.address().sourceType() == RifDataSourceForRftPlt::SourceType::SUMMARY_RFT )
     {
         RimWellRftEnsembleCurveSet* ensembleCurveSet = findEnsembleCurveSet( curveDef.address().ensemble() );
         if ( ensembleCurveSet && ensembleCurveSet->colorMode() == ColorMode::BY_ENSEMBLE_PARAM )
@@ -1396,7 +1403,7 @@ void RimWellRftPlot::defineCurveColorsAndSymbols( const std::set<RiaRftPltCurveD
 
         const RifDataSourceForRftPlt& address      = curveDefToAdd.address();
         RifDataSourceForRftPlt        colorAddress = address;
-        if ( address.sourceType() == RifDataSourceForRftPlt::SUMMARY_RFT )
+        if ( address.sourceType() == RifDataSourceForRftPlt::SourceType::SUMMARY_RFT )
         {
             colorAddress = RifDataSourceForRftPlt( address.ensemble() );
         }
@@ -1407,7 +1414,7 @@ void RimWellRftPlot::defineCurveColorsAndSymbols( const std::set<RiaRftPltCurveD
             m_dataSourceColors[colorAddress] = colorTable[colorTableIndex];
         }
 
-        if ( address.sourceType() != RifDataSourceForRftPlt::ENSEMBLE_RFT )
+        if ( address.sourceType() != RifDataSourceForRftPlt::SourceType::ENSEMBLE_RFT )
         {
             if ( !m_timeStepSymbols.count( curveDefToAdd.timeStep() ) )
             {

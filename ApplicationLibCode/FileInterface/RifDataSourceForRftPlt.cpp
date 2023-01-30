@@ -292,9 +292,9 @@ bool operator<( const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPl
         return addr1.m_sourceType < addr2.m_sourceType;
     }
 
-    if ( addr1.m_sourceType == RifDataSourceForRftPlt::NONE ) return false; //
+    if ( addr1.m_sourceType == RifDataSourceForRftPlt::SourceType::NONE ) return false; //
 
-    if ( addr1.m_sourceType == RifDataSourceForRftPlt::OBSERVED_LAS_FILE )
+    if ( addr1.m_sourceType == RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE )
     {
         if ( addr1.wellLogFile() && addr2.wellLogFile() )
         {
@@ -302,7 +302,7 @@ bool operator<( const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPl
         }
         return addr1.wellLogFile() < addr2.wellLogFile();
     }
-    else if ( addr1.m_sourceType == RifDataSourceForRftPlt::SUMMARY_RFT )
+    else if ( addr1.m_sourceType == RifDataSourceForRftPlt::SourceType::SUMMARY_RFT )
     {
         if ( addr1.summaryCase() && addr2.summaryCase() )
         {
@@ -318,7 +318,7 @@ bool operator<( const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPl
         }
         return addr1.summaryCase() < addr2.summaryCase();
     }
-    else if ( addr1.m_sourceType == RifDataSourceForRftPlt::ENSEMBLE_RFT )
+    else if ( addr1.m_sourceType == RifDataSourceForRftPlt::SourceType::ENSEMBLE_RFT )
     {
         if ( addr1.ensemble() && addr2.ensemble() )
         {
@@ -326,7 +326,7 @@ bool operator<( const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPl
         }
         return addr1.ensemble() < addr2.ensemble();
     }
-    else if ( addr1.m_sourceType == RifDataSourceForRftPlt::OBSERVED_FMU_RFT )
+    else if ( addr1.m_sourceType == RifDataSourceForRftPlt::SourceType::OBSERVED_FMU_RFT )
     {
         if ( addr1.observedFmuRftData() && addr2.observedFmuRftData() )
         {

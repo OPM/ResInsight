@@ -73,19 +73,19 @@ RifDataSourceForRftPlt RimDataSourceForRftPlt::address() const
 {
     switch ( m_sourceType() )
     {
-        case RifDataSourceForRftPlt::OBSERVED_LAS_FILE:
-            return RifDataSourceForRftPlt( RifDataSourceForRftPlt::OBSERVED_LAS_FILE, m_wellLogFile );
-        case RifDataSourceForRftPlt::RFT_SIM_WELL_DATA:
-            return RifDataSourceForRftPlt( RifDataSourceForRftPlt::RFT_SIM_WELL_DATA, m_eclCase );
-        case RifDataSourceForRftPlt::GRID_MODEL_CELL_DATA:
-            return RifDataSourceForRftPlt( RifDataSourceForRftPlt::GRID_MODEL_CELL_DATA, m_eclCase );
-        case RifDataSourceForRftPlt::SUMMARY_RFT:
+        case RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE:
+            return RifDataSourceForRftPlt( RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE, m_wellLogFile );
+        case RifDataSourceForRftPlt::SourceType::RFT_SIM_WELL_DATA:
+            return RifDataSourceForRftPlt( RifDataSourceForRftPlt::SourceType::RFT_SIM_WELL_DATA, m_eclCase );
+        case RifDataSourceForRftPlt::SourceType::GRID_MODEL_CELL_DATA:
+            return RifDataSourceForRftPlt( RifDataSourceForRftPlt::SourceType::GRID_MODEL_CELL_DATA, m_eclCase );
+        case RifDataSourceForRftPlt::SourceType::SUMMARY_RFT:
             return RifDataSourceForRftPlt( m_summaryCase, m_ensemble );
-        case RifDataSourceForRftPlt::ENSEMBLE_RFT:
+        case RifDataSourceForRftPlt::SourceType::ENSEMBLE_RFT:
             return RifDataSourceForRftPlt( m_ensemble );
-        case RifDataSourceForRftPlt::OBSERVED_FMU_RFT:
+        case RifDataSourceForRftPlt::SourceType::OBSERVED_FMU_RFT:
             return RifDataSourceForRftPlt( m_observedFmuRftData );
-        case RifDataSourceForRftPlt::OBSERVED_PRESSURE_DEPTH:
+        case RifDataSourceForRftPlt::SourceType::OBSERVED_PRESSURE_DEPTH:
             return RifDataSourceForRftPlt( m_pressureDepthData );
     }
     return RifDataSourceForRftPlt();

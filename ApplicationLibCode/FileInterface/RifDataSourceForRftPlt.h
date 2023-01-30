@@ -44,7 +44,7 @@ class RimPressureDepthData;
 class RifDataSourceForRftPlt
 {
 public:
-    enum SourceType
+    enum class SourceType
     {
         NONE,
         RFT_SIM_WELL_DATA,
