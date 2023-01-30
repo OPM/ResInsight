@@ -185,6 +185,8 @@ public:
 
     auto operator<=>( const RifEclipseSummaryAddress& rhs ) const = default;
 
+    bool isCalculated() const;
+
 private:
     static RifEclipseSummaryAddress fromTokens( const std::vector<std::string>& tokens );
 

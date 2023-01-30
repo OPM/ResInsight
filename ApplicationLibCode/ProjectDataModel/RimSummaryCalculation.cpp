@@ -259,7 +259,7 @@ void RimSummaryCalculation::updateDependentObjects()
 
             for ( RimSummaryCurve* sumCurve : sumPlot->summaryCurves() )
             {
-                if ( sumCurve->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
+                if ( sumCurve->summaryAddressY().isCalculated() )
                 {
                     sumCurve->updateConnectedEditors();
 
