@@ -109,6 +109,57 @@ RifEclipseSummaryAddress::RifEclipseSummaryAddress( SummaryVarCategory          
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifEclipseSummaryAddress::RifEclipseSummaryAddress( SummaryVarCategory category,
+                                                    const std::string& vectorName,
+                                                    int16_t            regionNumber,
+                                                    int16_t            regionNumber2,
+                                                    const std::string& groupName,
+                                                    const std::string& wellName,
+                                                    int16_t            wellSegmentNumber,
+                                                    const std::string& lgrName,
+                                                    int32_t            cellI,
+                                                    int32_t            cellJ,
+                                                    int32_t            cellK,
+                                                    int16_t            aquiferNumber,
+                                                    bool               isErrorResult,
+                                                    int32_t            id )
+    : m_variableCategory( category )
+    , m_vectorName( vectorName )
+    , m_regionNumber( regionNumber )
+    , m_regionNumber2( regionNumber2 )
+    , m_groupName( groupName )
+    , m_wellName( wellName )
+    , m_wellSegmentNumber( wellSegmentNumber )
+    , m_lgrName( lgrName )
+    , m_cellI( cellI )
+    , m_cellJ( cellJ )
+    , m_cellK( cellK )
+    , m_aquiferNumber( aquiferNumber )
+    , m_isErrorResult( isErrorResult )
+    , m_id( id )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifEclipseSummaryAddress::RifEclipseSummaryAddress()
+    : m_variableCategory( RifEclipseSummaryAddress::SUMMARY_INVALID )
+    , m_regionNumber( -1 )
+    , m_regionNumber2( -1 )
+    , m_wellSegmentNumber( -1 )
+    , m_cellI( -1 )
+    , m_cellJ( -1 )
+    , m_cellK( -1 )
+    , m_aquiferNumber( -1 )
+    , m_isErrorResult( false )
+    , m_id( -1 )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Column header text format:   [<ER|ERR|ERROR>:]<VECTOR>:<CATEGORY_PARAM_NAME1>[:<CATEGORY_PARAM_NAME2>][....]
 //--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( const std::string& textAddress )

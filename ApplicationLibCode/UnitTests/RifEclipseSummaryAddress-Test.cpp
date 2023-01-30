@@ -3,6 +3,9 @@
 #include "RifEclipseSummaryAddress.h"
 
 #include <QString>
+
+#include <algorithm>
+#include <random>
 #include <string>
 
 //--------------------------------------------------------------------------------------------------
@@ -322,4 +325,57 @@ TEST( RifEclipseSummaryAddressTest, TestQuantityNameManipulations )
         auto s = RifEclipseSummaryAddress::baseVectorName( "FCMIT_1" );
         EXPECT_EQ( "FCMIT", s );
     }
+}
+
+TEST( RifEclipseSummaryAddressTest, LogicalOperators )
+{
+    // The <=> operator will compare individual members variables by the order of their declaration.
+
+    auto field_a = RifEclipseSummaryAddress::fieldAddress( "A" );
+    auto field_b = RifEclipseSummaryAddress::fieldAddress( "B" );
+    auto field_c = RifEclipseSummaryAddress::fieldAddress( "C" );
+
+    // Sort by vector name, then by number
+    auto aq_a = RifEclipseSummaryAddress::aquiferAddress( "A", 1 );
+    auto aq_b = RifEclipseSummaryAddress::aquiferAddress( "B", 1 );
+    auto aq_c = RifEclipseSummaryAddress::aquiferAddress( "A", 2 );
+
+    // Sort order is K, J, I
+    auto block_a = RifEclipseSummaryAddress::blockAddress( "A", 1, 1, 1 );
+    auto block_b = RifEclipseSummaryAddress::blockAddress( "A", 2, 1, 1 );
+    auto block_c = RifEclipseSummaryAddress::blockAddress( "A", 1, 1, 2 );
+    auto block_d = RifEclipseSummaryAddress::blockAddress( "A", 2, 1, 2 );
+
+    std::vector<RifEclipseSummaryAddress> addresses;
+
+    addresses.push_back( field_a );
+    addresses.push_back( field_b );
+    addresses.push_back( field_c );
+
+    addresses.push_back( aq_a );
+    addresses.push_back( aq_b );
+    addresses.push_back( aq_c );
+
+    addresses.push_back( block_a );
+    addresses.push_back( block_b );
+    addresses.push_back( block_c );
+    addresses.push_back( block_d );
+
+    std::random_device rd;
+    std::mt19937       g( rd() );
+    std::shuffle( addresses.begin(), addresses.end(), g );
+    std::sort( addresses.begin(), addresses.end() );
+
+    EXPECT_TRUE( addresses.at( 0 ) == field_a );
+    EXPECT_TRUE( addresses.at( 1 ) == field_b );
+    EXPECT_TRUE( addresses.at( 2 ) == field_c );
+
+    EXPECT_TRUE( addresses.at( 3 ) == aq_a );
+    EXPECT_TRUE( addresses.at( 4 ) == aq_c );
+    EXPECT_TRUE( addresses.at( 5 ) == aq_b );
+
+    EXPECT_TRUE( addresses.at( 6 ) == block_a );
+    EXPECT_TRUE( addresses.at( 7 ) == block_b );
+    EXPECT_TRUE( addresses.at( 8 ) == block_c );
+    EXPECT_TRUE( addresses.at( 9 ) == block_d );
 }
