@@ -16,7 +16,7 @@ env:
 concurrency:
   group: build-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
-  
+
 jobs:
   ResInsight-x64-buildcache:
     runs-on: ${{ matrix.config.os }}
@@ -137,6 +137,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev libhdf5-dev
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100 --slave /usr/bin/g++ g++ /usr/bin/g++-10 --slave /usr/bin/gcov gcov /usr/bin/gcov-10
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
