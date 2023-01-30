@@ -44,41 +44,46 @@ class RimPressureDepthData;
 class RifDataSourceForRftPlt
 {
 public:
-    enum SourceType
+    enum class SourceType
     {
         NONE,
-        OBSERVED,
-        RFT,
-        GRID,
-        ENSEMBLE_RFT,
+        RFT_SIM_WELL_DATA,
+        GRID_MODEL_CELL_DATA,
         SUMMARY_RFT,
-        OBSERVED_FMU_RFT
+        ENSEMBLE_RFT,
+        OBSERVED_LAS_FILE,
+        OBSERVED_FMU_RFT,
+        OBSERVED_PRESSURE_DEPTH
     };
 
     RifDataSourceForRftPlt();
     RifDataSourceForRftPlt( SourceType sourceType, RimEclipseCase* eclCase );
-    RifDataSourceForRftPlt( SourceType sourceType, RimSummaryCaseCollection* ensemble );
-    RifDataSourceForRftPlt( SourceType sourceType, RimSummaryCase* summaryCase, RimSummaryCaseCollection* ensemble );
-    RifDataSourceForRftPlt( SourceType sourceType, RimWellLogFile* wellLogFile = nullptr );
-    RifDataSourceForRftPlt( SourceType sourceType, RimObservedFmuRftData* observedFmuRftData );
-    RifDataSourceForRftPlt( SourceType sourceType, RimPressureDepthData* pressureDepthData );
+    RifDataSourceForRftPlt( RimSummaryCaseCollection* ensemble );
+    RifDataSourceForRftPlt( RimSummaryCase* summaryCase, RimSummaryCaseCollection* ensemble );
+    RifDataSourceForRftPlt( RimWellLogFile* wellLogFile );
+    RifDataSourceForRftPlt( RimObservedFmuRftData* observedFmuRftData );
+    RifDataSourceForRftPlt( RimPressureDepthData* pressureDepthData );
 
-    SourceType                sourceType() const;
+    SourceType             sourceType() const;
+    RifReaderRftInterface* rftReader() const;
+
     RimEclipseCase*           eclCase() const;
-    RifReaderRftInterface*    rftReader() const;
-    RimSummaryCaseCollection* ensemble() const;
     RimSummaryCase*           summaryCase() const;
+    RimSummaryCaseCollection* ensemble() const;
     RimWellLogFile*           wellLogFile() const;
     RimObservedFmuRftData*    observedFmuRftData() const;
     RimPressureDepthData*     pressureDepthData() const;
 
     static QString sourceTypeUiText( SourceType sourceType );
 
+    std::vector<RiaDefines::EclipseUnitSystem> availableUnitSystems() const;
+
     friend QTextStream& operator>>( QTextStream& str, RifDataSourceForRftPlt& addr );
     friend bool         operator<( const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPlt& addr2 );
 
 private:
-    SourceType                                m_sourceType;
+    SourceType m_sourceType;
+
     caf::PdmPointer<RimEclipseCase>           m_eclCase;
     caf::PdmPointer<RimSummaryCase>           m_summaryCase;
     caf::PdmPointer<RimSummaryCaseCollection> m_ensemble;
