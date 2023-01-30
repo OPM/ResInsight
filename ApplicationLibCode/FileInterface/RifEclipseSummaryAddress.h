@@ -75,19 +75,7 @@ public:
     };
 
 public:
-    RifEclipseSummaryAddress()
-        : m_variableCategory( RifEclipseSummaryAddress::SUMMARY_INVALID )
-        , m_regionNumber( -1 )
-        , m_regionNumber2( -1 )
-        , m_wellSegmentNumber( -1 )
-        , m_cellI( -1 )
-        , m_cellJ( -1 )
-        , m_cellK( -1 )
-        , m_aquiferNumber( -1 )
-        , m_isErrorResult( false )
-        , m_id( -1 )
-    {
-    }
+    RifEclipseSummaryAddress();
 
     RifEclipseSummaryAddress( SummaryVarCategory category,
                               const std::string& vectorName,
@@ -102,23 +90,7 @@ public:
                               int32_t            cellK,
                               int16_t            aquiferNumber,
                               bool               isErrorResult,
-                              int32_t            id )
-        : m_variableCategory( category )
-        , m_vectorName( vectorName )
-        , m_regionNumber( regionNumber )
-        , m_regionNumber2( regionNumber2 )
-        , m_groupName( groupName )
-        , m_wellName( wellName )
-        , m_wellSegmentNumber( wellSegmentNumber )
-        , m_lgrName( lgrName )
-        , m_cellI( cellI )
-        , m_cellJ( cellJ )
-        , m_cellK( cellK )
-        , m_aquiferNumber( aquiferNumber )
-        , m_isErrorResult( isErrorResult )
-        , m_id( id )
-    {
-    }
+                              int32_t            id );
 
     RifEclipseSummaryAddress( SummaryVarCategory category, std::map<SummaryIdentifierType, std::string>& identifiers );
 
@@ -208,6 +180,8 @@ public:
 
     static std::string baseVectorName( const std::string& vectorName );
 
+    auto operator<=>( const RifEclipseSummaryAddress& rhs ) const = default;
+
 private:
     static RifEclipseSummaryAddress fromTokens( const std::vector<std::string>& tokens );
 
@@ -216,26 +190,25 @@ private:
     std::string                                  formatUiTextRegionToRegion() const;
     std::pair<int16_t, int16_t>                  regionToRegionPairFromUiText( const std::string& s );
 
+private:
+    // The ordering the variables are defined in defines how the objects get sorted. Members defined first will be
+    // evaluated first. This concept is used by <=> operator.
+
+    SummaryVarCategory m_variableCategory;
     std::string        m_vectorName;
-    std::string        m_groupName;
     std::string        m_wellName;
+    std::string        m_groupName;
     std::string        m_lgrName;
-    int32_t            m_cellI;
-    int32_t            m_cellJ;
     int32_t            m_cellK;
+    int32_t            m_cellJ;
+    int32_t            m_cellI;
     int16_t            m_regionNumber;
     int16_t            m_regionNumber2;
     int16_t            m_wellSegmentNumber;
     int16_t            m_aquiferNumber;
-    SummaryVarCategory m_variableCategory;
     bool               m_isErrorResult;
     int32_t            m_id;
 };
-
-bool operator==( const RifEclipseSummaryAddress& first, const RifEclipseSummaryAddress& second );
-bool operator!=( const RifEclipseSummaryAddress& first, const RifEclipseSummaryAddress& second );
-
-bool operator<( const RifEclipseSummaryAddress& first, const RifEclipseSummaryAddress& second );
 
 QTextStream& operator<<( QTextStream& str, const RifEclipseSummaryAddress& sobj );
 

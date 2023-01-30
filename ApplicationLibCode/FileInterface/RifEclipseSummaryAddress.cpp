@@ -109,6 +109,57 @@ RifEclipseSummaryAddress::RifEclipseSummaryAddress( SummaryVarCategory          
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifEclipseSummaryAddress::RifEclipseSummaryAddress( SummaryVarCategory category,
+                                                    const std::string& vectorName,
+                                                    int16_t            regionNumber,
+                                                    int16_t            regionNumber2,
+                                                    const std::string& groupName,
+                                                    const std::string& wellName,
+                                                    int16_t            wellSegmentNumber,
+                                                    const std::string& lgrName,
+                                                    int32_t            cellI,
+                                                    int32_t            cellJ,
+                                                    int32_t            cellK,
+                                                    int16_t            aquiferNumber,
+                                                    bool               isErrorResult,
+                                                    int32_t            id )
+    : m_variableCategory( category )
+    , m_vectorName( vectorName )
+    , m_regionNumber( regionNumber )
+    , m_regionNumber2( regionNumber2 )
+    , m_groupName( groupName )
+    , m_wellName( wellName )
+    , m_wellSegmentNumber( wellSegmentNumber )
+    , m_lgrName( lgrName )
+    , m_cellI( cellI )
+    , m_cellJ( cellJ )
+    , m_cellK( cellK )
+    , m_aquiferNumber( aquiferNumber )
+    , m_isErrorResult( isErrorResult )
+    , m_id( id )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifEclipseSummaryAddress::RifEclipseSummaryAddress()
+    : m_variableCategory( RifEclipseSummaryAddress::SUMMARY_INVALID )
+    , m_regionNumber( -1 )
+    , m_regionNumber2( -1 )
+    , m_wellSegmentNumber( -1 )
+    , m_cellI( -1 )
+    , m_cellJ( -1 )
+    , m_cellK( -1 )
+    , m_aquiferNumber( -1 )
+    , m_isErrorResult( false )
+    , m_id( -1 )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Column header text format:   [<ER|ERR|ERROR>:]<VECTOR>:<CATEGORY_PARAM_NAME1>[:<CATEGORY_PARAM_NAME2>][....]
 //--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( const std::string& textAddress )
@@ -961,190 +1012,6 @@ std::pair<int16_t, int16_t> RifEclipseSummaryAddress::regionToRegionPairFromUiTe
 
     return std::make_pair( RiaStdStringTools::toInt16( r2r[0].trimmed().toStdString() ),
                            RiaStdStringTools::toInt16( r2r[1].trimmed().toStdString() ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool operator==( const RifEclipseSummaryAddress& first, const RifEclipseSummaryAddress& second )
-{
-    if ( first.category() != second.category() ) return false;
-    if ( first.vectorName() != second.vectorName() ) return false;
-    switch ( first.category() )
-    {
-        case RifEclipseSummaryAddress::SUMMARY_REGION:
-        {
-            if ( first.regionNumber() != second.regionNumber() ) return false;
-        }
-        break;
-        case RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION:
-        {
-            if ( first.regionNumber() != second.regionNumber() ) return false;
-            if ( first.regionNumber2() != second.regionNumber2() ) return false;
-        }
-        break;
-        case RifEclipseSummaryAddress::SUMMARY_GROUP:
-        {
-            if ( first.groupName() != second.groupName() ) return false;
-        }
-        break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL:
-        {
-            if ( first.wellName() != second.wellName() ) return false;
-        }
-        break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION:
-        {
-            if ( first.wellName() != second.wellName() ) return false;
-            if ( first.cellI() != second.cellI() ) return false;
-            if ( first.cellJ() != second.cellJ() ) return false;
-            if ( first.cellK() != second.cellK() ) return false;
-        }
-        break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_LGR:
-        {
-            if ( first.wellName() != second.wellName() ) return false;
-            if ( first.lgrName() != second.lgrName() ) return false;
-        }
-        break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR:
-        {
-            if ( first.wellName() != second.wellName() ) return false;
-            if ( first.lgrName() != second.lgrName() ) return false;
-            if ( first.cellI() != second.cellI() ) return false;
-            if ( first.cellJ() != second.cellJ() ) return false;
-            if ( first.cellK() != second.cellK() ) return false;
-        }
-        break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT:
-        {
-            if ( first.wellName() != second.wellName() ) return false;
-            if ( first.wellSegmentNumber() != second.wellSegmentNumber() ) return false;
-        }
-        break;
-        case RifEclipseSummaryAddress::SUMMARY_BLOCK:
-        {
-            if ( first.cellI() != second.cellI() ) return false;
-            if ( first.cellJ() != second.cellJ() ) return false;
-            if ( first.cellK() != second.cellK() ) return false;
-        }
-        break;
-        case RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR:
-        {
-            if ( first.lgrName() != second.lgrName() ) return false;
-            if ( first.cellI() != second.cellI() ) return false;
-            if ( first.cellJ() != second.cellJ() ) return false;
-            if ( first.cellK() != second.cellK() ) return false;
-        }
-        break;
-        case RifEclipseSummaryAddress::SUMMARY_AQUIFER:
-        {
-            if ( first.aquiferNumber() != second.aquiferNumber() ) return false;
-        }
-        break;
-        case RifEclipseSummaryAddress::SUMMARY_CALCULATED:
-        {
-            if ( first.id() != second.id() ) return false;
-        }
-        break;
-    }
-    if ( first.isErrorResult() != second.isErrorResult() ) return false;
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool operator!=( const RifEclipseSummaryAddress& first, const RifEclipseSummaryAddress& second )
-{
-    return !operator==( first, second );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool operator<( const RifEclipseSummaryAddress& first, const RifEclipseSummaryAddress& second )
-{
-    if ( first.vectorName() != second.vectorName() ) return first.vectorName() < second.vectorName();
-
-    switch ( first.category() )
-    {
-        case RifEclipseSummaryAddress::SUMMARY_REGION:
-        {
-            if ( first.regionNumber() != second.regionNumber() ) return first.regionNumber() < second.regionNumber();
-        }
-        break;
-        case RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION:
-        {
-            if ( first.regionNumber() != second.regionNumber() ) return first.regionNumber() < second.regionNumber();
-            if ( first.regionNumber2() != second.regionNumber2() )
-                return first.regionNumber2() < second.regionNumber2();
-        }
-        break;
-        case RifEclipseSummaryAddress::SUMMARY_GROUP:
-        {
-            if ( first.groupName() != second.groupName() ) return first.groupName() < second.groupName();
-        }
-        break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL:
-        {
-            if ( first.wellName() != second.wellName() ) return ( first.wellName() < second.wellName() );
-        }
-        break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION:
-        {
-            if ( first.wellName() != second.wellName() ) return ( first.wellName() < second.wellName() );
-            if ( first.cellI() != second.cellI() ) return ( first.cellI() < second.cellI() );
-            if ( first.cellJ() != second.cellJ() ) return ( first.cellJ() < second.cellJ() );
-            if ( first.cellK() != second.cellK() ) return ( first.cellK() < second.cellK() );
-        }
-        break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_LGR:
-        {
-            if ( first.wellName() != second.wellName() ) return ( first.wellName() < second.wellName() );
-            if ( first.lgrName() != second.lgrName() ) return ( first.lgrName() < second.lgrName() );
-        }
-        break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR:
-        {
-            if ( first.wellName() != second.wellName() ) return ( first.wellName() < second.wellName() );
-            if ( first.lgrName() != second.lgrName() ) return ( first.lgrName() < second.lgrName() );
-            if ( first.cellI() != second.cellI() ) return ( first.cellI() < second.cellI() );
-            if ( first.cellJ() != second.cellJ() ) return ( first.cellJ() < second.cellJ() );
-            if ( first.cellK() != second.cellK() ) return ( first.cellK() < second.cellK() );
-        }
-        break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT:
-        {
-            if ( first.wellName() != second.wellName() ) return ( first.wellName() < second.wellName() );
-            if ( first.wellSegmentNumber() != second.wellSegmentNumber() )
-                return ( first.wellSegmentNumber() < second.wellSegmentNumber() );
-        }
-        break;
-        case RifEclipseSummaryAddress::SUMMARY_BLOCK:
-        {
-            if ( first.cellI() != second.cellI() ) return ( first.cellI() < second.cellI() );
-            if ( first.cellJ() != second.cellJ() ) return ( first.cellJ() < second.cellJ() );
-            if ( first.cellK() != second.cellK() ) return ( first.cellK() < second.cellK() );
-        }
-        break;
-        case RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR:
-        {
-            if ( first.lgrName() != second.lgrName() ) return ( first.lgrName() < second.lgrName() );
-            if ( first.cellI() != second.cellI() ) return ( first.cellI() < second.cellI() );
-            if ( first.cellJ() != second.cellJ() ) return ( first.cellJ() < second.cellJ() );
-            if ( first.cellK() != second.cellK() ) return ( first.cellK() < second.cellK() );
-        }
-        break;
-        case RifEclipseSummaryAddress::SUMMARY_AQUIFER:
-        {
-            if ( first.aquiferNumber() != second.aquiferNumber() )
-                return first.aquiferNumber() < second.aquiferNumber();
-        }
-        break;
-    }
-    if ( first.isErrorResult() != second.isErrorResult() ) return first.isErrorResult() < second.isErrorResult();
-    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
