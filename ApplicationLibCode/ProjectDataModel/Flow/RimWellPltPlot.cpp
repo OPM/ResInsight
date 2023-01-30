@@ -730,8 +730,7 @@ std::vector<RifDataSourceForRftPlt> RimWellPltPlot::selectedSourcesExpanded() co
         {
             for ( RimWellLogFile* const wellLogFile : RimWellPlotTools::wellLogFilesContainingFlow( m_wellPathName ) )
             {
-                sources.push_back(
-                    RifDataSourceForRftPlt( RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE, wellLogFile ) );
+                sources.push_back( RifDataSourceForRftPlt( wellLogFile ) );
             }
         }
         else
@@ -771,8 +770,6 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions( const caf::
     }
     else if ( fieldNeedingOptions == &m_selectedSources )
     {
-        std::set<RifDataSourceForRftPlt> optionAddresses;
-
         const std::vector<RimEclipseResultCase*> rftCases = RimWellPlotTools::rftCasesForWell( simWellName );
         std::set<RifDataSourceForRftPlt>         availableRftSources;
 
@@ -821,19 +818,21 @@ QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions( const caf::
             options.push_back( item );
         }
 
-        if ( !RimWellPlotTools::wellLogFilesContainingFlow( m_wellPathName ).empty() )
+        auto wellLogFiles = RimWellPlotTools::wellLogFilesContainingFlow( m_wellPathName );
+        if ( !wellLogFiles.empty() )
         {
             options.push_back(
                 caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
                                                           RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE ),
                                                       true ) );
 
-            RimWellLogFile* dummy = nullptr;
-            auto addr = RifDataSourceForRftPlt( RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE, dummy );
-            auto item = caf::PdmOptionItemInfo( "Observed Data", QVariant::fromValue( addr ) );
-            item.setLevel( 1 );
-            options.push_back( item );
-            optionAddresses.insert( addr );
+            for ( const auto& wellLogFile : wellLogFiles )
+            {
+                auto addr = RifDataSourceForRftPlt( wellLogFile );
+                auto item = caf::PdmOptionItemInfo( "Observed Data", QVariant::fromValue( addr ) );
+                item.setLevel( 1 );
+                options.push_back( item );
+            }
         }
     }
     else if ( fieldNeedingOptions == &m_selectedTimeSteps )

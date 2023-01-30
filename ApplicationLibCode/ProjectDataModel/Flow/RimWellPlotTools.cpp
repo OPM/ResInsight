@@ -686,10 +686,7 @@ RiaRftPltCurveDefinition RimWellPlotTools::curveDefFromCurve( const RimWellLogCu
 
             if ( date.isValid() )
             {
-                return RiaRftPltCurveDefinition( RifDataSourceForRftPlt( RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE,
-                                                                         wellLogFile ),
-                                                 wellLogFile->wellName(),
-                                                 date );
+                return RiaRftPltCurveDefinition( RifDataSourceForRftPlt( wellLogFile ), wellLogFile->wellName(), date );
             }
         }
     }

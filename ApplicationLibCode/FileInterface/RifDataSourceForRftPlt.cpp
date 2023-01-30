@@ -77,9 +77,8 @@ RifDataSourceForRftPlt::RifDataSourceForRftPlt( SourceType sourceType, RimEclips
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifDataSourceForRftPlt::RifDataSourceForRftPlt( SourceType sourceType, RimWellLogFile* wellLogFile )
+RifDataSourceForRftPlt::RifDataSourceForRftPlt( RimWellLogFile* wellLogFile )
 {
-    CVF_ASSERT( sourceType == SourceType::OBSERVED_LAS_FILE );
     m_sourceType  = SourceType::OBSERVED_LAS_FILE;
     m_wellLogFile = wellLogFile;
 }

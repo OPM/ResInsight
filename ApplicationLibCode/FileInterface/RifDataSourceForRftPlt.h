@@ -60,7 +60,7 @@ public:
     RifDataSourceForRftPlt( SourceType sourceType, RimEclipseCase* eclCase );
     RifDataSourceForRftPlt( RimSummaryCaseCollection* ensemble );
     RifDataSourceForRftPlt( RimSummaryCase* summaryCase, RimSummaryCaseCollection* ensemble );
-    RifDataSourceForRftPlt( SourceType sourceType, RimWellLogFile* wellLogFile );
+    RifDataSourceForRftPlt( RimWellLogFile* wellLogFile );
     RifDataSourceForRftPlt( RimObservedFmuRftData* observedFmuRftData );
     RifDataSourceForRftPlt( RimPressureDepthData* pressureDepthData );
 

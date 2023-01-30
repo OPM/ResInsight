@@ -74,7 +74,7 @@ RifDataSourceForRftPlt RimDataSourceForRftPlt::address() const
     switch ( m_sourceType() )
     {
         case RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE:
-            return RifDataSourceForRftPlt( RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE, m_wellLogFile );
+            return RifDataSourceForRftPlt( m_wellLogFile );
         case RifDataSourceForRftPlt::SourceType::RFT_SIM_WELL_DATA:
             return RifDataSourceForRftPlt( RifDataSourceForRftPlt::SourceType::RFT_SIM_WELL_DATA, m_eclCase );
         case RifDataSourceForRftPlt::SourceType::GRID_MODEL_CELL_DATA:

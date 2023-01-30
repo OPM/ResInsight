@@ -278,8 +278,7 @@ void RimWellRftPlot::applyInitialSelections()
     {
         for ( RimWellLogFile* const wellLogFile : wellLogFiles )
         {
-            sourcesToSelect.push_back(
-                RifDataSourceForRftPlt( RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE, wellLogFile ) );
+            sourcesToSelect.push_back( RifDataSourceForRftPlt( wellLogFile ) );
         }
     }
 
@@ -382,8 +381,7 @@ void RimWellRftPlot::updateEditorsFromCurves()
     {
         if ( curveDef.address().sourceType() == RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE )
         {
-            RimWellLogFile* dummy = nullptr;
-            selectedSources.insert( RifDataSourceForRftPlt( RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE, dummy ) );
+            selectedSources.insert( RifDataSourceForRftPlt( curveDef.address().wellLogFile() ) );
         }
         else if ( curveDef.address().sourceType() == RifDataSourceForRftPlt::SourceType::SUMMARY_RFT )
         {
@@ -695,8 +693,7 @@ std::vector<RifDataSourceForRftPlt> RimWellRftPlot::selectedSourcesExpanded() co
             for ( RimWellLogFile* const wellLogFile :
                   RimWellPlotTools::wellLogFilesContainingPressure( m_wellPathNameOrSimWellName ) )
             {
-                sources.push_back(
-                    RifDataSourceForRftPlt( RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE, wellLogFile ) );
+                sources.push_back( RifDataSourceForRftPlt( wellLogFile ) );
             }
         }
         else
@@ -894,17 +891,20 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptionsForSources() 
         }
     }
 
-    if ( !RimWellPlotTools::wellLogFilesContainingPressure( m_wellPathNameOrSimWellName ).empty() )
+    auto wellLogFiles = RimWellPlotTools::wellLogFilesContainingPressure( m_wellPathNameOrSimWellName );
+    if ( !wellLogFiles.empty() )
     {
         options.push_back( caf::PdmOptionItemInfo::createHeader( RifDataSourceForRftPlt::sourceTypeUiText(
                                                                      RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE ),
                                                                  true ) );
 
-        RimWellLogFile* dummy = nullptr;
-        auto            addr  = RifDataSourceForRftPlt( RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE, dummy );
-        auto            item  = caf::PdmOptionItemInfo( "Observed Data", QVariant::fromValue( addr ) );
-        item.setLevel( 1 );
-        options.push_back( item );
+        for ( const auto& wellLogFile : wellLogFiles )
+        {
+            auto addr = RifDataSourceForRftPlt( wellLogFile );
+            auto item = caf::PdmOptionItemInfo( "Observed Data", QVariant::fromValue( addr ) );
+            item.setLevel( 1 );
+            options.push_back( item );
+        }
     }
     const std::vector<RimObservedFmuRftData*> observedFmuRftCases =
         RimWellPlotTools::observedFmuRftDataForWell( m_wellPathNameOrSimWellName );
