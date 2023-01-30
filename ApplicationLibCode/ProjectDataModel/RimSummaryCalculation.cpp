@@ -291,12 +291,23 @@ std::vector<RimUserDefinedCalculationAddress*> RimSummaryCalculation::allAddress
 {
     std::vector<RimUserDefinedCalculationAddress*> addresses;
 
-    std::vector<std::string> wells = { "B-1H", "B-2H", "B-3H" };
-
-    for ( auto well : wells )
+    auto variables = getVariables();
+    if ( variables && !variables.value().empty() )
     {
-        addresses.push_back( new RimSummaryCalculationAddress(
-            RifEclipseSummaryAddress::calculatedWellAddress( description().toStdString(), well, m_id ) ) );
+        // The first variable is the substituable one. Use its category to
+        // provide all available addresses.
+
+        auto firstVariable = variables.value().front();
+        if ( firstVariable->summaryAddress()->address().category() == RifEclipseSummaryAddress::SUMMARY_WELL )
+        {
+            auto wells = RimProject::current()->simulationWellNames();
+
+            for ( auto well : wells )
+            {
+                addresses.push_back( new RimSummaryCalculationAddress(
+                    RifEclipseSummaryAddress::calculatedWellAddress( description().toStdString(), well.toStdString(), m_id ) ) );
+            }
+        }
     }
 
     return addresses;
