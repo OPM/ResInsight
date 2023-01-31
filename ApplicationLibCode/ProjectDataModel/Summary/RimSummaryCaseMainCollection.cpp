@@ -18,6 +18,7 @@
 
 #include "RimSummaryCaseMainCollection.h"
 
+#include "RiaApplication.h"
 #include "RiaEclipseFileNameTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesSummary.h"
@@ -473,7 +474,7 @@ void RimSummaryCaseMainCollection::loadSummaryCaseData( std::vector<RimSummaryCa
 
     if ( !otherSummaryCases.empty() )
     {
-        caf::ProgressInfo progInfo( otherSummaryCases.size(), "Loading Summary Cases", false );
+        caf::ProgressInfo progInfo( otherSummaryCases.size(), "Loading Summary Cases" );
 
         for ( int cIdx = 0; cIdx < static_cast<int>( otherSummaryCases.size() ); ++cIdx )
         {
@@ -534,30 +535,33 @@ void RimSummaryCaseMainCollection::loadFileSummaryCaseData( std::vector<RimFileS
     // RimSummaryCase, as it is difficult to make sure all variants of the leaf classes are thread safe.
     // Only open the summary file reader in parallel loop to reduce risk of multi threading issues
 
-    caf::ProgressInfo progInfo( fileSummaryCases.size(), "Loading Summary Cases", false );
+    {
+        caf::ProgressInfo progInfo( fileSummaryCases.size(), "Loading Summary Cases" );
 
-    RifOpmCommonEclipseSummary::resetEnhancedSummaryFileCount();
+        RifOpmCommonEclipseSummary::resetEnhancedSummaryFileCount();
 
-    RiaThreadSafeLogger threadSafeLogger;
-    QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+        RiaThreadSafeLogger threadSafeLogger;
+        QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
 
-    // The HDF5 reader requires a special configuration to be thread safe. Disable threading for HDF reader.
-    bool canUseMultipleTreads = ( prefs->summaryDataReader() != RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON );
+        // The HDF5 reader requires a special configuration to be thread safe. Disable threading for HDF reader.
+        bool canUseMultipleTreads =
+            ( prefs->summaryDataReader() != RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON );
 
 #pragma omp parallel for schedule( dynamic ) if ( canUseMultipleTreads )
-    for ( int cIdx = 0; cIdx < static_cast<int>( fileSummaryCases.size() ); ++cIdx )
-    {
-        RimFileSummaryCase* fileSummaryCase = fileSummaryCases[cIdx];
-        if ( fileSummaryCase )
+        for ( int cIdx = 0; cIdx < static_cast<int>( fileSummaryCases.size() ); ++cIdx )
         {
-            fileSummaryCase->createSummaryReaderInterfaceThreadSafe( &threadSafeLogger );
-        }
+            RimFileSummaryCase* fileSummaryCase = fileSummaryCases[cIdx];
+            if ( fileSummaryCase )
+            {
+                fileSummaryCase->createSummaryReaderInterfaceThreadSafe( &threadSafeLogger );
+            }
 
-        progInfo.setProgress( cIdx );
-    }
-    for ( const auto& txt : threadSafeLogger.messages() )
-    {
-        RiaLogging::info( txt );
+            progInfo.setProgress( cIdx );
+        }
+        for ( const auto& txt : threadSafeLogger.messages() )
+        {
+            RiaLogging::info( txt );
+        }
     }
 
     auto numberOfEsmryFilesCreated = RifOpmCommonEclipseSummary::numberOfEnhancedSummaryFileCreated();
@@ -652,6 +656,8 @@ std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::createSummaryCasesFro
 
         for ( const RifSummaryCaseFileResultInfo& fileInfo : summaryHeaderFileInfos )
         {
+            QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+
             RimEclipseCase* eclCase = nullptr;
             QString         gridCaseFile =
                 RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile( fileInfo.summaryFileName() );
@@ -697,6 +703,8 @@ std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::createSummaryCasesFro
 
             if ( progress != nullptr ) progress->incrementProgress();
         }
+
+        QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
     }
 
     RimSummaryCaseMainCollection::loadSummaryCaseData( sumCases );
