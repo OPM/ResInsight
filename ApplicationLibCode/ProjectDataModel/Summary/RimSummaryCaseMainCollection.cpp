@@ -18,7 +18,6 @@
 
 #include "RimSummaryCaseMainCollection.h"
 
-#include "RiaApplication.h"
 #include "RiaEclipseFileNameTools.h"
 #include "RiaLogging.h"
 #include "RiaPreferencesSummary.h"
