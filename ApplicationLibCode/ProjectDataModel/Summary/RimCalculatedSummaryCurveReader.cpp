@@ -94,9 +94,12 @@ void RifCalculatedSummaryCurveReader::buildMetaData()
         for ( auto addr : allAddresses )
         {
             RimSummaryCalculationAddress* calculationAddress = dynamic_cast<RimSummaryCalculationAddress*>( addr );
-            RiaLogging::info( QString( "Adding result for %1" ).arg( calculationAddress->address().uiText().c_str() ) );
+            if ( calculationAddress->address().isValid() )
+            {
+                RiaLogging::info( QString( "Adding result for %1" ).arg( calculationAddress->address().uiText().c_str() ) );
 
-            m_allResultAddresses.insert( calculationAddress->address() );
+                m_allResultAddresses.insert( calculationAddress->address() );
+            }
         }
     }
 }
