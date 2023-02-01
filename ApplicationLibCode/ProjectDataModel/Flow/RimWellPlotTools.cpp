@@ -379,7 +379,7 @@ std::vector<RimEclipseResultCase*> RimWellPlotTools::gridCasesForWell( const QSt
     for ( RimEclipseCase* eclCase : project->eclipseCases() )
     {
         RimEclipseResultCase* resultCase = dynamic_cast<RimEclipseResultCase*>( eclCase );
-        if ( resultCase != nullptr )
+        if ( resultCase && resultCase->eclipseCaseData() )
         {
             if ( eclCase->eclipseCaseData()->findSimWellData( simWellName ) )
             {
