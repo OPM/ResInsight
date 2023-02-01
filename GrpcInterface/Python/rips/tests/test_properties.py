@@ -68,15 +68,15 @@ def test_10k_set_out_of_bounds_client(rips_instance, initialize_test):
 
 
 def createResult(poroChunks, permxChunks):
-    for (poroChunk, permxChunk) in zip(poroChunks, permxChunks):
+    for poroChunk, permxChunk in zip(poroChunks, permxChunks):
         resultChunk = []
-        for (poro, permx) in zip(poroChunk.values, permxChunk.values):
+        for poro, permx in zip(poroChunk.values, permxChunk.values):
             resultChunk.append(poro * permx)
         yield resultChunk
 
 
 def checkResults(poroValues, permxValues, poropermxValues):
-    for (poro, permx, poropermx) in zip(poroValues, permxValues, poropermxValues):
+    for poro, permx, poropermx in zip(poroValues, permxValues, poropermxValues):
         recalc = poro * permx
         assert recalc == pytest.approx(poropermx, rel=1.0e-10)
 
