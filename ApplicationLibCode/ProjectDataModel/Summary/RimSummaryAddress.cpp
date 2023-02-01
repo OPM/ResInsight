@@ -137,6 +137,7 @@ void RimSummaryAddress::setAddress( const RifEclipseSummaryAddress& addr )
     m_calculationId = addr.id();
 
     setUiName( m_vectorName );
+    setUiIconFromResourceString( iconResourceText() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -270,4 +271,14 @@ int RimSummaryAddress::ensembleId() const
 bool RimSummaryAddress::isEnsemble() const
 {
     return m_ensembleId >= 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryAddress::iconResourceText() const
+{
+    if ( m_calculationId != -1 ) return ":/summary/components/images/calculated.svg";
+
+    return ":/DataVector.png";
 }
