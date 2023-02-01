@@ -41,7 +41,7 @@ def test_10kSync(rips_instance, initialize_test):
 
     # Generate some data
     new_data = []
-    for (c, _) in enumerate(nnc_connections):
+    for c, _ in enumerate(nnc_connections):
         new_data.append(float(c))
 
     property_name = "NEW_PROP"

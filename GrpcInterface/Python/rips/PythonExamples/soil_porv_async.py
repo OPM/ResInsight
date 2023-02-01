@@ -5,13 +5,14 @@
 import rips
 import time
 
+
 # Internal function for creating a result from a small chunk of soil and porv results
 # The return value of the function is a generator for the results rather than the result itself.
 def create_result(soil_chunks, porv_chunks):
-    for (soil_chunk, porv_chunk) in zip(soil_chunks, porv_chunks):
+    for soil_chunk, porv_chunk in zip(soil_chunks, porv_chunks):
         resultChunk = []
         number = 0
-        for (soil_value, porv_value) in zip(soil_chunk.values, porv_chunk.values):
+        for soil_value, porv_value in zip(soil_chunk.values, porv_chunk.values):
             resultChunk.append(soil_value * porv_value)
         # Return a Python generator
         yield resultChunk
