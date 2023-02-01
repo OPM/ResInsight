@@ -68,7 +68,7 @@ RimSummaryCalculationVariable* RimSummaryCalculation::createVariable()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::optional<std::vector<RimSummaryCalculationVariable*>> RimSummaryCalculation::getVariables() const
+std::optional<std::vector<RimSummaryCalculationVariable*>> RimSummaryCalculation::getVariables( bool showError ) const
 {
     std::vector<RimSummaryCalculationVariable*> variables;
 
@@ -79,17 +79,23 @@ std::optional<std::vector<RimSummaryCalculationVariable*>> RimSummaryCalculation
 
         if ( !v->summaryCase() )
         {
-            RiaLogging::errorInMessageBox( nullptr,
-                                           "Expression Parser",
-                                           QString( "No summary case defined for variable : %1" ).arg( v->name() ) );
+            if ( showError )
+            {
+                RiaLogging::errorInMessageBox( nullptr,
+                                               "Expression Parser",
+                                               QString( "No summary case defined for variable : %1" ).arg( v->name() ) );
+            }
             return {};
         }
 
         if ( !v->summaryAddress() )
         {
-            RiaLogging::errorInMessageBox( nullptr,
-                                           "Expression Parser",
-                                           QString( "No summary address defined for variable : %1" ).arg( v->name() ) );
+            if ( showError )
+            {
+                RiaLogging::errorInMessageBox( nullptr,
+                                               "Expression Parser",
+                                               QString( "No summary address defined for variable : %1" ).arg( v->name() ) );
+            }
             return {};
         }
 
@@ -319,7 +325,7 @@ std::vector<RimUserDefinedCalculationAddress*> RimSummaryCalculation::allAddress
 {
     std::vector<RimUserDefinedCalculationAddress*> addresses;
 
-    auto variables = getVariables();
+    auto variables = getVariables( false );
     if ( variables && !variables.value().empty() )
     {
         // The first variable is the substituable one. Use its category to
