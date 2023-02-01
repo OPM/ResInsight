@@ -652,6 +652,8 @@ void ProgressInfoStatic::finished()
         dialog->setLabelText( currentComposedLabel() );
     }
 
+    QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
+
     // If we are finishing the last level, clean up
     if ( maxProgressStack_v.empty() )
     {
@@ -661,12 +663,6 @@ void ProgressInfoStatic::finished()
             dialog->close();
             s_running = false;
         }
-    }
-    else
-    {
-        // Make sure the Gui is repainted
-        QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
-        // if (progressDialog()) progressDialog()->repaint();
     }
 }
 
