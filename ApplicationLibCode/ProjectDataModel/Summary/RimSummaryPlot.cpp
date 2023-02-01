@@ -2922,7 +2922,7 @@ void RimSummaryPlot::assignPlotAxis( RimSummaryCurve* destinationCurve )
 
     auto strategy = AxisAssignmentStrategy::USE_MATCHING_UNIT;
 
-    auto destinationUnit = destinationCurve->unitNameY();
+    auto destinationUnit = RiaStdStringTools::toUpper( destinationCurve->unitNameY() );
     if ( destinationUnit.empty() ) strategy = AxisAssignmentStrategy::USE_MATCHING_VECTOR;
 
     auto anyCurveWithUnitText = [this, destinationCurve] {
@@ -2965,7 +2965,7 @@ void RimSummaryPlot::assignPlotAxis( RimSummaryCurve* destinationCurve )
             if ( c->axisY() == RiuPlotAxis::defaultLeft() ) isLeftUsed = true;
             if ( c->axisY() == RiuPlotAxis::defaultRight() ) isRightUsed = true;
 
-            auto currentUnit = c->unitNameY();
+            auto currentUnit = RiaStdStringTools::toUpper( c->unitNameY() );
 
             if ( currentUnit == destinationUnit )
             {
