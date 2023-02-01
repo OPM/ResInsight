@@ -115,8 +115,9 @@ bool RimSummaryCalculation::calculate()
 
     RimSummaryCalculationVariable* v = variables.value()[0];
 
+    // TODO: handle cases for result which are not wells!!!!!!!!!!!!!!!!!!!!!!
     auto well = v->summaryAddress()->address().wellName();
-    auto addr = RifEclipseSummaryAddress::calculatedWellAddress( description().toStdString(), well, m_id );
+    auto addr = RifEclipseSummaryAddress::wellAddress( description().toStdString(), well, m_id );
 
     // Clear existing values
     m_cachedResults.erase( addr );
@@ -146,22 +147,44 @@ void RimSummaryCalculation::substituteVariables( std::vector<RimSummaryCalculati
 {
     auto firstVariable = vars.front();
 
+    auto category = firstVariable->summaryAddress()->address().category();
+
     QVariant oldValue;
     QVariant newValue;
-    if ( firstVariable->summaryAddress()->address().category() == RifEclipseSummaryAddress::SUMMARY_WELL )
+    if ( category == RifEclipseSummaryAddress::SUMMARY_WELL )
     {
         oldValue = QString::fromStdString( firstVariable->summaryAddress()->address().wellName() );
         newValue = QString::fromStdString( address.wellName() );
     }
-    else if ( firstVariable->summaryAddress()->address().category() == RifEclipseSummaryAddress::SUMMARY_REGION )
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_REGION )
     {
         oldValue = firstVariable->summaryAddress()->address().regionNumber();
         newValue = address.regionNumber();
     }
-    else if ( firstVariable->summaryAddress()->address().category() == RifEclipseSummaryAddress::SUMMARY_GROUP )
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_GROUP )
     {
         oldValue = QString::fromStdString( firstVariable->summaryAddress()->address().groupName() );
         newValue = QString::fromStdString( address.groupName() );
+    }
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_AQUIFER )
+    {
+        oldValue = firstVariable->summaryAddress()->address().aquiferNumber();
+        newValue = address.aquiferNumber();
+    }
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION ||
+              category == RifEclipseSummaryAddress::SUMMARY_BLOCK )
+    {
+        oldValue = QString::fromStdString( firstVariable->summaryAddress()->address().blockAsString() );
+        newValue = QString::fromStdString( address.blockAsString() );
+    }
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_MISC || category == RifEclipseSummaryAddress::SUMMARY_FIELD )
+    {
+        // No need to do anything for these types
+        return;
+    }
+    else
+    {
+        RiaLogging::error( QString( "Unhandled subst for category: %1" ).arg( address.uiText().c_str() ) );
     }
 
     for ( auto v : vars )
@@ -334,7 +357,36 @@ std::vector<RimUserDefinedCalculationAddress*> RimSummaryCalculation::allAddress
         auto firstVariable      = variables.value().front();
         auto allResultAddresses = firstVariable->summaryCase()->summaryReader()->allResultAddresses();
 
-        if ( firstVariable->summaryAddress()->address().category() == RifEclipseSummaryAddress::SUMMARY_WELL )
+        if ( firstVariable->summaryAddress()->address().category() == RifEclipseSummaryAddress::SUMMARY_FIELD )
+        {
+            addresses.push_back( new RimSummaryCalculationAddress(
+                RifEclipseSummaryAddress::fieldAddress( description().toStdString(), m_id ) ) );
+        }
+        else if ( firstVariable->summaryAddress()->address().category() == RifEclipseSummaryAddress::SUMMARY_AQUIFER )
+        {
+            std::set<int> uniqueNumbers;
+            std::for_each( allResultAddresses.begin(), allResultAddresses.end(), [&]( const auto& addr ) {
+                uniqueNumbers.insert( addr.aquiferNumber() );
+            } );
+
+            for ( auto num : uniqueNumbers )
+            {
+                addresses.push_back( new RimSummaryCalculationAddress(
+                    RifEclipseSummaryAddress::aquiferAddress( description().toStdString(), num, m_id ) ) );
+            }
+        }
+
+        else if ( firstVariable->summaryAddress()->address().category() == RifEclipseSummaryAddress::SUMMARY_MISC )
+        {
+            addresses.push_back( new RimSummaryCalculationAddress(
+                RifEclipseSummaryAddress::miscAddress( description().toStdString(), m_id ) ) );
+        }
+        else if ( firstVariable->summaryAddress()->address().category() == RifEclipseSummaryAddress::SUMMARY_NETWORK )
+        {
+            addresses.push_back( new RimSummaryCalculationAddress(
+                RifEclipseSummaryAddress::networkAddress( description().toStdString(), m_id ) ) );
+        }
+        else if ( firstVariable->summaryAddress()->address().category() == RifEclipseSummaryAddress::SUMMARY_WELL )
         {
             std::set<std::string> uniqueWellNames;
             std::for_each( allResultAddresses.begin(), allResultAddresses.end(), [&]( const auto& addr ) {
@@ -344,7 +396,7 @@ std::vector<RimUserDefinedCalculationAddress*> RimSummaryCalculation::allAddress
             for ( auto wellName : uniqueWellNames )
             {
                 addresses.push_back( new RimSummaryCalculationAddress(
-                    RifEclipseSummaryAddress::calculatedWellAddress( description().toStdString(), wellName, m_id ) ) );
+                    RifEclipseSummaryAddress::wellAddress( description().toStdString(), wellName, m_id ) ) );
             }
         }
         else if ( firstVariable->summaryAddress()->address().category() == RifEclipseSummaryAddress::SUMMARY_GROUP )
@@ -357,7 +409,7 @@ std::vector<RimUserDefinedCalculationAddress*> RimSummaryCalculation::allAddress
             for ( auto groupName : uniqueGroupNames )
             {
                 addresses.push_back( new RimSummaryCalculationAddress(
-                    RifEclipseSummaryAddress::calculatedGroupAddress( description().toStdString(), groupName, m_id ) ) );
+                    RifEclipseSummaryAddress::groupAddress( description().toStdString(), groupName, m_id ) ) );
             }
         }
         else if ( firstVariable->summaryAddress()->address().category() == RifEclipseSummaryAddress::SUMMARY_REGION )
@@ -370,7 +422,7 @@ std::vector<RimUserDefinedCalculationAddress*> RimSummaryCalculation::allAddress
             for ( auto regionNumber : uniqueRegionNumbers )
             {
                 addresses.push_back( new RimSummaryCalculationAddress(
-                    RifEclipseSummaryAddress::calculatedRegionAddress( description().toStdString(), regionNumber, m_id ) ) );
+                    RifEclipseSummaryAddress::regionAddress( description().toStdString(), regionNumber, m_id ) ) );
             }
         }
     }
