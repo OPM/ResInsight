@@ -44,7 +44,7 @@ def test_10k(rips_instance, initialize_test):
     expected_cell_count["GI1"] = 38
     expected_cell_count["GP2"] = 18
     for sim_well in sim_wells:
-        for (tidx, timestep) in enumerate(timesteps):
+        for tidx, timestep in enumerate(timesteps):
             if tidx > 0:
                 cells = sim_well.cells(tidx)
                 print(

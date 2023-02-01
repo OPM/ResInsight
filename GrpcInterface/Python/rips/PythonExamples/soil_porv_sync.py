@@ -19,7 +19,7 @@ for i in range(0, len(time_step_info)):
 
     # Generate the result by looping through both lists in order
     results = []
-    for (soil, porv) in zip(soil_results, porv_results):
+    for soil, porv in zip(soil_results, porv_results):
         results.append(soil * porv)
 
     # Send back result
