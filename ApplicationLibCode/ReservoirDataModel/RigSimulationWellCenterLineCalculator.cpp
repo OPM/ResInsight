@@ -51,6 +51,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline(
     CVF_ASSERT( rimWell );
 
     const RigSimWellData* simWellData = rimWell->simWellData();
+    if ( !simWellData ) return;
 
     RimEclipseView* eclipseView;
     rimWell->firstAncestorOrThisOfType( eclipseView );
