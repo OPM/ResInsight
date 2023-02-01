@@ -50,6 +50,7 @@
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryAddressCollection.h"
+#include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
@@ -2239,6 +2240,22 @@ std::pair<int, std::vector<RimSummaryCurve*>> RimSummaryPlot::handleSummaryAddre
         {
             const auto addr = curve->summaryAddressY();
             dataVectorMap[addr].insert( curve->summaryCaseY() );
+        }
+
+        // Handle calculated addresses
+        if ( summaryAddr->address().isCalculated() )
+        {
+            RimSummaryCalculationCollection* calcColl       = RimProject::current()->calculationCollection();
+            RimSummaryCase*                  calculatedCase = calcColl->calculationSummaryCase();
+            if ( calculatedCase )
+            {
+                RifSummaryReaderInterface* reader = calculatedCase->summaryReader();
+                if ( reader )
+                {
+                    curves.push_back( addNewCurveY( summaryAddr->address(), calculatedCase ) );
+                    newCurves++;
+                }
+            }
         }
 
         auto summaryCase = RiaSummaryTools::summaryCaseById( summaryAddr->caseId() );
