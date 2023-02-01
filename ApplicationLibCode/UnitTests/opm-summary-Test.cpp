@@ -10,8 +10,8 @@
 // Disable warning from external library to make sure treat warnings as error works
 #pragma warning( disable : 4267 )
 #endif
-#include "opm/io/eclipse/ERft.hpp"
 #include "opm/io/eclipse/EGrid.hpp"
+#include "opm/io/eclipse/ERft.hpp"
 #include "opm/io/eclipse/ESmry.hpp"
 #include "opm/io/eclipse/ExtESmry.hpp"
 
@@ -316,7 +316,7 @@ TEST( OpmSummaryTests, DISABLED_ReadOpmRadialGrid )
 
         for ( size_t cidx = 0; cidx < cellCount; cidx++ )
         {
-            eGrid.getCellCorners( cidx, X, Y, Z, false );
+            eGrid.getCellCorners( cidx, X, Y, Z );
 
             for ( size_t i = 0; i < 8; i++ )
             {

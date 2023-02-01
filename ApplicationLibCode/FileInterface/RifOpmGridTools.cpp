@@ -97,7 +97,7 @@ void RifOpmGridTools::transferCoordinates( Opm::EclIO::EGrid& opmMainGrid,
         {
             bool useCartesianCoords = false;
             auto mainGridCellIndex  = hostCellGlobalIndices[cIdx];
-            opmMainGrid.getCellCorners( mainGridCellIndex, X, Y, Z, useCartesianCoords );
+            opmMainGrid.getCellCorners( mainGridCellIndex, X, Y, Z );
 
             auto ijkLocalGrid = opmGrid.ijk_from_global_index( cIdx );
             auto layer        = ijkLocalGrid[2];
@@ -127,7 +127,7 @@ void RifOpmGridTools::transferCoordinates( Opm::EclIO::EGrid& opmMainGrid,
 
     for ( size_t cIdx = 0; cIdx < cellCount; cIdx++ )
     {
-        opmGrid.getCellCorners( cIdx, X, Y, Z, false );
+        opmGrid.getCellCorners( cIdx, X, Y, Z );
 
         // Each cell has 8 nodes, use reservoir cell index and multiply to find first node index for cell
         auto nodeStartIndex = riGrid->reservoirCellIndex( cIdx ) * 8;
