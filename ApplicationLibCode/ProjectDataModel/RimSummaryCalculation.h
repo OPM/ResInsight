@@ -71,7 +71,7 @@ protected:
     static void substituteVariables( std::vector<RimSummaryCalculationVariable*>& vars,
                                      const RifEclipseSummaryAddress&              address );
 
-    std::optional<std::vector<RimSummaryCalculationVariable*>> getVariables() const;
+    std::optional<std::vector<RimSummaryCalculationVariable*>> getVariables( bool showError = true ) const;
 
     std::map<RifEclipseSummaryAddress, std::vector<double>> m_cachedResults;
     std::map<RifEclipseSummaryAddress, std::vector<time_t>> m_cachedTimesteps;
