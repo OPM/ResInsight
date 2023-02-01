@@ -330,12 +330,15 @@ std::vector<RimUserDefinedCalculationAddress*> RimSummaryCalculation::allAddress
 
         if ( firstVariable->summaryAddress()->address().category() == RifEclipseSummaryAddress::SUMMARY_WELL )
         {
-            auto wells = RimProject::current()->simulationWellNames();
+            std::set<std::string> uniqueWellNames;
+            std::for_each( allResultAddresses.begin(), allResultAddresses.end(), [&]( const auto& addr ) {
+                uniqueWellNames.insert( addr.wellName() );
+            } );
 
-            for ( auto well : wells )
+            for ( auto wellName : uniqueWellNames )
             {
                 addresses.push_back( new RimSummaryCalculationAddress(
-                    RifEclipseSummaryAddress::calculatedWellAddress( description().toStdString(), well.toStdString(), m_id ) ) );
+                    RifEclipseSummaryAddress::calculatedWellAddress( description().toStdString(), wellName, m_id ) ) );
             }
         }
         else if ( firstVariable->summaryAddress()->address().category() == RifEclipseSummaryAddress::SUMMARY_GROUP )
