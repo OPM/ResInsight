@@ -29,7 +29,6 @@ def generate_surface_from_file(path):
 
 
 def export_surface_as_ts_file(surf, point_cloud, properties, path):
-
     # open text file
     text_file = open(path, "w")
 
@@ -93,7 +92,6 @@ temp_folder = tempfile.gettempdir()
 home_dir = expanduser("~")
 
 for fracture in fractures:
-
     fracture_name = fracture.user_description
 
     # Create the ouput directory

@@ -14,7 +14,7 @@ contour_maps = resInsight.project.descendants(rips.EclipseContourMap)
 print("Number of eclipse contour maps:", len(contour_maps))
 
 # Export the contour maps to a text file
-for (index, contour_map) in enumerate(contour_maps):
+for index, contour_map in enumerate(contour_maps):
     filename = "eclipse_contour_map" + str(index) + ".txt"
     filepath = tmpdir / filename
     print("Exporting to:", filepath)
@@ -25,7 +25,7 @@ cases = resInsight.project.cases()
 for case in cases:
     contour_maps = case.descendants(rips.GeoMechContourMap)
     # Export the contour maps to a text file
-    for (index, contour_map) in enumerate(contour_maps):
+    for index, contour_map in enumerate(contour_maps):
         filename = "geomech_contour_map" + str(index) + ".txt"
         filepath = tmpdir / filename
         print("Exporting to:", filepath)
