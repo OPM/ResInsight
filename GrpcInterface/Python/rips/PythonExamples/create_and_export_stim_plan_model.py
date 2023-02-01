@@ -82,7 +82,6 @@ stim_plan_models = []
 # Create and export a StimPlan model for each depth
 measured_depths = [3200.0, 3400.0, 3600.0]
 for measured_depth in measured_depths:
-
     # Create stim plan model at a give measured depth
     stim_plan_model = stim_plan_model_collection.append_stim_plan_model(
         well_path=well_path,

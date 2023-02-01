@@ -68,7 +68,7 @@ for path in case_file_paths:
         well_log_plot = well_log_plot_collection.new_well_log_plot(case, well_path)
 
         # Create a track for each property
-        for (prop_type, prop_name, time_step) in properties:
+        for prop_type, prop_name, time_step in properties:
             track = well_log_plot.new_well_log_track(
                 "Track: " + prop_name, case, well_path
             )
