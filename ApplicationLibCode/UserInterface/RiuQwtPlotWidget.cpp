@@ -79,8 +79,6 @@
 RiuQwtPlotWidget::RiuQwtPlotWidget( RimPlot* plotDefinition, QWidget* parent )
     : RiuPlotWidget( plotDefinition, parent )
 {
-    CAF_ASSERT( m_plotDefinition );
-
     auto* layout = new QVBoxLayout;
     layout->setContentsMargins( 0, 0, 0, 0 );
     setLayout( layout );
@@ -620,7 +618,7 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
             {
                 endZoomOperations();
 
-                if ( m_plotDefinition->isCurveHighlightSupported() )
+                if ( m_plotDefinition && m_plotDefinition->isCurveHighlightSupported() )
                 {
                     selectClosestPlotItem( mouseEvent->pos(), toggleItemInSelection );
                 }
@@ -1055,20 +1053,24 @@ void RiuQwtPlotWidget::resetPlotItemHighlighting( bool doUpdateCurveOrder )
 {
     if ( !m_originalZValues.empty() )
     {
-        const auto& plotItemList = m_plot->itemList();
-        for ( QwtPlotItem* plotItem : plotItemList )
+        if ( m_plotDefinition )
         {
-            if ( auto* plotCurve = dynamic_cast<QwtPlotCurve*>( plotItem ) )
-            {
-                auto* riuPlotCurve = dynamic_cast<RiuPlotCurve*>( plotItem );
+            const auto& plotItemList = m_plot->itemList();
 
-                if ( auto rimPlotCurve =
-                         dynamic_cast<RimPlotCurve*>( m_plotDefinition->findPdmObjectFromPlotCurve( riuPlotCurve ) ) )
+            for ( QwtPlotItem* plotItem : plotItemList )
+            {
+                if ( auto* plotCurve = dynamic_cast<QwtPlotCurve*>( plotItem ) )
                 {
-                    rimPlotCurve->updateCurveAppearance();
-                    double zValue = m_originalZValues[plotCurve];
-                    riuPlotCurve->setZ( zValue );
-                    continue;
+                    auto* riuPlotCurve = dynamic_cast<RiuPlotCurve*>( plotItem );
+
+                    if ( auto rimPlotCurve =
+                             dynamic_cast<RimPlotCurve*>( m_plotDefinition->findPdmObjectFromPlotCurve( riuPlotCurve ) ) )
+                    {
+                        rimPlotCurve->updateCurveAppearance();
+                        double zValue = m_originalZValues[plotCurve];
+                        riuPlotCurve->setZ( zValue );
+                        continue;
+                    }
                 }
             }
         }
