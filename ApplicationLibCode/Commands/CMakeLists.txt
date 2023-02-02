@@ -33,6 +33,7 @@ set(COMMAND_REFERENCED_CMAKE_FILES
     SsiHubImportCommands/CMakeLists_files.cmake
     StreamlineCommands/CMakeLists_files.cmake
     SurfaceCommands/CMakeLists_files.cmake
+    SeismicCommands/CMakeLists_files.cmake
     ToggleCommands/CMakeLists_files.cmake
     ViewLink/CMakeLists_files.cmake
     WellLogCommands/CMakeLists_files.cmake
@@ -65,6 +66,7 @@ target_include_directories(
          ${CMAKE_SOURCE_DIR}/ThirdParty/custom-opm-common/generated-opm-common
          ${CMAKE_SOURCE_DIR}/ThirdParty/custom-opm-common/opm-common
          ${CMAKE_SOURCE_DIR}/ThirdParty/qtadvanceddocking/src
+         ${CMAKE_SOURCE_DIR}/ThirdParty/openzgy/include
 )
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")

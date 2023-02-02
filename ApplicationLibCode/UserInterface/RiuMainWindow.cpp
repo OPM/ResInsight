@@ -481,6 +481,7 @@ void RiuMainWindow::createMenus()
     importMenu->addAction( cmdFeatureMgr->action( "RicImportPressureDepthDataFeature" ) );
     importMenu->addAction( cmdFeatureMgr->action( "RicImportFormationNamesFeature" ) );
     importMenu->addAction( cmdFeatureMgr->action( "RicImportSurfacesFeature" ) );
+    importMenu->addAction( cmdFeatureMgr->action( "RicImportSeismicFeature" ) );
 
     RiuTools::enableAllActionsOnShow( this, importMenu );
 
