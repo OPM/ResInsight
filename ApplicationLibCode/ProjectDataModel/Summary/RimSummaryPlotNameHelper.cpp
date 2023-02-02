@@ -253,8 +253,8 @@ std::string RimSummaryPlotNameHelper::titleCompletion() const
 void RimSummaryPlotNameHelper::clearTitleSubStrings()
 {
     m_titleQuantity.clear();
-    m_titleRegion.clear();
     m_titleWellName.clear();
+    m_titleGroupName.clear();
     m_titleRegion.clear();
     m_titleBlock.clear();
     m_titleSegment.clear();
