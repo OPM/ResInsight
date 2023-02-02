@@ -29,6 +29,7 @@ class RimWellAllocationPlot;
 class RimFlowCharacteristicsPlot;
 class RimWellDistributionPlot;
 class RimWellDistributionPlotCollection;
+class RimWellConnectivityTable;
 
 //==================================================================================================
 ///
@@ -56,6 +57,7 @@ public:
 
 private:
     caf::PdmChildField<RimFlowCharacteristicsPlot*>        m_flowCharacteristicsPlot;
+    caf::PdmChildField<RimWellConnectivityTable*>          m_defaultWellConnectivityTable;
     caf::PdmChildField<RimWellAllocationOverTimePlot*>     m_defaultWellAllocOverTimePlot;
     caf::PdmChildField<RimWellAllocationPlot*>             m_defaultWellAllocPlot;
     caf::PdmChildField<RimWellDistributionPlotCollection*> m_wellDistributionPlotCollection;
