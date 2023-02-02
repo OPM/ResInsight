@@ -85,6 +85,7 @@
 #include "cvfTimer.h"
 
 #include "DockAreaWidget.h"
+#include "DockManager.h"
 
 #include <QAction>
 #include <QCloseEvent>

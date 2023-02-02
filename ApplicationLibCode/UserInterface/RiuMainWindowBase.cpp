@@ -37,6 +37,7 @@
 #include "cafPdmUiTreeView.h"
 #include "cafQTreeViewStateSerializer.h"
 
+#include "DockManager.h"
 #include "DockWidget.h"
 
 #include <QAction>
