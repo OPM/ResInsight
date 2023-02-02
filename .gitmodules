@@ -16,3 +16,6 @@
 [submodule "ThirdParty/roffcpp"]
 	path = ThirdParty/roffcpp
 	url = https://github.com/CeetronSolutions/roffcpp
+[submodule "ThirdParty/openzgy"]
+	path = ThirdParty/openzgy
+	url = https://github.com/CeetronSolutions/openzgy.git
