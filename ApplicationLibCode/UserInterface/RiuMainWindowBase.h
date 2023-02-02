@@ -22,7 +22,7 @@
 
 #include "cafPdmUiDragDropInterface.h"
 
-#include "DockManager.h"
+#include "ads_globals.h"
 
 #include <memory>
 #include <vector>
@@ -31,6 +31,13 @@ class RiuMdiArea;
 struct RimMdiWindowGeometry;
 
 class RiuMdiArea;
+
+namespace ads
+{
+class CDockManager;
+class CDockAreaWidget;
+class CDockWidget;
+} // namespace ads
 
 namespace caf
 {

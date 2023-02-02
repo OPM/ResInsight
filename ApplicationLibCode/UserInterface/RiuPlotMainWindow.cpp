@@ -67,6 +67,7 @@
 #include "cafSelectionManager.h"
 
 #include "DockAreaWidget.h"
+#include "DockManager.h"
 
 #include <QCloseEvent>
 #include <QLayout>

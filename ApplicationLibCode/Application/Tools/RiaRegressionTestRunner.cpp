@@ -44,6 +44,8 @@
 #include "ExportCommands/RicSnapshotAllPlotsToFileFeature.h"
 #include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
 
+#include "DockManager.h"
+
 #include "cafMemoryInspector.h"
 #include "cafUtils.h"
 

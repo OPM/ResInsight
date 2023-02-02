@@ -105,6 +105,8 @@
 #include "RiuRecentFileActionProvider.h"
 #include "RiuViewer.h"
 
+#include "DockManager.h"
+
 #include "cafAppEnum.h"
 #include "cafCmdExecCommandManager.h"
 #include "cafEffectGenerator.h"
