@@ -30,6 +30,8 @@
 #include "RiuDockWidgetTools.h"
 #include "RiuMainWindow.h"
 
+#include "DockManager.h"
+
 #include "cafPdmFieldScriptingCapability.h"
 
 #include <QFileInfo>
