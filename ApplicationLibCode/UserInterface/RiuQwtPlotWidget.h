@@ -217,7 +217,11 @@ private:
     void highlightPlotAxes( QwtAxisId axisIdX, QwtAxisId axisIdY );
     void highlightPlotItemsForQwtAxis( QwtAxisId axisId );
     void highlightPlotItems( const std::set<const QwtPlotItem*>& closestItems );
+    void highlightPlotCurves( const std::set<const QwtPlotItem*>& closestItems );
+    void highlightPlotShapeItems( const std::set<const QwtPlotItem*>& closestItems );
     void resetPlotItemHighlighting( bool doUpdateCurveOrder = true );
+    void resetPlotCurveHighlighting();
+    void resetPlotShapeItemHighlighting();
     void resetPlotAxisHighlighting();
     void onAxisSelected( QwtScaleWidget* scale, bool toggleItemInSelection );
     void recalculateAxisExtents( RiuPlotAxis axis );
