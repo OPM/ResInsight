@@ -19,6 +19,8 @@
 
 #include "RiuResultTextBuilder.h"
 
+#include "RiaPreferencesSystem.h"
+
 #include "RigAllanDiagramData.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
@@ -235,33 +237,66 @@ QString RiuResultTextBuilder::geometrySelectionText( QString itemSeparator )
                     size_t globalCellIndex = grid->reservoirCellIndex( m_cellIndex );
                     text += QString( "Global Cell Index : %4" ).arg( globalCellIndex ) + itemSeparator;
 
+                    if ( RiaPreferencesSystem::current()->showCellCoordinates() )
                     {
-                        const std::vector<std::pair<int, std::string>> flowVizNodeOrder{ { 0, "i- j- k+" },
-                                                                                         { 3, "i- j+ k+" },
-                                                                                         { 2, "i+ j+ k+" },
-                                                                                         { 1, "i+ j- k+" },
-                                                                                         { 4, "i- j- k-" },
-                                                                                         { 7, "i- j+ k-" },
-                                                                                         { 6, "i+ j+ k-" },
-                                                                                         { 5, "i+ j- k-" } };
-
                         auto mainGrid = grid->mainGrid();
 
-                        auto cell    = grid->cell( globalCellIndex );
+                        auto cell    = mainGrid->cell( globalCellIndex );
                         auto indices = cell.cornerIndices();
 
-                        size_t i;
-                        for ( i = 0; i < 8; i++ )
                         {
-                            const auto& [nodeIndex, nodeText] = flowVizNodeOrder[i];
-                            auto v                            = mainGrid->nodes()[indices[nodeIndex]];
-
-                            text += QString( "%4: [%1, %2, %3]" )
-                                        .arg( v.x() )
-                                        .arg( v.y() )
-                                        .arg( v.z() )
-                                        .arg( QString::fromStdString( nodeText ) ) +
+                            text += QString( "ResInsight (and FlowViz radial) ordering" ).arg( globalCellIndex ) +
                                     itemSeparator;
+
+                            const std::vector<std::pair<int, std::string>> riNodeOrder{ { 0, "i- j- k+" },
+                                                                                        { 1, "i+ j- k+" },
+                                                                                        { 2, "i+ j+ k+" },
+                                                                                        { 3, "i- j+ k+" },
+                                                                                        { 4, "i- j- k-" },
+                                                                                        { 5, "i+ j- k-" },
+                                                                                        { 6, "i+ j+ k-" },
+                                                                                        { 7, "i- j+ k-" } };
+
+                            size_t i;
+                            for ( i = 0; i < 8; i++ )
+                            {
+                                const auto& [nodeIndex, nodeText] = riNodeOrder[i];
+                                auto v                            = mainGrid->nodes()[indices[nodeIndex]];
+
+                                text += QString( "%4: [%1, %2, %3]" )
+                                            .arg( v.x() )
+                                            .arg( v.y() )
+                                            .arg( v.z() )
+                                            .arg( QString::fromStdString( nodeText ) ) +
+                                        itemSeparator;
+                            }
+                        }
+
+                        {
+                            text += QString( "FlowViz main grid ordering" ).arg( globalCellIndex ) + itemSeparator;
+
+                            const std::vector<std::pair<int, std::string>> flowVizNodeOrder{ { 0, "i- j- k+" },
+                                                                                             { 3, "i- j+ k+" },
+                                                                                             { 2, "i+ j+ k+" },
+                                                                                             { 1, "i+ j- k+" },
+                                                                                             { 4, "i- j- k-" },
+                                                                                             { 7, "i- j+ k-" },
+                                                                                             { 6, "i+ j+ k-" },
+                                                                                             { 5, "i+ j- k-" } };
+
+                            size_t i;
+                            for ( i = 0; i < 8; i++ )
+                            {
+                                const auto& [nodeIndex, nodeText] = flowVizNodeOrder[i];
+                                auto v                            = mainGrid->nodes()[indices[nodeIndex]];
+
+                                text += QString( "%4: [%1, %2, %3]" )
+                                            .arg( v.x() )
+                                            .arg( v.y() )
+                                            .arg( v.z() )
+                                            .arg( QString::fromStdString( nodeText ) ) +
+                                        itemSeparator;
+                            }
                         }
                     }
                 }

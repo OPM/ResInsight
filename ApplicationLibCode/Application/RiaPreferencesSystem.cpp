@@ -81,6 +81,9 @@ RiaPreferencesSystem::RiaPreferencesSystem()
     CAF_PDM_InitField( &m_showProgressBar, "showProgressBar", true, "Show Progress Bar" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showProgressBar );
 
+    CAF_PDM_InitField( &m_showCellCoordinates, "showCellCoordinates", false, "Show Cell Coordinates" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showCellCoordinates );
+
     CAF_PDM_InitField( &m_showPdfExportDialog, "showPdfExportDialog", true, "Show PDF Export Dialog" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showPdfExportDialog );
 
@@ -226,6 +229,14 @@ double RiaPreferencesSystem::exportPdfScalingFactor() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RiaPreferencesSystem::showCellCoordinates() const
+{
+    return m_showCellCoordinates;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiaPreferencesSystem::EclipseTextFileReaderMode RiaPreferencesSystem::eclipseTextFileReaderMode() const
 {
     return m_eclipseReaderMode();
@@ -255,6 +266,7 @@ void RiaPreferencesSystem::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     uiOrdering.add( &m_includeFractureDebugInfoFile );
     uiOrdering.add( &m_holoLensExportFolder );
     uiOrdering.add( &m_showProgressBar );
+    uiOrdering.add( &m_showCellCoordinates );
 
     uiOrdering.add( &m_showPdfExportDialog );
     uiOrdering.add( &m_exportScalingFactor );

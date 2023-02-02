@@ -56,6 +56,7 @@ public:
     bool    showProgressBar() const;
     bool    showPdfExportDialog() const;
     double  exportPdfScalingFactor() const;
+    bool    showCellCoordinates() const;
 
     EclipseTextFileReaderMode eclipseTextFileReaderMode() const;
 
@@ -84,6 +85,8 @@ private:
 
     caf::PdmField<bool>    m_showProgressBar;
     caf::PdmField<QString> m_gtestFilter;
+
+    caf::PdmField<bool> m_showCellCoordinates;
 
     caf::PdmField<EclipseTextFileReaderModeType> m_eclipseReaderMode;
 };
