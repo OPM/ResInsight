@@ -24,9 +24,9 @@
 #include <utility>
 #include <vector>
 
-namespace OpenZGY
+namespace ZGYAccess
 {
-class IZgyReader;
+class ZGYReader;
 }
 
 class RifSeismicZGYReader
@@ -41,8 +41,6 @@ public:
     std::vector<std::pair<QString, QString>> metaData();
 
 private:
-    QString cornerToString( std::array<double, 2> corner );
-
-    QString                              m_filename;
-    std::shared_ptr<OpenZGY::IZgyReader> m_reader;
+    QString                               m_filename;
+    std::shared_ptr<ZGYAccess::ZGYReader> m_reader;
 };
