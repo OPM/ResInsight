@@ -20,7 +20,9 @@
 #pragma once
 
 #include "cafPdmPointer.h"
+
 #include "cvfStructGrid.h"
+#include "cvfVector3.h"
 
 #include <map>
 
@@ -30,13 +32,14 @@ class Rim2dIntersectionView;
 class RigEclipseCaseData;
 class RimEclipseResultDefinition;
 class RimGridView;
+class RigGridBase;
 
 class QString;
 
 namespace cvf
 {
 class Part;
-}
+} // namespace cvf
 
 //==================================================================================================
 //
@@ -62,7 +65,7 @@ public:
 
     QString mainResultText();
 
-    QString geometrySelectionText( QString itemSeparator );
+    QString geometrySelectionText( const QString& itemSeparator );
 
 private:
     void appendDetails( QString& text, const QString& details );
@@ -89,6 +92,10 @@ private:
                                      QString*                    resultInfoText );
 
     std::pair<bool, QStringList> resultTextFromLinkedViews() const;
+
+    QString coordinatesText( const RigGridBase* grid, size_t globalCellIndex, const QString& itemSeparator );
+
+    static QString createTextFromDomainCoordinate( const QString& formatString, const cvf::Vec3d& domainCoord );
 
 private:
     caf::PdmPointer<RimGridView>    m_displayCoordView;

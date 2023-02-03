@@ -115,7 +115,7 @@ void RifOpmGridTools::transferCoordinates( Opm::EclIO::EGrid& opmMainGrid,
             RiaWeightedMeanCalculator<double> xCoord;
             RiaWeightedMeanCalculator<double> yCoord;
 
-            for ( const auto [x, y] : xyCoords )
+            for ( const auto& [x, y] : xyCoords )
             {
                 xCoord.addValueAndWeight( x, 1.0 );
                 yCoord.addValueAndWeight( y, 1.0 );

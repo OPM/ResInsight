@@ -40,10 +40,16 @@ public:
 
     std::vector<RigEclipseResultAddress> additionalResultAddresses() const;
 
+    bool showCenterCoordinates() const;
+    bool showCornerCoordinates() const;
+
 private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 private:
+    caf::PdmField<bool> m_showCornerCoordinates;
+    caf::PdmField<bool> m_showCenterCoordinates;
+
     caf::PdmField<std::vector<QString>> m_selectedKeywords;
     caf::PdmPointer<RimEclipseView>     m_eclipseView;
 };
