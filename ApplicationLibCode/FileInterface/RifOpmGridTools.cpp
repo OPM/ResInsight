@@ -78,9 +78,9 @@ void RifOpmGridTools::transferCoordinates( Opm::EclIO::EGrid& opmMainGrid,
     // Ordering of corner nodes are different on file compared to ResInsight data structures
     const size_t* cellMappingECLRi = RifReaderEclipseOutput::eclipseCellIndexMapping();
 
-    std::array<double, 8> X;
-    std::array<double, 8> Y;
-    std::array<double, 8> Z;
+    std::array<double, 8> X{};
+    std::array<double, 8> Y{};
+    std::array<double, 8> Z{};
 
     auto& nodes = riMainGrid->nodes();
 
@@ -106,11 +106,11 @@ void RifOpmGridTools::transferCoordinates( Opm::EclIO::EGrid& opmMainGrid,
             for ( size_t i = 4; i < 8; i++ )
             {
                 auto& xyCoords = xyCenterPerLayer[layer];
-                xyCoords.push_back( { X[i], Y[i] } );
+                xyCoords.emplace_back( X[i], Y[i] );
             }
         }
 
-        for ( const auto [k, xyCoords] : xyCenterPerLayer )
+        for ( const auto& [k, xyCoords] : xyCenterPerLayer )
         {
             RiaWeightedMeanCalculator<double> xCoord;
             RiaWeightedMeanCalculator<double> yCoord;
@@ -138,9 +138,9 @@ void RifOpmGridTools::transferCoordinates( Opm::EclIO::EGrid& opmMainGrid,
 
         if ( radialGridCenterTopLayer.count( ijk[2] ) > 0 )
         {
-            auto [xCenter, yCenter] = radialGridCenterTopLayer[ijk[2]];
-            xCenterCoord            = xCenter;
-            yCenterCoord            = yCenter;
+            const auto& [xCenter, yCenter] = radialGridCenterTopLayer[ijk[2]];
+            xCenterCoord                   = xCenter;
+            yCenterCoord                   = yCenter;
         }
 
         for ( size_t i = 0; i < 8; i++ )
