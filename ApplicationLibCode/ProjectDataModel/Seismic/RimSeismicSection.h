@@ -19,12 +19,23 @@
 
 #include "RimCheckableNamedObject.h"
 
+#include "RimPolylinePickerInterface.h"
+#include "RimPolylinesDataInterface.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
+#include "cafPdmFieldCvfColor.h"
+#include "cafPdmFieldCvfVec3d.h"
+
+#include "cvfColor3.h"
 
 #include <QString>
 
-class RimSeismicSection : public RimCheckableNamedObject
+class RicPolylineTargetsPickEventHandler;
+class RimPolylineTarget;
+class RigPolylinesData;
+
+class RimSeismicSection : public RimCheckableNamedObject, public RimPolylinePickerInterface, public RimPolylinesDataInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -35,14 +46,36 @@ public:
     QString userDescription();
     void    setUserDescription( QString description );
 
+    void updateVisualization() override;
+    void updateEditorsAndVisualization() override;
+    void insertTarget( const RimPolylineTarget* targetToInsertBefore, RimPolylineTarget* targetToInsert ) override;
+    void deleteTarget( RimPolylineTarget* targetToDelete ) override;
+    void enablePicking( bool enable );
+
+    std::vector<RimPolylineTarget*> activeTargets() const override;
+    bool                            pickingEnabled() const override;
+    caf::PickEventHandler*          pickEventHandler() const override;
+
+    cvf::ref<RigPolyLinesData> polyLinesData() const override;
+
 protected:
+    void                 initAfterRead() override;
     caf::PdmFieldHandle* userDescriptionField() override;
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    //    void                 defineEditorAttribute( const caf::PdmFieldHandle* field,
-    //                                                QString                    uiConfigName,
-    //                                                caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
-    caf::PdmField<QString> m_userDescription;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
+
+    caf::PdmField<QString>                      m_userDescription;
+    caf::PdmField<bool>                         m_enablePicking;
+    caf::PdmChildArrayField<RimPolylineTarget*> m_targets;
+    caf::PdmField<int>                          m_lineThickness;
+    caf::PdmField<double>                       m_sphereRadiusFactor;
+    caf::PdmField<cvf::Color3f>                 m_lineColor;
+    caf::PdmField<cvf::Color3f>                 m_sphereColor;
+
+    std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
 };

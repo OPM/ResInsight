@@ -18,16 +18,44 @@
 
 #include "RimSeismicSection.h"
 
+#include "WellPathCommands/PointTangentManipulator/RicPolyline3dEditor.h"
+#include "WellPathCommands/RicPolylineTargetsPickEventHandler.h"
+
+#include "RigPolyLinesData.h"
+
+#include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiTableViewEditor.h"
+
 CAF_PDM_SOURCE_INIT( RimSeismicSection, "SeismicSection" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimSeismicSection::RimSeismicSection()
+    : m_pickTargetsEventHandler( new RicPolylineTargetsPickEventHandler( this ) )
 {
     CAF_PDM_InitObject( "Seismic Section", ":/Seismic16x16.png" );
 
     CAF_PDM_InitField( &m_userDescription, "UserDecription", QString( "Seismic Section" ), "Name" );
+
+    CAF_PDM_InitField( &m_enablePicking, "EnablePicking", false, "" );
+    caf::PdmUiPushButtonEditor::configureEditorForField( &m_enablePicking );
+    m_enablePicking.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::HIDDEN );
+
+    CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );
+    m_targets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
+    m_targets.uiCapability()->setUiTreeChildrenHidden( true );
+    m_targets.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_targets.uiCapability()->setCustomContextMenuEnabled( true );
+
+    CAF_PDM_InitField( &m_lineThickness, "LineThickness", 3, "Line Thickness" );
+    CAF_PDM_InitField( &m_sphereRadiusFactor, "SphereRadiusFactor", 0.15, "Sphere Radius Factor" );
+
+    CAF_PDM_InitField( &m_lineColor, "LineColor", cvf::Color3f( cvf::Color3f::WHITE ), "Line Color" );
+    CAF_PDM_InitField( &m_sphereColor, "SphereColor", cvf::Color3f( cvf::Color3f::WHITE ), "Sphere Color" );
+
+    this->setUi3dEditorTypeName( RicPolyline3dEditor::uiEditorTypeName() );
+    this->uiCapability()->setUiTreeChildrenHidden( true );
 
     setDeletable( true );
 }
@@ -70,5 +98,162 @@ void RimSeismicSection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
 {
     uiOrdering.add( &m_userDescription );
 
+    auto group1 = uiOrdering.addNewGroup( "Polyline Definition" );
+    group1->add( &m_targets );
+    group1->add( &m_enablePicking );
+
+    auto group2 = uiOrdering.addNewGroup( "Appearance" );
+    group2->add( &m_lineThickness );
+    group2->add( &m_lineColor );
+    group2->add( &m_sphereRadiusFactor );
+    group2->add( &m_sphereColor );
+
     uiOrdering.skipRemainingFields( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicSection::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                               QString                    uiConfigName,
+                                               caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_enablePicking )
+    {
+        auto* pbAttribute = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
+        if ( pbAttribute )
+        {
+            if ( !m_enablePicking )
+            {
+                pbAttribute->m_buttonText = "Start Picking Points";
+            }
+            else
+            {
+                pbAttribute->m_buttonText = "Stop Picking Points";
+            }
+        }
+    }
+    else if ( field == &m_targets )
+    {
+        auto tvAttribute = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>( attribute );
+        if ( tvAttribute )
+        {
+            tvAttribute->resizePolicy = caf::PdmUiTableViewEditorAttribute::RESIZE_TO_FIT_CONTENT;
+
+            if ( m_enablePicking )
+            {
+                tvAttribute->baseColor.setRgb( 255, 220, 255 );
+                tvAttribute->alwaysEnforceResizePolicy = true;
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicSection::enablePicking( bool enable )
+{
+    m_enablePicking = enable;
+    updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSeismicSection::pickingEnabled() const
+{
+    return m_enablePicking();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PickEventHandler* RimSeismicSection::pickEventHandler() const
+{
+    return m_pickTargetsEventHandler.get();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPolylineTarget*> RimSeismicSection::activeTargets() const
+{
+    return m_targets.children();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicSection::insertTarget( const RimPolylineTarget* targetToInsertBefore, RimPolylineTarget* targetToInsert )
+{
+    size_t index = m_targets.indexOf( targetToInsertBefore );
+    if ( index < m_targets.size() )
+        m_targets.insert( index, targetToInsert );
+    else
+        m_targets.push_back( targetToInsert );
+
+    // TODO - update viz.
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicSection::deleteTarget( RimPolylineTarget* targetToDelete )
+{
+    m_targets.removeChild( targetToDelete );
+    delete targetToDelete;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicSection::updateVisualization()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicSection::initAfterRead()
+{
+    resolveReferencesRecursively();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicSection::updateEditorsAndVisualization()
+{
+    updateConnectedEditors();
+    updateVisualization();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::ref<RigPolyLinesData> RimSeismicSection::polyLinesData() const
+{
+    cvf::ref<RigPolyLinesData> pld = new RigPolyLinesData;
+    std::vector<cvf::Vec3d>    line;
+    for ( const RimPolylineTarget* target : m_targets )
+    {
+        if ( target->isEnabled() ) line.push_back( target->targetPointXYZ() );
+    }
+    pld->setPolyLine( line );
+
+    pld->setLineAppearance( m_lineThickness, m_lineColor, true );
+    pld->setSphereAppearance( m_sphereRadiusFactor, m_sphereColor );
+    pld->setZPlaneLock( true, 0.0 );
+
+    if ( isChecked() )
+    {
+        pld->setVisibility( true, true );
+    }
+    else
+    {
+        pld->setVisibility( false, false );
+    }
+
+    return pld;
 }
