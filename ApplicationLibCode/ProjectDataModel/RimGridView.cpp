@@ -31,6 +31,7 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimPropertyFilterCollection.h"
+#include "RimSeismicSectionCollection.h"
 #include "RimSurfaceCollection.h"
 #include "RimSurfaceInView.h"
 #include "RimSurfaceInViewCollection.h"
@@ -100,6 +101,10 @@ RimGridView::RimGridView()
     CAF_PDM_InitFieldNoDefault( &m_surfaceCollection, "SurfaceInViewCollection", "Surface Collection Field" );
     m_surfaceCollection.uiCapability()->setUiTreeHidden( true );
 
+    CAF_PDM_InitFieldNoDefault( &m_seismicSectionCollection, "SeismicSectionCollection", "Seismic Collection Field" );
+    m_seismicSectionCollection.uiCapability()->setUiTreeHidden( true );
+    m_seismicSectionCollection = new RimSeismicSectionCollection();
+
     CAF_PDM_InitFieldNoDefault( &m_cellFilterCollection, "RangeFilters", "Cell Filter Collection Field" );
     m_cellFilterCollection = new RimCellFilterCollection();
     m_cellFilterCollection.uiCapability()->setUiTreeHidden( true );
@@ -152,6 +157,14 @@ RimIntersectionCollection* RimGridView::intersectionCollection() const
 RimSurfaceInViewCollection* RimGridView::surfaceInViewCollection() const
 {
     return m_surfaceCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSeismicSectionCollection* RimGridView::seismicSectionCollection() const
+{
+    return m_seismicSectionCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
