@@ -1,9 +1,11 @@
 set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicImportSeismicFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewSeismicSectionFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicImportSeismicFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewSeismicSectionFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

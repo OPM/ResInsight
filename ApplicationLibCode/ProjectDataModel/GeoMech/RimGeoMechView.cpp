@@ -45,6 +45,7 @@
 #include "RimIntersectionResultDefinition.h"
 #include "RimIntersectionResultsDefinitionCollection.h"
 #include "RimRegularLegendConfig.h"
+#include "RimSeismicSectionCollection.h"
 #include "RimSurfaceInViewCollection.h"
 #include "RimTensorResults.h"
 #include "RimTernaryLegendConfig.h"
@@ -1065,6 +1066,7 @@ void RimGeoMechView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 
     uiTreeOrdering.add( m_intersectionCollection() );
     if ( surfaceInViewCollection() ) uiTreeOrdering.add( surfaceInViewCollection() );
+    uiTreeOrdering.add( seismicSectionCollection() );
 
     uiTreeOrdering.skipRemainingChildren( true );
 }

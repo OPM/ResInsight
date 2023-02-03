@@ -71,6 +71,7 @@
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimSeismicSectionCollection.h"
 #include "RimSimWellFracture.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
@@ -1963,6 +1964,8 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     uiTreeOrdering.add( intersectionCollection() );
 
     if ( surfaceInViewCollection() ) uiTreeOrdering.add( surfaceInViewCollection() );
+
+    uiTreeOrdering.add( seismicSectionCollection() );
 
     uiTreeOrdering.skipRemainingChildren( true );
 }

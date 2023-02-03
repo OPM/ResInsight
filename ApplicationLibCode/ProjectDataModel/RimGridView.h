@@ -32,6 +32,7 @@ class RimGridCollection;
 class RimCellFilterCollection;
 class RimWellMeasurementInViewCollection;
 class RimSurfaceInViewCollection;
+class RimSeismicSectionCollection;
 
 class RimGridView : public Rim3dView
 {
@@ -52,6 +53,7 @@ public:
     RimIntersectionResultsDefinitionCollection* separateSurfaceResultsCollection() const;
     RimAnnotationInViewCollection*              annotationCollection() const;
     RimWellMeasurementInViewCollection*         measurementCollection() const;
+    RimSeismicSectionCollection*                seismicSectionCollection() const;
 
     virtual const RimPropertyFilterCollection* propertyFilterCollection() const = 0;
 
@@ -96,6 +98,7 @@ protected:
     caf::PdmChildField<RimSurfaceInViewCollection*>         m_surfaceCollection;
     caf::PdmChildField<RimCellFilterCollection*>            m_cellFilterCollection;
     caf::PdmChildField<RimCellFilterCollection*>            m_overrideCellFilterCollection;
+    caf::PdmChildField<RimSeismicSectionCollection*>        m_seismicSectionCollection;
 
 private:
     void onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) override;
