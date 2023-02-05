@@ -16,7 +16,7 @@ for case_path in case_paths:
     ), "You need to set valid case paths for this script to work"
 
 case_group = resinsight.project.create_grid_case_group(case_paths=case_paths)
-#case_group.print_object_info()
+# case_group.print_object_info()
 
 case_group.compute_statistics()
 
