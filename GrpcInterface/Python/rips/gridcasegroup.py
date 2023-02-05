@@ -8,6 +8,7 @@ from .case import Case
 
 import Commands_pb2
 from .resinsight_classes import GridCaseGroup
+from .resinsight_classes import EclipseView
 
 
 @add_method(GridCaseGroup)
