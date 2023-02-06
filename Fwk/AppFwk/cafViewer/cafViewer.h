@@ -153,7 +153,7 @@ public:
     bool canRender() const;
 
     cvf::ref<cvf::RayIntersectSpec>
-                                    rayIntersectSpecFromWindowCoordinates( int winPosX, int winPosY, bool isForComparisonView );
+        rayIntersectSpecFromWindowCoordinates( int winPosX, int winPosY, bool isForComparisonView );
     cvf::ref<cvf::RayIntersectSpec> rayIntersectSpecFromWindowCoordinates( int winPosX, int winPosY );
     bool rayPick( int winPosX, int winPosY, cvf::HitItemCollection* pickedPoints, cvf::Vec3d* rayGlobalOrigin = nullptr );
 

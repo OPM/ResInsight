@@ -106,12 +106,11 @@ std::set<RimViewWindow*> RicWellLogFileCloseFeature::referringWellLogPlots( cons
         obj->firstAncestorOrThisOfType( rftPlot );
         obj->firstAncestorOrThisOfType( wellLogPlot );
 
-        RimViewWindow* plot = allocationPlot
-                                  ? dynamic_cast<RimViewWindow*>( allocationPlot )
-                                  : pltPlot
-                                        ? dynamic_cast<RimViewWindow*>( pltPlot )
-                                        : rftPlot ? dynamic_cast<RimViewWindow*>( rftPlot )
-                                                  : wellLogPlot ? dynamic_cast<RimViewWindow*>( wellLogPlot ) : nullptr;
+        RimViewWindow* plot = allocationPlot ? dynamic_cast<RimViewWindow*>( allocationPlot )
+                              : pltPlot      ? dynamic_cast<RimViewWindow*>( pltPlot )
+                              : rftPlot      ? dynamic_cast<RimViewWindow*>( rftPlot )
+                              : wellLogPlot  ? dynamic_cast<RimViewWindow*>( wellLogPlot )
+                                             : nullptr;
 
         if ( plot != nullptr )
         {

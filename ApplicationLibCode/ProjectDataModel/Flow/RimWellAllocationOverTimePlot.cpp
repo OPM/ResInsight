@@ -374,8 +374,8 @@ void RimWellAllocationOverTimePlot::updateFromWell()
         const auto   fillColor = RiaColorTools::blendQColors( qColor, QColor( Qt::white ), 3, 1 );
         const QBrush fillBrush( fillColor, Qt::BrushStyle::SolidPattern );
         auto         interpolationType = m_flowValueType == FlowValueType::ACCUMULATED_FLOW_VOLUME
-                                     ? RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT
-                                     : RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT;
+                                             ? RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT
+                                             : RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT;
 
         RiuPlotCurve* curve = m_plotWidget->createPlotCurve( nullptr, wellName );
         curve->setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID, interpolationType, 2, qColor, fillBrush );

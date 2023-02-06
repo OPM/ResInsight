@@ -572,12 +572,10 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                     std::vector<QString>       tracerNames = wfPhaseAccumulator.tracerNames();
                     for ( const QString& tracerName : tracerNames )
                     {
-                        auto color = tracerName == RIG_FLOW_OIL_NAME
-                                         ? cvf::Color3f::DARK_GREEN
-                                         : tracerName == RIG_FLOW_GAS_NAME
-                                               ? cvf::Color3f::DARK_RED
-                                               : tracerName == RIG_FLOW_WATER_NAME ? cvf::Color3f::BLUE
-                                                                                   : cvf::Color3f::DARK_GRAY;
+                        auto color = tracerName == RIG_FLOW_OIL_NAME     ? cvf::Color3f::DARK_GREEN
+                                     : tracerName == RIG_FLOW_GAS_NAME   ? cvf::Color3f::DARK_RED
+                                     : tracerName == RIG_FLOW_WATER_NAME ? cvf::Color3f::BLUE
+                                                                         : cvf::Color3f::DARK_GRAY;
 
                         if ( tracerName == RIG_FLOW_OIL_NAME && selectedPhases.count( FLOW_PHASE_OIL ) ||
                              tracerName == RIG_FLOW_GAS_NAME && selectedPhases.count( FLOW_PHASE_GAS ) ||
@@ -646,13 +644,10 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                         const auto& channelName = std::get<1>( channelInfo );
                         if ( selectedPhases.count( RimWellPlotTools::flowPhaseFromChannelName( channelName ) ) > 0 )
                         {
-                            auto color = RimWellPlotTools::isOilFlowChannel( channelName )
-                                             ? cvf::Color3f::DARK_GREEN
-                                             : RimWellPlotTools::isGasFlowChannel( channelName )
-                                                   ? cvf::Color3f::DARK_RED
-                                                   : RimWellPlotTools::isWaterFlowChannel( channelName )
-                                                         ? cvf::Color3f::BLUE
-                                                         : cvf::Color3f::DARK_GRAY;
+                            auto color = RimWellPlotTools::isOilFlowChannel( channelName )   ? cvf::Color3f::DARK_GREEN
+                                         : RimWellPlotTools::isGasFlowChannel( channelName ) ? cvf::Color3f::DARK_RED
+                                         : RimWellPlotTools::isWaterFlowChannel( channelName ) ? cvf::Color3f::BLUE
+                                                                                               : cvf::Color3f::DARK_GRAY;
 
                             FlowPhase flowPhase = FLOW_PHASE_NONE;
                             if ( RimWellPlotTools::isOilFlowChannel( channelName ) )

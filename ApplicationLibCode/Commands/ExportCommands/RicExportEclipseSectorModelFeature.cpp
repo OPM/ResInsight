@@ -122,7 +122,7 @@ void RicExportEclipseSectorModelFeature::executeCommand( RimEclipseView*        
     {
         const cvf::UByteArray* cellVisibilityForActnum = exportSettings.makeInvisibleCellsInactive() ? &cellVisibility
                                                                                                      : nullptr;
-        auto task = progress.task( "Export Grid", gridProgressPercentage );
+        auto                   task                    = progress.task( "Export Grid", gridProgressPercentage );
 
         bool worked = RifEclipseInputFileTools::exportGrid( exportSettings.exportGridFilename(),
                                                             view->eclipseCase()->eclipseCaseData(),

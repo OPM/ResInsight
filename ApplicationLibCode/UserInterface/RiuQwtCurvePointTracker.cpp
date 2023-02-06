@@ -178,7 +178,7 @@ QPointF RiuQwtCurvePointTracker::closestCurvePoint( const QPoint& cursorPosition
     {
         const QwtScaleDraw* mainAxisScaleDraw = m_isMainAxisHorizontal ? m_plot->axisScaleDraw( *relatedXAxis )
                                                                        : m_plot->axisScaleDraw( *relatedYAxis );
-        auto dateScaleDraw = dynamic_cast<const QwtDateScaleDraw*>( mainAxisScaleDraw );
+        auto                dateScaleDraw     = dynamic_cast<const QwtDateScaleDraw*>( mainAxisScaleDraw );
 
         qreal mainAxisSampleVal = 0.0;
         if ( m_isMainAxisHorizontal )

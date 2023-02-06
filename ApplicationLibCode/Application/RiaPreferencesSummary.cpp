@@ -493,9 +493,9 @@ QList<caf::PdmOptionItemInfo> RiaPreferencesSummary::calculateValueOptions( cons
         {
             RiaDefines::ColumnCount enumVal           = ColumnCountEnum::fromIndex( i );
             QString                 columnCountString = ( enumVal == RiaDefines::ColumnCount::COLUMNS_UNLIMITED )
-                                            ? "Unlimited"
-                                            : QString( "%1" ).arg( static_cast<int>( enumVal ) );
-            QString iconPath = QString( ":/Columns%1.png" ).arg( columnCountString );
+                                                            ? "Unlimited"
+                                                            : QString( "%1" ).arg( static_cast<int>( enumVal ) );
+            QString                 iconPath          = QString( ":/Columns%1.png" ).arg( columnCountString );
             options.push_back( caf::PdmOptionItemInfo( ColumnCountEnum::uiText( enumVal ),
                                                        enumVal,
                                                        false,

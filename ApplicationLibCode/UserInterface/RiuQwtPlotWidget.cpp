@@ -906,7 +906,7 @@ void RiuQwtPlotWidget::findClosestPlotItem( const QPoint& pos,
             {
                 QPointF samplePoint = barChart->sample( (int)i );
                 double  dist        = horizontal ? std::abs( samplePoint.x() - scalePos.y() )
-                                         : std::abs( samplePoint.x() - scalePos.x() );
+                                                 : std::abs( samplePoint.x() - scalePos.x() );
                 if ( dist < *distanceFromClick )
                 {
                     *closestItem       = it;

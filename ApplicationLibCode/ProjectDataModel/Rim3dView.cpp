@@ -1160,8 +1160,8 @@ void Rim3dView::updateGridBoxData()
     {
         using BBox = cvf::BoundingBox;
 
-        BBox masterDomainBBox = isShowingActiveCellsOnly() ? ownerCase()->activeCellsBoundingBox()
-                                                           : ownerCase()->allCellsBoundingBox();
+        BBox masterDomainBBox   = isShowingActiveCellsOnly() ? ownerCase()->activeCellsBoundingBox()
+                                                             : ownerCase()->allCellsBoundingBox();
         BBox combinedDomainBBox = masterDomainBBox;
 
         if ( Rim3dView* depView = activeComparisonView() )
