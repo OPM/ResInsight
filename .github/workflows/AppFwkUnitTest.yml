@@ -15,8 +15,8 @@ jobs:
       - name: Install Linux dependencies
         if: "contains( matrix.os, 'ubuntu')"
         run: |
-          sudo apt-get update
-          sudo apt-get install libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev
+          sudo apt-get update --option="APT::Acquire::Retries=3"
+          sudo apt-get install --option="APT::Acquire::Retries=3" libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
