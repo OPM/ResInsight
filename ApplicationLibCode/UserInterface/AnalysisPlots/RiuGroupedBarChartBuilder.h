@@ -22,9 +22,9 @@
 #include <QString>
 #include <QVector>
 
+#include <limits>
 #include <map>
 #include <set>
-#include <limits>
 
 class QwtPlot;
 class QColor;

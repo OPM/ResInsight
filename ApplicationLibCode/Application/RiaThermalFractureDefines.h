@@ -22,8 +22,6 @@
 
 #include <QString>
 
-
-
 namespace RiaDefines
 {
 QString leakoffPressureDropResultName();
