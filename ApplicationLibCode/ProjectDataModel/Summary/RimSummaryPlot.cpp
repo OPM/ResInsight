@@ -637,8 +637,11 @@ void RimSummaryPlot::copyAxisPropertiesFromOther( const RimSummaryPlot& sourceSu
     {
         QString data = ap->writeObjectToXmlString();
 
-        axisPropertiesForPlotAxis( ap->plotAxisType() )
-            ->readObjectFromXmlString( data, caf::PdmDefaultObjectFactory::instance() );
+        auto axisProperty = axisPropertiesForPlotAxis( ap->plotAxisType() );
+        if ( axisProperty )
+        {
+            axisProperty->readObjectFromXmlString( data, caf::PdmDefaultObjectFactory::instance() );
+        }
     }
 }
 
