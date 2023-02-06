@@ -114,30 +114,12 @@ bool RimSummaryCalculation::calculate()
     auto variables = getVariables();
     if ( !variables ) return false;
 
-    RimSummaryCalculationVariable* v = variables.value()[0];
-
-    // TODO: handle cases for result which are not wells!!!!!!!!!!!!!!!!!!!!!!
-    auto well = v->summaryAddress()->address().wellName();
-    auto addr = RifEclipseSummaryAddress::wellAddress( description().toStdString(), well, m_id );
-
     // Clear existing values
-    m_cachedResults.erase( addr );
-    m_cachedTimesteps.erase( addr );
+    m_cachedResults.clear();
+    m_cachedTimesteps.clear();
 
-    auto result = calculateResult( m_expression, variables.value() );
-    if ( result )
-    {
-        auto [validValues, validTimeSteps] = result.value();
-        m_cachedResults[addr]              = validValues;
-        m_cachedTimesteps[addr]            = validTimeSteps;
-
-        m_isDirty = false;
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    m_isDirty = false;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -482,6 +464,17 @@ const std::vector<time_t>& RimSummaryCalculation::timeSteps( const RimUserDefine
     if ( auto it = m_cachedTimesteps.find( address->address() ); it != m_cachedTimesteps.end() )
     {
         return it->second;
+    }
+    else
+    {
+        auto result = calculateWithSubstitutions( address->address() );
+        if ( result )
+        {
+            auto [validValues, validTimeSteps]    = result.value();
+            m_cachedResults[address->address()]   = validValues;
+            m_cachedTimesteps[address->address()] = validTimeSteps;
+            return m_cachedTimesteps[address->address()];
+        }
     }
 
     return dummy;
