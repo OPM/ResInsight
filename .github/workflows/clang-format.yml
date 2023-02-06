@@ -18,22 +18,22 @@ jobs:
       - name: Install clang-format 10.0
         run: |
           sudo apt-get install --option="APT::Acquire::Retries=3" clang-format-10
-          clang-format --version
+          clang-format-10 --version
       - uses: actions/checkout@v3
       - name: Check format - ApplicationLibCode
         run: |
           cd ApplicationLibCode
-          find -name *.h -o -name *.cpp -o -name *.inl | xargs clang-format -i
+          find -name *.h -o -name *.cpp -o -name *.inl | xargs clang-format-10 -i
           git diff
       - name: Check format - ApplicationExeCode
         run: |
           cd ApplicationExeCode
-          find -name *.h -o -name *.cpp -o -name *.inl | xargs clang-format -i
+          find -name *.h -o -name *.cpp -o -name *.inl | xargs clang-format-10 -i
           git diff
       - name: Check format - AppFwk
         run: |
           cd Fwk/AppFwk
-          find -name *.h -o -name *.cpp -o -name *.inl | grep -v gtest | xargs clang-format -i
+          find -name *.h -o -name *.cpp -o -name *.inl | grep -v gtest | xargs clang-format-10 -i
           git diff
       - uses: peter-evans/create-pull-request@v4
         with:
