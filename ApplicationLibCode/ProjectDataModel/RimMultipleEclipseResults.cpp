@@ -33,15 +33,15 @@ RimMultipleEclipseResults::RimMultipleEclipseResults()
 {
     CAF_PDM_InitObject( "Multiple Result Info", ":/TextAnnotation16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_selectedKeywords, "SelectedProperties", "Properties" );
-    m_selectedKeywords.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
-    m_selectedKeywords.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
-
     CAF_PDM_InitField( &m_showCenterCoordinates, "showCenterCoordinates", false, "Show Center Coordinates" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showCenterCoordinates );
 
     CAF_PDM_InitField( &m_showCornerCoordinates, "showCornerCoordinates", false, "Show Corner Coordinates" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showCornerCoordinates );
+
+    CAF_PDM_InitFieldNoDefault( &m_selectedKeywords, "SelectedProperties", "Properties" );
+    m_selectedKeywords.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_selectedKeywords.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -93,7 +93,7 @@ bool RimMultipleEclipseResults::showCenterCoordinates() const
 //--------------------------------------------------------------------------------------------------
 bool RimMultipleEclipseResults::showCornerCoordinates() const
 {
-    return m_showCenterCoordinates;
+    return m_showCornerCoordinates;
 }
 
 //--------------------------------------------------------------------------------------------------
