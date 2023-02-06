@@ -210,7 +210,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuTextContentFrame.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtLegendOverlayContentFrame.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtDateScaleWrapper.cpp
-	${CMAKE_CURRENT_LIST_DIR}/RiuMatrixPlotWidget.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuMatrixPlotWidget.cpp
 )
 
 if(RESINSIGHT_USE_QT_CHARTS)
