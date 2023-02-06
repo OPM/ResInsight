@@ -35,7 +35,10 @@ void RifOpmGridTools::importAndUpdateCoordinates( const std::string& gridFilePat
     {
         Opm::EclIO::EGrid opmMainGrid( gridFilePath );
 
-        transferCoordinates( opmMainGrid, opmMainGrid, riMainGrid, riMainGrid );
+        if ( opmMainGrid.is_radial() )
+        {
+            transferCoordinates( opmMainGrid, opmMainGrid, riMainGrid, riMainGrid );
+        }
 
         auto lgrNames = opmMainGrid.list_of_lgrs();
         for ( const auto& lgrName : lgrNames )
@@ -55,7 +58,10 @@ void RifOpmGridTools::importAndUpdateCoordinates( const std::string& gridFilePat
             {
                 Opm::EclIO::EGrid opmLgrGrid( gridFilePath, lgrName );
 
-                transferCoordinates( opmMainGrid, opmLgrGrid, riMainGrid, riLgrGrid );
+                if ( opmLgrGrid.is_radial() )
+                {
+                    transferCoordinates( opmMainGrid, opmLgrGrid, riMainGrid, riLgrGrid );
+                }
             }
         }
     }
@@ -95,8 +101,7 @@ void RifOpmGridTools::transferCoordinates( Opm::EclIO::EGrid& opmMainGrid,
 
         for ( size_t cIdx = 0; cIdx < cellCount; cIdx++ )
         {
-            bool useCartesianCoords = false;
-            auto mainGridCellIndex  = hostCellGlobalIndices[cIdx];
+            auto mainGridCellIndex = hostCellGlobalIndices[cIdx];
             opmMainGrid.getCellCorners( mainGridCellIndex, X, Y, Z );
 
             auto ijkLocalGrid = opmGrid.ijk_from_global_index( cIdx );
