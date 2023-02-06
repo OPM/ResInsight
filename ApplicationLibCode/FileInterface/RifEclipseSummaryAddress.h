@@ -55,7 +55,6 @@ public:
         SUMMARY_WELL_SEGMENT,
         SUMMARY_BLOCK,
         SUMMARY_BLOCK_LGR,
-        SUMMARY_CALCULATED,
         SUMMARY_IMPORTED,
         SUMMARY_ENSEMBLE_STATISTICS
     };
@@ -141,7 +140,6 @@ public:
                                                      int                j,
                                                      int                k,
                                                      int                calculationId = -1 );
-    static RifEclipseSummaryAddress calculatedAddress( const std::string& vectorName, int id );
     static RifEclipseSummaryAddress importedAddress( const std::string& vectorName );
     static RifEclipseSummaryAddress ensembleStatisticsAddress( const std::string& vectorName,
                                                                const std::string& datavectorName );

@@ -111,9 +111,6 @@ RifEclipseSummaryAddress::RifEclipseSummaryAddress( SummaryVarCategory          
         case SUMMARY_AQUIFER:
             m_aquiferNumber = RiaStdStringTools::toInt( identifiers[INPUT_AQUIFER_NUMBER] );
             break;
-        case SUMMARY_CALCULATED:
-            m_id = RiaStdStringTools::toInt( identifiers[INPUT_ID] );
-            break;
     }
 
     m_vectorName = identifiers[INPUT_VECTOR_NAME];
@@ -440,18 +437,6 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::blockLgrAddress( const std::s
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RifEclipseSummaryAddress::calculatedAddress( const std::string& vectorName, int id )
-{
-    RifEclipseSummaryAddress addr;
-    addr.m_variableCategory = SUMMARY_CALCULATED;
-    addr.m_vectorName       = vectorName;
-    addr.m_id               = id;
-    return addr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress RifEclipseSummaryAddress::importedAddress( const std::string& vectorName )
 {
     RifEclipseSummaryAddress addr;
@@ -622,11 +607,6 @@ std::string RifEclipseSummaryAddress::itemUiText() const
         case SUMMARY_AQUIFER:
         {
             text += std::to_string( this->aquiferNumber() );
-        }
-        break;
-        case SUMMARY_CALCULATED:
-        {
-            text += std::to_string( this->id() );
         }
         break;
         case SUMMARY_IMPORTED:

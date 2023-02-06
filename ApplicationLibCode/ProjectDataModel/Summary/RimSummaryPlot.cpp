@@ -2627,7 +2627,7 @@ void RimSummaryPlot::updateNameHelperWithCurveData( RimSummaryPlotNameHelper* na
     {
         for ( RimSummaryCurve* curve : m_summaryCurveCollection->curves() )
         {
-            if ( curve->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
+            if ( curve->summaryAddressY().isCalculated() )
             {
                 RiaSummaryTools::getSummaryCasesAndAddressesForCalculation( curve->summaryAddressY().id(),
                                                                             sumCases,

@@ -530,8 +530,6 @@ bool RiaApplication::loadProject( const QString&      projectFileName,
 
     {
         RimMainPlotCollection* mainPlotColl = RimMainPlotCollection::current();
-
-        mainPlotColl->ensureCalculationIdsAreAssigned();
         mainPlotColl->ensureDefaultFlowPlotsAreCreated();
     }
 

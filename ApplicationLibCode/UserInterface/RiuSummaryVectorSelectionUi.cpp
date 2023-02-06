@@ -154,8 +154,6 @@ RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
               { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_CELL_IJK ) },
               { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME ) },
               { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_ID ) } } },
-          { RifEclipseSummaryAddress::SUMMARY_CALCULATED,
-            { { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME ) } } },
           { RifEclipseSummaryAddress::SUMMARY_IMPORTED,
             { { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME ) },
               { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_ID ) } } },
@@ -317,10 +315,6 @@ RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][3]->pdmField(),
                                 "BlockLgrCalculationIds",
                                 "CalculationIds" );
-
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_CALCULATED][0]->pdmField(),
-                                "CalculatedVectors",
-                                "Calculated Vectors" );
 
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_IMPORTED][0]->pdmField(),
                                 "ImportedVectors",
@@ -792,15 +786,12 @@ std::set<RifEclipseSummaryAddress> RiuSummaryVectorSelectionUi::findPossibleSumm
 {
     std::set<RifEclipseSummaryAddress> addressSet;
 
-    if ( m_currentSummaryCategory != RifEclipseSummaryAddress::SUMMARY_CALCULATED )
-    {
-        RimSummaryCase* calcSumCase = calculatedSummaryCase();
+    RimSummaryCase* calcSumCase = calculatedSummaryCase();
 
-        const std::set<RifEclipseSummaryAddress> allAddresses = calcSumCase->summaryReader()->allResultAddresses();
-        for ( const auto& adr : allAddresses )
-        {
-            if ( adr.category() == m_currentSummaryCategory.value() ) addressSet.insert( adr );
-        }
+    const std::set<RifEclipseSummaryAddress> allAddresses = calcSumCase->summaryReader()->allResultAddresses();
+    for ( const auto& adr : allAddresses )
+    {
+        if ( adr.category() == m_currentSummaryCategory.value() ) addressSet.insert( adr );
     }
 
     return addressSet;
@@ -1044,10 +1035,6 @@ void RiuSummaryVectorSelectionUi::defineUiOrdering( QString uiConfigName, caf::P
         }
 
         summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR][2]->pdmField();
-    }
-    else if ( sumCategory == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
-    {
-        summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_CALCULATED][0]->pdmField();
     }
     else if ( sumCategory == RifEclipseSummaryAddress::SUMMARY_IMPORTED )
     {
@@ -1332,8 +1319,7 @@ void RiuSummaryVectorSelectionUi::buildAddressListForCategoryRecursively(
         auto idText = identifierText;
 
         // Calculated results have a id appended. E.g. "Calculation_3 ( NORNE_ATW2013, WOPR:B-4H ):3"
-        if ( ( category == RifEclipseSummaryAddress::SUMMARY_CALCULATED ) ||
-             ( ( *identifierAndFieldItr )->summaryIdentifier() == RifEclipseSummaryAddress::INPUT_VECTOR_NAME ) )
+        if ( ( *identifierAndFieldItr )->summaryIdentifier() == RifEclipseSummaryAddress::INPUT_VECTOR_NAME )
         {
             // Extract the calculation id
             QStringList tokens = idText.split( ":" );
@@ -1489,7 +1475,6 @@ void RiuSummaryVectorSelectionUi::appendOptionItemsForCategories( QList<caf::Pdm
     sortedCategoriesForUi.push_back( RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_LGR );
     sortedCategoriesForUi.push_back( RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR );
     sortedCategoriesForUi.push_back( RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_BLOCK_LGR );
-    sortedCategoriesForUi.push_back( RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_CALCULATED );
     sortedCategoriesForUi.push_back( RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_IMPORTED );
     // NB SUMMARY_ENSEMBLE_STATISTICS is intentionally excluded
     // categoriesForUiDisplay.push_back(RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_ENSEMBLE_STATISTICS);

@@ -95,11 +95,10 @@ void RiaSummaryTools::notifyCalculatedCurveNameHasChanged( int calculationId, co
             for ( RimSummaryCurve* curve : plot->summaryCurves() )
             {
                 RifEclipseSummaryAddress adr = curve->summaryAddressY();
-                if ( adr.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED && adr.id() == calculationId )
+                if ( adr.isCalculated() && adr.id() == calculationId )
                 {
-                    RifEclipseSummaryAddress updatedAdr =
-                        RifEclipseSummaryAddress::calculatedAddress( currentCurveName.toStdString(), calculationId );
-                    curve->setSummaryAddressYAndApplyInterpolation( updatedAdr );
+                    adr.setVectorName( currentCurveName.toStdString() );
+                    curve->setSummaryAddressYAndApplyInterpolation( adr );
                 }
             }
         }
@@ -199,7 +198,7 @@ bool RiaSummaryTools::isSummaryCrossPlot( const RimSummaryPlot* plot )
 //--------------------------------------------------------------------------------------------------
 bool RiaSummaryTools::hasAccumulatedData( const RifEclipseSummaryAddress& address )
 {
-    if ( address.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
+    if ( address.isCalculated() )
     {
         std::vector<RimSummaryCase*>          cases;
         std::vector<RifEclipseSummaryAddress> addresses;

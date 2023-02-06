@@ -381,20 +381,6 @@ void RimMainPlotCollection::ensureDefaultFlowPlotsAreCreated()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMainPlotCollection::ensureCalculationIdsAreAssigned()
-{
-    std::vector<RimSummaryAddress*> allAddresses;
-    this->descendantsIncludingThisOfType( allAddresses );
-
-    for ( RimSummaryAddress* adr : allAddresses )
-    {
-        adr->ensureCalculationIdIsAssigned();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimMainPlotCollection::loadDataAndUpdateAllPlots()
 {
     std::vector<RimPlotCollection*> plotCollections = allPlotCollections();
