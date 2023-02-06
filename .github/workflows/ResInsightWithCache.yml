@@ -132,9 +132,9 @@ jobs:
         run: echo "${{github.workspace}}/buildcache/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
         shell: pwsh
 
-      # see https://github.com/actions/runner-images/issues/7048
       - name: Set apt mirror
-        if: "contains( matrix.os, 'ubuntu')"
+        # see https://github.com/actions/runner-images/issues/7048
+        if: "contains( matrix.config.os, 'ubuntu')"
         run: |
           # make sure there is a `\t` between URL and `priority:*` attributes
           printf 'http://azure.archive.ubuntu.com/ubuntu	priority:1\n' | sudo tee /etc/apt/mirrors.txt
