@@ -30,9 +30,9 @@ class RicMswSegmentCellIntersection
 {
 public:
     RicMswSegmentCellIntersection( const QString&     gridName, // Pass in empty string for main grid
-                                      size_t             globalCellIndex,
-                                      const cvf::Vec3st& gridLocalCellIJK,
-                                      const cvf::Vec3d&  lengthsInCell );
+                                   size_t             globalCellIndex,
+                                   const cvf::Vec3st& gridLocalCellIJK,
+                                   const cvf::Vec3d&  lengthsInCell );
     const QString&    gridName() const;
     size_t            globalCellIndex() const;
     cvf::Vec3st       gridLocalCellIJK() const;

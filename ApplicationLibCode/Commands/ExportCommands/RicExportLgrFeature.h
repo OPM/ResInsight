@@ -117,10 +117,11 @@ public:
 
     int priority() const
     {
-        return type == RigCompletionData::CompletionType::FRACTURE      ? 1
-               : type == RigCompletionData::CompletionType::FISHBONES   ? 2
-               : type == RigCompletionData::CompletionType::PERFORATION ? 3
-                                                                        : 4;
+        return type == RigCompletionData::CompletionType::FRACTURE
+                   ? 1
+                   : type == RigCompletionData::CompletionType::FISHBONES
+                         ? 2
+                         : type == RigCompletionData::CompletionType::PERFORATION ? 3 : 4;
     }
 
     // Sort by priority, then name, then number
