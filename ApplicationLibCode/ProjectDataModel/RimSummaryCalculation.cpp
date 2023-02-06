@@ -32,6 +32,7 @@
 #include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCalculationVariable.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
@@ -308,6 +309,17 @@ void RimSummaryCalculation::updateDependentObjects()
     RimSummaryCalculationCollection* calcColl = nullptr;
     this->firstAncestorOrThisOfTypeAsserted( calcColl );
     calcColl->rebuildCaseMetaData();
+
+    // Refresh data sources tree.
+    // TODO: refresh too much: would be enough to only refresh calculated resutls.
+    RimSummaryCaseMainCollection* summaryCaseCollection = RiaSummaryTools::summaryCaseMainCollection();
+    auto                          summaryCases          = summaryCaseCollection->allSummaryCases();
+    for ( RimSummaryCase* summaryCase : summaryCases )
+    {
+        summaryCase->createSummaryReaderInterface();
+        summaryCase->createRftReaderInterface();
+        summaryCase->refreshMetaData();
+    }
 
     RimSummaryMultiPlotCollection* summaryPlotCollection = RiaSummaryTools::summaryMultiPlotCollection();
     for ( auto multiPlot : summaryPlotCollection->multiPlots() )
