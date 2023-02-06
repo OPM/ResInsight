@@ -373,7 +373,8 @@ void RimWellAllocationOverTimePlot::updateFromWell()
         const auto   qColor    = QColor( color.rByte(), color.gByte(), color.bByte() );
         const auto   fillColor = RiaColorTools::blendQColors( qColor, QColor( Qt::white ), 3, 1 );
         const QBrush fillBrush( fillColor, Qt::BrushStyle::SolidPattern );
-        auto         interpolationType = m_flowValueType == FlowValueType::ACCUMULATED_FLOW_VOLUME
+        auto         interpolationType = m_flowValueType == FlowValueType::ACCUMULATED_FLOW_VOLUME ||
+                                         m_flowValueType == FlowValueType::ACCUMULATED_FLOW_VOLUME_PERCENTAGE
                                      ? RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT
                                      : RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT;
 
