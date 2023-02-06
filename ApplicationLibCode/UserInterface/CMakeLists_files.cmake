@@ -104,6 +104,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuGuiTheme.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuQssSyntaxHighlighter.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtDateScaleWrapper.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiuMatrixPlotWidget.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -209,6 +210,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuTextContentFrame.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtLegendOverlayContentFrame.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtDateScaleWrapper.cpp
+	${CMAKE_CURRENT_LIST_DIR}/RiuMatrixPlotWidget.cpp
 )
 
 if(RESINSIGHT_USE_QT_CHARTS)
@@ -298,6 +300,7 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/RiuTextEditWithCompletion.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuTextContentFrame.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuQwtLegendOverlayContentFrame.h
+  ${CMAKE_CURRENT_LIST_DIR}/RiuMatrixPlotWidget.h
 )
 
 list(APPEND QT_UI_FILES)

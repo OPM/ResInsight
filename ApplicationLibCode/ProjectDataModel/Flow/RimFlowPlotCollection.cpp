@@ -22,6 +22,7 @@
 #include "RimProject.h"
 #include "RimWellAllocationOverTimePlot.h"
 #include "RimWellAllocationPlot.h"
+#include "RimWellConnectivityTable.h"
 #include "RimWellDistributionPlotCollection.h"
 
 #include "cafProgressInfo.h"
@@ -38,6 +39,9 @@ RimFlowPlotCollection::RimFlowPlotCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_flowCharacteristicsPlot, "FlowCharacteristicsPlot", "" );
     m_flowCharacteristicsPlot.uiCapability()->setUiTreeHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_defaultWellConnectivityTable, "DefaultWellConnectivityTable", "" );
+    m_defaultWellConnectivityTable.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_defaultWellAllocOverTimePlot, "DefaultWellAllocationOverTimePlot", "" );
     m_defaultWellAllocOverTimePlot.uiCapability()->setUiTreeHidden( true );
@@ -217,6 +221,12 @@ void RimFlowPlotCollection::ensureDefaultFlowPlotsAreCreated()
     {
         m_defaultWellAllocOverTimePlot = new RimWellAllocationOverTimePlot;
         m_defaultWellAllocOverTimePlot->setDescription( "Default Well Allocation Over Time Plot" );
+    }
+
+    if ( !m_defaultWellConnectivityTable() )
+    {
+        m_defaultWellConnectivityTable = new RimWellConnectivityTable;
+        // m_defaultWellConnectivityTable->setDescription( "Default Well Allocation Over Time Plot" );
     }
 
     if ( !m_flowCharacteristicsPlot() )
