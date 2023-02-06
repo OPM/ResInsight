@@ -134,57 +134,72 @@ void RimSummaryCalculation::substituteVariables( std::vector<RimSummaryCalculati
 
     QVariant oldValue;
     QVariant newValue;
+    bool     isHandledBySteppingTools = false;
     if ( category == RifEclipseSummaryAddress::SUMMARY_WELL )
     {
-        oldValue = QString::fromStdString( firstVariable->summaryAddress()->address().wellName() );
-        newValue = QString::fromStdString( address.wellName() );
+        oldValue                 = QString::fromStdString( firstVariable->summaryAddress()->address().wellName() );
+        newValue                 = QString::fromStdString( address.wellName() );
+        isHandledBySteppingTools = true;
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_REGION )
     {
-        oldValue = firstVariable->summaryAddress()->address().regionNumber();
-        newValue = address.regionNumber();
+        oldValue                 = firstVariable->summaryAddress()->address().regionNumber();
+        newValue                 = address.regionNumber();
+        isHandledBySteppingTools = true;
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_GROUP )
     {
-        oldValue = QString::fromStdString( firstVariable->summaryAddress()->address().groupName() );
-        newValue = QString::fromStdString( address.groupName() );
+        oldValue                 = QString::fromStdString( firstVariable->summaryAddress()->address().groupName() );
+        newValue                 = QString::fromStdString( address.groupName() );
+        isHandledBySteppingTools = true;
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_AQUIFER )
     {
-        oldValue = firstVariable->summaryAddress()->address().aquiferNumber();
-        newValue = address.aquiferNumber();
+        oldValue                 = firstVariable->summaryAddress()->address().aquiferNumber();
+        newValue                 = address.aquiferNumber();
+        isHandledBySteppingTools = true;
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION ||
               category == RifEclipseSummaryAddress::SUMMARY_BLOCK )
     {
-        oldValue = QString::fromStdString( firstVariable->summaryAddress()->address().blockAsString() );
-        newValue = QString::fromStdString( address.blockAsString() );
+        oldValue                 = QString::fromStdString( firstVariable->summaryAddress()->address().blockAsString() );
+        newValue                 = QString::fromStdString( address.blockAsString() );
+        isHandledBySteppingTools = true;
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_MISC || category == RifEclipseSummaryAddress::SUMMARY_FIELD )
     {
         // No need to do anything for these types
         return;
     }
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION )
+    {
+        oldValue = QString::fromStdString( firstVariable->summaryAddress()->address().formatUiTextRegionToRegion() );
+        newValue = QString::fromStdString( address.formatUiTextRegionToRegion() );
+        isHandledBySteppingTools = true;
+    }
     else
     {
         RiaLogging::error( QString( "Unhandled subst for category: %1" ).arg( address.uiText().c_str() ) );
     }
 
-    for ( auto v : vars )
+    if ( isHandledBySteppingTools )
     {
-        if ( v->summaryAddress()->address().category() == address.category() )
+        for ( auto v : vars )
         {
-            std::string oldVectorName = v->summaryAddress()->address().uiText();
+            if ( v->summaryAddress()->address().category() == address.category() )
+            {
+                std::string oldVectorName = v->summaryAddress()->address().uiText();
 
-            auto copyOfAddress = v->summaryAddress()->address();
-            RimDataSourceSteppingTools::updateAddressIfMatching( oldValue, newValue, address.category(), &copyOfAddress );
+                auto copyOfAddress = v->summaryAddress()->address();
+                RimDataSourceSteppingTools::updateAddressIfMatching( oldValue, newValue, address.category(), &copyOfAddress );
 
-            RimSummaryAddress summaryAddress;
-            summaryAddress.setAddress( copyOfAddress );
-            v->setSummaryAddress( summaryAddress );
-            std::string newVectorName = v->summaryAddress()->address().uiText();
-            RiaLogging::info(
-                QString( "Substitution: %1 ==> %2" ).arg( oldVectorName.c_str() ).arg( newVectorName.c_str() ) );
+                RimSummaryAddress summaryAddress;
+                summaryAddress.setAddress( copyOfAddress );
+                v->setSummaryAddress( summaryAddress );
+                std::string newVectorName = v->summaryAddress()->address().uiText();
+                RiaLogging::info(
+                    QString( "Substitution: %1 ==> %2" ).arg( oldVectorName.c_str() ).arg( newVectorName.c_str() ) );
+            }
         }
     }
 }
@@ -417,6 +432,20 @@ std::vector<RimUserDefinedCalculationAddress*> RimSummaryCalculation::allAddress
             {
                 addresses.push_back( new RimSummaryCalculationAddress(
                     RifEclipseSummaryAddress::regionAddress( description().toStdString(), regionNumber, m_id ) ) );
+            }
+        }
+        else if ( firstVariable->summaryAddress()->address().category() == RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION )
+        {
+            std::set<std::pair<int, int>> uniqueRegionNumbers;
+            std::for_each( allResultAddresses.begin(), allResultAddresses.end(), [&]( const auto& addr ) {
+                uniqueRegionNumbers.insert( std::make_pair( addr.regionNumber(), addr.regionNumber2() ) );
+            } );
+
+            for ( auto regionNumber : uniqueRegionNumbers )
+            {
+                auto [r1, r2] = regionNumber;
+                addresses.push_back( new RimSummaryCalculationAddress(
+                    RifEclipseSummaryAddress::regionToRegionAddress( description().toStdString(), r1, r2, m_id ) ) );
             }
         }
     }

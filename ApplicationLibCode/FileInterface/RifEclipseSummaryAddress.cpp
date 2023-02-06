@@ -437,6 +437,7 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::blockLgrAddress( const std::s
     addr.m_cellI            = i;
     addr.m_cellJ            = j;
     addr.m_cellK            = k;
+    addr.m_id               = calculationId;
     return addr;
 }
 

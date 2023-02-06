@@ -183,6 +183,7 @@ public:
     void setWellName( const std::string& wellName ) { m_wellName = wellName; }
     void setGroupName( const std::string& groupName ) { m_groupName = groupName; }
     void setRegion( int region ) { m_regionNumber = (int16_t)region; }
+    void setRegion2( int region2 ) { m_regionNumber2 = (int16_t)region2; }
     void setAquiferNumber( int aquiferNumber ) { m_aquiferNumber = (int16_t)aquiferNumber; }
     void setCellIjk( const std::string& uiText );
     void setWellSegmentNumber( int segment ) { m_wellSegmentNumber = (int16_t)segment; }
@@ -200,13 +201,14 @@ public:
 
     bool isCalculated() const;
 
+    std::string                        formatUiTextRegionToRegion() const;
+    static std::pair<int16_t, int16_t> regionToRegionPairFromUiText( const std::string& s );
+
 private:
     static RifEclipseSummaryAddress fromTokens( const std::vector<std::string>& tokens );
 
     bool                                         isValidEclipseCategory() const;
     static std::tuple<int32_t, int32_t, int32_t> ijkTupleFromUiText( const std::string& s );
-    std::string                                  formatUiTextRegionToRegion() const;
-    std::pair<int16_t, int16_t>                  regionToRegionPairFromUiText( const std::string& s );
 
 private:
     // The ordering the variables are defined in defines how the objects get sorted. Members defined first will be
