@@ -111,6 +111,12 @@ RifEclipseSummaryAddress::RifEclipseSummaryAddress( SummaryVarCategory          
         case SUMMARY_AQUIFER:
             m_aquiferNumber = RiaStdStringTools::toInt( identifiers[INPUT_AQUIFER_NUMBER] );
             break;
+        case SUMMARY_MISC:
+            m_id = RiaStdStringTools::toInt( identifiers[INPUT_ID] );
+            break;
+        case SUMMARY_NETWORK:
+            m_id = RiaStdStringTools::toInt( identifiers[INPUT_ID] );
+            break;
     }
 
     m_vectorName = identifiers[INPUT_VECTOR_NAME];
