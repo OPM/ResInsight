@@ -49,7 +49,6 @@ RiuPlotWidget::RiuPlotWidget( RimPlot* plotDefinition, QWidget* parent )
     , m_plotTitle( "" )
     , m_plotTitleEnabled( true )
 {
-    CAF_ASSERT( m_plotDefinition );
 }
 
 //--------------------------------------------------------------------------------------------------
