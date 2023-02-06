@@ -318,7 +318,7 @@ QString RiuResultTextBuilder::coordinatesText( const RigGridBase* grid, size_t g
     {
         {
             // TODO: Remove the reference to FlowViz when prototype is complete
-            text += QString( "Cell Corners (FV radial ordering)" ).arg( globalCellIndex ) + itemSeparator;
+            text += QString( "Cell Corners (FV radial ordering)" ) + itemSeparator;
 
             const std::vector<std::pair<int, std::string>> riNodeOrder{ { 0, "i- j- k+" },
                                                                         { 1, "i+ j- k+" },
@@ -342,7 +342,7 @@ QString RiuResultTextBuilder::coordinatesText( const RigGridBase* grid, size_t g
 
         // TODO: Remove the reference to FlowViz when prototype is complete
         {
-            text += QString( "Cell Corners (FV main grid cell ordering)" ).arg( globalCellIndex ) + itemSeparator;
+            text += QString( "Cell Corners (FV main grid cell ordering)" ) + itemSeparator;
 
             const std::vector<std::pair<int, std::string>> flowVizNodeOrder{ { 0, "i- j- k+" },
                                                                              { 3, "i- j+ k+" },
