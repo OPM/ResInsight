@@ -242,7 +242,7 @@ cvf::ref<RigPolyLinesData> RimSeismicSection::polyLinesData() const
     }
     pld->setPolyLine( line );
 
-    pld->setLineAppearance( m_lineThickness, m_lineColor, true );
+    pld->setLineAppearance( m_lineThickness, m_lineColor, false );
     pld->setSphereAppearance( m_sphereRadiusFactor, m_sphereColor );
     pld->setZPlaneLock( true, 0.0 );
 
