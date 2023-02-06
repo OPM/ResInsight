@@ -17,7 +17,7 @@ jobs:
 
       - name: Install clang-format 10.0
         run: |
-          sudo apt install --option="APT::Acquire::Retries=3" clang-format
+          sudo apt-get install --option="APT::Acquire::Retries=3" clang-format
           clang-format --version
       - uses: actions/checkout@v3
       - name: Check format - ApplicationLibCode
