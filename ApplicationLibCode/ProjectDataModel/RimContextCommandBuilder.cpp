@@ -681,7 +681,9 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewSummaryEnsembleCurveSetFeature";
             menuBuilder << "RicDuplicateSummaryCrossPlotFeature";
             menuBuilder << "RicNewSummaryCrossPlotCurveFeature";
+            menuBuilder << "Separator";
             menuBuilder << "RicNewPlotAxisPropertiesFeature";
+            menuBuilder << "RicNewSummaryCurveFeature";
             menuBuilder << "Separator";
 
             // Export is not supported for cross plot

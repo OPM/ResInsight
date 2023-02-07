@@ -104,10 +104,11 @@ void RicNewSummaryCurveFeature::onActionTriggered( bool isChecked )
         plot->loadDataAndUpdate();
         plot->summaryCurveCollection()->updateAllRequiredEditors();
 
-        app->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem( newCurve );
-
         RiuPlotMainWindow* mainPlotWindow = app->mainPlotWindow();
         mainPlotWindow->updateMultiPlotToolBar();
+
+        plot->updateConnectedEditors();
+        RiuPlotMainWindowTools::selectAsCurrentItem( newCurve );
     }
 }
 
