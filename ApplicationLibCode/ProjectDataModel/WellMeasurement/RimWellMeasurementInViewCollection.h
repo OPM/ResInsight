@@ -35,6 +35,7 @@ public:
     ~RimWellMeasurementInViewCollection() override;
 
     std::vector<RimWellMeasurementInView*> measurements() const;
+    std::vector<RimWellMeasurementInView*> visibleMeasurementsForWellPath( const QString& wellName ) const;
 
     void syncWithChangesInWellMeasurementCollection();
 
@@ -46,4 +47,5 @@ protected:
 
 private:
     caf::PdmChildArrayField<RimWellMeasurementInView*> m_measurementsInView;
+    caf::PdmField<bool>                                m_linkWellVisibility;
 };
