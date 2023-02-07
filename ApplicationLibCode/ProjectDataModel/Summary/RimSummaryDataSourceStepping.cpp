@@ -27,10 +27,10 @@ namespace caf
 template <>
 void AppEnum<RimSummaryDataSourceStepping::SourceSteppingDimension>::setUp()
 {
+    addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::ENSEMBLE, "ENSEMBLE", "Ensemble" );
+    addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::SUMMARY_CASE, "SUMMARY_CASE", "Summary Case" );
     addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::VECTOR, "VECTOR", "Vector" );
     addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::WELL, "WELL", RiaDefines::summaryWell() );
-    addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::SUMMARY_CASE, "SUMMARY_CASE", "Summary Case" );
-    addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::ENSEMBLE, "ENSEMBLE", "Ensemble" );
     addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::GROUP, "GROUP", RiaDefines::summaryWellGroup() );
     addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::REGION, "REGION", RiaDefines::summaryRegion() );
     addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::BLOCK, "BLOCK", RiaDefines::summaryBlock() );
