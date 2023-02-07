@@ -305,14 +305,13 @@ TEST( OpmSummaryTests, DISABLED_ReadOpmRadialGrid )
 
         Opm::EclIO::EGrid eGrid( filePath.toStdString() );
 
-        auto dims     = eGrid.dimension();
-        bool isRadial = eGrid.is_radial();
+        auto dims = eGrid.dimension();
 
         size_t cellCount = dims[0] * dims[1] * dims[2];
 
-        std::array<double, 8> X;
-        std::array<double, 8> Y;
-        std::array<double, 8> Z;
+        std::array<double, 8> X{};
+        std::array<double, 8> Y{};
+        std::array<double, 8> Z{};
 
         for ( size_t cidx = 0; cidx < cellCount; cidx++ )
         {
