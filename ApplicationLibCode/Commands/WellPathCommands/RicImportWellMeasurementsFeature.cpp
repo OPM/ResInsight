@@ -20,6 +20,8 @@
 
 #include "RiaApplication.h"
 
+#include "RimGridView.h"
+#include "RimWellMeasurementInViewCollection.h"
 #include "RimWellPathCollection.h"
 
 #include "RicWellMeasurementImportTools.h"
@@ -63,6 +65,14 @@ void RicImportWellMeasurementsFeature::onActionTriggered( bool isChecked )
     app->setLastUsedDialogDirectory( "WELLPATH_DIR", QFileInfo( wellPathFilePaths.last() ).absolutePath() );
 
     RicWellMeasurementImportTools::importWellMeasurementsFromFiles( wellPathFilePaths, wellPathCollection );
+
+    RimGridView* activeView = RiaApplication::instance()->activeGridView();
+    if ( activeView )
+    {
+        std::vector<RimWellMeasurementInViewCollection*> measurementsInView;
+        activeView->descendantsOfType( measurementsInView );
+        if ( !measurementsInView.empty() ) measurementsInView.front()->setCheckState( true );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

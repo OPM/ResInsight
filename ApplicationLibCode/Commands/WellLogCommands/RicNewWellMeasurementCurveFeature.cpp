@@ -24,6 +24,7 @@
 #include "RimWellLogTrack.h"
 #include "RimWellMeasurement.h"
 #include "RimWellMeasurementCollection.h"
+#include "RimWellMeasurementCurve.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
@@ -69,7 +70,9 @@ void RicNewWellMeasurementCurveFeature::onActionTriggered( bool isChecked )
                 measurementKind = firstMeasurement->kind();
             }
 
-            RicWellLogTools::addWellMeasurementCurve( wellLogPlotTrack, wellPath, measurementKind );
+            auto curve = RicWellLogTools::addWellMeasurementCurve( wellLogPlotTrack, wellPath, measurementKind );
+            bool updateParentPlot = true;
+            if ( curve ) curve->loadDataAndUpdate( updateParentPlot );
         }
     }
 }
