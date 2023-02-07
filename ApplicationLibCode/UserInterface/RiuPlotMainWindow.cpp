@@ -1131,6 +1131,9 @@ bool RiuPlotMainWindow::selection3DLinkEnabled()
     return m_selection3DLinkEnabled;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::slotToggleSelectionLink()
 {
     m_selection3DLinkEnabled = !m_selection3DLinkEnabled;
