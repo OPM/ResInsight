@@ -46,6 +46,7 @@ RicCreateDepthAdjustedLasFilesUi::RicCreateDepthAdjustedLasFilesUi()
 
     CAF_PDM_InitFieldNoDefault( &selectedCase, "SelectedCase", "Select Case" );
     CAF_PDM_InitFieldNoDefault( &sourceWell, "SourceWell", "Source Well" );
+    CAF_PDM_InitFieldNoDefault( &wellLogFile, "WellLogFile", "Well Log File" );
     CAF_PDM_InitFieldNoDefault( &selectedResultProperties, "SelectedResultProperties", "Selected Result Properties" );
     selectedResultProperties.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     CAF_PDM_InitFieldNoDefault( &destinationWells, "DestinationWells", "Destination Wells" );
@@ -86,16 +87,25 @@ QList<caf::PdmOptionItemInfo>
             }
         }
     }
+    if ( fieldNeedingOptions == &wellLogFile )
+    {
+        if ( sourceWell )
+        {
+            for ( auto* file : sourceWell->wellLogFiles() )
+            {
+                options.push_back( caf::PdmOptionItemInfo( file->name(), file ) );
+            }
+        }
+    }
     if ( fieldNeedingOptions == &selectedResultProperties )
     {
-        if ( sourceWell && !sourceWell->wellLogFiles().empty() )
+        if ( sourceWell && wellLogFile != nullptr )
         {
-            auto* firstWellLogFile = sourceWell->wellLogFiles()[0];
-            for ( auto* property : firstWellLogFile->wellLogChannels() )
+            for ( auto* channel : wellLogFile->wellLogChannels() )
             {
-                if ( !m_depthProperties.contains( property->name() ) )
+                if ( !m_depthProperties.contains( channel->name() ) )
                 {
-                    options.push_back( caf::PdmOptionItemInfo( property->name(), property->name() ) );
+                    options.push_back( caf::PdmOptionItemInfo( channel->name(), channel->name() ) );
                 }
             }
         }
@@ -130,6 +140,15 @@ void RicCreateDepthAdjustedLasFilesUi::fieldChangedByUi( const caf::PdmFieldHand
     {
         selectedResultProperties.v().clear();
         destinationWells.clearWithoutDelete();
+        wellLogFile = nullptr;
+        if ( sourceWell != nullptr && !sourceWell->wellLogFiles().empty() )
+        {
+            wellLogFile = sourceWell->wellLogFiles()[0];
+        }
+    }
+    if ( changedField == &wellLogFile )
+    {
+        selectedResultProperties.v().clear();
     }
 }
 
@@ -173,7 +192,8 @@ void RicCreateDepthAdjustedLasFilesUi::setDefaultValues()
         {
             if ( !wellPath->wellLogFiles().empty() )
             {
-                sourceWell = wellPath;
+                sourceWell  = wellPath;
+                wellLogFile = wellPath->wellLogFiles()[0];
                 break;
             }
         }
@@ -186,7 +206,7 @@ void RicCreateDepthAdjustedLasFilesUi::setDefaultValues()
 bool RicCreateDepthAdjustedLasFilesUi::hasValidSelections() const
 {
     return !exportFolder().isEmpty() && sourceWell() != nullptr && selectedCase() != nullptr &&
-           !selectedResultProperties().empty() && !destinationWells.empty();
+           wellLogFile != nullptr && !selectedResultProperties().empty() && !destinationWells.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -212,6 +232,10 @@ QString RicCreateDepthAdjustedLasFilesUi::invalidSelectionsLogString() const
     {
         logStr += "Source well is not defined!\n";
     }
+    if ( wellLogFile() == nullptr )
+    {
+        logStr += "Well log file for source well is not defined!\n";
+    }
     if ( selectedResultProperties().empty() )
     {
         logStr += "No result properties are selected!\n";
@@ -232,6 +256,7 @@ void RicCreateDepthAdjustedLasFilesUi::defineUiOrdering( QString uiConfigName, c
     uiOrdering.add( &exportFolder );
     uiOrdering.add( &selectedCase );
     uiOrdering.add( &sourceWell );
+    uiOrdering.add( &wellLogFile );
     uiOrdering.add( &selectedResultProperties );
     uiOrdering.add( &destinationWells );
 

@@ -74,7 +74,7 @@ void RicCreateDepthAdjustedLasFilesFeature::onActionTriggered( bool isChecked )
         {
             RimCase*                  selectedCase             = featureUi.selectedCase();
             RimWellPath*              sourceWell               = featureUi.sourceWell();
-            RimWellLogFile*           sourceWellLogFile        = sourceWell->wellLogFiles()[0];
+            RimWellLogFile*           sourceWellLogFile        = featureUi.wellLogFile();
             std::vector<RimWellPath*> destinationWells         = featureUi.destinationWells().ptrReferencedObjects();
             std::vector<QString>      selectedResultProperties = featureUi.selectedResultProperties();
             QString                   exportFolder             = featureUi.exportFolder();
