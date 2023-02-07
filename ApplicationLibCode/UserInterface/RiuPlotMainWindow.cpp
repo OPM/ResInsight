@@ -48,6 +48,7 @@
 #include "SummaryPlotCommands/RicSummaryCurveCalculatorDialog.h"
 #include "SummaryPlotCommands/RicSummaryPlotEditorDialog.h"
 
+#include "RiuContextMenuLauncher.h"
 #include "RiuDockWidgetTools.h"
 #include "RiuDragDrop.h"
 #include "RiuMdiArea.h"
@@ -60,6 +61,7 @@
 
 #include "cafCmdExecCommandManager.h"
 #include "cafCmdFeatureManager.h"
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmUiPropertyView.h"
 #include "cafPdmUiToolBarEditor.h"
@@ -90,6 +92,10 @@ RiuPlotMainWindow::RiuPlotMainWindow()
 {
     m_mdiArea = new RiuMdiArea( this );
     connect( m_mdiArea, SIGNAL( subWindowActivated( QMdiSubWindow* ) ), SLOT( slotSubWindowActivated( QMdiSubWindow* ) ) );
+
+    caf::CmdFeatureMenuBuilder menuForMdiArea;
+    menuForMdiArea << "RicNewEmptySummaryMultiPlotFeature";
+    new RiuContextMenuLauncher( m_mdiArea, menuForMdiArea );
 
     ads::CDockWidget* cWidget =
         RiuDockWidgetTools::createDockWidget( "Plot Window", RiuDockWidgetTools::mainPlotWindowName(), this );
