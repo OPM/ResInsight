@@ -239,8 +239,29 @@ void RicCreateDepthAdjustedLasFilesImpl::createDestinationWellLasFile( const QSt
         lasFile.AddLog( name.toUpper().toStdString(), unitText, "", values );
     }
 
-    std::vector<std::string> commentHeader;
-    QString fullPathName = exportFolder + "/" + wellName + "_" + caseDescription + "_" + sourceWellLogData->date() + ".las";
+    // Add comment to LAS file
+    const std::vector<std::string> commentHeader = {
+        QString( "Note: Generated depth adjusted LAS file for '%1', using '%2'" )
+            .arg( wellName )
+            .arg( sourceWellLogData->wellName() )
+            .toStdString() };
+
+    // Add property value to file name if single property
+    QString propertyNameStr;
+    if ( propertyMap.size() == 1 )
+    {
+        propertyNameStr = QString( "-%1" ).arg( propertyMap.begin()->first );
+    }
+
+    // Replace white space from well names in file name
+    QString sourceWell      = sourceWellLogData->wellName();
+    sourceWell              = sourceWell.replace( QRegExp( "[\\s]+" ), "_" );
+    QString destinationWell = wellName;
+    destinationWell         = destinationWell.replace( QRegExp( "[\\s]+" ), "_" );
+
+    // Create full file path name
+    QString fullPathName = exportFolder + "/" + destinationWell + "_Depth_Adjusted_Using_" + sourceWell + "_" +
+                           caseDescription + propertyNameStr + "-" + sourceWellLogData->date() + ".las";
     lasFile.WriteToFile( fullPathName.toStdString(), commentHeader );
 }
 

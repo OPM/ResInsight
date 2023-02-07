@@ -32,6 +32,7 @@
 
 class RimCase;
 class RimWellPath;
+class RimWellLogFile;
 
 //==================================================================================================
 ///
@@ -58,6 +59,7 @@ public:
     caf::PdmField<QString>              exportFolder;
     caf::PdmPtrField<RimCase*>          selectedCase;
     caf::PdmPtrField<RimWellPath*>      sourceWell;
+    caf::PdmPtrField<RimWellLogFile*>   wellLogFile;
     caf::PdmField<std::vector<QString>> selectedResultProperties;
     caf::PdmPtrArrayField<RimWellPath*> destinationWells;
 
