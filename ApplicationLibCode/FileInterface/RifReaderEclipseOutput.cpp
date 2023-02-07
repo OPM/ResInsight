@@ -136,101 +136,70 @@ bool transferGridCellData( RigMainGrid*         mainGrid,
 
     mainGrid->nodes().resize( nodeStartIndex + cellCount * 8, cvf::Vec3d( 0, 0, 0 ) );
 
-    int               progTicks = 100;
-    caf::ProgressInfo progInfo( progTicks, "" );
-
     // Loop over cells and fill them with data
-#pragma omp parallel
+
+#pragma omp parallel for
+    for ( int gridLocalCellIndex = 0; gridLocalCellIndex < cellCount; ++gridLocalCellIndex )
     {
-        int cellCountPerThread = cellCount;
-#ifdef USE_OPENMP
-        cellCountPerThread = std::max( 1, cellCount / omp_get_num_threads() );
-#endif
+        RigCell& cell = mainGrid->globalCellArray()[cellStartIndex + gridLocalCellIndex];
 
-        int computedThreadCellCount = 0;
+        cell.setGridLocalCellIndex( gridLocalCellIndex );
 
-        int cellsPrProgressTick = std::max( 1, cellCountPerThread / progTicks );
-        int maxProgressCell     = cellsPrProgressTick * progTicks;
+        // Active cell index
 
-#pragma omp for
-        for ( int gridLocalCellIndex = 0; gridLocalCellIndex < cellCount; ++gridLocalCellIndex )
+        int matrixActiveIndex = ecl_grid_get_active_index1( localEclGrid, gridLocalCellIndex );
+        if ( matrixActiveIndex != -1 )
         {
-            RigCell& cell = mainGrid->globalCellArray()[cellStartIndex + gridLocalCellIndex];
-
-            cell.setGridLocalCellIndex( gridLocalCellIndex );
-
-            // Active cell index
-
-            int matrixActiveIndex = ecl_grid_get_active_index1( localEclGrid, gridLocalCellIndex );
-            if ( matrixActiveIndex != -1 )
-            {
-                activeCellInfo->setCellResultIndex( cellStartIndex + gridLocalCellIndex,
-                                                    matrixActiveStartIndex + matrixActiveIndex );
-            }
-
-            int fractureActiveIndex = ecl_grid_get_active_fracture_index1( localEclGrid, gridLocalCellIndex );
-            if ( fractureActiveIndex != -1 )
-            {
-                fractureActiveCellInfo->setCellResultIndex( cellStartIndex + gridLocalCellIndex,
-                                                            fractureActiveStartIndex + fractureActiveIndex );
-            }
-
-            // Parent cell index
-
-            int parentCellIndex = ecl_grid_get_parent_cell1( localEclGrid, gridLocalCellIndex );
-            if ( parentCellIndex == -1 )
-            {
-                cell.setParentCellIndex( cvf::UNDEFINED_SIZE_T );
-            }
-            else
-            {
-                cell.setParentCellIndex( parentCellIndex );
-            }
-
-            // Corner coordinates
-            int cIdx;
-            for ( cIdx = 0; cIdx < 8; ++cIdx )
-            {
-                double* point =
-                    mainGrid->nodes()[nodeStartIndex + (size_t)gridLocalCellIndex * 8 + cellMappingECLRi[cIdx]].ptr();
-                ecl_grid_get_cell_corner_xyz1( localEclGrid,
-                                               gridLocalCellIndex,
-                                               cIdx,
-                                               &( point[0] ),
-                                               &( point[1] ),
-                                               &( point[2] ) );
-                point[2]                   = -point[2]; // Flipping Z making depth become negative z values
-                cell.cornerIndices()[cIdx] = nodeStartIndex + (size_t)gridLocalCellIndex * 8 + cIdx;
-            }
-
-            // Sub grid in cell
-            const ecl_grid_type* subGrid = ecl_grid_get_cell_lgr1( localEclGrid, gridLocalCellIndex );
-            if ( subGrid != nullptr )
-            {
-                int subGridId = ecl_grid_get_lgr_nr( subGrid );
-                CVF_ASSERT( subGridId > 0 );
-                cell.setSubGrid( static_cast<RigLocalGrid*>( mainGrid->gridById( subGridId ) ) );
-            }
-
-            // Mark inactive long pyramid looking cells as invalid
-            // Forslag
-            // if (!invalid && (cell.isInCoarseCell() || (!cell.isActiveInMatrixModel() &&
-            // !cell.isActiveInFractureModel()) ) )
-            cell.setInvalid( cell.isLongPyramidCell() );
-#ifdef USE_OPENMP
-            if ( omp_get_thread_num() == 0 )
-            {
-                computedThreadCellCount++;
-                if ( computedThreadCellCount <= maxProgressCell && computedThreadCellCount % cellsPrProgressTick == 0 )
-                    progInfo.incrementProgress();
-            }
-#else
-            computedThreadCellCount++;
-            if ( computedThreadCellCount <= maxProgressCell && computedThreadCellCount % cellsPrProgressTick == 0 )
-                progInfo.incrementProgress();
-#endif
+            activeCellInfo->setCellResultIndex( cellStartIndex + gridLocalCellIndex,
+                                                matrixActiveStartIndex + matrixActiveIndex );
         }
+
+        int fractureActiveIndex = ecl_grid_get_active_fracture_index1( localEclGrid, gridLocalCellIndex );
+        if ( fractureActiveIndex != -1 )
+        {
+            fractureActiveCellInfo->setCellResultIndex( cellStartIndex + gridLocalCellIndex,
+                                                        fractureActiveStartIndex + fractureActiveIndex );
+        }
+
+        // Parent cell index
+
+        int parentCellIndex = ecl_grid_get_parent_cell1( localEclGrid, gridLocalCellIndex );
+        if ( parentCellIndex == -1 )
+        {
+            cell.setParentCellIndex( cvf::UNDEFINED_SIZE_T );
+        }
+        else
+        {
+            cell.setParentCellIndex( parentCellIndex );
+        }
+
+        // Corner coordinates
+        int cIdx;
+        for ( cIdx = 0; cIdx < 8; ++cIdx )
+        {
+            double* point =
+                mainGrid->nodes()[nodeStartIndex + (size_t)gridLocalCellIndex * 8 + cellMappingECLRi[cIdx]].ptr();
+            ecl_grid_get_cell_corner_xyz1( localEclGrid, gridLocalCellIndex, cIdx, &( point[0] ), &( point[1] ), &( point[2] ) );
+            point[2]                   = -point[2]; // Flipping Z making depth become negative z values
+            cell.cornerIndices()[cIdx] = nodeStartIndex + (size_t)gridLocalCellIndex * 8 + cIdx;
+        }
+
+        // Sub grid in cell
+        const ecl_grid_type* subGrid = ecl_grid_get_cell_lgr1( localEclGrid, gridLocalCellIndex );
+        if ( subGrid != nullptr )
+        {
+            int subGridId = ecl_grid_get_lgr_nr( subGrid );
+            CVF_ASSERT( subGridId > 0 );
+            cell.setSubGrid( static_cast<RigLocalGrid*>( mainGrid->gridById( subGridId ) ) );
+        }
+
+        // Mark inactive long pyramid looking cells as invalid
+        // Forslag
+        // if (!invalid && (cell.isInCoarseCell() || (!cell.isActiveInMatrixModel() &&
+        // !cell.isActiveInFractureModel()) ) )
+        cell.setInvalid( cell.isLongPyramidCell() );
     }
+
     return true;
 }
 
@@ -1436,7 +1405,7 @@ cvf::Vec3d interpolate3DPosition( const std::vector<SegmentPositionContribution>
             // distance = 1.0;
         }
 
-        distance = 1.0 / distance;
+        distance      = 1.0 / distance;
         nominators[i] = distance;
         denominator += distance;
 
