@@ -306,68 +306,65 @@ void RivWellPathPartMgr::appendWellMeasurementsToModel( cvf::ModelBasicList*    
 
     if ( !gridView->measurementCollection()->isChecked() ) return;
 
-    for ( RimWellMeasurementInView* wellMeasurementInView : gridView->measurementCollection()->measurements() )
+    for ( RimWellMeasurementInView* wellMeasurementInView :
+          gridView->measurementCollection()->visibleMeasurementsForWellPath( m_rimWellPath->name() ) )
     {
-        if ( wellMeasurementInView->isChecked() && wellMeasurementInView->isWellChecked( m_rimWellPath->name() ) )
+        std::vector<QString> measurementKinds;
+        measurementKinds.push_back( wellMeasurementInView->measurementKind() );
+
+        double lowerBound = 0.0;
+        double upperBound = 0.0;
+        wellMeasurementInView->rangeValues( &lowerBound, &upperBound );
+        std::vector<int> qualityFilter = wellMeasurementInView->qualityFilter();
+
+        std::vector<RimWellMeasurement*> wellMeasurements =
+            RimWellMeasurementFilter::filterMeasurements( wellMeasurementCollection->measurements(),
+                                                          *wellPathCollection,
+                                                          *m_rimWellPath,
+                                                          measurementKinds,
+                                                          lowerBound,
+                                                          upperBound,
+                                                          qualityFilter );
+
+        RivPipeGeometryGenerator geoGenerator;
+        for ( RimWellMeasurement* wellMeasurement : wellMeasurements )
         {
-            std::vector<QString> measurementKinds;
-            measurementKinds.push_back( wellMeasurementInView->measurementKind() );
+            double wellPathRadius = this->wellPathRadius( characteristicCellSize, this->wellPathCollection() );
+            double startMD        = wellMeasurement->MD() - wellPathRadius * 0.5;
+            double endMD          = wellMeasurement->MD() + wellPathRadius * 0.5;
 
-            double lowerBound = 0.0;
-            double upperBound = 0.0;
-            wellMeasurementInView->rangeValues( &lowerBound, &upperBound );
-            std::vector<int> qualityFilter = wellMeasurementInView->qualityFilter();
+            double wellMeasurementRadius =
+                this->wellMeasurementRadius( characteristicCellSize, this->wellPathCollection(), wellMeasurementInView );
 
-            std::vector<RimWellMeasurement*> wellMeasurements =
-                RimWellMeasurementFilter::filterMeasurements( wellMeasurementCollection->measurements(),
-                                                              *wellPathCollection,
-                                                              *m_rimWellPath,
-                                                              measurementKinds,
-                                                              lowerBound,
-                                                              upperBound,
-                                                              qualityFilter );
+            std::vector<cvf::Vec3d> displayCoords;
+            displayCoords.push_back( displayCoordTransform->transformToDisplayCoord(
+                m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath( startMD ) ) );
+            displayCoords.push_back( displayCoordTransform->transformToDisplayCoord(
+                m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath( startMD ) ) );
+            displayCoords.push_back( displayCoordTransform->transformToDisplayCoord(
+                m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath( endMD ) ) );
+            displayCoords.push_back( displayCoordTransform->transformToDisplayCoord(
+                m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath( endMD ) ) );
 
-            RivPipeGeometryGenerator geoGenerator;
-            for ( RimWellMeasurement* wellMeasurement : wellMeasurements )
+            std::vector<double> radii;
+            radii.push_back( std::min( wellPathRadius, wellMeasurementRadius ) );
+            radii.push_back( wellMeasurementRadius );
+            radii.push_back( wellMeasurementRadius );
+            radii.push_back( std::min( wellPathRadius, wellMeasurementRadius ) );
+
+            cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo( wellMeasurement );
+
+            cvf::Collection<cvf::Part> parts;
+
+            // Use the view legend config to find color, if only one type of measurement is selected.
+            cvf::Color3f color = cvf::Color3f(
+                wellMeasurementInView->legendConfig()->scalarMapper()->mapToColor( wellMeasurement->value() ) );
+
+            geoGenerator.tubeWithCenterLinePartsAndVariableWidth( &parts, displayCoords, radii, color );
+            for ( auto part : parts )
             {
-                double wellPathRadius = this->wellPathRadius( characteristicCellSize, this->wellPathCollection() );
-                double startMD        = wellMeasurement->MD() - wellPathRadius * 0.5;
-                double endMD          = wellMeasurement->MD() + wellPathRadius * 0.5;
-
-                double wellMeasurementRadius = this->wellMeasurementRadius( characteristicCellSize,
-                                                                            this->wellPathCollection(),
-                                                                            wellMeasurementInView );
-
-                std::vector<cvf::Vec3d> displayCoords;
-                displayCoords.push_back( displayCoordTransform->transformToDisplayCoord(
-                    m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath( startMD ) ) );
-                displayCoords.push_back( displayCoordTransform->transformToDisplayCoord(
-                    m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath( startMD ) ) );
-                displayCoords.push_back( displayCoordTransform->transformToDisplayCoord(
-                    m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath( endMD ) ) );
-                displayCoords.push_back( displayCoordTransform->transformToDisplayCoord(
-                    m_rimWellPath->wellPathGeometry()->interpolatedPointAlongWellPath( endMD ) ) );
-
-                std::vector<double> radii;
-                radii.push_back( std::min( wellPathRadius, wellMeasurementRadius ) );
-                radii.push_back( wellMeasurementRadius );
-                radii.push_back( wellMeasurementRadius );
-                radii.push_back( std::min( wellPathRadius, wellMeasurementRadius ) );
-
-                cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo( wellMeasurement );
-
-                cvf::Collection<cvf::Part> parts;
-
-                // Use the view legend config to find color, if only one type of measurement is selected.
-                cvf::Color3f color = cvf::Color3f(
-                    wellMeasurementInView->legendConfig()->scalarMapper()->mapToColor( wellMeasurement->value() ) );
-
-                geoGenerator.tubeWithCenterLinePartsAndVariableWidth( &parts, displayCoords, radii, color );
-                for ( auto part : parts )
-                {
-                    part->setSourceInfo( objectSourceInfo.p() );
-                    model->addPart( part.p() );
-                }
+                part->setSourceInfo( objectSourceInfo.p() );
+                model->addPart( part.p() );
             }
         }
     }

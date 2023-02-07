@@ -15,6 +15,7 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #include "RimWellMeasurementInViewCollection.h"
 
 #include "Rim3dView.h"
@@ -27,9 +28,11 @@
 #include "RimWellMeasurementCollection.h"
 #include "RimWellMeasurementFilter.h"
 #include "RimWellMeasurementInView.h"
+#include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
+#include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
@@ -51,6 +54,9 @@ RimWellMeasurementInViewCollection::RimWellMeasurementInViewCollection()
     m_isChecked = false;
 
     this->setName( "Well Measurements" );
+
+    CAF_PDM_InitField( &m_linkWellVisibility, "linkWellVisibility", true, "Link Visibility to Well Path Visibility" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_linkWellVisibility );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -72,6 +78,31 @@ std::vector<RimWellMeasurementInView*> RimWellMeasurementInViewCollection::measu
         attrs.push_back( attr.p() );
     }
     return attrs;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimWellMeasurementInView*>
+    RimWellMeasurementInViewCollection::visibleMeasurementsForWellPath( const QString& wellName ) const
+{
+    if ( !isChecked() ) return {};
+
+    if ( m_linkWellVisibility )
+    {
+        RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
+
+        auto wellPath = wellPathCollection->tryFindMatchingWellPath( wellName );
+        if ( wellPath && !wellPath->showWellPath() ) return {};
+    }
+
+    std::vector<RimWellMeasurementInView*> visible;
+    for ( auto m : measurements() )
+    {
+        if ( m->isChecked() && m->isWellChecked( wellName ) ) visible.push_back( m );
+    }
+
+    return visible;
 }
 
 //--------------------------------------------------------------------------------------------------
