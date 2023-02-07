@@ -12,6 +12,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicAppendSummaryPlotsForSummaryAddressesFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicAppendSummaryCurvesForSummaryAddressesFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicSplitMultiPlotFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewEmptySummaryMultiPlotFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -28,6 +29,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicAppendSummaryPlotsForSummaryAddressesFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicAppendSummaryCurvesForSummaryAddressesFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicSplitMultiPlotFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewEmptySummaryMultiPlotFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
