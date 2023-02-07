@@ -62,9 +62,9 @@ inline Opm::FlowDiagnostics::ConnectionValues
 {
     using ConnVals = Opm::FlowDiagnostics::ConnectionValues;
 
-    auto flux = ConnVals( ConnVals::NumConnections{G.numConnections()}, ConnVals::NumPhases{actPh.size()} );
+    auto flux = ConnVals( ConnVals::NumConnections{ G.numConnections() }, ConnVals::NumPhases{ actPh.size() } );
 
-    auto phas = ConnVals::PhaseID{0};
+    auto phas = ConnVals::PhaseID{ 0 };
 
     for ( const auto& p : actPh )
     {
@@ -74,7 +74,7 @@ inline Opm::FlowDiagnostics::ConnectionValues
         {
             assert( pflux.size() == flux.numConnections() );
 
-            auto conn = ConnVals::ConnID{0};
+            auto conn = ConnVals::ConnID{ 0 };
             for ( const auto& v : pflux )
             {
                 flux( conn, phas ) = v;
