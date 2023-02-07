@@ -733,7 +733,9 @@ void RiuMainWindow::createToolBars()
         QToolBar* toolbar = addToolBar( tr( "Timestep Slider" ) );
         toolbar->setObjectName( toolbar->windowTitle() );
 
-        m_animationSlider       = new QSlider( Qt::Horizontal, toolbar );
+        m_animationSlider = new QSlider( Qt::Horizontal, toolbar );
+        m_animationSlider->setToolTip( "Current Time Step" );
+
         m_animationSliderAction = toolbar->addWidget( m_animationSlider );
 
         connect( m_animationSlider, SIGNAL( valueChanged( int ) ), SLOT( slotAnimationSliderMoved( int ) ) );
