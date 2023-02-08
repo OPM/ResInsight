@@ -247,6 +247,12 @@ std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
         {
             timeHistoryCurveMerger.addCurveData( curveTimeSteps, curveValues );
         }
+        else
+        {
+            // One variable is missing: not possible to complete the calculation.
+            // Can happen when stepping and subsituting variables.
+            return {};
+        }
     }
 
     timeHistoryCurveMerger.computeInterpolatedValues();
