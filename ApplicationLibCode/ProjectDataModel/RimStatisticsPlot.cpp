@@ -60,7 +60,7 @@ void caf::AppEnum<RimStatisticsPlot::HistogramFrequencyType>::setUp()
     addItem( RimStatisticsPlot::HistogramFrequencyType::RELATIVE_FREQUENCY_PERCENT,
              "RELATIVE_FREQUENCY_PERCENT",
              "Relative Frequency [%]" );
-    setDefault( RimStatisticsPlot::HistogramFrequencyType::ABSOLUTE_FREQUENCY );
+    setDefault( RimStatisticsPlot::HistogramFrequencyType::RELATIVE_FREQUENCY_PERCENT );
 }
 template <>
 void caf::AppEnum<RimStatisticsPlot::GraphType>::setUp()
