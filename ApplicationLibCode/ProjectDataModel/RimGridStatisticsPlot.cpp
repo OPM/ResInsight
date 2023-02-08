@@ -96,6 +96,11 @@ void RimGridStatisticsPlot::setDefaults()
 
             m_property->setResultType( RiaDefines::ResultCatType::STATIC_NATIVE );
             m_property->setResultVariable( "PORO" );
+
+            if ( eclipseCase && !eclipseCase->reservoirViews.children().empty() )
+            {
+                m_cellFilterView.setValue( eclipseCase->reservoirViews.children().front() );
+            }
         }
     }
 }
