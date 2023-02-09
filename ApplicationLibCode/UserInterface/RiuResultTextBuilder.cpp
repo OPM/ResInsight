@@ -39,6 +39,7 @@
 #include "RimExtrudedCurveIntersection.h"
 #include "RimFormationNames.h"
 #include "RimIntersectionResultDefinition.h"
+#include "RimMultipleEclipseResults.h"
 #include "RimRegularLegendConfig.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimViewLinker.h"
@@ -195,7 +196,7 @@ QString RiuResultTextBuilder::mainResultText()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuResultTextBuilder::geometrySelectionText( QString itemSeparator )
+QString RiuResultTextBuilder::geometrySelectionText( const QString& itemSeparator )
 {
     QString text;
 
@@ -234,6 +235,8 @@ QString RiuResultTextBuilder::geometrySelectionText( QString itemSeparator )
 
                     size_t globalCellIndex = grid->reservoirCellIndex( m_cellIndex );
                     text += QString( "Global Cell Index : %4" ).arg( globalCellIndex ) + itemSeparator;
+
+                    text += coordinatesText( grid, globalCellIndex, itemSeparator );
                 }
             }
 
@@ -251,10 +254,8 @@ QString RiuResultTextBuilder::geometrySelectionText( QString itemSeparator )
                     if ( !t.isZero() )
                     {
                         cvf::Vec3d intPt = m_intersectionPointInDisplay.getTransformedPoint( t );
-                        formattedText    = QString( "Intersection point : [E: %1, N: %2, Depth: %3]" )
-                                            .arg( intPt.x(), 5, 'f', 2 )
-                                            .arg( intPt.y(), 5, 'f', 2 )
-                                            .arg( -intPt.z(), 5, 'f', 2 );
+                        formattedText =
+                            createTextFromDomainCoordinate( "Intersection point : [E: %1, N: %2, Depth: %3]", intPt );
                         text += formattedText;
                     }
                 }
@@ -265,10 +266,8 @@ QString RiuResultTextBuilder::geometrySelectionText( QString itemSeparator )
                         cvf::ref<caf::DisplayCoordTransform> transForm = m_displayCoordView->displayCoordTransform();
                         cvf::Vec3d domainCoord = transForm->translateToDomainCoord( m_intersectionPointInDisplay );
 
-                        formattedText = QString( "Intersection point : [E: %1, N: %2, Depth: %3]" )
-                                            .arg( domainCoord.x(), 5, 'f', 2 )
-                                            .arg( domainCoord.y(), 5, 'f', 2 )
-                                            .arg( -domainCoord.z(), 5, 'f', 2 );
+                        formattedText =
+                            createTextFromDomainCoordinate( "Intersection point : [E: %1, N: %2, Depth: %3]", domainCoord );
                         text += formattedText;
                     }
                 }
@@ -277,6 +276,75 @@ QString RiuResultTextBuilder::geometrySelectionText( QString itemSeparator )
     }
 
     return text;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiuResultTextBuilder::coordinatesText( const RigGridBase* grid, size_t globalCellIndex, const QString& itemSeparator )
+{
+    QString text;
+
+    bool showCenter = false;
+    bool showCorner = false;
+
+    if ( m_eclipseView )
+    {
+        std::vector<RimMultipleEclipseResults*> additionalResultSettings;
+        m_eclipseView->descendantsOfType( additionalResultSettings );
+        if ( !additionalResultSettings.empty() )
+        {
+            showCenter = additionalResultSettings[0]->showCenterCoordinates();
+            showCorner = additionalResultSettings[0]->showCornerCoordinates();
+        }
+    }
+
+    if ( showCorner || showCenter )
+    {
+        auto mainGrid = grid->mainGrid();
+        auto cell     = mainGrid->cell( globalCellIndex );
+        auto indices  = cell.cornerIndices();
+
+        if ( showCenter )
+        {
+            const auto center = cell.center();
+
+            text += createTextFromDomainCoordinate( "Cell Center : [%1, %2, %3]", center ) + itemSeparator;
+        }
+
+        if ( showCorner )
+        {
+            text += QString( "Cell Corners" ) + itemSeparator;
+
+            const std::vector<std::pair<int, std::string>> riNodeOrder{ { 0, "i- j- k+" },
+                                                                        { 1, "i+ j- k+" },
+                                                                        { 2, "i+ j+ k+" },
+                                                                        { 3, "i- j+ k+" },
+                                                                        { 4, "i- j- k-" },
+                                                                        { 5, "i+ j- k-" },
+                                                                        { 6, "i+ j+ k-" },
+                                                                        { 7, "i- j+ k-" } };
+
+            for ( int i = 0; i < 8; i++ )
+            {
+                const auto& [nodeIndex, nodeText] = riNodeOrder[i];
+                auto v                            = mainGrid->nodes()[indices[nodeIndex]];
+
+                text += createTextFromDomainCoordinate( QString::fromStdString( nodeText ) + " : [%1, %2, %3]" + itemSeparator,
+                                                        v );
+            }
+        }
+    }
+
+    return text;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiuResultTextBuilder::createTextFromDomainCoordinate( const QString& formatString, const cvf::Vec3d& domainCoord )
+{
+    return formatString.arg( domainCoord.x(), 5, 'f', 2 ).arg( domainCoord.y(), 5, 'f', 2 ).arg( -domainCoord.z(), 5, 'f', 2 );
 }
 
 //--------------------------------------------------------------------------------------------------
