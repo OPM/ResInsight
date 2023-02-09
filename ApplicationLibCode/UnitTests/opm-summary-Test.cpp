@@ -10,6 +10,7 @@
 // Disable warning from external library to make sure treat warnings as error works
 #pragma warning( disable : 4267 )
 #endif
+#include "opm/io/eclipse/EGrid.hpp"
 #include "opm/io/eclipse/ERft.hpp"
 #include "opm/io/eclipse/ESmry.hpp"
 #include "opm/io/eclipse/ExtESmry.hpp"
@@ -289,6 +290,36 @@ TEST( OpmSummaryTests, OpmComputeSegmentTopology )
             {
                 std::vector<double> values;
                 reader.values( adr, &values );
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( OpmSummaryTests, DISABLED_ReadOpmRadialGrid )
+{
+    {
+        QString filePath = "e:/models/from_equinor_sftp/2021.10.1-Radial-testcase/global-radial/GLOBAL-RADIAL.EGRID";
+
+        Opm::EclIO::EGrid eGrid( filePath.toStdString() );
+
+        auto dims = eGrid.dimension();
+
+        size_t cellCount = dims[0] * dims[1] * dims[2];
+
+        std::array<double, 8> X{};
+        std::array<double, 8> Y{};
+        std::array<double, 8> Z{};
+
+        for ( size_t cidx = 0; cidx < cellCount; cidx++ )
+        {
+            eGrid.getCellCorners( cidx, X, Y, Z );
+
+            for ( size_t i = 0; i < 8; i++ )
+            {
+                std::cout << X[i] << " " << Y[i] << " " << Z[i] << "\n";
             }
         }
     }
