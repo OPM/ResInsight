@@ -43,6 +43,7 @@
 #include <QtCharts/QBarSeries>
 #include <QtCharts/QBarSet>
 #include <QtCharts/QCategoryAxis>
+#include <QtCharts/QLegendMarker>
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QValueAxis>
 
@@ -351,35 +352,37 @@ void RimStatisticsPlot::updatePlots()
     axisY->setTitleText( createYAxisTitle() );
     chart->addAxis( axisY, Qt::AlignLeft );
 
-    if ( !std::isinf( histogramData.p10 ) )
-    {
-        QLineSeries* p10series = new QLineSeries();
-        chart->addSeries( p10series );
-        p10series->setName( "P10" );
-        p10series->append( histogramData.p10, minValue );
-        p10series->append( histogramData.p10, maxValue );
-        p10series->attachAxis( axisX );
-        p10series->attachAxis( axisY );
-    }
+    // Create vertical lines for statistics data
+    std::vector<std::pair<QString, double>> statisticsData = { { "P10", histogramData.p10 },
+                                                               { "P90", histogramData.p90 },
+                                                               { "Mean", histogramData.mean } };
 
-    if ( !std::isinf( histogramData.p90 ) )
+    for ( const auto& [name, value] : statisticsData )
     {
-        QLineSeries* p90series = new QLineSeries();
-        chart->addSeries( p90series );
-        p90series->setName( "P90" );
-        p90series->append( histogramData.p90, minValue );
-        p90series->append( histogramData.p90, maxValue );
-        p90series->attachAxis( axisX );
-        p90series->attachAxis( axisY );
-    }
+        if ( std::isinf( value ) ) continue;
 
-    QLineSeries* meanSeries = new QLineSeries();
-    chart->addSeries( meanSeries );
-    meanSeries->setName( "Mean" );
-    meanSeries->append( histogramData.mean, minValue );
-    meanSeries->append( histogramData.mean, maxValue );
-    meanSeries->attachAxis( axisX );
-    meanSeries->attachAxis( axisY );
+        QLineSeries* series = new QLineSeries();
+        chart->addSeries( series );
+        series->setName( name );
+        series->append( value, minValue );
+        series->append( value, maxValue );
+        series->attachAxis( axisX );
+        series->attachAxis( axisY );
+
+        // Dummy point for label at top of vertical statistics value line
+        QLineSeries* labelSeries = new QLineSeries();
+        chart->addSeries( labelSeries );
+        labelSeries->append( value, maxValue );
+        labelSeries->attachAxis( axisX );
+        labelSeries->attachAxis( axisY );
+        labelSeries->setPointLabelsVisible( true );
+        labelSeries->setPointLabelsClipping( false );
+        labelSeries->setPointLabelsFormat( QString( "%1 - @xPoint" ).arg( name ) );
+
+        // Remove legend for dummy point
+        QList<QLegendMarker*> labelMarker = chart->legend()->markers( labelSeries );
+        if ( !labelMarker.empty() ) labelMarker.back()->setVisible( false );
+    }
 
     // Set font sizes
     QFont titleFont = chart->titleFont();
