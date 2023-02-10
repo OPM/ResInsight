@@ -883,15 +883,15 @@ void RicWellPathExportCompletionDataFeatureImpl::sortAndExportCompletionsToFile(
 
     if ( !completionsForMainGrid.empty() )
     {
-        try
-        {
-            QFileInfo              fi( fileName );
-            std::shared_ptr<QFile> exportFile =
-                RicWellPathExportCompletionsFileTools::openFileForExport( folderName,
-                                                                          fi.baseName(),
-                                                                          fi.suffix(),
-                                                                          exportDataSourceAsComment );
+        QFileInfo              fi( fileName );
+        std::shared_ptr<QFile> exportFile =
+            RicWellPathExportCompletionsFileTools::openFileForExport( folderName,
+                                                                      fi.baseName(),
+                                                                      fi.suffix(),
+                                                                      exportDataSourceAsComment );
 
+        if ( exportFile )
+        {
             std::map<QString, std::vector<RigCompletionData>> completionsForGrid;
             completionsForGrid.insert( std::pair<QString, std::vector<RigCompletionData>>( "", completionsForMainGrid ) );
 
@@ -902,33 +902,27 @@ void RicWellPathExportCompletionDataFeatureImpl::sortAndExportCompletionsToFile(
             }
             exportCompdatAndWpimultTables( eclipseCase, exportFile, completionsForGrid, exportType, exportDataSourceAsComment );
         }
-        catch ( RicWellPathExportCompletionsFileTools::OpenFileException )
-        {
-        }
     }
 
     if ( !completionsForSubGrids.empty() )
     {
-        try
+        QFileInfo fi( fileName );
+
+        QString                lgrFileName = fi.baseName() + "_LGR";
+        std::shared_ptr<QFile> exportFile =
+            RicWellPathExportCompletionsFileTools::openFileForExport( folderName,
+                                                                      lgrFileName,
+                                                                      fi.suffix(),
+                                                                      exportDataSourceAsComment );
+
+        if ( exportFile )
         {
-            QFileInfo fi( fileName );
-
-            QString                lgrFileName = fi.baseName() + "_LGR";
-            std::shared_ptr<QFile> exportFile =
-                RicWellPathExportCompletionsFileTools::openFileForExport( folderName,
-                                                                          lgrFileName,
-                                                                          fi.suffix(),
-                                                                          exportDataSourceAsComment );
-
             exportWellPathFractureReport( eclipseCase, exportFile, wellPathFractureReportItems );
             if ( exportWelspec )
             {
                 exportWelspeclToFile( eclipseCase, exportFile, completionsForSubGrids );
             }
             exportCompdatAndWpimultTables( eclipseCase, exportFile, completionsForSubGrids, exportType, exportDataSourceAsComment );
-        }
-        catch ( RicWellPathExportCompletionsFileTools::OpenFileException )
-        {
         }
     }
 }
