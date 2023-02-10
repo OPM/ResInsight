@@ -18,8 +18,11 @@
 
 #include "RifOpmGridTools.h"
 
+#include "RiaLogging.h"
 #include "RiaWeightedMeanCalculator.h"
+
 #include "RifReaderEclipseOutput.h"
+
 #include "RigMainGrid.h"
 
 #include "cvfGeometryTools.h"
@@ -37,6 +40,32 @@ void RifOpmGridTools::importCoordinatesForRadialGrid( const std::string& gridFil
 
     try
     {
+        bool isRadialGridPresent = false;
+
+        {
+            // Open the file and only check "GRIDHEAD" to be able to do an early return if no radial grids are present
+
+            Opm::EclIO::EclFile gridFile( gridFilePath );
+            auto                arrays = gridFile.getList();
+
+            int index = 0;
+            for ( const auto& [name, arrayType, arraySize] : arrays )
+            {
+                if ( name == "GRIDHEAD" )
+                {
+                    auto gridhead = gridFile.get<int>( index );
+                    if ( gridhead.size() > 26 && gridhead[26] > 0 )
+                    {
+                        isRadialGridPresent = true;
+                        break;
+                    }
+                }
+                index++;
+            }
+        }
+
+        if ( !isRadialGridPresent ) return;
+
         Opm::EclIO::EGrid opmMainGrid( gridFilePath );
 
         if ( opmMainGrid.is_radial() )
@@ -64,6 +93,8 @@ void RifOpmGridTools::importCoordinatesForRadialGrid( const std::string& gridFil
     }
     catch ( ... )
     {
+        RiaLogging::warning( QString( "Failed to open grid case for import of radial coordinates : %1" )
+                                 .arg( QString::fromStdString( gridFilePath ) ) );
     }
 }
 
@@ -95,7 +126,7 @@ void RifOpmGridTools::importCoordinatesForRadialGrid( const std::string& gridFil
 
 // 1. If the node is at the outer edge of the radial grid, find the host cell
 // 2. Find the closest point on the pillars of the host cell
-// 3. Find the closes point on this pillar, and use this point as the adjusted coordinate for the node
+// 3. Find the closest point on this pillar, and use this point as the adjusted coordinate for the node
 //
 //--------------------------------------------------------------------------------------------------
 void RifOpmGridTools::transferCoordinates( Opm::EclIO::EGrid& opmMainGrid,
@@ -121,6 +152,8 @@ void RifOpmGridTools::transferCoordinates( Opm::EclIO::EGrid& opmMainGrid,
     const size_t* cellMappingECLRi      = RifReaderEclipseOutput::eclipseCellIndexMapping();
     const auto    gridDimension         = opmGrid.dimension();
     auto&         riNodes               = riMainGrid->nodes();
+
+    std::vector<cvf::Vec3d> snapToCoordinatesFromMainGrid;
 
     for ( size_t opmCellIndex = 0; opmCellIndex < cellCount; opmCellIndex++ )
     {
@@ -162,19 +195,13 @@ void RifOpmGridTools::transferCoordinates( Opm::EclIO::EGrid& opmMainGrid,
 
                 // Check if the radius is at the outer surface of the radial grid
                 // Adjust the outer nodes to match the corner pillars of the host cell
-                const double epsilon = 0.05;
+                const double epsilon = 0.15;
                 if ( fabs( maxRadius - cellRadius[opmNodeIndex] ) < epsilon * cellRadius[opmNodeIndex] )
                 {
-                    std::array<double, 8> hostCellX{};
-                    std::array<double, 8> hostCellY{};
-                    std::array<double, 8> hostCellZ{};
-
                     const auto hostCellIndex = hostCellGlobalIndices[opmCellIndex];
-                    const auto hostGridIJK   = opmMainGrid.ijk_from_global_index( hostCellIndex );
-                    opmMainGrid.getCellCorners( hostGridIJK, hostCellX, hostCellY, hostCellZ );
 
-                    double     closestPillarDistance = std::numeric_limits<double>::max();
-                    cvf::Vec3d closestPillarCoord;
+                    double closestPillarDistance = std::numeric_limits<double>::max();
+                    int    closestPillarIndex    = -1;
 
                     const auto cylinderCoordX = opmX[opmNodeIndex] + xCenterCoordOpm;
                     const auto cylinderCoordY = opmY[opmNodeIndex] + yCenterCoordOpm;
@@ -182,29 +209,46 @@ void RifOpmGridTools::transferCoordinates( Opm::EclIO::EGrid& opmMainGrid,
 
                     const cvf::Vec3d coordinateOnCylinder = cvf::Vec3d( cylinderCoordX, cylinderCoordY, cylinderCoordZ );
 
-                    for ( int pillarIndex = 0; pillarIndex < 4; pillarIndex++ )
+                    const auto candidates = computeSnapToCoordinates( opmMainGrid, opmGrid, hostCellIndex, opmCellIndex );
+                    for ( int pillarIndex = 0; pillarIndex < static_cast<int>( candidates.size() ); pillarIndex++ )
                     {
-                        const cvf::Vec3d p0( hostCellX[0 + pillarIndex],
-                                             hostCellY[0 + pillarIndex],
-                                             hostCellZ[0 + pillarIndex] );
-                        const cvf::Vec3d p1( hostCellX[4 + pillarIndex],
-                                             hostCellY[4 + pillarIndex],
-                                             hostCellZ[4 + pillarIndex] );
-
-                        const auto candidateCoord =
-                            cvf::GeometryTools::projectPointOnLine( p0, p1, coordinateOnCylinder, nullptr );
-
-                        double candidateDistance = candidateCoord.pointDistance( coordinateOnCylinder );
-                        if ( candidateDistance < closestPillarDistance )
+                        for ( const auto& c : candidates[pillarIndex] )
                         {
-                            closestPillarDistance = candidateDistance;
-                            closestPillarCoord    = candidateCoord;
+                            double distance = coordinateOnCylinder.pointDistance( c );
+                            if ( distance < closestPillarDistance )
+                            {
+                                closestPillarDistance = distance;
+                                closestPillarIndex    = pillarIndex;
+                            }
                         }
                     }
 
-                    riNode.x() = closestPillarCoord.x();
-                    riNode.y() = closestPillarCoord.y();
-                    riNode.z() = -closestPillarCoord.z();
+                    if ( closestPillarDistance < std::numeric_limits<double>::max() )
+                    {
+                        const auto& pillarCordinates = candidates[closestPillarIndex];
+
+                        int layerCount               = pillarCordinates.size() / 2;
+                        int layerIndexInMainGridCell = ijkCell[2] % layerCount;
+                        int localNodeIndex           = opmNodeIndex % 8;
+
+                        cvf::Vec3d closestPillarCoord;
+                        if ( localNodeIndex < 4 )
+                        {
+                            // Top of cell
+                            int pillarCoordIndex = layerIndexInMainGridCell * 2;
+                            closestPillarCoord   = pillarCordinates[pillarCoordIndex];
+                        }
+                        else
+                        {
+                            // Bottom of cell
+                            int pillarCoordIndex = layerIndexInMainGridCell * 2 + 1;
+                            closestPillarCoord   = pillarCordinates[pillarCoordIndex];
+                        }
+
+                        riNode.x() = closestPillarCoord.x();
+                        riNode.y() = closestPillarCoord.y();
+                        riNode.z() = -closestPillarCoord.z();
+                    }
                 }
             }
         }
@@ -270,4 +314,89 @@ std::map<int, std::pair<double, double>> RifOpmGridTools::computeXyCenterForTopO
     }
 
     return radialGridCenterTopLayerOpm;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::vector<cvf::Vec3d>> RifOpmGridTools::computeSnapToCoordinates( Opm::EclIO::EGrid& opmMainGrid,
+                                                                                Opm::EclIO::EGrid& opmGrid,
+                                                                                int                mainGridCellIndex,
+                                                                                int                lgrCellIndex )
+{
+    auto hostCellIndices = opmGrid.hostCellsGlobalIndex();
+    auto lgrIjk          = opmGrid.ijk_from_global_index( lgrCellIndex );
+
+    std::vector<double> zDistanceAlongPillar;
+
+    for ( int gridCellIndex = 0; gridCellIndex < opmGrid.totalNumberOfCells(); gridCellIndex++ )
+    {
+        if ( hostCellIndices[gridCellIndex] == mainGridCellIndex )
+        {
+            auto ijk = opmGrid.ijk_from_global_index( gridCellIndex );
+
+            // Find all LGR cells for the same IJ column
+            if ( ijk[0] == lgrIjk[0] && ijk[1] == lgrIjk[1] )
+            {
+                std::array<double, 8> cellX{};
+                std::array<double, 8> cellY{};
+                std::array<double, 8> cellZ{};
+
+                opmGrid.getCellCorners( gridCellIndex, cellX, cellY, cellZ );
+
+                // Get top and bottom of one pillar
+                zDistanceAlongPillar.push_back( cellZ[0] );
+                zDistanceAlongPillar.push_back( cellZ[4] );
+            }
+        }
+    }
+
+    if ( zDistanceAlongPillar.size() < 2 ) return {};
+
+    std::sort( zDistanceAlongPillar.begin(), zDistanceAlongPillar.end() );
+
+    auto normalize = []( const std::vector<double>& values ) -> std::vector<double> {
+        if ( values.size() < 2 ) return {};
+
+        std::vector<double> normalizedValues;
+
+        double firstValue = values.front();
+        double lastValue  = values.back();
+        double range      = lastValue - firstValue;
+
+        // Normalize values to range [0..1]
+        for ( const auto& value : values )
+        {
+            normalizedValues.emplace_back( ( value - firstValue ) / range );
+        }
+
+        return normalizedValues;
+    };
+
+    auto normalizedZValues = normalize( zDistanceAlongPillar );
+
+    std::vector<std::vector<cvf::Vec3d>> allCoords;
+    std::array<double, 8>                hostCellX{};
+    std::array<double, 8>                hostCellY{};
+    std::array<double, 8>                hostCellZ{};
+
+    opmMainGrid.getCellCorners( mainGridCellIndex, hostCellX, hostCellY, hostCellZ );
+
+    for ( int pillarIndex = 0; pillarIndex < 4; pillarIndex++ )
+    {
+        std::vector<cvf::Vec3d> pillarCoords;
+
+        const cvf::Vec3d p1( hostCellX[0 + pillarIndex], hostCellY[0 + pillarIndex], hostCellZ[0 + pillarIndex] );
+        const cvf::Vec3d p2( hostCellX[4 + pillarIndex], hostCellY[4 + pillarIndex], hostCellZ[4 + pillarIndex] );
+
+        for ( auto t : normalizedZValues )
+        {
+            cvf::Vec3d pillarCoord = p1 * ( 1.0 - t ) + t * p2;
+            pillarCoords.push_back( pillarCoord );
+        }
+
+        allCoords.push_back( pillarCoords );
+    }
+
+    return allCoords;
 }

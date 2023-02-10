@@ -299,40 +299,39 @@ QString RiuResultTextBuilder::coordinatesText( const RigGridBase* grid, size_t g
         }
     }
 
-    if ( showCorner || showCenter )
+    if ( showCenter )
+    {
+        auto       mainGrid = grid->mainGrid();
+        auto       cell     = mainGrid->cell( globalCellIndex );
+        const auto center   = cell.center();
+
+        text += createTextFromDomainCoordinate( "Cell Center : [%1, %2, %3]", center ) + itemSeparator;
+    }
+
+    if ( showCorner )
     {
         auto mainGrid = grid->mainGrid();
         auto cell     = mainGrid->cell( globalCellIndex );
         auto indices  = cell.cornerIndices();
 
-        if ( showCenter )
+        text += QString( "Cell Corners" ) + itemSeparator;
+
+        const std::vector<std::pair<int, std::string>> riNodeOrder{ { 0, "i- j- k+" },
+                                                                    { 1, "i+ j- k+" },
+                                                                    { 2, "i+ j+ k+" },
+                                                                    { 3, "i- j+ k+" },
+                                                                    { 4, "i- j- k-" },
+                                                                    { 5, "i+ j- k-" },
+                                                                    { 6, "i+ j+ k-" },
+                                                                    { 7, "i- j+ k-" } };
+
+        for ( int i = 0; i < 8; i++ )
         {
-            const auto center = cell.center();
+            const auto& [nodeIndex, nodeText] = riNodeOrder[i];
+            auto v                            = mainGrid->nodes()[indices[nodeIndex]];
 
-            text += createTextFromDomainCoordinate( "Cell Center : [%1, %2, %3]", center ) + itemSeparator;
-        }
-
-        if ( showCorner )
-        {
-            text += QString( "Cell Corners" ) + itemSeparator;
-
-            const std::vector<std::pair<int, std::string>> riNodeOrder{ { 0, "i- j- k+" },
-                                                                        { 1, "i+ j- k+" },
-                                                                        { 2, "i+ j+ k+" },
-                                                                        { 3, "i- j+ k+" },
-                                                                        { 4, "i- j- k-" },
-                                                                        { 5, "i+ j- k-" },
-                                                                        { 6, "i+ j+ k-" },
-                                                                        { 7, "i- j+ k-" } };
-
-            for ( int i = 0; i < 8; i++ )
-            {
-                const auto& [nodeIndex, nodeText] = riNodeOrder[i];
-                auto v                            = mainGrid->nodes()[indices[nodeIndex]];
-
-                text += createTextFromDomainCoordinate( QString::fromStdString( nodeText ) + " : [%1, %2, %3]" + itemSeparator,
-                                                        v );
-            }
+            text += createTextFromDomainCoordinate( QString::fromStdString( nodeText ) + " : [%1, %2, %3]" + itemSeparator,
+                                                    v );
         }
     }
 

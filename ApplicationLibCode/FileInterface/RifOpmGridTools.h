@@ -18,8 +18,11 @@
 
 #pragma once
 
+#include "cvfVector3.h"
+
 #include <map>
 #include <string>
+#include <vector>
 
 namespace Opm
 {
@@ -49,4 +52,9 @@ private:
 
     static std::map<int, std::pair<double, double>>
         computeXyCenterForTopOfCells( Opm::EclIO::EGrid& opmMainGrid, Opm::EclIO::EGrid& opmGrid, RigGridBase* riGrid );
+
+    static std::vector<std::vector<cvf::Vec3d>> computeSnapToCoordinates( Opm::EclIO::EGrid& opmMainGrid,
+                                                                          Opm::EclIO::EGrid& opmGrid,
+                                                                          int                mainGridCellIndex,
+                                                                          int                lgrCellIndex );
 };
