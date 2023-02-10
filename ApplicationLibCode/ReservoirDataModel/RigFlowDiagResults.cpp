@@ -721,6 +721,14 @@ void RigFlowDiagResults::mobileVolumeWeightedMean( const RigFlowDiagResultAddres
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RigFlowDiagResults::mobileVolumeWeightedMean( const RigFlowDiagResultAddress& resVarAddr, double* mean )
+{
+    this->statistics( resVarAddr )->mobileVolumeWeightedMean( *mean );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::pair<double, double> RigFlowDiagResults::injectorProducerPairFluxes( const std::string& injTracername,
                                                                           const std::string& prodTracerName,
                                                                           int                timeStepIndex )

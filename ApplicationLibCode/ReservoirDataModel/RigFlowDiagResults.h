@@ -79,6 +79,7 @@ public:
     const std::vector<int>&    uniqueCellScalarValues( const RigFlowDiagResultAddress& resVarAddr );
     const std::vector<int>&    uniqueCellScalarValues( const RigFlowDiagResultAddress& resVarAddr, int timeStepIndex );
     void mobileVolumeWeightedMean( const RigFlowDiagResultAddress& resVarAddr, int timeStepIndex, double* mean );
+    void mobileVolumeWeightedMean( const RigFlowDiagResultAddress& resVarAddr, double* mean );
 
     std::pair<double, double> injectorProducerPairFluxes( const std::string& injTracername,
                                                           const std::string& prodTracerName,
