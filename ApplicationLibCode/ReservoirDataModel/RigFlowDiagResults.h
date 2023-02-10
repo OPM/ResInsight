@@ -100,6 +100,8 @@ public:
 
     RimFlowDiagSolution* flowDiagSolution();
 
+    void setStatisticsDataCacheNumBins( const RigFlowDiagResultAddress& resVarAddr, size_t numBins );
+
 private:
     const std::vector<double>* findOrCalculateResult( const RigFlowDiagResultAddress& resVarAddr, size_t timeStepIndex );
     void                       calculateNativeResultsIfNotPreviouslyAttempted( size_t                                   timeStepIndex,

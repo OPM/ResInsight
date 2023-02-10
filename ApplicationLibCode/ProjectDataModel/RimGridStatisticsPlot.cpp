@@ -101,6 +101,8 @@ void RimGridStatisticsPlot::setDefaults()
             {
                 m_cellFilterView.setValue( eclipseCase->reservoirViews.children().front() );
             }
+
+            m_numHistogramBins = 15;
         }
     }
 }
@@ -162,7 +164,7 @@ void RimGridStatisticsPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
         m_property->uiOrdering( uiConfigName, *propertyGroup );
     }
 
-    bool showNumHistogramBins = false;
+    const bool showNumHistogramBins = true;
     RimStatisticsPlot::uiOrderingForHistogram( uiConfigName, uiOrdering, showNumHistogramBins );
 
     uiOrderingForLegendsAndFonts( uiConfigName, uiOrdering );
@@ -245,6 +247,7 @@ RigHistogramData RimGridStatisticsPlot::createStatisticsData() const
 {
     std::unique_ptr<RimHistogramCalculator> histogramCalculator;
     histogramCalculator.reset( new RimHistogramCalculator );
+    histogramCalculator->setNumBins( static_cast<size_t>( m_numHistogramBins() ) );
 
     RigHistogramData histogramData;
 

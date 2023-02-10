@@ -67,7 +67,16 @@ void caf::AppEnum<RimHistogramCalculator::StatisticsCellRangeType>::setUp()
 //--------------------------------------------------------------------------------------------------
 RimHistogramCalculator::RimHistogramCalculator()
     : m_isVisCellStatUpToDate( false )
+    , m_numBins( RigStatisticsDataCache::defaultNumBins() )
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimHistogramCalculator::setNumBins( size_t numBins )
+{
+    m_numBins = numBins;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -186,6 +195,7 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
                 fldResults->meanScalarValue( resAddr, timeStep, &histData.mean );
                 fldResults->sumScalarValue( resAddr, timeStep, &histData.sum );
                 fldResults->mobileVolumeWeightedMean( resAddr, timeStep, &histData.weightedMean );
+                fldResults->setStatisticsDataCacheNumBins( resAddr, m_numBins );
 
                 histData.histogram = fldResults->scalarValuesHistogram( resAddr, timeStep );
             }
@@ -200,6 +210,7 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
                 m_visibleCellStatistics->p10p90CellScalarValues( timeStep, histData.p10, histData.p90 );
                 m_visibleCellStatistics->sumCellScalarValues( timeStep, histData.sum );
                 m_visibleCellStatistics->mobileVolumeWeightedMean( timeStep, histData.weightedMean );
+                m_visibleCellStatistics->setNumBins( m_numBins );
 
                 histData.histogram = m_visibleCellStatistics->cellScalarValuesHistogram( timeStep );
             }
@@ -216,6 +227,7 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
             cellResults->meanCellScalarValues( eclResAddr, histData.mean );
             cellResults->sumCellScalarValues( eclResAddr, histData.sum );
             cellResults->mobileVolumeWeightedMean( eclResAddr, histData.weightedMean );
+            cellResults->setStatisticsDataCacheNumBins( eclResAddr, m_numBins );
             histData.histogram = cellResults->cellScalarValuesHistogram( eclResAddr );
         }
         else if ( timeRange == StatisticsTimeRangeType::CURRENT_TIMESTEP )
@@ -225,6 +237,7 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
             cellResults->meanCellScalarValues( eclResAddr, timeStep, histData.mean );
             cellResults->sumCellScalarValues( eclResAddr, timeStep, histData.sum );
             cellResults->mobileVolumeWeightedMean( eclResAddr, timeStep, histData.weightedMean );
+            cellResults->setStatisticsDataCacheNumBins( eclResAddr, m_numBins );
             histData.histogram = cellResults->cellScalarValuesHistogram( eclResAddr, timeStep );
         }
     }
@@ -240,6 +253,7 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
             m_visibleCellStatistics->p10p90CellScalarValues( histData.p10, histData.p90 );
             m_visibleCellStatistics->sumCellScalarValues( histData.sum );
             m_visibleCellStatistics->mobileVolumeWeightedMean( histData.weightedMean );
+            m_visibleCellStatistics->setNumBins( m_numBins );
 
             histData.histogram = m_visibleCellStatistics->cellScalarValuesHistogram();
         }
@@ -250,6 +264,7 @@ RigHistogramData RimHistogramCalculator::histogramData( RimEclipseView*         
             m_visibleCellStatistics->p10p90CellScalarValues( timeStep, histData.p10, histData.p90 );
             m_visibleCellStatistics->sumCellScalarValues( timeStep, histData.sum );
             m_visibleCellStatistics->mobileVolumeWeightedMean( timeStep, histData.weightedMean );
+            m_visibleCellStatistics->setNumBins( m_numBins );
 
             histData.histogram = m_visibleCellStatistics->cellScalarValuesHistogram( timeStep );
         }

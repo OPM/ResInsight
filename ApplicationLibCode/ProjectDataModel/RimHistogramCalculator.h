@@ -53,6 +53,8 @@ public:
 
     RimHistogramCalculator();
 
+    void setNumBins( size_t numBins );
+
     RigHistogramData histogramData( RimEclipseContourMapView* contourMap );
     RigHistogramData histogramData( RimGeoMechContourMapView* contourMap );
     RigHistogramData
@@ -78,4 +80,5 @@ private:
 
     bool                             m_isVisCellStatUpToDate;
     cvf::ref<RigStatisticsDataCache> m_visibleCellStatistics;
+    size_t                           m_numBins;
 };
