@@ -39,7 +39,8 @@ class RimSummaryCalculationCollection : public RimUserDefinedCalculationCollecti
 public:
     RimSummaryCalculationCollection();
 
-    RimSummaryCase* calculationSummaryCase();
+    RimCalculatedSummaryCase*              calculationSummaryCase( RimSummaryCase* );
+    std::vector<RimCalculatedSummaryCase*> calculationSummaryCases() const;
 
     void rebuildCaseMetaData() override;
 
@@ -49,5 +50,6 @@ private:
     void initAfterRead() override;
 
 private:
-    caf::PdmChildField<RimCalculatedSummaryCase*> m_calcuationSummaryCase;
+    caf::PdmChildField<RimCalculatedSummaryCase*>      m_calcuationSummaryCase_OBSOLETE;
+    caf::PdmChildArrayField<RimCalculatedSummaryCase*> m_cases;
 };

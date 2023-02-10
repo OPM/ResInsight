@@ -2256,8 +2256,9 @@ std::pair<int, std::vector<RimSummaryCurve*>> RimSummaryPlot::handleSummaryAddre
         // Handle calculated addresses
         if ( summaryAddr->address().isCalculated() )
         {
-            RimSummaryCalculationCollection* calcColl       = RimProject::current()->calculationCollection();
-            RimSummaryCase*                  calculatedCase = calcColl->calculationSummaryCase();
+            // TODO: understand and fix this...
+            // RimSummaryCalculationCollection* calcColl       = RimProject::current()->calculationCollection();
+            RimSummaryCase* calculatedCase = nullptr; // calcColl->calculationSummaryCase();
             if ( calculatedCase )
             {
                 RifSummaryReaderInterface* reader = calculatedCase->summaryReader();

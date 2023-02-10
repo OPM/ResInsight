@@ -26,6 +26,7 @@
 
 #include "RifEclipseSummaryAddress.h"
 
+#include "RimCalculatedSummaryCase.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
@@ -248,7 +249,7 @@ void RimSummaryCase::buildChildNodes()
     auto addresses = reader->allResultAddresses();
 
     RimSummaryCalculationCollection* calcColl       = RimProject::current()->calculationCollection();
-    RimSummaryCase*                  calculatedCase = calcColl->calculationSummaryCase();
+    RimCalculatedSummaryCase*        calculatedCase = calcColl->calculationSummaryCase( this );
     if ( calculatedCase )
     {
         RifSummaryReaderInterface* reader = calculatedCase->summaryReader();

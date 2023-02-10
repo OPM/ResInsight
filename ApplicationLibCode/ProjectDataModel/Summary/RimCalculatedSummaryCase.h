@@ -45,6 +45,10 @@ public:
 
     void buildMetaData();
 
+    RimSummaryCase* summaryCase() const;
+    void            setSummaryCase( RimSummaryCase* summaryCase );
+
 private:
     std::unique_ptr<RifCalculatedSummaryCurveReader> m_calculatedCurveReader;
+    caf::PdmPointer<RimSummaryCase>                  m_summaryCase;
 };

@@ -84,20 +84,23 @@ std::string RifCalculatedSummaryCurveReader::unitName( const RifEclipseSummaryAd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifCalculatedSummaryCurveReader::buildMetaData()
+void RifCalculatedSummaryCurveReader::buildMetaData( RimSummaryCase* summaryCase )
 {
     m_allResultAddresses.clear();
 
     for ( RimUserDefinedCalculation* calc : m_calculationCollection->calculations() )
     {
-        auto allAddresses = calc->allAddresses();
+        RimSummaryCalculation* sumCalc = dynamic_cast<RimSummaryCalculation*>( calc );
+
+        // TODO: should probably avoid calling this with summaryCase == null...
+        auto allAddresses = summaryCase ? sumCalc->allAddressesForSummaryCase( summaryCase ) : sumCalc->allAddresses();
+
         for ( auto addr : allAddresses )
         {
             RimSummaryCalculationAddress* calculationAddress = dynamic_cast<RimSummaryCalculationAddress*>( addr );
             if ( calculationAddress->address().isValid() )
             {
                 RiaLogging::info( QString( "Adding result for %1" ).arg( calculationAddress->address().uiText().c_str() ) );
-
                 m_allResultAddresses.insert( calculationAddress->address() );
             }
         }

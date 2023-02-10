@@ -49,6 +49,7 @@ public:
     RimSummaryCalculation();
 
     std::vector<RimUserDefinedCalculationAddress*> allAddresses() const override;
+    std::vector<RimUserDefinedCalculationAddress*> allAddressesForSummaryCase( RimSummaryCase* summaryCase ) const;
 
     std::vector<double>        values( const RimUserDefinedCalculationAddress& addr ) override;
     const std::vector<time_t>& timeSteps( const RimUserDefinedCalculationAddress& addr );
@@ -70,6 +71,10 @@ protected:
 
     static void substituteVariables( std::vector<RimSummaryCalculationVariable*>& vars,
                                      const RifEclipseSummaryAddress&              address );
+
+    std::vector<RimUserDefinedCalculationAddress*>
+        allAddressesForCategory( RifEclipseSummaryAddress::SummaryVarCategory category,
+                                 const std::set<RifEclipseSummaryAddress>&    allResultAddresses ) const;
 
     std::optional<std::vector<RimSummaryCalculationVariable*>> getVariables( bool showError = true ) const;
 

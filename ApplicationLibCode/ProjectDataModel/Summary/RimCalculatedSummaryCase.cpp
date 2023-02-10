@@ -63,7 +63,7 @@ void RimCalculatedSummaryCase::createSummaryReaderInterface()
 
         m_calculatedCurveReader.reset( new RifCalculatedSummaryCurveReader( calculationCollection ) );
 
-        m_calculatedCurveReader->buildMetaData();
+        m_calculatedCurveReader->buildMetaData( m_summaryCase );
     }
 }
 
@@ -84,5 +84,21 @@ void RimCalculatedSummaryCase::buildMetaData()
 {
     if ( !m_calculatedCurveReader ) createSummaryReaderInterface();
 
-    m_calculatedCurveReader->buildMetaData();
+    m_calculatedCurveReader->buildMetaData( m_summaryCase );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCase* RimCalculatedSummaryCase::summaryCase() const
+{
+    return m_summaryCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCalculatedSummaryCase::setSummaryCase( RimSummaryCase* summaryCase )
+{
+    m_summaryCase = summaryCase;
 }

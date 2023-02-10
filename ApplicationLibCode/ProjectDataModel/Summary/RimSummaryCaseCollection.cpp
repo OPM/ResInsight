@@ -29,6 +29,7 @@
 #include "RicfCommandObject.h"
 
 #include "RimAnalysisPlotDataEntry.h"
+#include "RimCalculatedSummaryCase.h"
 #include "RimDerivedEnsembleCaseCollection.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimGridSummaryCase.h"
@@ -330,16 +331,24 @@ std::set<RifEclipseSummaryAddress> RimSummaryCaseCollection::ensembleSummaryAddr
         addresses.insert( addrs.begin(), addrs.end() );
     }
 
-    RimSummaryCalculationCollection* calcColl       = RimProject::current()->calculationCollection();
-    RimSummaryCase*                  calculatedCase = calcColl->calculationSummaryCase();
-
-    if ( calculatedCase )
+    for ( RimSummaryCase* currCase : m_cases )
     {
-        RifSummaryReaderInterface* reader = calculatedCase->summaryReader();
-        if ( reader )
+        if ( !currCase ) continue;
+
+        RifSummaryReaderInterface* reader = currCase->summaryReader();
+        if ( !reader ) continue;
+
+        RimSummaryCalculationCollection* calcColl       = RimProject::current()->calculationCollection();
+        RimCalculatedSummaryCase*        calculatedCase = calcColl->calculationSummaryCase( currCase );
+
+        if ( calculatedCase )
         {
-            const std::set<RifEclipseSummaryAddress>& addrs = reader->allResultAddresses();
-            addresses.insert( addrs.begin(), addrs.end() );
+            RifSummaryReaderInterface* reader = calculatedCase->summaryReader();
+            if ( reader )
+            {
+                const std::set<RifEclipseSummaryAddress>& addrs = reader->allResultAddresses();
+                addresses.insert( addrs.begin(), addrs.end() );
+            }
         }
     }
 

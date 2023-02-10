@@ -482,7 +482,8 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions( const caf:
 
         std::vector<RimSummaryCase*> cases = proj->allSummaryCases();
 
-        cases.push_back( proj->calculationCollection->calculationSummaryCase() );
+        // TODO handle this ...
+        // cases.push_back( proj->calculationCollection->calculationSummaryCase() );
 
         options = RiaSummaryTools::optionsForSummaryCases( cases );
 

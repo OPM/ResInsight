@@ -786,13 +786,14 @@ std::set<RifEclipseSummaryAddress> RiuSummaryVectorSelectionUi::findPossibleSumm
 {
     std::set<RifEclipseSummaryAddress> addressSet;
 
-    RimSummaryCase* calcSumCase = calculatedSummaryCase();
+    // TODO: maybe all addresses only once?
+    // RimSummaryCase* calcSumCase = calculatedSummaryCase();
 
-    const std::set<RifEclipseSummaryAddress> allAddresses = calcSumCase->summaryReader()->allResultAddresses();
-    for ( const auto& adr : allAddresses )
-    {
-        if ( adr.category() == m_currentSummaryCategory.value() ) addressSet.insert( adr );
-    }
+    // const std::set<RifEclipseSummaryAddress> allAddresses = calcSumCase->summaryReader()->allResultAddresses();
+    // for ( const auto& adr : allAddresses )
+    // {
+    //     if ( adr.category() == m_currentSummaryCategory.value() ) addressSet.insert( adr );
+    // }
 
     return addressSet;
 }
@@ -1425,20 +1426,14 @@ std::vector<SummarySource*> RiuSummaryVectorSelectionUi::selectedSummarySources(
     }
 
     // Always add the summary case for calculated curves as this case is not displayed in UI
-    sources.push_back( RiuSummaryVectorSelectionUi::calculatedSummaryCase() );
+    std::vector<RimCalculatedSummaryCase*> calculatedSummaryCases =
+        RimProject::current()->calculationCollection()->calculationSummaryCases();
+    for ( auto c : calculatedSummaryCases )
+        sources.push_back( c );
 
     return sources;
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimSummaryCase* RiuSummaryVectorSelectionUi::calculatedSummaryCase()
-{
-    RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
-
-    return calcColl->calculationSummaryCase();
-}
 
 //--------------------------------------------------------------------------------------------------
 ///

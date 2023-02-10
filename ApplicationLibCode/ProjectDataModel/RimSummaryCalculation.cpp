@@ -359,10 +359,28 @@ void RimSummaryCalculation::removeDependentObjects()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimUserDefinedCalculationAddress*>
+    RimSummaryCalculation::allAddressesForSummaryCase( RimSummaryCase* summaryCase ) const
+{
+    auto variables = getVariables( false );
+    if ( variables && !variables.value().empty() )
+    {
+        // The first variable is the substituable one. Use its category to
+        // provide all available addresses.
+
+        auto firstVariable      = variables.value().front();
+        auto allResultAddresses = summaryCase->summaryReader()->allResultAddresses();
+        return allAddressesForCategory( firstVariable->summaryAddress()->address().category(), allResultAddresses );
+    }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RimUserDefinedCalculationAddress*> RimSummaryCalculation::allAddresses() const
 {
-    std::vector<RimUserDefinedCalculationAddress*> addresses;
-
     auto variables = getVariables( false );
     if ( variables && !variables.value().empty() )
     {
@@ -371,88 +389,101 @@ std::vector<RimUserDefinedCalculationAddress*> RimSummaryCalculation::allAddress
 
         auto firstVariable      = variables.value().front();
         auto allResultAddresses = firstVariable->summaryCase()->summaryReader()->allResultAddresses();
+        return allAddressesForCategory( firstVariable->summaryAddress()->address().category(), allResultAddresses );
+    }
 
-        if ( firstVariable->summaryAddress()->address().category() == RifEclipseSummaryAddress::SUMMARY_FIELD )
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimUserDefinedCalculationAddress*>
+    RimSummaryCalculation::allAddressesForCategory( RifEclipseSummaryAddress::SummaryVarCategory category,
+                                                    const std::set<RifEclipseSummaryAddress>& allResultAddresses ) const
+{
+    std::vector<RimUserDefinedCalculationAddress*> addresses;
+
+    if ( category == RifEclipseSummaryAddress::SUMMARY_FIELD )
+    {
+        addresses.push_back( new RimSummaryCalculationAddress(
+            RifEclipseSummaryAddress::fieldAddress( description().toStdString(), m_id ) ) );
+    }
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_AQUIFER )
+    {
+        std::set<int> uniqueNumbers;
+        std::for_each( allResultAddresses.begin(), allResultAddresses.end(), [&]( const auto& addr ) {
+            uniqueNumbers.insert( addr.aquiferNumber() );
+        } );
+
+        for ( auto num : uniqueNumbers )
         {
             addresses.push_back( new RimSummaryCalculationAddress(
-                RifEclipseSummaryAddress::fieldAddress( description().toStdString(), m_id ) ) );
+                RifEclipseSummaryAddress::aquiferAddress( description().toStdString(), num, m_id ) ) );
         }
-        else if ( firstVariable->summaryAddress()->address().category() == RifEclipseSummaryAddress::SUMMARY_AQUIFER )
-        {
-            std::set<int> uniqueNumbers;
-            std::for_each( allResultAddresses.begin(), allResultAddresses.end(), [&]( const auto& addr ) {
-                uniqueNumbers.insert( addr.aquiferNumber() );
-            } );
+    }
 
-            for ( auto num : uniqueNumbers )
-            {
-                addresses.push_back( new RimSummaryCalculationAddress(
-                    RifEclipseSummaryAddress::aquiferAddress( description().toStdString(), num, m_id ) ) );
-            }
-        }
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_MISC )
+    {
+        addresses.push_back( new RimSummaryCalculationAddress(
+            RifEclipseSummaryAddress::miscAddress( description().toStdString(), m_id ) ) );
+    }
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_NETWORK )
+    {
+        addresses.push_back( new RimSummaryCalculationAddress(
+            RifEclipseSummaryAddress::networkAddress( description().toStdString(), m_id ) ) );
+    }
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_WELL )
+    {
+        std::set<std::string> uniqueWellNames;
+        std::for_each( allResultAddresses.begin(), allResultAddresses.end(), [&]( const auto& addr ) {
+            uniqueWellNames.insert( addr.wellName() );
+        } );
 
-        else if ( firstVariable->summaryAddress()->address().category() == RifEclipseSummaryAddress::SUMMARY_MISC )
+        for ( auto wellName : uniqueWellNames )
         {
             addresses.push_back( new RimSummaryCalculationAddress(
-                RifEclipseSummaryAddress::miscAddress( description().toStdString(), m_id ) ) );
+                RifEclipseSummaryAddress::wellAddress( description().toStdString(), wellName, m_id ) ) );
         }
-        else if ( firstVariable->summaryAddress()->address().category() == RifEclipseSummaryAddress::SUMMARY_NETWORK )
+    }
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_GROUP )
+    {
+        std::set<std::string> uniqueGroupNames;
+        std::for_each( allResultAddresses.begin(), allResultAddresses.end(), [&]( const auto& addr ) {
+            uniqueGroupNames.insert( addr.groupName() );
+        } );
+
+        for ( auto groupName : uniqueGroupNames )
         {
             addresses.push_back( new RimSummaryCalculationAddress(
-                RifEclipseSummaryAddress::networkAddress( description().toStdString(), m_id ) ) );
+                RifEclipseSummaryAddress::groupAddress( description().toStdString(), groupName, m_id ) ) );
         }
-        else if ( firstVariable->summaryAddress()->address().category() == RifEclipseSummaryAddress::SUMMARY_WELL )
-        {
-            std::set<std::string> uniqueWellNames;
-            std::for_each( allResultAddresses.begin(), allResultAddresses.end(), [&]( const auto& addr ) {
-                uniqueWellNames.insert( addr.wellName() );
-            } );
+    }
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_REGION )
+    {
+        std::set<int> uniqueRegionNumbers;
+        std::for_each( allResultAddresses.begin(), allResultAddresses.end(), [&]( const auto& addr ) {
+            uniqueRegionNumbers.insert( addr.regionNumber() );
+        } );
 
-            for ( auto wellName : uniqueWellNames )
-            {
-                addresses.push_back( new RimSummaryCalculationAddress(
-                    RifEclipseSummaryAddress::wellAddress( description().toStdString(), wellName, m_id ) ) );
-            }
+        for ( auto regionNumber : uniqueRegionNumbers )
+        {
+            addresses.push_back( new RimSummaryCalculationAddress(
+                RifEclipseSummaryAddress::regionAddress( description().toStdString(), regionNumber, m_id ) ) );
         }
-        else if ( firstVariable->summaryAddress()->address().category() == RifEclipseSummaryAddress::SUMMARY_GROUP )
-        {
-            std::set<std::string> uniqueGroupNames;
-            std::for_each( allResultAddresses.begin(), allResultAddresses.end(), [&]( const auto& addr ) {
-                uniqueGroupNames.insert( addr.groupName() );
-            } );
+    }
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION )
+    {
+        std::set<std::pair<int, int>> uniqueRegionNumbers;
+        std::for_each( allResultAddresses.begin(), allResultAddresses.end(), [&]( const auto& addr ) {
+            uniqueRegionNumbers.insert( std::make_pair( addr.regionNumber(), addr.regionNumber2() ) );
+        } );
 
-            for ( auto groupName : uniqueGroupNames )
-            {
-                addresses.push_back( new RimSummaryCalculationAddress(
-                    RifEclipseSummaryAddress::groupAddress( description().toStdString(), groupName, m_id ) ) );
-            }
-        }
-        else if ( firstVariable->summaryAddress()->address().category() == RifEclipseSummaryAddress::SUMMARY_REGION )
+        for ( auto regionNumber : uniqueRegionNumbers )
         {
-            std::set<int> uniqueRegionNumbers;
-            std::for_each( allResultAddresses.begin(), allResultAddresses.end(), [&]( const auto& addr ) {
-                uniqueRegionNumbers.insert( addr.regionNumber() );
-            } );
-
-            for ( auto regionNumber : uniqueRegionNumbers )
-            {
-                addresses.push_back( new RimSummaryCalculationAddress(
-                    RifEclipseSummaryAddress::regionAddress( description().toStdString(), regionNumber, m_id ) ) );
-            }
-        }
-        else if ( firstVariable->summaryAddress()->address().category() == RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION )
-        {
-            std::set<std::pair<int, int>> uniqueRegionNumbers;
-            std::for_each( allResultAddresses.begin(), allResultAddresses.end(), [&]( const auto& addr ) {
-                uniqueRegionNumbers.insert( std::make_pair( addr.regionNumber(), addr.regionNumber2() ) );
-            } );
-
-            for ( auto regionNumber : uniqueRegionNumbers )
-            {
-                auto [r1, r2] = regionNumber;
-                addresses.push_back( new RimSummaryCalculationAddress(
-                    RifEclipseSummaryAddress::regionToRegionAddress( description().toStdString(), r1, r2, m_id ) ) );
-            }
+            auto [r1, r2] = regionNumber;
+            addresses.push_back( new RimSummaryCalculationAddress(
+                RifEclipseSummaryAddress::regionToRegionAddress( description().toStdString(), r1, r2, m_id ) ) );
         }
     }
 
@@ -466,6 +497,8 @@ std::vector<double> RimSummaryCalculation::values( const RimUserDefinedCalculati
 {
     const RimSummaryCalculationAddress* address = dynamic_cast<const RimSummaryCalculationAddress*>( &addr );
     if ( !address ) return {};
+
+    RiaLogging::info( QString( "Address: %1" ).arg( address->address().uiText().c_str() ) );
 
     if ( auto it = m_cachedResults.find( address->address() ); it != m_cachedResults.end() )
     {

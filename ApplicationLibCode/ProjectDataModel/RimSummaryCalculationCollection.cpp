@@ -33,9 +33,12 @@ RimSummaryCalculationCollection::RimSummaryCalculationCollection()
 {
     CAF_PDM_InitObject( "Calculation Collection", ":/chain.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_calcuationSummaryCase, "CalculationsSummaryCase", "Calculations Summary Case" );
-    m_calcuationSummaryCase.xmlCapability()->disableIO();
-    m_calcuationSummaryCase = new RimCalculatedSummaryCase;
+    CAF_PDM_InitFieldNoDefault( &m_cases, "SummaryCases", "" );
+    m_cases.uiCapability()->setUiTreeHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_calcuationSummaryCase_OBSOLETE, "CalculationsSummaryCase", "Calculations Summary Case" );
+    m_calcuationSummaryCase_OBSOLETE.xmlCapability()->disableIO();
+    m_calcuationSummaryCase_OBSOLETE = new RimCalculatedSummaryCase;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -49,9 +52,29 @@ RimSummaryCalculation* RimSummaryCalculationCollection::createCalculation() cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCase* RimSummaryCalculationCollection::calculationSummaryCase()
+RimCalculatedSummaryCase* RimSummaryCalculationCollection::calculationSummaryCase( RimSummaryCase* summaryCase )
 {
-    return m_calcuationSummaryCase();
+    for ( RimCalculatedSummaryCase* c : m_cases )
+    {
+        if ( c->summaryCase() == summaryCase ) return c;
+    }
+
+    // Calculated case was not found: create it.
+    auto calculationSummaryCase = new RimCalculatedSummaryCase;
+    calculationSummaryCase->setSummaryCase( summaryCase );
+    m_cases.push_back( calculationSummaryCase );
+
+    calculationSummaryCase->buildMetaData();
+
+    return calculationSummaryCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimCalculatedSummaryCase*> RimSummaryCalculationCollection::calculationSummaryCases() const
+{
+    return m_cases.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -60,7 +83,10 @@ RimSummaryCase* RimSummaryCalculationCollection::calculationSummaryCase()
 void RimSummaryCalculationCollection::rebuildCaseMetaData()
 {
     ensureValidCalculationIds();
-    m_calcuationSummaryCase->buildMetaData();
+
+    // TODO: figure out how to handle this..
+    printf( "USED TO REBUILD CASE META DATA!!!" );
+    // m_calcuationSummaryCase->buildMetaData();
 }
 
 //--------------------------------------------------------------------------------------------------
