@@ -36,6 +36,8 @@
 
 #include "cafPdmFieldScriptingCapability.h"
 
+#include <QFileInfo>
+
 CAF_PDM_SOURCE_INIT( RicfExportWellPathCompletions, "exportWellPathCompletions" );
 
 //--------------------------------------------------------------------------------------------------
@@ -81,7 +83,7 @@ RicfExportWellPathCompletions::RicfExportWellPathCompletions()
 
     CAF_PDM_InitScriptableField( &m_exportDataSourceAsComments, "exportComments", true, "Export Data Source as Comments" );
     CAF_PDM_InitScriptableField( &m_exportWelspec, "exportWelspec", true, "Export WELSPEC keyword" );
-    CAF_PDM_InitScriptableField( &m_customFileName, "customFileName", QString(), "Custom Filename" );
+    CAF_PDM_InitScriptableField( &m_customFileNameIncludingPath, "customFileName", QString(), "Custom Filename" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -121,7 +123,32 @@ caf::PdmScriptResponse RicfExportWellPathCompletions::execute()
 
     exportSettings.setExportDataSourceAsComment( m_exportDataSourceAsComments );
     exportSettings.setExportWelspec( m_exportWelspec );
-    exportSettings.setCustomFileName( m_customFileName );
+
+    QString exportFolderPath;
+    if ( m_customFileNameIncludingPath().isEmpty() )
+    {
+        exportFolderPath =
+            RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::ExportType::COMPLETIONS );
+        if ( exportFolderPath.isNull() )
+        {
+            exportFolderPath = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath( "completions" );
+        }
+    }
+    else
+    {
+        QFileInfo fi( m_customFileNameIncludingPath );
+        auto      fileName = fi.fileName();
+
+        exportSettings.setCustomFileName( fileName );
+
+        auto pathCandidate = fi.path();
+        if ( pathCandidate.size() > 2 )
+        {
+            exportFolderPath = pathCandidate;
+        }
+    }
+
+    exportSettings.folder = exportFolderPath;
 
     {
         auto eclipseCase = TOOLS::caseFromId( m_caseId() );
@@ -133,14 +160,6 @@ caf::PdmScriptResponse RicfExportWellPathCompletions::execute()
         }
         exportSettings.caseToApply = eclipseCase;
     }
-
-    QString exportFolder =
-        RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::ExportType::COMPLETIONS );
-    if ( exportFolder.isNull() )
-    {
-        exportFolder = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath( "completions" );
-    }
-    exportSettings.folder = exportFolder;
 
     caf::PdmScriptResponse response;
 

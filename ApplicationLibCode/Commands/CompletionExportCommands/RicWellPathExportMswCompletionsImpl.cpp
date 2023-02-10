@@ -72,22 +72,19 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(
     {
         {
             QString fileName;
-            QString folderName;
 
             QFileInfo fi( exportSettings.customFileName() );
             if ( !exportSettings.customFileName().isEmpty() )
             {
-                fileName   = fi.baseName() + "_MSW";
-                folderName = fi.absolutePath();
+                fileName = fi.baseName() + "_MSW";
             }
             else
             {
                 fileName = QString( "UnifiedCompletions_MSW_%1" ).arg( exportSettings.caseToApply->caseUserDescription() );
-                folderName = exportSettings.folder;
             }
 
             unifiedExportFile =
-                RicWellPathExportCompletionsFileTools::openFileForExport( folderName,
+                RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder,
                                                                           fileName,
                                                                           fi.suffix(),
                                                                           exportSettings.exportDataSourceAsComment() );
@@ -95,22 +92,19 @@ void RicWellPathExportMswCompletionsImpl::exportWellSegmentsForAllCompletions(
 
         {
             QString   lgrFileName;
-            QString   folderName;
             QFileInfo fi( exportSettings.customFileName() );
             if ( !exportSettings.customFileName().isEmpty() )
             {
                 lgrFileName = fi.baseName() + "_LGR_MSW";
-                folderName  = fi.absolutePath();
             }
             else
             {
                 lgrFileName =
                     QString( "UnifiedCompletions_LGR_MSW_%1" ).arg( exportSettings.caseToApply->caseUserDescription() );
-                folderName = exportSettings.folder;
             }
 
             unifiedLgrExportFile =
-                RicWellPathExportCompletionsFileTools::openFileForExport( folderName,
+                RicWellPathExportCompletionsFileTools::openFileForExport( exportSettings.folder,
                                                                           lgrFileName,
                                                                           fi.suffix(),
                                                                           exportSettings.exportDataSourceAsComment() );
