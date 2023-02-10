@@ -76,14 +76,7 @@ public:
     std::vector<QDateTime> allTimeSteps() const;
 
     static bool transferGeometry( const ecl_grid_type* mainEclGrid, RigEclipseCaseData* eclipseCase );
-    static bool exportGrid( const QString&      gridFileName,
-                            RigEclipseCaseData* eclipseCase,
-                            const cvf::Vec3st&  min,
-                            const cvf::Vec3st&  max,
-                            const cvf::Vec3st&  refinement );
-
     static void transferCoarseningInfo( const ecl_grid_type* eclGrid, RigGridBase* grid );
-
     static void importEquilData( const QString&      deckFileName,
                                  const QString&      includeStatementAbsolutePathPrefix,
                                  RigEclipseCaseData* eclipseCase );

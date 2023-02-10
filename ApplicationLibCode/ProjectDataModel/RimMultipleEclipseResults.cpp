@@ -21,6 +21,7 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 
+#include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimMultipleEclipseResults, "RimMultipleEclipseResults" );
@@ -32,9 +33,14 @@ RimMultipleEclipseResults::RimMultipleEclipseResults()
 {
     CAF_PDM_InitObject( "Multiple Result Info", ":/TextAnnotation16x16.png" );
 
+    CAF_PDM_InitField( &m_showCenterCoordinates, "showCenterCoordinates", false, "Show Center Coordinates" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showCenterCoordinates );
+
+    CAF_PDM_InitField( &m_showCornerCoordinates, "showCornerCoordinates", false, "Show Corner Coordinates" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showCornerCoordinates );
+
     CAF_PDM_InitFieldNoDefault( &m_selectedKeywords, "SelectedProperties", "Properties" );
     m_selectedKeywords.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
-
     m_selectedKeywords.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 }
 
@@ -72,6 +78,22 @@ std::vector<RigEclipseResultAddress> RimMultipleEclipseResults::additionalResult
     }
 
     return resultAddresses;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimMultipleEclipseResults::showCenterCoordinates() const
+{
+    return m_showCenterCoordinates;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimMultipleEclipseResults::showCornerCoordinates() const
+{
+    return m_showCornerCoordinates;
 }
 
 //--------------------------------------------------------------------------------------------------
