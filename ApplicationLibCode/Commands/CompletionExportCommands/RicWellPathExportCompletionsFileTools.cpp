@@ -36,14 +36,6 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicWellPathExportCompletionsFileTools::OpenFileException::OpenFileException( const QString& message )
-    : message( message )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::shared_ptr<QFile> RicWellPathExportCompletionsFileTools::openFile( const QString& folderName,
                                                                         const QString& fileName,
                                                                         const QString& suffix )
@@ -60,7 +52,7 @@ std::shared_ptr<QFile> RicWellPathExportCompletionsFileTools::openFile( const QS
         {
             auto errorMessage = QString( "Selected output folder does not exist, and could not be created." );
             RiaLogging::error( errorMessage );
-            throw OpenFileException( errorMessage );
+            return nullptr;
         }
     }
 
@@ -71,7 +63,7 @@ std::shared_ptr<QFile> RicWellPathExportCompletionsFileTools::openFile( const QS
     {
         auto errorMessage = QString( "Export Completions Data: Could not open the file: %1" ).arg( filePath );
         RiaLogging::error( errorMessage );
-        throw OpenFileException( errorMessage );
+        return nullptr;
     }
     return exportFile;
 }
