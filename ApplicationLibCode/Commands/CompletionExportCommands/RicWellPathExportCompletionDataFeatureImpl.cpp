@@ -268,22 +268,14 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
 
         if ( exportSettings.fileSplit == RicExportCompletionDataSettingsUi::ExportSplit::UNIFIED_FILE )
         {
-            QString fileName;
-            QString folderName;
-            if ( exportSettings.customFileName().isEmpty() )
+            QString fileName = exportSettings.customFileName();
+            if ( fileName.isEmpty() )
             {
-                fileName   = QString( "UnifiedCompletions_%1" ).arg( eclipseCaseName );
-                folderName = exportSettings.folder;
-            }
-            else
-            {
-                fileName = exportSettings.customFileName();
-                QFileInfo fi( fileName );
-                folderName = fi.absolutePath();
+                fileName = QString( "UnifiedCompletions_%1" ).arg( eclipseCaseName );
             }
 
             sortAndExportCompletionsToFile( exportSettings.caseToApply,
-                                            folderName,
+                                            exportSettings.folder,
                                             fileName,
                                             completions,
                                             fractureDataReportItems,
