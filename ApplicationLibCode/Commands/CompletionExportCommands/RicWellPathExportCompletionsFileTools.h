@@ -28,13 +28,6 @@ class RimWellPath;
 class RicWellPathExportCompletionsFileTools
 {
 public:
-    class OpenFileException
-    {
-    public:
-        OpenFileException( const QString& message );
-        QString message;
-    };
-
     static const RimWellPath* findWellPathFromExportName( const QString& wellNameForExport );
 
     static std::shared_ptr<QFile>
