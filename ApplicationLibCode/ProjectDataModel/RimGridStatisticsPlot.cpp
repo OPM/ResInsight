@@ -103,6 +103,7 @@ void RimGridStatisticsPlot::setDefaults()
             }
 
             m_numHistogramBins = 15;
+            m_tickNumberFormat = RiaNumberFormat::NumberFormatType::FIXED;
         }
     }
 }
@@ -166,8 +167,7 @@ void RimGridStatisticsPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 
     const bool showNumHistogramBins = true;
     RimStatisticsPlot::uiOrderingForHistogram( uiConfigName, uiOrdering, showNumHistogramBins );
-
-    uiOrderingForLegendsAndFonts( uiConfigName, uiOrdering );
+    RimStatisticsPlot::uiOrderingForLegendsAndFonts( uiConfigName, uiOrdering );
 
     uiOrdering.skipRemainingFields( true );
 }
