@@ -60,7 +60,10 @@ private:
     caf::PdmField<bool> m_includeFractures;
     caf::PdmField<bool> m_excludeMainBoreForFishbones;
 
-    caf::PdmField<bool>    m_exportDataSourceAsComments;
-    caf::PdmField<bool>    m_exportWelspec;
-    caf::PdmField<QString> m_customFileName;
+    caf::PdmField<bool> m_exportDataSourceAsComments;
+    caf::PdmField<bool> m_exportWelspec;
+
+    // This text field can contain a file name, optionally including the full path. When the full path is specified,
+    // the path and file name is split in RicfExportWellPathCompletions::execute()
+    caf::PdmField<QString> m_customFileNameIncludingPath;
 };
