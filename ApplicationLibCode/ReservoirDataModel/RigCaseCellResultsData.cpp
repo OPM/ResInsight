@@ -3524,3 +3524,11 @@ void RigCaseCellResultsData::copyResultsMetaDataFromMainCase( RigEclipseCaseData
         cellResultsStorage->createPlaceholderResultEntries();
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::setStatisticsDataCacheNumBins( const RigEclipseResultAddress& resultAddress, size_t numBins )
+{
+    this->statistics( resultAddress )->setNumBins( numBins );
+}

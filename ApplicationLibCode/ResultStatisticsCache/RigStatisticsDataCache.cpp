@@ -29,6 +29,7 @@
 //--------------------------------------------------------------------------------------------------
 RigStatisticsDataCache::RigStatisticsDataCache( RigStatisticsCalculator* statisticsCalculator )
     : m_statisticsCalculator( statisticsCalculator )
+    , m_numBins( RigStatisticsDataCache::defaultNumBins() )
 {
     CVF_ASSERT( m_statisticsCalculator.notNull() );
 
@@ -42,6 +43,22 @@ void RigStatisticsDataCache::clearAllStatistics()
 {
     m_statsAllTimesteps = StatisticsValues();
     m_statsPrTs.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RigStatisticsDataCache::defaultNumBins()
+{
+    return 100;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigStatisticsDataCache::setNumBins( size_t numBins )
+{
+    m_numBins = numBins;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -369,14 +386,13 @@ void RigStatisticsDataCache::p10p90CellScalarValues( size_t timeStepIndex, doubl
 //--------------------------------------------------------------------------------------------------
 void RigStatisticsDataCache::computeHistogramStatisticsIfNeeded()
 {
-    if ( m_statsAllTimesteps.m_histogram.size() == 0 )
+    if ( m_statsAllTimesteps.m_histogram.size() != m_numBins )
     {
         double min;
         double max;
-        size_t nBins = 100;
         this->minMaxCellScalarValues( min, max );
 
-        RigHistogramCalculator histCalc( min, max, nBins, &m_statsAllTimesteps.m_histogram );
+        RigHistogramCalculator histCalc( min, max, m_numBins, &m_statsAllTimesteps.m_histogram );
 
         m_statisticsCalculator->addDataToHistogramCalculator( histCalc );
 
@@ -390,14 +406,13 @@ void RigStatisticsDataCache::computeHistogramStatisticsIfNeeded()
 //--------------------------------------------------------------------------------------------------
 void RigStatisticsDataCache::computeHistogramStatisticsIfNeeded( size_t timeStepIndex )
 {
-    if ( m_statsPrTs[timeStepIndex].m_histogram.size() == 0 )
+    if ( m_statsPrTs[timeStepIndex].m_histogram.size() != m_numBins )
     {
         double min;
         double max;
-        size_t nBins = 100;
         this->minMaxCellScalarValues( timeStepIndex, min, max );
 
-        RigHistogramCalculator histCalc( min, max, nBins, &m_statsPrTs[timeStepIndex].m_histogram );
+        RigHistogramCalculator histCalc( min, max, m_numBins, &m_statsPrTs[timeStepIndex].m_histogram );
 
         m_statisticsCalculator->addDataToHistogramCalculator( timeStepIndex, histCalc );
 

@@ -43,6 +43,7 @@
 #include <QtCharts/QBarSeries>
 #include <QtCharts/QBarSet>
 #include <QtCharts/QCategoryAxis>
+#include <QtCharts/QLegendMarker>
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QValueAxis>
 
@@ -60,7 +61,7 @@ void caf::AppEnum<RimStatisticsPlot::HistogramFrequencyType>::setUp()
     addItem( RimStatisticsPlot::HistogramFrequencyType::RELATIVE_FREQUENCY_PERCENT,
              "RELATIVE_FREQUENCY_PERCENT",
              "Relative Frequency [%]" );
-    setDefault( RimStatisticsPlot::HistogramFrequencyType::ABSOLUTE_FREQUENCY );
+    setDefault( RimStatisticsPlot::HistogramFrequencyType::RELATIVE_FREQUENCY_PERCENT );
 }
 template <>
 void caf::AppEnum<RimStatisticsPlot::GraphType>::setUp()
@@ -106,6 +107,11 @@ RimStatisticsPlot::RimStatisticsPlot()
                        "Number format" );
 
     CAF_PDM_InitFieldNoDefault( &m_graphType, "GraphType", "Graph Type" );
+
+    CAF_PDM_InitFieldNoDefault( &m_axisValueFontSize, "AxisValueFontSize", "Axis Value Font Size" );
+    CAF_PDM_InitFieldNoDefault( &m_axisTitleFontSize, "AxisTitleFontSize", "Axis Title Font Size" );
+    m_axisValueFontSize = caf::FontTools::RelativeSize::Small;
+    m_axisTitleFontSize = caf::FontTools::RelativeSize::Medium;
 
     m_plotLegendsHorizontal.uiCapability()->setUiHidden( true );
 
@@ -155,6 +161,22 @@ void RimStatisticsPlot::zoomAll()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RimStatisticsPlot::axisTitleFontSize() const
+{
+    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_axisTitleFontSize() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimStatisticsPlot::axisValueFontSize() const
+{
+    return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_axisValueFontSize() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QImage RimStatisticsPlot::snapshotWindowContent()
 {
     QImage image;
@@ -184,6 +206,23 @@ QWidget* RimStatisticsPlot::createViewWidget( QWidget* mainWindowParent )
 void RimStatisticsPlot::deleteViewWidget()
 {
     cleanupBeforeClose();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStatisticsPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                          const QVariant&            oldValue,
+                                          const QVariant&            newValue )
+{
+    RimPlotWindow::fieldChangedByUi( changedField, oldValue, newValue );
+
+    if ( changedField == &m_axisTitleFontSize || changedField == &m_axisValueFontSize )
+    {
+        updateLayout();
+    }
+
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -236,8 +275,8 @@ void RimStatisticsPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
     caf::PdmUiLineEditorAttribute* lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
     if ( field == &m_numHistogramBins && lineEditorAttr != nullptr )
     {
-        // Limit histogram bins to something resonable
-        QIntValidator* validator  = new QIntValidator( 20, 1000, nullptr );
+        // Limit histogram bins to positive value
+        QIntValidator* validator  = new QIntValidator( 2, 10000, nullptr );
         lineEditorAttr->validator = validator;
     }
 
@@ -247,6 +286,23 @@ void RimStatisticsPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
         sliderAttr->m_minimum = 0.0;
         sliderAttr->m_maximum = 100.0;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimStatisticsPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    QList<caf::PdmOptionItemInfo> options = RimPlotWindow::calculateValueOptions( fieldNeedingOptions );
+
+    if ( !options.empty() ) return options;
+
+    if ( fieldNeedingOptions == &m_axisTitleFontSize || fieldNeedingOptions == &m_axisValueFontSize )
+    {
+        options = caf::FontTools::relativeSizeValueOptions( RiaPreferences::current()->defaultPlotFontSize() );
+    }
+
+    return options;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -262,6 +318,20 @@ void RimStatisticsPlot::uiOrderingForHistogram( QString uiConfigName, caf::PdmUi
     histogramGroup->add( &m_histogramFrequencyType );
     histogramGroup->add( &m_precision );
     histogramGroup->add( &m_tickNumberFormat );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimStatisticsPlot::uiOrderingForLegendsAndFonts( QString             uiConfigName,
+                                                      caf::PdmUiOrdering& uiOrdering,
+                                                      bool                showLegendPosition )
+{
+    RimPlotWindow::uiOrderingForLegendsAndFonts( uiConfigName, uiOrdering, showLegendPosition );
+
+    auto* fontGroup = uiOrdering.findGroup( "Fonts" );
+    fontGroup->add( &m_axisTitleFontSize );
+    fontGroup->add( &m_axisValueFontSize );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -351,46 +421,73 @@ void RimStatisticsPlot::updatePlots()
     axisY->setTitleText( createYAxisTitle() );
     chart->addAxis( axisY, Qt::AlignLeft );
 
-    if ( !std::isinf( histogramData.p10 ) )
+    // Scaling to match font sizes in Qwt
+    const double fontScalingToMatchQwt = 1.5;
+
+    // Create vertical lines for statistics data
+    std::vector<std::pair<QString, double>> statisticsData = { { "P90", histogramData.p90 },
+                                                               { "Mean", histogramData.mean },
+                                                               { "P10", histogramData.p10 } };
+
+    for ( const auto& [name, value] : statisticsData )
     {
-        QLineSeries* p10series = new QLineSeries();
-        chart->addSeries( p10series );
-        p10series->setName( "P10" );
-        p10series->append( histogramData.p10, minValue );
-        p10series->append( histogramData.p10, maxValue );
-        p10series->attachAxis( axisX );
-        p10series->attachAxis( axisY );
+        if ( std::isinf( value ) ) continue;
+
+        QLineSeries* series = new QLineSeries();
+        chart->addSeries( series );
+        series->append( value, minValue );
+        series->append( value, maxValue );
+        series->attachAxis( axisX );
+        series->attachAxis( axisY );
+        series->setName( QString( "%1 (%2)" ).arg( name ).arg( value ) );
+
+        // Dummy point for label at top of vertical statistics value line
+        QLineSeries* labelSeries = new QLineSeries();
+        chart->addSeries( labelSeries );
+        labelSeries->append( value, maxValue );
+        labelSeries->attachAxis( axisX );
+        labelSeries->attachAxis( axisY );
+        labelSeries->setPointLabelsVisible( true );
+        labelSeries->setPointLabelsClipping( false );
+        labelSeries->setPointLabelsFormat( QString( "%1 - @xPoint" ).arg( name ) );
+
+        // Set font of label equal axis value font
+        QFont labelFont = QFont();
+        labelFont.setPixelSize( fontScalingToMatchQwt * axisValueFontSize() );
+        labelSeries->setPointLabelsFont( labelFont );
+
+        // Remove legend for dummy point
+        QList<QLegendMarker*> labelMarker = chart->legend()->markers( labelSeries );
+        if ( !labelMarker.empty() ) labelMarker.back()->setVisible( false );
     }
 
-    if ( !std::isinf( histogramData.p90 ) )
-    {
-        QLineSeries* p90series = new QLineSeries();
-        chart->addSeries( p90series );
-        p90series->setName( "P90" );
-        p90series->append( histogramData.p90, minValue );
-        p90series->append( histogramData.p90, maxValue );
-        p90series->attachAxis( axisX );
-        p90series->attachAxis( axisY );
-    }
+    // Set axis value font
+    QFont axisYValueFont = axisY->labelsFont();
+    axisYValueFont.setPixelSize( fontScalingToMatchQwt * axisValueFontSize() );
+    axisY->setLabelsFont( axisYValueFont );
+    QFont axisXValueFont = axisX->labelsFont();
+    axisXValueFont.setPixelSize( fontScalingToMatchQwt * axisValueFontSize() );
+    axisX->setLabelsFont( axisXValueFont );
 
-    QLineSeries* meanSeries = new QLineSeries();
-    chart->addSeries( meanSeries );
-    meanSeries->setName( "Mean" );
-    meanSeries->append( histogramData.mean, minValue );
-    meanSeries->append( histogramData.mean, maxValue );
-    meanSeries->attachAxis( axisX );
-    meanSeries->attachAxis( axisY );
+    // Set axis title font
+    QFont axisYTitleFont = axisY->titleFont();
+    axisYTitleFont.setPixelSize( fontScalingToMatchQwt * axisTitleFontSize() );
+    axisY->setTitleFont( axisYTitleFont );
+    QFont axisXTitleFont = axisX->titleFont();
+    axisXTitleFont.setPixelSize( fontScalingToMatchQwt * axisTitleFontSize() );
+    axisX->setTitleFont( axisXTitleFont );
 
-    // Set font sizes
+    // Set plot title font
     QFont titleFont = chart->titleFont();
-    titleFont.setPixelSize( titleFontSize() );
+    titleFont.setPixelSize( fontScalingToMatchQwt * titleFontSize() );
     chart->setTitleFont( titleFont );
 
+    // Set legend font
     QLegend* legend = chart->legend();
     if ( legend )
     {
         QFont legendFont = legend->font();
-        legendFont.setPixelSize( legendFontSize() );
+        legendFont.setPixelSize( fontScalingToMatchQwt * legendFontSize() );
         legend->setFont( legendFont );
         legend->setVisible( legendsVisible() );
     }

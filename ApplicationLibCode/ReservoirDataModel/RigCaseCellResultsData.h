@@ -145,6 +145,8 @@ public:
                                                  RiaDefines::PorosityModelType poroModel,
                                                  std::vector<RimEclipseCase*>  destinationCases );
 
+    void setStatisticsDataCacheNumBins( const RigEclipseResultAddress& resultAddress, size_t numBins );
+
 private:
     size_t findOrLoadKnownScalarResult( const RigEclipseResultAddress& resVarAddr );
     size_t findOrLoadKnownScalarResultByResultTypeOrder( const RigEclipseResultAddress&                resVarAddr,

@@ -66,17 +66,25 @@ public:
 
     void zoomAll() override;
 
+    int axisTitleFontSize() const;
+    int axisValueFontSize() const;
+
 protected:
     QImage snapshotWindowContent() override;
 
     QWidget* createViewWidget( QWidget* mainWindowParent ) override;
     void     deleteViewWidget() override;
 
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
 
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+
     void uiOrderingForHistogram( QString uiConfigName, caf::PdmUiOrdering& uiOrdering, bool showHistogramBins );
+    void uiOrderingForLegendsAndFonts( QString uiConfigName, caf::PdmUiOrdering& uiOrdering, bool showLegendPosition = false );
 
     void                 onLoadDataAndUpdate() override;
     void                 updatePlots();
@@ -108,4 +116,7 @@ protected:
     caf::PdmField<int>                                             m_precision;
     caf::PdmField<caf::AppEnum<RiaNumberFormat::NumberFormatType>> m_tickNumberFormat;
     caf::PdmField<caf::AppEnum<GraphType>>                         m_graphType;
+
+    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisValueFontSize;
+    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisTitleFontSize;
 };
