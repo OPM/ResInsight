@@ -840,8 +840,10 @@ bool RifReaderEclipseOutput::readActiveCellInfo()
                 ecl_file_open( RiaStringEncodingTools::toNativeEncoded( initFileName ).data(), ECL_FILE_CLOSE_STREAM );
             if ( ecl_file )
             {
-                bool isDualPorosity = m_eclipseCase->mainGrid()->isDualPorosity();
-                actnumValuesPerGrid = RifActiveCellsReader::activeCellsFromPorvKeyword( ecl_file, isDualPorosity );
+                bool isDualPorosity    = m_eclipseCase->mainGrid()->isDualPorosity();
+                int  cellCountMainGrid = static_cast<int>( m_eclipseCase->mainGrid()->cellCount() );
+                actnumValuesPerGrid =
+                    RifActiveCellsReader::activeCellsFromPorvKeyword( ecl_file, isDualPorosity, cellCountMainGrid );
                 ecl_file_close( ecl_file );
             }
         }
@@ -2330,8 +2332,10 @@ ecl_grid_type* RifReaderEclipseOutput::loadAllGrids() const
         // TODO : ecl_grid_alloc() will automatically read ACTNUM from EGRID file, and reading of active cell
         // information can be skipped if PORV is available
 
-        bool isDualPorosity = ecl_grid_dual_grid( mainEclGrid );
-        auto activeCells    = RifActiveCellsReader::activeCellsFromPorvKeyword( m_ecl_init_file, isDualPorosity );
+        bool isDualPorosity    = ecl_grid_dual_grid( mainEclGrid );
+        auto cellCountMainGrid = ecl_grid_get_global_size( mainEclGrid );
+        auto activeCells =
+            RifActiveCellsReader::activeCellsFromPorvKeyword( m_ecl_init_file, isDualPorosity, cellCountMainGrid );
 
         if ( !activeCells.empty() )
         {
