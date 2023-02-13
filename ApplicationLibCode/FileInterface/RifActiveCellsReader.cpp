@@ -73,7 +73,7 @@ std::vector<std::vector<int>> RifActiveCellsReader::activeCellsFromPorvKeyword( 
         std::vector<double> porvValues;
         RifEclipseOutputFileTools::keywordData( ecl_file, PORV_KW, gridIdx, &porvValues );
 
-        size_t activeCellCount = porvValues.size();
+        int activeCellCount = static_cast<int>( porvValues.size() );
 
         // For some cases, the dual porosity flag is not interpreted correctly. Add a fallback by checking the number of
         // cells in the main grid
@@ -88,9 +88,9 @@ std::vector<std::vector<int>> RifActiveCellsReader::activeCellsFromPorvKeyword( 
         std::vector<int> activeCellsOneGrid;
         activeCellsOneGrid.resize( activeCellCount, 0 );
 
-        for ( size_t poreValueIndex = 0; poreValueIndex < porvValues.size(); poreValueIndex++ )
+        for ( int poreValueIndex = 0; poreValueIndex < static_cast<int>( porvValues.size() ); poreValueIndex++ )
         {
-            size_t indexToCell = poreValueIndex;
+            int indexToCell = poreValueIndex;
             if ( indexToCell >= activeCellCount )
             {
                 indexToCell = poreValueIndex - activeCellCount;
