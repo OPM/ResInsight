@@ -117,15 +117,13 @@ void RiaSummaryCurveDefinition::resultValues( const RiaSummaryCurveDefinition&  
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<time_t>& RiaSummaryCurveDefinition::timeSteps( const RiaSummaryCurveDefinition& curveDefinition )
+std::vector<time_t> RiaSummaryCurveDefinition::timeSteps( const RiaSummaryCurveDefinition& curveDefinition )
 {
-    static std::vector<time_t> dummy;
-
-    if ( !curveDefinition.summaryAddress().isValid() ) return dummy;
-    if ( !curveDefinition.summaryCase() ) return dummy;
+    if ( !curveDefinition.summaryAddress().isValid() ) return {};
+    if ( !curveDefinition.summaryCase() ) return {};
 
     RifSummaryReaderInterface* reader = curveDefinition.summaryCase()->summaryReader();
-    if ( !reader ) return dummy;
+    if ( !reader ) return {};
 
     return reader->timeSteps( curveDefinition.summaryAddress() );
 }

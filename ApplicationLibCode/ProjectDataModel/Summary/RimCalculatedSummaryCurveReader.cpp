@@ -32,7 +32,7 @@ RifCalculatedSummaryCurveReader::RifCalculatedSummaryCurveReader( RimSummaryCalc
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<time_t>& RifCalculatedSummaryCurveReader::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
+std::vector<time_t> RifCalculatedSummaryCurveReader::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
 {
     RimSummaryCalculation* calc = findCalculationByName( resultAddress );
     if ( calc )
@@ -40,9 +40,7 @@ const std::vector<time_t>& RifCalculatedSummaryCurveReader::timeSteps( const Rif
         return calc->timeSteps();
     }
 
-    static std::vector<time_t> dummy;
-
-    return dummy;
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -22,8 +22,6 @@
 #include "RimEnsembleStatisticsCase.h"
 #include "RimSummaryCaseCollection.h"
 
-static const std::vector<time_t> EMPTY_TIME_STEPS_VECTOR;
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -43,9 +41,9 @@ RifEnsembleStatisticsReader::RifEnsembleStatisticsReader( RimEnsembleStatisticsC
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<time_t>& RifEnsembleStatisticsReader::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
+std::vector<time_t> RifEnsembleStatisticsReader::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
 {
-    if ( !validateAddress( resultAddress ) ) return EMPTY_TIME_STEPS_VECTOR;
+    if ( !validateAddress( resultAddress ) ) return {};
     return m_ensembleStatCase->timeSteps();
 }
 

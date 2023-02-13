@@ -65,12 +65,12 @@ public:
     void setSummaryAddressY( const RifEclipseSummaryAddress& address );
     void setResampling( RiaDefines::DateTimePeriodEnum resampling );
 
-    RifEclipseSummaryAddress   errorSummaryAddressY() const;
-    std::vector<double>        errorValuesY() const;
-    void                       setLeftOrRightAxisY( RiuPlotAxis plotAxis );
-    RiuPlotAxis                axisY() const;
-    const std::vector<time_t>& timeStepsY() const;
-    double                     yValueAtTimeT( time_t time ) const;
+    RifEclipseSummaryAddress errorSummaryAddressY() const;
+    std::vector<double>      errorValuesY() const;
+    void                     setLeftOrRightAxisY( RiuPlotAxis plotAxis );
+    RiuPlotAxis              axisY() const;
+    std::vector<time_t>      timeStepsY() const;
+    double                   yValueAtTimeT( time_t time ) const;
     void setOverrideCurveDataY( const std::vector<time_t>& xValues, const std::vector<double>& yValues );
 
     // X Axis functions
@@ -114,7 +114,7 @@ protected:
 private:
     RifSummaryReaderInterface* valuesSummaryReaderX() const;
     RifSummaryReaderInterface* valuesSummaryReaderY() const;
-    const std::vector<time_t>& timeStepsX() const;
+    std::vector<time_t>        timeStepsX() const;
 
     void calculateCurveInterpolationFromAddress();
 

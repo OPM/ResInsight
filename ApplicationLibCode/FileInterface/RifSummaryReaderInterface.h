@@ -44,7 +44,7 @@ public:
 
     RifEclipseSummaryAddress errorAddress( const RifEclipseSummaryAddress& resultAddress ) const;
 
-    virtual const std::vector<time_t>& timeSteps( const RifEclipseSummaryAddress& resultAddress ) const = 0;
+    virtual std::vector<time_t> timeSteps( const RifEclipseSummaryAddress& resultAddress ) const = 0;
 
     virtual bool values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const = 0;
 

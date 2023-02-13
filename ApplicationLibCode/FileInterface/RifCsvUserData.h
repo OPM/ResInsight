@@ -44,7 +44,7 @@ public:
 
     bool parse( const QString& fileName, const AsciiDataParseOptions& parseOptions, QString* errorText = nullptr );
 
-    const std::vector<time_t>& timeSteps( const RifEclipseSummaryAddress& resultAddress ) const override;
+    std::vector<time_t> timeSteps( const RifEclipseSummaryAddress& resultAddress ) const override;
 
     bool values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const override;
 

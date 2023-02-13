@@ -93,7 +93,7 @@ bool RifCsvUserData::values( const RifEclipseSummaryAddress& resultAddress, std:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<time_t>& RifCsvUserData::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
+std::vector<time_t> RifCsvUserData::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
 {
     // First, check whether date time values exist for the current address
     auto search = m_mapFromAddressToResultIndex.find( resultAddress );
@@ -113,8 +113,7 @@ const std::vector<time_t>& RifCsvUserData::timeSteps( const RifEclipseSummaryAdd
         return m_parser->tableData().columnInfos()[index].dateTimeValues;
     }
 
-    static std::vector<time_t> emptyVector;
-    return emptyVector;
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------

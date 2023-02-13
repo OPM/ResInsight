@@ -83,7 +83,7 @@ bool RifOpmHdf5Summary::open( const QString& headerFileName, bool includeRestart
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<time_t>& RifOpmHdf5Summary::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
+std::vector<time_t> RifOpmHdf5Summary::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
 {
     return m_timeSteps;
 }

@@ -50,16 +50,14 @@ void RifMultipleSummaryReaders::removeReader( RifSummaryReaderInterface* reader 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<time_t>& RifMultipleSummaryReaders::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
+std::vector<time_t> RifMultipleSummaryReaders::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
 {
     for ( const auto& r : m_readers )
     {
         if ( r->hasAddress( resultAddress ) ) return r->timeSteps( resultAddress );
     }
 
-    static std::vector<time_t> empty;
-
-    return empty;
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
