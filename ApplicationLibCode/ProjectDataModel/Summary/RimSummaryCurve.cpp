@@ -343,12 +343,11 @@ std::vector<double> RimSummaryCurve::valuesX() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<time_t>& RimSummaryCurve::timeStepsY() const
+std::vector<time_t> RimSummaryCurve::timeStepsY() const
 {
-    static std::vector<time_t> emptyVector;
     RifSummaryReaderInterface* reader = valuesSummaryReaderY();
 
-    if ( !reader ) return emptyVector;
+    if ( !reader ) return {};
 
     RifEclipseSummaryAddress addr = m_yValuesSummaryAddress()->address();
 
@@ -360,8 +359,8 @@ const std::vector<time_t>& RimSummaryCurve::timeStepsY() const
 //--------------------------------------------------------------------------------------------------
 double RimSummaryCurve::yValueAtTimeT( time_t time ) const
 {
-    const std::vector<time_t>& timeSteps = timeStepsY();
-    const std::vector<double>  values    = valuesY();
+    const std::vector<time_t> timeSteps = timeStepsY();
+    const std::vector<double> values    = valuesY();
 
     if ( timeSteps.empty() || time < timeSteps.front() || time > timeSteps.back() )
         return std::numeric_limits<double>::infinity();
@@ -1290,12 +1289,11 @@ RifSummaryReaderInterface* RimSummaryCurve::valuesSummaryReaderY() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<time_t>& RimSummaryCurve::timeStepsX() const
+std::vector<time_t> RimSummaryCurve::timeStepsX() const
 {
-    static std::vector<time_t> emptyVector;
     RifSummaryReaderInterface* reader = valuesSummaryReaderX();
 
-    if ( !reader ) return emptyVector;
+    if ( !reader ) return {};
 
     RifEclipseSummaryAddress addr = m_xValuesSummaryAddress()->address();
 

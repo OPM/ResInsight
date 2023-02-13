@@ -35,7 +35,7 @@ RifSummaryReaderMultipleFiles::RifSummaryReaderMultipleFiles( const std::vector<
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<time_t>& RifSummaryReaderMultipleFiles::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
+std::vector<time_t> RifSummaryReaderMultipleFiles::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
 {
     return m_aggregatedTimeSteps;
 }

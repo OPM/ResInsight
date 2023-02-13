@@ -36,22 +36,16 @@ RifCalculatedSummaryCurveReader::RifCalculatedSummaryCurveReader( RimSummaryCalc
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<time_t>& RifCalculatedSummaryCurveReader::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
+std::vector<time_t> RifCalculatedSummaryCurveReader::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
 {
-    static std::vector<time_t> dummy;
-
     RimSummaryCalculation* calc = findCalculationByName( resultAddress );
     if ( calc && m_summaryCase )
     {
         RimSummaryCalculationAddress address( resultAddress );
-        dummy = calc->timeSteps( m_summaryCase, address );
-    }
-    else
-    {
-        printf( "No summary case in ::timeSteps: %s!\n", resultAddress.uiText().c_str() );
+        return calc->timeSteps( m_summaryCase, address );
     }
 
-    return dummy;
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -66,10 +60,6 @@ bool RifCalculatedSummaryCurveReader::values( const RifEclipseSummaryAddress& re
         *values = calc->values( m_summaryCase, address );
 
         return true;
-    }
-    else
-    {
-        printf( "No summary case in ::values: %s!\n", resultAddress.uiText().c_str() );
     }
 
     return false;

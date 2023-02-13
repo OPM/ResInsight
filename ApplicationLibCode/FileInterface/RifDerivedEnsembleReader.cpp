@@ -52,12 +52,11 @@ RifDerivedEnsembleReader::RifDerivedEnsembleReader( RimDerivedSummaryCase*     d
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<time_t>& RifDerivedEnsembleReader::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
+std::vector<time_t> RifDerivedEnsembleReader::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
 {
     if ( !resultAddress.isValid() )
     {
-        static std::vector<time_t> empty;
-        return empty;
+        return {};
     }
 
     if ( m_derivedCase->needsCalculation( resultAddress ) )

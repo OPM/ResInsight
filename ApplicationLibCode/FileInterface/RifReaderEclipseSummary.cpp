@@ -226,13 +226,12 @@ bool RifReaderEclipseSummary::values( const RifEclipseSummaryAddress& resultAddr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<time_t>& RifReaderEclipseSummary::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
+std::vector<time_t> RifReaderEclipseSummary::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
 {
     auto reader = currentSummaryReader();
     if ( reader ) return reader->timeSteps( resultAddress );
 
-    static std::vector<time_t> emptyVector;
-    return emptyVector;
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
