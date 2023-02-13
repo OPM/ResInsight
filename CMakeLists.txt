@@ -800,13 +800,19 @@ if(MSVC AND RESINSIGHT_ENABLE_STATIC_ANALYSIS)
     ${RULESET_FILE}
     @ONLY
   )
-  
-  set (TARGETS_FOR_STATIC_ANALYSIS 
-  ${APP_FWK_LIBRARIES} ApplicationLibCode Commands ResultStatisticsCache RigGeoMechDataModel )
-  
+
+  set(TARGETS_FOR_STATIC_ANALYSIS
+      ${APP_FWK_LIBRARIES} ApplicationLibCode Commands ResultStatisticsCache
+      RigGeoMechDataModel
+  )
+
   foreach(TARGET_PROJECT ${TARGETS_FOR_STATIC_ANALYSIS})
-    set_property( TARGET ${TARGET_PROJECT} PROPERTY VS_USER_PROPS "${RULESET_FILE}"  )
-    target_compile_options(${TARGET_PROJECT} PRIVATE /external:anglebrackets /analyze:external-)
+    set_property(
+      TARGET ${TARGET_PROJECT} PROPERTY VS_USER_PROPS "${RULESET_FILE}"
+    )
+    target_compile_options(
+      ${TARGET_PROJECT} PRIVATE /external:anglebrackets /analyze:external-
+    )
   endforeach()
 endif(MSVC AND RESINSIGHT_ENABLE_STATIC_ANALYSIS)
 
