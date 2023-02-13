@@ -65,7 +65,8 @@ TEST( RifActiveCellsReaderTest, BasicTest10k )
         ecl_file_type* initFile =
             ecl_file_open( RiaStringEncodingTools::toNativeEncoded( filePath ).data(), ECL_FILE_CLOSE_STREAM );
 
-        activeCellsFromPorv = RifActiveCellsReader::activeCellsFromPorvKeyword( initFile, false );
+        int cellCountMainGrid = 0;
+        activeCellsFromPorv   = RifActiveCellsReader::activeCellsFromPorvKeyword( initFile, false, cellCountMainGrid );
         EXPECT_EQ( 2, (int)activeCellsFromPorv.size() );
 
         ecl_file_close( initFile );

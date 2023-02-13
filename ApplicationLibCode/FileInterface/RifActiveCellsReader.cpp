@@ -53,7 +53,8 @@ std::vector<std::vector<int>> RifActiveCellsReader::activeCellsFromActnumKeyword
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<std::vector<int>> RifActiveCellsReader::activeCellsFromPorvKeyword( const ecl_file_type* ecl_file,
-                                                                                bool                 dualPorosity )
+                                                                                bool                 dualPorosity,
+                                                                                const int            cellCountMainGrid )
 {
     CAF_ASSERT( ecl_file );
 
@@ -64,19 +65,27 @@ std::vector<std::vector<int>> RifActiveCellsReader::activeCellsFromPorvKeyword( 
     //
     // See documentation of active cells in top of ecl_grid.cpp
 
+    bool divideCellCountByTwo = dualPorosity;
+
     int porvKeywordCount = ecl_file_get_num_named_kw( ecl_file, PORV_KW );
     for ( size_t gridIdx = 0; gridIdx < static_cast<size_t>( porvKeywordCount ); gridIdx++ )
     {
         std::vector<double> porvValues;
         RifEclipseOutputFileTools::keywordData( ecl_file, PORV_KW, gridIdx, &porvValues );
 
-        std::vector<int> activeCellsOneGrid;
-
         size_t activeCellCount = porvValues.size();
-        if ( dualPorosity )
+
+        // For some cases, the dual porosity flag is not interpreted correctly. Add a fallback by checking the number of
+        // cells in the main grid
+        // https://github.com/OPM/ResInsight/issues/9833
+        if ( ( gridIdx == 0 ) && ( activeCellCount == cellCountMainGrid * 2 ) ) divideCellCountByTwo = true;
+
+        if ( divideCellCountByTwo )
         {
             activeCellCount /= 2;
         }
+
+        std::vector<int> activeCellsOneGrid;
         activeCellsOneGrid.resize( activeCellCount, 0 );
 
         for ( size_t poreValueIndex = 0; poreValueIndex < porvValues.size(); poreValueIndex++ )
@@ -129,10 +138,10 @@ void RifActiveCellsReader::applyActiveCellsToAllGrids( ecl_grid_type*           
             currentGrid = ecl_grid_iget_lgr( ecl_main_grid, gridIndex - 1 );
         }
 
-        auto activeCellsForGrid = activeCellsForAllGrids[gridIndex];
+        const auto& activeCellsForGrid = activeCellsForAllGrids[gridIndex];
         CAF_ASSERT( ecl_grid_get_global_size( currentGrid ) == static_cast<int>( activeCellsForGrid.size() ) );
 
-        int* actnum_values = activeCellsForGrid.data();
+        auto actnum_values = activeCellsForGrid.data();
 
         ecl_grid_reset_actnum( currentGrid, actnum_values );
     }
