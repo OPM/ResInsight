@@ -66,11 +66,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   add_definitions(-DCVF_OSX)
 elseif(MSVC)
-  # /external:anglebrackets - Do not analyze includes in brackets #include <...>
-  # /analyze:external- - Do not analyze external code
-  set(CMAKE_CXX_FLAGS
-      "${CMAKE_CXX_FLAGS} /MP /external:anglebrackets /analyze:external-"
-  )
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
   set(_HAS_STD_BYTE 0)
 endif()
 
@@ -795,19 +791,24 @@ endif(OCTAVE_MKOCTFILE)
 # Visual Studio : Create the ruleset file to be used by Static Code Analysis
 # https://stackoverflow.com/questions/75031903/how-to-enable-static-analysis-with-custom-ruleset-in-msvc-via-cmakelists-txt
 # ##############################################################################
-if(MSVC)
+
+option(RESINSIGHT_ENABLE_STATIC_ANALYSIS "Enable static analysis" OFF)
+if(MSVC AND RESINSIGHT_ENABLE_STATIC_ANALYSIS)
   set(RULESET_FILE ${CMAKE_CURRENT_BINARY_DIR}/msvc-ruleset.props)
   configure_file(
     ${CMAKE_SOURCE_DIR}/scripts/static-code-analysis/msvc-property-sheet-template.props
     ${RULESET_FILE}
     @ONLY
   )
-  set_property(
-    TARGET ${APP_FWK_LIBRARIES} ApplicationLibCode Commands
-           ResultStatisticsCache RigGeoMechDataModel PROPERTY VS_USER_PROPS
-                                                              "${RULESET_FILE}"
-  )
-endif(MSVC)
+  
+  set (TARGETS_FOR_STATIC_ANALYSIS 
+  ${APP_FWK_LIBRARIES} ApplicationLibCode Commands ResultStatisticsCache RigGeoMechDataModel )
+  
+  foreach(TARGET_PROJECT ${TARGETS_FOR_STATIC_ANALYSIS})
+    set_property( TARGET ${TARGET_PROJECT} PROPERTY VS_USER_PROPS "${RULESET_FILE}"  )
+    target_compile_options(${TARGET_PROJECT} PRIVATE /external:anglebrackets /analyze:external-)
+  endforeach()
+endif(MSVC AND RESINSIGHT_ENABLE_STATIC_ANALYSIS)
 
 # ##############################################################################
 # Code documentation using Doxygen
