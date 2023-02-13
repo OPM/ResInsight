@@ -804,7 +804,7 @@ if(MSVC)
   )
   set_property(
     TARGET ${APP_FWK_LIBRARIES} ApplicationLibCode Commands
-           ResultStatisticsCache RifOdbReader RigGeoMechDataModel
+           ResultStatisticsCache RigGeoMechDataModel
     PROPERTY VS_USER_PROPS "${RULESET_FILE}"
   )
 endif(MSVC)
