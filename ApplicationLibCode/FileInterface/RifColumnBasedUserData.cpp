@@ -99,7 +99,7 @@ bool RifColumnBasedUserData::values( const RifEclipseSummaryAddress& resultAddre
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<time_t>& RifColumnBasedUserData::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
+std::vector<time_t> RifColumnBasedUserData::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
 {
     auto search = m_mapFromAddressToTimeStepIndex.find( resultAddress );
     if ( search != m_mapFromAddressToTimeStepIndex.end() )
@@ -107,9 +107,7 @@ const std::vector<time_t>& RifColumnBasedUserData::timeSteps( const RifEclipseSu
         return m_timeSteps[search->second];
     }
 
-    static std::vector<time_t> emptyVector;
-
-    return emptyVector;
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -288,7 +288,7 @@ bool RifEclEclipseSummary::values( const RifEclipseSummaryAddress& resultAddress
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<time_t>& RifEclEclipseSummary::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
+std::vector<time_t> RifEclEclipseSummary::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
 {
     return m_timeSteps;
 }

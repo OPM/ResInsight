@@ -206,7 +206,7 @@ bool RifKeywordVectorUserData::values( const RifEclipseSummaryAddress& resultAdd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<time_t>& RifKeywordVectorUserData::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
+std::vector<time_t> RifKeywordVectorUserData::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
 {
     auto timeIndexIterator = m_mapFromAddressToTimeIndex.find( resultAddress );
     if ( timeIndexIterator != m_mapFromAddressToTimeIndex.end() )
@@ -214,9 +214,7 @@ const std::vector<time_t>& RifKeywordVectorUserData::timeSteps( const RifEclipse
         return m_timeSteps[timeIndexIterator->second];
     }
 
-    static std::vector<time_t> emptyVector;
-
-    return emptyVector;
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------

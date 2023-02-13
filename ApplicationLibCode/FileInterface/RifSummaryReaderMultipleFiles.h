@@ -39,7 +39,7 @@ public:
 
     bool createReadersAndImportMetaData( RiaThreadSafeLogger* threadSafeLogger );
 
-    const std::vector<time_t>& timeSteps( const RifEclipseSummaryAddress& resultAddress ) const override;
+    std::vector<time_t> timeSteps( const RifEclipseSummaryAddress& resultAddress ) const override;
     bool        values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const override;
     std::string unitName( const RifEclipseSummaryAddress& resultAddress ) const override;
     RiaDefines::EclipseUnitSystem unitSystem() const override;

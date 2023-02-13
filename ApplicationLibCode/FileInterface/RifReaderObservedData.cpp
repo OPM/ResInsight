@@ -146,7 +146,7 @@ bool RifReaderObservedData::values( const RifEclipseSummaryAddress& resultAddres
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<time_t>& RifReaderObservedData::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
+std::vector<time_t> RifReaderObservedData::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
 {
     return m_timeSteps;
 }
