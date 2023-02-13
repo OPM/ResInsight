@@ -143,7 +143,7 @@ bool RifOpmCommonEclipseSummary::open( const QString& fileName, bool includeRest
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<time_t>& RifOpmCommonEclipseSummary::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
+std::vector<time_t> RifOpmCommonEclipseSummary::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
 {
     return m_timeSteps;
 }

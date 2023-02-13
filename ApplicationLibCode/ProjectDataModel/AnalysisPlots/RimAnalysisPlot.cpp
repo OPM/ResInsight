@@ -1226,7 +1226,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
                             if ( !historyAddr.isHistoryVector() )
                                 historyAddr.setVectorName( addrToFilterValue.vectorName() + "H" );
 
-                            const std::vector<time_t>& historyTimesteps = reader->timeSteps( historyAddr );
+                            std::vector<time_t> historyTimesteps = reader->timeSteps( historyAddr );
                             if ( historyTimesteps.size() )
                             {
                                 selectedTimestepIndices =
@@ -1459,9 +1459,8 @@ void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBui
         // items are wells, then:
         /// use color from eclCase->defaultWellColor( wellName );
 
-        std::vector<time_t>        timeStepStorage;
-        const std::vector<time_t>* timeStepsPtr = &timeStepStorage;
-        std::vector<double>        values;
+        std::vector<time_t> timeSteps;
+        std::vector<double> values;
 
         if ( referenceCaseReader )
         {
@@ -1472,19 +1471,17 @@ void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBui
                                                                -1,
                                                                DerivedSummaryOperator::DERIVED_OPERATOR_SUB,
                                                                curveDef.summaryAddress() );
-            timeStepStorage.swap( timeAndValues.first );
+            timeSteps.swap( timeAndValues.first );
             values.swap( timeAndValues.second );
         }
         else
         {
-            timeStepsPtr = &( reader->timeSteps( curveDef.summaryAddress() ) );
+            timeSteps = reader->timeSteps( curveDef.summaryAddress() );
 
             reader->values( curveDef.summaryAddress(), &values );
         }
 
-        const std::vector<time_t>& timesteps = *timeStepsPtr;
-
-        if ( !( timesteps.size() && values.size() ) ) continue;
+        if ( !( timeSteps.size() && values.size() ) ) continue;
 
         // Find selected timestep indices
 
@@ -1492,9 +1489,9 @@ void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBui
 
         for ( time_t tt : selectedTimesteps )
         {
-            for ( int timestepIdx = 0; static_cast<unsigned>( timestepIdx ) < timesteps.size(); ++timestepIdx )
+            for ( int timestepIdx = 0; static_cast<unsigned>( timestepIdx ) < timeSteps.size(); ++timestepIdx )
             {
-                if ( timesteps[timestepIdx] == tt )
+                if ( timeSteps[timestepIdx] == tt )
                 {
                     selectedTimestepIndices.push_back( timestepIdx );
                     break;
@@ -1506,7 +1503,7 @@ void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBui
         {
             double sortValue = std::numeric_limits<double>::infinity();
 
-            QDateTime dateTime     = RiaQDateTimeTools::fromTime_t( timesteps[timestepIdx] );
+            QDateTime dateTime     = RiaQDateTimeTools::fromTime_t( timeSteps[timestepIdx] );
             QString   formatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat() );
 
             QString timestepString = dateTime.toString( formatString );
