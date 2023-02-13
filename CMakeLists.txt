@@ -788,6 +788,35 @@ else(OCTAVE_MKOCTFILE)
 endif(OCTAVE_MKOCTFILE)
 
 # ##############################################################################
+# Visual Studio : Create the ruleset file to be used by Static Code Analysis
+# https://stackoverflow.com/questions/75031903/how-to-enable-static-analysis-with-custom-ruleset-in-msvc-via-cmakelists-txt
+# ##############################################################################
+
+option(RESINSIGHT_ENABLE_STATIC_ANALYSIS "Enable static analysis" OFF)
+if(MSVC AND RESINSIGHT_ENABLE_STATIC_ANALYSIS)
+  set(RULESET_FILE ${CMAKE_CURRENT_BINARY_DIR}/msvc-ruleset.props)
+  configure_file(
+    ${CMAKE_SOURCE_DIR}/scripts/static-code-analysis/msvc-property-sheet-template.props
+    ${RULESET_FILE}
+    @ONLY
+  )
+
+  set(TARGETS_FOR_STATIC_ANALYSIS
+      ${APP_FWK_LIBRARIES} ApplicationLibCode Commands ResultStatisticsCache
+      RigGeoMechDataModel
+  )
+
+  foreach(TARGET_PROJECT ${TARGETS_FOR_STATIC_ANALYSIS})
+    set_property(
+      TARGET ${TARGET_PROJECT} PROPERTY VS_USER_PROPS "${RULESET_FILE}"
+    )
+    target_compile_options(
+      ${TARGET_PROJECT} PRIVATE /external:anglebrackets /analyze:external-
+    )
+  endforeach()
+endif(MSVC AND RESINSIGHT_ENABLE_STATIC_ANALYSIS)
+
+# ##############################################################################
 # Code documentation using Doxygen
 # ##############################################################################
 option(RESINSIGHT_BUILD_DOCUMENTATION
