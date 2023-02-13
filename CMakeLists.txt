@@ -66,7 +66,11 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   add_definitions(-DCVF_OSX)
 elseif(MSVC)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+  # /external:anglebrackets - Do not analyze includes in brackets #include <...>
+  # /analyze:external- - Do not analyze external code
+  set(CMAKE_CXX_FLAGS
+      "${CMAKE_CXX_FLAGS} /MP /external:anglebrackets /analyze:external-"
+  )
   set(_HAS_STD_BYTE 0)
 endif()
 
@@ -786,6 +790,24 @@ else(OCTAVE_MKOCTFILE)
     STATUS "Could not find OCTAVE_MKOCTFILE, skipping OctavePlugin library"
   )
 endif(OCTAVE_MKOCTFILE)
+
+# ##############################################################################
+# Visual Studio : Create the ruleset file to be used by Static Code Analysis
+# https://stackoverflow.com/questions/75031903/how-to-enable-static-analysis-with-custom-ruleset-in-msvc-via-cmakelists-txt
+# ##############################################################################
+if(MSVC)
+  set(RULESET_FILE ${CMAKE_CURRENT_BINARY_DIR}/msvc-ruleset.props)
+  configure_file(
+    ${CMAKE_SOURCE_DIR}/scripts/static-code-analysis/msvc-property-sheet-template.props
+    ${RULESET_FILE}
+    @ONLY
+  )
+  set_property(
+    TARGET ${APP_FWK_LIBRARIES} ApplicationLibCode Commands
+           ResultStatisticsCache RifOdbReader RigGeoMechDataModel
+    PROPERTY VS_USER_PROPS "${RULESET_FILE}"
+  )
+endif(MSVC)
 
 # ##############################################################################
 # Code documentation using Doxygen
