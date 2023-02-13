@@ -36,6 +36,9 @@ public:
 
     void clearAllStatistics();
 
+    static size_t defaultNumBins();
+    void          setNumBins( size_t numBins );
+
     void minMaxCellScalarValues( double& min, double& max );
     void minMaxCellScalarValues( size_t timeStepIndex, double& min, double& max );
 
@@ -114,8 +117,8 @@ private:
         std::vector<int>    m_uniqueValues;
     };
 
-    StatisticsValues              m_statsAllTimesteps;
-    std::vector<StatisticsValues> m_statsPrTs;
-
+    StatisticsValues                  m_statsAllTimesteps;
+    std::vector<StatisticsValues>     m_statsPrTs;
     cvf::ref<RigStatisticsCalculator> m_statisticsCalculator;
+    size_t                            m_numBins;
 };

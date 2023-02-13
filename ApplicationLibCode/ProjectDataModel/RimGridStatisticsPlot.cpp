@@ -96,6 +96,14 @@ void RimGridStatisticsPlot::setDefaults()
 
             m_property->setResultType( RiaDefines::ResultCatType::STATIC_NATIVE );
             m_property->setResultVariable( "PORO" );
+
+            if ( eclipseCase && !eclipseCase->reservoirViews.children().empty() )
+            {
+                m_cellFilterView.setValue( eclipseCase->reservoirViews.children().front() );
+            }
+
+            m_numHistogramBins = 15;
+            m_tickNumberFormat = RiaNumberFormat::NumberFormatType::FIXED;
         }
     }
 }
@@ -157,10 +165,9 @@ void RimGridStatisticsPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
         m_property->uiOrdering( uiConfigName, *propertyGroup );
     }
 
-    bool showNumHistogramBins = false;
+    const bool showNumHistogramBins = true;
     RimStatisticsPlot::uiOrderingForHistogram( uiConfigName, uiOrdering, showNumHistogramBins );
-
-    uiOrderingForLegendsAndFonts( uiConfigName, uiOrdering );
+    RimStatisticsPlot::uiOrderingForLegendsAndFonts( uiConfigName, uiOrdering );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -240,6 +247,7 @@ RigHistogramData RimGridStatisticsPlot::createStatisticsData() const
 {
     std::unique_ptr<RimHistogramCalculator> histogramCalculator;
     histogramCalculator.reset( new RimHistogramCalculator );
+    histogramCalculator->setNumBins( static_cast<size_t>( m_numHistogramBins() ) );
 
     RigHistogramData histogramData;
 
