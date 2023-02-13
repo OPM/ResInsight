@@ -153,6 +153,9 @@ Rim3dView::Rim3dView()
     m_intersectionVizModel = new cvf::ModelBasicList;
     m_intersectionVizModel->setName( "CrossSectionModel" );
 
+    m_seismicVizModel = new cvf::ModelBasicList;
+    m_seismicVizModel->setName( "SeismicSectionModel" );
+
     m_highlightVizModel = new cvf::ModelBasicList;
     m_highlightVizModel->setName( "HighlightModel" );
 

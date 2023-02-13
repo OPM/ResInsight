@@ -320,6 +320,14 @@ void RimGeoMechView::onCreateDisplayModel()
     m_intersectionCollection->appendPartsToModel( *this, m_intersectionVizModel.p(), scaleTransform() );
     nativeOrOverrideViewer()->addStaticModelOnce( m_intersectionVizModel.p(), isUsingOverrideViewer() );
 
+    // Seismic sections
+
+    cvf::ref<caf::DisplayCoordTransform> transform = displayCoordTransform();
+    m_seismicVizModel->removeAllParts();
+    m_seismicSectionCollection->rebuildGeometry();
+    m_seismicSectionCollection->appendPartsToModel( this, m_seismicVizModel.p(), transform.p(), femBBox );
+    nativeOrOverrideViewer()->addStaticModelOnce( m_seismicVizModel.p(), isUsingOverrideViewer() );
+
     // Surfaces
 
     m_surfaceVizModel->removeAllParts();

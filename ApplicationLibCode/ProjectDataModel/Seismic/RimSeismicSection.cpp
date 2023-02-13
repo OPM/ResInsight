@@ -18,10 +18,15 @@
 
 #include "RimSeismicSection.h"
 
+#include "RimSeismicData.h"
+#include "RimTools.h"
+
 #include "WellPathCommands/PointTangentManipulator/RicPolyline3dEditor.h"
 #include "WellPathCommands/RicPolylineTargetsPickEventHandler.h"
 
 #include "RigPolyLinesData.h"
+
+#include "RivSeismicSectionPartMgr.h"
 
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTableViewEditor.h"
@@ -37,6 +42,8 @@ RimSeismicSection::RimSeismicSection()
     CAF_PDM_InitObject( "Seismic Section", ":/Seismic16x16.png" );
 
     CAF_PDM_InitField( &m_userDescription, "UserDecription", QString( "Seismic Section" ), "Name" );
+
+    CAF_PDM_InitFieldNoDefault( &m_seismicData, "SeismicData", "Seismic Data" );
 
     CAF_PDM_InitField( &m_enablePicking, "EnablePicking", false, "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_enablePicking );
@@ -97,6 +104,7 @@ caf::PdmFieldHandle* RimSeismicSection::userDescriptionField()
 void RimSeismicSection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_userDescription );
+    uiOrdering.add( &m_seismicData );
 
     auto group1 = uiOrdering.addNewGroup( "Polyline Definition" );
     group1->add( &m_targets );
@@ -244,7 +252,7 @@ cvf::ref<RigPolyLinesData> RimSeismicSection::polyLinesData() const
 
     pld->setLineAppearance( m_lineThickness, m_lineColor, false );
     pld->setSphereAppearance( m_sphereRadiusFactor, m_sphereColor );
-    pld->setZPlaneLock( true, 0.0 );
+    pld->setZPlaneLock( false, 0.0 );
 
     if ( isChecked() )
     {
@@ -256,4 +264,37 @@ cvf::ref<RigPolyLinesData> RimSeismicSection::polyLinesData() const
     }
 
     return pld;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RivSeismicSectionPartMgr* RimSeismicSection::partMgr()
+{
+    if ( m_sectionPartMgr.isNull() ) m_sectionPartMgr = new RivSeismicSectionPartMgr( this );
+
+    return m_sectionPartMgr.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicSection::rebuildGeometry()
+{
+    m_sectionPartMgr = nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimSeismicSection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if ( fieldNeedingOptions == &m_seismicData )
+    {
+        RimTools::seismicDataOptionItems( &options );
+    }
+
+    return options;
 }

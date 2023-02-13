@@ -29,6 +29,11 @@ namespace ZGYAccess
 class ZGYReader;
 }
 
+namespace cvf
+{
+class BoundingBox;
+}
+
 class RifSeismicZGYReader
 {
 public:
@@ -39,6 +44,8 @@ public:
     void Close();
 
     std::vector<std::pair<QString, QString>> metaData();
+
+    cvf::BoundingBox boundingBox();
 
 private:
     QString                               m_filename;

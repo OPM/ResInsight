@@ -26,14 +26,20 @@
 #include "cafPdmField.h"
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfVec3d.h"
+#include "cafPdmPtrField.h"
 
 #include "cvfColor3.h"
+#include "cvfObject.h"
 
+#include <QList>
 #include <QString>
 
 class RicPolylineTargetsPickEventHandler;
 class RimPolylineTarget;
 class RigPolylinesData;
+class RivSeismicSectionPartMgr;
+class Rim3dView;
+class RimSeismicData;
 
 class RimSeismicSection : public RimCheckableNamedObject, public RimPolylinePickerInterface, public RimPolylinesDataInterface
 {
@@ -58,9 +64,14 @@ public:
 
     cvf::ref<RigPolyLinesData> polyLinesData() const override;
 
+    RivSeismicSectionPartMgr* partMgr();
+    void                      rebuildGeometry();
+
 protected:
     void                 initAfterRead() override;
     caf::PdmFieldHandle* userDescriptionField() override;
+
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
@@ -69,7 +80,9 @@ private:
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
 
-    caf::PdmField<QString>                      m_userDescription;
+    caf::PdmField<QString>            m_userDescription;
+    caf::PdmPtrField<RimSeismicData*> m_seismicData;
+
     caf::PdmField<bool>                         m_enablePicking;
     caf::PdmChildArrayField<RimPolylineTarget*> m_targets;
     caf::PdmField<int>                          m_lineThickness;
@@ -78,4 +91,5 @@ private:
     caf::PdmField<cvf::Color3f>                 m_sphereColor;
 
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
+    cvf::ref<RivSeismicSectionPartMgr>                  m_sectionPartMgr;
 };
