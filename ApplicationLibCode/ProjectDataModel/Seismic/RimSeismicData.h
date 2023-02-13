@@ -23,7 +23,14 @@
 
 #include <QString>
 
+#include <memory>
+
 class RimGenericParameter;
+
+namespace cvf
+{
+class BoundingBox;
+}
 
 class RimSeismicData : public caf::PdmObject
 {
@@ -48,8 +55,12 @@ protected:
                                                 QString                    uiConfigName,
                                                 caf::PdmUiEditorAttribute* attribute ) override;
 
+    cvf::BoundingBox* boundingBox() const;
+
 private:
     caf::PdmField<QString>                        m_filename;
     caf::PdmField<QString>                        m_userDescription;
     caf::PdmChildArrayField<RimGenericParameter*> m_metadata;
+
+    std::shared_ptr<cvf::BoundingBox> m_boundingBox;
 };

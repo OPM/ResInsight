@@ -23,6 +23,8 @@
 
 #include "cafPdmUiTableViewEditor.h"
 
+#include "cvfBoundingBox.h"
+
 #include <tuple>
 
 CAF_PDM_SOURCE_INIT( RimSeismicData, "SeismicData" );
@@ -47,6 +49,8 @@ RimSeismicData::RimSeismicData()
     m_metadata.uiCapability()->setUiReadOnly( true );
 
     setDeletable( true );
+
+    m_boundingBox = std::make_shared<cvf::BoundingBox>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -117,6 +121,9 @@ void RimSeismicData::updateMetaData()
         m_metadata.push_back( param );
     }
 
+    m_boundingBox->reset();
+    m_boundingBox->add( reader.boundingBox() );
+
     reader.Close();
 }
 
@@ -147,4 +154,12 @@ void RimSeismicData::defineEditorAttribute( const caf::PdmFieldHandle* field,
             tvAttribute->minimumHeight             = 400;
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::BoundingBox* RimSeismicData::boundingBox() const
+{
+    return m_boundingBox.get();
 }

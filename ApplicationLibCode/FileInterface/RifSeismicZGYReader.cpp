@@ -20,6 +20,8 @@
 
 #include <zgyaccess/zgyreader.h>
 
+#include "cvfBoundingBox.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -94,4 +96,26 @@ std::vector<std::pair<QString, QString>> RifSeismicZGYReader::metaData()
     }
 
     return retValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::BoundingBox RifSeismicZGYReader::boundingBox()
+{
+    cvf::BoundingBox retBox;
+
+    if ( m_reader != nullptr )
+    {
+        auto [zmin, zmax] = m_reader->ZRange();
+
+        auto corners = m_reader->WorldCorners();
+        for ( auto [x, y] : corners )
+        {
+            retBox.add( cvf::Vec3d( x, y, zmin ) );
+            retBox.add( cvf::Vec3d( x, y, zmax ) );
+        }
+    }
+
+    return retBox;
 }

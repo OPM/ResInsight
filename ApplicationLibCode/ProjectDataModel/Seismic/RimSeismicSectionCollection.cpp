@@ -18,7 +18,15 @@
 
 #include "RimSeismicSectionCollection.h"
 
+#include "Rim3dView.h"
 #include "RimSeismicSection.h"
+
+#include "RivSeismicSectionPartMgr.h"
+
+#include "cvfBoundingBox.h"
+#include "cvfModelBasicList.h"
+
+#include "cafDisplayCoordTransform.h"
 
 CAF_PDM_SOURCE_INIT( RimSeismicSectionCollection, "SeismicSectionCollection" );
 
@@ -58,6 +66,22 @@ RimSeismicSection* RimSeismicSectionCollection::addNewSection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimSeismicSectionCollection::empty()
+{
+    return m_seismicSections.empty();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimSeismicSectionCollection::size()
+{
+    return static_cast<int>( m_seismicSections.size() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimSeismicSectionCollection::userDescription()
 {
     return m_userDescription;
@@ -85,4 +109,46 @@ caf::PdmFieldHandle* RimSeismicSectionCollection::userDescriptionField()
 void RimSeismicSectionCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.skipRemainingFields( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSeismicSection*> RimSeismicSectionCollection::seismicSections() const
+{
+    return m_seismicSections.children();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicSectionCollection::rebuildGeometry()
+{
+    for ( auto& section : m_seismicSections.children() )
+    {
+        section->rebuildGeometry();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicSectionCollection::appendPartsToModel( Rim3dView*                  view,
+                                                      cvf::ModelBasicList*        model,
+                                                      caf::DisplayCoordTransform* transform,
+                                                      const cvf::BoundingBox&     boundingBox )
+{
+    if ( !isChecked() ) return;
+
+    for ( auto& section : m_seismicSections )
+    {
+        if ( section->isChecked() )
+        {
+            // section->partMgr()->appendGeometryPartsToModel( model, scaleTransform );
+            // cs->intersectionPartMgr()->appendMeshLinePartsToModel( model, scaleTransform );
+            section->partMgr()->appendPolylinePartsToModel( view, model, transform, boundingBox );
+        }
+    }
+
+    model->updateBoundingBoxesRecursive();
 }
