@@ -51,8 +51,9 @@ public:
     std::vector<RimUserDefinedCalculationAddress*> allAddresses() const override;
     std::vector<RimUserDefinedCalculationAddress*> allAddressesForSummaryCase( RimSummaryCase* summaryCase ) const;
 
-    std::vector<double>        values( const RimUserDefinedCalculationAddress& addr ) override;
-    const std::vector<time_t>& timeSteps( const RimUserDefinedCalculationAddress& addr );
+    std::vector<double> values( const RimUserDefinedCalculationAddress& addr ) override;
+    std::vector<double> values( RimSummaryCase* summaryCase, const RimUserDefinedCalculationAddress& addr );
+    std::vector<time_t> timeSteps( RimSummaryCase* summaryCase, const RimUserDefinedCalculationAddress& addr );
 
     bool calculate() override;
     void updateDependentObjects() override;
@@ -64,10 +65,12 @@ protected:
     RimSummaryCalculationVariable* createVariable() override;
 
     static std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
-        calculateResult( const QString& expression, const std::vector<RimSummaryCalculationVariable*>& variables );
+        calculateResult( const QString&                                     expression,
+                         const std::vector<RimSummaryCalculationVariable*>& variables,
+                         RimSummaryCase*                                    summaryCase );
 
     std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
-        calculateWithSubstitutions( const RifEclipseSummaryAddress& addr );
+        calculateWithSubstitutions( RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& addr );
 
     static void substituteVariables( std::vector<RimSummaryCalculationVariable*>& vars,
                                      const RifEclipseSummaryAddress&              address );
@@ -77,7 +80,4 @@ protected:
                                  const std::set<RifEclipseSummaryAddress>&    allResultAddresses ) const;
 
     std::optional<std::vector<RimSummaryCalculationVariable*>> getVariables( bool showError = true ) const;
-
-    std::map<RifEclipseSummaryAddress, std::vector<double>> m_cachedResults;
-    std::map<RifEclipseSummaryAddress, std::vector<time_t>> m_cachedTimesteps;
 };

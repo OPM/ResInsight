@@ -78,6 +78,8 @@ void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot* s
             {
                 summaryMultiPlot->addPlot( duplicatedPlot );
 
+                printf( "Adding plot: case: %d\n", summaryAdrCollection->caseId() );
+
                 auto summaryCase = RiaSummaryTools::summaryCaseById( summaryAdrCollection->caseId() );
                 if ( summaryCase )
                 {

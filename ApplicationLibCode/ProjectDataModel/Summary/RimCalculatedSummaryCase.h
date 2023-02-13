@@ -22,6 +22,8 @@
 #include "RimCalculatedSummaryCurveReader.h"
 #include "RimSummaryCase.h"
 
+#include "cafPdmPtrField.h"
+
 #include <memory>
 
 class RifCalculatedSummaryCurveReader;
@@ -50,5 +52,5 @@ public:
 
 private:
     std::unique_ptr<RifCalculatedSummaryCurveReader> m_calculatedCurveReader;
-    caf::PdmPointer<RimSummaryCase>                  m_summaryCase;
+    caf::PdmPtrField<RimSummaryCase*>                m_summaryCase;
 };

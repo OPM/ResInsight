@@ -114,10 +114,7 @@ bool RimSummaryCalculation::calculate()
     auto variables = getVariables();
     if ( !variables ) return false;
 
-    // Clear existing values
-    m_cachedResults.clear();
-    m_cachedTimesteps.clear();
-
+    // Not much to do for calculate: values and timesteps are generate when needed later.
     m_isDirty = false;
     return true;
 }
@@ -208,7 +205,7 @@ void RimSummaryCalculation::substituteVariables( std::vector<RimSummaryCalculati
 ///
 //--------------------------------------------------------------------------------------------------
 std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
-    RimSummaryCalculation::calculateWithSubstitutions( const RifEclipseSummaryAddress& addr )
+    RimSummaryCalculation::calculateWithSubstitutions( RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& addr )
 {
     auto variables = getVariables();
     if ( !variables ) return {};
@@ -216,7 +213,7 @@ std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
     auto vars = variables.value();
     substituteVariables( vars, addr );
 
-    return calculateResult( m_expression, vars );
+    return calculateResult( m_expression, vars, summaryCase );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -224,7 +221,8 @@ std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
 //--------------------------------------------------------------------------------------------------
 std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
     RimSummaryCalculation::calculateResult( const QString&                                     expression,
-                                            const std::vector<RimSummaryCalculationVariable*>& variables )
+                                            const std::vector<RimSummaryCalculationVariable*>& variables,
+                                            RimSummaryCase*                                    summaryCase )
 
 {
     QString leftHandSideVariableName = RimSummaryCalculation::findLeftHandSide( expression );
@@ -236,7 +234,8 @@ std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
         RimSummaryCalculationVariable* v = variables[i];
         CAF_ASSERT( v != nullptr );
 
-        RiaSummaryCurveDefinition curveDef( v->summaryCase(), v->summaryAddress()->address(), false );
+        // v->summaryCase()
+        RiaSummaryCurveDefinition curveDef( summaryCase, v->summaryAddress()->address(), false );
 
         std::vector<double> curveValues;
         RiaSummaryCurveDefinition::resultValues( curveDef, &curveValues );
@@ -251,6 +250,7 @@ std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
         {
             // One variable is missing: not possible to complete the calculation.
             // Can happen when stepping and subsituting variables.
+            printf( "Missing result for: %s\n", curveDef.curveDefinitionText().toStdString().c_str() );
             return {};
         }
     }
@@ -495,25 +495,23 @@ std::vector<RimUserDefinedCalculationAddress*>
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimSummaryCalculation::values( const RimUserDefinedCalculationAddress& addr )
 {
+    printf( "Using old ::values() interface method!!!\n" );
+    return {};
+}
+
+std::vector<double> RimSummaryCalculation::values( RimSummaryCase* summaryCase, const RimUserDefinedCalculationAddress& addr )
+
+{
+    CAF_ASSERT( summaryCase );
+
     const RimSummaryCalculationAddress* address = dynamic_cast<const RimSummaryCalculationAddress*>( &addr );
     if ( !address ) return {};
 
-    RiaLogging::info( QString( "Address: %1" ).arg( address->address().uiText().c_str() ) );
-
-    if ( auto it = m_cachedResults.find( address->address() ); it != m_cachedResults.end() )
+    auto result = calculateWithSubstitutions( summaryCase, address->address() );
+    if ( result )
     {
-        return it->second;
-    }
-    else
-    {
-        auto result = calculateWithSubstitutions( address->address() );
-        if ( result )
-        {
-            auto [validValues, validTimeSteps]    = result.value();
-            m_cachedResults[address->address()]   = validValues;
-            m_cachedTimesteps[address->address()] = validTimeSteps;
-            return validValues;
-        }
+        auto [validValues, validTimeSteps] = result.value();
+        return validValues;
     }
 
     return {};
@@ -522,30 +520,22 @@ std::vector<double> RimSummaryCalculation::values( const RimUserDefinedCalculati
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<time_t>& RimSummaryCalculation::timeSteps( const RimUserDefinedCalculationAddress& addr )
+std::vector<time_t> RimSummaryCalculation::timeSteps( RimSummaryCase*                         summaryCase,
+                                                      const RimUserDefinedCalculationAddress& addr )
 {
-    static std::vector<time_t> dummy;
+    CAF_ASSERT( summaryCase );
 
     const RimSummaryCalculationAddress* address = dynamic_cast<const RimSummaryCalculationAddress*>( &addr );
-    if ( !address ) return dummy;
+    if ( !address ) return {};
 
-    if ( auto it = m_cachedTimesteps.find( address->address() ); it != m_cachedTimesteps.end() )
+    auto result = calculateWithSubstitutions( summaryCase, address->address() );
+    if ( result )
     {
-        return it->second;
-    }
-    else
-    {
-        auto result = calculateWithSubstitutions( address->address() );
-        if ( result )
-        {
-            auto [validValues, validTimeSteps]    = result.value();
-            m_cachedResults[address->address()]   = validValues;
-            m_cachedTimesteps[address->address()] = validTimeSteps;
-            return m_cachedTimesteps[address->address()];
-        }
+        auto [validValues, validTimeSteps] = result.value();
+        return validTimeSteps;
     }
 
-    return dummy;
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------

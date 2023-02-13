@@ -2253,26 +2253,28 @@ std::pair<int, std::vector<RimSummaryCurve*>> RimSummaryPlot::handleSummaryAddre
             dataVectorMap[addr].insert( curve->summaryCaseY() );
         }
 
-        // Handle calculated addresses
-        if ( summaryAddr->address().isCalculated() )
-        {
-            // TODO: understand and fix this...
-            // RimSummaryCalculationCollection* calcColl       = RimProject::current()->calculationCollection();
-            RimSummaryCase* calculatedCase = nullptr; // calcColl->calculationSummaryCase();
-            if ( calculatedCase )
-            {
-                RifSummaryReaderInterface* reader = calculatedCase->summaryReader();
-                if ( reader )
-                {
-                    curves.push_back( addNewCurveY( summaryAddr->address(), calculatedCase ) );
-                    newCurves++;
-                }
-            }
-        }
-
         auto summaryCase = RiaSummaryTools::summaryCaseById( summaryAddr->caseId() );
         if ( summaryCase )
         {
+            // Handle calculated addresses
+            if ( summaryAddr->address().isCalculated() )
+            {
+                // TODO: understand and fix this...
+                RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
+                printf( "Case Id: %d\n", summaryAddr->caseId() );
+
+                RimSummaryCase* calculatedCase = calcColl->calculationSummaryCase( summaryCase );
+                if ( calculatedCase )
+                {
+                    RifSummaryReaderInterface* reader = calculatedCase->summaryReader();
+                    if ( reader )
+                    {
+                        curves.push_back( addNewCurveY( summaryAddr->address(), calculatedCase ) );
+                        newCurves++;
+                    }
+                }
+            }
+
             for ( const auto& droppedAddress : newCurveAddresses )
             {
                 if ( !summaryCase->summaryReader() || !summaryCase->summaryReader()->hasAddress( droppedAddress ) )

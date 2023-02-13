@@ -26,8 +26,10 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifCalculatedSummaryCurveReader::RifCalculatedSummaryCurveReader( RimSummaryCalculationCollection* calculationCollection )
+RifCalculatedSummaryCurveReader::RifCalculatedSummaryCurveReader( RimSummaryCalculationCollection* calculationCollection,
+                                                                  RimSummaryCase*                  summaryCase )
     : m_calculationCollection( calculationCollection )
+    , m_summaryCase( summaryCase )
 {
 }
 
@@ -36,14 +38,18 @@ RifCalculatedSummaryCurveReader::RifCalculatedSummaryCurveReader( RimSummaryCalc
 //--------------------------------------------------------------------------------------------------
 const std::vector<time_t>& RifCalculatedSummaryCurveReader::timeSteps( const RifEclipseSummaryAddress& resultAddress ) const
 {
+    static std::vector<time_t> dummy;
+
     RimSummaryCalculation* calc = findCalculationByName( resultAddress );
-    if ( calc )
+    if ( calc && m_summaryCase )
     {
         RimSummaryCalculationAddress address( resultAddress );
-        return calc->timeSteps( address );
+        dummy = calc->timeSteps( m_summaryCase, address );
     }
-
-    static std::vector<time_t> dummy;
+    else
+    {
+        printf( "No summary case in ::timeSteps: %s!\n", resultAddress.uiText().c_str() );
+    }
 
     return dummy;
 }
@@ -54,12 +60,16 @@ const std::vector<time_t>& RifCalculatedSummaryCurveReader::timeSteps( const Rif
 bool RifCalculatedSummaryCurveReader::values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const
 {
     RimSummaryCalculation* calc = findCalculationByName( resultAddress );
-    if ( calc )
+    if ( calc && m_summaryCase )
     {
         RimSummaryCalculationAddress address( resultAddress );
-        *values = calc->values( address );
+        *values = calc->values( m_summaryCase, address );
 
         return true;
+    }
+    else
+    {
+        printf( "No summary case in ::values: %s!\n", resultAddress.uiText().c_str() );
     }
 
     return false;

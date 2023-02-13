@@ -35,10 +35,6 @@ RimSummaryCalculationCollection::RimSummaryCalculationCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_cases, "SummaryCases", "" );
     m_cases.uiCapability()->setUiTreeHidden( true );
-
-    CAF_PDM_InitFieldNoDefault( &m_calcuationSummaryCase_OBSOLETE, "CalculationsSummaryCase", "Calculations Summary Case" );
-    m_calcuationSummaryCase_OBSOLETE.xmlCapability()->disableIO();
-    m_calcuationSummaryCase_OBSOLETE = new RimCalculatedSummaryCase;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -83,10 +79,6 @@ std::vector<RimCalculatedSummaryCase*> RimSummaryCalculationCollection::calculat
 void RimSummaryCalculationCollection::rebuildCaseMetaData()
 {
     ensureValidCalculationIds();
-
-    // TODO: figure out how to handle this..
-    printf( "USED TO REBUILD CASE META DATA!!!" );
-    // m_calcuationSummaryCase->buildMetaData();
 }
 
 //--------------------------------------------------------------------------------------------------

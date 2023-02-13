@@ -50,6 +50,5 @@ private:
     void initAfterRead() override;
 
 private:
-    caf::PdmChildField<RimCalculatedSummaryCase*>      m_calcuationSummaryCase_OBSOLETE;
     caf::PdmChildArrayField<RimCalculatedSummaryCase*> m_cases;
 };
