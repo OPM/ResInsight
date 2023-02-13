@@ -1,0 +1,6 @@
+﻿<Project>
+    <PropertyGroup>
+        <RunCodeAnalysis>true</RunCodeAnalysis>
+        <CodeAnalysisRuleset>@CMAKE_SOURCE_DIR@/scripts/static-code-analysis/msvc-code-analysis.ruleset</CodeAnalysisRuleset>
+    </PropertyGroup>
+</Project>
