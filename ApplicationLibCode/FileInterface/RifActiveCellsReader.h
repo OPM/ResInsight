@@ -32,7 +32,8 @@ class RifActiveCellsReader
 public:
     static std::vector<std::vector<int>> activeCellsFromActnumKeyword( const ecl_file_type* ecl_file );
 
-    static std::vector<std::vector<int>> activeCellsFromPorvKeyword( const ecl_file_type* ecl_file, bool dualPorosity );
+    static std::vector<std::vector<int>>
+        activeCellsFromPorvKeyword( const ecl_file_type* ecl_file, bool dualPorosity, const int cellCountMainGrid );
 
     static void applyActiveCellsToAllGrids( ecl_grid_type*                       ecl_main_grid,
                                             const std::vector<std::vector<int>>& activeCellsForAllGrids );
