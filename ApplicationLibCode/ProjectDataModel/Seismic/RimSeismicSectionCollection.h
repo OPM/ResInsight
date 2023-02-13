@@ -22,6 +22,19 @@
 #include "cafPdmChildArrayField.h"
 
 class RimSeismicSection;
+class Rim3dView;
+
+namespace cvf
+{
+class ModelBasicList;
+class Transform;
+class BoundingBox;
+} // namespace cvf
+
+namespace caf
+{
+class DisplayCoordTransform;
+}
 
 class RimSeismicSectionCollection : public RimCheckableNamedObject
 {
@@ -33,8 +46,19 @@ public:
 
     RimSeismicSection* addNewSection();
 
+    std::vector<RimSeismicSection*> seismicSections() const;
+
+    bool empty();
+    int  size();
+
     QString userDescription();
     void    setUserDescription( QString description );
+
+    void rebuildGeometry();
+    void appendPartsToModel( Rim3dView*                  view,
+                             cvf::ModelBasicList*        model,
+                             caf::DisplayCoordTransform* scaleTransform,
+                             const cvf::BoundingBox&     boundingBox );
 
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;

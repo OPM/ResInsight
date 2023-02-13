@@ -43,6 +43,7 @@ class DisplayCoordTransform;
 
 class Rim3dView;
 class RimPolylinesDataInterface;
+class RigPolyLinesData;
 
 class RivPolylinePartMgr : public cvf::Object
 {
@@ -58,9 +59,9 @@ private:
     bool isPolylinesInBoundingBox( std::vector<std::vector<cvf::Vec3d>> polyline, const cvf::BoundingBox& boundingBox );
     void buildPolylineParts( const caf::DisplayCoordTransform* displayXf, const cvf::BoundingBox& boundingBox );
 
-    std::vector<std::vector<cvf::Vec3d>> getPolylinesPointsInDomain( bool snapToPlaneZ, double planeZ );
+    std::vector<std::vector<cvf::Vec3d>> getPolylinesPointsInDomain( RigPolyLinesData* lineDef );
     std::vector<std::vector<cvf::Vec3d>> transformPolylinesPointsToDisplay( const std::vector<std::vector<cvf::Vec3d>>& pointsInDomain,
-                                                                            const caf::DisplayCoordTransform*           displayXf );
+                                           const caf::DisplayCoordTransform*           displayXf );
 
     bool collectionVisible();
 
