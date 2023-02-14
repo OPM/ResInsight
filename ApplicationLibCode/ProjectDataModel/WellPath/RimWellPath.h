@@ -87,8 +87,6 @@ public:
     bool          tryAssociateWithSimulationWell();
     bool          isAssociatedWithSimulationWell() const;
 
-    virtual void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath );
-
     void                          setUnitSystem( RiaDefines::EclipseUnitSystem unitSystem );
     RiaDefines::EclipseUnitSystem unitSystem() const;
 
