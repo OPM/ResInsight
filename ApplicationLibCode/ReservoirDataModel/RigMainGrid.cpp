@@ -709,9 +709,6 @@ bool RigMainGrid::isFaceNormalsOutwards() const
                 // All cell face normals pointing inwards
                 return false;
             }
-
-            // This is a mixed case, where some faces are outwards and some are inwards
-            continue;
         }
     }
 

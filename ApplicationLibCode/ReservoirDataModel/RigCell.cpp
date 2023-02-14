@@ -114,13 +114,34 @@ bool isNear( const cvf::Vec3d& p1, const cvf::Vec3d& p2, double tolerance )
 //--------------------------------------------------------------------------------------------------
 bool RigCell::isLongPyramidCell( double maxHeightFactor, double nodeNearTolerance ) const
 {
-    cvf::ubyte faceVertexIndices[4];
-    double     squaredMaxHeightFactor = maxHeightFactor * maxHeightFactor;
-
     const std::vector<cvf::Vec3d>& nodes = m_hostGrid->mainGrid()->nodes();
 
-    int face;
-    for ( face = 0; face < 6; ++face )
+    auto isDiagonalRatioBelowThreshold = []( const cvf::Vec3d& v1, const cvf::Vec3d& v2 ) -> bool {
+        auto diagonal = v2 - v1;
+
+        std::vector<double> components = { std::abs( diagonal.x() ), std::abs( diagonal.y() ), std::abs( diagonal.z() ) };
+        std::sort( components.begin(), components.end() );
+
+        if ( components.back() > 1e-3 )
+        {
+            const double ratioBetweenShortestAndLongestComponent = ( components.front() / components.back() );
+
+            // CO2 grid models use very thin cells (large dx/dy compared to dz)
+            // Consider if this threshold is valid for these grid models
+            static const double ratioThreshold = 1e-3;
+            if ( std::fabs( ratioBetweenShortestAndLongestComponent ) < ratioThreshold ) return true;
+        }
+
+        return false;
+    };
+
+    // Compute the ratio between smallest and largest component of the diagonal vector of the cell.
+    // If the ratio is less than the threshold, the cell is considered to be a long pyramid cell
+    if ( isDiagonalRatioBelowThreshold( nodes[m_cornerIndices[0]], nodes[m_cornerIndices[6]] ) ) return true;
+
+    cvf::ubyte   faceVertexIndices[4];
+    const double squaredMaxHeightFactor = maxHeightFactor * maxHeightFactor;
+    for ( int face = 0; face < 6; ++face )
     {
         cvf::StructGridInterface::cellFaceVertexIndices( static_cast<cvf::StructGridInterface::FaceType>( face ),
                                                          faceVertexIndices );
@@ -147,77 +168,6 @@ bool RigCell::isLongPyramidCell( double maxHeightFactor, double nodeNearToleranc
         if ( zeroLengthEdgeCount == 3 )
         {
             return true;
-
-#if 0 // More advanced checks turned off since the start. Why did I do that ?
-      // Collapse of a complete face is detected. This is possibly the top of a pyramid
-
-            // "face" has the index to the collapsed face. We need the size of the opposite face
-            // to compare it with the pyramid "roof" length.
-
-            cvf::StructGridInterface::FaceType oppositeFace = cvf::StructGridInterface::POS_I;
-            switch (face)
-            {
-            case cvf::StructGridInterface::POS_I:
-                oppositeFace = cvf::StructGridInterface::NEG_I;
-                break;
-            case cvf::StructGridInterface::POS_J:
-                oppositeFace = cvf::StructGridInterface::NEG_J;
-                break;
-            case cvf::StructGridInterface::POS_K:
-                oppositeFace = cvf::StructGridInterface::NEG_K;
-                break;
-            case cvf::StructGridInterface::NEG_I:
-                oppositeFace = cvf::StructGridInterface::POS_I;
-                break;
-            case cvf::StructGridInterface::NEG_J:
-                oppositeFace = cvf::StructGridInterface::POS_J;
-                break;
-            case cvf::StructGridInterface::NEG_K:
-                oppositeFace = cvf::StructGridInterface::POS_K;
-                break;
-            default:
-                CVF_ASSERT(false);
-                break;
-            }
-
-            cvf::StructGridInterface::cellFaceVertexIndices(oppositeFace, faceVertexIndices);
-
-            
-            const cvf::Vec3d& c0opp =  nodes[m_cornerIndices[faceVertexIndices[0]]];
-            const cvf::Vec3d& c1opp =  nodes[m_cornerIndices[faceVertexIndices[1]]];
-            const cvf::Vec3d& c2opp =  nodes[m_cornerIndices[faceVertexIndices[2]]];
-            const cvf::Vec3d& c3opp =  nodes[m_cornerIndices[faceVertexIndices[3]]];
-
-            // Check if any of the opposite face vertexes are also degenerated to the pyramid top
-            
-            int okVertexCount = 0;
-            cvf::Vec3d okVxs[4];
-            if (!isNear(c0opp, c0, nodeNearTolerance)) { okVxs[okVertexCount] = c0opp; ++okVertexCount;  }
-            if (!isNear(c1opp, c0, nodeNearTolerance)) { okVxs[okVertexCount] = c1opp; ++okVertexCount;  }
-            if (!isNear(c2opp, c0, nodeNearTolerance)) { okVxs[okVertexCount] = c2opp; ++okVertexCount;  }
-            if (!isNear(c3opp, c0, nodeNearTolerance)) { okVxs[okVertexCount] = c3opp; ++okVertexCount;  }
-
-            if (okVertexCount < 2)
-            {
-                return true;
-            }
-            else
-            {
-                // Use the good vertices to calculate a face size that can be compared to the pyramid height:
-                double typicalSquaredEdgeLength = 0;
-                for (int i = 1; i < okVertexCount; ++i)
-                {
-                    typicalSquaredEdgeLength += (okVxs[i-1] - okVxs[i]).lengthSquared(); 
-                }
-                typicalSquaredEdgeLength /= okVertexCount;
-                double pyramidHeightSquared = (okVxs[0] - c0).lengthSquared();
-
-                if (pyramidHeightSquared > squaredMaxHeightFactor*typicalSquaredEdgeLength)
-                {
-                    return true;
-                }
-            }
-#endif
         }
 
         // Check the ratio of the length of opposite edges.
