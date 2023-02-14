@@ -378,6 +378,10 @@ static bool valid_base(const char * input_base, bool * upper_case) {
 
 static char * ecl_util_alloc_filename_static(const char * path, const char * base , ecl_file_enum file_type , bool fmt_file, int report_nr, bool must_exist) {
   bool upper_case;
+
+  if (base == NULL)
+    return NULL;
+
   if (!valid_base(base, &upper_case))
     return NULL;
 
@@ -877,7 +881,7 @@ bool ecl_util_alloc_summary_files(const char * path , const char * _base , const
   else
     base = (char *) _base;
 
-  if (ext != NULL) {
+  if (base != NULL && ext != NULL) {
     ecl_file_enum input_type;
 
     {
