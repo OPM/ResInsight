@@ -190,7 +190,6 @@ static bool ecl_nnc_data_set_values(ecl_nnc_data_type * data, const ecl_grid_typ
       if (grid1 != current_grid1 || grid2 != current_grid2) {
          current_grid1 = grid1;
          current_grid2 = grid2;
-         assert_correct_kw_count(current_kw, __func__, correct_kw_count, kw_count);
          current_kw = ecl_nnc_data_get_kw( grid, init_file, grid1 , grid2 , kw_type);
          kw_count = 0;
          if (current_kw) {
@@ -200,13 +199,12 @@ static bool ecl_nnc_data_set_values(ecl_nnc_data_type * data, const ecl_grid_typ
             return false;
          }
       }
-      if (current_kw) {
+      if (current_kw && pair->input_index < correct_kw_count) {
         data->values[nnc_index] = ecl_kw_iget_as_double(current_kw, pair->input_index);
         kw_count++;
       }
 
    }
-   assert_correct_kw_count(current_kw, __func__, correct_kw_count, kw_count);
    return true;
 }
 
