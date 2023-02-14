@@ -115,18 +115,6 @@ std::vector<RimFormationNames*> RimFormationNamesCollection::importFiles( const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFormationNamesCollection::updateFilePathsFromProjectPath( const QString& newProjectPath,
-                                                                  const QString& oldProjectPath )
-{
-    for ( RimFormationNames* fmNames : m_formationNamesList )
-    {
-        fmNames->updateFilePathsFromProjectPath( newProjectPath, oldProjectPath );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimFormationNamesCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                                                   std::vector<caf::PdmObjectHandle*>& referringObjects )
 {

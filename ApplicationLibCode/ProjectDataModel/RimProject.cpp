@@ -478,33 +478,6 @@ void RimProject::setProjectFileNameAndUpdateDependencies( const QString& project
         filePath->setPath( newFilePath );
     }
 
-    // Update path to well path file cache
-    for ( RimOilField* oilField : oilFields )
-    {
-        if ( oilField == nullptr ) continue;
-        if ( oilField->wellPathCollection() != nullptr )
-        {
-            oilField->wellPathCollection()->updateFilePathsFromProjectPath( newProjectPath, oldProjectPath );
-        }
-        if ( oilField->formationNamesCollection() != nullptr )
-        {
-            oilField->formationNamesCollection()->updateFilePathsFromProjectPath( newProjectPath, oldProjectPath );
-        }
-
-        CVF_ASSERT( oilField->fractureDefinitionCollection() );
-        oilField->fractureDefinitionCollection()->updateFilePathsFromProjectPath( newProjectPath, oldProjectPath );
-    }
-
-    {
-        std::vector<RimWellLogFile*> rimWellLogFiles;
-        this->descendantsIncludingThisOfType( rimWellLogFiles );
-
-        for ( auto rimWellLogFile : rimWellLogFiles )
-        {
-            rimWellLogFile->updateFilePathsFromProjectPath( newProjectPath, oldProjectPath );
-        }
-    }
-
     wellPathImport->updateFilePaths();
 }
 

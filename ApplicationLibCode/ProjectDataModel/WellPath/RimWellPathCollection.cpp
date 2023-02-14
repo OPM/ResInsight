@@ -507,17 +507,6 @@ void RimWellPathCollection::scheduleRedrawAffectedViews()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath )
-{
-    for ( auto wellPath : m_wellPaths )
-    {
-        wellPath->updateFilePathsFromProjectPath( newProjectPath, oldProjectPath );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RimWellPathCollection::anyWellsContainingPerforationIntervals() const
 {
     for ( auto wellPath : m_wellPaths )

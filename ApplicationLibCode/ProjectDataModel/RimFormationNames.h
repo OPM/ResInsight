@@ -44,7 +44,6 @@ public:
     void               updateConnectedViews();
 
     void readFormationNamesFile( QString* errorMessage );
-    void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath );
 
     static QString layerZoneTableFileName();
 
