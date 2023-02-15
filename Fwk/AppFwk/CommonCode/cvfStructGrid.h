@@ -91,6 +91,9 @@ public:
     virtual cvf::Vec3d maxCoordinate() const = 0;
     void               characteristicCellSizes( double* iSize, double* jSize, double* kSize ) const;
 
+    bool hasValidCharacteristicCellSizes() const;
+    void computeCharacteristicCellSizes( const std::vector<size_t>& globalCellIndices );
+
     virtual cvf::Vec3d displayModelOffset() const;
 
     virtual bool cellIJKNeighbor( size_t i, size_t j, size_t k, FaceType face, size_t* neighborCellIndex ) const = 0;
