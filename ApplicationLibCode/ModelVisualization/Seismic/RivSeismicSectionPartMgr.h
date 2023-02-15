@@ -18,6 +18,7 @@
 #pragma once
 
 #include "cafPdmPointer.h"
+#include "cvfArray.h"
 #include "cvfCollection.h"
 #include "cvfObject.h"
 
@@ -55,7 +56,13 @@ public:
                                      const caf::DisplayCoordTransform* displayCoordTransform,
                                      const cvf::BoundingBox&           boundingBox );
 
+protected:
+    cvf::ref<cvf::DrawableGeo> createXYPlaneQuadGeoWithTexCoords( const cvf::Vec3fArray& cornerPoints );
+    cvf::ref<cvf::Part> createSingleTexturedQuadPart( const cvf::Vec3fArray& cornerPoints, int width, int height );
+
 private:
     caf::PdmPointer<RimSeismicSection> m_section;
     cvf::ref<RivPolylinePartMgr>       m_polylinePartMgr;
+
+    bool m_canUseShaders;
 };

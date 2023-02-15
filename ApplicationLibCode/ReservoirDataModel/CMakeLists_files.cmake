@@ -95,6 +95,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigSurfaceResampler.h
     ${CMAKE_CURRENT_LIST_DIR}/RigSurfaceStatisticsCalculator.h
     ${CMAKE_CURRENT_LIST_DIR}/RigWellLogIndexDepthOffset.h
+    ${CMAKE_CURRENT_LIST_DIR}/RigTexturedSection.h
     ${CMAKE_CURRENT_LIST_DIR}/RigPressureDepthData.h
 )
 
@@ -188,6 +189,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigSurfaceResampler.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigSurfaceStatisticsCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigWellLogIndexDepthOffset.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigTexturedSection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigPressureDepthData.cpp
 )
 
