@@ -979,6 +979,27 @@ bool RimEclipseCase::openReserviorCase()
         return false;
     }
 
+    if ( eclipseCaseData() && eclipseCaseData()->mainGrid() &&
+         !eclipseCaseData()->mainGrid()->hasValidCharacteristicCellSizes() )
+    {
+        RigMainGrid* mainGrid = eclipseCaseData()->mainGrid();
+
+        auto activeCellInfo = eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+        if ( activeCellInfo )
+        {
+            std::vector<size_t> reservoirCellIndices;
+            for ( size_t i = 0; i < mainGrid->cellCount(); i++ )
+            {
+                if ( activeCellInfo->isActive( i ) )
+                {
+                    reservoirCellIndices.push_back( i );
+                }
+            }
+            mainGrid->computeCharacteristicCellSize( reservoirCellIndices );
+            mainGrid->computeFaceNormalsDirection( reservoirCellIndices );
+        }
+    }
+
     bool createPlaceholderEntries = true;
     if ( dynamic_cast<RimEclipseStatisticsCase*>( this ) )
     {

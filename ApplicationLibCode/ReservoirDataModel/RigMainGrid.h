@@ -87,6 +87,7 @@ public:
     const RigFault* findFaultFromCellIndexAndCellFace( size_t                             reservoirCellIndex,
                                                        cvf::StructGridInterface::FaceType face ) const;
     bool            isFaceNormalsOutwards() const;
+    void            computeFaceNormalsDirection( const std::vector<size_t>& reservoirCellIndices ) const;
 
     void computeCachedData( std::string* aabbTreeInfo = nullptr );
     void initAllSubGridsParentGridPointer();
@@ -142,4 +143,7 @@ private:
     std::array<double, 6> m_mapAxes;
 
     bool m_dualPorosity;
+
+    mutable bool m_isFaceNormalsOutwards;
+    mutable bool m_isFaceNormalsOutwardsComputed;
 };
