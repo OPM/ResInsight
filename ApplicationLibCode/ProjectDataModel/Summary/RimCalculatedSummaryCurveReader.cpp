@@ -31,6 +31,7 @@ RifCalculatedSummaryCurveReader::RifCalculatedSummaryCurveReader( RimSummaryCalc
     : m_calculationCollection( calculationCollection )
     , m_summaryCase( summaryCase )
 {
+    CAF_ASSERT( summaryCase );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -54,7 +55,7 @@ std::vector<time_t> RifCalculatedSummaryCurveReader::timeSteps( const RifEclipse
 bool RifCalculatedSummaryCurveReader::values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const
 {
     RimSummaryCalculation* calc = findCalculationByName( resultAddress );
-    if ( calc && m_summaryCase )
+    if ( calc )
     {
         RimSummaryCalculationAddress address( resultAddress );
         *values = calc->values( m_summaryCase, address );
@@ -82,7 +83,7 @@ std::string RifCalculatedSummaryCurveReader::unitName( const RifEclipseSummaryAd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifCalculatedSummaryCurveReader::buildMetaData( RimSummaryCase* summaryCase )
+void RifCalculatedSummaryCurveReader::buildMetaData()
 {
     m_allResultAddresses.clear();
 
@@ -90,7 +91,7 @@ void RifCalculatedSummaryCurveReader::buildMetaData( RimSummaryCase* summaryCase
     {
         RimSummaryCalculation* sumCalc = dynamic_cast<RimSummaryCalculation*>( calc );
 
-        auto allAddresses = sumCalc->allAddressesForSummaryCase( summaryCase );
+        auto allAddresses = sumCalc->allAddressesForSummaryCase( m_summaryCase );
         for ( auto calculationAddress : allAddresses )
         {
             if ( calculationAddress.address().isValid() )

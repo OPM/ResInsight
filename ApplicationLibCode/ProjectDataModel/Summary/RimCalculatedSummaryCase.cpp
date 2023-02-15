@@ -58,14 +58,14 @@ QString RimCalculatedSummaryCase::caseName() const
 //--------------------------------------------------------------------------------------------------
 void RimCalculatedSummaryCase::createSummaryReaderInterface()
 {
-    if ( !m_calculatedCurveReader && m_summaryCase )
+    CAF_ASSERT( m_summaryCase );
+    if ( !m_calculatedCurveReader )
     {
         RimSummaryCalculationCollection* calculationCollection = nullptr;
         this->firstAncestorOrThisOfTypeAsserted( calculationCollection );
 
         m_calculatedCurveReader.reset( new RifCalculatedSummaryCurveReader( calculationCollection, m_summaryCase ) );
-
-        m_calculatedCurveReader->buildMetaData( m_summaryCase );
+        m_calculatedCurveReader->buildMetaData();
     }
 }
 
@@ -86,7 +86,7 @@ void RimCalculatedSummaryCase::buildMetaData()
 {
     if ( !m_calculatedCurveReader ) createSummaryReaderInterface();
 
-    m_calculatedCurveReader->buildMetaData( m_summaryCase );
+    m_calculatedCurveReader->buildMetaData();
 }
 
 //--------------------------------------------------------------------------------------------------

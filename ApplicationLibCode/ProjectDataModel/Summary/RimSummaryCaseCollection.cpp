@@ -346,6 +346,7 @@ std::set<RifEclipseSummaryAddress> RimSummaryCaseCollection::ensembleSummaryAddr
             RifSummaryReaderInterface* reader = calculatedCase->summaryReader();
             if ( reader )
             {
+                calculatedCase->buildMetaData();
                 const std::set<RifEclipseSummaryAddress>& addrs = reader->allResultAddresses();
                 addresses.insert( addrs.begin(), addrs.end() );
             }
