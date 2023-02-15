@@ -36,7 +36,7 @@ RigTexturedSection::~RigTexturedSection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<cvf::Vec3fArray>& RigTexturedSection::rects() const
+const std::vector<cvf::Vec3dArray>& RigTexturedSection::rects() const
 {
     return m_sectionRects;
 }
@@ -44,7 +44,7 @@ const std::vector<cvf::Vec3fArray>& RigTexturedSection::rects() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigTexturedSection::setRects( const std::vector<cvf::Vec3fArray>& rects )
+void RigTexturedSection::setRects( const std::vector<cvf::Vec3dArray>& rects )
 {
     m_sectionRects = rects;
 }
@@ -78,7 +78,7 @@ int RigTexturedSection::height() const
 //--------------------------------------------------------------------------------------------------
 int RigTexturedSection::width( int index ) const
 {
-    if ( index >= m_widths.size() ) return 0;
+    if ( index >= (int)m_widths.size() ) return 0;
     if ( index < 0 ) return 0;
     return m_widths[index];
 }

@@ -35,9 +35,9 @@ public:
     RigTexturedSection();
     ~RigTexturedSection() override;
 
-    void setRects( const std::vector<cvf::Vec3fArray>& rects );
+    void setRects( const std::vector<cvf::Vec3dArray>& rects );
 
-    const std::vector<cvf::Vec3fArray>& rects() const;
+    const std::vector<cvf::Vec3dArray>& rects() const;
 
     void setTextureWidths( std::vector<int> widths );
     void setTextureHeight( int height );
@@ -46,7 +46,7 @@ public:
     int width( int index ) const;
 
 private:
-    std::vector<cvf::Vec3fArray> m_sectionRects;
+    std::vector<cvf::Vec3dArray> m_sectionRects;
     std::vector<int>             m_widths;
     int                          m_heigth;
 };
