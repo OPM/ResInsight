@@ -167,7 +167,7 @@ RimSummaryCalculationVariable* RimSummaryCalculationVariable::clone() const
     RimSummaryAddress              addr;
     addr.setCaseId( m_case->caseId() );
     addr.setAddress( m_summaryAddress->address() );
-    c->setSummaryAddress(addr);
+    c->setSummaryAddress( addr );
 
     c->setName( m_name );
     return c;

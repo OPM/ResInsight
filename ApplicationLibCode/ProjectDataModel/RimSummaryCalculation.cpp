@@ -26,6 +26,7 @@
 #include "RiaSummaryTools.h"
 
 #include "RifSummaryReaderInterface.h"
+#include "RimCalculatedSummaryCase.h"
 #include "RimDataSourceSteppingTools.h"
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
@@ -37,7 +38,6 @@
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
-#include "RimCalculatedSummaryCase.h"
 
 #include "RiuExpressionContextMenuManager.h"
 
@@ -197,7 +197,7 @@ void RimSummaryCalculation::substituteVariables( std::vector<RimSummaryCalculati
                 {
                     summaryAddress.setCaseId( v->summaryCase()->caseId() );
                 }
-                
+
                 v->setSummaryAddress( summaryAddress );
                 std::string newVectorName = v->summaryAddress()->address().uiText();
                 RiaLogging::info(
@@ -246,7 +246,8 @@ std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
             if ( !v->summaryCase() )
             {
                 RiaLogging::error( QString( "Missing summary case: %1 when generating: %2" )
-                                       .arg( QString::fromStdString( v->summaryAddress()->address().uiText() ) ).arg(leftHandSideVariableName) );
+                                       .arg( QString::fromStdString( v->summaryAddress()->address().uiText() ) )
+                                       .arg( leftHandSideVariableName ) );
                 RimSummaryCalculationCollection* calcColl       = RimProject::current()->calculationCollection();
                 RimCalculatedSummaryCase*        calculatedCase = calcColl->calculationSummaryCase( summaryCase );
                 caseForVariable                                 = calculatedCase;
@@ -256,10 +257,9 @@ std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
                 RiaLogging::debug( QString( "Calculated address. case: '%1' " ).arg( v->summaryCase()->displayCaseName() ) );
                 caseForVariable = v->summaryCase();
             }
-            
         }
 
-        RiaLogging::debug( QString( "Using case: '%1'" ).arg(caseForVariable->displayCaseName()) );
+        RiaLogging::debug( QString( "Using case: '%1'" ).arg( caseForVariable->displayCaseName() ) );
         // v->summaryCase()
         RiaSummaryCurveDefinition curveDef( caseForVariable, v->summaryAddress()->address(), false );
 
