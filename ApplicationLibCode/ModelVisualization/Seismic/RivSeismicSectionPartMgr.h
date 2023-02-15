@@ -30,6 +30,7 @@ class Part;
 class ScalarMapper;
 class DrawableGeo;
 class BoundingBox;
+class ShaderProgram;
 } // namespace cvf
 
 namespace caf
@@ -63,6 +64,7 @@ protected:
 private:
     caf::PdmPointer<RimSeismicSection> m_section;
     cvf::ref<RivPolylinePartMgr>       m_polylinePartMgr;
+    cvf::ref<cvf::ShaderProgram>       m_textureShaderProg;
 
     bool m_canUseShaders;
 };
