@@ -70,8 +70,6 @@ public:
 
     RimWellLogFile::WellFlowCondition wellFlowRateCondition() const { return m_wellFlowCondition(); }
 
-    void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath );
-
     static std::vector<std::pair<double, double>> findMdAndChannelValuesForWellPath( const RimWellPath* wellPath,
                                                                                      const QString&     channelName,
                                                                                      QString* unitString = nullptr );

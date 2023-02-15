@@ -277,17 +277,7 @@ void RimFractureTemplateCollection::loadAndUpdateData()
         {
             stimPlanFracture->loadDataAndUpdate();
         }
-    }
-}
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimFractureTemplateCollection::updateFilePathsFromProjectPath( const QString& newProjectPath,
-                                                                    const QString& oldProjectPath )
-{
-    for ( RimFractureTemplate* f : m_fractureDefinitions() )
-    {
         RimEllipseFractureTemplate* ellipseFracture = dynamic_cast<RimEllipseFractureTemplate*>( f );
         if ( ellipseFracture )
         {

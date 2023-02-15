@@ -120,7 +120,6 @@ public:
 
     void scheduleRedrawAffectedViews();
 
-    void   updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath );
     bool   anyWellsContainingPerforationIntervals() const;
     size_t modelledWellPathCount() const;
 

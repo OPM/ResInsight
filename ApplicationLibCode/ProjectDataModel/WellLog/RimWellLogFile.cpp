@@ -235,22 +235,6 @@ bool RimWellLogFile::hasFlowData() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogFile::updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath )
-{
-    // bool                 foundFile = false;
-    // std::vector<QString> searchedPaths;
-    //
-    // QString fileNameCandidate =
-    //     RimTools::relocateFile( m_fileName(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths );
-    // if ( foundFile )
-    // {
-    //     m_fileName = fileNameCandidate;
-    // }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::vector<std::pair<double, double>> RimWellLogFile::findMdAndChannelValuesForWellPath( const RimWellPath* wellPath,
                                                                                           const QString& channelName,
                                                                                           QString* unitString /*=nullptr*/ )

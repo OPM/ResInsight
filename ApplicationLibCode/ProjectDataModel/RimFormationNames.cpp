@@ -153,15 +153,6 @@ void RimFormationNames::readFormationNamesFile( QString* errorMessage )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFormationNames::updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath )
-{
-    // m_formationNamesFileName =
-    //     RimTools::relocateFile( m_formationNamesFileName(), newProjectPath, oldProjectPath, nullptr, nullptr );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QString RimFormationNames::layerZoneTableFileName()
 {
     return "layer_zone_table.txt";
