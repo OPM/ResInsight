@@ -199,6 +199,13 @@ bool RifEclipseInputFileTools::openGridFile( const QString&      fileName,
         return true;
     }
 
+    QString txt = "Missing required keywords :";
+    if ( !specGridKw ) txt += " SPECGRID";
+    if ( !zCornKw ) txt += " ZCORN";
+    if ( !coordKw ) txt += " COORD";
+
+    RiaLogging::error( txt );
+
     return false;
 }
 

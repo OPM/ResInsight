@@ -60,8 +60,6 @@ public:
     void createAndAssignTemplateCopyForNonMatchingUnit();
     void loadAndUpdateData();
 
-    void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath );
-
     void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                          std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 

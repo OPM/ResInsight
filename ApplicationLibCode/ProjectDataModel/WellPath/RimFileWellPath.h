@@ -31,7 +31,6 @@ public:
     bool    readWellPathFile( QString* errorMessage, RifWellPathImporter* wellPathImporter, bool setWellNameForExport );
     int     wellPathIndexInFile() const; // -1 means none.
     void    setWellPathIndexInFile( int index );
-    void    updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath ) override;
     static QString getCacheDirectoryPath();
 
 protected:
@@ -43,6 +42,7 @@ private:
     bool    isStoredInCache() const;
     QString getCacheFileName();
 
+    void initAfterRead() override;
     void setupBeforeSave() override;
 
     void ensureWellPathStartAtSeaLevel( RigWellPath* wellPath );

@@ -473,36 +473,16 @@ void RimProject::setProjectFileNameAndUpdateDependencies( const QString& project
         bool                 foundFile = false;
         std::vector<QString> searchedPaths;
 
+        QString filePathCandidate = filePath->path();
+        if ( filePathCandidate.startsWith( '.' ) )
+        {
+            filePathCandidate = filePathCandidate.right( filePathCandidate.size() - 1 );
+            filePathCandidate = newProjectPath + filePathCandidate;
+        }
+
         QString newFilePath =
-            RimTools::relocateFile( filePath->path(), newProjectPath, oldProjectPath, &foundFile, &searchedPaths );
+            RimTools::relocateFile( filePathCandidate, newProjectPath, oldProjectPath, &foundFile, &searchedPaths );
         filePath->setPath( newFilePath );
-    }
-
-    // Update path to well path file cache
-    for ( RimOilField* oilField : oilFields )
-    {
-        if ( oilField == nullptr ) continue;
-        if ( oilField->wellPathCollection() != nullptr )
-        {
-            oilField->wellPathCollection()->updateFilePathsFromProjectPath( newProjectPath, oldProjectPath );
-        }
-        if ( oilField->formationNamesCollection() != nullptr )
-        {
-            oilField->formationNamesCollection()->updateFilePathsFromProjectPath( newProjectPath, oldProjectPath );
-        }
-
-        CVF_ASSERT( oilField->fractureDefinitionCollection() );
-        oilField->fractureDefinitionCollection()->updateFilePathsFromProjectPath( newProjectPath, oldProjectPath );
-    }
-
-    {
-        std::vector<RimWellLogFile*> rimWellLogFiles;
-        this->descendantsIncludingThisOfType( rimWellLogFiles );
-
-        for ( auto rimWellLogFile : rimWellLogFiles )
-        {
-            rimWellLogFile->updateFilePathsFromProjectPath( newProjectPath, oldProjectPath );
-        }
     }
 
     wellPathImport->updateFilePaths();

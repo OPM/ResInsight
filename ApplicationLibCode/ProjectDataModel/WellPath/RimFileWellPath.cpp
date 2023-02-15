@@ -282,19 +282,6 @@ bool RimFileWellPath::isStoredInCache() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFileWellPath::updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath )
-{
-    QString newCacheFileName = getCacheFileName();
-
-    if ( caf::Utils::fileExists( newCacheFileName ) )
-    {
-        m_filePathInCache = newCacheFileName;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimFileWellPath::ensureWellPathStartAtSeaLevel( RigWellPath* wellPath )
 {
     std::vector<cvf::Vec3d> wellPathPoints = wellPath->wellPathPoints();
@@ -347,5 +334,18 @@ void RimFileWellPath::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         {
             RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFileWellPath::initAfterRead()
+{
+    QString newCacheFileName = getCacheFileName();
+
+    if ( caf::Utils::fileExists( newCacheFileName ) )
+    {
+        m_filePathInCache = newCacheFileName;
     }
 }
