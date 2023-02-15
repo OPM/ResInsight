@@ -25,6 +25,7 @@
 #include "WellPathCommands/RicPolylineTargetsPickEventHandler.h"
 
 #include "RigPolyLinesData.h"
+#include "RigTexturedSection.h"
 
 #include "RivSeismicSectionPartMgr.h"
 
@@ -297,4 +298,40 @@ QList<caf::PdmOptionItemInfo> RimSeismicSection::calculateValueOptions( const ca
     }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection() const
+{
+    cvf::ref<RigTexturedSection> tex = new RigTexturedSection();
+
+    std::vector<cvf::Vec3fArray> rects;
+    std::vector<int>             widths;
+
+    double zmin = m_seismicData->zMin();
+    double zmax = m_seismicData->zMax();
+
+    for ( int i = 1; i < (int)m_targets.size(); i++ )
+    {
+        cvf::Vec3fArray points;
+
+        cvf::Vec3d p1 = m_targets[i - 1]->targetPointXYZ();
+        cvf::Vec3d p2 = m_targets[i]->targetPointXYZ();
+
+        points.resize( 4 );
+        points[0].set( p1.x(), p1.y(), zmin );
+        points[1].set( p2.x(), p2.y(), zmin );
+        points[3].set( p2.x(), p2.y(), zmax );
+        points[3].set( p1.x(), p1.y(), zmin );
+
+        widths.push_back( 100 );
+        rects.push_back( points );
+    }
+
+    tex->setTextureHeight( static_cast<int>( zmax - zmin ) );
+    tex->setTextureWidths( widths );
+    tex->setRects( rects );
+    return tex;
 }

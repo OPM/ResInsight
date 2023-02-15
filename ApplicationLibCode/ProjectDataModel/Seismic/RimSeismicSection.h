@@ -28,6 +28,7 @@
 #include "cafPdmFieldCvfVec3d.h"
 #include "cafPdmPtrField.h"
 
+#include "cvfArray.h"
 #include "cvfColor3.h"
 #include "cvfObject.h"
 
@@ -37,6 +38,7 @@
 class RicPolylineTargetsPickEventHandler;
 class RimPolylineTarget;
 class RigPolylinesData;
+class RigTexturedSection;
 class RivSeismicSectionPartMgr;
 class Rim3dView;
 class RimSeismicData;
@@ -63,6 +65,8 @@ public:
     caf::PickEventHandler*          pickEventHandler() const override;
 
     cvf::ref<RigPolyLinesData> polyLinesData() const override;
+
+    cvf::ref<RigTexturedSection> texturedSection() const;
 
     RivSeismicSectionPartMgr* partMgr();
     void                      rebuildGeometry();

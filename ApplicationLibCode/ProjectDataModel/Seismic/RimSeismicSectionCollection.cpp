@@ -144,8 +144,7 @@ void RimSeismicSectionCollection::appendPartsToModel( Rim3dView*                
     {
         if ( section->isChecked() )
         {
-            // section->partMgr()->appendGeometryPartsToModel( model, scaleTransform );
-            // cs->intersectionPartMgr()->appendMeshLinePartsToModel( model, scaleTransform );
+            section->partMgr()->appendGeometryPartsToModel( model, transform, boundingBox );
             section->partMgr()->appendPolylinePartsToModel( view, model, transform, boundingBox );
         }
     }

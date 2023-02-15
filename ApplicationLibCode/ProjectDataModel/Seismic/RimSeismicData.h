@@ -48,6 +48,9 @@ public:
 
     void updateMetaData();
 
+    double zMin() const;
+    double zMax() const;
+
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;
     void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
