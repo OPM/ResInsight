@@ -52,7 +52,7 @@ void RicNewEmptySummaryMultiPlotFeature::onActionTriggered( bool isChecked )
     std::vector<RimSummaryCase*>           selectedIndividualSummaryCases;
     std::vector<RimSummaryCaseCollection*> selectedEnsembles;
 
-    bool skipCreationOfPlotBasedOnPreferences = true;
+    bool skipCreationOfPlotBasedOnPreferences = false;
     RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( selectedIndividualSummaryCases,
                                                                    selectedEnsembles,
                                                                    skipCreationOfPlotBasedOnPreferences );
