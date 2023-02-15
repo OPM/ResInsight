@@ -161,6 +161,21 @@ void RimSummaryCalculationVariable::handleDroppedMimeData( const QMimeData*     
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimSummaryCalculationVariable* RimSummaryCalculationVariable::clone() const
+{
+    RimSummaryCalculationVariable* c = new RimSummaryCalculationVariable;
+    RimSummaryAddress              addr;
+    addr.setCaseId( m_case->caseId() );
+    addr.setAddress( m_summaryAddress->address() );
+    c->setSummaryAddress(addr);
+
+    c->setName( m_name );
+    return c;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCalculationVariable::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_name );
