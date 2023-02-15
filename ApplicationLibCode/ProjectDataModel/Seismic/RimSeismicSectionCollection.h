@@ -64,15 +64,9 @@ protected:
     caf::PdmFieldHandle* userDescriptionField() override;
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-
-    // void initAfterRead() override;
-
-    // void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
-    // void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant&
-    // newValue ) override;
-
     caf::PdmField<QString>                      m_userDescription;
     caf::PdmChildArrayField<RimSeismicSection*> m_seismicSections;
 };
