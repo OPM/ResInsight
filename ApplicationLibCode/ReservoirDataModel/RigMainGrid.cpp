@@ -46,6 +46,9 @@ RigMainGrid::RigMainGrid()
     m_useMapAxes   = false;
     m_mapAxes      = defaultMapAxes();
     m_dualPorosity = false;
+
+    m_isFaceNormalsOutwards         = true;
+    m_isFaceNormalsOutwardsComputed = false;
 }
 
 RigMainGrid::~RigMainGrid()
@@ -651,6 +654,23 @@ void RigMainGrid::distributeNNCsToFaults()
 //--------------------------------------------------------------------------------------------------
 bool RigMainGrid::isFaceNormalsOutwards() const
 {
+    if ( !m_isFaceNormalsOutwardsComputed )
+    {
+        std::vector<size_t> reservoirCellIndices;
+        reservoirCellIndices.resize( cellCount() );
+        std::iota( reservoirCellIndices.begin(), reservoirCellIndices.end(), 0 );
+
+        computeFaceNormalsDirection( reservoirCellIndices );
+    }
+
+    return m_isFaceNormalsOutwards;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigMainGrid::computeFaceNormalsDirection( const std::vector<size_t>& reservoirCellIndices ) const
+{
     auto isValidAndFaceNormalDir = []( const double                       ijSize,
                                        const double                       kSize,
                                        const RigCell&                     cell,
@@ -679,8 +699,9 @@ bool RigMainGrid::isFaceNormalsOutwards() const
     characteristicCellSizes( &iSize, &jSize, &kSize );
     const double characteristicVolume = iSize * jSize * kSize;
 
-    for ( const auto& cell : m_cells )
+    for ( const auto& index : reservoirCellIndices )
     {
+        const auto& cell = m_cells[index];
         if ( !cell.isInvalid() )
         {
             // Some cells can be very twisted and distorted. Use a volume criteria to find a reasonably regular cell.
@@ -701,21 +722,25 @@ bool RigMainGrid::isFaceNormalsOutwards() const
             if ( direction1 && direction2 && direction3 && direction4 )
             {
                 // All face normals pointing outwards
-                return true;
+                m_isFaceNormalsOutwards         = true;
+                m_isFaceNormalsOutwardsComputed = true;
+                return;
             }
 
             if ( !direction1 && !direction2 && !direction3 && !direction4 )
             {
                 // All cell face normals pointing inwards
-                return false;
+                m_isFaceNormalsOutwards         = false;
+                m_isFaceNormalsOutwardsComputed = true;
+                return;
             }
-
-            // This is a mixed case, where some faces are outwards and some are inwards
-            continue;
         }
     }
 
-    return false;
+    // If this code is reached, it was not possible to get a consistent answer on the direction of a cell surface
+    // normal. Set a default direction for face normals.
+    m_isFaceNormalsOutwards         = true;
+    m_isFaceNormalsOutwardsComputed = true;
 }
 
 //--------------------------------------------------------------------------------------------------

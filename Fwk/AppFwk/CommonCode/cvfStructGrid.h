@@ -92,7 +92,7 @@ public:
     void               characteristicCellSizes( double* iSize, double* jSize, double* kSize ) const;
 
     bool hasValidCharacteristicCellSizes() const;
-    void computeCharacteristicCellSizes( const std::vector<size_t>& globalCellIndices );
+    void computeCharacteristicCellSize( const std::vector<size_t>& globalCellIndices ) const;
 
     virtual cvf::Vec3d displayModelOffset() const;
 

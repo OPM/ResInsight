@@ -995,7 +995,8 @@ bool RimEclipseCase::openReserviorCase()
                     reservoirCellIndices.push_back( i );
                 }
             }
-            mainGrid->computeCharacteristicCellSizes( reservoirCellIndices );
+            mainGrid->computeCharacteristicCellSize( reservoirCellIndices );
+            mainGrid->computeFaceNormalsDirection( reservoirCellIndices );
         }
     }
 
