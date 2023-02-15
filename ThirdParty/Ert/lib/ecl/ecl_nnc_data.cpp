@@ -167,10 +167,6 @@ static ecl_kw_type * ecl_nnc_data_get_kw( const ecl_grid_type * grid, const ecl_
       return NULL;
 }
 
-static void assert_correct_kw_count(ecl_kw_type * kw, const char * function_name, int correct_kw_count, int kw_count) {
-   if (correct_kw_count != kw_count)
-      util_abort("In function %s, reading kw: %s. %d != %d", function_name, ecl_kw_get_header(kw), correct_kw_count, kw_count);
-}
 
 
 static bool ecl_nnc_data_set_values(ecl_nnc_data_type * data, const ecl_grid_type * grid, const ecl_nnc_geometry_type * nnc_geo, const ecl_file_view_type * init_file, int kw_type) {
@@ -190,7 +186,6 @@ static bool ecl_nnc_data_set_values(ecl_nnc_data_type * data, const ecl_grid_typ
       if (grid1 != current_grid1 || grid2 != current_grid2) {
          current_grid1 = grid1;
          current_grid2 = grid2;
-         assert_correct_kw_count(current_kw, __func__, correct_kw_count, kw_count);
          current_kw = ecl_nnc_data_get_kw( grid, init_file, grid1 , grid2 , kw_type);
          kw_count = 0;
          if (current_kw) {
@@ -206,7 +201,7 @@ static bool ecl_nnc_data_set_values(ecl_nnc_data_type * data, const ecl_grid_typ
       }
 
    }
-   assert_correct_kw_count(current_kw, __func__, correct_kw_count, kw_count);
+
    return true;
 }
 
