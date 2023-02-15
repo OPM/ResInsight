@@ -18,6 +18,7 @@
 
 #include "RimSeismicSection.h"
 
+#include "Rim3dView.h"
 #include "RimSeismicData.h"
 #include "RimTools.h"
 
@@ -202,7 +203,7 @@ void RimSeismicSection::insertTarget( const RimPolylineTarget* targetToInsertBef
     else
         m_targets.push_back( targetToInsert );
 
-    // TODO - update viz.
+    updateVisualization();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -212,6 +213,8 @@ void RimSeismicSection::deleteTarget( RimPolylineTarget* targetToDelete )
 {
     m_targets.removeChild( targetToDelete );
     delete targetToDelete;
+
+    updateVisualization();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -219,6 +222,9 @@ void RimSeismicSection::deleteTarget( RimPolylineTarget* targetToDelete )
 //--------------------------------------------------------------------------------------------------
 void RimSeismicSection::updateVisualization()
 {
+    Rim3dView* view = nullptr;
+    firstAncestorOrThisOfType( view );
+    if ( view ) view->scheduleCreateDisplayModelAndRedraw();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -307,7 +313,7 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection() const
 {
     cvf::ref<RigTexturedSection> tex = new RigTexturedSection();
 
-    std::vector<cvf::Vec3fArray> rects;
+    std::vector<cvf::Vec3dArray> rects;
     std::vector<int>             widths;
 
     double zmin = m_seismicData->zMin();
@@ -315,23 +321,40 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection() const
 
     for ( int i = 1; i < (int)m_targets.size(); i++ )
     {
-        cvf::Vec3fArray points;
+        cvf::Vec3dArray points;
 
         cvf::Vec3d p1 = m_targets[i - 1]->targetPointXYZ();
         cvf::Vec3d p2 = m_targets[i]->targetPointXYZ();
 
         points.resize( 4 );
-        points[0].set( p1.x(), p1.y(), zmin );
-        points[1].set( p2.x(), p2.y(), zmin );
-        points[3].set( p2.x(), p2.y(), zmax );
-        points[3].set( p1.x(), p1.y(), zmin );
+        points[0].set( p1.x(), p1.y(), -zmin );
+        points[1].set( p2.x(), p2.y(), -zmin );
+        points[2].set( p2.x(), p2.y(), -zmax );
+        points[3].set( p1.x(), p1.y(), -zmax );
 
         widths.push_back( 100 );
         rects.push_back( points );
     }
 
-    tex->setTextureHeight( static_cast<int>( zmax - zmin ) );
+    tex->setTextureHeight( static_cast<int>( zmax - zmin ) / 4 );
     tex->setTextureWidths( widths );
     tex->setRects( rects );
     return tex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicSection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                          const QVariant&            oldValue,
+                                          const QVariant&            newValue )
+{
+    if ( changedField == &m_enablePicking )
+    {
+        this->updateConnectedEditors();
+    }
+    else if ( changedField != &m_userDescription )
+    {
+        updateVisualization();
+    }
 }

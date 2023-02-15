@@ -20,6 +20,7 @@
 
 #include "RiaLogging.h"
 
+#include "Rim3dView.h"
 #include "RimSeismicData.h"
 
 #include <QFile>

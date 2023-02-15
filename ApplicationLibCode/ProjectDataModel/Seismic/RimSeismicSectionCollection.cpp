@@ -151,3 +151,18 @@ void RimSeismicSectionCollection::appendPartsToModel( Rim3dView*                
 
     model->updateBoundingBoxesRecursive();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicSectionCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                    const QVariant&            oldValue,
+                                                    const QVariant&            newValue )
+{
+    if ( changedField == objectToggleField() )
+    {
+        Rim3dView* view = nullptr;
+        firstAncestorOrThisOfType( view );
+        if ( view ) view->scheduleCreateDisplayModelAndRedraw();
+    }
+}

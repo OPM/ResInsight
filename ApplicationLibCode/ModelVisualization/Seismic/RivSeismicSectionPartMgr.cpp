@@ -36,19 +36,8 @@
 #include "cvfLibCore.h"
 #include "cvfLibGeometry.h"
 #include "cvfLibRender.h"
-
-//#include "cvfBoundingBox.h"
-//#include "cvfDrawableGeo.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
-//#include "cvfPrimitiveSetIndexedUInt.h"
-//#include "cvfRenderStateTextureBindings.h"
-//#include "cvfRenderState_FF.h"
-//#include "cvfSampler.h"
-//#include "cvfShaderProgramGenerator.h"
-//#include "cvfShaderSourceProvider.h"
-//#include "cvfShaderSourceRepository.h"
-//#include "cvfTexture.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -90,8 +79,16 @@ void RivSeismicSectionPartMgr::appendGeometryPartsToModel( cvf::ModelBasicList* 
 
         for ( int i = 0; i < (int)rects.size(); i++ )
         {
+            cvf::Vec3dArray transformedPoints;
+            transformedPoints.reserve( rects[i].size() );
+
+            for ( auto& vOrg : rects[i] )
+            {
+                transformedPoints.add( displayCoordTransform->transformToDisplayCoord( vOrg ) );
+            }
+
             cvf::ref<cvf::Part> quadPart =
-                createSingleTexturedQuadPart( rects[i], texSection->width( i ), texSection->height() );
+                createSingleTexturedQuadPart( transformedPoints, texSection->width( i ), texSection->height() );
             model->addPart( quadPart.p() );
         }
     }
@@ -103,7 +100,7 @@ void RivSeismicSectionPartMgr::appendGeometryPartsToModel( cvf::ModelBasicList* 
 ///
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::Part>
-    RivSeismicSectionPartMgr::createSingleTexturedQuadPart( const cvf::Vec3fArray& cornerPoints, int width, int height )
+    RivSeismicSectionPartMgr::createSingleTexturedQuadPart( const cvf::Vec3dArray& cornerPoints, int width, int height )
 {
     cvf::ref<cvf::DrawableGeo> geo = createXYPlaneQuadGeoWithTexCoords( cornerPoints );
 
@@ -153,16 +150,16 @@ cvf::ref<cvf::Part>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RivSeismicSectionPartMgr::createXYPlaneQuadGeoWithTexCoords( const cvf::Vec3fArray& cornerPoints )
+cvf::ref<cvf::DrawableGeo> RivSeismicSectionPartMgr::createXYPlaneQuadGeoWithTexCoords( const cvf::Vec3dArray& cornerPoints )
 {
     cvf::ref<cvf::Vec3fArray> vertices  = new cvf::Vec3fArray;
     cvf::ref<cvf::Vec2fArray> texCoords = new cvf::Vec2fArray;
     vertices->reserve( 4 );
     texCoords->reserve( 4 );
 
-    for ( auto v : cornerPoints )
+    for ( auto& v : cornerPoints )
     {
-        vertices->add( v );
+        vertices->add( cvf::Vec3f( v ) );
     }
 
     texCoords->add( cvf::Vec2f( 0, 0 ) );
