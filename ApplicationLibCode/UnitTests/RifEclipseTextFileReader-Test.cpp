@@ -216,11 +216,14 @@ TEST( RifEclipseTextFileReader, KeywordsWithoutValue )
                               "/\n"
                               "SOIL\n"
                               "6.0 7.0 8.0 9.0\n"
-                              "/\n";
+                              "/\n"
+                              "G4\n"
+                              "1.0 2.0 3.0\n"
+                              "0.123/ -- 1213 values in comment 123.123 \n";
 
     auto keywordDataItems = RifEclipseTextFileReader::parseStringData( fileContent );
 
-    EXPECT_EQ( 3u, keywordDataItems.size() );
+    EXPECT_EQ( 4u, keywordDataItems.size() );
 
     auto noEchoKeyword = keywordDataItems[0];
     EXPECT_EQ( 0u, noEchoKeyword.values.size() );
@@ -233,4 +236,8 @@ TEST( RifEclipseTextFileReader, KeywordsWithoutValue )
 
     EXPECT_FLOAT_EQ( 1.0f, swatKeyword.values[0] );
     EXPECT_FLOAT_EQ( 6.0f, soilKeyword.values[0] );
+
+    auto g4Keyword = keywordDataItems[3];
+    EXPECT_EQ( 4u, g4Keyword.values.size() );
+    EXPECT_FLOAT_EQ( 0.123f, g4Keyword.values[3] );
 }

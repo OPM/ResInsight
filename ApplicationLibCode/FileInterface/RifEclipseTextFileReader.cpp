@@ -147,6 +147,13 @@ std::pair<std::string, std::vector<float>>
             continue;
         }
 
+        // End of keyword is defined by '/', parse values of line until '/' is found
+        auto positionOfEndToken = line.find_first_of( '/' );
+        if ( positionOfEndToken != std::string::npos )
+        {
+            line = line.substr( 0, positionOfEndToken );
+        }
+
         if ( !isEndTokenKeywordRead )
         {
             size_t start = 0;
@@ -186,8 +193,7 @@ std::pair<std::string, std::vector<float>>
             }
         }
 
-        // End of keyword is defined by '/'
-        if ( line.find_first_of( '/' ) != std::string::npos )
+        if ( positionOfEndToken != std::string::npos )
         {
             isEndTokenKeywordRead = true;
             continue;
