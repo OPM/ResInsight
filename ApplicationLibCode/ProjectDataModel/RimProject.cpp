@@ -49,6 +49,7 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEnsembleWellLogsCollection.h"
+#include "RimFileWellPath.h"
 #include "RimFlowPlotCollection.h"
 #include "RimFormationNamesCollection.h"
 #include "RimFractureTemplate.h"
@@ -486,6 +487,17 @@ void RimProject::setProjectFileNameAndUpdateDependencies( const QString& project
     }
 
     wellPathImport->updateFilePaths();
+    auto* wellPathColl = RimTools::wellPathCollection();
+    if ( wellPathColl )
+    {
+        for ( auto wellPath : wellPathColl->allWellPaths() )
+        {
+            if ( auto fileWellPath = dynamic_cast<RimFileWellPath*>( wellPath ) )
+            {
+                fileWellPath->updateFilePathsFromProjectPath( oldProjectPath, newProjectPath );
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1526,8 +1538,9 @@ void RimProject::transferPathsToGlobalPathList()
     {
         if ( summaryCase->displayNameType() == RimCaseDisplayNameTools::DisplayName::CUSTOM )
         {
-            // At this point, after the replace of variables into caf::FilePath objects, the variable name is stored in
-            // the summary case object. Read out the variable name and append "_name" for custom summary variables.
+            // At this point, after the replace of variables into caf::FilePath objects, the variable name is
+            // stored in the summary case object. Read out the variable name and append "_name" for custom
+            // summary variables.
 
             QString variableName = summaryCase->summaryHeaderFilename();
             variableName         = variableName.remove( RiaVariableMapper::variableToken() );
@@ -1546,8 +1559,9 @@ void RimProject::transferPathsToGlobalPathList()
     {
         if ( gridCase->displayNameType() == RimCaseDisplayNameTools::DisplayName::CUSTOM )
         {
-            // At this point, after the replace of variables into caf::FilePath objects, the variable name is stored in
-            // the summary case object. Read out the variable name and append "_name" for custom summary variables.
+            // At this point, after the replace of variables into caf::FilePath objects, the variable name is
+            // stored in the summary case object. Read out the variable name and append "_name" for custom
+            // summary variables.
 
             QString variableName = gridCase->gridFileName();
             variableName         = variableName.remove( RiaVariableMapper::variableToken() );
@@ -1606,8 +1620,8 @@ void RimProject::distributePathsFromGlobalPathList()
             }
             else if ( variableName.contains( RiaVariableMapper::postfixName() + RiaVariableMapper::variableToken() ) )
             {
-                // The variable name is not found in the variable list, but the name indicates a variable. Reset to full
-                // case name.
+                // The variable name is not found in the variable list, but the name indicates a variable. Reset
+                // to full case name.
                 summaryCase->setDisplayNameOption( RimCaseDisplayNameTools::DisplayName::FULL_CASE_NAME );
             }
         }
@@ -1627,8 +1641,8 @@ void RimProject::distributePathsFromGlobalPathList()
             }
             else if ( variableName.contains( RiaVariableMapper::postfixName() + RiaVariableMapper::variableToken() ) )
             {
-                // The variable name is not found in the variable list, but the name indicates a variable. Reset to full
-                // case name.
+                // The variable name is not found in the variable list, but the name indicates a variable. Reset
+                // to full case name.
                 gridCase->setDisplayNameType( RimCaseDisplayNameTools::DisplayName::FULL_CASE_NAME );
             }
         }
