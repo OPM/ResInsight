@@ -193,8 +193,12 @@ bool RifEclipseInputFileTools::openGridFile( const QString&      fileName,
 
         ecl_grid_free( inputGrid );
 
+        QString errorMessages;
+
         // Import additional keywords as input properties
-        RifEclipseInputPropertyLoader::createInputPropertiesFromKeywords( eclipseCase, objects );
+        RifEclipseInputPropertyLoader::createInputPropertiesFromKeywords( eclipseCase, objects, &errorMessages );
+
+        if ( !errorMessages.isEmpty() ) RiaLogging::error( errorMessages );
 
         return true;
     }

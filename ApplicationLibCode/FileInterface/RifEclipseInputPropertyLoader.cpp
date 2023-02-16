@@ -40,7 +40,7 @@ QString RifEclipseInputPropertyLoader::evaluateAndCreateInputPropertyResult( Rig
                                                                              QString* errorMessage )
 {
     auto eclipseKeyword = keywordContent.keyword;
-    if ( isInputPropertyCandidate( eclipseCase, eclipseKeyword, keywordContent.values.size() ) )
+    if ( isInputPropertyCandidate( eclipseCase, eclipseKeyword, keywordContent.values.size(), errorMessage ) )
     {
         QString newResultName = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
                                     ->makeResultNameUnique( QString::fromStdString( eclipseKeyword ) );
@@ -58,11 +58,12 @@ QString RifEclipseInputPropertyLoader::evaluateAndCreateInputPropertyResult( Rig
 ///
 //--------------------------------------------------------------------------------------------------
 void RifEclipseInputPropertyLoader::createInputPropertiesFromKeywords( RigEclipseCaseData* eclipseCase,
-                                                                       const std::vector<RifEclipseKeywordContent>& keywordContent )
+                                                                       const std::vector<RifEclipseKeywordContent>& keywordContent,
+                                                                       QString* errorText )
 {
     for ( const auto& keywordAndValues : keywordContent )
     {
-        RifEclipseInputPropertyLoader::evaluateAndCreateInputPropertyResult( eclipseCase, keywordAndValues, nullptr );
+        RifEclipseInputPropertyLoader::evaluateAndCreateInputPropertyResult( eclipseCase, keywordAndValues, errorText );
     }
 }
 
@@ -71,13 +72,27 @@ void RifEclipseInputPropertyLoader::createInputPropertiesFromKeywords( RigEclips
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseInputPropertyLoader::isInputPropertyCandidate( const RigEclipseCaseData* caseData,
                                                               const std::string&        eclipseKeyword,
-                                                              size_t                    numberOfValues )
+                                                              size_t                    numberOfValues,
+                                                              QString*                  errorText )
 {
     CVF_ASSERT( caseData );
 
     if ( !isValidDataKeyword( QString::fromStdString( eclipseKeyword ) ) ) return false;
 
-    return ( numberOfValues == caseData->mainGrid()->cellCount() );
+    if ( numberOfValues != caseData->mainGrid()->cellCount() )
+    {
+        if ( errorText )
+        {
+            *errorText += QString( "Keyword %1 has %2 values, but the grid has %3 cells" )
+                              .arg( QString::fromStdString( eclipseKeyword ) )
+                              .arg( numberOfValues )
+                              .arg( caseData->mainGrid()->cellCount() );
+        }
+
+        return false;
+    }
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
