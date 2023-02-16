@@ -42,7 +42,8 @@ class RifEclipseInputPropertyLoader
 {
 public:
     static void createInputPropertiesFromKeywords( RigEclipseCaseData*                          eclipseCase,
-                                                   const std::vector<RifEclipseKeywordContent>& keywordContent );
+                                                   const std::vector<RifEclipseKeywordContent>& keywordContent,
+                                                   QString*                                     errorText );
 
     // Returns map of assigned resultName and Eclipse Keyword.
     static std::map<QString, QString> readProperties( const QString& fileName, RigEclipseCaseData* eclipseCase );
@@ -56,7 +57,8 @@ private:
 
     static bool isInputPropertyCandidate( const RigEclipseCaseData* caseData,
                                           const std::string&        eclipseKeyword,
-                                          size_t                    numberOfValues );
+                                          size_t                    numberOfValues,
+                                          QString*                  errorText );
 
     static bool appendNewInputPropertyResult( RigEclipseCaseData*       caseData,
                                               const QString&            resultName,
