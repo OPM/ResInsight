@@ -79,7 +79,7 @@ bool RifEclipseInputPropertyLoader::isInputPropertyCandidate( const RigEclipseCa
 
     if ( !isValidDataKeyword( QString::fromStdString( eclipseKeyword ) ) ) return false;
 
-    if ( numberOfValues != caseData->mainGrid()->cellCount() && errorText )
+    if ( numberOfValues != caseData->mainGrid()->cellCount() )
     {
         if ( errorText )
         {
