@@ -370,9 +370,10 @@ void StructGridInterface::computeCharacteristicCellSize( const std::vector<size_
     ubyte faceConnNegK[4];
     cellFaceVertexIndices( StructGridInterface::NEG_K, faceConnNegK );
 
-    double tolerance      = 0.2;
-    int    iterationIndex = 0;
-    while ( iterationIndex < 3 )
+    double    tolerance         = 0.2;
+    int       iterationIndex    = 0;
+    const int iterationMaxCount = 3;
+    while ( iterationIndex < iterationMaxCount )
     {
         if ( iterationIndex > 0 )
         {
@@ -431,18 +432,21 @@ void StructGridInterface::computeCharacteristicCellSize( const std::vector<size_
             index += stride;
         }
 
-        double divisor = evaluatedCellCount * 4.0;
-
-        if ( divisor > 0.0 )
-        {
-            m_characteristicCellSizeI = cvf::Math::sqrt( iLengthAccumulated / divisor );
-            m_characteristicCellSizeJ = cvf::Math::sqrt( jLengthAccumulated / divisor );
-            m_characteristicCellSizeK = cvf::Math::sqrt( kLengthAccumulated / divisor );
-
-            return;
-        }
-
         iterationIndex++;
+
+        if ( evaluatedCellCount > 10 || iterationIndex == iterationMaxCount )
+        {
+            double divisor = evaluatedCellCount * 4.0;
+
+            if ( divisor > 0.0 )
+            {
+                m_characteristicCellSizeI = cvf::Math::sqrt( iLengthAccumulated / divisor );
+                m_characteristicCellSizeJ = cvf::Math::sqrt( jLengthAccumulated / divisor );
+                m_characteristicCellSizeK = cvf::Math::sqrt( kLengthAccumulated / divisor );
+
+                return;
+            }
+        }
     }
 }
 
