@@ -44,6 +44,7 @@
 #include "cafPdmFieldHandle.h"
 #include "cafPdmObjectHandle.h"
 #include "cafPdmUiObjectHandle.h"
+#include "cafPdmXmlFieldHandle.h"
 #include "cafSelectionManager.h"
 
 #include <QMenu>
@@ -59,6 +60,21 @@ CmdUiCommandSystemImpl::CmdUiCommandSystemImpl()
 {
     m_undoFeatureEnabled        = false;
     m_disableUndoForFieldChange = false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool CmdUiCommandSystemImpl::isFieldWritable( PdmFieldHandle* fieldToUpdate ) const
+{
+    if ( !fieldToUpdate ) return false;
+
+    auto xmlCapability = fieldToUpdate->xmlCapability();
+    if ( !xmlCapability ) return false;
+
+    if ( !xmlCapability->isIOWritable() ) return false;
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

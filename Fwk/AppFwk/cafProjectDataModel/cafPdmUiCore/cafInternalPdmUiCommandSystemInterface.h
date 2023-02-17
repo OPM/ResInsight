@@ -51,6 +51,7 @@ class PdmUiFieldHandle;
 class PdmUiCommandSystemInterface
 {
 public:
+    virtual bool isFieldWritable( PdmFieldHandle* fieldToUpdate ) const = 0;
     virtual void fieldChangedCommand( const std::vector<PdmFieldHandle*>& fieldsToUpdate, const QVariant& newUiValue ) = 0;
     virtual void setCurrentContextMenuTargetWidget( QWidget* targetWidget ) = 0;
 

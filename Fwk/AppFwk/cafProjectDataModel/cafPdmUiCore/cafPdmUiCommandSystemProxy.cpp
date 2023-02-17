@@ -102,16 +102,21 @@ void PdmUiCommandSystemProxy::setUiValueToField( PdmUiFieldHandle* uiFieldHandle
             }
         }
 
-        if ( m_commandInterface )
+        if ( m_commandInterface && !fieldsToUpdate.empty() )
         {
-            caf::PdmUiObjectHandle* uiOwnerObjectHandle = uiObj( editorField->ownerObject() );
-            if ( uiOwnerObjectHandle && uiOwnerObjectHandle->useUndoRedoForFieldChanged() )
+            auto firstField = fieldsToUpdate.front();
+            if ( m_commandInterface->isFieldWritable( firstField ) )
             {
-                m_commandInterface->fieldChangedCommand( fieldsToUpdate, newUiValue );
-                return;
+                caf::PdmUiObjectHandle* uiOwnerObjectHandle = uiObj( editorField->ownerObject() );
+                if ( uiOwnerObjectHandle && uiOwnerObjectHandle->useUndoRedoForFieldChanged() )
+                {
+                    m_commandInterface->fieldChangedCommand( fieldsToUpdate, newUiValue );
+                    return;
+                }
             }
         }
 
+        // Fallback to update field values without undo/redo support
         for ( auto fieldHandle : fieldsToUpdate )
         {
             fieldHandle->uiCapability()->setValueFromUiEditor( newUiValue, true );
@@ -186,8 +191,8 @@ std::vector<PdmFieldHandle*> PdmUiCommandSystemProxy::fieldsFromSelection( PdmFi
             else
             {
                 // Search one level in the project tree for fields in child objects
-                // Searching in deeper levels is currently not supported, and is considered difficult to match correctly
-                // and robust
+                // Searching in deeper levels is currently not supported, and is considered difficult to match
+                // correctly and robust
                 //
                 // Check for identical owner class to guard for matching field names in multiple child objects of a
                 // different type
