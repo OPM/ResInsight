@@ -93,9 +93,6 @@ void RicOpenSummaryPlotEditorFeature::onActionTriggered( bool isChecked )
     RimProject* project = RimProject::current();
     CVF_ASSERT( project );
 
-    RimSummaryMultiPlot* multiPlot =
-        dynamic_cast<RimSummaryMultiPlot*>( caf::SelectionManager::instance()->selectedItem() );
-
     std::vector<RimSummaryCase*>           selectedCases  = caf::selectedObjectsByType<RimSummaryCase*>();
     std::vector<RimSummaryCaseCollection*> selectedGroups = caf::selectedObjectsByType<RimSummaryCaseCollection*>();
 
@@ -144,6 +141,12 @@ void RicOpenSummaryPlotEditorFeature::onActionTriggered( bool isChecked )
         dialog->raise();
     }
 
+    RimSummaryMultiPlot* multiPlot = nullptr;
+    if ( auto uiItem = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() ) )
+    {
+        uiItem->firstAncestorOrThisOfType( multiPlot );
+    }
+
     if ( multiPlot )
     {
         if ( multiPlot->summaryPlots().size() > 0 )
@@ -168,4 +171,6 @@ void RicOpenSummaryPlotEditorFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Open Summary Plot Editor" );
     actionToSetup->setIcon( QIcon( ":/SummaryPlotLight16x16.png" ) );
+
+    applyShortcutWithHintToAction( actionToSetup, QKeySequence( tr( "Ctrl+E" ) ) );
 }

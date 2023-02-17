@@ -57,9 +57,22 @@ bool RiuTreeViewEventFilter::activateFeatureFromKeyEvent( QKeyEvent* keyEvent )
 {
     QKeySequence keySeq( keyEvent->modifiers() + keyEvent->key() );
 
-    auto matches = caf::CmdFeatureManager::instance()->commandFeaturesMatchingKeyboardShortcut( keySeq );
+    bool wasFeatureActivated = false;
 
-    bool wasFeatureActivated = activateFirstEnabledFeature( matches );
+    auto matches = caf::CmdFeatureManager::instance()->commandFeaturesMatchingKeyboardShortcut( keySeq );
+    if ( matches.size() == 1 )
+    {
+        // If a single command feature is found, trigger without checking canFeatureBeExecuted(), as the main task for
+        // this function to control visibility of menu items. A key event should always trigger the command.
+
+        matches.front()->actionTriggered( false );
+        wasFeatureActivated = true;
+    }
+    else
+    {
+        wasFeatureActivated = activateFirstEnabledFeature( matches );
+    }
+
     if ( wasFeatureActivated )
     {
         keyEvent->setAccepted( true );
