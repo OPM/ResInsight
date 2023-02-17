@@ -1017,8 +1017,27 @@ void RimWellPltPlot::initAfterLoad()
     std::vector<RifDataSourceForRftPlt> selectedSources;
     for ( RimDataSourceForRftPlt* addr : m_selectedSourcesForIo )
     {
+        if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2023.1.0" ) &&
+             addr->address().sourceType() == RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE )
+        {
+            // In previous versions, the observed LAS files were not stored in the project file, but handled as a unity.
+            // Now we have more observed data types, and need to show all LAS files individually for selection
+            auto wellLogFiles = RimWellPlotTools::wellLogFilesContainingFlow( m_wellPathName );
+            if ( !wellLogFiles.empty() )
+            {
+                for ( const auto& wellLogFile : wellLogFiles )
+                {
+                    auto addr = RifDataSourceForRftPlt( wellLogFile );
+                    selectedSources.push_back( addr );
+                }
+            }
+
+            continue;
+        }
+
         selectedSources.push_back( addr->address() );
     }
+
     m_selectedSources = selectedSources;
 }
 
