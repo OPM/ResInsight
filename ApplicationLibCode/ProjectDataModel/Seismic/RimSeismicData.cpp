@@ -46,8 +46,9 @@ RimSeismicData::RimSeismicData()
     m_metadata.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_metadata.uiCapability()->setCustomContextMenuEnabled( true );
     m_metadata.uiCapability()->setUiTreeChildrenHidden( true );
+    m_metadata.uiCapability()->setUiTreeHidden( true );
     m_metadata.uiCapability()->setUiReadOnly( true );
-    m_metadata.xmlCapability()->setIOWritable( false );
+    m_metadata.xmlCapability()->disableIO();
 
     setDeletable( true );
 

@@ -23,6 +23,7 @@
 #include "RimPolylinesDataInterface.h"
 
 #include "cafPdmChildArrayField.h"
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfVec3d.h"
@@ -42,6 +43,7 @@ class RigTexturedSection;
 class RivSeismicSectionPartMgr;
 class Rim3dView;
 class RimSeismicData;
+class RimRegularLegendConfig;
 
 class RimSeismicSection : public RimCheckableNamedObject, public RimPolylinePickerInterface, public RimPolylinesDataInterface
 {
@@ -78,6 +80,7 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
@@ -94,6 +97,7 @@ private:
     caf::PdmField<double>                       m_sphereRadiusFactor;
     caf::PdmField<cvf::Color3f>                 m_lineColor;
     caf::PdmField<cvf::Color3f>                 m_sphereColor;
+    caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
 
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
     cvf::ref<RivSeismicSectionPartMgr>                  m_sectionPartMgr;
