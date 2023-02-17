@@ -19,6 +19,7 @@
 #include "RimSeismicSection.h"
 
 #include "Rim3dView.h"
+#include "RimRegularLegendConfig.h"
 #include "RimSeismicData.h"
 #include "RimTools.h"
 
@@ -32,6 +33,7 @@
 
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTableViewEditor.h"
+#include "cafPdmUiTreeOrdering.h"
 
 CAF_PDM_SOURCE_INIT( RimSeismicSection, "SeismicSection" );
 
@@ -42,6 +44,11 @@ RimSeismicSection::RimSeismicSection()
     : m_pickTargetsEventHandler( new RicPolylineTargetsPickEventHandler( this ) )
 {
     CAF_PDM_InitObject( "Seismic Section", ":/Seismic16x16.png" );
+
+    CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendDefinition", "Color Legend" );
+    m_legendConfig = new RimRegularLegendConfig();
+    m_legendConfig->setMappingMode( RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS );
+    m_legendConfig.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitField( &m_userDescription, "UserDecription", QString( "Seismic Section" ), "Name" );
 
@@ -118,7 +125,16 @@ void RimSeismicSection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     group2->add( &m_sphereRadiusFactor );
     group2->add( &m_sphereColor );
 
-    uiOrdering.skipRemainingFields( true );
+    uiOrdering.skipRemainingFields();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicSection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= "" */ )
+{
+    uiTreeOrdering.add( &m_legendConfig );
+    uiTreeOrdering.skipRemainingChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
