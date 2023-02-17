@@ -513,7 +513,7 @@ std::vector<cvf::Vec3d>
     cvf::Vec3d direction       = e1 - e2;
     cvf::Vec3d directionNormal = direction.getNormalized();
     // Make sure normal is pointing down
-    if ( directionNormal.y() > 0.0 ) directionNormal *= -1.0;
+    if ( e1.x() < e2.x() ) directionNormal *= -1.0;
 
     auto rotMat2 = cvf::GeometryTools::rotationMatrixBetweenVectors( directionNormal, cvf::Vec3d::X_AXIS );
     for ( auto& r : relativePos )
