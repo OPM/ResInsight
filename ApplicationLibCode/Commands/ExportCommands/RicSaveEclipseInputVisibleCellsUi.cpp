@@ -19,6 +19,7 @@
 #include "RicSaveEclipseInputVisibleCellsUi.h"
 
 #include "RiaApplication.h"
+#include "RiaPreferences.h"
 
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiOrdering.h"
@@ -53,6 +54,11 @@ RicSaveEclipseInputVisibleCellsUi::RicSaveEclipseInputVisibleCellsUi()
     CAF_PDM_InitField( &visibleActiveCellsValue, "VisibleActiveCellsValue", 1, "Visible Active Cells Value" );
     CAF_PDM_InitField( &hiddenActiveCellsValue, "HiddenActiveCellsValue", 0, "Hidden Active Cells Value" );
     CAF_PDM_InitField( &inactiveCellsValue, "InactiveCellsValue", 0, "Inactive Cells Value" );
+
+    CAF_PDM_InitField( &writeEchoInGrdeclFiles,
+                       "WriteEchoInGrdeclFiles",
+                       RiaPreferences::current()->writeEchoInGrdeclFiles(),
+                       "Write NOECHO and ECHO" );
 
     exportFilename = getDefaultExportPath();
 }
@@ -89,6 +95,7 @@ void RicSaveEclipseInputVisibleCellsUi::defineUiOrdering( QString uiConfigName, 
 {
     uiOrdering.add( &exportFilename );
     uiOrdering.add( &exportKeyword );
+    uiOrdering.add( &writeEchoInGrdeclFiles );
     uiOrdering.add( &visibleActiveCellsValue );
     uiOrdering.add( &hiddenActiveCellsValue );
     uiOrdering.add( &inactiveCellsValue );

@@ -232,6 +232,9 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitField( &m_openExportedPdfInViewer, "openExportedPdfInViewer", false, "Open Exported PDF in Viewer" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_openExportedPdfInViewer );
 
+    CAF_PDM_InitField( &m_writeEchoInGrdeclFiles, "writeEchoInGrdeclFiles", true, "Write NOECHO and ECHO in GRDECL files" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_writeEchoInGrdeclFiles );
+
     CAF_PDM_InitField( &m_useQtChartsPlotByDefault, "useQtChartsPlotByDefault", false, "Use QtChart as Default Plot Type" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useQtChartsPlotByDefault );
 
@@ -446,6 +449,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         caf::PdmUiGroup* exportGroup = uiOrdering.addNewGroup( "Export" );
         exportGroup->add( &csvTextExportFieldSeparator );
         exportGroup->add( &m_openExportedPdfInViewer );
+        exportGroup->add( &m_writeEchoInGrdeclFiles );
     }
     else if ( RiaApplication::enableDevelopmentFeatures() && uiConfigName == RiaPreferences::tabNameSystem() )
     {
@@ -751,6 +755,14 @@ bool RiaPreferences::openExportedPdfInViewer() const
 bool RiaPreferences::useQtChartsAsDefaultPlotType() const
 {
     return m_useQtChartsPlotByDefault;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::writeEchoInGrdeclFiles() const
+{
+    return m_writeEchoInGrdeclFiles;
 }
 
 //--------------------------------------------------------------------------------------------------

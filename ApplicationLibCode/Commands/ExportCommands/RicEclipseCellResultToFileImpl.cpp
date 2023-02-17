@@ -40,6 +40,7 @@ bool RicEclipseCellResultToFileImpl::writePropertyToTextFile( const QString&    
                                                               const QString&      resultName,
                                                               const QString&      eclipseKeyword,
                                                               const double        undefinedValue,
+                                                              bool                writeEchoKeywords,
                                                               QString*            errorMsg )
 {
     CVF_TIGHT_ASSERT( eclipseCase );
@@ -62,6 +63,7 @@ bool RicEclipseCellResultToFileImpl::writePropertyToTextFile( const QString&    
                                   eclipseKeyword,
                                   undefinedValue,
                                   "writePropertyToTextFile",
+                                  writeEchoKeywords,
                                   errorMsg );
 }
 
@@ -75,6 +77,7 @@ bool RicEclipseCellResultToFileImpl::writeBinaryResultToTextFile( const QString&
                                                                   const QString&              eclipseKeyword,
                                                                   const double                undefinedValue,
                                                                   const QString&              logPrefix,
+                                                                  bool                        writeEchoKeywords,
                                                                   QString*                    errorMsg )
 {
     CVF_TIGHT_ASSERT( eclipseCase );
@@ -86,7 +89,14 @@ bool RicEclipseCellResultToFileImpl::writeBinaryResultToTextFile( const QString&
         return false;
     }
 
-    return writeResultToTextFile( fileName, eclipseCase, resultAccessor.p(), eclipseKeyword, undefinedValue, logPrefix, errorMsg );
+    return writeResultToTextFile( fileName,
+                                  eclipseCase,
+                                  resultAccessor.p(),
+                                  eclipseKeyword,
+                                  undefinedValue,
+                                  logPrefix,
+                                  writeEchoKeywords,
+                                  errorMsg );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -98,6 +108,7 @@ bool RicEclipseCellResultToFileImpl::writeResultToTextFile( const QString&      
                                                             const QString&      eclipseKeyword,
                                                             const double        undefinedValue,
                                                             const QString&      logPrefix,
+                                                            bool                writeEchoKeywords,
                                                             QString*            errorMsg )
 {
     CAF_ASSERT( errorMsg != nullptr );
@@ -127,7 +138,7 @@ bool RicEclipseCellResultToFileImpl::writeResultToTextFile( const QString&      
         resultData.push_back( resultValue );
     }
 
-    writeDataToTextFile( &file, eclipseKeyword, resultData );
+    writeDataToTextFile( &file, writeEchoKeywords, eclipseKeyword, resultData );
 
     return true;
 }
@@ -136,6 +147,7 @@ bool RicEclipseCellResultToFileImpl::writeResultToTextFile( const QString&      
 ///
 //--------------------------------------------------------------------------------------------------
 void RicEclipseCellResultToFileImpl::writeDataToTextFile( QFile*                     file,
+                                                          bool                       writeEchoKeywords,
                                                           const QString&             eclipseKeyword,
                                                           const std::vector<double>& resultData )
 {
@@ -143,14 +155,20 @@ void RicEclipseCellResultToFileImpl::writeDataToTextFile( QFile*                
     textstream << "\n";
     textstream << "-- Exported from ResInsight"
                << "\n";
-    textstream << eclipseKeyword << "\n" << qSetFieldWidth( 16 );
+
+    if ( writeEchoKeywords )
+    {
+        textstream << "NOECHO\n";
+    }
+
+    textstream << eclipseKeyword << "\n";
+    textstream.setFieldWidth( 16 );
     textstream.setFieldAlignment( QTextStream::AlignRight );
 
     caf::ProgressInfo pi( resultData.size(), QString( "Writing data to file %1" ).arg( file->fileName() ) );
     size_t            progressSteps = resultData.size() / 20;
 
-    size_t i;
-    for ( i = 0; i < resultData.size(); i++ )
+    for ( auto i = 0; i < resultData.size(); i++ )
     {
         textstream << resultData[i];
 
@@ -168,4 +186,10 @@ void RicEclipseCellResultToFileImpl::writeDataToTextFile( QFile*                
     textstream << "\n"
                << "/"
                << "\n";
+
+    if ( writeEchoKeywords )
+    {
+        textstream.setFieldWidth( 0 );
+        textstream << "ECHO\n";
+    }
 }

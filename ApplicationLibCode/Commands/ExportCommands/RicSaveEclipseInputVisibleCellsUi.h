@@ -49,6 +49,7 @@ public:
     caf::PdmField<int>               visibleActiveCellsValue;
     caf::PdmField<int>               hiddenActiveCellsValue;
     caf::PdmField<int>               inactiveCellsValue;
+    caf::PdmField<bool>              writeEchoInGrdeclFiles;
 
 protected:
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
