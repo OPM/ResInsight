@@ -168,7 +168,7 @@ void RicEclipseCellResultToFileImpl::writeDataToTextFile( QFile*                
     caf::ProgressInfo pi( resultData.size(), QString( "Writing data to file %1" ).arg( file->fileName() ) );
     size_t            progressSteps = resultData.size() / 20;
 
-    for ( auto i = 0; i < resultData.size(); i++ )
+    for ( size_t i = 0; i < resultData.size(); i++ )
     {
         textstream << resultData[i];
 

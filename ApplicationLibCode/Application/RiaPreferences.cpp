@@ -232,7 +232,7 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitField( &m_openExportedPdfInViewer, "openExportedPdfInViewer", false, "Open Exported PDF in Viewer" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_openExportedPdfInViewer );
 
-    CAF_PDM_InitField( &m_writeEchoInGrdeclFiles, "writeEchoInGrdeclFiles", true, "Write NOECHO and ECHO in GRDECL files" );
+    CAF_PDM_InitField( &m_writeEchoInGrdeclFiles, "writeEchoInGrdeclFiles", false, "Write NOECHO and ECHO in GRDECL files" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_writeEchoInGrdeclFiles );
 
     CAF_PDM_InitField( &m_useQtChartsPlotByDefault, "useQtChartsPlotByDefault", false, "Use QtChart as Default Plot Type" );

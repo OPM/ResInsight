@@ -23,6 +23,9 @@
 #include "RiaCellDividingTools.h"
 #include "RiaLogging.h"
 #include "RiaStringEncodingTools.h"
+#include "RiaTextStringTools.h"
+
+#include "ExportCommands/RicEclipseCellResultToFileImpl.h"
 
 #include "RifEclipseInputPropertyLoader.h"
 #include "RifEclipseKeywordContent.h"
@@ -48,7 +51,6 @@
 #include <QFileInfo>
 #include <QTextStream>
 
-#include "RiaTextStringTools.h"
 #include "ert/ecl/ecl_box.hpp"
 #include "ert/ecl/ecl_grid.hpp"
 #include "ert/ecl/ecl_kw.h"
@@ -392,17 +394,23 @@ bool RifEclipseInputFileTools::exportGrid( const QString&         fileName,
 bool RifEclipseInputFileTools::exportKeywords( const QString&              resultFileName,
                                                RigEclipseCaseData*         eclipseCase,
                                                const std::vector<QString>& keywords,
-                                               const QString&              fileWriteMode,
+                                               bool                        writeEchoKeywords,
                                                const cvf::Vec3st&          min,
                                                const cvf::Vec3st&          maxIn,
                                                const cvf::Vec3st&          refinement )
 {
-    FILE* filePtr = util_fopen( RiaStringEncodingTools::toNativeEncoded( resultFileName ).data(),
-                                RiaStringEncodingTools::toNativeEncoded( fileWriteMode ).data() );
-    if ( !filePtr )
+    QFile exportFile( resultFileName );
+    if ( !exportFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
     {
         return false;
     }
+
+    if ( writeEchoKeywords )
+    {
+        QTextStream stream( &exportFile );
+        stream << "NOECHO\n";
+    }
+
     RigCaseCellResultsData* cellResultsData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     RigActiveCellInfo*      activeCells     = cellResultsData->activeCellInfo();
     RigMainGrid*            mainGrid        = eclipseCase->mainGrid();
@@ -464,39 +472,22 @@ bool RifEclipseInputFileTools::exportKeywords( const QString&              resul
             }
         }
 
-        ecl_kw_type* ecl_kw = nullptr;
+        // Multiple keywords can be exported to same file, so write ECHO keywords outside the loop
+        bool writeEchoKeywordsInExporterObject = false;
+        RicEclipseCellResultToFileImpl::writeDataToTextFile( &exportFile,
+                                                             writeEchoKeywordsInExporterObject,
+                                                             keyword,
+                                                             filteredResults );
 
-        if ( keyword.endsWith( "NUM" ) )
-        {
-            std::vector<int> resultValuesInt;
-            resultValuesInt.reserve( filteredResults.size() );
-            for ( double val : filteredResults )
-            {
-                resultValuesInt.push_back( static_cast<int>( val ) );
-            }
-            ecl_kw =
-                ecl_kw_alloc_new( keyword.toLatin1().data(), (int)resultValuesInt.size(), ECL_INT, resultValuesInt.data() );
-        }
-        else
-        {
-            std::vector<float> resultValuesFloat;
-            resultValuesFloat.reserve( filteredResults.size() );
-            for ( double val : filteredResults )
-            {
-                resultValuesFloat.push_back( static_cast<float>( val ) );
-            }
-            ecl_kw = ecl_kw_alloc_new( keyword.toLatin1().data(),
-                                       (int)resultValuesFloat.size(),
-                                       ECL_FLOAT,
-                                       resultValuesFloat.data() );
-        }
-
-        ecl_kw_fprintf_grdecl( ecl_kw, filePtr );
-        ecl_kw_free( ecl_kw );
         progress.incrementProgress();
     }
 
-    fclose( filePtr );
+    if ( writeEchoKeywords )
+    {
+        QTextStream stream( &exportFile );
+        stream << "ECHO\n";
+    }
+
     return true;
 }
 
@@ -738,7 +729,8 @@ bool RifEclipseInputFileTools::importFaultsFromFile( RigEclipseCaseData* eclipse
             if ( f->name() == RiaResultNames::undefinedGridFaultName() ||
                  f->name() == RiaResultNames::undefinedGridFaultName() )
             {
-                // Do not include undefined grid faults, as these are recomputed based on the imported faults from files
+                // Do not include undefined grid faults, as these are recomputed based on the imported faults from
+                // files
                 continue;
             }
 
