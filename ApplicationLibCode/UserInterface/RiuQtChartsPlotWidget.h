@@ -129,6 +129,8 @@ public:
 
     void enableGridLines( RiuPlotAxis axis, bool majorGridLines, bool minorGridLines ) override;
 
+    virtual void
+         setMajorTicksList( RiuPlotAxis axis, const QList<double>& majorTicks, double minValue, double maxValue ) override;
     void setMajorAndMinorTickIntervals( RiuPlotAxis axis,
                                         double      majorTickInterval,
                                         double      minorTickInterval,
