@@ -95,6 +95,7 @@
 #include <QString>
 
 #include <algorithm>
+#include <cmath>
 #include <limits>
 #include <set>
 
