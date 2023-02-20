@@ -807,12 +807,6 @@ void RimSummaryTimeAxisProperties::defineUiOrdering( QString uiConfigName, caf::
         timeGroup->add( &m_visibleTimeRangeMax, false );
         timeGroup->add( &m_visibleDateRangeMin, true );
         timeGroup->add( &m_visibleTimeRangeMin, false );
-        timeGroup->add( &m_automaticDateComponents );
-        if ( !m_automaticDateComponents() )
-        {
-            timeGroup->add( &m_dateComponents );
-            timeGroup->add( &m_timeComponents );
-        }
     }
     else
     {
@@ -821,30 +815,37 @@ void RimSummaryTimeAxisProperties::defineUiOrdering( QString uiConfigName, caf::
         timeGroup->add( &m_visibleTimeSinceStartRangeMin );
     }
 
-    timeGroup->add( &m_valuesFontSize );
-    timeGroup->add( &m_tickmarkType );
+    caf::PdmUiGroup* tickmarkDistributionGroup = timeGroup->addNewGroup( "Tickmark Distribution" );
+    tickmarkDistributionGroup->add( &m_tickmarkType );
     m_tickmarkType.uiCapability()->setUiReadOnly( m_timeMode() == TIME_FROM_SIMULATION_START );
     if ( m_tickmarkType() == TickmarkType::TICKMARK_COUNT )
     {
-        timeGroup->add( &m_majorTickmarkCount );
+        tickmarkDistributionGroup->add( &m_majorTickmarkCount );
     }
     if ( m_tickmarkType() == TickmarkType::TICKMARK_CUSTOM && m_timeMode() == DATE )
     {
-        timeGroup->add( &m_tickmarkInterval );
-        timeGroup->add( &m_tickmarkIntervalStep );
+        tickmarkDistributionGroup->add( &m_tickmarkInterval );
+        tickmarkDistributionGroup->add( &m_tickmarkIntervalStep );
     }
 
+    caf::PdmUiGroup* tickmarkLabelGroup = timeGroup->addNewGroup( "Tickmark Label Format" );
+    tickmarkLabelGroup->setCollapsedByDefault();
+    tickmarkLabelGroup->add( &m_valuesFontSize );
     if ( m_timeMode() == DATE )
     {
-        caf::PdmUiGroup* advancedGroup = timeGroup->addNewGroup( "Date/Time Label Format" );
-        advancedGroup->setCollapsedByDefault();
+        tickmarkLabelGroup->add( &m_automaticDateComponents );
+        if ( !m_automaticDateComponents() )
+        {
+            tickmarkLabelGroup->add( &m_dateComponents );
+            tickmarkLabelGroup->add( &m_timeComponents );
+        }
         if ( m_automaticDateComponents() || m_dateComponents() != RiaDefines::DateFormatComponents::DATE_FORMAT_NONE )
         {
-            advancedGroup->add( &m_dateFormat );
+            tickmarkLabelGroup->add( &m_dateFormat );
         }
         if ( m_automaticDateComponents() || m_timeComponents() != RiaDefines::TimeFormatComponents::TIME_FORMAT_NONE )
         {
-            advancedGroup->add( &m_timeFormat );
+            tickmarkLabelGroup->add( &m_timeFormat );
         }
     }
 
