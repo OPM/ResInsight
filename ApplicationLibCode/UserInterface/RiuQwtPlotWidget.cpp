@@ -389,18 +389,29 @@ void RiuQwtPlotWidget::enableGridLines( RiuPlotAxis axis, bool majorGridLines, b
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::setMajorTicksList( RiuPlotAxis axis, const QList<double>& majorTicks, double minValue, double maxValue )
+{
+    auto        qwtAxis = toQwtPlotAxis( axis );
+    QwtScaleDiv scaleDiv( minValue, maxValue );
+    scaleDiv.setTicks( QwtScaleDiv::TickType::MajorTick, majorTicks );
+    m_plot->setAxisScaleDiv( qwtAxis, scaleDiv );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::setMajorAndMinorTickIntervals( RiuPlotAxis axis,
                                                       double      majorTickInterval,
                                                       double      minorTickInterval,
                                                       double      minValue,
                                                       double      maxValue )
 {
-    auto  qwtAxis     = toQwtPlotAxis( axis );
-    auto* scaleEngine = dynamic_cast<RiuQwtLinearScaleEngine*>( m_plot->axisScaleEngine( qwtAxis ) );
-    if ( scaleEngine )
+    auto  qwtAxis           = toQwtPlotAxis( axis );
+    auto* linearScaleEngine = dynamic_cast<RiuQwtLinearScaleEngine*>( m_plot->axisScaleEngine( qwtAxis ) );
+    if ( linearScaleEngine )
     {
         QwtScaleDiv scaleDiv =
-            scaleEngine->divideScaleWithExplicitIntervals( minValue, maxValue, majorTickInterval, minorTickInterval );
+            linearScaleEngine->divideScaleWithExplicitIntervals( minValue, maxValue, majorTickInterval, minorTickInterval );
 
         m_plot->setAxisScaleDiv( qwtAxis, scaleDiv );
     }

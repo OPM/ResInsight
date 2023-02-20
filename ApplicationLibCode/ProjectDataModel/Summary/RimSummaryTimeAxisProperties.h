@@ -57,6 +57,23 @@ public:
         YEARS
     };
 
+    enum class TickmarkType
+    {
+        TICKMARK_COUNT,
+        TICKMARK_CUSTOM,
+    };
+    using TickmarkTypeEnum = caf::AppEnum<TickmarkType>;
+
+    enum class TickmarkInterval
+    {
+        MINUTES,
+        HOURS,
+        DAYS,
+        MONTHS,
+        YEARS,
+    };
+    using TickmarkIntervalEnum = caf::AppEnum<TickmarkInterval>;
+
     typedef caf::AppEnum<RiaDefines::DateFormatComponents> DateFormatEnum;
     typedef caf::AppEnum<RiaDefines::TimeFormatComponents> TimeFormatEnum;
 
@@ -105,6 +122,14 @@ public:
 
     void setVisibleDateTimeMin( const QDateTime& dateTime );
     void setVisibleDateTimeMax( const QDateTime& dateTime );
+
+    void setTickmarkInterval( TickmarkInterval interval );
+    void setTickmarkIntervalStep( int step );
+
+    QList<double> createTickmarkList( const QDateTime& minDateTime, const QDateTime& maxDateTime ) const;
+    double        getTickmarkIntervalDouble();
+    TickmarkType  tickmarkType() const;
+    std::pair<TickmarkInterval, int> tickmarkIntervalAndStep() const;
 
     LegendTickmarkCount majorTickmarkCount() const override;
     void                setMajorTickmarkCount( LegendTickmarkCount count ) override;
@@ -155,6 +180,9 @@ private:
     caf::PdmField<TimeFormatEnum>                      m_timeComponents;
     caf::PdmField<QString>                             m_dateFormat;
     caf::PdmField<QString>                             m_timeFormat;
+    caf::PdmField<TickmarkTypeEnum>                    m_tickmarkType;
+    caf::PdmField<TickmarkIntervalEnum>                m_tickmarkInterval;
+    caf::PdmField<int>                                 m_tickmarkIntervalStep;
     caf::PdmField<LegendTickmarkCountEnum>             m_majorTickmarkCount;
     caf::PdmChildArrayField<RimPlotAxisAnnotation*>    m_annotations;
 };
