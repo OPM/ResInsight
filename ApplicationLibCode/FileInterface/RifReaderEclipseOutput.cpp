@@ -1304,10 +1304,65 @@ size_t localGridCellIndexFromErtConnection( const RigGridBase*    grid,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint( const RigGridBase*       grid,
+                                                                  const well_conn_type*    ert_connection,
+                                                                  const well_segment_type* segment,
+                                                                  const char*              wellName )
+{
+    CVF_ASSERT( ert_connection );
+    CVF_ASSERT( grid );
+
+    size_t gridCellIndex = localGridCellIndexFromErtConnection( grid, ert_connection, wellName );
+
+    bool   isCellOpen       = well_conn_open( ert_connection );
+    double volumeRate       = well_conn_get_volume_rate( ert_connection );
+    double oilRate          = well_conn_get_oil_rate( ert_connection );
+    double gasRate          = well_conn_get_gas_rate( ert_connection );
+    double waterRate        = well_conn_get_water_rate( ert_connection );
+    double connectionFactor = well_conn_get_connection_factor( ert_connection );
+
+    RigWellResultPoint resultPoint;
+
+    if ( gridCellIndex != cvf::UNDEFINED_SIZE_T )
+    {
+        int branchId, segmentId, outletBranchId, outletSegmentId = -1;
+
+        if ( segment )
+        {
+            branchId  = well_segment_get_branch_id( segment );
+            segmentId = well_segment_get_id( segment );
+
+            auto outletSegment = well_segment_get_outlet( segment );
+            if ( outletSegment )
+            {
+                outletBranchId  = well_segment_get_branch_id( outletSegment );
+                outletSegmentId = well_segment_get_id( outletSegment );
+            }
+        }
+
+        resultPoint.setGridIndex( grid->gridIndex() );
+        resultPoint.setGridCellIndex( gridCellIndex );
+
+        resultPoint.setIsOpen( isCellOpen );
+
+        resultPoint.setSegmentData( branchId, segmentId );
+        resultPoint.setOutletSegmentData( outletBranchId, outletSegmentId );
+
+        const double adjustedGasRate =
+            RiaEclipseUnitTools::convertSurfaceGasFlowRateToOilEquivalents( m_eclipseCase->unitsType(), gasRate );
+        resultPoint.setFlowData( volumeRate, oilRate, adjustedGasRate, waterRate );
+
+        resultPoint.setConnectionFactor( connectionFactor );
+    }
+
+    return resultPoint;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint( const RigGridBase*    grid,
                                                                   const well_conn_type* ert_connection,
-                                                                  int                   ertBranchId,
-                                                                  int                   ertSegmentId,
                                                                   const char*           wellName )
 {
     CVF_ASSERT( ert_connection );
@@ -1330,8 +1385,6 @@ RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint( const RigGridB
         resultPoint.setGridCellIndex( gridCellIndex );
 
         resultPoint.setIsOpen( isCellOpen );
-
-        resultPoint.setSegmentData( ertBranchId, ertSegmentId );
 
         const double adjustedGasRate =
             RiaEclipseUnitTools::convertSurfaceGasFlowRateToOilEquivalents( m_eclipseCase->unitsType(), gasRate );
@@ -1696,7 +1749,7 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
                         well_state_iget_wellhead( ert_well_state, static_cast<int>( gridNr ) );
                     if ( ert_wellhead )
                     {
-                        wellResFrame.m_wellHead = createWellResultPoint( grids[gridNr], ert_wellhead, -1, -1, wellName );
+                        wellResFrame.m_wellHead = createWellResultPoint( grids[gridNr], ert_wellhead, wellName );
 
                         // HACK: Ert returns open as "this is equally wrong as closed for well heads".
                         // Well heads are not open jfr mail communication with HHGS and JH Statoil 07.01.2016
@@ -1757,11 +1810,7 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
                                 {
                                     well_conn_type* ert_connection = well_conn_collection_iget( connections, connIdx );
                                     wellResultBranch.m_branchResultPoints.push_back(
-                                        createWellResultPoint( grids[gridNr],
-                                                               ert_connection,
-                                                               branchId,
-                                                               well_segment_get_id( segment ),
-                                                               wellName ) );
+                                        createWellResultPoint( grids[gridNr], ert_connection, segment, wellName ) );
                                 }
 
                                 segmentHasConnections = true;
@@ -1769,12 +1818,9 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
                                 // Prepare data for segment position calculation
 
                                 well_conn_type*    ert_connection = well_conn_collection_iget( connections, 0 );
-                                RigWellResultPoint point          = createWellResultPoint( grids[gridNr],
-                                                                                  ert_connection,
-                                                                                  branchId,
-                                                                                  well_segment_get_id( segment ),
-                                                                                  wellName );
-                                lastConnectionPos                 = grids[gridNr]->cell( point.cellIndex() ).center();
+                                RigWellResultPoint point =
+                                    createWellResultPoint( grids[gridNr], ert_connection, segment, wellName );
+                                lastConnectionPos = grids[gridNr]->cell( point.cellIndex() ).center();
                                 cvf::Vec3d cellVxes[8];
                                 grids[gridNr]->cellCornerVertices( point.cellIndex(), cellVxes );
                                 lastConnectionCellCorner = cellVxes[0];
@@ -1850,11 +1896,8 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
                                 well_conn_type* ert_connection =
                                     well_conn_collection_iget( connections, connectionCount - 1 );
 
-                                auto resultPoint = createWellResultPoint( grids[gridNr],
-                                                                          ert_connection,
-                                                                          well_segment_get_branch_id( outletSegment ),
-                                                                          well_segment_get_id( outletSegment ),
-                                                                          wellName );
+                                auto resultPoint =
+                                    createWellResultPoint( grids[gridNr], ert_connection, outletSegment, wellName );
                                 // This result point is only supposed to be used to indicate connection to a parent well
                                 // Clear all flow in this result point
                                 resultPoint.clearAllFlow();
@@ -2079,8 +2122,7 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
                         well_state_iget_wellhead( ert_well_state, static_cast<int>( gridNr ) );
                     if ( ert_wellhead )
                     {
-                        RigWellResultPoint wellHeadRp =
-                            createWellResultPoint( grids[gridNr], ert_wellhead, -1, -1, wellName );
+                        RigWellResultPoint wellHeadRp = createWellResultPoint( grids[gridNr], ert_wellhead, wellName );
                         // HACK: Ert returns open as "this is equally wrong as closed for well heads".
                         // Well heads are not open jfr mail communication with HHGS and JH Statoil 07.01.2016
                         wellHeadRp.setIsOpen( false );
@@ -2109,7 +2151,7 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
                             {
                                 well_conn_type*    ert_connection = well_conn_collection_iget( connections, connIdx );
                                 RigWellResultPoint wellRp =
-                                    createWellResultPoint( grids[gridNr], ert_connection, -1, -1, wellName );
+                                    createWellResultPoint( grids[gridNr], ert_connection, wellName );
 
                                 if ( !subCellConnCalc.hasSubCellConnection( wellRp ) )
                                 {
