@@ -19,7 +19,9 @@
 #include "RicEditPreferencesFeature.h"
 
 #include "RiaGuiApplication.h"
+#include "RiaNetworkTools.h"
 #include "RiaPreferences.h"
+
 #include "RimProject.h"
 
 #include "RiuPropertyViewTabWidget.h"
@@ -28,6 +30,8 @@
 #include "cafPdmUiModelChangeDetector.h"
 
 #include <QAction>
+#include <QDialogButtonBox>
+#include <QPushButton>
 
 CAF_CMD_SOURCE_INIT( RicEditPreferencesFeature, "RicEditPreferencesFeature" );
 
@@ -70,6 +74,10 @@ void RicEditPreferencesFeature::onActionTriggered( bool isChecked )
 
     RiuPropertyViewTabWidget propertyDialog( nullptr, app->preferences(), "Preferences", tabNames );
     propertyDialog.setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
+
+    auto pushButton = propertyDialog.dialogButtonBox()->addButton( "Help", QDialogButtonBox::HelpRole );
+    connect( pushButton, &QPushButton::clicked, this, &RicEditPreferencesFeature::showHelp );
+
     if ( propertyDialog.exec() == QDialog::Accepted )
     {
         // Write preferences using QSettings  and apply them to the application
@@ -108,4 +116,12 @@ std::unique_ptr<RiaPreferences> RicEditPreferencesFeature::clonePreferences( con
         preferences->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() );
 
     return std::unique_ptr<RiaPreferences>( dynamic_cast<RiaPreferences*>( pdmClone ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicEditPreferencesFeature::showHelp()
+{
+    RiaNetworkTools::openSearchPage( "preferences" );
 }

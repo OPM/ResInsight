@@ -110,6 +110,7 @@ void RicSaveEclipseResultAsInputPropertyExec::redo()
                                                                                  exportSettings.eclipseKeyword,
                                                                                  exportSettings.undefinedValue,
                                                                                  "saveEclipseResultAsInputPropertyExec",
+                                                                                 exportSettings.writeEchoInGrdeclFiles,
                                                                                  &errMsg );
         if ( !isOk )
         {

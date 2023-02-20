@@ -40,6 +40,7 @@ public:
                                          const QString&      resultName,
                                          const QString&      eclipseKeyword,
                                          const double        undefinedValue,
+                                         bool                writeEchoKeywords,
                                          QString*            errorMsg );
 
     static bool writeBinaryResultToTextFile( const QString&              fileName,
@@ -49,6 +50,7 @@ public:
                                              const QString&              eclipseKeyword,
                                              const double                undefinedValue,
                                              const QString&              logPrefix,
+                                             bool                        writeEchoKeywords,
                                              QString*                    errorMsg );
 
     static bool writeResultToTextFile( const QString&      fileName,
@@ -57,7 +59,11 @@ public:
                                        const QString&      eclipseKeyword,
                                        const double        undefinedValue,
                                        const QString&      logPrefix,
+                                       bool                writeEchoKeywords,
                                        QString*            errorMsg );
 
-    static void writeDataToTextFile( QFile* file, const QString& eclipseKeyword, const std::vector<double>& resultData );
+    static void writeDataToTextFile( QFile*                     file,
+                                     bool                       writeEchoKeywords,
+                                     const QString&             eclipseKeyword,
+                                     const std::vector<double>& resultData );
 };

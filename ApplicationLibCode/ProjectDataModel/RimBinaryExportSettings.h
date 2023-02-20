@@ -35,6 +35,7 @@ public:
     caf::PdmField<QString> fileName;
     caf::PdmField<QString> eclipseKeyword;
     caf::PdmField<double>  undefinedValue;
+    caf::PdmField<bool>    writeEchoInGrdeclFiles;
 
 protected:
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
