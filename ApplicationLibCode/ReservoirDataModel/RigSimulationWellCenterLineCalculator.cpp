@@ -39,6 +39,74 @@
 #include <list>
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<SimulationWellCellBranch>
+    RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( RimSimWellInView* rimWell )
+{
+    std::vector<std::vector<cvf::Vec3d>>         pipeBranchesCLCoords;
+    std::vector<std::vector<RigWellResultPoint>> pipeBranchesCellIds;
+
+    calculateWellPipeStaticCenterline( rimWell, pipeBranchesCLCoords, pipeBranchesCellIds );
+
+    std::vector<SimulationWellCellBranch> simuationBranches;
+    for ( size_t i = 0; i < pipeBranchesCLCoords.size(); i++ )
+    {
+        simuationBranches.emplace_back( std::make_pair( pipeBranchesCLCoords[i], pipeBranchesCellIds[i] ) );
+    }
+
+    return simuationBranches;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<SimulationWellCellBranch>
+    RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellFrame( const RigEclipseCaseData* eclipseCaseData,
+                                                                                     const RigSimWellData* simWellData,
+                                                                                     int  timeStepIndex,
+                                                                                     bool isAutoDetectBranches,
+                                                                                     bool useAllCellCenters )
+{
+    std::vector<std::vector<cvf::Vec3d>>         pipeBranchesCLCoords;
+    std::vector<std::vector<RigWellResultPoint>> pipeBranchesCellIds;
+
+    calculateWellPipeCenterlineFromWellFrame( eclipseCaseData,
+                                              simWellData,
+                                              timeStepIndex,
+                                              isAutoDetectBranches,
+                                              useAllCellCenters,
+                                              pipeBranchesCLCoords,
+                                              pipeBranchesCellIds );
+
+    std::vector<SimulationWellCellBranch> simuationBranches;
+    for ( size_t i = 0; i < pipeBranchesCLCoords.size(); i++ )
+    {
+        simuationBranches.emplace_back( std::make_pair( pipeBranchesCLCoords[i], pipeBranchesCellIds[i] ) );
+    }
+
+    return simuationBranches;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<std::vector<std::vector<cvf::Vec3d>>, std::vector<std::vector<RigWellResultPoint>>>
+    RigSimulationWellCenterLineCalculator::extractBranchData( const std::vector<SimulationWellCellBranch> simulationBranch )
+{
+    std::vector<std::vector<cvf::Vec3d>>         pipeBranchesCLCoords;
+    std::vector<std::vector<RigWellResultPoint>> pipeBranchesCellIds;
+
+    for ( const auto& [coords, wellCells] : simulationBranch )
+    {
+        pipeBranchesCLCoords.emplace_back( coords );
+        pipeBranchesCellIds.emplace_back( wellCells );
+    }
+
+    return { pipeBranchesCLCoords, pipeBranchesCellIds };
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Based on the points and cells, calculate a pipe centerline
 /// The returned CellIds is one less than the number of centerline points,
 /// and are describing the lines between the points, starting with the first line

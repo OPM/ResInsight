@@ -76,9 +76,6 @@ public:
 
     std::vector<const RigWellPath*> wellPipeBranches() const;
 
-    void calculateWellPipeStaticCenterLine( std::vector<std::vector<cvf::Vec3d>>&         pipeBranchesCLCoords,
-                                            std::vector<std::vector<RigWellResultPoint>>& pipeBranchesCellIds );
-
     void   wellHeadTopBottomPosition( int frameIndex, cvf::Vec3d* top, cvf::Vec3d* bottom );
     double pipeRadius();
     int    pipeCrossSectionVertexCount();

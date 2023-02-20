@@ -128,3 +128,5 @@ public:
 
     std::vector<RigWellResultBranch> m_wellResultBranches;
 };
+
+using SimulationWellCellBranch = std::pair<std::vector<cvf::Vec3d>, std::vector<RigWellResultPoint>>;

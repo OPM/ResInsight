@@ -460,18 +460,18 @@ RimWellAllocationOverTimeCollection RimWellAllocationOverTimePlot::createWellAll
             continue;
         }
 
-        std::vector<std::vector<cvf::Vec3d>>          pipeBranchesCLCoords;
-        std::vector<std::vector<RigWellResultPoint>>  pipeBranchesCellIds;
         std::map<QString, const std::vector<double>*> tracerFractionCellValues =
             RimWellAllocationTools::findOrCreateRelevantTracerCellFractions( simWellData, m_flowDiagSolution, i );
 
-        RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellFrame( m_case->eclipseCaseData(),
-                                                                                         simWellData,
-                                                                                         i,
-                                                                                         branchDetection,
-                                                                                         true,
-                                                                                         pipeBranchesCLCoords,
-                                                                                         pipeBranchesCellIds );
+        auto simWellBranches =
+            RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellFrame( m_case->eclipseCaseData(),
+                                                                                             simWellData,
+                                                                                             i,
+                                                                                             branchDetection,
+                                                                                             true );
+
+        const auto& [pipeBranchesCLCoords, pipeBranchesCellIds] =
+            RigSimulationWellCenterLineCalculator::extractBranchData( simWellBranches );
 
         if ( tracerFractionCellValues.size() )
         {
