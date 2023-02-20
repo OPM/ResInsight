@@ -53,6 +53,7 @@ class RiuRelativePermeabilityPlotPanel;
 class RiuPvtPlotPanel;
 class RiuMohrsCirclePlot;
 class RiuMdiArea;
+class RiuSeismicHistogramPanel;
 
 class RicGridCalculatorDialog;
 
@@ -126,6 +127,7 @@ public:
     RiuRelativePermeabilityPlotPanel* relativePermeabilityPlotPanel();
     RiuPvtPlotPanel*                  pvtPlotPanel();
     RiuMohrsCirclePlot*               mohrsCirclePlot();
+    RiuSeismicHistogramPanel*         seismicHistogramPanel();
     RiuMessagePanel*                  messagePanel();
 
     void showProcessMonitorDockPanel();
@@ -186,6 +188,7 @@ private:
     RiuResultQwtPlot*                        m_resultQwtPlot;
     RiuMohrsCirclePlot*                      m_mohrsCirclePlot;
     RiuRelativePermeabilityPlotPanel*        m_relPermPlotPanel;
+    RiuSeismicHistogramPanel*                m_seismicHistogramPanel;
     RiuPvtPlotPanel*                         m_pvtPlotPanel;
     std::unique_ptr<RicGridCalculatorDialog> m_gridCalculatorDialog;
 

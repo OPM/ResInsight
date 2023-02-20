@@ -62,6 +62,7 @@
 #include "RiuRelativePermeabilityPlotPanel.h"
 #include "RiuResultInfoPanel.h"
 #include "RiuResultQwtPlot.h"
+#include "RiuSeismicHistogramPanel.h"
 #include "RiuToolTipMenu.h"
 #include "RiuTreeViewEventFilter.h"
 #include "RiuViewer.h"
@@ -126,6 +127,7 @@ RiuMainWindow::RiuMainWindow()
     , m_pvtPlotPanel( nullptr )
     , m_mohrsCirclePlot( nullptr )
     , m_holoLensToolBar( nullptr )
+    , m_seismicHistogramPanel( nullptr )
 {
     setAttribute( Qt::WA_DeleteOnClose );
 
@@ -858,6 +860,16 @@ void RiuMainWindow::createDockPanels()
         dockManager()->addDockWidgetTabToArea( dockWidget, bottomArea );
     }
 
+    {
+        auto dockWidget = RiuDockWidgetTools::createDockWidget( "Seismic Histogram",
+                                                                RiuDockWidgetTools::mainWindowSeismicHistogramName(),
+                                                                dockManager() );
+
+        m_seismicHistogramPanel = new RiuSeismicHistogramPanel( dockWidget );
+        dockWidget->setWidget( m_seismicHistogramPanel );
+        dockManager()->addDockWidgetTabToArea( dockWidget, bottomArea );
+    }
+
     // result info
     {
         auto dockWidget = RiuDockWidgetTools::createDockWidget( "Result Info", RiuDockWidgetTools::mainWindowResultInfoName(), dockManager() );
@@ -1177,6 +1189,14 @@ RiuMohrsCirclePlot* RiuMainWindow::mohrsCirclePlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiuSeismicHistogramPanel* RiuMainWindow::seismicHistogramPanel()
+{
+    return m_seismicHistogramPanel;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiuMessagePanel* RiuMainWindow::messagePanel()
 {
     return m_messagePanel;
@@ -1464,6 +1484,8 @@ void RiuMainWindow::selectedObjectsChanged()
     updateUiFieldsFromActiveResult( firstSelectedObject );
 
     m_pdmUiPropertyView->showProperties( firstSelectedObject );
+
+    m_seismicHistogramPanel->showHistogram( firstSelectedObject );
 
     if ( uiItems.size() == 1 && m_allowActiveViewChangeFromSelection )
     {

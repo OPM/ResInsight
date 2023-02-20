@@ -51,6 +51,9 @@ public:
     double zMin() const;
     double zMax() const;
 
+    std::vector<double> histogramXvalues() const;
+    std::vector<double> histogramYvalues() const;
+
 protected:
     void                 initAfterRead() override;
     caf::PdmFieldHandle* userDescriptionField() override;
@@ -67,4 +70,6 @@ private:
     caf::PdmChildArrayField<RimGenericParameter*> m_metadata;
 
     std::shared_ptr<cvf::BoundingBox> m_boundingBox;
+    std::vector<double>               m_histogramXvalues;
+    std::vector<double>               m_histogramYvalues;
 };
