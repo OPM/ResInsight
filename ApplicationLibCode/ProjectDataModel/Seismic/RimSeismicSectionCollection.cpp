@@ -144,7 +144,10 @@ void RimSeismicSectionCollection::appendPartsToModel( Rim3dView*                
     {
         if ( section->isChecked() )
         {
-            section->partMgr()->appendGeometryPartsToModel( model, transform, boundingBox );
+            if ( section->seismicData() != nullptr )
+            {
+                section->partMgr()->appendGeometryPartsToModel( model, transform, boundingBox );
+            }
             section->partMgr()->appendPolylinePartsToModel( view, model, transform, boundingBox );
         }
     }

@@ -1881,6 +1881,10 @@ void RiuMainWindow::applyFontSizesToDockedPlots()
     {
         m_pvtPlotPanel->applyFontSizes( true );
     }
+    if ( m_seismicHistogramPanel )
+    {
+        m_seismicHistogramPanel->applyFontSizes( true );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
