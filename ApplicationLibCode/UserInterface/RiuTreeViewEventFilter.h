@@ -40,10 +40,12 @@ public:
     explicit RiuTreeViewEventFilter( QObject* parent, caf::PdmUiTreeView* treeView );
 
     static bool activateFeatureFromKeyEvent( QKeyEvent* keyEvent );
-    static bool activateFirstEnabledFeature( const std::vector<caf::CmdFeature*>& features );
 
 protected:
     bool eventFilter( QObject* obj, QEvent* event ) override;
+
+private:
+    static bool activateFirstEnabledFeature( const std::vector<caf::CmdFeature*>& features );
 
 private:
     caf::PdmUiTreeView* m_projectTreeView;

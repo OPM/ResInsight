@@ -122,6 +122,7 @@ void RicSaveEclipseInputPropertyFeature::onActionTriggered( bool isChecked )
                                                                              inputProperty->resultName,
                                                                              exportSettings.eclipseKeyword,
                                                                              undefinedValue,
+                                                                             exportSettings.writeEchoInGrdeclFiles,
                                                                              &errorMsg );
         if ( isOk )
         {

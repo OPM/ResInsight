@@ -156,15 +156,14 @@ void RicExportEclipseSectorModelFeature::executeCommand( RimEclipseView*        
         if ( exportSettings.exportParameters == RicExportEclipseSectorModelUi::EXPORT_TO_SEPARATE_FILE_PER_RESULT )
         {
             QFileInfo info( exportSettings.exportGridFilename() );
-            QDir      dirPath       = info.absoluteDir();
-            QString   fileWriteMode = "w";
-            for ( QString keyword : keywords )
+            QDir      dirPath = info.absoluteDir();
+            for ( const QString& keyword : keywords )
             {
                 QString fileName = dirPath.absoluteFilePath( keyword + ".GRDECL" );
                 bool    worked   = RifEclipseInputFileTools::exportKeywords( fileName,
                                                                         view->eclipseCase()->eclipseCaseData(),
                                                                         { keyword },
-                                                                        fileWriteMode,
+                                                                        exportSettings.writeEchoKeywords(),
                                                                         min,
                                                                         max,
                                                                         refinement );
@@ -176,18 +175,16 @@ void RicExportEclipseSectorModelFeature::executeCommand( RimEclipseView*        
         }
         else
         {
-            QString fileWriteMode = "w";
-            QString fileName      = exportSettings.exportParametersFilename();
+            QString fileName = exportSettings.exportParametersFilename();
             if ( exportSettings.exportParameters() == RicExportEclipseSectorModelUi::EXPORT_TO_GRID_FILE )
             {
-                fileWriteMode = "a";
-                fileName      = exportSettings.exportGridFilename();
+                fileName = exportSettings.exportGridFilename();
             }
 
             bool worked = RifEclipseInputFileTools::exportKeywords( fileName,
                                                                     view->eclipseCase()->eclipseCaseData(),
                                                                     keywords,
-                                                                    fileWriteMode,
+                                                                    exportSettings.writeEchoKeywords(),
                                                                     min,
                                                                     max,
                                                                     refinement );
@@ -204,7 +201,7 @@ void RicExportEclipseSectorModelFeature::executeCommand( RimEclipseView*        
         auto task = progress.task( "Export Faults", faultsProgressPercentage );
         if ( exportSettings.exportFaults == RicExportEclipseSectorModelUi::EXPORT_TO_SEPARATE_FILE_PER_RESULT )
         {
-            for ( auto faultInView : view->faultCollection()->faults() )
+            for ( const auto& faultInView : view->faultCollection()->faults() )
             {
                 auto    rigFault = faultInView->faultGeometry();
                 QString fileName = QString( "%1.GRDECL" ).arg( rigFault->name() );
@@ -299,17 +296,14 @@ void RicExportEclipseSectorModelFeature::setupActionLook( QAction* actionToSetup
 RimEclipseView* RicExportEclipseSectorModelFeature::selectedView() const
 {
     auto contextViewer = dynamic_cast<RiuViewer*>( caf::CmdFeatureManager::instance()->currentContextMenuTargetWidget() );
-
     if ( contextViewer != nullptr )
     {
         // Command is triggered from viewer
         Rim3dView* activeView = RiaApplication::instance()->activeMainOrComparisonGridView();
         return dynamic_cast<RimEclipseView*>( activeView );
     }
-    else
-    {
-        // Command triggered from project tree or file menu
-        RimEclipseView* view = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimEclipseView>();
-        return view;
-    }
+
+    // Command triggered from project tree or file menu
+    auto view = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimEclipseView>();
+    return view;
 }

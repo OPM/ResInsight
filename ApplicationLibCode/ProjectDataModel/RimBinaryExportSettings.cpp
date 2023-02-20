@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimBinaryExportSettings.h"
+
+#include "RiaPreferences.h"
+
 #include "cafPdmUiFilePathEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimBinaryExportSettings, "RimBinaryExportSettings" );
@@ -32,6 +35,11 @@ RimBinaryExportSettings::RimBinaryExportSettings()
     fileName.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
     CAF_PDM_InitFieldNoDefault( &eclipseKeyword, "EclipseKeyword", "Eclipse Keyword" );
     CAF_PDM_InitField( &undefinedValue, "UndefinedValue", 0.0, "Undefined Value" );
+
+    CAF_PDM_InitField( &writeEchoInGrdeclFiles,
+                       "WriteEchoInGrdeclFiles",
+                       RiaPreferences::current()->writeEchoInGrdeclFiles(),
+                       "Write NOECHO and ECHO" );
 }
 
 //--------------------------------------------------------------------------------------------------

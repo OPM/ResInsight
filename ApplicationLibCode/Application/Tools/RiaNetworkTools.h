@@ -28,6 +28,8 @@
 class RiaNetworkTools
 {
 public:
+    static void openSearchPage( const QString& searchText );
+    static void openUrlWithErrorReporting( const QString& urlString );
     static void openUrl( const QString& urlString );
     static void createAndOpenUrlWithFallback( const QString& urlSubString );
     static void openUrlWithFallback( const QStringList& urlList );

@@ -70,7 +70,7 @@ public:
     static bool exportKeywords( const QString&              resultFileName,
                                 RigEclipseCaseData*         eclipseCase,
                                 const std::vector<QString>& keywords,
-                                const QString&              fileWriteMode,
+                                bool                        writeEchoKeywords,
                                 const cvf::Vec3st&          min        = cvf::Vec3st::ZERO,
                                 const cvf::Vec3st&          max        = cvf::Vec3st::UNDEFINED,
                                 const cvf::Vec3st&          refinement = cvf::Vec3st( 1, 1, 1 ) );
@@ -142,10 +142,6 @@ private:
 
     static void readKeywordDataContent( QFile& data, qint64 filePos, QStringList* textContent, bool* isEditKeywordDetected );
 
-    static bool readDataFromKeyword( ecl_kw_type*        eclipseKeywordData,
-                                     RigEclipseCaseData* caseData,
-                                     const QString&      resultName,
-                                     QString*            errMsg );
     static void findGridKeywordPositions( const std::vector<RifKeywordAndFilePos>& keywords,
                                           qint64*                                  coordPos,
                                           qint64*                                  zcornPos,

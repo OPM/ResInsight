@@ -105,7 +105,10 @@ void RicSaveEclipseInputVisibleCellsFeature::executeCommand( RimEclipseView*    
         return;
     }
 
-    RicEclipseCellResultToFileImpl::writeDataToTextFile( &exportFile, exportSettings.exportKeyword().text(), values );
+    RicEclipseCellResultToFileImpl::writeDataToTextFile( &exportFile,
+                                                         exportSettings.writeEchoInGrdeclFiles,
+                                                         exportSettings.exportKeyword().text(),
+                                                         values );
 }
 
 //--------------------------------------------------------------------------------------------------

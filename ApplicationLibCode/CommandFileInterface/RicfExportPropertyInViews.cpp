@@ -152,12 +152,14 @@ caf::PdmScriptResponse RicfExportPropertyInViews::execute()
 
         QString errorMsg;
 
-        bool worked = RicEclipseCellResultToFileImpl::writeResultToTextFile( filePath,
+        bool writeEchoKeywords = false;
+        bool worked            = RicEclipseCellResultToFileImpl::writeResultToTextFile( filePath,
                                                                              eclipseCase->eclipseCaseData(),
                                                                              resultAccessor.p(),
                                                                              propertyName,
                                                                              m_undefinedValue,
                                                                              "exportPropertiesInViews",
+                                                                             writeEchoKeywords,
                                                                              &errorMsg );
         if ( !worked )
         {

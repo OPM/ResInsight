@@ -19,6 +19,7 @@
 #include "RicExportEclipseSectorModelUi.h"
 
 #include "RiaApplication.h"
+#include "RiaPreferences.h"
 #include "RiaResultNames.h"
 
 #include "RigActiveCellInfo.h"
@@ -117,6 +118,11 @@ RicExportEclipseSectorModelUi::RicExportEclipseSectorModelUi()
     CAF_PDM_InitField( &m_exportParametersFilename, "ExportParamsFilename", QString(), "File Name" );
 
     CAF_PDM_InitFieldNoDefault( &selectedKeywords, "ExportMainKeywords", "Keywords to Export" );
+
+    CAF_PDM_InitField( &m_writeEchoInGrdeclFiles,
+                       "WriteEchoInGrdeclFiles",
+                       RiaPreferences::current()->writeEchoInGrdeclFiles(),
+                       "Write NOECHO and ECHO" );
 
     CAF_PDM_InitFieldNoDefault( &m_exportFolder, "ExportFolder", "Export Folder" );
     m_exportFolder = defaultFolder();
@@ -354,6 +360,8 @@ void RicExportEclipseSectorModelUi::defineUiOrdering( QString uiConfigName, caf:
     else if ( uiConfigName == m_tabNames[1] )
     {
         caf::PdmUiGroup* resultsGroup = uiOrdering.addNewGroup( "Parameter Export" );
+
+        resultsGroup->add( &m_writeEchoInGrdeclFiles );
 
         resultsGroup->add( &exportParameters );
         if ( exportParameters() != EXPORT_NO_RESULTS )
@@ -607,4 +615,12 @@ QString RicExportEclipseSectorModelUi::exportGridFilename() const
 QString RicExportEclipseSectorModelUi::exportParametersFilename() const
 {
     return m_exportFolder().path() + "/" + m_exportParametersFilename();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicExportEclipseSectorModelUi::writeEchoKeywords() const
+{
+    return m_writeEchoInGrdeclFiles;
 }

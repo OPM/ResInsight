@@ -110,6 +110,7 @@ caf::PdmScriptResponse RicfExportProperty::execute()
         eclipseKeyword = m_propertyName;
     }
 
+    bool    writeEchoKeywords = false;
     QString errMsg;
     if ( !RicEclipseCellResultToFileImpl::writePropertyToTextFile( filePath,
                                                                    eclipseCase->eclipseCaseData(),
@@ -117,6 +118,7 @@ caf::PdmScriptResponse RicfExportProperty::execute()
                                                                    m_propertyName,
                                                                    eclipseKeyword,
                                                                    m_undefinedValue,
+                                                                   writeEchoKeywords,
                                                                    &errMsg ) )
     {
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, errMsg );

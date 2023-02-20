@@ -22,6 +22,7 @@
 
 #include "RiaApplication.h"
 #include "RiaBaseDefs.h"
+#include "RiaNetworkTools.h"
 #include "RiaVersionInfo.h"
 
 #include "RiuMainWindow.h"
@@ -243,12 +244,7 @@ void RicHelpOpenUsersGuideFeature::onActionTriggered( bool isChecked )
     this->disableModelChangeContribution();
 
     QString usersGuideUrl = "https://resinsight.org/getting-started/overview/";
-
-    if ( !QDesktopServices::openUrl( usersGuideUrl ) )
-    {
-        QErrorMessage* errorHandler = QErrorMessage::qtHandler();
-        errorHandler->showMessage( "Failed open browser with the following url\n\n" + usersGuideUrl );
-    }
+    RiaNetworkTools::openUrlWithErrorReporting( usersGuideUrl );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -258,7 +254,6 @@ void RicHelpOpenUsersGuideFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "&Users Guide" );
     actionToSetup->setIcon( QIcon( ":/HelpCircle.svg" ) );
-    // applyShortcutWithHintToAction( actionToSetup, QKeySequence::HelpContents );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -284,11 +279,7 @@ void RicSearchHelpFeature::onActionTriggered( bool isChecked )
         usersGuideUrl = "https://resinsight.org/search/?q=" + uiItem->uiName();
     }
 
-    if ( !QDesktopServices::openUrl( usersGuideUrl ) )
-    {
-        QErrorMessage* errorHandler = QErrorMessage::qtHandler();
-        errorHandler->showMessage( "Failed open browser with the following url\n\n" + usersGuideUrl );
-    }
+    RiaNetworkTools::openUrlWithErrorReporting( usersGuideUrl );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -325,12 +316,7 @@ bool RicSearchIssuesHelpFeature::isCommandEnabled()
 void RicSearchIssuesHelpFeature::onActionTriggered( bool isChecked )
 {
     QString usersGuideUrl = "https://github.com/OPM/ResInsight/issues";
-
-    if ( !QDesktopServices::openUrl( usersGuideUrl ) )
-    {
-        QErrorMessage* errorHandler = QErrorMessage::qtHandler();
-        errorHandler->showMessage( "Failed open browser with the following url\n\n" + usersGuideUrl );
-    }
+    RiaNetworkTools::openUrlWithErrorReporting( usersGuideUrl );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -356,12 +342,7 @@ bool RicCreateNewIssueHelpFeature::isCommandEnabled()
 void RicCreateNewIssueHelpFeature::onActionTriggered( bool isChecked )
 {
     QString usersGuideUrl = "https://github.com/OPM/ResInsight/issues/new";
-
-    if ( !QDesktopServices::openUrl( usersGuideUrl ) )
-    {
-        QErrorMessage* errorHandler = QErrorMessage::qtHandler();
-        errorHandler->showMessage( "Failed open browser with the following url\n\n" + usersGuideUrl );
-    }
+    RiaNetworkTools::openUrlWithErrorReporting( usersGuideUrl );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -19,12 +19,35 @@
 #include "RiaNetworkTools.h"
 
 #include <QDesktopServices>
+#include <QErrorMessage>
 #include <QEventLoop>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QStringList>
 #include <QUrl>
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaNetworkTools::openSearchPage( const QString& searchText )
+{
+    QString url = QString( "https://resinsight.org/search/?q=" ) + searchText;
+
+    RiaNetworkTools::openUrl( url );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaNetworkTools::openUrlWithErrorReporting( const QString& urlString )
+{
+    if ( !QDesktopServices::openUrl( urlString ) )
+    {
+        QErrorMessage* errorHandler = QErrorMessage::qtHandler();
+        errorHandler->showMessage( "Failed open browser with the following url\n\n" + urlString );
+    }
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

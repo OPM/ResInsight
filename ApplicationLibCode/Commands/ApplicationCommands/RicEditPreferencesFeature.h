@@ -36,4 +36,7 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
     static std::unique_ptr<RiaPreferences> clonePreferences( const RiaPreferences* preferences );
+
+private:
+    void showHelp();
 };

@@ -77,6 +77,7 @@ public:
     QString exportFaultsFilename() const;
     QString exportGridFilename() const;
     QString exportParametersFilename() const;
+    bool    writeEchoKeywords() const;
 
     caf::PdmField<bool> exportGrid;
     caf::PdmField<bool> exportInLocalCoordinates;
@@ -120,6 +121,7 @@ private:
     caf::PdmField<QString>       m_exportFaultsFilename;
     caf::PdmField<QString>       m_exportParametersFilename;
     caf::PdmField<QString>       m_exportGridFilename;
+    caf::PdmField<bool>          m_writeEchoInGrdeclFiles;
 
     RigEclipseCaseData* m_caseData;
     cvf::Vec3i          m_visibleMin;
