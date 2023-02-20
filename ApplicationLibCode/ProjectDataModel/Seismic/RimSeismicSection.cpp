@@ -74,7 +74,7 @@ RimSeismicSection::RimSeismicSection()
     CAF_PDM_InitField( &m_sphereColor, "SphereColor", cvf::Color3f( cvf::Color3f::WHITE ), "Sphere Color" );
 
     this->setUi3dEditorTypeName( RicPolyline3dEditor::uiEditorTypeName() );
-    this->uiCapability()->setUiTreeChildrenHidden( true );
+    // this->uiCapability()->setUiTreeChildrenHidden( true );
 
     setDeletable( true );
 }
