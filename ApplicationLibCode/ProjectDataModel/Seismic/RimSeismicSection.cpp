@@ -18,6 +18,9 @@
 
 #include "RimSeismicSection.h"
 
+#include "RiuMainWindow.h"
+#include "RiuSeismicHistogramPanel.h"
+
 #include "Rim3dView.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSeismicData.h"
@@ -371,6 +374,19 @@ void RimSeismicSection::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
     }
     else if ( changedField != &m_userDescription )
     {
+        if ( changedField == &m_seismicData )
+        {
+            RiuMainWindow::instance()->seismicHistogramPanel()->showHistogram( m_seismicData() );
+        }
+
         updateVisualization();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSeismicData* RimSeismicSection::seismicData() const
+{
+    return m_seismicData();
 }

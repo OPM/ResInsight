@@ -49,6 +49,7 @@
 #include "RiuRelativePermeabilityPlotUpdater.h"
 #include "RiuResultQwtPlot.h"
 #include "RiuResultTextBuilder.h"
+#include "RiuSeismicHistogramPanel.h"
 
 #include <QStatusBar>
 

@@ -25,8 +25,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifSeismicZGYReader::RifSeismicZGYReader( QString filename )
-    : m_filename( filename )
+RifSeismicZGYReader::RifSeismicZGYReader()
+    : m_filename( "" )
     , m_reader( nullptr )
 {
 }
@@ -41,14 +41,16 @@ RifSeismicZGYReader::~RifSeismicZGYReader()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifSeismicZGYReader::Open()
+bool RifSeismicZGYReader::open( QString filename )
 {
-    if ( m_reader != nullptr ) return false;
+    if ( isOpen() ) close();
+
+    m_filename = filename;
 
     try
     {
         m_reader = std::make_shared<ZGYAccess::ZGYReader>();
-        m_reader->Open( m_filename.toStdString() );
+        m_reader->Open( filename.toStdString() );
     }
     catch ( const std::exception& err )
     {
@@ -62,9 +64,17 @@ bool RifSeismicZGYReader::Open()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifSeismicZGYReader::Close()
+bool RifSeismicZGYReader::isOpen() const
 {
-    if ( m_reader == nullptr ) return;
+    return m_reader != nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifSeismicZGYReader::close()
+{
+    if ( !isOpen() ) return;
 
     try
     {
@@ -86,7 +96,7 @@ std::vector<std::pair<QString, QString>> RifSeismicZGYReader::metaData()
 {
     std::vector<std::pair<QString, QString>> retValues;
 
-    if ( m_reader == nullptr ) return retValues;
+    if ( !isOpen() ) return retValues;
 
     auto stats = m_reader->MetaData();
 
@@ -105,7 +115,7 @@ cvf::BoundingBox RifSeismicZGYReader::boundingBox()
 {
     cvf::BoundingBox retBox;
 
-    if ( m_reader != nullptr )
+    if ( isOpen() )
     {
         auto [zmin, zmax] = m_reader->ZRange();
 
@@ -118,4 +128,17 @@ cvf::BoundingBox RifSeismicZGYReader::boundingBox()
     }
 
     return retBox;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifSeismicZGYReader::histogramData( std::vector<double>& xvals, std::vector<double>& yvals )
+{
+    if ( !isOpen() ) return;
+
+    auto histdata = m_reader->histogram();
+
+    xvals = histdata->Xvalues;
+    yvals = histdata->Yvalues;
 }
