@@ -1083,7 +1083,7 @@ void RimSummaryPlot::updateZoomForNumericalAxis( RimPlotAxisProperties* axisProp
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateZoomForTimeAxis( RimSummaryTimeAxisProperties* timeAxisProperties )
 {
-    if ( !timeAxisProperties ) return;
+    if ( !timeAxisProperties || !plotWidget() ) return;
 
     if ( timeAxisProperties->isAutoZoom() )
     {
@@ -1102,7 +1102,7 @@ void RimSummaryPlot::updateZoomForTimeAxis( RimSummaryTimeAxisProperties* timeAx
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::createAndSetCustomTimeAxisTickmarks( RimSummaryTimeAxisProperties* timeAxisProperties )
 {
-    if ( !timeAxisProperties ) return;
+    if ( !timeAxisProperties || !plotWidget() ) return;
 
     const auto [minValue, maxValue] = plotWidget()->axisRange( RiuPlotAxis::defaultBottom() );
     const auto tickmarkList =
