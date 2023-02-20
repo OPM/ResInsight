@@ -266,11 +266,15 @@ private:
     bool                                  hasVisibleCurvesForAxis( RiuPlotAxis plotAxis ) const;
     std::vector<RimSummaryCurve*>         visibleStackedSummaryCurvesForAxis( RiuPlotAxis plotAxis );
 
-    void updateAxis( RiaDefines::PlotAxis plotAxis );
-
-    void updateZoomForAxis( RiuPlotAxis plotAxis );
-
+    void updateNumericalAxis( RiaDefines::PlotAxis plotAxis );
+    void updateZoomForAxis( RimPlotAxisPropertiesInterface* axisProperties );
+    void updateZoomForNumericalAxis( RimPlotAxisProperties* axisProperties );
     void updateTimeAxis( RimSummaryTimeAxisProperties* timeAxisProperties );
+    void updateZoomForTimeAxis( RimSummaryTimeAxisProperties* timeAxisProperties );
+
+    void createAndSetCustomTimeAxisTickmarks( RimSummaryTimeAxisProperties* timeAxisProperties );
+    void overrideTimeAxisSettingsIfTooManyCustomTickmarks( RimSummaryTimeAxisProperties* timeAxisProperties,
+                                                           bool                          showMessageBox );
 
     void deletePlotCurvesAndPlotWidget();
 
@@ -285,12 +289,14 @@ private:
 
     void connectAxisSignals( RimPlotAxisProperties* axis );
     void axisSettingsChanged( const caf::SignalEmitter* emitter );
-    void axisSettingsChangedReloadRequired( const caf::SignalEmitter* emitter );
     void axisLogarithmicChanged( const caf::SignalEmitter* emitter, bool isLogarithmic );
     void axisPositionChanged( const caf::SignalEmitter* emitter,
                               RimPlotAxisProperties*    axisProperties,
                               RiuPlotAxis               oldPlotAxis,
                               RiuPlotAxis               newPlotAxis );
+
+    void timeAxisSettingsChanged( const caf::SignalEmitter* emitter );
+    void timeAxisSettingsChangedReloadRequired( const caf::SignalEmitter* emitter );
 
     void assignPlotAxis( RimSummaryCurve* curve );
 
@@ -330,7 +336,7 @@ private:
     caf::PdmChildField<RimPlotAxisProperties*>        m_bottomAxisProperties_OBSOLETE;
     caf::PdmChildField<RimSummaryTimeAxisProperties*> m_timeAxisProperties_OBSOLETE;
 
-    caf::PdmChildArrayField<RimPlotAxisPropertiesInterface*> m_axisProperties;
+    caf::PdmChildArrayField<RimPlotAxisPropertiesInterface*> m_axisPropertiesArray;
 
     caf::PdmChildField<RimSummaryPlotFilterTextCurveSetEditor*> m_textCurveSetEditor;
 

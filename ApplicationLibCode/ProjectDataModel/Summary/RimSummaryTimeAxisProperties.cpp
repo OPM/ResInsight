@@ -63,6 +63,25 @@ void caf::AppEnum<RimSummaryTimeAxisProperties::TimeUnitType>::setUp()
     setDefault( RimSummaryTimeAxisProperties::YEARS );
 }
 
+template <>
+void RimSummaryTimeAxisProperties::TickmarkTypeEnum::setUp()
+{
+    addItem( RimSummaryTimeAxisProperties::TickmarkType::TICKMARK_COUNT, "COUNT", "Count" );
+    addItem( RimSummaryTimeAxisProperties::TickmarkType::TICKMARK_CUSTOM, "CUSTOM", "Custom" );
+    setDefault( RimSummaryTimeAxisProperties::TickmarkType::TICKMARK_COUNT );
+}
+
+template <>
+void RimSummaryTimeAxisProperties::TickmarkIntervalEnum::setUp()
+{
+    addItem( RimSummaryTimeAxisProperties::TickmarkInterval::MINUTES, "MINUTES", "Minutes" );
+    addItem( RimSummaryTimeAxisProperties::TickmarkInterval::HOURS, "HOURS", "Hours" );
+    addItem( RimSummaryTimeAxisProperties::TickmarkInterval::DAYS, "DAYS", "Days" );
+    addItem( RimSummaryTimeAxisProperties::TickmarkInterval::MONTHS, "MONTHS", "Months" );
+    addItem( RimSummaryTimeAxisProperties::TickmarkInterval::YEARS, "YEARS", "Years" );
+    setDefault( RimSummaryTimeAxisProperties::TickmarkInterval::YEARS );
+}
+
 } // namespace caf
 
 CAF_PDM_SOURCE_INIT( RimSummaryTimeAxisProperties, "SummaryTimeAxisProperties" );
@@ -119,6 +138,14 @@ RimSummaryTimeAxisProperties::RimSummaryTimeAxisProperties()
     CAF_PDM_InitFieldNoDefault( &m_timeFormat, "TimeFormat", "Time Label Format" );
     m_timeFormat.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     m_timeFormat = RiaPreferences::current()->timeFormat();
+
+    CAF_PDM_InitFieldNoDefault( &m_tickmarkType, "TickmarkType", "Tickmark Type" );
+    m_tickmarkType.uiCapability()->enableAutoValueSupport( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_tickmarkInterval, "TickmarkInterval", "Tickmark Interval" );
+    m_tickmarkInterval.uiCapability()->enableAutoValueSupport( true );
+
+    CAF_PDM_InitField( &m_tickmarkIntervalStep, "TickmarkIntervalStep", 1, "Tickmark Interval Step" );
 
     CAF_PDM_InitFieldNoDefault( &m_majorTickmarkCount, "MajorTickmarkCount", "Major Tickmark Count" );
     m_majorTickmarkCount.uiCapability()->enableAutoValueSupport( true );
@@ -357,6 +384,160 @@ void RimSummaryTimeAxisProperties::setVisibleDateTimeMax( const QDateTime& dateT
 {
     m_visibleDateRangeMax = dateTime.date();
     m_visibleTimeRangeMax = dateTime.time();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryTimeAxisProperties::setTickmarkInterval( TickmarkInterval interval )
+{
+    m_tickmarkInterval = interval;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryTimeAxisProperties::setTickmarkIntervalStep( int step )
+{
+    m_tickmarkIntervalStep = step;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Create evenly distributed tickmarks between min and max with rounded values dependent on
+/// the currently active tickmark step.
+//--------------------------------------------------------------------------------------------------
+QList<double> RimSummaryTimeAxisProperties::createTickmarkList( const QDateTime& minDateTime,
+                                                                const QDateTime& maxDateTime ) const
+{
+    const auto& [tickmarkInterval, tickmarkStep] = tickmarkIntervalAndStep();
+
+    // Ensure no infinite loop
+    if ( tickmarkStep < 1 ) return {};
+
+    // Convert from list of QDateTime items to double values for Qwt
+    auto toDoubleList = []( const QList<QDateTime>& dateTimeList ) {
+        QList<double> output;
+        for ( const auto& elm : dateTimeList )
+        {
+            output.push_back( QwtDate::toDouble( elm ) );
+        }
+        return output;
+    };
+
+    QList<QDateTime> dateTimeList;
+    if ( tickmarkInterval == RimSummaryTimeAxisProperties::TickmarkInterval::YEARS )
+    {
+        dateTimeList = { QDateTime( QDate( minDateTime.date().year(), 1, 1 ), QTime( 0, 0 ), Qt::UTC ) };
+        while ( dateTimeList.back() < maxDateTime )
+        {
+            const auto nextYear = dateTimeList.back().addYears( tickmarkStep );
+            dateTimeList.push_back( nextYear );
+        }
+    }
+    else if ( tickmarkInterval == RimSummaryTimeAxisProperties::TickmarkInterval::MONTHS )
+    {
+        dateTimeList = { QDateTime( QDate( minDateTime.date().year(), 1, 1 ), QTime( 0, 0 ), Qt::UTC ) };
+        while ( dateTimeList.back() < maxDateTime )
+        {
+            const auto nextMonth = dateTimeList.back().addMonths( tickmarkStep );
+            dateTimeList.push_back( nextMonth );
+        }
+    }
+    else if ( tickmarkInterval == RimSummaryTimeAxisProperties::TickmarkInterval::DAYS )
+    {
+        dateTimeList = { QDateTime( QDate( minDateTime.date().year(), minDateTime.date().month(), minDateTime.date().day() ),
+                                    QTime( 0, 0 ),
+                                    Qt::UTC ) };
+        while ( dateTimeList.back() < maxDateTime )
+        {
+            const auto nextDay = dateTimeList.back().addDays( tickmarkStep );
+            dateTimeList.push_back( nextDay );
+        }
+    }
+    else if ( tickmarkInterval == RimSummaryTimeAxisProperties::TickmarkInterval::HOURS )
+    {
+        dateTimeList = { QDateTime( QDate( minDateTime.date().year(), minDateTime.date().month(), minDateTime.date().day() ),
+                                    QTime( minDateTime.time().hour(), 0 ),
+                                    Qt::UTC ) };
+        while ( dateTimeList.back() < maxDateTime )
+        {
+            const auto nextHour = dateTimeList.back().addSecs( static_cast<qint64>( tickmarkStep * 60 * 60 ) );
+            dateTimeList.push_back( nextHour );
+        }
+    }
+    else if ( tickmarkInterval == RimSummaryTimeAxisProperties::TickmarkInterval::MINUTES )
+    {
+        dateTimeList = { QDateTime( QDate( minDateTime.date().year(), minDateTime.date().month(), minDateTime.date().day() ),
+                                    QTime( minDateTime.time().hour(), minDateTime.time().minute() ),
+                                    Qt::UTC ) };
+        while ( dateTimeList.back() < maxDateTime )
+        {
+            const auto nextMinute = dateTimeList.back().addSecs( static_cast<qint64>( tickmarkStep * 60 ) );
+            dateTimeList.push_back( nextMinute );
+        }
+    }
+    else
+    {
+        CAF_ASSERT( "Tickmark interval type not handled!" );
+    }
+
+    return toDoubleList( dateTimeList );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimSummaryTimeAxisProperties::getTickmarkIntervalDouble()
+{
+    const auto& [tickmarkInterval, tickmarkStep] = tickmarkIntervalAndStep();
+
+    QDateTime initialInterval = QDateTime::fromMSecsSinceEpoch( 0 );
+    if ( tickmarkInterval == RimSummaryTimeAxisProperties::TickmarkInterval::YEARS )
+    {
+        auto interval = initialInterval.addYears( tickmarkStep );
+        return QwtDate::toDouble( interval );
+    }
+    if ( tickmarkInterval == RimSummaryTimeAxisProperties::TickmarkInterval::MONTHS )
+    {
+        auto interval = initialInterval.addMonths( tickmarkStep );
+        return QwtDate::toDouble( interval );
+    }
+    if ( tickmarkInterval == RimSummaryTimeAxisProperties::TickmarkInterval::DAYS )
+    {
+        auto interval = initialInterval.addDays( static_cast<qint64>( tickmarkStep ) );
+        return QwtDate::toDouble( interval );
+    }
+    if ( tickmarkInterval == RimSummaryTimeAxisProperties::TickmarkInterval::HOURS )
+    {
+        const qint64 secs     = static_cast<qint64>( tickmarkStep ) * 60 * 60;
+        auto         interval = initialInterval.addSecs( secs );
+        return QwtDate::toDouble( interval );
+    }
+    if ( tickmarkInterval == RimSummaryTimeAxisProperties::TickmarkInterval::MINUTES )
+    {
+        const qint64 secs     = static_cast<qint64>( tickmarkStep ) * 60;
+        auto         interval = initialInterval.addSecs( secs );
+        return QwtDate::toDouble( interval );
+    }
+
+    CAF_ASSERT( "Tickmark interval type not handled!" );
+    return 0.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryTimeAxisProperties::TickmarkType RimSummaryTimeAxisProperties::tickmarkType() const
+{
+    return m_tickmarkType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<RimSummaryTimeAxisProperties::TickmarkInterval, int> RimSummaryTimeAxisProperties::tickmarkIntervalAndStep() const
+{
+    return std::pair<TickmarkInterval, int>( m_tickmarkInterval(), m_tickmarkIntervalStep() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -641,7 +822,17 @@ void RimSummaryTimeAxisProperties::defineUiOrdering( QString uiConfigName, caf::
     }
 
     timeGroup->add( &m_valuesFontSize );
-    timeGroup->add( &m_majorTickmarkCount );
+    timeGroup->add( &m_tickmarkType );
+    m_tickmarkType.uiCapability()->setUiReadOnly( m_timeMode() == TIME_FROM_SIMULATION_START );
+    if ( m_tickmarkType() == TickmarkType::TICKMARK_COUNT )
+    {
+        timeGroup->add( &m_majorTickmarkCount );
+    }
+    if ( m_tickmarkType() == TickmarkType::TICKMARK_CUSTOM && m_timeMode() == DATE )
+    {
+        timeGroup->add( &m_tickmarkInterval );
+        timeGroup->add( &m_tickmarkIntervalStep );
+    }
 
     if ( m_timeMode() == DATE )
     {
@@ -720,15 +911,26 @@ void RimSummaryTimeAxisProperties::fieldChangedByUi( const caf::PdmFieldHandle* 
         updateDateVisibleRange();
         m_isAutoZoom = false;
     }
-    else if ( changedField == &m_timeMode || changedField == &m_timeUnit || changedField == &m_dateFormat ||
-              changedField == &m_timeFormat )
+    else if ( changedField == &m_timeMode )
+    {
+        if ( m_timeMode() == TimeModeType::TIME_FROM_SIMULATION_START )
+        {
+            m_tickmarkType = TickmarkType::TICKMARK_COUNT;
+        }
+        // Changing this setting requires a full update of the plot
+        requestLoadDataAndUpdate.send();
+        return;
+    }
+    else if ( changedField == &m_timeUnit || changedField == &m_dateFormat || changedField == &m_timeFormat )
     {
         // Changing these settings requires a full update of the plot
         requestLoadDataAndUpdate.send();
         return;
     }
-
-    rimSummaryPlot->updateAxes();
+    else if ( changedField == &m_tickmarkType && m_tickmarkType == TickmarkType::TICKMARK_CUSTOM )
+    {
+        m_isAutoZoom = false;
+    }
 
     settingsChanged.send();
 }

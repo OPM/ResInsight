@@ -412,6 +412,14 @@ void RiuQtChartsPlotWidget::enableGridLines( RiuPlotAxis axis, bool majorGridLin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotWidget::setMajorTicksList( RiuPlotAxis axis, const QList<double>& majorTicks, double minValue, double maxValue )
+{
+    CAF_ASSERT( "setMajorTicksList()-method not implemented for RiuQtChartsPlotWidget!" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::setMajorAndMinorTickIntervals( RiuPlotAxis axis,
                                                            double      majorTickInterval,
                                                            double      minorTickInterval,
