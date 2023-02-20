@@ -1199,8 +1199,8 @@ QString RiuResultTextBuilder::wellResultText()
                 text += QString( "-- Well-cell connection info --\n Well Name: %1\n Branch Id: %2\n Segment "
                                  "Id: %3\n" )
                             .arg( singleWellResultData->m_wellName )
-                            .arg( wellResultCell->m_ertBranchId )
-                            .arg( wellResultCell->m_ertSegmentId );
+                            .arg( wellResultCell->branchId() )
+                            .arg( wellResultCell->segmentId() );
             }
         }
     }

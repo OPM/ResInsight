@@ -411,9 +411,9 @@ void RimStreamlineInViewCollection::findStartCells( int                         
         {
             for ( const auto& point : branch.m_branchResultPoints )
             {
-                if ( point.isValid() && point.m_isOpen )
+                if ( point.isValid() && point.isOpen() )
                 {
-                    RigCell cell = grids[point.m_gridIndex]->cell( point.m_gridCellIndex );
+                    RigCell cell = grids[point.gridIndex()]->cell( point.cellIndex() );
                     if ( frame->m_productionType == RiaDefines::WellProductionType::PRODUCER )
                     {
                         outProducerCells.push_back( std::pair<QString, RigCell>( swdata->m_wellName, cell ) );

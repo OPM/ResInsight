@@ -405,8 +405,8 @@ void RigReservoirBuilderMock::addWellData( RigEclipseCaseData* eclipseCase, RigG
             wellCells.m_productionType = RiaDefines::WellProductionType::PRODUCER;
             wellCells.m_isOpen         = true;
 
-            wellCells.m_wellHead.m_gridIndex     = 0;
-            wellCells.m_wellHead.m_gridCellIndex = grid->cellIndexFromIJK( 1, 0, 0 );
+            wellCells.m_wellHead.setGridIndex( 0 );
+            wellCells.m_wellHead.setGridCellIndex( grid->cellIndexFromIJK( 1, 0, 0 ) );
 
             // Connections
             //            int connectionCount = std::min(dim.x(), std::min(dim.y(), dim.z())) - 2;
@@ -423,53 +423,53 @@ void RigReservoirBuilderMock::addWellData( RigEclipseCaseData* eclipseCase, RigG
                     if ( connIdx == ( size_t )( connectionCount / 4 ) ) continue;
 
                     RigWellResultPoint data;
-                    data.m_gridIndex = 0;
+                    data.setGridIndex( 0 );
 
                     if ( connIdx < dim.y() - 2 )
-                        data.m_gridCellIndex = grid->cellIndexFromIJK( 1, 1 + connIdx, 1 + connIdx );
+                        data.setGridCellIndex( grid->cellIndexFromIJK( 1, 1 + connIdx, 1 + connIdx ) );
                     else
-                        data.m_gridCellIndex = grid->cellIndexFromIJK( 1, dim.y() - 2, 1 + connIdx );
+                        data.setGridCellIndex( grid->cellIndexFromIJK( 1, dim.y() - 2, 1 + connIdx ) );
 
                     if ( connIdx < connectionCount / 2 )
                     {
-                        data.m_isOpen = true;
+                        data.setIsOpen( true );
                     }
                     else
                     {
-                        data.m_isOpen = false;
+                        data.setIsOpen( false );
                     }
 
                     if ( wellSegment.m_branchResultPoints.size() == 0 ||
-                         wellSegment.m_branchResultPoints.back().m_gridCellIndex != data.m_gridCellIndex )
+                         wellSegment.m_branchResultPoints.back().cellIndex() != data.cellIndex() )
                     {
                         wellSegment.m_branchResultPoints.push_back( data );
 
                         if ( connIdx == connectionCount / 2 )
                         {
                             RigWellResultPoint deadEndData = data;
-                            deadEndData.m_gridCellIndex    = data.m_gridCellIndex + 1;
-                            deadEndData.m_isOpen           = true;
+                            deadEndData.setGridCellIndex( data.cellIndex() + 1 );
+                            deadEndData.setIsOpen( true );
 
                             RigWellResultPoint deadEndData1 = data;
-                            deadEndData1.m_gridCellIndex    = data.m_gridCellIndex + 2;
-                            deadEndData1.m_isOpen           = false;
+                            deadEndData1.setGridCellIndex( data.cellIndex() + 2 );
+                            deadEndData1.setIsOpen( false );
 
                             wellSegment.m_branchResultPoints.push_back( deadEndData );
                             wellSegment.m_branchResultPoints.push_back( deadEndData1 );
 
                             wellSegment.m_branchResultPoints.push_back( deadEndData );
 
-                            data.m_isOpen = true;
+                            data.setIsOpen( true );
                             wellSegment.m_branchResultPoints.push_back( data );
                         }
                     }
 
                     if ( connIdx < dim.y() - 2 )
                     {
-                        data.m_gridCellIndex = grid->cellIndexFromIJK( 1, 1 + connIdx, 2 + connIdx );
+                        data.setGridCellIndex( grid->cellIndexFromIJK( 1, 1 + connIdx, 2 + connIdx ) );
 
                         if ( wellSegment.m_branchResultPoints.size() == 0 ||
-                             wellSegment.m_branchResultPoints.back().m_gridCellIndex != data.m_gridCellIndex )
+                             wellSegment.m_branchResultPoints.back().cellIndex() != data.cellIndex() )
                         {
                             wellSegment.m_branchResultPoints.push_back( data );
                         }

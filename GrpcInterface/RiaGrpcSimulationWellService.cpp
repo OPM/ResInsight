@@ -125,8 +125,8 @@ grpc::Status RiaGrpcSimulationWellService::GetSimulationWellCells( grpc::ServerC
                     size_t                        i;
                     size_t                        j;
                     size_t                        k;
-                    size_t                        gridIdx = resPoint.m_gridIndex;
-                    grids[gridIdx]->ijkFromCellIndex( resPoint.m_gridCellIndex, &i, &j, &k );
+                    size_t                        gridIdx = resPoint.gridIndex();
+                    grids[gridIdx]->ijkFromCellIndex( resPoint.cellIndex(), &i, &j, &k );
 
                     Vec3i* ijk = new Vec3i;
                     ijk->set_i( i );
@@ -135,9 +135,9 @@ grpc::Status RiaGrpcSimulationWellService::GetSimulationWellCells( grpc::ServerC
 
                     cellInfo->set_allocated_ijk( ijk );
                     cellInfo->set_grid_index( gridIdx );
-                    cellInfo->set_is_open( resPoint.m_isOpen );
-                    cellInfo->set_branch_id( resPoint.m_ertBranchId );
-                    cellInfo->set_segment_id( resPoint.m_ertSegmentId );
+                    cellInfo->set_is_open( resPoint.isOpen() );
+                    cellInfo->set_branch_id( resPoint.branchId() );
+                    cellInfo->set_segment_id( resPoint.segmentId() );
                 }
             }
         }

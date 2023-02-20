@@ -88,13 +88,13 @@ void RivWellSpheresPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicLi
     {
         for ( const RigWellResultPoint& wellResultPoint : wellResultBranch.m_branchResultPoints )
         {
-            size_t gridIndex = wellResultPoint.m_gridIndex;
+            size_t gridIndex = wellResultPoint.gridIndex();
 
             if ( gridIndex >= mainGrid->gridCount() ) continue;
 
             const RigGridBase* rigGrid = mainGrid->gridByIndex( gridIndex );
 
-            size_t gridCellIndex = wellResultPoint.m_gridCellIndex;
+            size_t gridCellIndex = wellResultPoint.cellIndex();
             if ( gridCellIndex >= rigGrid->cellCount() ) continue;
 
             const RigCell& rigCell = rigGrid->cell( gridCellIndex );
@@ -210,7 +210,7 @@ cvf::Color3f RivWellSpheresPartMgr::wellCellColor( const RigWellResultFrame* wel
 
     if ( wellColl )
     {
-        if ( wellResultPoint.m_isOpen )
+        if ( wellResultPoint.isOpen() )
         {
             switch ( wellResultFrame->m_productionType )
             {

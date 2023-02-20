@@ -1726,14 +1726,14 @@ void RimEclipseView::calculateVisibleWellCellsIncFence( cvf::UByteArray* visible
                     const std::vector<RigWellResultPoint>& wsResCells = wellResSegments[wsIdx].m_branchResultPoints;
                     for ( size_t cIdx = 0; cIdx < wsResCells.size(); ++cIdx )
                     {
-                        if ( wsResCells[cIdx].m_gridIndex == grid->gridIndex() )
+                        if ( wsResCells[cIdx].gridIndex() == grid->gridIndex() )
                         {
                             if ( !wsResCells[cIdx].isCell() )
                             {
                                 continue;
                             }
 
-                            size_t gridCellIndex             = wsResCells[cIdx].m_gridCellIndex;
+                            size_t gridCellIndex             = wsResCells[cIdx].cellIndex();
                             ( *visibleCells )[gridCellIndex] = true;
 
                             // Calculate well fence cells

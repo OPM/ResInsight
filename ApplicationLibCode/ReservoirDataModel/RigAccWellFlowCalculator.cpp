@@ -718,9 +718,9 @@ std::vector<double>
 
     if ( m_tracerCellFractionValues )
     {
-        if ( wellCell.isCell() && wellCell.m_isOpen )
+        if ( wellCell.isCell() && wellCell.isOpen() )
         {
-            size_t resCellIndex = m_cellIndexCalculator.resultCellIndex( wellCell.m_gridIndex, wellCell.m_gridCellIndex );
+            size_t resCellIndex = m_cellIndexCalculator.resultCellIndex( wellCell.gridIndex(), wellCell.cellIndex() );
             size_t tracerIdx    = 0;
             double totalTracerFractionInCell = 0.0;
             for ( const auto& tracerFractionValsPair : ( *m_tracerCellFractionValues ) )
@@ -776,24 +776,23 @@ std::vector<size_t>
 
     if ( clSegIdx < 0 ) return resPointToConnectionIndexFromBottom;
 
-    size_t prevGridIdx     = branchCells[clSegIdx].m_gridIndex;
-    size_t prevGridCellIdx = branchCells[clSegIdx].m_gridCellIndex;
-    int    prevErtSegId    = branchCells[clSegIdx].m_ertSegmentId;
-    int    prevErtBranchId = branchCells[clSegIdx].m_ertBranchId;
+    size_t prevGridIdx     = branchCells[clSegIdx].gridIndex();
+    size_t prevGridCellIdx = branchCells[clSegIdx].cellIndex();
+    int    prevErtSegId    = branchCells[clSegIdx].segmentId();
+    int    prevErtBranchId = branchCells[clSegIdx].branchId();
 
     while ( clSegIdx >= 0 )
     {
-        if ( branchCells[clSegIdx].isValid() && ( branchCells[clSegIdx].m_gridIndex != prevGridIdx ||
-                                                  branchCells[clSegIdx].m_gridCellIndex != prevGridCellIdx ||
-                                                  branchCells[clSegIdx].m_ertSegmentId != prevErtSegId ||
-                                                  branchCells[clSegIdx].m_ertBranchId != prevErtBranchId ) )
+        if ( branchCells[clSegIdx].isValid() &&
+             ( branchCells[clSegIdx].gridIndex() != prevGridIdx || branchCells[clSegIdx].cellIndex() != prevGridCellIdx ||
+               branchCells[clSegIdx].segmentId() != prevErtSegId || branchCells[clSegIdx].branchId() != prevErtBranchId ) )
         {
             ++connIdxFromBottom;
 
-            prevGridIdx     = branchCells[clSegIdx].m_gridIndex;
-            prevGridCellIdx = branchCells[clSegIdx].m_gridCellIndex;
-            prevErtSegId    = branchCells[clSegIdx].m_ertSegmentId;
-            prevErtBranchId = branchCells[clSegIdx].m_ertBranchId;
+            prevGridIdx     = branchCells[clSegIdx].gridIndex();
+            prevGridCellIdx = branchCells[clSegIdx].cellIndex();
+            prevErtSegId    = branchCells[clSegIdx].segmentId();
+            prevErtBranchId = branchCells[clSegIdx].branchId();
         }
 
         resPointToConnectionIndexFromBottom[clSegIdx] = connIdxFromBottom;
@@ -822,10 +821,10 @@ std::vector<size_t> RigAccWellFlowCalculator::findDownStreamBranchIdxs( const Ri
 
     for ( size_t bIdx = 0; bIdx < m_pipeBranchesWellResultPoints.size(); ++bIdx )
     {
-        if ( m_pipeBranchesWellResultPoints[bIdx][0].m_gridIndex == connectionPoint.m_gridIndex &&
-             m_pipeBranchesWellResultPoints[bIdx][0].m_gridCellIndex == connectionPoint.m_gridCellIndex &&
-             m_pipeBranchesWellResultPoints[bIdx][0].m_ertBranchId == connectionPoint.m_ertBranchId &&
-             m_pipeBranchesWellResultPoints[bIdx][0].m_ertSegmentId == connectionPoint.m_ertSegmentId )
+        if ( m_pipeBranchesWellResultPoints[bIdx][0].gridIndex() == connectionPoint.gridIndex() &&
+             m_pipeBranchesWellResultPoints[bIdx][0].cellIndex() == connectionPoint.cellIndex() &&
+             m_pipeBranchesWellResultPoints[bIdx][0].branchId() == connectionPoint.branchId() &&
+             m_pipeBranchesWellResultPoints[bIdx][0].segmentId() == connectionPoint.segmentId() )
         {
             downStreamBranchIdxs.push_back( bIdx );
         }
