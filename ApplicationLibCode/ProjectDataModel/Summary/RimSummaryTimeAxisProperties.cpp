@@ -823,11 +823,12 @@ void RimSummaryTimeAxisProperties::defineUiOrdering( QString uiConfigName, caf::
 
     timeGroup->add( &m_valuesFontSize );
     timeGroup->add( &m_tickmarkType );
-    if ( m_tickmarkType == TickmarkType::TICKMARK_COUNT )
+    m_tickmarkType.uiCapability()->setUiReadOnly( m_timeMode() == TIME_FROM_SIMULATION_START );
+    if ( m_tickmarkType() == TickmarkType::TICKMARK_COUNT )
     {
         timeGroup->add( &m_majorTickmarkCount );
     }
-    if ( m_tickmarkType == TickmarkType::TICKMARK_CUSTOM )
+    if ( m_tickmarkType() == TickmarkType::TICKMARK_CUSTOM && m_timeMode() == DATE )
     {
         timeGroup->add( &m_tickmarkInterval );
         timeGroup->add( &m_tickmarkIntervalStep );
@@ -910,8 +911,17 @@ void RimSummaryTimeAxisProperties::fieldChangedByUi( const caf::PdmFieldHandle* 
         updateDateVisibleRange();
         m_isAutoZoom = false;
     }
-    else if ( changedField == &m_timeMode || changedField == &m_timeUnit || changedField == &m_dateFormat ||
-              changedField == &m_timeFormat )
+    else if ( changedField == &m_timeMode )
+    {
+        if ( m_timeMode() == TimeModeType::TIME_FROM_SIMULATION_START )
+        {
+            m_tickmarkType = TickmarkType::TICKMARK_COUNT;
+        }
+        // Changing this setting requires a full update of the plot
+        requestLoadDataAndUpdate.send();
+        return;
+    }
+    else if ( changedField == &m_timeUnit || changedField == &m_dateFormat || changedField == &m_timeFormat )
     {
         // Changing these settings requires a full update of the plot
         requestLoadDataAndUpdate.send();
