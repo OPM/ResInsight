@@ -73,6 +73,8 @@ public:
     RivSeismicSectionPartMgr* partMgr();
     void                      rebuildGeometry();
 
+    RimSeismicData* seismicData() const;
+
 protected:
     void                 initAfterRead() override;
     caf::PdmFieldHandle* userDescriptionField() override;

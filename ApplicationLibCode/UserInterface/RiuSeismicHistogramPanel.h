@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2022  Equinor ASA
+//  Copyright (C) 2023     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,40 +18,35 @@
 
 #pragma once
 
-#include <QString>
+#include <QPointer>
+#include <QWidget>
 
-#include <memory>
-#include <utility>
+#include "cafPdmObject.h"
+
 #include <vector>
 
-namespace ZGYAccess
-{
-class ZGYReader;
-}
+class RiuDockedQwtPlot;
+class RiuSelectionItem;
 
-namespace cvf
+//==================================================================================================
+//
+//
+//
+//==================================================================================================
+class RiuSeismicHistogramPanel : public QWidget
 {
-class BoundingBox;
-}
+    Q_OBJECT
 
-class RifSeismicZGYReader
-{
 public:
-    RifSeismicZGYReader();
-    ~RifSeismicZGYReader();
+    RiuSeismicHistogramPanel( QWidget* parent );
+    ~RiuSeismicHistogramPanel() override;
 
-    bool open( QString filename );
-    void close();
+    void setPlotData( QString title, std::vector<double> xvals, std::vector<double> yvals );
+    void clearPlot();
+    void applyFontSizes( bool replot );
 
-    bool isOpen() const;
-
-    std::vector<std::pair<QString, QString>> metaData();
-
-    cvf::BoundingBox boundingBox();
-
-    void histogramData( std::vector<double>& xvals, std::vector<double>& yvals );
+    void showHistogram( caf::PdmObjectHandle* selectedObject );
 
 private:
-    QString                               m_filename;
-    std::shared_ptr<ZGYAccess::ZGYReader> m_reader;
+    QPointer<RiuDockedQwtPlot> m_qwtPlot;
 };

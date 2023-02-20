@@ -117,9 +117,9 @@ void RimSeismicData::updateMetaData()
 {
     m_metadata.deleteChildren();
 
-    RifSeismicZGYReader reader( m_filename );
+    RifSeismicZGYReader reader;
 
-    if ( !reader.Open() ) return;
+    if ( !reader.open( m_filename ) ) return;
 
     auto metadata = reader.metaData();
 
@@ -134,7 +134,9 @@ void RimSeismicData::updateMetaData()
     m_boundingBox->reset();
     m_boundingBox->add( reader.boundingBox() );
 
-    reader.Close();
+    reader.histogramData( m_histogramXvalues, m_histogramYvalues );
+
+    reader.close();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -188,4 +190,20 @@ double RimSeismicData::zMin() const
 double RimSeismicData::zMax() const
 {
     return m_boundingBox.get()->max().z();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimSeismicData::histogramXvalues() const
+{
+    return m_histogramXvalues;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RimSeismicData::histogramYvalues() const
+{
+    return m_histogramYvalues;
 }
