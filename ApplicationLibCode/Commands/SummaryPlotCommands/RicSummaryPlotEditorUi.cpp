@@ -509,7 +509,7 @@ void RicSummaryPlotEditorUi::updatePreviewCurvesFromCurveDefinitions(
                 curveSet = new RimEnsembleCurveSet();
                 curveSet->disableStatisticCurves();
                 curveSet->setSummaryCaseCollection( curveDef.ensemble() );
-                curveSet->setSummaryAddress( curveDef.summaryAddress() );
+                curveSet->setSummaryAddressAndStatisticsFlag( curveDef.summaryAddress() );
 
                 // Set single curve set color
                 auto   allCurveSets = m_previewPlot->ensembleCurveSetCollection()->curveSets();

@@ -107,6 +107,7 @@ public:
     void deleteCurve( RimSummaryCurve* curve );
 
     void                          setSummaryAddress( RifEclipseSummaryAddress address );
+    void                          setSummaryAddressAndStatisticsFlag( RifEclipseSummaryAddress address );
     RifEclipseSummaryAddress      summaryAddress() const;
     std::vector<RimSummaryCurve*> curves() const;
 
