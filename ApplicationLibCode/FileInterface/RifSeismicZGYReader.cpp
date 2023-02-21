@@ -142,3 +142,13 @@ void RifSeismicZGYReader::histogramData( std::vector<double>& xvals, std::vector
     xvals = histdata->Xvalues;
     yvals = histdata->Yvalues;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> RifSeismicZGYReader::dataRange()
+{
+    if ( !isOpen() ) return std::make_pair( 0.0, 0.0 );
+
+    return m_reader->DataRange();
+}

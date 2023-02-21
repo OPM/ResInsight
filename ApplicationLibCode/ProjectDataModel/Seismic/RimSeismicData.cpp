@@ -21,6 +21,9 @@
 #include "RifSeismicZGYReader.h"
 #include "RimStringParameter.h"
 
+#include "RiuMainWindow.h"
+#include "RiuSeismicHistogramPanel.h"
+
 #include "cafPdmUiTableViewEditor.h"
 
 #include "cvfBoundingBox.h"
@@ -49,6 +52,9 @@ RimSeismicData::RimSeismicData()
     m_metadata.uiCapability()->setUiTreeHidden( true );
     m_metadata.uiCapability()->setUiReadOnly( true );
     m_metadata.xmlCapability()->disableIO();
+
+    CAF_PDM_InitField( &m_overrideDataRange, "overrideDataRange", false, "Override Data Range" );
+    CAF_PDM_InitFieldNoDefault( &m_maxAbsDataValue, "maxAbsDataValue", "Clip Value" );
 
     setDeletable( true );
 
@@ -134,7 +140,12 @@ void RimSeismicData::updateMetaData()
     m_boundingBox->reset();
     m_boundingBox->add( reader.boundingBox() );
 
+    auto [minDataValue, maxDataValue] = reader.dataRange();
+    m_maxAbsDataValue                 = std::max( std::abs( minDataValue ), std::abs( maxDataValue ) );
+
     reader.histogramData( m_histogramXvalues, m_histogramYvalues );
+
+    updateDataRange( false );
 
     reader.close();
 }
@@ -146,7 +157,20 @@ void RimSeismicData::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 {
     if ( m_metadata.empty() ) updateMetaData();
 
-    caf::PdmObject::defineUiOrdering( uiConfigName, uiOrdering );
+    uiOrdering.add( &m_userDescription );
+    uiOrdering.add( &m_filename );
+
+    auto dsGroup = uiOrdering.addNewGroup( "Data Scaling" );
+    dsGroup->add( &m_overrideDataRange );
+
+    if ( m_overrideDataRange() )
+    {
+        dsGroup->add( &m_maxAbsDataValue );
+    }
+
+    uiOrdering.add( &m_metadata );
+
+    uiOrdering.skipRemainingFields();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -197,7 +221,7 @@ double RimSeismicData::zMax() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimSeismicData::histogramXvalues() const
 {
-    return m_histogramXvalues;
+    return m_clippedHistogramXvalues;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -205,5 +229,50 @@ std::vector<double> RimSeismicData::histogramXvalues() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimSeismicData::histogramYvalues() const
 {
-    return m_histogramYvalues;
+    return m_clippedHistogramYvalues;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicData::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                       const QVariant&            oldValue,
+                                       const QVariant&            newValue )
+{
+    if ( ( changedField == &m_overrideDataRange ) || ( changedField == &m_maxAbsDataValue ) )
+    {
+        updateDataRange( true );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicData::updateDataRange( bool updatePlot )
+{
+    m_clippedHistogramXvalues.clear();
+    m_clippedHistogramYvalues.clear();
+
+    if ( m_overrideDataRange() )
+    {
+        const int nVals = (int)m_histogramXvalues.size();
+
+        for ( int i = 0; i < nVals; i++ )
+        {
+            double tmp = std::abs( m_histogramXvalues[i] );
+            if ( tmp > m_maxAbsDataValue ) continue;
+            m_clippedHistogramXvalues.push_back( m_histogramXvalues[i] );
+            m_clippedHistogramYvalues.push_back( m_histogramYvalues[i] );
+        }
+    }
+    else
+    {
+        for ( auto val : m_histogramXvalues )
+            m_clippedHistogramXvalues.push_back( val );
+
+        for ( auto val : m_histogramYvalues )
+            m_clippedHistogramYvalues.push_back( val );
+    }
+
+    if ( updatePlot ) RiuMainWindow::instance()->seismicHistogramPanel()->showHistogram( this );
 }
