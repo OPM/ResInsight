@@ -51,6 +51,8 @@ public:
 
     void histogramData( std::vector<double>& xvals, std::vector<double>& yvals );
 
+    std::pair<double, double> dataRange();
+
 private:
     QString                               m_filename;
     std::shared_ptr<ZGYAccess::ZGYReader> m_reader;
