@@ -61,15 +61,24 @@ protected:
     void                 defineEditorAttribute( const caf::PdmFieldHandle* field,
                                                 QString                    uiConfigName,
                                                 caf::PdmUiEditorAttribute* attribute ) override;
+    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     cvf::BoundingBox* boundingBox() const;
+
+private:
+    void updateDataRange( bool updatePlot );
 
 private:
     caf::PdmField<QString>                        m_filename;
     caf::PdmField<QString>                        m_userDescription;
     caf::PdmChildArrayField<RimGenericParameter*> m_metadata;
 
+    caf::PdmField<bool>   m_overrideDataRange;
+    caf::PdmField<double> m_maxAbsDataValue;
+
     std::shared_ptr<cvf::BoundingBox> m_boundingBox;
     std::vector<double>               m_histogramXvalues;
     std::vector<double>               m_histogramYvalues;
+    std::vector<double>               m_clippedHistogramXvalues;
+    std::vector<double>               m_clippedHistogramYvalues;
 };
