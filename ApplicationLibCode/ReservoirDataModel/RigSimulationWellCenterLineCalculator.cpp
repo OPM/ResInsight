@@ -19,6 +19,8 @@
 
 #include "RigSimulationWellCenterLineCalculator.h"
 
+#include "RiaLogging.h"
+
 #include "RigCell.h"
 #include "RigCellFaceGeometryTools.h"
 #include "RigEclipseCaseData.h"
@@ -139,6 +141,49 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline(
                                               useAllCellCenters,
                                               pipeBranchesCLCoords,
                                               pipeBranchesCellIds );
+
+    bool printDebug = true;
+    if ( printDebug )
+    {
+        QString txt;
+
+        for ( size_t branchIdx = 0; branchIdx < pipeBranchesCLCoords.size(); branchIdx++ )
+        {
+            std::vector<RigWellResultPoint>& branchCells = pipeBranchesCellIds[branchIdx];
+            for ( const auto& resultPoint : branchCells )
+            {
+                size_t i, j, k = 0;
+                if ( resultPoint.isCell() )
+                {
+                    auto grid = eclipseCaseData->grid( resultPoint.gridIndex() );
+                    grid->ijkFromCellIndex( resultPoint.cellIndex(), &i, &j, &k );
+                }
+
+                QString myTxt;
+                int     fieldWidth = 3;
+                myTxt += QString( "Ri branch index: %1 " ).arg( branchIdx, fieldWidth );
+                myTxt += QString( "Seg: %1 Branch: %2 " )
+                             .arg( resultPoint.segmentId(), fieldWidth )
+                             .arg( resultPoint.branchId(), fieldWidth );
+                myTxt +=
+                    QString( "Grid %1 %2 %3 " ).arg( i + 1, fieldWidth ).arg( j + 1, fieldWidth ).arg( k + 1, fieldWidth );
+                myTxt += QString( "OutSeg: %1 OutBranch: %2 " )
+                             .arg( resultPoint.outletSegmentId(), fieldWidth )
+                             .arg( resultPoint.outletBranchId(), fieldWidth );
+
+                int coordFieldWidth = 12;
+                myTxt += QString( "Bottom pos: %1 %2 %3 " )
+                             .arg( resultPoint.bottomPosition().x(), coordFieldWidth )
+                             .arg( resultPoint.bottomPosition().y(), coordFieldWidth )
+                             .arg( resultPoint.bottomPosition().z(), coordFieldWidth );
+
+                myTxt += "\n";
+                txt += myTxt;
+            }
+        }
+
+        RiaLogging::debug( txt );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
