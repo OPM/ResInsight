@@ -43,6 +43,134 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<SimulationWellCellBranch> RigSimulationWellCenterLineCalculator::aggregatedMswWells( RimSimWellInView* rimWell )
+{
+    CVF_ASSERT( rimWell );
+
+    const RigSimWellData* simWellData = rimWell->simWellData();
+    if ( !simWellData ) return {};
+
+    RimEclipseView* eclipseView;
+    rimWell->firstAncestorOrThisOfType( eclipseView );
+
+    CVF_ASSERT( eclipseView );
+
+    RigEclipseCaseData* eclipseCaseData = eclipseView->eclipseCase()->eclipseCaseData();
+
+    int timeStepIndex = -1;
+
+    return calculateaggregatedMswWellsFrame( eclipseCaseData, simWellData, timeStepIndex );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<SimulationWellCellBranch>
+    RigSimulationWellCenterLineCalculator::calculateaggregatedMswWellsFrame( const RigEclipseCaseData* eclipseCaseData,
+                                                                             const RigSimWellData*     wellResults,
+                                                                             int                       timeStepIndex )
+{
+    // 1. create all main well branches based on segment info
+    // 2. for all small branches, add completed grid cells to a list for each segment
+
+    if ( timeStepIndex >= 0 && !wellResults->hasAnyValidCells( timeStepIndex ) ) return {};
+
+    const RigWellResultFrame* wellFramePtr = nullptr;
+
+    if ( timeStepIndex < 0 )
+    {
+        wellFramePtr = wellResults->staticWellCells();
+    }
+    else
+    {
+        wellFramePtr = wellResults->wellResultFrame( timeStepIndex );
+    }
+
+    bool isMultiSegmentWell = wellResults->isMultiSegmentWell();
+
+    const RigWellResultFrame&               wellFrame   = *wellFramePtr;
+    const std::vector<RigWellResultBranch>& resBranches = wellFrame.m_wellResultBranches;
+
+    struct SegmentConnection
+    {
+        int segmentId;
+        int outputSegmentId;
+        int outputSegmentBranchId;
+    };
+
+    struct WellBranch
+    {
+        int              m_branchId;
+        std::vector<int> m_segmentIds;
+
+        std::map<std::pair<size_t, size_t>, SegmentConnection> m_gridCellsConnectedToSegments;
+
+        bool containsGridCell( std::pair<size_t, size_t> gridAndCellIndex )
+        {
+            return m_gridCellsConnectedToSegments.contains( gridAndCellIndex );
+        };
+    };
+
+    std::vector<WellBranch> longWellBranches;
+    std::vector<WellBranch> shortWellBranches;
+
+    for ( const auto& resultBranch : resBranches )
+    {
+        WellBranch branch;
+        branch.m_branchId = resultBranch.m_ertBranchId;
+
+        for ( const auto& resPoint : resultBranch.m_branchResultPoints )
+        {
+            size_t gridIndex     = resPoint.gridIndex();
+            size_t gridCellIndex = resPoint.cellIndex();
+
+            auto gridAndCellIndex = std::make_pair( gridIndex, gridCellIndex );
+            if ( !branch.containsGridCell( gridAndCellIndex ) )
+            {
+                SegmentConnection conn{ resPoint.segmentId(), resPoint.outletSegmentId(), resPoint.outletBranchId() };
+                branch.m_gridCellsConnectedToSegments[gridAndCellIndex] = conn;
+            }
+        }
+
+        const int gridCellCountThreshold = 3;
+        if ( branch.m_gridCellsConnectedToSegments.size() > gridCellCountThreshold )
+        {
+            longWellBranches.push_back( branch );
+        }
+        else
+        {
+            shortWellBranches.push_back( branch );
+        }
+
+        for ( const auto& branch : shortWellBranches )
+        {
+            for ( const auto& [gridAndCellIndex, segmentConnection] : branch.m_gridCellsConnectedToSegments )
+            {
+                for ( auto& longBranch : longWellBranches )
+                {
+                    if ( longBranch.m_branchId == segmentConnection.outputSegmentBranchId )
+                    {
+                        SegmentConnection conn{ segmentConnection.outputSegmentId, -1, -1 };
+
+                        longBranch.m_gridCellsConnectedToSegments[gridAndCellIndex] = conn;
+                    }
+                }
+            }
+        }
+    }
+
+    // Well head
+    // Match this position with well head position in RivWellHeadPartMgr::buildWellHeadParts()
+    //     const RigCell& whCell     = eclipseCaseData->cellFromWellResultCell(
+    //     wellFrame.wellHeadOrStartCell()
+    //     ); cvf::Vec3d     whStartPos = whCell.faceCenter( cvf::StructGridInterface::NEG_K );
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<SimulationWellCellBranch>
     RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( RimSimWellInView* rimWell )
 {
@@ -250,13 +378,14 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellF
 
     const RigWellResultPoint* prevWellResPoint = nullptr;
 
-    // CVF_ASSERT(isMultiSegmentWell ||  resBranches.size() <= 1); // TODO : Consider to set isMultiSegmentWell = true;
+    // CVF_ASSERT(isMultiSegmentWell ||  resBranches.size() <= 1); // TODO : Consider to set
+    // isMultiSegmentWell = true;
 
     // The centerline is calculated by adding a point when the pipe enters a cell,
     // and one when the line leaves the cell.
     // For the sake of the loop:
-    // The currentResultPoint (Cell) and the one we index by the loop variable is the one we calculate the entry point
-    // to. The previous cell is the one we leave, and calculate the "out-point" from
+    // The currentResultPoint (Cell) and the one we index by the loop variable is the one we calculate the
+    // entry point to. The previous cell is the one we leave, and calculate the "out-point" from
 
     for ( size_t brIdx = 0; brIdx < resBranches.size(); brIdx++ )
     {
@@ -267,15 +396,16 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellF
 
         prevWellResPoint = nullptr;
 
-        // Find the start the MSW well-branch centerline. Normal wells are started "once" at wellhead in the code above
+        // Find the start the MSW well-branch centerline. Normal wells are started "once" at wellhead in the
+        // code above
 
         pipeBranchesCLCoords.push_back( std::vector<cvf::Vec3d>() );
         pipeBranchesCellIds.push_back( std::vector<RigWellResultPoint>() );
 
         if ( brIdx == 0 )
         {
-            // The first branch contains segment number 1, and this is the only segment connected to well head
-            // See Eclipse documentation for the keyword WELSEGS
+            // The first branch contains segment number 1, and this is the only segment connected to well
+            // head See Eclipse documentation for the keyword WELSEGS
             prevWellResPoint = whResCell;
 
             pipeBranchesCLCoords.back().push_back( whStartPos );
@@ -289,7 +419,8 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellF
 
         const std::vector<RigWellResultPoint>& resBranchCells = resBranches[brIdx].m_branchResultPoints;
 
-        for ( int cIdx = 0; cIdx < static_cast<int>( resBranchCells.size() ); cIdx++ ) // Need int because cIdx can
+        for ( int cIdx = 0; cIdx < static_cast<int>( resBranchCells.size() ); cIdx++ ) // Need int because
+                                                                                       // cIdx can
                                                                                        // temporarily end on
                                                                                        // cvf::UNDEFINED_SIZE_T
         {
@@ -375,8 +506,8 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellF
                 cvf::Vec3d centerThisCell             = cell.center();
                 bool       distanceToWellHeadIsLonger = true;
 
-                // If we have a previous well result point, use its center as measure point and ray intersection start
-                // when considering things.
+                // If we have a previous well result point, use its center as measure point and ray
+                // intersection start when considering things.
 
                 if ( prevWellResPoint && prevWellResPoint->isValid() )
                 {
@@ -416,8 +547,11 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellF
                         // Intersect with the current cell to find a better entry point than the cell center
 
                         int  intersectionCount = cell.firstIntersectionPoint( rayToThisCell, &intoThisCell );
-                        bool isPreviousResPointInsideCurrentCell = ( intersectionCount % 2 ); // Must intersect uneven
-                                                                                              // times to be inside. (1
+                        bool isPreviousResPointInsideCurrentCell = ( intersectionCount % 2 ); // Must
+                                                                                              // intersect
+                                                                                              // uneven
+                                                                                              // times to be
+                                                                                              // inside. (1
                                                                                               // % 2 = 1)
 
                         // If we have a real previous cell, we need to go out of it, before entering this.
@@ -456,7 +590,8 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellF
                     // thus we interpret it as a new branch.
 
                     // First finish the current branch in the previous cell
-                    // branchCLCoords.push_back(branchCLCoords.back() + 1.5*(centerPreviousCell - branchCLCoords.back()) );
+                    // branchCLCoords.push_back(branchCLCoords.back() + 1.5*(centerPreviousCell -
+                    // branchCLCoords.back()) );
                     finishPipeCenterLine( pipeBranchesCLCoords, centerPreviousCell );
 
                     // Create new display branch
@@ -800,7 +935,8 @@ private:
 #if 1
         if ( wellCellIndices.size() )
         {
-            if ( !branchLineIt->first ) // Is real branch, with first cell as cell *before* entry point on main branch
+            if ( !branchLineIt->first ) // Is real branch, with first cell as cell *before* entry point on
+                                        // main branch
             {
                 RigWellResultPoint branchStartAsResultPoint;
                 const RigCell&     branchStartCell =
@@ -809,8 +945,8 @@ private:
 
                 if ( wellCellIndices.size() > 1 )
                 {
-                    // Use the shared face between the cell before, and the branching cell as start point for the
-                    // branch, to make the pipe "whole"
+                    // Use the shared face between the cell before, and the branching cell as start point
+                    // for the branch, to make the pipe "whole"
 
                     cvf::StructGridInterface::FaceType sharedFace = cvf::StructGridInterface::NO_FACE;
                     m_eclipseCaseData->findSharedSourceFace( sharedFace,

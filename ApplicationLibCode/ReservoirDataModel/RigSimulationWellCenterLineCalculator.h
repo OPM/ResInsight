@@ -38,6 +38,7 @@ class RigWellResultFrame;
 class RigSimulationWellCenterLineCalculator
 {
 public:
+    static std::vector<SimulationWellCellBranch> aggregatedMswWells( RimSimWellInView* rimWell );
     static std::vector<SimulationWellCellBranch> calculateWellPipeStaticCenterline( RimSimWellInView* rimWell );
 
     static std::vector<SimulationWellCellBranch>
@@ -63,6 +64,10 @@ private:
                                                   bool                                          useAllCellCenters,
                                                   std::vector<std::vector<cvf::Vec3d>>&         pipeBranchesCLCoords,
                                                   std::vector<std::vector<RigWellResultPoint>>& pipeBranchesCellIds );
+
+    static std::vector<SimulationWellCellBranch> calculateaggregatedMswWellsFrame( const RigEclipseCaseData* eclipseCaseData,
+                                                                                   const RigSimWellData* simWellData,
+                                                                                   int timeStepIndex );
 
     static bool hasAnyValidDataCells( const RigWellResultBranch& branch );
     static void finishPipeCenterLine( std::vector<std::vector<cvf::Vec3d>>& pipeBranchesCLCoords,
