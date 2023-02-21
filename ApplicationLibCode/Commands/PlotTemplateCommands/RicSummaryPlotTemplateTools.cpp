@@ -315,7 +315,7 @@ void RicSummaryPlotTemplateTools::setValuesForPlaceholders( RimSummaryPlot*     
             setPlaceholderWellName( &curveAdr, wellNames );
             setPlaceholderGroupName( &curveAdr, groupNames );
             setPlaceholderRegion( &curveAdr, regions );
-            curveSet->setSummaryAddress( curveAdr );
+            curveSet->setSummaryAddressAndStatisticsFlag( curveAdr );
         }
     }
 }

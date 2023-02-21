@@ -90,7 +90,7 @@ std::vector<RimEnsembleCurveSet*>
                     RimEnsembleCurveSetColorManager::cycledEnsembleColorRange( static_cast<int>( colorIndex ) ) ) );
 
                 curveSet->setSummaryCaseCollection( ensemble );
-                curveSet->setSummaryAddress( addr );
+                curveSet->setSummaryAddressAndStatisticsFlag( addr );
                 auto filter = curveSet->filterCollection()->addFilter();
                 filter->setActive( false );
 
