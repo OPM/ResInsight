@@ -557,7 +557,7 @@ RimEnsembleCurveSet* RicSummaryPlotFeatureImpl::createCurveSet( RimSummaryCaseCo
     auto curveSet = new RimEnsembleCurveSet();
 
     curveSet->setSummaryCaseCollection( ensemble );
-    curveSet->setSummaryAddress( addr );
+    curveSet->setSummaryAddressAndStatisticsFlag( addr );
 
     if ( ensembleColoringStyle == EnsembleColoringType::PARAMETER ||
          ensembleColoringStyle == EnsembleColoringType::LOG_PARAMETER )

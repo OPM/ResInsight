@@ -92,7 +92,7 @@ RifEclipseSummaryAddress RimSummaryAddressModifier::address() const
 void RimSummaryAddressModifier::setAddress( const RifEclipseSummaryAddress& address )
 {
     if ( m_curve ) m_curve->setSummaryAddressY( address );
-    if ( m_curveSet ) m_curveSet->setSummaryAddress( address );
+    if ( m_curveSet ) m_curveSet->setSummaryAddressAndStatisticsFlag( address );
 }
 
 //--------------------------------------------------------------------------------------------------

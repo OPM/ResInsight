@@ -505,7 +505,7 @@ void RimSummaryPlotFilterTextCurveSetEditor::updateParentPlot()
                 RimEnsembleCurveSet* curveSet = new RimEnsembleCurveSet();
 
                 curveSet->setSummaryCaseCollection( curveDef.ensemble() );
-                curveSet->setSummaryAddress( curveDef.summaryAddress() );
+                curveSet->setSummaryAddressAndStatisticsFlag( curveDef.summaryAddress() );
 
                 parentPlot->ensembleCurveSetCollection()->addCurveSet( curveSet );
             }

@@ -388,8 +388,16 @@ void RimEnsembleCurveSet::setSummaryAddress( RifEclipseSummaryAddress address )
     RimSummaryAddress* summaryAddress = new RimSummaryAddress();
     summaryAddress->setAddress( address );
     m_objectiveValuesSummaryAddresses.push_back( summaryAddress );
+}
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::setSummaryAddressAndStatisticsFlag( RifEclipseSummaryAddress address )
+{
+    setSummaryAddress( address );
     m_statistics->setShowStatisticsCurves( !address.isHistoryVector() );
+    m_statistics->updateAllRequiredEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -2513,7 +2513,7 @@ RimEnsembleCurveSet* RimSummaryPlot::addNewEnsembleCurveY( const RifEclipseSumma
     auto* curveSet = new RimEnsembleCurveSet();
 
     curveSet->setSummaryCaseCollection( ensemble );
-    curveSet->setSummaryAddress( address );
+    curveSet->setSummaryAddressAndStatisticsFlag( address );
 
     cvf::Color3f curveColor =
         RimSummaryCurveAppearanceCalculator::computeTintedCurveColorForAddress( curveSet->summaryAddress(),
