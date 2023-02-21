@@ -24,10 +24,14 @@
 #include "RiuMainWindow.h"
 #include "RiuSeismicHistogramPanel.h"
 
+#include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTableViewEditor.h"
 
 #include "cvfBoundingBox.h"
 
+#include <QValidator>
+
+#include <limits>
 #include <tuple>
 
 CAF_PDM_SOURCE_INIT( RimSeismicData, "SeismicData" );
@@ -191,6 +195,14 @@ void RimSeismicData::defineEditorAttribute( const caf::PdmFieldHandle* field,
             tvAttribute->resizePolicy              = caf::PdmUiTableViewEditorAttribute::RESIZE_TO_FILL_CONTAINER;
             tvAttribute->alwaysEnforceResizePolicy = true;
             tvAttribute->minimumHeight             = 400;
+        }
+    }
+    else if ( field == &m_maxAbsDataValue )
+    {
+        auto myAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
+        if ( myAttr )
+        {
+            myAttr->validator = new QDoubleValidator( 0.00001, std::numeric_limits<double>::infinity(), 100 );
         }
     }
 }
