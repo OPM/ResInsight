@@ -115,10 +115,12 @@ caf::PdmFieldHandle* RimSeismicSection::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimSeismicSection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_userDescription );
-    uiOrdering.add( &m_seismicData );
+    auto group0 = uiOrdering.addNewGroup( "General" );
 
-    auto group1 = uiOrdering.addNewGroup( "Polyline Definition" );
+    group0->add( &m_userDescription );
+    group0->add( &m_seismicData );
+
+    auto group1 = uiOrdering.addNewGroup( "Intersection Definition" );
     group1->add( &m_targets );
     group1->add( &m_enablePicking );
 
@@ -127,6 +129,8 @@ void RimSeismicSection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     group2->add( &m_lineColor );
     group2->add( &m_sphereRadiusFactor );
     group2->add( &m_sphereColor );
+
+    group2->setCollapsedByDefault();
 
     uiOrdering.skipRemainingFields();
 }

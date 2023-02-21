@@ -168,7 +168,10 @@ void RimSeismicData::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         dsGroup->add( &m_maxAbsDataValue );
     }
 
-    uiOrdering.add( &m_metadata );
+    auto metaGroup = uiOrdering.addNewGroup( "File Information" );
+
+    metaGroup->add( &m_metadata );
+    metaGroup->setCollapsedByDefault();
 
     uiOrdering.skipRemainingFields();
 }

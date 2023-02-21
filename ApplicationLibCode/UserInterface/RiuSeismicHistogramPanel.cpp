@@ -27,6 +27,7 @@
 #include "RiuQwtSymbol.h"
 
 #include "qwt_plot_grid.h"
+#include "qwt_text.h"
 
 #include "RimRegularLegendConfig.h"
 #include "RimSeismicData.h"
@@ -99,10 +100,15 @@ void RiuSeismicHistogramPanel::setPlotData( QString title, std::vector<double> x
     m_qwtPlot->setAxisAutoScale( QwtAxis::YLeft, true );
     m_qwtPlot->setAxisVisible( QwtAxis::YLeft, false );
 
-    m_qwtPlot->setTitle( title );
+    QwtText plotTitle = m_qwtPlot->title();
+    QFont   titleFont = plotTitle.font();
+    titleFont.setPointSize( 10 );
+    plotTitle.setText( title );
+    plotTitle.setFont( titleFont );
+    m_qwtPlot->setTitle( plotTitle );
 
-    m_qwtPlot->setAxisTitle( QwtAxis::XBottom, "Value" );
-    m_qwtPlot->setAxisTitle( QwtAxis::YLeft, "Count" );
+    // m_qwtPlot->setAxisTitle( QwtAxis::XBottom, "" );
+    // m_qwtPlot->setAxisTitle( QwtAxis::YLeft, "" );
 
     m_qwtPlot->replot();
 }
