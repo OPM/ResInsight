@@ -95,6 +95,7 @@ RiuPlotMainWindow::RiuPlotMainWindow()
 
     caf::CmdFeatureMenuBuilder menuForMdiArea;
     menuForMdiArea << "RicNewEmptySummaryMultiPlotFeature";
+    menuForMdiArea << "RicOpenSummaryPlotEditorFromMdiAreaFeature";
     new RiuContextMenuLauncher( m_mdiArea, menuForMdiArea );
 
     ads::CDockWidget* cWidget =
