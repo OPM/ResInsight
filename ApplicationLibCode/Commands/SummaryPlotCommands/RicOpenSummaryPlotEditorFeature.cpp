@@ -36,6 +36,7 @@
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryMultiPlot.h"
+#include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
 
 #include "RiuPlotMainWindow.h"
@@ -60,6 +61,10 @@ bool RicOpenSummaryPlotEditorFeature::isCommandEnabled()
 
     std::vector<RimSummaryCaseCollection*> selectedGroups = caf::selectedObjectsByType<RimSummaryCaseCollection*>();
     if ( selectedGroups.size() > 0 ) return true;
+
+    std::vector<RimSummaryMultiPlotCollection*> selectedPlotCollections =
+        caf::selectedObjectsByType<RimSummaryMultiPlotCollection*>();
+    if ( selectedPlotCollections.size() > 0 ) return true;
 
     caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
     if ( !selObj ) return false;
