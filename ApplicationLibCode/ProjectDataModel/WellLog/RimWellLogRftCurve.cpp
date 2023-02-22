@@ -528,7 +528,11 @@ std::map<QString, QString> RimWellLogRftCurve::createCurveNameKeyValueMap() cons
     {
         caseText = m_eclipseResultCase->caseUserDescription();
     }
-    else if ( m_ensemble ) // Summary RFT curves have both ensemble and summary set. Prioritize ensemble for name.
+    else if ( m_summaryCase && m_ensemble ) // Summary RFT curves have both ensemble and summary set
+    {
+        caseText = QString( "%1, %2" ).arg( m_ensemble->name() ).arg( m_summaryCase->displayCaseName() );
+    }
+    else if ( m_ensemble )
     {
         caseText = m_ensemble->name();
     }
