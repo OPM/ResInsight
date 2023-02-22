@@ -93,12 +93,11 @@ private:
     caf::PdmField<QString>            m_userDescription;
     caf::PdmPtrField<RimSeismicData*> m_seismicData;
 
+    caf::PdmField<bool>                         m_showSeismicOutline;
     caf::PdmField<bool>                         m_enablePicking;
     caf::PdmChildArrayField<RimPolylineTarget*> m_targets;
     caf::PdmField<int>                          m_lineThickness;
-    caf::PdmField<double>                       m_sphereRadiusFactor;
     caf::PdmField<cvf::Color3f>                 m_lineColor;
-    caf::PdmField<cvf::Color3f>                 m_sphereColor;
     caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
 
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;

@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "cvfVector3.h"
+
 #include <QString>
 
 #include <memory>
@@ -32,7 +34,7 @@ class ZGYReader;
 namespace cvf
 {
 class BoundingBox;
-}
+} // namespace cvf
 
 class RifSeismicZGYReader
 {
@@ -52,6 +54,8 @@ public:
     void histogramData( std::vector<double>& xvals, std::vector<double>& yvals );
 
     std::pair<double, double> dataRange();
+
+    std::vector<cvf::Vec3d> worldCorners();
 
 private:
     QString                               m_filename;

@@ -38,6 +38,8 @@
 #include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
+#include "cvfVector3.h"
+
 CAF_PDM_SOURCE_INIT( RimSeismicSection, "SeismicSection" );
 
 //--------------------------------------------------------------------------------------------------
@@ -67,14 +69,11 @@ RimSeismicSection::RimSeismicSection()
     m_targets.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_targets.uiCapability()->setCustomContextMenuEnabled( true );
 
-    CAF_PDM_InitField( &m_lineThickness, "LineThickness", 3, "Line Thickness" );
-    CAF_PDM_InitField( &m_sphereRadiusFactor, "SphereRadiusFactor", 0.15, "Sphere Radius Factor" );
-
+    CAF_PDM_InitField( &m_lineThickness, "LineThickness", 1, "Line Thickness" );
     CAF_PDM_InitField( &m_lineColor, "LineColor", cvf::Color3f( cvf::Color3f::WHITE ), "Line Color" );
-    CAF_PDM_InitField( &m_sphereColor, "SphereColor", cvf::Color3f( cvf::Color3f::WHITE ), "Sphere Color" );
+    CAF_PDM_InitField( &m_showSeismicOutline, "ShowSeismicOutline", false, "Show Seismic Data Outline" );
 
     this->setUi3dEditorTypeName( RicPolyline3dEditor::uiEditorTypeName() );
-    // this->uiCapability()->setUiTreeChildrenHidden( true );
 
     setDeletable( true );
 }
@@ -127,8 +126,7 @@ void RimSeismicSection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     auto group2 = uiOrdering.addNewGroup( "Appearance" );
     group2->add( &m_lineThickness );
     group2->add( &m_lineColor );
-    group2->add( &m_sphereRadiusFactor );
-    group2->add( &m_sphereColor );
+    group2->add( &m_showSeismicOutline );
 
     group2->setCollapsedByDefault();
 
@@ -280,13 +278,40 @@ cvf::ref<RigPolyLinesData> RimSeismicSection::polyLinesData() const
     }
     pld->setPolyLine( line );
 
+    if ( m_showSeismicOutline() && m_seismicData() != nullptr )
+    {
+        std::vector<cvf::Vec3d> outline = m_seismicData()->worldOutline();
+        if ( outline.size() == 8 )
+        {
+            std::vector<cvf::Vec3d> box;
+
+            for ( auto i : { 4, 0, 1, 3, 2, 0 } )
+                box.push_back( outline[i] );
+            pld->addPolyLine( box );
+            box.clear();
+
+            for ( auto i : { 1, 5, 4, 6, 7, 5 } )
+                box.push_back( outline[i] );
+            pld->addPolyLine( box );
+            box.clear();
+
+            box.push_back( outline[2] );
+            box.push_back( outline[6] );
+            pld->addPolyLine( box );
+            box.clear();
+
+            box.push_back( outline[3] );
+            box.push_back( outline[7] );
+            pld->addPolyLine( box );
+        }
+    }
+
     pld->setLineAppearance( m_lineThickness, m_lineColor, false );
-    pld->setSphereAppearance( m_sphereRadiusFactor, m_sphereColor );
     pld->setZPlaneLock( false, 0.0 );
 
     if ( isChecked() )
     {
-        pld->setVisibility( true, true );
+        pld->setVisibility( true, false );
     }
     else
     {
@@ -350,10 +375,10 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection() const
         cvf::Vec3d p2 = m_targets[i]->targetPointXYZ();
 
         points.resize( 4 );
-        points[0].set( p1.x(), p1.y(), -zmin );
-        points[1].set( p2.x(), p2.y(), -zmin );
-        points[2].set( p2.x(), p2.y(), -zmax );
-        points[3].set( p1.x(), p1.y(), -zmax );
+        points[0].set( p1.x(), p1.y(), zmin );
+        points[1].set( p2.x(), p2.y(), zmin );
+        points[2].set( p2.x(), p2.y(), zmax );
+        points[3].set( p1.x(), p1.y(), zmax );
 
         widths.push_back( 100 );
         rects.push_back( points );

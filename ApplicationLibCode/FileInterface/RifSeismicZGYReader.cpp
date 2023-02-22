@@ -119,11 +119,13 @@ cvf::BoundingBox RifSeismicZGYReader::boundingBox()
     {
         auto [zmin, zmax] = m_reader->ZRange();
 
-        auto corners = m_reader->WorldCorners();
-        for ( auto [x, y] : corners )
+        auto outline = m_reader->seismicOutline();
+
+        auto corners = outline.points();
+        for ( auto p : corners )
         {
-            retBox.add( cvf::Vec3d( x, y, zmin ) );
-            retBox.add( cvf::Vec3d( x, y, zmax ) );
+            retBox.add( cvf::Vec3d( p.x(), p.y(), -zmin ) );
+            retBox.add( cvf::Vec3d( p.x(), p.y(), -zmax ) );
         }
     }
 
@@ -151,4 +153,23 @@ std::pair<double, double> RifSeismicZGYReader::dataRange()
     if ( !isOpen() ) return std::make_pair( 0.0, 0.0 );
 
     return m_reader->DataRange();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3d> RifSeismicZGYReader::worldCorners()
+{
+    auto [zmin, zmax] = m_reader->ZRange();
+    auto outline      = m_reader->seismicOutline();
+
+    std::vector<cvf::Vec3d> retval;
+
+    for ( auto p : outline.points() )
+    {
+        retval.push_back( cvf::Vec3d( p.x(), p.y(), -zmin ) );
+        retval.push_back( cvf::Vec3d( p.x(), p.y(), -zmax ) );
+    }
+
+    return retval;
 }
