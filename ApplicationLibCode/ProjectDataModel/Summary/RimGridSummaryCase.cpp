@@ -20,11 +20,14 @@
 
 #include "RicfCommandObject.h"
 
+#include "RifMultipleSummaryReaders.h"
 #include "RifSummaryReaderInterface.h"
+#include "RimCalculatedSummaryCurveReader.h"
 
 #include "RimEclipseCase.h"
 #include "RimFileSummaryCase.h"
 #include "RimProject.h"
+#include "RimSummaryCalculationCollection.h"
 
 #include "cafPdmObjectScriptingCapability.h"
 
@@ -179,9 +182,16 @@ QString RimGridSummaryCase::eclipseGridFileName() const
 //--------------------------------------------------------------------------------------------------
 void RimGridSummaryCase::createSummaryReaderInterface()
 {
-    m_summaryFileReader = RimFileSummaryCase::findRelatedFilesAndCreateReader( this->summaryHeaderFilename(),
+    m_fileSummaryReader = RimFileSummaryCase::findRelatedFilesAndCreateReader( this->summaryHeaderFilename(),
                                                                                m_includeRestartFiles,
                                                                                nullptr );
+
+    m_multiSummaryReader = new RifMultipleSummaryReaders;
+    m_multiSummaryReader->addReader( m_fileSummaryReader.p() );
+
+    RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
+    m_calculatedSummaryReader                 = new RifCalculatedSummaryCurveReader( calcColl, this );
+    m_multiSummaryReader->addReader( m_calculatedSummaryReader.p() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -189,11 +199,11 @@ void RimGridSummaryCase::createSummaryReaderInterface()
 //--------------------------------------------------------------------------------------------------
 RifSummaryReaderInterface* RimGridSummaryCase::summaryReader()
 {
-    if ( m_summaryFileReader.isNull() )
+    if ( m_multiSummaryReader.isNull() )
     {
         createSummaryReaderInterface();
     }
-    return m_summaryFileReader.p();
+    return m_multiSummaryReader.p();
 }
 
 //--------------------------------------------------------------------------------------------------

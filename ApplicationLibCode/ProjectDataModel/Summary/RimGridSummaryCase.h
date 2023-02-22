@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RifMultipleSummaryReaders.h"
 #include "RimSummaryCase.h"
 
 #include "cafPdmProxyValueField.h"
@@ -27,6 +28,8 @@
 class RimEclipseCase;
 class RifSummaryReaderInterface;
 class RimFileSummaryCase;
+class RifCalculatedSummaryCurveReader;
+class RifMultipleSummaryReaders;
 
 //==================================================================================================
 //
@@ -63,6 +66,8 @@ private:
     mutable caf::PdmField<QString>    m_cachedCaseName;
     caf::PdmProxyValueField<QString>  m_eclipseGridFileName;
 
-    cvf::ref<RifSummaryReaderInterface> m_summaryFileReader;
-    caf::PdmField<bool>                 m_includeRestartFiles;
+    cvf::ref<RifSummaryReaderInterface>       m_fileSummaryReader;
+    cvf::ref<RifCalculatedSummaryCurveReader> m_calculatedSummaryReader;
+    cvf::ref<RifMultipleSummaryReaders>       m_multiSummaryReader;
+    caf::PdmField<bool>                       m_includeRestartFiles;
 };
