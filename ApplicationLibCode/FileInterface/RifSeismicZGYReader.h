@@ -57,6 +57,8 @@ public:
 
     std::vector<cvf::Vec3d> worldCorners();
 
+    double depthStep();
+
 private:
     QString                               m_filename;
     std::shared_ptr<ZGYAccess::ZGYReader> m_reader;

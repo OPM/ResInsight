@@ -40,6 +40,7 @@ CAF_PDM_SOURCE_INIT( RimSeismicData, "SeismicData" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimSeismicData::RimSeismicData()
+    : m_zStep( 0 )
 {
     CAF_PDM_InitObject( "SeismicData", ":/Seismic16x16.png" );
 
@@ -144,6 +145,8 @@ void RimSeismicData::updateMetaData()
     m_boundingBox->reset();
     m_boundingBox->add( reader.boundingBox() );
 
+    m_zStep = reader.depthStep();
+
     auto [minDataValue, maxDataValue] = reader.dataRange();
     m_maxAbsDataValue                 = std::max( std::abs( minDataValue ), std::abs( maxDataValue ) );
 
@@ -240,6 +243,14 @@ double RimSeismicData::zMin() const
 double RimSeismicData::zMax() const
 {
     return m_boundingBox.get()->max().z();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimSeismicData::zStep() const
+{
+    return m_zStep;
 }
 
 //--------------------------------------------------------------------------------------------------
