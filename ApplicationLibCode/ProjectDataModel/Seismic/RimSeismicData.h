@@ -52,6 +52,7 @@ public:
 
     double zMin() const;
     double zMax() const;
+    double zStep() const;
 
     std::vector<double> histogramXvalues() const;
     std::vector<double> histogramYvalues() const;
@@ -80,6 +81,7 @@ private:
     caf::PdmField<bool>   m_overrideDataRange;
     caf::PdmField<double> m_maxAbsDataValue;
 
+    double                            m_zStep;
     std::shared_ptr<cvf::BoundingBox> m_boundingBox;
     std::vector<double>               m_histogramXvalues;
     std::vector<double>               m_histogramYvalues;
