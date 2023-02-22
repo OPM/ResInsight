@@ -182,7 +182,20 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
     auto* lgrblock      = getOrCreateSubfolder( CollectionContentType::BLOCK_LGR );
     auto* imported      = getOrCreateSubfolder( CollectionContentType::IMPORTED );
 
-    for ( const auto& address : addresses )
+    // Sort addresses to have calculated results last per category
+    std::vector<RifEclipseSummaryAddress> sortedAddresses( addresses.size() );
+    std::copy( addresses.begin(), addresses.end(), sortedAddresses.begin() );
+    std::sort( sortedAddresses.begin(),
+               sortedAddresses.end(),
+               []( const RifEclipseSummaryAddress& a, const RifEclipseSummaryAddress& b ) -> bool {
+                   if ( a.category() < b.category() ) return false;
+                   // Calculated results are sorted last.
+                   if ( a.isCalculated() && !b.isCalculated() ) return false;
+                   if ( !a.isCalculated() && b.isCalculated() ) return true;
+                   return a.vectorName() < b.vectorName();
+               } );
+
+    for ( const auto& address : sortedAddresses )
     {
         switch ( address.category() )
         {
