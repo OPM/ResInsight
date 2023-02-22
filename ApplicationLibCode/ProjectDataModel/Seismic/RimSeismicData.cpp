@@ -149,9 +149,20 @@ void RimSeismicData::updateMetaData()
 
     reader.histogramData( m_histogramXvalues, m_histogramYvalues );
 
+    m_worldOutline.clear();
+    for ( auto& p : reader.worldCorners() )
+    {
+        m_worldOutline.push_back( p );
+    }
+
     updateDataRange( false );
 
     reader.close();
+}
+
+std::vector<cvf::Vec3d> RimSeismicData::worldOutline() const
+{
+    return m_worldOutline;
 }
 
 //--------------------------------------------------------------------------------------------------
