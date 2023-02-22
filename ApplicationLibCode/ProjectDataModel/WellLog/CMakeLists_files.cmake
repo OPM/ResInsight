@@ -25,6 +25,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellLogWbsCurve.h
     ${CMAKE_CURRENT_LIST_DIR}/RimRftTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RimRftTopologyCurve.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCurveInfoTextProvider.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -54,6 +55,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleWellLogStatisticsCurve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimRftTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimRftTopologyCurve.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimWellLogCurveInfoTextProvider.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

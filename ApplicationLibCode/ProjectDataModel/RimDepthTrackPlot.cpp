@@ -46,6 +46,7 @@
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogCurveCommonDataSource.h"
+#include "RimWellLogCurveInfoTextProvider.h"
 #include "RimWellLogPlotNameConfig.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
@@ -55,6 +56,7 @@
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtPlotWidget.h"
 #include "RiuWellLogPlot.h"
+#include "RiuWellLogTrack.h"
 
 #include "cafPdmFieldReorderCapability.h"
 #include "cafPdmFieldScriptingCapability.h"
@@ -812,6 +814,11 @@ void RimDepthTrackPlot::recreatePlotWidgets()
         plotVector[tIdx]->createPlotWidget();
         m_viewer->addPlot( plotVector[tIdx]->plotWidget() );
     }
+
+    for ( size_t idx = 0; idx < m_plots.size(); ++idx )
+    {
+        createAndSetCurveTextProvider( m_plots[idx] );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1298,6 +1305,24 @@ void RimDepthTrackPlot::updatePlots()
 caf::PdmFieldHandle* RimDepthTrackPlot::userDescriptionField()
 {
     return &m_plotWindowTitle;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimDepthTrackPlot::createAndSetCurveTextProvider( RimWellLogTrack* track )
+{
+    auto qwtPlotWidget = dynamic_cast<RiuQwtPlotWidget*>( track->plotWidget() );
+    new RiuWellLogCurvePointTracker( qwtPlotWidget->qwtPlot(), curveTextProvider(), track );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuPlotCurveInfoTextProvider* RimDepthTrackPlot::curveTextProvider() const
+{
+    static auto textProvider = RimWellLogCurveInfoTextProvider();
+    return &textProvider;
 }
 
 //--------------------------------------------------------------------------------------------------
