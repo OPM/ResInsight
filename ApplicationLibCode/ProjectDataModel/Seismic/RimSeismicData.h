@@ -21,6 +21,8 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include "cvfVector3.h"
+
 #include <QString>
 
 #include <memory>
@@ -30,7 +32,7 @@ class RimGenericParameter;
 namespace cvf
 {
 class BoundingBox;
-}
+} // namespace cvf
 
 class RimSeismicData : public caf::PdmObject
 {
@@ -53,6 +55,8 @@ public:
 
     std::vector<double> histogramXvalues() const;
     std::vector<double> histogramYvalues() const;
+
+    std::vector<cvf::Vec3d> worldOutline() const;
 
 protected:
     void                 initAfterRead() override;
@@ -81,4 +85,5 @@ private:
     std::vector<double>               m_histogramYvalues;
     std::vector<double>               m_clippedHistogramXvalues;
     std::vector<double>               m_clippedHistogramYvalues;
+    std::vector<cvf::Vec3d>           m_worldOutline;
 };
