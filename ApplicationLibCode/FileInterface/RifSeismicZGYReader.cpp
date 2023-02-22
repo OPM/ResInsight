@@ -173,3 +173,13 @@ std::vector<cvf::Vec3d> RifSeismicZGYReader::worldCorners()
 
     return retval;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RifSeismicZGYReader::depthStep()
+{
+    if ( !isOpen() ) return 0.0;
+
+    return m_reader->ZStep();
+}

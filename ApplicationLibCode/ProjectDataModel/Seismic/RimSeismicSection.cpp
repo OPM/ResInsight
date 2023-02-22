@@ -361,11 +361,14 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection() const
 {
     cvf::ref<RigTexturedSection> tex = new RigTexturedSection();
 
+    if ( m_seismicData == nullptr ) return tex;
+
     std::vector<cvf::Vec3dArray> rects;
     std::vector<int>             widths;
 
     double zmin = m_seismicData->zMin();
     double zmax = m_seismicData->zMax();
+    double ztep = m_seismicData->zStep();
 
     for ( int i = 1; i < (int)m_targets.size(); i++ )
     {
@@ -384,7 +387,7 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection() const
         rects.push_back( points );
     }
 
-    tex->setTextureHeight( static_cast<int>( zmax - zmin ) / 4 );
+    tex->setTextureHeight( static_cast<int>( zmax - zmin ) / ztep );
     tex->setTextureWidths( widths );
     tex->setRects( rects );
     return tex;
