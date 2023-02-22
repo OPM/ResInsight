@@ -82,9 +82,13 @@ protected:
         allAddressesForCategory( RifEclipseSummaryAddress::SummaryVarCategory category,
                                  const std::set<RifEclipseSummaryAddress>&    allResultAddresses ) const;
 
+    RimSummaryCalculationAddress singleAddressesForCategory( const RifEclipseSummaryAddress& address ) const;
+
     std::optional<std::vector<SummaryCalculationVariable>> getVariables() const;
 
     bool checkVariables() const;
 
     bool detectCyclicCalculation( int id, std::set<int>& ids ) const;
+
+    caf::PdmField<bool> m_distributeToOtherItems;
 };

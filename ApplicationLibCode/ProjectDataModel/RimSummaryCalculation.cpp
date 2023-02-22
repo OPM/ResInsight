@@ -56,6 +56,11 @@ CAF_PDM_SOURCE_INIT( RimSummaryCalculation, "RimSummaryCalculation" );
 RimSummaryCalculation::RimSummaryCalculation()
 {
     CAF_PDM_InitObject( "RimSummaryCalculation", ":/octave.png", "Calculation", "" );
+
+    CAF_PDM_InitField( &m_distributeToOtherItems,
+                       "DistributeToOtherItems",
+                       true,
+                       "Distribute to other items (wells, groups, ..)" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -436,9 +441,17 @@ std::vector<RimSummaryCalculationAddress> RimSummaryCalculation::allAddressesFor
     {
         // The first variable is the substituable one. Use its category to
         // provide all available addresses.
-        auto firstVariable      = variables.value().front();
-        auto allResultAddresses = summaryCase->summaryReader()->allResultAddresses();
-        return allAddressesForCategory( firstVariable.summaryAddress.category(), allResultAddresses );
+        auto firstVariable = variables.value().front();
+        if ( m_distributeToOtherItems )
+        {
+            auto allResultAddresses = summaryCase->summaryReader()->allResultAddresses();
+            return allAddressesForCategory( firstVariable.summaryAddress.category(), allResultAddresses );
+        }
+        else
+        {
+            // Generate the result only for the first variable
+            return { RimSummaryCalculationAddress( singleAddressesForCategory( firstVariable.summaryAddress ) ) };
+        }
     }
 
     return {};
@@ -536,6 +549,51 @@ std::vector<RimSummaryCalculationAddress>
     }
 
     return addresses;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCalculationAddress RimSummaryCalculation::singleAddressesForCategory( const RifEclipseSummaryAddress& address ) const
+{
+    RifEclipseSummaryAddress::SummaryVarCategory category = address.category();
+    if ( category == RifEclipseSummaryAddress::SUMMARY_FIELD )
+    {
+        return RifEclipseSummaryAddress::fieldAddress( description().toStdString(), m_id );
+    }
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_AQUIFER )
+    {
+        return RifEclipseSummaryAddress::aquiferAddress( description().toStdString(), address.aquiferNumber(), m_id );
+    }
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_MISC )
+    {
+        return RifEclipseSummaryAddress::miscAddress( description().toStdString(), m_id );
+    }
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_NETWORK )
+    {
+        return RifEclipseSummaryAddress::networkAddress( description().toStdString(), m_id );
+    }
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_WELL )
+    {
+        return RifEclipseSummaryAddress::wellAddress( description().toStdString(), address.wellName(), m_id );
+    }
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_GROUP )
+    {
+        return RifEclipseSummaryAddress::groupAddress( description().toStdString(), address.groupName(), m_id );
+    }
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_REGION )
+    {
+        return RifEclipseSummaryAddress::regionAddress( description().toStdString(), address.regionNumber(), m_id );
+    }
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION )
+    {
+        return RifEclipseSummaryAddress::regionToRegionAddress( description().toStdString(),
+                                                                address.regionNumber(),
+                                                                address.regionNumber2(),
+                                                                m_id );
+    }
+
+    return RifEclipseSummaryAddress();
 }
 
 //--------------------------------------------------------------------------------------------------
