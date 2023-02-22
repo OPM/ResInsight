@@ -409,3 +409,11 @@ std::vector<RimUserDefinedCalculationVariable*> RimUserDefinedCalculation::allVa
 {
     return m_variables.children();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimUserDefinedCalculation::shortName() const
+{
+    return RimUserDefinedCalculation::findLeftHandSide( m_expression );
+}

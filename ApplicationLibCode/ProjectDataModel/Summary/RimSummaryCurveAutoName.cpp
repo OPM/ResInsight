@@ -223,7 +223,7 @@ QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress&
             RimUserDefinedCalculation* calculation = calcColl->findCalculationById( summaryAddress.id() );
             if ( calculation )
             {
-                text = calculation->description().toStdString();
+                text = calculation->shortName().toStdString();
             }
         }
 
@@ -235,7 +235,7 @@ QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress&
 
     appendAddressDetails( text, summaryAddress, plotNameHelper );
 
-    if ( !caseName.empty() )
+    if ( !caseName.empty() && !summaryAddress.isCalculated() )
     {
         bool skipSubString = plotNameHelper && plotNameHelper->isCaseInTitle();
 

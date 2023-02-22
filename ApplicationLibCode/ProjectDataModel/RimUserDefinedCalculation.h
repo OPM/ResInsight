@@ -65,6 +65,8 @@ public:
     static QString findLeftHandSide( const QString& expression );
     void           attachToWidget();
 
+    QString shortName() const;
+
 protected:
     virtual RimUserDefinedCalculationVariable* createVariable() = 0;
 
