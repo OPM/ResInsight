@@ -35,10 +35,24 @@
 #include "RivSeismicSectionPartMgr.h"
 
 #include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiSliderEditor.h"
 #include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
 #include "cvfVector3.h"
+
+namespace caf
+{
+template <>
+void caf::AppEnum<RimSeismicSection::CrossSectionEnum>::setUp()
+{
+    addItem( RimSeismicSection::CrossSectionEnum::CS_INLINE, "CS_INLINE", "Inline" );
+    addItem( RimSeismicSection::CrossSectionEnum::CS_XLINE, "CS_XLINE", "Crossline" );
+    addItem( RimSeismicSection::CrossSectionEnum::CS_DEPTHSLICE, "CS_DEPTHSLICE", "Depth Slice" );
+    addItem( RimSeismicSection::CrossSectionEnum::CS_POLYLINE, "CS_POLYLINE", "Polyline" );
+    setDefault( RimSeismicSection::CrossSectionEnum::CS_POLYLINE );
+}
+} // namespace caf
 
 CAF_PDM_SOURCE_INIT( RimSeismicSection, "SeismicSection" );
 
@@ -57,6 +71,8 @@ RimSeismicSection::RimSeismicSection()
 
     CAF_PDM_InitField( &m_userDescription, "UserDecription", QString( "Seismic Section" ), "Name" );
 
+    CAF_PDM_InitFieldNoDefault( &m_type, "Type", "Type" );
+
     CAF_PDM_InitFieldNoDefault( &m_seismicData, "SeismicData", "Seismic Data" );
 
     CAF_PDM_InitField( &m_enablePicking, "EnablePicking", false, "" );
@@ -68,6 +84,13 @@ RimSeismicSection::RimSeismicSection()
     m_targets.uiCapability()->setUiTreeChildrenHidden( true );
     m_targets.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_targets.uiCapability()->setCustomContextMenuEnabled( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_inlineIndex, "InlineIndex", "Inline" );
+    m_inlineIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
+    CAF_PDM_InitFieldNoDefault( &m_xlineIndex, "CrosslineIndex", "Crossline" );
+    m_xlineIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
+    CAF_PDM_InitFieldNoDefault( &m_depthIndex, "DepthIndex", "Depth Slice" );
+    m_depthIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_lineThickness, "LineThickness", 1, "Line Thickness" );
     CAF_PDM_InitField( &m_lineColor, "LineColor", cvf::Color3f( cvf::Color3f::WHITE ), "Line Color" );
@@ -119,16 +142,35 @@ void RimSeismicSection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     group0->add( &m_userDescription );
     group0->add( &m_seismicData );
 
-    auto group1 = uiOrdering.addNewGroup( "Intersection Definition" );
-    group1->add( &m_targets );
-    group1->add( &m_enablePicking );
+    if ( m_seismicData() != nullptr )
+    {
+        group0->add( &m_type );
 
-    auto group2 = uiOrdering.addNewGroup( "Appearance" );
-    group2->add( &m_lineThickness );
-    group2->add( &m_lineColor );
-    group2->add( &m_showSeismicOutline );
+        if ( m_type() == CrossSectionEnum::CS_POLYLINE )
+        {
+            auto group1 = uiOrdering.addNewGroup( "Polyline Definition" );
+            group1->add( &m_targets );
+            group1->add( &m_enablePicking );
+        }
+        else if ( m_type() == CrossSectionEnum::CS_INLINE )
+        {
+            group0->add( &m_inlineIndex );
+        }
+        else if ( m_type() == CrossSectionEnum::CS_XLINE )
+        {
+            group0->add( &m_xlineIndex );
+        }
+        else if ( m_type() == CrossSectionEnum::CS_DEPTHSLICE )
+        {
+            group0->add( &m_depthIndex );
+        }
+        auto group2 = uiOrdering.addNewGroup( "Appearance" );
+        group2->add( &m_lineThickness );
+        group2->add( &m_lineColor );
+        group2->add( &m_showSeismicOutline );
 
-    group2->setCollapsedByDefault();
+        group2->setCollapsedByDefault();
+    }
 
     uiOrdering.skipRemainingFields();
 }
@@ -175,6 +217,36 @@ void RimSeismicSection::defineEditorAttribute( const caf::PdmFieldHandle* field,
             {
                 tvAttribute->baseColor.setRgb( 255, 220, 255 );
                 tvAttribute->alwaysEnforceResizePolicy = true;
+            }
+        }
+    }
+    else if ( ( field == &m_depthIndex ) || ( field == &m_inlineIndex ) || ( field == &m_xlineIndex ) )
+    {
+        if ( m_seismicData() != nullptr )
+        {
+            auto* sliderAttrib = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute );
+            if ( sliderAttrib != nullptr )
+            {
+                sliderAttrib->m_showSpinBox = true;
+                int minVal                  = m_seismicData()->inlineMin();
+                int maxVal                  = m_seismicData()->inlineMax();
+                int stepVal                 = m_seismicData()->inlineStep();
+
+                if ( field == &m_xlineIndex )
+                {
+                    minVal  = m_seismicData()->crosslineMin();
+                    maxVal  = m_seismicData()->crosslineMax();
+                    stepVal = m_seismicData()->crosslineStep();
+                }
+                else if ( field == &m_depthIndex )
+                {
+                    minVal  = std::abs( m_seismicData()->zMin() );
+                    maxVal  = std::abs( m_seismicData()->zMax() );
+                    stepVal = m_seismicData()->zStep();
+                }
+                sliderAttrib->m_maximum = maxVal;
+                sliderAttrib->m_minimum = minVal;
+                sliderAttrib->m_step    = stepVal;
             }
         }
     }
@@ -370,26 +442,42 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection() const
     double zmax = m_seismicData->zMax();
     double ztep = m_seismicData->zStep();
 
-    for ( int i = 1; i < (int)m_targets.size(); i++ )
+    if ( m_type() == CrossSectionEnum::CS_POLYLINE )
     {
-        cvf::Vec3dArray points;
+        for ( int i = 1; i < (int)m_targets.size(); i++ )
+        {
+            cvf::Vec3d p1 = m_targets[i - 1]->targetPointXYZ();
+            cvf::Vec3d p2 = m_targets[i]->targetPointXYZ();
 
-        cvf::Vec3d p1 = m_targets[i - 1]->targetPointXYZ();
-        cvf::Vec3d p2 = m_targets[i]->targetPointXYZ();
+            cvf::Vec3dArray points;
+            points.resize( 4 );
+            points[0].set( p1.x(), p1.y(), zmin );
+            points[1].set( p2.x(), p2.y(), zmin );
+            points[2].set( p2.x(), p2.y(), zmax );
+            points[3].set( p1.x(), p1.y(), zmax );
 
-        points.resize( 4 );
-        points[0].set( p1.x(), p1.y(), zmin );
-        points[1].set( p2.x(), p2.y(), zmin );
-        points[2].set( p2.x(), p2.y(), zmax );
-        points[3].set( p1.x(), p1.y(), zmax );
-
-        widths.push_back( 100 );
-        rects.push_back( points );
+            widths.push_back( 100 );
+            rects.push_back( points );
+        }
+    }
+    else if ( m_type() == CrossSectionEnum::CS_INLINE )
+    {
+        // TODO - convert from inline/xline to world coordinates
+        return tex;
+    }
+    else if ( m_type() == CrossSectionEnum::CS_XLINE )
+    {
+        return tex;
+    }
+    else if ( m_type() == CrossSectionEnum::CS_DEPTHSLICE )
+    {
+        return tex;
     }
 
     tex->setTextureHeight( static_cast<int>( zmax - zmin ) / ztep );
     tex->setTextureWidths( widths );
     tex->setRects( rects );
+
     return tex;
 }
 

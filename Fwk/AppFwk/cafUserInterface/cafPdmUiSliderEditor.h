@@ -58,12 +58,14 @@ public:
         m_minimum     = 0;
         m_maximum     = 10;
         m_showSpinBox = true;
+        m_step        = 1;
     }
 
 public:
     int  m_minimum;
     int  m_maximum;
     bool m_showSpinBox;
+    int  m_step;
 };
 
 class PdmUiSliderEditor : public PdmUiFieldEditorHandle

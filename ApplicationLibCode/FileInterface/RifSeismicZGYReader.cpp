@@ -187,6 +187,32 @@ double RifSeismicZGYReader::depthStep()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+cvf::Vec3i RifSeismicZGYReader::inlineMinMaxStep()
+{
+    if ( !isOpen() ) return { 0, 0, 0 };
+
+    auto [minVal, maxVal] = m_reader->inlineRange();
+    int step              = m_reader->inlineStep();
+
+    return { minVal, maxVal, step };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3i RifSeismicZGYReader::crosslineMinMaxStep()
+{
+    if ( !isOpen() ) return { 0, 0, 0 };
+
+    auto [minVal, maxVal] = m_reader->crosslineRange();
+    int step              = m_reader->crosslineStep();
+
+    return { minVal, maxVal, step };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::Vec3d RifSeismicZGYReader::convertToWorldCoords( int iLine, int xLine, double depth )
 {
     if ( !isOpen() ) return { 0, 0, 0 };
@@ -195,3 +221,4 @@ cvf::Vec3d RifSeismicZGYReader::convertToWorldCoords( int iLine, int xLine, doub
 
     return cvf::Vec3d( x, y, depth );
 }
+
