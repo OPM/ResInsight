@@ -22,6 +22,7 @@
 #include "RimProject.h"
 #include "RimWellAllocationOverTimePlot.h"
 #include "RimWellAllocationPlot.h"
+#include "RimWellConnectivityTable.h"
 #include "RimWellDistributionPlotCollection.h"
 
 #include "cafProgressInfo.h"
@@ -38,6 +39,9 @@ RimFlowPlotCollection::RimFlowPlotCollection()
 
     CAF_PDM_InitFieldNoDefault( &m_flowCharacteristicsPlot, "FlowCharacteristicsPlot", "" );
     m_flowCharacteristicsPlot.uiCapability()->setUiTreeHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_defaultWellConnectivityTable, "DefaultWellConnectivityTable", "" );
+    m_defaultWellConnectivityTable.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_defaultWellAllocOverTimePlot, "DefaultWellAllocationOverTimePlot", "" );
     m_defaultWellAllocOverTimePlot.uiCapability()->setUiTreeHidden( true );
@@ -72,6 +76,7 @@ void RimFlowPlotCollection::deleteAllPlots()
         m_defaultWellAllocPlot->removeFromMdiAreaAndDeleteViewWidget();
         delete m_defaultWellAllocPlot();
     }
+    delete m_defaultWellConnectivityTable;
     delete m_defaultWellAllocOverTimePlot;
     delete m_flowCharacteristicsPlot;
     delete m_wellDistributionPlotCollection;
@@ -88,6 +93,9 @@ void RimFlowPlotCollection::loadDataAndUpdateAllPlots()
     caf::ProgressInfo plotProgress( m_storedWellAllocPlots.size() + m_storedFlowCharacteristicsPlots.size() + 4, "" );
 
     if ( m_defaultWellAllocPlot ) m_defaultWellAllocPlot->loadDataAndUpdate();
+    plotProgress.incrementProgress();
+
+    if ( m_defaultWellConnectivityTable ) m_defaultWellConnectivityTable->loadDataAndUpdate();
     plotProgress.incrementProgress();
 
     if ( m_defaultWellAllocOverTimePlot ) m_defaultWellAllocOverTimePlot->loadDataAndUpdate();
@@ -123,6 +131,7 @@ size_t RimFlowPlotCollection::plotCount() const
 {
     size_t plotCount = 0;
     plotCount += m_defaultWellAllocPlot ? 1 : 0;
+    plotCount += m_defaultWellConnectivityTable ? 1 : 0;
     plotCount += m_defaultWellAllocOverTimePlot ? 1 : 0;
     plotCount += m_storedWellAllocPlots.size();
     plotCount += m_storedFlowCharacteristicsPlots.size();
@@ -215,6 +224,12 @@ void RimFlowPlotCollection::ensureDefaultFlowPlotsAreCreated()
     {
         m_defaultWellAllocOverTimePlot = new RimWellAllocationOverTimePlot;
         m_defaultWellAllocOverTimePlot->setDescription( "Default Well Allocation Over Time Plot" );
+    }
+
+    if ( !m_defaultWellConnectivityTable() )
+    {
+        m_defaultWellConnectivityTable = new RimWellConnectivityTable;
+        // m_defaultWellConnectivityTable->setDescription( "Default Well Allocation Over Time Plot" );
     }
 
     if ( !m_flowCharacteristicsPlot() )
