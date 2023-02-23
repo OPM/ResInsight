@@ -343,12 +343,15 @@ void RimSeismicSection::updateEditorsAndVisualization()
 cvf::ref<RigPolyLinesData> RimSeismicSection::polyLinesData() const
 {
     cvf::ref<RigPolyLinesData> pld = new RigPolyLinesData;
-    std::vector<cvf::Vec3d>    line;
-    for ( const RimPolylineTarget* target : m_targets )
+    if ( m_type() == CrossSectionEnum::CS_POLYLINE )
     {
-        if ( target->isEnabled() ) line.push_back( target->targetPointXYZ() );
+        std::vector<cvf::Vec3d> line;
+        for ( const RimPolylineTarget* target : m_targets )
+        {
+            if ( target->isEnabled() ) line.push_back( target->targetPointXYZ() );
+        }
+        pld->setPolyLine( line );
     }
-    pld->setPolyLine( line );
 
     if ( m_showSeismicOutline() && m_seismicData() != nullptr )
     {
