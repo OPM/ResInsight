@@ -59,6 +59,8 @@ public:
 
     double depthStep();
 
+    cvf::Vec3d convertToWorldCoords( int iLine, int xLine, double depth );
+
 private:
     QString                               m_filename;
     std::shared_ptr<ZGYAccess::ZGYReader> m_reader;

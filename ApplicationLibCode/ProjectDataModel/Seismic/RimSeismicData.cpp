@@ -18,6 +18,8 @@
 
 #include "RimSeismicData.h"
 
+#include "RiaLogging.h"
+
 #include "RifSeismicZGYReader.h"
 #include "RimStringParameter.h"
 
@@ -41,6 +43,8 @@ CAF_PDM_SOURCE_INIT( RimSeismicData, "SeismicData" );
 //--------------------------------------------------------------------------------------------------
 RimSeismicData::RimSeismicData()
     : m_zStep( 0 )
+    , m_filereader( nullptr )
+    , m_nErrorsLogged( 0 )
 {
     CAF_PDM_InitObject( "SeismicData", ":/Seismic16x16.png" );
 
@@ -71,6 +75,46 @@ RimSeismicData::RimSeismicData()
 //--------------------------------------------------------------------------------------------------
 RimSeismicData::~RimSeismicData()
 {
+    m_filereader->close();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSeismicData::openFileIfNotOpen()
+{
+    if ( m_filereader == nullptr )
+    {
+        m_filereader = std::make_shared<RifSeismicZGYReader>();
+    }
+
+    if ( m_filereader->isOpen() ) return true;
+
+    if ( m_filename().isEmpty() ) return false;
+
+    if ( QFile::exists( m_filename ) )
+    {
+        if ( !m_filereader->open( m_filename ) )
+        {
+            logError( "Unable to open seismic file : " + m_filename );
+            return false;
+        }
+    }
+    else
+    {
+        logError( "Seismic file not found: " + m_filename );
+        return false;
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicData::logError( QString msg )
+{
+    if ( m_nErrorsLogged < 1 ) RiaLogging::error( msg );
+    m_nErrorsLogged++;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,6 +123,7 @@ RimSeismicData::~RimSeismicData()
 void RimSeismicData::initAfterRead()
 {
     updateMetaData();
+    openFileIfNotOpen();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -86,7 +131,12 @@ void RimSeismicData::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimSeismicData::setFileName( QString filename )
 {
-    m_filename = filename;
+    if ( filename != m_filename )
+    {
+        m_filereader->close();
+        m_nErrorsLogged = 0;
+        m_filename      = filename;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -128,13 +178,11 @@ void RimSeismicData::updateMetaData()
 {
     m_metadata.deleteChildren();
 
-    RifSeismicZGYReader reader;
+    if ( !openFileIfNotOpen() ) return;
 
-    if ( !reader.open( m_filename ) ) return;
+    auto metadata = m_filereader->metaData();
 
-    auto metadata = reader.metaData();
-
-    for ( auto [name, value] : metadata )
+    for ( auto& [name, value] : metadata )
     {
         auto param = new RimStringParameter();
         param->setLabel( name );
@@ -143,24 +191,22 @@ void RimSeismicData::updateMetaData()
     }
 
     m_boundingBox->reset();
-    m_boundingBox->add( reader.boundingBox() );
+    m_boundingBox->add( m_filereader->boundingBox() );
 
-    m_zStep = reader.depthStep();
+    m_zStep = m_filereader->depthStep();
 
-    auto [minDataValue, maxDataValue] = reader.dataRange();
+    auto [minDataValue, maxDataValue] = m_filereader->dataRange();
     m_maxAbsDataValue                 = std::max( std::abs( minDataValue ), std::abs( maxDataValue ) );
 
-    reader.histogramData( m_histogramXvalues, m_histogramYvalues );
+    m_filereader->histogramData( m_histogramXvalues, m_histogramYvalues );
 
     m_worldOutline.clear();
-    for ( auto& p : reader.worldCorners() )
+    for ( auto& p : m_filereader->worldCorners() )
     {
         m_worldOutline.push_back( p );
     }
 
     updateDataRange( false );
-
-    reader.close();
 }
 
 std::vector<cvf::Vec3d> RimSeismicData::worldOutline() const
@@ -312,4 +358,14 @@ void RimSeismicData::updateDataRange( bool updatePlot )
     }
 
     if ( updatePlot ) RiuMainWindow::instance()->seismicHistogramPanel()->showHistogram( this );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d RimSeismicData::convertToWorldCoords( int iLine, int xLine, double depth )
+{
+    if ( !openFileIfNotOpen() ) return { 0, 0, 0 };
+
+    return m_filereader->convertToWorldCoords( iLine, xLine, depth );
 }
