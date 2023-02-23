@@ -45,7 +45,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<SimulationWellCellBranch> RigSimulationWellCenterLineCalculator::aggregatedMswWells( RimSimWellInView* rimWell )
+std::vector<SimulationWellCellBranch>
+    RigSimulationWellCenterLineCalculator::calculateMswWellPipeGeometry( RimSimWellInView* rimWell )
 {
     CVF_ASSERT( rimWell );
 
@@ -61,16 +62,16 @@ std::vector<SimulationWellCellBranch> RigSimulationWellCenterLineCalculator::agg
 
     int timeStepIndex = eclipseView->currentTimeStep();
 
-    return calculateaggregatedMswWellsFrame( eclipseCaseData, simWellData, timeStepIndex );
+    return calculateMswWellPipeGeometryForTimeStep( eclipseCaseData, simWellData, timeStepIndex );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<SimulationWellCellBranch>
-    RigSimulationWellCenterLineCalculator::calculateaggregatedMswWellsFrame( const RigEclipseCaseData* eclipseCaseData,
-                                                                             const RigSimWellData*     wellResults,
-                                                                             int                       timeStepIndex )
+    RigSimulationWellCenterLineCalculator::calculateMswWellPipeGeometryForTimeStep( const RigEclipseCaseData* eclipseCaseData,
+                                                                                    const RigSimWellData* wellResults,
+                                                                                    int timeStepIndex )
 {
     // 1. create all main well branches based on segment info
     // 2. for all small branches, add completed grid cells to a list for each segment
@@ -87,8 +88,6 @@ std::vector<SimulationWellCellBranch>
     {
         wellFramePtr = wellResults->wellResultFrame( timeStepIndex );
     }
-
-    bool isMultiSegmentWell = wellResults->isMultiSegmentWell();
 
     const RigWellResultFrame&               wellFrame   = *wellFramePtr;
     const std::vector<RigWellResultBranch>& resBranches = wellFrame.m_wellResultBranches;
@@ -348,22 +347,22 @@ std::vector<SimulationWellCellBranch>
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<SimulationWellCellBranch>
-    RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellFrame( const RigEclipseCaseData* eclipseCaseData,
-                                                                                     const RigSimWellData* simWellData,
-                                                                                     int  timeStepIndex,
-                                                                                     bool isAutoDetectBranches,
-                                                                                     bool useAllCellCenters )
+    RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineForTimeStep( const RigEclipseCaseData* eclipseCaseData,
+                                                                                   const RigSimWellData* simWellData,
+                                                                                   int                   timeStepIndex,
+                                                                                   bool isAutoDetectBranches,
+                                                                                   bool useAllCellCenters )
 {
     std::vector<std::vector<cvf::Vec3d>>         pipeBranchesCLCoords;
     std::vector<std::vector<RigWellResultPoint>> pipeBranchesCellIds;
 
-    calculateWellPipeCenterlineFromWellFrame( eclipseCaseData,
-                                              simWellData,
-                                              timeStepIndex,
-                                              isAutoDetectBranches,
-                                              useAllCellCenters,
-                                              pipeBranchesCLCoords,
-                                              pipeBranchesCellIds );
+    calculateWellPipeCenterlineForTimeStep( eclipseCaseData,
+                                            simWellData,
+                                            timeStepIndex,
+                                            isAutoDetectBranches,
+                                            useAllCellCenters,
+                                            pipeBranchesCLCoords,
+                                            pipeBranchesCellIds );
 
     std::vector<SimulationWellCellBranch> simuationBranches;
     for ( size_t i = 0; i < pipeBranchesCLCoords.size(); i++ )
@@ -418,13 +417,13 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline(
     bool useAllCellCenters = rimWell->isUsingCellCenterForPipe();
     int  timeStepIndex     = -1;
 
-    calculateWellPipeCenterlineFromWellFrame( eclipseCaseData,
-                                              simWellData,
-                                              timeStepIndex,
-                                              isAutoDetectBranches,
-                                              useAllCellCenters,
-                                              pipeBranchesCLCoords,
-                                              pipeBranchesCellIds );
+    calculateWellPipeCenterlineForTimeStep( eclipseCaseData,
+                                            simWellData,
+                                            timeStepIndex,
+                                            isAutoDetectBranches,
+                                            useAllCellCenters,
+                                            pipeBranchesCLCoords,
+                                            pipeBranchesCellIds );
 
     bool printDebug = true;
     if ( printDebug )
@@ -475,7 +474,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline(
 /// The returned CellIds is one less than the number of centerline points,
 /// and are describing the lines between the points, starting with the first line
 //--------------------------------------------------------------------------------------------------
-void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellFrame(
+void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineForTimeStep(
     const RigEclipseCaseData*                     eclipseCaseData,
     const RigSimWellData*                         wellResults,
     int                                           timeStepIndex,

@@ -507,11 +507,11 @@ std::vector<const RigWellPath*> RigEclipseCaseData::simulationWellBranches( cons
     if ( m_simWellBranchCache.find( simWellSeachItem ) == m_simWellBranchCache.end() )
     {
         const auto simWellBranches =
-            RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellFrame( this,
-                                                                                             simWellData,
-                                                                                             -1,
-                                                                                             useAutoDetectionOfBranches,
-                                                                                             includeAllCellCenters );
+            RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineForTimeStep( this,
+                                                                                           simWellData,
+                                                                                           -1,
+                                                                                           useAutoDetectionOfBranches,
+                                                                                           includeAllCellCenters );
 
         m_simWellBranchCache.insert( std::make_pair( simWellSeachItem, cvf::Collection<RigWellPath>() ) );
 

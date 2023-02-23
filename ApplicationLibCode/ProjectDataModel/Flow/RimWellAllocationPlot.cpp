@@ -249,11 +249,11 @@ void RimWellAllocationPlot::updateFromWell()
 
     // Set up the Accumulated Well Flow Calculator
     const auto simWellBranches =
-        RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellFrame( m_case->eclipseCaseData(),
-                                                                                         simWellData,
-                                                                                         m_timeStep,
-                                                                                         m_branchDetection,
-                                                                                         true );
+        RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineForTimeStep( m_case->eclipseCaseData(),
+                                                                                       simWellData,
+                                                                                       m_timeStep,
+                                                                                       m_branchDetection,
+                                                                                       true );
     const auto& [pipeBranchesCLCoords, pipeBranchesCellIds] =
         RigSimulationWellCenterLineCalculator::extractBranchData( simWellBranches );
 

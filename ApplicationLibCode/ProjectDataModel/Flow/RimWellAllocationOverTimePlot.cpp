@@ -464,11 +464,11 @@ RimWellAllocationOverTimeCollection RimWellAllocationOverTimePlot::createWellAll
             RimWellAllocationTools::findOrCreateRelevantTracerCellFractions( simWellData, m_flowDiagSolution, i );
 
         auto simWellBranches =
-            RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellFrame( m_case->eclipseCaseData(),
-                                                                                             simWellData,
-                                                                                             i,
-                                                                                             branchDetection,
-                                                                                             true );
+            RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineForTimeStep( m_case->eclipseCaseData(),
+                                                                                           simWellData,
+                                                                                           i,
+                                                                                           branchDetection,
+                                                                                           true );
 
         const auto& [pipeBranchesCLCoords, pipeBranchesCellIds] =
             RigSimulationWellCenterLineCalculator::extractBranchData( simWellBranches );

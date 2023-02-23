@@ -158,9 +158,16 @@ void RivSimWellPipesPartMgr::buildWellPipeParts( const caf::DisplayCoordTransfor
     std::vector<std::vector<RigWellResultPoint>> pipeBranchesCellIds;
 
     {
-        // auto simWellBranches = RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline(
-        // m_simWellInView );
-        auto simWellBranches            = RigSimulationWellCenterLineCalculator::aggregatedMswWells( m_simWellInView );
+        std::vector<SimulationWellCellBranch> simWellBranches;
+        const RigSimWellData*                 simWellData = m_simWellInView->simWellData();
+        if ( simWellData && simWellData->isMultiSegmentWell() )
+        {
+            simWellBranches = RigSimulationWellCenterLineCalculator::calculateMswWellPipeGeometry( m_simWellInView );
+        }
+        else
+        {
+            simWellBranches = RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( m_simWellInView );
+        }
         const auto& [coords, wellCells] = RigSimulationWellCenterLineCalculator::extractBranchData( simWellBranches );
 
         m_pipeBranchesCLCoords = coords;
