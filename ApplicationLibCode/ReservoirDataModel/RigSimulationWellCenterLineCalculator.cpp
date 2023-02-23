@@ -234,6 +234,42 @@ std::vector<SimulationWellCellBranch>
         std::vector<cvf::Vec3d>         branchCoords;
         std::vector<RigWellResultPoint> branchCellIds;
 
+        if ( longBranch.m_branchId == 1 && !longBranch.m_segmentsWithGridCells.empty() )
+        {
+            const auto& [firstSegment, gridAndCellIndices] = *longBranch.m_segmentsWithGridCells.begin();
+            if ( !gridAndCellIndices.empty() )
+            {
+                const auto& [gridIndex, cellIndex] = gridAndCellIndices.front();
+
+                const RigCell& cell       = eclipseCaseData->grid( gridIndex )->cell( cellIndex );
+                cvf::Vec3d     whStartPos = cell.faceCenter( cvf::StructGridInterface::NEG_K );
+
+                // Add extra coordinate between cell face and cell center
+                // to make sure the well pipe terminated in a segment parallel to z-axis
+
+                cvf::Vec3d whIntermediate = whStartPos;
+                whIntermediate.z()        = ( whStartPos.z() + cell.center().z() ) / 2.0;
+
+                RigWellResultPoint resPoint;
+                for ( const auto& resBranch : resBranches )
+                {
+                    for ( const auto& respoint : resBranch.m_branchResultPoints )
+                    {
+                        if ( respoint.segmentId() == firstSegment )
+                        {
+                            resPoint = respoint;
+                            break;
+                        }
+                    }
+                }
+
+                branchCoords.push_back( whStartPos );
+                branchCellIds.push_back( resPoint );
+                branchCoords.push_back( whIntermediate );
+                branchCellIds.push_back( resPoint );
+            }
+        }
+
         for ( const auto& [segmentId, gridAndCellIndex] : longBranch.m_segmentsWithGridCells )
         {
             RigWellResultPoint resPoint;
@@ -252,24 +288,7 @@ std::vector<SimulationWellCellBranch>
             for ( const auto& [gridIndex, cellIndex] : gridAndCellIndex )
             {
                 const RigCell& cell = eclipseCaseData->grid( gridIndex )->cell( cellIndex );
-
-                if ( longBranch.m_branchId == 1 )
-                {
-                    cvf::Vec3d whStartPos = cell.faceCenter( cvf::StructGridInterface::NEG_K );
-
-                    // Add extra coordinate between cell face and cell center
-                    // to make sure the well pipe terminated in a segment parallel to z-axis
-
-                    cvf::Vec3d whIntermediate = whStartPos;
-                    whIntermediate.z()        = ( whStartPos.z() + cell.center().z() ) / 2.0;
-
-                    branchCoords.push_back( whStartPos );
-                    branchCellIds.push_back( resPoint );
-                    branchCoords.push_back( whIntermediate );
-                    branchCellIds.push_back( resPoint );
-                }
-
-                cvf::Vec3d pos = cell.center();
+                cvf::Vec3d     pos  = cell.center();
 
                 branchCoords.push_back( pos );
                 branchCellIds.push_back( resPoint );
