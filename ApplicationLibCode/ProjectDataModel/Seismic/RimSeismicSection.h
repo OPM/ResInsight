@@ -50,6 +50,15 @@ class RimSeismicSection : public RimCheckableNamedObject, public RimPolylinePick
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class CrossSectionEnum
+    {
+        CS_INLINE,
+        CS_XLINE,
+        CS_DEPTHSLICE,
+        CS_POLYLINE
+    };
+
+public:
     RimSeismicSection();
     ~RimSeismicSection() override;
 
@@ -93,12 +102,17 @@ private:
     caf::PdmField<QString>            m_userDescription;
     caf::PdmPtrField<RimSeismicData*> m_seismicData;
 
-    caf::PdmField<bool>                         m_showSeismicOutline;
-    caf::PdmField<bool>                         m_enablePicking;
-    caf::PdmChildArrayField<RimPolylineTarget*> m_targets;
-    caf::PdmField<int>                          m_lineThickness;
-    caf::PdmField<cvf::Color3f>                 m_lineColor;
-    caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
+    caf::PdmField<bool>                           m_showSeismicOutline;
+    caf::PdmField<bool>                           m_enablePicking;
+    caf::PdmChildArrayField<RimPolylineTarget*>   m_targets;
+    caf::PdmField<int>                            m_lineThickness;
+    caf::PdmField<cvf::Color3f>                   m_lineColor;
+    caf::PdmChildField<RimRegularLegendConfig*>   m_legendConfig;
+    caf::PdmField<caf::AppEnum<CrossSectionEnum>> m_type;
+
+    caf::PdmField<int> m_inlineIndex;
+    caf::PdmField<int> m_xlineIndex;
+    caf::PdmField<int> m_depthIndex;
 
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
     cvf::ref<RivSeismicSectionPartMgr>                  m_sectionPartMgr;

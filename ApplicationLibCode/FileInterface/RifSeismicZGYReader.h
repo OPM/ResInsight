@@ -57,6 +57,9 @@ public:
 
     std::vector<cvf::Vec3d> worldCorners();
 
+    cvf::Vec3i inlineMinMaxStep();
+    cvf::Vec3i crosslineMinMaxStep();
+
     double depthStep();
 
     cvf::Vec3d convertToWorldCoords( int iLine, int xLine, double depth );
