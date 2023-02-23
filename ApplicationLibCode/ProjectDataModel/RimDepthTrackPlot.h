@@ -27,6 +27,8 @@
 #include "RimPlot.h"
 #include "RimPlotWindow.h"
 
+#include "RiuPlotCurveInfoTextProvider.h"
+
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
@@ -196,6 +198,9 @@ protected:
     void                 onLoadDataAndUpdate() override;
     void                 updatePlots();
     caf::PdmFieldHandle* userDescriptionField() override;
+
+    void                                  createAndSetCurveTextProvider( RimWellLogTrack* track );
+    virtual RiuPlotCurveInfoTextProvider* curveTextProvider() const;
 
 private:
     void cleanupBeforeClose();

@@ -18,6 +18,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RiuQwtCurvePointTracker.h"
 #include "RiuQwtPlotWidget.h"
 
 #include "qwt_plot.h"
@@ -50,4 +51,21 @@ private:
 
 private:
     std::unique_ptr<RiuPlotAnnotationTool> m_annotationTool;
+};
+
+//==================================================================================================
+//
+//
+//
+//==================================================================================================
+class RiuWellLogCurvePointTracker : public RiuQwtCurvePointTracker
+{
+public:
+    RiuWellLogCurvePointTracker( QwtPlot* plot, RiuPlotCurveInfoTextProvider* curveInfoTextProvider, RimWellLogTrack* track );
+
+protected:
+    QwtText trackerText( const QPoint& pos ) const override;
+
+private:
+    caf::PdmPointer<RimWellLogTrack> m_wellLogTrack;
 };
