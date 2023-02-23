@@ -40,6 +40,8 @@
 #include <deque>
 #include <list>
 
+#pragma optimize( "", off )
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -57,7 +59,7 @@ std::vector<SimulationWellCellBranch> RigSimulationWellCenterLineCalculator::agg
 
     RigEclipseCaseData* eclipseCaseData = eclipseView->eclipseCase()->eclipseCaseData();
 
-    int timeStepIndex = -1;
+    int timeStepIndex = eclipseView->currentTimeStep();
 
     return calculateaggregatedMswWellsFrame( eclipseCaseData, simWellData, timeStepIndex );
 }
@@ -91,7 +93,7 @@ std::vector<SimulationWellCellBranch>
     const RigWellResultFrame&               wellFrame   = *wellFramePtr;
     const std::vector<RigWellResultBranch>& resBranches = wellFrame.m_wellResultBranches;
 
-    struct SegmentConnection
+    struct Segment
     {
         int segmentId;
         int outputSegmentId;
@@ -100,14 +102,24 @@ std::vector<SimulationWellCellBranch>
 
     struct WellBranch
     {
-        int              m_branchId;
+        int              m_branchId = -1;
         std::vector<int> m_segmentIds;
 
-        std::map<std::pair<size_t, size_t>, SegmentConnection> m_gridCellsConnectedToSegments;
+        std::map<std::pair<size_t, size_t>, Segment>          m_gridCellsConnectedToSegments;
+        std::map<int, std::vector<std::pair<size_t, size_t>>> m_segmentsWithGridCells;
 
-        bool containsGridCell( std::pair<size_t, size_t> gridAndCellIndex )
+        bool containsGridCell( const std::pair<size_t, size_t>& candidateGridAndCellIndex ) const
         {
-            return m_gridCellsConnectedToSegments.contains( gridAndCellIndex );
+            for ( const auto& [segmentId, gridAndCellIndex] : m_segmentsWithGridCells )
+            {
+                if ( std::find( gridAndCellIndex.begin(), gridAndCellIndex.end(), candidateGridAndCellIndex ) !=
+                     gridAndCellIndex.end() )
+                {
+                    return true;
+                }
+            }
+
+            return false;
         };
     };
 
@@ -125,15 +137,17 @@ std::vector<SimulationWellCellBranch>
             size_t gridCellIndex = resPoint.cellIndex();
 
             auto gridAndCellIndex = std::make_pair( gridIndex, gridCellIndex );
-            if ( !branch.containsGridCell( gridAndCellIndex ) )
+            if ( gridIndex != cvf::UNDEFINED_SIZE_T && gridCellIndex != cvf::UNDEFINED_SIZE_T &&
+                 !branch.containsGridCell( gridAndCellIndex ) )
             {
-                SegmentConnection conn{ resPoint.segmentId(), resPoint.outletSegmentId(), resPoint.outletBranchId() };
+                Segment conn{ resPoint.segmentId(), resPoint.outletSegmentId(), resPoint.outletBranchId() };
                 branch.m_gridCellsConnectedToSegments[gridAndCellIndex] = conn;
+                branch.m_segmentsWithGridCells[resPoint.segmentId()].push_back( gridAndCellIndex );
             }
         }
 
         const int gridCellCountThreshold = 3;
-        if ( branch.m_gridCellsConnectedToSegments.size() > gridCellCountThreshold )
+        if ( resultBranch.m_branchResultPoints.size() > gridCellCountThreshold )
         {
             longWellBranches.push_back( branch );
         }
@@ -141,22 +155,58 @@ std::vector<SimulationWellCellBranch>
         {
             shortWellBranches.push_back( branch );
         }
+    }
 
-        for ( const auto& branch : shortWellBranches )
+    for ( const auto& branch : shortWellBranches )
+    {
+        for ( const auto& [gridAndCellIndex, segmentConnection] : branch.m_gridCellsConnectedToSegments )
         {
-            for ( const auto& [gridAndCellIndex, segmentConnection] : branch.m_gridCellsConnectedToSegments )
+            for ( auto& longBranch : longWellBranches )
             {
-                for ( auto& longBranch : longWellBranches )
+                if ( longBranch.m_branchId == segmentConnection.outputSegmentBranchId )
                 {
-                    if ( longBranch.m_branchId == segmentConnection.outputSegmentBranchId )
-                    {
-                        SegmentConnection conn{ segmentConnection.outputSegmentId, -1, -1 };
+                    Segment conn{ segmentConnection.outputSegmentId, -1, -1 };
 
-                        longBranch.m_gridCellsConnectedToSegments[gridAndCellIndex] = conn;
-                    }
+                    longBranch.m_segmentsWithGridCells[segmentConnection.outputSegmentId].push_back( gridAndCellIndex );
                 }
             }
         }
+    }
+
+    std::vector<SimulationWellCellBranch> simWellBranches;
+    for ( const auto& longBranch : longWellBranches )
+    {
+        std::vector<cvf::Vec3d>         branchCoords;
+        std::vector<RigWellResultPoint> branchCellIds;
+
+        for ( const auto& [segmentId, gridAndCellIndex] : longBranch.m_segmentsWithGridCells )
+        {
+            RigWellResultPoint resPoint;
+            for ( const auto& resBranch : resBranches )
+            {
+                for ( const auto& respoint : resBranch.m_branchResultPoints )
+                {
+                    if ( respoint.segmentId() == segmentId )
+                    {
+                        resPoint = respoint;
+                        break;
+                    }
+                }
+            }
+
+            for ( const auto& [gridIndex, cellIndex] : gridAndCellIndex )
+            {
+                const RigCell& cell = eclipseCaseData->grid( gridIndex )->cell( cellIndex );
+                cvf::Vec3d     pos  = cell.center();
+
+                branchCoords.push_back( pos );
+                branchCellIds.push_back( resPoint );
+            }
+        }
+
+        branchCoords.push_back( branchCoords.back() );
+
+        simWellBranches.push_back( { branchCoords, branchCellIds } );
     }
 
     // Well head
@@ -165,7 +215,7 @@ std::vector<SimulationWellCellBranch>
     //     wellFrame.wellHeadOrStartCell()
     //     ); cvf::Vec3d     whStartPos = whCell.faceCenter( cvf::StructGridInterface::NEG_K );
 
-    return {};
+    return simWellBranches;
 }
 
 //--------------------------------------------------------------------------------------------------
