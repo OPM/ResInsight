@@ -1312,7 +1312,12 @@ caf::PdmFieldHandle* RimDepthTrackPlot::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimDepthTrackPlot::createAndSetCurveTextProvider( RimWellLogTrack* track )
 {
-    auto qwtPlotWidget = dynamic_cast<RiuQwtPlotWidget*>( track->plotWidget() );
+    if ( !track ) return;
+
+    auto* qwtPlotWidget = dynamic_cast<RiuQwtPlotWidget*>( track->plotWidget() );
+
+    if ( !qwtPlotWidget ) return;
+
     new RiuWellLogCurvePointTracker( qwtPlotWidget->qwtPlot(), curveTextProvider(), track );
 }
 
