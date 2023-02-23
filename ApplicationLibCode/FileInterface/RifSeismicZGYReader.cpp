@@ -119,7 +119,7 @@ cvf::BoundingBox RifSeismicZGYReader::boundingBox()
     {
         auto [zmin, zmax] = m_reader->ZRange();
 
-        auto outline = m_reader->seismicOutline();
+        auto outline = m_reader->seismicWorldOutline();
 
         auto corners = outline.points();
         for ( auto p : corners )
@@ -161,7 +161,7 @@ std::pair<double, double> RifSeismicZGYReader::dataRange()
 std::vector<cvf::Vec3d> RifSeismicZGYReader::worldCorners()
 {
     auto [zmin, zmax] = m_reader->ZRange();
-    auto outline      = m_reader->seismicOutline();
+    auto outline      = m_reader->seismicWorldOutline();
 
     std::vector<cvf::Vec3d> retval;
 
@@ -182,4 +182,16 @@ double RifSeismicZGYReader::depthStep()
     if ( !isOpen() ) return 0.0;
 
     return m_reader->ZStep();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d RifSeismicZGYReader::convertToWorldCoords( int iLine, int xLine, double depth )
+{
+    if ( !isOpen() ) return { 0, 0, 0 };
+
+    auto [x, y] = m_reader->toWorldCoordinate( iLine, xLine );
+
+    return cvf::Vec3d( x, y, depth );
 }

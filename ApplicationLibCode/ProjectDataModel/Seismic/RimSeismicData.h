@@ -28,6 +28,7 @@
 #include <memory>
 
 class RimGenericParameter;
+class RifSeismicZGYReader;
 
 namespace cvf
 {
@@ -59,6 +60,8 @@ public:
 
     std::vector<cvf::Vec3d> worldOutline() const;
 
+    cvf::Vec3d convertToWorldCoords( int iLine, int xLine, double depth );
+
 protected:
     void                 initAfterRead() override;
     caf::PdmFieldHandle* userDescriptionField() override;
@@ -72,6 +75,8 @@ protected:
 
 private:
     void updateDataRange( bool updatePlot );
+    bool openFileIfNotOpen();
+    void logError( QString msg );
 
 private:
     caf::PdmField<QString>                        m_filename;
@@ -88,4 +93,7 @@ private:
     std::vector<double>               m_clippedHistogramXvalues;
     std::vector<double>               m_clippedHistogramYvalues;
     std::vector<cvf::Vec3d>           m_worldOutline;
+
+    std::shared_ptr<RifSeismicZGYReader> m_filereader;
+    int                                  m_nErrorsLogged;
 };
