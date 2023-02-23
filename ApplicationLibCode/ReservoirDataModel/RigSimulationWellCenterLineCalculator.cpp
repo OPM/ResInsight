@@ -95,15 +95,15 @@ std::vector<SimulationWellCellBranch>
 
     struct Segment
     {
-        int segmentId;
-        int outputSegmentId;
-        int outputSegmentBranchId;
+        int  segmentId;
+        bool isOpen;
+        int  outputSegmentId;
+        int  outputSegmentBranchId;
     };
 
     struct WellBranch
     {
-        int              m_branchId = -1;
-        std::vector<int> m_segmentIds;
+        int m_branchId = -1;
 
         std::map<std::pair<size_t, size_t>, Segment>          m_gridCellsConnectedToSegments;
         std::map<int, std::vector<std::pair<size_t, size_t>>> m_segmentsWithGridCells;
@@ -140,7 +140,7 @@ std::vector<SimulationWellCellBranch>
             if ( gridIndex != cvf::UNDEFINED_SIZE_T && gridCellIndex != cvf::UNDEFINED_SIZE_T &&
                  !branch.containsGridCell( gridAndCellIndex ) )
             {
-                Segment conn{ resPoint.segmentId(), resPoint.outletSegmentId(), resPoint.outletBranchId() };
+                Segment conn{ resPoint.segmentId(), resPoint.isOpen(), resPoint.outletSegmentId(), resPoint.outletBranchId() };
                 branch.m_gridCellsConnectedToSegments[gridAndCellIndex] = conn;
                 branch.m_segmentsWithGridCells[resPoint.segmentId()].push_back( gridAndCellIndex );
             }
@@ -165,7 +165,7 @@ std::vector<SimulationWellCellBranch>
             {
                 if ( longBranch.m_branchId == segmentConnection.outputSegmentBranchId )
                 {
-                    Segment conn{ segmentConnection.outputSegmentId, -1, -1 };
+                    Segment conn{ segmentConnection.outputSegmentId, segmentConnection.isOpen, -1, -1 };
 
                     longBranch.m_segmentsWithGridCells[segmentConnection.outputSegmentId].push_back( gridAndCellIndex );
                 }
@@ -193,7 +193,7 @@ std::vector<SimulationWellCellBranch>
                     outletResultPoint = wellFrame.m_wellHead;
 
                     auto gridAndCellIndex = std::make_pair( outletResultPoint.gridIndex(), outletResultPoint.cellIndex() );
-                    Segment conn{ outletResultPoint.segmentId(), -1, -1 };
+                    Segment conn{ outletResultPoint.segmentId(), outletResultPoint.isOpen(), -1, -1 };
 
                     branch.m_gridCellsConnectedToSegments[gridAndCellIndex] = conn;
                     branch.m_segmentsWithGridCells[outletResultPoint.segmentId()].push_back( gridAndCellIndex );
@@ -216,7 +216,7 @@ std::vector<SimulationWellCellBranch>
                                 }
                             }
 
-                            Segment conn{ outletResultPoint.segmentId(), -1, -1 };
+                            Segment conn{ outletResultPoint.segmentId(), outletResultPoint.isOpen(), -1, -1 };
 
                             branch.m_gridCellsConnectedToSegments[gridAndCellIndexForTieIn] = conn;
                             branch.m_segmentsWithGridCells[outletResultPoint.segmentId()].push_back(
@@ -270,7 +270,7 @@ std::vector<SimulationWellCellBranch>
             }
         }
 
-        for ( const auto& [segmentId, gridAndCellIndex] : longBranch.m_segmentsWithGridCells )
+        for ( const auto& [segmentId, gridAndCellIndices] : longBranch.m_segmentsWithGridCells )
         {
             RigWellResultPoint resPoint;
             for ( const auto& resBranch : resBranches )
@@ -285,7 +285,22 @@ std::vector<SimulationWellCellBranch>
                 }
             }
 
-            for ( const auto& [gridIndex, cellIndex] : gridAndCellIndex )
+            bool anyOpen = false;
+            for ( const auto& gridAndCellIndex : gridAndCellIndices )
+            {
+                if ( longBranch.m_gridCellsConnectedToSegments.contains( gridAndCellIndex ) )
+                {
+                    if ( longBranch.m_gridCellsConnectedToSegments.at( gridAndCellIndex ).isOpen )
+                    {
+                        anyOpen = true;
+                    }
+                };
+            }
+
+            // Propagate the aggregated open state
+            resPoint.setIsOpen( anyOpen );
+
+            for ( const auto& [gridIndex, cellIndex] : gridAndCellIndices )
             {
                 const RigCell& cell = eclipseCaseData->grid( gridIndex )->cell( cellIndex );
                 cvf::Vec3d     pos  = cell.center();
