@@ -75,7 +75,7 @@ RimSeismicData::RimSeismicData()
 //--------------------------------------------------------------------------------------------------
 RimSeismicData::~RimSeismicData()
 {
-    m_filereader->close();
+    if ( m_filereader != nullptr ) m_filereader->close();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -206,8 +206,8 @@ void RimSeismicData::updateMetaData()
         m_worldOutline.push_back( p );
     }
 
-    m_inlineInfo = reader.inlineMinMaxStep();
-    m_xlineInfo  = reader.crosslineMinMaxStep();
+    m_inlineInfo = m_filereader->inlineMinMaxStep();
+    m_xlineInfo  = m_filereader->crosslineMinMaxStep();
 
     updateDataRange( false );
 }
