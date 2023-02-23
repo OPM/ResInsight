@@ -55,6 +55,14 @@ public:
     double zMax() const;
     double zStep() const;
 
+    int inlineMin() const;
+    int inlineMax() const;
+    int inlineStep() const;
+
+    int crosslineMin() const;
+    int crosslineMax() const;
+    int crosslineStep() const;
+
     std::vector<double> histogramXvalues() const;
     std::vector<double> histogramYvalues() const;
 
@@ -87,6 +95,8 @@ private:
     caf::PdmField<double> m_maxAbsDataValue;
 
     double                            m_zStep;
+    cvf::Vec3i                        m_inlineInfo;
+    cvf::Vec3i                        m_xlineInfo;
     std::shared_ptr<cvf::BoundingBox> m_boundingBox;
     std::vector<double>               m_histogramXvalues;
     std::vector<double>               m_histogramYvalues;
