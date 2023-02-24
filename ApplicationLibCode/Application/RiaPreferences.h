@@ -86,6 +86,7 @@ public:
     bool        openExportedPdfInViewer() const;
     bool        useQtChartsAsDefaultPlotType() const;
     bool        writeEchoInGrdeclFiles() const;
+    bool        showSimplifiedMswWellPathGeometry() const;
 
     RiaDefines::ThemeEnum guiTheme() const;
 
@@ -219,6 +220,7 @@ private:
     caf::PdmField<bool>                                         m_enableFaultsByDefault;
     caf::PdmField<bool>                                         m_showInfoBox;
     caf::PdmField<bool>                                         m_showGridBox;
+    caf::PdmField<bool>                                         m_showSimplifiedMswWellPathGeometry;
 
     QStringList m_tabNames;
 };

@@ -22,6 +22,7 @@
 
 #include "RiaColorTables.h"
 #include "RiaExtractionTools.h"
+#include "RiaPreferences.h"
 
 #include "RigEclipseWellLogExtractor.h"
 #include "RigSimulationWellCenterLineCalculator.h"
@@ -160,7 +161,8 @@ void RivSimWellPipesPartMgr::buildWellPipeParts( const caf::DisplayCoordTransfor
     {
         std::vector<SimulationWellCellBranch> simWellBranches;
         const RigSimWellData*                 simWellData = m_simWellInView->simWellData();
-        if ( simWellData && simWellData->isMultiSegmentWell() )
+        if ( simWellData && simWellData->isMultiSegmentWell() &&
+             RiaPreferences::current()->showSimplifiedMswWellPathGeometry() )
         {
             simWellBranches = RigSimulationWellCenterLineCalculator::calculateMswWellPipeGeometry( m_simWellInView );
         }
