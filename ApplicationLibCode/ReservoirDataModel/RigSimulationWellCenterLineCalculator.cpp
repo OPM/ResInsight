@@ -94,10 +94,9 @@ std::vector<SimulationWellCellBranch>
 
     struct Segment
     {
-        int  segmentId;
-        bool isOpen;
-        int  outputSegmentId;
-        int  outputSegmentBranchId;
+        int segmentId             = -1;
+        int outputSegmentId       = -1;
+        int outputSegmentBranchId = -1;
     };
 
     struct WellBranch
@@ -139,7 +138,7 @@ std::vector<SimulationWellCellBranch>
             if ( gridIndex != cvf::UNDEFINED_SIZE_T && gridCellIndex != cvf::UNDEFINED_SIZE_T &&
                  !branch.containsGridCell( gridAndCellIndex ) )
             {
-                Segment conn{ resPoint.segmentId(), resPoint.isOpen(), resPoint.outletSegmentId(), resPoint.outletBranchId() };
+                Segment conn{ resPoint.segmentId(), resPoint.outletSegmentId(), resPoint.outletBranchId() };
                 branch.m_gridCellsConnectedToSegments[gridAndCellIndex] = conn;
                 branch.m_segmentsWithGridCells[resPoint.segmentId()].push_back( gridAndCellIndex );
             }
@@ -164,7 +163,7 @@ std::vector<SimulationWellCellBranch>
             {
                 if ( longBranch.m_branchId == segmentConnection.outputSegmentBranchId )
                 {
-                    Segment conn{ segmentConnection.outputSegmentId, segmentConnection.isOpen, -1, -1 };
+                    Segment conn{ segmentConnection.outputSegmentId, -1, -1 };
 
                     longBranch.m_segmentsWithGridCells[segmentConnection.outputSegmentId].push_back( gridAndCellIndex );
                 }
@@ -192,7 +191,7 @@ std::vector<SimulationWellCellBranch>
                     outletResultPoint = wellFrame.m_wellHead;
 
                     auto gridAndCellIndex = std::make_pair( outletResultPoint.gridIndex(), outletResultPoint.cellIndex() );
-                    Segment conn{ outletResultPoint.segmentId(), outletResultPoint.isOpen(), -1, -1 };
+                    Segment conn{ outletResultPoint.segmentId(), -1, -1 };
 
                     branch.m_gridCellsConnectedToSegments[gridAndCellIndex] = conn;
                     branch.m_segmentsWithGridCells[outletResultPoint.segmentId()].push_back( gridAndCellIndex );
@@ -215,7 +214,7 @@ std::vector<SimulationWellCellBranch>
                                 }
                             }
 
-                            Segment conn{ outletResultPoint.segmentId(), outletResultPoint.isOpen(), -1, -1 };
+                            Segment conn{ outletResultPoint.segmentId(), -1, -1 };
 
                             branch.m_gridCellsConnectedToSegments[gridAndCellIndexForTieIn] = conn;
                             branch.m_segmentsWithGridCells[outletResultPoint.segmentId()].push_back(
@@ -271,38 +270,18 @@ std::vector<SimulationWellCellBranch>
 
         for ( const auto& [segmentId, gridAndCellIndices] : longBranch.m_segmentsWithGridCells )
         {
-            RigWellResultPoint resPoint;
-            for ( const auto& resBranch : resBranches )
-            {
-                for ( const auto& respoint : resBranch.m_branchResultPoints )
-                {
-                    if ( respoint.segmentId() == segmentId )
-                    {
-                        resPoint = respoint;
-                        break;
-                    }
-                }
-            }
-
-            bool anyOpen = false;
-            for ( const auto& gridAndCellIndex : gridAndCellIndices )
-            {
-                if ( longBranch.m_gridCellsConnectedToSegments.contains( gridAndCellIndex ) )
-                {
-                    if ( longBranch.m_gridCellsConnectedToSegments.at( gridAndCellIndex ).isOpen )
-                    {
-                        anyOpen = true;
-                    }
-                };
-            }
-
-            // Propagate the aggregated open state
-            resPoint.setIsOpen( anyOpen );
-
             for ( const auto& [gridIndex, cellIndex] : gridAndCellIndices )
             {
                 const RigCell& cell = eclipseCaseData->grid( gridIndex )->cell( cellIndex );
                 cvf::Vec3d     pos  = cell.center();
+
+                RigWellResultPoint resPoint;
+
+                // The result point is only used to transport the grid index and cell index
+                // The current implementation will propagate the cell open state to the well segment from one cell to
+                // the next. It this is misleading, the two following lines can be removed.
+                resPoint.setGridIndex( gridIndex );
+                resPoint.setGridCellIndex( cellIndex );
 
                 branchCoords.push_back( pos );
                 branchCellIds.push_back( resPoint );
@@ -311,14 +290,8 @@ std::vector<SimulationWellCellBranch>
 
         branchCoords.push_back( branchCoords.back() );
 
-        simWellBranches.push_back( { branchCoords, branchCellIds } );
+        simWellBranches.emplace_back( branchCoords, branchCellIds );
     }
-
-    // Well head
-    // Match this position with well head position in RivWellHeadPartMgr::buildWellHeadParts()
-    //     const RigCell& whCell     = eclipseCaseData->cellFromWellResultCell(
-    //     wellFrame.wellHeadOrStartCell()
-    //     ); cvf::Vec3d     whStartPos = whCell.faceCenter( cvf::StructGridInterface::NEG_K );
 
     return simWellBranches;
 }
