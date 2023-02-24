@@ -40,8 +40,6 @@
 #include <deque>
 #include <list>
 
-#pragma optimize( "", off )
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -73,9 +71,6 @@ std::vector<SimulationWellCellBranch>
                                                                                     const RigSimWellData* wellResults,
                                                                                     int timeStepIndex )
 {
-    // 1. create all main well branches based on segment info
-    // 2. for all small branches, add completed grid cells to a list for each segment
-
     if ( timeStepIndex >= 0 && !wellResults->hasAnyValidCells( timeStepIndex ) ) return {};
 
     const RigWellResultFrame* wellFramePtr = nullptr;
@@ -89,38 +84,134 @@ std::vector<SimulationWellCellBranch>
         wellFramePtr = wellResults->wellResultFrame( timeStepIndex );
     }
 
-    const RigWellResultFrame&               wellFrame   = *wellFramePtr;
-    const std::vector<RigWellResultBranch>& resBranches = wellFrame.m_wellResultBranches;
+    const RigWellResultFrame&               wellFrame      = *wellFramePtr;
+    const std::vector<RigWellResultBranch>& resultBranches = wellFrame.m_wellResultBranches;
 
-    struct Segment
+    std::vector<WellBranch> wellBranches = buildAccumulatedWellBranches( resultBranches );
+
+    // Connect outlet segment of branches to parent branch
+
+    for ( const auto& resultBranch : resultBranches )
     {
-        int segmentId             = -1;
-        int outputSegmentId       = -1;
-        int outputSegmentBranchId = -1;
-    };
+        if ( resultBranch.m_branchResultPoints.empty() ) continue;
 
-    struct WellBranch
-    {
-        int m_branchId = -1;
+        const auto firstResultPoint = resultBranch.m_branchResultPoints.front();
 
-        std::map<std::pair<size_t, size_t>, Segment>          m_gridCellsConnectedToSegments;
-        std::map<int, std::vector<std::pair<size_t, size_t>>> m_segmentsWithGridCells;
-
-        bool containsGridCell( const std::pair<size_t, size_t>& candidateGridAndCellIndex ) const
+        for ( auto& wellBranch : wellBranches )
         {
-            for ( const auto& [segmentId, gridAndCellIndex] : m_segmentsWithGridCells )
+            if ( wellBranch.m_branchId == resultBranch.m_ertBranchId )
             {
-                if ( std::find( gridAndCellIndex.begin(), gridAndCellIndex.end(), candidateGridAndCellIndex ) !=
-                     gridAndCellIndex.end() )
+                if ( firstResultPoint.branchId() == resultBranch.m_ertBranchId )
                 {
-                    return true;
+                    // The first result point is on the same branch, use well head as outlet
+                    RigWellResultPoint outletResultPoint = wellFrame.m_wellHead;
+
+                    auto gridAndCellIndex = std::make_pair( outletResultPoint.gridIndex(), outletResultPoint.cellIndex() );
+                    wellBranch.m_segmentsWithGridCells[outletResultPoint.segmentId()].push_back( gridAndCellIndex );
+                }
+                else
+                {
+                    // The first result point on a different branch. Find the branch and add the grid cell
+                    for ( const auto& candidateResultBranch : wellBranches )
+                    {
+                        if ( firstResultPoint.branchId() == candidateResultBranch.m_branchId )
+                        {
+                            std::pair<size_t, size_t> gridAndCellIndexForTieIn;
+
+                            for ( const auto& [segment, gridAndCellIndices] : candidateResultBranch.m_segmentsWithGridCells )
+                            {
+                                if ( segment > firstResultPoint.segmentId() ) continue;
+                                if ( !gridAndCellIndices.empty() )
+                                {
+                                    gridAndCellIndexForTieIn = gridAndCellIndices.front();
+                                }
+                            }
+
+                            wellBranch.m_segmentsWithGridCells[firstResultPoint.segmentId()].push_back(
+                                gridAndCellIndexForTieIn );
+                        }
+                    }
                 }
             }
+        }
+    }
 
-            return false;
-        };
-    };
+    std::vector<SimulationWellCellBranch> simWellBranches;
+    for ( const auto& wellBranch : wellBranches )
+    {
+        std::vector<cvf::Vec3d>         branchCoords;
+        std::vector<RigWellResultPoint> resultPoints;
 
+        if ( wellBranch.m_branchId == 1 && !wellBranch.m_segmentsWithGridCells.empty() )
+        {
+            const auto& [firstSegment, gridAndCellIndices] = *wellBranch.m_segmentsWithGridCells.begin();
+            if ( !gridAndCellIndices.empty() )
+            {
+                const auto& [gridIndex, cellIndex] = gridAndCellIndices.front();
+
+                const RigCell& cell       = eclipseCaseData->grid( gridIndex )->cell( cellIndex );
+                cvf::Vec3d     whStartPos = cell.faceCenter( cvf::StructGridInterface::NEG_K );
+
+                // Add extra coordinate between cell face and cell center
+                // to make sure the well pipe terminated in a segment parallel to z-axis
+
+                cvf::Vec3d whIntermediate = whStartPos;
+                whIntermediate.z()        = ( whStartPos.z() + cell.center().z() ) / 2.0;
+
+                RigWellResultPoint resPoint;
+                for ( const auto& resBranch : resultBranches )
+                {
+                    for ( const auto& respoint : resBranch.m_branchResultPoints )
+                    {
+                        if ( respoint.segmentId() == firstSegment )
+                        {
+                            resPoint = respoint;
+                            break;
+                        }
+                    }
+                }
+
+                branchCoords.push_back( whStartPos );
+                resultPoints.push_back( resPoint );
+                branchCoords.push_back( whIntermediate );
+                resultPoints.push_back( resPoint );
+            }
+        }
+
+        for ( const auto& [segmentId, gridAndCellIndices] : wellBranch.m_segmentsWithGridCells )
+        {
+            for ( const auto& [gridIndex, cellIndex] : gridAndCellIndices )
+            {
+                const RigCell& cell = eclipseCaseData->grid( gridIndex )->cell( cellIndex );
+                cvf::Vec3d     pos  = cell.center();
+
+                RigWellResultPoint resPoint;
+
+                // The result point is only used to transport the grid index and cell index
+                // The current implementation will propagate the cell open state to the well segment from one cell to
+                // the next. It this is misleading, the two following lines can be removed.
+                resPoint.setGridIndex( gridIndex );
+                resPoint.setGridCellIndex( cellIndex );
+
+                branchCoords.push_back( pos );
+                resultPoints.push_back( resPoint );
+            }
+        }
+
+        branchCoords.push_back( branchCoords.back() );
+
+        simWellBranches.emplace_back( branchCoords, resultPoints );
+    }
+
+    return simWellBranches;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RigSimulationWellCenterLineCalculator::WellBranch>
+    RigSimulationWellCenterLineCalculator::buildAccumulatedWellBranches( const std::vector<RigWellResultBranch>& resBranches )
+{
     std::vector<WellBranch> longWellBranches;
     std::vector<WellBranch> shortWellBranches;
 
@@ -138,14 +229,14 @@ std::vector<SimulationWellCellBranch>
             if ( gridIndex != cvf::UNDEFINED_SIZE_T && gridCellIndex != cvf::UNDEFINED_SIZE_T &&
                  !branch.containsGridCell( gridAndCellIndex ) )
             {
-                Segment conn{ resPoint.segmentId(), resPoint.outletSegmentId(), resPoint.outletBranchId() };
-                branch.m_gridCellsConnectedToSegments[gridAndCellIndex] = conn;
+                OutputSegment outputSegment{ resPoint.outletSegmentId(), resPoint.outletBranchId() };
+                branch.m_gridCellsConnectedToSegments[gridAndCellIndex] = outputSegment;
                 branch.m_segmentsWithGridCells[resPoint.segmentId()].push_back( gridAndCellIndex );
             }
         }
 
-        const int gridCellCountThreshold = 3;
-        if ( resultBranch.m_branchResultPoints.size() > gridCellCountThreshold )
+        const int resultPointThreshold = 3;
+        if ( resultBranch.m_branchResultPoints.size() > resultPointThreshold )
         {
             longWellBranches.push_back( branch );
         }
@@ -155,145 +246,25 @@ std::vector<SimulationWellCellBranch>
         }
     }
 
+    // Move all grid cells of small branch to the long branch
     for ( const auto& branch : shortWellBranches )
     {
-        for ( const auto& [gridAndCellIndex, segmentConnection] : branch.m_gridCellsConnectedToSegments )
-        {
-            for ( auto& longBranch : longWellBranches )
-            {
-                if ( longBranch.m_branchId == segmentConnection.outputSegmentBranchId )
-                {
-                    Segment conn{ segmentConnection.outputSegmentId, -1, -1 };
+        if ( branch.m_gridCellsConnectedToSegments.empty() ) continue;
 
-                    longBranch.m_segmentsWithGridCells[segmentConnection.outputSegmentId].push_back( gridAndCellIndex );
+        auto outputSegment = branch.m_gridCellsConnectedToSegments.begin()->second;
+        for ( auto& longBranch : longWellBranches )
+        {
+            if ( longBranch.m_branchId == outputSegment.outputSegmentBranchId )
+            {
+                for ( const auto& [gridAndCellIndex, localOutputSegment] : branch.m_gridCellsConnectedToSegments )
+                {
+                    longBranch.m_segmentsWithGridCells[outputSegment.outputSegmentId].push_back( gridAndCellIndex );
                 }
             }
         }
     }
 
-    // Connect outlet segment of branches to parent branch
-
-    for ( const auto& resultBranch : resBranches )
-    {
-        RigWellResultPoint outletResultPoint;
-
-        if ( resultBranch.m_branchResultPoints.empty() ) continue;
-
-        auto firstResultPoint = resultBranch.m_branchResultPoints.front();
-
-        for ( auto& branch : longWellBranches )
-        {
-            if ( branch.m_branchId == resultBranch.m_ertBranchId )
-            {
-                if ( firstResultPoint.branchId() == resultBranch.m_ertBranchId )
-                {
-                    // The first result point is on the same branch, use well head as outlet
-                    outletResultPoint = wellFrame.m_wellHead;
-
-                    auto gridAndCellIndex = std::make_pair( outletResultPoint.gridIndex(), outletResultPoint.cellIndex() );
-                    Segment conn{ outletResultPoint.segmentId(), -1, -1 };
-
-                    branch.m_gridCellsConnectedToSegments[gridAndCellIndex] = conn;
-                    branch.m_segmentsWithGridCells[outletResultPoint.segmentId()].push_back( gridAndCellIndex );
-                }
-                else
-                {
-                    // The first result point on a different branch. Find the branch and add the grid cell
-                    for ( const auto& candidateResultBranch : longWellBranches )
-                    {
-                        if ( firstResultPoint.branchId() == candidateResultBranch.m_branchId )
-                        {
-                            std::pair<size_t, size_t> gridAndCellIndexForTieIn;
-
-                            for ( const auto& [segment, gridAndCellIndices] : candidateResultBranch.m_segmentsWithGridCells )
-                            {
-                                if ( segment > firstResultPoint.segmentId() ) continue;
-                                if ( !gridAndCellIndices.empty() )
-                                {
-                                    gridAndCellIndexForTieIn = gridAndCellIndices.front();
-                                }
-                            }
-
-                            Segment conn{ outletResultPoint.segmentId(), -1, -1 };
-
-                            branch.m_gridCellsConnectedToSegments[gridAndCellIndexForTieIn] = conn;
-                            branch.m_segmentsWithGridCells[outletResultPoint.segmentId()].push_back(
-                                gridAndCellIndexForTieIn );
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    std::vector<SimulationWellCellBranch> simWellBranches;
-    for ( const auto& longBranch : longWellBranches )
-    {
-        std::vector<cvf::Vec3d>         branchCoords;
-        std::vector<RigWellResultPoint> branchCellIds;
-
-        if ( longBranch.m_branchId == 1 && !longBranch.m_segmentsWithGridCells.empty() )
-        {
-            const auto& [firstSegment, gridAndCellIndices] = *longBranch.m_segmentsWithGridCells.begin();
-            if ( !gridAndCellIndices.empty() )
-            {
-                const auto& [gridIndex, cellIndex] = gridAndCellIndices.front();
-
-                const RigCell& cell       = eclipseCaseData->grid( gridIndex )->cell( cellIndex );
-                cvf::Vec3d     whStartPos = cell.faceCenter( cvf::StructGridInterface::NEG_K );
-
-                // Add extra coordinate between cell face and cell center
-                // to make sure the well pipe terminated in a segment parallel to z-axis
-
-                cvf::Vec3d whIntermediate = whStartPos;
-                whIntermediate.z()        = ( whStartPos.z() + cell.center().z() ) / 2.0;
-
-                RigWellResultPoint resPoint;
-                for ( const auto& resBranch : resBranches )
-                {
-                    for ( const auto& respoint : resBranch.m_branchResultPoints )
-                    {
-                        if ( respoint.segmentId() == firstSegment )
-                        {
-                            resPoint = respoint;
-                            break;
-                        }
-                    }
-                }
-
-                branchCoords.push_back( whStartPos );
-                branchCellIds.push_back( resPoint );
-                branchCoords.push_back( whIntermediate );
-                branchCellIds.push_back( resPoint );
-            }
-        }
-
-        for ( const auto& [segmentId, gridAndCellIndices] : longBranch.m_segmentsWithGridCells )
-        {
-            for ( const auto& [gridIndex, cellIndex] : gridAndCellIndices )
-            {
-                const RigCell& cell = eclipseCaseData->grid( gridIndex )->cell( cellIndex );
-                cvf::Vec3d     pos  = cell.center();
-
-                RigWellResultPoint resPoint;
-
-                // The result point is only used to transport the grid index and cell index
-                // The current implementation will propagate the cell open state to the well segment from one cell to
-                // the next. It this is misleading, the two following lines can be removed.
-                resPoint.setGridIndex( gridIndex );
-                resPoint.setGridCellIndex( cellIndex );
-
-                branchCoords.push_back( pos );
-                branchCellIds.push_back( resPoint );
-            }
-        }
-
-        branchCoords.push_back( branchCoords.back() );
-
-        simWellBranches.emplace_back( branchCoords, branchCellIds );
-    }
-
-    return simWellBranches;
+    return longWellBranches;
 }
 
 //--------------------------------------------------------------------------------------------------

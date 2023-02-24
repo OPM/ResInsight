@@ -23,6 +23,7 @@
 
 #include "cvfVector3.h"
 
+#include <map>
 #include <vector>
 
 class RigEclipseCaseData;
@@ -52,6 +53,35 @@ public:
         extractBranchData( const std::vector<SimulationWellCellBranch> simulationBranch );
 
 private:
+    struct OutputSegment
+    {
+        int outputSegmentId       = -1;
+        int outputSegmentBranchId = -1;
+    };
+
+    struct WellBranch
+    {
+        int m_branchId = -1;
+
+        std::map<std::pair<size_t, size_t>, OutputSegment>    m_gridCellsConnectedToSegments;
+        std::map<int, std::vector<std::pair<size_t, size_t>>> m_segmentsWithGridCells;
+
+        bool containsGridCell( const std::pair<size_t, size_t>& candidateGridAndCellIndex ) const
+        {
+            for ( const auto& [segmentId, gridAndCellIndex] : m_segmentsWithGridCells )
+            {
+                if ( std::find( gridAndCellIndex.begin(), gridAndCellIndex.end(), candidateGridAndCellIndex ) !=
+                     gridAndCellIndex.end() )
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        };
+    };
+
+private:
     static void calculateWellPipeStaticCenterline( RimSimWellInView*                             rimWell,
                                                    std::vector<std::vector<cvf::Vec3d>>&         pipeBranchesCLCoords,
                                                    std::vector<std::vector<RigWellResultPoint>>& pipeBranchesCellIds );
@@ -68,6 +98,8 @@ private:
         calculateMswWellPipeGeometryForTimeStep( const RigEclipseCaseData* eclipseCaseData,
                                                  const RigSimWellData*     simWellData,
                                                  int                       timeStepIndex );
+
+    static std::vector<WellBranch> buildAccumulatedWellBranches( const std::vector<RigWellResultBranch>& resBranches );
 
     static bool hasAnyValidDataCells( const RigWellResultBranch& branch );
     static void finishPipeCenterLine( std::vector<std::vector<cvf::Vec3d>>& pipeBranchesCLCoords,
