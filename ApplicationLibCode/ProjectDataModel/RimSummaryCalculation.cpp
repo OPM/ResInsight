@@ -466,10 +466,10 @@ std::vector<RimSummaryCalculationAddress>
 {
     std::vector<RimSummaryCalculationAddress> addresses;
 
+    std::string name = shortName().toStdString();
     if ( category == RifEclipseSummaryAddress::SUMMARY_FIELD )
     {
-        addresses.push_back(
-            RimSummaryCalculationAddress( RifEclipseSummaryAddress::fieldAddress( description().toStdString(), m_id ) ) );
+        addresses.push_back( RimSummaryCalculationAddress( RifEclipseSummaryAddress::fieldAddress( name, m_id ) ) );
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_AQUIFER )
     {
@@ -480,19 +480,17 @@ std::vector<RimSummaryCalculationAddress>
 
         for ( auto num : uniqueNumbers )
         {
-            addresses.push_back( RimSummaryCalculationAddress(
-                RifEclipseSummaryAddress::aquiferAddress( description().toStdString(), num, m_id ) ) );
+            addresses.push_back(
+                RimSummaryCalculationAddress( RifEclipseSummaryAddress::aquiferAddress( name, num, m_id ) ) );
         }
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_MISC )
     {
-        addresses.push_back(
-            RimSummaryCalculationAddress( RifEclipseSummaryAddress::miscAddress( description().toStdString(), m_id ) ) );
+        addresses.push_back( RimSummaryCalculationAddress( RifEclipseSummaryAddress::miscAddress( name, m_id ) ) );
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_NETWORK )
     {
-        addresses.push_back( RimSummaryCalculationAddress(
-            RifEclipseSummaryAddress::networkAddress( description().toStdString(), m_id ) ) );
+        addresses.push_back( RimSummaryCalculationAddress( RifEclipseSummaryAddress::networkAddress( name, m_id ) ) );
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_WELL )
     {
@@ -503,8 +501,8 @@ std::vector<RimSummaryCalculationAddress>
 
         for ( auto wellName : uniqueWellNames )
         {
-            addresses.push_back( RimSummaryCalculationAddress(
-                RifEclipseSummaryAddress::wellAddress( description().toStdString(), wellName, m_id ) ) );
+            addresses.push_back(
+                RimSummaryCalculationAddress( RifEclipseSummaryAddress::wellAddress( name, wellName, m_id ) ) );
         }
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_GROUP )
@@ -516,8 +514,8 @@ std::vector<RimSummaryCalculationAddress>
 
         for ( auto groupName : uniqueGroupNames )
         {
-            addresses.push_back( RimSummaryCalculationAddress(
-                RifEclipseSummaryAddress::groupAddress( description().toStdString(), groupName, m_id ) ) );
+            addresses.push_back(
+                RimSummaryCalculationAddress( RifEclipseSummaryAddress::groupAddress( name, groupName, m_id ) ) );
         }
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_REGION )
@@ -529,8 +527,8 @@ std::vector<RimSummaryCalculationAddress>
 
         for ( auto regionNumber : uniqueRegionNumbers )
         {
-            addresses.push_back( RimSummaryCalculationAddress(
-                RifEclipseSummaryAddress::regionAddress( description().toStdString(), regionNumber, m_id ) ) );
+            addresses.push_back(
+                RimSummaryCalculationAddress( RifEclipseSummaryAddress::regionAddress( name, regionNumber, m_id ) ) );
         }
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION )
@@ -543,8 +541,8 @@ std::vector<RimSummaryCalculationAddress>
         for ( auto regionNumber : uniqueRegionNumbers )
         {
             auto [r1, r2] = regionNumber;
-            addresses.push_back( RimSummaryCalculationAddress(
-                RifEclipseSummaryAddress::regionToRegionAddress( description().toStdString(), r1, r2, m_id ) ) );
+            addresses.push_back(
+                RimSummaryCalculationAddress( RifEclipseSummaryAddress::regionToRegionAddress( name, r1, r2, m_id ) ) );
         }
     }
 
@@ -556,41 +554,40 @@ std::vector<RimSummaryCalculationAddress>
 //--------------------------------------------------------------------------------------------------
 RimSummaryCalculationAddress RimSummaryCalculation::singleAddressesForCategory( const RifEclipseSummaryAddress& address ) const
 {
+    std::string name = shortName().toStdString();
+
     RifEclipseSummaryAddress::SummaryVarCategory category = address.category();
     if ( category == RifEclipseSummaryAddress::SUMMARY_FIELD )
     {
-        return RifEclipseSummaryAddress::fieldAddress( description().toStdString(), m_id );
+        return RifEclipseSummaryAddress::fieldAddress( name, m_id );
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_AQUIFER )
     {
-        return RifEclipseSummaryAddress::aquiferAddress( description().toStdString(), address.aquiferNumber(), m_id );
+        return RifEclipseSummaryAddress::aquiferAddress( name, address.aquiferNumber(), m_id );
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_MISC )
     {
-        return RifEclipseSummaryAddress::miscAddress( description().toStdString(), m_id );
+        return RifEclipseSummaryAddress::miscAddress( name, m_id );
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_NETWORK )
     {
-        return RifEclipseSummaryAddress::networkAddress( description().toStdString(), m_id );
+        return RifEclipseSummaryAddress::networkAddress( name, m_id );
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_WELL )
     {
-        return RifEclipseSummaryAddress::wellAddress( description().toStdString(), address.wellName(), m_id );
+        return RifEclipseSummaryAddress::wellAddress( name, address.wellName(), m_id );
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_GROUP )
     {
-        return RifEclipseSummaryAddress::groupAddress( description().toStdString(), address.groupName(), m_id );
+        return RifEclipseSummaryAddress::groupAddress( name, address.groupName(), m_id );
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_REGION )
     {
-        return RifEclipseSummaryAddress::regionAddress( description().toStdString(), address.regionNumber(), m_id );
+        return RifEclipseSummaryAddress::regionAddress( name, address.regionNumber(), m_id );
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION )
     {
-        return RifEclipseSummaryAddress::regionToRegionAddress( description().toStdString(),
-                                                                address.regionNumber(),
-                                                                address.regionNumber2(),
-                                                                m_id );
+        return RifEclipseSummaryAddress::regionToRegionAddress( name, address.regionNumber(), address.regionNumber2(), m_id );
     }
 
     return RifEclipseSummaryAddress();
