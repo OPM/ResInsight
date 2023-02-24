@@ -1325,7 +1325,7 @@ RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint( const RigGridB
 
     if ( gridCellIndex != cvf::UNDEFINED_SIZE_T )
     {
-        int branchId, segmentId, outletBranchId, outletSegmentId = -1;
+        int branchId = -1, segmentId = -1, outletBranchId = -1, outletSegmentId = -1;
 
         if ( segment )
         {
