@@ -98,8 +98,6 @@ void RivSeismicSectionPartMgr::appendGeometryPartsToModel( cvf::ModelBasicList* 
             createSingleTexturedQuadPart( displayPoints, texSection->width( i ), texSection->height() );
         model->addPart( quadPart.p() );
     }
-
-    model->updateBoundingBoxesRecursive();
 }
 
 //--------------------------------------------------------------------------------------------------

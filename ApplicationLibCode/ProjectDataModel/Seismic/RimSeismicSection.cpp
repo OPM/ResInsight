@@ -85,11 +85,11 @@ RimSeismicSection::RimSeismicSection()
     m_targets.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_targets.uiCapability()->setCustomContextMenuEnabled( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_inlineIndex, "InlineIndex", "Inline" );
+    CAF_PDM_InitField( &m_inlineIndex, "InlineIndex", -1, "Inline" );
     m_inlineIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
-    CAF_PDM_InitFieldNoDefault( &m_xlineIndex, "CrosslineIndex", "Crossline" );
+    CAF_PDM_InitField( &m_xlineIndex, "CrosslineIndex", -1, "Crossline" );
     m_xlineIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
-    CAF_PDM_InitFieldNoDefault( &m_depthIndex, "DepthIndex", "Depth Slice" );
+    CAF_PDM_InitField( &m_depthIndex, "DepthIndex", -1, "Depth Slice" );
     m_depthIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_lineThickness, "LineThickness", 1, "Line Thickness" );
@@ -137,6 +137,8 @@ caf::PdmFieldHandle* RimSeismicSection::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimSeismicSection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    initSliceRanges();
+
     auto group0 = uiOrdering.addNewGroup( "General" );
 
     group0->add( &m_userDescription );
@@ -445,6 +447,8 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection() const
     double zmax = m_seismicData->zMax();
     double ztep = m_seismicData->zStep();
 
+    double height = static_cast<int>( ( zmax - zmin ) / ztep );
+
     if ( m_type() == CrossSectionEnum::CS_POLYLINE )
     {
         for ( int i = 1; i < (int)m_targets.size(); i++ )
@@ -465,19 +469,46 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection() const
     }
     else if ( m_type() == CrossSectionEnum::CS_INLINE )
     {
-        // TODO - convert from inline/xline to world coordinates
-        return tex;
+        int clStart = m_seismicData->crosslineMin();
+        int clStop  = m_seismicData->crosslineMax();
+        int clStep  = m_seismicData->crosslineStep();
+
+        int ilStart = m_inlineIndex();
+
+        cvf::Vec3dArray points;
+        points.resize( 4 );
+        points[0] = m_seismicData->convertToWorldCoords( ilStart, clStart, zmin );
+        points[1] = m_seismicData->convertToWorldCoords( ilStart, clStop, zmin );
+        points[2] = m_seismicData->convertToWorldCoords( ilStart, clStop, zmax );
+        points[3] = m_seismicData->convertToWorldCoords( ilStart, clStart, zmax );
+
+        widths.push_back( ( clStop - clStart ) / clStep );
+        rects.push_back( points );
     }
     else if ( m_type() == CrossSectionEnum::CS_XLINE )
     {
-        return tex;
+        int ilStart = m_seismicData->inlineMin();
+        int ilStop  = m_seismicData->inlineMax();
+        int ilStep  = m_seismicData->inlineStep();
+
+        int clStart = m_xlineIndex();
+
+        cvf::Vec3dArray points;
+        points.resize( 4 );
+        points[0] = m_seismicData->convertToWorldCoords( ilStart, clStart, zmin );
+        points[1] = m_seismicData->convertToWorldCoords( ilStop, clStart, zmin );
+        points[2] = m_seismicData->convertToWorldCoords( ilStop, clStart, zmax );
+        points[3] = m_seismicData->convertToWorldCoords( ilStart, clStart, zmax );
+
+        widths.push_back( ( ilStop - ilStart ) / ilStep );
+        rects.push_back( points );
     }
     else if ( m_type() == CrossSectionEnum::CS_DEPTHSLICE )
     {
         return tex;
     }
 
-    tex->setTextureHeight( static_cast<int>( zmax - zmin ) / ztep );
+    tex->setTextureHeight( height );
     tex->setTextureWidths( widths );
     tex->setRects( rects );
 
@@ -500,6 +531,7 @@ void RimSeismicSection::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
         if ( changedField == &m_seismicData )
         {
             RiuMainWindow::instance()->seismicHistogramPanel()->showHistogram( m_seismicData() );
+            initSliceRanges();
         }
 
         updateVisualization();
@@ -512,4 +544,15 @@ void RimSeismicSection::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
 RimSeismicData* RimSeismicSection::seismicData() const
 {
     return m_seismicData();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicSection::initSliceRanges()
+{
+    if ( m_seismicData() == nullptr ) return;
+    if ( m_inlineIndex < 0 ) m_inlineIndex = m_seismicData->inlineMin();
+    if ( m_xlineIndex < 0 ) m_xlineIndex = m_seismicData->crosslineMin();
+    if ( m_depthIndex < 0 ) m_depthIndex = m_seismicData->zMin();
 }
