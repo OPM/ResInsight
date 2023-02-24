@@ -504,22 +504,19 @@ std::vector<const RigWellPath*>
 
     if ( m_simWellBranchCache.find( simWellSeachItem ) == m_simWellBranchCache.end() )
     {
-        std::vector<std::vector<cvf::Vec3d>>         pipeBranchesCLCoords;
-        std::vector<std::vector<RigWellResultPoint>> pipeBranchesCellIds;
-
-        RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellFrame( this,
-                                                                                         simWellData,
-                                                                                         -1,
-                                                                                         useAutoDetectionOfBranches,
-                                                                                         includeAllCellCenters,
-                                                                                         pipeBranchesCLCoords,
-                                                                                         pipeBranchesCellIds );
+        const auto simWellBranches =
+            RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineForTimeStep( this,
+                                                                                           simWellData,
+                                                                                           -1,
+                                                                                           useAutoDetectionOfBranches,
+                                                                                           includeAllCellCenters );
 
         m_simWellBranchCache.insert( std::make_pair( simWellSeachItem, cvf::Collection<RigWellPath>() ) );
 
-        for ( size_t brIdx = 0; brIdx < pipeBranchesCLCoords.size(); ++brIdx )
+        for ( size_t brIdx = 0; brIdx < simWellBranches.size(); ++brIdx )
         {
-            auto wellMdCalculator = RigSimulationWellCoordsAndMD( pipeBranchesCLCoords[brIdx] );
+            const auto& [coords, wellCells] = simWellBranches[brIdx];
+            auto wellMdCalculator           = RigSimulationWellCoordsAndMD( coords );
 
             cvf::ref<RigWellPath> newWellPath = new RigWellPath( wellMdCalculator.wellPathPoints(), wellMdCalculator.measuredDepths() );
 

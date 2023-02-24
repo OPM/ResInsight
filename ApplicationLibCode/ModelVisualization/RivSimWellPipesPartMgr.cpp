@@ -22,8 +22,10 @@
 
 #include "RiaColorTables.h"
 #include "RiaExtractionTools.h"
+#include "RiaPreferences.h"
 
 #include "RigEclipseWellLogExtractor.h"
+#include "RigSimulationWellCenterLineCalculator.h"
 #include "RigVirtualPerforationTransmissibilities.h"
 #include "RigWellLogExtractor.h"
 #include "RigWellPath.h"
@@ -156,7 +158,23 @@ void RivSimWellPipesPartMgr::buildWellPipeParts( const caf::DisplayCoordTransfor
     m_pipeBranchesCLCoords.clear();
     std::vector<std::vector<RigWellResultPoint>> pipeBranchesCellIds;
 
-    m_simWellInView->calculateWellPipeStaticCenterLine( m_pipeBranchesCLCoords, pipeBranchesCellIds );
+    {
+        std::vector<SimulationWellCellBranch> simWellBranches;
+        const RigSimWellData*                 simWellData = m_simWellInView->simWellData();
+        if ( simWellData && simWellData->isMultiSegmentWell() &&
+             RiaPreferences::current()->showSimplifiedMswWellPathGeometry() )
+        {
+            simWellBranches = RigSimulationWellCenterLineCalculator::calculateMswWellPipeGeometry( m_simWellInView );
+        }
+        else
+        {
+            simWellBranches = RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( m_simWellInView );
+        }
+        const auto& [coords, wellCells] = RigSimulationWellCenterLineCalculator::extractBranchData( simWellBranches );
+
+        m_pipeBranchesCLCoords = coords;
+        pipeBranchesCellIds    = wellCells;
+    }
 
     double pipeRadius              = m_simWellInView->pipeRadius();
     int    crossSectionVertexCount = m_simWellInView->pipeCrossSectionVertexCount();
