@@ -228,8 +228,9 @@ float RiuGeoMechXfTensorResultAccessor::calculateElmNodeValue( const std::array<
     float ipT13 = ( *tens13 )[globalElmNodeResIndex];
 
     if ( ipT11 == HUGE_VAL || ipT11 != ipT11 || ipT22 == HUGE_VAL || ipT22 != ipT22 || ipT33 == HUGE_VAL || ipT33 != ipT33 ||
-         ipT12 == HUGE_VAL || ipT12 != ipT12 || ipT23 == HUGE_VAL || ipT23 != ipT23 || ipT13 == HUGE_VAL || ipT13 != ipT13 ) // a != a is true
-                                                                                                                             // for NAN's
+         ipT12 == HUGE_VAL || ipT12 != ipT12 || ipT23 == HUGE_VAL || ipT23 != ipT23 || ipT13 == HUGE_VAL || ipT13 != ipT13 ) // a != a is
+                                                                                                                             // true for
+                                                                                                                             // NAN's
     {
         return std::numeric_limits<float>::infinity();
     }
