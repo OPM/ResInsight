@@ -248,8 +248,8 @@ void RigEclipseCaseData::computeWellCellsPrGrid()
                 size_t cdIdx;
                 for ( cdIdx = 0; cdIdx < wellSegment.m_branchResultPoints.size(); ++cdIdx )
                 {
-                    size_t gridIndex     = wellSegment.m_branchResultPoints[cdIdx].m_gridIndex;
-                    size_t gridCellIndex = wellSegment.m_branchResultPoints[cdIdx].m_gridCellIndex;
+                    size_t gridIndex     = wellSegment.m_branchResultPoints[cdIdx].gridIndex();
+                    size_t gridCellIndex = wellSegment.m_branchResultPoints[cdIdx].cellIndex();
 
                     if ( gridIndex < m_wellCellsInGrid.size() && gridCellIndex < m_wellCellsInGrid[gridIndex]->size() )
                     {
@@ -340,8 +340,8 @@ const RigCell& RigEclipseCaseData::cellFromWellResultCell( const RigWellResultPo
 {
     CVF_ASSERT( wellResultCell.isCell() );
 
-    size_t gridIndex     = wellResultCell.m_gridIndex;
-    size_t gridCellIndex = wellResultCell.m_gridCellIndex;
+    size_t gridIndex     = wellResultCell.gridIndex();
+    size_t gridCellIndex = wellResultCell.cellIndex();
 
     std::vector<const RigGridBase*> grids;
     allGrids( &grids );
@@ -356,11 +356,11 @@ bool RigEclipseCaseData::findSharedSourceFace( cvf::StructGridInterface::FaceTyp
                                                const RigWellResultPoint&           sourceWellCellResult,
                                                const RigWellResultPoint&           otherWellCellResult ) const
 {
-    size_t gridIndex     = sourceWellCellResult.m_gridIndex;
-    size_t gridCellIndex = sourceWellCellResult.m_gridCellIndex;
+    size_t gridIndex     = sourceWellCellResult.gridIndex();
+    size_t gridCellIndex = sourceWellCellResult.cellIndex();
 
-    size_t otherGridIndex     = otherWellCellResult.m_gridIndex;
-    size_t otherGridCellIndex = otherWellCellResult.m_gridCellIndex;
+    size_t otherGridIndex     = otherWellCellResult.gridIndex();
+    size_t otherGridCellIndex = otherWellCellResult.cellIndex();
 
     if ( gridIndex != otherGridIndex ) return false;
 

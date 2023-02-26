@@ -200,7 +200,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellF
                 // Use the interpolated value of branch head
                 CVF_ASSERT( currentWellResPoint.isPointValid() );
 
-                cvf::Vec3d currentPoint = currentWellResPoint.m_bottomPosition;
+                cvf::Vec3d currentPoint = currentWellResPoint.bottomPosition();
 
                 // If we have a real previous cell, we need to go out of it, before adding the current point
                 // That is: add a CL-point describing where it leaves the previous cell.
@@ -273,7 +273,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellF
                     }
                     else
                     {
-                        centerPreviousCell = prevWellResPoint->m_bottomPosition;
+                        centerPreviousCell = prevWellResPoint->bottomPosition();
                     }
 
                     distanceToWellHeadIsLonger = ( centerThisCell - centerPreviousCell ).lengthSquared() <=
@@ -378,7 +378,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellF
         else if ( prevWellResPoint && prevWellResPoint->isPointValid() )
         {
             // Continue the line with the same point, just to keep the last Cell ID
-            pipeBranchesCLCoords.back().push_back( prevWellResPoint->m_bottomPosition );
+            pipeBranchesCLCoords.back().push_back( prevWellResPoint->bottomPosition() );
         }
         else
         {
@@ -660,7 +660,7 @@ private:
             const RigCell&     whCell     = m_eclipseCaseData->cellFromWellResultCell( m_orgWellResultFrame.wellHeadOrStartCell() );
             cvf::Vec3d         whStartPos = whCell.faceCenter( cvf::StructGridInterface::NEG_K );
 
-            wellHeadAsPoint.m_bottomPosition = whStartPos;
+            wellHeadAsPoint.setBottomPosition( whStartPos );
             m_branchedWell.m_wellResultBranches[branchIdx].m_branchResultPoints.push_back( wellHeadAsPoint );
         }
 
@@ -694,7 +694,7 @@ private:
                     }
                 }
 
-                branchStartAsResultPoint.m_bottomPosition = branchStartPos;
+                branchStartAsResultPoint.setBottomPosition( branchStartPos );
                 m_branchedWell.m_wellResultBranches[branchIdx].m_branchResultPoints.push_back( branchStartAsResultPoint );
             }
             else

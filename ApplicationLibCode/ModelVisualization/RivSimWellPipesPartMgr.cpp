@@ -294,7 +294,8 @@ void RivSimWellPipesPartMgr::buildWellPipeParts( const caf::DisplayCoordTransfor
                                 continue;
                             }
 
-                            if ( !virtualPerforationResult->showConnectionFactorsOnClosedConnections() && !wResCell->m_isOpen )
+                            if ( !virtualPerforationResult->showConnectionFactorsOnClosedConnections() &&
+                                 !wResCell->isOpen() )
                             {
                                 continue;
                             }
@@ -417,14 +418,15 @@ void RivSimWellPipesPartMgr::updatePipeResultColor( size_t frameIndex )
 
                 if ( cellIds[wcIdx].isCell() )
                 {
-                    wResCell = wResFrame->findResultCellWellHeadExcluded( cellIds[wcIdx].m_gridIndex, cellIds[wcIdx].m_gridCellIndex );
+                    wResCell = wResFrame->findResultCellWellHeadExcluded( cellIds[wcIdx].gridIndex(),
+                                                                          cellIds[wcIdx].cellIndex() );
                 }
 
                 if ( wResCell )
                 {
                     double cellState = defaultState;
 
-                    if ( wResCell->m_isOpen )
+                    if ( wResCell->isOpen() )
                     {
                         switch ( wResFrame->m_productionType )
                         {
