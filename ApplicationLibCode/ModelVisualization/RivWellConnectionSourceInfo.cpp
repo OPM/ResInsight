@@ -24,8 +24,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivWellConnectionSourceInfo::RivWellConnectionSourceInfo( RimWellPath*                              wellPath,
-                                                          RivWellConnectionFactorGeometryGenerator* geometryGenerator )
+RivWellConnectionSourceInfo::RivWellConnectionSourceInfo( RimWellPath* wellPath, RivWellConnectionFactorGeometryGenerator* geometryGenerator )
     : m_wellPath( wellPath )
     , m_geometryGenerator( geometryGenerator )
 {

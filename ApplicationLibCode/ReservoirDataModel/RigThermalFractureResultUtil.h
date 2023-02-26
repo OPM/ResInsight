@@ -49,33 +49,31 @@ public:
     RigThermalFractureResultUtil();
     ~RigThermalFractureResultUtil();
 
-    static std::vector<std::vector<double>>
-        getDataAtTimeIndex( std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
-                            const QString&                                      resultName,
-                            const QString&                                      unitName,
-                            size_t                                              timeStepIndex );
+    static std::vector<std::vector<double>> getDataAtTimeIndex( std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
+                                                                const QString&                                      resultName,
+                                                                const QString&                                      unitName,
+                                                                size_t                                              timeStepIndex );
 
     static void createFractureTriangleGeometry( std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
                                                 int                                                 activeTimeStepIndex,
                                                 double                                              xScaleFactor,
                                                 double                                              yScaleFactor,
-                                                double                   wellPathIntersectionAtFractureDepth,
-                                                std::vector<cvf::Vec3f>* vertices,
-                                                std::vector<cvf::uint>*  triangleIndices );
+                                                double                                              wellPathIntersectionAtFractureDepth,
+                                                std::vector<cvf::Vec3f>*                            vertices,
+                                                std::vector<cvf::uint>*                             triangleIndices );
 
     static std::vector<double> fractureGridResults( std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
                                                     const QString&                                      resultName,
                                                     const QString&                                      unitName,
                                                     size_t                                              timeStepIndex );
 
-    static cvf::cref<RigFractureGrid>
-        createFractureGrid( std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
-                            const QString&                                      resultName,
-                            int                                                 activeTimeStepIndex,
-                            double                                              xScaleFactor,
-                            double                                              yScaleFactor,
-                            double                                              wellPathIntersectionAtFractureDepth,
-                            RiaDefines::EclipseUnitSystem                       requiredUnitSet );
+    static cvf::cref<RigFractureGrid> createFractureGrid( std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
+                                                          const QString&                                      resultName,
+                                                          int                                                 activeTimeStepIndex,
+                                                          double                                              xScaleFactor,
+                                                          double                                              yScaleFactor,
+                                                          double                        wellPathIntersectionAtFractureDepth,
+                                                          RiaDefines::EclipseUnitSystem requiredUnitSet );
 
     static void appendDataToResultStatistics( std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
                                               const QString&                                      resultName,
@@ -84,11 +82,10 @@ public:
                                               PosNegAccumulator&                                  posNegAccumulator );
 
     static std::pair<double, double> minMaxDepth( std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
-                                                  int activeTimeStepIndex );
+                                                  int                                                 activeTimeStepIndex );
 
     static std::pair<cvf::Vec3d, cvf::Vec3d>
-        computePositionAndRotation( std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
-                                    size_t                                              timeStepIndex );
+        computePositionAndRotation( std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition, size_t timeStepIndex );
 
 private:
     static std::pair<std::vector<double>, std::vector<double>>
@@ -96,9 +93,8 @@ private:
 
     static double linearSampling( double minValue, double maxValue, int numSamples, std::vector<double>& samples );
 
-    static std::vector<cvf::Vec3d>
-        getRelativeCoordinates( std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
-                                size_t                                              timeStepIndex );
+    static std::vector<cvf::Vec3d> getRelativeCoordinates( std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
+                                                           size_t                                              timeStepIndex );
 
     static std::vector<double> scaleVector( const std::vector<double>& xs, double scaleFactor );
 

@@ -72,9 +72,8 @@ public:
     static void initializeLegendConfig( RimRegularLegendConfig*                     legendConfig,
                                         caf::PdmPointer<RimCustomObjectiveFunction> customObjectiveFunction );
 
-    static cvf::Color3f caseColor( const RimRegularLegendConfig* legendConfig,
-                                   const RimSummaryCase*         summaryCase,
-                                   const RigEnsembleParameter&   parameter );
+    static cvf::Color3f
+        caseColor( const RimRegularLegendConfig* legendConfig, const RimSummaryCase* summaryCase, const RigEnsembleParameter& parameter );
 
     static cvf::Color3f caseColor( const RimRegularLegendConfig*         legendConfig,
                                    RimSummaryCase*                       summaryCase,

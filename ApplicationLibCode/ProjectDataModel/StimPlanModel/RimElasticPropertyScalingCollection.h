@@ -43,8 +43,7 @@ public:
     std::vector<RimElasticPropertyScaling*> elasticPropertyScalings() const;
     void                                    addElasticPropertyScaling( RimElasticPropertyScaling* templ );
 
-    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
     double getScaling( const QString& formationName, const QString& faciesName, RiaDefines::CurveProperty property ) const;
 
@@ -52,6 +51,6 @@ protected:
     void initAfterRead() override;
 
 private:
-    void elasticPropertyScalingChanged( const caf::SignalEmitter* emitter );
+    void                                                elasticPropertyScalingChanged( const caf::SignalEmitter* emitter );
     caf::PdmChildArrayField<RimElasticPropertyScaling*> m_elasticPropertyScalings;
 };

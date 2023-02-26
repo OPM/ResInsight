@@ -51,8 +51,7 @@ bool RigFemPartResultCalculatorStressGradients::isMatching( const RigFemResultAd
 {
     if ( resVarAddr.fieldName == "ST" || resVarAddr.fieldName == "SE" )
     {
-        const std::vector<std::string> allowedComponentNames =
-            RigFemPartResultsCollection::getStressGradientComponentNames();
+        const std::vector<std::string> allowedComponentNames = RigFemPartResultsCollection::getStressGradientComponentNames();
 
         for ( auto& allowedComponentName : allowedComponentNames )
         {
@@ -69,14 +68,13 @@ bool RigFemPartResultCalculatorStressGradients::isMatching( const RigFemResultAd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultCalculatorStressGradients::calculate( int                        partIndex,
-                                                                                const RigFemResultAddress& resVarAddr )
+RigFemScalarResultFrames* RigFemPartResultCalculatorStressGradients::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
 {
     CVF_ASSERT( resVarAddr.fieldName == "ST" || resVarAddr.fieldName == "SE" );
 
     caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 2, "" );
-    stepCountProgress.setProgressDescription(
-        "Calculating gradient: " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
+    stepCountProgress.setProgressDescription( "Calculating gradient: " +
+                                              QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
     stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     QString origFieldName     = QString::fromStdString( resVarAddr.fieldName );

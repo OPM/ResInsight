@@ -59,15 +59,13 @@ public:
 
     virtual bool open( const QString& fileName, RigEclipseCaseData* eclipseCase ) = 0;
 
-    virtual bool staticResult( const QString&                result,
-                               RiaDefines::PorosityModelType matrixOrFracture,
-                               std::vector<double>*          values )  = 0;
+    virtual bool staticResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values ) = 0;
     virtual bool dynamicResult( const QString&                result,
                                 RiaDefines::PorosityModelType matrixOrFracture,
                                 size_t                        stepIndex,
-                                std::vector<double>*          values ) = 0;
+                                std::vector<double>*          values )                                                                       = 0;
 
-    void setFilenamesWithFaults( const std::vector<QString>& filenames ) { m_filenamesWithFaults = filenames; }
+    void                 setFilenamesWithFaults( const std::vector<QString>& filenames ) { m_filenamesWithFaults = filenames; }
     std::vector<QString> filenamesWithFaults() { return m_filenamesWithFaults; }
 
     void setTimeStepFilter( const std::vector<size_t>& fileTimeStepIndices );

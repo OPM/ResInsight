@@ -64,13 +64,12 @@ public:
     static std::vector<QString> optionalResultNames();
 
 private:
-    void calculateStimPlanCellsMatrixTransmissibility( const std::set<size_t>& reservoirCellIndicesOpenForFlow );
+    void           calculateStimPlanCellsMatrixTransmissibility( const std::set<size_t>& reservoirCellIndicesOpenForFlow );
     virtual double calculateTransmissibility( const cvf::Vec3d& transmissibilityVector, double fractureArea );
 
     std::vector<size_t> getPotentiallyFracturedCellsForPolygon( const std::vector<cvf::Vec3d>& polygon ) const;
 
-    static cvf::ref<RigResultAccessor> createResultAccessor( const RimEclipseCase* eclipseCase,
-                                                             const QString&        uiResultName );
+    static cvf::ref<RigResultAccessor> createResultAccessor( const RimEclipseCase* eclipseCase, const QString& uiResultName );
 
 protected:
     const RimEclipseCase* m_case;

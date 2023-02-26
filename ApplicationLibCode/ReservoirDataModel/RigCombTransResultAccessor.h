@@ -33,9 +33,7 @@ class RigCombTransResultAccessor : public RigResultAccessor
 public:
     explicit RigCombTransResultAccessor( const RigGridBase* grid );
 
-    void setTransResultAccessors( RigResultAccessor* xTransAccessor,
-                                  RigResultAccessor* yTransAccessor,
-                                  RigResultAccessor* zTransAccessor );
+    void setTransResultAccessors( RigResultAccessor* xTransAccessor, RigResultAccessor* yTransAccessor, RigResultAccessor* zTransAccessor );
 
     double cellScalar( size_t gridLocalCellIndex ) const override;
     double cellFaceScalar( size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId ) const override;
@@ -43,9 +41,7 @@ public:
     double cellFaceScalarGlobIdx( size_t globCellIndex, cvf::StructGridInterface::FaceType faceId ) const override;
 
 private:
-    double neighborCellTran( size_t                             gridLocalCellIndex,
-                             cvf::StructGridInterface::FaceType faceId,
-                             const RigResultAccessor*           transAccessor ) const;
+    double neighborCellTran( size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId, const RigResultAccessor* transAccessor ) const;
 
     cvf::ref<RigResultAccessor> m_xTransAccessor;
     cvf::ref<RigResultAccessor> m_yTransAccessor;

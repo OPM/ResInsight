@@ -69,16 +69,12 @@ public:
 
     std::set<RiaDefines::DepthTypeEnum> availableDepthTypes() const;
 
-    bool calculateDepthRange( RiaDefines::DepthTypeEnum depthType,
-                              RiaDefines::DepthUnitType depthUnit,
-                              double*                   minMD,
-                              double*                   maxMD ) const;
+    bool calculateDepthRange( RiaDefines::DepthTypeEnum depthType, RiaDefines::DepthUnitType depthUnit, double* minMD, double* maxMD ) const;
 
     RiaDefines::DepthUnitType depthUnit() const;
 
-    std::vector<double>                    propertyValuesByIntervals() const;
-    std::vector<double>                    depthValuesByIntervals( RiaDefines::DepthTypeEnum depthType,
-                                                                   RiaDefines::DepthUnitType destinationDepthUnit ) const;
+    std::vector<double> propertyValuesByIntervals() const;
+    std::vector<double> depthValuesByIntervals( RiaDefines::DepthTypeEnum depthType, RiaDefines::DepthUnitType destinationDepthUnit ) const;
     std::vector<std::pair<size_t, size_t>> polylineStartStopIndices() const;
 
     cvf::ref<RigWellLogCurveData> calculateResampledCurveData( double newMeasuredDepthStepSize ) const;

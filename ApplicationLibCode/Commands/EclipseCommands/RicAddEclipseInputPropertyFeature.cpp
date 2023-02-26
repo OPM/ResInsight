@@ -73,9 +73,9 @@ void RicAddEclipseInputPropertyFeature::onActionTriggered( bool isChecked )
 
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectoryWithFallback( "INPUT_FILES", casePath );
-    QString filePattern = RicImportGeneralDataFeature::getFilePattern( { RiaDefines::ImportFileType::ECLIPSE_INPUT_FILE,
-                                                                         RiaDefines::ImportFileType::ROFF_FILE },
-                                                                       true );
+    QString         filePattern =
+        RicImportGeneralDataFeature::getFilePattern( { RiaDefines::ImportFileType::ECLIPSE_INPUT_FILE, RiaDefines::ImportFileType::ROFF_FILE },
+                                                     true );
     QStringList fileNames = RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
                                                                   "Select Eclipse Input Property Files",
                                                                   defaultDir,

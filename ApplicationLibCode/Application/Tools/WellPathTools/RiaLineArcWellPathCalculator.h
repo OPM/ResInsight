@@ -39,8 +39,7 @@ public:
         double radius2;
     };
 
-    RiaLineArcWellPathCalculator( const cvf::Vec3d&                                            referencePointXyz,
-                                  const std::vector<RiaLineArcWellPathCalculator::WellTarget>& targets );
+    RiaLineArcWellPathCalculator( const cvf::Vec3d& referencePointXyz, const std::vector<RiaLineArcWellPathCalculator::WellTarget>& targets );
 
     struct WellTargetStatus
     {

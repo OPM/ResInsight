@@ -115,9 +115,7 @@ void RigFlowDiagTimeStepResult::addResult( const RigFlowDiagResultAddress& resAd
 class RigOpmFlowDiagStaticData : public cvf::Object
 {
 public:
-    RigOpmFlowDiagStaticData( const ecl_grid_type*          mainGrid,
-                              const std::wstring&           init,
-                              RiaDefines::EclipseUnitSystem caseUnitSystem )
+    RigOpmFlowDiagStaticData( const ecl_grid_type* mainGrid, const std::wstring& init, RiaDefines::EclipseUnitSystem caseUnitSystem )
     {
         Opm::ECLInitFileData initData( init );
 
@@ -225,14 +223,13 @@ std::string addCrossFlowEnding( std::string tracerName )
 //--------------------------------------------------------------------------------------------------
 RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t                                   timeStepIndex,
                                                                  RigFlowDiagResultAddress::PhaseSelection phaseSelection,
-                                                                 std::map<std::string, std::vector<int>> injectorTracers,
-                                                                 std::map<std::string, std::vector<int>> producerTracers )
+                                                                 std::map<std::string, std::vector<int>>  injectorTracers,
+                                                                 std::map<std::string, std::vector<int>>  producerTracers )
 {
     using namespace Opm::FlowDiagnostics;
 
-    RigFlowDiagTimeStepResult result( m_eclipseCase->eclipseCaseData()
-                                          ->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )
-                                          ->reservoirActiveCellCount() );
+    RigFlowDiagTimeStepResult result(
+        m_eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->reservoirActiveCellCount() );
 
     caf::ProgressInfo progressInfo( 8, "Calculating Flow Diagnostics" );
 
@@ -264,11 +261,9 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
         QStringList m_filesWithSameBaseName;
 
         QString gridFileName = m_eclipseCase->gridFileName();
-        if ( !RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName( gridFileName, &m_filesWithSameBaseName ) )
-            return result;
+        if ( !RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName( gridFileName, &m_filesWithSameBaseName ) ) return result;
 
-        QString firstRestartFileName =
-            RifEclipseOutputFileTools::firstFileNameOfType( m_filesWithSameBaseName, ECL_UNIFIED_RESTART_FILE );
+        QString firstRestartFileName = RifEclipseOutputFileTools::firstFileNameOfType( m_filesWithSameBaseName, ECL_UNIFIED_RESTART_FILE );
         if ( !firstRestartFileName.isEmpty() )
         {
             m_opmFlowDiagStaticData->m_unifiedRestartData.reset(
@@ -277,8 +272,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
         }
         else
         {
-            QStringList restartFileNames =
-                RifEclipseOutputFileTools::filterFileNamesOfType( m_filesWithSameBaseName, ECL_RESTART_FILE );
+            QStringList restartFileNames = RifEclipseOutputFileTools::filterFileNamesOfType( m_filesWithSameBaseName, ECL_RESTART_FILE );
 
             size_t restartFileCount = static_cast<size_t>( restartFileNames.size() );
             size_t maxTimeStepCount =
@@ -300,8 +294,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
 
             for ( const auto& restartFileName : restartFileNames )
             {
-                m_opmFlowDiagStaticData->m_singleRestartDataTimeSteps.push_back(
-                    Opm::ECLRestartData( restartFileName.toStdString() ) );
+                m_opmFlowDiagStaticData->m_singleRestartDataTimeSteps.push_back( Opm::ECLRestartData( restartFileName.toStdString() ) );
             }
         }
     }
@@ -330,9 +323,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
     CVF_ASSERT( currentRestartData );
 
     RigEclipseResultAddress addrToMaxTimeStepCountResult;
-    m_eclipseCase->eclipseCaseData()
-        ->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
-        ->maxTimeStepCount( &addrToMaxTimeStepCountResult );
+    m_eclipseCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->maxTimeStepCount( &addrToMaxTimeStepCountResult );
 
     int reportStepNumber = m_eclipseCase->eclipseCaseData()
                                ->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
@@ -365,10 +356,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
         {
             Opm::ECLInitFileData                   init( getInitFileName() );
             Opm::FlowDiagnostics::ConnectionValues connectionVals =
-                RigFlowDiagInterfaceTools::calculateFluxField( ( *m_opmFlowDiagStaticData->m_eclGraph ),
-                                                               init,
-                                                               *currentRestartData,
-                                                               phaseSelection );
+                RigFlowDiagInterfaceTools::calculateFluxField( ( *m_opmFlowDiagStaticData->m_eclGraph ), init, *currentRestartData, phaseSelection );
             m_opmFlowDiagStaticData->m_fldToolbox->assignConnectionFlux( connectionVals );
         }
 
@@ -380,8 +368,7 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
 
         const std::vector<Opm::ECLWellSolution::WellData> well_fluxes = wsol.solution( *currentRestartData, gridNames );
 
-        WellInFluxPrCell =
-            RigFlowDiagInterfaceTools::extractWellFlows( *( m_opmFlowDiagStaticData->m_eclGraph ), well_fluxes );
+        WellInFluxPrCell = RigFlowDiagInterfaceTools::extractWellFlows( *( m_opmFlowDiagStaticData->m_eclGraph ), well_fluxes );
 
         m_opmFlowDiagStaticData->m_fldToolbox->assignInflowFlux( WellInFluxPrCell );
     }
@@ -412,8 +399,8 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
                 injectorCellSets.push_back( CellSet( CellSetID( tracerName ), tIt.second ) );
             }
 
-            injectorSolution.reset( new Toolbox::Forward(
-                m_opmFlowDiagStaticData->m_fldToolbox->computeInjectionDiagnostics( injectorCellSets ) ) );
+            injectorSolution.reset(
+                new Toolbox::Forward( m_opmFlowDiagStaticData->m_fldToolbox->computeInjectionDiagnostics( injectorCellSets ) ) );
 
             for ( const CellSetID& tracerId : injectorSolution->fd.startPoints() )
             {
@@ -446,8 +433,8 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
                 prodjCellSets.push_back( CellSet( CellSetID( tracerName ), tIt.second ) );
             }
 
-            producerSolution.reset( new Toolbox::Reverse(
-                m_opmFlowDiagStaticData->m_fldToolbox->computeProductionDiagnostics( prodjCellSets ) ) );
+            producerSolution.reset(
+                new Toolbox::Reverse( m_opmFlowDiagStaticData->m_fldToolbox->computeProductionDiagnostics( prodjCellSets ) ) );
 
             for ( const CellSetID& tracerId : producerSolution->fd.startPoints() )
             {
@@ -485,12 +472,9 @@ RigFlowDiagTimeStepResult RigFlowDiagSolverInterface::calculate( size_t         
                 std::string injTracerName = injCellSet.id().to_string();
                 CellSetID   injID( injTracerName );
 
-                std::pair<double, double> fluxPair             = injectorProducerPairFlux( *( injectorSolution.get() ),
-                                                                               *( producerSolution.get() ),
-                                                                               injID,
-                                                                               prodID,
-                                                                               WellInFluxPrCell );
-                std::string               uiInjectorTracerName = injTracerName;
+                std::pair<double, double> fluxPair =
+                    injectorProducerPairFlux( *( injectorSolution.get() ), *( producerSolution.get() ), injID, prodID, WellInFluxPrCell );
+                std::string uiInjectorTracerName = injTracerName;
 
                 if ( injectorCrossFlowTracers.count( injTracerName ) )
                 {
@@ -538,7 +522,7 @@ bool RigFlowDiagSolverInterface::ensureStaticDataObjectInstanceCreated()
                 }
 
                 RiaDefines::EclipseUnitSystem caseUnitSystem = eclipseCaseData->unitsType();
-                m_opmFlowDiagStaticData = new RigOpmFlowDiagStaticData( mainGrid, initFileName, caseUnitSystem );
+                m_opmFlowDiagStaticData                      = new RigOpmFlowDiagStaticData( mainGrid, initFileName, caseUnitSystem );
 
                 ecl_grid_free( mainGrid );
             }
@@ -551,8 +535,7 @@ bool RigFlowDiagSolverInterface::ensureStaticDataObjectInstanceCreated()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFlowDiagSolverInterface::assignPhaseCorrecedPORV( RigFlowDiagResultAddress::PhaseSelection phaseSelection,
-                                                          size_t                                   timeStepIdx )
+void RigFlowDiagSolverInterface::assignPhaseCorrecedPORV( RigFlowDiagResultAddress::PhaseSelection phaseSelection, size_t timeStepIdx )
 {
     RigEclipseCaseData* eclipseCaseData = m_eclipseCase->eclipseCaseData();
 
@@ -649,8 +632,7 @@ RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame
 
     try
     {
-        Graph flowCapStorCapCurve =
-            flowCapacityStorageCapacityCurve( *injector_tof, *producer_tof, poreVolume, max_pv_fraction );
+        Graph flowCapStorCapCurve = flowCapacityStorageCapacityCurve( *injector_tof, *producer_tof, poreVolume, max_pv_fraction );
 
         result.m_storageCapFlowCapCurve                = flowCapStorCapCurve;
         result.m_lorenzCoefficient                     = lorenzCoefficient( flowCapStorCapCurve );
@@ -667,8 +649,7 @@ RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigFlowDiagSolverInterface::RelPermCurve>
-    RigFlowDiagSolverInterface::calculateRelPermCurves( size_t activeCellIndex )
+std::vector<RigFlowDiagSolverInterface::RelPermCurve> RigFlowDiagSolverInterface::calculateRelPermCurves( size_t activeCellIndex )
 {
     std::vector<RelPermCurve> retCurveArr;
 
@@ -734,9 +715,7 @@ std::vector<RigFlowDiagSolverInterface::RelPermCurve>
                 scaling.enable = static_cast<unsigned char>( 0 );
             }
             std::vector<Opm::FlowDiagnostics::Graph> graphArr =
-                m_opmFlowDiagStaticData->m_eclSaturationFunc->getSatFuncCurve( satFuncRequests,
-                                                                               static_cast<int>( activeCellIndex ),
-                                                                               scaling );
+                m_opmFlowDiagStaticData->m_eclSaturationFunc->getSatFuncCurve( satFuncRequests, static_cast<int>( activeCellIndex ), scaling );
             for ( size_t i = 0; i < graphArr.size(); i++ )
             {
                 const RelPermCurve::Ident          curveIdent = curveIdentNameArr[i].first;
@@ -763,8 +742,7 @@ std::vector<RigFlowDiagSolverInterface::RelPermCurve>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigFlowDiagSolverInterface::PvtCurve>
-    RigFlowDiagSolverInterface::calculatePvtCurves( PvtCurveType pvtCurveType, int pvtNum )
+std::vector<RigFlowDiagSolverInterface::PvtCurve> RigFlowDiagSolverInterface::calculatePvtCurves( PvtCurveType pvtCurveType, int pvtNum )
 {
     std::vector<PvtCurve> retCurveArr;
 
@@ -794,8 +772,7 @@ std::vector<RigFlowDiagSolverInterface::PvtCurve>
                 {
                     if ( srcGraph.press.size() > 0 )
                     {
-                        retCurveArr.push_back(
-                            { PvtCurve::Bo, PvtCurve::OIL, srcGraph.press, srcGraph.value, srcGraph.mixRat } );
+                        retCurveArr.push_back( { PvtCurve::Bo, PvtCurve::OIL, srcGraph.press, srcGraph.value, srcGraph.mixRat } );
                     }
                 }
             }
@@ -810,8 +787,7 @@ std::vector<RigFlowDiagSolverInterface::PvtCurve>
                 {
                     if ( srcGraph.press.size() > 0 )
                     {
-                        retCurveArr.push_back(
-                            { PvtCurve::Bg, PvtCurve::GAS, srcGraph.press, srcGraph.value, srcGraph.mixRat } );
+                        retCurveArr.push_back( { PvtCurve::Bg, PvtCurve::GAS, srcGraph.press, srcGraph.value, srcGraph.mixRat } );
                     }
                 }
             }
@@ -829,8 +805,7 @@ std::vector<RigFlowDiagSolverInterface::PvtCurve>
                 {
                     if ( srcGraph.press.size() > 0 )
                     {
-                        retCurveArr.push_back(
-                            { PvtCurve::Visc_o, PvtCurve::OIL, srcGraph.press, srcGraph.value, srcGraph.mixRat } );
+                        retCurveArr.push_back( { PvtCurve::Visc_o, PvtCurve::OIL, srcGraph.press, srcGraph.value, srcGraph.mixRat } );
                     }
                 }
             }
@@ -845,8 +820,7 @@ std::vector<RigFlowDiagSolverInterface::PvtCurve>
                 {
                     if ( srcGraph.press.size() > 0 )
                     {
-                        retCurveArr.push_back(
-                            { PvtCurve::Visc_g, PvtCurve::GAS, srcGraph.press, srcGraph.value, srcGraph.mixRat } );
+                        retCurveArr.push_back( { PvtCurve::Visc_g, PvtCurve::GAS, srcGraph.press, srcGraph.value, srcGraph.mixRat } );
                     }
                 }
             }
@@ -864,12 +838,7 @@ std::vector<RigFlowDiagSolverInterface::PvtCurve>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesFvf( int     pvtNum,
-                                                                   double  pressure,
-                                                                   double  rs,
-                                                                   double  rv,
-                                                                   double* bo,
-                                                                   double* bg )
+bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesFvf( int pvtNum, double pressure, double rs, double rv, double* bo, double* bg )
 {
     if ( bo ) *bo = HUGE_VAL;
     if ( bg ) *bg = HUGE_VAL;
@@ -931,12 +900,7 @@ bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesFvf( int     pvtNu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesViscosity( int     pvtNum,
-                                                                         double  pressure,
-                                                                         double  rs,
-                                                                         double  rv,
-                                                                         double* mu_o,
-                                                                         double* mu_g )
+bool RigFlowDiagSolverInterface::calculatePvtDynamicPropertiesViscosity( int pvtNum, double pressure, double rs, double rv, double* mu_o, double* mu_g )
 {
     if ( mu_o ) *mu_o = HUGE_VAL;
     if ( mu_g ) *mu_g = HUGE_VAL;
@@ -1004,8 +968,7 @@ std::wstring RigFlowDiagSolverInterface::getInitFileName() const
 
     QStringList m_filesWithSameBaseName;
 
-    if ( !RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName( gridFileName, &m_filesWithSameBaseName ) )
-        return std::wstring();
+    if ( !RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName( gridFileName, &m_filesWithSameBaseName ) ) return std::wstring();
 
     QString initFileName = RifEclipseOutputFileTools::firstFileNameOfType( m_filesWithSameBaseName, ECL_INIT_FILE );
 

@@ -111,9 +111,8 @@ void RiaWellLogCurveMerger::computeLookupValues( bool includeValuesFromPartialCu
 
         for ( size_t valueIndex = 0; valueIndex < dataValueCount; valueIndex++ )
         {
-            double interpolValue = lookupYValue( m_allXValues[valueIndex],
-                                                 m_originalValues[curveIdx].first,
-                                                 m_originalValues[curveIdx].second );
+            double interpolValue =
+                lookupYValue( m_allXValues[valueIndex], m_originalValues[curveIdx].first, m_originalValues[curveIdx].second );
             if ( !RiaCurveDataTools::isValidValue( interpolValue, false ) )
             {
                 accumulatedValidValues[valueIndex] = HUGE_VAL;
@@ -158,8 +157,7 @@ void RiaWellLogCurveMerger::computeUnionOfXValues( bool includeValuesForPartialC
         originalXBounds.push_back( std::make_pair( *( minmax_it.first ), *( minmax_it.second ) ) );
     }
 
-    if ( !includeValuesForPartialCurves )
-        RiaCurveMerger<double>::removeValuesForPartialCurves( unionOfXValues, originalXBounds );
+    if ( !includeValuesForPartialCurves ) RiaCurveMerger<double>::removeValuesForPartialCurves( unionOfXValues, originalXBounds );
 
     m_allXValues = std::vector<double>( unionOfXValues.begin(), unionOfXValues.end() );
 }

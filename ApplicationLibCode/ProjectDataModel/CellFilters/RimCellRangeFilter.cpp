@@ -104,12 +104,9 @@ QString RimCellRangeFilter::fullName() const
     }
     else
     {
-        QString irange =
-            QString( "I=%1-%2" ).arg( QString::number( startIndexI ), QString::number( startIndexI + cellCountI - 1 ) );
-        QString jrange =
-            QString( "J=%1-%2" ).arg( QString::number( startIndexJ ), QString::number( startIndexJ + cellCountJ - 1 ) );
-        QString krange =
-            QString( "K=%1-%2" ).arg( QString::number( startIndexK ), QString::number( startIndexK + cellCountK - 1 ) );
+        QString irange = QString( "I=%1-%2" ).arg( QString::number( startIndexI ), QString::number( startIndexI + cellCountI - 1 ) );
+        QString jrange = QString( "J=%1-%2" ).arg( QString::number( startIndexJ ), QString::number( startIndexJ + cellCountJ - 1 ) );
+        QString krange = QString( "K=%1-%2" ).arg( QString::number( startIndexK ), QString::number( startIndexK + cellCountK - 1 ) );
 
         postfix = QString( "%1 %2 %3" ).arg( irange, jrange, krange );
     }
@@ -120,9 +117,7 @@ QString RimCellRangeFilter::fullName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCellRangeFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                           const QVariant&            oldValue,
-                                           const QVariant&            newValue )
+void RimCellRangeFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_gridIndex )
     {
@@ -242,9 +237,7 @@ void RimCellRangeFilter::setDefaultValues( int sliceDirection, int defaultSlice 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCellRangeFilter::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                QString                    uiConfigName,
-                                                caf::PdmUiEditorAttribute* attribute )
+void RimCellRangeFilter::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     caf::PdmUiSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute );
     if ( !myAttr )
@@ -308,18 +301,15 @@ void RimCellRangeFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 
         QString label;
 
-        label =
-            QString( "I Active Cell Range %1 to %2, %3 cells" ).arg( min.x() ).arg( max.x() ).arg( max.x() - min.x() + 1 );
+        label = QString( "I Active Cell Range %1 to %2, %3 cells" ).arg( min.x() ).arg( max.x() ).arg( max.x() - min.x() + 1 );
 
         m_labelI.uiCapability()->setUiName( label );
 
-        label =
-            QString( "J Active Cell Range %1 to %2, %3 cells" ).arg( min.y() ).arg( max.y() ).arg( max.y() - min.y() + 1 );
+        label = QString( "J Active Cell Range %1 to %2, %3 cells" ).arg( min.y() ).arg( max.y() ).arg( max.y() - min.y() + 1 );
 
         m_labelJ.uiCapability()->setUiName( label );
 
-        label =
-            QString( "K Active Cell Range %1 to %2, %3 cells" ).arg( min.z() ).arg( max.z() ).arg( max.z() - min.z() + 1 );
+        label = QString( "K Active Cell Range %1 to %2, %3 cells" ).arg( min.z() ).arg( max.z() ).arg( max.z() - min.z() + 1 );
 
         m_labelK.uiCapability()->setUiName( label );
     }

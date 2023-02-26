@@ -31,8 +31,7 @@ RigCellEdgeResultAccessor::RigCellEdgeResultAccessor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCellEdgeResultAccessor::setDataAccessObjectForFace( cvf::StructGridInterface::FaceType faceId,
-                                                            RigResultAccessor*                 resultAccessObject )
+void RigCellEdgeResultAccessor::setDataAccessObjectForFace( cvf::StructGridInterface::FaceType faceId, RigResultAccessor* resultAccessObject )
 {
     m_resultAccessObjects[faceId] = resultAccessObject;
 }

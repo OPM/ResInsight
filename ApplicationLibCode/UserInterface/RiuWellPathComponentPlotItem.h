@@ -97,10 +97,10 @@ private:
                                int                                 size,
                                RiuPlotCurveSymbol::PointSymbolEnum symbolType,
                                cvf::Color4f                        baseColor,
-                               const QString&                      label            = QString( "" ),
-                               Qt::Alignment                       labelAlignment   = Qt::AlignVCenter | Qt::AlignRight,
-                               Qt::Orientation                     labelOrientation = Qt::Horizontal,
-                               bool                                drawLine         = false,
+                               const QString&                      label             = QString( "" ),
+                               Qt::Alignment                       labelAlignment    = Qt::AlignVCenter | Qt::AlignRight,
+                               Qt::Orientation                     labelOrientation  = Qt::Horizontal,
+                               bool                                drawLine          = false,
                                bool                                contrastTextColor = false );
 
     void addColumnFeature( double         startPosition,

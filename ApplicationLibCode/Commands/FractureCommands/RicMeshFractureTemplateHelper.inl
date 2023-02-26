@@ -87,8 +87,7 @@ std::vector<T*> RicMeshFractureTemplateHelper<T>::createNewTemplates( const QStr
     QString         defaultDir = app->lastUsedDialogDirectoryWithFallbackToProjectFolder( lastUsedDialogFallback );
     QStringList     fileNames  = RiuFileDialogTools::getOpenFileNames( nullptr, title, defaultDir, fileFilter );
 
-    auto templates =
-        createNewTemplatesFromFiles( std::vector<QString>( fileNames.begin(), fileNames.end() ), defaultTemplateName );
+    auto templates = createNewTemplatesFromFiles( std::vector<QString>( fileNames.begin(), fileNames.end() ), defaultTemplateName );
 
     if ( !fileNames.isEmpty() )
     {
@@ -103,7 +102,7 @@ std::vector<T*> RicMeshFractureTemplateHelper<T>::createNewTemplates( const QStr
 //--------------------------------------------------------------------------------------------------
 template <class T>
 std::vector<T*> RicMeshFractureTemplateHelper<T>::createNewTemplatesFromFiles( const std::vector<QString>& fileNames,
-                                                                               const QString& defaultTemplateName,
+                                                                               const QString&              defaultTemplateName,
                                                                                bool reuseExistingTemplatesWithMatchingNames )
 {
     if ( fileNames.empty() ) return std::vector<T*>();

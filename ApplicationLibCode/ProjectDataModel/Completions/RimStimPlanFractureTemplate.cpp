@@ -173,12 +173,11 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
 
     if ( m_readError ) return;
 
-    m_stimPlanFractureDefinitionData =
-        RifStimPlanXmlReader::readStimPlanXMLFile( m_stimPlanFileName().path(),
-                                                   m_conductivityScaleFactor(),
-                                                   RifStimPlanXmlReader::MirrorMode::MIRROR_AUTO,
-                                                   fractureTemplateUnit(),
-                                                   &errorMessage );
+    m_stimPlanFractureDefinitionData = RifStimPlanXmlReader::readStimPlanXMLFile( m_stimPlanFileName().path(),
+                                                                                  m_conductivityScaleFactor(),
+                                                                                  RifStimPlanXmlReader::MirrorMode::MIRROR_AUTO,
+                                                                                  fractureTemplateUnit(),
+                                                                                  &errorMessage );
     if ( errorMessage.size() > 0 ) RiaLogging::error( errorMessage );
 
     if ( m_stimPlanFractureDefinitionData.notNull() )
@@ -285,14 +284,12 @@ void RimStimPlanFractureTemplate::computePerforationLength()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double>
-    RimStimPlanFractureTemplate::fractureGridResultsForUnitSystem( const QString&                resultName,
-                                                                   const QString&                unitName,
-                                                                   size_t                        timeStepIndex,
-                                                                   RiaDefines::EclipseUnitSystem requiredUnitSystem ) const
+std::vector<double> RimStimPlanFractureTemplate::fractureGridResultsForUnitSystem( const QString&                resultName,
+                                                                                   const QString&                unitName,
+                                                                                   size_t                        timeStepIndex,
+                                                                                   RiaDefines::EclipseUnitSystem requiredUnitSystem ) const
 {
-    auto resultValues =
-        m_stimPlanFractureDefinitionData->fractureGridResults( resultName, unitName, m_activeTimeStepIndex );
+    auto resultValues = m_stimPlanFractureDefinitionData->fractureGridResults( resultName, unitName, m_activeTimeStepIndex );
 
     if ( fractureTemplateUnit() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
@@ -323,13 +320,12 @@ std::pair<QString, QString> RimStimPlanFractureTemplate::widthParameterNameAndUn
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<QString, QString> RimStimPlanFractureTemplate::widthParameterNameAndUnit(
-    cvf::ref<RigStimPlanFractureDefinition> stimPlanFractureDefinitionData )
+std::pair<QString, QString>
+    RimStimPlanFractureTemplate::widthParameterNameAndUnit( cvf::ref<RigStimPlanFractureDefinition> stimPlanFractureDefinitionData )
 {
     if ( stimPlanFractureDefinitionData.notNull() )
     {
-        std::vector<std::pair<QString, QString>> propertyNamesUnitsOnFile =
-            stimPlanFractureDefinitionData->getStimPlanPropertyNamesUnits();
+        std::vector<std::pair<QString, QString>> propertyNamesUnitsOnFile = stimPlanFractureDefinitionData->getStimPlanPropertyNamesUnits();
 
         for ( const auto& nameUnit : propertyNamesUnitsOnFile )
         {
@@ -355,8 +351,7 @@ std::pair<QString, QString> RimStimPlanFractureTemplate::conductivityParameterNa
 {
     if ( m_stimPlanFractureDefinitionData.notNull() )
     {
-        std::vector<std::pair<QString, QString>> propertyNamesUnitsOnFile =
-            m_stimPlanFractureDefinitionData->getStimPlanPropertyNamesUnits();
+        std::vector<std::pair<QString, QString>> propertyNamesUnitsOnFile = m_stimPlanFractureDefinitionData->getStimPlanPropertyNamesUnits();
 
         for ( const auto& nameUnit : propertyNamesUnitsOnFile )
         {
@@ -377,8 +372,7 @@ std::pair<QString, QString> RimStimPlanFractureTemplate::betaFactorParameterName
 {
     if ( m_stimPlanFractureDefinitionData.notNull() )
     {
-        std::vector<std::pair<QString, QString>> propertyNamesUnitsOnFile =
-            m_stimPlanFractureDefinitionData->getStimPlanPropertyNamesUnits();
+        std::vector<std::pair<QString, QString>> propertyNamesUnitsOnFile = m_stimPlanFractureDefinitionData->getStimPlanPropertyNamesUnits();
 
         for ( const auto& nameUnit : propertyNamesUnitsOnFile )
         {
@@ -548,8 +542,7 @@ std::vector<std::pair<QString, QString>> RimStimPlanFractureTemplate::uiResultNa
 
         std::vector<std::pair<QString, QString>> tmp;
 
-        std::vector<std::pair<QString, QString>> propertyNamesUnitsOnFile =
-            m_stimPlanFractureDefinitionData->getStimPlanPropertyNamesUnits();
+        std::vector<std::pair<QString, QString>> propertyNamesUnitsOnFile = m_stimPlanFractureDefinitionData->getStimPlanPropertyNamesUnits();
         for ( const auto& nameUnitPair : propertyNamesUnitsOnFile )
         {
             if ( nameUnitPair.first.contains( RiaDefines::conductivityResultName(), Qt::CaseInsensitive ) )
@@ -576,9 +569,8 @@ std::vector<std::pair<QString, QString>> RimStimPlanFractureTemplate::uiResultNa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<double>> RimStimPlanFractureTemplate::resultValues( const QString& uiResultName,
-                                                                            const QString& unitName,
-                                                                            size_t         timeStepIndex ) const
+std::vector<std::vector<double>>
+    RimStimPlanFractureTemplate::resultValues( const QString& uiResultName, const QString& unitName, size_t timeStepIndex ) const
 {
     if ( m_stimPlanFractureDefinitionData.notNull() )
     {
@@ -593,9 +585,8 @@ std::vector<std::vector<double>> RimStimPlanFractureTemplate::resultValues( cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimStimPlanFractureTemplate::fractureGridResults( const QString& uiResultName,
-                                                                      const QString& unitName,
-                                                                      size_t         timeStepIndex ) const
+std::vector<double>
+    RimStimPlanFractureTemplate::fractureGridResults( const QString& uiResultName, const QString& unitName, size_t timeStepIndex ) const
 {
     if ( m_stimPlanFractureDefinitionData.notNull() )
     {
@@ -612,8 +603,7 @@ std::vector<double> RimStimPlanFractureTemplate::fractureGridResults( const QStr
 //--------------------------------------------------------------------------------------------------
 bool RimStimPlanFractureTemplate::hasConductivity() const
 {
-    if ( m_stimPlanFractureDefinitionData.notNull() &&
-         !m_stimPlanFractureDefinitionData->conductivityResultNames().isEmpty() )
+    if ( m_stimPlanFractureDefinitionData.notNull() && !m_stimPlanFractureDefinitionData->conductivityResultNames().isEmpty() )
     {
         return true;
     }
@@ -658,10 +648,7 @@ void RimStimPlanFractureTemplate::appendDataToResultStatistics( const QString&  
     {
         QString fileResultName = mapUiResultNameToFileResultName( uiResultName );
 
-        m_stimPlanFractureDefinitionData->appendDataToResultStatistics( fileResultName,
-                                                                        unit,
-                                                                        minMaxAccumulator,
-                                                                        posNegAccumulator );
+        m_stimPlanFractureDefinitionData->appendDataToResultStatistics( fileResultName, unit, minMaxAccumulator, posNegAccumulator );
     }
 }
 
@@ -803,8 +790,7 @@ QString RimStimPlanFractureTemplate::generatePropertiesTable() const
             RigEnsembleFractureStatisticsCalculator::propertyTypes();
         for ( auto propertyType : propertyTypes )
         {
-            std::vector<double> values =
-                RigEnsembleFractureStatisticsCalculator::calculateProperty( fractureDefinitions, propertyType );
+            std::vector<double> values = RigEnsembleFractureStatisticsCalculator::calculateProperty( fractureDefinitions, propertyType );
             if ( !values.empty() )
             {
                 appendTextIfValidValue( body, values[0], propertyType );
@@ -835,7 +821,7 @@ void RimStimPlanFractureTemplate::appendTextIfValidValue( QString&              
 {
     if ( value != HUGE_VAL )
     {
-        QString name = caf::AppEnum<RigEnsembleFractureStatisticsCalculator::PropertyType>::uiText( propertyType );
+        QString name                   = caf::AppEnum<RigEnsembleFractureStatisticsCalculator::PropertyType>::uiText( propertyType );
         auto [numberFormat, precision] = RigEnsembleFractureStatisticsCalculator::numberFormatForProperty( propertyType );
         body += QString( "%1: %2<br>" ).arg( name ).arg( RiaNumberFormat::valueToText( value, numberFormat, precision ) );
     }

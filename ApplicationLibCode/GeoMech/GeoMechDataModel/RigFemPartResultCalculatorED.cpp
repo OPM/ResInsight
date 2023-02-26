@@ -59,19 +59,17 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorED::calculate( int partIndex
     CVF_ASSERT( resVarAddr.fieldName == "NE" && resVarAddr.componentName == "ED" );
 
     caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 3, "" );
-    stepCountProgress.setProgressDescription(
-        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
+    stepCountProgress.setProgressDescription( "Calculating " +
+                                              QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
     stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* ea11 = nullptr;
     RigFemScalarResultFrames* ea33 = nullptr;
     {
-        ea11 = m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                           RigFemResultAddress( resVarAddr.resultPosType, "NE", "E1" ) );
+        ea11 = m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "NE", "E1" ) );
         stepCountProgress.incrementProgress();
         stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
-        ea33 = m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                           RigFemResultAddress( resVarAddr.resultPosType, "NE", "E3" ) );
+        ea33 = m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "NE", "E3" ) );
     }
 
     RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );

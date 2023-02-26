@@ -46,13 +46,11 @@ public:
     ~RimCorrelationPlotCollection() override;
 
     RimCorrelationPlot* createCorrelationPlot( bool defaultToFirstEnsembleFopt = true );
-    RimCorrelationPlot*
-        createCorrelationPlot( RimSummaryCaseCollection* ensemble, const QString& quantityName, std::time_t timeStep );
+    RimCorrelationPlot* createCorrelationPlot( RimSummaryCaseCollection* ensemble, const QString& quantityName, std::time_t timeStep );
 
     RimCorrelationMatrixPlot* createCorrelationMatrixPlot( bool defaultToFirstEnsembleField = true );
-    RimCorrelationMatrixPlot* createCorrelationMatrixPlot( RimSummaryCaseCollection*   ensemble,
-                                                           const std::vector<QString>& quantityNames,
-                                                           std::time_t                 timeStep );
+    RimCorrelationMatrixPlot*
+        createCorrelationMatrixPlot( RimSummaryCaseCollection* ensemble, const std::vector<QString>& quantityNames, std::time_t timeStep );
 
     RimParameterResultCrossPlot* createParameterResultCrossPlot( bool defaultToFirstEnsembleFopt = true );
     RimParameterResultCrossPlot* createParameterResultCrossPlot( RimSummaryCaseCollection* ensemble,
@@ -78,8 +76,7 @@ public:
     std::vector<RimCorrelationReportPlot*> reports() const;
 
 private:
-    void applyFirstEnsembleFieldAddressesToPlot( RimAbstractCorrelationPlot* plot,
-                                                 const std::vector<QString>& quantityNames = {} );
+    void applyFirstEnsembleFieldAddressesToPlot( RimAbstractCorrelationPlot* plot, const std::vector<QString>& quantityNames = {} );
     void applyEnsembleFieldAndTimeStepToPlot( RimAbstractCorrelationPlot* plot,
                                               RimSummaryCaseCollection*   ensemble,
                                               const std::vector<QString>& quantityNames,

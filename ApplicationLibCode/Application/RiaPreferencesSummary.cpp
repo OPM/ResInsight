@@ -50,9 +50,7 @@ void RiaPreferencesSummary::SummaryHistoryCurveStyleModeType::setUp()
 {
     addItem( RiaPreferencesSummary::SummaryHistoryCurveStyleMode::SYMBOLS, "SYMBOLS", "Symbols" );
     addItem( RiaPreferencesSummary::SummaryHistoryCurveStyleMode::LINES, "LINES", "Lines" );
-    addItem( RiaPreferencesSummary::SummaryHistoryCurveStyleMode::SYMBOLS_AND_LINES,
-             "SYMBOLS_AND_LINES",
-             "Symbols and Lines" );
+    addItem( RiaPreferencesSummary::SummaryHistoryCurveStyleMode::SYMBOLS_AND_LINES, "SYMBOLS_AND_LINES", "Symbols and Lines" );
     setDefault( RiaPreferencesSummary::SummaryHistoryCurveStyleMode::SYMBOLS );
 }
 
@@ -83,9 +81,7 @@ CAF_PDM_SOURCE_INIT( RiaPreferencesSummary, "RiaPreferencesSummary" );
 //--------------------------------------------------------------------------------------------------
 RiaPreferencesSummary::RiaPreferencesSummary()
 {
-    CAF_PDM_InitFieldNoDefault( &m_summaryRestartFilesShowImportDialog,
-                                "summaryRestartFilesShowImportDialog",
-                                "Show Import Dialog" );
+    CAF_PDM_InitFieldNoDefault( &m_summaryRestartFilesShowImportDialog, "summaryRestartFilesShowImportDialog", "Show Import Dialog" );
 
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_summaryRestartFilesShowImportDialog );
 
@@ -413,9 +409,7 @@ void RiaPreferencesSummary::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaPreferencesSummary::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                   QString                    uiConfigName,
-                                                   caf::PdmUiEditorAttribute* attribute )
+void RiaPreferencesSummary::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_defaultRowsPerPage || field == &m_defaultColumnCount )
     {
@@ -471,10 +465,8 @@ QList<caf::PdmOptionItemInfo> RiaPreferencesSummary::calculateValueOptions( cons
         SummaryRestartFilesImportModeType skip( RiaPreferencesSummary::SummaryRestartFilesImportMode::NOT_IMPORT );
         SummaryRestartFilesImportModeType separate( RiaPreferencesSummary::SummaryRestartFilesImportMode::SEPARATE_CASES );
 
-        options.push_back(
-            caf::PdmOptionItemInfo( skip.uiText(), RiaPreferencesSummary::SummaryRestartFilesImportMode::NOT_IMPORT ) );
-        options.push_back( caf::PdmOptionItemInfo( separate.uiText(),
-                                                   RiaPreferencesSummary::SummaryRestartFilesImportMode::SEPARATE_CASES ) );
+        options.push_back( caf::PdmOptionItemInfo( skip.uiText(), RiaPreferencesSummary::SummaryRestartFilesImportMode::NOT_IMPORT ) );
+        options.push_back( caf::PdmOptionItemInfo( separate.uiText(), RiaPreferencesSummary::SummaryRestartFilesImportMode::SEPARATE_CASES ) );
     }
     else if ( fieldNeedingOptions == &m_summaryEnsembleImportMode )
     {
@@ -482,24 +474,19 @@ QList<caf::PdmOptionItemInfo> RiaPreferencesSummary::calculateValueOptions( cons
         SummaryRestartFilesImportModeType skip( RiaPreferencesSummary::SummaryRestartFilesImportMode::NOT_IMPORT );
         SummaryRestartFilesImportModeType allowImport( RiaPreferencesSummary::SummaryRestartFilesImportMode::IMPORT );
 
-        options.push_back(
-            caf::PdmOptionItemInfo( skip.uiText(), RiaPreferencesSummary::SummaryRestartFilesImportMode::NOT_IMPORT ) );
-        options.push_back( caf::PdmOptionItemInfo( allowImport.uiText(),
-                                                   RiaPreferencesSummary::SummaryRestartFilesImportMode::IMPORT ) );
+        options.push_back( caf::PdmOptionItemInfo( skip.uiText(), RiaPreferencesSummary::SummaryRestartFilesImportMode::NOT_IMPORT ) );
+        options.push_back( caf::PdmOptionItemInfo( allowImport.uiText(), RiaPreferencesSummary::SummaryRestartFilesImportMode::IMPORT ) );
     }
     else if ( fieldNeedingOptions == &m_defaultColumnCount )
     {
         for ( size_t i = 0; i < ColumnCountEnum::size(); ++i )
         {
-            RiaDefines::ColumnCount enumVal           = ColumnCountEnum::fromIndex( i );
-            QString                 columnCountString = ( enumVal == RiaDefines::ColumnCount::COLUMNS_UNLIMITED )
-                                            ? "Unlimited"
-                                            : QString( "%1" ).arg( static_cast<int>( enumVal ) );
+            RiaDefines::ColumnCount enumVal = ColumnCountEnum::fromIndex( i );
+            QString                 columnCountString =
+                ( enumVal == RiaDefines::ColumnCount::COLUMNS_UNLIMITED ) ? "Unlimited" : QString( "%1" ).arg( static_cast<int>( enumVal ) );
             QString iconPath = QString( ":/Columns%1.png" ).arg( columnCountString );
-            options.push_back( caf::PdmOptionItemInfo( ColumnCountEnum::uiText( enumVal ),
-                                                       enumVal,
-                                                       false,
-                                                       caf::IconProvider( iconPath, QSize( 24, 16 ) ) ) );
+            options.push_back(
+                caf::PdmOptionItemInfo( ColumnCountEnum::uiText( enumVal ), enumVal, false, caf::IconProvider( iconPath, QSize( 24, 16 ) ) ) );
         }
     }
     else if ( fieldNeedingOptions == &m_defaultRowsPerPage )
@@ -508,10 +495,8 @@ QList<caf::PdmOptionItemInfo> RiaPreferencesSummary::calculateValueOptions( cons
         {
             RiaDefines::RowCount enumVal  = RowCountEnum::fromIndex( i );
             QString              iconPath = QString( ":/Rows%1.png" ).arg( static_cast<int>( enumVal ) );
-            options.push_back( caf::PdmOptionItemInfo( RowCountEnum::uiText( enumVal ),
-                                                       enumVal,
-                                                       false,
-                                                       caf::IconProvider( iconPath, QSize( 24, 16 ) ) ) );
+            options.push_back(
+                caf::PdmOptionItemInfo( RowCountEnum::uiText( enumVal ), enumVal, false, caf::IconProvider( iconPath, QSize( 24, 16 ) ) ) );
         }
     }
 
@@ -545,9 +530,7 @@ cvf::Color3f RiaPreferencesSummary::historyCurveContrastColor() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaPreferencesSummary::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                              const QVariant&            oldValue,
-                                              const QVariant&            newValue )
+void RiaPreferencesSummary::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_selectDefaultTemplates )
     {
@@ -580,8 +563,7 @@ std::vector<QString> RiaPreferencesSummary::defaultSummaryPlotTemplates( bool re
         if ( singleTemplate && returnEnsembleTemplates ) continue;
         if ( !singleTemplate && !returnEnsembleTemplates ) continue;
 
-        if ( std::count( templatesToUse.begin(), templatesToUse.end(), fileName ) == 0 )
-            templatesToUse.push_back( fileName );
+        if ( std::count( templatesToUse.begin(), templatesToUse.end(), fileName ) == 0 ) templatesToUse.push_back( fileName );
     }
 
     return templatesToUse;

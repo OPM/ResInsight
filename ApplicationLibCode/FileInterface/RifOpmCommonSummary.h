@@ -47,9 +47,7 @@ class RiaThreadSafeLogger;
 class RifOpmCommonSummaryTools
 {
 public:
-    static std::tuple<std::set<RifEclipseSummaryAddress>,
-                      std::map<RifEclipseSummaryAddress, size_t>,
-                      std::map<RifEclipseSummaryAddress, std::string>>
+    static std::tuple<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress, size_t>, std::map<RifEclipseSummaryAddress, std::string>>
         buildAddressesSmspecAndKeywordMap( const Opm::EclIO::ESmry* summaryFile );
 
     static std::pair<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress, std::string>>
@@ -74,9 +72,9 @@ public:
 
     bool open( const QString& fileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
 
-    std::vector<time_t> timeSteps( const RifEclipseSummaryAddress& resultAddress ) const override;
-    bool        values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const override;
-    std::string unitName( const RifEclipseSummaryAddress& resultAddress ) const override;
+    std::vector<time_t>           timeSteps( const RifEclipseSummaryAddress& resultAddress ) const override;
+    bool                          values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const override;
+    std::string                   unitName( const RifEclipseSummaryAddress& resultAddress ) const override;
     RiaDefines::EclipseUnitSystem unitSystem() const override;
 
 private:

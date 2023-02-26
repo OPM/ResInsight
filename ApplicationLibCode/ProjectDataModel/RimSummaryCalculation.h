@@ -68,19 +68,15 @@ protected:
     RimSummaryCalculationVariable* createVariable() override;
 
     static std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
-        calculateResult( const QString&                                 expression,
-                         const std::vector<SummaryCalculationVariable>& variables,
-                         RimSummaryCase*                                summaryCase );
+        calculateResult( const QString& expression, const std::vector<SummaryCalculationVariable>& variables, RimSummaryCase* summaryCase );
 
-    std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
-        calculateWithSubstitutions( RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& addr );
+    std::optional<std::pair<std::vector<double>, std::vector<time_t>>> calculateWithSubstitutions( RimSummaryCase* summaryCase,
+                                                                                                   const RifEclipseSummaryAddress& addr );
 
-    static void substituteVariables( std::vector<SummaryCalculationVariable>& vars,
-                                     const RifEclipseSummaryAddress&          address );
+    static void substituteVariables( std::vector<SummaryCalculationVariable>& vars, const RifEclipseSummaryAddress& address );
 
-    std::vector<RimSummaryCalculationAddress>
-        allAddressesForCategory( RifEclipseSummaryAddress::SummaryVarCategory category,
-                                 const std::set<RifEclipseSummaryAddress>&    allResultAddresses ) const;
+    std::vector<RimSummaryCalculationAddress> allAddressesForCategory( RifEclipseSummaryAddress::SummaryVarCategory category,
+                                                                       const std::set<RifEclipseSummaryAddress>& allResultAddresses ) const;
 
     RimSummaryCalculationAddress singleAddressesForCategory( const RifEclipseSummaryAddress& address ) const;
 

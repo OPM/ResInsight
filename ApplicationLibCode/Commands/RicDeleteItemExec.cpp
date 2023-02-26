@@ -45,8 +45,7 @@ QString RicDeleteItemExec::name()
 //--------------------------------------------------------------------------------------------------
 void RicDeleteItemExec::redo()
 {
-    caf::PdmFieldHandle* field =
-        caf::PdmReferenceHelper::fieldFromReference( m_commandData.m_rootObject, m_commandData.m_pathToField );
+    caf::PdmFieldHandle* field = caf::PdmReferenceHelper::fieldFromReference( m_commandData.m_rootObject, m_commandData.m_pathToField );
 
     caf::PdmChildArrayFieldHandle* listField = dynamic_cast<caf::PdmChildArrayFieldHandle*>( field );
     if ( listField )
@@ -80,16 +79,14 @@ void RicDeleteItemExec::redo()
 //--------------------------------------------------------------------------------------------------
 void RicDeleteItemExec::undo()
 {
-    caf::PdmFieldHandle* field =
-        caf::PdmReferenceHelper::fieldFromReference( m_commandData.m_rootObject, m_commandData.m_pathToField );
+    caf::PdmFieldHandle* field = caf::PdmReferenceHelper::fieldFromReference( m_commandData.m_rootObject, m_commandData.m_pathToField );
 
     caf::PdmChildArrayFieldHandle* listField = dynamic_cast<caf::PdmChildArrayFieldHandle*>( field );
     if ( listField )
     {
-        caf::PdmObjectHandle* obj =
-            caf::PdmXmlObjectHandle::readUnknownObjectFromXmlString( m_commandData.m_deletedObjectAsXml(),
-                                                                     caf::PdmDefaultObjectFactory::instance(),
-                                                                     false );
+        caf::PdmObjectHandle* obj = caf::PdmXmlObjectHandle::readUnknownObjectFromXmlString( m_commandData.m_deletedObjectAsXml(),
+                                                                                             caf::PdmDefaultObjectFactory::instance(),
+                                                                                             false );
 
         listField->insertAt( m_commandData.m_indexToObject, obj );
 

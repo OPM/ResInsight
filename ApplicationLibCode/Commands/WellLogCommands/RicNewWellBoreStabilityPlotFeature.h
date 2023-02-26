@@ -34,10 +34,8 @@ class RicNewWellBoreStabilityPlotFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    static RimWellBoreStabilityPlot* createPlot( RimGeoMechCase*         geoMechCase,
-                                                 RimWellPath*            wellPath,
-                                                 int                     timeStep,
-                                                 const RimWbsParameters* parameters = nullptr );
+    static RimWellBoreStabilityPlot*
+        createPlot( RimGeoMechCase* geoMechCase, RimWellPath* wellPath, int timeStep, const RimWbsParameters* parameters = nullptr );
 
 protected:
     bool isCommandEnabled() override;
@@ -47,14 +45,7 @@ protected:
 private:
     static void createFormationTrack( RimWellBoreStabilityPlot* plot, RimWellPath* wellPath, RimGeoMechCase* geoMechCase );
     static void createCasingShoeTrack( RimWellBoreStabilityPlot* plot, RimWellPath* wellPath, RimGeoMechCase* geoMechCase );
-    static void createParametersTrack( RimWellBoreStabilityPlot* plot,
-                                       RimWellPath*              wellPath,
-                                       RimGeoMechCase*           geoMechCase,
-                                       int                       timeStep );
-    static void createStabilityCurvesTrack( RimWellBoreStabilityPlot* plot,
-                                            RimWellPath*              wellPath,
-                                            RimGeoMechCase*           geoMechCase,
-                                            int                       timeStep );
-    static void
-        createAnglesTrack( RimWellBoreStabilityPlot* plot, RimWellPath* wellPath, RimGeoMechCase* geoMechCase, int timeStep );
+    static void createParametersTrack( RimWellBoreStabilityPlot* plot, RimWellPath* wellPath, RimGeoMechCase* geoMechCase, int timeStep );
+    static void createStabilityCurvesTrack( RimWellBoreStabilityPlot* plot, RimWellPath* wellPath, RimGeoMechCase* geoMechCase, int timeStep );
+    static void createAnglesTrack( RimWellBoreStabilityPlot* plot, RimWellPath* wellPath, RimGeoMechCase* geoMechCase, int timeStep );
 };

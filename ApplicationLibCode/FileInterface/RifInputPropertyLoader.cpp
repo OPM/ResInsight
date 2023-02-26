@@ -88,8 +88,7 @@ void RifInputPropertyLoader::loadAndSynchronizeInputProperties( RimEclipseInputP
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<QString, QString> RifInputPropertyLoader::readProperties( const QString&      fileName,
-                                                                   RigEclipseCaseData* eclipseCaseData )
+std::map<QString, QString> RifInputPropertyLoader::readProperties( const QString& fileName, RigEclipseCaseData* eclipseCaseData )
 {
     RiaDefines::ImportFileType fileType = RiaDefines::obtainFileTypeFromFileName( fileName );
     if ( fileType == RiaDefines::ImportFileType::ROFF_FILE )

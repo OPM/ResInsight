@@ -68,15 +68,10 @@ private:
     size_t                     mapFromTriangleToConnectionIndex( cvf::uint triangleIndex ) const;
     cvf::ref<cvf::DrawableGeo> createSurfaceGeometry();
 
-    static void createStarGeometry( std::vector<cvf::Vec3f>* vertices,
-                                    std::vector<cvf::uint>*  indices,
-                                    float                    radius,
-                                    float                    thickness );
+    static void createStarGeometry( std::vector<cvf::Vec3f>* vertices, std::vector<cvf::uint>* indices, float radius, float thickness );
 
-    static void createSimplifiedStarGeometry( std::vector<cvf::Vec3f>* vertices,
-                                              std::vector<cvf::uint>*  indices,
-                                              float                    radius,
-                                              float                    thickness );
+    static void
+        createSimplifiedStarGeometry( std::vector<cvf::Vec3f>* vertices, std::vector<cvf::uint>* indices, float radius, float thickness );
 
 private:
     std::vector<CompletionVizData> m_completionVizData;

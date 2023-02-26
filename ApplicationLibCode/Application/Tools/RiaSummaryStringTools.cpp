@@ -95,8 +95,7 @@ std::pair<QStringList, QStringList> RiaSummaryStringTools::splitIntoAddressAndDa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaSummaryStringTools::hasFilterAnyMatch( const QString&                            curveFilter,
-                                               const std::set<RifEclipseSummaryAddress>& summaryAddresses )
+bool RiaSummaryStringTools::hasFilterAnyMatch( const QString& curveFilter, const std::set<RifEclipseSummaryAddress>& summaryAddresses )
 {
     for ( const auto& addr : summaryAddresses )
     {
@@ -143,8 +142,7 @@ void RiaSummaryStringTools::splitUsingDataSourceNames( const QStringList& filter
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<std::vector<RimSummaryCase*>, std::vector<RimSummaryCaseCollection*>>
-    RiaSummaryStringTools::allDataSourcesInProject()
+std::pair<std::vector<RimSummaryCase*>, std::vector<RimSummaryCaseCollection*>> RiaSummaryStringTools::allDataSourcesInProject()
 {
     auto sumCaseMainColl = RiaSummaryTools::summaryCaseMainCollection();
     if ( !sumCaseMainColl ) return { {}, {} };
@@ -245,10 +243,9 @@ QStringList RiaSummaryStringTools::dataSourceNames( const std::vector<RimSummary
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<RifEclipseSummaryAddress>
-    RiaSummaryStringTools::computeFilteredAddresses( const QStringList&                        textFilters,
-                                                     const std::set<RifEclipseSummaryAddress>& sourceAddresses,
-                                                     bool                                      includeDiffCurves )
+std::set<RifEclipseSummaryAddress> RiaSummaryStringTools::computeFilteredAddresses( const QStringList&                        textFilters,
+                                                                                    const std::set<RifEclipseSummaryAddress>& sourceAddresses,
+                                                                                    bool includeDiffCurves )
 {
     std::set<RifEclipseSummaryAddress> addresses;
 

@@ -45,16 +45,11 @@ public:
     static void importCoordinatesForRadialGrid( const std::string& gridFilePath, RigMainGrid* mainGrid );
 
 private:
-    static void transferCoordinates( Opm::EclIO::EGrid& opmMainGrid,
-                                     Opm::EclIO::EGrid& opmGrid,
-                                     RigMainGrid*       riMainGrid,
-                                     RigGridBase*       riGrid );
+    static void transferCoordinates( Opm::EclIO::EGrid& opmMainGrid, Opm::EclIO::EGrid& opmGrid, RigMainGrid* riMainGrid, RigGridBase* riGrid );
 
     static std::map<int, std::pair<double, double>>
         computeXyCenterForTopOfCells( Opm::EclIO::EGrid& opmMainGrid, Opm::EclIO::EGrid& opmGrid, RigGridBase* riGrid );
 
-    static std::vector<std::vector<cvf::Vec3d>> computeSnapToCoordinates( Opm::EclIO::EGrid& opmMainGrid,
-                                                                          Opm::EclIO::EGrid& opmGrid,
-                                                                          int                mainGridCellIndex,
-                                                                          int                lgrCellIndex );
+    static std::vector<std::vector<cvf::Vec3d>>
+        computeSnapToCoordinates( Opm::EclIO::EGrid& opmMainGrid, Opm::EclIO::EGrid& opmGrid, int mainGridCellIndex, int lgrCellIndex );
 };

@@ -133,9 +133,7 @@ public:
     bool isXAxisLogarithmic() const;
     bool isYAxisLogarithmic() const;
 
-    void configureForPressureSaturationCurves( RimEclipseResultCase* eclipseResultCase,
-                                               const QString&        dynamicResultName,
-                                               int                   timeStep );
+    void configureForPressureSaturationCurves( RimEclipseResultCase* eclipseResultCase, const QString& dynamicResultName, int timeStep );
     void addCellFilter( RimPlotCellFilter* cellFilter );
     void setCustomColor( const cvf::Color3f color );
     void destroyCurves();
@@ -163,9 +161,7 @@ protected:
     void                          updateDataSetName();
     void                          performAutoNameUpdate() override;
     void                          setDefaults();
-    void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                         QString                    uiConfigName,
-                                                         caf::PdmUiEditorAttribute* attribute ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 

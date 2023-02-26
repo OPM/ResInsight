@@ -32,9 +32,7 @@ class RicSaveEclipseInputVisibleCellsFeature : public caf::CmdFeature
 
 public:
     static void openDialogAndExecuteCommand( RimEclipseView* view );
-    static void executeCommand( RimEclipseView*                          view,
-                                const RicSaveEclipseInputVisibleCellsUi& exportSettings,
-                                const QString&                           logPrefix );
+    static void executeCommand( RimEclipseView* view, const RicSaveEclipseInputVisibleCellsUi& exportSettings, const QString& logPrefix );
 
 protected:
     bool isCommandEnabled() override;

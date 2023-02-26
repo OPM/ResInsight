@@ -37,8 +37,7 @@ public:
     RimSaturationPressurePlotCollection();
     ~RimSaturationPressurePlotCollection() override;
 
-    std::vector<RimSaturationPressurePlot*> createSaturationPressurePlots( RimEclipseResultCase* eclipseResultCase,
-                                                                           int                   timeStep );
+    std::vector<RimSaturationPressurePlot*> createSaturationPressurePlots( RimEclipseResultCase* eclipseResultCase, int timeStep );
 
     std::vector<RimSaturationPressurePlot*> plots() const;
     size_t                                  plotCount() const override;

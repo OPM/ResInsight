@@ -38,10 +38,8 @@ public:
         , m_valid( false )
     {
     }
-    virtual bool accumulateValveParameters( const RimWellPathValve* wellPathValve,
-                                            double                  overlapLength,
-                                            double                  perforationCompsegsLength ) = 0;
-    virtual void applyToSuperValve()                                           = 0;
+    virtual bool accumulateValveParameters( const RimWellPathValve* wellPathValve, double overlapLength, double perforationCompsegsLength ) = 0;
+    virtual void applyToSuperValve() = 0;
 
     RicMswValve* superValve() const { return m_valve; }
 
@@ -58,9 +56,7 @@ class RicMswICDAccumulator : public RicMswValveAccumulator
 {
 public:
     RicMswICDAccumulator( RicMswValve* valve, RiaDefines::EclipseUnitSystem unitSystem );
-    bool accumulateValveParameters( const RimWellPathValve* wellPathValve,
-                                    double                  overlapLength,
-                                    double                  perforationCompsegsLength ) override;
+    bool accumulateValveParameters( const RimWellPathValve* wellPathValve, double overlapLength, double perforationCompsegsLength ) override;
     void applyToSuperValve() override;
 
 private:
@@ -75,9 +71,7 @@ class RicMswAICDAccumulator : public RicMswValveAccumulator
 {
 public:
     RicMswAICDAccumulator( RicMswValve* valve, RiaDefines::EclipseUnitSystem unitSystem );
-    bool   accumulateValveParameters( const RimWellPathValve* wellPathValve,
-                                      double                  overlapLength,
-                                      double                  perforationCompsegsLength ) override;
+    bool accumulateValveParameters( const RimWellPathValve* wellPathValve, double overlapLength, double perforationCompsegsLength ) override;
     void   applyToSuperValve() override;
     double accumulatedLength() const;
 

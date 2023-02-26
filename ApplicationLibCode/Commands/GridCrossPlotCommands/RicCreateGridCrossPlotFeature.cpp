@@ -49,8 +49,7 @@ bool RicCreateGridCrossPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCreateGridCrossPlotFeature::onActionTriggered( bool isChecked )
 {
-    RimGridCrossPlotCollection* collection =
-        caf::SelectionManager::instance()->selectedItemAncestorOfType<RimGridCrossPlotCollection>();
+    RimGridCrossPlotCollection* collection = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimGridCrossPlotCollection>();
     if ( !collection )
     {
         collection = RimMainPlotCollection::current()->gridCrossPlotCollection();

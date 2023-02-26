@@ -44,9 +44,8 @@ bool RicImportPolylinesAnnotationFeature::isCommandEnabled()
     auto selObjs      = caf::selectedObjectsByTypeStrict<RimAnnotationCollection*>();
     auto selGroupColl = caf::selectedObjectsByTypeStrict<RimAnnotationGroupCollection*>();
 
-    return selObjs.size() == 1 ||
-           ( selGroupColl.size() == 1 && selGroupColl.front()->uiCapability()->uiName() ==
-                                             RimAnnotationGroupCollection::POLYLINE_FROM_FILE_ANNOTATION_UI_NAME );
+    return selObjs.size() == 1 || ( selGroupColl.size() == 1 && selGroupColl.front()->uiCapability()->uiName() ==
+                                                                    RimAnnotationGroupCollection::POLYLINE_FROM_FILE_ANNOTATION_UI_NAME );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,11 +55,10 @@ void RicImportPolylinesAnnotationFeature::onActionTriggered( bool isChecked )
 {
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( "BINARY_GRID" );
-    QStringList     fileNames =
-        RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
-                                              "Import Poly Lines Annotation",
-                                              defaultDir,
-                                              "Text Files (*.txt);;Polylines (*.dat);;All Files (*.*)" );
+    QStringList     fileNames  = RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
+                                                                  "Import Poly Lines Annotation",
+                                                                  defaultDir,
+                                                                  "Text Files (*.txt);;Polylines (*.dat);;All Files (*.*)" );
 
     if ( fileNames.isEmpty() ) return;
 

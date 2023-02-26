@@ -134,8 +134,7 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
         RigActiveCellInfo* activeCellInfo = eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
         CVF_ASSERT( activeCellInfo );
 
-        RigActiveCellInfo* fractureActiveCellInfo =
-            eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
+        RigActiveCellInfo* fractureActiveCellInfo = eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
         CVF_ASSERT( fractureActiveCellInfo );
 
         RigMainGrid* mainGrid = eclipseCase->mainGrid();
@@ -214,9 +213,8 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
                 // Corner coordinates
                 for ( int cIdx = 0; cIdx < 8; ++cIdx )
                 {
-                    double* point =
-                        mainGrid->nodes()[nodeStartIndex + (size_t)gridLocalCellIndex * 8 + cellMappingECLRi[cIdx]].ptr();
-                    auto corner = getCorner( *mainGrid, cornerLines, zCorners, gridLocalCellIndex, cIdx, offset, scale );
+                    double* point  = mainGrid->nodes()[nodeStartIndex + (size_t)gridLocalCellIndex * 8 + cellMappingECLRi[cIdx]].ptr();
+                    auto    corner = getCorner( *mainGrid, cornerLines, zCorners, gridLocalCellIndex, cIdx, offset, scale );
 
                     point[0] = corner.x();
                     point[1] = corner.y();
@@ -356,8 +354,7 @@ cvf::Vec3d RifRoffFileTools::getCorner( const RigMainGrid&        grid,
         kOffset = 1;
     }
 
-    size_t zOffset = ( ( i + iOffset ) * ( ny + 1 ) * ( nz + 1 ) + ( j + jOffset ) * ( nz + 1 ) + ( k + kOffset ) ) * 4 +
-                     adjustedCornerIdx;
+    size_t zOffset = ( ( i + iOffset ) * ( ny + 1 ) * ( nz + 1 ) + ( j + jOffset ) * ( nz + 1 ) + ( k + kOffset ) ) * 4 + adjustedCornerIdx;
 
     double z = -zcorn[zOffset];
     double x = interpolate( top, bottom, z, 0 ) + offset.x();
@@ -484,8 +481,8 @@ size_t RifRoffFileTools::computeActiveCellMatrixIndex( std::vector<int>& activeC
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<bool, std::map<QString, QString>>
-    RifRoffFileTools::createInputProperties( const QString& fileName, RigEclipseCaseData* eclipseCaseData )
+std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputProperties( const QString&      fileName,
+                                                                                     RigEclipseCaseData* eclipseCaseData )
 {
     RiaLogging::info( QString( "Reading properties from roff file: %1" ).arg( fileName ) );
 
@@ -529,9 +526,8 @@ std::pair<bool, std::map<QString, QString>>
 
                 if ( !appendNewInputPropertyResult( eclipseCaseData, newResultName, keyword, kind, reader ) )
                 {
-                    RiaLogging::error( QString( "Unable to import result '%1' from %2" )
-                                           .arg( QString::fromStdString( keyword ) )
-                                           .arg( fileName ) );
+                    RiaLogging::error(
+                        QString( "Unable to import result '%1' from %2" ).arg( QString::fromStdString( keyword ) ).arg( fileName ) );
                     return std::make_pair( false, keywordMapping );
                 }
 
@@ -551,12 +547,8 @@ std::pair<bool, std::map<QString, QString>>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RifRoffFileTools::readAndConvertToDouble( int                nx,
-                                                              int                ny,
-                                                              int                nz,
-                                                              const std::string& keyword,
-                                                              roff::Token::Kind  kind,
-                                                              roff::Reader&      reader )
+std::vector<double>
+    RifRoffFileTools::readAndConvertToDouble( int nx, int ny, int nz, const std::string& keyword, roff::Token::Kind kind, roff::Reader& reader )
 {
     std::vector<double> doubleVals;
 
@@ -618,8 +610,7 @@ bool RifRoffFileTools::appendNewInputPropertyResult( RigEclipseCaseData* caseDat
     RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::INPUT_PROPERTY, resultName );
     caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->createResultEntry( resAddr, false );
 
-    auto newPropertyData =
-        caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->modifiableCellScalarResultTimesteps( resAddr );
+    auto newPropertyData = caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->modifiableCellScalarResultTimesteps( resAddr );
 
     newPropertyData->push_back( values );
 

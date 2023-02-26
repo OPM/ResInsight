@@ -121,10 +121,7 @@ RimRftTopologyCurve* RimRftTopologyCurve::createTopologyCurve( RimSummaryCase*  
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimRftTopologyCurve::setDataSource( RimSummaryCase*  summaryCase,
-                                         const QDateTime& timeStep,
-                                         const QString&   wellName,
-                                         int              segmentBranchIndex )
+void RimRftTopologyCurve::setDataSource( RimSummaryCase* summaryCase, const QDateTime& timeStep, const QString& wellName, int segmentBranchIndex )
 {
     m_summaryCase        = summaryCase;
     m_timeStep           = timeStep;
@@ -259,10 +256,7 @@ QList<caf::PdmOptionItemInfo> RimRftTopologyCurve::calculateValueOptions( const 
     }
     else if ( fieldNeedingOptions == &m_segmentBranchIndex )
     {
-        options = RimRftTools::segmentBranchIndexOptions( reader,
-                                                          m_wellName(),
-                                                          m_timeStep(),
-                                                          RiaDefines::RftBranchType::RFT_UNKNOWN );
+        options = RimRftTools::segmentBranchIndexOptions( reader, m_wellName(), m_timeStep(), RiaDefines::RftBranchType::RFT_UNKNOWN );
     }
 
     return options;
@@ -271,9 +265,7 @@ QList<caf::PdmOptionItemInfo> RimRftTopologyCurve::calculateValueOptions( const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimRftTopologyCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                            const QVariant&            oldValue,
-                                            const QVariant&            newValue )
+void RimRftTopologyCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimWellLogCurve::fieldChangedByUi( changedField, oldValue, newValue );
 

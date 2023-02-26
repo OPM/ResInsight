@@ -55,9 +55,7 @@ public:
     void                   scheduleGeometryRegen( RivCellSetEnum geometryType );
     const cvf::UByteArray* cellVisibility( RivCellSetEnum geometryType, size_t gridIndex, size_t frameIndex );
 
-    void appendStaticGeometryPartsToModel( cvf::ModelBasicList*       model,
-                                           RivCellSetEnum             geometryType,
-                                           const std::vector<size_t>& gridIndices );
+    void appendStaticGeometryPartsToModel( cvf::ModelBasicList* model, RivCellSetEnum geometryType, const std::vector<size_t>& gridIndices );
     void ensureStaticGeometryPartsCreated( RivCellSetEnum geometryType );
 
     void appendDynamicGeometryPartsToModel( cvf::ModelBasicList*       model,
@@ -83,17 +81,12 @@ public:
                                          RimCellEdgeColors*    cellEdgeResultColors );
 
     // Fault labels
-    RivCellSetEnum geometryTypeForFaultLabels( const std::set<RivCellSetEnum>& geometryTypes,
-                                               bool                            showFaultsOutsideFilters ) const;
-    void appendFaultLabelsStaticGeometryPartsToModel( cvf::ModelBasicList* model, RivCellSetEnum geometryType );
-    void appendFaultLabelsDynamicGeometryPartsToModel( cvf::ModelBasicList* model,
-                                                       RivCellSetEnum       geometryType,
-                                                       size_t               frameIndex );
+    RivCellSetEnum geometryTypeForFaultLabels( const std::set<RivCellSetEnum>& geometryTypes, bool showFaultsOutsideFilters ) const;
+    void           appendFaultLabelsStaticGeometryPartsToModel( cvf::ModelBasicList* model, RivCellSetEnum geometryType );
+    void appendFaultLabelsDynamicGeometryPartsToModel( cvf::ModelBasicList* model, RivCellSetEnum geometryType, size_t frameIndex );
 
     // Element Vector Result
-    void appendElementVectorResultDynamicGeometryPartsToModel( cvf::ModelBasicList* model,
-                                                               RivCellSetEnum       geometryType,
-                                                               size_t               frameIndex );
+    void appendElementVectorResultDynamicGeometryPartsToModel( cvf::ModelBasicList* model, RivCellSetEnum geometryType, size_t frameIndex );
 
     void forceWatertightGeometryOnForType( RivCellSetEnum geometryType );
     void clearWatertightGeometryFlags();

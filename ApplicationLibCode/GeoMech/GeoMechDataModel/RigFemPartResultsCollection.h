@@ -75,16 +75,12 @@ public:
     double  biotFixedFactor() const { return m_biotFixedFactor; }
     QString biotResultAddress() const { return m_biotResultAddress; }
 
-    void    setPermeabilityParameters( double         fixedInitalPermeability,
-                                       const QString& initialPermeabilityAddress,
-                                       double         permeabilityExponent );
+    void setPermeabilityParameters( double fixedInitalPermeability, const QString& initialPermeabilityAddress, double permeabilityExponent );
     double  initialPermeabilityFixed() const;
     QString initialPermeabilityAddress() const;
     double  permeabilityExponent() const;
 
-    void    setCalculationParameters( RimMudWeightWindowParameters::ParameterType parameterType,
-                                      const QString&                              address,
-                                      double                                      value );
+    void    setCalculationParameters( RimMudWeightWindowParameters::ParameterType parameterType, const QString& address, double value );
     double  getCalculationParameterValue( RimMudWeightWindowParameters::ParameterType ) const;
     QString getCalculationParameterAddress( RimMudWeightWindowParameters::ParameterType ) const;
 
@@ -94,9 +90,9 @@ public:
                                        int                                                           referenceLayer,
                                        RimMudWeightWindowParameters::FractureGradientCalculationType fgCalculationType,
                                        double                                                        shMultiplier,
-                                       RimMudWeightWindowParameters::NonReservoirPorePressureType nonReservoirPorePressureType,
-                                       double         hydroStaticMultiplierPPNonRes,
-                                       const QString& nonReservoirPorePressureAddress );
+                                       RimMudWeightWindowParameters::NonReservoirPorePressureType    nonReservoirPorePressureType,
+                                       double                                                        hydroStaticMultiplierPPNonRes,
+                                       const QString&                                                nonReservoirPorePressureAddress );
 
     double airGapMudWeightWindow() const;
     double shMultiplierMudWeightWindow() const;
@@ -122,13 +118,9 @@ public:
 
     std::vector<RigFemResultAddress> loadedResults() const;
 
-    const std::vector<float>&
-        resultValues( const RigFemResultAddress& resVarAddr, int partIndex, int stepIndex, int frameIndex );
+    const std::vector<float>& resultValues( const RigFemResultAddress& resVarAddr, int partIndex, int stepIndex, int frameIndex );
 
-    void globalResultValues( const RigFemResultAddress& resVarAddr,
-                             int                        timeStepIndex,
-                             int                        frameIndex,
-                             std::vector<float>&        resultValues );
+    void globalResultValues( const RigFemResultAddress& resVarAddr, int timeStepIndex, int frameIndex, std::vector<float>& resultValues );
 
     std::vector<caf::Ten3f> tensors( const RigFemResultAddress& resVarAddr, int partIndex, int stepIndex, int frameIndex );
 
@@ -142,20 +134,14 @@ public:
     std::vector<std::string>                stepNames() const;
     const std::pair<int, int>               stepListIndexToTimeStepAndDataFrameIndex( int stepIndex ) const;
 
-    void minMaxScalarValues( const RigFemResultAddress& resVarAddr,
-                             int                        stepIndex,
-                             int                        frameIndex,
-                             double*                    localMin,
-                             double*                    localMax );
+    void minMaxScalarValues( const RigFemResultAddress& resVarAddr, int stepIndex, int frameIndex, double* localMin, double* localMax );
     void minMaxScalarValues( const RigFemResultAddress& resVarAddr, double* globalMin, double* globalMax );
     void posNegClosestToZero( const RigFemResultAddress& resVarAddr,
                               int                        stepIndex,
                               int                        frameIndex,
                               double*                    localPosClosestToZero,
                               double*                    localNegClosestToZero );
-    void posNegClosestToZero( const RigFemResultAddress& resVarAddr,
-                              double*                    globalPosClosestToZero,
-                              double*                    globalNegClosestToZero );
+    void posNegClosestToZero( const RigFemResultAddress& resVarAddr, double* globalPosClosestToZero, double* globalNegClosestToZero );
     void meanScalarValue( const RigFemResultAddress& resVarAddr, double* meanValue );
     void meanScalarValue( const RigFemResultAddress& resVarAddr, int stepIndex, int frameIndex, double* meanValue );
     void p10p90ScalarValues( const RigFemResultAddress& resVarAddr, double* p10, double* p90 );
@@ -170,9 +156,7 @@ public:
                                                     int                        frameIndex,
                                                     double*                    localMin,
                                                     double*                    localMax );
-    void minMaxScalarValuesOverAllTensorComponents( const RigFemResultAddress& resVarAddr,
-                                                    double*                    globalMin,
-                                                    double*                    globalMax );
+    void minMaxScalarValuesOverAllTensorComponents( const RigFemResultAddress& resVarAddr, double* globalMin, double* globalMax );
     void posNegClosestToZeroOverAllTensorComponents( const RigFemResultAddress& resVarAddr,
                                                      int                        stepIndex,
                                                      int                        frameIndex,
@@ -254,8 +238,8 @@ private:
 
     std::vector<std::unique_ptr<RigFemPartResultCalculator>> m_resultCalculators;
 
-    RigStatisticsDataCache*          statistics( const RigFemResultAddress& resVarAddr );
-    std::vector<RigFemResultAddress> getResAddrToComponentsToRead( const RigFemResultAddress& resVarAddr );
+    RigStatisticsDataCache*                                         statistics( const RigFemResultAddress& resVarAddr );
+    std::vector<RigFemResultAddress>                                getResAddrToComponentsToRead( const RigFemResultAddress& resVarAddr );
     std::map<RigFemResultAddress, cvf::ref<RigStatisticsDataCache>> m_resultStatistics;
 
     std::vector<std::pair<int, int>> m_stepList;

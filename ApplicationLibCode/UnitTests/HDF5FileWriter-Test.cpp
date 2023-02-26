@@ -33,9 +33,7 @@ TEST( DISABLED_HDFTests, WriteToHdf5SummaryExporter )
     std::string exportFileName = "e:/project/scratch_export/hdf_complete.h5";
 
     int threadCount = 1;
-    RifHdf5SummaryExporter::ensureHdf5FileIsCreatedMultithreaded( { file_path.toStdString() },
-                                                                  { exportFileName },
-                                                                  threadCount );
+    RifHdf5SummaryExporter::ensureHdf5FileIsCreatedMultithreaded( { file_path.toStdString() }, { exportFileName }, threadCount );
 }
 
 //--------------------------------------------------------------------------------------------------

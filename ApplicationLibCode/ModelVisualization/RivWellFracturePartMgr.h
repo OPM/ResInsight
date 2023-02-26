@@ -79,8 +79,7 @@ private:
     void appendFracturePerforationLengthParts( const RimEclipseView& activeView, cvf::ModelBasicList* model );
 
     cvf::ref<cvf::Part>        createStimPlanMeshPart( const RimEclipseView& activeView );
-    cvf::ref<cvf::DrawableGeo> createStimPlanMeshDrawable( RimMeshFractureTemplate* stimPlanFracTemplate,
-                                                           const RimEclipseView&    activeView );
+    cvf::ref<cvf::DrawableGeo> createStimPlanMeshDrawable( RimMeshFractureTemplate* stimPlanFracTemplate, const RimEclipseView& activeView );
 
     void createVisibleFracturePolygons( RimMeshFractureTemplate* stimPlanFracTemplate, const RimEclipseView& activeView );
 
@@ -91,18 +90,15 @@ private:
                                                        RimFracture*             fracture,
                                                        bool                     disableLighting );
 
-    static std::vector<cvf::Vec3f>
-        transformToFractureDisplayCoords( const std::vector<cvf::Vec3f>&    polygon,
-                                          cvf::Mat4d                        m,
-                                          const caf::DisplayCoordTransform& displayCoordTransform );
+    static std::vector<cvf::Vec3f> transformToFractureDisplayCoords( const std::vector<cvf::Vec3f>&    polygon,
+                                                                     cvf::Mat4d                        m,
+                                                                     const caf::DisplayCoordTransform& displayCoordTransform );
 
     static cvf::ref<cvf::DrawableGeo> buildDrawableGeoFromTriangles( const std::vector<cvf::uint>&  triangleIndices,
                                                                      const std::vector<cvf::Vec3f>& nodeCoords );
 
     static cvf::ref<cvf::Transform> createLocalTransformFromTranslation( const cvf::Vec3d& translation );
-    static void                     addPartAtPositiveAndNegativeTranslation( cvf::ModelBasicList* model,
-                                                                             cvf::Part*           part,
-                                                                             const cvf::Vec3d&    translation );
+    static void addPartAtPositiveAndNegativeTranslation( cvf::ModelBasicList* model, cvf::Part* part, const cvf::Vec3d& translation );
 
 private:
     caf::PdmPointer<RimFracture> m_rimFracture;

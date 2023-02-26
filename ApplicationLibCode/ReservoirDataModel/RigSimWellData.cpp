@@ -141,8 +141,8 @@ bool RigSimWellData::hasAnyValidCells( size_t resultTimeStepIndex ) const
 
 bool operator==( const RigWellResultPoint& p1, const RigWellResultPoint& p2 )
 {
-    return p1.m_gridIndex == p2.m_gridIndex && p1.m_gridCellIndex == p2.m_gridCellIndex &&
-           p1.m_ertBranchId == p2.m_ertBranchId && p1.m_ertSegmentId == p2.m_ertSegmentId;
+    return p1.m_gridIndex == p2.m_gridIndex && p1.m_gridCellIndex == p2.m_gridCellIndex && p1.m_ertBranchId == p2.m_ertBranchId &&
+           p1.m_ertSegmentId == p2.m_ertSegmentId;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -159,9 +159,8 @@ void RigSimWellData::computeStaticWellCellPath() const
 
     for ( size_t bIdx = 0; bIdx < m_wellCellsTimeSteps[0].m_wellResultBranches.size(); ++bIdx )
     {
-        int branchErtId = m_wellCellsTimeSteps[0].m_wellResultBranches[bIdx].m_ertBranchId;
-        const std::vector<RigWellResultPoint>& frameCells =
-            m_wellCellsTimeSteps[0].m_wellResultBranches[bIdx].m_branchResultPoints;
+        int                                    branchErtId = m_wellCellsTimeSteps[0].m_wellResultBranches[bIdx].m_ertBranchId;
+        const std::vector<RigWellResultPoint>& frameCells  = m_wellCellsTimeSteps[0].m_wellResultBranches[bIdx].m_branchResultPoints;
 
         std::list<RigWellResultPoint>& branch = staticWellBranches[branchErtId];
 
@@ -177,9 +176,8 @@ void RigSimWellData::computeStaticWellCellPath() const
 
         for ( size_t bIdx = 0; bIdx < m_wellCellsTimeSteps[tIdx].m_wellResultBranches.size(); ++bIdx )
         {
-            int branchId = m_wellCellsTimeSteps[tIdx].m_wellResultBranches[bIdx].m_ertBranchId;
-            const std::vector<RigWellResultPoint>& resBranch =
-                m_wellCellsTimeSteps[tIdx].m_wellResultBranches[bIdx].m_branchResultPoints;
+            int                                    branchId  = m_wellCellsTimeSteps[tIdx].m_wellResultBranches[bIdx].m_ertBranchId;
+            const std::vector<RigWellResultPoint>& resBranch = m_wellCellsTimeSteps[tIdx].m_wellResultBranches[bIdx].m_branchResultPoints;
 
             std::list<RigWellResultPoint>&          stBranch = staticWellBranches[branchId];
             std::list<RigWellResultPoint>::iterator sEndIt;

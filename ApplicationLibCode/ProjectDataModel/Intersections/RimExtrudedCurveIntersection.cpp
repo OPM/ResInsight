@@ -205,12 +205,7 @@ RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
     CAF_PDM_InitFieldNoDefault( &m_direction, "Direction", "Direction" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_wellPath, "WellPath", "Well Path        " );
     CAF_PDM_InitScriptableFieldNoDefault( &m_simulationWell, "SimulationWell", "Simulation Well" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_userPolylineXyz,
-                                          "Points",
-                                          "Points",
-                                          "",
-                                          "Use Ctrl-C for copy and Ctrl-V for paste",
-                                          "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_userPolylineXyz, "Points", "Points", "", "Use Ctrl-C for copy and Ctrl-V for paste", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_userPolylineXydForUi, "PointsUi", "Points", "", "Use Ctrl-C for copy and Ctrl-V for paste", "" );
     m_userPolylineXydForUi.registerSetMethod( this, &RimExtrudedCurveIntersection::setPointsFromXYD );
@@ -265,15 +260,10 @@ RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
     CAF_PDM_InitFieldNoDefault( &m_collectionLowerThreshold, "CollectionLowerThreshold", "Collection Lower Threshold" );
     m_collectionLowerThreshold.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_depthThresholdOverridden,
-                       "ThresholdOverridden",
-                       false,
-                       "Depth Filter is Controlled by Intersection Collection" );
+    CAF_PDM_InitField( &m_depthThresholdOverridden, "ThresholdOverridden", false, "Depth Filter is Controlled by Intersection Collection" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_depthThresholdOverridden );
 
-    CAF_PDM_InitFieldNoDefault( &m_collectionDepthFilterType,
-                                "CollectionDepthFilterType",
-                                "Collection Controlled Filter Type" );
+    CAF_PDM_InitFieldNoDefault( &m_collectionDepthFilterType, "CollectionDepthFilterType", "Collection Controlled Filter Type" );
     m_collectionDepthFilterType.uiCapability()->setUiHidden( true );
 
     setDeletable( true );
@@ -399,9 +389,7 @@ void RimExtrudedCurveIntersection::setDepthOverride( bool collectionOverride )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimExtrudedCurveIntersection::setDepthOverrideParameters( double                    upperThreshold,
-                                                               double                    lowerThreshold,
-                                                               RimIntersectionFilterEnum filterType )
+void RimExtrudedCurveIntersection::setDepthOverrideParameters( double upperThreshold, double lowerThreshold, RimIntersectionFilterEnum filterType )
 {
     m_collectionUpperThreshold  = upperThreshold;
     m_collectionLowerThreshold  = lowerThreshold;
@@ -411,17 +399,13 @@ void RimExtrudedCurveIntersection::setDepthOverrideParameters( double           
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimExtrudedCurveIntersection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                     const QVariant&            oldValue,
-                                                     const QVariant&            newValue )
+void RimExtrudedCurveIntersection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( changedField == &m_isActive || changedField == &m_type || changedField == &m_direction ||
-         changedField == &m_wellPath || changedField == &m_simulationWell || changedField == &m_branchIndex ||
-         changedField == &m_extentLength || changedField == &m_lengthUp || changedField == &m_lengthDown ||
-         changedField == &m_showInactiveCells || changedField == &m_useSeparateDataSource ||
-         changedField == &m_separateDataSource || changedField == &m_depthUpperThreshold ||
-         changedField == &m_depthLowerThreshold || changedField == &m_depthThresholdOverridden ||
-         changedField == &m_depthFilterType )
+    if ( changedField == &m_isActive || changedField == &m_type || changedField == &m_direction || changedField == &m_wellPath ||
+         changedField == &m_simulationWell || changedField == &m_branchIndex || changedField == &m_extentLength ||
+         changedField == &m_lengthUp || changedField == &m_lengthDown || changedField == &m_showInactiveCells ||
+         changedField == &m_useSeparateDataSource || changedField == &m_separateDataSource || changedField == &m_depthUpperThreshold ||
+         changedField == &m_depthLowerThreshold || changedField == &m_depthThresholdOverridden || changedField == &m_depthFilterType )
     {
         rebuildGeometryAndScheduleCreateDisplayModel();
     }
@@ -446,8 +430,7 @@ void RimExtrudedCurveIntersection::fieldChangedByUi( const caf::PdmFieldHandle* 
         }
     }
 
-    if ( changedField == &m_inputPolylineFromViewerEnabled || changedField == &m_userPolylineXyz ||
-         changedField == &m_userPolylineXydForUi )
+    if ( changedField == &m_inputPolylineFromViewerEnabled || changedField == &m_userPolylineXyz || changedField == &m_userPolylineXydForUi )
     {
         if ( m_inputPolylineFromViewerEnabled )
         {
@@ -603,8 +586,7 @@ void RimExtrudedCurveIntersection::defineUiOrdering( QString uiConfigName, caf::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimExtrudedCurveIntersection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RimExtrudedCurveIntersection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -704,8 +686,7 @@ void RimExtrudedCurveIntersection::updateAzimuthLine()
         cvf::Mat4d transFromOriginMat = cvf::Mat4d::fromTranslation( m_twoAzimuthPoints()[0] );
         cvf::Mat4d transToOriginMat   = cvf::Mat4d::fromTranslation( -m_twoAzimuthPoints()[0] );
 
-        m_twoAzimuthPoints.v()[1] =
-            m_twoAzimuthPoints()[1].getTransformedPoint( transFromOriginMat * rotMat * transToOriginMat );
+        m_twoAzimuthPoints.v()[1] = m_twoAzimuthPoints()[1].getTransformedPoint( transFromOriginMat * rotMat * transToOriginMat );
 
         m_twoAzimuthPoints.uiCapability()->updateConnectedEditors();
     }
@@ -1018,8 +999,7 @@ void RimExtrudedCurveIntersection::defineEditorAttribute( const caf::PdmFieldHan
     }
     else if ( field == &m_inputPolylineFromViewerEnabled )
     {
-        setPushButtonText( m_inputPolylineFromViewerEnabled,
-                           dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) );
+        setPushButtonText( m_inputPolylineFromViewerEnabled, dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) );
     }
     else if ( field == &m_userPolylineXydForUi )
     {
@@ -1027,8 +1007,7 @@ void RimExtrudedCurveIntersection::defineEditorAttribute( const caf::PdmFieldHan
     }
     else if ( field == &m_inputTwoAzimuthPointsFromViewerEnabled )
     {
-        setPushButtonText( m_inputTwoAzimuthPointsFromViewerEnabled,
-                           dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) );
+        setPushButtonText( m_inputTwoAzimuthPointsFromViewerEnabled, dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) );
     }
     else if ( field == &m_twoAzimuthPoints )
     {
@@ -1036,8 +1015,7 @@ void RimExtrudedCurveIntersection::defineEditorAttribute( const caf::PdmFieldHan
     }
     else if ( field == &m_inputExtrusionPointsFromViewerEnabled )
     {
-        setPushButtonText( m_inputExtrusionPointsFromViewerEnabled,
-                           dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) );
+        setPushButtonText( m_inputExtrusionPointsFromViewerEnabled, dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute ) );
     }
     else if ( field == &m_customExtrusionPoints )
     {
@@ -1139,8 +1117,7 @@ cvf::Vec3d RimExtrudedCurveIntersection::extrusionDirection() const
             dir                    = polyLineDir ^ up;
         }
     }
-    else if ( m_direction() == RimExtrudedCurveIntersection::CrossSectionDirEnum::CS_TWO_POINTS &&
-              m_customExtrusionPoints().size() > 1 )
+    else if ( m_direction() == RimExtrudedCurveIntersection::CrossSectionDirEnum::CS_TWO_POINTS && m_customExtrusionPoints().size() > 1 )
     {
         dir = m_customExtrusionPoints()[m_customExtrusionPoints().size() - 1] - m_customExtrusionPoints()[0];
     }

@@ -87,9 +87,7 @@ private:
                          RiaDefines::ResultCatType resultType,
                          const QString&            resultName,
                          size_t                    activeCellCount );
-    void buildSourceMetaData( RiaDefines::PorosityModelType poroModel,
-                              RiaDefines::ResultCatType     resultType,
-                              const QString&                resultName );
+    void buildSourceMetaData( RiaDefines::PorosityModelType poroModel, RiaDefines::ResultCatType resultType, const QString& resultName );
 
     enum StatisticsParamType
     {

@@ -140,8 +140,7 @@ RiuViewer::RiuViewer( const QGLFormat& format, QWidget* parent )
     m_versionInfoLabel->setFrameShape( QFrame::NoFrame );
     m_versionInfoLabel->setAlignment( Qt::AlignRight );
     m_versionInfoLabel->setObjectName( "VersionInfo" );
-    m_versionInfoLabel->setText(
-        QString( "%1 v%2" ).arg( RI_APPLICATION_NAME, RiaApplication::getVersionStringApp( false ) ) );
+    m_versionInfoLabel->setText( QString( "%1 v%2" ).arg( RI_APPLICATION_NAME, RiaApplication::getVersionStringApp( false ) ) );
     m_versionInfoLabel->setFont( font );
     m_showVersionInfo = true;
 
@@ -448,8 +447,7 @@ void RiuViewer::paintOverlayItems( QPainter* painter )
                 }
 
                 {
-                    m_shortInfoLabelCompView->setText( "<center>" + compView->ownerCase()->caseUserDescription() +
-                                                       "</center>" );
+                    m_shortInfoLabelCompView->setText( "<center>" + compView->ownerCase()->caseUserDescription() + "</center>" );
                     QPoint topLeft = QPoint( compViewItemsXPos, yPos );
                     m_shortInfoLabelCompView->resize( columnWidth, m_shortInfoLabelCompView->sizeHint().height() );
                     m_shortInfoLabelCompView->render( painter, topLeft );
@@ -562,14 +560,8 @@ void RiuViewer::paintOverlayItems( QPainter* painter )
                 // Draw a cross hair marker
                 int markerHalfLength = 6;
 
-                painter->drawLine( centerPos.x(),
-                                   centerPos.y() - markerHalfLength,
-                                   centerPos.x(),
-                                   centerPos.y() + markerHalfLength );
-                painter->drawLine( centerPos.x() - markerHalfLength,
-                                   centerPos.y(),
-                                   centerPos.x() + markerHalfLength,
-                                   centerPos.y() );
+                painter->drawLine( centerPos.x(), centerPos.y() - markerHalfLength, centerPos.x(), centerPos.y() + markerHalfLength );
+                painter->drawLine( centerPos.x() - markerHalfLength, centerPos.y(), centerPos.x() + markerHalfLength, centerPos.y() );
             }
         }
     }
@@ -848,8 +840,7 @@ void RiuViewer::updateLegendLayout()
             {
                 int legendWidth = prefSize.x();
                 legend->setLayoutFixedPosition( cvf::Vec2i( xPos - legendWidth, yPos ) );
-                legend->setRenderSize(
-                    cvf::Vec2ui( legendWidth, viewPortHeight - yPosStart - border - edgeAxisBorderHeight ) );
+                legend->setRenderSize( cvf::Vec2ui( legendWidth, viewPortHeight - yPosStart - border - edgeAxisBorderHeight ) );
                 xPos -= legendWidth + border;
             }
             else
@@ -875,8 +866,7 @@ void RiuViewer::updateLegendLayout()
                 for ( caf::TitledOverlayFrame* columnLegend : columnLegends )
                 {
                     columnLegend->setRenderSize( cvf::Vec2ui( maxColumnWidht, columnLegend->renderSize().y() ) );
-                    columnLegend->setLayoutFixedPosition(
-                        cvf::Vec2i( xPos - maxColumnWidht, columnLegend->fixedPosition().y() ) );
+                    columnLegend->setLayoutFixedPosition( cvf::Vec2i( xPos - maxColumnWidht, columnLegend->fixedPosition().y() ) );
                 }
 
                 // Increment to make ready for a new column
@@ -907,8 +897,7 @@ void RiuViewer::updateLegendLayout()
 
         // Set axis cross position at the bottom besides the last column
         {
-            m_axisCross->setLayoutFixedPosition(
-                cvf::Vec2i( xPos + border - m_axisCross->sizeHint().x(), edgeAxisBorderHeight ) );
+            m_axisCross->setLayoutFixedPosition( cvf::Vec2i( xPos + border - m_axisCross->sizeHint().x(), edgeAxisBorderHeight ) );
         }
     }
 
@@ -1070,9 +1059,7 @@ void RiuViewer::mouseMoveEvent( QMouseEvent* mouseEvent )
             int translatedMousePosY = height() - mouseEvent->pos().y();
 
             cvf::Vec3d displayCoord( 0, 0, 0 );
-            if ( mainCamera()->unproject( cvf::Vec3d( static_cast<double>( translatedMousePosX ),
-                                                      static_cast<double>( translatedMousePosY ),
-                                                      0 ),
+            if ( mainCamera()->unproject( cvf::Vec3d( static_cast<double>( translatedMousePosX ), static_cast<double>( translatedMousePosY ), 0 ),
                                           &displayCoord ) )
             {
                 if ( m_cursorPositionDomainCoords != cvf::Vec3d::UNDEFINED )
@@ -1224,10 +1211,7 @@ cvf::OverlayItem* RiuViewer::pickFixedPositionedLegend( int winPosX, int winPosY
     for ( auto overlayItem : m_visibleLegends )
     {
         if ( overlayItem->layoutScheme() == cvf::OverlayItem::FIXED_POSITION &&
-             overlayItem->pick( translatedMousePosX,
-                                translatedMousePosY,
-                                overlayItem->fixedPosition(),
-                                overlayItem->renderSize() ) )
+             overlayItem->pick( translatedMousePosX, translatedMousePosY, overlayItem->fixedPosition(), overlayItem->renderSize() ) )
         {
             return overlayItem.p();
         }
@@ -1236,10 +1220,7 @@ cvf::OverlayItem* RiuViewer::pickFixedPositionedLegend( int winPosX, int winPosY
     for ( auto overlayItem : m_visibleComparisonLegends )
     {
         if ( overlayItem->layoutScheme() == cvf::OverlayItem::FIXED_POSITION &&
-             overlayItem->pick( translatedMousePosX,
-                                translatedMousePosY,
-                                overlayItem->fixedPosition(),
-                                overlayItem->renderSize() ) )
+             overlayItem->pick( translatedMousePosX, translatedMousePosY, overlayItem->fixedPosition(), overlayItem->renderSize() ) )
         {
             return overlayItem.p();
         }
@@ -1449,39 +1430,24 @@ void RiuViewer::updateOverlayItemsStyle()
         contrastColor        = RiaColorTools::toQColor( cvf_contrastColor );
     }
 
-    m_infoLabel->setStyleSheet( caf::StyleSheetTools::createFrameStyleSheet( "QLabel",
-                                                                             "InfoLabel",
-                                                                             contrastColor,
-                                                                             backgroundColor,
-                                                                             backgroundFrameColor ) );
-    m_shortInfoLabel->setStyleSheet( caf::StyleSheetTools::createFrameStyleSheet( "QLabel",
-                                                                                  "ShortInfoLabel",
-                                                                                  contrastColor,
-                                                                                  backgroundColor,
-                                                                                  backgroundFrameColor ) );
-    m_shortInfoLabelCompView->setStyleSheet( caf::StyleSheetTools::createFrameStyleSheet( "QLabel",
-                                                                                          "ShortInfoLabelCompView",
-                                                                                          contrastColor,
-                                                                                          backgroundColor,
-                                                                                          backgroundFrameColor ) );
+    m_infoLabel->setStyleSheet(
+        caf::StyleSheetTools::createFrameStyleSheet( "QLabel", "InfoLabel", contrastColor, backgroundColor, backgroundFrameColor ) );
+    m_shortInfoLabel->setStyleSheet(
+        caf::StyleSheetTools::createFrameStyleSheet( "QLabel", "ShortInfoLabel", contrastColor, backgroundColor, backgroundFrameColor ) );
+    m_shortInfoLabelCompView->setStyleSheet(
+        caf::StyleSheetTools::createFrameStyleSheet( "QLabel", "ShortInfoLabelCompView", contrastColor, backgroundColor, backgroundFrameColor ) );
     m_versionInfoLabel->setStyleSheet(
         caf::StyleSheetTools::createFrameStyleSheet( "QLabel", "VersionInfo", contrastColor, backgroundColor, backgroundColor ) );
     m_zScaleLabel->setStyleSheet(
         caf::StyleSheetTools::createFrameStyleSheet( "QLabel", "ZScaleLabel", contrastColor, backgroundColor, backgroundColor ) );
-    m_histogramWidget->setStyleSheet( caf::StyleSheetTools::createFrameStyleSheet( "QWidget",
-                                                                                   "HistogramWidget",
-                                                                                   contrastColor,
-                                                                                   backgroundColor,
-                                                                                   backgroundFrameColor ) );
+    m_histogramWidget->setStyleSheet(
+        caf::StyleSheetTools::createFrameStyleSheet( "QWidget", "HistogramWidget", contrastColor, backgroundColor, backgroundFrameColor ) );
 
     QColor progressColor( Qt::green );
     progressColor.setAlphaF( 0.8f );
     backgroundColor.setAlphaF( 0.8f );
     m_animationProgress->setTextBackgroundAndProgressColor( contrastColor, backgroundColor, backgroundFrameColor, progressColor );
-    m_animationProgressCompView->setTextBackgroundAndProgressColor( contrastColor,
-                                                                    backgroundColor,
-                                                                    backgroundFrameColor,
-                                                                    progressColor );
+    m_animationProgressCompView->setTextBackgroundAndProgressColor( contrastColor, backgroundColor, backgroundFrameColor, progressColor );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -69,8 +69,7 @@ bool RiuCadNavigation::handleInputEvent( QInputEvent* inputEvent )
                 m_hasMovedMouseDuringNavigation = false;
                 isEventHandled                  = true;
             }
-            else if ( me->button() == Qt::LeftButton ||
-                      ( me->button() == Qt::MiddleButton && ( me->modifiers() & Qt::ShiftModifier ) ) )
+            else if ( me->button() == Qt::LeftButton || ( me->button() == Qt::MiddleButton && ( me->modifiers() & Qt::ShiftModifier ) ) )
             {
                 m_trackball->startNavigation( cvf::ManipulatorTrackball::PAN, translatedMousePosX, translatedMousePosY );
                 m_isNavigating                  = true;

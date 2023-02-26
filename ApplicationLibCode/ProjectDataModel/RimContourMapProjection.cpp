@@ -399,9 +399,7 @@ size_t RimContourMapProjection::numberOfVertices() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimContourMapProjection::checkForMapIntersection( const cvf::Vec3d& localPoint3d,
-                                                       cvf::Vec2d*       contourMapPoint,
-                                                       double*           valueAtPoint ) const
+bool RimContourMapProjection::checkForMapIntersection( const cvf::Vec3d& localPoint3d, cvf::Vec2d* contourMapPoint, double* valueAtPoint ) const
 {
     CVF_TIGHT_ASSERT( contourMapPoint );
     CVF_TIGHT_ASSERT( valueAtPoint );
@@ -730,8 +728,8 @@ std::pair<double, double> RimContourMapProjection::minmaxValuesAllTimeSteps()
             if ( i != m_currentResultTimestep )
             {
                 std::vector<double> aggregatedResults = generateResults( i );
-                m_minResultAllTimeSteps = std::min( m_minResultAllTimeSteps, minValue( aggregatedResults ) );
-                m_maxResultAllTimeSteps = std::max( m_maxResultAllTimeSteps, maxValue( aggregatedResults ) );
+                m_minResultAllTimeSteps               = std::min( m_minResultAllTimeSteps, minValue( aggregatedResults ) );
+                m_maxResultAllTimeSteps               = std::max( m_maxResultAllTimeSteps, maxValue( aggregatedResults ) );
             }
         }
     }
@@ -875,9 +873,8 @@ void RimContourMapProjection::generateTrianglesWithVertexValues()
             bool                    anyValidVertex = false;
             for ( size_t n = 0; n < 3; ++n )
             {
-                uint   vn    = ( *faceList )[i + n];
-                double value = vn < m_aggregatedVertexResults.size() ? m_aggregatedVertexResults[vn]
-                                                                     : std::numeric_limits<double>::infinity();
+                uint vn      = ( *faceList )[i + n];
+                double value = vn < m_aggregatedVertexResults.size() ? m_aggregatedVertexResults[vn] : std::numeric_limits<double>::infinity();
                 triangle[n]           = vertices[vn];
                 triangleWithValues[n] = cvf::Vec4d( vertices[vn], value );
                 if ( value != std::numeric_limits<double>::infinity() )
@@ -893,9 +890,7 @@ void RimContourMapProjection::generateTrianglesWithVertexValues()
 
             if ( m_contourPolygons.empty() )
             {
-                threadTriangles[myThread][0].insert( threadTriangles[myThread][0].end(),
-                                                     triangleWithValues.begin(),
-                                                     triangleWithValues.end() );
+                threadTriangles[myThread][0].insert( threadTriangles[myThread][0].end(), triangleWithValues.begin(), triangleWithValues.end() );
                 continue;
             }
 
@@ -935,9 +930,7 @@ void RimContourMapProjection::generateTrianglesWithVertexValues()
                     {
                         std::vector<std::vector<cvf::Vec3d>> fullyClippedPolygons =
                             RigCellGeometryTools::subtractPolygons( polygon, subtractPolygons[c] );
-                        clippedPolygons.insert( clippedPolygons.end(),
-                                                fullyClippedPolygons.begin(),
-                                                fullyClippedPolygons.end() );
+                        clippedPolygons.insert( clippedPolygons.end(), fullyClippedPolygons.begin(), fullyClippedPolygons.end() );
                     }
                 }
                 else
@@ -980,17 +973,15 @@ void RimContourMapProjection::generateTrianglesWithVertexValues()
                         for ( const std::vector<cvf::Vec3d>& polygonTriangle : polygonTriangles )
                         {
                             // Check triangle area
-                            double area = 0.5 * ( ( polygonTriangle[1] - polygonTriangle[0] ) ^
-                                                  ( polygonTriangle[2] - polygonTriangle[0] ) )
-                                                    .length();
+                            double area =
+                                0.5 * ( ( polygonTriangle[1] - polygonTriangle[0] ) ^ ( polygonTriangle[2] - polygonTriangle[0] ) ).length();
                             if ( area < areaThreshold ) continue;
                             for ( const cvf::Vec3d& localVertex : polygonTriangle )
                             {
                                 double value = std::numeric_limits<double>::infinity();
                                 if ( discrete )
                                 {
-                                    value = contourLevels[c] + 0.01 * ( contourLevels.back() - contourLevels.front() ) /
-                                                                   contourLevels.size();
+                                    value = contourLevels[c] + 0.01 * ( contourLevels.back() - contourLevels.front() ) / contourLevels.size();
                                 }
                                 else
                                 {
@@ -1039,14 +1030,11 @@ void RimContourMapProjection::generateTrianglesWithVertexValues()
         std::vector<cvf::Vec4d> allTrianglesThisLevel;
         for ( size_t i = 0; i < threadTriangles.size(); ++i )
         {
-            allTrianglesThisLevel.insert( allTrianglesThisLevel.end(),
-                                          threadTriangles[i][c].begin(),
-                                          threadTriangles[i][c].end() );
+            allTrianglesThisLevel.insert( allTrianglesThisLevel.end(), threadTriangles[i][c].begin(), threadTriangles[i][c].end() );
         }
 
         double triangleAreasThisLevel = sumTriangleAreas( allTrianglesThisLevel );
-        if ( c >= m_contourLevelCumulativeAreas.size() ||
-             triangleAreasThisLevel > 1.0e-3 * m_contourLevelCumulativeAreas[c] )
+        if ( c >= m_contourLevelCumulativeAreas.size() || triangleAreasThisLevel > 1.0e-3 * m_contourLevelCumulativeAreas[c] )
         {
             trianglesPerLevel[c] = allTrianglesThisLevel;
         }
@@ -1097,8 +1085,8 @@ void RimContourMapProjection::generateContourPolygons()
         legendConfig()->scalarMapper()->majorTickValues( &contourLevels );
         int nContourLevels = static_cast<int>( contourLevels.size() );
 
-        if ( minValue() != std::numeric_limits<double>::infinity() &&
-             maxValue() != -std::numeric_limits<double>::infinity() && std::fabs( maxValue() - minValue() ) > 1.0e-8 )
+        if ( minValue() != std::numeric_limits<double>::infinity() && maxValue() != -std::numeric_limits<double>::infinity() &&
+             std::fabs( maxValue() - minValue() ) > 1.0e-8 )
         {
             if ( nContourLevels > 2 )
             {
@@ -1134,8 +1122,7 @@ void RimContourMapProjection::generateContourPolygons()
 #pragma omp parallel for
                 for ( int i = 0; i < (int)unorderedLineSegmentsPerLevel.size(); ++i )
                 {
-                    contourPolygons[i] =
-                        createContourPolygonsFromLineSegments( unorderedLineSegmentsPerLevel[i], contourLevels[i] );
+                    contourPolygons[i] = createContourPolygonsFromLineSegments( unorderedLineSegmentsPerLevel[i], contourLevels[i] );
 
                     if ( m_smoothContourLines() )
                     {
@@ -1178,10 +1165,9 @@ void RimContourMapProjection::generateContourPolygons()
 //--------------------------------------------------------------------------------------------------
 RimContourMapProjection::ContourPolygons
     RimContourMapProjection::createContourPolygonsFromLineSegments( caf::ContourLines::ListOfLineSegments& unorderedLineSegments,
-                                                                    double contourValue )
+                                                                    double                                 contourValue )
 {
-    const double areaThreshold =
-        1.5 * ( sampleSpacing() * sampleSpacing() ) / ( sampleSpacingFactor() * sampleSpacingFactor() );
+    const double areaThreshold = 1.5 * ( sampleSpacing() * sampleSpacing() ) / ( sampleSpacingFactor() * sampleSpacingFactor() );
 
     ContourPolygons contourPolygons;
 
@@ -1277,8 +1263,7 @@ void RimContourMapProjection::clipContourPolygons( ContourPolygons* contourPolyg
             if ( !intersections.empty() )
             {
                 polygon.vertices = intersections.front();
-                polygon.area =
-                    std::abs( cvf::GeometryTools::signedAreaPlanarPolygon( cvf::Vec3d::Z_AXIS, polygon.vertices ) );
+                polygon.area     = std::abs( cvf::GeometryTools::signedAreaPlanarPolygon( cvf::Vec3d::Z_AXIS, polygon.vertices ) );
             }
         }
     }
@@ -1318,8 +1303,7 @@ double RimContourMapProjection::sumTriangleAreas( const std::vector<cvf::Vec4d>&
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimContourMapProjection::CellIndexAndResult>
-    RimContourMapProjection::cellOverlapVolumesAndResults( const cvf::Vec2d&          globalPos2d,
-                                                           const std::vector<double>& weightingResultValues ) const
+    RimContourMapProjection::cellOverlapVolumesAndResults( const cvf::Vec2d& globalPos2d, const std::vector<double>& weightingResultValues ) const
 {
     cvf::Vec3d top2dElementCentroid( globalPos2d, m_expandedBoundingBox.max().z() );
     cvf::Vec3d bottom2dElementCentroid( globalPos2d, m_expandedBoundingBox.min().z() );
@@ -1362,8 +1346,7 @@ std::vector<RimContourMapProjection::CellIndexAndResult>
             double overlapVolume = calculateOverlapVolume( globalCellIdx, bbox2dElement );
             if ( overlapVolume > 0.0 )
             {
-                double weight = overlapVolume *
-                                getParameterWeightForCell( gridResultIndex( globalCellIdx ), weightingResultValues );
+                double weight = overlapVolume * getParameterWeightForCell( gridResultIndex( globalCellIdx ), weightingResultValues );
                 if ( weight > 0.0 )
                 {
                     matchingVisibleCellsAndWeight.push_back( std::make_pair( globalCellIdx, weight ) );
@@ -1379,8 +1362,7 @@ std::vector<RimContourMapProjection::CellIndexAndResult>
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimContourMapProjection::CellIndexAndResult>
-    RimContourMapProjection::cellRayIntersectionAndResults( const cvf::Vec2d&          globalPos2d,
-                                                            const std::vector<double>& weightingResultValues ) const
+    RimContourMapProjection::cellRayIntersectionAndResults( const cvf::Vec2d& globalPos2d, const std::vector<double>& weightingResultValues ) const
 {
     std::vector<std::pair<size_t, double>> matchingVisibleCellsAndWeight;
 
@@ -1454,8 +1436,8 @@ bool RimContourMapProjection::isStraightSummationResult() const
 //--------------------------------------------------------------------------------------------------
 bool RimContourMapProjection::isStraightSummationResult( ResultAggregationEnum aggregationType )
 {
-    return aggregationType == RESULTS_OIL_COLUMN || aggregationType == RESULTS_GAS_COLUMN ||
-           aggregationType == RESULTS_HC_COLUMN || aggregationType == RESULTS_SUM;
+    return aggregationType == RESULTS_OIL_COLUMN || aggregationType == RESULTS_GAS_COLUMN || aggregationType == RESULTS_HC_COLUMN ||
+           aggregationType == RESULTS_SUM;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1472,8 +1454,7 @@ double RimContourMapProjection::interpolateValue( const cvf::Vec2d& gridPos2d ) 
     x[2] = cvf::Vec3d( cellCenter + cvf::Vec2d( sampleSpacing() * 0.5, sampleSpacing() * 0.5 ), 0.0 );
     x[3] = cvf::Vec3d( cellCenter + cvf::Vec2d( -sampleSpacing() * 0.5, sampleSpacing() * 0.5 ), 0.0 );
 
-    cvf::Vec4d baryCentricCoords =
-        cvf::GeometryTools::barycentricCoords( x[0], x[1], x[2], x[3], cvf::Vec3d( gridPos2d, 0.0 ) );
+    cvf::Vec4d baryCentricCoords = cvf::GeometryTools::barycentricCoords( x[0], x[1], x[2], x[3], cvf::Vec3d( gridPos2d, 0.0 ) );
 
     std::array<cvf::Vec2ui, 4> v;
     v[0] = cellContainingPoint;
@@ -1638,8 +1619,7 @@ cvf::Vec2ui RimContourMapProjection::ijFromLocalPos( const cvf::Vec2d& localPos2
 cvf::Vec2d RimContourMapProjection::cellCenterPosition( uint i, uint j ) const
 {
     cvf::Vec3d gridExtent = m_expandedBoundingBox.extent();
-    cvf::Vec2d cellCorner =
-        cvf::Vec2d( ( i * gridExtent.x() ) / ( m_mapSize.x() ), ( j * gridExtent.y() ) / ( m_mapSize.y() ) );
+    cvf::Vec2d cellCorner = cvf::Vec2d( ( i * gridExtent.x() ) / ( m_mapSize.x() ), ( j * gridExtent.y() ) / ( m_mapSize.y() ) );
 
     return cellCorner + cvf::Vec2d( sampleSpacing() * 0.5, sampleSpacing() * 0.5 );
 }
@@ -1712,9 +1692,7 @@ double RimContourMapProjection::gridEdgeOffset() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                const QVariant&            oldValue,
-                                                const QVariant&            newValue )
+void RimContourMapProjection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_resultAggregation )
     {
@@ -1750,9 +1728,7 @@ void RimContourMapProjection::fieldChangedByUi( const caf::PdmFieldHandle* chang
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContourMapProjection::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                     QString                    uiConfigName,
-                                                     caf::PdmUiEditorAttribute* attribute )
+void RimContourMapProjection::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( &m_relativeSampleSpacing == field )
     {

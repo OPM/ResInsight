@@ -275,9 +275,8 @@ void RifReaderEclipseRft::cellIndices( const RifEclipseRftAddress& rftAddress, s
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<QDateTime>
-    RifReaderEclipseRft::availableTimeSteps( const QString&                                     wellName,
-                                             const RifEclipseRftAddress::RftWellLogChannelType& wellLogChannelName )
+std::set<QDateTime> RifReaderEclipseRft::availableTimeSteps( const QString&                                     wellName,
+                                                             const RifEclipseRftAddress::RftWellLogChannelType& wellLogChannelName )
 {
     if ( !m_ecl_rft_file )
     {
@@ -301,9 +300,8 @@ std::set<QDateTime>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<QDateTime>
-    RifReaderEclipseRft::availableTimeSteps( const QString&                                               wellName,
-                                             const std::set<RifEclipseRftAddress::RftWellLogChannelType>& relevantChannels )
+std::set<QDateTime> RifReaderEclipseRft::availableTimeSteps( const QString&                                               wellName,
+                                                             const std::set<RifEclipseRftAddress::RftWellLogChannelType>& relevantChannels )
 {
     if ( !m_ecl_rft_file )
     {

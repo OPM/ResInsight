@@ -29,9 +29,9 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigEclipseNativeVisibleCellsStatCalc::RigEclipseNativeVisibleCellsStatCalc( RigCaseCellResultsData* cellResultsData,
+RigEclipseNativeVisibleCellsStatCalc::RigEclipseNativeVisibleCellsStatCalc( RigCaseCellResultsData*        cellResultsData,
                                                                             const RigEclipseResultAddress& scalarResultIndex,
-                                                                            const cvf::UByteArray* cellVisibilities )
+                                                                            const cvf::UByteArray*         cellVisibilities )
     : m_caseData( cellResultsData )
     , m_resultAddress( scalarResultIndex )
     , m_cellVisibilities( cellVisibilities )
@@ -107,8 +107,7 @@ void RigEclipseNativeVisibleCellsStatCalc::valueSumAndSampleCount( size_t timeSt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseNativeVisibleCellsStatCalc::addDataToHistogramCalculator( size_t                  timeStepIndex,
-                                                                         RigHistogramCalculator& histogramCalculator )
+void RigEclipseNativeVisibleCellsStatCalc::addDataToHistogramCalculator( size_t timeStepIndex, RigHistogramCalculator& histogramCalculator )
 {
     traverseCells( histogramCalculator, timeStepIndex );
 }
@@ -136,8 +135,7 @@ size_t RigEclipseNativeVisibleCellsStatCalc::timeStepCount()
 //--------------------------------------------------------------------------------------------------
 void RigEclipseNativeVisibleCellsStatCalc::mobileVolumeWeightedMean( size_t timeStepIndex, double& result )
 {
-    RigEclipseResultAddress mobPorvAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                            RiaResultNames::mobilePoreVolumeName() );
+    RigEclipseResultAddress mobPorvAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::mobilePoreVolumeName() );
 
     // For statistics result cases, the pore volume is not available, as
     // RigCaseCellResultsData::createPlaceholderResultEntries has not been executed

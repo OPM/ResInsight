@@ -86,7 +86,7 @@ void RicSummaryPlotEditorWidgetCreator::updateFromDefaultSources( const std::vec
 ///
 //--------------------------------------------------------------------------------------------------
 void RicSummaryPlotEditorWidgetCreator::recursivelyConfigureAndUpdateTopLevelUiOrdering( const caf::PdmUiOrdering& topLevelUiOrdering,
-                                                                                         const QString& uiConfigName )
+                                                                                         const QString&            uiConfigName )
 {
     const std::vector<caf::PdmUiItem*>& topLevelUiItems = topLevelUiOrdering.uiItems();
     if ( m_summaryCurveCreator->isCloseButtonPressed() )
@@ -102,14 +102,12 @@ void RicSummaryPlotEditorWidgetCreator::recursivelyConfigureAndUpdateTopLevelUiO
 
     m_firstRowLayout->addWidget( addrWidget );
 
-    caf::PdmUiGroup* appearanceGroup =
-        findGroupByKeyword( topLevelUiItems, RiuSummaryCurveDefinitionKeywords::appearance(), uiConfigName );
-    auto appearanceGroupBox = createGroupBoxWithContent( appearanceGroup, uiConfigName );
+    caf::PdmUiGroup* appearanceGroup = findGroupByKeyword( topLevelUiItems, RiuSummaryCurveDefinitionKeywords::appearance(), uiConfigName );
+    auto             appearanceGroupBox = createGroupBoxWithContent( appearanceGroup, uiConfigName );
     m_lowerLeftLayout->insertWidget( 0, appearanceGroupBox );
 
-    caf::PdmUiGroup* nameConfigGroup =
-        findGroupByKeyword( topLevelUiItems, RiuSummaryCurveDefinitionKeywords::nameConfig(), uiConfigName );
-    auto nameConfigGroupBox = createGroupBoxWithContent( nameConfigGroup, uiConfigName );
+    caf::PdmUiGroup* nameConfigGroup = findGroupByKeyword( topLevelUiItems, RiuSummaryCurveDefinitionKeywords::nameConfig(), uiConfigName );
+    auto             nameConfigGroupBox = createGroupBoxWithContent( nameConfigGroup, uiConfigName );
     m_lowerLeftLayout->insertWidget( 1, nameConfigGroupBox );
 
     QMinimizePanel* curveGroup = getOrCreateCurveTreeGroup();
@@ -189,7 +187,7 @@ QWidget* RicSummaryPlotEditorWidgetCreator::createWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 caf::PdmUiGroup* RicSummaryPlotEditorWidgetCreator::findGroupByKeyword( const std::vector<caf::PdmUiItem*>& topLevelUiItems,
                                                                         const QString&                      keyword,
-                                                                        const QString& uiConfigName )
+                                                                        const QString&                      uiConfigName )
 {
     for ( auto uiItem : topLevelUiItems )
     {
@@ -327,8 +325,7 @@ void RicSummaryPlotEditorWidgetCreator::configureAndUpdateFields( int           
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QMinimizePanel* RicSummaryPlotEditorWidgetCreator::createGroupBoxWithContent( caf::PdmUiGroup* group,
-                                                                              const QString&   uiConfigName )
+QMinimizePanel* RicSummaryPlotEditorWidgetCreator::createGroupBoxWithContent( caf::PdmUiGroup* group, const QString& uiConfigName )
 {
     QMinimizePanel* groupBox = findOrCreateGroupBox( this->widget(), group, uiConfigName );
 

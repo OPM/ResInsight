@@ -32,7 +32,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RivWellConnectionFactorGeometryGenerator::RivWellConnectionFactorGeometryGenerator( std::vector<CompletionVizData>& completionVizData,
-                                                                                    float radius )
+                                                                                    float                           radius )
     : m_completionVizData( completionVizData )
     , m_radius( radius )
     , m_trianglesPerConnection( 0 )
@@ -49,8 +49,7 @@ RivWellConnectionFactorGeometryGenerator::~RivWellConnectionFactorGeometryGenera
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Part> RivWellConnectionFactorGeometryGenerator::createSurfacePart( const cvf::ScalarMapper* scalarMapper,
-                                                                                 bool disableLighting )
+cvf::ref<cvf::Part> RivWellConnectionFactorGeometryGenerator::createSurfacePart( const cvf::ScalarMapper* scalarMapper, bool disableLighting )
 {
     if ( !scalarMapper ) return nullptr;
 
@@ -106,10 +105,7 @@ cvf::ref<cvf::DrawableGeo> RivWellConnectionFactorGeometryGenerator::createSurfa
     std::vector<cvf::Vec3f> verticesForOneObject;
     std::vector<cvf::uint>  indicesForOneObject;
 
-    RivWellConnectionFactorGeometryGenerator::createSimplifiedStarGeometry( &verticesForOneObject,
-                                                                            &indicesForOneObject,
-                                                                            m_radius,
-                                                                            m_radius * 0.3f );
+    RivWellConnectionFactorGeometryGenerator::createSimplifiedStarGeometry( &verticesForOneObject, &indicesForOneObject, m_radius, m_radius * 0.3f );
 
     m_trianglesPerConnection = indicesForOneObject.size() / 3;
 
@@ -123,8 +119,7 @@ cvf::ref<cvf::DrawableGeo> RivWellConnectionFactorGeometryGenerator::createSurfa
 
     for ( const auto& item : m_completionVizData )
     {
-        auto rotMatrix =
-            cvf::Mat4f( cvf::GeometryTools::rotationMatrixBetweenVectors( cvf::Vec3d::Y_AXIS, item.m_direction ) );
+        auto rotMatrix = cvf::Mat4f( cvf::GeometryTools::rotationMatrixBetweenVectors( cvf::Vec3d::Y_AXIS, item.m_direction ) );
 
         cvf::uint indexOffset = static_cast<cvf::uint>( vertices->size() );
 

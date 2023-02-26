@@ -58,9 +58,7 @@ void caf::AppEnum<RimStatisticsPlot::HistogramFrequencyType>::setUp()
 {
     addItem( RimStatisticsPlot::HistogramFrequencyType::ABSOLUTE_FREQUENCY, "ABSOLUTE_FREQUENCY", "Absolute Frequency" );
     addItem( RimStatisticsPlot::HistogramFrequencyType::RELATIVE_FREQUENCY, "RELATIVE_FREQUENCY", "Relative Frequency" );
-    addItem( RimStatisticsPlot::HistogramFrequencyType::RELATIVE_FREQUENCY_PERCENT,
-             "RELATIVE_FREQUENCY_PERCENT",
-             "Relative Frequency [%]" );
+    addItem( RimStatisticsPlot::HistogramFrequencyType::RELATIVE_FREQUENCY_PERCENT, "RELATIVE_FREQUENCY_PERCENT", "Relative Frequency [%]" );
     setDefault( RimStatisticsPlot::HistogramFrequencyType::RELATIVE_FREQUENCY_PERCENT );
 }
 template <>
@@ -94,13 +92,7 @@ RimStatisticsPlot::RimStatisticsPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_histogramFrequencyType, "HistogramFrequencyType", "Frequency" );
 
-    CAF_PDM_InitField( &m_precision,
-                       "Precision",
-                       4,
-                       "Significant Digits",
-                       "",
-                       "The number of significant digits displayed in the legend numbers",
-                       "" );
+    CAF_PDM_InitField( &m_precision, "Precision", 4, "Significant Digits", "", "The number of significant digits displayed in the legend numbers", "" );
     CAF_PDM_InitField( &m_tickNumberFormat,
                        "TickNumberFormat",
                        caf::AppEnum<RiaNumberFormat::NumberFormatType>( RiaNumberFormat::NumberFormatType::AUTO ),
@@ -211,9 +203,7 @@ void RimStatisticsPlot::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStatisticsPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                          const QVariant&            oldValue,
-                                          const QVariant&            newValue )
+void RimStatisticsPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimPlotWindow::fieldChangedByUi( changedField, oldValue, newValue );
 
@@ -268,9 +258,7 @@ void RimStatisticsPlot::cleanupBeforeClose()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStatisticsPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                               QString                    uiConfigName,
-                                               caf::PdmUiEditorAttribute* attribute )
+void RimStatisticsPlot::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     caf::PdmUiLineEditorAttribute* lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
     if ( field == &m_numHistogramBins && lineEditorAttr != nullptr )
@@ -323,9 +311,7 @@ void RimStatisticsPlot::uiOrderingForHistogram( QString uiConfigName, caf::PdmUi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStatisticsPlot::uiOrderingForLegendsAndFonts( QString             uiConfigName,
-                                                      caf::PdmUiOrdering& uiOrdering,
-                                                      bool                showLegendPosition )
+void RimStatisticsPlot::uiOrderingForLegendsAndFonts( QString uiConfigName, caf::PdmUiOrdering& uiOrdering, bool showLegendPosition )
 {
     RimPlotWindow::uiOrderingForLegendsAndFonts( uiConfigName, uiOrdering, showLegendPosition );
 
@@ -384,8 +370,7 @@ void RimStatisticsPlot::updatePlots()
     for ( double value : histogramData.histogram )
     {
         if ( m_histogramFrequencyType() == HistogramFrequencyType::RELATIVE_FREQUENCY ) value /= sumElements;
-        if ( m_histogramFrequencyType() == HistogramFrequencyType::RELATIVE_FREQUENCY_PERCENT )
-            value = value / sumElements * 100.0;
+        if ( m_histogramFrequencyType() == HistogramFrequencyType::RELATIVE_FREQUENCY_PERCENT ) value = value / sumElements * 100.0;
         *set0 << value;
         *lineSeries << QPointF( binCenter, value );
         binCenter += binSize;

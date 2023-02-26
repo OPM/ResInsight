@@ -59,10 +59,7 @@ RigConnection::RigConnection( unsigned                           c1GlobIdx,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigConnection::RigConnection( size_t                             c1GlobIdx,
-                              size_t                             c2GlobIdx,
-                              cvf::StructGridInterface::FaceType c1Face,
-                              const std::vector<cvf::Vec3f>&     polygon )
+RigConnection::RigConnection( size_t c1GlobIdx, size_t c2GlobIdx, cvf::StructGridInterface::FaceType c1Face, const std::vector<cvf::Vec3f>& polygon )
     : m_c1GlobIdx( static_cast<unsigned>( c1GlobIdx ) )
     , m_c2GlobIdx( static_cast<unsigned>( c2GlobIdx ) )
     , m_c1Face( static_cast<unsigned char>( c1Face ) )

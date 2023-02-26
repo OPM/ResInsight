@@ -55,9 +55,7 @@ void RiuPlotCurve::setSamplesValues( const std::vector<double>& xValues, const s
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuPlotCurve::setSamplesFromXValuesAndYValues( const std::vector<double>& xValues,
-                                                    const std::vector<double>& yValues,
-                                                    bool                       useLogarithmicScale )
+void RiuPlotCurve::setSamplesFromXValuesAndYValues( const std::vector<double>& xValues, const std::vector<double>& yValues, bool useLogarithmicScale )
 {
     computeValidIntervalsAndSetCurveData( xValues, yValues, useLogarithmicScale );
 }
@@ -77,9 +75,7 @@ void RiuPlotCurve::setSamplesFromDatesAndYValues( const std::vector<QDateTime>& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuPlotCurve::setSamplesFromTimeTAndYValues( const std::vector<time_t>& dateTimes,
-                                                  const std::vector<double>& yValues,
-                                                  bool                       useLogarithmicScale )
+void RiuPlotCurve::setSamplesFromTimeTAndYValues( const std::vector<time_t>& dateTimes, const std::vector<double>& yValues, bool useLogarithmicScale )
 {
     auto xValues = RiuPlotCurve::fromTime_t( dateTimes );
 

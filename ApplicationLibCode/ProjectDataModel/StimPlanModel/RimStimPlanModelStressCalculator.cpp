@@ -179,8 +179,7 @@ void RimStimPlanModelStressCalculator::addDatapointsForBottomOfLayers( std::vect
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStimPlanModelStressCalculator::addDatapointsForBottomOfLayers( std::vector<double>& tvDepthValues,
-                                                                       std::vector<double>& values )
+void RimStimPlanModelStressCalculator::addDatapointsForBottomOfLayers( std::vector<double>& tvDepthValues, std::vector<double>& values )
 
 {
     std::vector<double> tvdWithBottomLayers;

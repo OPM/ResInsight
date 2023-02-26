@@ -306,8 +306,7 @@ void RimStreamlineInViewCollection::mappingRange( double& min, double& max ) con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStreamlineInViewCollection::updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer,
-                                                                         bool       isUsingOverrideViewer )
+void RimStreamlineInViewCollection::updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer )
 {
     if ( m_isActive() && ( m_streamlines.size() > 0 ) && m_legendConfig->showLegend() )
     {
@@ -326,8 +325,7 @@ void RimStreamlineInViewCollection::updateLegendRangesTextAndVisibility( RiuView
 
         if ( colorMode() == ColorMode::VELOCITY )
         {
-            nativeOrOverrideViewer->addColorLegendToBottomLeftCorner( m_legendConfig->titledOverlayFrame(),
-                                                                      isUsingOverrideViewer );
+            nativeOrOverrideViewer->addColorLegendToBottomLeftCorner( m_legendConfig->titledOverlayFrame(), isUsingOverrideViewer );
         }
     }
 }
@@ -457,10 +455,8 @@ void RimStreamlineInViewCollection::updateStreamlines()
 
         // set up the data access helper
         RimStreamlineDataAccess dataAccess;
-        bool                    accessOk = dataAccess.setupDataAccess( eclipseCase()->eclipseCaseData()->mainGrid(),
-                                                    eclipseCase()->eclipseCaseData(),
-                                                    phases(),
-                                                    timeIdx );
+        bool                    accessOk =
+            dataAccess.setupDataAccess( eclipseCase()->eclipseCaseData()->mainGrid(), eclipseCase()->eclipseCaseData(), phases(), timeIdx );
 
         // did we find the data we needed?
         if ( accessOk )
@@ -593,8 +589,7 @@ void RimStreamlineInViewCollection::defineUiOrdering( QString uiConfigName, caf:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStreamlineInViewCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
-                                                          QString                 uiConfigName /*= "" */ )
+void RimStreamlineInViewCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= "" */ )
 {
     uiTreeOrdering.add( &m_legendConfig );
     uiTreeOrdering.skipRemainingChildren();
@@ -648,9 +643,7 @@ void RimStreamlineInViewCollection::defineEditorAttribute( const caf::PdmFieldHa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStreamlineInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                      const QVariant&            oldValue,
-                                                      const QVariant&            newValue )
+void RimStreamlineInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_animationSpeed || changedField == &m_animationIndex || changedField == &m_tracerLength ||
          changedField == &m_visualizationMode )
@@ -659,8 +652,7 @@ void RimStreamlineInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle*
     }
 
     if ( changedField == &m_lengthThreshold || changedField == &m_flowThreshold || changedField == &m_resolution ||
-         changedField == &m_maxDays || changedField == &m_useProducers || changedField == &m_useInjectors ||
-         changedField == &m_phases )
+         changedField == &m_maxDays || changedField == &m_useProducers || changedField == &m_useInjectors || changedField == &m_phases )
     {
         m_shouldGenerateTracers = true;
     }

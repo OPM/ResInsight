@@ -82,9 +82,7 @@ protected:
     void                          calculateValueOptionsForWells( QList<caf::PdmOptionItemInfo>& options );
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                QString                    uiConfigName,
-                                caf::PdmUiEditorAttribute* attribute ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void onLoadDataAndUpdate() override;
 
     void initAfterRead() override;

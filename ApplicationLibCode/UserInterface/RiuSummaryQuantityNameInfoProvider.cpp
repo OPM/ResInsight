@@ -62,16 +62,14 @@ RiuSummaryQuantityNameInfoProvider* RiuSummaryQuantityNameInfoProvider::instance
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress::SummaryVarCategory
-    RiuSummaryQuantityNameInfoProvider::identifyCategory( const std::string& vectorName )
+RifEclipseSummaryAddress::SummaryVarCategory RiuSummaryQuantityNameInfoProvider::identifyCategory( const std::string& vectorName )
 {
     // Try to an exact match on the vector name first in the vector table.
     bool exactMatch    = true;
     auto exactCategory = categoryFromVectorName( vectorName, exactMatch );
     if ( exactCategory != RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_INVALID ) return exactCategory;
 
-    if ( vectorName.size() < 3 || vectorName.size() > 8 )
-        return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_INVALID;
+    if ( vectorName.size() < 3 || vectorName.size() > 8 ) return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_INVALID;
 
     // Try to match the base vector name with more heuristics
     auto strippedQuantityName = RifEclipseSummaryAddress::baseVectorName( vectorName );
@@ -119,8 +117,8 @@ RifEclipseSummaryAddress::SummaryVarCategory
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress::SummaryVarCategory
-    RiuSummaryQuantityNameInfoProvider::categoryFromVectorName( const std::string& vectorName, bool exactMatch ) const
+RifEclipseSummaryAddress::SummaryVarCategory RiuSummaryQuantityNameInfoProvider::categoryFromVectorName( const std::string& vectorName,
+                                                                                                         bool exactMatch ) const
 {
     auto info = quantityInfo( vectorName, exactMatch );
 
@@ -130,8 +128,8 @@ RifEclipseSummaryAddress::SummaryVarCategory
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuSummaryQuantityNameInfoProvider::RiuSummaryQuantityInfo
-    RiuSummaryQuantityNameInfoProvider::quantityInfo( const std::string& vectorName, bool exactMatch ) const
+RiuSummaryQuantityNameInfoProvider::RiuSummaryQuantityInfo RiuSummaryQuantityNameInfoProvider::quantityInfo( const std::string& vectorName,
+                                                                                                             bool exactMatch ) const
 {
     auto it = m_summaryToDescMap.find( vectorName );
     if ( it != m_summaryToDescMap.end() )
@@ -182,12 +180,10 @@ RiuSummaryQuantityNameInfoProvider::RiuSummaryQuantityInfo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RiuSummaryQuantityNameInfoProvider::longNameFromVectorName( const std::string& vectorName,
-                                                                        bool returnVectorNameIfNotFound ) const
+std::string RiuSummaryQuantityNameInfoProvider::longNameFromVectorName( const std::string& vectorName, bool returnVectorNameIfNotFound ) const
 {
     auto info = quantityInfo( vectorName );
-    return info.category != RifEclipseSummaryAddress::SUMMARY_INVALID || !returnVectorNameIfNotFound ? info.longName
-                                                                                                     : vectorName;
+    return info.category != RifEclipseSummaryAddress::SUMMARY_INVALID || !returnVectorNameIfNotFound ? info.longName : vectorName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -423,17 +419,14 @@ std::unordered_map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQu
     info.insert( { "FCOMT", { A::SUMMARY_FIELD, "Hydrocarbon component" } } );
     info.insert( { "FCNMR", { A::SUMMARY_FIELD, "Hydrocarbon component molar rates in the NGL phase" } } );
     info.insert( { "FCNWR", { A::SUMMARY_FIELD, "Hydrocarbon component mass rates in the NGL phase" } } );
-    info.insert( { "FCGMRn",
-                   { A::SUMMARY_FIELD, "Hydrocarbon component molar rates in the gas phase for nth separator stage" } } );
-    info.insert(
-        { "FCGRn", { A::SUMMARY_FIELD, "Hydrocarbon component molar rates in the gas phase for nth separator stage" } } );
+    info.insert( { "FCGMRn", { A::SUMMARY_FIELD, "Hydrocarbon component molar rates in the gas phase for nth separator stage" } } );
+    info.insert( { "FCGRn", { A::SUMMARY_FIELD, "Hydrocarbon component molar rates in the gas phase for nth separator stage" } } );
     info.insert( { "FCOMRn", { A::SUMMARY_FIELD, "Hydrocarbon component" } } );
     info.insert( { "FCORn", { A::SUMMARY_FIELD, "Hydrocarbon component" } } );
     info.insert( { "FMUF", { A::SUMMARY_FIELD, "Make-up fraction" } } );
     info.insert( { "FAMR", { A::SUMMARY_FIELD, "Make-up gas rate" } } );
     info.insert( { "FAMT", { A::SUMMARY_FIELD, "Make-up gas total" } } );
-    info.insert(
-        { "FGSPR", { A::SUMMARY_FIELD, "Target sustainable rate for most recent sustainable capacity test for gas" } } );
+    info.insert( { "FGSPR", { A::SUMMARY_FIELD, "Target sustainable rate for most recent sustainable capacity test for gas" } } );
     info.insert( { "FGSRL",
                    { A::SUMMARY_FIELD,
                      "Maximum tested rate sustained for the test period during the most recent "
@@ -447,8 +440,7 @@ std::unordered_map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQu
                      "Period for which target sustainable rate could be maintained for the most recent "
                      "sustainable capacity test for gas" } } );
     info.insert( { "FGSTP", { A::SUMMARY_FIELD, "Test period for the most recent sustainable capacity test for gas" } } );
-    info.insert(
-        { "FOSPR", { A::SUMMARY_FIELD, "Target sustainable rate for most recent sustainable capacity test for oil" } } );
+    info.insert( { "FOSPR", { A::SUMMARY_FIELD, "Target sustainable rate for most recent sustainable capacity test for oil" } } );
     info.insert( { "FOSRL",
                    { A::SUMMARY_FIELD,
                      "Maximum tested rate sustained for the test period during the most recent "
@@ -462,8 +454,7 @@ std::unordered_map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQu
                      "Period for which target sustainable rate could be maintained for the most recent "
                      "sustainable capacity test for oil" } } );
     info.insert( { "FOSTP", { A::SUMMARY_FIELD, "Test period for the most recent sustainable capacity test for oil" } } );
-    info.insert(
-        { "FWSPR", { A::SUMMARY_FIELD, "Target sustainable rate for most recent sustainable capacity test for water" } } );
+    info.insert( { "FWSPR", { A::SUMMARY_FIELD, "Target sustainable rate for most recent sustainable capacity test for water" } } );
     info.insert( { "FWSRL",
                    { A::SUMMARY_FIELD,
                      "Maximum tested rate sustained for the test period during the most recent "
@@ -903,17 +894,14 @@ std::unordered_map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQu
     info.insert( { "GCOMT", { A::SUMMARY_GROUP, "Hydrocarbon component" } } );
     info.insert( { "GCNMR", { A::SUMMARY_GROUP, "Hydrocarbon component molar rates in the NGL phase" } } );
     info.insert( { "GCNWR", { A::SUMMARY_GROUP, "Hydrocarbon component mass rates in the NGL phase" } } );
-    info.insert( { "GCGMRn",
-                   { A::SUMMARY_GROUP, "Hydrocarbon component molar rates in the gas phase for nth separator stage" } } );
-    info.insert(
-        { "GCGRn", { A::SUMMARY_GROUP, "Hydrocarbon component molar rates in the gas phase for nth separator stage" } } );
+    info.insert( { "GCGMRn", { A::SUMMARY_GROUP, "Hydrocarbon component molar rates in the gas phase for nth separator stage" } } );
+    info.insert( { "GCGRn", { A::SUMMARY_GROUP, "Hydrocarbon component molar rates in the gas phase for nth separator stage" } } );
     info.insert( { "GCOMRn", { A::SUMMARY_GROUP, "Hydrocarbon component" } } );
     info.insert( { "GCORn", { A::SUMMARY_GROUP, "Hydrocarbon component" } } );
     info.insert( { "GMUF", { A::SUMMARY_GROUP, "Make-up fraction" } } );
     info.insert( { "GAMR", { A::SUMMARY_GROUP, "Make-up gas rate" } } );
     info.insert( { "GAMT", { A::SUMMARY_GROUP, "Make-up gas total" } } );
-    info.insert(
-        { "GGSPR", { A::SUMMARY_GROUP, "Target sustainable rate for most recent sustainable capacity test for gas" } } );
+    info.insert( { "GGSPR", { A::SUMMARY_GROUP, "Target sustainable rate for most recent sustainable capacity test for gas" } } );
     info.insert( { "GGSRL",
                    { A::SUMMARY_GROUP,
                      "Maximum tested rate sustained for the test period during the most recent sustainable "
@@ -929,8 +917,7 @@ std::unordered_map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQu
                      "sustainable capacity test "
                      "for gas" } } );
     info.insert( { "GGSTP", { A::SUMMARY_GROUP, "Test period for the most recent sustainable capacity test for gas" } } );
-    info.insert(
-        { "GOSPR", { A::SUMMARY_GROUP, "Target sustainable rate for most recent sustainable capacity test for oil" } } );
+    info.insert( { "GOSPR", { A::SUMMARY_GROUP, "Target sustainable rate for most recent sustainable capacity test for oil" } } );
     info.insert( { "GOSRL",
                    { A::SUMMARY_GROUP,
                      "Maximum tested rate sustained for the test period during the most recent sustainable "
@@ -946,8 +933,7 @@ std::unordered_map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQu
                      "sustainable capacity test "
                      "for oil" } } );
     info.insert( { "GOSTP", { A::SUMMARY_GROUP, "Test period for the most recent sustainable capacity test for oil" } } );
-    info.insert(
-        { "GWSPR", { A::SUMMARY_GROUP, "Target sustainable rate for most recent sustainable capacity test for water" } } );
+    info.insert( { "GWSPR", { A::SUMMARY_GROUP, "Target sustainable rate for most recent sustainable capacity test for water" } } );
     info.insert( { "GWSRL",
                    { A::SUMMARY_GROUP,
                      "Maximum tested rate sustained for the test period during the most recent sustainable "
@@ -1053,9 +1039,8 @@ std::unordered_map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQu
     info.insert( { "GGIMR", { A::SUMMARY_GROUP, "Gas import rate, at and below this group" } } );
     info.insert( { "GGIMT", { A::SUMMARY_GROUP, "Gas import cumulative total, at and below this group" } } );
     info.insert( { "GPRFP", { A::SUMMARY_GROUP, "Group or node Pressure in network from end of First Pass" } } );
-    info.insert( { "GGPRNBFP",
-                   { A::SUMMARY_GROUP,
-                     "Gas flow rate along Group's or node's outlet branch in network, from end of First Pass" } } );
+    info.insert(
+        { "GGPRNBFP", { A::SUMMARY_GROUP, "Gas flow rate along Group's or node's outlet branch in network, from end of First Pass" } } );
     info.insert( { "GGLIR", { A::SUMMARY_GROUP, "Gas Lift Injection Rate" } } );
     info.insert( { "GGCV", { A::SUMMARY_GROUP, "Gas Calorific Value" } } );
     info.insert( { "GGQ", { A::SUMMARY_GROUP, "Gas molar Quality" } } );
@@ -1068,70 +1053,28 @@ std::unordered_map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQu
     info.insert( { "GPR", { A::SUMMARY_GROUP, "Group or node Pressure in the production network" } } );
     info.insert( { "GPRG", { A::SUMMARY_GROUP, "Group or node Pressure in the gas injection network" } } );
     info.insert( { "GPRW", { A::SUMMARY_GROUP, "Group or node Pressure in the water injection network" } } );
-    info.insert(
-        { "GPRB",
-          { A::SUMMARY_GROUP, "Pressure drop along the group's or node's outlet branch in the production network" } } );
-    info.insert(
-        { "GPRBG",
-          { A::SUMMARY_GROUP, "Pressure drop along the group's or node's inlet branch in the gas injection network" } } );
-    info.insert( { "GPRBW",
-                   { A::SUMMARY_GROUP,
-                     "Pressure drop along the group's or node's inlet branch in the water injection network" } } );
+    info.insert( { "GPRB", { A::SUMMARY_GROUP, "Pressure drop along the group's or node's outlet branch in the production network" } } );
+    info.insert( { "GPRBG", { A::SUMMARY_GROUP, "Pressure drop along the group's or node's inlet branch in the gas injection network" } } );
+    info.insert( { "GPRBW", { A::SUMMARY_GROUP, "Pressure drop along the group's or node's inlet branch in the water injection network" } } );
     info.insert( { "GALQ", { A::SUMMARY_GROUP, "ALQ in the group's or node's outlet branch in the production network" } } );
-    info.insert(
-        { "GOPRNB",
-          { A::SUMMARY_GROUP, "Oil flow rate along the group's or node's outlet branch in the production network" } } );
-    info.insert(
-        { "GWPRNB",
-          { A::SUMMARY_GROUP, "Water flow rate along the group's or node's outlet branch in the production network" } } );
-    info.insert(
-        { "GGPRNB",
-          { A::SUMMARY_GROUP, "Gas flow rate along the group's or node's outlet branch in the production network" } } );
-    info.insert( { "GLPRNB",
-                   { A::SUMMARY_GROUP,
-                     "Liquid flow rate along the group's or node's outlet branch in the production network" } } );
-    info.insert( { "GWIRNB",
-                   { A::SUMMARY_GROUP,
-                     "Water flow rate along the group's or node's inlet branch in the water injection network" } } );
-    info.insert(
-        { "GGIRNB",
-          { A::SUMMARY_GROUP, "Gas flow rate along the group's or node's inlet branch in the gas injection network" } } );
-    info.insert(
-        { "GOMNR",
-          { A::SUMMARY_GROUP, "Group or node minimum oil rate as specified with GNETDP in the production network" } } );
-    info.insert(
-        { "GGMNR",
-          { A::SUMMARY_GROUP, "Group or node minimum gas rate as specified with GNETDP in the production network" } } );
-    info.insert(
-        { "GWMNR",
-          { A::SUMMARY_GROUP, "Group or node minimum water rate as specified with GNETDP in the production network" } } );
-    info.insert( { "GLMNR",
-                   { A::SUMMARY_GROUP,
-                     "Group or node minimum liquid rate as specified with GNETDP in the production network" } } );
-    info.insert(
-        { "GOMXR",
-          { A::SUMMARY_GROUP, "Group or node maximum oil rate as specified with GNETDP in the production network" } } );
-    info.insert(
-        { "GGMXR",
-          { A::SUMMARY_GROUP, "Group or node maximum gas rate as specified with GNETDP in the production network" } } );
-    info.insert(
-        { "GWMXR",
-          { A::SUMMARY_GROUP, "Group or node maximum water rate as specified with GNETDP in the production network" } } );
-    info.insert( { "GLMXR",
-                   { A::SUMMARY_GROUP,
-                     "Group or node maximum liquid rate as specified with GNETDP in the production network" } } );
-    info.insert(
-        { "GMNP",
-          { A::SUMMARY_GROUP, "Group or node minimum pressure as specified with GNETDP in the production network" } } );
-    info.insert(
-        { "GMXP",
-          { A::SUMMARY_GROUP, "Group or node maximum pressure as specified with GNETDP in the production network" } } );
-    info.insert(
-        { "GPRINC",
-          { A::SUMMARY_GROUP, "Group or node pressure increment as specified with GNETDP in the production network" } } );
-    info.insert(
-        { "GPRDEC",
-          { A::SUMMARY_GROUP, "Group or node pressure decrement as specified with GNETDP in the production network" } } );
+    info.insert( { "GOPRNB", { A::SUMMARY_GROUP, "Oil flow rate along the group's or node's outlet branch in the production network" } } );
+    info.insert( { "GWPRNB", { A::SUMMARY_GROUP, "Water flow rate along the group's or node's outlet branch in the production network" } } );
+    info.insert( { "GGPRNB", { A::SUMMARY_GROUP, "Gas flow rate along the group's or node's outlet branch in the production network" } } );
+    info.insert( { "GLPRNB", { A::SUMMARY_GROUP, "Liquid flow rate along the group's or node's outlet branch in the production network" } } );
+    info.insert( { "GWIRNB", { A::SUMMARY_GROUP, "Water flow rate along the group's or node's inlet branch in the water injection network" } } );
+    info.insert( { "GGIRNB", { A::SUMMARY_GROUP, "Gas flow rate along the group's or node's inlet branch in the gas injection network" } } );
+    info.insert( { "GOMNR", { A::SUMMARY_GROUP, "Group or node minimum oil rate as specified with GNETDP in the production network" } } );
+    info.insert( { "GGMNR", { A::SUMMARY_GROUP, "Group or node minimum gas rate as specified with GNETDP in the production network" } } );
+    info.insert( { "GWMNR", { A::SUMMARY_GROUP, "Group or node minimum water rate as specified with GNETDP in the production network" } } );
+    info.insert( { "GLMNR", { A::SUMMARY_GROUP, "Group or node minimum liquid rate as specified with GNETDP in the production network" } } );
+    info.insert( { "GOMXR", { A::SUMMARY_GROUP, "Group or node maximum oil rate as specified with GNETDP in the production network" } } );
+    info.insert( { "GGMXR", { A::SUMMARY_GROUP, "Group or node maximum gas rate as specified with GNETDP in the production network" } } );
+    info.insert( { "GWMXR", { A::SUMMARY_GROUP, "Group or node maximum water rate as specified with GNETDP in the production network" } } );
+    info.insert( { "GLMXR", { A::SUMMARY_GROUP, "Group or node maximum liquid rate as specified with GNETDP in the production network" } } );
+    info.insert( { "GMNP", { A::SUMMARY_GROUP, "Group or node minimum pressure as specified with GNETDP in the production network" } } );
+    info.insert( { "GMXP", { A::SUMMARY_GROUP, "Group or node maximum pressure as specified with GNETDP in the production network" } } );
+    info.insert( { "GPRINC", { A::SUMMARY_GROUP, "Group or node pressure increment as specified with GNETDP in the production network" } } );
+    info.insert( { "GPRDEC", { A::SUMMARY_GROUP, "Group or node pressure decrement as specified with GNETDP in the production network" } } );
     info.insert( { "GCPR", { A::SUMMARY_GROUP, "Polymer Production Rate" } } );
     info.insert( { "GCPC", { A::SUMMARY_GROUP, "Polymer Production Concentration" } } );
     info.insert( { "GCPT", { A::SUMMARY_GROUP, "Polymer Production Total" } } );
@@ -1326,11 +1269,10 @@ std::unordered_map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQu
                    { A::SUMMARY_WELL,
                      "Hydraulic head in well based on the reference depth given in HYDRHEAD and the well's reference "
                      "depth" } } );
-    info.insert(
-        { "WHDF",
-          { A::SUMMARY_WELL,
-            "Hydraulic head in well based on the reference depth given in HYDRHEAD and the well's reference depth "
-            "calculated at freshwater conditions" } } );
+    info.insert( { "WHDF",
+                   { A::SUMMARY_WELL,
+                     "Hydraulic head in well based on the reference depth given in HYDRHEAD and the well's reference depth "
+                     "calculated at freshwater conditions" } } );
     info.insert( { "WSTAT", { A::SUMMARY_WELL, "Well State Indicator" } } );
     info.insert( { "WMCTL", { A::SUMMARY_WELL, "Mode of Control" } } );
     info.insert( { "WMCON", { A::SUMMARY_WELL, "The number of connections capable of flowing in the well" } } );
@@ -1374,10 +1316,8 @@ std::unordered_map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQu
     info.insert( { "WCOMT", { A::SUMMARY_WELL, "Hydrocarbon component" } } );
     info.insert( { "WCNMR", { A::SUMMARY_WELL, "Hydrocarbon component molar rates in the NGL phase" } } );
     info.insert( { "WCNWR", { A::SUMMARY_WELL, "Hydrocarbon component mass rates in the NGL phase" } } );
-    info.insert( { "WCGMRn",
-                   { A::SUMMARY_WELL, "Hydrocarbon component molar rates in the gas phase for nth separator stage" } } );
-    info.insert(
-        { "WCGRn", { A::SUMMARY_WELL, "Hydrocarbon component molar rates in the gas phase for nth separator stage" } } );
+    info.insert( { "WCGMRn", { A::SUMMARY_WELL, "Hydrocarbon component molar rates in the gas phase for nth separator stage" } } );
+    info.insert( { "WCGRn", { A::SUMMARY_WELL, "Hydrocarbon component molar rates in the gas phase for nth separator stage" } } );
     info.insert( { "WCOMRn", { A::SUMMARY_WELL, "Hydrocarbon component" } } );
     info.insert( { "WCORn", { A::SUMMARY_WELL, "Hydrocarbon component" } } );
     info.insert( { "WMUF", { A::SUMMARY_WELL, "Make-up fraction" } } );
@@ -1522,9 +1462,7 @@ std::unordered_map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQu
     info.insert( { "COFR", { A::SUMMARY_WELL_COMPLETION, "Oil Flow Rate" } } );
     info.insert( { "COFRF", { A::SUMMARY_WELL_COMPLETION, "Free Oil Flow Rate" } } );
     info.insert( { "COFRS", { A::SUMMARY_WELL_COMPLETION, "Solution oil flow rate" } } );
-    info.insert( { "COFRU",
-                   { A::SUMMARY_WELL_COMPLETION,
-                     "Sum of connection oil flow rates upstream of, and including, this connection" } } );
+    info.insert( { "COFRU", { A::SUMMARY_WELL_COMPLETION, "Sum of connection oil flow rates upstream of, and including, this connection" } } );
     info.insert( { "COPR", { A::SUMMARY_WELL_COMPLETION, "Oil Production Rate" } } );
     info.insert( { "COPT", { A::SUMMARY_WELL_COMPLETION, "Oil Production Total" } } );
     info.insert( { "COPTF", { A::SUMMARY_WELL_COMPLETION, "Free Oil Production Total" } } );
@@ -1533,9 +1471,7 @@ std::unordered_map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQu
     info.insert( { "COPP", { A::SUMMARY_WELL_COMPLETION, "Oil Potential Production rate" } } );
     info.insert( { "COPI", { A::SUMMARY_WELL_COMPLETION, "Oil Potential Injection rate" } } );
     info.insert( { "CWFR", { A::SUMMARY_WELL_COMPLETION, "Water Flow Rate" } } );
-    info.insert( { "CWFRU",
-                   { A::SUMMARY_WELL_COMPLETION,
-                     "Sum of connection water flow rates upstream of, and including, this connection" } } );
+    info.insert( { "CWFRU", { A::SUMMARY_WELL_COMPLETION, "Sum of connection water flow rates upstream of, and including, this connection" } } );
     info.insert( { "CWPR", { A::SUMMARY_WELL_COMPLETION, "Water Production Rate" } } );
     info.insert( { "CWPT", { A::SUMMARY_WELL_COMPLETION, "Water Production Total" } } );
     info.insert( { "CWIR", { A::SUMMARY_WELL_COMPLETION, "Water Injection Rate" } } );
@@ -1545,9 +1481,7 @@ std::unordered_map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQu
     info.insert( { "CGFR", { A::SUMMARY_WELL_COMPLETION, "Gas Flow Rate" } } );
     info.insert( { "CGFRF", { A::SUMMARY_WELL_COMPLETION, "Free Gas Flow Rate" } } );
     info.insert( { "CGFRS", { A::SUMMARY_WELL_COMPLETION, "Solution Gas Flow Rate" } } );
-    info.insert( { "CGFRU",
-                   { A::SUMMARY_WELL_COMPLETION,
-                     "Sum of connection gas flow rates upstream of, and including, this connection" } } );
+    info.insert( { "CGFRU", { A::SUMMARY_WELL_COMPLETION, "Sum of connection gas flow rates upstream of, and including, this connection" } } );
     info.insert( { "CGPR", { A::SUMMARY_WELL_COMPLETION, "Gas Production Rate " } } );
     info.insert( { "CGPT", { A::SUMMARY_WELL_COMPLETION, "Gas Production Total" } } );
     info.insert( { "CGPTF", { A::SUMMARY_WELL_COMPLETION, "Free Gas Production Total" } } );
@@ -1576,8 +1510,7 @@ std::unordered_map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQu
     info.insert( { "CGPPTN", { A::SUMMARY_WELL_COMPLETION, "Generalized pseudo-pressure table update counter" } } );
     info.insert( { "CGPPTS", { A::SUMMARY_WELL_COMPLETION, "Generalized pseudo-pressure table update status" } } );
     info.insert( { "CDSM", { A::SUMMARY_WELL_COMPLETION, "Current mass of scale deposited" } } );
-    info.insert(
-        { "CDSML", { A::SUMMARY_WELL_COMPLETION, "Current mass of scale deposited per unit perforation length" } } );
+    info.insert( { "CDSML", { A::SUMMARY_WELL_COMPLETION, "Current mass of scale deposited per unit perforation length" } } );
     info.insert( { "CDSF", { A::SUMMARY_WELL_COMPLETION, "PI multiplicative factor due to scale damage" } } );
     info.insert( { "CAMF", { A::SUMMARY_WELL_COMPLETION, "Component aqueous mole fraction, from producing completions" } } );
     info.insert( { "CZMF", { A::SUMMARY_WELL_COMPLETION, "Total Mole Fraction" } } );
@@ -1651,15 +1584,9 @@ std::unordered_map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQu
     info.insert( { "CTFRALK", { A::SUMMARY_WELL_COMPLETION, "Flow Rate" } } );
     info.insert( { "CTPTALK", { A::SUMMARY_WELL_COMPLETION, "Production Total" } } );
     info.insert( { "CTITALK", { A::SUMMARY_WELL_COMPLETION, "Injection Total" } } );
-    info.insert( { "COFRU",
-                   { A::SUMMARY_WELL_COMPLETION,
-                     "Sum of connection oil flow rates upstream of, and including, this connection" } } );
-    info.insert( { "CWFRU",
-                   { A::SUMMARY_WELL_COMPLETION,
-                     "Sum of connection water flow rates upstream of, and including, this connection" } } );
-    info.insert( { "CGFRU",
-                   { A::SUMMARY_WELL_COMPLETION,
-                     "Sum of connection gas flow rates upstream of, and including, this connection" } } );
+    info.insert( { "COFRU", { A::SUMMARY_WELL_COMPLETION, "Sum of connection oil flow rates upstream of, and including, this connection" } } );
+    info.insert( { "CWFRU", { A::SUMMARY_WELL_COMPLETION, "Sum of connection water flow rates upstream of, and including, this connection" } } );
+    info.insert( { "CGFRU", { A::SUMMARY_WELL_COMPLETION, "Sum of connection gas flow rates upstream of, and including, this connection" } } );
     info.insert( { "LCOFRU", { A::SUMMARY_WELL_COMPLETION, "As COFRU but for local grids" } } );
     info.insert( { "LCWFRU", { A::SUMMARY_WELL_COMPLETION, "As CWFRU but for local grids" } } );
     info.insert( { "LCGFRU", { A::SUMMARY_WELL_COMPLETION, "As CGFRU but for local grids" } } );
@@ -1710,10 +1637,8 @@ std::unordered_map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQu
     info.insert( { "RRTM", { A::SUMMARY_REGION, "Transmissibility Multiplier associated with rock compaction" } } );
     info.insert( { "ROE", { A::SUMMARY_REGION, "(OIP(initial) - OIP(now)) / OIP(initial)" } } );
     info.insert( { "ROEW", { A::SUMMARY_REGION, "Oil Production from Wells / OIP(initial)" } } );
-    info.insert(
-        { "ROEIW", { A::SUMMARY_REGION, "(OIP(initial) - OIP(now)) / Initial Mobile Oil with respect to Water" } } );
-    info.insert(
-        { "ROEWW", { A::SUMMARY_REGION, "Oil Production from Wells / Initial Mobile Oil with respect to Water" } } );
+    info.insert( { "ROEIW", { A::SUMMARY_REGION, "(OIP(initial) - OIP(now)) / Initial Mobile Oil with respect to Water" } } );
+    info.insert( { "ROEWW", { A::SUMMARY_REGION, "Oil Production from Wells / Initial Mobile Oil with respect to Water" } } );
     info.insert( { "ROEIG", { A::SUMMARY_REGION, "(OIP(initial) - OIP(now)) / Initial Mobile Oil with respect to Gas" } } );
     info.insert( { "ROEWG", { A::SUMMARY_REGION, "Oil Production from Wells / Initial Mobile Oil with respect to Gas" } } );
     info.insert( { "RORMR", { A::SUMMARY_REGION, "Total stock tank oil produced by rock compaction" } } );
@@ -1825,14 +1750,9 @@ std::unordered_map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQu
     info.insert( { "BPCW", { A::SUMMARY_BLOCK, "Water Capillary Pressures" } } );
     info.insert( { "BGTRP", { A::SUMMARY_BLOCK, "Trapped gas saturation" } } );
     info.insert( { "BGTPD", { A::SUMMARY_BLOCK, "Dynamic trapped gas saturation" } } );
-    info.insert( { "BGSHY",
-                   { A::SUMMARY_BLOCK,
-                     "Departure saturation from drainage to imbibition for gas capillary pressure hysteresis" } } );
-    info.insert(
-        { "BGSTRP", { A::SUMMARY_BLOCK, "Trapped gas critical saturation for gas capillary pressure hysteresis" } } );
-    info.insert( { "BWSHY",
-                   { A::SUMMARY_BLOCK,
-                     "Departure saturation from drainage to imbibition for water capillary pressure hysteresis" } } );
+    info.insert( { "BGSHY", { A::SUMMARY_BLOCK, "Departure saturation from drainage to imbibition for gas capillary pressure hysteresis" } } );
+    info.insert( { "BGSTRP", { A::SUMMARY_BLOCK, "Trapped gas critical saturation for gas capillary pressure hysteresis" } } );
+    info.insert( { "BWSHY", { A::SUMMARY_BLOCK, "Departure saturation from drainage to imbibition for water capillary pressure hysteresis" } } );
     info.insert( { "BWSMA", { A::SUMMARY_BLOCK, "Maximum wetting saturation for water capillary pressure hysteresis" } } );
     info.insert( { "BMLSC", { A::SUMMARY_BLOCK, "Hydrocarbon molar density" } } );
     info.insert( { "BMLST", { A::SUMMARY_BLOCK, "Total hydrocarbon molar density" } } );
@@ -1844,8 +1764,7 @@ std::unordered_map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQu
     info.insert( { "BAMF", { A::SUMMARY_BLOCK, "Component aqueous mole fraction" } } );
     info.insert( { "BXMF", { A::SUMMARY_BLOCK, "Liquid hydrocarbon component mole fraction" } } );
     info.insert( { "BYMF", { A::SUMMARY_BLOCK, "Vapor hydrocarbon component mole fraction / vapor steam" } } );
-    info.insert(
-        { "BSMF", { A::SUMMARY_BLOCK, "CO2STORE with SOLID option only Solid hydrocarbon component mole fraction" } } );
+    info.insert( { "BSMF", { A::SUMMARY_BLOCK, "CO2STORE with SOLID option only Solid hydrocarbon component mole fraction" } } );
     info.insert( { "BSTEN", { A::SUMMARY_BLOCK, "Surface Tension" } } );
     info.insert( { "BFMISC", { A::SUMMARY_BLOCK, "Miscibility Factor" } } );
     info.insert( { "BREAC", { A::SUMMARY_BLOCK, "Reaction rate. The reaction number is given as a component index" } } );
@@ -1853,21 +1772,15 @@ std::unordered_map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQu
     info.insert( { "BHDF", { A::SUMMARY_BLOCK, "Hydraulic head at fresh water conditions" } } );
     info.insert( { "BPR_X", { A::SUMMARY_BLOCK, "Pressure interpolated at a defined coordinate" } } );
     info.insert( { "BHD_X", { A::SUMMARY_BLOCK, "Hydraulic head interpolated at a defined coordinate" } } );
-    info.insert( { "BHDF_X",
-                   { A::SUMMARY_BLOCK, "Hydraulic head at fresh water conditions interpolated at a defined coordinate" } } );
+    info.insert( { "BHDF_X", { A::SUMMARY_BLOCK, "Hydraulic head at fresh water conditions interpolated at a defined coordinate" } } );
     info.insert( { "BSCN_X", { A::SUMMARY_BLOCK, "Brine concentration interpolated at a defined coordinate" } } );
     info.insert( { "BCTRA_X", { A::SUMMARY_BLOCK, "Tracer concentration interpolated at a defined coordinate" } } );
     info.insert( { "LBPR_X", { A::SUMMARY_BLOCK, "Pressure interpolated at a defined coordinate within a local grid" } } );
-    info.insert(
-        { "LBHD_X", { A::SUMMARY_BLOCK, "Hydraulic head interpolated at a defined coordinate within a local grid" } } );
-    info.insert(
-        { "LBHDF_X",
-          { A::SUMMARY_BLOCK,
-            "Hydraulic head at freshwater conditions interpolated at a defined coordinate within a local grid" } } );
-    info.insert( { "LBSCN_X",
-                   { A::SUMMARY_BLOCK, "Brine concentration interpolated at a defined coordinate within a local grid" } } );
-    info.insert( { "LBCTRA_X",
-                   { A::SUMMARY_BLOCK, "Tracer concentration interpolated at a defined coordinate within a local grid" } } );
+    info.insert( { "LBHD_X", { A::SUMMARY_BLOCK, "Hydraulic head interpolated at a defined coordinate within a local grid" } } );
+    info.insert( { "LBHDF_X",
+                   { A::SUMMARY_BLOCK, "Hydraulic head at freshwater conditions interpolated at a defined coordinate within a local grid" } } );
+    info.insert( { "LBSCN_X", { A::SUMMARY_BLOCK, "Brine concentration interpolated at a defined coordinate within a local grid" } } );
+    info.insert( { "LBCTRA_X", { A::SUMMARY_BLOCK, "Tracer concentration interpolated at a defined coordinate within a local grid" } } );
     info.insert( { "BOKRX", { A::SUMMARY_BLOCK, "Oil relative permeability in the X direction" } } );
     info.insert( { "BOKRX", { A::SUMMARY_BLOCK, "- Oil relative permeability in the -X direction" } } );
     info.insert( { "BOKRY", { A::SUMMARY_BLOCK, "Oil relative permeability in the Y direction" } } );
@@ -1924,18 +1837,12 @@ std::unordered_map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQu
     info.insert( { "BHPV", { A::SUMMARY_BLOCK, "Pore Volume containing Hydrocarbon" } } );
     info.insert( { "BRTM", { A::SUMMARY_BLOCK, "Transmissibility Multiplier associated with rock compaction" } } );
     info.insert( { "BPERMMOD", { A::SUMMARY_BLOCK, "Transmissibility Multiplier associated with rock compaction" } } );
-    info.insert(
-        { "BPERMMDX",
-          { A::SUMMARY_BLOCK,
-            "Directional Transmissibility Multipliers in the X direction, associated with rock compaction" } } );
-    info.insert(
-        { "BPERMMDY",
-          { A::SUMMARY_BLOCK,
-            "Directional Transmissibility Multipliers in the Y direction, associated with rock compaction" } } );
-    info.insert(
-        { "BPERMMDZ",
-          { A::SUMMARY_BLOCK,
-            "Directional Transmissibility Multipliers in the Z direction, associated with rock compaction" } } );
+    info.insert( { "BPERMMDX",
+                   { A::SUMMARY_BLOCK, "Directional Transmissibility Multipliers in the X direction, associated with rock compaction" } } );
+    info.insert( { "BPERMMDY",
+                   { A::SUMMARY_BLOCK, "Directional Transmissibility Multipliers in the Y direction, associated with rock compaction" } } );
+    info.insert( { "BPERMMDZ",
+                   { A::SUMMARY_BLOCK, "Directional Transmissibility Multipliers in the Z direction, associated with rock compaction" } } );
     info.insert( { "BPORVMOD", { A::SUMMARY_BLOCK, "Pore Volume Multiplier associated with rock compaction" } } );
     info.insert( { "BSIGMMOD", { A::SUMMARY_BLOCK, "Dual Porosity Sigma Multiplier associated with rock compaction" } } );
     info.insert( { "BTCNF", { A::SUMMARY_BLOCK, "Tracer Concentration" } } );
@@ -1985,13 +1892,11 @@ std::unordered_map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQu
     info.insert( { "BEMVIS", { A::SUMMARY_BLOCK, "Effective mixture" } } );
     info.insert( { "BEWV_POL", { A::SUMMARY_BLOCK, "Effective water viscosity" } } );
     info.insert( { "BCAD", { A::SUMMARY_BLOCK, "Polymer Adsorption concentration" } } );
-    info.insert(
-        { "BCDCS", { A::SUMMARY_BLOCK, "Polymer thermal degradation - total mass degraded in previous timestep" } } );
+    info.insert( { "BCDCS", { A::SUMMARY_BLOCK, "Polymer thermal degradation - total mass degraded in previous timestep" } } );
     info.insert( { "BCDCR", { A::SUMMARY_BLOCK, "Polymer thermal degradation - total degradation rate" } } );
     info.insert( { "BCDCP", { A::SUMMARY_BLOCK, "Polymer thermal degradation solution degradation rate" } } );
     info.insert( { "BCDCA", { A::SUMMARY_BLOCK, "Polymer thermal degradation adsorbed degradation rate" } } );
-    info.insert( { "BCABnnn",
-                   { A::SUMMARY_BLOCK, "Adsorbed polymer by highest temperature band at which RRF was calculated" } } );
+    info.insert( { "BCABnnn", { A::SUMMARY_BLOCK, "Adsorbed polymer by highest temperature band at which RRF was calculated" } } );
     info.insert( { "BSCN", { A::SUMMARY_BLOCK, "Salt Cell Concentration" } } );
     info.insert( { "BSIP", { A::SUMMARY_BLOCK, "Salt In Place" } } );
     info.insert( { "BFLOW0I",
@@ -2006,36 +1911,21 @@ std::unordered_map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQu
                    { A::SUMMARY_BLOCK,
                      "Inter-block water flow rate in the positive K direction multiplied by the "
                      "corresponding shear multiplier" } } );
-    info.insert(
-        { "BVELW0I",
-          { A::SUMMARY_BLOCK,
-            "Water velocity in the positive I direction multiplied by the corresponding shear multiplier" } } );
-    info.insert(
-        { "BVELW0J",
-          { A::SUMMARY_BLOCK,
-            "Water velocity in the positive J direction multiplied by the corresponding shear multiplier" } } );
-    info.insert(
-        { "BVELW0K",
-          { A::SUMMARY_BLOCK,
-            "Water velocity in the positive K direction multiplied by the corresponding shear multiplier" } } );
-    info.insert( { "BPSHLZI",
-                   { A::SUMMARY_BLOCK, "Viscosity multiplier due to sheared water flow in the positive I direction" } } );
-    info.insert( { "BPSHLZJ",
-                   { A::SUMMARY_BLOCK, "Viscosity multiplier due to sheared water flow in the positive J direction" } } );
-    info.insert( { "BPSHLZK",
-                   { A::SUMMARY_BLOCK, "Viscosity multiplier due to sheared water flow in the positive K direction" } } );
-    info.insert(
-        { "BSRTW0I", { A::SUMMARY_BLOCK, "Water shear rate in the positive I direction prior to shear effects" } } );
-    info.insert(
-        { "BSRTW0J", { A::SUMMARY_BLOCK, "Water shear rate in the positive J direction prior to shear effects" } } );
-    info.insert(
-        { "BSRTW0K", { A::SUMMARY_BLOCK, "Water shear rate in the positive K direction prior to shear effects" } } );
-    info.insert(
-        { "BSRTWI", { A::SUMMARY_BLOCK, "Water shear rate in the positive I direction following shear effects" } } );
-    info.insert(
-        { "BSRTWJ", { A::SUMMARY_BLOCK, "Water shear rate in the positive J direction following shear effects" } } );
-    info.insert(
-        { "BSRTWK", { A::SUMMARY_BLOCK, "Water shear rate in the positive K direction following shear effects" } } );
+    info.insert( { "BVELW0I",
+                   { A::SUMMARY_BLOCK, "Water velocity in the positive I direction multiplied by the corresponding shear multiplier" } } );
+    info.insert( { "BVELW0J",
+                   { A::SUMMARY_BLOCK, "Water velocity in the positive J direction multiplied by the corresponding shear multiplier" } } );
+    info.insert( { "BVELW0K",
+                   { A::SUMMARY_BLOCK, "Water velocity in the positive K direction multiplied by the corresponding shear multiplier" } } );
+    info.insert( { "BPSHLZI", { A::SUMMARY_BLOCK, "Viscosity multiplier due to sheared water flow in the positive I direction" } } );
+    info.insert( { "BPSHLZJ", { A::SUMMARY_BLOCK, "Viscosity multiplier due to sheared water flow in the positive J direction" } } );
+    info.insert( { "BPSHLZK", { A::SUMMARY_BLOCK, "Viscosity multiplier due to sheared water flow in the positive K direction" } } );
+    info.insert( { "BSRTW0I", { A::SUMMARY_BLOCK, "Water shear rate in the positive I direction prior to shear effects" } } );
+    info.insert( { "BSRTW0J", { A::SUMMARY_BLOCK, "Water shear rate in the positive J direction prior to shear effects" } } );
+    info.insert( { "BSRTW0K", { A::SUMMARY_BLOCK, "Water shear rate in the positive K direction prior to shear effects" } } );
+    info.insert( { "BSRTWI", { A::SUMMARY_BLOCK, "Water shear rate in the positive I direction following shear effects" } } );
+    info.insert( { "BSRTWJ", { A::SUMMARY_BLOCK, "Water shear rate in the positive J direction following shear effects" } } );
+    info.insert( { "BSRTWK", { A::SUMMARY_BLOCK, "Water shear rate in the positive K direction following shear effects" } } );
     info.insert( { "BSHWVISI",
                    { A::SUMMARY_BLOCK,
                      "Shear viscosity of the water/polymer solution due to shear thinning/thickening in "
@@ -2069,30 +1959,18 @@ std::unordered_map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQu
     info.insert( { "BKRGOE", { A::SUMMARY_BLOCK, "Equivalent relative permeability to gas for gas-oil system" } } );
     info.insert( { "BKRGWE", { A::SUMMARY_BLOCK, "Equivalent relative permeability to gas for gas-water system" } } );
     info.insert( { "BKRWGE", { A::SUMMARY_BLOCK, "Equivalent relative permeability to water for water-gas system" } } );
+    info.insert( { "BKROWT",
+                   { A::SUMMARY_BLOCK, "Opposite saturation direction turning point relative permeability to oil for oil-water system" } } );
+    info.insert( { "BKRWOT",
+                   { A::SUMMARY_BLOCK, "Opposite saturation direction turning point relative permeability to water for water-oil system" } } );
     info.insert(
-        { "BKROWT",
-          { A::SUMMARY_BLOCK,
-            "Opposite saturation direction turning point relative permeability to oil for oil-water system" } } );
+        { "BKROGT", { A::SUMMARY_BLOCK, "Opposite saturation direction turning point relative permeability to oil for oil-gas system" } } );
     info.insert(
-        { "BKRWOT",
-          { A::SUMMARY_BLOCK,
-            "Opposite saturation direction turning point relative permeability to water for water-oil system" } } );
-    info.insert(
-        { "BKROGT",
-          { A::SUMMARY_BLOCK,
-            "Opposite saturation direction turning point relative permeability to oil for oil-gas system" } } );
-    info.insert(
-        { "BKRGOT",
-          { A::SUMMARY_BLOCK,
-            "Opposite saturation direction turning point relative permeability to gas for gas-oil system" } } );
-    info.insert(
-        { "BKRGWT",
-          { A::SUMMARY_BLOCK,
-            "Opposite saturation direction turning point relative permeability to gas for gas-water system" } } );
-    info.insert(
-        { "BKRWGT",
-          { A::SUMMARY_BLOCK,
-            "Opposite saturation direction turning point relative permeability to water for water-gas system" } } );
+        { "BKRGOT", { A::SUMMARY_BLOCK, "Opposite saturation direction turning point relative permeability to gas for gas-oil system" } } );
+    info.insert( { "BKRGWT",
+                   { A::SUMMARY_BLOCK, "Opposite saturation direction turning point relative permeability to gas for gas-water system" } } );
+    info.insert( { "BKRWGT",
+                   { A::SUMMARY_BLOCK, "Opposite saturation direction turning point relative permeability to water for water-gas system" } } );
     info.insert( { "BIFTOW", { A::SUMMARY_BLOCK, "Oil-water interfacial tension" } } );
     info.insert( { "BIFTWO", { A::SUMMARY_BLOCK, "Water-oil interfacial tension" } } );
     info.insert( { "BIFTOG", { A::SUMMARY_BLOCK, "Oil-gas interfacial tension" } } );
@@ -2307,8 +2185,7 @@ std::unordered_map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQu
         info.insert( { "BPCOIL" + suffix, { A::SUMMARY_BLOCK, "Oil Capillary Pressure" + descadd } } );
         info.insert( { "BPCOW" + suffix, { A::SUMMARY_BLOCK, "Oil-Water Capillary Pressure" + descadd } } );
         info.insert( { "BPCWAT" + suffix, { A::SUMMARY_BLOCK, "Water Capillary Pressure" + descadd } } );
-        info.insert( { "BPMODHYS" + suffix,
-                       { A::SUMMARY_BLOCK, "Dynamic Pmod Hysteresis Curve Type (1/2/3=B/S/P)" + descadd } } );
+        info.insert( { "BPMODHYS" + suffix, { A::SUMMARY_BLOCK, "Dynamic Pmod Hysteresis Curve Type (1/2/3=B/S/P)" + descadd } } );
         info.insert( { "BPR" + suffix, { A::SUMMARY_BLOCK, "Pressure" + descadd } } );
         info.insert( { "BRS" + suffix, { A::SUMMARY_BLOCK, "Gas Rs" + descadd } } );
         info.insert( { "BRV" + suffix, { A::SUMMARY_BLOCK, "Gas Rv" + descadd } } );
@@ -2318,8 +2195,7 @@ std::unordered_map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQu
         info.insert( { "BSRVSTAT" + suffix, { A::SUMMARY_BLOCK, "Srv Status (1/2/3=Stim/Sigprop/Propprop)" + descadd } } );
         info.insert( { "BSTRAIN" + suffix, { A::SUMMARY_BLOCK, "Volumetric Strain" + descadd } } );
         info.insert( { "BSTRESS" + suffix, { A::SUMMARY_BLOCK, "Mean Normal Stress" + descadd } } );
-        info.insert(
-            { "BSTRESSA" + suffix, { A::SUMMARY_BLOCK, "Mean Normal Stress Idealised Analytic Solution" + descadd } } );
+        info.insert( { "BSTRESSA" + suffix, { A::SUMMARY_BLOCK, "Mean Normal Stress Idealised Analytic Solution" + descadd } } );
         info.insert( { "BSTRESSN" + suffix, { A::SUMMARY_BLOCK, "Net Stress" + descadd } } );
         info.insert( { "BVISCGAS" + suffix, { A::SUMMARY_BLOCK, "Gas Viscosity" + descadd } } );
         info.insert( { "BVISCOIL" + suffix, { A::SUMMARY_BLOCK, "Oil Viscosity" + descadd } } );

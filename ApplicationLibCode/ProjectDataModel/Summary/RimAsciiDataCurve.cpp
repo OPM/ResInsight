@@ -240,9 +240,7 @@ bool RimAsciiDataCurve::curveData( std::vector<QDateTime>* timeSteps, std::vecto
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAsciiDataCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                          const QVariant&            oldValue,
-                                          const QVariant&            newValue )
+void RimAsciiDataCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimPlotCurve::fieldChangedByUi( changedField, oldValue, newValue );
 

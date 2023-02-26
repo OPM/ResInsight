@@ -83,8 +83,7 @@ std::vector<RimWellMeasurementInView*> RimWellMeasurementInViewCollection::measu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellMeasurementInView*>
-    RimWellMeasurementInViewCollection::visibleMeasurementsForWellPath( const QString& wellName ) const
+std::vector<RimWellMeasurementInView*> RimWellMeasurementInViewCollection::visibleMeasurementsForWellPath( const QString& wellName ) const
 {
     if ( !isChecked() ) return {};
 
@@ -110,8 +109,7 @@ std::vector<RimWellMeasurementInView*>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellMeasurementInViewCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
-                                                               QString                 uiConfigName /*= ""*/ )
+void RimWellMeasurementInViewCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
     uiTreeOrdering.add( &m_measurementsInView );
     uiTreeOrdering.skipRemainingChildren( true );
@@ -180,8 +178,7 @@ void RimWellMeasurementInViewCollection::syncWithChangesInWellMeasurementCollect
 //--------------------------------------------------------------------------------------------------
 /// Get the "in-view" measurement corresponding to a give measurement.
 //--------------------------------------------------------------------------------------------------
-RimWellMeasurementInView*
-    RimWellMeasurementInViewCollection::getWellMeasurementInView( const RimWellMeasurement* measurement ) const
+RimWellMeasurementInView* RimWellMeasurementInViewCollection::getWellMeasurementInView( const RimWellMeasurement* measurement ) const
 {
     for ( RimWellMeasurementInView* wellMeasurementInView : measurements() )
     {

@@ -80,8 +80,8 @@ void RicAddWellLogToPlotFeature::onActionTriggered( bool isChecked )
         wellLog->firstAncestorOrThisOfType( wellLogFile );
         if ( wellLogFile )
         {
-            RimWellLogFileCurve* curve = new RimWellLogFileCurve;
-            cvf::Color3f curveColor    = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( plotTrack->curveCount() );
+            RimWellLogFileCurve* curve      = new RimWellLogFileCurve;
+            cvf::Color3f         curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( plotTrack->curveCount() );
             curve->setColor( curveColor );
 
             plotTrack->addCurve( curve );

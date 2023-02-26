@@ -295,8 +295,7 @@ void RimGridCrossPlot::updateInfoBox()
         {
             if ( !m_infoBox )
             {
-                m_infoBox =
-                    new RiuDraggableOverlayFrame( m_plotWidget->getParentForOverlay(), m_plotWidget->overlayMargins() );
+                m_infoBox = new RiuDraggableOverlayFrame( m_plotWidget->getParentForOverlay(), m_plotWidget->overlayMargins() );
                 m_infoBox->setAnchorCorner( RiuDraggableOverlayFrame::AnchorCorner::TopRight );
                 RiuTextOverlayContentFrame* textFrame = new RiuTextOverlayContentFrame( m_infoBox );
                 m_infoBox->setContentFrame( textFrame );
@@ -549,9 +548,7 @@ void RimGridCrossPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrder
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                         const QVariant&            oldValue,
-                                         const QVariant&            newValue )
+void RimGridCrossPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimPlot::fieldChangedByUi( changedField, oldValue, newValue );
     if ( changedField == &m_colSpan || changedField == &m_rowSpan )
@@ -643,9 +640,7 @@ void RimGridCrossPlot::swapAxes()
     QString     tmpName  = xAxisProperties->objectName();
     QString     tmpTitle = xAxisProperties->axisTitleText();
     RiuPlotAxis tmpAxis  = xAxisProperties->plotAxisType();
-    xAxisProperties->setNameAndAxis( yAxisProperties->objectName(),
-                                     yAxisProperties->axisTitleText(),
-                                     yAxisProperties->plotAxisType().axis() );
+    xAxisProperties->setNameAndAxis( yAxisProperties->objectName(), yAxisProperties->axisTitleText(), yAxisProperties->plotAxisType().axis() );
     yAxisProperties->setNameAndAxis( tmpName, tmpTitle, tmpAxis.axis() );
 
     m_xAxisProperties.removeChild( xAxisProperties );

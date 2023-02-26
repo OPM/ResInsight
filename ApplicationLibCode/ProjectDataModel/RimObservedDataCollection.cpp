@@ -146,9 +146,8 @@ void updateNewObservedDataCreated( caf::PdmObject* object )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimObservedSummaryData*
-    RimObservedDataCollection::createAndAddRsmObservedSummaryDataFromFile( const QString& fileName,
-                                                                           QString*       errorText /*= nullptr*/ )
+RimObservedSummaryData* RimObservedDataCollection::createAndAddRsmObservedSummaryDataFromFile( const QString& fileName,
+                                                                                               QString*       errorText /*= nullptr*/ )
 {
     if ( !fileExists( fileName, errorText ) ) return nullptr;
 
@@ -178,10 +177,9 @@ RimObservedSummaryData*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimObservedSummaryData*
-    RimObservedDataCollection::createAndAddCvsObservedSummaryDataFromFile( const QString& fileName,
-                                                                           bool           useSavedFieldsValuesInDialog,
-                                                                           QString*       errorText /*= nullptr*/ )
+RimObservedSummaryData* RimObservedDataCollection::createAndAddCvsObservedSummaryDataFromFile( const QString& fileName,
+                                                                                               bool           useSavedFieldsValuesInDialog,
+                                                                                               QString*       errorText /*= nullptr*/ )
 {
     if ( !fileExists( fileName, errorText ) ) return nullptr;
 

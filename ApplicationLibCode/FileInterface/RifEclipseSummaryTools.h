@@ -81,9 +81,5 @@ private:
     static void               findSummaryFiles( const QString& inputFile, QString* headerFile, QStringList* dataFiles );
     static RifRestartFileInfo getRestartFile( const QString& headerFileName );
 
-    static void findSummaryHeaderFileInfo( const QString& inputFile,
-                                           QString*       headerFile,
-                                           QString*       path,
-                                           QString*       base,
-                                           bool*          isFormatted );
+    static void findSummaryHeaderFileInfo( const QString& inputFile, QString* headerFile, QString* path, QString* base, bool* isFormatted );
 };

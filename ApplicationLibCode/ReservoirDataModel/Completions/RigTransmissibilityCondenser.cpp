@@ -142,12 +142,11 @@ double RigTransmissibilityCondenser::condensedTransmissibility( CellAddress exte
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<size_t, double>
-    RigTransmissibilityCondenser::scaleMatrixToFracTransByMatrixWellDP( const RigActiveCellInfo*   actCellInfo,
-                                                                        double                     currentWellPressure,
-                                                                        const std::vector<double>& currentMatrixPressures,
-                                                                        double*                    minPressureDrop,
-                                                                        double*                    maxPressureDrop )
+std::map<size_t, double> RigTransmissibilityCondenser::scaleMatrixToFracTransByMatrixWellDP( const RigActiveCellInfo* actCellInfo,
+                                                                                             double                   currentWellPressure,
+                                                                                             const std::vector<double>& currentMatrixPressures,
+                                                                                             double*                    minPressureDrop,
+                                                                                             double*                    maxPressureDrop )
 {
     std::map<size_t, double> originalLumpedMatrixToFractureTrans; // Sum(T_mf)
 
@@ -167,11 +166,10 @@ std::map<size_t, double>
                     size_t globalMatrixCellIdx = jt->first.m_globalCellIdx;
                     size_t eclipseResultIndex  = actCellInfo->cellResultIndex( globalMatrixCellIdx );
                     CVF_ASSERT( eclipseResultIndex < currentMatrixPressures.size() );
-                    double unsignedDeltaPressure =
-                        std::abs( currentMatrixPressures[eclipseResultIndex] - currentWellPressure );
-                    double nonZeroDeltaPressure = std::max( epsilonDeltaPressure, unsignedDeltaPressure );
-                    maxNonZeroDeltaPressure     = std::max( maxNonZeroDeltaPressure, nonZeroDeltaPressure );
-                    minNonZeroDeltaPressure     = std::min( minNonZeroDeltaPressure, nonZeroDeltaPressure );
+                    double unsignedDeltaPressure = std::abs( currentMatrixPressures[eclipseResultIndex] - currentWellPressure );
+                    double nonZeroDeltaPressure  = std::max( epsilonDeltaPressure, unsignedDeltaPressure );
+                    maxNonZeroDeltaPressure      = std::max( maxNonZeroDeltaPressure, nonZeroDeltaPressure );
+                    minNonZeroDeltaPressure      = std::min( minNonZeroDeltaPressure, nonZeroDeltaPressure );
                 }
             }
         }
@@ -191,9 +189,8 @@ std::map<size_t, double>
 
                     originalLumpedMatrixToFractureTrans[globalMatrixCellIdx] += jt->second;
 
-                    double unsignedDeltaPressure =
-                        std::abs( currentMatrixPressures[eclipseResultIndex] - currentWellPressure );
-                    double nonZeroDeltaPressure = std::max( epsilonDeltaPressure, unsignedDeltaPressure );
+                    double unsignedDeltaPressure = std::abs( currentMatrixPressures[eclipseResultIndex] - currentWellPressure );
+                    double nonZeroDeltaPressure  = std::max( epsilonDeltaPressure, unsignedDeltaPressure );
 
                     jt->second *= nonZeroDeltaPressure / maxNonZeroDeltaPressure;
                 }
@@ -470,8 +467,7 @@ void printCellAddress( std::stringstream&                        str,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RigTransmissibilityCondenser::neighborTransDebugOutput( const RigMainGrid*     mainGrid,
-                                                                    const RigFractureGrid* fractureGrid )
+std::string RigTransmissibilityCondenser::neighborTransDebugOutput( const RigMainGrid* mainGrid, const RigFractureGrid* fractureGrid )
 {
     std::stringstream debugText;
     for ( const auto& adrEqIdxPair : m_neighborTransmissibilities )
@@ -493,8 +489,7 @@ std::string RigTransmissibilityCondenser::neighborTransDebugOutput( const RigMai
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RigTransmissibilityCondenser::condensedTransDebugOutput( const RigMainGrid*     mainGrid,
-                                                                     const RigFractureGrid* fractureGrid )
+std::string RigTransmissibilityCondenser::condensedTransDebugOutput( const RigMainGrid* mainGrid, const RigFractureGrid* fractureGrid )
 {
     std::stringstream debugText;
     for ( const auto& adrEqIdxPair : m_condensedTransmissibilities )

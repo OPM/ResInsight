@@ -104,13 +104,12 @@ private:
     void                sortTracers();
     void                groupSmallContributions();
 
-    void groupSmallTracers( std::map<QString, std::vector<double>>* branchFlowSet,
-                            const std::vector<QString>&             tracersToGroup );
+    void groupSmallTracers( std::map<QString, std::vector<double>>* branchFlowSet, const std::vector<QString>& tracersToGroup );
 
     bool                isWellFlowConsistent() const;
     std::vector<double> calculateAccumulatedFractions( const std::vector<double>& accumulatedFlowPrTracer ) const;
     std::vector<size_t> wrpToUniqueWrpIndexFromBottom( const std::vector<RigWellResultPoint>& branchCells ) const;
-    static size_t connectionIndexFromTop( const std::vector<size_t>& resPointToConnectionIndexFromBottom, size_t clSegIdx );
+    static size_t       connectionIndexFromTop( const std::vector<size_t>& resPointToConnectionIndexFromBottom, size_t clSegIdx );
     std::vector<size_t> findDownStreamBranchIdxs( const RigWellResultPoint& connectionPoint ) const;
 
     std::vector<std::pair<QString, double>> totalWellFlowPrTracer() const;
@@ -145,8 +144,7 @@ private:
                                const std::vector<double>& flowPrTracer );
 
     std::vector<double> accumulatedDsBranchFlowPrTracer( const BranchFlow& downStreamBranchFlow ) const;
-    void                addDownStreamBranchFlow( std::vector<double>*       accFlowPrTracer,
-                                                 const std::vector<double>& accBranchFlowPrTracer ) const;
+    void addDownStreamBranchFlow( std::vector<double>* accFlowPrTracer, const std::vector<double>& accBranchFlowPrTracer ) const;
 
     std::vector<BranchFlow> m_connectionFlowPrBranch;
     std::vector<BranchFlow> m_pseudoLengthFlowPrBranch;

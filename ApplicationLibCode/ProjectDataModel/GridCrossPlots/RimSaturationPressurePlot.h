@@ -47,9 +47,7 @@ protected:
     QString xAxisParameterString() const override;
 
 private:
-    RimPlotCellPropertyFilter* createEquilibriumRegionPropertyFilter( RimEclipseResultCase* eclipseResultCase,
-                                                                      int                   zeroBasedEquilRegionIndex );
+    RimPlotCellPropertyFilter* createEquilibriumRegionPropertyFilter( RimEclipseResultCase* eclipseResultCase, int zeroBasedEquilRegionIndex );
 
-    RimPlotCellPropertyFilter*
-        createDepthPropertyFilter( RimEclipseResultCase* eclipseResultCase, double minDepth, double maxDepth );
+    RimPlotCellPropertyFilter* createDepthPropertyFilter( RimEclipseResultCase* eclipseResultCase, double minDepth, double maxDepth );
 };

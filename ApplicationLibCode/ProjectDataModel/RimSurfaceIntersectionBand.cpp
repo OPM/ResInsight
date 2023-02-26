@@ -55,13 +55,7 @@ RimSurfaceIntersectionBand::RimSurfaceIntersectionBand()
     CAF_PDM_InitField( &m_bandOpacity, "BandOpacity", 0.8, "Band Opacity" );
     m_bandOpacity.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_bandPolygonOffsetUnit,
-                       "BandPolygonOffsetUnit",
-                       -5.0,
-                       "Depth Offset",
-                       "",
-                       "Larger Value Closer to Camera",
-                       "" );
+    CAF_PDM_InitField( &m_bandPolygonOffsetUnit, "BandPolygonOffsetUnit", -5.0, "Depth Offset", "", "Larger Value Closer to Camera", "" );
     m_bandPolygonOffsetUnit.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_surfaces, "Surfaces", "Band Surfaces" );
@@ -172,9 +166,7 @@ RimSurface* RimSurfaceIntersectionBand::surface2() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSurfaceIntersectionBand::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                   const QVariant&            oldValue,
-                                                   const QVariant&            newValue )
+void RimSurfaceIntersectionBand::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_surfaces )
     {
@@ -196,8 +188,7 @@ void RimSurfaceIntersectionBand::fieldChangedByUi( const caf::PdmFieldHandle* ch
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimSurfaceIntersectionBand::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RimSurfaceIntersectionBand::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -214,9 +205,7 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSurfaceIntersectionBand::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                        QString                    uiConfigName,
-                                                        caf::PdmUiEditorAttribute* attribute )
+void RimSurfaceIntersectionBand::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_bandPolygonOffsetUnit )
     {

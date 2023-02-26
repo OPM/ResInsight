@@ -128,8 +128,7 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
     auto inputAddress = m_curveSet->summaryAddress();
     if ( m_statisticsReader && inputAddress.isValid() )
     {
-        const std::vector<RimSummaryCase*>& validCases =
-            validSummaryCases( sumCases, inputAddress, includeIncompleteCurves );
+        const std::vector<RimSummaryCase*>& validCases = validSummaryCases( sumCases, inputAddress, includeIncompleteCurves );
 
         calculate( validCases, inputAddress, includeIncompleteCurves );
     }
@@ -186,12 +185,7 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*> su
         }
 
         double p10, p50, p90, mean;
-        RigStatisticsMath::calculateStatisticsCurves( valuesAtTimeStep,
-                                                      &p10,
-                                                      &p50,
-                                                      &p90,
-                                                      &mean,
-                                                      RigStatisticsMath::PercentileStyle::SWITCHED );
+        RigStatisticsMath::calculateStatisticsCurves( valuesAtTimeStep, &p10, &p50, &p90, &mean, RigStatisticsMath::PercentileStyle::SWITCHED );
         m_p10Data.push_back( p10 );
         m_p50Data.push_back( p50 );
         m_p90Data.push_back( p90 );
@@ -227,8 +221,8 @@ void RimEnsembleStatisticsCase::clearData()
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCase*> RimEnsembleStatisticsCase::validSummaryCases( const std::vector<RimSummaryCase*> allSumCases,
-                                                                           const RifEclipseSummaryAddress& inputAddress,
-                                                                           bool includeIncompleteCurves )
+                                                                           const RifEclipseSummaryAddress&    inputAddress,
+                                                                           bool                               includeIncompleteCurves )
 {
     std::vector<RimSummaryCase*>                    validCases;
     std::vector<std::pair<RimSummaryCase*, time_t>> times;

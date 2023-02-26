@@ -100,10 +100,7 @@ void RicExecuteScriptForCasesFeature::onActionTriggered( bool isChecked )
             }
         }
 
-        RiaApplication::instance()->launchProcessForMultipleCases( pathToScriptExecutable,
-                                                                   arguments,
-                                                                   caseIdsInSelection,
-                                                                   processEnvironment );
+        RiaApplication::instance()->launchProcessForMultipleCases( pathToScriptExecutable, arguments, caseIdsInSelection, processEnvironment );
     }
 }
 

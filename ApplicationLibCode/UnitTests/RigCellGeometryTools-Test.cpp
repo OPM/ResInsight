@@ -67,10 +67,7 @@ TEST( RigCellGeometryTools, calculateCellVolumeTest )
         corner.x() += 0.5 * bbox.extent().x();
         tetrahedronBBox.add( corner );
     }
-    RigCellGeometryTools::estimateHexOverlapWithBoundingBox( cornerVertices,
-                                                             tetrahedronBBox,
-                                                             &overlapVertices,
-                                                             &overlapBoundingBox );
+    RigCellGeometryTools::estimateHexOverlapWithBoundingBox( cornerVertices, tetrahedronBBox, &overlapVertices, &overlapBoundingBox );
 
     EXPECT_DOUBLE_EQ( bboxVolume * 0.5 + extraVolume, RigCellGeometryTools::calculateCellVolume( overlapVertices ) );
 
@@ -82,10 +79,7 @@ TEST( RigCellGeometryTools, calculateCellVolumeTest )
         corner.x() += 0.5 * bbox.extent().x();
         tetrahedronBBox.add( corner );
     }
-    RigCellGeometryTools::estimateHexOverlapWithBoundingBox( cornerVertices,
-                                                             tetrahedronBBox,
-                                                             &overlapVertices,
-                                                             &overlapBoundingBox );
+    RigCellGeometryTools::estimateHexOverlapWithBoundingBox( cornerVertices, tetrahedronBBox, &overlapVertices, &overlapBoundingBox );
 
     EXPECT_DOUBLE_EQ( extraVolume, RigCellGeometryTools::calculateCellVolume( overlapVertices ) );
 
@@ -119,10 +113,7 @@ TEST( RigCellGeometryTools, calculateCellVolumeTest2 )
     EXPECT_DOUBLE_EQ( expectedOverlap, RigCellGeometryTools::calculateCellVolume( overlapVertices ) );
 
     cvf::BoundingBox smallerInnerBBox( cvf::Vec3d( 25.0, 25.0, -10.0 ), cvf::Vec3d( 75.0, 75.0, 25.0 ) );
-    RigCellGeometryTools::estimateHexOverlapWithBoundingBox( cornerVertices,
-                                                             smallerInnerBBox,
-                                                             &overlapVertices,
-                                                             &overlapBoundingBox );
+    RigCellGeometryTools::estimateHexOverlapWithBoundingBox( cornerVertices, smallerInnerBBox, &overlapVertices, &overlapBoundingBox );
     EXPECT_DOUBLE_EQ( 50 * 50 * 25, RigCellGeometryTools::calculateCellVolume( overlapVertices ) );
 
     cvf::BoundingBox smallerBBox( cvf::Vec3d( 50.0, 50.0, 0.0 ), cvf::Vec3d( 100.0, 100.0, 100.0 ) );
@@ -131,10 +122,7 @@ TEST( RigCellGeometryTools, calculateCellVolumeTest2 )
     EXPECT_DOUBLE_EQ( tipVolume, RigCellGeometryTools::calculateCellVolume( overlapVertices ) );
 
     cvf::BoundingBox smallerBBox2( cvf::Vec3d( 0.0, 0.0, 0.0 ), cvf::Vec3d( 50.0, 50.0, 100.0 ) );
-    RigCellGeometryTools::estimateHexOverlapWithBoundingBox( cornerVertices,
-                                                             smallerBBox2,
-                                                             &overlapVertices,
-                                                             &overlapBoundingBox );
+    RigCellGeometryTools::estimateHexOverlapWithBoundingBox( cornerVertices, smallerBBox2, &overlapVertices, &overlapBoundingBox );
     double expectedVolume = ( totalCellVolume - 2 * tipVolume ) * 0.5;
     EXPECT_DOUBLE_EQ( expectedVolume, RigCellGeometryTools::calculateCellVolume( overlapVertices ) );
 }
@@ -500,10 +488,7 @@ TEST( RigWellPathStimplanIntersector, intersection )
 
         {
             std::map<size_t, RigWellPathStimplanIntersector::WellCellIntersection> stimPlanCellIdxToIntersectionInfoMap;
-            std::vector<cvf::Vec3d> wellPathPoints = { { 1.0f, 0.5f, 10.0f },
-                                                       { 1.0f, 1.0f, 0.5f },
-                                                       { 1.0f, 1.5f, -0.5f },
-                                                       { 1.0f, 2.0f, -10.0f } };
+            std::vector<cvf::Vec3d> wellPathPoints = { { 1.0f, 0.5f, 10.0f }, { 1.0f, 1.0f, 0.5f }, { 1.0f, 1.5f, -0.5f }, { 1.0f, 2.0f, -10.0f } };
 
             RigWellPathStimplanIntersectorTester::testCalculate( fractureXf,
                                                                  wellPathPoints,

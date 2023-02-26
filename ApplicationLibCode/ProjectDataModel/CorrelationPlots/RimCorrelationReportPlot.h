@@ -75,8 +75,7 @@ private:
     void     doUpdateLayout() override;
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
-    void                          onDataSelection( const caf::SignalEmitter*                     emitter,
-                                                   std::pair<QString, RiaSummaryCurveDefinition> parameterAndCurveDef );
+    void onDataSelection( const caf::SignalEmitter* emitter, std::pair<QString, RiaSummaryCurveDefinition> parameterAndCurveDef );
 
 private:
     caf::PdmProxyValueField<QString> m_plotWindowTitle;

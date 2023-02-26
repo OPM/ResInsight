@@ -487,9 +487,8 @@ bool RigEclipseCaseData::hasSimulationWell( const QString& simWellName ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<const RigWellPath*> RigEclipseCaseData::simulationWellBranches( const QString& simWellName,
-                                                                            bool           includeAllCellCenters,
-                                                                            bool useAutoDetectionOfBranches ) const
+std::vector<const RigWellPath*>
+    RigEclipseCaseData::simulationWellBranches( const QString& simWellName, bool includeAllCellCenters, bool useAutoDetectionOfBranches ) const
 {
     std::vector<const RigWellPath*> branches;
 
@@ -501,8 +500,7 @@ std::vector<const RigWellPath*> RigEclipseCaseData::simulationWellBranches( cons
     const RigSimWellData* simWellData = findSimWellData( simWellName );
     if ( !simWellData ) return branches;
 
-    std::tuple<QString, bool, bool> simWellSeachItem =
-        std::make_tuple( simWellName, includeAllCellCenters, useAutoDetectionOfBranches );
+    std::tuple<QString, bool, bool> simWellSeachItem = std::make_tuple( simWellName, includeAllCellCenters, useAutoDetectionOfBranches );
 
     if ( m_simWellBranchCache.find( simWellSeachItem ) == m_simWellBranchCache.end() )
     {
@@ -523,8 +521,7 @@ std::vector<const RigWellPath*> RigEclipseCaseData::simulationWellBranches( cons
         {
             auto wellMdCalculator = RigSimulationWellCoordsAndMD( pipeBranchesCLCoords[brIdx] );
 
-            cvf::ref<RigWellPath> newWellPath =
-                new RigWellPath( wellMdCalculator.wellPathPoints(), wellMdCalculator.measuredDepths() );
+            cvf::ref<RigWellPath> newWellPath = new RigWellPath( wellMdCalculator.wellPathPoints(), wellMdCalculator.measuredDepths() );
 
             m_simWellBranchCache[simWellSeachItem].push_back( newWellPath.p() );
         }
@@ -541,8 +538,7 @@ std::vector<const RigWellPath*> RigEclipseCaseData::simulationWellBranches( cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseCaseData::setVirtualPerforationTransmissibilities(
-    RigVirtualPerforationTransmissibilities* virtualPerforationTransmissibilities )
+void RigEclipseCaseData::setVirtualPerforationTransmissibilities( RigVirtualPerforationTransmissibilities* virtualPerforationTransmissibilities )
 {
     m_virtualPerforationTransmissibilities = virtualPerforationTransmissibilities;
 }
@@ -558,8 +554,7 @@ const RigVirtualPerforationTransmissibilities* RigEclipseCaseData::virtualPerfor
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseCaseData::ensureDeckIsParsedForEquilData( const QString& dataDeckFile,
-                                                         const QString& includeFileAbsolutePathPrefix )
+void RigEclipseCaseData::ensureDeckIsParsedForEquilData( const QString& dataDeckFile, const QString& includeFileAbsolutePathPrefix )
 {
     if ( !m_hasParsedDeckForEquilData )
     {

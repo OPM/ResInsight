@@ -28,8 +28,7 @@ const QString PERFORATION_KEY( "perforation" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<QString, std::vector<RifPerforationInterval>>
-    RifPerforationIntervalReader::readPerforationIntervals( const QStringList& filePaths )
+std::map<QString, std::vector<RifPerforationInterval>> RifPerforationIntervalReader::readPerforationIntervals( const QStringList& filePaths )
 {
     std::map<QString, std::vector<RifPerforationInterval>> perforationIntervals;
 
@@ -44,8 +43,7 @@ std::map<QString, std::vector<RifPerforationInterval>>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<QString, std::vector<RifPerforationInterval>>
-    RifPerforationIntervalReader::readPerforationIntervals( const QString& filePath )
+std::map<QString, std::vector<RifPerforationInterval>> RifPerforationIntervalReader::readPerforationIntervals( const QString& filePath )
 {
     std::map<QString, std::vector<RifPerforationInterval>> perforationIntervals;
 
@@ -99,8 +97,7 @@ void RifPerforationIntervalReader::readFileIntoMap( const QString&              
 
             if ( parts[3] == PERFORATION_KEY )
             {
-                interval.date = QDate::fromString( QString( "%1 %2 %3" ).arg( parts[0] ).arg( parts[1] ).arg( parts[2] ),
-                                                   "dd MMM yyyy" );
+                interval.date = QDate::fromString( QString( "%1 %2 %3" ).arg( parts[0] ).arg( parts[1] ).arg( parts[2] ), "dd MMM yyyy" );
                 interval.startOfHistory = false;
 
                 mdStartIndex = 4;

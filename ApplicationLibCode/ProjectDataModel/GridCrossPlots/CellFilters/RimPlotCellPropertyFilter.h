@@ -47,9 +47,7 @@ public:
 
 protected:
     void updateCellVisibilityFromFilter( size_t timeStepIndex, cvf::UByteArray* visibleCells ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                QString                    uiConfigName,
-                                caf::PdmUiEditorAttribute* attribute ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
     RimEclipseResultDefinition* eclipseResultDefinition();

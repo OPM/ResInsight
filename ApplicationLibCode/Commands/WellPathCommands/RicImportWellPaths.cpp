@@ -157,9 +157,8 @@ caf::PdmScriptResponse RicImportWellPaths::execute()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellPath*> RicImportWellPaths::importWellPaths( const QStringList& wellPathFilePaths,
-                                                               bool               importGrouped,
-                                                               QStringList*       errorMessages )
+std::vector<RimWellPath*>
+    RicImportWellPaths::importWellPaths( const QStringList& wellPathFilePaths, bool importGrouped, QStringList* errorMessages )
 {
     RiaApplication* app = RiaApplication::instance();
 
@@ -221,10 +220,8 @@ void RicImportWellPaths::onActionTriggered( bool isChecked )
 
     QString nameList = QString( "Well Paths (%1);;All Files (*.*)" ).arg( wellPathNameFilters().join( " " ) );
 
-    QStringList wellPathFilePaths = RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
-                                                                          "Import Well Paths",
-                                                                          defaultDir,
-                                                                          nameList );
+    QStringList wellPathFilePaths =
+        RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(), "Import Well Paths", defaultDir, nameList );
 
     if ( !wellPathFilePaths.empty() )
     {

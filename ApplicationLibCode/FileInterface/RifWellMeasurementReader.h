@@ -44,17 +44,15 @@ public:
     static void readWellMeasurements( std::vector<RifWellMeasurement>& wellMeasurements, const QStringList& filePaths );
 
 private:
-    static void readWellMeasurements( std::vector<RifWellMeasurement>& wellMeasurements, const QString& filePath );
+    static void               readWellMeasurements( std::vector<RifWellMeasurement>& wellMeasurements, const QString& filePath );
     static RifWellMeasurement parseWellMeasurement( const QString& line, int lineNumber, const QString& filePath );
     static QStringList        tokenize( const QString& line, const QString& separator );
-    static void               verifyNonEmptyTokens( const QStringList& tokens,
-                                                    const QStringList& nameOfNonEmptyTokens,
-                                                    int                lineNumber,
-                                                    const QString&     filePath );
+    static void
+        verifyNonEmptyTokens( const QStringList& tokens, const QStringList& nameOfNonEmptyTokens, int lineNumber, const QString& filePath );
 
-    static QDate parseDate( const QString& token, const QString& propertyName, int lineNumber, const QString& filePath );
+    static QDate  parseDate( const QString& token, const QString& propertyName, int lineNumber, const QString& filePath );
     static double parseDouble( const QString& token, const QString& propertyName, int lineNumber, const QString& filePath );
-    static int parseInt( const QString& token, const QString& propertyName, int lineNumber, const QString& filePath );
+    static int    parseInt( const QString& token, const QString& propertyName, int lineNumber, const QString& filePath );
 
     static bool isEmptyLine( const QString& line );
     static bool isCommentLine( const QString& line );

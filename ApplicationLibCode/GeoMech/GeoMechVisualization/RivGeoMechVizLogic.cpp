@@ -83,10 +83,7 @@ void RivGeoMechVizLogic::appendPartsToModel( int viewerStepIndex, cvf::ModelBasi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivGeoMechVizLogic::updateCellResultColor( int                   viewerStepIndex,
-                                                int                   timeStepIndex,
-                                                int                   frameIndex,
-                                                RimGeoMechCellColors* cellResultColors )
+void RivGeoMechVizLogic::updateCellResultColor( int viewerStepIndex, int timeStepIndex, int frameIndex, RimGeoMechCellColors* cellResultColors )
 {
     std::vector<RivGeoMechPartMgrCache::Key> visiblePartMgrs = keysToVisiblePartMgrs( viewerStepIndex );
     for ( size_t pmIdx = 0; pmIdx < visiblePartMgrs.size(); ++pmIdx )
@@ -218,10 +215,9 @@ RivGeoMechPartMgr* RivGeoMechVizLogic::getUpdatedPartMgr( RivGeoMechPartMgrCache
 
     if ( m_geomechView->geoMechCase() )
     {
-        caseData  = m_geomechView->geoMechCase()->geoMechData();
-        partCount = caseData->femParts()->partCount();
-        std::tie( timeStepIdx, frameIdx ) =
-            caseData->femPartResults()->stepListIndexToTimeStepAndDataFrameIndex( pMgrKey.viewerStepIndex() );
+        caseData                          = m_geomechView->geoMechCase()->geoMechData();
+        partCount                         = caseData->femParts()->partCount();
+        std::tie( timeStepIdx, frameIdx ) = caseData->femPartResults()->stepListIndexToTimeStepAndDataFrameIndex( pMgrKey.viewerStepIndex() );
     }
 
     if ( partMgrToUpdate->initializedFemPartCount() != partCount )
@@ -243,9 +239,7 @@ RivGeoMechPartMgr* RivGeoMechVizLogic::getUpdatedPartMgr( RivGeoMechPartMgrCache
         {
             cvf::CellRangeFilter cellRangeFilter;
             m_geomechView->cellFilterCollection()->compoundCellRangeFilter( &cellRangeFilter, femPartIdx );
-            RivFemElmVisibilityCalculator::computeRangeVisibility( elmVisibility.p(),
-                                                                   caseData->femParts()->part( femPartIdx ),
-                                                                   cellRangeFilter );
+            RivFemElmVisibilityCalculator::computeRangeVisibility( elmVisibility.p(), caseData->femParts()->part( femPartIdx ), cellRangeFilter );
         }
         else if ( pMgrKey.geometryType() == PROPERTY_FILTERED )
         {

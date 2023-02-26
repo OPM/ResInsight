@@ -45,13 +45,9 @@ void AppEnum<RiaDefines::CurveProperty>::setUp()
     addItem( RiaDefines::CurveProperty::FLUID_LOSS_COEFFICIENT, "FLUID_LOSS_COEFFICIENT", "Fluid Loss Coefficient" );
     addItem( RiaDefines::CurveProperty::SPURT_LOSS, "SPURT_LOSS", "Spurt Loss" );
     addItem( RiaDefines::CurveProperty::TEMPERATURE, "TEMPERATURE", "Temperature" );
-    addItem( RiaDefines::CurveProperty::RELATIVE_PERMEABILITY_FACTOR,
-             "RELATIVE_PERMEABILITY_FACTOR",
-             "Relative Permeability Factor" );
+    addItem( RiaDefines::CurveProperty::RELATIVE_PERMEABILITY_FACTOR, "RELATIVE_PERMEABILITY_FACTOR", "Relative Permeability Factor" );
     addItem( RiaDefines::CurveProperty::PORO_ELASTIC_CONSTANT, "PORO_ELASTIC_CONSTANT", "Poro-Elastic Constant" );
-    addItem( RiaDefines::CurveProperty::THERMAL_EXPANSION_COEFFICIENT,
-             "THERMAL_EXPANSION_COEFFICIENT",
-             "Thermal Expansion Coefficient" );
+    addItem( RiaDefines::CurveProperty::THERMAL_EXPANSION_COEFFICIENT, "THERMAL_EXPANSION_COEFFICIENT", "Thermal Expansion Coefficient" );
     addItem( RiaDefines::CurveProperty::IMMOBILE_FLUID_SATURATION, "IMMOBILE_FLUID_SATURATION", "Immobile Fluid Saturation" );
     addItem( RiaDefines::CurveProperty::NET_TO_GROSS, "NET_TO_GROSS", "Net-To-Gross" );
     addItem( RiaDefines::CurveProperty::POROSITY_UNSCALED, "POROSITY_UNSCALED", "Porosity (Unscaled)" );

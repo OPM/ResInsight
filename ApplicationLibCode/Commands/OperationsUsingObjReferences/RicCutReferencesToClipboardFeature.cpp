@@ -60,8 +60,7 @@ void RicCutReferencesToClipboardFeature::onActionTriggered( bool isChecked )
         if ( RicCutReferencesToClipboardFeature::isCuttingOfObjectSupported( pdmObject ) )
         {
             QString itemRef =
-                caf::PdmReferenceHelper::referenceFromRootToObject( caf::SelectionManager::instance()->pdmRootObject(),
-                                                                    pdmObject );
+                caf::PdmReferenceHelper::referenceFromRootToObject( caf::SelectionManager::instance()->pdmRootObject(), pdmObject );
 
             referenceList.push_back( itemRef );
         }

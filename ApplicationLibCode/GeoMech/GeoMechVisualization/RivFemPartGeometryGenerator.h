@@ -86,17 +86,13 @@ public:
 
     const std::vector<size_t>& quadVerticesToNodeIdxMapping() const { return m_quadVerticesToNodeIdx; }
     const std::vector<size_t>& quadVerticesToGlobalElmNodeIdx() const { return m_quadVerticesToGlobalElmNodeIdx; }
-    const std::vector<size_t>& quadVerticesToGlobalElmFaceNodeIdx() const
-    {
-        return m_quadVerticesToGlobalElmFaceNodeIdx;
-    }
+    const std::vector<size_t>& quadVerticesToGlobalElmFaceNodeIdx() const { return m_quadVerticesToGlobalElmFaceNodeIdx; }
     const std::vector<size_t>& quadVerticesToGlobalElmIdx() const { return m_quadVerticesToGlobalElmIdx; }
 
     RivFemPartTriangleToElmMapper* triangleToElementMapper() { return m_triangleMapper.p(); }
 
-    static cvf::ref<cvf::DrawableGeo> createMeshDrawableFromSingleElement( const RigFemPart* grid,
-                                                                           size_t            elementIndex,
-                                                                           const cvf::Vec3d& displayModelOffset );
+    static cvf::ref<cvf::DrawableGeo>
+        createMeshDrawableFromSingleElement( const RigFemPart* grid, size_t elementIndex, const cvf::Vec3d& displayModelOffset );
 
 private:
     void computeArrays( const std::vector<cvf::Vec3f>& nodeCoordinates );

@@ -63,7 +63,7 @@ cvf::ref<caf::DisplayCoordTransform> displayCoordTransform( const RimIntersectio
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivSurfaceIntersectionGeometryGenerator::RivSurfaceIntersectionGeometryGenerator( RimSurfaceInView* surfInView,
+RivSurfaceIntersectionGeometryGenerator::RivSurfaceIntersectionGeometryGenerator( RimSurfaceInView*                      surfInView,
                                                                                   const RivIntersectionHexGridInterface* grid )
     : m_surfaceInView( surfInView )
     , m_hexGrid( grid )
@@ -104,8 +104,7 @@ public:
         if ( isFace( cellFaceForEachClippedTriangleEdge[triVxIdx] ) )
         {
             const RigFault* fault =
-                m_hexGrid->findFaultFromCellIndexAndCellFace( globalCellIdx,
-                                                              (FaceType)cellFaceForEachClippedTriangleEdge[triVxIdx] );
+                m_hexGrid->findFaultFromCellIndexAndCellFace( globalCellIdx, (FaceType)cellFaceForEachClippedTriangleEdge[triVxIdx] );
             if ( fault )
             {
                 cvf::Vec3d highestVx = p0.z() > p1.z() ? p0 : p1;
@@ -217,12 +216,11 @@ void RivSurfaceIntersectionGeometryGenerator::calculateArrays()
                 m_hexGrid->cellCornerVertices( globalCellIdx, &cellCorners[0] );
                 m_hexGrid->cellCornerIndices( globalCellIdx, &cornerIndices[0] );
 
-                int triangleCount =
-                    caf::HexGridIntersectionTools::planeHexIntersectionMCTet( plane,
-                                                                              &cellCorners[0],
-                                                                              &cornerIndices[0],
-                                                                              &hexPlaneCutTriangleVxes,
-                                                                              &cellFaceForEachTriangleEdge );
+                int triangleCount = caf::HexGridIntersectionTools::planeHexIntersectionMCTet( plane,
+                                                                                              &cellCorners[0],
+                                                                                              &cornerIndices[0],
+                                                                                              &hexPlaneCutTriangleVxes,
+                                                                                              &cellFaceForEachTriangleEdge );
 
                 if ( triangleCount == 0 ) continue;
 
@@ -268,33 +266,18 @@ void RivSurfaceIntersectionGeometryGenerator::calculateArrays()
 
                         // Accumulate mesh lines
 
-                        meshAcc.accumulateMeshLines( cellFaceForEachClippedTriangleEdge,
-                                                     triVxIdx + 0,
-                                                     globalCellIdx,
-                                                     point0,
-                                                     point1 );
-                        meshAcc.accumulateMeshLines( cellFaceForEachClippedTriangleEdge,
-                                                     triVxIdx + 1,
-                                                     globalCellIdx,
-                                                     point1,
-                                                     point2 );
-                        meshAcc.accumulateMeshLines( cellFaceForEachClippedTriangleEdge,
-                                                     triVxIdx + 2,
-                                                     globalCellIdx,
-                                                     point2,
-                                                     point0 );
+                        meshAcc.accumulateMeshLines( cellFaceForEachClippedTriangleEdge, triVxIdx + 0, globalCellIdx, point0, point1 );
+                        meshAcc.accumulateMeshLines( cellFaceForEachClippedTriangleEdge, triVxIdx + 1, globalCellIdx, point1, point2 );
+                        meshAcc.accumulateMeshLines( cellFaceForEachClippedTriangleEdge, triVxIdx + 2, globalCellIdx, point2, point0 );
 
                         // Mapping to cell index
 
                         m_triangleToCellIdxMap.push_back( globalCellIdx );
 
                         // Interpolation from nodes
-                        m_triVxToCellCornerWeights.emplace_back(
-                            RivIntersectionVertexWeights( cornerIndices, cornerWeights0 ) );
-                        m_triVxToCellCornerWeights.emplace_back(
-                            RivIntersectionVertexWeights( cornerIndices, cornerWeights1 ) );
-                        m_triVxToCellCornerWeights.emplace_back(
-                            RivIntersectionVertexWeights( cornerIndices, cornerWeights2 ) );
+                        m_triVxToCellCornerWeights.emplace_back( RivIntersectionVertexWeights( cornerIndices, cornerWeights0 ) );
+                        m_triVxToCellCornerWeights.emplace_back( RivIntersectionVertexWeights( cornerIndices, cornerWeights1 ) );
+                        m_triVxToCellCornerWeights.emplace_back( RivIntersectionVertexWeights( cornerIndices, cornerWeights2 ) );
                     }
                 }
             }
@@ -364,8 +347,7 @@ cvf::ref<cvf::DrawableGeo> RivSurfaceIntersectionGeometryGenerator::createFaultM
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<std::pair<QString, cvf::Vec3d>>&
-    RivSurfaceIntersectionGeometryGenerator::faultMeshLabelAndAnchorPositions()
+const std::vector<std::pair<QString, cvf::Vec3d>>& RivSurfaceIntersectionGeometryGenerator::faultMeshLabelAndAnchorPositions()
 {
     return m_faultMeshLabelAndAnchorPositions;
 }
@@ -382,8 +364,7 @@ const std::vector<size_t>& RivSurfaceIntersectionGeometryGenerator::triangleToCe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<RivIntersectionVertexWeights>&
-    RivSurfaceIntersectionGeometryGenerator::triangleVxToCellCornerInterpolationWeights() const
+const std::vector<RivIntersectionVertexWeights>& RivSurfaceIntersectionGeometryGenerator::triangleVxToCellCornerInterpolationWeights() const
 {
     CVF_ASSERT( m_triangleVxes->size() );
     return m_triVxToCellCornerWeights;

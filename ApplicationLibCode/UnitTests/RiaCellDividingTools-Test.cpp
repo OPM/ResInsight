@@ -49,12 +49,11 @@ TEST( RiaCellDividingTools, flowDistanceCubicMainCell_AreaPointInCenter )
 
     double dist = RiaCellDividingTools::computeFlowDistance( mainCellCorners, point );
 
-    double expectedDist =
-        ( ( cvf::Vec3d( 12.5, 12.5, 12.5 ) - point ).length() + ( cvf::Vec3d( 17.5, 12.5, 12.5 ) - point ).length() +
-          ( cvf::Vec3d( 12.5, 17.5, 12.5 ) - point ).length() + ( cvf::Vec3d( 17.5, 17.5, 12.5 ) - point ).length() +
-          ( cvf::Vec3d( 12.5, 12.5, 17.5 ) - point ).length() + ( cvf::Vec3d( 17.5, 12.5, 17.5 ) - point ).length() +
-          ( cvf::Vec3d( 12.5, 17.5, 17.5 ) - point ).length() + ( cvf::Vec3d( 17.5, 17.5, 17.5 ) - point ).length() ) /
-        8;
+    double expectedDist = ( ( cvf::Vec3d( 12.5, 12.5, 12.5 ) - point ).length() + ( cvf::Vec3d( 17.5, 12.5, 12.5 ) - point ).length() +
+                            ( cvf::Vec3d( 12.5, 17.5, 12.5 ) - point ).length() + ( cvf::Vec3d( 17.5, 17.5, 12.5 ) - point ).length() +
+                            ( cvf::Vec3d( 12.5, 12.5, 17.5 ) - point ).length() + ( cvf::Vec3d( 17.5, 12.5, 17.5 ) - point ).length() +
+                            ( cvf::Vec3d( 12.5, 17.5, 17.5 ) - point ).length() + ( cvf::Vec3d( 17.5, 17.5, 17.5 ) - point ).length() ) /
+                          8;
 
     EXPECT_NEAR( expectedDist, dist, 1e-6 );
 }
@@ -69,12 +68,11 @@ TEST( RiaCellDividingTools, flowDistanceCubicMainCell_AreaPointNearCorner )
 
     double dist = RiaCellDividingTools::computeFlowDistance( mainCellCorners, point );
 
-    double expectedDist =
-        ( ( cvf::Vec3d( 12.5, 12.5, 12.5 ) - point ).length() + ( cvf::Vec3d( 17.5, 12.5, 12.5 ) - point ).length() +
-          ( cvf::Vec3d( 12.5, 17.5, 12.5 ) - point ).length() + ( cvf::Vec3d( 17.5, 17.5, 12.5 ) - point ).length() +
-          ( cvf::Vec3d( 12.5, 12.5, 17.5 ) - point ).length() + ( cvf::Vec3d( 17.5, 12.5, 17.5 ) - point ).length() +
-          ( cvf::Vec3d( 12.5, 17.5, 17.5 ) - point ).length() + ( cvf::Vec3d( 17.5, 17.5, 17.5 ) - point ).length() ) /
-        8;
+    double expectedDist = ( ( cvf::Vec3d( 12.5, 12.5, 12.5 ) - point ).length() + ( cvf::Vec3d( 17.5, 12.5, 12.5 ) - point ).length() +
+                            ( cvf::Vec3d( 12.5, 17.5, 12.5 ) - point ).length() + ( cvf::Vec3d( 17.5, 17.5, 12.5 ) - point ).length() +
+                            ( cvf::Vec3d( 12.5, 12.5, 17.5 ) - point ).length() + ( cvf::Vec3d( 17.5, 12.5, 17.5 ) - point ).length() +
+                            ( cvf::Vec3d( 12.5, 17.5, 17.5 ) - point ).length() + ( cvf::Vec3d( 17.5, 17.5, 17.5 ) - point ).length() ) /
+                          8;
 
     EXPECT_NEAR( expectedDist, dist, 1e-6 );
 }
@@ -89,12 +87,11 @@ TEST( RiaCellDividingTools, flowDistanceHighMainCell_AreaPointNearLowerCorner )
 
     double dist = RiaCellDividingTools::computeFlowDistance( mainCellCorners, point );
 
-    double expectedDist =
-        ( ( cvf::Vec3d( 12.5, 12.5, 35 ) - point ).length() + ( cvf::Vec3d( 17.5, 12.5, 35 ) - point ).length() +
-          ( cvf::Vec3d( 12.5, 17.5, 35 ) - point ).length() + ( cvf::Vec3d( 17.5, 17.5, 35 ) - point ).length() +
-          ( cvf::Vec3d( 12.5, 12.5, 85 ) - point ).length() + ( cvf::Vec3d( 17.5, 12.5, 85 ) - point ).length() +
-          ( cvf::Vec3d( 12.5, 17.5, 85 ) - point ).length() + ( cvf::Vec3d( 17.5, 17.5, 85 ) - point ).length() ) /
-        8;
+    double expectedDist = ( ( cvf::Vec3d( 12.5, 12.5, 35 ) - point ).length() + ( cvf::Vec3d( 17.5, 12.5, 35 ) - point ).length() +
+                            ( cvf::Vec3d( 12.5, 17.5, 35 ) - point ).length() + ( cvf::Vec3d( 17.5, 17.5, 35 ) - point ).length() +
+                            ( cvf::Vec3d( 12.5, 12.5, 85 ) - point ).length() + ( cvf::Vec3d( 17.5, 12.5, 85 ) - point ).length() +
+                            ( cvf::Vec3d( 12.5, 17.5, 85 ) - point ).length() + ( cvf::Vec3d( 17.5, 17.5, 85 ) - point ).length() ) /
+                          8;
 
     EXPECT_NEAR( expectedDist, dist, 1e-6 );
 }

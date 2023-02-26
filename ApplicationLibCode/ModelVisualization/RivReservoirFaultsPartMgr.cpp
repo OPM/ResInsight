@@ -140,8 +140,8 @@ void RivReservoirFaultsPartMgr::appendPartsToModel( cvf::ModelBasicList* model )
                 rivFaultPart->appendOppositeFaultFacesToModel( &parts );
             }
 
-            if ( faultCollection->showFaultFaces() || faultCollection->showOppositeFaultFaces() ||
-                 faultCollection->showNNCs() || forceDisplayOfFault )
+            if ( faultCollection->showFaultFaces() || faultCollection->showOppositeFaultFaces() || faultCollection->showNNCs() ||
+                 forceDisplayOfFault )
             {
                 rivFaultPart->appendMeshLinePartsToModel( &parts );
             }

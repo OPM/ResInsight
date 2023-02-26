@@ -114,14 +114,11 @@ void RicImportFormationNamesFeature::onActionTriggered( bool isChecked )
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( "BINARY_GRID" );
 
-    QString filterText =
-        QString( "Formation Names description File (*.lyr);;FMU Layer Zone Table(%1);;All Files (*.*)" )
-            .arg( RimFormationNames::layerZoneTableFileName() );
+    QString filterText = QString( "Formation Names description File (*.lyr);;FMU Layer Zone Table(%1);;All Files (*.*)" )
+                             .arg( RimFormationNames::layerZoneTableFileName() );
 
-    QStringList fileNames = RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
-                                                                  "Import Formation Names",
-                                                                  defaultDir,
-                                                                  filterText );
+    QStringList fileNames =
+        RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(), "Import Formation Names", defaultDir, filterText );
 
     if ( fileNames.isEmpty() ) return;
 

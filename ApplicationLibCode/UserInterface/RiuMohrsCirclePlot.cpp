@@ -111,7 +111,7 @@ void RiuMohrsCirclePlot::appendSelection( const RiuSelectionItem* selectionItem 
         if ( geoMechSelectionItem )
         {
             const size_t gridIndex = geoMechSelectionItem->m_gridIndex;
-            RigFemPart* femPart = geoMechSelectionItem->m_resultDefinition->ownerCaseData()->femParts()->part( gridIndex );
+            RigFemPart*  femPart   = geoMechSelectionItem->m_resultDefinition->ownerCaseData()->femParts()->part( gridIndex );
 
             const size_t       cellIndex = geoMechSelectionItem->m_cellIndex;
             const int          elmId     = femPart->elmId( cellIndex );
@@ -177,13 +177,7 @@ void RiuMohrsCirclePlot::updateOnTimeStepChanged( Rim3dView* changedView )
 
     for ( const MohrsCirclesInfo& mohrInfo : mohrsCiclesInfosCopy )
     {
-        addOrUpdateCurves( mohrInfo.geomResDef,
-                           stepIdx,
-                           frameIdx,
-                           mohrInfo.gridIndex,
-                           mohrInfo.elmIndex,
-                           mohrInfo.elmId,
-                           mohrInfo.color );
+        addOrUpdateCurves( mohrInfo.geomResDef, stepIdx, frameIdx, mohrInfo.gridIndex, mohrInfo.elmIndex, mohrInfo.elmId, mohrInfo.color );
     }
 
     updatePlot();
@@ -238,8 +232,7 @@ void RiuMohrsCirclePlot::addOrUpdateMohrCircleCurves( const MohrsCirclesInfo& mo
         if ( i == 0 )
         {
             QString textBuilder;
-            textBuilder.append(
-                QString( "<b>FOS</b>: %1, " ).arg( QString::number( mohrsCirclesInfo.factorOfSafety, 'f', 2 ) ) );
+            textBuilder.append( QString( "<b>FOS</b>: %1, " ).arg( QString::number( mohrsCirclesInfo.factorOfSafety, 'f', 2 ) ) );
 
             textBuilder.append( QString( "<b>Element Id</b>: %1, <b>ijk</b>[%2, %3, %4]," )
                                     .arg( mohrsCirclesInfo.elmId )
@@ -418,16 +411,8 @@ bool RiuMohrsCirclePlot::addOrUpdateCurves( const RimGeoMechResultDefinition* ge
     {
         int elmId = femPart->elmId( elmIndex );
 
-        MohrsCirclesInfo mohrsCircle( principals,
-                                      gridIndex,
-                                      elmIndex,
-                                      elmId,
-                                      i,
-                                      j,
-                                      k,
-                                      geomResDef,
-                                      calculateFOS( principals, frictionAngleDeg, cohesion ),
-                                      color );
+        MohrsCirclesInfo
+            mohrsCircle( principals, gridIndex, elmIndex, elmId, i, j, k, geomResDef, calculateFOS( principals, frictionAngleDeg, cohesion ), color );
 
         m_mohrsCiclesInfos.push_back( mohrsCircle );
 
@@ -596,8 +581,7 @@ QColor RiuMohrsCirclePlot::envelopeColor( const RimGeoMechCase* geomCase )
 {
     if ( m_envolopeColors.find( geomCase ) == m_envolopeColors.end() )
     {
-        cvf::Color3ub cvfColor =
-            RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3ub( m_envolopeColors.size() );
+        cvf::Color3ub cvfColor = RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3ub( m_envolopeColors.size() );
 
         QColor color( cvfColor.r(), cvfColor.g(), cvfColor.b() );
 
@@ -737,8 +721,7 @@ void RiuMohrsCirclePlot::setAxesScaleAndReplot()
     this->replot();
 }
 
-RiuGeoMechSelectionItem* RiuMohrsCirclePlot::extractGeoMechSelectionItem( const RiuSelectionItem* selectionItem,
-                                                                          Rim3dView*&             newFollowAnimView )
+RiuGeoMechSelectionItem* RiuMohrsCirclePlot::extractGeoMechSelectionItem( const RiuSelectionItem* selectionItem, Rim3dView*& newFollowAnimView )
 {
     newFollowAnimView                             = nullptr;
     RiuGeoMechSelectionItem* geoMechSelectionItem = nullptr;

@@ -128,9 +128,7 @@ QList<caf::PdmOptionItemInfo> RimStimPlanModelPlot::calculateValueOptions( const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStimPlanModelPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                             const QVariant&            oldValue,
-                                             const QVariant&            newValue )
+void RimStimPlanModelPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimDepthTrackPlot::fieldChangedByUi( changedField, oldValue, newValue );
 

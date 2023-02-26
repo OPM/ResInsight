@@ -35,15 +35,15 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RifEclipseInputPropertyLoader::evaluateAndCreateInputPropertyResult( RigEclipseCaseData* eclipseCase,
+QString RifEclipseInputPropertyLoader::evaluateAndCreateInputPropertyResult( RigEclipseCaseData*             eclipseCase,
                                                                              const RifEclipseKeywordContent& keywordContent,
-                                                                             QString* errorMessage )
+                                                                             QString*                        errorMessage )
 {
     auto eclipseKeyword = keywordContent.keyword;
     if ( isInputPropertyCandidate( eclipseCase, eclipseKeyword, keywordContent.values.size(), errorMessage ) )
     {
-        QString newResultName = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
-                                    ->makeResultNameUnique( QString::fromStdString( eclipseKeyword ) );
+        QString newResultName =
+            eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->makeResultNameUnique( QString::fromStdString( eclipseKeyword ) );
 
         if ( appendNewInputPropertyResult( eclipseCase, newResultName, eclipseKeyword, keywordContent.values, errorMessage ) )
         {
@@ -57,9 +57,9 @@ QString RifEclipseInputPropertyLoader::evaluateAndCreateInputPropertyResult( Rig
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifEclipseInputPropertyLoader::createInputPropertiesFromKeywords( RigEclipseCaseData* eclipseCase,
+void RifEclipseInputPropertyLoader::createInputPropertiesFromKeywords( RigEclipseCaseData*                          eclipseCase,
                                                                        const std::vector<RifEclipseKeywordContent>& keywordContent,
-                                                                       QString* errorText )
+                                                                       QString*                                     errorText )
 {
     for ( const auto& keywordAndValues : keywordContent )
     {
@@ -98,8 +98,7 @@ bool RifEclipseInputPropertyLoader::isInputPropertyCandidate( const RigEclipseCa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<QString, QString> RifEclipseInputPropertyLoader::readProperties( const QString&      fileName,
-                                                                          RigEclipseCaseData* eclipseCase )
+std::map<QString, QString> RifEclipseInputPropertyLoader::readProperties( const QString& fileName, RigEclipseCaseData* eclipseCase )
 {
     std::map<QString, QString> resultNameAndEclipseNameMap;
 
@@ -180,8 +179,7 @@ bool RifEclipseInputPropertyLoader::appendNewInputPropertyResult( RigEclipseCase
     RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::INPUT_PROPERTY, resultName );
     caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->createResultEntry( resAddr, false );
 
-    auto newPropertyData =
-        caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->modifiableCellScalarResultTimesteps( resAddr );
+    auto newPropertyData = caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->modifiableCellScalarResultTimesteps( resAddr );
 
     std::vector<double> doubleVals;
     doubleVals.insert( doubleVals.begin(), values.begin(), values.end() );

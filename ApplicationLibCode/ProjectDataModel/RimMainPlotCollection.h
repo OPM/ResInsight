@@ -97,10 +97,10 @@ protected:
 private:
     // Overridden PDM methods
     caf::PdmFieldHandle* objectToggleField() override;
-    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
-    void loadDataAndUpdatePlotCollectionsWithProgressInfo( const std::vector<RimPlotCollection*>& );
-    void loadDataAndUpdatePlotCollections( const std::vector<RimPlotCollection*>& );
+    void                            loadDataAndUpdatePlotCollectionsWithProgressInfo( const std::vector<RimPlotCollection*>& );
+    void                            loadDataAndUpdatePlotCollections( const std::vector<RimPlotCollection*>& );
     std::vector<RimPlotCollection*> plotCollectionsWithFormations() const;
     std::vector<RimPlotCollection*> plotCollectionsWithCompletions() const;
     std::vector<RimPlotCollection*> allPlotCollections() const;

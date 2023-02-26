@@ -34,7 +34,6 @@ public:
     static size_t maximumValueCountInBlock();
 
 public:
-    static bool
-                writeBlockDataToSocket( QTcpSocket* socket, const char* data, quint64 bytesToWrite, QStringList& errorMessages );
+    static bool writeBlockDataToSocket( QTcpSocket* socket, const char* data, quint64 bytesToWrite, QStringList& errorMessages );
     static bool readBlockDataFromSocket( QTcpSocket* socket, char* data, quint64 bytesToRead, QStringList& errorMessages );
 };

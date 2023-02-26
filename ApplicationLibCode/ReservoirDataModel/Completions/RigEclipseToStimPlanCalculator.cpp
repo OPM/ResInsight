@@ -68,28 +68,24 @@ RigEclipseToStimPlanCalculator::RigEclipseToStimPlanCalculator( const RimEclipse
 //--------------------------------------------------------------------------------------------------
 void RigEclipseToStimPlanCalculator::computeValues()
 {
-    auto reservoirCellIndicesOpenForFlow =
-        RimFractureContainmentTools::reservoirCellIndicesOpenForFlow( m_case, m_fracture );
+    auto reservoirCellIndicesOpenForFlow = RimFractureContainmentTools::reservoirCellIndicesOpenForFlow( m_case, m_fracture );
 
-    auto resultValueAtIJ =
-        []( const std::vector<std::vector<double>>& values, const RigFractureGrid& fractureGrid, size_t i, size_t j ) {
-            if ( values.empty() ) return HUGE_VAL;
+    auto resultValueAtIJ = []( const std::vector<std::vector<double>>& values, const RigFractureGrid& fractureGrid, size_t i, size_t j ) {
+        if ( values.empty() ) return HUGE_VAL;
 
-            size_t adjustedI = i + 1;
-            size_t adjustedJ = j + 1;
+        size_t adjustedI = i + 1;
+        size_t adjustedJ = j + 1;
 
-            if ( adjustedI >= fractureGrid.iCellCount() + 1 || adjustedJ >= fractureGrid.jCellCount() + 1 )
-                return HUGE_VAL;
+        if ( adjustedI >= fractureGrid.iCellCount() + 1 || adjustedJ >= fractureGrid.jCellCount() + 1 ) return HUGE_VAL;
 
-            return values[adjustedJ][adjustedI];
-        };
+        return values[adjustedJ][adjustedI];
+    };
 
     std::vector<std::vector<double>> injectivityFactors;
     std::vector<std::vector<double>> viscosities;
     std::vector<std::vector<double>> filterCakeMobilities;
 
-    RimThermalFractureTemplate* thermalFractureTemplate =
-        dynamic_cast<RimThermalFractureTemplate*>( m_fracture->fractureTemplate() );
+    RimThermalFractureTemplate* thermalFractureTemplate = dynamic_cast<RimThermalFractureTemplate*>( m_fracture->fractureTemplate() );
 
     if ( thermalFractureTemplate != nullptr )
     {
@@ -97,25 +93,22 @@ void RigEclipseToStimPlanCalculator::computeValues()
         size_t timeStep   = thermalFractureTemplate->activeTimeStepIndex();
 
         injectivityFactors =
-            thermalFractureTemplate
-                ->resultValues( RiaDefines::injectivityFactorResultName(),
-                                RiaDefines::getExpectedThermalFractureUnit( RiaDefines::injectivityFactorResultName(),
-                                                                            unitSystem ),
+            thermalFractureTemplate->resultValues( RiaDefines::injectivityFactorResultName(),
+                                                   RiaDefines::getExpectedThermalFractureUnit( RiaDefines::injectivityFactorResultName(),
+                                                                                               unitSystem ),
 
-                                timeStep );
+                                                   timeStep );
 
-        viscosities = thermalFractureTemplate
-                          ->resultValues( RiaDefines::viscosityResultName(),
-                                          RiaDefines::getExpectedThermalFractureUnit( RiaDefines::viscosityResultName(),
-                                                                                      unitSystem ),
-                                          timeStep );
+        viscosities =
+            thermalFractureTemplate->resultValues( RiaDefines::viscosityResultName(),
+                                                   RiaDefines::getExpectedThermalFractureUnit( RiaDefines::viscosityResultName(), unitSystem ),
+                                                   timeStep );
 
         filterCakeMobilities =
-            thermalFractureTemplate
-                ->resultValues( RiaDefines::filterCakeMobilityResultName(),
-                                RiaDefines::getExpectedThermalFractureUnit( RiaDefines::filterCakeMobilityResultName(),
-                                                                            unitSystem ),
-                                timeStep );
+            thermalFractureTemplate->resultValues( RiaDefines::filterCakeMobilityResultName(),
+                                                   RiaDefines::getExpectedThermalFractureUnit( RiaDefines::filterCakeMobilityResultName(),
+                                                                                               unitSystem ),
+                                                   timeStep );
     }
 
     for ( size_t i = 0; i < m_fractureGrid.fractureCells().size(); i++ )
@@ -138,33 +131,30 @@ void RigEclipseToStimPlanCalculator::computeValues()
             double relativePermeability = 1.0;
 
             auto filterPressureDropType = thermalFractureTemplate->filterCakePressureDropType();
-            eclToFractureTransCalc =
-                std::make_unique<RigEclipseToThermalCellTransmissibilityCalculator>( m_case,
-                                                                                     m_fractureTransform,
-                                                                                     m_fractureSkinFactor,
-                                                                                     m_cDarcy,
-                                                                                     fractureCell,
-                                                                                     m_fracture,
-                                                                                     filterPressureDropType,
-                                                                                     injectivityFactor,
-                                                                                     filterCakeMobility,
-                                                                                     viscosity,
-                                                                                     relativePermeability );
+            eclToFractureTransCalc      = std::make_unique<RigEclipseToThermalCellTransmissibilityCalculator>( m_case,
+                                                                                                          m_fractureTransform,
+                                                                                                          m_fractureSkinFactor,
+                                                                                                          m_cDarcy,
+                                                                                                          fractureCell,
+                                                                                                          m_fracture,
+                                                                                                          filterPressureDropType,
+                                                                                                          injectivityFactor,
+                                                                                                          filterCakeMobility,
+                                                                                                          viscosity,
+                                                                                                          relativePermeability );
         }
         else
         {
-            eclToFractureTransCalc =
-                std::make_unique<RigEclipseToStimPlanCellTransmissibilityCalculator>( m_case,
-                                                                                      m_fractureTransform,
-                                                                                      m_fractureSkinFactor,
-                                                                                      m_cDarcy,
-                                                                                      fractureCell,
-                                                                                      m_fracture );
+            eclToFractureTransCalc = std::make_unique<RigEclipseToStimPlanCellTransmissibilityCalculator>( m_case,
+                                                                                                           m_fractureTransform,
+                                                                                                           m_fractureSkinFactor,
+                                                                                                           m_cDarcy,
+                                                                                                           fractureCell,
+                                                                                                           m_fracture );
         }
 
         eclToFractureTransCalc->computeValues( reservoirCellIndicesOpenForFlow );
-        const std::vector<size_t>& fractureCellContributingEclipseCells =
-            eclToFractureTransCalc->globalIndiciesToContributingEclipseCells();
+        const std::vector<size_t>& fractureCellContributingEclipseCells = eclToFractureTransCalc->globalIndiciesToContributingEclipseCells();
 
         if ( !fractureCellContributingEclipseCells.empty() )
         {
@@ -178,7 +168,7 @@ using CellIdxSpace = RigTransmissibilityCondenser::CellAddress;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseToStimPlanCalculator::appendDataToTransmissibilityCondenser( bool useFiniteConductivityInFracture,
+void RigEclipseToStimPlanCalculator::appendDataToTransmissibilityCondenser( bool                          useFiniteConductivityInFracture,
                                                                             RigTransmissibilityCondenser* condenser ) const
 {
     for ( const auto& eclToFractureTransCalc : m_singleFractureCellCalculators )
@@ -195,17 +185,13 @@ void RigEclipseToStimPlanCalculator::appendDataToTransmissibilityCondenser( bool
         {
             if ( useFiniteConductivityInFracture )
             {
-                condenser->addNeighborTransmissibility( { true,
-                                                          CellIdxSpace::ECLIPSE,
-                                                          fractureCellContributingEclipseCells[i] },
+                condenser->addNeighborTransmissibility( { true, CellIdxSpace::ECLIPSE, fractureCellContributingEclipseCells[i] },
                                                         { false, CellIdxSpace::STIMPLAN, stimPlanCellIndex },
                                                         fractureCellContributingEclipseCellTransmissibilities[i] );
             }
             else
             {
-                condenser->addNeighborTransmissibility( { true,
-                                                          CellIdxSpace::ECLIPSE,
-                                                          fractureCellContributingEclipseCells[i] },
+                condenser->addNeighborTransmissibility( { true, CellIdxSpace::ECLIPSE, fractureCellContributingEclipseCells[i] },
                                                         { true, CellIdxSpace::WELL, 1 },
                                                         fractureCellContributingEclipseCellTransmissibilities[i] );
             }

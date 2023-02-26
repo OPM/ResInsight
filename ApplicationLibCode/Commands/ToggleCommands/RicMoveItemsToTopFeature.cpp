@@ -116,10 +116,9 @@ void RicMoveItemsToTopFeature::onActionTriggered( bool isChecked )
 
                 if ( !constSelectedItems.empty() )
                 {
-                    caf::PdmUiTreeView* uiTreeView =
-                        RiaGuiApplication::activeMainWindow()->getTreeViewWithItem( constSelectedItems[0] );
-                    QModelIndex itemIndex   = uiTreeView->findModelIndex( constSelectedItems[0] );
-                    QModelIndex parentIndex = itemIndex.parent();
+                    caf::PdmUiTreeView* uiTreeView  = RiaGuiApplication::activeMainWindow()->getTreeViewWithItem( constSelectedItems[0] );
+                    QModelIndex         itemIndex   = uiTreeView->findModelIndex( constSelectedItems[0] );
+                    QModelIndex         parentIndex = itemIndex.parent();
                     uiTreeView->updateSubTree( parentIndex );
 
                     // Restore selection highlight after reordering

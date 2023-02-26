@@ -48,11 +48,9 @@ RivTextureCoordsCreator::RivTextureCoordsCreator( RimEclipseCellColors*         
     m_quadMapper = quadMapper;
     CVF_ASSERT( quadMapper && eclipseCase );
 
-    m_resultAccessor =
-        RigResultAccessorFactory::createFromResultDefinition( eclipseCase, gridIndex, timeStepIndex, cellResultColors );
+    m_resultAccessor = RigResultAccessorFactory::createFromResultDefinition( eclipseCase, gridIndex, timeStepIndex, cellResultColors );
 
-    cvf::ref<RigPipeInCellEvaluator> pipeInCellEval =
-        createPipeInCellEvaluator( cellResultColors, timeStepIndex, gridIndex );
+    cvf::ref<RigPipeInCellEvaluator> pipeInCellEval = createPipeInCellEvaluator( cellResultColors, timeStepIndex, gridIndex );
 
     const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
 
@@ -92,14 +90,10 @@ void RivTextureCoordsCreator::setResultToTextureMapper( RivResultToTextureMapper
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigPipeInCellEvaluator* RivTextureCoordsCreator::createPipeInCellEvaluator( RimEclipseCellColors* cellColors,
-                                                                            size_t                timeStep,
-                                                                            size_t                gridIndex )
+RigPipeInCellEvaluator* RivTextureCoordsCreator::createPipeInCellEvaluator( RimEclipseCellColors* cellColors, size_t timeStep, size_t gridIndex )
 {
-    return new RigPipeInCellEvaluator( cellColors->reservoirView()->wellCollection()->resultWellGeometryVisibilities(
-                                           timeStep ),
-                                       cellColors->reservoirView()->eclipseCase()->eclipseCaseData()->gridCellToResultWellIndex(
-                                           gridIndex ) );
+    return new RigPipeInCellEvaluator( cellColors->reservoirView()->wellCollection()->resultWellGeometryVisibilities( timeStep ),
+                                       cellColors->reservoirView()->eclipseCase()->eclipseCaseData()->gridCellToResultWellIndex( gridIndex ) );
 }
 
 //--------------------------------------------------------------------------------------------------

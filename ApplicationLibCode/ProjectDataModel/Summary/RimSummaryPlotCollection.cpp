@@ -107,8 +107,7 @@ void RimSummaryPlotCollection::summaryPlotItemInfos( QList<caf::PdmOptionItemInf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlotCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                                               std::vector<caf::PdmObjectHandle*>& referringObjects )
+void RimSummaryPlotCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     updateSummaryNameHasChanged();
     RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();

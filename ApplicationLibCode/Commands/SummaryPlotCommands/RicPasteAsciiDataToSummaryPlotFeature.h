@@ -53,8 +53,7 @@ private:
     static QString getPastedData();
     static bool    hasPastedText();
 
-    static std::vector<RimAsciiDataCurve*> parseCurves( QString&                                       data,
-                                                        const RicPasteAsciiDataToSummaryPlotFeatureUi& settings );
+    static std::vector<RimAsciiDataCurve*> parseCurves( QString& data, const RicPasteAsciiDataToSummaryPlotFeatureUi& settings );
 
     static CurveType guessCurveType( const QString& curveName );
 };

@@ -68,16 +68,14 @@ void RicNewWellIntegrityAnalysisFeature::onActionTriggered( bool isChecked )
     }
 
     // get base directory for our work, should be a new, empty folder somewhere
-    QString defaultDir =
-        RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( "WELL_INTEGRITY_ANALYSIS" );
-    QString baseDir = RiuFileDialogTools::getExistingDirectory( nullptr, tr( "Select Working Directory" ), defaultDir );
+    QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( "WELL_INTEGRITY_ANALYSIS" );
+    QString baseDir    = RiuFileDialogTools::getExistingDirectory( nullptr, tr( "Select Working Directory" ), defaultDir );
     if ( baseDir.isNull() || baseDir.isEmpty() ) return;
     RiaApplication::instance()->setLastUsedDialogDirectory( "WELL_INTEGRITY_ANALYSIS", baseDir );
 
     QString errMsg;
 
-    RimWellIASettings* newWIA =
-        coll->startWellIntegrationAnalysis( baseDir, wellPath, wellPathItem->m_measuredDepth, theCase, errMsg );
+    RimWellIASettings* newWIA = coll->startWellIntegrationAnalysis( baseDir, wellPath, wellPathItem->m_measuredDepth, theCase, errMsg );
 
     if ( newWIA )
     {

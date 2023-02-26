@@ -48,8 +48,7 @@
 
 CAF_PDM_SOURCE_INIT( RimEclipseContourMapView, "RimContourMapView" );
 
-const cvf::Mat4d RimEclipseContourMapView::sm_defaultViewMatrix =
-    cvf::Mat4d( 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1000, 0, 0, 0, 1 );
+const cvf::Mat4d RimEclipseContourMapView::sm_defaultViewMatrix = cvf::Mat4d( 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1000, 0, 0, 0, 1 );
 
 RimEclipseContourMapView::RimEclipseContourMapView()
     : m_cameraPositionLastUpdate( cvf::Vec3d::UNDEFINED )
@@ -225,8 +224,7 @@ void RimEclipseContourMapView::defineUiOrdering( QString uiConfigName, caf::PdmU
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
-                                                     QString                 uiConfigName /*= ""*/ )
+void RimEclipseContourMapView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
     uiTreeOrdering.add( m_overlayInfoConfig() );
     uiTreeOrdering.add( m_contourMapProjection );
@@ -355,9 +353,7 @@ void RimEclipseContourMapView::appendContourLinesToModel()
 
             cvf::ref<caf::DisplayCoordTransform> transForm = this->displayCoordTransform();
 
-            m_contourMapProjectionPartMgr->appendContourLinesToModel( viewer()->mainCamera(),
-                                                                      contourMapLabelModelBasicList.p(),
-                                                                      transForm.p() );
+            m_contourMapProjectionPartMgr->appendContourLinesToModel( viewer()->mainCamera(), contourMapLabelModelBasicList.p(), transForm.p() );
             contourMapLabelModelBasicList->updateBoundingBoxesRecursive();
             frameScene->addModel( contourMapLabelModelBasicList.p() );
         }
@@ -382,8 +378,7 @@ void RimEclipseContourMapView::appendPickPointVisToModel()
 
             cvf::ref<caf::DisplayCoordTransform> transForm = this->displayCoordTransform();
 
-            m_contourMapProjectionPartMgr->appendPickPointVisToModel( contourMapProjectionModelBasicList.p(),
-                                                                      transForm.p() );
+            m_contourMapProjectionPartMgr->appendPickPointVisToModel( contourMapProjectionModelBasicList.p(), transForm.p() );
             contourMapProjectionModelBasicList->updateBoundingBoxesRecursive();
             frameScene->addModel( contourMapProjectionModelBasicList.p() );
         }
@@ -478,9 +473,7 @@ void RimEclipseContourMapView::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapView::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                 const QVariant&            oldValue,
-                                                 const QVariant&            newValue )
+void RimEclipseContourMapView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimEclipseView::fieldChangedByUi( changedField, oldValue, newValue );
 
@@ -555,7 +548,7 @@ void RimEclipseContourMapView::onViewNavigationChanged()
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseContourMapView::zoomChangeAboveTreshold( const cvf::Vec3d& currentCameraPosition ) const
 {
-    double distance = std::max( std::fabs( m_cameraPositionLastUpdate.z() ), std::fabs( currentCameraPosition.z() ) );
+    double       distance  = std::max( std::fabs( m_cameraPositionLastUpdate.z() ), std::fabs( currentCameraPosition.z() ) );
     const double threshold = 0.05 * distance;
     return std::fabs( m_cameraPositionLastUpdate.z() - currentCameraPosition.z() ) > threshold;
 }
@@ -575,8 +568,7 @@ void RimEclipseContourMapView::scheduleGeometryRegen( RivCellSetEnum geometryTyp
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseContourMapView::onLegendConfigChanged( const caf::SignalEmitter* emitter,
-                                                      RimLegendConfigChangeType changeType )
+void RimEclipseContourMapView::onLegendConfigChanged( const caf::SignalEmitter* emitter, RimLegendConfigChangeType changeType )
 {
     using ChangeType = RimLegendConfigChangeType;
     if ( changeType == ChangeType::LEVELS || changeType == ChangeType::COLOR_MODE || changeType == ChangeType::RANGE ||

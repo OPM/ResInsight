@@ -37,8 +37,7 @@ std::map<QString, const std::vector<double>*>
         RimFlowDiagSolution::TracerStatusType requestedTracerType = RimFlowDiagSolution::TracerStatusType::UNDEFINED;
 
         const RiaDefines::WellProductionType prodType = simWellData->wellProductionType( timeStepIndex );
-        if ( prodType == RiaDefines::WellProductionType::PRODUCER ||
-             prodType == RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE )
+        if ( prodType == RiaDefines::WellProductionType::PRODUCER || prodType == RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE )
         {
             requestedTracerType = RimFlowDiagSolution::TracerStatusType::INJECTOR;
         }
@@ -52,11 +51,8 @@ std::map<QString, const std::vector<double>*>
         {
             if ( flowDiagSolution->tracerStatusInTimeStep( tracerName, timeStepIndex ) == requestedTracerType )
             {
-                RigFlowDiagResultAddress   resAddr( RIG_FLD_CELL_FRACTION_RESNAME,
-                                                  RigFlowDiagResultAddress::PHASE_ALL,
-                                                  tracerName.toStdString() );
-                const std::vector<double>* tracerCellFractions =
-                    flowDiagSolution->flowDiagResults()->resultValues( resAddr, timeStepIndex );
+                RigFlowDiagResultAddress resAddr( RIG_FLD_CELL_FRACTION_RESNAME, RigFlowDiagResultAddress::PHASE_ALL, tracerName.toStdString() );
+                const std::vector<double>* tracerCellFractions = flowDiagSolution->flowDiagResults()->resultValues( resAddr, timeStepIndex );
                 if ( tracerCellFractions )
                 {
                     tracerCellFractionValues[tracerName] = tracerCellFractions;

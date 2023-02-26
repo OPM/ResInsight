@@ -99,8 +99,7 @@ bool RimMultipleEclipseResults::showCornerCoordinates() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimMultipleEclipseResults::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RimMultipleEclipseResults::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     if ( fieldNeedingOptions == &m_selectedKeywords )
     {
@@ -114,8 +113,7 @@ QList<caf::PdmOptionItemInfo>
                                                                     RiaDefines::ResultCatType::INPUT_PROPERTY };
         for ( auto catType : resultCategories )
         {
-            QList<caf::PdmOptionItemInfo> allOptions =
-                RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard( catType, resultData );
+            QList<caf::PdmOptionItemInfo> allOptions = RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard( catType, resultData );
 
             bool isFirstOfCategory = true;
             for ( const caf::PdmOptionItemInfo& option : allOptions )
@@ -126,8 +124,7 @@ QList<caf::PdmOptionItemInfo>
                     {
                         // Add the category title only when there is at least one valid result
                         options.push_back(
-                            caf::PdmOptionItemInfo::createHeader( caf::AppEnum<RiaDefines::ResultCatType>::uiText( catType ),
-                                                                  true ) );
+                            caf::PdmOptionItemInfo::createHeader( caf::AppEnum<RiaDefines::ResultCatType>::uiText( catType ), true ) );
                         isFirstOfCategory = false;
                     }
 

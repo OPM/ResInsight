@@ -156,9 +156,8 @@ void RiaCurveMerger<XValueType>::computeInterpolatedValues( bool includeValuesFr
 
         for ( size_t valueIndex = 0; valueIndex < dataValueCount; valueIndex++ )
         {
-            double interpolValue = interpolatedYValue( m_allXValues[valueIndex],
-                                                       m_originalValues[curveIdx].first,
-                                                       m_originalValues[curveIdx].second );
+            double interpolValue =
+                interpolatedYValue( m_allXValues[valueIndex], m_originalValues[curveIdx].first, m_originalValues[curveIdx].second );
             if ( !RiaCurveDataTools::isValidValue( interpolValue, false ) )
             {
                 accumulatedValidValues[valueIndex] = HUGE_VAL;
@@ -203,7 +202,7 @@ void RiaCurveMerger<XValueType>::computeUnionOfXValues( bool includeValuesForPar
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename XValueType>
-void RiaCurveMerger<XValueType>::removeValuesForPartialCurves( std::set<XValueType, XComparator>& unionOfXValues,
+void RiaCurveMerger<XValueType>::removeValuesForPartialCurves( std::set<XValueType, XComparator>&                    unionOfXValues,
                                                                const std::vector<std::pair<XValueType, XValueType>>& originalXBounds )
 {
     for ( auto it = unionOfXValues.begin(); it != unionOfXValues.end(); )

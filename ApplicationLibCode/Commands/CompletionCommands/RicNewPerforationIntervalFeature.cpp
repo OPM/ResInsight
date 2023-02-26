@@ -102,8 +102,7 @@ RimPerforationCollection* RicNewPerforationIntervalFeature::selectedPerforationC
         RimWellPath* wellPath = dynamic_cast<RimWellPath*>( objHandle );
         if ( wellPath ) return wellPath->perforationIntervalCollection();
 
-        RimWellPathCompletions* completions =
-            caf::SelectionManager::instance()->selectedItemOfType<RimWellPathCompletions>();
+        RimWellPathCompletions* completions = caf::SelectionManager::instance()->selectedItemOfType<RimWellPathCompletions>();
         if ( completions ) return completions->perforationCollection();
     }
     return nullptr;

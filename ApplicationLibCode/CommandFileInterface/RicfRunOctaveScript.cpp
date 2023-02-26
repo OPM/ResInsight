@@ -67,9 +67,7 @@ caf::PdmScriptResponse RicfRunOctaveScript::execute()
     bool ok;
     if ( caseIds.empty() )
     {
-        ok = RiaApplication::instance()->launchProcess( octavePath,
-                                                        processArguments,
-                                                        RiaApplication::instance()->octaveProcessEnvironment() );
+        ok = RiaApplication::instance()->launchProcess( octavePath, processArguments, RiaApplication::instance()->octaveProcessEnvironment() );
     }
     else
     {

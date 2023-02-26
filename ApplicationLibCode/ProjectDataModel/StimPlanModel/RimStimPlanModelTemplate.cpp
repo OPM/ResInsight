@@ -75,9 +75,7 @@ RimStimPlanModelTemplate::RimStimPlanModelTemplate()
     CAF_PDM_InitScriptableFieldNoDefault( &m_dynamicEclipseCase, "DynamicEclipseCase", "Dynamic Case" );
     CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "Time Step" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_initialPressureEclipseCase,
-                                          "InitialPressureEclipseCase",
-                                          "Initial Pressure Case" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_initialPressureEclipseCase, "InitialPressureEclipseCase", "Initial Pressure Case" );
     CAF_PDM_InitField( &m_useTableForInitialPressure, "UseForInitialPressure", false, "Use Pressure Table For Initial Pressure" );
     CAF_PDM_InitField( &m_useTableForPressure, "UseForPressure", false, "Use Pressure Table For Pressure" );
     CAF_PDM_InitField( &m_editPressureTable, "EditPressureTable", false, "Edit" );
@@ -86,16 +84,10 @@ RimStimPlanModelTemplate::RimStimPlanModelTemplate()
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_staticEclipseCase, "StaticEclipseCase", "Static Case" );
 
-    CAF_PDM_InitField( &m_useEqlnumForPressureInterpolation,
-                       "UseEqlNumForPressureInterpolation",
-                       true,
-                       "Use EQLNUM For Pressure Interpolation" );
+    CAF_PDM_InitField( &m_useEqlnumForPressureInterpolation, "UseEqlNumForPressureInterpolation", true, "Use EQLNUM For Pressure Interpolation" );
 
     CAF_PDM_InitScriptableField( &m_defaultPorosity, "DefaultPorosity", RiaDefines::defaultPorosity(), "Default Porosity" );
-    CAF_PDM_InitScriptableField( &m_defaultPermeability,
-                                 "DefaultPermeability",
-                                 RiaDefines::defaultPermeability(),
-                                 "Default Permeability" );
+    CAF_PDM_InitScriptableField( &m_defaultPermeability, "DefaultPermeability", RiaDefines::defaultPermeability(), "Default Permeability" );
 
     // Stress unit: bar
     // Stress gradient unit: bar/m
@@ -106,18 +98,12 @@ RimStimPlanModelTemplate::RimStimPlanModelTemplate()
 
     CAF_PDM_InitScriptableField( &m_verticalStress, "VerticalStress", defaultStress, "Vertical Stress" );
     m_verticalStress.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
-    CAF_PDM_InitScriptableField( &m_verticalStressGradient,
-                                 "VerticalStressGradient",
-                                 defaultStressGradient,
-                                 "Vertical Stress Gradient" );
+    CAF_PDM_InitScriptableField( &m_verticalStressGradient, "VerticalStressGradient", defaultStressGradient, "Vertical Stress Gradient" );
     CAF_PDM_InitScriptableField( &m_stressDepth, "StressDepth", defaultStressDepth, "Stress Depth" );
     m_stressDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
     CAF_PDM_InitScriptableField( &m_referenceTemperature, "ReferenceTemperature", 70.0, "Temperature [C]" );
-    CAF_PDM_InitScriptableField( &m_referenceTemperatureGradient,
-                                 "ReferenceTemperatureGradient",
-                                 0.025,
-                                 "Temperature Gradient [C/m]" );
+    CAF_PDM_InitScriptableField( &m_referenceTemperatureGradient, "ReferenceTemperatureGradient", 0.025, "Temperature Gradient [C/m]" );
     CAF_PDM_InitScriptableField( &m_referenceTemperatureDepth, "ReferenceTemperatureDepth", 2500.0, "Temperature Depth [m]" );
 
     CAF_PDM_InitScriptableField( &m_overburdenHeight, "OverburdenHeight", 50.0, "Overburden Height" );
@@ -132,14 +118,9 @@ RimStimPlanModelTemplate::RimStimPlanModelTemplate()
     CAF_PDM_InitScriptableFieldNoDefault( &m_underburdenFacies, "UnderburdenFacies", "Underburden Facies" );
     CAF_PDM_InitScriptableField( &m_underburdenPorosity, "UnderburdenPorosity", 0.0, "Underburden Porosity" );
     CAF_PDM_InitScriptableField( &m_underburdenPermeability, "UnderburdenPermeability", 10.0e-6, "Underburden Permeability" );
-    CAF_PDM_InitScriptableField( &m_underburdenFluidDensity,
-                                 "UnderburdenFluidDensity",
-                                 1.03,
-                                 "Underburden Fluid Density [g/cm^3]" );
+    CAF_PDM_InitScriptableField( &m_underburdenFluidDensity, "UnderburdenFluidDensity", 1.03, "Underburden Fluid Density [g/cm^3]" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_faciesInitialPressureConfigs,
-                                          "FaciesInitialPressureConfigs",
-                                          "Facies Initial Pressure Configs" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_faciesInitialPressureConfigs, "FaciesInitialPressureConfigs", "Facies Initial Pressure Configs" );
     m_faciesInitialPressureConfigs.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     m_faciesInitialPressureConfigs.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_faciesInitialPressureConfigs.uiCapability()->setUiTreeChildrenHidden( true );
@@ -171,9 +152,7 @@ RimStimPlanModelTemplate::~RimStimPlanModelTemplate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStimPlanModelTemplate::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                 const QVariant&            oldValue,
-                                                 const QVariant&            newValue )
+void RimStimPlanModelTemplate::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_dynamicEclipseCase && m_dynamicEclipseCase )
     {
@@ -300,8 +279,7 @@ void RimStimPlanModelTemplate::defineUiOrdering( QString uiConfigName, caf::PdmU
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStimPlanModelTemplate::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
-                                                     QString                 uiConfigName /*= ""*/ )
+void RimStimPlanModelTemplate::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
     if ( m_elasticProperties ) uiTreeOrdering.add( m_elasticProperties );
     if ( m_faciesProperties ) uiTreeOrdering.add( m_faciesProperties );
@@ -314,9 +292,7 @@ void RimStimPlanModelTemplate::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiT
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStimPlanModelTemplate::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                      QString                    uiConfigName,
-                                                      caf::PdmUiEditorAttribute* attribute )
+void RimStimPlanModelTemplate::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_stressDepth || field == &m_verticalStress )
     {
@@ -409,15 +385,14 @@ void RimStimPlanModelTemplate::setFaciesProperties( RimFaciesProperties* faciesP
         {
             for ( RimColorLegendItem* item : faciesColors->colorLegendItems() )
             {
-                bool exists = std::find_if( m_faciesInitialPressureConfigs.begin(),
-                                            m_faciesInitialPressureConfigs.end(),
-                                            [item]( const auto& c ) {
-                                                return c->faciesValue() == item->categoryValue();
-                                            } ) != m_faciesInitialPressureConfigs.end();
+                bool exists =
+                    std::find_if( m_faciesInitialPressureConfigs.begin(), m_faciesInitialPressureConfigs.end(), [item]( const auto& c ) {
+                        return c->faciesValue() == item->categoryValue();
+                    } ) != m_faciesInitialPressureConfigs.end();
                 if ( !exists )
                 {
-                    RimFaciesInitialPressureConfig* fipConfig = new RimFaciesInitialPressureConfig;
-                    bool enableInitialPressureConfig = shouldProbablyUseInitialPressure( item->categoryName() );
+                    RimFaciesInitialPressureConfig* fipConfig                   = new RimFaciesInitialPressureConfig;
+                    bool                            enableInitialPressureConfig = shouldProbablyUseInitialPressure( item->categoryName() );
                     fipConfig->setEnabled( enableInitialPressureConfig );
                     fipConfig->setFaciesName( item->categoryName() );
                     fipConfig->setFaciesValue( item->categoryValue() );
@@ -438,8 +413,7 @@ void RimStimPlanModelTemplate::setFaciesProperties( RimFaciesProperties* faciesP
 
 bool RimStimPlanModelTemplate::shouldProbablyUseInitialPressure( const QString& faciesName )
 {
-    return faciesName.compare( "Shale", Qt::CaseInsensitive ) == 0 ||
-           faciesName.compare( "Calcite", Qt::CaseInsensitive ) == 0;
+    return faciesName.compare( "Shale", Qt::CaseInsensitive ) == 0 || faciesName.compare( "Calcite", Qt::CaseInsensitive ) == 0;
 }
 
 //--------------------------------------------------------------------------------------------------

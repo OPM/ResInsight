@@ -81,20 +81,17 @@ public:
     int                    ensembleId() const;
     bool                   hasEnsembleParameters() const;
 
-    std::vector<RigEnsembleParameter> variationSortedEnsembleParameters( bool excludeNoVariation = false ) const;
-    std::vector<std::pair<RigEnsembleParameter, double>>
-        correlationSortedEnsembleParameters( const RifEclipseSummaryAddress& address ) const;
-    std::vector<std::pair<RigEnsembleParameter, double>>
-        correlationSortedEnsembleParameters( const RifEclipseSummaryAddress& address, time_t selectedTimeStep ) const;
-    std::vector<std::pair<RigEnsembleParameter, double>>
-        parameterCorrelations( const RifEclipseSummaryAddress&  address,
-                               time_t                           selectedTimeStep,
-                               const std::vector<QString>&      selectedParameters = {},
-                               const std::set<RimSummaryCase*>& selectedCases      = {} ) const;
+    std::vector<RigEnsembleParameter>                    variationSortedEnsembleParameters( bool excludeNoVariation = false ) const;
+    std::vector<std::pair<RigEnsembleParameter, double>> correlationSortedEnsembleParameters( const RifEclipseSummaryAddress& address ) const;
+    std::vector<std::pair<RigEnsembleParameter, double>> correlationSortedEnsembleParameters( const RifEclipseSummaryAddress& address,
+                                                                                              time_t selectedTimeStep ) const;
+    std::vector<std::pair<RigEnsembleParameter, double>> parameterCorrelations( const RifEclipseSummaryAddress&  address,
+                                                                                time_t                           selectedTimeStep,
+                                                                                const std::vector<QString>&      selectedParameters = {},
+                                                                                const std::set<RimSummaryCase*>& selectedCases = {} ) const;
 
     std::vector<std::pair<RigEnsembleParameter, double>>
-        parameterCorrelationsAllTimeSteps( const RifEclipseSummaryAddress& address,
-                                           const std::vector<QString>&     selectedParameters = {} ) const;
+        parameterCorrelationsAllTimeSteps( const RifEclipseSummaryAddress& address, const std::vector<QString>& selectedParameters = {} ) const;
 
     std::vector<RigEnsembleParameter> alphabeticEnsembleParameters() const;
 

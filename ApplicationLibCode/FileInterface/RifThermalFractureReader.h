@@ -46,8 +46,7 @@ private:
     static std::pair<QString, QString> parseNameAndUnit( const QString& value );
 
     static RiaDefines::EclipseUnitSystem detectUnitSystem( std::shared_ptr<const RigThermalFractureDefinition> definition );
-    static bool                          checkUnits( std::shared_ptr<const RigThermalFractureDefinition> definition,
-                                                     RiaDefines::EclipseUnitSystem                       unitSystem );
+    static bool checkUnits( std::shared_ptr<const RigThermalFractureDefinition> definition, RiaDefines::EclipseUnitSystem unitSystem );
 
     static QString getExpectedUnit( const QString& name, RiaDefines::EclipseUnitSystem unitSystem );
 };

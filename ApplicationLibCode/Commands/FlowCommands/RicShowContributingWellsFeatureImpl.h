@@ -34,13 +34,11 @@ class RimSimWellInView;
 class RicShowContributingWellsFeatureImpl
 {
 public:
-    static RimEclipseView*
-        manipulateSelectedView( RimEclipseResultCase* wellAllocationResultCase, QString wellName, int timeStep );
+    static RimEclipseView* manipulateSelectedView( RimEclipseResultCase* wellAllocationResultCase, QString wellName, int timeStep );
 
 private:
     static void modifyViewToShowContributingWells( RimEclipseView* viewToModify, const QString& wellName, int timeStep );
 
-    static std::vector<QString> findContributingTracerNames( const RimFlowDiagSolution* flowDiagSolution,
-                                                             const RigSimWellData*      wellResults,
-                                                             int                        timeStep );
+    static std::vector<QString>
+        findContributingTracerNames( const RimFlowDiagSolution* flowDiagSolution, const RigSimWellData* wellResults, int timeStep );
 };

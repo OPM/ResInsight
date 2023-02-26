@@ -41,9 +41,7 @@ void RimMswCompletionParameters::PressureDropEnum::setUp()
 {
     addItem( RimMswCompletionParameters::PressureDropType::HYDROSTATIC, "H--", "Hydrostatic" );
     addItem( RimMswCompletionParameters::PressureDropType::HYDROSTATIC_FRICTION, "HF-", "Hydrostatic + Friction" );
-    addItem( RimMswCompletionParameters::PressureDropType::HYDROSTATIC_FRICTION_ACCELERATION,
-             "HFA",
-             "Hydrostatic + Friction + Acceleration" );
+    addItem( RimMswCompletionParameters::PressureDropType::HYDROSTATIC_FRICTION_ACCELERATION, "HFA", "Hydrostatic + Friction + Acceleration" );
     setDefault( RimMswCompletionParameters::PressureDropType::HYDROSTATIC_FRICTION );
 }
 
@@ -93,9 +91,8 @@ RimMswCompletionParameters::~RimMswCompletionParameters()
 bool RimMswCompletionParameters::isDefault() const
 {
     return m_refMDType() == ReferenceMDEnum() && m_refMD() == m_refMD.defaultValue() &&
-           m_linerDiameter() == m_linerDiameter.defaultValue() &&
-           m_roughnessFactor() == m_roughnessFactor.defaultValue() && m_pressureDrop == PressureDropEnum() &&
-           m_enforceMaxSegmentLength() == m_enforceMaxSegmentLength.defaultValue() &&
+           m_linerDiameter() == m_linerDiameter.defaultValue() && m_roughnessFactor() == m_roughnessFactor.defaultValue() &&
+           m_pressureDrop == PressureDropEnum() && m_enforceMaxSegmentLength() == m_enforceMaxSegmentLength.defaultValue() &&
            m_maxSegmentLength() == m_maxSegmentLength.defaultValue();
 }
 
@@ -148,13 +145,11 @@ double RimMswCompletionParameters::linerDiameter( RiaDefines::EclipseUnitSystem 
         diameter = wellPath->topLevelWellPath()->mswCompletionParameters()->m_linerDiameter();
     }
 
-    if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD &&
-         unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
+    if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD && unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
         return RiaEclipseUnitTools::feetToMeter( diameter );
     }
-    else if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC &&
-              unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
+    else if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC && unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
         return RiaEclipseUnitTools::meterToFeet( diameter );
     }
@@ -190,13 +185,11 @@ double RimMswCompletionParameters::roughnessFactor( RiaDefines::EclipseUnitSyste
         rFactor = wellPath->topLevelWellPath()->mswCompletionParameters()->m_roughnessFactor();
     }
 
-    if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD &&
-         unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
+    if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD && unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
         return RiaEclipseUnitTools::feetToMeter( rFactor );
     }
-    else if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC &&
-              unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
+    else if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC && unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
         return RiaEclipseUnitTools::meterToFeet( rFactor );
     }
@@ -294,9 +287,7 @@ void RimMswCompletionParameters::setLengthAndDepth( LengthAndDepthType lengthAnd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMswCompletionParameters::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                   const QVariant&            oldValue,
-                                                   const QVariant&            newValue )
+void RimMswCompletionParameters::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_refMDType )
     {
@@ -364,8 +355,7 @@ void RimMswCompletionParameters::defineUiOrdering( QString uiConfigName, caf::Pd
 //--------------------------------------------------------------------------------------------------
 void RimMswCompletionParameters::initAfterRead()
 {
-    if ( m_linerDiameter() == std::numeric_limits<double>::infinity() &&
-         m_roughnessFactor() == std::numeric_limits<double>::infinity() )
+    if ( m_linerDiameter() == std::numeric_limits<double>::infinity() && m_roughnessFactor() == std::numeric_limits<double>::infinity() )
     {
         setUnitSystemSpecificDefaults();
     }

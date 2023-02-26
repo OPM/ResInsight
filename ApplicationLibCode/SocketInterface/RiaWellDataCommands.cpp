@@ -82,8 +82,7 @@ public:
     }
 };
 
-static bool RiaGetWellNames_init =
-    RiaSocketCommandFactory::instance()->registerCreator<RiaGetWellNames>( RiaGetWellNames::commandName() );
+static bool RiaGetWellNames_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetWellNames>( RiaGetWellNames::commandName() );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -160,9 +159,8 @@ public:
 
             if ( timeStepReadError )
             {
-                server->showErrorMessage(
-                    RiaSocketServer::tr( "ResInsight SocketServer: riGetGridProperty : \n" ) +
-                    RiaSocketServer::tr( "An error occurred while interpreting the requested timesteps." ) );
+                server->showErrorMessage( RiaSocketServer::tr( "ResInsight SocketServer: riGetGridProperty : \n" ) +
+                                          RiaSocketServer::tr( "An error occurred while interpreting the requested timesteps." ) );
             }
         }
 
@@ -220,8 +218,7 @@ public:
     }
 };
 
-static bool RiaGetWellStatus_init =
-    RiaSocketCommandFactory::instance()->registerCreator<RiaGetWellStatus>( RiaGetWellStatus::commandName() );
+static bool RiaGetWellStatus_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetWellStatus>( RiaGetWellStatus::commandName() );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -288,8 +285,7 @@ public:
 
         for ( size_t bIdx = 0; bIdx < wellResFrame->m_wellResultBranches.size(); ++bIdx )
         {
-            const std::vector<RigWellResultPoint>& branchResPoints =
-                wellResFrame->m_wellResultBranches[bIdx].m_branchResultPoints;
+            const std::vector<RigWellResultPoint>& branchResPoints = wellResFrame->m_wellResultBranches[bIdx].m_branchResultPoints;
             for ( size_t rpIdx = 0; rpIdx < branchResPoints.size(); ++rpIdx )
             {
                 const RigWellResultPoint& resPoint = branchResPoints[rpIdx];
@@ -339,5 +335,4 @@ public:
     }
 };
 
-static bool RiaGetWellCells_init =
-    RiaSocketCommandFactory::instance()->registerCreator<RiaGetWellCells>( RiaGetWellCells::commandName() );
+static bool RiaGetWellCells_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetWellCells>( RiaGetWellCells::commandName() );

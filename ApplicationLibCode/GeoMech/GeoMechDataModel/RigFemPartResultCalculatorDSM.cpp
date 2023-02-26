@@ -59,8 +59,8 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorDSM::calculate( int partInde
     CVF_ASSERT( resVarAddr.fieldName == "SE" && resVarAddr.componentName == "DSM" );
 
     caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 3, "" );
-    stepCountProgress.setProgressDescription(
-        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
+    stepCountProgress.setProgressDescription( "Calculating " +
+                                              QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
     stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* se1Frames =

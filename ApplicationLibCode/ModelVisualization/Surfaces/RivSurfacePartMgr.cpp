@@ -55,7 +55,7 @@ RivSurfacePartMgr::RivSurfacePartMgr( RimSurfaceInView* surface )
     CVF_ASSERT( surface );
 
     cvf::ref<RivIntersectionHexGridInterface> hexGrid = m_surfaceInView->createHexGridInterface();
-    m_intersectionGenerator = new RivSurfaceIntersectionGeometryGenerator( m_surfaceInView, hexGrid.p() );
+    m_intersectionGenerator                           = new RivSurfaceIntersectionGeometryGenerator( m_surfaceInView, hexGrid.p() );
 
     m_intersectionFacesTextureCoords = new cvf::Vec2fArray;
     m_nativeTrianglesTextureCoords   = new cvf::Vec2fArray;
@@ -187,8 +187,7 @@ void RivSurfacePartMgr::updateNativeSurfaceColors()
     }
     else
     {
-        caf::SurfaceEffectGenerator surfaceGenBehind( cvf::Color4f( m_surfaceInView->surface()->color() ),
-                                                      caf::PO_POS_LARGE );
+        caf::SurfaceEffectGenerator surfaceGenBehind( cvf::Color4f( m_surfaceInView->surface()->color() ), caf::PO_POS_LARGE );
 
         cvf::ref<cvf::Effect> effBehind = surfaceGenBehind.generateCachedEffect();
         if ( m_nativeTrianglesPart.notNull() )
@@ -237,8 +236,7 @@ QString RivSurfacePartMgr::resultInfoText( Rim3dView* view, uint hitPart, cvf::V
 
     if ( m_surfaceInView->surfaceResultDefinition()->isChecked() )
     {
-        const auto& values =
-            m_usedSurfaceData->propertyValues( m_surfaceInView->surfaceResultDefinition()->propertyName() );
+        const auto& values = m_usedSurfaceData->propertyValues( m_surfaceInView->surfaceResultDefinition()->propertyName() );
         if ( values.empty() ) return "";
 
         const auto& ind  = m_usedSurfaceData->triangleIndices();
@@ -260,11 +258,9 @@ QString RivSurfacePartMgr::resultInfoText( Rim3dView* view, uint hitPart, cvf::V
             double resultValue = -1.0;
             if ( vertIndex1 < values.size() ) resultValue = values[vertIndex1];
             if ( dist2 < dist1 && vertIndex2 < values.size() ) resultValue = values[vertIndex2];
-            if ( ( dist3 < dist1 ) && ( dist3 < dist2 ) && vertIndex3 < values.size() )
-                resultValue = values[vertIndex3];
+            if ( ( dist3 < dist1 ) && ( dist3 < dist2 ) && vertIndex3 < values.size() ) resultValue = values[vertIndex3];
 
-            retval +=
-                QString( "%1 : %2\n\n" ).arg( m_surfaceInView->surfaceResultDefinition()->propertyName() ).arg( resultValue );
+            retval += QString( "%1 : %2\n\n" ).arg( m_surfaceInView->surfaceResultDefinition()->propertyName() ).arg( resultValue );
         }
     }
     return retval;

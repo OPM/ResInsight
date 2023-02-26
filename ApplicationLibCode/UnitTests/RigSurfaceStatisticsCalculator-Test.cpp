@@ -33,9 +33,7 @@ TEST( RigSurfaceStatisticsTests, computeStatistics )
     {
         cvf::ref<RigSurface>      surface  = cvf::make_ref<RigSurface>();
         std::vector<unsigned int> indices  = { 2, 1, 0 };
-        std::vector<cvf::Vec3d>   vertices = { cvf::Vec3d( -1.0, -1.0, i ),
-                                             cvf::Vec3d( 1.0, -1.0, i ),
-                                             cvf::Vec3d( -1.0, 1.0, i ) };
+        std::vector<cvf::Vec3d>   vertices = { cvf::Vec3d( -1.0, -1.0, i ), cvf::Vec3d( 1.0, -1.0, i ), cvf::Vec3d( -1.0, 1.0, i ) };
 
         surface->setTriangleData( indices, vertices );
         surfaces.push_back( surface );

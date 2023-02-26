@@ -42,9 +42,8 @@ public:
     static QString findSuitableEnsembleName( const QStringList& fileNames, EnsembleGroupingMode groupingMode );
     static QString findCommonBaseName( const QStringList& fileNames );
 
-    static QString uniqueShortName( const QString&     sourceFileName,
-                                    const QStringList& allFileNames,
-                                    const QString&     ensembleCaseName = QString() );
+    static QString
+        uniqueShortName( const QString& sourceFileName, const QStringList& allFileNames, const QString& ensembleCaseName = QString() );
 
     static QString uniqueShortNameFromComponents( const QString&                        sourceFileName,
                                                   const std::map<QString, QStringList>& keyFileComponentsForAllFiles,

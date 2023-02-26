@@ -105,8 +105,8 @@ protected:
     // as the objectToggleField for this class. This way the visibility of a widget being part of a composite widget
     // can be controlled from the project tree using check box toggles
     caf::PdmFieldHandle* objectToggleField() final;
-    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void                 initAfterRead() override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void initAfterRead() override;
 
     void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 

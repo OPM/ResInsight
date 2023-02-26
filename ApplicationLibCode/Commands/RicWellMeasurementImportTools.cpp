@@ -64,8 +64,7 @@ void RicWellMeasurementImportTools::importWellMeasurementsFromFiles( const std::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellMeasurementImportTools::importWellMeasurementsFromFiles( const QStringList&     filePaths,
-                                                                     RimWellPathCollection* wellPathCollection )
+void RicWellMeasurementImportTools::importWellMeasurementsFromFiles( const QStringList& filePaths, RimWellPathCollection* wellPathCollection )
 {
     std::vector<RifWellMeasurement> wellMeasurements;
     try

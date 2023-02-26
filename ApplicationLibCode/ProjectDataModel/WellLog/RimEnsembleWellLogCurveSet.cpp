@@ -81,9 +81,7 @@ template <>
 void AppEnum<RimEnsembleWellLogCurveSet::ColorMode>::setUp()
 {
     addItem( RimEnsembleWellLogCurveSet::ColorMode::SINGLE_COLOR, "SINGLE_COLOR", "Single Color" );
-    addItem( RimEnsembleWellLogCurveSet::ColorMode::COLOR_BY_ENSEMBLE_CURVE_SET,
-             "BY_ENSEMBLE_CURVE_SET",
-             "Color by Ensemble Curve Set" );
+    addItem( RimEnsembleWellLogCurveSet::ColorMode::COLOR_BY_ENSEMBLE_CURVE_SET, "BY_ENSEMBLE_CURVE_SET", "Color by Ensemble Curve Set" );
     setDefault( RimEnsembleWellLogCurveSet::ColorMode::SINGLE_COLOR );
 }
 }; // namespace caf
@@ -392,9 +390,7 @@ void RimEnsembleWellLogCurveSet::updateEditors()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleWellLogCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                   const QVariant&            oldValue,
-                                                   const QVariant&            newValue )
+void RimEnsembleWellLogCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimWellLogPlot* plot = nullptr;
     firstAncestorOrThisOfType( plot );
@@ -525,8 +521,7 @@ void RimEnsembleWellLogCurveSet::appendColorGroup( caf::PdmUiOrdering& uiOrderin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleWellLogCurveSet::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
-                                                       QString                 uiConfigName /*= ""*/ )
+void RimEnsembleWellLogCurveSet::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
     uiTreeOrdering.skipRemainingChildren( true );
 
@@ -562,16 +557,14 @@ caf::PdmFieldHandle* RimEnsembleWellLogCurveSet::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimEnsembleWellLogCurveSet::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RimEnsembleWellLogCurveSet::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
     if ( fieldNeedingOptions == &m_ensembleWellLogs )
     {
-        RimProject*                       proj = RimProject::current();
-        std::vector<RimEnsembleWellLogs*> groups =
-            proj->activeOilField()->ensembleWellLogsCollection()->ensembleWellLogs();
+        RimProject*                       proj   = RimProject::current();
+        std::vector<RimEnsembleWellLogs*> groups = proj->activeOilField()->ensembleWellLogsCollection()->ensembleWellLogs();
 
         for ( RimEnsembleWellLogs* ensemble : groups )
         {
@@ -640,8 +633,8 @@ void RimEnsembleWellLogCurveSet::updateFilterLegend()
         {
             if ( !m_filterOverlayFrame )
             {
-                m_filterOverlayFrame = new RiuDraggableOverlayFrame( plotTrack->viewer()->qwtPlot()->canvas(),
-                                                                     plotTrack->viewer()->overlayMargins() );
+                m_filterOverlayFrame =
+                    new RiuDraggableOverlayFrame( plotTrack->viewer()->qwtPlot()->canvas(), plotTrack->viewer()->overlayMargins() );
             }
             m_filterOverlayFrame->setContentFrame( m_ensembleCurveSet->curveFilters()->makeFilterDescriptionFrame() );
             plotTrack->viewer()->addOverlayFrame( m_filterOverlayFrame );
@@ -694,8 +687,7 @@ void RimEnsembleWellLogCurveSet::updateCurveColors()
                 if ( dynamic_cast<RimEnsembleWellLogStatisticsCurve*>( curve.p() ) == nullptr )
                 {
                     // Look for a matching summary case
-                    RimSummaryCase* summaryCase =
-                        findMatchingSummaryCase( dynamic_cast<RimWellLogFileCurve*>( curve.p() ) );
+                    RimSummaryCase* summaryCase = findMatchingSummaryCase( dynamic_cast<RimWellLogFileCurve*>( curve.p() ) );
                     if ( summaryCase )
                     {
                         summaryCases.push_back( summaryCase );
@@ -738,8 +730,8 @@ void RimEnsembleWellLogCurveSet::updateCurveColors()
         {
             if ( !m_legendOverlayFrame )
             {
-                m_legendOverlayFrame = new RiuDraggableOverlayFrame( plotTrack->viewer()->getParentForOverlay(),
-                                                                     plotTrack->viewer()->overlayMargins() );
+                m_legendOverlayFrame =
+                    new RiuDraggableOverlayFrame( plotTrack->viewer()->getParentForOverlay(), plotTrack->viewer()->overlayMargins() );
             }
             m_legendOverlayFrame->setContentFrame( m_ensembleCurveSet->legendConfig()->makeLegendFrame() );
             plotTrack->viewer()->addOverlayFrame( m_legendOverlayFrame );
@@ -923,12 +915,9 @@ void RimEnsembleWellLogCurveSet::updateStatisticsCurves( const std::vector<RimWe
     }
 
     auto statisticsCurveSymbolFromStatistics = []( RimEnsembleWellLogStatistics::StatisticsType statisticsType ) {
-        if ( statisticsType == RimEnsembleWellLogStatistics::StatisticsType::P10 )
-            return RiuPlotCurveSymbol::SYMBOL_TRIANGLE;
-        if ( statisticsType == RimEnsembleWellLogStatistics::StatisticsType::P90 )
-            return RiuPlotCurveSymbol::SYMBOL_DOWN_TRIANGLE;
-        if ( statisticsType == RimEnsembleWellLogStatistics::StatisticsType::P50 )
-            return RiuPlotCurveSymbol::SYMBOL_DIAMOND;
+        if ( statisticsType == RimEnsembleWellLogStatistics::StatisticsType::P10 ) return RiuPlotCurveSymbol::SYMBOL_TRIANGLE;
+        if ( statisticsType == RimEnsembleWellLogStatistics::StatisticsType::P90 ) return RiuPlotCurveSymbol::SYMBOL_DOWN_TRIANGLE;
+        if ( statisticsType == RimEnsembleWellLogStatistics::StatisticsType::P50 ) return RiuPlotCurveSymbol::SYMBOL_DIAMOND;
         return RiuPlotCurveSymbol::SYMBOL_ELLIPSE;
     };
 
@@ -1024,8 +1013,7 @@ void RimEnsembleWellLogCurveSet::updateAllTextInPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellLogFile*>
-    RimEnsembleWellLogCurveSet::filterEnsembleCases( const std::vector<RimWellLogFile*>& wellLogFiles )
+std::vector<RimWellLogFile*> RimEnsembleWellLogCurveSet::filterEnsembleCases( const std::vector<RimWellLogFile*>& wellLogFiles )
 {
     std::vector<RimWellLogFile*> filteredCases;
 
@@ -1035,8 +1023,7 @@ std::vector<RimWellLogFile*>
         RimSummaryCaseCollection* summaryCaseCollection = m_ensembleCurveSet->summaryCaseCollection();
 
         //
-        std::vector<RimSummaryCase*> sumCases =
-            m_ensembleCurveSet->filterEnsembleCases( summaryCaseCollection->allSummaryCases() );
+        std::vector<RimSummaryCase*> sumCases = m_ensembleCurveSet->filterEnsembleCases( summaryCaseCollection->allSummaryCases() );
         for ( auto sumCase : sumCases )
         {
             for ( auto wellLogFile : wellLogFiles )
@@ -1261,11 +1248,9 @@ void RimEnsembleWellLogCurveSet::setWellLogChannelName( const QString& wellLogCh
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigWellPathFormations>
-    RimEnsembleWellLogCurveSet::createWellPathFormations( std::shared_ptr<RigWellLogIndexDepthOffset> offsets )
+cvf::ref<RigWellPathFormations> RimEnsembleWellLogCurveSet::createWellPathFormations( std::shared_ptr<RigWellLogIndexDepthOffset> offsets )
 {
-    RimFormationNamesCollection* formationNamesCollection =
-        RimProject::current()->activeOilField()->formationNamesCollection.v();
+    RimFormationNamesCollection* formationNamesCollection = RimProject::current()->activeOilField()->formationNamesCollection.v();
     if ( !formationNamesCollection ) return nullptr;
 
     if ( formationNamesCollection->formationNamesList().empty() ) return nullptr;

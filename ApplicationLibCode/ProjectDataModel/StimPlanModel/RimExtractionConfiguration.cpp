@@ -27,9 +27,7 @@ void caf::AppEnum<RimExtractionConfiguration::EclipseCaseType>::setUp()
 {
     addItem( RimExtractionConfiguration::EclipseCaseType::STATIC_CASE, "STATIC_CASE", "Static Case" );
     addItem( RimExtractionConfiguration::EclipseCaseType::DYNAMIC_CASE, "DYNAMIC_CASE", "Dynamic Case" );
-    addItem( RimExtractionConfiguration::EclipseCaseType::INITIAL_PRESSURE_CASE,
-             "INITIAL_PRESSURE_CASE",
-             "Initial Pressure Case" );
+    addItem( RimExtractionConfiguration::EclipseCaseType::INITIAL_PRESSURE_CASE, "INITIAL_PRESSURE_CASE", "Initial Pressure Case" );
 
     setDefault( RimExtractionConfiguration::EclipseCaseType::STATIC_CASE );
 }
@@ -38,9 +36,7 @@ void caf::AppEnum<RimExtractionConfiguration::EclipseCaseType>::setUp()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimExtractionConfiguration::RimExtractionConfiguration( const QString&            resultVar,
-                                                        RiaDefines::ResultCatType resultCat,
-                                                        EclipseCaseType           eclipseCase )
+RimExtractionConfiguration::RimExtractionConfiguration( const QString& resultVar, RiaDefines::ResultCatType resultCat, EclipseCaseType eclipseCase )
 {
     resultVariable  = resultVar;
     resultCategory  = resultCat;

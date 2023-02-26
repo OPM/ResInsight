@@ -72,9 +72,8 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorSFI::calculate( int partInde
 
     RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resAddr );
 
-    float cohPrFricAngle =
-        (float)( m_resultCollection->parameterCohesion() / tan( m_resultCollection->parameterFrictionAngleRad() ) );
-    float sinFricAng = sin( m_resultCollection->parameterFrictionAngleRad() );
+    float cohPrFricAngle = (float)( m_resultCollection->parameterCohesion() / tan( m_resultCollection->parameterFrictionAngleRad() ) );
+    float sinFricAng     = sin( m_resultCollection->parameterFrictionAngleRad() );
 
     const int timeSteps = se1Frames->timeStepCount();
     for ( int stepIdx = 0; stepIdx < timeSteps; stepIdx++ )

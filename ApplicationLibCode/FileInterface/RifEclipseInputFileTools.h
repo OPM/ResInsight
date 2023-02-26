@@ -56,8 +56,7 @@ public:
     RifEclipseInputFileTools();
     ~RifEclipseInputFileTools() override;
 
-    static bool
-        openGridFile( const QString& fileName, RigEclipseCaseData* eclipseCase, bool readFaultData, QString* errorMessages );
+    static bool openGridFile( const QString& fileName, RigEclipseCaseData* eclipseCase, bool readFaultData, QString* errorMessages );
 
     static bool exportGrid( const QString&         gridFileName,
                             RigEclipseCaseData*    eclipseCase,
@@ -105,20 +104,18 @@ public:
                                          const QString&             faultIncludeFileAbsolutePathPrefix );
     static void parseAndReadFaults( const QString& fileName, cvf::Collection<RigFault>* faults );
 
-    static void parseAndReadPathAliasKeyword( const QString&                            fileName,
-                                              std::vector<std::pair<QString, QString>>* pathAliasDefinitions );
+    static void parseAndReadPathAliasKeyword( const QString& fileName, std::vector<std::pair<QString, QString>>* pathAliasDefinitions );
 
-    static bool readKeywordAndParseIncludeStatementsRecursively(
-        const QString&                                  keyword,
-        const QString&                                  keywordToStopParsing,
-        QFile&                                          file,
-        qint64                                          startPos,
-        const std::vector<std::pair<QString, QString>>& pathAliasDefinitions,
-        QStringList*                                    keywordDataContent,
-        std::vector<QString>*                           filenamesContainingKeyword,
-        bool*                                           isEditKeywordDetected,
-        const QString&                                  faultIncludeFileAbsolutePathPrefix // rename to
-                                                          // includeStatementAbsolutePathPrefix
+    static bool readKeywordAndParseIncludeStatementsRecursively( const QString&                                  keyword,
+                                                                 const QString&                                  keywordToStopParsing,
+                                                                 QFile&                                          file,
+                                                                 qint64                                          startPos,
+                                                                 const std::vector<std::pair<QString, QString>>& pathAliasDefinitions,
+                                                                 QStringList*                                    keywordDataContent,
+                                                                 std::vector<QString>*                           filenamesContainingKeyword,
+                                                                 bool*                                           isEditKeywordDetected,
+                                                                 const QString& faultIncludeFileAbsolutePathPrefix // rename to
+                                                                                                                   // includeStatementAbsolutePathPrefix
     );
 
     static RiaDefines::EclipseUnitSystem readUnitSystem( QFile& file, qint64 gridunitPos );
@@ -128,17 +125,14 @@ public:
 private:
     static void readFaults( QFile& data, qint64 filePos, cvf::Collection<RigFault>* faults, bool* isEditKeywordDetected );
 
-    static void readFaults( const QString&                           fileName,
-                            const std::vector<RifKeywordAndFilePos>& fileKeywords,
-                            cvf::Collection<RigFault>*               faults );
-    static bool
-        readFaultsAndParseIncludeStatementsRecursively( QFile&                                          file,
-                                                        qint64                                          startPos,
-                                                        const std::vector<std::pair<QString, QString>>& pathAliasDefinitions,
-                                                        cvf::Collection<RigFault>*                      faults,
-                                                        std::vector<QString>* filenamesWithFaults,
-                                                        bool*                 isEditKeywordDetected,
-                                                        const QString&        faultIncludeFileAbsolutePathPrefix );
+    static void readFaults( const QString& fileName, const std::vector<RifKeywordAndFilePos>& fileKeywords, cvf::Collection<RigFault>* faults );
+    static bool readFaultsAndParseIncludeStatementsRecursively( QFile&                                          file,
+                                                                qint64                                          startPos,
+                                                                const std::vector<std::pair<QString, QString>>& pathAliasDefinitions,
+                                                                cvf::Collection<RigFault>*                      faults,
+                                                                std::vector<QString>*                           filenamesWithFaults,
+                                                                bool*                                           isEditKeywordDetected,
+                                                                const QString& faultIncludeFileAbsolutePathPrefix );
 
     static void readKeywordDataContent( QFile& data, qint64 filePos, QStringList* textContent, bool* isEditKeywordDetected );
 

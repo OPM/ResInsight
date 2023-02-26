@@ -245,8 +245,8 @@ cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateLine( const cvf::Ve
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateExtrudedCylinder( double radius,
-                                                                               size_t crossSectionNodeCount,
+cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateExtrudedCylinder( double                 radius,
+                                                                               size_t                 crossSectionNodeCount,
                                                                                const cvf::Vec3dArray* cylinderCenterCoords )
 {
     CVF_ASSERT( cylinderCenterCoords != nullptr );
@@ -372,19 +372,15 @@ cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateExtrudedCylinder( d
         }
 
         // Last quad closing the cylinder
-        quadVertexArray->add(
-            crossSectionVertices[( ( segmentIdx + 0 ) * crossSectionNodeCount ) + crossSectionNodeCount - 1] );
+        quadVertexArray->add( crossSectionVertices[( ( segmentIdx + 0 ) * crossSectionNodeCount ) + crossSectionNodeCount - 1] );
         quadVertexArray->add( crossSectionVertices[( ( segmentIdx + 0 ) * crossSectionNodeCount ) + 0] );
         quadVertexArray->add( crossSectionVertices[( ( segmentIdx + 1 ) * crossSectionNodeCount ) + 0] );
-        quadVertexArray->add(
-            crossSectionVertices[( ( segmentIdx + 1 ) * crossSectionNodeCount ) + crossSectionNodeCount - 1] );
+        quadVertexArray->add( crossSectionVertices[( ( segmentIdx + 1 ) * crossSectionNodeCount ) + crossSectionNodeCount - 1] );
 
-        quadNormalArray->add(
-            cylinderSegmentNormals[( ( segmentIdx + 0 ) * crossSectionNodeCount ) + crossSectionNodeCount - 1] );
+        quadNormalArray->add( cylinderSegmentNormals[( ( segmentIdx + 0 ) * crossSectionNodeCount ) + crossSectionNodeCount - 1] );
         quadNormalArray->add( cylinderSegmentNormals[( ( segmentIdx + 0 ) * crossSectionNodeCount ) + 0] );
         quadNormalArray->add( cylinderSegmentNormals[( ( segmentIdx + 0 ) * crossSectionNodeCount ) + 0] );
-        quadNormalArray->add(
-            cylinderSegmentNormals[( ( segmentIdx + 0 ) * crossSectionNodeCount ) + crossSectionNodeCount - 1] );
+        quadNormalArray->add( cylinderSegmentNormals[( ( segmentIdx + 0 ) * crossSectionNodeCount ) + crossSectionNodeCount - 1] );
     }
 
     CVF_ASSERT( vertexCount == quadVertexArray->size() );
@@ -400,8 +396,8 @@ cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateExtrudedCylinder( d
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateVariableRadiusTube( size_t crossSectionNodeCount,
-                                                                                 const cvf::Vec3dArray* cylinderCenterCoords,
+cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateVariableRadiusTube( size_t                     crossSectionNodeCount,
+                                                                                 const cvf::Vec3dArray*     cylinderCenterCoords,
                                                                                  const std::vector<double>& radii )
 {
     CVF_ASSERT( cylinderCenterCoords != nullptr );
@@ -468,12 +464,7 @@ cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateVariableRadiusTube(
         orient2 = ( nextDir ^ orient1 ).getNormalized();
 
         std::vector<cvf::Vec3d> extrudedNodes;
-        computeCircle( radii[nextCcIdx],
-                       crossSectionNodeCount,
-                       ( *cylinderCenterCoords )[nextCcIdx],
-                       orient1,
-                       orient2,
-                       &extrudedNodes );
+        computeCircle( radii[nextCcIdx], crossSectionNodeCount, ( *cylinderCenterCoords )[nextCcIdx], orient1, orient2, &extrudedNodes );
 
         // Insert the next set of vertices and calculate normals for segment
         for ( size_t i = 0; i < extrudedNodes.size(); i++ )
@@ -548,19 +539,15 @@ cvf::ref<cvf::DrawableGeo> RivPipeGeometryGenerator::generateVariableRadiusTube(
         }
 
         // Last quad closing the cylinder
-        quadVertexArray->add(
-            crossSectionVertices[( ( segmentIdx + 0 ) * crossSectionNodeCount ) + crossSectionNodeCount - 1] );
+        quadVertexArray->add( crossSectionVertices[( ( segmentIdx + 0 ) * crossSectionNodeCount ) + crossSectionNodeCount - 1] );
         quadVertexArray->add( crossSectionVertices[( ( segmentIdx + 0 ) * crossSectionNodeCount ) + 0] );
         quadVertexArray->add( crossSectionVertices[( ( segmentIdx + 1 ) * crossSectionNodeCount ) + 0] );
-        quadVertexArray->add(
-            crossSectionVertices[( ( segmentIdx + 1 ) * crossSectionNodeCount ) + crossSectionNodeCount - 1] );
+        quadVertexArray->add( crossSectionVertices[( ( segmentIdx + 1 ) * crossSectionNodeCount ) + crossSectionNodeCount - 1] );
 
-        quadNormalArray->add(
-            cylinderSegmentNormals[( ( segmentIdx + 0 ) * crossSectionNodeCount ) + crossSectionNodeCount - 1] );
+        quadNormalArray->add( cylinderSegmentNormals[( ( segmentIdx + 0 ) * crossSectionNodeCount ) + crossSectionNodeCount - 1] );
         quadNormalArray->add( cylinderSegmentNormals[( ( segmentIdx + 0 ) * crossSectionNodeCount ) + 0] );
         quadNormalArray->add( cylinderSegmentNormals[( ( segmentIdx + 0 ) * crossSectionNodeCount ) + 0] );
-        quadNormalArray->add(
-            cylinderSegmentNormals[( ( segmentIdx + 0 ) * crossSectionNodeCount ) + crossSectionNodeCount - 1] );
+        quadNormalArray->add( cylinderSegmentNormals[( ( segmentIdx + 0 ) * crossSectionNodeCount ) + crossSectionNodeCount - 1] );
     }
 
     CVF_ASSERT( vertexCount == quadVertexArray->size() );

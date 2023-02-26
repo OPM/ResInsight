@@ -109,7 +109,7 @@ public:
 
     RimEclipsePropertyFilterCollection*       eclipsePropertyFilterCollection();
     const RimEclipsePropertyFilterCollection* eclipsePropertyFilterCollection() const;
-    void setOverridePropertyFilterCollection( RimEclipsePropertyFilterCollection* pfc );
+    void                                      setOverridePropertyFilterCollection( RimEclipsePropertyFilterCollection* pfc );
 
     RigCaseCellResultsData*  currentGridCellResults() const;
     const RigActiveCellInfo* currentActiveCellInfo() const;
@@ -163,10 +163,10 @@ public:
     std::vector<RigEclipseResultAddress> additionalResultsForResultInfo() const;
 
 protected:
-    void initAfterRead() override;
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
-    void onLoadDataAndUpdate() override;
+    void                 initAfterRead() override;
+    void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                 defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    void                 onLoadDataAndUpdate() override;
     caf::PdmFieldHandle* userDescriptionField() override;
 
     bool isShowingActiveCellsOnly() override;

@@ -57,11 +57,9 @@ public:
 
     RigHistogramData histogramData( RimEclipseContourMapView* contourMap );
     RigHistogramData histogramData( RimGeoMechContourMapView* contourMap );
-    RigHistogramData
-        histogramData( RimEclipseView* eclipseView, StatisticsCellRangeType cellRange, StatisticsTimeRangeType timeRange );
+    RigHistogramData histogramData( RimEclipseView* eclipseView, StatisticsCellRangeType cellRange, StatisticsTimeRangeType timeRange );
 
-    RigHistogramData
-        histogramData( RimGeoMechView* geoMechView, StatisticsCellRangeType cellRange, StatisticsTimeRangeType timeRange );
+    RigHistogramData histogramData( RimGeoMechView* geoMechView, StatisticsCellRangeType cellRange, StatisticsTimeRangeType timeRange );
 
     RigHistogramData histogramData( RimEclipseView*             eclipseView,
                                     RimEclipseResultDefinition* eclResultDefinition,

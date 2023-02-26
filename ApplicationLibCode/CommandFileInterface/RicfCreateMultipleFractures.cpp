@@ -93,8 +93,7 @@ caf::PdmScriptResponse RicfCreateMultipleFractures::execute()
         wellPaths = TOOLS::wellPathsFromNames( TOOLS::toQStringList( m_wellPathNames ), &wellsNotFound );
         if ( !wellsNotFound.empty() )
         {
-            QString error =
-                QString( "createMultipleFractures: These well paths were not found: %1" ).arg( wellsNotFound.join( ", " ) );
+            QString error = QString( "createMultipleFractures: These well paths were not found: %1" ).arg( wellsNotFound.join( ", " ) );
             RiaLogging::error( error );
             return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
         }
@@ -109,8 +108,7 @@ caf::PdmScriptResponse RicfCreateMultipleFractures::execute()
 
     if ( !fractureTemplate )
     {
-        QString error =
-            QString( "createMultipleFractures: Could not find fracture template with ID %1" ).arg( m_templateId );
+        QString error = QString( "createMultipleFractures: Could not find fracture template with ID %1" ).arg( m_templateId );
         RiaLogging::error( error );
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
@@ -131,8 +129,8 @@ caf::PdmScriptResponse RicfCreateMultipleFractures::execute()
 
     RicCreateMultipleFracturesOptionItemUi* options        = new RicCreateMultipleFracturesOptionItemUi();
     caf::CmdFeatureManager*                 commandManager = caf::CmdFeatureManager::instance();
-    auto                                    feature        = dynamic_cast<RicCreateMultipleFracturesFeature*>(
-        commandManager->getCommandFeature( "RicCreateMultipleFracturesFeature" ) );
+    auto                                    feature =
+        dynamic_cast<RicCreateMultipleFracturesFeature*>( commandManager->getCommandFeature( "RicCreateMultipleFracturesFeature" ) );
 
     // Default layers
     int topLayer  = m_topLayer;

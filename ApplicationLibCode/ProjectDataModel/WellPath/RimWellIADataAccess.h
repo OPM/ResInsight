@@ -39,14 +39,9 @@ public:
     RimWellIADataAccess( RimGeoMechCase* thecase );
     ~RimWellIADataAccess();
 
-    int    resultIndex( RigFemResultPosEnum resultType, cvf::Vec3d position );
-    int    elementIndex( cvf::Vec3d position );
-    double resultValue( QString             fieldName,
-                        QString             componentName,
-                        RigFemResultPosEnum resultType,
-                        size_t              resultIndex,
-                        int                 timeStep,
-                        int                 frameId );
+    int resultIndex( RigFemResultPosEnum resultType, cvf::Vec3d position );
+    int elementIndex( cvf::Vec3d position );
+    double resultValue( QString fieldName, QString componentName, RigFemResultPosEnum resultType, size_t resultIndex, int timeStep, int frameId );
     double interpolatedResultValue( QString             fieldname,
                                     QString             componentName,
                                     RigFemResultPosEnum resultType,

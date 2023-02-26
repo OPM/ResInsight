@@ -196,9 +196,7 @@ std::set<RigEclipseResultAddress> RiaMemoryCleanup::findEclipseResultsInUse() co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaMemoryCleanup::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                         const QVariant&            oldValue,
-                                         const QVariant&            newValue )
+void RiaMemoryCleanup::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_case )
     {
@@ -243,7 +241,7 @@ QList<caf::PdmOptionItemInfo> RiaMemoryCleanup::calculateValueOptions( const caf
         if ( eclipseCase )
         {
             std::set<RigEclipseResultAddress> resultsInUse = findEclipseResultsInUse();
-            RigCaseCellResultsData* caseData = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+            RigCaseCellResultsData*           caseData     = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
             if ( caseData )
             {
                 m_eclipseResultAddresses = caseData->existingResults();
@@ -279,11 +277,10 @@ QList<caf::PdmOptionItemInfo> RiaMemoryCleanup::calculateValueOptions( const caf
 
                 for ( size_t i = 0; i < m_geomResultAddresses.size(); ++i )
                 {
-                    const RigFemResultAddress& result = m_geomResultAddresses[i];
-                    bool                       inUse  = resultsInUse.count( result );
-                    QString posText = caf::AppEnum<RigFemResultPosEnum>::uiTextFromIndex( result.resultPosType );
-                    QString resultsText =
-                        QString( "%1, %2" ).arg( posText ).arg( QString::fromStdString( result.fieldName ) );
+                    const RigFemResultAddress& result  = m_geomResultAddresses[i];
+                    bool                       inUse   = resultsInUse.count( result );
+                    QString                    posText = caf::AppEnum<RigFemResultPosEnum>::uiTextFromIndex( result.resultPosType );
+                    QString resultsText = QString( "%1, %2" ).arg( posText ).arg( QString::fromStdString( result.fieldName ) );
                     if ( !result.componentName.empty() )
                     {
                         resultsText += QString( ", %1" ).arg( QString::fromStdString( result.componentName ) );
@@ -313,9 +310,7 @@ void RiaMemoryCleanup::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaMemoryCleanup::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                              QString                    uiConfigName,
-                                              caf::PdmUiEditorAttribute* attribute )
+void RiaMemoryCleanup::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_performDelete )
     {

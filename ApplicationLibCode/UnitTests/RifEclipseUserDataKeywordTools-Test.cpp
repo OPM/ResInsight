@@ -85,10 +85,10 @@ TEST( RifEclipseUserDataKeywordToolsTest, BuildTableHeaderText )
 //--------------------------------------------------------------------------------------------------
 TEST( RifEclipseUserDataKeywordToolsTest, BuildTableHeaderTextComplex )
 {
-    std::vector<std::string> keywordNames = { "TIME", "WGT1", "FVIR", "RPR", "GOPR", "CWIR", "FTPTS36", "CWIR" };
-    std::vector<std::string> firstheader  = { "OP-1", "8", "MANI-D2", "F-2H", "2H" };
-    std::vector<std::string> secondHeader = { "18", "83", "3", "9", "8", "7" };
-    std::vector<std::vector<std::string>> headerLines = { firstheader, secondHeader };
+    std::vector<std::string>              keywordNames = { "TIME", "WGT1", "FVIR", "RPR", "GOPR", "CWIR", "FTPTS36", "CWIR" };
+    std::vector<std::string>              firstheader  = { "OP-1", "8", "MANI-D2", "F-2H", "2H" };
+    std::vector<std::string>              secondHeader = { "18", "83", "3", "9", "8", "7" };
+    std::vector<std::vector<std::string>> headerLines  = { firstheader, secondHeader };
 
     auto tableHeaderData = RifEclipseUserDataKeywordTools::buildColumnHeaderText( keywordNames, headerLines );
     EXPECT_EQ( size_t( 8 ), tableHeaderData.size() );
@@ -118,10 +118,10 @@ TEST( RifEclipseUserDataKeywordToolsTest, MissingHeaderData )
     }
 
     {
-        std::vector<std::string> keywordNames = { "TIME", "WGT1", "FVIR", "RPR", "GOPR", "CWIR", "FTPTS36", "CWIR" };
-        std::vector<std::string> firstheader  = { "OP-1", "8", "MANI-D2", "F-2H", "2H" };
-        std::vector<std::string> secondHeader = { "18", "83", "3", "9", "8" }; // Missing value from last triplet
-        std::vector<std::vector<std::string>> headerLines = { firstheader, secondHeader };
+        std::vector<std::string>              keywordNames = { "TIME", "WGT1", "FVIR", "RPR", "GOPR", "CWIR", "FTPTS36", "CWIR" };
+        std::vector<std::string>              firstheader  = { "OP-1", "8", "MANI-D2", "F-2H", "2H" };
+        std::vector<std::string>              secondHeader = { "18", "83", "3", "9", "8" }; // Missing value from last triplet
+        std::vector<std::vector<std::string>> headerLines  = { firstheader, secondHeader };
 
         auto tableHeaderData = RifEclipseUserDataKeywordTools::buildColumnHeaderText( keywordNames, headerLines );
         EXPECT_EQ( size_t( 0 ), tableHeaderData.size() );
@@ -265,7 +265,7 @@ TEST( RifEclipseUserDataKeywordToolsTest, CreationOfMisc )
     {
         std::string              quantity   = "JI-NOT-REQOGNIZED";
         std::vector<std::string> columnData = {};
-        auto                     address = RifEclipseUserDataKeywordTools::makeAndFillAddress( quantity, columnData );
+        auto                     address    = RifEclipseUserDataKeywordTools::makeAndFillAddress( quantity, columnData );
 
         EXPECT_EQ( address.category(), RifEclipseSummaryAddress::SUMMARY_MISC );
         EXPECT_STREQ( quantity.data(), address.quantityName().data() );

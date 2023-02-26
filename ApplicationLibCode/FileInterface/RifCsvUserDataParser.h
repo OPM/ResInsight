@@ -74,11 +74,9 @@ protected:
 private:
     std::vector<int> parseLineBasedHeader( QStringList headerCols );
 
-    bool             parseColumnInfo( QTextStream*                 dataStream,
-                                      const AsciiDataParseOptions& parseOptions,
-                                      std::vector<Column>*         columnInfoList );
-    bool             parseColumnBasedData( const AsciiDataParseOptions& parseOptions );
-    bool             parseLineBasedData();
+    bool parseColumnInfo( QTextStream* dataStream, const AsciiDataParseOptions& parseOptions, std::vector<Column>* columnInfoList );
+    bool parseColumnBasedData( const AsciiDataParseOptions& parseOptions );
+    bool parseLineBasedData();
     static QDateTime tryParseDateTime( const std::string& colData, const QString& format );
 
 private:

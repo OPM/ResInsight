@@ -63,10 +63,7 @@ RimWellDistributionPlot::RimWellDistributionPlot( RiaDefines::PhaseType phase )
     CAF_PDM_InitField( &m_wellName, "WellName", QString( "None" ), "Well" );
     CAF_PDM_InitField( &m_phase, "Phase", caf::AppEnum<RiaDefines::PhaseType>( phase ), "Phase" );
     CAF_PDM_InitField( &m_groupSmallContributions, "GroupSmallContributions", true, "Group Small Contributions" );
-    CAF_PDM_InitField( &m_smallContributionsRelativeThreshold,
-                       "SmallContributionsRelativeThreshold",
-                       0.005,
-                       "Relative Threshold [0, 1]" );
+    CAF_PDM_InitField( &m_smallContributionsRelativeThreshold, "SmallContributionsRelativeThreshold", 0.005, "Relative Threshold [0, 1]" );
 
     CAF_PDM_InitField( &m_maximumTof, "MaximumTOF", 20.0, "Maximum Time of Flight [0, 200]" );
 
@@ -84,9 +81,7 @@ RimWellDistributionPlot::~RimWellDistributionPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellDistributionPlot::setDataSourceParameters( RimEclipseResultCase* eclipseResultCase,
-                                                       int                   timeStepIndex,
-                                                       QString               targetWellName )
+void RimWellDistributionPlot::setDataSourceParameters( RimEclipseResultCase* eclipseResultCase, int timeStepIndex, QString targetWellName )
 {
     m_case          = eclipseResultCase;
     m_timeStepIndex = timeStepIndex;
@@ -96,9 +91,7 @@ void RimWellDistributionPlot::setDataSourceParameters( RimEclipseResultCase* ecl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellDistributionPlot::setPlotOptions( bool   groupSmallContributions,
-                                              double smallContributionsRelativeThreshold,
-                                              double maximumTof )
+void RimWellDistributionPlot::setPlotOptions( bool groupSmallContributions, double smallContributionsRelativeThreshold, double maximumTof )
 {
     m_groupSmallContributions             = groupSmallContributions;
     m_smallContributionsRelativeThreshold = smallContributionsRelativeThreshold;
@@ -369,8 +362,7 @@ void RimWellDistributionPlot::onLoadDataAndUpdate()
 
     const QString timeStepName = m_case ? m_case->timeStepName( m_timeStepIndex ) : "N/A";
 
-    const QString plotTitleStr =
-        QString( "%1 Distribution: %2, %3" ).arg( phaseString ).arg( m_wellName ).arg( timeStepName );
+    const QString plotTitleStr = QString( "%1 Distribution: %2, %3" ).arg( phaseString ).arg( m_wellName ).arg( timeStepName );
     m_plotWidget->setPlotTitle( plotTitleStr );
 
     m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultBottom(), "TOF [years]" );
@@ -518,9 +510,7 @@ QList<caf::PdmOptionItemInfo> RimWellDistributionPlot::calculateValueOptions( co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellDistributionPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                const QVariant&            oldValue,
-                                                const QVariant&            newValue )
+void RimWellDistributionPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimPlot::fieldChangedByUi( changedField, oldValue, newValue );
 

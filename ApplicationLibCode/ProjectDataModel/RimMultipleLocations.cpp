@@ -44,10 +44,7 @@ RimMultipleLocations::RimMultipleLocations()
 {
     CAF_PDM_InitObject( "RimMultipleLocations", ":/FishBoneGroup16x16.png" );
 
-    CAF_PDM_InitField( &m_locationType,
-                       "LocationMode",
-                       caf::AppEnum<LocationType>( LocationType::COUNT ),
-                       "Location Defined By" );
+    CAF_PDM_InitField( &m_locationType, "LocationMode", caf::AppEnum<LocationType>( LocationType::COUNT ), "Location Defined By" );
     CAF_PDM_InitField( &m_rangeStart, "RangeStart", 100.0, "Start MD" );
     m_rangeStart.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
@@ -263,9 +260,7 @@ void RimMultipleLocations::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultipleLocations::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                             const QVariant&            oldValue,
-                                             const QVariant&            newValue )
+void RimMultipleLocations::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     bool recomputeLocations = false;
 
@@ -277,8 +272,7 @@ void RimMultipleLocations::fieldChangedByUi( const caf::PdmFieldHandle* changedF
         }
     }
 
-    if ( changedField == &m_rangeStart || changedField == &m_rangeEnd || changedField == &m_rangeCount ||
-         changedField == &m_rangeSpacing )
+    if ( changedField == &m_rangeStart || changedField == &m_rangeEnd || changedField == &m_rangeCount || changedField == &m_rangeSpacing )
     {
         recomputeLocations = true;
     }
@@ -287,8 +281,7 @@ void RimMultipleLocations::fieldChangedByUi( const caf::PdmFieldHandle* changedF
     {
         double minimumDistanceMeter = minimumSpacingMeters();
 
-        m_rangeSpacing =
-            std::clamp( m_rangeSpacing(), minimumDistanceMeter, std::max( m_rangeSpacing(), minimumDistanceMeter ) );
+        m_rangeSpacing = std::clamp( m_rangeSpacing(), minimumDistanceMeter, std::max( m_rangeSpacing(), minimumDistanceMeter ) );
     }
 
     if ( recomputeLocations )

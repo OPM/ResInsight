@@ -30,10 +30,7 @@
 struct HexIntersectionInfo
 {
 public:
-    HexIntersectionInfo( cvf::Vec3d                         intersectionPoint,
-                         bool                               isIntersectionEntering,
-                         cvf::StructGridInterface::FaceType face,
-                         size_t                             hexIndex )
+    HexIntersectionInfo( cvf::Vec3d intersectionPoint, bool isIntersectionEntering, cvf::StructGridInterface::FaceType face, size_t hexIndex )
         : m_intersectionPoint( intersectionPoint )
         , m_isIntersectionEntering( isIntersectionEntering )
         , m_face( face )

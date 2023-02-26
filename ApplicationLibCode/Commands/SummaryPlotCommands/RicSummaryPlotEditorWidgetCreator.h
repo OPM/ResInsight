@@ -59,17 +59,15 @@ public:
     void updateFromDefaultSources( const std::vector<caf::PdmObject*> defaultSources );
 
 private:
-    void recursivelyConfigureAndUpdateTopLevelUiOrdering( const caf::PdmUiOrdering& topLevelUiOrdering,
-                                                          const QString&            uiConfigName ) override;
+    void recursivelyConfigureAndUpdateTopLevelUiOrdering( const caf::PdmUiOrdering& topLevelUiOrdering, const QString& uiConfigName ) override;
 
     QWidget* createWidget( QWidget* parent ) override;
 
     QMinimizePanel* getOrCreateCurveTreeGroup();
     QWidget*        getOrCreatePlotWidget();
 
-    static caf::PdmUiGroup* findGroupByKeyword( const std::vector<caf::PdmUiItem*>& topLevelUiItems,
-                                                const QString&                      keyword,
-                                                const QString&                      uiConfigName );
+    static caf::PdmUiGroup*
+        findGroupByKeyword( const std::vector<caf::PdmUiItem*>& topLevelUiItems, const QString& keyword, const QString& uiConfigName );
 
     void configureAndUpdateFields( int                                 widgetStartIndex,
                                    QBoxLayout*                         layout,

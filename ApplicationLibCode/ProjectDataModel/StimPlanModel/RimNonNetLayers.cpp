@@ -90,9 +90,7 @@ QList<caf::PdmOptionItemInfo> RimNonNetLayers::calculateValueOptions( const caf:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimNonNetLayers::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                             QString                    uiConfigName,
-                                             caf::PdmUiEditorAttribute* attribute )
+void RimNonNetLayers::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_cutOff )
     {
@@ -116,9 +114,7 @@ void RimNonNetLayers::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimNonNetLayers::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                        const QVariant&            oldValue,
-                                        const QVariant&            newValue )
+void RimNonNetLayers::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     changed.send();
 }

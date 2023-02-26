@@ -45,19 +45,15 @@ void RicImportObservedDataFeature::selectObservedDataFileInDialog()
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( "INPUT_FILES" );
     QStringList     fileNames =
-        RiuFileDialogTools::getOpenFileNames( nullptr,
-                                              "Import Observed Data",
-                                              defaultDir,
-                                              "Observed Data (*.RSM *.txt *.csv);;All Files (*.*)" );
+        RiuFileDialogTools::getOpenFileNames( nullptr, "Import Observed Data", defaultDir, "Observed Data (*.RSM *.txt *.csv);;All Files (*.*)" );
 
     if ( fileNames.isEmpty() ) return;
 
     // Remember the path to next time
     app->setLastUsedDialogDirectory( "INPUT_FILES", QFileInfo( fileNames.last() ).absolutePath() );
 
-    RimProject*                proj = app->project();
-    RimObservedDataCollection* observedDataCollection =
-        proj->activeOilField() ? proj->activeOilField()->observedDataCollection() : nullptr;
+    RimProject*                proj                   = app->project();
+    RimObservedDataCollection* observedDataCollection = proj->activeOilField() ? proj->activeOilField()->observedDataCollection() : nullptr;
     if ( !observedDataCollection ) return;
 
     RimObservedSummaryData* observedData = nullptr;
@@ -73,15 +69,13 @@ void RicImportObservedDataFeature::selectObservedDataFileInDialog()
             if ( fileName.endsWith( ".rsm", Qt::CaseInsensitive ) )
             {
                 observedData = observedDataCollection->createAndAddRsmObservedSummaryDataFromFile( fileName, &errorText );
-                retryImport = false;
+                retryImport  = false;
             }
             else if ( fileName.endsWith( ".txt", Qt::CaseInsensitive ) || fileName.endsWith( ".csv", Qt::CaseInsensitive ) )
             {
                 bool useSavedFieldValuesInDialog = retryImport;
                 observedData =
-                    observedDataCollection->createAndAddCvsObservedSummaryDataFromFile( fileName,
-                                                                                        useSavedFieldValuesInDialog,
-                                                                                        &errorText );
+                    observedDataCollection->createAndAddCvsObservedSummaryDataFromFile( fileName, useSavedFieldValuesInDialog, &errorText );
                 retryImport = !errorText.isEmpty();
             }
             else

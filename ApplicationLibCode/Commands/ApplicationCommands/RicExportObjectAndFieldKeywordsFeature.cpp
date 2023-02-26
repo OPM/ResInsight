@@ -48,9 +48,7 @@ bool RicExportObjectAndFieldKeywordsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicExportObjectAndFieldKeywordsFeature::onActionTriggered( bool isChecked )
 {
-    QString dir = RiuFileDialogTools::getExistingDirectory( RiuMainWindow::instance(),
-                                                            tr( "Select Directory For Export" ),
-                                                            "c:/temp" );
+    QString dir = RiuFileDialogTools::getExistingDirectory( RiuMainWindow::instance(), tr( "Select Directory For Export" ), "c:/temp" );
 
     if ( !dir.isEmpty() )
     {

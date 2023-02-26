@@ -101,9 +101,7 @@ void RimParameterResultCrossPlot::setEnsembleParameter( const QString& ensembleP
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimParameterResultCrossPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                    const QVariant&            oldValue,
-                                                    const QVariant&            newValue )
+void RimParameterResultCrossPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimAbstractCorrelationPlot::fieldChangedByUi( changedField, oldValue, newValue );
     if ( changedField == &m_ensembleParameter )
@@ -140,8 +138,7 @@ void RimParameterResultCrossPlot::defineUiOrdering( QString uiConfigName, caf::P
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimParameterResultCrossPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RimParameterResultCrossPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options = RimAbstractCorrelationPlot::calculateValueOptions( fieldNeedingOptions );
     if ( fieldNeedingOptions == &m_ensembleParameter )
@@ -189,29 +186,17 @@ void RimParameterResultCrossPlot::updateAxes()
 
     m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), completeAddressText() );
     m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
-    m_plotWidget->setAxisFontsAndAlignment( RiuPlotAxis::defaultLeft(),
-                                            axisTitleFontSize(),
-                                            axisValueFontSize(),
-                                            false,
-                                            Qt::AlignCenter );
+    m_plotWidget->setAxisFontsAndAlignment( RiuPlotAxis::defaultLeft(), axisTitleFontSize(), axisValueFontSize(), false, Qt::AlignCenter );
 
     double yRangeWidth = m_yRange.second - m_yRange.first;
-    m_plotWidget->setAxisRange( RiuPlotAxis::defaultLeft(),
-                                m_yRange.first - yRangeWidth * 0.1,
-                                m_yRange.second + yRangeWidth * 0.1 );
+    m_plotWidget->setAxisRange( RiuPlotAxis::defaultLeft(), m_yRange.first - yRangeWidth * 0.1, m_yRange.second + yRangeWidth * 0.1 );
 
     m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultBottom(), m_ensembleParameter );
     m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultBottom(), true );
-    m_plotWidget->setAxisFontsAndAlignment( RiuPlotAxis::defaultBottom(),
-                                            axisTitleFontSize(),
-                                            axisValueFontSize(),
-                                            false,
-                                            Qt::AlignCenter );
+    m_plotWidget->setAxisFontsAndAlignment( RiuPlotAxis::defaultBottom(), axisTitleFontSize(), axisValueFontSize(), false, Qt::AlignCenter );
 
     double xRangeWidth = m_xRange.second - m_xRange.first;
-    m_plotWidget->setAxisRange( RiuPlotAxis::defaultBottom(),
-                                m_xRange.first - xRangeWidth * 0.1,
-                                m_xRange.second + xRangeWidth * 0.1 );
+    m_plotWidget->setAxisRange( RiuPlotAxis::defaultBottom(), m_xRange.first - xRangeWidth * 0.1, m_xRange.second + xRangeWidth * 0.1 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -310,8 +295,7 @@ void RimParameterResultCrossPlot::createPoints()
                     RiuQwtPlotCurve* plotCurve = new RiuQwtPlotCurve;
                     plotCurve->setSamplesValues( parameterValues, caseValuesAtTimestep );
                     plotCurve->setStyle( QwtPlotCurve::NoCurve );
-                    RiuQwtSymbol* symbol =
-                        new RiuQwtSymbol( RiuPlotCurveSymbol::cycledSymbolStyle( ensembleIdx, addressIdx ), "" );
+                    RiuQwtSymbol* symbol = new RiuQwtSymbol( RiuPlotCurveSymbol::cycledSymbolStyle( ensembleIdx, addressIdx ), "" );
                     symbol->setSize( legendFontSize(), legendFontSize() );
                     symbol->setColor( colorTable.cycledQColor( caseIdx ) );
                     plotCurve->setSymbol( symbol );
@@ -342,11 +326,8 @@ void RimParameterResultCrossPlot::updatePlotTitle()
 
         QString vectorName = completeAddressText();
 
-        m_description = QString( "Cross Plot %1, %2 x %3 at %4" )
-                            .arg( ensemble->name() )
-                            .arg( m_ensembleParameter )
-                            .arg( vectorName )
-                            .arg( timeStepString() );
+        m_description =
+            QString( "Cross Plot %1, %2 x %3 at %4" ).arg( ensemble->name() ).arg( m_ensembleParameter ).arg( vectorName ).arg( timeStepString() );
     }
     m_plotWidget->setPlotTitle( m_description );
     m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && !isSubPlot() );

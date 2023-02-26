@@ -69,9 +69,9 @@ public:
     void setAutoSubPlotTitle( bool enable );
 
     std::vector<RimSummaryDataSourceStepping::Axis> availableAxes() const override;
-    std::vector<RimSummaryCurve*>     curvesForStepping( RimSummaryDataSourceStepping::Axis axis ) const override;
-    std::vector<RimEnsembleCurveSet*> curveSets() const override;
-    std::vector<RimSummaryCurve*>     allCurves( RimSummaryDataSourceStepping::Axis axis ) const override;
+    std::vector<RimSummaryCurve*>                   curvesForStepping( RimSummaryDataSourceStepping::Axis axis ) const override;
+    std::vector<RimEnsembleCurveSet*>               curveSets() const override;
+    std::vector<RimSummaryCurve*>                   allCurves( RimSummaryDataSourceStepping::Axis axis ) const override;
 
     void addPlot( RimPlot* plot ) override;
     void insertPlot( RimPlot* plot, size_t index ) override;
@@ -125,9 +125,7 @@ protected:
 
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                QString                    uiConfigName,
-                                caf::PdmUiEditorAttribute* attribute ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void populateNameHelper( RimSummaryPlotNameHelper* nameHelper );
@@ -135,10 +133,9 @@ private:
     void computeAggregatedAxisRange();
     void updateSourceStepper();
 
-    void updatePlotVisibility();
-    void setAutoValueStates();
-    static void
-        setAutoValueStatesForPlot( RimSummaryPlot* summaryPlot, bool isMinMaxOverridden, bool isAppearanceOverridden );
+    void        updatePlotVisibility();
+    void        setAutoValueStates();
+    static void setAutoValueStatesForPlot( RimSummaryPlot* summaryPlot, bool isMinMaxOverridden, bool isAppearanceOverridden );
 
     void duplicate();
 

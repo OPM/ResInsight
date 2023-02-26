@@ -42,9 +42,7 @@ public:
 private:
     void computeUnionOfXValues( bool includeValuesFromPartialCurves );
 
-    static double lookupYValue( const double&              xValue,
-                                const std::vector<double>& curveXValues,
-                                const std::vector<double>& curveYValues );
+    static double lookupYValue( const double& xValue, const std::vector<double>& curveXValues, const std::vector<double>& curveYValues );
 
     std::vector<std::pair<std::vector<double>, std::vector<double>>> m_originalValues;
 

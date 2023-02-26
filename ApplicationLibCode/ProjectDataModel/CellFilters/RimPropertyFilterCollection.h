@@ -46,13 +46,12 @@ public:
 
     void         updateDisplayModelNotifyManagedViews( RimPropertyFilter* changedFilter ) const;
     virtual void updateIconState() = 0;
-    void         onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                                 std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+    void         onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
     void         onChildAdded( caf::PdmFieldHandle* containerForNewObject ) override;
 
 protected:
     // Overridden methods
-    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void                 defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
     caf::PdmFieldHandle* objectToggleField() override;
 };

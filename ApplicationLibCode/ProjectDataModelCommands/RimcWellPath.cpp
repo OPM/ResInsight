@@ -51,12 +51,7 @@ RimcWellPath_addFracture::RimcWellPath_addFracture( caf::PdmObjectHandle* self )
     CAF_PDM_InitObject( "Add StimPlan Fracture", "", "", "Add StimPlan Fracture" );
 
     CAF_PDM_InitScriptableField( &m_md, "MeasuredDepth", 0.0, "Measured Depth" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_stimPlanFractureTemplate,
-                                          "StimPlanFractureTemplate",
-                                          "",
-                                          "",
-                                          "",
-                                          "StimPlan Fracture Template" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_stimPlanFractureTemplate, "StimPlanFractureTemplate", "", "", "", "StimPlan Fracture Template" );
     CAF_PDM_InitScriptableField( &m_alignDip, "AlignDip", false, "Align Dip" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_eclipseCase, "EclipseCase", "", "", "", "Eclipse Case" );
 }
@@ -86,12 +81,10 @@ caf::PdmObjectHandle* RimcWellPath_addFracture::execute()
                                                                                  position,
                                                                                  boundingBoxHorizontal,
                                                                                  boundingBoxVertical );
-            RiaLogging::info(
-                QString( "Direction: %1 %2 %3" ).arg( direction.x() ).arg( direction.y() ).arg( direction.z() ) );
+            RiaLogging::info( QString( "Direction: %1 %2 %3" ).arg( direction.x() ).arg( direction.y() ).arg( direction.z() ) );
             cvf::Vec3d fractureDirectionNormal = wellPathFracture->computeFractureDirectionNormal();
 
-            cvf::Vec3d formationDirection =
-                RimStimPlanModel::projectVectorIntoFracturePlane( position, fractureDirectionNormal, direction );
+            cvf::Vec3d formationDirection = RimStimPlanModel::projectVectorIntoFracturePlane( position, fractureDirectionNormal, direction );
             if ( !formationDirection.isUndefined() )
             {
                 double formationDip = RigStimPlanModelTools::calculateFormationDip( formationDirection ) - 90.0;

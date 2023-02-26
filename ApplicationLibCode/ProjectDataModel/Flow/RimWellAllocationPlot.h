@@ -95,7 +95,7 @@ public:
 protected:
     // Overridden PDM methods
     caf::PdmFieldHandle* userDescriptionField() override { return &m_userName; }
-    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     std::set<QString> findSortedWellNames();
 
@@ -118,9 +118,7 @@ private:
                           bool                       showCurve );
 
     void           updateWidgetTitleWindowTitle();
-    static QString wellStatusTextForTimeStep( const QString&              wellName,
-                                              const RimEclipseResultCase* eclipseResultCase,
-                                              size_t                      timeStep );
+    static QString wellStatusTextForTimeStep( const QString& wellName, const RimEclipseResultCase* eclipseResultCase, size_t timeStep );
 
     // RimViewWindow overrides
     void assignIdIfNecessary() final;

@@ -35,10 +35,10 @@ public:
     RicUserDefinedCalculatorDialog( QWidget* parent, const QString& title );
     ~RicUserDefinedCalculatorDialog() override;
 
-    virtual void setCalculationAndUpdateUi( RimUserDefinedCalculation* calculation ) = 0;
-    virtual RimUserDefinedCalculationCollection* calculationCollection() const       = 0;
-    virtual QWidget*                             getCalculatorWidget()               = 0;
-    virtual void                                 updateUi()                          = 0;
+    virtual void                                 setCalculationAndUpdateUi( RimUserDefinedCalculation* calculation ) = 0;
+    virtual RimUserDefinedCalculationCollection* calculationCollection() const                                       = 0;
+    virtual QWidget*                             getCalculatorWidget()                                               = 0;
+    virtual void                                 updateUi()                                                          = 0;
 
 private slots:
     void slotTryCloseDialog();

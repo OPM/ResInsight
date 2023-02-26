@@ -39,6 +39,5 @@ public:
 
     static const int CASE_SHORT_NAME_LENGTH = 4;
 
-    static QString
-        uniqueShortName( const QString& caseName, const std::set<QString>& allAutoShortNames, int shortNameLengthLimit );
+    static QString uniqueShortName( const QString& caseName, const std::set<QString>& allAutoShortNames, int shortNameLengthLimit );
 };

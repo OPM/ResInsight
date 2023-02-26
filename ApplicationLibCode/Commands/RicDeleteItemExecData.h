@@ -32,20 +32,11 @@ class RicDeleteItemExecData : public caf::PdmObject
 public:
     RicDeleteItemExecData()
     {
-        CAF_PDM_InitObject( "CmdDeleteItemExecData uiName",
-                            "",
-                            "CmdDeleteItemExecData tooltip",
-                            "CmdDeleteItemExecData whatsthis" );
+        CAF_PDM_InitObject( "CmdDeleteItemExecData uiName", "", "CmdDeleteItemExecData tooltip", "CmdDeleteItemExecData whatsthis" );
 
         CAF_PDM_InitFieldNoDefault( &m_pathToField, "PathToField", "PathToField" );
         CAF_PDM_InitFieldNoDefault( &m_description, "Description", "Description" );
-        CAF_PDM_InitField( &m_indexToObject,
-                           "indexToObject",
-                           -1,
-                           "indexToObject",
-                           "",
-                           "indexToObject tooltip",
-                           "indexToObject whatsthis" );
+        CAF_PDM_InitField( &m_indexToObject, "indexToObject", -1, "indexToObject", "", "indexToObject tooltip", "indexToObject whatsthis" );
         CAF_PDM_InitField( &m_deletedObjectAsXml,
                            "deletedObjectAsXml",
                            QString(),

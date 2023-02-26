@@ -129,12 +129,10 @@ public:
     void rebuildGeometryAndScheduleCreateDisplayModel();
 
 protected:
-    caf::PdmFieldHandle*          userDescriptionField() final;
-    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                         QString                    uiConfigName,
-                                                         caf::PdmUiEditorAttribute* attribute ) override;
+    caf::PdmFieldHandle* userDescriptionField() final;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
@@ -150,9 +148,7 @@ private:
     void                        updateName();
     static double               azimuthInRadians( cvf::Vec3d vec );
 
-    void appendOptionItemsForSources( int                            currentLevel,
-                                      RimSurfaceCollection*          currentCollection,
-                                      QList<caf::PdmOptionItemInfo>& options ) const;
+    void appendOptionItemsForSources( int currentLevel, RimSurfaceCollection* currentCollection, QList<caf::PdmOptionItemInfo>& options ) const;
 
     void onSurfaceIntersectionsChanged( const caf::SignalEmitter* emitter );
 

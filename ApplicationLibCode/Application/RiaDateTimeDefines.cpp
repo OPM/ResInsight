@@ -38,9 +38,7 @@ void caf::AppEnum<RiaDefines::TimeFormatComponents>::setUp()
     addItem( RiaDefines::TimeFormatComponents::TIME_FORMAT_NONE, "NO_TIME", "No Time of Day" );
     addItem( RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR, "HOUR", "Hour Only" );
     addItem( RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE, "HOUR_MINUTE", "Hour and Minute" );
-    addItem( RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND,
-             "HOUR_MINUTE_SECONDS",
-             "Hour, Minutes and Seconds" );
+    addItem( RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND, "HOUR_MINUTE_SECONDS", "Hour, Minutes and Seconds" );
     setDefault( RiaDefines::TimeFormatComponents::TIME_FORMAT_NONE );
 }
 

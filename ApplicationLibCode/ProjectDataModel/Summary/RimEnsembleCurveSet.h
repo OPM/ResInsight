@@ -160,8 +160,7 @@ public:
 
     void appendColorGroup( caf::PdmUiOrdering& uiOrdering );
 
-    static void appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options,
-                                                      RimSummaryCaseCollection*      summaryCaseGroup );
+    static void appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options, RimSummaryCaseCollection* summaryCaseGroup );
 
     const RimEnsembleCurveFilterCollection* curveFilters() const;
 
@@ -184,16 +183,14 @@ private:
 
     caf::PdmFieldHandle* userDescriptionField() override;
     caf::PdmFieldHandle* objectToggleField() override;
-    void                 defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                QString                    uiConfigName,
-                                                caf::PdmUiEditorAttribute* attribute ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
-    QList<caf::PdmOptionItemInfo>      calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
-    std::set<time_t>                   allAvailableTimeSteps();
-    std::set<RimSummaryCase*>          timestepDefiningSourceCases();
-    RiaSummaryCurveDefinitionAnalyser* getOrCreateSelectedCurveDefAnalyser();
+    QList<caf::PdmOptionItemInfo>          calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+    std::set<time_t>                       allAvailableTimeSteps();
+    std::set<RimSummaryCase*>              timestepDefiningSourceCases();
+    RiaSummaryCurveDefinitionAnalyser*     getOrCreateSelectedCurveDefAnalyser();
     std::vector<RiaSummaryCurveDefinition> curveDefinitions() const;
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                                   defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 

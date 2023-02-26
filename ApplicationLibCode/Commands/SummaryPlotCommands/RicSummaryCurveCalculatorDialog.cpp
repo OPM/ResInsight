@@ -75,8 +75,8 @@ QWidget* RicSummaryCurveCalculatorDialog::getCalculatorWidget()
 {
     if ( !m_summaryCalcEditor )
     {
-        m_summaryCalcEditor = std::unique_ptr<RicCalculatorWidgetCreator>(
-            new RicCalculatorWidgetCreator( std::make_unique<RicSummaryCurveCalculatorUi>() ) );
+        m_summaryCalcEditor =
+            std::unique_ptr<RicCalculatorWidgetCreator>( new RicCalculatorWidgetCreator( std::make_unique<RicSummaryCurveCalculatorUi>() ) );
     }
 
     return m_summaryCalcEditor->getOrCreateWidget( this );

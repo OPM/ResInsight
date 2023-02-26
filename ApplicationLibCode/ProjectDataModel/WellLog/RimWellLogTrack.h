@@ -127,21 +127,18 @@ public:
     RimCase*       formationNamesCase() const;
     void           setFormationTrajectoryType( TrajectoryType trajectoryType );
     TrajectoryType formationTrajectoryType() const;
-    void setRegionPropertyResultType( RiaDefines::ResultCatType resultCatType, const QString& resultVariable );
+    void           setRegionPropertyResultType( RiaDefines::ResultCatType resultCatType, const QString& resultVariable );
 
     void detachAllCurves() override;
     void reattachAllCurves() override;
 
     void setAndUpdateWellPathFormationNamesData( RimCase* rimCase, RimWellPath* wellPath );
 
-    void setAndUpdateSimWellFormationNamesAndBranchData( RimCase*       rimCase,
-                                                         const QString& simWellName,
-                                                         int            branchIndex,
-                                                         bool           useBranchDetection );
+    void setAndUpdateSimWellFormationNamesAndBranchData( RimCase* rimCase, const QString& simWellName, int branchIndex, bool useBranchDetection );
     void setAndUpdateSimWellFormationNamesData( RimCase* rimCase, const QString& simWellName );
 
     [[deprecated( "Use setAutoScalePropertyValuesEnabled() instead." )]] void setAutoScaleXEnabled( bool enabled ) override;
-    [[deprecated( "Use setAutoScaleDepthValuesEnabled() instead." )]] void setAutoScaleYEnabled( bool enabled ) override;
+    [[deprecated( "Use setAutoScaleDepthValuesEnabled() instead." )]] void    setAutoScaleYEnabled( bool enabled ) override;
 
     void setAutoScalePropertyValuesEnabled( bool enabled );
     void setAutoScaleDepthValuesEnabled( bool enabled );
@@ -214,15 +211,12 @@ public:
     QString asciiDataForPlotExport() const override;
 
     void onAxisSelected( RiuPlotAxis axis, bool toggle ) override;
-    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
     void updateAxes() override;
 
-    static CurveSamplingPointData curveSamplingPointData( RigEclipseWellLogExtractor* extractor,
-                                                          RigResultAccessor*          resultAccessor );
-    static CurveSamplingPointData curveSamplingPointData( RigGeoMechWellLogExtractor* extractor,
-                                                          const RigFemResultAddress&  resultAddress );
+    static CurveSamplingPointData curveSamplingPointData( RigEclipseWellLogExtractor* extractor, RigResultAccessor* resultAccessor );
+    static CurveSamplingPointData curveSamplingPointData( RigGeoMechWellLogExtractor* extractor, const RigFemResultAddress& resultAddress );
 
     static void findRegionNamesToPlot( const CurveSamplingPointData&           curveData,
                                        const std::vector<QString>&             formationNamesVector,
@@ -246,8 +240,7 @@ protected:
     // RimViewWindow overrides
     void deleteViewWidget() override;
     void onLoadDataAndUpdate() override;
-    void onChildrenUpdated( caf::PdmChildArrayFieldHandle*      childArray,
-                            std::vector<caf::PdmObjectHandle*>& updatedObjects ) override;
+    void onChildrenUpdated( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& updatedObjects ) override;
 
 private:
     RiuPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
@@ -275,9 +268,7 @@ private:
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void initAfterRead() override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                QString                    uiConfigName,
-                                caf::PdmUiEditorAttribute* attribute ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     caf::PdmFieldHandle* userDescriptionField() override;
 

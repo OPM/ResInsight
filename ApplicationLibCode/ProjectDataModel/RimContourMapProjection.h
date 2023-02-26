@@ -113,7 +113,7 @@ public:
     uint   numberOfValidCells() const;
     size_t numberOfVertices() const;
 
-    bool checkForMapIntersection( const cvf::Vec3d& localPoint3d, cvf::Vec2d* contourMapPoint, double* valueAtPoint ) const;
+    bool       checkForMapIntersection( const cvf::Vec3d& localPoint3d, cvf::Vec2d* contourMapPoint, double* valueAtPoint ) const;
     void       setPickPoint( cvf::Vec2d globalPickPoint );
     cvf::Vec3d origin3d() const;
 
@@ -137,9 +137,7 @@ protected:
     virtual size_t              kLayers() const                                                                    = 0;
     virtual std::vector<size_t> findIntersectingCells( const cvf::BoundingBox& bbox ) const                        = 0;
     virtual double              calculateOverlapVolume( size_t globalCellIdx, const cvf::BoundingBox& bbox ) const = 0;
-    virtual double              calculateRayLengthInCell( size_t            globalCellIdx,
-                                                          const cvf::Vec3d& highestPoint,
-                                                          const cvf::Vec3d& lowestPoint ) const                    = 0;
+    virtual double calculateRayLengthInCell( size_t globalCellIdx, const cvf::Vec3d& highestPoint, const cvf::Vec3d& lowestPoint ) const = 0;
     virtual double getParameterWeightForCell( size_t globalCellIdx, const std::vector<double>& parameterWeights ) const = 0;
 
     // Use this function to get the result index into grid cell results. The index will differ if we have active cells
@@ -171,12 +169,11 @@ protected:
     void                    generateTrianglesWithVertexValues();
     std::vector<cvf::Vec3d> generateVertices() const;
     void                    generateContourPolygons();
-    ContourPolygons createContourPolygonsFromLineSegments( caf::ContourLines::ListOfLineSegments& unorderedLineSegments,
-                                                           double                                 contourValue );
+    ContourPolygons createContourPolygonsFromLineSegments( caf::ContourLines::ListOfLineSegments& unorderedLineSegments, double contourValue );
     void            smoothContourPolygons( ContourPolygons* contourPolygons, bool favourExpansion );
     void            clipContourPolygons( ContourPolygons* contourPolygons, const ContourPolygons* clipBy );
-    static double   sumPolygonArea( const ContourPolygons& contourPolygons );
-    static double   sumTriangleAreas( const std::vector<cvf::Vec4d>& triangles );
+    static double sumPolygonArea( const ContourPolygons& contourPolygons );
+    static double sumTriangleAreas( const std::vector<cvf::Vec4d>& triangles );
 
     std::vector<CellIndexAndResult> cellOverlapVolumesAndResults( const cvf::Vec2d&          globalPos2d,
                                                                   const std::vector<double>& weightingResultValues ) const;
@@ -209,9 +206,7 @@ protected:
 protected:
     // Framework overrides
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                QString                    uiConfigName,
-                                caf::PdmUiEditorAttribute* attribute ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void initAfterRead() override;

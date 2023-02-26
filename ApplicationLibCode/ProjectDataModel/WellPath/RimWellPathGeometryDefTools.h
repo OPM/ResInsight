@@ -26,8 +26,7 @@ class RimWellPathGeometryDef;
 class RimWellPathGeometryDefTools
 {
 public:
-    static void updateLinkedGeometryDefinitions( std::vector<RimWellPathGeometryDef*>& definitions,
-                                                 const cvf::Vec3d&                     delta );
+    static void updateLinkedGeometryDefinitions( std::vector<RimWellPathGeometryDef*>& definitions, const cvf::Vec3d& delta );
 
     static std::vector<RimWellPathGeometryDef*> linkedDefinitions();
 };

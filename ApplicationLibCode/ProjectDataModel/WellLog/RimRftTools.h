@@ -34,9 +34,8 @@ class RimRftTools
 public:
     static QList<caf::PdmOptionItemInfo> wellLogChannelsOptions( RifReaderRftInterface* readerRft, const QString& wellName );
     static QList<caf::PdmOptionItemInfo> wellNameOptions( RifReaderRftInterface* readerRft );
-    static QList<caf::PdmOptionItemInfo> timeStepOptions( RifReaderRftInterface*                      readerRft,
-                                                          const QString&                              wellName,
-                                                          RifEclipseRftAddress::RftWellLogChannelType channelType );
+    static QList<caf::PdmOptionItemInfo>
+        timeStepOptions( RifReaderRftInterface* readerRft, const QString& wellName, RifEclipseRftAddress::RftWellLogChannelType channelType );
 
     static QList<caf::PdmOptionItemInfo> segmentTimeStepOptions( RifReaderRftInterface* readerRft, const QString& wellName );
 

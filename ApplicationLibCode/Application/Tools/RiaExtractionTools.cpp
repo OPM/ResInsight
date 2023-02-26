@@ -27,8 +27,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigEclipseWellLogExtractor* RiaExtractionTools::findOrCreateWellLogExtractor( RimWellPath*    wellPath,
-                                                                              RimEclipseCase* eclipseCase )
+RigEclipseWellLogExtractor* RiaExtractionTools::findOrCreateWellLogExtractor( RimWellPath* wellPath, RimEclipseCase* eclipseCase )
 {
     if ( !( wellPath && eclipseCase ) ) return nullptr;
 
@@ -41,8 +40,7 @@ RigEclipseWellLogExtractor* RiaExtractionTools::findOrCreateWellLogExtractor( Ri
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigGeoMechWellLogExtractor* RiaExtractionTools::findOrCreateWellLogExtractor( RimWellPath*    wellPath,
-                                                                              RimGeoMechCase* geomCase )
+RigGeoMechWellLogExtractor* RiaExtractionTools::findOrCreateWellLogExtractor( RimWellPath* wellPath, RimGeoMechCase* geomCase )
 {
     if ( !( wellPath && geomCase ) ) return nullptr;
 
@@ -55,8 +53,7 @@ RigGeoMechWellLogExtractor* RiaExtractionTools::findOrCreateWellLogExtractor( Ri
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigEclipseWellLogExtractor* RiaExtractionTools::findOrCreateSimWellExtractor( const RimSimWellInView* simWell,
-                                                                              const RigWellPath*      wellPathGeom )
+RigEclipseWellLogExtractor* RiaExtractionTools::findOrCreateSimWellExtractor( const RimSimWellInView* simWell, const RigWellPath* wellPathGeom )
 {
     if ( !( simWell && wellPathGeom ) ) return nullptr;
 
@@ -72,10 +69,7 @@ RigEclipseWellLogExtractor* RiaExtractionTools::findOrCreateSimWellExtractor( co
 
     QString caseUserDescription = eclipseCase->caseUserDescription();
 
-    return wlPlotCollection->findOrCreateSimWellExtractor( simWell->name,
-                                                           caseUserDescription,
-                                                           wellPathGeom,
-                                                           eclipseCase->eclipseCaseData() );
+    return wlPlotCollection->findOrCreateSimWellExtractor( simWell->name, caseUserDescription, wellPathGeom, eclipseCase->eclipseCaseData() );
 }
 
 //--------------------------------------------------------------------------------------------------

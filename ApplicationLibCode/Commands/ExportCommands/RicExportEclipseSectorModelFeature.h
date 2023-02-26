@@ -35,12 +35,9 @@ class RicExportEclipseSectorModelFeature : public caf::CmdFeature
 
 public:
     static void openDialogAndExecuteCommand( RimEclipseView* view );
-    static void executeCommand( RimEclipseView*                      view,
-                                const RicExportEclipseSectorModelUi& exportSettings,
-                                const QString&                       logPrefix );
+    static void executeCommand( RimEclipseView* view, const RicExportEclipseSectorModelUi& exportSettings, const QString& logPrefix );
 
-    static std::pair<cvf::Vec3i, cvf::Vec3i> getVisibleCellRange( RimEclipseView*        view,
-                                                                  const cvf::UByteArray& cellVisibility );
+    static std::pair<cvf::Vec3i, cvf::Vec3i> getVisibleCellRange( RimEclipseView* view, const cvf::UByteArray& cellVisibility );
 
 protected:
     bool isCommandEnabled() override;

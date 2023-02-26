@@ -57,9 +57,8 @@ RigFemClosestResultIndexCalculator::RigFemClosestResultIndexCalculator( RigFemPa
 
         if ( closestLocalNode >= 0 )
         {
-            int nodeIdx = elementConn[closestLocalNode];
-            m_closestElementNodeResIdx =
-                static_cast<int>( femPart->elementNodeResultIdx( elementIndex, closestLocalNode ) );
+            int nodeIdx                = elementConn[closestLocalNode];
+            m_closestElementNodeResIdx = static_cast<int>( femPart->elementNodeResultIdx( elementIndex, closestLocalNode ) );
 
             if ( resultPosition == RIG_NODAL )
             {
@@ -89,18 +88,17 @@ RigFemClosestResultIndexCalculator::RigFemClosestResultIndexCalculator( RigFemPa
             int closestLocFaceNode  = -1;
             int closestLocalElmNode = -1;
             {
-                RigElementType elmType        = femPart->elementType( elementIndex );
-                const int*     elmNodeIndices = femPart->connectivities( elementIndex );
-                int            faceNodeCount  = 0;
-                const int*     localElmNodeIndicesForFace =
-                    RigFemTypes::localElmNodeIndicesForFace( elmType, m_face, &faceNodeCount );
+                RigElementType elmType                    = femPart->elementType( elementIndex );
+                const int*     elmNodeIndices             = femPart->connectivities( elementIndex );
+                int            faceNodeCount              = 0;
+                const int*     localElmNodeIndicesForFace = RigFemTypes::localElmNodeIndicesForFace( elmType, m_face, &faceNodeCount );
 
                 float minDist = std::numeric_limits<float>::infinity();
                 for ( int faceNodIdx = 0; faceNodIdx < faceNodeCount; ++faceNodIdx )
                 {
                     int        nodeIdx         = elmNodeIndices[localElmNodeIndicesForFace[faceNodIdx]];
                     cvf::Vec3f nodePosInDomain = femPart->nodes().coordinates[nodeIdx];
-                    float      dist = ( nodePosInDomain - cvf::Vec3f( intersectionPointInDomain ) ).lengthSquared();
+                    float      dist            = ( nodePosInDomain - cvf::Vec3f( intersectionPointInDomain ) ).lengthSquared();
                     if ( dist < minDist )
                     {
                         closestLocFaceNode  = faceNodIdx;
@@ -116,9 +114,8 @@ RigFemClosestResultIndexCalculator::RigFemClosestResultIndexCalculator( RigFemPa
 
             if ( closestLocFaceNode >= 0 )
             {
-                elmNodFaceResIdx = elmNodFaceResIdxFaceStart + closestLocFaceNode;
-                m_closestElementNodeResIdx =
-                    static_cast<int>( femPart->elementNodeResultIdx( elementIndex, closestLocalElmNode ) );
+                elmNodFaceResIdx           = elmNodFaceResIdxFaceStart + closestLocFaceNode;
+                m_closestElementNodeResIdx = static_cast<int>( femPart->elementNodeResultIdx( elementIndex, closestLocalElmNode ) );
             }
         }
 

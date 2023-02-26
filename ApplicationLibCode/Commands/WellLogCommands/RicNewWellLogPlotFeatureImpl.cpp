@@ -42,10 +42,9 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellBoreStabilityPlot*
-    RicNewWellLogPlotFeatureImpl::createWellBoreStabilityPlot( bool           showAfterCreation /*= true*/,
-                                                               const QString& plotDescription /*= QString("")*/,
-                                                               const RimWbsParameters* params /*= nullptr*/ )
+RimWellBoreStabilityPlot* RicNewWellLogPlotFeatureImpl::createWellBoreStabilityPlot( bool           showAfterCreation /*= true*/,
+                                                                                     const QString& plotDescription /*= QString("")*/,
+                                                                                     const RimWbsParameters* params /*= nullptr*/ )
 {
     RimWellLogPlotCollection* wellLogPlotColl = wellLogPlotCollection();
     CVF_ASSERT( wellLogPlotColl );
@@ -69,8 +68,7 @@ RimWellBoreStabilityPlot*
     }
     else
     {
-        plot->nameConfig()->setCustomName(
-            QString( "Well Bore Stability Plot %1" ).arg( wellLogPlotCollection()->wellLogPlots().size() ) );
+        plot->nameConfig()->setCustomName( QString( "Well Bore Stability Plot %1" ).arg( wellLogPlotCollection()->wellLogPlots().size() ) );
     }
 
     wellLogPlotColl->updateConnectedEditors();
@@ -128,8 +126,7 @@ RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createWellLogPlot( bool showAfterC
     }
     else
     {
-        plot->nameConfig()->setCustomName(
-            QString( "Well Log Plot %1" ).arg( wellLogPlotCollection()->wellLogPlots().size() ) );
+        plot->nameConfig()->setCustomName( QString( "Well Log Plot %1" ).arg( wellLogPlotCollection()->wellLogPlots().size() ) );
     }
 
     wellLogPlotColl->updateConnectedEditors();
@@ -145,9 +142,8 @@ RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createWellLogPlot( bool showAfterC
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogTrack* RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( bool               updateAfter,
-                                                                       const QString&     trackDescription,
-                                                                       RimDepthTrackPlot* existingPlot )
+RimWellLogTrack*
+    RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( bool updateAfter, const QString& trackDescription, RimDepthTrackPlot* existingPlot )
 {
     RimDepthTrackPlot* plot = existingPlot;
     if ( plot == nullptr )

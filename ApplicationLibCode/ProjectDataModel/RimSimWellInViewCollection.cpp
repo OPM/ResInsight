@@ -120,9 +120,7 @@ void AppEnum<RimSimWellInViewCollection::WellDiskPropertyConfigType>::setUp()
     addItem( RimSimWellInViewCollection::INJECTION_RATES, "INJECTION_RATES", "Injection Rates" );
     addItem( RimSimWellInViewCollection::CUMULATIVE_PRODUCTION_RATES, "CUMULATIVE_PRODUCTION_RATES", "Production Total" );
     addItem( RimSimWellInViewCollection::CUMULATIVE_INJECTION_RATES, "CUMULATIVE_INJECTION_RATES", "Injection Total" );
-    addItem( RimSimWellInViewCollection::PRODUCTION_INJECTION_RATES,
-             "PRODUCTION_INJECTION_RATES",
-             "Production/Injection Rates" );
+    addItem( RimSimWellInViewCollection::PRODUCTION_INJECTION_RATES, "PRODUCTION_INJECTION_RATES", "Production/Injection Rates" );
     addItem( RimSimWellInViewCollection::CUMULATIVE_PRODUCTION_INJECTION_RATES,
              "CUMULATIVE_PRODUCTION_INJECTION_RATES",
              "Production/Injection Total" );
@@ -145,10 +143,7 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
 
     // CAF_PDM_InitField(&showWellsIntersectingVisibleCells, "ShowWellsIntersectingVisibleCells", false, "Hide Wells Not
     // Intersecting Filtered Cells");
-    CAF_PDM_InitField( &showWellsIntersectingVisibleCells,
-                       "ShowWellsIntersectingVisibleCells",
-                       false,
-                       "Wells Through Visible Cells Only" );
+    CAF_PDM_InitField( &showWellsIntersectingVisibleCells, "ShowWellsIntersectingVisibleCells", false, "Wells Through Visible Cells Only" );
     // CAF_PDM_InitField(&showWellsIntersectingVisibleCells, "ShowWellsIntersectingVisibleCells", false, "Hide Wells
     // Missing Visible Cells");
 
@@ -208,10 +203,7 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
                        "Toggle whether the well pipe visualization will try to detect when a part of the well \nis "
                        "really a branch, and thus is starting from wellhead",
                        "" );
-    CAF_PDM_InitField( &wellHeadPosition,
-                       "WellHeadPosition",
-                       WellHeadPositionEnum( WELLHEAD_POS_TOP_COLUMN ),
-                       "Well Head Position" );
+    CAF_PDM_InitField( &wellHeadPosition, "WellHeadPosition", WellHeadPositionEnum( WELLHEAD_POS_TOP_COLUMN ), "Well Head Position" );
 
     CAF_PDM_InitFieldNoDefault( &wells, "Wells", "Wells" );
     wells.uiCapability()->setUiTreeHidden( true );
@@ -343,9 +335,7 @@ bool RimSimWellInViewCollection::hasVisibleWellPipes()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSimWellInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                   const QVariant&            oldValue,
-                                                   const QVariant&            newValue )
+void RimSimWellInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( &isActive == changedField )
     {
@@ -444,20 +434,18 @@ void RimSimWellInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
         else if ( &m_wellDiskQuantity == changedField || &m_wellDiskPropertyType == changedField ||
                   &m_wellDiskPropertyConfigType == changedField || &m_wellDiskshowLabelsBackground == changedField ||
                   &m_wellDiskShowQuantityLabels == changedField || &m_wellDiskSummaryCase == changedField ||
-                  &m_wellDiskScaleFactor == changedField || &wellDiskColor == changedField ||
-                  &m_showWellDisks == changedField || &m_showWellLabel == changedField )
+                  &m_wellDiskScaleFactor == changedField || &wellDiskColor == changedField || &m_showWellDisks == changedField ||
+                  &m_showWellLabel == changedField )
         {
             m_reservoirView->updateDisplayModelForCurrentTimeStepAndRedraw();
         }
-        else if ( &spheresScaleFactor == changedField || &m_showWellSpheres == changedField ||
-                  &showConnectionStatusColors == changedField )
+        else if ( &spheresScaleFactor == changedField || &m_showWellSpheres == changedField || &showConnectionStatusColors == changedField )
         {
             m_reservoirView->scheduleSimWellGeometryRegen();
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
         }
-        else if ( &pipeCrossSectionVertexCount == changedField || &pipeScaleFactor == changedField ||
-                  &wellHeadScaleFactor == changedField || &m_showWellHead == changedField ||
-                  &isAutoDetectingBranches == changedField || &wellHeadPosition == changedField ||
+        else if ( &pipeCrossSectionVertexCount == changedField || &pipeScaleFactor == changedField || &wellHeadScaleFactor == changedField ||
+                  &m_showWellHead == changedField || &isAutoDetectingBranches == changedField || &wellHeadPosition == changedField ||
                   &wellLabelColor == changedField || &wellPipeCoordType == changedField || &m_showWellPipe == changedField )
         {
             m_reservoirView->scheduleSimWellGeometryRegen();
@@ -515,8 +503,7 @@ void RimSimWellInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimSimWellInViewCollection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RimSimWellInViewCollection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -542,8 +529,7 @@ QList<caf::PdmOptionItemInfo>
             {
                 QString displayName;
 
-                std::string longVectorName =
-                    RiuSummaryQuantityNameInfoProvider::instance()->longNameFromVectorName( itemName );
+                std::string longVectorName = RiuSummaryQuantityNameInfoProvider::instance()->longNameFromVectorName( itemName );
 
                 if ( longVectorName.empty() )
                 {
@@ -576,8 +562,7 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSimWellInViewCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
-                                                       QString                 uiConfigName /*= "" */ )
+void RimSimWellInViewCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= "" */ )
 {
     if ( m_reservoirView && m_reservoirView->virtualPerforationResult() )
     {
@@ -788,8 +773,7 @@ void RimSimWellInViewCollection::updateStateForVisibilityCheckboxes()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSimWellInViewCollection::updateStateFromEnabledChildCount( size_t                        enabledChildCount,
-                                                                   caf::PdmField<caf::Tristate>* fieldToUpdate )
+void RimSimWellInViewCollection::updateStateFromEnabledChildCount( size_t enabledChildCount, caf::PdmField<caf::Tristate>* fieldToUpdate )
 {
     caf::Tristate tristate;
 
@@ -839,12 +823,9 @@ void RimSimWellInViewCollection::scheduleIsWellPipesVisibleRecalculation()
 //--------------------------------------------------------------------------------------------------
 void RimSimWellInViewCollection::calculateWellGeometryVisibility( size_t frameIndex )
 {
-    if ( m_framesOfResultWellPipeVisibilities.size() > frameIndex &&
-         m_framesOfResultWellPipeVisibilities[frameIndex].size() )
-        return;
+    if ( m_framesOfResultWellPipeVisibilities.size() > frameIndex && m_framesOfResultWellPipeVisibilities[frameIndex].size() ) return;
 
-    if ( m_framesOfResultWellPipeVisibilities.size() <= frameIndex )
-        m_framesOfResultWellPipeVisibilities.resize( frameIndex + 1 );
+    if ( m_framesOfResultWellPipeVisibilities.size() <= frameIndex ) m_framesOfResultWellPipeVisibilities.resize( frameIndex + 1 );
 
     if ( m_framesOfResultWellPipeVisibilities[frameIndex].size() <= wells().size() )
         m_framesOfResultWellPipeVisibilities[frameIndex].resize( wells().size(), false );

@@ -75,8 +75,7 @@ void RivNNCGeometryGenerator::computeArrays()
     std::vector<size_t>     triangleToNNC;
 
     const cvf::Vec3f offset( m_offset );
-    long long        numConnections =
-        static_cast<long long>( m_nncIndexes.empty() ? m_nncData->allConnections().size() : m_nncIndexes.size() );
+    long long numConnections = static_cast<long long>( m_nncIndexes.empty() ? m_nncData->allConnections().size() : m_nncIndexes.size() );
 
     bool                  isVisibilityCalcActive = m_cellVisibility.notNull() && m_grid.notNull();
     std::vector<RigCell>* allCells               = nullptr;
@@ -163,8 +162,7 @@ void RivNNCGeometryGenerator::textureCoordinates( cvf::Vec2fArray*              
     textureCoords->resize( numVertices );
     cvf::Vec2f*                rawPtr        = textureCoords->ptr();
     const std::vector<double>* nncResultVals = nullptr;
-    if ( resultType == RiaDefines::ResultCatType::STATIC_NATIVE ||
-         resultType == RiaDefines::ResultCatType::FORMATION_NAMES ||
+    if ( resultType == RiaDefines::ResultCatType::STATIC_NATIVE || resultType == RiaDefines::ResultCatType::FORMATION_NAMES ||
          resultType == RiaDefines::ResultCatType::ALLAN_DIAGRAMS )
     {
         nncResultVals = m_nncData->staticConnectionScalarResult( resVarAddr );

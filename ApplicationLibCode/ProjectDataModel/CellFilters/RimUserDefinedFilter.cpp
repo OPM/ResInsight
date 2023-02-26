@@ -28,12 +28,7 @@ CAF_PDM_SOURCE_INIT( RimUserDefinedFilter, "UserDefinedFilter" );
 RimUserDefinedFilter::RimUserDefinedFilter()
 {
     CAF_PDM_InitObject( "User Defined Filter", ":/CellFilter_UserDefined.png" );
-    CAF_PDM_InitFieldNoDefault( &m_individualCellIndices,
-                                "IndividualCellIndices",
-                                "Cells",
-                                "",
-                                "Use Ctrl-C for copy and Ctrl-V for paste",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_individualCellIndices, "IndividualCellIndices", "Cells", "", "Use Ctrl-C for copy and Ctrl-V for paste", "" );
 
     m_propagateToSubGrids = true;
 
@@ -72,9 +67,7 @@ void RimUserDefinedFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimUserDefinedFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                             const QVariant&            oldValue,
-                                             const QVariant&            newValue )
+void RimUserDefinedFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField != &m_name )
     {

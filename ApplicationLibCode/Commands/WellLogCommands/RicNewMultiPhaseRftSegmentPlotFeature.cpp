@@ -87,16 +87,10 @@ void RicNewMultiPhaseRftSegmentPlotFeature::onActionTriggered( bool isChecked )
                                       summaryCase );
 
     {
-        for ( auto branchType : { RiaDefines::RftBranchType::RFT_ANNULUS,
-                                  RiaDefines::RftBranchType::RFT_DEVICE,
-                                  RiaDefines::RftBranchType::RFT_TUBING } )
+        for ( auto branchType :
+              { RiaDefines::RftBranchType::RFT_ANNULUS, RiaDefines::RftBranchType::RFT_DEVICE, RiaDefines::RftBranchType::RFT_TUBING } )
         {
-            appendTrackAndCurveForBranchType( plot,
-                                              "Segment Rates",
-                                              { "SEGGRAT", "SEGORAT", "SEGWRAT" },
-                                              wellName,
-                                              branchType,
-                                              summaryCase );
+            appendTrackAndCurveForBranchType( plot, "Segment Rates", { "SEGGRAT", "SEGORAT", "SEGWRAT" }, wellName, branchType, summaryCase );
         }
     }
 

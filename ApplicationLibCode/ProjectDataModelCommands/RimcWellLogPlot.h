@@ -43,10 +43,8 @@ public:
     bool                             resultIsPersistent() const override;
     std::unique_ptr<PdmObjectHandle> defaultResult() const override;
 
-    static RimWellLogTrack* createWellLogTrack( RimWellLogPlot* wellLogPlot,
-                                                RimEclipseCase* eclipseCase,
-                                                RimWellPath*    wellPath,
-                                                const QString&  title );
+    static RimWellLogTrack*
+        createWellLogTrack( RimWellLogPlot* wellLogPlot, RimEclipseCase* eclipseCase, RimWellPath* wellPath, const QString& title );
 
 private:
     caf::PdmField<QString>            m_title;

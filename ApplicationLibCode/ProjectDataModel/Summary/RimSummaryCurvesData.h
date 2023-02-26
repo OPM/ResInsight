@@ -53,10 +53,7 @@ public:
     RimSummaryCurvesData();
     void clear();
 
-    void addCurveData( const QString&             caseName,
-                       const QString&             ensembleName,
-                       const std::vector<time_t>& curvetimeSteps,
-                       const CurveData&           curveData );
+    void addCurveData( const QString& caseName, const QString& ensembleName, const std::vector<time_t>& curvetimeSteps, const CurveData& curveData );
 
     void addCurveDataNoSearch( const QString&                caseName,
                                const QString&                ensembleName,
@@ -70,11 +67,8 @@ public:
                                         bool                                         showTimeAsLongString );
 
 private:
-    static void populateSummaryCurvesData( std::vector<RimSummaryCurve*> curves,
-                                           SummaryCurveType              curveType,
-                                           RimSummaryCurvesData*         curvesData );
-    static void populateTimeHistoryCurvesData( std::vector<RimGridTimeHistoryCurve*> curves,
-                                               RimSummaryCurvesData*                 curvesData );
+    static void populateSummaryCurvesData( std::vector<RimSummaryCurve*> curves, SummaryCurveType curveType, RimSummaryCurvesData* curvesData );
+    static void populateTimeHistoryCurvesData( std::vector<RimGridTimeHistoryCurve*> curves, RimSummaryCurvesData* curvesData );
     static void populateAsciiDataCurvesData( std::vector<RimAsciiDataCurve*> curves, RimSummaryCurvesData* curvesData );
 
     static void prepareCaseCurvesForExport( RiaDefines::DateTimePeriod  period,
@@ -82,11 +76,8 @@ private:
                                             const RimSummaryCurvesData& inputCurvesData,
                                             RimSummaryCurvesData*       resultCurvesData );
 
-    static void appendToExportDataForCase( QString&                      out,
-                                           const std::vector<time_t>&    timeSteps,
-                                           const std::vector<CurveData>& curveData );
-    static void
-        appendToExportData( QString& out, const std::vector<RimSummaryCurvesData>& curvesData, bool showTimeAsLongString );
+    static void appendToExportDataForCase( QString& out, const std::vector<time_t>& timeSteps, const std::vector<CurveData>& curveData );
+    static void appendToExportData( QString& out, const std::vector<RimSummaryCurvesData>& curvesData, bool showTimeAsLongString );
     RimSummaryCurvesData static concatCurvesData( const std::vector<RimSummaryCurvesData>& curvesData );
 
 private:

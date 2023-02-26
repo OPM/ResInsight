@@ -150,8 +150,7 @@ void RimStimPlanColors::loadDataAndUpdate()
             RimRegularLegendConfig* legendConfig = new RimRegularLegendConfig();
             legendConfig->resultVariableName     = resultNameUnitString;
             legendConfig->setMappingMode( RimRegularLegendConfig::MappingType::LINEAR_DISCRETE );
-            legendConfig->setColorLegend(
-                RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::STIMPLAN ) );
+            legendConfig->setColorLegend( RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::STIMPLAN ) );
 
             m_legendConfigurations.push_back( legendConfig );
         }
@@ -186,9 +185,7 @@ QList<caf::PdmOptionItemInfo> RimStimPlanColors::calculateValueOptions( const ca
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStimPlanColors::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                          const QVariant&            oldValue,
-                                          const QVariant&            newValue )
+void RimStimPlanColors::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimEclipseView* sourceView = nullptr;
     this->firstAncestorOrThisOfType( sourceView );

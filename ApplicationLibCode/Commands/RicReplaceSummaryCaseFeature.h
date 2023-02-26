@@ -35,6 +35,5 @@ protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
-    static bool checkIfCalculationNeedsUpdate( const RimUserDefinedCalculation* summaryCalculation,
-                                               const RimSummaryCase*            summaryCase );
+    static bool checkIfCalculationNeedsUpdate( const RimUserDefinedCalculation* summaryCalculation, const RimSummaryCase* summaryCase );
 };

@@ -151,9 +151,7 @@ void RimViewController::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrde
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewController::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                          const QVariant&            oldValue,
-                                          const QVariant&            newValue )
+void RimViewController::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_isActive )
     {
@@ -278,8 +276,7 @@ void RimViewController::updateOverrides()
                 {
                     if ( isPropertyFilterOveridden() )
                     {
-                        manEclView->setOverridePropertyFilterCollection(
-                            masterEclipseView->eclipsePropertyFilterCollection() );
+                        manEclView->setOverridePropertyFilterCollection( masterEclipseView->eclipsePropertyFilterCollection() );
                     }
                     else
                     {
@@ -535,8 +532,7 @@ void RimViewController::updateDuplicatedPropertyFilters()
         if ( masterEclipseView && manEclView )
         {
             auto propertyString = masterEclipseView->eclipsePropertyFilterCollection()->writeObjectToXmlString();
-            manEclView->eclipsePropertyFilterCollection()->readObjectFromXmlString( propertyString,
-                                                                                    caf::PdmDefaultObjectFactory::instance() );
+            manEclView->eclipsePropertyFilterCollection()->readObjectFromXmlString( propertyString, caf::PdmDefaultObjectFactory::instance() );
             manEclView->eclipsePropertyFilterCollection()->loadAndInitializePropertyFilters();
             manEclView->eclipsePropertyFilterCollection()->setIsDuplicatedFromLinkedView();
             manEclView->eclipsePropertyFilterCollection()->updateAllRequiredEditors();
@@ -550,8 +546,7 @@ void RimViewController::updateDuplicatedPropertyFilters()
         if ( masterGeoView && manGeoView )
         {
             auto propertyString = masterGeoView->geoMechPropertyFilterCollection()->writeObjectToXmlString();
-            manGeoView->geoMechPropertyFilterCollection()->readObjectFromXmlString( propertyString,
-                                                                                    caf::PdmDefaultObjectFactory::instance() );
+            manGeoView->geoMechPropertyFilterCollection()->readObjectFromXmlString( propertyString, caf::PdmDefaultObjectFactory::instance() );
             manGeoView->geoMechPropertyFilterCollection()->loadAndInitializePropertyFilters();
             manGeoView->geoMechPropertyFilterCollection()->updateAllRequiredEditors();
 
@@ -662,10 +657,8 @@ const RigCaseToCaseCellMapper* RimViewController::cellMapper()
     // If we have the correct mapping already, return it.
     if ( m_caseToCaseCellMapper.notNull() )
     {
-        if ( masterEclGrid == m_caseToCaseCellMapper->masterGrid() &&
-             dependEclGrid == m_caseToCaseCellMapper->dependentGrid() &&
-             masterFemPart == m_caseToCaseCellMapper->masterFemPart() &&
-             dependFemPart == m_caseToCaseCellMapper->dependentFemPart() )
+        if ( masterEclGrid == m_caseToCaseCellMapper->masterGrid() && dependEclGrid == m_caseToCaseCellMapper->dependentGrid() &&
+             masterFemPart == m_caseToCaseCellMapper->masterFemPart() && dependFemPart == m_caseToCaseCellMapper->dependentFemPart() )
         {
             return m_caseToCaseCellMapper.p();
         }
@@ -997,9 +990,7 @@ void RimViewController::updateCellFilterOverrides( const RimCellFilter* changedF
     RimCellFilterCollection* sourceFilterCollection = masterGridView->cellFilterCollection();
     QString                  xmlFilterCollCopy      = sourceFilterCollection->writeObjectToXmlString();
     PdmObjectHandle*         objectCopy =
-        PdmXmlObjectHandle::readUnknownObjectFromXmlString( xmlFilterCollCopy,
-                                                            caf::PdmDefaultObjectFactory::instance(),
-                                                            true );
+        PdmXmlObjectHandle::readUnknownObjectFromXmlString( xmlFilterCollCopy, caf::PdmDefaultObjectFactory::instance(), true );
     auto* overrideFilterColl = dynamic_cast<RimCellFilterCollection*>( objectCopy );
 
     std::vector<RimCellFilter*> srcFilters  = sourceFilterCollection->filters();
@@ -1029,10 +1020,7 @@ void RimViewController::updateCellFilterOverrides( const RimCellFilter* changedF
 
                     if ( ( srcRFilter != nullptr ) && ( dstRFilter != nullptr ) )
                     {
-                        RigCaseToCaseRangeFilterMapper::convertRangeFilterEclToFem( srcRFilter,
-                                                                                    srcEclGrid,
-                                                                                    dstRFilter,
-                                                                                    dstFemPart );
+                        RigCaseToCaseRangeFilterMapper::convertRangeFilterEclToFem( srcRFilter, srcEclGrid, dstRFilter, dstFemPart );
                         continue;
                     }
 
@@ -1061,10 +1049,7 @@ void RimViewController::updateCellFilterOverrides( const RimCellFilter* changedF
 
                     if ( ( srcRFilter != nullptr ) && ( dstRFilter != nullptr ) )
                     {
-                        RigCaseToCaseRangeFilterMapper::convertRangeFilterFemToEcl( srcRFilter,
-                                                                                    srcFemPart,
-                                                                                    dstRFilter,
-                                                                                    dstEclGrid );
+                        RigCaseToCaseRangeFilterMapper::convertRangeFilterFemToEcl( srcRFilter, srcFemPart, dstRFilter, dstEclGrid );
                         continue;
                     }
 

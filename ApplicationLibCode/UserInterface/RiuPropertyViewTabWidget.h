@@ -34,10 +34,7 @@ class QStringList;
 class RiuPropertyViewTabWidget : public QDialog
 {
 public:
-    RiuPropertyViewTabWidget( QWidget*           parent,
-                              caf::PdmObject*    object,
-                              const QString&     windowTitle,
-                              const QStringList& uiConfigNameForTabs );
+    RiuPropertyViewTabWidget( QWidget* parent, caf::PdmObject* object, const QString& windowTitle, const QStringList& uiConfigNameForTabs );
     ~RiuPropertyViewTabWidget() override;
 
     QSize             minimumSizeHint() const override;

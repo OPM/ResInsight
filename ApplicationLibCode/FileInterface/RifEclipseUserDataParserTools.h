@@ -60,9 +60,7 @@ public:
     size_t      itemCount() const;
 
 public:
-    static Column createColumnInfoFromRsmData( const std::string&              vectorName,
-                                               const std::string&              unit,
-                                               const RifEclipseSummaryAddress& addr );
+    static Column createColumnInfoFromRsmData( const std::string& vectorName, const std::string& unit, const RifEclipseSummaryAddress& addr );
     static Column createColumnInfoFromCsvData( const RifEclipseSummaryAddress& addr, const std::string& unit );
 
     RifEclipseSummaryAddress summaryAddress;
@@ -132,14 +130,12 @@ public:
     static bool                     isAComment( const std::string& word );
     static std::vector<std::string> splitLineAndRemoveComments( const std::string& line );
     static std::vector<double>      splitLineToDoubles( const std::string& line );
-    static bool
-                                    keywordParser( const std::string& line, std::string& origin, std::string& dateFormat, std::string& startDate );
-    static bool                     isANumber( const std::string& line );
+    static bool keywordParser( const std::string& line, std::string& origin, std::string& dateFormat, std::string& startDate );
+    static bool isANumber( const std::string& line );
     static std::vector<std::string> headerReader( std::stringstream& streamData, std::string& line );
 
     static bool hasTimeUnit( const std::string& line );
-    static bool hasOnlyValidDoubleValues( const std::vector<std::string>& words,
-                                          std::vector<double>*            doubleValues = nullptr );
+    static bool hasOnlyValidDoubleValues( const std::vector<std::string>& words, std::vector<double>* doubleValues = nullptr );
 
     static bool isValidTableData( size_t columnCount, const std::string& line );
 
@@ -151,8 +147,8 @@ public:
     static std::vector<Column>                   columnInfoForFixedColumnWidth( std::stringstream& streamData );
     static std::vector<std::string>              findValidHeaderLines( std::stringstream& streamData );
     static std::vector<std::vector<std::string>> splitIntoColumnHeaders( const std::vector<std::string>& headerLines );
-    static std::vector<Column> columnInfoFromColumnHeaders( const std::vector<std::vector<std::string>>& columnData );
-    static std::vector<size_t> columnIndexForWords( const std::string& line );
+    static std::vector<Column>                   columnInfoFromColumnHeaders( const std::vector<std::vector<std::string>>& columnData );
+    static std::vector<size_t>                   columnIndexForWords( const std::string& line );
 
     static std::vector<TableData> mergeEqualTimeSteps( const std::vector<TableData>& tables );
 

@@ -63,9 +63,8 @@ public:
 public:
     // Helper methods, available as public to be able to access from unit tests
 
-    static double interpolatedYValue( const XValueType&              xValue,
-                                      const std::vector<XValueType>& curveXValues,
-                                      const std::vector<double>&     curveYValues );
+    static double
+        interpolatedYValue( const XValueType& xValue, const std::vector<XValueType>& curveXValues, const std::vector<double>& curveYValues );
 
 private:
     void computeUnionOfXValues( bool includeValuesFromPartialCurves );

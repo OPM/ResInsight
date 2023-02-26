@@ -74,9 +74,8 @@ public:
 private:
     void init( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions );
     void setOneCurveAppearance( CurveAppearanceType appeaType, size_t totalCount, int appeaIdx, RimSummaryCurve* curve );
-    void                          updateApperanceIndices();
-    std::map<std::string, size_t> mapNameToAppearanceIndex( CurveAppearanceType&         appearance,
-                                                            const std::set<std::string>& names );
+    void updateApperanceIndices();
+    std::map<std::string, size_t> mapNameToAppearanceIndex( CurveAppearanceType& appearance, const std::set<std::string>& names );
 
     RiuQwtPlotCurveDefines::LineStyleEnum cycledLineStyle( int index );
     int                                   cycledLineThickness( int index );

@@ -50,10 +50,9 @@ public:
     static QStringList dataSourceNames( const std::vector<RimSummaryCase*>&           summaryCases,
                                         const std::vector<RimSummaryCaseCollection*>& ensembles );
 
-    static std::set<RifEclipseSummaryAddress>
-        computeFilteredAddresses( const QStringList&                        textFilters,
-                                  const std::set<RifEclipseSummaryAddress>& sourceAddresses,
-                                  bool                                      includeDiffCurves );
+    static std::set<RifEclipseSummaryAddress> computeFilteredAddresses( const QStringList&                        textFilters,
+                                                                        const std::set<RifEclipseSummaryAddress>& sourceAddresses,
+                                                                        bool                                      includeDiffCurves );
 
     // Consider private, set public to be able to test
     static void splitUsingDataSourceNames( const QStringList& filters,

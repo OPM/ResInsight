@@ -25,9 +25,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivEclipseIntersectionGrid::RivEclipseIntersectionGrid( const RigMainGrid*       mainGrid,
-                                                        const RigActiveCellInfo* activeCellInfo,
-                                                        bool                     showInactiveCells )
+RivEclipseIntersectionGrid::RivEclipseIntersectionGrid( const RigMainGrid* mainGrid, const RigActiveCellInfo* activeCellInfo, bool showInactiveCells )
     : m_mainGrid( mainGrid )
     , m_activeCellInfo( activeCellInfo )
     , m_showInactiveCells( showInactiveCells )
@@ -53,8 +51,7 @@ cvf::BoundingBox RivEclipseIntersectionGrid::boundingBox() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivEclipseIntersectionGrid::findIntersectingCells( const cvf::BoundingBox& intersectingBB,
-                                                        std::vector<size_t>*    intersectedCells ) const
+void RivEclipseIntersectionGrid::findIntersectingCells( const cvf::BoundingBox& intersectingBB, std::vector<size_t>* intersectedCells ) const
 {
     m_mainGrid->findIntersectingCells( intersectingBB, intersectedCells );
 }
@@ -95,7 +92,7 @@ void RivEclipseIntersectionGrid::cellCornerIndices( size_t cellIndex, size_t cor
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RigFault* RivEclipseIntersectionGrid::findFaultFromCellIndexAndCellFace( size_t reservoirCellIndex,
+const RigFault* RivEclipseIntersectionGrid::findFaultFromCellIndexAndCellFace( size_t                             reservoirCellIndex,
                                                                                cvf::StructGridInterface::FaceType face ) const
 {
     return m_mainGrid->findFaultFromCellIndexAndCellFace( reservoirCellIndex, face );

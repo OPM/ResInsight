@@ -142,8 +142,7 @@ const RimEnsembleFractureStatisticsCollection* RimCompletionTemplateCollection::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCompletionTemplateCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
-                                                            QString                 uiConfigName /*= ""*/ )
+void RimCompletionTemplateCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
     uiTreeOrdering.add( m_valveTemplates );
     uiTreeOrdering.add( m_fractureTemplates );

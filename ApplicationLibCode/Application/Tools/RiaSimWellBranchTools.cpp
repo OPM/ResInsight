@@ -29,12 +29,11 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<const RigWellPath*> RiaSimWellBranchTools::simulationWellBranches( const QString& simWellName,
-                                                                               bool useAutoDetectionOfBranches )
+std::vector<const RigWellPath*> RiaSimWellBranchTools::simulationWellBranches( const QString& simWellName, bool useAutoDetectionOfBranches )
 {
     std::vector<RimEclipseCase*> simCases = RimEclipseCaseTools::eclipseCases();
 
-    auto caseItr = std::find_if( simCases.begin(), simCases.end(), [&simWellName]( const RimEclipseCase* eclCase ) {
+    auto                caseItr     = std::find_if( simCases.begin(), simCases.end(), [&simWellName]( const RimEclipseCase* eclCase ) {
         const auto& eclData = eclCase->eclipseCaseData();
         return eclData != nullptr && eclData->hasSimulationWell( simWellName );
     } );
@@ -47,8 +46,7 @@ std::vector<const RigWellPath*> RiaSimWellBranchTools::simulationWellBranches( c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RiaSimWellBranchTools::valueOptionsForBranchIndexField( const std::vector<const RigWellPath*>& simulationWellPaths )
+QList<caf::PdmOptionItemInfo> RiaSimWellBranchTools::valueOptionsForBranchIndexField( const std::vector<const RigWellPath*>& simulationWellPaths )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -61,8 +59,7 @@ QList<caf::PdmOptionItemInfo>
     {
         for ( int bIdx = 0; bIdx < static_cast<int>( branchCount ); ++bIdx )
         {
-            options.push_back(
-                caf::PdmOptionItemInfo( "Branch " + QString::number( bIdx + 1 ), QVariant::fromValue( bIdx ) ) );
+            options.push_back( caf::PdmOptionItemInfo( "Branch " + QString::number( bIdx + 1 ), QVariant::fromValue( bIdx ) ) );
         }
     }
 
@@ -72,29 +69,26 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSimWellBranchTools::appendSimWellBranchFieldsIfRequiredFromWellName( caf::PdmUiOrdering* uiOrdering,
-                                                                             const QString&      wellPathOrSimWellName,
+void RiaSimWellBranchTools::appendSimWellBranchFieldsIfRequiredFromWellName( caf::PdmUiOrdering*        uiOrdering,
+                                                                             const QString&             wellPathOrSimWellName,
                                                                              const caf::PdmField<bool>& branchDetectionField,
-                                                                             const caf::PdmField<int>& branchIndexField )
+                                                                             const caf::PdmField<int>&  branchIndexField )
 {
     if ( !RimWellPlotTools::hasAssociatedWellPath( wellPathOrSimWellName ) )
     {
         const QString simWellName = RimWellPlotTools::simWellName( wellPathOrSimWellName );
 
-        RiaSimWellBranchTools::appendSimWellBranchFieldsIfRequiredFromSimWellName( uiOrdering,
-                                                                                   simWellName,
-                                                                                   branchDetectionField,
-                                                                                   branchIndexField );
+        RiaSimWellBranchTools::appendSimWellBranchFieldsIfRequiredFromSimWellName( uiOrdering, simWellName, branchDetectionField, branchIndexField );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSimWellBranchTools::appendSimWellBranchFieldsIfRequiredFromSimWellName( caf::PdmUiOrdering* uiOrdering,
-                                                                                const QString&      simWellName,
+void RiaSimWellBranchTools::appendSimWellBranchFieldsIfRequiredFromSimWellName( caf::PdmUiOrdering*        uiOrdering,
+                                                                                const QString&             simWellName,
                                                                                 const caf::PdmField<bool>& branchDetectionField,
-                                                                                const caf::PdmField<int>& branchIndexField )
+                                                                                const caf::PdmField<int>&  branchIndexField )
 {
     if ( RiaSimWellBranchTools::simulationWellBranches( simWellName, true ).size() > 1 )
     {

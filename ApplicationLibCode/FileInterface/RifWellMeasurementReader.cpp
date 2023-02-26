@@ -27,8 +27,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-void RifWellMeasurementReader::readWellMeasurements( std::vector<RifWellMeasurement>& wellMeasurements,
-                                                     const QStringList&               filePaths )
+void RifWellMeasurementReader::readWellMeasurements( std::vector<RifWellMeasurement>& wellMeasurements, const QStringList& filePaths )
 {
     for ( const QString& filePath : filePaths )
     {
@@ -48,8 +47,7 @@ void RifWellMeasurementReader::readWellMeasurements( std::vector<RifWellMeasurem
 //==================================================================================================
 ///
 //==================================================================================================
-void RifWellMeasurementReader::readWellMeasurements( std::vector<RifWellMeasurement>& wellMeasurements,
-                                                     const QString&                   filePath )
+void RifWellMeasurementReader::readWellMeasurements( std::vector<RifWellMeasurement>& wellMeasurements, const QString& filePath )
 {
     QFile file( filePath );
     if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
@@ -75,8 +73,7 @@ void RifWellMeasurementReader::readWellMeasurements( std::vector<RifWellMeasurem
 //==================================================================================================
 ///
 //==================================================================================================
-RifWellMeasurement
-    RifWellMeasurementReader::parseWellMeasurement( const QString& line, int lineNumber, const QString& filePath )
+RifWellMeasurement RifWellMeasurementReader::parseWellMeasurement( const QString& line, int lineNumber, const QString& filePath )
 {
     QStringList tokens = tokenize( line, "," );
 
@@ -117,18 +114,13 @@ QStringList RifWellMeasurementReader::tokenize( const QString& line, const QStri
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QDate RifWellMeasurementReader::parseDate( const QString& token,
-                                           const QString& propertyName,
-                                           int            lineNumber,
-                                           const QString& filePath )
+QDate RifWellMeasurementReader::parseDate( const QString& token, const QString& propertyName, int lineNumber, const QString& filePath )
 {
     QDate date = QDate::fromString( token, Qt::ISODate );
     if ( !date.isValid() )
     {
-        throw FileParseException( QString( "Invalid date format (must be ISO 8601) for '%1' on line %2: %3" )
-                                      .arg( propertyName )
-                                      .arg( lineNumber )
-                                      .arg( filePath ) );
+        throw FileParseException(
+            QString( "Invalid date format (must be ISO 8601) for '%1' on line %2: %3" ).arg( propertyName ).arg( lineNumber ).arg( filePath ) );
     }
 
     return date;
@@ -137,17 +129,13 @@ QDate RifWellMeasurementReader::parseDate( const QString& token,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RifWellMeasurementReader::parseDouble( const QString& token,
-                                              const QString& propertyName,
-                                              int            lineNumber,
-                                              const QString& filePath )
+double RifWellMeasurementReader::parseDouble( const QString& token, const QString& propertyName, int lineNumber, const QString& filePath )
 {
     bool   isOk  = false;
     double value = token.toDouble( &isOk );
     if ( !isOk )
     {
-        throw FileParseException(
-            QString( "Invalid number for '%1' on line %2: %3" ).arg( propertyName ).arg( lineNumber ).arg( filePath ) );
+        throw FileParseException( QString( "Invalid number for '%1' on line %2: %3" ).arg( propertyName ).arg( lineNumber ).arg( filePath ) );
     }
 
     return value;
@@ -162,8 +150,7 @@ int RifWellMeasurementReader::parseInt( const QString& token, const QString& pro
     int  value = token.toInt( &isOk );
     if ( !isOk )
     {
-        throw FileParseException(
-            QString( "Invalid number for '%1' on line %2: %3" ).arg( propertyName ).arg( lineNumber ).arg( filePath ) );
+        throw FileParseException( QString( "Invalid number for '%1' on line %2: %3" ).arg( propertyName ).arg( lineNumber ).arg( filePath ) );
     }
 
     return value;

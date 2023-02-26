@@ -128,24 +128,19 @@ caf::PdmScriptResponse RicfExportPropertyInViews::execute()
 
         if ( resultAccessor.isNull() )
         {
-            QString warning =
-                QString( "exportProperty: Could not find property. Case ID %1, time step %2, property '%3'" )
-                    .arg( m_caseId )
-                    .arg( view->currentTimeStep() )
-                    .arg( propertyName );
+            QString warning = QString( "exportProperty: Could not find property. Case ID %1, time step %2, property '%3'" )
+                                  .arg( m_caseId )
+                                  .arg( view->currentTimeStep() )
+                                  .arg( propertyName );
             RiaLogging::warning( warning );
             response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warning );
             continue;
         }
 
-        QDir propertiesDir(
-            RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::ExportType::PROPERTIES ) );
+        QDir propertiesDir( RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::ExportType::PROPERTIES ) );
 
-        QString fileName = QString( "%1-%2-T%3-%4" )
-                               .arg( eclipseCase->caseUserDescription() )
-                               .arg( view->name() )
-                               .arg( view->currentTimeStep() )
-                               .arg( propertyName );
+        QString fileName =
+            QString( "%1-%2-T%3-%4" ).arg( eclipseCase->caseUserDescription() ).arg( view->name() ).arg( view->currentTimeStep() ).arg( propertyName );
 
         fileName               = caf::Utils::makeValidFileBasename( fileName );
         const QString filePath = propertiesDir.filePath( fileName );

@@ -47,8 +47,7 @@ CAF_CMD_SOURCE_INIT( RicRunWellIntegrityAnalysisFeature, "RicRunWellIntegrityAna
 //--------------------------------------------------------------------------------------------------
 void RicRunWellIntegrityAnalysisFeature::onActionTriggered( bool isChecked )
 {
-    RimWellIASettings* modelSettings =
-        dynamic_cast<RimWellIASettings*>( caf::SelectionManager::instance()->selectedItem() );
+    RimWellIASettings* modelSettings = dynamic_cast<RimWellIASettings*>( caf::SelectionManager::instance()->selectedItem() );
 
     if ( modelSettings == nullptr ) return;
 

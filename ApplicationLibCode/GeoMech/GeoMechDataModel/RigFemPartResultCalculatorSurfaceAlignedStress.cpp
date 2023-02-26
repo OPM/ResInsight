@@ -33,8 +33,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemPartResultCalculatorSurfaceAlignedStress::RigFemPartResultCalculatorSurfaceAlignedStress(
-    RigFemPartResultsCollection& collection )
+RigFemPartResultCalculatorSurfaceAlignedStress::RigFemPartResultCalculatorSurfaceAlignedStress( RigFemPartResultsCollection& collection )
     : RigFemPartResultCalculator( collection )
 {
 }
@@ -58,81 +57,61 @@ bool RigFemPartResultCalculatorSurfaceAlignedStress::isMatching( const RigFemRes
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames*
-    RigFemPartResultCalculatorSurfaceAlignedStress::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
+RigFemScalarResultFrames* RigFemPartResultCalculatorSurfaceAlignedStress::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
 {
-    CVF_ASSERT( resVarAddr.componentName == "STH" || resVarAddr.componentName == "STQV" ||
-                resVarAddr.componentName == "SN" || resVarAddr.componentName == "TPH" ||
-                resVarAddr.componentName == "TPQV" || resVarAddr.componentName == "THQV" ||
-                resVarAddr.componentName == "TP" || resVarAddr.componentName == "TPinc" ||
-                resVarAddr.componentName == "FAULTMOB" || resVarAddr.componentName == "PCRIT" );
+    CVF_ASSERT( resVarAddr.componentName == "STH" || resVarAddr.componentName == "STQV" || resVarAddr.componentName == "SN" ||
+                resVarAddr.componentName == "TPH" || resVarAddr.componentName == "TPQV" || resVarAddr.componentName == "THQV" ||
+                resVarAddr.componentName == "TP" || resVarAddr.componentName == "TPinc" || resVarAddr.componentName == "FAULTMOB" ||
+                resVarAddr.componentName == "PCRIT" );
 
     caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 7, "" );
-    stepCountProgress.setProgressDescription(
-        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
+    stepCountProgress.setProgressDescription( "Calculating " +
+                                              QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
     stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* s11Frames =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S11" ) );
+        m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S11" ) );
     stepCountProgress.incrementProgress();
     stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
     RigFemScalarResultFrames* s22Frames =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S22" ) );
+        m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S22" ) );
     stepCountProgress.incrementProgress();
     stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
     RigFemScalarResultFrames* s33Frames =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S33" ) );
+        m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S33" ) );
     stepCountProgress.incrementProgress();
     stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
     RigFemScalarResultFrames* s12Frames =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S12" ) );
+        m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S12" ) );
     stepCountProgress.incrementProgress();
     stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
     RigFemScalarResultFrames* s23Frames =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S23" ) );
+        m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S23" ) );
     stepCountProgress.incrementProgress();
     stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
     RigFemScalarResultFrames* s13Frames =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S13" ) );
+        m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_ELEMENT_NODAL, resVarAddr.fieldName, "S13" ) );
 
     RigFemScalarResultFrames* SNFrames =
-        m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "SN" ) );
+        m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "SN" ) );
     RigFemScalarResultFrames* STHFrames =
-        m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "STH" ) );
+        m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "STH" ) );
     RigFemScalarResultFrames* STQVFrames =
-        m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "STQV" ) );
+        m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "STQV" ) );
     RigFemScalarResultFrames* TNHFrames =
-        m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "TPH" ) );
+        m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "TPH" ) );
     RigFemScalarResultFrames* TNQVFrames =
-        m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "TPQV" ) );
+        m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "TPQV" ) );
     RigFemScalarResultFrames* THQVFrames =
-        m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "THQV" ) );
+        m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "THQV" ) );
     RigFemScalarResultFrames* TPFrames =
-        m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "TP" ) );
+        m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "TP" ) );
     RigFemScalarResultFrames* TPincFrames =
-        m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "TPinc" ) );
+        m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "TPinc" ) );
     RigFemScalarResultFrames* FAULTMOBFrames =
-        m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resVarAddr.resultPosType,
-                                                                     resVarAddr.fieldName,
-                                                                     "FAULTMOB" ) );
+        m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "FAULTMOB" ) );
     RigFemScalarResultFrames* PCRITFrames =
-        m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "PCRIT" ) );
+        m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "PCRIT" ) );
 
     stepCountProgress.incrementProgress();
 
@@ -195,9 +174,8 @@ RigFemScalarResultFrames*
 
                 for ( int lfIdx = 0; lfIdx < faceCount; ++lfIdx )
                 {
-                    int        faceNodeCount = 0;
-                    const int* localElmNodeIndicesForFace =
-                        RigFemTypes::localElmNodeIndicesForFace( elmType, lfIdx, &faceNodeCount );
+                    int        faceNodeCount              = 0;
+                    const int* localElmNodeIndicesForFace = RigFemTypes::localElmNodeIndicesForFace( elmType, lfIdx, &faceNodeCount );
                     if ( faceNodeCount == 4 )
                     {
                         int        elmNodFaceResIdxFaceStart = elmNodFaceResIdxElmStart + lfIdx * 4; // HACK
@@ -208,8 +186,8 @@ RigFemScalarResultFrames*
                         quadVxs[2] = ( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[2]]] );
                         quadVxs[3] = ( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[3]]] );
 
-                        cvf::Mat3f rotMx = cvf::GeometryTools::computePlaneHorizontalRotationMx( quadVxs[2] - quadVxs[0],
-                                                                                                 quadVxs[3] - quadVxs[1] );
+                        cvf::Mat3f rotMx =
+                            cvf::GeometryTools::computePlaneHorizontalRotationMx( quadVxs[2] - quadVxs[0], quadVxs[3] - quadVxs[1] );
 
                         size_t qElmNodeResIdx[4];
                         qElmNodeResIdx[0] = femPart->elementNodeResultIdx( elmIdx, localElmNodeIndicesForFace[0] );

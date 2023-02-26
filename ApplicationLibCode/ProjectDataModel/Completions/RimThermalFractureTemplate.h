@@ -68,17 +68,15 @@ public:
     std::vector<QString>                     timeStepsStrings() override;
     std::vector<double>                      timeSteps() override;
     std::vector<std::pair<QString, QString>> uiResultNamesWithUnit() const override;
-    std::vector<std::vector<double>>
-        resultValues( const QString& uiResultName, const QString& unitName, size_t timeStepIndex ) const override;
-    std::vector<double>
-           fractureGridResults( const QString& resultName, const QString& unitName, size_t timeStepIndex ) const override;
-    bool   hasConductivity() const override;
-    double resultValueAtIJ( const RigFractureGrid* fractureGrid,
-                            const QString&         uiResultName,
-                            const QString&         unitName,
-                            size_t                 timeStepIndex,
-                            size_t                 i,
-                            size_t                 j ) override;
+    std::vector<std::vector<double>> resultValues( const QString& uiResultName, const QString& unitName, size_t timeStepIndex ) const override;
+    std::vector<double> fractureGridResults( const QString& resultName, const QString& unitName, size_t timeStepIndex ) const override;
+    bool                hasConductivity() const override;
+    double              resultValueAtIJ( const RigFractureGrid* fractureGrid,
+                                         const QString&         uiResultName,
+                                         const QString&         unitName,
+                                         size_t                 timeStepIndex,
+                                         size_t                 i,
+                                         size_t                 j ) override;
 
     void appendDataToResultStatistics( const QString&     uiResultName,
                                        const QString&     unit,
@@ -107,8 +105,7 @@ public:
     QString mapUiResultNameToFileResultName( const QString& uiResultName ) const;
     void    convertToUnitSystem( RiaDefines::EclipseUnitSystem neededUnit ) override;
 
-    static std::pair<QString, QString>
-        widthParameterNameAndUnit( std::shared_ptr<RigThermalFractureDefinition> fractureDefinitionData );
+    static std::pair<QString, QString> widthParameterNameAndUnit( std::shared_ptr<RigThermalFractureDefinition> fractureDefinitionData );
 
     std::pair<cvf::Vec3d, cvf::Vec3d> computePositionAndRotation() const;
 

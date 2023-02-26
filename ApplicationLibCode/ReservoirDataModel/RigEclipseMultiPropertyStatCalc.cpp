@@ -83,8 +83,7 @@ void RigEclipseMultiPropertyStatCalc::valueSumAndSampleCount( size_t timeStepInd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseMultiPropertyStatCalc::addDataToHistogramCalculator( size_t                  timeStepIndex,
-                                                                    RigHistogramCalculator& histogramCalculator )
+void RigEclipseMultiPropertyStatCalc::addDataToHistogramCalculator( size_t timeStepIndex, RigHistogramCalculator& histogramCalculator )
 {
     for ( size_t i = 0; i < m_nativeStatisticsCalculators.size(); i++ )
     {

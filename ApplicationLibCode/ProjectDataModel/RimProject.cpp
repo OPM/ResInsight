@@ -311,7 +311,7 @@ void RimProject::initAfterRead()
 
     // Handle old project files with obsolete structure.
     // Move caseGroupsObsolete and casesObsolete to oilFields()[idx]->analysisModels()
-    RimEclipseCaseCollection* analysisModels = activeOilField() ? activeOilField()->analysisModels() : nullptr;
+    RimEclipseCaseCollection* analysisModels                    = activeOilField() ? activeOilField()->analysisModels() : nullptr;
     bool                      movedOneRimIdenticalGridCaseGroup = false;
     for ( size_t cgIdx = 0; cgIdx < caseGroupsObsolete.size(); ++cgIdx )
     {
@@ -448,8 +448,7 @@ bool RimProject::isProjectFileVersionEqualOrOlderThan( const QString& otherProje
 {
     QString candidateProjectFileVersion = projectFileVersionString();
 
-    return !RiaProjectFileVersionTools::isCandidateVersionNewerThanOther( candidateProjectFileVersion,
-                                                                          otherProjectFileVersion );
+    return !RiaProjectFileVersionTools::isCandidateVersionNewerThanOther( candidateProjectFileVersion, otherProjectFileVersion );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -481,8 +480,7 @@ void RimProject::setProjectFileNameAndUpdateDependencies( const QString& project
             filePathCandidate = newProjectPath + filePathCandidate;
         }
 
-        QString newFilePath =
-            RimTools::relocateFile( filePathCandidate, newProjectPath, oldProjectPath, &foundFile, &searchedPaths );
+        QString newFilePath = RimTools::relocateFile( filePathCandidate, newProjectPath, oldProjectPath, &foundFile, &searchedPaths );
         filePath->setPath( newFilePath );
     }
 
@@ -1043,8 +1041,7 @@ RimEclipseCase* RimProject::eclipseCaseFromGridFileName( const QString& gridFile
 {
     for ( RimEclipseCase* eclCase : eclipseCases() )
     {
-        if ( RiaFilePathTools::toInternalSeparator( eclCase->gridFileName() ) ==
-             RiaFilePathTools::toInternalSeparator( gridFileName ) )
+        if ( RiaFilePathTools::toInternalSeparator( eclCase->gridFileName() ) == RiaFilePathTools::toInternalSeparator( gridFileName ) )
         {
             return eclCase;
         }
@@ -1444,8 +1441,7 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
                 uiTreeOrdering.add( m_mainPlotCollection->vfpPlotCollection() );
             }
 #ifdef USE_QTCHARTS
-            if ( m_mainPlotCollection->gridStatisticsPlotCollection() ||
-                 m_mainPlotCollection->ensembleFractureStatisticsPlotCollection() )
+            if ( m_mainPlotCollection->gridStatisticsPlotCollection() || m_mainPlotCollection->ensembleFractureStatisticsPlotCollection() )
             {
                 auto statisticsItemCollection = uiTreeOrdering.add( "Statistics Plots", ":/Folder.png" );
                 if ( m_mainPlotCollection->gridStatisticsPlotCollection() )
@@ -1505,8 +1501,7 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
             if ( oilField->wellPathCollection() ) uiTreeOrdering.add( oilField->wellPathCollection() );
             if ( oilField->surfaceCollection() ) uiTreeOrdering.add( oilField->surfaceCollection() );
             if ( oilField->formationNamesCollection() ) uiTreeOrdering.add( oilField->formationNamesCollection() );
-            if ( oilField->completionTemplateCollection() )
-                uiTreeOrdering.add( oilField->completionTemplateCollection() );
+            if ( oilField->completionTemplateCollection() ) uiTreeOrdering.add( oilField->completionTemplateCollection() );
             if ( oilField->annotationCollection() ) uiTreeOrdering.add( oilField->annotationCollection() );
         }
 

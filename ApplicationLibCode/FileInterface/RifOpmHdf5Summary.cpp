@@ -167,11 +167,10 @@ void RifOpmHdf5Summary::buildMetaData()
         }
 
         {
-            auto [addresses, smspecIndices, addressToKeywordMap] =
-                RifOpmCommonSummaryTools::buildAddressesSmspecAndKeywordMap( m_eSmry.get() );
-            m_allResultAddresses         = addresses;
-            m_adrToSmspecIndices         = smspecIndices;
-            m_summaryAddressToKeywordMap = addressToKeywordMap;
+            auto [addresses, smspecIndices, addressToKeywordMap] = RifOpmCommonSummaryTools::buildAddressesSmspecAndKeywordMap( m_eSmry.get() );
+            m_allResultAddresses                                 = addresses;
+            m_adrToSmspecIndices                                 = smspecIndices;
+            m_summaryAddressToKeywordMap                         = addressToKeywordMap;
         }
     }
 }
@@ -179,9 +178,7 @@ void RifOpmHdf5Summary::buildMetaData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifOpmHdf5Summary::openESmryFile( const QString&       headerFileName,
-                                       bool                 includeRestartFiles,
-                                       RiaThreadSafeLogger* threadSafeLogger )
+bool RifOpmHdf5Summary::openESmryFile( const QString& headerFileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger )
 {
     try
     {

@@ -129,8 +129,7 @@ void RimSummaryMultiPlotCollection::onRefreshTree( const caf::SignalEmitter* emi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlotCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
-                                                          QString                 uiConfigName /*= ""*/ )
+void RimSummaryMultiPlotCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
     for ( auto& plot : m_summaryMultiPlots() )
     {
@@ -149,8 +148,7 @@ void RimSummaryMultiPlotCollection::summaryPlotItemInfos( QList<caf::PdmOptionIt
         for ( RimSummaryPlot* plot : multiPlot->summaryPlots() )
         {
             QString displayName = plot->userDescriptionField()->uiCapability()->uiValue().toString();
-            optionInfos->push_back(
-                caf::PdmOptionItemInfo( displayName, plot, false, plot->uiCapability()->uiIconProvider() ) );
+            optionInfos->push_back( caf::PdmOptionItemInfo( displayName, plot, false, plot->uiCapability()->uiIconProvider() ) );
         }
     }
 }
@@ -162,8 +160,7 @@ void RimSummaryMultiPlotCollection::duplicatePlot( RimSummaryMultiPlot* plotToDu
 {
     if ( !plotToDuplicate ) return;
 
-    auto plotCopy = dynamic_cast<RimSummaryMultiPlot*>(
-        plotToDuplicate->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+    auto plotCopy = dynamic_cast<RimSummaryMultiPlot*>( plotToDuplicate->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
 
     addSummaryMultiPlot( plotCopy );
 

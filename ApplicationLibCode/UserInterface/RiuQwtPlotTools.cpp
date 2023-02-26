@@ -68,9 +68,9 @@ void RiuQwtPlotTools::setCommonPlotBehaviour( QwtPlot* plot )
     RiuGuiTheme::styleQwtItem( grid );
 
     // Axis number font
-    int   axisFontSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(),
-                                                          caf::FontTools::RelativeSize::Medium );
-    QFont axisFont     = plot->axisFont( QwtAxis::XBottom );
+    int axisFontSize =
+        caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), caf::FontTools::RelativeSize::Medium );
+    QFont axisFont = plot->axisFont( QwtAxis::XBottom );
     axisFont.setPixelSize( caf::FontTools::pointSizeToPixelSize( axisFontSize ) );
 
     plot->setAxisFont( QwtAxis::XBottom, axisFont );
@@ -141,19 +141,12 @@ void RiuQwtPlotTools::enableDateBasedBottomXAxis( QwtPlot*                      
 {
     QwtDateScaleDraw* scaleDraw = new QwtDateScaleDraw( Qt::UTC );
 
-    std::set<QwtDate::IntervalType> intervals = { QwtDate::Year,
-                                                  QwtDate::Month,
-                                                  QwtDate::Week,
-                                                  QwtDate::Day,
-                                                  QwtDate::Hour,
-                                                  QwtDate::Minute,
-                                                  QwtDate::Second,
-                                                  QwtDate::Millisecond };
+    std::set<QwtDate::IntervalType> intervals =
+        { QwtDate::Year, QwtDate::Month, QwtDate::Week, QwtDate::Day, QwtDate::Hour, QwtDate::Minute, QwtDate::Second, QwtDate::Millisecond };
 
     for ( QwtDate::IntervalType interval : intervals )
     {
-        scaleDraw->setDateFormat( interval,
-                                  dateTimeFormatForInterval( interval, dateFormat, timeFormat, dateComponents, timeComponents ) );
+        scaleDraw->setDateFormat( interval, dateTimeFormatForInterval( interval, dateFormat, timeFormat, dateComponents, timeComponents ) );
     }
 
     QwtDateScaleEngine* scaleEngine = new QwtDateScaleEngine( Qt::UTC );
@@ -184,47 +177,36 @@ QString RiuQwtPlotTools::dateTimeFormatForInterval( QwtDate::IntervalType       
                 return RiaQDateTimeTools::timeFormatString( timeFormat,
                                                             RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND_MILLISECOND );
             case QwtDate::Second:
-                return RiaQDateTimeTools::timeFormatString( timeFormat,
-                                                            RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND );
+                return RiaQDateTimeTools::timeFormatString( timeFormat, RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND );
             case QwtDate::Minute:
             {
                 QString fullFormat =
-                    RiaQDateTimeTools::timeFormatString( timeFormat,
-                                                         RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
+                    RiaQDateTimeTools::timeFormatString( timeFormat, RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
                 fullFormat += "\n";
-                fullFormat +=
-                    RiaQDateTimeTools::dateFormatString( dateFormat,
-                                                         RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
+                fullFormat += RiaQDateTimeTools::dateFormatString( dateFormat, RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
                 return fullFormat;
             }
             case QwtDate::Hour:
             {
-                QString fullFormat =
-                    RiaQDateTimeTools::timeFormatString( timeFormat, RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR );
+                QString fullFormat = RiaQDateTimeTools::timeFormatString( timeFormat, RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR );
                 if ( !fullFormat.endsWith( "AP" ) )
                 {
                     fullFormat += ":00";
                 }
                 fullFormat += "\n";
-                fullFormat +=
-                    RiaQDateTimeTools::dateFormatString( dateFormat,
-                                                         RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
+                fullFormat += RiaQDateTimeTools::dateFormatString( dateFormat, RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
                 return fullFormat;
             }
             case QwtDate::Day:
-                return RiaQDateTimeTools::dateFormatString( dateFormat,
-                                                            RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
+                return RiaQDateTimeTools::dateFormatString( dateFormat, RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
             case QwtDate::Week:
-                return RiaQDateTimeTools::dateFormatString( dateFormat,
-                                                            RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH );
+                return RiaQDateTimeTools::dateFormatString( dateFormat, RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH );
             case QwtDate::Month:
-                return RiaQDateTimeTools::dateFormatString( dateFormat,
-                                                            RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH );
+                return RiaQDateTimeTools::dateFormatString( dateFormat, RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH );
             case QwtDate::Year:
                 return RiaQDateTimeTools::dateFormatString( dateFormat, RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR );
             default:
-                return RiaQDateTimeTools::dateFormatString( dateFormat,
-                                                            RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
+                return RiaQDateTimeTools::dateFormatString( dateFormat, RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
         }
     }
 }
@@ -232,13 +214,8 @@ QString RiuQwtPlotTools::dateTimeFormatForInterval( QwtDate::IntervalType       
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QwtPlotShapeItem* RiuQwtPlotTools::createBoxShape( const QString& label,
-                                                   double         startX,
-                                                   double         endX,
-                                                   double         startY,
-                                                   double         endY,
-                                                   QColor         color,
-                                                   Qt::BrushStyle brushStyle )
+QwtPlotShapeItem*
+    RiuQwtPlotTools::createBoxShape( const QString& label, double startX, double endX, double startY, double endY, QColor color, Qt::BrushStyle brushStyle )
 {
     return createBoxShapeT<QwtPlotShapeItem>( label, startX, endX, startY, endY, color, brushStyle );
 }
@@ -325,10 +302,9 @@ QList<QwtLegendData> RiuQwtPlotTools::createLegendData( const std::vector<RimPlo
 
             if ( c->symbol() != RiuPlotCurveSymbol::SYMBOL_NONE )
             {
-                auto image =
-                    RiuPlotCurveSymbolImageCreator::createSymbolImage( c->symbol(),
-                                                                       QSize( size.width() / 2, size.height() / 2 ),
-                                                                       RiaColorTools::toQColor( c->color() ) );
+                auto image = RiuPlotCurveSymbolImageCreator::createSymbolImage( c->symbol(),
+                                                                                QSize( size.width() / 2, size.height() / 2 ),
+                                                                                RiaColorTools::toQColor( c->color() ) );
 
                 QPoint p( size.width() / 4, size.height() / 4 );
                 painter.drawImage( p, image );

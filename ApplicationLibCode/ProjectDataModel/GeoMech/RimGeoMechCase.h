@@ -116,8 +116,7 @@ public:
     std::vector<std::string>   possibleElementPropertyFieldNames();
     std::vector<caf::FilePath> elementPropertyFileNames() const;
 
-    QString findFileNameForElementProperty( const std::string&                   elementProperty,
-                                            const std::map<std::string, QString> addressesInFiles ) const;
+    QString findFileNameForElementProperty( const std::string& elementProperty, const std::map<std::string, QString> addressesInFiles ) const;
 
     void updateConnectedViews();
 
@@ -129,9 +128,7 @@ private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                QString                    uiConfigName,
-                                caf::PdmUiEditorAttribute* attribute ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     void updateFormationNamesData() override;

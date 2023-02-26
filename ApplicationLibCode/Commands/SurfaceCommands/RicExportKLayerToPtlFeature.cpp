@@ -63,8 +63,7 @@ void RicExportKLayerToPtlFeature::onActionTriggered( bool isChecked )
     QString defaultExtension    = "ptl";
     QString defaultFileBaseName = "surface";
 
-    QString defaultAbsFileName =
-        caf::Utils::constructFullFileName( defaultDir, defaultFileBaseName, "." + defaultExtension );
+    QString defaultAbsFileName = caf::Utils::constructFullFileName( defaultDir, defaultFileBaseName, "." + defaultExtension );
 
     QString selectedExtension;
 
@@ -72,11 +71,8 @@ void RicExportKLayerToPtlFeature::onActionTriggered( bool isChecked )
 
     for ( RimGridCaseSurface* surf : surfaces )
     {
-        QString fileName = RiuFileDialogTools::getSaveFileName( nullptr,
-                                                                tr( "Export to File" ),
-                                                                defaultAbsFileName,
-                                                                fileExtensionFilter,
-                                                                &selectedExtension );
+        QString fileName =
+            RiuFileDialogTools::getSaveFileName( nullptr, tr( "Export to File" ), defaultAbsFileName, fileExtensionFilter, &selectedExtension );
         if ( fileName.isEmpty() ) return;
 
         app->setLastUsedDialogDirectory( "EXPORT_SURFACE", QFileInfo( fileName ).absolutePath() );

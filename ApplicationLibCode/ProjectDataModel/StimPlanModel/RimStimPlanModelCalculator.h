@@ -79,9 +79,7 @@ protected:
 
     void calculateLayers( std::vector<std::pair<double, double>>& layerBoundaryDepths,
                           std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes ) const;
-    bool calculateStressWithGradients( std::vector<double>& stress,
-                                       std::vector<double>& stressGradients,
-                                       std::vector<double>& initialStress ) const;
+    bool calculateStressWithGradients( std::vector<double>& stress, std::vector<double>& stressGradients, std::vector<double>& initialStress ) const;
 
     static double findValueAtTopOfLayer( const std::vector<double>&                    values,
                                          const std::vector<std::pair<size_t, size_t>>& layerBoundaryIndexes,
@@ -114,10 +112,7 @@ protected:
                                                     double verticalStressRef,
                                                     double verticalStressGradientRef );
 
-    static double calculateStressAtDepth( double depth,
-                                          double stressDepthRef,
-                                          double verticalStressRef,
-                                          double verticalStressGradientRef );
+    static double calculateStressAtDepth( double depth, double stressDepthRef, double verticalStressRef, double verticalStressGradientRef );
 
     static bool isValidInputData( const std::vector<double>&                    values,
                                   const QString&                                propertyName,

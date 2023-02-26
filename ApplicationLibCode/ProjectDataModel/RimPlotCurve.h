@@ -147,27 +147,21 @@ protected:
     void         updatePlotTitle();
     virtual void updateLegendsInPlot();
 
-    void setSamplesFromXYErrorValues( const std::vector<double>& xValues,
-                                      const std::vector<double>& yValues,
-                                      const std::vector<double>& errorValues,
-                                      bool                       useLogarithmicScale,
+    void setSamplesFromXYErrorValues( const std::vector<double>&   xValues,
+                                      const std::vector<double>&   yValues,
+                                      const std::vector<double>&   errorValues,
+                                      bool                         useLogarithmicScale,
                                       RiaCurveDataTools::ErrorAxis errorAxis = RiaCurveDataTools::ErrorAxis::ERROR_ALONG_Y_AXIS );
 
-    void setSamplesFromXYValues( const std::vector<double>& xValues,
-                                 const std::vector<double>& yValues,
-                                 bool                       useLogarithmicScale );
+    void setSamplesFromXYValues( const std::vector<double>& xValues, const std::vector<double>& yValues, bool useLogarithmicScale );
 
-    void setSamplesFromDatesAndYValues( const std::vector<QDateTime>& dateTimes,
-                                        const std::vector<double>&    yValues,
-                                        bool                          useLogarithmicScale );
+    void setSamplesFromDatesAndYValues( const std::vector<QDateTime>& dateTimes, const std::vector<double>& yValues, bool useLogarithmicScale );
 
-    void setSamplesFromTimeTAndYValues( const std::vector<time_t>& dateTimes,
-                                        const std::vector<double>& yValues,
-                                        bool                       useLogarithmicScale );
+    void setSamplesFromTimeTAndYValues( const std::vector<time_t>& dateTimes, const std::vector<double>& yValues, bool useLogarithmicScale );
 
     virtual double computeCurveZValue();
 
-    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     caf::PdmFieldHandle*          objectToggleField() override;
     caf::PdmFieldHandle*          userDescriptionField() override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;

@@ -109,9 +109,9 @@ public:
     void cellIJKNeighborUnguarded( size_t i, size_t j, size_t k, FaceType face, size_t* neighborCellIndex ) const;
 
 private:
-    std::string m_gridName;
-    cvf::Vec3st m_gridPointDimensions;
-    size_t m_indexToStartOfCells; ///< Index into the global cell array stored in main-grid where this grids cells starts.
+    std::string      m_gridName;
+    cvf::Vec3st      m_gridPointDimensions;
+    size_t           m_indexToStartOfCells; ///< Index into the global cell array stored in main-grid where this grids cells starts.
     size_t           m_gridIndex; ///< The LGR index of this grid. Starts with 1. Main grid has index 0.
     int              m_gridId; ///< The LGR id of this grid. Main grid has id 0.
     RigMainGrid*     m_mainGrid;
@@ -128,11 +128,7 @@ public:
     {
     }
 
-    bool isFaceVisible( size_t                             i,
-                        size_t                             j,
-                        size_t                             k,
-                        cvf::StructGridInterface::FaceType face,
-                        const cvf::UByteArray*             cellVisibility ) const override;
+    bool isFaceVisible( size_t i, size_t j, size_t k, cvf::StructGridInterface::FaceType face, const cvf::UByteArray* cellVisibility ) const override;
 
 private:
     const RigGridBase* m_grid;

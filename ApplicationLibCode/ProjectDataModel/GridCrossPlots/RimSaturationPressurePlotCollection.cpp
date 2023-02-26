@@ -51,8 +51,7 @@ RimSaturationPressurePlotCollection::~RimSaturationPressurePlotCollection()
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSaturationPressurePlot*>
-    RimSaturationPressurePlotCollection::createSaturationPressurePlots( RimEclipseResultCase* eclipseResultCase,
-                                                                        int                   timeStep )
+    RimSaturationPressurePlotCollection::createSaturationPressurePlots( RimEclipseResultCase* eclipseResultCase, int timeStep )
 {
     std::vector<RimSaturationPressurePlot*> generatedPlots;
 

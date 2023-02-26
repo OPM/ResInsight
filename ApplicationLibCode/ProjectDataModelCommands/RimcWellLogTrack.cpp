@@ -70,13 +70,12 @@ caf::PdmObjectHandle* RimcWellLogTrack_addExtractionCurve::execute()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogExtractionCurve*
-    RimcWellLogTrack_addExtractionCurve::addExtractionCurve( RimWellLogTrack*          wellLogTrack,
-                                                             RimEclipseCase*           eclipseCase,
-                                                             RimWellPath*              wellPath,
-                                                             const QString&            propertyName,
-                                                             RiaDefines::ResultCatType resultCategoryType,
-                                                             int                       timeStep )
+RimWellLogExtractionCurve* RimcWellLogTrack_addExtractionCurve::addExtractionCurve( RimWellLogTrack*          wellLogTrack,
+                                                                                    RimEclipseCase*           eclipseCase,
+                                                                                    RimWellPath*              wellPath,
+                                                                                    const QString&            propertyName,
+                                                                                    RiaDefines::ResultCatType resultCategoryType,
+                                                                                    int                       timeStep )
 {
     RimWellLogExtractionCurve* curve = new RimWellLogExtractionCurve;
     curve->setWellPath( wellPath );

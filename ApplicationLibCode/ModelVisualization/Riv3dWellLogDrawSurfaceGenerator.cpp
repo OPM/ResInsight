@@ -49,9 +49,9 @@ Riv3dWellLogDrawSurfaceGenerator::Riv3dWellLogDrawSurfaceGenerator( RimWellPath*
 bool Riv3dWellLogDrawSurfaceGenerator::createDrawSurface( const caf::DisplayCoordTransform* displayCoordTransform,
                                                           const cvf::BoundingBox&           wellPathClipBoundingBox,
                                                           double                            planeAngle,
-                                                          double planeOffsetFromWellPathCenter,
-                                                          double planeWidth,
-                                                          double samplingIntervalSize )
+                                                          double                            planeOffsetFromWellPathCenter,
+                                                          double                            planeWidth,
+                                                          double                            samplingIntervalSize )
 {
     CVF_ASSERT( samplingIntervalSize > 0 );
 
@@ -82,8 +82,7 @@ bool Riv3dWellLogDrawSurfaceGenerator::createDrawSurface( const caf::DisplayCoor
         wellPathDisplayCoords = displayCoordTransform->transformToDisplayCoords( domainCoords );
     }
 
-    std::vector<cvf::Vec3d> wellPathSegmentNormals =
-        RigWellPathGeometryTools::calculateLineSegmentNormals( wellPathDisplayCoords, planeAngle );
+    std::vector<cvf::Vec3d> wellPathSegmentNormals = RigWellPathGeometryTools::calculateLineSegmentNormals( wellPathDisplayCoords, planeAngle );
 
     size_t indexToFirstVisibleSegment = 0u;
     if ( wellPathCollection->wellPathClip )
@@ -108,8 +107,7 @@ bool Riv3dWellLogDrawSurfaceGenerator::createDrawSurface( const caf::DisplayCoor
                               wellPathSegmentNormals );
 
     // Note that normals are calculated on the full non-clipped well path. So we need to clip the start here.
-    wellPathSegmentNormals.erase( wellPathSegmentNormals.begin(),
-                                  wellPathSegmentNormals.end() - wellPathDisplayCoords.size() );
+    wellPathSegmentNormals.erase( wellPathSegmentNormals.begin(), wellPathSegmentNormals.end() - wellPathDisplayCoords.size() );
 
     if ( wellPathDisplayCoords.size() < (size_t)2 )
     {
@@ -120,10 +118,8 @@ bool Riv3dWellLogDrawSurfaceGenerator::createDrawSurface( const caf::DisplayCoor
     m_vertices.reserve( wellPathDisplayCoords.size() * 2 );
     for ( size_t i = 0; i < wellPathDisplayCoords.size(); i++ )
     {
-        m_vertices.push_back( wellPathDisplayCoords[i] +
-                              wellPathSegmentNormals[i] * ( planeOffsetFromWellPathCenter - 0.025 * planeWidth ) );
-        m_vertices.push_back( wellPathDisplayCoords[i] +
-                              wellPathSegmentNormals[i] * ( planeOffsetFromWellPathCenter + 1.025 * planeWidth ) );
+        m_vertices.push_back( wellPathDisplayCoords[i] + wellPathSegmentNormals[i] * ( planeOffsetFromWellPathCenter - 0.025 * planeWidth ) );
+        m_vertices.push_back( wellPathDisplayCoords[i] + wellPathSegmentNormals[i] * ( planeOffsetFromWellPathCenter + 1.025 * planeWidth ) );
     }
 
     cvf::ref<cvf::Vec3fArray> vertexArray = new cvf::Vec3fArray( m_vertices.size() );
@@ -185,10 +181,10 @@ const std::vector<cvf::Vec3d>& Riv3dWellLogDrawSurfaceGenerator::vertices() cons
 //--------------------------------------------------------------------------------------------------
 void Riv3dWellLogDrawSurfaceGenerator::createCurveNormalVectors( const caf::DisplayCoordTransform* displayCoordTransform,
                                                                  size_t                            clipStartIndex,
-                                                                 double planeOffsetFromWellPathCenter,
-                                                                 double planeWidth,
-                                                                 double samplingIntervalSize,
-                                                                 const std::vector<cvf::Vec3d>& segmentNormals )
+                                                                 double                            planeOffsetFromWellPathCenter,
+                                                                 double                            planeWidth,
+                                                                 double                            samplingIntervalSize,
+                                                                 const std::vector<cvf::Vec3d>&    segmentNormals )
 {
     std::vector<cvf::Vec3d> interpolatedWellPathPoints;
     std::vector<cvf::Vec3d> interpolatedWellPathNormals;
@@ -219,8 +215,7 @@ void Riv3dWellLogDrawSurfaceGenerator::createCurveNormalVectors( const caf::Disp
     // Normal lines. Start from one to avoid drawing at surface edge.
     for ( size_t i = 1; i < interpolatedWellPathNormals.size(); i++ )
     {
-        arrowVertices.push_back( cvf::Vec3f( interpolatedWellPathPoints[i] +
-                                             interpolatedWellPathNormals[i] * planeOffsetFromWellPathCenter ) );
+        arrowVertices.push_back( cvf::Vec3f( interpolatedWellPathPoints[i] + interpolatedWellPathNormals[i] * planeOffsetFromWellPathCenter ) );
 
         arrowVectors.push_back( cvf::Vec3f( interpolatedWellPathNormals[i] * planeWidth * totalArrowScaling ) );
     }
@@ -261,9 +256,8 @@ void Riv3dWellLogDrawSurfaceGenerator::createBackground( cvf::Vec3fArray* vertex
     }
 
     // Background specific
-    cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUInt =
-        new cvf::PrimitiveSetIndexedUInt( cvf::PrimitiveType::PT_TRIANGLE_STRIP );
-    cvf::ref<cvf::UIntArray> indexArray = new cvf::UIntArray( backgroundIndices );
+    cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUInt = new cvf::PrimitiveSetIndexedUInt( cvf::PrimitiveType::PT_TRIANGLE_STRIP );
+    cvf::ref<cvf::UIntArray>               indexArray  = new cvf::UIntArray( backgroundIndices );
     indexedUInt->setIndices( indexArray.p() );
 
     m_background = new cvf::DrawableGeo();
@@ -306,7 +300,7 @@ void Riv3dWellLogDrawSurfaceGenerator::createBorder( cvf::Vec3fArray* vertexArra
     borderIndices.push_back( 0u );
 
     cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUInt = new cvf::PrimitiveSetIndexedUInt( cvf::PrimitiveType::PT_LINES );
-    cvf::ref<cvf::UIntArray>               indexArray = new cvf::UIntArray( borderIndices );
+    cvf::ref<cvf::UIntArray>               indexArray  = new cvf::UIntArray( borderIndices );
     indexedUInt->setIndices( indexArray.p() );
 
     m_border = new cvf::DrawableGeo();

@@ -91,8 +91,7 @@ void RimCompletionCellIntersectionCalc::calculateCompletionTypeResult( RimEclips
     for ( const RimWellPath* wellPath : visibleWells )
     {
         auto intersectedCells =
-            RigWellPathIntersectionTools::findIntersectedGlobalCellIndices( eclipseCaseData,
-                                                                            wellPath->wellPathGeometry()->wellPathPoints() );
+            RigWellPathIntersectionTools::findIntersectedGlobalCellIndices( eclipseCaseData, wellPath->wellPathGeometry()->wellPathPoints() );
 
         for ( auto& intersection : intersectedCells )
         {
@@ -105,22 +104,19 @@ void RimCompletionCellIntersectionCalc::calculateCompletionTypeResult( RimEclips
     {
         for ( const RimWellPath* wellPath : visibleWells )
         {
-            for ( const auto& [globalCellIndex, completionsForCell] :
-                  completions->multipleCompletionsPerEclipseCell( wellPath, timeStep ) )
+            for ( const auto& [globalCellIndex, completionsForCell] : completions->multipleCompletionsPerEclipseCell( wellPath, timeStep ) )
             {
                 RiaDefines::WellPathComponentType appCompletionType = RiaDefines::WellPathComponentType::WELL_PATH;
 
                 auto appCompletionTypes = fromCompletionData( completionsForCell );
 
-                if ( std::find( appCompletionTypes.begin(),
-                                appCompletionTypes.end(),
-                                RiaDefines::WellPathComponentType::FRACTURE ) != appCompletionTypes.end() )
+                if ( std::find( appCompletionTypes.begin(), appCompletionTypes.end(), RiaDefines::WellPathComponentType::FRACTURE ) !=
+                     appCompletionTypes.end() )
                 {
                     appCompletionType = RiaDefines::WellPathComponentType::FRACTURE;
                 }
-                else if ( std::find( appCompletionTypes.begin(),
-                                     appCompletionTypes.end(),
-                                     RiaDefines::WellPathComponentType::FISHBONES ) != appCompletionTypes.end() )
+                else if ( std::find( appCompletionTypes.begin(), appCompletionTypes.end(), RiaDefines::WellPathComponentType::FISHBONES ) !=
+                          appCompletionTypes.end() )
                 {
                     appCompletionType = RiaDefines::WellPathComponentType::FISHBONES;
                 }

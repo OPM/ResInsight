@@ -43,8 +43,6 @@ public:
     static void exportViewVariations( Rim3dView* rimView, RimAdvancedSnapshotExportDefinition* msd, const QString& folder );
 
 private:
-    static void    exportViewVariationsToFolder( RimGridView*                         rimView,
-                                                 RimAdvancedSnapshotExportDefinition* msd,
-                                                 const QString&                       folder );
+    static void    exportViewVariationsToFolder( RimGridView* rimView, RimAdvancedSnapshotExportDefinition* msd, const QString& folder );
     static QString resultName( Rim3dView* rimView );
 };

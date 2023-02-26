@@ -139,8 +139,7 @@ void RimWellPathCompletionSettings::setWellNameForExport( const QString& name )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCompletionSettings::updateWellPathNameHasChanged( const QString& newWellPathName,
-                                                                  const QString& previousWellPathName )
+void RimWellPathCompletionSettings::updateWellPathNameHasChanged( const QString& newWellPathName, const QString& previousWellPathName )
 {
     auto previousWellNameWithoutSpaces = RiaWellNameComparer::removeSpacesFromName( previousWellPathName );
 
@@ -304,9 +303,7 @@ void RimWellPathCompletionSettings::defineUiOrdering( QString uiConfigName, caf:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCompletionSettings::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                      const QVariant&            oldValue,
-                                                      const QVariant&            newValue )
+void RimWellPathCompletionSettings::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     m_mswParameters->fieldChangedByUi( changedField, oldValue, newValue );
 
@@ -351,8 +348,7 @@ void RimWellPathCompletionSettings::defineEditorAttribute( const caf::PdmFieldHa
     else if ( field == &m_fluidInPlaceRegion && lineEditorAttr )
     {
         // Any integer
-        QIntValidator* validator =
-            new QIntValidator( -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), nullptr );
+        QIntValidator* validator  = new QIntValidator( -std::numeric_limits<int>::max(), std::numeric_limits<int>::max(), nullptr );
         lineEditorAttr->validator = validator;
     }
 }

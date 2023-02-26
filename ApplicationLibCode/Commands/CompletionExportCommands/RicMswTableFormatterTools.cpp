@@ -120,15 +120,14 @@ void RicMswTableFormatterTools::generateWelsegsTable( RifTextDataTableFormatter&
     }
 
     {
-        std::vector<RifTextDataTableColumn> header =
-            { RifTextDataTableColumn( "First Seg" ),
-              RifTextDataTableColumn( "Last Seg" ),
-              RifTextDataTableColumn( "Branch Num" ),
-              RifTextDataTableColumn( "Outlet Seg" ),
-              RifTextDataTableColumn( "Length" ),
-              RifTextDataTableColumn( "Depth Change" ),
-              RifTextDataTableColumn( "Diam" ),
-              RifTextDataTableColumn( "Rough", RifTextDataTableDoubleFormatting( RIF_FLOAT, 7 ) ) };
+        std::vector<RifTextDataTableColumn> header = { RifTextDataTableColumn( "First Seg" ),
+                                                       RifTextDataTableColumn( "Last Seg" ),
+                                                       RifTextDataTableColumn( "Branch Num" ),
+                                                       RifTextDataTableColumn( "Outlet Seg" ),
+                                                       RifTextDataTableColumn( "Length" ),
+                                                       RifTextDataTableColumn( "Depth Change" ),
+                                                       RifTextDataTableColumn( "Diam" ),
+                                                       RifTextDataTableColumn( "Rough", RifTextDataTableDoubleFormatting( RIF_FLOAT, 7 ) ) };
         formatter.header( header );
     }
 
@@ -154,8 +153,8 @@ void RicMswTableFormatterTools::writeWelsegsSegmentsRecursively( RifTextDataTabl
                                                                  gsl::not_null<RicMswBranch*> branch,
                                                                  gsl::not_null<int*>          segmentNumber,
                                                                  double                       maxSegmentLength,
-                                                                 bool           exportCompletionSegmentsAfterMainBore,
-                                                                 RicMswSegment* connectedToSegment )
+                                                                 bool                         exportCompletionSegmentsAfterMainBore,
+                                                                 RicMswSegment*               connectedToSegment )
 {
     auto outletSegment = connectedToSegment;
 
@@ -272,9 +271,7 @@ void RicMswTableFormatterTools::writeWelsegsCompletionCommentHeader( RifTextData
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswTableFormatterTools::generateCompsegTables( RifTextDataTableFormatter& formatter,
-                                                       RicMswExportInfo&          exportInfo,
-                                                       bool                       exportLgrData )
+void RicMswTableFormatterTools::generateCompsegTables( RifTextDataTableFormatter& formatter, RicMswExportInfo& exportInfo, bool exportLgrData )
 {
     /*
      * TODO: Creating the regular perforation COMPSEGS table should come in here, before the others
@@ -295,29 +292,11 @@ void RicMswTableFormatterTools::generateCompsegTables( RifTextDataTableFormatter
 
     {
         bool headerGenerated = false;
-        generateCompsegTable( formatter,
-                              exportInfo,
-                              exportInfo.mainBoreBranch(),
-                              exportLgrData,
-                              perforationTypes,
-                              &headerGenerated,
-                              &intersectedCells );
+        generateCompsegTable( formatter, exportInfo, exportInfo.mainBoreBranch(), exportLgrData, perforationTypes, &headerGenerated, &intersectedCells );
 
-        generateCompsegTable( formatter,
-                              exportInfo,
-                              exportInfo.mainBoreBranch(),
-                              exportLgrData,
-                              fishbonesTypes,
-                              &headerGenerated,
-                              &intersectedCells );
+        generateCompsegTable( formatter, exportInfo, exportInfo.mainBoreBranch(), exportLgrData, fishbonesTypes, &headerGenerated, &intersectedCells );
 
-        generateCompsegTable( formatter,
-                              exportInfo,
-                              exportInfo.mainBoreBranch(),
-                              exportLgrData,
-                              fractureTypes,
-                              &headerGenerated,
-                              &intersectedCells );
+        generateCompsegTable( formatter, exportInfo, exportInfo.mainBoreBranch(), exportLgrData, fractureTypes, &headerGenerated, &intersectedCells );
 
         if ( headerGenerated ) formatter.tableCompleted();
     }
@@ -326,13 +305,13 @@ void RicMswTableFormatterTools::generateCompsegTables( RifTextDataTableFormatter
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswTableFormatterTools::generateCompsegTable( RifTextDataTableFormatter&         formatter,
-                                                      RicMswExportInfo&                  exportInfo,
-                                                      gsl::not_null<const RicMswBranch*> branch,
-                                                      bool                               exportSubGridIntersections,
+void RicMswTableFormatterTools::generateCompsegTable( RifTextDataTableFormatter&                         formatter,
+                                                      RicMswExportInfo&                                  exportInfo,
+                                                      gsl::not_null<const RicMswBranch*>                 branch,
+                                                      bool                                               exportSubGridIntersections,
                                                       const std::set<RigCompletionData::CompletionType>& exportCompletionTypes,
-                                                      gsl::not_null<bool*>             headerGenerated,
-                                                      gsl::not_null<std::set<size_t>*> intersectedCells )
+                                                      gsl::not_null<bool*>                               headerGenerated,
+                                                      gsl::not_null<std::set<size_t>*>                   intersectedCells )
 {
     for ( auto segment : branch->segments() )
     {
@@ -348,10 +327,9 @@ void RicMswTableFormatterTools::generateCompsegTable( RifTextDataTableFormatter&
 
             if ( completion )
             {
-                bool isPerforationValve =
-                    completion->completionType() == RigCompletionData::CompletionType::PERFORATION_ICD ||
-                    completion->completionType() == RigCompletionData::CompletionType::PERFORATION_AICD ||
-                    completion->completionType() == RigCompletionData::CompletionType::PERFORATION_ICV;
+                bool isPerforationValve = completion->completionType() == RigCompletionData::CompletionType::PERFORATION_ICD ||
+                                          completion->completionType() == RigCompletionData::CompletionType::PERFORATION_AICD ||
+                                          completion->completionType() == RigCompletionData::CompletionType::PERFORATION_ICV;
 
                 if ( isPerforationValve )
                 {
@@ -389,8 +367,7 @@ void RicMswTableFormatterTools::generateCompsegTable( RifTextDataTableFormatter&
         // Report connected completions after the intersection on current segment has been reported
         for ( auto completion : segment->completions() )
         {
-            if ( completion->segments().empty() || !exportCompletionTypes.count( completion->completionType() ) )
-                continue;
+            if ( completion->segments().empty() || !exportCompletionTypes.count( completion->completionType() ) ) continue;
 
             if ( !*headerGenerated )
             {
@@ -398,25 +375,13 @@ void RicMswTableFormatterTools::generateCompsegTable( RifTextDataTableFormatter&
                 *headerGenerated = true;
             }
 
-            generateCompsegTable( formatter,
-                                  exportInfo,
-                                  completion,
-                                  exportSubGridIntersections,
-                                  exportCompletionTypes,
-                                  headerGenerated,
-                                  intersectedCells );
+            generateCompsegTable( formatter, exportInfo, completion, exportSubGridIntersections, exportCompletionTypes, headerGenerated, intersectedCells );
         }
     }
 
     for ( auto childBranch : branch->branches() )
     {
-        generateCompsegTable( formatter,
-                              exportInfo,
-                              childBranch,
-                              exportSubGridIntersections,
-                              exportCompletionTypes,
-                              headerGenerated,
-                              intersectedCells );
+        generateCompsegTable( formatter, exportInfo, childBranch, exportSubGridIntersections, exportCompletionTypes, headerGenerated, intersectedCells );
     }
 }
 
@@ -517,8 +482,8 @@ void RicMswTableFormatterTools::generateWsegvalvTable( RifTextDataTableFormatter
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswTableFormatterTools::generateWsegvalvTableRecursively( gsl::not_null<RicMswBranch*> branch,
-                                                                  const QString&               wellNameForExport,
+void RicMswTableFormatterTools::generateWsegvalvTableRecursively( gsl::not_null<RicMswBranch*>                  branch,
+                                                                  const QString&                                wellNameForExport,
                                                                   std::map<size_t, std::vector<WsegvalveData>>& wsegvalveData )
 {
     {
@@ -536,11 +501,8 @@ void RicMswTableFormatterTools::generateWsegvalvTableRecursively( gsl::not_null<
 
             auto flowCoefficient = tieInValve->flowCoefficient();
 
-            wsegvalveData[cellIndex].push_back( WsegvalveData( wellNameForExport,
-                                                               tieInValve->label(),
-                                                               firstSubSegment->segmentNumber(),
-                                                               flowCoefficient,
-                                                               tieInValve->area() ) );
+            wsegvalveData[cellIndex].push_back(
+                WsegvalveData( wellNameForExport, tieInValve->label(), firstSubSegment->segmentNumber(), flowCoefficient, tieInValve->area() ) );
         }
     }
 
@@ -568,11 +530,8 @@ void RicMswTableFormatterTools::generateWsegvalvTableRecursively( gsl::not_null<
                         comment = wsegValve->label();
                     }
 
-                    wsegvalveData[cellIndex].push_back( WsegvalveData( wellNameForExport,
-                                                                       comment,
-                                                                       segmentNumber,
-                                                                       wsegValve->flowCoefficient(),
-                                                                       wsegValve->area() ) );
+                    wsegvalveData[cellIndex].push_back(
+                        WsegvalveData( wellNameForExport, comment, segmentNumber, wsegValve->flowCoefficient(), wsegValve->area() ) );
                 }
             }
         }
@@ -602,44 +561,40 @@ void RicMswTableFormatterTools::generateWsegAicdTable( RifTextDataTableFormatter
         {
             // Write out header for AICD table
 
-            std::vector<QString> columnDescriptions =
-                { "Well Name",
-                  "Segment Number",
-                  "Segment Number",
-                  "Strength of AICD",
-                  "Flow Scaling Factor for AICD",
-                  "Density of Calibration Fluid",
-                  "Viscosity of Calibration Fluid",
-                  "Critical water in liquid fraction for emulsions viscosity model",
-                  "Emulsion viscosity transition region",
-                  "Max ratio of emulsion viscosity to continuous phase viscosity",
-                  "Flow scaling factor method",
-                  "Maximum flow rate for AICD device",
-                  "Volume flow rate exponent, x",
-                  "Viscosity function exponent, y",
-                  "Device OPEN/SHUT",
-                  "Exponent of the oil flowing fraction in the density mixture calculation",
-                  "Exponent of the water flowing fraction in the density mixture calculation",
-                  "Exponent of the gas flowing fraction in the density mixture calculation",
-                  "Exponent of the oil flowing fraction in the density viscosity calculation",
-                  "Exponent of the water flowing fraction in the density viscosity calculation",
-                  "Exponent of the gas flowing fraction in the density viscosity calculation" };
+            std::vector<QString> columnDescriptions = { "Well Name",
+                                                        "Segment Number",
+                                                        "Segment Number",
+                                                        "Strength of AICD",
+                                                        "Flow Scaling Factor for AICD",
+                                                        "Density of Calibration Fluid",
+                                                        "Viscosity of Calibration Fluid",
+                                                        "Critical water in liquid fraction for emulsions viscosity model",
+                                                        "Emulsion viscosity transition region",
+                                                        "Max ratio of emulsion viscosity to continuous phase viscosity",
+                                                        "Flow scaling factor method",
+                                                        "Maximum flow rate for AICD device",
+                                                        "Volume flow rate exponent, x",
+                                                        "Viscosity function exponent, y",
+                                                        "Device OPEN/SHUT",
+                                                        "Exponent of the oil flowing fraction in the density mixture calculation",
+                                                        "Exponent of the water flowing fraction in the density mixture calculation",
+                                                        "Exponent of the gas flowing fraction in the density mixture calculation",
+                                                        "Exponent of the oil flowing fraction in the density viscosity calculation",
+                                                        "Exponent of the water flowing fraction in the density viscosity calculation",
+                                                        "Exponent of the gas flowing fraction in the density viscosity calculation" };
 
             tighterFormatter.keyword( "WSEGAICD" );
             tighterFormatter.comment( "Column Overview:" );
             for ( size_t i = 0; i < columnDescriptions.size(); ++i )
             {
-                tighterFormatter.comment(
-                    QString( "%1: %2" ).arg( i + 1, 2, 10, QChar( '0' ) ).arg( columnDescriptions[i] ) );
+                tighterFormatter.comment( QString( "%1: %2" ).arg( i + 1, 2, 10, QChar( '0' ) ).arg( columnDescriptions[i] ) );
             }
 
             std::vector<RifTextDataTableColumn> header;
             for ( size_t i = 1; i <= 21; ++i )
             {
                 QString                cName = QString( "%1" ).arg( i, 2, 10, QChar( '0' ) );
-                RifTextDataTableColumn col( cName,
-                                            RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_CONSISE ),
-                                            RIGHT );
+                RifTextDataTableColumn col( cName, RifTextDataTableDoubleFormatting( RifTextDataTableDoubleFormat::RIF_CONSISE ), RIGHT );
                 header.push_back( col );
             }
             tighterFormatter.header( header );
@@ -683,10 +638,8 @@ void RicMswTableFormatterTools::generateWsegAicdTable( RifTextDataTableFormatter
 
             tighterFormatter.add( values[AICD_DENSITY_CALIB_FLUID] );
             tighterFormatter.add( values[AICD_VISCOSITY_CALIB_FLUID] );
-            tighterFormatter.addValueOrDefaultMarker( values[AICD_CRITICAL_WATER_IN_LIQUID_FRAC],
-                                                      RicMswExportInfo::defaultDoubleValue() );
-            tighterFormatter.addValueOrDefaultMarker( values[AICD_EMULSION_VISC_TRANS_REGION],
-                                                      RicMswExportInfo::defaultDoubleValue() );
+            tighterFormatter.addValueOrDefaultMarker( values[AICD_CRITICAL_WATER_IN_LIQUID_FRAC], RicMswExportInfo::defaultDoubleValue() );
+            tighterFormatter.addValueOrDefaultMarker( values[AICD_EMULSION_VISC_TRANS_REGION], RicMswExportInfo::defaultDoubleValue() );
             tighterFormatter.addValueOrDefaultMarker( values[AICD_MAX_RATIO_EMULSION_VISC],
                                                       RicMswExportInfo::defaultDoubleValue() ); // #10
 
@@ -697,18 +650,13 @@ void RicMswTableFormatterTools::generateWsegAicdTable( RifTextDataTableFormatter
             tighterFormatter.add( values[AICD_VOL_FLOW_EXP] );
             tighterFormatter.add( values[AICD_VISOSITY_FUNC_EXP] );
             tighterFormatter.add( firstDataObject.m_isOpen ? "OPEN" : "SHUT" ); // #15
-            tighterFormatter.addValueOrDefaultMarker( values[AICD_EXP_OIL_FRAC_DENSITY],
-                                                      RicMswExportInfo::defaultDoubleValue() );
-            tighterFormatter.addValueOrDefaultMarker( values[AICD_EXP_WATER_FRAC_DENSITY],
-                                                      RicMswExportInfo::defaultDoubleValue() );
-            tighterFormatter.addValueOrDefaultMarker( values[AICD_EXP_GAS_FRAC_DENSITY],
-                                                      RicMswExportInfo::defaultDoubleValue() );
-            tighterFormatter.addValueOrDefaultMarker( values[AICD_EXP_OIL_FRAC_VISCOSITY],
-                                                      RicMswExportInfo::defaultDoubleValue() );
+            tighterFormatter.addValueOrDefaultMarker( values[AICD_EXP_OIL_FRAC_DENSITY], RicMswExportInfo::defaultDoubleValue() );
+            tighterFormatter.addValueOrDefaultMarker( values[AICD_EXP_WATER_FRAC_DENSITY], RicMswExportInfo::defaultDoubleValue() );
+            tighterFormatter.addValueOrDefaultMarker( values[AICD_EXP_GAS_FRAC_DENSITY], RicMswExportInfo::defaultDoubleValue() );
+            tighterFormatter.addValueOrDefaultMarker( values[AICD_EXP_OIL_FRAC_VISCOSITY], RicMswExportInfo::defaultDoubleValue() );
             tighterFormatter.addValueOrDefaultMarker( values[AICD_EXP_WATER_FRAC_VISCOSITY],
                                                       RicMswExportInfo::defaultDoubleValue() ); // #20
-            tighterFormatter.addValueOrDefaultMarker( values[AICD_EXP_GAS_FRAC_VISCOSITY],
-                                                      RicMswExportInfo::defaultDoubleValue() );
+            tighterFormatter.addValueOrDefaultMarker( values[AICD_EXP_GAS_FRAC_VISCOSITY], RicMswExportInfo::defaultDoubleValue() );
             tighterFormatter.rowCompleted();
         }
 
@@ -719,8 +667,8 @@ void RicMswTableFormatterTools::generateWsegAicdTable( RifTextDataTableFormatter
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicMswTableFormatterTools::generateWsegAicdTableRecursively( RicMswExportInfo&                  exportInfo,
-                                                                  gsl::not_null<const RicMswBranch*> branch,
+void RicMswTableFormatterTools::generateWsegAicdTableRecursively( RicMswExportInfo&                                 exportInfo,
+                                                                  gsl::not_null<const RicMswBranch*>                branch,
                                                                   std::map<size_t, std::vector<AicdWsegvalveData>>& aicdValveData )
 {
     for ( auto segment : branch->segments() )
@@ -741,13 +689,9 @@ void RicMswTableFormatterTools::generateWsegAicdTableRecursively( RicMswExportIn
                         size_t cellIndex = seg->intersections().front()->globalCellIndex();
 
                         auto wellName = exportInfo.mainBoreBranch()->wellPath()->completionSettings()->wellNameForExport();
-                        auto comment = aicd->label();
-                        aicdValveData[cellIndex].push_back( AicdWsegvalveData( wellName,
-                                                                               comment,
-                                                                               segmentNumber,
-                                                                               aicd->flowScalingFactor(),
-                                                                               aicd->isOpen(),
-                                                                               aicd->values() ) );
+                        auto comment  = aicd->label();
+                        aicdValveData[cellIndex].push_back(
+                            AicdWsegvalveData( wellName, comment, segmentNumber, aicd->flowScalingFactor(), aicd->isOpen(), aicd->values() ) );
                     }
                 }
                 else
@@ -796,7 +740,7 @@ void RicMswTableFormatterTools::writeWelsegsSegment( RicMswSegment*             
         prevOutTVD = previousSegment->outputTVD();
     }
 
-    const auto linerDiameter = branch->wellPath()->mswCompletionParameters()->linerDiameter( exportInfo.unitSystem() );
+    const auto linerDiameter   = branch->wellPath()->mswCompletionParameters()->linerDiameter( exportInfo.unitSystem() );
     const auto roughnessFactor = branch->wellPath()->mswCompletionParameters()->roughnessFactor( exportInfo.unitSystem() );
 
     auto outletSegment = previousSegment;
@@ -962,13 +906,11 @@ void RicMswTableFormatterTools::writeCompletionWelsegsSegments( gsl::not_null<co
 
     if ( completion->completionType() == RigCompletionData::CompletionType::FISHBONES )
     {
-        formatter.addOptionalComment(
-            QString( "Sub index %1 - %2" ).arg( outletSegment->subIndex() + 1 ).arg( completion->label() ) );
+        formatter.addOptionalComment( QString( "Sub index %1 - %2" ).arg( outletSegment->subIndex() + 1 ).arg( completion->label() ) );
     }
     else if ( completion->completionType() == RigCompletionData::CompletionType::FRACTURE )
     {
-        formatter.addOptionalComment(
-            QString( "%1 connected to segment %2" ).arg( completion->label() ).arg( outletSegment->segmentNumber() ) );
+        formatter.addOptionalComment( QString( "%1 connected to segment %2" ).arg( completion->label() ).arg( outletSegment->segmentNumber() ) );
     }
 
     CVF_ASSERT( completion->wellPath() );
@@ -1076,9 +1018,8 @@ void RicMswTableFormatterTools::writeCompletionsForSegment( gsl::not_null<const 
         else
         {
             // If we have a valve, the outlet segment is the valve's segment
-            RicMswSegment* outletSegment = *outletValve && ( *outletValve )->segmentCount() > 0
-                                               ? ( *outletValve )->segments().front()
-                                               : segment.get();
+            RicMswSegment* outletSegment = *outletValve && ( *outletValve )->segmentCount() > 0 ? ( *outletValve )->segments().front()
+                                                                                                : segment.get();
             writeCompletionWelsegsSegments( outletSegment, completion, formatter, exportInfo, maxSegmentLength, segmentNumber );
         }
     }
@@ -1087,8 +1028,7 @@ void RicMswTableFormatterTools::writeCompletionsForSegment( gsl::not_null<const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<double, double>>
-    RicMswTableFormatterTools::createSubSegmentMDPairs( double startMD, double endMD, double maxSegmentLength )
+std::vector<std::pair<double, double>> RicMswTableFormatterTools::createSubSegmentMDPairs( double startMD, double endMD, double maxSegmentLength )
 {
     int subSegmentCount = (int)( std::trunc( ( endMD - startMD ) / maxSegmentLength ) + 1 );
 

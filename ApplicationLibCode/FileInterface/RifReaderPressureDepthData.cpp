@@ -45,12 +45,10 @@ std::vector<QString> RifReaderPressureDepthData::labels( const RifEclipseRftAddr
 
     for ( const RigPressureDepthData& pressureDepthData : m_pressureDepthDataItems )
     {
-        if ( rftAddress.wellName() == pressureDepthData.wellName() &&
-             rftAddress.timeStep().date() == pressureDepthData.timeStep().date() )
+        if ( rftAddress.wellName() == pressureDepthData.wellName() && rftAddress.timeStep().date() == pressureDepthData.timeStep().date() )
         {
-            formationLabels.push_back( QString( "%1 - Pressure: %2" )
-                                           .arg( pressureDepthData.wellName() )
-                                           .arg( pressureDepthData.timeStep().toString() ) );
+            formationLabels.push_back(
+                QString( "%1 - Pressure: %2" ).arg( pressureDepthData.wellName() ).arg( pressureDepthData.timeStep().toString() ) );
         }
     }
 
@@ -98,8 +96,7 @@ void RifReaderPressureDepthData::values( const RifEclipseRftAddress& rftAddress,
 
     for ( const RigPressureDepthData& pressureDepthData : m_pressureDepthDataItems )
     {
-        if ( rftAddress.wellName() == pressureDepthData.wellName() &&
-             rftAddress.timeStep().date() == pressureDepthData.timeStep().date() )
+        if ( rftAddress.wellName() == pressureDepthData.wellName() && rftAddress.timeStep().date() == pressureDepthData.timeStep().date() )
         {
             switch ( rftAddress.wellLogChannel() )
             {
@@ -135,9 +132,8 @@ void RifReaderPressureDepthData::load()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<QDateTime>
-    RifReaderPressureDepthData::availableTimeSteps( const QString&                                     wellName,
-                                                    const RifEclipseRftAddress::RftWellLogChannelType& wellLogChannelName )
+std::set<QDateTime> RifReaderPressureDepthData::availableTimeSteps( const QString&                                     wellName,
+                                                                    const RifEclipseRftAddress::RftWellLogChannelType& wellLogChannelName )
 {
     if ( wellLogChannelName == RifEclipseRftAddress::RftWellLogChannelType::TVD ||
          wellLogChannelName == RifEclipseRftAddress::RftWellLogChannelType::PRESSURE )
@@ -171,9 +167,8 @@ std::set<QDateTime> RifReaderPressureDepthData::availableTimeSteps( const QStrin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<QDateTime> RifReaderPressureDepthData::availableTimeSteps(
-    const QString&                                               wellName,
-    const std::set<RifEclipseRftAddress::RftWellLogChannelType>& relevantChannels )
+std::set<QDateTime> RifReaderPressureDepthData::availableTimeSteps( const QString&                                               wellName,
+                                                                    const std::set<RifEclipseRftAddress::RftWellLogChannelType>& relevantChannels )
 {
     if ( relevantChannels.count( RifEclipseRftAddress::RftWellLogChannelType::TVD ) ||
          relevantChannels.count( RifEclipseRftAddress::RftWellLogChannelType::PRESSURE ) )
@@ -186,8 +181,7 @@ std::set<QDateTime> RifReaderPressureDepthData::availableTimeSteps(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<RifEclipseRftAddress::RftWellLogChannelType>
-    RifReaderPressureDepthData::availableWellLogChannels( const QString& wellName )
+std::set<RifEclipseRftAddress::RftWellLogChannelType> RifReaderPressureDepthData::availableWellLogChannels( const QString& wellName )
 {
     if ( m_pressureDepthDataItems.empty() )
     {

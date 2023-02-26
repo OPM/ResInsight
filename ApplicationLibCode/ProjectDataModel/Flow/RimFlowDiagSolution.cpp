@@ -106,8 +106,7 @@ RigFlowDiagResults* RimFlowDiagSolution::flowDiagResults()
                 return nullptr;
             }
 
-            timeStepCount =
-                eclCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->maxTimeStepCount();
+            timeStepCount = eclCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->maxTimeStepCount();
         }
 
         m_flowDiagResults = new RigFlowDiagResults( this, timeStepCount );
@@ -159,8 +158,7 @@ std::map<std::string, std::vector<int>> RimFlowDiagSolution::allProducerTracerAc
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<std::string, std::vector<int>> RimFlowDiagSolution::allTracerActiveCellIndices( size_t timeStepIndex,
-                                                                                         bool   useInjectors ) const
+std::map<std::string, std::vector<int>> RimFlowDiagSolution::allTracerActiveCellIndices( size_t timeStepIndex, bool useInjectors ) const
 {
     RimEclipseResultCase* eclCase;
     this->firstAncestorOrThisOfType( eclCase );
@@ -169,20 +167,19 @@ std::map<std::string, std::vector<int>> RimFlowDiagSolution::allTracerActiveCell
 
     if ( eclCase && eclCase->eclipseCaseData() )
     {
-        const cvf::Collection<RigSimWellData>& simWellData    = eclCase->eclipseCaseData()->wellResults();
-        RigMainGrid*                           mainGrid       = eclCase->eclipseCaseData()->mainGrid();
-        RigActiveCellInfo*                     activeCellInfo = eclCase->eclipseCaseData()->activeCellInfo(
-            RiaDefines::PorosityModelType::MATRIX_MODEL ); // Todo: Must come from the results
-                                                           // definition
+        const cvf::Collection<RigSimWellData>& simWellData = eclCase->eclipseCaseData()->wellResults();
+        RigMainGrid*                           mainGrid    = eclCase->eclipseCaseData()->mainGrid();
+        RigActiveCellInfo*                     activeCellInfo =
+            eclCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ); // Todo: Must come from the results
+                                                                                                       // definition
 
         for ( size_t wIdx = 0; wIdx < simWellData.size(); ++wIdx )
         {
             if ( !simWellData[wIdx]->hasWellResult( timeStepIndex ) ) continue;
             const RigWellResultFrame* wellResFrame = simWellData[wIdx]->wellResultFrame( timeStepIndex );
 
-            bool isInjectorWell =
-                ( wellResFrame->m_productionType != RiaDefines::WellProductionType::PRODUCER &&
-                  wellResFrame->m_productionType != RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE );
+            bool isInjectorWell = ( wellResFrame->m_productionType != RiaDefines::WellProductionType::PRODUCER &&
+                                    wellResFrame->m_productionType != RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE );
 
             std::string wellName   = simWellData[wIdx]->m_wellName.toStdString();
             std::string wellNameXf = addCrossFlowEnding( simWellData[wIdx]->m_wellName ).toStdString();
@@ -279,8 +276,7 @@ RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatusOverall( 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatusInTimeStep( const QString& tracerName,
-                                                                                   size_t         timeStepIndex ) const
+RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatusInTimeStep( const QString& tracerName, size_t timeStepIndex ) const
 {
     RimEclipseResultCase* eclCase;
     this->firstAncestorOrThisOfTypeAsserted( eclCase );

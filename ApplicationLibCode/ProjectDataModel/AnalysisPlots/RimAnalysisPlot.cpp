@@ -401,8 +401,7 @@ void RimAnalysisPlot::maxMinValueFromAddress( const RifEclipseSummaryAddress&   
                 }
                 else if ( selectedTimesteps.size() )
                 {
-                    std::vector<size_t> selectedTimestepIndices =
-                        RimAnalysisPlot::findTimestepIndices( selectedTimesteps, timesteps );
+                    std::vector<size_t> selectedTimestepIndices = RimAnalysisPlot::findTimestepIndices( selectedTimesteps, timesteps );
 
                     for ( size_t tsIdx : selectedTimestepIndices )
                     {
@@ -443,9 +442,7 @@ std::vector<time_t> RimAnalysisPlot::selectedTimeSteps()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnalysisPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                        const QVariant&            oldValue,
-                                        const QVariant&            newValue )
+void RimAnalysisPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimPlot::fieldChangedByUi( changedField, oldValue, newValue );
 
@@ -612,16 +609,13 @@ QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf:
         filteredTimeStepIndices.erase( std::unique( filteredTimeStepIndices.begin(), filteredTimeStepIndices.end() ),
                                        filteredTimeStepIndices.end() );
 
-        QString dateFormatString =
-            RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
-                                                 RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
-        QString timeFormatString =
-            RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),
-                                                 RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
+        QString dateFormatString     = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
+                                                                        RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
+        QString timeFormatString     = RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),
+                                                                        RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
         QString dateTimeFormatString = QString( "%1 %2" ).arg( dateFormatString ).arg( timeFormatString );
 
-        bool showTime = m_timeStepFilter() == RimTimeStepFilter::TS_ALL ||
-                        m_timeStepFilter() == RimTimeStepFilter::TS_INTERVAL_DAYS;
+        bool showTime = m_timeStepFilter() == RimTimeStepFilter::TS_ALL || m_timeStepFilter() == RimTimeStepFilter::TS_INTERVAL_DAYS;
 
         for ( auto timeStepIndex : filteredTimeStepIndices )
         {
@@ -630,15 +624,12 @@ QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf:
             if ( showTime && dateTime.time() != QTime( 0, 0, 0 ) )
             {
                 options.push_back(
-                    caf::PdmOptionItemInfo( RiaQDateTimeTools::toStringUsingApplicationLocale( dateTime,
-                                                                                               dateTimeFormatString ),
-                                            dateTime ) );
+                    caf::PdmOptionItemInfo( RiaQDateTimeTools::toStringUsingApplicationLocale( dateTime, dateTimeFormatString ), dateTime ) );
             }
             else
             {
                 options.push_back(
-                    caf::PdmOptionItemInfo( RiaQDateTimeTools::toStringUsingApplicationLocale( dateTime, dateFormatString ),
-                                            dateTime ) );
+                    caf::PdmOptionItemInfo( RiaQDateTimeTools::toStringUsingApplicationLocale( dateTime, dateFormatString ), dateTime ) );
             }
         }
     }
@@ -666,8 +657,7 @@ QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf:
                 exampleString = exampleString.left( 13 ) + "...";
             }
 
-            QString summaryItemText =
-                QString( "%1 (%2)" ).arg( SortGroupAppEnum::uiText( SUMMARY_ITEM ) ).arg( exampleString );
+            QString summaryItemText = QString( "%1 (%2)" ).arg( SortGroupAppEnum::uiText( SUMMARY_ITEM ) ).arg( exampleString );
             options.push_back( caf::PdmOptionItemInfo( summaryItemText, SUMMARY_ITEM ) );
         }
         options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( VECTOR ), VECTOR ) );
@@ -1008,8 +998,7 @@ QString RimAnalysisPlot::assignGroupingText( RimAnalysisPlot::SortGroupType  sor
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<size_t> RimAnalysisPlot::findTimestepIndices( std::vector<time_t>        selectedTimesteps,
-                                                          const std::vector<time_t>& timesteps )
+std::vector<size_t> RimAnalysisPlot::findTimestepIndices( std::vector<time_t> selectedTimesteps, const std::vector<time_t>& timesteps )
 {
     std::vector<size_t> selectedTimestepIndices;
 
@@ -1133,8 +1122,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
                         if ( !itIsInsertedPair.second ) // Already exists in map
                         {
                             double& insertedValue = itIsInsertedPair.first->second;
-                            if ( ( useLargest && ( insertedValue < value ) ) ||
-                                 ( !useLargest && ( value < insertedValue ) ) )
+                            if ( ( useLargest && ( insertedValue < value ) ) || ( !useLargest && ( value < insertedValue ) ) )
                             {
                                 insertedValue = value;
                             }
@@ -1145,8 +1133,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
                 {
                     const auto& filterCategories = filter->selectedEnsembleParameterCategories();
 
-                    if ( crpValue.isText() &&
-                         std::count( filterCategories.begin(), filterCategories.end(), crpValue.textValue() ) == 0 )
+                    if ( crpValue.isText() && std::count( filterCategories.begin(), filterCategories.end(), crpValue.textValue() ) == 0 )
                     {
                         casesToKeep.insert( sumCase );
                     }
@@ -1222,14 +1209,12 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
                         {
                             RifEclipseSummaryAddress historyAddr = addrToFilterValue;
 
-                            if ( !historyAddr.isHistoryVector() )
-                                historyAddr.setVectorName( addrToFilterValue.vectorName() + "H" );
+                            if ( !historyAddr.isHistoryVector() ) historyAddr.setVectorName( addrToFilterValue.vectorName() + "H" );
 
                             std::vector<time_t> historyTimesteps = reader->timeSteps( historyAddr );
                             if ( historyTimesteps.size() )
                             {
-                                selectedTimestepIndices =
-                                    RimAnalysisPlot::findTimestepIndices( { historyTimesteps.back() }, timesteps );
+                                selectedTimestepIndices = RimAnalysisPlot::findTimestepIndices( { historyTimesteps.back() }, timesteps );
                             }
                         }
                         else if ( filter->consideredTimeStepsType() == RimPlotDataFilterItem::SELECT_TIMESTEP_RANGE )
@@ -1276,8 +1261,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
                     }
                 };
             }
-            else if ( filter->filterOperation() == RimPlotDataFilterItem::TOP_N ||
-                      filter->filterOperation() == RimPlotDataFilterItem::BOTTOM_N )
+            else if ( filter->filterOperation() == RimPlotDataFilterItem::TOP_N || filter->filterOperation() == RimPlotDataFilterItem::BOTTOM_N )
             {
                 // clang-format off
                 storeResultCoreLambda = [&]( double value ) // clang-format on
@@ -1339,8 +1323,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
                         if ( !itIsInsertedPair.second ) // Already exists in map
                         {
                             double& insertedValue = itIsInsertedPair.first->second;
-                            if ( ( useLargest && ( insertedValue < value ) ) ||
-                                 ( !useLargest && ( value < insertedValue ) ) )
+                            if ( ( useLargest && ( insertedValue < value ) ) || ( !useLargest && ( value < insertedValue ) ) )
                             {
                                 insertedValue = value;
                             }
@@ -1355,8 +1338,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
 
     // Handle top/bottom n filter
 
-    if ( filter->filterOperation() == RimPlotDataFilterItem::TOP_N ||
-         filter->filterOperation() == RimPlotDataFilterItem::BOTTOM_N )
+    if ( filter->filterOperation() == RimPlotDataFilterItem::TOP_N || filter->filterOperation() == RimPlotDataFilterItem::BOTTOM_N )
     {
         if ( filter->filterTarget() == RimPlotDataFilterItem::SUMMARY_ITEM )
         {
@@ -1369,9 +1351,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
             if ( filter->filterOperation() == RimPlotDataFilterItem::TOP_N )
             {
                 int count = 0;
-                for ( auto it = valueSortedSumItems.rbegin();
-                      count < filter->topBottomN() && it != valueSortedSumItems.rend();
-                      ++it )
+                for ( auto it = valueSortedSumItems.rbegin(); count < filter->topBottomN() && it != valueSortedSumItems.rend(); ++it )
                 {
                     sumItemsToKeep.insert( it->second );
                     ++count;
@@ -1380,9 +1360,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
             else if ( filter->filterOperation() == RimPlotDataFilterItem::BOTTOM_N )
             {
                 int count = 0;
-                for ( auto it = valueSortedSumItems.begin();
-                      count < filter->topBottomN() && it != valueSortedSumItems.end();
-                      ++it )
+                for ( auto it = valueSortedSumItems.begin(); count < filter->topBottomN() && it != valueSortedSumItems.end(); ++it )
                 {
                     sumItemsToKeep.insert( it->second );
                     ++count;
@@ -1400,9 +1378,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
             if ( filter->filterOperation() == RimPlotDataFilterItem::TOP_N )
             {
                 int count = 0;
-                for ( auto it = valueSortedSumCases.rbegin();
-                      count < filter->topBottomN() && it != valueSortedSumCases.rend();
-                      ++it )
+                for ( auto it = valueSortedSumCases.rbegin(); count < filter->topBottomN() && it != valueSortedSumCases.rend(); ++it )
                 {
                     casesToKeep.insert( it->second );
                     ++count;
@@ -1411,9 +1387,7 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
             else if ( filter->filterOperation() == RimPlotDataFilterItem::BOTTOM_N )
             {
                 int count = 0;
-                for ( auto it = valueSortedSumCases.begin();
-                      count < filter->topBottomN() && it != valueSortedSumCases.end();
-                      ++it )
+                for ( auto it = valueSortedSumCases.begin(); count < filter->topBottomN() && it != valueSortedSumCases.end(); ++it )
                 {
                     casesToKeep.insert( it->second );
                     ++count;
@@ -1607,8 +1581,7 @@ void RimAnalysisPlot::updatePlotTitle()
         if ( getOrCreateSelectedCurveDefAnalyser()->m_summaryAdresses.size() == 1 )
         {
             if ( !autoTitle.isEmpty() ) autoTitle += separator;
-            autoTitle +=
-                QString::fromStdString( getOrCreateSelectedCurveDefAnalyser()->m_summaryAdresses.begin()->itemUiText() );
+            autoTitle += QString::fromStdString( getOrCreateSelectedCurveDefAnalyser()->m_summaryAdresses.begin()->itemUiText() );
         }
 
         for ( std::string quantName : getOrCreateSelectedCurveDefAnalyser()->m_vectorNames )
@@ -1633,9 +1606,8 @@ void RimAnalysisPlot::updatePlotTitle()
         {
             if ( !autoTitle.isEmpty() ) autoTitle += " @ ";
 
-            QString formatString =
-                RiaPreferences::current()->dateTimeFormat( RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY,
-                                                           RiaDefines::TimeFormatComponents::TIME_FORMAT_NONE );
+            QString formatString = RiaPreferences::current()->dateTimeFormat( RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY,
+                                                                              RiaDefines::TimeFormatComponents::TIME_FORMAT_NONE );
             autoTitle += m_selectedTimeSteps()[0].toString( formatString );
         }
 
@@ -1658,8 +1630,7 @@ RiaSummaryCurveDefinitionAnalyser* RimAnalysisPlot::getOrCreateSelectedCurveDefA
 {
     if ( !m_analyserOfSelectedCurveDefs )
     {
-        m_analyserOfSelectedCurveDefs =
-            std::unique_ptr<RiaSummaryCurveDefinitionAnalyser>( new RiaSummaryCurveDefinitionAnalyser );
+        m_analyserOfSelectedCurveDefs = std::unique_ptr<RiaSummaryCurveDefinitionAnalyser>( new RiaSummaryCurveDefinitionAnalyser );
     }
     m_analyserOfSelectedCurveDefs->setCurveDefinitions( this->curveDefinitions() );
     return m_analyserOfSelectedCurveDefs.get();

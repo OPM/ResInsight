@@ -576,10 +576,9 @@ void RimGridCrossPlotDataSet::assignCurveDataGroups( const RigEclipseCrossPlotRe
             {
                 for ( size_t i = 0; i < result.xValues.size(); ++i )
                 {
-                    auto upperBoundIt =
-                        std::lower_bound( tickValues.begin(), tickValues.end(), result.groupValuesContinuous[i] );
-                    int upperBoundIndex = static_cast<int>( upperBoundIt - tickValues.begin() );
-                    int categoryNum     = std::min( (int)tickValues.size() - 2, std::max( 0, upperBoundIndex - 1 ) );
+                    auto upperBoundIt    = std::lower_bound( tickValues.begin(), tickValues.end(), result.groupValuesContinuous[i] );
+                    int  upperBoundIndex = static_cast<int>( upperBoundIt - tickValues.begin() );
+                    int  categoryNum     = std::min( (int)tickValues.size() - 2, std::max( 0, upperBoundIndex - 1 ) );
                     m_groupedResults[categoryNum].xValues.push_back( result.xValues[i] );
                     m_groupedResults[categoryNum].yValues.push_back( result.yValues[i] );
                     if ( !result.groupValuesContinuous.empty() )
@@ -830,11 +829,9 @@ void RimGridCrossPlotDataSet::defineUiOrdering( QString uiConfigName, caf::PdmUi
         uiOrdering.add( &m_cellFilterView );
         uiOrdering.add( &m_grouping );
 
-        CVF_ASSERT( m_xAxisProperty && m_yAxisProperty && m_groupingProperty &&
-                    "All property objects should always be created" );
+        CVF_ASSERT( m_xAxisProperty && m_yAxisProperty && m_groupingProperty && "All property objects should always be created" );
 
-        if ( m_grouping() == GROUP_BY_TIME &&
-             !( m_xAxisProperty->hasDynamicResult() || m_yAxisProperty->hasDynamicResult() ) )
+        if ( m_grouping() == GROUP_BY_TIME && !( m_xAxisProperty->hasDynamicResult() || m_yAxisProperty->hasDynamicResult() ) )
         {
             m_grouping = NO_GROUPING;
         }
@@ -864,9 +861,7 @@ void RimGridCrossPlotDataSet::defineUiOrdering( QString uiConfigName, caf::PdmUi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotDataSet::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                const QVariant&            oldValue,
-                                                const QVariant&            newValue )
+void RimGridCrossPlotDataSet::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_case )
     {
@@ -904,20 +899,17 @@ void RimGridCrossPlotDataSet::fieldChangedByUi( const caf::PdmFieldHandle* chang
     {
         if ( m_grouping == GROUP_BY_TIME )
         {
-            legendConfig()->setColorLegend(
-                RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::NORMAL ) );
+            legendConfig()->setColorLegend( RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::NORMAL ) );
             legendConfig()->setMappingMode( RimRegularLegendConfig::MappingType::CATEGORY_INTEGER );
         }
         else if ( groupingByCategoryResult() )
         {
-            legendConfig()->setColorLegend(
-                RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::CATEGORY ) );
+            legendConfig()->setColorLegend( RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::CATEGORY ) );
             legendConfig()->setMappingMode( RimRegularLegendConfig::MappingType::CATEGORY_INTEGER );
         }
         else
         {
-            legendConfig()->setColorLegend(
-                RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::NORMAL ) );
+            legendConfig()->setColorLegend( RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::NORMAL ) );
             legendConfig()->setMappingMode( RimRegularLegendConfig::MappingType::LINEAR_DISCRETE );
         }
 
@@ -994,10 +986,7 @@ QList<caf::PdmOptionItemInfo> RimGridCrossPlotDataSet::calculateValueOptions( co
     }
     else if ( fieldNeedingOptions == &m_grouping )
     {
-        std::set<RigGridCrossPlotCurveGrouping> validOptions = { NO_GROUPING,
-                                                                 GROUP_BY_TIME,
-                                                                 GROUP_BY_FORMATION,
-                                                                 GROUP_BY_RESULT };
+        std::set<RigGridCrossPlotCurveGrouping> validOptions = { NO_GROUPING, GROUP_BY_TIME, GROUP_BY_FORMATION, GROUP_BY_RESULT };
         if ( !hasMultipleTimeSteps() )
         {
             validOptions.erase( GROUP_BY_TIME );
@@ -1069,8 +1058,8 @@ void RimGridCrossPlotDataSet::updateLegendRange()
             }
             if ( !m_legendOverlayFrame )
             {
-                m_legendOverlayFrame = new RiuDraggableOverlayFrame( parent->plotWidget()->getParentForOverlay(),
-                                                                     parent->plotWidget()->overlayMargins() );
+                m_legendOverlayFrame =
+                    new RiuDraggableOverlayFrame( parent->plotWidget()->getParentForOverlay(), parent->plotWidget()->overlayMargins() );
             }
             m_legendOverlayFrame->setContentFrame( legendConfig()->makeLegendFrame() );
             parent->plotWidget()->addOverlayFrame( m_legendOverlayFrame );
@@ -1363,9 +1352,7 @@ void RimGridCrossPlotDataSet::setDefaults()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotDataSet::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                     QString                    uiConfigName,
-                                                     caf::PdmUiEditorAttribute* attribute )
+void RimGridCrossPlotDataSet::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
 }
 

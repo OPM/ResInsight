@@ -36,7 +36,7 @@ public:
     bool        onLoadData() override;
     RimSurface* createCopy() override;
 
-    void setStatisticsType( RigSurfaceStatisticsCalculator::StatisticsType statisticsType );
+    void                                           setStatisticsType( RigSurfaceStatisticsCalculator::StatisticsType statisticsType );
     RigSurfaceStatisticsCalculator::StatisticsType statisticsType() const;
 
     QString fullName() const override;

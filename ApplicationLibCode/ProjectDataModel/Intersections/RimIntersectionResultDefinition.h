@@ -54,9 +54,7 @@ public:
     RimEclipseResultDefinition* eclipseResultDefinition() const;
     RimGeoMechResultDefinition* geoMechResultDefinition() const;
 
-    void updateLegendRangesTextAndVisibility( const QString& title,
-                                              RiuViewer*     nativeOrOverrideViewer,
-                                              bool           isUsingOverrideViewer );
+    void updateLegendRangesTextAndVisibility( const QString& title, RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer );
 
     void update2dIntersectionViews();
     void setDefaultEclipseLegendConfig();
@@ -69,8 +67,8 @@ protected:
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
-    void initAfterRead() override;
+    void                          defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    void                          initAfterRead() override;
 
 private:
     void assignCaseIfMissing() const;

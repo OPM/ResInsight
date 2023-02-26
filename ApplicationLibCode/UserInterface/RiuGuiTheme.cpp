@@ -52,10 +52,9 @@ QMap<RiaDefines::ThemeEnum, QMap<QString, QString>>                 RiuGuiTheme:
 QMap<RiaDefines::ThemeEnum, QMap<QString, QString>>                 RiuGuiTheme::s_variableGuiTextMap       = {};
 QMap<QString, QMap<QString, QMap<QString, QMap<QString, QString>>>> RiuGuiTheme::s_qwtPlotItemPropertiesMap = {};
 QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme::s_customStyleSheetApplicators =
-    { { QString(
-            "QwtPlot\\[\"(?<plotName>[a-zA-Z0-9-_\\*]+)\"\\]::curve\\[\"(?<itemName>[a-zA-Z0-9-_\\*]+)\"\\]\\s*\\{("
-            "?<properties>([\\n\\r]*\\s*((line-color|symbol-color):"
-            "\\s*([a-zA-Z0-9#]+)\\s*;))*)[\\n\\r]*\\s*\\}" ),
+    { { QString( "QwtPlot\\[\"(?<plotName>[a-zA-Z0-9-_\\*]+)\"\\]::curve\\[\"(?<itemName>[a-zA-Z0-9-_\\*]+)\"\\]\\s*\\{("
+                 "?<properties>([\\n\\r]*\\s*((line-color|symbol-color):"
+                 "\\s*([a-zA-Z0-9#]+)\\s*;))*)[\\n\\r]*\\s*\\}" ),
         []( QRegularExpressionMatch& match ) {
             QRegExp plotNameRegExp( match.captured( "plotName" ) );
             QRegExp itemNameRegExp( match.captured( "itemName" ) );
@@ -66,11 +65,7 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
             QString            symbolColor = symbolColorRegExp.match( match.captured( "properties" ) ).captured( 1 );
             if ( !lineColor.isEmpty() )
             {
-                storeQwtStyleSheetProperty( match.captured( "plotName" ),
-                                            QString( "curve" ),
-                                            match.captured( "itemName" ),
-                                            "line-color",
-                                            lineColor );
+                storeQwtStyleSheetProperty( match.captured( "plotName" ), QString( "curve" ), match.captured( "itemName" ), "line-color", lineColor );
             }
             if ( !symbolColor.isEmpty() )
             {
@@ -94,8 +89,7 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
                         {
                             if ( QwtPlotCurve* curve = dynamic_cast<QwtPlotCurve*>( item ) )
                             {
-                                if ( itemNameRegExp.exactMatch( item->title().text() ) ||
-                                     match.captured( "itemName" ) == "*" )
+                                if ( itemNameRegExp.exactMatch( item->title().text() ) || match.captured( "itemName" ) == "*" )
                                 {
                                     QPen pen = curve->pen();
                                     pen.setColor( QColor( lineColor ) );
@@ -129,25 +123,19 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
 
             if ( !color.isEmpty() )
             {
-                storeQwtStyleSheetProperty( match.captured( "plotName" ),
-                                            QString( "grid" ),
-                                            match.captured( "itemName" ),
-                                            "color",
-                                            color );
+                storeQwtStyleSheetProperty( match.captured( "plotName" ), QString( "grid" ), match.captured( "itemName" ), "color", color );
             }
             for ( QWidget* widget : topLevelWidgets )
             {
                 for ( QwtPlot* plotWidget : widget->findChildren<QwtPlot*>() )
                 {
-                    if ( plotNameRegExp.exactMatch( plotWidget->property( "qss-class" ).toString() ) ||
-                         match.captured( "plotName" ) == "*" )
+                    if ( plotNameRegExp.exactMatch( plotWidget->property( "qss-class" ).toString() ) || match.captured( "plotName" ) == "*" )
                     {
                         for ( QwtPlotItem* item : plotWidget->itemList() )
                         {
                             if ( QwtPlotGrid* grid = dynamic_cast<QwtPlotGrid*>( item ) )
                             {
-                                if ( itemNameRegExp.exactMatch( item->title().text() ) ||
-                                     match.captured( "itemName" ) == "*" )
+                                if ( itemNameRegExp.exactMatch( item->title().text() ) || match.captured( "itemName" ) == "*" )
                                 {
                                     QPen pen = grid->majorPen();
                                     pen.setColor( QColor( color ) );
@@ -172,18 +160,13 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
 
             if ( !color.isEmpty() )
             {
-                storeQwtStyleSheetProperty( match.captured( "plotName" ),
-                                            QString( "legend" ),
-                                            match.captured( "itemName" ),
-                                            "text-color",
-                                            color );
+                storeQwtStyleSheetProperty( match.captured( "plotName" ), QString( "legend" ), match.captured( "itemName" ), "text-color", color );
             }
             for ( QWidget* widget : topLevelWidgets )
             {
                 for ( QwtPlot* plotWidget : widget->findChildren<QwtPlot*>() )
                 {
-                    if ( plotNameRegExp.exactMatch( plotWidget->property( "qss-class" ).toString() ) ||
-                         match.captured( "plotName" ) == "*" )
+                    if ( plotNameRegExp.exactMatch( plotWidget->property( "qss-class" ).toString() ) || match.captured( "plotName" ) == "*" )
                     {
                         for ( QwtLegendLabel* label : plotWidget->findChildren<QwtLegendLabel*>() )
                         {
@@ -213,11 +196,7 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
 
             if ( !color.isEmpty() )
             {
-                storeQwtStyleSheetProperty( match.captured( "plotName" ),
-                                            QString( "lineMarker" ),
-                                            match.captured( "itemName" ),
-                                            "color",
-                                            color );
+                storeQwtStyleSheetProperty( match.captured( "plotName" ), QString( "lineMarker" ), match.captured( "itemName" ), "color", color );
             }
             if ( !textColor.isEmpty() )
             {
@@ -231,8 +210,7 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
             {
                 for ( QwtPlot* plotWidget : widget->findChildren<QwtPlot*>() )
                 {
-                    if ( plotNameRegExp.exactMatch( plotWidget->property( "qss-class" ).toString() ) ||
-                         match.captured( "plotName" ) == "*" )
+                    if ( plotNameRegExp.exactMatch( plotWidget->property( "qss-class" ).toString() ) || match.captured( "plotName" ) == "*" )
                     {
                         for ( QwtPlotItem* item : plotWidget->itemList() )
                         {
@@ -240,8 +218,7 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
                             {
                                 if ( marker->symbol() == nullptr || marker->symbol()->style() == QwtSymbol::NoSymbol )
                                 {
-                                    if ( itemNameRegExp.exactMatch( item->title().text() ) ||
-                                         match.captured( "itemName" ) == "*" )
+                                    if ( itemNameRegExp.exactMatch( item->title().text() ) || match.captured( "itemName" ) == "*" )
                                     {
                                         QPen pen = marker->linePen();
                                         pen.setColor( QColor( color ) );
@@ -272,11 +249,7 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
 
             if ( !color.isEmpty() )
             {
-                storeQwtStyleSheetProperty( match.captured( "plotName" ),
-                                            QString( "pointMarker" ),
-                                            match.captured( "itemName" ),
-                                            "color",
-                                            color );
+                storeQwtStyleSheetProperty( match.captured( "plotName" ), QString( "pointMarker" ), match.captured( "itemName" ), "color", color );
             }
             if ( !textColor.isEmpty() )
             {
@@ -290,8 +263,7 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
             {
                 for ( QwtPlot* plotWidget : widget->findChildren<QwtPlot*>() )
                 {
-                    if ( plotNameRegExp.exactMatch( plotWidget->property( "qss-class" ).toString() ) ||
-                         match.captured( "plotName" ) == "*" )
+                    if ( plotNameRegExp.exactMatch( plotWidget->property( "qss-class" ).toString() ) || match.captured( "plotName" ) == "*" )
                     {
                         for ( QwtPlotItem* item : plotWidget->itemList() )
                         {
@@ -299,8 +271,7 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
                             {
                                 if ( marker->symbol() && marker->symbol()->style() != QwtSymbol::NoSymbol )
                                 {
-                                    if ( itemNameRegExp.exactMatch( item->title().text() ) ||
-                                         match.captured( "itemName" ) == "*" )
+                                    if ( itemNameRegExp.exactMatch( item->title().text() ) || match.captured( "itemName" ) == "*" )
                                     {
                                         QPen pen = marker->symbol()->pen();
                                         pen.setColor( QColor( color ) );
@@ -337,8 +308,7 @@ QMap<QString, CustomStyleSheetApplicator>                           RiuGuiTheme:
             {
                 for ( QwtPlot* plotWidget : widget->findChildren<QwtPlot*>() )
                 {
-                    if ( plotNameRegExp.exactMatch( plotWidget->property( "qss-class" ).toString() ) ||
-                         match.captured( "plotName" ) == "*" )
+                    if ( plotNameRegExp.exactMatch( plotWidget->property( "qss-class" ).toString() ) || match.captured( "plotName" ) == "*" )
                     {
                         QWidget* canvas = plotWidget->canvas();
                         if ( canvas )
@@ -597,10 +567,7 @@ QColor RiuGuiTheme::getColorByVariableName( const QString& variable, RiaDefines:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuGuiTheme::getQwtStyleSheetProperty( QString        plotName,
-                                               const QString& itemType,
-                                               QString        itemName,
-                                               const QString& propertyName )
+QString RiuGuiTheme::getQwtStyleSheetProperty( QString plotName, const QString& itemType, QString itemName, const QString& propertyName )
 {
     if ( !s_qwtPlotItemPropertiesMap.keys().contains( plotName ) )
     {
@@ -615,8 +582,7 @@ QString RiuGuiTheme::getQwtStyleSheetProperty( QString        plotName,
     }
     if ( !s_qwtPlotItemPropertiesMap[plotName].keys().contains( itemType ) )
     {
-        if ( s_qwtPlotItemPropertiesMap.keys().contains( "*" ) &&
-             s_qwtPlotItemPropertiesMap["*"].keys().contains( itemType ) )
+        if ( s_qwtPlotItemPropertiesMap.keys().contains( "*" ) && s_qwtPlotItemPropertiesMap["*"].keys().contains( itemType ) )
         {
             plotName = "*";
         }
@@ -629,8 +595,7 @@ QString RiuGuiTheme::getQwtStyleSheetProperty( QString        plotName,
     {
         if ( !s_qwtPlotItemPropertiesMap[plotName][itemType].keys().contains( "*" ) )
         {
-            if ( s_qwtPlotItemPropertiesMap.keys().contains( "*" ) &&
-                 s_qwtPlotItemPropertiesMap["*"].keys().contains( itemType ) &&
+            if ( s_qwtPlotItemPropertiesMap.keys().contains( "*" ) && s_qwtPlotItemPropertiesMap["*"].keys().contains( itemType ) &&
                  s_qwtPlotItemPropertiesMap["*"][itemType].keys().contains( "*" ) )
             {
                 plotName = "*";
@@ -811,9 +776,8 @@ void RiuGuiTheme::preparseStyleSheet( RiaDefines::ThemeEnum theme, QString& styl
         styleSheet.replace( match.captured( 0 ), color.name() );
     }
 
-    QRegularExpression variableRegExp(
-        "[ \\t]*(?<name>\\$[a-zA-z0-9_]+)[ \\t]*:[ \\t]*(?<value>[a-zA-Z-_0-9#]+);[ \\t]*(\\/\\/[ "
-        "\\t]*(?<descriptor>(.*)))?[\\n\\r]*" );
+    QRegularExpression variableRegExp( "[ \\t]*(?<name>\\$[a-zA-z0-9_]+)[ \\t]*:[ \\t]*(?<value>[a-zA-Z-_0-9#]+);[ \\t]*(\\/\\/[ "
+                                       "\\t]*(?<descriptor>(.*)))?[\\n\\r]*" );
     matchIterator = variableRegExp.globalMatch( styleSheet );
 
     if ( !s_variableValueMap.keys().contains( theme ) )
@@ -837,14 +801,12 @@ void RiuGuiTheme::preparseStyleSheet( RiaDefines::ThemeEnum theme, QString& styl
             QRegularExpressionMatch replaceMatch = replaceMatchIterator.next();
             if ( s_variableValueMap[theme].keys().contains( match.captured( "name" ) ) )
             {
-                styleSheet = styleSheet.left( replaceMatch.capturedStart( 1 ) ) +
-                             s_variableValueMap[theme].value( match.captured( "name" ) ) + replaceMatch.captured( 2 ) +
-                             styleSheet.right( styleSheet.length() - replaceMatch.capturedEnd( 0 ) );
+                styleSheet = styleSheet.left( replaceMatch.capturedStart( 1 ) ) + s_variableValueMap[theme].value( match.captured( "name" ) ) +
+                             replaceMatch.captured( 2 ) + styleSheet.right( styleSheet.length() - replaceMatch.capturedEnd( 0 ) );
             }
             else
             {
-                styleSheet = styleSheet.left( replaceMatch.capturedStart( 0 ) ) + match.captured( "value" ) +
-                             replaceMatch.captured( 2 ) +
+                styleSheet = styleSheet.left( replaceMatch.capturedStart( 0 ) ) + match.captured( "value" ) + replaceMatch.captured( 2 ) +
                              styleSheet.right( styleSheet.length() - replaceMatch.capturedEnd( 0 ) );
             }
             // Positions got updated, we need to reassign the iterator.
@@ -858,8 +820,7 @@ void RiuGuiTheme::preparseStyleSheet( RiaDefines::ThemeEnum theme, QString& styl
     }
 
     QMap<QString, CustomStyleSheetApplicator>::iterator applicatorIterator;
-    for ( applicatorIterator = s_customStyleSheetApplicators.begin();
-          applicatorIterator != s_customStyleSheetApplicators.end();
+    for ( applicatorIterator = s_customStyleSheetApplicators.begin(); applicatorIterator != s_customStyleSheetApplicators.end();
           applicatorIterator++ )
     {
         matchIterator = QRegularExpression( applicatorIterator.key() ).globalMatch( styleSheet );

@@ -83,13 +83,7 @@ void RiuQwtPlotCurve::setTitle( const QString& title )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotCurve::drawCurve( QPainter*          p,
-                                 int                style,
-                                 const QwtScaleMap& xMap,
-                                 const QwtScaleMap& yMap,
-                                 const QRectF&      canvasRect,
-                                 int                from,
-                                 int                to ) const
+void RiuQwtPlotCurve::drawCurve( QPainter* p, int style, const QwtScaleMap& xMap, const QwtScaleMap& yMap, const QRectF& canvasRect, int from, int to ) const
 {
     size_t intervalCount = m_polyLineStartStopIndices.size();
     if ( intervalCount > 0 )
@@ -224,7 +218,7 @@ void RiuQwtPlotCurve::setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum      
                                      RiuQwtPlotCurveDefines::CurveInterpolationEnum interpolationType,
                                      int                                            requestedCurveThickness,
                                      const QColor&                                  curveColor,
-                                     const QBrush& fillBrush /* = QBrush( Qt::NoBrush )*/ )
+                                     const QBrush&                                  fillBrush /* = QBrush( Qt::NoBrush )*/ )
 {
     QwtPlotCurve::CurveStyle curveStyle = QwtPlotCurve::Lines;
     Qt::PenStyle             penStyle   = RiuQwtPlotCurveDefines::convertToPenStyle( lineStyle );
@@ -436,7 +430,7 @@ void RiuQwtPlotCurve::setSamplesFromXYErrorValues( const std::vector<double>&   
     CVF_ASSERT( xValues.size() == yValues.size() );
     CVF_ASSERT( xValues.size() == errorValues.size() );
 
-    auto intervalsOfValidValues = RiaCurveDataTools::calculateIntervalsOfValidValues( yValues, useLogarithmicScale );
+    auto                intervalsOfValidValues = RiaCurveDataTools::calculateIntervalsOfValidValues( yValues, useLogarithmicScale );
     std::vector<double> filteredYValues;
     std::vector<double> filteredXValues;
 

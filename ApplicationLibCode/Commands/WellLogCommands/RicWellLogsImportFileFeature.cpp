@@ -37,8 +37,7 @@ CAF_CMD_SOURCE_INIT( RicWellLogsImportFileFeature, "RicWellLogsImportFileFeature
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellLogFile*> RicWellLogsImportFileFeature::importWellLogFiles( const QStringList& wellLogFilePaths,
-                                                                               QStringList*       errorMessages )
+std::vector<RimWellLogFile*> RicWellLogsImportFileFeature::importWellLogFiles( const QStringList& wellLogFilePaths, QStringList* errorMessages )
 {
     RiaApplication* app = RiaApplication::instance();
 
@@ -77,13 +76,11 @@ bool RicWellLogsImportFileFeature::isCommandEnabled()
 void RicWellLogsImportFileFeature::onActionTriggered( bool isChecked )
 {
     // Open dialog box to select well path files
-    RiaApplication* app        = RiaApplication::instance();
-    QString         defaultDir = app->lastUsedDialogDirectory( "WELL_LOGS_DIR" );
-    QString nameFilterString = QString( "Well Logs (%1);;All Files (*.*)" ).arg( wellLogFileNameFilters().join( " " ) );
-    QStringList wellLogFilePaths = RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
-                                                                         "Import Well Logs",
-                                                                         defaultDir,
-                                                                         nameFilterString );
+    RiaApplication* app              = RiaApplication::instance();
+    QString         defaultDir       = app->lastUsedDialogDirectory( "WELL_LOGS_DIR" );
+    QString         nameFilterString = QString( "Well Logs (%1);;All Files (*.*)" ).arg( wellLogFileNameFilters().join( " " ) );
+    QStringList     wellLogFilePaths =
+        RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(), "Import Well Logs", defaultDir, nameFilterString );
 
     if ( wellLogFilePaths.size() >= 1 )
     {

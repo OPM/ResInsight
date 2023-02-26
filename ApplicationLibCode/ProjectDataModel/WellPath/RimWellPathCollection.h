@@ -126,8 +126,7 @@ public:
     RimWellMeasurementCollection*       measurementCollection();
     const RimWellMeasurementCollection* measurementCollection() const;
 
-    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
     void onChildAdded( caf::PdmFieldHandle* containerForNewObject ) override;
 
@@ -149,12 +148,9 @@ private:
 
     std::vector<RimWellPath*> wellPathsWithNoParent( const std::vector<RimWellPath*>& sourceWellPaths ) const;
 
-    std::map<QString, std::vector<RimWellPath*>>
-        wellPathsForWellNameStem( const std::vector<RimWellPath*>& sourceWellPaths ) const;
+    std::map<QString, std::vector<RimWellPath*>> wellPathsForWellNameStem( const std::vector<RimWellPath*>& sourceWellPaths ) const;
 
-    static void buildUiTreeOrdering( cafTreeNode*            treeNode,
-                                     caf::PdmUiTreeOrdering* parentUiTreeNode,
-                                     const QString&          uiConfigName );
+    static void buildUiTreeOrdering( cafTreeNode* treeNode, caf::PdmUiTreeOrdering* parentUiTreeNode, const QString& uiConfigName );
 
     static QString unGroupedText();
 

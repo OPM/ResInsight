@@ -126,8 +126,8 @@ private:
     void evaluateFormationsForOnePosition( const std::vector<std::pair<RigWellPathFormation, FormationLevel>>& formations,
                                            const FormationLevel&                                               maxLevel,
                                            const PickPosition&                                                 position,
-                                           std::map<double, LevelAndName, DepthComp>* uniqueListMaker,
-                                           RimWellLogPlot::DepthTypeEnum              depthType ) const;
+                                           std::map<double, LevelAndName, DepthComp>*                          uniqueListMaker,
+                                           RimWellLogPlot::DepthTypeEnum                                       depthType ) const;
 
     void depthAndFormationNamesWithoutDuplicatesOnDepth( std::vector<QString>*         names,
                                                          std::vector<double>*          measuredDepths,

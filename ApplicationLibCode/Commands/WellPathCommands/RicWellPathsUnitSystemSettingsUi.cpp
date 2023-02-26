@@ -33,18 +33,17 @@ RicWellPathsUnitSystemSettingsUi::RicWellPathsUnitSystemSettingsUi()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RicWellPathsUnitSystemSettingsUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RicWellPathsUnitSystemSettingsUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &unitSystem )
     {
-        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::EclipseUnitSystem>::uiText(
-                                                       RiaDefines::EclipseUnitSystem::UNITS_METRIC ),
-                                                   RiaDefines::EclipseUnitSystem::UNITS_METRIC ) );
-        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::EclipseUnitSystem>::uiText(
-                                                       RiaDefines::EclipseUnitSystem::UNITS_FIELD ),
-                                                   RiaDefines::EclipseUnitSystem::UNITS_FIELD ) );
+        options.push_back(
+            caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::EclipseUnitSystem>::uiText( RiaDefines::EclipseUnitSystem::UNITS_METRIC ),
+                                    RiaDefines::EclipseUnitSystem::UNITS_METRIC ) );
+        options.push_back(
+            caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::EclipseUnitSystem>::uiText( RiaDefines::EclipseUnitSystem::UNITS_FIELD ),
+                                    RiaDefines::EclipseUnitSystem::UNITS_FIELD ) );
     }
     return options;
 }

@@ -37,8 +37,7 @@
 RiuSummaryVectorSelectionDialog::RiuSummaryVectorSelectionDialog( QWidget* parent )
     : QDialog( parent, RiuTools::defaultDialogFlags() )
 {
-    m_addrSelWidget =
-        std::unique_ptr<RiuSummaryVectorSelectionWidgetCreator>( new RiuSummaryVectorSelectionWidgetCreator() );
+    m_addrSelWidget     = std::unique_ptr<RiuSummaryVectorSelectionWidgetCreator>( new RiuSummaryVectorSelectionWidgetCreator() );
     QWidget* addrWidget = m_addrSelWidget->getOrCreateWidget( this );
 
     QVBoxLayout* mainLayout = new QVBoxLayout( this );
@@ -76,8 +75,7 @@ RiuSummaryVectorSelectionDialog::~RiuSummaryVectorSelectionDialog()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryVectorSelectionDialog::setCaseAndAddress( RimSummaryCase*                 summaryCase,
-                                                         const RifEclipseSummaryAddress& address )
+void RiuSummaryVectorSelectionDialog::setCaseAndAddress( RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& address )
 {
     if ( summaryCase )
     {
@@ -96,8 +94,7 @@ void RiuSummaryVectorSelectionDialog::setCaseAndAddress( RimSummaryCase*        
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryVectorSelectionDialog::setEnsembleAndAddress( RimSummaryCaseCollection*       ensemble,
-                                                             const RifEclipseSummaryAddress& address )
+void RiuSummaryVectorSelectionDialog::setEnsembleAndAddress( RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& address )
 {
     if ( ensemble )
     {

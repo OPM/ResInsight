@@ -432,8 +432,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.addSeparator();
             appendExportCompletions( menuBuilder );
         }
-        else if ( dynamic_cast<RimPerforationCollection*>( firstUiItem ) ||
-                  dynamic_cast<RimPerforationInterval*>( firstUiItem ) )
+        else if ( dynamic_cast<RimPerforationCollection*>( firstUiItem ) || dynamic_cast<RimPerforationInterval*>( firstUiItem ) )
         {
             menuBuilder << "RicNewPerforationIntervalFeature";
             if ( dynamic_cast<RimPerforationInterval*>( firstUiItem ) ) menuBuilder << "RicNewValveFeature";
@@ -447,12 +446,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewFishbonesSubsFeature";
             appendExportCompletions( menuBuilder );
         }
-        else if ( dynamic_cast<RimWellPathFractureCollection*>( firstUiItem ) ||
-                  dynamic_cast<RimWellPathFracture*>( firstUiItem ) )
+        else if ( dynamic_cast<RimWellPathFractureCollection*>( firstUiItem ) || dynamic_cast<RimWellPathFracture*>( firstUiItem ) )
         {
             menuBuilder << "RicNewWellPathFractureFeature";
-            if ( dynamic_cast<RimWellPathFracture*>( firstUiItem ) )
-                menuBuilder << "RicPlaceThermalFractureUsingTemplateDataFeature";
+            if ( dynamic_cast<RimWellPathFracture*>( firstUiItem ) ) menuBuilder << "RicPlaceThermalFractureUsingTemplateDataFeature";
             appendExportCompletions( menuBuilder );
         }
         else if ( dynamic_cast<RimWellPathAttributeCollection*>( firstUiItem ) )
@@ -473,10 +470,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicNewStimPlanModelFeature";
         }
-        else if ( dynamic_cast<Rim3dWellLogCurveCollection*>( firstUiItem ) ||
-                  dynamic_cast<Rim3dWellLogExtractionCurve*>( firstUiItem ) ||
-                  dynamic_cast<Rim3dWellLogFileCurve*>( firstUiItem ) ||
-                  dynamic_cast<Rim3dWellLogRftCurve*>( firstUiItem ) )
+        else if ( dynamic_cast<Rim3dWellLogCurveCollection*>( firstUiItem ) || dynamic_cast<Rim3dWellLogExtractionCurve*>( firstUiItem ) ||
+                  dynamic_cast<Rim3dWellLogFileCurve*>( firstUiItem ) || dynamic_cast<Rim3dWellLogRftCurve*>( firstUiItem ) )
         {
             menuBuilder << "RicAdd3dWellLogCurveFeature";
             menuBuilder << "RicAdd3dWellLogFileCurveFeature";
@@ -1020,8 +1015,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewRangeFilterSliceKFeature";
             menuBuilder.subMenuEnd();
         }
-        else if ( dynamic_cast<RimAnnotationCollection*>( firstUiItem ) ||
-                  dynamic_cast<RimAnnotationGroupCollection*>( firstUiItem ) )
+        else if ( dynamic_cast<RimAnnotationCollection*>( firstUiItem ) || dynamic_cast<RimAnnotationGroupCollection*>( firstUiItem ) )
         {
             menuBuilder << "RicCreateTextAnnotationFeature";
             menuBuilder << "RicCreateReachCircleAnnotationFeature";
@@ -1032,8 +1026,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicCreateTextAnnotationFeature";
         }
-        else if ( dynamic_cast<RimPlotTemplateFolderItem*>( firstUiItem ) ||
-                  dynamic_cast<RimPlotTemplateFileItem*>( firstUiItem ) )
+        else if ( dynamic_cast<RimPlotTemplateFolderItem*>( firstUiItem ) || dynamic_cast<RimPlotTemplateFileItem*>( firstUiItem ) )
         {
             menuBuilder << "RicCreateNewPlotFromTemplateFeature";
             menuBuilder << "Separator";
@@ -1401,8 +1394,7 @@ void RimContextCommandBuilder::createExecuteScriptForCasesFeatureMenu( caf::CmdF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimContextCommandBuilder::appendScriptItems( caf::CmdFeatureMenuBuilder& menuBuilder,
-                                                  RimScriptCollection*        scriptCollection )
+void RimContextCommandBuilder::appendScriptItems( caf::CmdFeatureMenuBuilder& menuBuilder, RimScriptCollection* scriptCollection )
 {
     QDir dir( scriptCollection->directory );
     menuBuilder.subMenuStart( dir.dirName() );
@@ -1413,9 +1405,7 @@ void RimContextCommandBuilder::appendScriptItems( caf::CmdFeatureMenuBuilder& me
         QFileInfo      fi( calcScript->absoluteFileName() );
 
         QString menuText = fi.baseName();
-        menuBuilder.addCmdFeatureWithUserData( "RicExecuteScriptForCasesFeature",
-                                               menuText,
-                                               QVariant( calcScript->absoluteFileName() ) );
+        menuBuilder.addCmdFeatureWithUserData( "RicExecuteScriptForCasesFeature", menuText, QVariant( calcScript->absoluteFileName() ) );
     }
 
     for ( size_t i = 0; i < scriptCollection->subDirectories.size(); i++ )
@@ -1460,11 +1450,7 @@ int RimContextCommandBuilder::appendCreateCompletions( caf::CmdFeatureMenuBuilde
     candidates << "RicCreateTemporaryLgrFeature";
     candidates << "RicNewStimPlanModelFeature";
 
-    return appendSubMenuWithCommands( menuBuilder,
-                                      candidates,
-                                      "Create Completions",
-                                      QIcon( ":/CompletionsSymbol16x16.png" ),
-                                      addSeparatorBeforeMenu );
+    return appendSubMenuWithCommands( menuBuilder, candidates, "Create Completions", QIcon( ":/CompletionsSymbol16x16.png" ), addSeparatorBeforeMenu );
 }
 
 //--------------------------------------------------------------------------------------------------

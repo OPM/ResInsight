@@ -21,8 +21,7 @@ TEST( RifStimPlanXmlReaderTest, LoadFile )
 
     cvf::ref<RigStimPlanFractureDefinition> fractureData;
 
-    fractureData =
-        RifStimPlanXmlReader::readStimPlanXMLFile( fileName, conductivityScaleFactor, mode, unit, &errorMessage );
+    fractureData = RifStimPlanXmlReader::readStimPlanXMLFile( fileName, conductivityScaleFactor, mode, unit, &errorMessage );
 
     EXPECT_TRUE( errorMessage.isEmpty() );
     EXPECT_TRUE( fractureData.notNull() );
@@ -47,8 +46,7 @@ TEST( RifStimPlanXmlReaderTest, LoadFileNewFormat )
 
     cvf::ref<RigStimPlanFractureDefinition> fractureData;
 
-    fractureData =
-        RifStimPlanXmlReader::readStimPlanXMLFile( fileName, conductivityScaleFactor, mode, unit, &errorMessage );
+    fractureData = RifStimPlanXmlReader::readStimPlanXMLFile( fileName, conductivityScaleFactor, mode, unit, &errorMessage );
 
     EXPECT_TRUE( errorMessage.isEmpty() );
     EXPECT_TRUE( fractureData.notNull() );
@@ -78,8 +76,7 @@ TEST( RifStimPlanXmlReaderTest, LoadFileNewFormatExtraParameters )
 
     cvf::ref<RigStimPlanFractureDefinition> fractureData;
 
-    fractureData =
-        RifStimPlanXmlReader::readStimPlanXMLFile( fileName, conductivityScaleFactor, mode, unit, &errorMessage );
+    fractureData = RifStimPlanXmlReader::readStimPlanXMLFile( fileName, conductivityScaleFactor, mode, unit, &errorMessage );
 
     EXPECT_TRUE( errorMessage.isEmpty() );
     EXPECT_TRUE( fractureData.notNull() );

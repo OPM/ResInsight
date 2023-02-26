@@ -83,8 +83,8 @@ public:
     }
 };
 
-static bool RiaGetMainGridDimensions_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetMainGridDimensions>(
-    RiaGetMainGridDimensions::commandName() );
+static bool RiaGetMainGridDimensions_init =
+    RiaSocketCommandFactory::instance()->registerCreator<RiaGetMainGridDimensions>( RiaGetMainGridDimensions::commandName() );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -143,10 +143,7 @@ public:
 
         for ( size_t tIdx = 0; tIdx < columnCount; ++tIdx )
         {
-            RiaSocketTools::writeBlockData( server,
-                                            server->currentClient(),
-                                            (const char*)activeCellInfo[tIdx].data(),
-                                            timestepByteCount );
+            RiaSocketTools::writeBlockData( server, server->currentClient(), (const char*)activeCellInfo[tIdx].data(), timestepByteCount );
         }
 
         return true;
@@ -179,7 +176,7 @@ public:
             return;
         }
 
-        RigActiveCellInfo* actCellInfo = reservoirCase->eclipseCaseData()->activeCellInfo( porosityModel );
+        RigActiveCellInfo* actCellInfo               = reservoirCase->eclipseCaseData()->activeCellInfo( porosityModel );
         size_t             numMatrixModelActiveCells = actCellInfo->reservoirActiveCellCount();
 
         gridNumber.reserve( numMatrixModelActiveCells );
@@ -405,7 +402,7 @@ class RiaGetTimeStepDates : public RiaSocketCommand
 {
 public:
     static QString commandName() { return QString( "GetTimeStepDates" ); }
-    bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
+    bool           interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {
         int argCaseGroupId = -1;
 
@@ -426,9 +423,7 @@ public:
         RigEclipseResultAddress addrToMaxTimeStepCountResult;
         if ( rimCase && rimCase->eclipseCaseData() )
         {
-            rimCase->eclipseCaseData()
-                ->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
-                ->maxTimeStepCount( &addrToMaxTimeStepCountResult );
+            rimCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->maxTimeStepCount( &addrToMaxTimeStepCountResult );
             if ( !addrToMaxTimeStepCountResult.isValid() )
             {
                 canFetchData = false;
@@ -447,10 +442,9 @@ public:
             return true;
         }
 
-        std::vector<QDateTime> timeStepDates =
-            rimCase->eclipseCaseData()
-                ->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
-                ->timeStepDates( RigEclipseResultAddress( addrToMaxTimeStepCountResult ) );
+        std::vector<QDateTime> timeStepDates = rimCase->eclipseCaseData()
+                                                   ->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
+                                                   ->timeStepDates( RigEclipseResultAddress( addrToMaxTimeStepCountResult ) );
 
         quint64 timeStepCount = timeStepDates.size();
         quint64 byteCount     = sizeof( quint64 ) + 6 * timeStepCount * sizeof( qint32 );
@@ -495,7 +489,7 @@ class RiaGetTimeStepDays : public RiaSocketCommand
 {
 public:
     static QString commandName() { return QString( "GetTimeStepDays" ); }
-    bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
+    bool           interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {
         int argCaseGroupId = -1;
 
@@ -516,9 +510,7 @@ public:
         RigEclipseResultAddress addrToMaxTimeStepCountResult;
         if ( rimCase && rimCase->eclipseCaseData() )
         {
-            rimCase->eclipseCaseData()
-                ->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
-                ->maxTimeStepCount( &addrToMaxTimeStepCountResult );
+            rimCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->maxTimeStepCount( &addrToMaxTimeStepCountResult );
             if ( !addrToMaxTimeStepCountResult.isValid() )
             {
                 canFetchData = false;
@@ -537,9 +529,8 @@ public:
             return true;
         }
 
-        std::vector<double> daysSinceSimulationStart = rimCase->eclipseCaseData()
-                                                           ->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
-                                                           ->daysSinceSimulationStart( addrToMaxTimeStepCountResult );
+        std::vector<double> daysSinceSimulationStart =
+            rimCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->daysSinceSimulationStart( addrToMaxTimeStepCountResult );
 
         quint64 timeStepCount = daysSinceSimulationStart.size();
         quint64 byteCount     = sizeof( quint64 ) + timeStepCount * sizeof( qint32 );
@@ -578,12 +569,7 @@ public:
         // Write data back to octave: column count, bytes per column, caseId, gridNumber, cellI, cellJ, cellK
 
         std::array<std::vector<qint32>, 5> selectedCellInfo;
-        getSelectedCells( rimCase,
-                          selectedCellInfo[0],
-                          selectedCellInfo[1],
-                          selectedCellInfo[2],
-                          selectedCellInfo[3],
-                          selectedCellInfo[4] );
+        getSelectedCells( rimCase, selectedCellInfo[0], selectedCellInfo[1], selectedCellInfo[2], selectedCellInfo[3], selectedCellInfo[4] );
 
         // First write column count
         quint64 columnCount = 5;
@@ -596,10 +582,7 @@ public:
         // Write back table data
         for ( size_t tIdx = 0; tIdx < columnCount; ++tIdx )
         {
-            RiaSocketTools::writeBlockData( server,
-                                            server->currentClient(),
-                                            (const char*)selectedCellInfo[tIdx].data(),
-                                            columnByteCount );
+            RiaSocketTools::writeBlockData( server, server->currentClient(), (const char*)selectedCellInfo[tIdx].data(), columnByteCount );
         }
 
         return true;

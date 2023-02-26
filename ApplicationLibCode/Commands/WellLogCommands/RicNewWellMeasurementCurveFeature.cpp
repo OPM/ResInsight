@@ -70,7 +70,7 @@ void RicNewWellMeasurementCurveFeature::onActionTriggered( bool isChecked )
                 measurementKind = firstMeasurement->kind();
             }
 
-            auto curve = RicWellLogTools::addWellMeasurementCurve( wellLogPlotTrack, wellPath, measurementKind );
+            auto curve            = RicWellLogTools::addWellMeasurementCurve( wellLogPlotTrack, wellPath, measurementKind );
             bool updateParentPlot = true;
             if ( curve ) curve->loadDataAndUpdate( updateParentPlot );
         }

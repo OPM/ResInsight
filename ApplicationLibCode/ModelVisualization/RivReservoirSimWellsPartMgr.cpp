@@ -107,12 +107,8 @@ void RivReservoirSimWellsPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelB
 
     for ( size_t wIdx = 0; wIdx != m_wellPipesPartMgrs.size(); ++wIdx )
     {
-        m_wellPipesPartMgrs[wIdx]->appendDynamicGeometryPartsToModel( model,
-                                                                      frameIndex,
-                                                                      m_reservoirView->displayCoordTransform().p() );
-        m_wellHeadPartMgrs[wIdx]->appendDynamicGeometryPartsToModel( model,
-                                                                     frameIndex,
-                                                                     m_reservoirView->displayCoordTransform().p() );
+        m_wellPipesPartMgrs[wIdx]->appendDynamicGeometryPartsToModel( model, frameIndex, m_reservoirView->displayCoordTransform().p() );
+        m_wellHeadPartMgrs[wIdx]->appendDynamicGeometryPartsToModel( model, frameIndex, m_reservoirView->displayCoordTransform().p() );
     }
 
     // Well disks
@@ -129,9 +125,7 @@ void RivReservoirSimWellsPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelB
 
     for ( size_t wIdx = 0; wIdx != m_wellDiskPartMgrs.size(); ++wIdx )
     {
-        m_wellDiskPartMgrs[wIdx]->appendDynamicGeometryPartsToModel( model,
-                                                                     frameIndex,
-                                                                     m_reservoirView->displayCoordTransform().p() );
+        m_wellDiskPartMgrs[wIdx]->appendDynamicGeometryPartsToModel( model, frameIndex, m_reservoirView->displayCoordTransform().p() );
     }
 
     // Well spheres

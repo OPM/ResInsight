@@ -122,7 +122,7 @@ bool RiaSocketTools::writeBlockData( RiaSocketServer* server, QTcpSocket* socket
     cvf::Timer timer;
 
     QStringList errorMessages;
-    bool writeSucceded = RiaSocketDataTransfer::writeBlockDataToSocket( socket, data, bytesToWrite, errorMessages );
+    bool        writeSucceded = RiaSocketDataTransfer::writeBlockDataToSocket( socket, data, bytesToWrite, errorMessages );
 
     if ( server )
     {

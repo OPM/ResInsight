@@ -52,32 +52,12 @@ RimWbsParameters::RimWbsParameters()
                                           "" );
     CAF_PDM_InitScriptableField( &m_userDefinedPPShale, "UserPPNonReservoir", 1.0, "  Multiplier of hydrostatic PP" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_poissonRatioSource,
-                                          "PoissionRatioSource",
-                                          "Poisson Ratio",
-                                          "",
-                                          "Data source for Poisson Ratio",
-                                          "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_poissonRatioSource, "PoissionRatioSource", "Poisson Ratio", "", "Data source for Poisson Ratio", "" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_ucsSource,
-                                          "UcsSource",
-                                          "Uniaxial Compressive Strength",
-                                          "",
-                                          "Data source for UCS",
-                                          "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_ucsSource, "UcsSource", "Uniaxial Compressive Strength", "", "Data source for UCS", "" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_OBG0Source,
-                                          "OBG0Source",
-                                          "Initial Overburden Gradient",
-                                          "",
-                                          "Data source for OBG0",
-                                          "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_DFSource,
-                                          "DFSource",
-                                          "Depletion Factor (DF)",
-                                          "",
-                                          "Data source for Depletion Factor",
-                                          "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_OBG0Source, "OBG0Source", "Initial Overburden Gradient", "", "Data source for OBG0", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_DFSource, "DFSource", "Depletion Factor (DF)", "", "Data source for Depletion Factor", "" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_K0SHSource,
                                           "K0SHSource",
@@ -89,12 +69,7 @@ RimWbsParameters::RimWbsParameters()
                                           "" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_FGShaleSource, "FGShaleSource", "FG in Shale Calculation" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_K0FGSource,
-                                          "K0FGSource",
-                                          "K0_FG",
-                                          "",
-                                          "FG in shale = K0_FG * (OBG0-PP0)\nK0_FG = (FG-PP)/(OBG-PP)",
-                                          "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_K0FGSource, "K0FGSource", "K0_FG", "", "FG in shale = K0_FG * (OBG0-PP0)\nK0_FG = (FG-PP)/(OBG-PP)", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_waterDensitySource, "WaterDensitySource", "Water Density" );
     m_waterDensitySource.uiCapability()->setUiHidden( true );
@@ -113,21 +88,9 @@ RimWbsParameters::RimWbsParameters()
     CAF_PDM_InitScriptableField( &m_userDefinedDF, "UserDF", 0.7, "User Defined DF", "", "User Defined Depletion Factor", "" );
     CAF_PDM_InitScriptableField( &m_userDefinedK0FG, "UserK0FG", 0.75, "User Defined K0_FG" );
     CAF_PDM_InitScriptableField( &m_userDefinedK0SH, "UserK0SH", 0.65, "User Defined K0_SH" );
-    CAF_PDM_InitScriptableField( &m_FGShaleMultiplier,
-                                 "FGMultiplier",
-                                 1.05,
-                                 "SH Multiplier for FG in Shale",
-                                 "",
-                                 "FG in Shale = Multiplier * SH",
-                                 "" );
+    CAF_PDM_InitScriptableField( &m_FGShaleMultiplier, "FGMultiplier", 1.05, "SH Multiplier for FG in Shale", "", "FG in Shale = Multiplier * SH", "" );
 
-    CAF_PDM_InitScriptableField( &m_userDefinedDensity,
-                                 "WaterDensity",
-                                 1.03,
-                                 "Density of Sea Water [g/cm^3]",
-                                 "",
-                                 "Units: g/cm^3",
-                                 "" );
+    CAF_PDM_InitScriptableField( &m_userDefinedDensity, "WaterDensity", 1.03, "Density of Sea Water [g/cm^3]", "", "Units: g/cm^3", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_geoMechCase, "GeoMechCase", "GeoMechCase" );
     m_geoMechCase.uiCapability()->setUiHidden( true );
@@ -196,8 +159,7 @@ RimWbsParameters& RimWbsParameters::operator=( const RimWbsParameters& copyFrom 
     }
     for ( auto parameterUserDefinedValuePair : m_userDefinedValueFields )
     {
-        setUserDefinedValue( parameterUserDefinedValuePair.first,
-                             copyFrom.userDefinedValue( parameterUserDefinedValuePair.first ) );
+        setUserDefinedValue( parameterUserDefinedValuePair.first, copyFrom.userDefinedValue( parameterUserDefinedValuePair.first ) );
     }
     return *this;
 }
@@ -336,8 +298,7 @@ QList<caf::PdmOptionItemInfo> RimWbsParameters::calculateValueOptions( const caf
             std::vector<ParameterSource> sources = supportedSources( parameter );
             for ( int i = 0; i < (int)sources.size(); ++i )
             {
-                if ( parameter.exclusiveOptions() || i == (int)sources.size() - 1 ||
-                     sources[i] == RigWbsParameter::HYDROSTATIC )
+                if ( parameter.exclusiveOptions() || i == (int)sources.size() - 1 || sources[i] == RigWbsParameter::HYDROSTATIC )
                 {
                     options.push_back( caf::PdmOptionItemInfo( ParameterSourceEnum::uiText( sources[i] ), sources[i] ) );
                 }
@@ -347,8 +308,7 @@ QList<caf::PdmOptionItemInfo> RimWbsParameters::calculateValueOptions( const caf
                     for ( int j = i; j < (int)sources.size(); ++j )
                     {
                         int index = 1 + ( j - i );
-                        cumulativeSourceLabels.push_back(
-                            QString( "%1. %2" ).arg( index ).arg( ParameterSourceEnum::uiText( sources[j] ) ) );
+                        cumulativeSourceLabels.push_back( QString( "%1. %2" ).arg( index ).arg( ParameterSourceEnum::uiText( sources[j] ) ) );
                     }
                     options.push_back( caf::PdmOptionItemInfo( cumulativeSourceLabels.join( ", " ), sources[i] ) );
                 }

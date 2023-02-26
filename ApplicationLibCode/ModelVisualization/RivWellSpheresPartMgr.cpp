@@ -119,8 +119,7 @@ void RivWellSpheresPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicLi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Part> RivWellSpheresPartMgr::createPart( std::vector<std::pair<cvf::Vec3f, cvf::Color3f>>& centerColorPairs,
-                                                       bool                                              isWellOpen )
+cvf::ref<cvf::Part> RivWellSpheresPartMgr::createPart( std::vector<std::pair<cvf::Vec3f, cvf::Color3f>>& centerColorPairs, bool isWellOpen )
 {
     cvf::ref<cvf::Vec3fArray>   vertices = new cvf::Vec3fArray;
     cvf::ref<cvf::Vec3fArray>   vecRes   = new cvf::Vec3fArray;
@@ -156,7 +155,7 @@ cvf::ref<cvf::Part> RivWellSpheresPartMgr::createPart( std::vector<std::pair<cvf
 
     cvf::GeometryBuilderTriangles builder;
     double                        characteristicCellSize = m_rimReservoirView->mainGrid()->characteristicIJCellSize();
-    double cellRadius = m_rimReservoirView->wellCollection()->spheresScaleFactor() * characteristicCellSize;
+    double                        cellRadius = m_rimReservoirView->wellCollection()->spheresScaleFactor() * characteristicCellSize;
 
     if ( isWellOpen )
     {
@@ -180,8 +179,7 @@ cvf::ref<cvf::Part> RivWellSpheresPartMgr::createPart( std::vector<std::pair<cvf
         {
             cvf::ref<cvf::OpenGLContext> oglContext      = m_rimReservoirView->viewer()->cvfOpenGLContext();
             cvf::OpenGLResourceManager*  resourceManager = oglContext->resourceManager();
-            cvf::ref<cvf::ShaderProgram> vectorProgram =
-                resourceManager->getLinkedVectorDrawerShaderProgram( oglContext.p() );
+            cvf::ref<cvf::ShaderProgram> vectorProgram   = resourceManager->getLinkedVectorDrawerShaderProgram( oglContext.p() );
 
             eff->setShaderProgram( vectorProgram.p() );
         }
@@ -195,8 +193,7 @@ cvf::ref<cvf::Part> RivWellSpheresPartMgr::createPart( std::vector<std::pair<cvf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Color3f RivWellSpheresPartMgr::wellCellColor( const RigWellResultFrame* wellResultFrame,
-                                                   const RigWellResultPoint& wellResultPoint )
+cvf::Color3f RivWellSpheresPartMgr::wellCellColor( const RigWellResultFrame* wellResultFrame, const RigWellResultPoint& wellResultPoint )
 {
     // Colours should be synchronized with RivWellPipesPartMgr::updatePipeResultColor
 

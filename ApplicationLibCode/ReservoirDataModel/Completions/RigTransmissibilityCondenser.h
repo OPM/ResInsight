@@ -70,8 +70,7 @@ public:
 
         bool operator==( const CellAddress& o )
         {
-            return ( m_isExternal == o.m_isExternal ) && ( m_cellIndexSpace == o.m_cellIndexSpace ) &&
-                   ( m_globalCellIdx == o.m_globalCellIdx );
+            return ( m_isExternal == o.m_isExternal ) && ( m_cellIndexSpace == o.m_cellIndexSpace ) && ( m_globalCellIdx == o.m_globalCellIdx );
         }
 
         // Ordering external after internal is important for the matrix order internally
@@ -79,8 +78,7 @@ public:
         bool operator<( const CellAddress& other ) const
         {
             if ( m_isExternal != other.m_isExternal ) return !m_isExternal; // Internal cells < External cells
-            if ( m_cellIndexSpace != other.m_cellIndexSpace )
-                return m_cellIndexSpace < other.m_cellIndexSpace; // Eclipse < StimPlan
+            if ( m_cellIndexSpace != other.m_cellIndexSpace ) return m_cellIndexSpace < other.m_cellIndexSpace; // Eclipse < StimPlan
             if ( m_globalCellIdx != other.m_globalCellIdx ) return m_globalCellIdx < other.m_globalCellIdx;
             return false;
         }
@@ -105,9 +103,9 @@ public:
                                                                    double*                    maxPressureDrop );
 
     std::map<size_t, double> calculateFicticiousFractureToWellTransmissibilities();
-    std::map<size_t, double> calculateEffectiveMatrixToWellTransmissibilities(
-        const std::map<size_t, double>& originalLumpedMatrixToFractureTrans,
-        const std::map<size_t, double>& ficticuousFractureToWellTransMap );
+    std::map<size_t, double>
+        calculateEffectiveMatrixToWellTransmissibilities( const std::map<size_t, double>& originalLumpedMatrixToFractureTrans,
+                                                          const std::map<size_t, double>& ficticuousFractureToWellTransMap );
 
     void calculateCondensedTransmissibilities();
 

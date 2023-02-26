@@ -43,8 +43,7 @@ public:
 
 private:
     void groupAccumulatedFlowVolumes( std::map<QString, std::map<QDateTime, double>>& rWellValuesMap, double threshold );
-    void groupAccumulatedFlowVolumePercentages( std::map<QString, std::map<QDateTime, double>>& rWellValuesMap,
-                                                double                                          threshold );
+    void groupAccumulatedFlowVolumePercentages( std::map<QString, std::map<QDateTime, double>>& rWellValuesMap, double threshold );
 
 private:
     std::map<QDateTime, RigAccWellFlowCalculator>  m_timeStepAndCalculatorPairs;

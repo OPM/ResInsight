@@ -21,9 +21,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaRftPltCurveDefinition::RiaRftPltCurveDefinition( const RifDataSourceForRftPlt& address,
-                                                    const QString&                wellName,
-                                                    const QDateTime&              timeStep )
+RiaRftPltCurveDefinition::RiaRftPltCurveDefinition( const RifDataSourceForRftPlt& address, const QString& wellName, const QDateTime& timeStep )
     : m_curveAddress( address )
     , m_wellName( wellName )
     , m_timeStep( timeStep )

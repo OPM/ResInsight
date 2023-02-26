@@ -227,7 +227,7 @@ std::vector<std::vector<RifEclipseSummaryAddress>> RiaSummaryAddressAnalyzer::ad
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<QString> RiaSummaryAddressAnalyzer::identifierTexts( RifEclipseSummaryAddress::SummaryVarCategory category,
-                                                                 const std::string& secondaryIdentifier ) const
+                                                                 const std::string&                           secondaryIdentifier ) const
 {
     std::vector<QString> identifierStrings;
 
@@ -294,9 +294,8 @@ std::vector<QString> RiaSummaryAddressAnalyzer::identifierTexts( RifEclipseSumma
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RifEclipseSummaryAddress>
-    RiaSummaryAddressAnalyzer::addressesForCategory( const std::set<RifEclipseSummaryAddress>&    addresses,
-                                                     RifEclipseSummaryAddress::SummaryVarCategory category )
+std::vector<RifEclipseSummaryAddress> RiaSummaryAddressAnalyzer::addressesForCategory( const std::set<RifEclipseSummaryAddress>& addresses,
+                                                                                       RifEclipseSummaryAddress::SummaryVarCategory category )
 {
     std::vector<RifEclipseSummaryAddress> filteredAddresses;
 
@@ -330,8 +329,7 @@ std::string RiaSummaryAddressAnalyzer::correspondingHistorySummaryCurveName( con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<std::string>
-    RiaSummaryAddressAnalyzer::vectorNamesForCategory( RifEclipseSummaryAddress::SummaryVarCategory category )
+std::set<std::string> RiaSummaryAddressAnalyzer::vectorNamesForCategory( RifEclipseSummaryAddress::SummaryVarCategory category )
 {
     auto it = m_categories.find( category );
     if ( it != m_categories.end() ) return it->second;
@@ -452,8 +450,7 @@ void RiaSummaryAddressAnalyzer::analyzeSingleAddress( const RifEclipseSummaryAdd
     {
         m_aquifers.insert( { address.aquiferNumber(), address } );
     }
-    else if ( address.category() == RifEclipseSummaryAddress::SUMMARY_FIELD ||
-              address.category() == RifEclipseSummaryAddress::SUMMARY_MISC )
+    else if ( address.category() == RifEclipseSummaryAddress::SUMMARY_FIELD || address.category() == RifEclipseSummaryAddress::SUMMARY_MISC )
     {
         m_otherCategory.push_back( address );
     }
@@ -498,8 +495,8 @@ std::set<int> RiaSummaryAddressAnalyzer::keysInMap( const std::multimap<int, Rif
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<RifEclipseSummaryAddress::SummaryVarCategory> RiaSummaryAddressAnalyzer::keysInMap(
-    const std::map<RifEclipseSummaryAddress::SummaryVarCategory, std::set<std::string>>& map )
+std::set<RifEclipseSummaryAddress::SummaryVarCategory>
+    RiaSummaryAddressAnalyzer::keysInMap( const std::map<RifEclipseSummaryAddress::SummaryVarCategory, std::set<std::string>>& map )
 {
     std::set<RifEclipseSummaryAddress::SummaryVarCategory> keys;
     for ( const auto& [key, value] : map )

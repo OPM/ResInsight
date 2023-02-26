@@ -57,16 +57,15 @@ public:
     virtual std::vector<QString> timeStepsStrings()              = 0;
     virtual QStringList          conductivityResultNames() const = 0;
     virtual std::vector<std::vector<double>>
-        resultValues( const QString& uiResultName, const QString& unitName, size_t timeStepIndex ) const = 0;
-    virtual std::vector<double>
-                   fractureGridResults( const QString& resultName, const QString& unitName, size_t timeStepIndex ) const = 0;
-    virtual bool   hasConductivity() const     = 0;
-    virtual double resultValueAtIJ( const RigFractureGrid* fractureGrid,
-                                    const QString&         uiResultName,
-                                    const QString&         unitName,
-                                    size_t                 timeStepIndex,
-                                    size_t                 i,
-                                    size_t                 j ) = 0;
+                                resultValues( const QString& uiResultName, const QString& unitName, size_t timeStepIndex ) const      = 0;
+    virtual std::vector<double> fractureGridResults( const QString& resultName, const QString& unitName, size_t timeStepIndex ) const = 0;
+    virtual bool                hasConductivity() const                                                                               = 0;
+    virtual double              resultValueAtIJ( const RigFractureGrid* fractureGrid,
+                                                 const QString&         uiResultName,
+                                                 const QString&         unitName,
+                                                 size_t                 timeStepIndex,
+                                                 size_t                 i,
+                                                 size_t                 j )                                                                           = 0;
 
     virtual bool isValidResult( double value ) const = 0;
 
@@ -77,19 +76,16 @@ public:
     QString mapUiResultNameToFileResultName( const QString& uiResultName ) const;
 
 protected:
-    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                         QString                    uiConfigName,
-                                                         caf::PdmUiEditorAttribute* attribute ) override;
-    void                          onLoadDataAndUpdateGeometryHasChanged() override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    void onLoadDataAndUpdateGeometryHasChanged() override;
 
-    virtual std::vector<double>
-        fractureGridResultsForUnitSystem( const QString&                resultName,
-                                          const QString&                unitName,
-                                          size_t                        timeStepIndex,
-                                          RiaDefines::EclipseUnitSystem requiredUnitSystem ) const = 0;
+    virtual std::vector<double> fractureGridResultsForUnitSystem( const QString&                resultName,
+                                                                  const QString&                unitName,
+                                                                  size_t                        timeStepIndex,
+                                                                  RiaDefines::EclipseUnitSystem requiredUnitSystem ) const = 0;
 
     WellFractureIntersectionData wellFractureIntersectionData( const RimFracture* fractureInstance ) const override;
 

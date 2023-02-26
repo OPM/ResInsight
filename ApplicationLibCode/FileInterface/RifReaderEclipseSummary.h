@@ -51,8 +51,8 @@ public:
 
     std::vector<time_t> timeSteps( const RifEclipseSummaryAddress& resultAddress ) const override;
 
-    bool        values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const override;
-    std::string unitName( const RifEclipseSummaryAddress& resultAddress ) const override;
+    bool                          values( const RifEclipseSummaryAddress& resultAddress, std::vector<double>* values ) const override;
+    std::string                   unitName( const RifEclipseSummaryAddress& resultAddress ) const override;
     RiaDefines::EclipseUnitSystem unitSystem() const override;
 
     static std::string       differenceIdentifier() { return "_DIFF"; }
@@ -79,7 +79,7 @@ private:
         ValuesCache();
         ~ValuesCache();
 
-        void insertValues( const RifEclipseSummaryAddress& address, const std::vector<double>& values );
+        void                       insertValues( const RifEclipseSummaryAddress& address, const std::vector<double>& values );
         const std::vector<double>& getValues( const RifEclipseSummaryAddress& address ) const;
 
     private:

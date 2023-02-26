@@ -85,11 +85,10 @@ void RimWellMeasurementCurve::onLoadDataAndUpdate( bool updateParentPlot )
         std::vector<QString> measurementKinds;
         measurementKinds.push_back( measurementKind() );
 
-        std::vector<RimWellMeasurement*> measurements =
-            RimWellMeasurementFilter::filterMeasurements( measurementCollection->measurements(),
-                                                          *wellPathCollection,
-                                                          *m_wellPath,
-                                                          measurementKinds );
+        std::vector<RimWellMeasurement*> measurements = RimWellMeasurementFilter::filterMeasurements( measurementCollection->measurements(),
+                                                                                                      *wellPathCollection,
+                                                                                                      *m_wellPath,
+                                                                                                      measurementKinds );
 
         // Extract the values for this measurement kind
         std::vector<double> values;
@@ -112,8 +111,7 @@ void RimWellMeasurementCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
                 for ( double measuredDepthValue : measuredDepthValues )
                 {
-                    trueVerticalDepthValues.push_back(
-                        -rigWellPath->interpolatedPointAlongWellPath( measuredDepthValue ).z() );
+                    trueVerticalDepthValues.push_back( -rigWellPath->interpolatedPointAlongWellPath( measuredDepthValue ).z() );
                 }
 
                 bool useLogarithmicScale = false;
@@ -202,9 +200,7 @@ RimWellPath* RimWellMeasurementCurve::wellPath() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellMeasurementCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                const QVariant&            oldValue,
-                                                const QVariant&            newValue )
+void RimWellMeasurementCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimWellLogCurve::fieldChangedByUi( changedField, oldValue, newValue );
 

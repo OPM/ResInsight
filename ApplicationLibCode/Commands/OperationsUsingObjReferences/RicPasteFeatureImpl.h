@@ -51,7 +51,6 @@ public:
     static void clearClipboard();
 
 private:
-    static void populateObjectGroupFromReferences( const std::vector<QString>& referenceList,
-                                                   caf::PdmObjectGroup*        objectGroup );
+    static void populateObjectGroupFromReferences( const std::vector<QString>& referenceList, caf::PdmObjectGroup* objectGroup );
     static void referencesFromClipboard( std::vector<QString>& referenceList );
 };

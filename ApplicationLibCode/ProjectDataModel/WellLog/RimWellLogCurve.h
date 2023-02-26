@@ -80,7 +80,7 @@ protected:
                                      RiaDefines::DepthUnitType  depthUnit,
                                      bool                       isExtractionCurve,
                                      bool                       useLogarithmicScale,
-                                     const QString& propertyUnit = RiaWellLogUnitTools<double>::noUnitString() );
+                                     const QString&             propertyUnit = RiaWellLogUnitTools<double>::noUnitString() );
 
     void setPropertyValuesWithMdAndTVD( const std::vector<double>& propertyValues,
                                         const std::vector<double>& measuredDepths,
@@ -89,17 +89,16 @@ protected:
                                         RiaDefines::DepthUnitType  depthUnit,
                                         bool                       isExtractionCurve,
                                         bool                       useLogarithmicScale,
-                                        const QString& propertyUnit = RiaWellLogUnitTools<double>::noUnitString() );
+                                        const QString&             propertyUnit = RiaWellLogUnitTools<double>::noUnitString() );
 
-    void setPropertyAndDepthValuesToPlotCurve( const std::vector<double>& propertyValues,
-                                               const std::vector<double>& depthValues );
+    void setPropertyAndDepthValuesToPlotCurve( const std::vector<double>& propertyValues, const std::vector<double>& depthValues );
 
     void setPropertyValuesAndDepths( const std::vector<double>&                                      propertyValues,
                                      const std::map<RiaDefines::DepthTypeEnum, std::vector<double>>& depths,
                                      double                                                          rkbDiff,
                                      RiaDefines::DepthUnitType                                       depthUnit,
                                      bool                                                            isExtractionCurve,
-                                     bool           useLogarithmicScale,
+                                     bool                                                            useLogarithmicScale,
                                      const QString& propertyUnit = RiaWellLogUnitTools<double>::noUnitString() );
 
     void setPropertyAndDepthsAndErrors( const std::vector<double>& propertyValues,

@@ -47,8 +47,8 @@ CAF_CMD_SOURCE_INIT( RicCreateSaturationPressurePlotsFeature, "RicCreateSaturati
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSaturationPressurePlot*>
-    RicCreateSaturationPressurePlotsFeature::createPlots( RimEclipseResultCase* eclipseResultCase, int timeStep )
+std::vector<RimSaturationPressurePlot*> RicCreateSaturationPressurePlotsFeature::createPlots( RimEclipseResultCase* eclipseResultCase,
+                                                                                              int                   timeStep )
 {
     std::vector<RimSaturationPressurePlot*> plots;
 
@@ -76,8 +76,7 @@ std::vector<RimSaturationPressurePlot*>
         {
             RigCaseCellResultsData* resultData = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
-            if ( !resultData->hasResultEntry(
-                     RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" ) ) )
+            if ( !resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "PRESSURE" ) ) )
             {
                 RiaLogging::error( "CreateSaturationPressurePlots : PRESSURE is not available " );
                 return plots;
@@ -155,10 +154,7 @@ void RicCreateSaturationPressurePlotsFeature::onActionTriggered( bool isChecked 
 
             RiuPlotMainWindow* plotwindow = RiaGuiApplication::instance()->mainPlotWindow();
 
-            caf::PdmUiPropertyViewDialog propertyDialog( plotwindow,
-                                                         &saturationPressureUi,
-                                                         "Select Case to create Pressure Saturation plots",
-                                                         "" );
+            caf::PdmUiPropertyViewDialog propertyDialog( plotwindow, &saturationPressureUi, "Select Case to create Pressure Saturation plots", "" );
 
             if ( propertyDialog.exec() == QDialog::Accepted )
             {

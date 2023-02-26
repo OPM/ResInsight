@@ -158,8 +158,7 @@ public:
     QString asciiDataForPlotExport() const;
     void    handleKeyPressEvent( QKeyEvent* keyEvent );
 
-    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
     int subTitleFontSize() const;
     int axisTitleFontSize() const;
@@ -187,16 +186,14 @@ protected:
     void recreatePlotWidgets();
 
     // Overridden PDM methods
-    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
-    void                 initAfterRead() override;
-    void                 defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                QString                    uiConfigName,
-                                                caf::PdmUiEditorAttribute* attribute ) override;
-    void                 onLoadDataAndUpdate() override;
-    void                 updatePlots();
+    void initAfterRead() override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    void onLoadDataAndUpdate() override;
+    void updatePlots();
     caf::PdmFieldHandle* userDescriptionField() override;
 
     void                                  createAndSetCurveTextProvider( RimWellLogTrack* track );

@@ -37,8 +37,7 @@ CAF_CMD_SOURCE_INIT( RicNewElasticPropertyScalingFeature, "RicNewElasticProperty
 //--------------------------------------------------------------------------------------------------
 void RicNewElasticPropertyScalingFeature::onActionTriggered( bool isChecked )
 {
-    RimElasticProperties* elasticProperties =
-        caf::SelectionManager::instance()->selectedItemOfType<RimElasticProperties>();
+    RimElasticProperties* elasticProperties = caf::SelectionManager::instance()->selectedItemOfType<RimElasticProperties>();
     if ( !elasticProperties ) return;
 
     RimElasticPropertyScalingCollection* scalingColl = elasticProperties->scalingCollection();

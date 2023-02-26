@@ -53,8 +53,7 @@ public:
 public:
     RicSummaryPlotBuilder();
 
-    void setDataSources( const std::vector<RimSummaryCase*>&           summaryCases,
-                         const std::vector<RimSummaryCaseCollection*>& ensembles );
+    void setDataSources( const std::vector<RimSummaryCase*>& summaryCases, const std::vector<RimSummaryCaseCollection*>& ensembles );
 
     void setAddresses( const std::set<RifEclipseSummaryAddress>& addresses );
 
@@ -75,16 +74,15 @@ public:
     static RimMultiPlot* createAndAppendMultiPlot( const std::vector<RimPlot*>& plots );
     static void          appendPlotsToMultiPlot( RimMultiPlot* multiPlot, const std::vector<RimPlot*>& plots );
 
-    static RimSummaryMultiPlot*
-        createAndAppendDefaultSummaryMultiPlot( const std::vector<RimSummaryCase*>&           cases,
-                                                const std::vector<RimSummaryCaseCollection*>& ensembles,
-                                                bool skipCreationOfPlotBasedOnPreferences = true );
+    static RimSummaryMultiPlot* createAndAppendDefaultSummaryMultiPlot( const std::vector<RimSummaryCase*>&           cases,
+                                                                        const std::vector<RimSummaryCaseCollection*>& ensembles,
+                                                                        bool skipCreationOfPlotBasedOnPreferences = true );
 
     static RimSummaryMultiPlot* createAndAppendSingleSummaryMultiPlotNoAutoSettings( RimSummaryPlot* plot );
     static RimSummaryMultiPlot* createAndAppendSingleSummaryMultiPlot( RimSummaryPlot* plot );
     static RimSummaryMultiPlot* createAndAppendSummaryMultiPlot( const std::vector<RimSummaryPlot*>& plots );
     static RimSummaryMultiPlot* createAndAppendSummaryMultiPlot( const std::vector<caf::PdmObjectHandle*>& objects );
-    static void appendPlotsToSummaryMultiPlot( RimSummaryMultiPlot* multiPlot, const std::vector<RimSummaryPlot*>& plots );
+    static void                 appendPlotsToSummaryMultiPlot( RimSummaryMultiPlot* multiPlot, const std::vector<RimSummaryPlot*>& plots );
 
     static RimSummaryPlot* createPlot( const std::vector<RimSummaryCurve*>& summaryCurves );
 

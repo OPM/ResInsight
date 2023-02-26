@@ -38,6 +38,5 @@ protected:
 
 private:
     static RimEclipseResultCase* getDataFromSimWell( RimSimWellInView* simWell, QString& wellName, int& timeStepIndex );
-    static RimEclipseResultCase*
-        getDataFromWellAllocation( RimWellAllocationPlot* wap, QString& wellName, int& timeStepIndex );
+    static RimEclipseResultCase* getDataFromWellAllocation( RimWellAllocationPlot* wap, QString& wellName, int& timeStepIndex );
 };

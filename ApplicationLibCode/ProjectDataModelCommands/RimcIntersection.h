@@ -91,8 +91,7 @@ public:
     std::unique_ptr<PdmObjectHandle> defaultResult() const override;
 
     static std::unique_ptr<RivIntersectionGeometryGeneratorInterface>
-        createGeometryGenerator( RimExtrudedCurveIntersection*      intersection,
-                                 RimcTriangleGeometry::GeometryType geometryType );
+        createGeometryGenerator( RimExtrudedCurveIntersection* intersection, RimcTriangleGeometry::GeometryType geometryType );
 
 private:
     caf::PdmField<caf::AppEnum<RimcTriangleGeometry::GeometryType>> m_geometryType;

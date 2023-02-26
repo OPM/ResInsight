@@ -400,12 +400,8 @@ cvf::ref<cvf::DrawableGeo> RicPointTangentManipulatorPartMgr::createVerticalAxis
     geomBuilder->transformVertexRange( vxArraySizeFirstCylinder,
                                        geomBuilder->vertexCount() - 1,
                                        cvf::Mat4f::fromTranslation( { 0.0f, 0.0f, -1.0f } ) );
-    geomBuilder->transformVertexRange( vxArraySizeFirstCylinder,
-                                       geomBuilder->vertexCount() - 1,
-                                       cvf::Mat4f::fromScaling( { s, s, s } ) );
-    geomBuilder->transformVertexRange( vxArraySizeFirstCylinder,
-                                       geomBuilder->vertexCount() - 1,
-                                       cvf::Mat4f::fromTranslation( origin ) );
+    geomBuilder->transformVertexRange( vxArraySizeFirstCylinder, geomBuilder->vertexCount() - 1, cvf::Mat4f::fromScaling( { s, s, s } ) );
+    geomBuilder->transformVertexRange( vxArraySizeFirstCylinder, geomBuilder->vertexCount() - 1, cvf::Mat4f::fromTranslation( origin ) );
 
     cvf::ref<cvf::Vec3fArray> vertexArray = geomBuilder->vertices();
     cvf::ref<cvf::UIntArray>  indexArray  = geomBuilder->triangles();
@@ -484,9 +480,8 @@ void  RicPointTangentManipulatorPartMgr::createAzimuthHandle()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo>
-    RicPointTangentManipulatorPartMgr::createIndexedTriangelDrawableGeo( cvf::Vec3fArray* triangleVertexArray,
-                                                                         cvf::UIntArray*  triangleIndices )
+cvf::ref<cvf::DrawableGeo> RicPointTangentManipulatorPartMgr::createIndexedTriangelDrawableGeo( cvf::Vec3fArray* triangleVertexArray,
+                                                                                                cvf::UIntArray*  triangleIndices )
 {
     using namespace cvf;
     ref<DrawableGeo>             geo     = new DrawableGeo;
@@ -545,9 +540,7 @@ void RicPointTangentManipulatorPartMgr::addActiveModePart( cvf::DrawableGeo*   g
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Part> RicPointTangentManipulatorPartMgr::createPart( cvf::DrawableGeo*   geo,
-                                                                   const cvf::Color4f& color,
-                                                                   const cvf::String&  partName )
+cvf::ref<cvf::Part> RicPointTangentManipulatorPartMgr::createPart( cvf::DrawableGeo* geo, const cvf::Color4f& color, const cvf::String& partName )
 {
     cvf::ref<cvf::Part> part = new cvf::Part;
     part->setName( partName );

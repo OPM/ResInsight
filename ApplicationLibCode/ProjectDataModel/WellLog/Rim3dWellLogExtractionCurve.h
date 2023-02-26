@@ -47,9 +47,7 @@ public:
 
     bool followAnimationTimeStep() const override;
     void curveValuesAndMds( std::vector<double>* values, std::vector<double>* measuredDepthValues ) const override;
-    void curveValuesAndMdsAtTimeStep( std::vector<double>* values,
-                                      std::vector<double>* measuredDepthValues,
-                                      int                  timeStep ) const override;
+    void curveValuesAndMdsAtTimeStep( std::vector<double>* values, std::vector<double>* measuredDepthValues, int timeStep ) const override;
     std::pair<double, double> findCurveValueRange() override;
 
     QString name() const override;
@@ -62,7 +60,7 @@ public:
 
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;
-    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;

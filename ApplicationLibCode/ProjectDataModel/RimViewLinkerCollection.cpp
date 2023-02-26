@@ -66,9 +66,7 @@ void RimViewLinkerCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewLinkerCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                const QVariant&            oldValue,
-                                                const QVariant&            newValue )
+void RimViewLinkerCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( &isActive == changedField )
     {
@@ -98,8 +96,7 @@ void RimViewLinkerCollection::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewLinkerCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                                              std::vector<caf::PdmObjectHandle*>& referringObjects )
+void RimViewLinkerCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     uiCapability()->updateConnectedEditors();
 

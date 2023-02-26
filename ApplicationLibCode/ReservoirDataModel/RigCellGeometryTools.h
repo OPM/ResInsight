@@ -48,15 +48,13 @@ public:
 
     static double polygonLengthInLocalXdirWeightedByArea( const std::vector<cvf::Vec3d>& polygon2d );
 
-    static std::vector<std::vector<cvf::Vec3d>>
-        intersectionWithPolygons( const std::vector<cvf::Vec3d>&              polygon1,
-                                  const std::vector<std::vector<cvf::Vec3d>>& polygonToIntersectWith );
+    static std::vector<std::vector<cvf::Vec3d>> intersectionWithPolygons( const std::vector<cvf::Vec3d>&              polygon1,
+                                                                          const std::vector<std::vector<cvf::Vec3d>>& polygonToIntersectWith );
 
     static std::vector<std::vector<cvf::Vec3d>> intersectionWithPolygon( const std::vector<cvf::Vec3d>& polygon1,
                                                                          const std::vector<cvf::Vec3d>& polygon2 );
 
-    static std::vector<std::vector<cvf::Vec3d>>
-                                                subtractPolygons( const std::vector<cvf::Vec3d>&              sourcePolygon,
+    static std::vector<std::vector<cvf::Vec3d>> subtractPolygons( const std::vector<cvf::Vec3d>&              sourcePolygon,
                                                                   const std::vector<std::vector<cvf::Vec3d>>& polygonsToSubtract );
     static std::vector<std::vector<cvf::Vec3d>> subtractPolygon( const std::vector<cvf::Vec3d>& sourcePolygon,
                                                                  const std::vector<cvf::Vec3d>& polygonToSubtract );
@@ -69,14 +67,12 @@ public:
     };
     static std::vector<std::vector<cvf::Vec3d>> clipPolylineByPolygon( const std::vector<cvf::Vec3d>& polyLine,
                                                                        const std::vector<cvf::Vec3d>& polygon,
-                                                                       ZInterpolationType interpolType = USE_ZERO );
+                                                                       ZInterpolationType             interpolType = USE_ZERO );
 
-    static std::pair<cvf::Vec3d, cvf::Vec3d> getLineThroughBoundingBox( const cvf::Vec3d&       lineDirection,
-                                                                        const cvf::BoundingBox& polygonBBox,
-                                                                        const cvf::Vec3d&       pointOnLine );
+    static std::pair<cvf::Vec3d, cvf::Vec3d>
+        getLineThroughBoundingBox( const cvf::Vec3d& lineDirection, const cvf::BoundingBox& polygonBBox, const cvf::Vec3d& pointOnLine );
 
-    static double getLengthOfPolygonAlongLine( const std::pair<cvf::Vec3d, cvf::Vec3d>& line,
-                                               const std::vector<cvf::Vec3d>&           polygon );
+    static double getLengthOfPolygonAlongLine( const std::pair<cvf::Vec3d, cvf::Vec3d>& line, const std::vector<cvf::Vec3d>& polygon );
 
     static std::vector<cvf::Vec3d> unionOfPolygons( const std::vector<std::vector<cvf::Vec3d>>& polygons );
 

@@ -94,17 +94,15 @@ class VdeVizDataExtractor
 public:
     VdeVizDataExtractor( const RimGridView& view, VdeCachingHashedIdFactory* cachingIdFactory );
 
-    void extractViewContents( QString*            modelMetaJsonStr,
-                              std::vector<int>*   allReferencedArrayIds,
-                              VdePacketDirectory* packetDirectory );
+    void extractViewContents( QString* modelMetaJsonStr, std::vector<int>* allReferencedArrayIds, VdePacketDirectory* packetDirectory );
 
 private:
     static std::vector<std::unique_ptr<VdeMesh>> buildMeshArray( const std::vector<VdeExportPart>& exportPartsArr );
     static std::unique_ptr<VdeMesh>              createMeshFromExportPart( const VdeExportPart& exportPart );
-    static QString createModelMetaJsonString( const std::vector<std::unique_ptr<VdeMesh>>&           meshArr,
-                                              const std::vector<VdeMeshArrayIds>&                    meshContentIdsArr,
-                                              const std::vector<std::pair<cvf::Vec3f, cvf::String>>& labelAndPositionsArr );
-    static void    debugComparePackets( const VdeArrayDataPacket& packetA, const VdeArrayDataPacket& packetB );
+    static QString                               createModelMetaJsonString( const std::vector<std::unique_ptr<VdeMesh>>&           meshArr,
+                                                                            const std::vector<VdeMeshArrayIds>&                    meshContentIdsArr,
+                                                                            const std::vector<std::pair<cvf::Vec3f, cvf::String>>& labelAndPositionsArr );
+    static void debugComparePackets( const VdeArrayDataPacket& packetA, const VdeArrayDataPacket& packetB );
 
 private:
     const RimGridView&         m_view;

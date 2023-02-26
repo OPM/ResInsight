@@ -39,11 +39,11 @@ public:
     RiuSummaryPlot( RimSummaryPlot* plot );
     ~RiuSummaryPlot() override;
 
-    virtual void useDateBasedTimeAxis(
-        const QString&                   dateFormat,
-        const QString&                   timeFormat,
-        RiaDefines::DateFormatComponents dateComponents = RiaDefines::DateFormatComponents::DATE_FORMAT_UNSPECIFIED,
-        RiaDefines::TimeFormatComponents timeComponents = RiaDefines::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED ) = 0;
+    virtual void
+        useDateBasedTimeAxis( const QString&                   dateFormat,
+                              const QString&                   timeFormat,
+                              RiaDefines::DateFormatComponents dateComponents = RiaDefines::DateFormatComponents::DATE_FORMAT_UNSPECIFIED,
+                              RiaDefines::TimeFormatComponents timeComponents = RiaDefines::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED ) = 0;
 
     virtual void useTimeBasedTimeAxis() = 0;
 

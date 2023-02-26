@@ -61,13 +61,12 @@ void RicWellPathImportPerforationIntervalsFeature::onActionTriggered( bool isChe
     CVF_ASSERT( wellPathCollection );
 
     // Open dialog box to select well path files
-    RiaApplication* app        = RiaApplication::instance();
-    QString         defaultDir = app->lastUsedDialogDirectory( "WELLPATH_DIR" );
-    QStringList     wellPathFilePaths =
-        RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
-                                              "Import Well Path Perforation Intervals",
-                                              defaultDir,
-                                              "Well Path Perforation Intervals (*.ev);;All Files (*.*)" );
+    RiaApplication* app               = RiaApplication::instance();
+    QString         defaultDir        = app->lastUsedDialogDirectory( "WELLPATH_DIR" );
+    QStringList     wellPathFilePaths = RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
+                                                                          "Import Well Path Perforation Intervals",
+                                                                          defaultDir,
+                                                                          "Well Path Perforation Intervals (*.ev);;All Files (*.*)" );
 
     if ( wellPathFilePaths.size() < 1 ) return;
 
@@ -84,8 +83,7 @@ void RicWellPathImportPerforationIntervalsFeature::onActionTriggered( bool isChe
         if ( wellPath == nullptr )
         {
             RiaLogging::warning(
-                QString( "Import Well Path Perforation Intervals : Imported file contains unknown well path '%1'." )
-                    .arg( entry.first ) );
+                QString( "Import Well Path Perforation Intervals : Imported file contains unknown well path '%1'." ).arg( entry.first ) );
         }
         else
         {

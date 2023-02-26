@@ -100,8 +100,7 @@ protected:
     void initAfterRead() override;
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
-    void                          onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                                                  std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
 private:
     static QString displayNameForView( Rim3dView* view );

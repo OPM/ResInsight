@@ -38,8 +38,7 @@ private:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
-    static RimEnsembleCurveSet* copyCurveSetAndAddToCollection( RimEnsembleCurveSetCollection* coll,
-                                                                const RimEnsembleCurveSet*     sourceCurveSet );
+    static RimEnsembleCurveSet* copyCurveSetAndAddToCollection( RimEnsembleCurveSetCollection* coll, const RimEnsembleCurveSet* sourceCurveSet );
 
     static std::vector<caf::PdmPointer<RimEnsembleCurveSet>> ensembleCurveSetsOnClipboard();
 };

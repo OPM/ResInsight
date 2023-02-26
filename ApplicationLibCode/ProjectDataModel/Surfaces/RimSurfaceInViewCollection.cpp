@@ -78,8 +78,7 @@ caf::PdmFieldHandle* RimSurfaceInViewCollection::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSurfaceInViewCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
-                                                       QString                 uiConfigName /*= ""*/ )
+void RimSurfaceInViewCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
     RimGridView* gridView = nullptr;
     this->firstAncestorOfType( gridView );
@@ -309,9 +308,7 @@ void RimSurfaceInViewCollection::appendPartsToModel( cvf::ModelBasicList* model,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSurfaceInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                   const QVariant&            oldValue,
-                                                   const QVariant&            newValue )
+void RimSurfaceInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     this->updateUiIconFromToggleField();
 
@@ -350,8 +347,7 @@ RimSurfaceInView* RimSurfaceInViewCollection::getSurfaceInViewForSurface( const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSurfaceInViewCollection*
-    RimSurfaceInViewCollection::getCollectionInViewForCollection( const RimSurfaceCollection* coll ) const
+RimSurfaceInViewCollection* RimSurfaceInViewCollection::getCollectionInViewForCollection( const RimSurfaceCollection* coll ) const
 {
     for ( auto collInView : m_collectionsInView )
     {
@@ -389,9 +385,8 @@ void RimSurfaceInViewCollection::updateCellResultColor( bool hasGeneralCellResul
 
             if ( !useNativeSurfaceColors )
             {
-                bool showResults = surf->activeSeparateResultDefinition()
-                                       ? surf->activeSeparateResultDefinition()->hasResult()
-                                       : hasGeneralCellResult;
+                bool showResults = surf->activeSeparateResultDefinition() ? surf->activeSeparateResultDefinition()->hasResult()
+                                                                          : hasGeneralCellResult;
 
                 if ( showResults )
                 {
@@ -453,8 +448,7 @@ bool RimSurfaceInViewCollection::hasAnyActiveSeparateResults()
 
     for ( RimSurfaceInView* surf : m_surfacesInView )
     {
-        if ( surf->isActive() && surf->activeSeparateResultDefinition() &&
-             surf->activeSeparateResultDefinition()->hasResult() )
+        if ( surf->isActive() && surf->activeSeparateResultDefinition() && surf->activeSeparateResultDefinition()->hasResult() )
         {
             return true;
         }
@@ -466,13 +460,11 @@ bool RimSurfaceInViewCollection::hasAnyActiveSeparateResults()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSurfaceInViewCollection::updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer,
-                                                                      bool       isUsingOverrideViewer )
+void RimSurfaceInViewCollection::updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer )
 {
     for ( RimSurfaceInViewCollection* coll : m_collectionsInView )
     {
-        if ( coll->isChecked() )
-            coll->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer, isUsingOverrideViewer );
+        if ( coll->isChecked() ) coll->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer, isUsingOverrideViewer );
     }
 
     for ( RimSurfaceInView* surf : m_surfacesInView )

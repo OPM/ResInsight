@@ -48,8 +48,8 @@ RigFemPartResultCalculatorShearSE::~RigFemPartResultCalculatorShearSE()
 //--------------------------------------------------------------------------------------------------
 bool RigFemPartResultCalculatorShearSE::isMatching( const RigFemResultAddress& resVarAddr ) const
 {
-    return ( ( resVarAddr.fieldName == "SE" ) && ( resVarAddr.componentName == "S12" || resVarAddr.componentName == "S13" ||
-                                                   resVarAddr.componentName == "S23" ) );
+    return ( ( resVarAddr.fieldName == "SE" ) &&
+             ( resVarAddr.componentName == "S12" || resVarAddr.componentName == "S13" || resVarAddr.componentName == "S23" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -65,11 +65,10 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorShearSE::calculate( int part
 
     RigFemScalarResultFrames* srcDataFrames = nullptr;
     {
-        auto task     = stepCountProgress.task( "S-Bar", m_resultCollection->timeStepCount() );
-        srcDataFrames = m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                                    RigFemResultAddress( resAddr.resultPosType,
-                                                                                         "S-Bar",
-                                                                                         resAddr.componentName ) );
+        auto task = stepCountProgress.task( "S-Bar", m_resultCollection->timeStepCount() );
+        srcDataFrames =
+            m_resultCollection->findOrLoadScalarResult( partIndex,
+                                                        RigFemResultAddress( resAddr.resultPosType, "S-Bar", resAddr.componentName ) );
     }
 
     const RigFemPart* femPart = m_resultCollection->parts()->part( partIndex );

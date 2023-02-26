@@ -69,12 +69,11 @@ public:
     std::pair<double, double> xDataRange() const override;
     std::pair<double, double> yDataRange() const override;
 
-    void setSamplesFromXYErrorValues(
-        const std::vector<double>&   xValues,
-        const std::vector<double>&   yValues,
-        const std::vector<double>&   errorValues,
-        bool                         useLogarithmicScale,
-        RiaCurveDataTools::ErrorAxis errorAxis = RiaCurveDataTools::ErrorAxis::ERROR_ALONG_Y_AXIS ) override;
+    void setSamplesFromXYErrorValues( const std::vector<double>&   xValues,
+                                      const std::vector<double>&   yValues,
+                                      const std::vector<double>&   errorValues,
+                                      bool                         useLogarithmicScale,
+                                      RiaCurveDataTools::ErrorAxis errorAxis = RiaCurveDataTools::ErrorAxis::ERROR_ALONG_Y_AXIS ) override;
 
     void setXAxis( RiuPlotAxis axis ) override;
     void setYAxis( RiuPlotAxis axis ) override;
@@ -85,13 +84,7 @@ public:
     void setCurveFittingTolerance( double tolerance ) override;
 
 protected:
-    void drawCurve( QPainter*          p,
-                    int                style,
-                    const QwtScaleMap& xMap,
-                    const QwtScaleMap& yMap,
-                    const QRectF&      canvasRect,
-                    int                from,
-                    int                to ) const override;
+    void drawCurve( QPainter* p, int style, const QwtScaleMap& xMap, const QwtScaleMap& yMap, const QRectF& canvasRect, int from, int to ) const override;
 
     void drawSymbols( QPainter*          p,
                       const QwtSymbol&   symbol,

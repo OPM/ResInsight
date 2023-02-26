@@ -118,9 +118,7 @@ void RimElasticProperties::clearProperties()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimElasticProperties::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                             const QVariant&            oldValue,
-                                             const QVariant&            newValue )
+void RimElasticProperties::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_showScaledProperties )
     {
@@ -141,9 +139,7 @@ void RimElasticProperties::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimElasticProperties::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                  QString                    uiConfigName,
-                                                  caf::PdmUiEditorAttribute* attribute )
+void RimElasticProperties::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_propertiesTable )
     {
@@ -281,9 +277,7 @@ bool RimElasticProperties::isScalableProperty( RiaDefines::CurveProperty propert
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimElasticProperties::getPropertyScaling( const QString&            formationName,
-                                                 const QString&            faciesName,
-                                                 RiaDefines::CurveProperty property ) const
+double RimElasticProperties::getPropertyScaling( const QString& formationName, const QString& faciesName, RiaDefines::CurveProperty property ) const
 {
     if ( m_scalings )
     {

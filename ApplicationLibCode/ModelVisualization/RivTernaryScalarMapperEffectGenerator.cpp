@@ -48,7 +48,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RivTernaryScalarMapperEffectGenerator::RivTernaryScalarMapperEffectGenerator( const RivTernaryScalarMapper* scalarMapper,
-                                                                              caf::PolygonOffset polygonOffset )
+                                                                              caf::PolygonOffset            polygonOffset )
     : m_undefinedColor( RiaColorTables::undefinedCellColor() )
 {
     m_scalarMapper     = scalarMapper;
@@ -123,8 +123,7 @@ void RivTernaryScalarMapperEffectGenerator::updateForShaderBasedRendering( cvf::
     cvf::ref<cvf::ShaderProgram> prog = gen.generate();
     eff->setShaderProgram( prog.p() );
 
-    if ( !m_disableLighting )
-        prog->setDefaultUniform( new cvf::UniformFloat( "u_ecLightPosition", cvf::Vec3f( 0.5, 5.0, 7.0 ) ) );
+    if ( !m_disableLighting ) prog->setDefaultUniform( new cvf::UniformFloat( "u_ecLightPosition", cvf::Vec3f( 0.5, 5.0, 7.0 ) ) );
 
     // Result mapping texture
 
@@ -188,8 +187,7 @@ void RivTernaryScalarMapperEffectGenerator::updateCommonEffect( cvf::Effect* eff
 
     if ( m_polygonOffset != caf::PO_NONE )
     {
-        cvf::ref<cvf::RenderStatePolygonOffset> polyOffset =
-            EffectGenerator::createAndConfigurePolygonOffsetRenderState( m_polygonOffset );
+        cvf::ref<cvf::RenderStatePolygonOffset> polyOffset = EffectGenerator::createAndConfigurePolygonOffsetRenderState( m_polygonOffset );
         effect->setRenderState( polyOffset.p() );
     }
 
@@ -234,17 +232,13 @@ void RivTernaryScalarMapperEffectGenerator::updateCommonEffect( cvf::Effect* eff
 //--------------------------------------------------------------------------------------------------
 bool RivTernaryScalarMapperEffectGenerator::isEqual( const EffectGenerator* other ) const
 {
-    const RivTernaryScalarMapperEffectGenerator* otherTextureResultEffect =
-        dynamic_cast<const RivTernaryScalarMapperEffectGenerator*>( other );
+    const RivTernaryScalarMapperEffectGenerator* otherTextureResultEffect = dynamic_cast<const RivTernaryScalarMapperEffectGenerator*>( other );
 
     if ( otherTextureResultEffect )
     {
-        if ( m_scalarMapper.p() == otherTextureResultEffect->m_scalarMapper &&
-             m_polygonOffset == otherTextureResultEffect->m_polygonOffset &&
-             m_opacityLevel == otherTextureResultEffect->m_opacityLevel &&
-             m_undefinedColor == otherTextureResultEffect->m_undefinedColor &&
-             m_faceCulling == otherTextureResultEffect->m_faceCulling &&
-             m_enableDepthWrite == otherTextureResultEffect->m_enableDepthWrite &&
+        if ( m_scalarMapper.p() == otherTextureResultEffect->m_scalarMapper && m_polygonOffset == otherTextureResultEffect->m_polygonOffset &&
+             m_opacityLevel == otherTextureResultEffect->m_opacityLevel && m_undefinedColor == otherTextureResultEffect->m_undefinedColor &&
+             m_faceCulling == otherTextureResultEffect->m_faceCulling && m_enableDepthWrite == otherTextureResultEffect->m_enableDepthWrite &&
              m_disableLighting == otherTextureResultEffect->m_disableLighting )
         {
             cvf::ref<cvf::TextureImage> texImg2 = new cvf::TextureImage;
@@ -262,14 +256,13 @@ bool RivTernaryScalarMapperEffectGenerator::isEqual( const EffectGenerator* othe
 //--------------------------------------------------------------------------------------------------
 caf::EffectGenerator* RivTernaryScalarMapperEffectGenerator::copy() const
 {
-    RivTernaryScalarMapperEffectGenerator* scEffGen =
-        new RivTernaryScalarMapperEffectGenerator( m_scalarMapper.p(), m_polygonOffset );
-    scEffGen->m_textureImage     = m_textureImage;
-    scEffGen->m_opacityLevel     = m_opacityLevel;
-    scEffGen->m_undefinedColor   = m_undefinedColor;
-    scEffGen->m_faceCulling      = m_faceCulling;
-    scEffGen->m_enableDepthWrite = m_enableDepthWrite;
-    scEffGen->m_disableLighting  = m_disableLighting;
+    RivTernaryScalarMapperEffectGenerator* scEffGen = new RivTernaryScalarMapperEffectGenerator( m_scalarMapper.p(), m_polygonOffset );
+    scEffGen->m_textureImage                        = m_textureImage;
+    scEffGen->m_opacityLevel                        = m_opacityLevel;
+    scEffGen->m_undefinedColor                      = m_undefinedColor;
+    scEffGen->m_faceCulling                         = m_faceCulling;
+    scEffGen->m_enableDepthWrite                    = m_enableDepthWrite;
+    scEffGen->m_disableLighting                     = m_disableLighting;
 
     return scEffGen;
 }
@@ -279,20 +272,15 @@ caf::EffectGenerator* RivTernaryScalarMapperEffectGenerator::copy() const
 /// but to make the comparison fast only some sampling points are used. If both pointers are nullptr,
 /// they are considered equal.
 //--------------------------------------------------------------------------------------------------
-bool RivTernaryScalarMapperEffectGenerator::isImagesEqual( const cvf::TextureImage* texImg1,
-                                                           const cvf::TextureImage* texImg2 )
+bool RivTernaryScalarMapperEffectGenerator::isImagesEqual( const cvf::TextureImage* texImg1, const cvf::TextureImage* texImg2 )
 {
     if ( texImg1 == nullptr && texImg2 == nullptr ) return true;
 
-    if ( texImg1 != nullptr && texImg2 != nullptr && texImg1->height() == texImg2->height() &&
-         texImg1->width() == texImg2->width() && texImg1->width() > 0 && texImg1->height() > 0 &&
-         texImg1->pixel( 0, 0 ) == texImg2->pixel( 0, 0 ) &&
-         texImg1->pixel( texImg1->width() - 1, texImg1->height() - 1 ) ==
-             texImg2->pixel( texImg1->width() - 1, texImg1->height() - 1 ) &&
-         texImg1->pixel( texImg1->width() / 2, texImg1->height() / 2 ) ==
-             texImg2->pixel( texImg1->width() / 2, texImg1->height() / 2 ) &&
-         texImg1->pixel( texImg1->width() / 4, texImg1->height() / 4 ) ==
-             texImg2->pixel( texImg1->width() / 4, texImg1->height() / 4 ) &&
+    if ( texImg1 != nullptr && texImg2 != nullptr && texImg1->height() == texImg2->height() && texImg1->width() == texImg2->width() &&
+         texImg1->width() > 0 && texImg1->height() > 0 && texImg1->pixel( 0, 0 ) == texImg2->pixel( 0, 0 ) &&
+         texImg1->pixel( texImg1->width() - 1, texImg1->height() - 1 ) == texImg2->pixel( texImg1->width() - 1, texImg1->height() - 1 ) &&
+         texImg1->pixel( texImg1->width() / 2, texImg1->height() / 2 ) == texImg2->pixel( texImg1->width() / 2, texImg1->height() / 2 ) &&
+         texImg1->pixel( texImg1->width() / 4, texImg1->height() / 4 ) == texImg2->pixel( texImg1->width() / 4, texImg1->height() / 4 ) &&
          texImg1->pixel( texImg1->width() / 2 + texImg1->width() / 4, texImg1->height() / 2 + texImg1->height() / 4 ) ==
              texImg2->pixel( texImg1->width() / 2 + texImg1->width() / 4, texImg1->height() / 2 + texImg1->height() / 4 ) )
     {

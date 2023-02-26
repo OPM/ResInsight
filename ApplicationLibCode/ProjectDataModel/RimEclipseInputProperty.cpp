@@ -78,9 +78,7 @@ RimEclipseInputProperty::~RimEclipseInputProperty()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseInputProperty::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                const QVariant&            oldValue,
-                                                const QVariant&            newValue )
+void RimEclipseInputProperty::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &resultName )
     {
@@ -93,8 +91,7 @@ void RimEclipseInputProperty::fieldChangedByUi( const caf::PdmFieldHandle* chang
             QString oldName = oldValue.toString();
             QString newName = newValue.toString();
 
-            RigCaseCellResultsData* matrixResults =
-                rimCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+            RigCaseCellResultsData* matrixResults = rimCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
             if ( matrixResults )
             {
                 if ( matrixResults->updateResultName( RiaDefines::ResultCatType::INPUT_PROPERTY, oldName, newName ) )
@@ -103,8 +100,7 @@ void RimEclipseInputProperty::fieldChangedByUi( const caf::PdmFieldHandle* chang
                 }
             }
 
-            RigCaseCellResultsData* fracResults =
-                rimCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::FRACTURE_MODEL );
+            RigCaseCellResultsData* fracResults = rimCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::FRACTURE_MODEL );
             if ( fracResults )
             {
                 if ( fracResults->updateResultName( RiaDefines::ResultCatType::INPUT_PROPERTY, oldName, newName ) )

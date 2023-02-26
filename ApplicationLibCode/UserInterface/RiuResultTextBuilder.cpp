@@ -245,17 +245,14 @@ QString RiuResultTextBuilder::geometrySelectionText( const QString& itemSeparato
                 QString formattedText;
                 if ( m_2dIntersectionView )
                 {
-                    formattedText =
-                        QString( "Horizontal length from well start: %1" ).arg( m_intersectionPointInDisplay.x(), 5, 'f', 2 );
+                    formattedText = QString( "Horizontal length from well start: %1" ).arg( m_intersectionPointInDisplay.x(), 5, 'f', 2 );
                     text += formattedText + itemSeparator;
 
-                    cvf::Mat4d t = m_2dIntersectionView->flatIntersectionPartMgr()->unflattenTransformMatrix(
-                        m_intersectionPointInDisplay );
+                    cvf::Mat4d t = m_2dIntersectionView->flatIntersectionPartMgr()->unflattenTransformMatrix( m_intersectionPointInDisplay );
                     if ( !t.isZero() )
                     {
                         cvf::Vec3d intPt = m_intersectionPointInDisplay.getTransformedPoint( t );
-                        formattedText =
-                            createTextFromDomainCoordinate( "Intersection point : [E: %1, N: %2, Depth: %3]", intPt );
+                        formattedText    = createTextFromDomainCoordinate( "Intersection point : [E: %1, N: %2, Depth: %3]", intPt );
                         text += formattedText;
                     }
                 }
@@ -264,10 +261,9 @@ QString RiuResultTextBuilder::geometrySelectionText( const QString& itemSeparato
                     if ( m_displayCoordView )
                     {
                         cvf::ref<caf::DisplayCoordTransform> transForm = m_displayCoordView->displayCoordTransform();
-                        cvf::Vec3d domainCoord = transForm->translateToDomainCoord( m_intersectionPointInDisplay );
+                        cvf::Vec3d domainCoord                         = transForm->translateToDomainCoord( m_intersectionPointInDisplay );
 
-                        formattedText =
-                            createTextFromDomainCoordinate( "Intersection point : [E: %1, N: %2, Depth: %3]", domainCoord );
+                        formattedText = createTextFromDomainCoordinate( "Intersection point : [E: %1, N: %2, Depth: %3]", domainCoord );
                         text += formattedText;
                     }
                 }
@@ -330,8 +326,7 @@ QString RiuResultTextBuilder::coordinatesText( const RigGridBase* grid, size_t g
             const auto& [nodeIndex, nodeText] = riNodeOrder[i];
             auto v                            = mainGrid->nodes()[indices[nodeIndex]];
 
-            text += createTextFromDomainCoordinate( QString::fromStdString( nodeText ) + " : [%1, %2, %3]" + itemSeparator,
-                                                    v );
+            text += createTextFromDomainCoordinate( QString::fromStdString( nodeText ) + " : [%1, %2, %3]" + itemSeparator, v );
         }
     }
 
@@ -421,8 +416,7 @@ QString RiuResultTextBuilder::faultResultDetails()
 
             if ( m_eclipseView && m_eclipseView->faultResultSettings()->hasValidCustomResult() )
             {
-                if ( m_eclipseView->faultResultSettings()->customFaultResult()->resultType() !=
-                     RiaDefines::ResultCatType::ALLAN_DIAGRAMS )
+                if ( m_eclipseView->faultResultSettings()->customFaultResult()->resultType() != RiaDefines::ResultCatType::ALLAN_DIAGRAMS )
                 {
                     text += "Fault result data:\n";
                     this->appendTextFromResultColors( eclipseCaseData,
@@ -550,9 +544,8 @@ QString RiuResultTextBuilder::nncResultText()
 
                 if ( m_eclipseView && m_eclipseView->currentFaultResultColors() )
                 {
-                    RigEclipseResultAddress eclipseResultAddress =
-                        m_eclipseView->currentFaultResultColors()->eclipseResultAddress();
-                    RiaDefines::ResultCatType resultType = m_eclipseView->currentFaultResultColors()->resultType();
+                    RigEclipseResultAddress   eclipseResultAddress = m_eclipseView->currentFaultResultColors()->eclipseResultAddress();
+                    RiaDefines::ResultCatType resultType           = m_eclipseView->currentFaultResultColors()->resultType();
 
                     const std::vector<double>* nncValues = nullptr;
 
@@ -565,7 +558,7 @@ QString RiuResultTextBuilder::nncResultText()
                         if ( m_eclResDef.notNull() && m_eclResDef->eclipseCase() )
                         {
                             size_t nativeTimeStep = m_eclResDef->eclipseCase()->uiToNativeTimeStepIndex( m_timeStepIndex );
-                            nncValues = nncData->dynamicConnectionScalarResult( eclipseResultAddress, nativeTimeStep );
+                            nncValues             = nncData->dynamicConnectionScalarResult( eclipseResultAddress, nativeTimeStep );
                         }
                     }
 
@@ -582,12 +575,10 @@ QString RiuResultTextBuilder::nncResultText()
                         nncValues = nncData->staticConnectionScalarResult( eclipseResultAddress );
                         QString resultValueText;
 
-                        if ( m_eclipseView->currentFaultResultColors()->resultVariable() ==
-                             RiaResultNames::formationAllanResultName() )
+                        if ( m_eclipseView->currentFaultResultColors()->resultVariable() == RiaResultNames::formationAllanResultName() )
                         {
                             std::pair<int, int> fmIndexPair =
-                                eclipseCase->allanDiagramData()->formationIndexCombinationFromCategory(
-                                    ( *nncValues )[m_nncIndex] );
+                                eclipseCase->allanDiagramData()->formationIndexCombinationFromCategory( ( *nncValues )[m_nncIndex] );
 
                             std::vector<QString> fmNames = eclipseCase->formationNames();
                             // clang-format off
@@ -695,8 +686,7 @@ void RiuResultTextBuilder::appendTextFromResultColors( RigEclipseCaseData*      
     {
         if ( resultColors->hasStaticResult() )
         {
-            if ( resultColors->resultVariable().compare( RiaResultNames::combinedTransmissibilityResultName(),
-                                                         Qt::CaseInsensitive ) == 0 )
+            if ( resultColors->resultVariable().compare( RiaResultNames::combinedTransmissibilityResultName(), Qt::CaseInsensitive ) == 0 )
             {
                 cvf::ref<RigResultAccessor> transResultAccessor =
                     RigResultAccessorFactory::createFromResultAddress( eclipseCase,
@@ -718,16 +708,14 @@ void RiuResultTextBuilder::appendTextFromResultColors( RigEclipseCaseData*      
 
                 return;
             }
-            else if ( resultColors->resultVariable().compare( RiaResultNames::combinedMultResultName(),
-                                                              Qt::CaseInsensitive ) == 0 )
+            else if ( resultColors->resultVariable().compare( RiaResultNames::combinedMultResultName(), Qt::CaseInsensitive ) == 0 )
             {
                 cvf::ref<RigResultAccessor> multResultAccessor =
                     RigResultAccessorFactory::createFromResultAddress( eclipseCase,
                                                                        gridIndex,
                                                                        porosityModel,
                                                                        0,
-                                                                       RigEclipseResultAddress(
-                                                                           RiaResultNames::combinedMultResultName() ) );
+                                                                       RigEclipseResultAddress( RiaResultNames::combinedMultResultName() ) );
                 {
                     double scalarValue = multResultAccessor->cellFaceScalar( cellIndex, cvf::StructGridInterface::POS_I );
                     resultInfoText->append( QString( "MULTX : %1\n" ).arg( scalarValue ) );
@@ -747,16 +735,14 @@ void RiuResultTextBuilder::appendTextFromResultColors( RigEclipseCaseData*      
 
                 return;
             }
-            else if ( resultColors->resultVariable().compare( RiaResultNames::combinedRiTranResultName(),
-                                                              Qt::CaseInsensitive ) == 0 )
+            else if ( resultColors->resultVariable().compare( RiaResultNames::combinedRiTranResultName(), Qt::CaseInsensitive ) == 0 )
             {
                 cvf::ref<RigResultAccessor> transResultAccessor =
                     RigResultAccessorFactory::createFromResultAddress( eclipseCase,
                                                                        gridIndex,
                                                                        porosityModel,
                                                                        0,
-                                                                       RigEclipseResultAddress(
-                                                                           RiaResultNames::combinedRiTranResultName() ) );
+                                                                       RigEclipseResultAddress( RiaResultNames::combinedRiTranResultName() ) );
                 {
                     double scalarValue = transResultAccessor->cellFaceScalar( cellIndex, cvf::StructGridInterface::POS_I );
                     resultInfoText->append( QString( "riTran X : %1\n" ).arg( scalarValue ) );
@@ -770,16 +756,14 @@ void RiuResultTextBuilder::appendTextFromResultColors( RigEclipseCaseData*      
 
                 return;
             }
-            else if ( resultColors->resultVariable().compare( RiaResultNames::combinedRiMultResultName(),
-                                                              Qt::CaseInsensitive ) == 0 )
+            else if ( resultColors->resultVariable().compare( RiaResultNames::combinedRiMultResultName(), Qt::CaseInsensitive ) == 0 )
             {
                 cvf::ref<RigResultAccessor> resultAccessor =
                     RigResultAccessorFactory::createFromResultAddress( eclipseCase,
                                                                        gridIndex,
                                                                        porosityModel,
                                                                        0,
-                                                                       RigEclipseResultAddress(
-                                                                           RiaResultNames::combinedRiMultResultName() ) );
+                                                                       RigEclipseResultAddress( RiaResultNames::combinedRiMultResultName() ) );
                 {
                     double scalarValue = resultAccessor->cellFaceScalar( cellIndex, cvf::StructGridInterface::POS_I );
                     resultInfoText->append( QString( "riMult X : %1\n" ).arg( scalarValue ) );
@@ -792,8 +776,7 @@ void RiuResultTextBuilder::appendTextFromResultColors( RigEclipseCaseData*      
                 }
                 return;
             }
-            else if ( resultColors->resultVariable().compare( RiaResultNames::combinedRiAreaNormTranResultName(),
-                                                              Qt::CaseInsensitive ) == 0 )
+            else if ( resultColors->resultVariable().compare( RiaResultNames::combinedRiAreaNormTranResultName(), Qt::CaseInsensitive ) == 0 )
             {
                 cvf::ref<RigResultAccessor> resultAccessor =
                     RigResultAccessorFactory::createFromResultAddress( eclipseCase,
@@ -953,12 +936,8 @@ QString RiuResultTextBuilder::nncDetails()
                             k++;
 
                             QString gridName = QString::fromStdString( hostGrid->gridName() );
-                            text.append( QString( "NNC 1 : cell [%1, %2, %3] face %4 (%5)\n" )
-                                             .arg( i )
-                                             .arg( j )
-                                             .arg( k )
-                                             .arg( face.text() )
-                                             .arg( gridName ) );
+                            text.append(
+                                QString( "NNC 1 : cell [%1, %2, %3] face %4 (%5)\n" ).arg( i ).arg( j ).arg( k ).arg( face.text() ).arg( gridName ) );
                         }
                     }
 
@@ -978,17 +957,12 @@ QString RiuResultTextBuilder::nncDetails()
                             j++;
                             k++;
 
-                            QString gridName = QString::fromStdString( hostGrid->gridName() );
-                            cvf::StructGridInterface::FaceEnum oppositeFaceEnum(
-                                cvf::StructGridInterface::oppositeFace( face ) );
-                            QString faceText = oppositeFaceEnum.text();
+                            QString                            gridName = QString::fromStdString( hostGrid->gridName() );
+                            cvf::StructGridInterface::FaceEnum oppositeFaceEnum( cvf::StructGridInterface::oppositeFace( face ) );
+                            QString                            faceText = oppositeFaceEnum.text();
 
-                            text.append( QString( "NNC 2 : cell [%1, %2, %3] face %4 (%5)\n" )
-                                             .arg( i )
-                                             .arg( j )
-                                             .arg( k )
-                                             .arg( faceText )
-                                             .arg( gridName ) );
+                            text.append(
+                                QString( "NNC 2 : cell [%1, %2, %3] face %4 (%5)\n" ).arg( i ).arg( j ).arg( k ).arg( faceText ).arg( gridName ) );
                         }
                     }
                 }
@@ -1014,8 +988,7 @@ void RiuResultTextBuilder::appendDetails( QString& text, const QString& details 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuResultTextBuilder::cellResultText( const std::vector<RimEclipseResultDefinition*>& resultDefinitions,
-                                              bool                                            appendCaseName )
+QString RiuResultTextBuilder::cellResultText( const std::vector<RimEclipseResultDefinition*>& resultDefinitions, bool appendCaseName )
 {
     std::map<QString, QString> keyValues;
 
@@ -1192,8 +1165,7 @@ QString RiuResultTextBuilder::wellResultText()
             }
 
             const RigWellResultFrame* wellResultFrame = singleWellResultData->wellResultFrame( m_timeStepIndex );
-            const RigWellResultPoint* wellResultCell =
-                wellResultFrame->findResultCellWellHeadIncluded( m_gridIndex, m_cellIndex );
+            const RigWellResultPoint* wellResultCell  = wellResultFrame->findResultCellWellHeadIncluded( m_gridIndex, m_cellIndex );
             if ( wellResultCell )
             {
                 text += QString( "-- Well-cell connection info --\n Well Name: %1\n Branch Id: %2\n Segment "

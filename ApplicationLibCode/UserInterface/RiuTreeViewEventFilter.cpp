@@ -118,13 +118,11 @@ bool RiuTreeViewEventFilter::eventFilter( QObject* obj, QEvent* event )
             std::vector<caf::CmdFeature*> matches;
             if ( keyEvent->matches( QKeySequence::Copy ) )
             {
-                matches.push_back(
-                    caf::CmdFeatureManager::instance()->getCommandFeature( "RicCopyReferencesToClipboardFeature" ) );
+                matches.push_back( caf::CmdFeatureManager::instance()->getCommandFeature( "RicCopyReferencesToClipboardFeature" ) );
             }
             else if ( keyEvent->matches( QKeySequence::Cut ) )
             {
-                matches.push_back(
-                    caf::CmdFeatureManager::instance()->getCommandFeature( "RicCutReferencesToClipboardFeature" ) );
+                matches.push_back( caf::CmdFeatureManager::instance()->getCommandFeature( "RicCutReferencesToClipboardFeature" ) );
             }
             else if ( keyEvent->matches( QKeySequence::Paste ) )
             {
@@ -135,8 +133,7 @@ bool RiuTreeViewEventFilter::eventFilter( QObject* obj, QEvent* event )
             }
             else if ( keyEvent->matches( QKeySequence::Delete ) )
             {
-                matches =
-                    caf::CmdFeatureManager::instance()->commandFeaturesMatchingKeyboardShortcut( QKeySequence::Delete );
+                matches = caf::CmdFeatureManager::instance()->commandFeaturesMatchingKeyboardShortcut( QKeySequence::Delete );
             }
             else
             {

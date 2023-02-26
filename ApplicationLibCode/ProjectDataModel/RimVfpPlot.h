@@ -84,8 +84,7 @@ private:
                                                          const Opm::VFPProdTable&              table,
                                                          RimVfpDefines::ProductionVariableType primaryVariable,
                                                          RimVfpDefines::ProductionVariableType familyVariable );
-    std::vector<double> getProductionTableData( const Opm::VFPProdTable&              table,
-                                                RimVfpDefines::ProductionVariableType variableType ) const;
+    std::vector<double> getProductionTableData( const Opm::VFPProdTable& table, RimVfpDefines::ProductionVariableType variableType ) const;
     size_t              getVariableIndex( const Opm::VFPProdTable&              table,
                                           RimVfpDefines::ProductionVariableType targetVariable,
                                           RimVfpDefines::ProductionVariableType primaryVariable,
@@ -98,8 +97,7 @@ private:
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
-    void calculateTableValueOptions( RimVfpDefines::ProductionVariableType variableType,
-                                     QList<caf::PdmOptionItemInfo>&        options );
+    void calculateTableValueOptions( RimVfpDefines::ProductionVariableType variableType, QList<caf::PdmOptionItemInfo>& options );
 
     void setFixedVariableUiEditability( caf::PdmField<int>& field, RimVfpDefines::ProductionVariableType variableType );
 
@@ -112,7 +110,7 @@ private:
                                       RimVfpDefines::ProductionVariableType   familyVariable );
 
     static double convertToDisplayUnit( double value, RimVfpDefines::ProductionVariableType variableType );
-    static void convertToDisplayUnit( std::vector<double>& values, RimVfpDefines::ProductionVariableType variableType );
+    static void   convertToDisplayUnit( std::vector<double>& values, RimVfpDefines::ProductionVariableType variableType );
 
     static QString getDisplayUnit( RimVfpDefines::ProductionVariableType variableType );
 

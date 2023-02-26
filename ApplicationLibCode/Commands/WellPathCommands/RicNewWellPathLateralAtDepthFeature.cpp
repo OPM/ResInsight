@@ -84,8 +84,7 @@ void RicNewWellPathLateralAtDepthFeature::setupActionLook( QAction* actionToSetu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimModeledWellPath* RicNewWellPathLateralAtDepthFeature::createLateralAtMeasuredDepth( RimWellPath* parentWellPath,
-                                                                                       double       parentWellMD )
+RimModeledWellPath* RicNewWellPathLateralAtDepthFeature::createLateralAtMeasuredDepth( RimWellPath* parentWellPath, double parentWellMD )
 {
     RimProject*            project      = RimProject::current();
     RimWellPathCollection* wellPathColl = RimTools::wellPathCollection();
@@ -97,8 +96,8 @@ RimModeledWellPath* RicNewWellPathLateralAtDepthFeature::createLateralAtMeasured
         if ( parentWellPath->wellPathGeometry() && parentWellPath->wellPathGeometry()->measuredDepths().size() > 2 )
         {
             auto [pointVector, measuredDepths] =
-                parentWellPath->wellPathGeometry()
-                    ->clippedPointSubset( parentWellPath->wellPathGeometry()->measuredDepths().front(), parentWellMD );
+                parentWellPath->wellPathGeometry()->clippedPointSubset( parentWellPath->wellPathGeometry()->measuredDepths().front(),
+                                                                        parentWellMD );
 
             newModeledWellPath->geometryDefinition()->setMdAtFirstTarget( measuredDepths.back() );
             newModeledWellPath->geometryDefinition()->setFixedWellPathPoints( pointVector );

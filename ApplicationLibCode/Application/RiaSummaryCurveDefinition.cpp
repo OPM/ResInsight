@@ -50,8 +50,7 @@ RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( RimSummaryCase*           
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( RimSummaryCaseCollection*       ensemble,
-                                                      const RifEclipseSummaryAddress& summaryAddress )
+RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& summaryAddress )
     : m_summaryCase( nullptr )
     , m_summaryAddress( summaryAddress )
     , m_ensemble( ensemble )
@@ -102,8 +101,7 @@ void RiaSummaryCurveDefinition::setSummaryAddress( const RifEclipseSummaryAddres
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSummaryCurveDefinition::resultValues( const RiaSummaryCurveDefinition&    curveDefinition,
-                                              gsl::not_null<std::vector<double>*> values )
+void RiaSummaryCurveDefinition::resultValues( const RiaSummaryCurveDefinition& curveDefinition, gsl::not_null<std::vector<double>*> values )
 {
     if ( !curveDefinition.summaryAddress().isValid() ) return;
     if ( !curveDefinition.summaryCase() ) return;
@@ -145,8 +143,7 @@ QString RiaSummaryCurveDefinition::curveDefinitionText() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaSummaryCurveDefinition::curveDefinitionText( const QString&                  caseName,
-                                                        const RifEclipseSummaryAddress& summaryAddress )
+QString RiaSummaryCurveDefinition::curveDefinitionText( const QString& caseName, const RifEclipseSummaryAddress& summaryAddress )
 {
     QString txt;
 

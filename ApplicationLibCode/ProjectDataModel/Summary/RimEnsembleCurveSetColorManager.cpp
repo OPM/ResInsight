@@ -40,9 +40,7 @@ void AppEnum<RimEnsembleCurveSetColorManager::ColorMode>::setUp()
 {
     addItem( RimEnsembleCurveSetColorManager::ColorMode::SINGLE_COLOR, "SINGLE_COLOR", "Single Color" );
     addItem( RimEnsembleCurveSetColorManager::ColorMode::BY_ENSEMBLE_PARAM, "BY_ENSEMBLE_PARAM", "By Ensemble Parameter" );
-    addItem( RimEnsembleCurveSetColorManager::ColorMode::BY_OBJECTIVE_FUNCTION,
-             "BY_OBJECTIVE_FUNCTION",
-             "By Objective Function" );
+    addItem( RimEnsembleCurveSetColorManager::ColorMode::BY_OBJECTIVE_FUNCTION, "BY_OBJECTIVE_FUNCTION", "By Objective Function" );
     addItem( RimEnsembleCurveSetColorManager::ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION,
              "BY_CUSTOM_OBJECTIVE_FUNCTION",
              "By Custom Objective Function" );
@@ -53,24 +51,22 @@ void AppEnum<RimEnsembleCurveSetColorManager::ColorMode>::setUp()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::map<RimRegularLegendConfig::ColorRangesType, cvf::Color3ubArray>
-    RimEnsembleCurveSetColorManager::m_ensembleColorRanges(
-        { { RimRegularLegendConfig::ColorRangesType::GREEN_RED,
-            cvf::Color3ubArray( { cvf::Color3ub( 0x00, 0xff, 0x00 ), cvf::Color3ub( 0xff, 0x00, 0x00 ) } ) },
-          { RimRegularLegendConfig::ColorRangesType::BLUE_MAGENTA,
-            cvf::Color3ubArray( { cvf::Color3ub( 0x00, 0x00, 0xff ), cvf::Color3ub( 0xff, 0x00, 0xff ) } ) },
-          { RimRegularLegendConfig::ColorRangesType::RED_LIGHT_DARK,
-            cvf::Color3ubArray( { cvf::Color3ub( 0xff, 0xcc, 0xcc ), cvf::Color3ub( 0x99, 0x00, 0x00 ) } ) },
-          { RimRegularLegendConfig::ColorRangesType::GREEN_LIGHT_DARK,
-            cvf::Color3ubArray( { cvf::Color3ub( 0xcc, 0xff, 0xcc ), cvf::Color3ub( 0x00, 0x99, 0x00 ) } ) },
-          { RimRegularLegendConfig::ColorRangesType::BLUE_LIGHT_DARK,
-            cvf::Color3ubArray( { cvf::Color3ub( 0xcc, 0xcc, 0xff ), cvf::Color3ub( 0x00, 0x00, 0x99 ) } ) } } );
+const std::map<RimRegularLegendConfig::ColorRangesType, cvf::Color3ubArray> RimEnsembleCurveSetColorManager::m_ensembleColorRanges(
+    { { RimRegularLegendConfig::ColorRangesType::GREEN_RED,
+        cvf::Color3ubArray( { cvf::Color3ub( 0x00, 0xff, 0x00 ), cvf::Color3ub( 0xff, 0x00, 0x00 ) } ) },
+      { RimRegularLegendConfig::ColorRangesType::BLUE_MAGENTA,
+        cvf::Color3ubArray( { cvf::Color3ub( 0x00, 0x00, 0xff ), cvf::Color3ub( 0xff, 0x00, 0xff ) } ) },
+      { RimRegularLegendConfig::ColorRangesType::RED_LIGHT_DARK,
+        cvf::Color3ubArray( { cvf::Color3ub( 0xff, 0xcc, 0xcc ), cvf::Color3ub( 0x99, 0x00, 0x00 ) } ) },
+      { RimRegularLegendConfig::ColorRangesType::GREEN_LIGHT_DARK,
+        cvf::Color3ubArray( { cvf::Color3ub( 0xcc, 0xff, 0xcc ), cvf::Color3ub( 0x00, 0x99, 0x00 ) } ) },
+      { RimRegularLegendConfig::ColorRangesType::BLUE_LIGHT_DARK,
+        cvf::Color3ubArray( { cvf::Color3ub( 0xcc, 0xcc, 0xff ), cvf::Color3ub( 0x00, 0x00, 0x99 ) } ) } } );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::map<RimRegularLegendConfig::ColorRangesType, cvf::Color3ubArray>&
-    RimEnsembleCurveSetColorManager::EnsembleColorRanges()
+const std::map<RimRegularLegendConfig::ColorRangesType, cvf::Color3ubArray>& RimEnsembleCurveSetColorManager::EnsembleColorRanges()
 {
     return m_ensembleColorRanges;
 }
@@ -98,8 +94,7 @@ RimRegularLegendConfig::ColorRangesType RimEnsembleCurveSetColorManager::cycledE
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSetColorManager::initializeLegendConfig( RimRegularLegendConfig*     legendConfig,
-                                                              const RigEnsembleParameter& ensembleParam )
+void RimEnsembleCurveSetColorManager::initializeLegendConfig( RimRegularLegendConfig* legendConfig, const RigEnsembleParameter& ensembleParam )
 {
     if ( ensembleParam.isText() )
     {
@@ -136,9 +131,9 @@ void RimEnsembleCurveSetColorManager::initializeLegendConfig( RimRegularLegendCo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSetColorManager::initializeLegendConfig( RimRegularLegendConfig*             legendConfig,
-                                                              RimObjectiveFunction*               objectiveFunction,
-                                                              const std::vector<RimSummaryCase*>& summaryCases,
+void RimEnsembleCurveSetColorManager::initializeLegendConfig( RimRegularLegendConfig*                      legendConfig,
+                                                              RimObjectiveFunction*                        objectiveFunction,
+                                                              const std::vector<RimSummaryCase*>&          summaryCases,
                                                               const std::vector<RifEclipseSummaryAddress>& vectorSummaryAddresses,
                                                               const ObjectiveFunctionTimeConfig&           timeConfig )
 {

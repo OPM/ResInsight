@@ -121,8 +121,8 @@ void RimWellPathTieIn::updateFirstTargetFromParentWell()
          parentWellPath->wellPathGeometry()->measuredDepths().size() > 2 )
     {
         auto [pointVector, measuredDepths] =
-            parentWellPath->wellPathGeometry()
-                ->clippedPointSubset( parentWellPath->wellPathGeometry()->measuredDepths().front(), m_tieInMeasuredDepth );
+            parentWellPath->wellPathGeometry()->clippedPointSubset( parentWellPath->wellPathGeometry()->measuredDepths().front(),
+                                                                    m_tieInMeasuredDepth );
         if ( pointVector.size() < 2u ) return;
 
         RimWellPathTarget* newTarget = nullptr;
@@ -143,8 +143,7 @@ void RimWellPathTieIn::updateFirstTargetFromParentWell()
         cvf::Vec3d referencePointXYZ = modeledWellPath->geometryDefinition()->anchorPointXyz();
         cvf::Vec3d relativePointXYZ  = lastPointXYZ - referencePointXYZ;
 
-        newTarget->setAsPointXYZAndTangentTarget( { relativePointXYZ[0], relativePointXYZ[1], relativePointXYZ[2] },
-                                                  tangent );
+        newTarget->setAsPointXYZAndTangentTarget( { relativePointXYZ[0], relativePointXYZ[1], relativePointXYZ[2] }, tangent );
     }
 }
 
@@ -186,9 +185,7 @@ void RimWellPathTieIn::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathTieIn::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                         const QVariant&            oldValue,
-                                         const QVariant&            newValue )
+void RimWellPathTieIn::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_parentWell )
     {
@@ -231,9 +228,7 @@ QList<caf::PdmOptionItemInfo> RimWellPathTieIn::calculateValueOptions( const caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathTieIn::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                              QString                    uiConfigName,
-                                              caf::PdmUiEditorAttribute* attribute )
+void RimWellPathTieIn::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_tieInMeasuredDepth )
     {

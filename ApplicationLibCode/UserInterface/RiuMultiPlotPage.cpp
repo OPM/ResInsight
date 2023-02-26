@@ -175,9 +175,8 @@ void RiuMultiPlotPage::insertPlot( RiuPlotWidget* plotWidget, size_t index )
 
     RiuQwtPlotWidget* qwtPlotWidget = dynamic_cast<RiuQwtPlotWidget*>( plotWidget );
 
-    RiuQwtPlotLegend*         legend = nullptr;
-    RiuDraggableOverlayFrame* legendFrame =
-        new RiuDraggableOverlayFrame( plotWidget->getParentForOverlay(), plotWidget->overlayMargins() );
+    RiuQwtPlotLegend*         legend      = nullptr;
+    RiuDraggableOverlayFrame* legendFrame = new RiuDraggableOverlayFrame( plotWidget->getParentForOverlay(), plotWidget->overlayMargins() );
 
     if ( m_plotDefinition->legendsVisible() && plotWidget->plotDefinition()->legendsVisible() )
     {
@@ -201,9 +200,7 @@ void RiuMultiPlotPage::insertPlot( RiuPlotWidget* plotWidget, size_t index )
             legend->connect( qwtPlotWidget->qwtPlot(),
                              SIGNAL( legendDataChanged( const QVariant&, const QList<QwtLegendData>& ) ),
                              SLOT( updateLegend( const QVariant&, const QList<QwtLegendData>& ) ) );
-            qwtPlotWidget->connect( legend,
-                                    SIGNAL( clicked( const QVariant&, int ) ),
-                                    SLOT( onLegendClicked( const QVariant&, int ) ) );
+            qwtPlotWidget->connect( legend, SIGNAL( clicked( const QVariant&, int ) ), SLOT( onLegendClicked( const QVariant&, int ) ) );
         }
         else
         {
@@ -766,9 +763,7 @@ void RiuMultiPlotPage::addLegendWidget( RiuPlotWidget*            plotWidget,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotPage::updateLegendVisibility( RiuPlotWidget*            plotWidget,
-                                               RiuQwtPlotLegend*         legend,
-                                               RiuDraggableOverlayFrame* legendFrame )
+void RiuMultiPlotPage::updateLegendVisibility( RiuPlotWidget* plotWidget, RiuQwtPlotLegend* legend, RiuDraggableOverlayFrame* legendFrame )
 {
     if ( !legend ) return;
 
@@ -913,8 +908,7 @@ int RiuMultiPlotPage::alignCanvasTops()
             if ( plotWidgets[visibleIndex]->axisEnabled( RiuPlotAxis::defaultTop() ) )
             {
                 QFont font      = qwtPlotWidget->qwtPlot()->axisFont( QwtAxis::XTop );
-                maxExtents[row] = std::max( maxExtents[row],
-                                            qwtPlotWidget->qwtPlot()->axisScaleDraw( QwtAxis::XTop )->extent( font ) );
+                maxExtents[row] = std::max( maxExtents[row], qwtPlotWidget->qwtPlot()->axisScaleDraw( QwtAxis::XTop )->extent( font ) );
             }
         }
     }
@@ -1061,8 +1055,7 @@ QList<QPointer<QLabel>> RiuMultiPlotPage::subTitlesForVisiblePlots() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<int, int>
-    RiuMultiPlotPage::findAvailableRowAndColumn( int startRow, int startColumn, int columnSpan, int columnCount ) const
+std::pair<int, int> RiuMultiPlotPage::findAvailableRowAndColumn( int startRow, int startColumn, int columnSpan, int columnCount ) const
 {
     int availableRow    = startRow;
     int availableColumn = startColumn;

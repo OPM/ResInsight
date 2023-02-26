@@ -96,8 +96,7 @@ void RivTensorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicL
 
     for ( int partIdx = 0; partIdx < femParts->partCount(); partIdx++ )
     {
-        std::vector<caf::Ten3f> vertexTensors =
-            resultCollection->tensors( address, partIdx, localTimeStepIndex, frameIndex );
+        std::vector<caf::Ten3f> vertexTensors = resultCollection->tensors( address, partIdx, localTimeStepIndex, frameIndex );
         if ( vertexTensors.empty() ) continue;
 
         const RigFemPart* part = femParts->part( partIdx );
@@ -111,13 +110,11 @@ void RivTensorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicL
 
         calculatePrincipalsAndDirections( elmTensors, &elmPrincipals, &elmPrincipalDirections );
 
-        std::vector<RivGeoMechPartMgrCache::Key> partKeys =
-            m_rimReservoirView->vizLogic()->keysToVisiblePartMgrs( viewerStepIndex );
+        std::vector<RivGeoMechPartMgrCache::Key> partKeys = m_rimReservoirView->vizLogic()->keysToVisiblePartMgrs( viewerStepIndex );
 
         RigFemPartNodes nodes = part->nodes();
 
-        float arrowConstantScaling =
-            0.5 * m_rimReservoirView->tensorResults()->sizeScale() * part->characteristicElementSize();
+        float arrowConstantScaling = 0.5 * m_rimReservoirView->tensorResults()->sizeScale() * part->characteristicElementSize();
 
         double min, max;
         m_rimReservoirView->tensorResults()->mappingRange( &min, &max );
@@ -138,18 +135,16 @@ void RivTensorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicL
 
             auto mgr = partMgr->femPartMgrs()[partIdx];
             {
-                const RivFemPartGeometryGenerator* surfaceGenerator     = mgr->surfaceGenerator();
-                const std::vector<size_t>& quadVerticesToNodeIdxMapping = surfaceGenerator->quadVerticesToNodeIdxMapping();
-                const std::vector<size_t>& quadVerticesToElmIdx = surfaceGenerator->quadVerticesToGlobalElmIdx();
+                const RivFemPartGeometryGenerator* surfaceGenerator             = mgr->surfaceGenerator();
+                const std::vector<size_t>&         quadVerticesToNodeIdxMapping = surfaceGenerator->quadVerticesToNodeIdxMapping();
+                const std::vector<size_t>&         quadVerticesToElmIdx         = surfaceGenerator->quadVerticesToGlobalElmIdx();
 
-                for ( int quadVertex = 0; quadVertex < static_cast<int>( quadVerticesToNodeIdxMapping.size() );
-                      quadVertex += 4 )
+                for ( int quadVertex = 0; quadVertex < static_cast<int>( quadVerticesToNodeIdxMapping.size() ); quadVertex += 4 )
                 {
                     cvf::Vec3f center = nodes.coordinates.at( quadVerticesToNodeIdxMapping[quadVertex] ) +
                                         nodes.coordinates.at( quadVerticesToNodeIdxMapping[quadVertex + 2] );
 
-                    cvf::Vec3d displayCoord =
-                        m_rimReservoirView->displayCoordTransform()->transformToDisplayCoord( cvf::Vec3d( center / 2 ) );
+                    cvf::Vec3d displayCoord = m_rimReservoirView->displayCoordTransform()->transformToDisplayCoord( cvf::Vec3d( center / 2 ) );
 
                     cvf::Vec3f faceNormal = calculateFaceNormal( nodes, quadVerticesToNodeIdxMapping, quadVertex );
 
@@ -332,7 +327,7 @@ cvf::ref<cvf::Part> RivTensorResultPartMgr::createPart( const std::vector<Tensor
     }
 
     cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUInt = new cvf::PrimitiveSetIndexedUInt( cvf::PrimitiveType::PT_LINES );
-    cvf::ref<cvf::UIntArray>               indexArray = new cvf::UIntArray( indices );
+    cvf::ref<cvf::UIntArray>               indexArray  = new cvf::UIntArray( indices );
 
     cvf::ref<cvf::DrawableGeo> drawable = new cvf::DrawableGeo();
 
@@ -352,7 +347,7 @@ cvf::ref<cvf::Part> RivTensorResultPartMgr::createPart( const std::vector<Tensor
     cvf::ScalarMapper* activeScalerMapper = nullptr;
 
     cvf::ref<cvf::ScalarMapperDiscreteLinear> discreteScalarMapper = new cvf::ScalarMapperDiscreteLinear;
-    auto                                      vectorColors = m_rimReservoirView->tensorResults()->vectorColors();
+    auto                                      vectorColors         = m_rimReservoirView->tensorResults()->vectorColors();
     if ( vectorColors == RimTensorResults::RESULT_COLORS )
     {
         activeScalerMapper = m_rimReservoirView->tensorResults()->arrowColorLegendConfig()->scalarMapper();
@@ -391,7 +386,7 @@ cvf::ref<cvf::Part> RivTensorResultPartMgr::createPart( const std::vector<Tensor
 ///
 //--------------------------------------------------------------------------------------------------
 void RivTensorResultPartMgr::createOneColorPerPrincipalScalarMapper( const RimTensorResults::TensorColors& colorSet,
-                                                                     cvf::ScalarMapperDiscreteLinear* scalarMapper )
+                                                                     cvf::ScalarMapperDiscreteLinear*      scalarMapper )
 {
     CVF_ASSERT( scalarMapper );
 
@@ -422,7 +417,7 @@ void RivTensorResultPartMgr::createOneColorPerPrincipalScalarMapper( const RimTe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivTensorResultPartMgr::createOneColorPerPrincipalTextureCoords( cvf::Vec2fArray* textureCoords,
+void RivTensorResultPartMgr::createOneColorPerPrincipalTextureCoords( cvf::Vec2fArray*                        textureCoords,
                                                                       const std::vector<TensorVisualization>& tensorVisualizations,
                                                                       const cvf::ScalarMapper*                mapper )
 {
@@ -488,15 +483,14 @@ bool RivTensorResultPartMgr::isTensorAddress( RigFemResultAddress address )
 bool RivTensorResultPartMgr::isValid( cvf::Vec3f resultVector )
 {
     // nan
-    if ( resultVector.x() != resultVector.x() || resultVector.y() != resultVector.y() ||
-         resultVector.z() != resultVector.z() )
+    if ( resultVector.x() != resultVector.x() || resultVector.y() != resultVector.y() || resultVector.z() != resultVector.z() )
     {
         return false;
     }
 
     // inf
-    if ( resultVector.x() == HUGE_VAL || resultVector.y() == HUGE_VAL || resultVector.z() == HUGE_VAL ||
-         resultVector.x() == -HUGE_VAL || resultVector.y() == -HUGE_VAL || resultVector.z() == -HUGE_VAL )
+    if ( resultVector.x() == HUGE_VAL || resultVector.y() == HUGE_VAL || resultVector.z() == HUGE_VAL || resultVector.x() == -HUGE_VAL ||
+         resultVector.y() == -HUGE_VAL || resultVector.z() == -HUGE_VAL )
     {
         return false;
     }

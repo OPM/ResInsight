@@ -57,8 +57,7 @@ public:
     std::vector<RimEclipseCase*> inputCases() const;
 
 protected:
-    void onChildrenUpdated( caf::PdmChildArrayFieldHandle*      childArray,
-                            std::vector<caf::PdmObjectHandle*>& updatedObjects ) override;
+    void onChildrenUpdated( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& updatedObjects ) override;
 
     RimGridCalculationVariable* createVariable() override;
     std::pair<bool, QString>    validateVariables();
