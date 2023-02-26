@@ -30,6 +30,7 @@
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryAddressCollection.h"
+#include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCaseCollection.h"
 
 #include "cafPdmFieldScriptingCapability.h"
@@ -244,7 +245,8 @@ void RimSummaryCase::buildChildNodes()
     RifSummaryReaderInterface* reader = summaryReader();
     if ( !reader ) return;
 
-    m_dataVectorFolders->updateFolderStructure( reader->allResultAddresses(), m_caseId );
+    auto addresses = reader->allResultAddresses();
+    m_dataVectorFolders->updateFolderStructure( addresses, m_caseId );
 }
 
 //--------------------------------------------------------------------------------------------------

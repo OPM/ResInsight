@@ -51,6 +51,7 @@
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryAddressCollection.h"
+#include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
@@ -640,8 +641,11 @@ void RimSummaryPlot::copyAxisPropertiesFromOther( const RimSummaryPlot& sourceSu
     {
         QString data = ap->writeObjectToXmlString();
 
-        axisPropertiesForPlotAxis( ap->plotAxisType() )
-            ->readObjectFromXmlString( data, caf::PdmDefaultObjectFactory::instance() );
+        auto axisProperty = axisPropertiesForPlotAxis( ap->plotAxisType() );
+        if ( axisProperty )
+        {
+            axisProperty->readObjectFromXmlString( data, caf::PdmDefaultObjectFactory::instance() );
+        }
     }
 }
 
@@ -2755,7 +2759,7 @@ void RimSummaryPlot::updateNameHelperWithCurveData( RimSummaryPlotNameHelper* na
     {
         for ( RimSummaryCurve* curve : m_summaryCurveCollection->curves() )
         {
-            if ( curve->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
+            if ( curve->summaryAddressY().isCalculated() )
             {
                 RiaSummaryTools::getSummaryCasesAndAddressesForCalculation( curve->summaryAddressY().id(),
                                                                             sumCases,

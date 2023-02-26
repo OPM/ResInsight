@@ -213,6 +213,14 @@ void RiuSummaryVectorSelectionDialog::hideVectorsWithNoHistory()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuSummaryVectorSelectionDialog::hideCalculationIncompatibleCategories()
+{
+    summaryAddressSelection()->hideCalculationIncompatibleCategories( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiuSummaryVectorSelectionUi* RiuSummaryVectorSelectionDialog::summaryAddressSelection() const
 {
     return m_addrSelWidget->summaryAddressSelection();

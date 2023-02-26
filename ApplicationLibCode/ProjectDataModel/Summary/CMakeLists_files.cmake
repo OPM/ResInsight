@@ -18,7 +18,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimObservedSummaryData.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryObservedDataFile.h
     ${CMAKE_CURRENT_LIST_DIR}/RimObservedEclipseUserData.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimCalculatedSummaryCase.h
     ${CMAKE_CURRENT_LIST_DIR}/RimCalculatedSummaryCurveReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryAddress.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCrossPlot.h
@@ -70,7 +69,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimObservedSummaryData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryObservedDataFile.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimObservedEclipseUserData.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimCalculatedSummaryCase.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimCalculatedSummaryCurveReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryAddress.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCrossPlot.cpp

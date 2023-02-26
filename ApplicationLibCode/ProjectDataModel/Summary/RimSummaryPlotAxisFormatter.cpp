@@ -219,7 +219,7 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
         std::string        titleText;
         const std::string& quantityName = sumAddress.vectorName().substr( cutPos + 1 );
 
-        if ( sumAddress.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
+        if ( sumAddress.isCalculated() )
         {
             titleText = shortCalculationName( quantityName );
         }
@@ -352,7 +352,7 @@ QString RimSummaryPlotAxisFormatter::createAxisObjectName() const
         std::string        name;
         const std::string& quantityName = sumAddress.vectorName().substr( cutPos + 1 );
 
-        if ( sumAddress.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
+        if ( sumAddress.isCalculated() )
         {
             name = shortCalculationName( quantityName );
         }

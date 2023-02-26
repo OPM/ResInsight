@@ -45,6 +45,7 @@ class RimSummaryCurveAutoName;
 class RimSummaryPlot;
 class RiaSummaryCurveDefinition;
 class RimEnsembleCurveSet;
+class RimCalculatedSummaryCase;
 
 //==================================================================================================
 ///
@@ -106,8 +107,7 @@ private:
     void createNewPlot();
     bool isObservedData( RimSummaryCase* sumCase ) const;
 
-    static RimSummaryCase* calculatedSummaryCase();
-    void                   selectionEditorFieldChanged();
+    void selectionEditorFieldChanged();
 
     void proxyEnablePlotAutoTitle( const bool& enable );
     bool proxyPlotAutoTitle() const;

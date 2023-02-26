@@ -180,10 +180,22 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
     auto* lgrwell       = getOrCreateSubfolder( CollectionContentType::WELL_LGR );
     auto* lgrcompletion = getOrCreateSubfolder( CollectionContentType::WELL_COMPLETION_LGR );
     auto* lgrblock      = getOrCreateSubfolder( CollectionContentType::BLOCK_LGR );
-    auto* calculated    = getOrCreateSubfolder( CollectionContentType::CALCULATED );
     auto* imported      = getOrCreateSubfolder( CollectionContentType::IMPORTED );
 
-    for ( const auto& address : addresses )
+    // Sort addresses to have calculated results last per category
+    std::vector<RifEclipseSummaryAddress> sortedAddresses( addresses.size() );
+    std::copy( addresses.begin(), addresses.end(), sortedAddresses.begin() );
+    std::sort( sortedAddresses.begin(),
+               sortedAddresses.end(),
+               []( const RifEclipseSummaryAddress& a, const RifEclipseSummaryAddress& b ) -> bool {
+                   if ( a.category() < b.category() ) return false;
+                   // Calculated results are sorted last.
+                   if ( a.isCalculated() && !b.isCalculated() ) return false;
+                   if ( !a.isCalculated() && b.isCalculated() ) return true;
+                   return a.vectorName() < b.vectorName();
+               } );
+
+    for ( const auto& address : sortedAddresses )
     {
         switch ( address.category() )
         {
@@ -299,14 +311,6 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
                                           address,
                                           caseId,
                                           ensembleId );
-                break;
-
-            case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_CALCULATED:
-                calculated->addToSubfolder( QString::fromStdString( address.itemUiText() ),
-                                            CollectionContentType::CALCULATED,
-                                            address,
-                                            caseId,
-                                            ensembleId );
                 break;
 
             default:

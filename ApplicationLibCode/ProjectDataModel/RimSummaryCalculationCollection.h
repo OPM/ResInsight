@@ -21,8 +21,6 @@
 #include "RimSummaryCalculation.h"
 #include "RimUserDefinedCalculationCollection.h"
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmChildField.h"
 #include "cafPdmObject.h"
 
 class RimSummaryCase;
@@ -39,15 +37,10 @@ class RimSummaryCalculationCollection : public RimUserDefinedCalculationCollecti
 public:
     RimSummaryCalculationCollection();
 
-    RimSummaryCase* calculationSummaryCase();
-
     void rebuildCaseMetaData() override;
 
     RimSummaryCalculation* createCalculation() const override;
 
 private:
     void initAfterRead() override;
-
-private:
-    caf::PdmChildField<RimCalculatedSummaryCase*> m_calcuationSummaryCase;
 };

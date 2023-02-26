@@ -922,16 +922,6 @@ bool RicSummaryPlotEditorUi::isObservedData( RimSummaryCase* sumCase ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCase* RicSummaryPlotEditorUi::calculatedSummaryCase()
-{
-    RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
-
-    return calcColl->calculationSummaryCase();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicSummaryPlotEditorUi::selectionEditorFieldChanged()
 {
     syncPreviewCurvesFromUiSelection();
