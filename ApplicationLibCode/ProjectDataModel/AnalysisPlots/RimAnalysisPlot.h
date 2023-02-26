@@ -158,8 +158,7 @@ private:
                                                         std::set<RimSummaryCase*>*          filteredSumCases,
                                                         std::set<RifEclipseSummaryAddress>* filteredSummaryItems );
 
-    static std::vector<size_t> findTimestepIndices( std::vector<time_t>        selectedTimesteps,
-                                                    const std::vector<time_t>& timesteps );
+    static std::vector<size_t> findTimestepIndices( std::vector<time_t> selectedTimesteps, const std::vector<time_t>& timesteps );
 
     std::set<RimPlotAxisPropertiesInterface*> allPlotAxes() const;
 

@@ -62,9 +62,7 @@ public:
     void redo() override;
     void undo() override;
 
-    void defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                QString                    uiConfigName,
-                                caf::PdmUiEditorAttribute* attribute ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     caf::PdmFieldHandle* userDescriptionField() override;
 
@@ -106,6 +104,5 @@ private:
 class RimCommandFactory
 {
 public:
-    static void createCommandObjects( const caf::PdmObjectGroup&      selectedObjects,
-                                      std::vector<RimCommandObject*>* commandObjects );
+    static void createCommandObjects( const caf::PdmObjectGroup& selectedObjects, std::vector<RimCommandObject*>* commandObjects );
 };

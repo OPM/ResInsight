@@ -97,9 +97,7 @@ public:
     bool    askUserToSaveModifiedProject();
     bool    saveProjectAs( const QString& fileName );
 
-    void runMultiCaseSnapshots( const QString&       templateProjectFileName,
-                                std::vector<QString> gridFileNames,
-                                const QString&       snapshotFolderName );
+    void runMultiCaseSnapshots( const QString& templateProjectFileName, std::vector<QString> gridFileNames, const QString& snapshotFolderName );
     bool useShaders() const;
 
     RiaDefines::RINavigationPolicy navigationPolicy() const;

@@ -36,11 +36,10 @@ public:
     static void saveSnapshotAs( const QString& fileName, const QImage& image );
     static void savePlotPdfReportAs( const QString& fileName, RimPlotWindow* plotWindow );
 
-    static void    saveViewWindowToFile( RimViewWindow* viewWindow, const QString& defaultFileBaseName = "image" );
-    static void    saveImageToFile( const QImage& image, const QString& defaultFileBaseName = "image" );
-    static QString generateSaveFileName( const QString& defaultFileBaseName = "image",
-                                         bool           supportPDF          = false,
-                                         const QString& defaultExtension    = "png" );
+    static void saveViewWindowToFile( RimViewWindow* viewWindow, const QString& defaultFileBaseName = "image" );
+    static void saveImageToFile( const QImage& image, const QString& defaultFileBaseName = "image" );
+    static QString
+                   generateSaveFileName( const QString& defaultFileBaseName = "image", bool supportPDF = false, const QString& defaultExtension = "png" );
     static QIcon   icon();
     static QString text();
 

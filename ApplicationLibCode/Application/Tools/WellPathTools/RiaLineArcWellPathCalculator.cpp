@@ -42,29 +42,17 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
         if ( activeWellPathTargets.size() == 1 )
         {
             m_lineArcEndpoints.push_back( activeWellPathTargets[0].targetPointXYZ + referencePointXyz );
-            m_targetStatuses.resize( activeWellPathTargets.size(),
-                                     { 0.0,
-                                       0.0,
-                                       false,
-                                       true,
-                                       std::numeric_limits<double>::infinity(),
-                                       false,
-                                       true,
-                                       std::numeric_limits<double>::infinity() } );
+            m_targetStatuses
+                .resize( activeWellPathTargets.size(),
+                         { 0.0, 0.0, false, true, std::numeric_limits<double>::infinity(), false, true, std::numeric_limits<double>::infinity() } );
         }
 
         return;
     }
 
-    m_targetStatuses.resize( activeWellPathTargets.size(),
-                             { 0.0,
-                               0.0,
-                               false,
-                               false,
-                               std::numeric_limits<double>::infinity(),
-                               false,
-                               false,
-                               std::numeric_limits<double>::infinity() } );
+    m_targetStatuses
+        .resize( activeWellPathTargets.size(),
+                 { 0.0, 0.0, false, false, std::numeric_limits<double>::infinity(), false, false, std::numeric_limits<double>::infinity() } );
 
     std::vector<WellTarget> adjustedWellPathTargets = activeWellPathTargets;
 
@@ -149,8 +137,8 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
             target2Status.resultInclinationRadians = t12Sph.inc();
         }
 
-        m_startTangent = RiaOffshoreSphericalCoords::unitVectorFromAziInc( target1Status.resultAzimuthRadians,
-                                                                           target1Status.resultInclinationRadians );
+        m_startTangent =
+            RiaOffshoreSphericalCoords::unitVectorFromAziInc( target1Status.resultAzimuthRadians, target1Status.resultInclinationRadians );
     }
     else
     {

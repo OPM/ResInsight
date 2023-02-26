@@ -38,9 +38,7 @@ class QString;
 class LocalGridRefinement
 {
 public:
-    LocalGridRefinement( const cvf::Vec3st& mainGridMin,
-                         const cvf::Vec3st& mainGridMax,
-                         const cvf::Vec3st& singleCellRefinementFactors )
+    LocalGridRefinement( const cvf::Vec3st& mainGridMin, const cvf::Vec3st& mainGridMax, const cvf::Vec3st& singleCellRefinementFactors )
     {
         m_mainGridMinCellPosition     = mainGridMin;
         m_mainGridMaxCellPosition     = mainGridMax;
@@ -79,21 +77,12 @@ public:
 private:
     void addFaults( RigEclipseCaseData* eclipseCase );
 
-    static void addNnc( RigMainGrid*            grid,
-                        size_t                  i1,
-                        size_t                  j1,
-                        size_t                  k1,
-                        size_t                  i2,
-                        size_t                  j2,
-                        size_t                  k2,
-                        RigConnectionContainer& nncConnections );
+    static void
+                addNnc( RigMainGrid* grid, size_t i1, size_t j1, size_t k1, size_t i2, size_t j2, size_t k2, RigConnectionContainer& nncConnections );
     void        addWellData( RigEclipseCaseData* eclipseCase, RigGridBase* grid );
     static void appendCells( size_t nodeStartIndex, size_t cellCount, RigGridBase* hostGrid, std::vector<RigCell>& cells );
 
-    static void appendNodes( const cvf::Vec3d&        min,
-                             const cvf::Vec3d&        max,
-                             const cvf::Vec3st&       cubeDimension,
-                             std::vector<cvf::Vec3d>& nodes );
+    static void appendNodes( const cvf::Vec3d& min, const cvf::Vec3d& max, const cvf::Vec3st& cubeDimension, std::vector<cvf::Vec3d>& nodes );
     static void appendCubeNodes( const cvf::Vec3d& min, const cvf::Vec3d& max, std::vector<cvf::Vec3d>& nodes );
 
     size_t cellIndexFromIJK( size_t i, size_t j, size_t k ) const
@@ -102,8 +91,7 @@ private:
         CVF_TIGHT_ASSERT( j < ( m_gridPointDimensions.y() - 1 ) );
         CVF_TIGHT_ASSERT( k < ( m_gridPointDimensions.z() - 1 ) );
 
-        size_t ci = i + j * ( m_gridPointDimensions.x() - 1 ) +
-                    k * ( ( m_gridPointDimensions.x() - 1 ) * ( m_gridPointDimensions.y() - 1 ) );
+        size_t ci = i + j * ( m_gridPointDimensions.x() - 1 ) + k * ( ( m_gridPointDimensions.x() - 1 ) * ( m_gridPointDimensions.y() - 1 ) );
         return ci;
     }
 

@@ -33,8 +33,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<QString, cvf::ref<RigWellPathFormations>>
-    RifWellPathFormationReader::readWellFormationsToGeometry( const QString& filePath )
+std::map<QString, cvf::ref<RigWellPathFormations>> RifWellPathFormationReader::readWellFormationsToGeometry( const QString& filePath )
 {
     std::map<QString, cvf::ref<RigWellPathFormations>> result;
 
@@ -74,9 +73,7 @@ std::map<QString, cvf::ref<RigWellPathFormations>>
     {
         RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(),
                                        "Import failure",
-                                       QString(
-                                           "Failed to parse %1 as a well pick file. Neither MD or TVD is present." )
-                                           .arg( filePath ) );
+                                       QString( "Failed to parse %1 as a well pick file. Neither MD or TVD is present." ).arg( filePath ) );
 
         return result;
     }
@@ -112,9 +109,8 @@ std::map<QString, cvf::ref<RigWellPathFormations>>
 
     for ( const std::pair<const QString, std::vector<RigWellPathFormation>>& formation : formations )
     {
-        cvf::ref<RigWellPathFormations> wellPathFormations =
-            new RigWellPathFormations( formation.second, filePath, formation.first );
-        result[formation.first] = wellPathFormations;
+        cvf::ref<RigWellPathFormations> wellPathFormations = new RigWellPathFormations( formation.second, filePath, formation.first );
+        result[formation.first]                            = wellPathFormations;
     }
 
     return result;
@@ -123,8 +119,7 @@ std::map<QString, cvf::ref<RigWellPathFormations>>
 void removeWhiteSpaces( QString* word )
 {
     std::string wordStd = word->toStdString();
-    wordStd.erase( std::remove_if( wordStd.begin(), wordStd.end(), []( unsigned char x ) { return std::isspace( x ); } ),
-                   wordStd.end() );
+    wordStd.erase( std::remove_if( wordStd.begin(), wordStd.end(), []( unsigned char x ) { return std::isspace( x ); } ), wordStd.end() );
 
     ( *word ) = QString( wordStd.c_str() );
 }

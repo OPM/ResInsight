@@ -266,10 +266,7 @@ void RivGridPartMgr::updateCellResultColor( size_t timeStepIndex, RimEclipseCell
         }
         else
         {
-            RivTextureCoordsCreator texturer( cellResultColors,
-                                              timeStepIndex,
-                                              m_grid->gridIndex(),
-                                              m_surfaceGenerator.quadToCellFaceMapper() );
+            RivTextureCoordsCreator texturer( cellResultColors, timeStepIndex, m_grid->gridIndex(), m_surfaceGenerator.quadToCellFaceMapper() );
             if ( !texturer.isValid() )
             {
                 return;
@@ -278,13 +275,10 @@ void RivGridPartMgr::updateCellResultColor( size_t timeStepIndex, RimEclipseCell
             if ( cellResultColors->isCompletionTypeSelected() )
             {
                 cvf::ref<RigPipeInCellEvaluator> pipeInCellEval =
-                    RivTextureCoordsCreator::createPipeInCellEvaluator( cellResultColors,
-                                                                        timeStepIndex,
-                                                                        m_grid->gridIndex() );
+                    RivTextureCoordsCreator::createPipeInCellEvaluator( cellResultColors, timeStepIndex, m_grid->gridIndex() );
                 const cvf::ScalarMapper* mapper = cellResultColors->legendConfig()->scalarMapper();
 
-                texturer.setResultToTextureMapper(
-                    new RivCompletionTypeResultToTextureMapper( mapper, pipeInCellEval.p() ) );
+                texturer.setResultToTextureMapper( new RivCompletionTypeResultToTextureMapper( mapper, pipeInCellEval.p() ) );
                 effectiveOpacityLevel = 0.5;
             }
 
@@ -318,17 +312,16 @@ void RivGridPartMgr::updateCellEdgeResultColor( size_t                timeStepIn
         cvf::DrawableGeo* dg = dynamic_cast<cvf::DrawableGeo*>( m_surfaceFaces->drawable() );
         if ( dg )
         {
-            cvf::ref<cvf::Effect> eff =
-                RivScalarMapperUtils::createCellEdgeEffect( dg,
-                                                            m_surfaceGenerator.quadToCellFaceMapper(),
-                                                            m_grid->gridIndex(),
-                                                            timeStepIndex,
-                                                            cellResultColors,
-                                                            cellEdgeResultColors,
-                                                            m_opacityLevel,
-                                                            m_defaultColor,
-                                                            caf::FC_NONE,
-                                                            cellResultColors->reservoirView()->isLightingDisabled() );
+            cvf::ref<cvf::Effect> eff = RivScalarMapperUtils::createCellEdgeEffect( dg,
+                                                                                    m_surfaceGenerator.quadToCellFaceMapper(),
+                                                                                    m_grid->gridIndex(),
+                                                                                    timeStepIndex,
+                                                                                    cellResultColors,
+                                                                                    cellEdgeResultColors,
+                                                                                    m_opacityLevel,
+                                                                                    m_defaultColor,
+                                                                                    caf::FC_NONE,
+                                                                                    cellResultColors->reservoirView()->isLightingDisabled() );
 
             m_surfaceFaces->setEffect( eff.p() );
 

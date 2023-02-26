@@ -94,8 +94,7 @@ caf::PdmFieldHandle* RimIntersectionCollection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
-                                                      QString                 uiConfigName /*= "" */ )
+void RimIntersectionCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= "" */ )
 {
     RimGridView* gridView = nullptr;
     this->firstAncestorOfType( gridView );
@@ -142,8 +141,7 @@ void RimIntersectionCollection::updateCellResultColor( bool hasGeneralCellResult
     {
         if ( cs->isActive() )
         {
-            bool showResults = cs->activeSeparateResultDefinition() ? cs->activeSeparateResultDefinition()->hasResult()
-                                                                    : hasGeneralCellResult;
+            bool showResults = cs->activeSeparateResultDefinition() ? cs->activeSeparateResultDefinition()->hasResult() : hasGeneralCellResult;
 
             if ( showResults )
             {
@@ -160,8 +158,7 @@ void RimIntersectionCollection::updateCellResultColor( bool hasGeneralCellResult
     {
         if ( cs->isActive() )
         {
-            bool hasSeparateInterResult = cs->activeSeparateResultDefinition() &&
-                                          cs->activeSeparateResultDefinition()->hasResult();
+            bool hasSeparateInterResult = cs->activeSeparateResultDefinition() && cs->activeSeparateResultDefinition()->hasResult();
             if ( hasSeparateInterResult || hasGeneralCellResult )
             {
                 cs->intersectionBoxPartMgr()->updateCellResultColor( timeStepIndex );
@@ -279,8 +276,7 @@ void RimIntersectionCollection::recomputeSimWellBranchData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionCollection::appendIntersectionAndUpdate( RimExtrudedCurveIntersection* intersection,
-                                                             bool                          allowActiveViewChange )
+void RimIntersectionCollection::appendIntersectionAndUpdate( RimExtrudedCurveIntersection* intersection, bool allowActiveViewChange )
 {
     m_intersections.push_back( intersection );
 
@@ -353,9 +349,7 @@ void RimIntersectionCollection::appendIntersectionBoxNoUpdate( RimBoxIntersectio
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                  const QVariant&            oldValue,
-                                                  const QVariant&            newValue )
+void RimIntersectionCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     bool rebuildView = false;
 
@@ -378,8 +372,7 @@ void RimIntersectionCollection::fieldChangedByUi( const caf::PdmFieldHandle* cha
         rebuildView = true;
     }
 
-    if ( ( changedField == &m_depthUpperThreshold ) || ( changedField == &m_depthLowerThreshold ) ||
-         ( changedField == &m_depthFilterType ) )
+    if ( ( changedField == &m_depthUpperThreshold ) || ( changedField == &m_depthLowerThreshold ) || ( changedField == &m_depthFilterType ) )
     {
         for ( RimExtrudedCurveIntersection* cs : m_intersections )
         {
@@ -398,8 +391,7 @@ void RimIntersectionCollection::fieldChangedByUi( const caf::PdmFieldHandle* cha
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                                                std::vector<caf::PdmObjectHandle*>& referringObjects )
+void RimIntersectionCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     syncronize2dIntersectionViews();
     rebuild3dView();
@@ -491,9 +483,7 @@ void RimIntersectionCollection::defineUiOrdering( QString uiConfigName, caf::Pdm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimIntersectionCollection::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                       QString                    uiConfigName,
-                                                       caf::PdmUiEditorAttribute* attribute )
+void RimIntersectionCollection::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     auto* doubleSliderAttrib = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
     if ( doubleSliderAttrib )

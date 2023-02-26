@@ -48,11 +48,7 @@
 //==================================================================================================
 struct WellBorePartForTransCalc
 {
-    WellBorePartForTransCalc( cvf::Vec3d     lengthsInCell,
-                              double         wellRadius,
-                              double         skinFactor,
-                              bool           isMainBore,
-                              const QString& metaData )
+    WellBorePartForTransCalc( cvf::Vec3d lengthsInCell, double wellRadius, double skinFactor, bool isMainBore, const QString& metaData )
         : lengthsInCell( lengthsInCell )
         , wellRadius( wellRadius )
         , skinFactor( skinFactor )
@@ -72,20 +68,16 @@ struct WellBorePartForTransCalc
     double intersectionWithWellMeasuredDepth;
     size_t lateralIndex;
 
-    void setSourcePdmObject( const caf::PdmObject* sourcePdmObj )
-    {
-        this->sourcePdmObject = const_cast<caf::PdmObject*>( sourcePdmObj );
-    }
+    void setSourcePdmObject( const caf::PdmObject* sourcePdmObj ) { this->sourcePdmObject = const_cast<caf::PdmObject*>( sourcePdmObj ); }
     caf::PdmPointer<caf::PdmObject> sourcePdmObject;
 };
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigCompletionData>
-    RicFishbonesTransmissibilityCalculationFeatureImp::generateFishboneCompdatValuesUsingAdjustedCellVolume(
-        const RimWellPath*                       wellPath,
-        const RicExportCompletionDataSettingsUi& settings )
+std::vector<RigCompletionData> RicFishbonesTransmissibilityCalculationFeatureImp::generateFishboneCompdatValuesUsingAdjustedCellVolume(
+    const RimWellPath*                       wellPath,
+    const RicExportCompletionDataSettingsUi& settings )
 {
     std::vector<RigCompletionData> completionData;
 
@@ -121,10 +113,9 @@ std::vector<RigCompletionData>
             }
             else
             {
-                mainBoreDirection =
-                    RicWellPathExportCompletionDataFeatureImpl::calculateCellMainDirection( settings.caseToApply,
-                                                                                            globalCellIndex,
-                                                                                            wellBorePart.lengthsInCell );
+                mainBoreDirection = RicWellPathExportCompletionDataFeatureImpl::calculateCellMainDirection( settings.caseToApply,
+                                                                                                            globalCellIndex,
+                                                                                                            wellBorePart.lengthsInCell );
             }
         }
 
@@ -175,10 +166,9 @@ std::vector<RigCompletionData>
                 kh               = transmissibilityAndPermeability.kh();
             }
 
-            auto direction =
-                RicWellPathExportCompletionDataFeatureImpl::calculateCellMainDirection( settings.caseToApply,
-                                                                                        globalCellIndex,
-                                                                                        wellBorePart.lengthsInCell );
+            auto direction = RicWellPathExportCompletionDataFeatureImpl::calculateCellMainDirection( settings.caseToApply,
+                                                                                                     globalCellIndex,
+                                                                                                     wellBorePart.lengthsInCell );
 
             completion.setTransAndWPImultBackgroundDataFromFishbone( transmissibility,
                                                                      wellBorePart.skinFactor,
@@ -203,8 +193,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
     const RimWellPath*                                       wellPath,
     const RicExportCompletionDataSettingsUi&                 settings )
 {
-    if ( !wellPath || !wellPath->wellPathGeometry() || wellPath->wellPathGeometry()->measuredDepths().size() < 2 )
-        return;
+    if ( !wellPath || !wellPath->wellPathGeometry() || wellPath->wellPathGeometry()->measuredDepths().size() < 2 ) return;
 
     // Generate data
     const RigEclipseCaseData* caseData = settings.caseToApply()->eclipseCaseData();
@@ -237,17 +226,16 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
                     {
                         for ( auto intersection : segment->intersections() )
                         {
-                            double  diameter           = segment->holeDiameter();
-                            QString completionMetaData = ( segment->label() + QString( ": Sub: %1 Lateral: %2" )
-                                                                                  .arg( segment->subIndex() + 1 )
-                                                                                  .arg( completion->index() + 1 ) );
+                            double  diameter = segment->holeDiameter();
+                            QString completionMetaData =
+                                ( segment->label() +
+                                  QString( ": Sub: %1 Lateral: %2" ).arg( segment->subIndex() + 1 ).arg( completion->index() + 1 ) );
 
-                            WellBorePartForTransCalc wellBorePart =
-                                WellBorePartForTransCalc( intersection->lengthsInCell(),
-                                                          diameter / 2.0,
-                                                          segment->skinFactor(),
-                                                          isMainBore,
-                                                          completionMetaData );
+                            WellBorePartForTransCalc wellBorePart = WellBorePartForTransCalc( intersection->lengthsInCell(),
+                                                                                              diameter / 2.0,
+                                                                                              segment->skinFactor(),
+                                                                                              isMainBore,
+                                                                                              completionMetaData );
 
                             wellBorePart.intersectionWithWellMeasuredDepth = segment->endMD();
                             wellBorePart.lateralIndex                      = completion->index();
@@ -283,14 +271,7 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::findFishboneLateralsWell
                     endMD += 0.5;
                 }
 
-                appendMainWellBoreParts( wellBorePartsInCells,
-                                         wellPath,
-                                         settings,
-                                         skinFactor,
-                                         holeRadius,
-                                         startMD,
-                                         endMD,
-                                         fishboneDefinition );
+                appendMainWellBoreParts( wellBorePartsInCells, wellPath, settings, skinFactor, holeRadius, startMD, endMD, fishboneDefinition );
             }
         }
     }
@@ -326,12 +307,9 @@ void RicFishbonesTransmissibilityCalculationFeatureImp::appendMainWellBoreParts(
 
     for ( const auto& cellIntersectionInfo : intersectedCellsIntersectionInfo )
     {
-        QString completionMetaData            = wellPath->completionSettings()->wellNameForExport() + " main bore";
-        WellBorePartForTransCalc wellBorePart = WellBorePartForTransCalc( cellIntersectionInfo.intersectionLengthsInCellCS,
-                                                                          holeRadius,
-                                                                          skinFactor,
-                                                                          isMainBore,
-                                                                          completionMetaData );
+        QString                  completionMetaData = wellPath->completionSettings()->wellNameForExport() + " main bore";
+        WellBorePartForTransCalc wellBorePart =
+            WellBorePartForTransCalc( cellIntersectionInfo.intersectionLengthsInCellCS, holeRadius, skinFactor, isMainBore, completionMetaData );
 
         wellBorePart.intersectionWithWellMeasuredDepth = cellIntersectionInfo.startMD;
 

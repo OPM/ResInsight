@@ -33,7 +33,7 @@
 //--------------------------------------------------------------------------------------------------
 RigFemPartResultCalculatorBarConverted::RigFemPartResultCalculatorBarConverted( RigFemPartResultsCollection& collection,
                                                                                 const std::string&           fieldName,
-                                                                                const std::string& fieldNameToConvert )
+                                                                                const std::string&           fieldNameToConvert )
     : RigFemPartResultCalculator( collection )
     , m_fieldName( fieldName )
     , m_fieldNameToConvert( fieldNameToConvert )
@@ -67,17 +67,15 @@ bool RigFemPartResultCalculatorBarConverted::isMatching( const RigFemResultAddre
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultCalculatorBarConverted::calculate( int                        partIndex,
-                                                                             const RigFemResultAddress& resVarAddr )
+RigFemScalarResultFrames* RigFemPartResultCalculatorBarConverted::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
 {
     caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 2, "" );
-    stepCountProgress.setProgressDescription(
-        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
+    stepCountProgress.setProgressDescription( "Calculating " +
+                                              QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
     stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
-    RigFemResultAddress unconvertedResultAddr( resVarAddr.resultPosType, m_fieldNameToConvert, resVarAddr.componentName );
-    RigFemScalarResultFrames* srcDataFrames =
-        m_resultCollection->findOrLoadScalarResult( partIndex, unconvertedResultAddr );
+    RigFemResultAddress       unconvertedResultAddr( resVarAddr.resultPosType, m_fieldNameToConvert, resVarAddr.componentName );
+    RigFemScalarResultFrames* srcDataFrames = m_resultCollection->findOrLoadScalarResult( partIndex, unconvertedResultAddr );
     RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );
 
     stepCountProgress.incrementProgress();

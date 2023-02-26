@@ -101,16 +101,16 @@ public:
     static RigCompletionData::CellDirection
         calculateCellMainDirection( RimEclipseCase* eclipseCase, size_t globalCellIndex, const cvf::Vec3d& lengthsInCell );
 
-    static TransmissibilityData calculateTransmissibilityData(
-        RimEclipseCase*                  eclipseCase,
-        const RimWellPath*               wellPath,
-        const cvf::Vec3d&                internalCellLengths,
-        double                           skinFactor,
-        double                           wellRadius,
-        size_t                           globalCellIndex,
-        bool                             useLateralNTG,
-        size_t                           volumeScaleConstant       = 1,
-        RigCompletionData::CellDirection directionForVolumeScaling = RigCompletionData::CellDirection::DIR_I );
+    static TransmissibilityData
+        calculateTransmissibilityData( RimEclipseCase*                  eclipseCase,
+                                       const RimWellPath*               wellPath,
+                                       const cvf::Vec3d&                internalCellLengths,
+                                       double                           skinFactor,
+                                       double                           wellRadius,
+                                       size_t                           globalCellIndex,
+                                       bool                             useLateralNTG,
+                                       size_t                           volumeScaleConstant       = 1,
+                                       RigCompletionData::CellDirection directionForVolumeScaling = RigCompletionData::CellDirection::DIR_I );
 
     static double calculateDFactor( RimEclipseCase*                         eclipseCase,
                                     double                                  effectiveH,
@@ -122,16 +122,14 @@ public:
                                    const std::vector<RimSimWellInView*>&    simWells,
                                    const RicExportCompletionDataSettingsUi& exportSettings );
 
-    static std::vector<RigCompletionData> computeStaticCompletionsForWellPath( RimWellPath*    wellPath,
-                                                                               RimEclipseCase* eclipseCase );
+    static std::vector<RigCompletionData> computeStaticCompletionsForWellPath( RimWellPath* wellPath, RimEclipseCase* eclipseCase );
 
     static std::vector<RigCompletionData>
         computeDynamicCompletionsForWellPath( RimWellPath* wellPath, RimEclipseCase* eclipseCase, size_t timeStepIndex );
 
-    static std::vector<RigCompletionData>
-        generatePerforationsCompdatValues( gsl::not_null<const RimWellPath*>                 wellPath,
-                                           const std::vector<const RimPerforationInterval*>& intervals,
-                                           const RicExportCompletionDataSettingsUi&          settings );
+    static std::vector<RigCompletionData> generatePerforationsCompdatValues( gsl::not_null<const RimWellPath*>                 wellPath,
+                                                                             const std::vector<const RimPerforationInterval*>& intervals,
+                                                                             const RicExportCompletionDataSettingsUi&          settings );
 
 private:
     static double calculateTransmissibilityAsEclipseDoes( RimEclipseCase*                  eclipseCase,
@@ -145,13 +143,11 @@ private:
 
     static std::vector<RigCompletionData> mainGridCompletions( const std::vector<RigCompletionData>& allCompletions );
 
-    static std::map<QString, std::vector<RigCompletionData>>
-        subGridsCompletions( const std::vector<RigCompletionData>& allCompletions );
+    static std::map<QString, std::vector<RigCompletionData>> subGridsCompletions( const std::vector<RigCompletionData>& allCompletions );
 
-    static void
-        exportWellPathFractureReport( RimEclipseCase*                                   sourceCase,
-                                      QFilePtr                                          exportFile,
-                                      const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems );
+    static void exportWellPathFractureReport( RimEclipseCase*                                   sourceCase,
+                                              QFilePtr                                          exportFile,
+                                              const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems );
 
     static void exportWelspecsToFile( RimEclipseCase*                       gridCase,
                                       QFilePtr                              exportFile,
@@ -162,20 +158,20 @@ private:
                                       QFilePtr                                                 exportFile,
                                       const std::map<QString, std::vector<RigCompletionData>>& completions );
 
-    static void sortAndExportCompletionsToFile( RimEclipseCase*                                   eclipseCase,
-                                                const QString&                                    exportFolder,
-                                                const QString&                                    fileName,
-                                                const std::vector<RigCompletionData>&             completions,
-                                                const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems,
+    static void sortAndExportCompletionsToFile( RimEclipseCase*                                      eclipseCase,
+                                                const QString&                                       exportFolder,
+                                                const QString&                                       fileName,
+                                                const std::vector<RigCompletionData>&                completions,
+                                                const std::vector<RicWellPathFractureReportItem>&    wellPathFractureReportItems,
                                                 RicExportCompletionDataSettingsUi::CompdatExportType exportType,
-                                                bool exportDataSourceAsComment,
-                                                bool exportWelspec );
+                                                bool                                                 exportDataSourceAsComment,
+                                                bool                                                 exportWelspec );
 
     static void exportCompdatAndWpimultTables( RimEclipseCase*                                          sourceCase,
                                                QFilePtr                                                 exportFile,
                                                const std::map<QString, std::vector<RigCompletionData>>& completionsPerGrid,
                                                RicExportCompletionDataSettingsUi::CompdatExportType     exportType,
-                                               bool exportDataSourceAsComment );
+                                               bool                                                     exportDataSourceAsComment );
 
     static void exportCompdatTableUsingFormatter( RifTextDataTableFormatter&            formatter,
                                                   const QString&                        gridName,
@@ -190,7 +186,7 @@ private:
 
     static std::pair<double, cvf::Vec2i> wellPathUpperGridIntersectionIJ( gsl::not_null<const RimEclipseCase*> gridCase,
                                                                           gsl::not_null<const RimWellPath*>    wellPath,
-                                                                          const QString& gridName = "" );
+                                                                          const QString&                       gridName = "" );
 
     static void exportCarfinForTemporaryLgrs( const RimEclipseCase* sourceCase, const QString& folder );
 

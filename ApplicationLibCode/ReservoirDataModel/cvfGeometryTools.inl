@@ -115,8 +115,7 @@ bool GeometryTools::insertVertexInPolygon( std::vector<IndexType>*              
         insertBefore = it2;
         if ( it2 == listPolygon.end() ) it2 = listPolygon.begin();
 
-        double sqDistToLine =
-            GeometryTools::linePointSquareDist( nodeCoords[*it], nodeCoords[*it2], nodeCoords[vertexIndex] );
+        double sqDistToLine = GeometryTools::linePointSquareDist( nodeCoords[*it], nodeCoords[*it2], nodeCoords[vertexIndex] );
         if ( fabs( sqDistToLine ) < tolerance * tolerance )
         {
             it               = listPolygon.insert( insertBefore, vertexIndex );
@@ -158,8 +157,8 @@ bool GeometryTools::isPointTouchingIndexedPolygon( const cvf::Vec3d&            
                                                    cvf::ArrayWrapperConst<VerticeArrayType, cvf::Vec3d> vertices,
                                                    cvf::ArrayWrapperConst<PolygonArrayType, IndexType>  indices,
                                                    const cvf::Vec3d&                                    point,
-                                                   int*   touchedEdgeIndex,
-                                                   double tolerance )
+                                                   int*                                                 touchedEdgeIndex,
+                                                   double                                               tolerance )
 {
     size_t numIndices = indices.size();
 
@@ -250,13 +249,13 @@ bool GeometryTools::isPointTouchingIndexedPolygon( const cvf::Vec3d&            
 /// The second face must have opposite winding of the first
 //--------------------------------------------------------------------------------------------------
 template <typename VerticeArrayType, typename IndexType>
-bool GeometryTools::calculateOverlapPolygonOfTwoQuads( std::vector<IndexType>*          polygon,
-                                                       std::vector<cvf::Vec3d>*         createdVertexes,
-                                                       EdgeIntersectStorage<IndexType>* edgeIntersectionStorage,
+bool GeometryTools::calculateOverlapPolygonOfTwoQuads( std::vector<IndexType>*                         polygon,
+                                                       std::vector<cvf::Vec3d>*                        createdVertexes,
+                                                       EdgeIntersectStorage<IndexType>*                edgeIntersectionStorage,
                                                        ArrayWrapperConst<VerticeArrayType, cvf::Vec3d> nodes,
-                                                       const IndexType cv1CubeFaceIndices[4],
-                                                       const IndexType cv2CubeFaceIndices[4],
-                                                       double          tolerance )
+                                                       const IndexType                                 cv1CubeFaceIndices[4],
+                                                       const IndexType                                 cv2CubeFaceIndices[4],
+                                                       double                                          tolerance )
 {
     CVF_ASSERT( polygon );
     CVF_ASSERT( createdVertexes );
@@ -504,8 +503,8 @@ bool GeometryTools::calculateOverlapPolygonOfTwoQuads( std::vector<IndexType>*  
 
             // Store data for each intersection along the Cv1-edge
 
-            if ( ( intersectStatus == GeometryTools::LINES_CROSSES ) ||
-                 ( intersectStatus == GeometryTools::LINES_TOUCH ) || ( intersectStatus == GeometryTools::LINES_OVERLAP ) )
+            if ( ( intersectStatus == GeometryTools::LINES_CROSSES ) || ( intersectStatus == GeometryTools::LINES_TOUCH ) ||
+                 ( intersectStatus == GeometryTools::LINES_OVERLAP ) )
             {
                 CVF_ASSERT( intersectionVxIndex != cvf::UNDEFINED_UINT );
 
@@ -558,8 +557,8 @@ bool GeometryTools::calculateOverlapPolygonOfTwoQuads( std::vector<IndexType>*  
            if intersected cv2 edge has endpoint touching cv1 then
               add endpoint to polygon. continue to add next endpoint until it does not touch Cv1
         */
-        if ( !cv1VxTouchCv2[nextCv1Idx] &&
-             ( cv1VxTouchCv2[cv1Idx] || ( intersectedCv2EdgeIdxs.size() ) ) ) // Two touches along edge also qualifies
+        if ( !cv1VxTouchCv2[nextCv1Idx] && ( cv1VxTouchCv2[cv1Idx] || ( intersectedCv2EdgeIdxs.size() ) ) ) // Two touches along edge also
+                                                                                                            // qualifies
         {
             if ( lastIntersection < intersectedCv2EdgeIdxs.size() )
             {
@@ -617,14 +616,13 @@ bool GeometryTools::calculateOverlapPolygonOfTwoQuads( std::vector<IndexType>*  
 // template <typename NodeArrayType, typename NodeType, typename IndicesArrayType, typename IndicesType>
 // void setup( ArrayWrapper<NodeArrayType, NodeType> nodeArray,  ArrayWrapper<IndicesArrayType, IndicesType> indices)
 template <typename VerticeArrayType, typename PolygonArrayType, typename IndexType>
-void GeometryTools::calculatePartiallyFreeCubeFacePolygon(
-    ArrayWrapperConst<VerticeArrayType, cvf::Vec3d> nodeCoords,
-    ArrayWrapperConst<PolygonArrayType, IndexType>  completeFacePolygon,
-    const cvf::Vec3d&                               faceNormal,
-    const std::vector<std::vector<IndexType>*>&     faceOverlapPolygons,
-    const std::vector<bool>&                        faceOverlapPolygonWindingSameAsCubeFaceFlags,
-    std::vector<IndexType>*                         partialFacePolygon,
-    bool*                                           m_partiallyFreeCubeFaceHasHoles )
+void GeometryTools::calculatePartiallyFreeCubeFacePolygon( ArrayWrapperConst<VerticeArrayType, cvf::Vec3d> nodeCoords,
+                                                           ArrayWrapperConst<PolygonArrayType, IndexType>  completeFacePolygon,
+                                                           const cvf::Vec3d&                               faceNormal,
+                                                           const std::vector<std::vector<IndexType>*>&     faceOverlapPolygons,
+                                                           const std::vector<bool>& faceOverlapPolygonWindingSameAsCubeFaceFlags,
+                                                           std::vector<IndexType>*  partialFacePolygon,
+                                                           bool*                    m_partiallyFreeCubeFaceHasHoles )
 {
     // Vertex Index to position in polygon
     typedef std::map<IndexType, typename std::vector<IndexType>::const_iterator> VxIdxToPolygonPositionMap;
@@ -751,16 +749,14 @@ void GeometryTools::calculatePartiallyFreeCubeFacePolygon(
                 if ( hasSameWinding )
                 {
                     // Same winding as main polygon. We need to go the opposite way
-                    if ( startCPIt == faceOverlapPolygons[opIdx]->begin() )
-                        startCPIt = faceOverlapPolygons[opIdx]->end();
+                    if ( startCPIt == faceOverlapPolygons[opIdx]->begin() ) startCPIt = faceOverlapPolygons[opIdx]->end();
                     --startCPIt;
                 }
                 else
                 {
                     // Opposite winding. Go forward when merging
                     ++startCPIt;
-                    if ( startCPIt == faceOverlapPolygons[opIdx]->end() )
-                        startCPIt = faceOverlapPolygons[opIdx]->begin();
+                    if ( startCPIt == faceOverlapPolygons[opIdx]->end() ) startCPIt = faceOverlapPolygons[opIdx]->begin();
                 }
 
                 // Calculate possible new edge-to-edge angle and test against existing angle
@@ -814,8 +810,7 @@ void GeometryTools::calculatePartiallyFreeCubeFacePolygon(
     // Now remove all double edges
 
     bool goneAround = false;
-    for ( typename std::list<IndexType>::iterator pIt = resultPolygon.begin(); pIt != resultPolygon.end() && !goneAround;
-          ++pIt )
+    for ( typename std::list<IndexType>::iterator pIt = resultPolygon.begin(); pIt != resultPolygon.end() && !goneAround; ++pIt )
     {
         // Set iterator to next node in polygon.
         typename std::list<IndexType>::iterator nextPIt = pIt;

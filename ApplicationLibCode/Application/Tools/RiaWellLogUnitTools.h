@@ -44,17 +44,14 @@ public:
     static QString pascalUnitStringShort();
 
 public:
-    static std::vector<FloatType> convertDepths( const std::vector<FloatType>& depthsIn,
-                                                 RiaDefines::DepthUnitType     unitsIn,
-                                                 RiaDefines::DepthUnitType     unitsOut );
+    static std::vector<FloatType>
+        convertDepths( const std::vector<FloatType>& depthsIn, RiaDefines::DepthUnitType unitsIn, RiaDefines::DepthUnitType unitsOut );
 
-    static std::vector<std::pair<FloatType, FloatType>>
-        convertDepths( const std::vector<std::pair<FloatType, FloatType>>& depthsIn,
-                       RiaDefines::DepthUnitType                           unitsIn,
-                       RiaDefines::DepthUnitType                           unitsOut );
+    static std::vector<std::pair<FloatType, FloatType>> convertDepths( const std::vector<std::pair<FloatType, FloatType>>& depthsIn,
+                                                                       RiaDefines::DepthUnitType                           unitsIn,
+                                                                       RiaDefines::DepthUnitType                           unitsOut );
 
-    static FloatType
-        convertDepth( FloatType depthIn, RiaDefines::DepthUnitType unitsIn, RiaDefines::DepthUnitType unitsOut );
+    static FloatType convertDepth( FloatType depthIn, RiaDefines::DepthUnitType unitsIn, RiaDefines::DepthUnitType unitsOut );
 
     static bool convertValues( const std::vector<FloatType>& tvdRKBs,
                                const std::vector<FloatType>& valuesIn,
@@ -69,15 +66,11 @@ public:
     static std::vector<FloatType> tvdRKBs( const std::vector<FloatType>& measuredDepths, const RigWellPath* wellPath );
 
     // Supported conversions
-    static std::vector<FloatType> convertGpcm3ToBar( const std::vector<FloatType>& tvdRKBs,
-                                                     const std::vector<FloatType>& valuesInGpcm3 );
-    static std::vector<FloatType> convertBarToGpcm3( const std::vector<FloatType>& tvdRKBs,
-                                                     const std::vector<FloatType>& valuesInBar );
+    static std::vector<FloatType> convertGpcm3ToBar( const std::vector<FloatType>& tvdRKBs, const std::vector<FloatType>& valuesInGpcm3 );
+    static std::vector<FloatType> convertBarToGpcm3( const std::vector<FloatType>& tvdRKBs, const std::vector<FloatType>& valuesInBar );
 
-    static std::vector<FloatType> convertNormalizedByPPToBar( const std::vector<FloatType>& tvdRKBs,
-                                                              const std::vector<FloatType>& valuesInBar );
-    static std::vector<FloatType> convertBarToNormalizedByPP( const std::vector<FloatType>& tvdRKBs,
-                                                              const std::vector<FloatType>& valuesInBar );
+    static std::vector<FloatType> convertNormalizedByPPToBar( const std::vector<FloatType>& tvdRKBs, const std::vector<FloatType>& valuesInBar );
+    static std::vector<FloatType> convertBarToNormalizedByPP( const std::vector<FloatType>& tvdRKBs, const std::vector<FloatType>& valuesInBar );
     static std::vector<FloatType> multiply( const std::vector<FloatType>& values, FloatType factor );
     static FloatType              pascalPerBar();
     static FloatType              MPaPerBar();

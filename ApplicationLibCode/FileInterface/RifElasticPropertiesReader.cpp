@@ -76,10 +76,8 @@ void RifElasticPropertiesReader::readElasticProperties( std::vector<RifElasticPr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifElasticProperties RifElasticPropertiesReader::parseElasticProperties( const QString& line,
-                                                                         int            lineNumber,
-                                                                         const QString& filePath,
-                                                                         const QString& separator )
+RifElasticProperties
+    RifElasticPropertiesReader::parseElasticProperties( const QString& line, int lineNumber, const QString& filePath, const QString& separator )
 {
     QStringList tokens = tokenize( line, separator );
 
@@ -108,20 +106,19 @@ RifElasticProperties RifElasticPropertiesReader::parseElasticProperties( const Q
     verifyNonEmptyTokens( tokens, nameOfNonEmptyTokens, lineNumber, filePath );
 
     RifElasticProperties elasticProperties;
-    elasticProperties.fieldName            = tokens[0];
-    elasticProperties.formationName        = tokens[1];
-    elasticProperties.faciesName           = tokens[2];
-    elasticProperties.porosity             = parseDouble( tokens[3], "Porosity", lineNumber, filePath );
-    elasticProperties.youngsModulus        = parseDouble( tokens[4], "Young's Modulus", lineNumber, filePath );
-    elasticProperties.poissonsRatio        = parseDouble( tokens[5], "Poisson's Ratio", lineNumber, filePath );
-    elasticProperties.K_Ic                 = parseDouble( tokens[6], "K-Ic", lineNumber, filePath );
-    elasticProperties.proppantEmbedment    = parseDouble( tokens[7], "Proppant Embedment", lineNumber, filePath );
-    elasticProperties.biotCoefficient      = parseDouble( tokens[8], "Biot Coefficient", lineNumber, filePath );
-    elasticProperties.k0                   = parseDouble( tokens[9], "k0", lineNumber, filePath );
-    elasticProperties.fluidLossCoefficient = parseDouble( tokens[10], "Fluid Loss Coefficient", lineNumber, filePath );
-    elasticProperties.spurtLoss            = parseDouble( tokens[11], "Spurt Loss", lineNumber, filePath );
-    elasticProperties.immobileFluidSaturation =
-        parseDouble( tokens[12], "Immobile Fluid Saturation", lineNumber, filePath );
+    elasticProperties.fieldName               = tokens[0];
+    elasticProperties.formationName           = tokens[1];
+    elasticProperties.faciesName              = tokens[2];
+    elasticProperties.porosity                = parseDouble( tokens[3], "Porosity", lineNumber, filePath );
+    elasticProperties.youngsModulus           = parseDouble( tokens[4], "Young's Modulus", lineNumber, filePath );
+    elasticProperties.poissonsRatio           = parseDouble( tokens[5], "Poisson's Ratio", lineNumber, filePath );
+    elasticProperties.K_Ic                    = parseDouble( tokens[6], "K-Ic", lineNumber, filePath );
+    elasticProperties.proppantEmbedment       = parseDouble( tokens[7], "Proppant Embedment", lineNumber, filePath );
+    elasticProperties.biotCoefficient         = parseDouble( tokens[8], "Biot Coefficient", lineNumber, filePath );
+    elasticProperties.k0                      = parseDouble( tokens[9], "k0", lineNumber, filePath );
+    elasticProperties.fluidLossCoefficient    = parseDouble( tokens[10], "Fluid Loss Coefficient", lineNumber, filePath );
+    elasticProperties.spurtLoss               = parseDouble( tokens[11], "Spurt Loss", lineNumber, filePath );
+    elasticProperties.immobileFluidSaturation = parseDouble( tokens[12], "Immobile Fluid Saturation", lineNumber, filePath );
 
     return elasticProperties;
 }
@@ -137,17 +134,13 @@ QStringList RifElasticPropertiesReader::tokenize( const QString& line, const QSt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RifElasticPropertiesReader::parseDouble( const QString& token,
-                                                const QString& propertyName,
-                                                int            lineNumber,
-                                                const QString& filePath )
+double RifElasticPropertiesReader::parseDouble( const QString& token, const QString& propertyName, int lineNumber, const QString& filePath )
 {
     bool   isOk  = false;
     double value = token.toDouble( &isOk );
     if ( !isOk )
     {
-        throw FileParseException(
-            QString( "Invalid number for '%1' on line %2: %3" ).arg( propertyName ).arg( lineNumber ).arg( filePath ) );
+        throw FileParseException( QString( "Invalid number for '%1' on line %2: %3" ).arg( propertyName ).arg( lineNumber ).arg( filePath ) );
     }
 
     return value;

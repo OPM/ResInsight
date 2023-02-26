@@ -36,9 +36,7 @@ RicMswICDAccumulator::RicMswICDAccumulator( RicMswValve* valve, RiaDefines::Ecli
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicMswICDAccumulator::accumulateValveParameters( const RimWellPathValve* wellPathValve,
-                                                      double                  overlapLength,
-                                                      double                  perforationCompsegsLength )
+bool RicMswICDAccumulator::accumulateValveParameters( const RimWellPathValve* wellPathValve, double overlapLength, double perforationCompsegsLength )
 {
     const double eps = 1.0e-8;
 
@@ -95,9 +93,7 @@ RicMswAICDAccumulator::RicMswAICDAccumulator( RicMswValve* valve, RiaDefines::Ec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicMswAICDAccumulator::accumulateValveParameters( const RimWellPathValve* wellPathValve,
-                                                       double                  overlapLength,
-                                                       double                  perforationCompsegsLength )
+bool RicMswAICDAccumulator::accumulateValveParameters( const RimWellPathValve* wellPathValve, double overlapLength, double perforationCompsegsLength )
 {
     const double eps = 1.0e-8;
 

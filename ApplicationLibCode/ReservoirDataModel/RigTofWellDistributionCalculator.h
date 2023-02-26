@@ -38,10 +38,7 @@ class QString;
 class RigTofWellDistributionCalculator
 {
 public:
-    RigTofWellDistributionCalculator( RimEclipseResultCase* caseToApply,
-                                      QString               targetWellname,
-                                      size_t                timeStepIndex,
-                                      RiaDefines::PhaseType phase );
+    RigTofWellDistributionCalculator( RimEclipseResultCase* caseToApply, QString targetWellname, size_t timeStepIndex, RiaDefines::PhaseType phase );
 
     void groupSmallContributions( double smallContribThreshold );
 
@@ -53,9 +50,8 @@ public:
 
 private:
     static std::map<double, std::vector<size_t>> buildSortedTofToCellIndicesMap( const std::vector<double>& tofData );
-    static std::vector<QString> findCandidateContributingWellNames( const RimFlowDiagSolution& flowDiagSolution,
-                                                                    QString                    targetWellname,
-                                                                    size_t                     timeStepIndex );
+    static std::vector<QString>
+        findCandidateContributingWellNames( const RimFlowDiagSolution& flowDiagSolution, QString targetWellname, size_t timeStepIndex );
 
     struct ContribWellEntry
     {

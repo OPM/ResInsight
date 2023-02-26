@@ -39,8 +39,7 @@ CAF_CMD_SOURCE_INIT( RicPasteWellLogPlotFeature, "RicPasteWellLogPlotFeature" );
 //--------------------------------------------------------------------------------------------------
 bool RicPasteWellLogPlotFeature::isCommandEnabled()
 {
-    caf::PdmObjectHandle* destinationObject =
-        dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
+    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
     if ( !destinationObject ) return false;
 
     RimWellLogPlotCollection* wellLogPlotCollection = nullptr;
@@ -58,8 +57,7 @@ bool RicPasteWellLogPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicPasteWellLogPlotFeature::onActionTriggered( bool isChecked )
 {
-    caf::PdmObjectHandle* destinationObject =
-        dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
+    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
     if ( !destinationObject ) return;
 
     RimWellLogPlotCollection* wellLogPlotCollection = nullptr;

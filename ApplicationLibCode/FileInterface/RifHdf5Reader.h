@@ -42,7 +42,7 @@ public:
 
     std::vector<QDateTime> timeSteps() const override;
     QStringList            propertyNames() const override;
-    bool dynamicResult( const QString& result, size_t stepIndex, std::vector<double>* values ) const override;
+    bool                   dynamicResult( const QString& result, size_t stepIndex, std::vector<double>* values ) const override;
 
 private:
     std::vector<std::string> getSourSimTimeStepFileNames( const QString& fileName ) const;
@@ -57,7 +57,7 @@ private:
 
     std::vector<std::string> getSubGroupNames( H5::H5File file, std::string baseGroupName ) const;
     std::vector<std::string> getResultNames( H5::H5File file, std::string baseGroupName ) const;
-    void getElementResultValues( H5::H5File file, std::string groupName, std::vector<double>* resultValues ) const;
+    void                     getElementResultValues( H5::H5File file, std::string groupName, std::vector<double>* resultValues ) const;
 
 private:
     QString                  m_fileName; // name of SourSimRL main file given by user

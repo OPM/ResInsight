@@ -77,7 +77,7 @@ public:
     bool showVersionInfo() const;
 
 private:
-    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     caf::PdmFieldHandle* objectToggleField() override;
     void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void                 updateEclipse3DInfo( RimEclipseView* reservoirView );
@@ -87,8 +87,8 @@ private:
     QString              timeStepText( RimGeoMechView* geoMechView );
     QString              caseInfoText( RimEclipseView* eclipseView );
     QString              caseInfoText( RimGeoMechView* geoMechView );
-    QString resultInfoText( const RigHistogramData& histData, RimEclipseView* eclipseView, bool showVolumeWeightedMean );
-    QString resultInfoText( const RigHistogramData& histData, RimGeoMechView* geoMechView );
+    QString              resultInfoText( const RigHistogramData& histData, RimEclipseView* eclipseView, bool showVolumeWeightedMean );
+    QString              resultInfoText( const RigHistogramData& histData, RimGeoMechView* geoMechView );
 
     QString sampleCountText( const std::vector<size_t>& histogram );
 

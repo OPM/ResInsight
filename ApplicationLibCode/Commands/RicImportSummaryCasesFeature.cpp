@@ -178,8 +178,7 @@ bool RicImportSummaryCasesFeature::createSummaryCasesFromFiles( const QStringLis
     RiaApplication* app  = RiaApplication::instance();
     RimProject*     proj = app->project();
 
-    RimSummaryCaseMainCollection* sumCaseColl =
-        proj->activeOilField() ? proj->activeOilField()->summaryCaseMainCollection() : nullptr;
+    RimSummaryCaseMainCollection* sumCaseColl = proj->activeOilField() ? proj->activeOilField()->summaryCaseMainCollection() : nullptr;
 
     if ( newCases ) newCases->clear();
     if ( !sumCaseColl ) return false;
@@ -216,10 +215,9 @@ bool RicImportSummaryCasesFeature::createSummaryCasesFromFiles( const QStringLis
 //--------------------------------------------------------------------------------------------------
 void RicImportSummaryCasesFeature::addSummaryCases( const std::vector<RimSummaryCase*>& cases )
 {
-    RiaApplication*               app  = RiaApplication::instance();
-    RimProject*                   proj = app->project();
-    RimSummaryCaseMainCollection* sumCaseColl =
-        proj->activeOilField() ? proj->activeOilField()->summaryCaseMainCollection() : nullptr;
+    RiaApplication*               app         = RiaApplication::instance();
+    RimProject*                   proj        = app->project();
+    RimSummaryCaseMainCollection* sumCaseColl = proj->activeOilField() ? proj->activeOilField()->summaryCaseMainCollection() : nullptr;
     sumCaseColl->addCases( cases );
 
     sumCaseColl->updateAllRequiredEditors();
@@ -254,19 +252,17 @@ void RicImportSummaryCasesFeature::addCasesToGroupIfRelevant( const std::vector<
 ///
 //--------------------------------------------------------------------------------------------------
 std::pair<QStringList, RiaEnsembleNameTools::EnsembleGroupingMode>
-    RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialogWithGrouping( const QString& dialogTitle,
-                                                                                       const QString& pathCacheName )
+    RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialogWithGrouping( const QString& dialogTitle, const QString& pathCacheName )
 {
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( pathCacheName );
 
-    RicRecursiveFileSearchDialogResult result =
-        RicRecursiveFileSearchDialog::runRecursiveSearchDialog( nullptr,
-                                                                dialogTitle,
-                                                                defaultDir,
-                                                                m_pathFilter,
-                                                                m_fileNameFilter,
-                                                                QStringList( ".SMSPEC" ) );
+    RicRecursiveFileSearchDialogResult result = RicRecursiveFileSearchDialog::runRecursiveSearchDialog( nullptr,
+                                                                                                        dialogTitle,
+                                                                                                        defaultDir,
+                                                                                                        m_pathFilter,
+                                                                                                        m_fileNameFilter,
+                                                                                                        QStringList( ".SMSPEC" ) );
 
     // Remember filters
     m_pathFilter     = result.pathFilter;
@@ -283,8 +279,7 @@ std::pair<QStringList, RiaEnsembleNameTools::EnsembleGroupingMode>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialog( const QString& dialogTitle,
-                                                                                   const QString& pathCacheName )
+QStringList RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialog( const QString& dialogTitle, const QString& pathCacheName )
 {
     auto result = runRecursiveSummaryCaseFileSearchDialogWithGrouping( dialogTitle, pathCacheName );
     return result.first;

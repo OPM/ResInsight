@@ -108,17 +108,14 @@ Rim3dOverlayInfoConfig::~Rim3dOverlayInfoConfig()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dOverlayInfoConfig::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                               const QVariant&            oldValue,
-                                               const QVariant&            newValue )
+void Rim3dOverlayInfoConfig::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( hasInvalidStatisticsCombination() )
     {
         displayPropertyFilteredStatisticsMessage( false );
         if ( changedField == &m_statisticsTimeRange )
             m_statisticsTimeRange = RimHistogramCalculator::StatisticsTimeRangeType::CURRENT_TIMESTEP;
-        if ( changedField == &m_statisticsCellRange )
-            m_statisticsCellRange = RimHistogramCalculator::StatisticsCellRangeType::ALL_CELLS;
+        if ( changedField == &m_statisticsCellRange ) m_statisticsCellRange = RimHistogramCalculator::StatisticsCellRangeType::ALL_CELLS;
     }
 
     if ( changedField == &m_showResultInfo )
@@ -305,16 +302,14 @@ QString Rim3dOverlayInfoConfig::caseInfoText( RimEclipseView* eclipseView )
         RimEclipseContourMapView* contourMap = dynamic_cast<RimEclipseContourMapView*>( eclipseView );
         if ( contourMap && contourMap->contourMapProjection() )
         {
-            QString totCellCount =
-                localeWithSpaceAsGroupSeparator.toString( contourMap->contourMapProjection()->numberOfCells() );
+            QString   totCellCount        = localeWithSpaceAsGroupSeparator.toString( contourMap->contourMapProjection()->numberOfCells() );
             cvf::uint validCellCount      = contourMap->contourMapProjection()->numberOfValidCells();
             QString   activeCellCountText = localeWithSpaceAsGroupSeparator.toString( validCellCount );
             QString   aggregationType     = contourMap->contourMapProjection()->resultAggregationText();
             QString   weightingParameterString;
             if ( contourMap->contourMapProjection()->weightingParameter() != "None" )
             {
-                weightingParameterString +=
-                    QString( " (Weight: %1)" ).arg( contourMap->contourMapProjection()->weightingParameter() );
+                weightingParameterString += QString( " (Weight: %1)" ).arg( contourMap->contourMapProjection()->weightingParameter() );
             }
 
             infoText += QString( "<p><b>-- Contour Map: %1 --</b><p>  "
@@ -324,13 +319,11 @@ QString Rim3dOverlayInfoConfig::caseInfoText( RimEclipseView* eclipseView )
         }
         else if ( eclipseView->mainGrid() )
         {
-            QString totCellCount = localeWithSpaceAsGroupSeparator.toString(
-                static_cast<int>( eclipseView->mainGrid()->globalCellArray().size() ) );
+            QString totCellCount =
+                localeWithSpaceAsGroupSeparator.toString( static_cast<int>( eclipseView->mainGrid()->globalCellArray().size() ) );
 
-            size_t mxActCellCount = eclipseView->eclipseCase()
-                                        ->eclipseCaseData()
-                                        ->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )
-                                        ->reservoirActiveCellCount();
+            size_t mxActCellCount =
+                eclipseView->eclipseCase()->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->reservoirActiveCellCount();
             size_t frActCellCount = eclipseView->eclipseCase()
                                         ->eclipseCaseData()
                                         ->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL )
@@ -340,8 +333,7 @@ QString Rim3dOverlayInfoConfig::caseInfoText( RimEclipseView* eclipseView )
             if ( frActCellCount > 0 ) activeCellCountText += "Matrix : ";
             activeCellCountText += localeWithSpaceAsGroupSeparator.toString( static_cast<int>( mxActCellCount ) );
             if ( frActCellCount > 0 )
-                activeCellCountText += " Fracture : " +
-                                       localeWithSpaceAsGroupSeparator.toString( static_cast<int>( frActCellCount ) );
+                activeCellCountText += " Fracture : " + localeWithSpaceAsGroupSeparator.toString( static_cast<int>( frActCellCount ) );
 
             QString iSize = QString::number( eclipseView->mainGrid()->cellCountI() );
             QString jSize = QString::number( eclipseView->mainGrid()->cellCountJ() );
@@ -405,9 +397,7 @@ QString Rim3dOverlayInfoConfig::caseInfoText( RimGeoMechView* geoMechView )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString Rim3dOverlayInfoConfig::resultInfoText( const RigHistogramData& histData,
-                                                RimEclipseView*         eclipseView,
-                                                bool                    showVolumeWeightedMean )
+QString Rim3dOverlayInfoConfig::resultInfoText( const RigHistogramData& histData, RimEclipseView* eclipseView, bool showVolumeWeightedMean )
 {
     QString infoText;
 
@@ -479,30 +469,27 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const RigHistogramData& histData
 
             if ( eclipseView->cellResult()->hasDualPorFractureResult() )
             {
-                QString porosityModelText =
-                    caf::AppEnum<RiaDefines::PorosityModelType>::uiText( eclipseView->cellResult()->porosityModel() );
+                QString porosityModelText = caf::AppEnum<RiaDefines::PorosityModelType>::uiText( eclipseView->cellResult()->porosityModel() );
 
                 infoText += QString( "<b>Dual Porosity Type:</b> %1<br>" ).arg( porosityModelText );
             }
 
             if ( histData.isMinMaxValid() )
             {
-                infoText += QString( "<br><b>Statistics:</b> " ) + timeRangeText + " and " +
-                            m_statisticsCellRange().uiText();
+                infoText += QString( "<br><b>Statistics:</b> " ) + timeRangeText + " and " + m_statisticsCellRange().uiText();
 
                 infoText += sampleCountText( histData.histogram );
 
-                infoText +=
-                    QString( "<table border=0 cellspacing=5 >"
-                             "<tr> <td>Min</td> <td>P90</td> <td>Mean</td> <td>P10</td> <td>Max</td> <td>Sum</td> </tr>"
-                             "<tr> <td>%1</td>  <td> %2</td> <td>  %3</td> <td> %4</td> <td> %5</td> <td> %6</td> </tr>"
-                             "</table>" )
-                        .arg( histData.min )
-                        .arg( histData.p90 )
-                        .arg( histData.mean )
-                        .arg( histData.p10 )
-                        .arg( histData.max )
-                        .arg( histData.sum );
+                infoText += QString( "<table border=0 cellspacing=5 >"
+                                     "<tr> <td>Min</td> <td>P90</td> <td>Mean</td> <td>P10</td> <td>Max</td> <td>Sum</td> </tr>"
+                                     "<tr> <td>%1</td>  <td> %2</td> <td>  %3</td> <td> %4</td> <td> %5</td> <td> %6</td> </tr>"
+                                     "</table>" )
+                                .arg( histData.min )
+                                .arg( histData.p90 )
+                                .arg( histData.mean )
+                                .arg( histData.p10 )
+                                .arg( histData.max )
+                                .arg( histData.sum );
             }
             if ( eclipseView->faultResultSettings()->hasValidCustomResult() )
             {
@@ -514,8 +501,7 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const RigHistogramData& histData
                     {
                         faultMapping = "Cells behind fault";
                     }
-                    else if ( eclipseView->faultCollection()->faultResult() ==
-                              RimFaultInViewCollection::FAULT_FRONT_FACE_CULLING )
+                    else if ( eclipseView->faultCollection()->faultResult() == RimFaultInViewCollection::FAULT_FRONT_FACE_CULLING )
                     {
                         faultMapping = "Cells in front of fault";
                     }
@@ -530,9 +516,8 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const RigHistogramData& histData
                 }
 
                 infoText += QString( "<b>Fault results: </b> %1<br>" ).arg( faultMapping );
-                infoText +=
-                    QString( "<b>Fault Property:</b> %1 <br>" )
-                        .arg( eclipseView->faultResultSettings()->customFaultResult()->resultVariableUiShortName() );
+                infoText += QString( "<b>Fault Property:</b> %1 <br>" )
+                                .arg( eclipseView->faultResultSettings()->customFaultResult()->resultVariableUiShortName() );
             }
         }
 
@@ -607,8 +592,7 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const RigHistogramData& histData
             }
             else
             {
-                infoText +=
-                    QString( "<b>Cell result:</b> %1, %2, %3<br>" ).arg( resultPos ).arg( fieldName ).arg( compName );
+                infoText += QString( "<b>Cell result:</b> %1, %2, %3<br>" ).arg( resultPos ).arg( fieldName ).arg( compName );
             }
 
             if ( geoMechView->cellResultResultDefinition()->isBiotCoefficientDependent() )
@@ -619,13 +603,11 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const RigHistogramData& histData
                 }
                 else if ( geoMechCase->biotCoefficientType() == RimGeoMechCase::BiotCoefficientType::BIOT_FIXED )
                 {
-                    infoText +=
-                        QString( "<b>Biot Coefficient</b>: %1 (Fixed)<br>" ).arg( geoMechCase->biotFixedCoefficient() );
+                    infoText += QString( "<b>Biot Coefficient</b>: %1 (Fixed)<br>" ).arg( geoMechCase->biotFixedCoefficient() );
                 }
                 else if ( geoMechCase->biotCoefficientType() == RimGeoMechCase::BiotCoefficientType::BIOT_PER_ELEMENT )
                 {
-                    infoText += QString( "<b>Biot Coefficient</b>: %1 (From element property)<br>" )
-                                    .arg( geoMechCase->biotResultAddress() );
+                    infoText += QString( "<b>Biot Coefficient</b>: %1 (From element property)<br>" ).arg( geoMechCase->biotResultAddress() );
                 }
             }
 
@@ -661,18 +643,16 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const RigHistogramData& histData
                 {
                     infoText += QString( "<br><b>Statistics:</b> " ) + m_statisticsTimeRange().uiText() + " and " +
                                 m_statisticsCellRange().uiText();
-                    infoText +=
-                        QString(
-                            "<table border=0 cellspacing=5 >"
-                            "<tr> <td>Min</td> <td>P90</td> <td>Mean</td> <td>P10</td> <td>Max</td> <td>Sum</td> </tr>"
-                            "<tr> <td>%1</td>  <td> %2</td> <td> %3</td>  <td> %4</td> <td> %5</td> <td> %6</td> </tr>"
-                            "</table>" )
-                            .arg( histData.min )
-                            .arg( histData.p90 )
-                            .arg( histData.mean )
-                            .arg( histData.p10 )
-                            .arg( histData.max )
-                            .arg( histData.sum );
+                    infoText += QString( "<table border=0 cellspacing=5 >"
+                                         "<tr> <td>Min</td> <td>P90</td> <td>Mean</td> <td>P10</td> <td>Max</td> <td>Sum</td> </tr>"
+                                         "<tr> <td>%1</td>  <td> %2</td> <td> %3</td>  <td> %4</td> <td> %5</td> <td> %6</td> </tr>"
+                                         "</table>" )
+                                    .arg( histData.min )
+                                    .arg( histData.p90 )
+                                    .arg( histData.mean )
+                                    .arg( histData.p10 )
+                                    .arg( histData.max )
+                                    .arg( histData.sum );
                 }
             }
         }
@@ -743,8 +723,7 @@ void Rim3dOverlayInfoConfig::update3DInfo()
     RimEclipseView* reservoirView = dynamic_cast<RimEclipseView*>( m_viewDef.p() );
     if ( reservoirView )
     {
-        const RimEclipseStatisticsCase* eclipseStat =
-            dynamic_cast<const RimEclipseStatisticsCase*>( reservoirView->eclipseCase() );
+        const RimEclipseStatisticsCase* eclipseStat = dynamic_cast<const RimEclipseStatisticsCase*>( reservoirView->eclipseCase() );
         if ( eclipseStat )
         {
             m_showVolumeWeightedMean = false;
@@ -958,18 +937,16 @@ QString Rim3dOverlayInfoConfig::timeStepText( RimEclipseView* eclipseView )
     if ( eclipseView && eclipseView->currentGridCellResults() )
     {
         int                    currTimeStepIndex = eclipseView->currentTimeStep();
-        std::vector<QDateTime> timeSteps = eclipseView->currentGridCellResults()->allTimeStepDatesFromEclipseReader();
+        std::vector<QDateTime> timeSteps         = eclipseView->currentGridCellResults()->allTimeStepDatesFromEclipseReader();
 
         if ( currTimeStepIndex >= 0 && currTimeStepIndex < (int)timeSteps.size() )
         {
             QString dateFormat = RiaQDateTimeTools::createTimeFormatStringFromDates( timeSteps );
 
-            QString dateString =
-                RiaQDateTimeTools::toStringUsingApplicationLocale( timeSteps[currTimeStepIndex], dateFormat );
+            QString dateString = RiaQDateTimeTools::toStringUsingApplicationLocale( timeSteps[currTimeStepIndex], dateFormat );
 
             dateTimeString =
-                QString( "Time Step: %1/%2  %3" )
-                    .arg( QString::number( currTimeStepIndex ), QString::number( timeSteps.size() - 1 ), dateString );
+                QString( "Time Step: %1/%2  %3" ).arg( QString::number( currTimeStepIndex ), QString::number( timeSteps.size() - 1 ), dateString );
         }
     }
 
@@ -990,10 +967,9 @@ QString Rim3dOverlayInfoConfig::timeStepText( RimGeoMechView* geoMechView )
     QString dateTimeString;
     if ( currTimeStepIndex >= 0 && currTimeStepIndex < timeSteps.size() )
     {
-        dateTimeString = QString( "Time Step: %1/%2  %3" )
-                             .arg( QString::number( currTimeStepIndex ),
-                                   QString::number( timeSteps.size() - 1 ),
-                                   timeSteps[currTimeStepIndex] );
+        dateTimeString =
+            QString( "Time Step: %1/%2  %3" )
+                .arg( QString::number( currTimeStepIndex ), QString::number( timeSteps.size() - 1 ), timeSteps[currTimeStepIndex] );
     }
 
     return QString( "<p><b><center>-- %1 --</center></b>" ).arg( dateTimeString ) +
@@ -1019,12 +995,11 @@ void Rim3dOverlayInfoConfig::displayPropertyFilteredStatisticsMessage( bool show
         isShowing = true;
         RiaLogging::errorInMessageBox( m_viewDef->viewer()->layoutWidget(),
                                        QString( "ResInsight" ),
-                                       QString(
-                                           "Statistics not available<br>"
-                                           "<br>"
-                                           "Statistics calculations of <b>Visible Cells</b> for <b>All Time Steps</b> "
-                                           "is not supported<br>"
-                                           "when you have an active Property filter on a time varying result.<br>" ) +
+                                       QString( "Statistics not available<br>"
+                                                "<br>"
+                                                "Statistics calculations of <b>Visible Cells</b> for <b>All Time Steps</b> "
+                                                "is not supported<br>"
+                                                "when you have an active Property filter on a time varying result.<br>" ) +
                                            switchString );
         isShowing = false;
     }

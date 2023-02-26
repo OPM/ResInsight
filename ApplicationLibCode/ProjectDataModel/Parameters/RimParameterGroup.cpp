@@ -169,9 +169,7 @@ void RimParameterGroup::appendParametersToList( std::list<RimGenericParameter*>&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimParameterGroup::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                               QString                    uiConfigName,
-                                               caf::PdmUiEditorAttribute* attribute )
+void RimParameterGroup::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_parameters )
     {

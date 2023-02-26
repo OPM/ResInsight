@@ -86,8 +86,7 @@ std::vector<RimWellLogCurve*> RicWellLogPlotCurveFeatureImpl::selectedWellLogCur
 //--------------------------------------------------------------------------------------------------
 RimWellAllocationPlot* RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot()
 {
-    caf::PdmObjectHandle* destinationObject =
-        dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
+    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
     if ( !destinationObject ) return nullptr;
 
     RimWellAllocationPlot* wellAllocationPlot = nullptr;
@@ -101,8 +100,7 @@ RimWellAllocationPlot* RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot(
 //--------------------------------------------------------------------------------------------------
 RimWellRftPlot* RicWellLogPlotCurveFeatureImpl::parentWellRftPlot()
 {
-    caf::PdmObjectHandle* destinationObject =
-        dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
+    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
     if ( !destinationObject ) return nullptr;
 
     RimWellRftPlot* wellRftPlot = nullptr;
@@ -116,8 +114,7 @@ RimWellRftPlot* RicWellLogPlotCurveFeatureImpl::parentWellRftPlot()
 //--------------------------------------------------------------------------------------------------
 RimWellBoreStabilityPlot* RicWellLogPlotCurveFeatureImpl::parentWellBoreStabilityPlot()
 {
-    caf::PdmObjectHandle* destinationObject =
-        dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
+    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
     if ( !destinationObject ) return nullptr;
 
     RimWellBoreStabilityPlot* wbsPlot = nullptr;

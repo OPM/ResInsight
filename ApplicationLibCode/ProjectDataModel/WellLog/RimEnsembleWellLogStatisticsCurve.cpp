@@ -96,8 +96,7 @@ void RimEnsembleWellLogStatisticsCurve::performDataExtraction( bool* isUsingPseu
 
     if ( m_ensembleWellLogCurveSet )
     {
-        const RimEnsembleWellLogStatistics* ensembleWellLogStatistics =
-            m_ensembleWellLogCurveSet->ensembleWellLogStatistics();
+        const RimEnsembleWellLogStatistics* ensembleWellLogStatistics = m_ensembleWellLogCurveSet->ensembleWellLogStatistics();
 
         m_ensembleWellLogCurveSet->updateStatistics();
 
@@ -167,8 +166,7 @@ QString RimEnsembleWellLogStatisticsCurve::createCurveAutoName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleWellLogStatisticsCurve::addDatapointsForBottomOfSegment( std::vector<double>& depthValues,
-                                                                         std::vector<double>& values )
+void RimEnsembleWellLogStatisticsCurve::addDatapointsForBottomOfSegment( std::vector<double>& depthValues, std::vector<double>& values )
 {
     std::vector<double> depthValuesWithBottomLayers;
     std::vector<double> valuesWithBottomLayers;

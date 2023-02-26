@@ -22,10 +22,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaSocketDataTransfer::writeBlockDataToSocket( QTcpSocket*  socket,
-                                                    const char*  data,
-                                                    quint64      bytesToWrite,
-                                                    QStringList& errorMessages )
+bool RiaSocketDataTransfer::writeBlockDataToSocket( QTcpSocket* socket, const char* data, quint64 bytesToWrite, QStringList& errorMessages )
 {
     quint64 bytesWritten = 0;
 

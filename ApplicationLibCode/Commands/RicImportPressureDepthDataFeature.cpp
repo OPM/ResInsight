@@ -52,11 +52,10 @@ void RicImportPressureDepthDataFeature::selectPressureDepthDataPathInDialog()
 {
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( "SUMMARY_CASE_DIR" );
-    QString         filePath = RiuFileDialogTools::getOpenFileName( nullptr, "Import Pressure/Depth Data", defaultDir );
+    QString         filePath   = RiuFileDialogTools::getOpenFileName( nullptr, "Import Pressure/Depth Data", defaultDir );
 
-    RimProject*                proj = app->project();
-    RimObservedDataCollection* observedDataCollection =
-        proj->activeOilField() ? proj->activeOilField()->observedDataCollection() : nullptr;
+    RimProject*                proj                   = app->project();
+    RimObservedDataCollection* observedDataCollection = proj->activeOilField() ? proj->activeOilField()->observedDataCollection() : nullptr;
     if ( !observedDataCollection ) return;
 
     const RimPressureDepthData* importedData = observedDataCollection->createAndAddPressureDepthDataFromPath( filePath );

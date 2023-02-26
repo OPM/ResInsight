@@ -35,6 +35,6 @@ protected:
 
 private:
     static std::vector<RimModeledWellPath*> modeledWellPathsFromClipboard();
-    static void                duplicateLaterals( const RimModeledWellPath* source, RimModeledWellPath* destination );
-    static RimModeledWellPath* duplicateAndInitializeWellPath( const RimModeledWellPath* source );
+    static void                             duplicateLaterals( const RimModeledWellPath* source, RimModeledWellPath* destination );
+    static RimModeledWellPath*              duplicateAndInitializeWellPath( const RimModeledWellPath* source );
 };

@@ -46,9 +46,8 @@ bool RicCreateUserDefinedPolylinesAnnotationFeature::isCommandEnabled()
     auto selObjs      = caf::selectedObjectsByTypeStrict<RimAnnotationCollection*>();
     auto selGroupColl = caf::selectedObjectsByTypeStrict<RimAnnotationGroupCollection*>();
 
-    return selObjs.size() == 1 ||
-           ( selGroupColl.size() == 1 && selGroupColl.front()->uiCapability()->uiName() ==
-                                             RimAnnotationGroupCollection::USED_DEFINED_POLYLINE_ANNOTATION_UI_NAME );
+    return selObjs.size() == 1 || ( selGroupColl.size() == 1 && selGroupColl.front()->uiCapability()->uiName() ==
+                                                                    RimAnnotationGroupCollection::USED_DEFINED_POLYLINE_ANNOTATION_UI_NAME );
 }
 
 //--------------------------------------------------------------------------------------------------

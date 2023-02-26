@@ -55,12 +55,7 @@ RigWellPathStimplanIntersector::RigWellPathStimplanIntersector( const std::vecto
     }
     double perforationLength = rimFracture->perforationLength();
 
-    calculate( fractureXf,
-               wellPathPoints,
-               wellRadius,
-               perforationLength,
-               fractureGridCellPolygons,
-               m_stimPlanCellIdxToIntersectionInfoMap );
+    calculate( fractureXf, wellPathPoints, wellRadius, perforationLength, fractureGridCellPolygons, m_stimPlanCellIdxToIntersectionInfoMap );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -80,7 +75,7 @@ void RigWellPathStimplanIntersector::calculate( const cvf::Mat4d&               
                                                 double                                      wellRadius,
                                                 double                                      perforationLength,
                                                 const std::vector<std::vector<cvf::Vec3d>>& fractureGridCellPolygons,
-                                                std::map<size_t, WellCellIntersection>& m_stimPlanCellIdxToIntersectionInfoMap )
+                                                std::map<size_t, WellCellIntersection>&     m_stimPlanCellIdxToIntersectionInfoMap )
 {
     cvf::Mat4d toFractureXf = fractureXf.getInverted();
 

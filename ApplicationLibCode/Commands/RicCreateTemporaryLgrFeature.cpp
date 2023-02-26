@@ -73,18 +73,17 @@ CAF_CMD_SOURCE_INIT( RicCreateTemporaryLgrFeature, "RicCreateTemporaryLgrFeature
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreateTemporaryLgrFeature::createLgrsForWellPaths( std::vector<RimWellPath*> wellPaths,
-                                                           RimEclipseCase*           eclipseCase,
-                                                           size_t                    timeStep,
-                                                           caf::VecIjk               lgrCellCounts,
-                                                           Lgr::SplitType            splitType,
+void RicCreateTemporaryLgrFeature::createLgrsForWellPaths( std::vector<RimWellPath*>                          wellPaths,
+                                                           RimEclipseCase*                                    eclipseCase,
+                                                           size_t                                             timeStep,
+                                                           caf::VecIjk                                        lgrCellCounts,
+                                                           Lgr::SplitType                                     splitType,
                                                            const std::set<RigCompletionData::CompletionType>& completionTypes,
-                                                           QStringList* wellsIntersectingOtherLgrs )
+                                                           QStringList*                                       wellsIntersectingOtherLgrs )
 {
-    auto               eclipseCaseData = eclipseCase->eclipseCaseData();
-    RigActiveCellInfo* activeCellInfo  = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    RigActiveCellInfo* fractureActiveCellInfo =
-        eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
+    auto               eclipseCaseData        = eclipseCase->eclipseCaseData();
+    RigActiveCellInfo* activeCellInfo         = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    RigActiveCellInfo* fractureActiveCellInfo = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL );
 
     auto lgrs = RicExportLgrFeature::buildLgrsForWellPaths( wellPaths,
                                                             eclipseCase,
@@ -173,13 +172,7 @@ void RicCreateTemporaryLgrFeature::onActionTriggered( bool isChecked )
 
         QStringList wellsIntersectingOtherLgrs;
 
-        createLgrsForWellPaths( wellPaths,
-                                eclipseCase,
-                                timeStep,
-                                lgrCellCounts,
-                                splitType,
-                                completionTypes,
-                                &wellsIntersectingOtherLgrs );
+        createLgrsForWellPaths( wellPaths, eclipseCase, timeStep, lgrCellCounts, splitType, completionTypes, &wellsIntersectingOtherLgrs );
 
         updateViews( eclipseCase );
 
@@ -263,17 +256,13 @@ void RicCreateTemporaryLgrFeature::createLgr( const LgrInfo& lgrInfo, RigMainGri
                     mainGrid->cellCornerVertices( mainCellIndex, vertices.data() );
 
                     auto cellCounts = lgrInfo.sizesPerMainGridCell();
-                    auto lgrCoords  = RiaCellDividingTools::createHexCornerCoords( vertices,
-                                                                                  cellCounts.i(),
-                                                                                  cellCounts.j(),
-                                                                                  cellCounts.k() );
+                    auto lgrCoords = RiaCellDividingTools::createHexCornerCoords( vertices, cellCounts.i(), cellCounts.j(), cellCounts.k() );
 
                     size_t subI = lgrI % lgrSizePerMainCell.i();
                     size_t subJ = lgrJ % lgrSizePerMainCell.j();
                     size_t subK = lgrK % lgrSizePerMainCell.k();
 
-                    size_t subIndex = subI + subJ * lgrSizePerMainCell.i() +
-                                      subK * lgrSizePerMainCell.i() * lgrSizePerMainCell.j();
+                    size_t subIndex = subI + subJ * lgrSizePerMainCell.i() + subK * lgrSizePerMainCell.i() * lgrSizePerMainCell.j();
 
                     for ( cIdx = 0; cIdx < 8; ++cIdx )
                     {
@@ -302,8 +291,7 @@ void RicCreateTemporaryLgrFeature::deleteAllCachedData( RimEclipseCase* eclipseC
             cellResultsDataMatrix->freeAllocatedResultsData();
         }
 
-        RigCaseCellResultsData* cellResultsDataFracture =
-            eclipseCase->results( RiaDefines::PorosityModelType::FRACTURE_MODEL );
+        RigCaseCellResultsData* cellResultsDataFracture = eclipseCase->results( RiaDefines::PorosityModelType::FRACTURE_MODEL );
         if ( cellResultsDataFracture )
         {
             cellResultsDataFracture->freeAllocatedResultsData();
@@ -325,9 +313,8 @@ void RicCreateTemporaryLgrFeature::computeCachedData( RimEclipseCase* eclipseCas
 {
     if ( eclipseCase )
     {
-        RigCaseCellResultsData* cellResultsDataMatrix = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-        RigCaseCellResultsData* cellResultsDataFracture =
-            eclipseCase->results( RiaDefines::PorosityModelType::FRACTURE_MODEL );
+        RigCaseCellResultsData* cellResultsDataMatrix   = eclipseCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+        RigCaseCellResultsData* cellResultsDataFracture = eclipseCase->results( RiaDefines::PorosityModelType::FRACTURE_MODEL );
 
         RigEclipseCaseData* eclipseCaseData = eclipseCase->eclipseCaseData();
         if ( eclipseCaseData )

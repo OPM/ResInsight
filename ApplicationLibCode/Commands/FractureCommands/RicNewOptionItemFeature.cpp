@@ -53,7 +53,7 @@ void RicNewOptionItemFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 void RicNewOptionItemFeature::onActionTriggered( bool isChecked )
 {
-    RiuCreateMultipleFractionsUi* multipleFractionUi = RimProject::current()->dialogData()->multipleFractionsData();
+    RiuCreateMultipleFractionsUi*           multipleFractionUi = RimProject::current()->dialogData()->multipleFractionsData();
     RicCreateMultipleFracturesOptionItemUi* selectedOptionItem = nullptr;
 
     {

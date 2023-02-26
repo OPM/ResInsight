@@ -71,8 +71,7 @@ caf::PdmScriptResponse RicfExportLgrForCompletions::execute()
         wellPaths = TOOLS::wellPathsFromNames( TOOLS::toQStringList( m_wellPathNames ), &wellsNotFound );
         if ( !wellsNotFound.empty() )
         {
-            QString error( QString( "exportLgrForCompletions: These well paths were not found: " ) +
-                           wellsNotFound.join( ", " ) );
+            QString error( QString( "exportLgrForCompletions: These well paths were not found: " ) + wellsNotFound.join( ", " ) );
             RiaLogging::error( error );
             return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
         }
@@ -92,7 +91,7 @@ caf::PdmScriptResponse RicfExportLgrForCompletions::execute()
     }
 
     caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
-    auto feature = dynamic_cast<RicExportLgrFeature*>( commandManager->getCommandFeature( "RicExportLgrFeature" ) );
+    auto                    feature = dynamic_cast<RicExportLgrFeature*>( commandManager->getCommandFeature( "RicExportLgrFeature" ) );
 
     RimEclipseCase* eclipseCase = TOOLS::caseFromId( m_caseId() );
     if ( !eclipseCase )
@@ -119,10 +118,8 @@ caf::PdmScriptResponse RicfExportLgrForCompletions::execute()
     caf::PdmScriptResponse response;
     if ( !wellsIntersectingOtherLgrs.empty() )
     {
-        auto    wellsList = wellsIntersectingOtherLgrs.join( ", " );
-        QString warning(
-            "exportLgrForCompletions: No export for some wells due to existing intersecting LGR(s).Affected wells : " +
-            wellsList );
+        auto wellsList = wellsIntersectingOtherLgrs.join( ", " );
+        QString warning( "exportLgrForCompletions: No export for some wells due to existing intersecting LGR(s).Affected wells : " + wellsList );
         RiaLogging::warning( warning );
         response.updateStatus( caf::PdmScriptResponse::COMMAND_WARNING, warning );
     }

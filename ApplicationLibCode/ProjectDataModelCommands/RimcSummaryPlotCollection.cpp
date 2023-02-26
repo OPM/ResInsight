@@ -45,12 +45,7 @@ RimcSummaryPlotCollection_newSummaryPlot::RimcSummaryPlotCollection_newSummaryPl
     CAF_PDM_InitObject( "Create Summary Plot", "", "", "Create a new Summary Plot" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_summaryCases, "SummaryCases", "", "", "", "Summary Cases" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_ensemble, "Ensemble", "", "", "", "Ensemble" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_addressString,
-                                          "Address",
-                                          "",
-                                          "",
-                                          "",
-                                          "Formatted address string specifying the plot options" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_addressString, "Address", "", "", "", "Formatted address string specifying the plot options" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -65,9 +60,7 @@ caf::PdmObjectHandle* RimcSummaryPlotCollection_newSummaryPlot::execute()
     {
         if ( !addressStrings.empty() )
         {
-            newPlot = RicSummaryPlotFeatureImpl::createSummaryPlotForEnsemble( std::vector<RimSummaryCase*>(),
-                                                                               m_ensemble,
-                                                                               addressStrings );
+            newPlot = RicSummaryPlotFeatureImpl::createSummaryPlotForEnsemble( std::vector<RimSummaryCase*>(), m_ensemble, addressStrings );
         }
         else
         {

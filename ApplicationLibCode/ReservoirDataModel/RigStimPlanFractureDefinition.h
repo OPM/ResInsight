@@ -111,13 +111,9 @@ public:
 
     std::vector<std::pair<QString, QString>> getStimPlanPropertyNamesUnits() const;
 
-    void setDataAtTimeValue( const QString&                          resultName,
-                             const QString&                          unit,
-                             const std::vector<std::vector<double>>& data,
-                             double                                  timeStepValue );
+    void setDataAtTimeValue( const QString& resultName, const QString& unit, const std::vector<std::vector<double>>& data, double timeStepValue );
 
-    const std::vector<std::vector<double>>&
-        getDataAtTimeIndex( const QString& resultName, const QString& unit, size_t timeStepIndex ) const;
+    const std::vector<std::vector<double>>& getDataAtTimeIndex( const QString& resultName, const QString& unit, size_t timeStepIndex ) const;
 
     std::vector<double> fractureGridResults( const QString& resultName, const QString& unitName, size_t timeStepIndex ) const;
 
@@ -134,17 +130,16 @@ private:
     size_t                           resultIndex( const QString& resultName, const QString& unit ) const;
     void                             generateXsFromFileXs( bool xMirrorMode );
     std::vector<std::vector<double>> generateDataLayoutFromFileDataLayout( std::vector<std::vector<double>> rawXYData ) const;
-    bool   numberOfParameterValuesOK( std::vector<std::vector<double>> propertyValuesAtTimestep ) const;
-    double minY() const;
-    double maxY() const;
+    bool                             numberOfParameterValuesOK( std::vector<std::vector<double>> propertyValuesAtTimestep ) const;
+    double                           minY() const;
+    double                           maxY() const;
 
     static std::vector<double> adjustedYCoordsAroundWellPathPosition( const std::vector<double>& yCoords,
-                                                                      double wellPathIntersectionAtFractureDepth );
+                                                                      double                     wellPathIntersectionAtFractureDepth );
 
     static std::vector<double> computeScaledXs( const std::vector<double>& xs, double scaleFactor );
 
-    static std::vector<double>
-        computeScaledYs( const std::vector<double>& ys, double scaleFactor, double wellPathIntersectionAtFractureDepth );
+    static std::vector<double> computeScaledYs( const std::vector<double>& ys, double scaleFactor, double wellPathIntersectionAtFractureDepth );
 
     std::vector<std::vector<double>> conductivityValuesAtTimeStep( const QString&                resultName,
                                                                    int                           activeTimeStepIndex,

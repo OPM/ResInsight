@@ -361,8 +361,7 @@ double RimSummaryCurve::yValueAtTimeT( time_t time ) const
     const std::vector<time_t> timeSteps = timeStepsY();
     const std::vector<double> values    = valuesY();
 
-    if ( timeSteps.empty() || time < timeSteps.front() || time > timeSteps.back() )
-        return std::numeric_limits<double>::infinity();
+    if ( timeSteps.empty() || time < timeSteps.front() || time > timeSteps.back() ) return std::numeric_limits<double>::infinity();
 
     for ( size_t i = 0; i < timeSteps.size(); ++i )
     {
@@ -372,8 +371,7 @@ double RimSummaryCurve::yValueAtTimeT( time_t time ) const
         }
         else if ( i < timeSteps.size() - 1u && timeSteps[i] < time && time < timeSteps[i + 1] )
         {
-            if ( m_curveAppearance->interpolation() ==
-                 RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT )
+            if ( m_curveAppearance->interpolation() == RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT )
             {
                 return values[i + 1];
             }
@@ -547,8 +545,7 @@ QString RimSummaryCurve::createCurveAutoName()
     }
 
     RimMultiSummaryPlotNameHelper multiNameHelper( plotNameHelpers );
-    QString                       curveName =
-        m_curveNameConfig->curveNameY( m_yValuesSummaryAddress->address(), currentPlotNameHelper, &multiNameHelper );
+    QString curveName = m_curveNameConfig->curveNameY( m_yValuesSummaryAddress->address(), currentPlotNameHelper, &multiNameHelper );
     if ( curveName.isEmpty() )
     {
         curveName = m_curveNameConfig->curveNameY( m_yValuesSummaryAddress->address(), nullptr, nullptr );
@@ -556,8 +553,7 @@ QString RimSummaryCurve::createCurveAutoName()
 
     if ( isCrossPlotCurve() )
     {
-        QString curveNameX =
-            m_curveNameConfig->curveNameX( m_xValuesSummaryAddress->address(), currentPlotNameHelper, &multiNameHelper );
+        QString curveNameX = m_curveNameConfig->curveNameX( m_xValuesSummaryAddress->address(), currentPlotNameHelper, &multiNameHelper );
         if ( curveNameX.isEmpty() )
         {
             curveNameX = m_curveNameConfig->curveNameX( m_xValuesSummaryAddress->address(), nullptr, nullptr );
@@ -688,9 +684,7 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
                                     resampledTimeSteps.insert( resampledTimeSteps.begin(), curveTimeStepsY.front() );
                                     resampledValues.insert( resampledValues.begin(), resampledValues.front() );
 
-                                    this->setSamplesFromTimeTAndYValues( resampledTimeSteps,
-                                                                         resampledValues,
-                                                                         useLogarithmicScale );
+                                    this->setSamplesFromTimeTAndYValues( resampledTimeSteps, resampledValues, useLogarithmicScale );
                                 }
                             }
                             else
@@ -788,8 +782,7 @@ void RimSummaryCurve::initAfterRead()
 
     if ( m_isEnsembleCurve().isPartiallyTrue() )
     {
-        m_isEnsembleCurve.v() = ( summaryCaseY() && summaryCaseY()->ensemble() ) ? caf::Tristate::State::True
-                                                                                 : caf::Tristate::State::False;
+        m_isEnsembleCurve.v() = ( summaryCaseY() && summaryCaseY()->ensemble() ) ? caf::Tristate::State::True : caf::Tristate::State::False;
     }
 }
 
@@ -834,9 +827,7 @@ double RimSummaryCurve::computeCurveZValue()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurve::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                             QString                    uiConfigName,
-                                             caf::PdmUiEditorAttribute* attribute )
+void RimSummaryCurve::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( &m_yPushButtonSelectSummaryAddress == field || &m_xPushButtonSelectSummaryAddress == field )
     {
@@ -901,8 +892,7 @@ void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurve::appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options,
-                                                            RimSummaryCase*                summaryCase )
+void RimSummaryCurve::appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options, RimSummaryCase* summaryCase )
 {
     if ( summaryCase )
     {
@@ -921,8 +911,8 @@ void RimSummaryCurve::appendOptionItemsForSummaryAddresses( QList<caf::PdmOption
             }
         }
 
-        options->push_front( caf::PdmOptionItemInfo( RiaResultNames::undefinedResultName(),
-                                                     QVariant::fromValue( RifEclipseSummaryAddress() ) ) );
+        options->push_front(
+            caf::PdmOptionItemInfo( RiaResultNames::undefinedResultName(), QVariant::fromValue( RifEclipseSummaryAddress() ) ) );
     }
 }
 
@@ -985,10 +975,7 @@ QString RimSummaryCurve::curveExportDescription( const RifEclipseSummaryAddress&
 
     if ( group && group->isEnsemble() )
     {
-        return QString( "%1.%2.%3" )
-            .arg( QString::fromStdString( addressUiText ) )
-            .arg( m_yValuesSummaryCase->nativeCaseName() )
-            .arg( group->name() );
+        return QString( "%1.%2.%3" ).arg( QString::fromStdString( addressUiText ) ).arg( m_yValuesSummaryCase->nativeCaseName() ).arg( group->name() );
     }
     else
     {
@@ -1023,8 +1010,7 @@ void RimSummaryCurve::setCurveAppearanceFromCaseType()
             setSymbol( RiuPlotCurveSymbol::SYMBOL_XCROSS );
             setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
         }
-        else if ( prefs->defaultSummaryHistoryCurveStyle() ==
-                  RiaPreferencesSummary::SummaryHistoryCurveStyleMode::SYMBOLS_AND_LINES )
+        else if ( prefs->defaultSummaryHistoryCurveStyle() == RiaPreferencesSummary::SummaryHistoryCurveStyleMode::SYMBOLS_AND_LINES )
         {
             setSymbolEdgeColor( m_curveAppearance->color() );
 
@@ -1062,9 +1048,7 @@ void RimSummaryCurve::setAsTopZWithinCategory( bool enable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                        const QVariant&            oldValue,
-                                        const QVariant&            newValue )
+void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimStackablePlotCurve::fieldChangedByUi( changedField, oldValue, newValue );
 
@@ -1222,9 +1206,8 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
                     QString formatString = RiaQDateTimeTools::createTimeFormatStringFromDates( timeSteps );
 
-                    description += QString( "Time step range for X : '%1' - '%2'" )
-                                       .arg( first.toString( formatString ) )
-                                       .arg( last.toString( formatString ) );
+                    description +=
+                        QString( "Time step range for X : '%1' - '%2'" ).arg( first.toString( formatString ) ).arg( last.toString( formatString ) );
                 }
 
                 {
@@ -1238,9 +1221,8 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                     QString formatString = RiaQDateTimeTools::createTimeFormatStringFromDates( timeSteps );
 
                     description += "\n";
-                    description += QString( "Time step range for Y : '%1' - '%2'" )
-                                       .arg( first.toString( formatString ) )
-                                       .arg( last.toString( formatString ) );
+                    description +=
+                        QString( "Time step range for Y : '%1' - '%2'" ).arg( first.toString( formatString ) ).arg( last.toString( formatString ) );
                 }
 
                 RiaLogging::errorInMessageBox( nullptr, "Detected no overlapping time steps", description );
@@ -1307,8 +1289,7 @@ void RimSummaryCurve::calculateCurveInterpolationFromAddress()
         auto address = m_yValuesSummaryAddress()->address();
         if ( RiaSummaryTools::hasAccumulatedData( address ) )
         {
-            m_curveAppearance->setInterpolation(
-                RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT );
+            m_curveAppearance->setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT );
         }
         else
         {

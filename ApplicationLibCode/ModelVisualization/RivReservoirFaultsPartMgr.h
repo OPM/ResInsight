@@ -55,9 +55,7 @@ public:
     void setOpacityLevel( float opacity );
     void applySingleColorEffect();
     void updateColors( size_t timeStepIndex, RimEclipseCellColors* cellResultColors );
-    void updateCellEdgeResultColor( size_t                timeStepIndex,
-                                    RimEclipseCellColors* cellResultColors,
-                                    RimCellEdgeColors*    cellEdgeResultColors );
+    void updateCellEdgeResultColor( size_t timeStepIndex, RimEclipseCellColors* cellResultColors, RimCellEdgeColors* cellEdgeResultColors );
 
     void appendPartsToModel( cvf::ModelBasicList* model );
 

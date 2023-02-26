@@ -85,9 +85,8 @@ public:
     std::vector<RimSummaryAddressCollection*> subFolders() const;
 
 private:
-    RimSummaryAddressCollection*
-        getOrCreateSubfolder( const QString         folderName,
-                              CollectionContentType createFolderType = CollectionContentType::NOT_DEFINED );
+    RimSummaryAddressCollection* getOrCreateSubfolder( const QString         folderName,
+                                                       CollectionContentType createFolderType = CollectionContentType::NOT_DEFINED );
 
     RimSummaryAddressCollection* getOrCreateSubfolder( CollectionContentType createFolderType );
 

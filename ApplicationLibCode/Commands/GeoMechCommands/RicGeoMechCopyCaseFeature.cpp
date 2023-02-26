@@ -60,10 +60,8 @@ void RicGeoMechCopyCaseFeature::onActionTriggered( bool isChecked )
 
         for ( RimGeoMechCase* gmc : cases )
         {
-            QString fileName = RiuFileDialogTools::getOpenFileName( nullptr,
-                                                                    "Import Geo-Mechanical Model",
-                                                                    defaultDir,
-                                                                    "Abaqus results (*.odb)" );
+            QString fileName =
+                RiuFileDialogTools::getOpenFileName( nullptr, "Import Geo-Mechanical Model", defaultDir, "Abaqus results (*.odb)" );
             if ( fileName.isEmpty() ) break;
 
             defaultDir = QFileInfo( fileName ).absolutePath();

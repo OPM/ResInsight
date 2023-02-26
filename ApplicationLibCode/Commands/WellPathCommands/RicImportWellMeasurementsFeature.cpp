@@ -51,13 +51,12 @@ void RicImportWellMeasurementsFeature::onActionTriggered( bool isChecked )
     CVF_ASSERT( wellPathCollection );
 
     // Open dialog box to select well path files
-    RiaApplication* app        = RiaApplication::instance();
-    QString         defaultDir = app->lastUsedDialogDirectory( "WELLPATH_DIR" );
-    QStringList     wellPathFilePaths =
-        RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
-                                              "Import Well Measurements",
-                                              defaultDir,
-                                              "Well Measurements (*.csv);;All Files (*.*)" );
+    RiaApplication* app               = RiaApplication::instance();
+    QString         defaultDir        = app->lastUsedDialogDirectory( "WELLPATH_DIR" );
+    QStringList     wellPathFilePaths = RiuFileDialogTools::getOpenFileNames( Riu3DMainWindowTools::mainWindowWidget(),
+                                                                          "Import Well Measurements",
+                                                                          defaultDir,
+                                                                          "Well Measurements (*.csv);;All Files (*.*)" );
 
     if ( wellPathFilePaths.size() < 1 ) return;
 

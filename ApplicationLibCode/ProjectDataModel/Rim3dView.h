@@ -202,8 +202,7 @@ protected:
     RimWellPathCollection* wellPathCollection() const;
 
     void addWellPathsToModel( cvf::ModelBasicList* wellPathModelBasicList, const cvf::BoundingBox& wellPathClipBoundingBox );
-    void addDynamicWellPathsToModel( cvf::ModelBasicList*    wellPathModelBasicList,
-                                     const cvf::BoundingBox& wellPathClipBoundingBox );
+    void addDynamicWellPathsToModel( cvf::ModelBasicList* wellPathModelBasicList, const cvf::BoundingBox& wellPathClipBoundingBox );
     void addAnnotationsToModel( cvf::ModelBasicList* annotationsModel );
     void addMeasurementToModel( cvf::ModelBasicList* measureModel );
     void addCellFiltersToModel( cvf::ModelBasicList* cellFilterModel );
@@ -302,7 +301,7 @@ private:
 private:
     QPointer<RiuViewer> m_viewer;
     QPointer<RiuViewer> m_overrideViewer;
-    bool m_isCallingUpdateDisplayModelForCurrentTimestepAndRedraw; // To avoid infinite recursion if comparison views
+    bool                m_isCallingUpdateDisplayModelForCurrentTimestepAndRedraw; // To avoid infinite recursion if comparison views
                                                                    // are pointing to each other.
 
     // Fields

@@ -70,17 +70,14 @@ public:
 
     RimWellLogFile::WellFlowCondition wellFlowRateCondition() const { return m_wellFlowCondition(); }
 
-    static std::vector<std::pair<double, double>> findMdAndChannelValuesForWellPath( const RimWellPath* wellPath,
-                                                                                     const QString&     channelName,
-                                                                                     QString* unitString = nullptr );
+    static std::vector<std::pair<double, double>>
+        findMdAndChannelValuesForWellPath( const RimWellPath* wellPath, const QString& channelName, QString* unitString = nullptr );
 
 private:
     void setupBeforeSave() override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                QString                    uiConfigName,
-                                caf::PdmUiEditorAttribute* attribute ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     caf::PdmFieldHandle* userDescriptionField() override { return &m_name; }
 

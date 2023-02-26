@@ -39,11 +39,9 @@ class PdmUiOrdering;
 class RiaSimWellBranchTools
 {
 public:
-    static std::vector<const RigWellPath*> simulationWellBranches( const QString& simWellName,
-                                                                   bool           useAutoDetectionOfBranches );
+    static std::vector<const RigWellPath*> simulationWellBranches( const QString& simWellName, bool useAutoDetectionOfBranches );
 
-    static QList<caf::PdmOptionItemInfo>
-        valueOptionsForBranchIndexField( const std::vector<const RigWellPath*>& simulationWellPaths );
+    static QList<caf::PdmOptionItemInfo> valueOptionsForBranchIndexField( const std::vector<const RigWellPath*>& simulationWellPaths );
 
     static void appendSimWellBranchFieldsIfRequiredFromWellName( caf::PdmUiOrdering*        uiOrdering,
                                                                  const QString&             wellPathOrSimWellName,

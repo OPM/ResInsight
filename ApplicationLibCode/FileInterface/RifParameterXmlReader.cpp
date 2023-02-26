@@ -169,8 +169,7 @@ bool RifParameterXmlReader::parseFile( QString& outErrorText )
 
                     if ( xml.attributes().hasAttribute( "advanced" ) )
                     {
-                        if ( xml.attributes().value( "advanced" ).toString().toLower() == "true" )
-                            parameter->setAdvanced( true );
+                        if ( xml.attributes().value( "advanced" ).toString().toLower() == "true" ) parameter->setAdvanced( true );
                     }
 
                     if ( xml.attributes().hasAttribute( "description" ) )

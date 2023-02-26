@@ -61,7 +61,7 @@ private:
     cvf::ref<RivSurfaceIntersectionGeometryGenerator> m_intersectionGenerator;
 
     caf::PdmPointer<RimSurfaceInView> m_surfaceInView;
-    cvf::ref<RigSurface> m_usedSurfaceData; // Store the reference to the old data, to know when new data has arrived.
+    cvf::ref<RigSurface>              m_usedSurfaceData; // Store the reference to the old data, to know when new data has arrived.
 
     cvf::ref<cvf::Part> m_nativeTrianglesPart;
     cvf::ref<cvf::Part> m_nativeMeshLinesPart;

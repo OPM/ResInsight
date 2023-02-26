@@ -70,8 +70,7 @@ private:
     bool hasLasFileWithChannel( const QString& channel ) const;
     bool hasElementPropertyEntry( const RigFemResultAddress& resAddr ) const;
 
-    void assignValidSource( caf::PdmField<ParameterSourceEnum>* parameterSourceField,
-                            const std::vector<ParameterSource>& validSources );
+    void assignValidSource( caf::PdmField<ParameterSourceEnum>* parameterSourceField, const std::vector<ParameterSource>& validSources );
 
     std::vector<ParameterSource> supportedSources( const RigWbsParameter& parameter ) const;
 

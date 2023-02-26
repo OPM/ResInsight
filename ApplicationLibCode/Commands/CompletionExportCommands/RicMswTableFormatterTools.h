@@ -97,8 +97,7 @@ void writeCompletionsForSegment( gsl::not_null<const RicMswSegment*> outletSegme
                                  double                              maxSegmentLength,
                                  int*                                segmentNumber );
 
-void writeWelsegsCompletionCommentHeader( RifTextDataTableFormatter&        formatter,
-                                          RigCompletionData::CompletionType completionType );
+void writeWelsegsCompletionCommentHeader( RifTextDataTableFormatter& formatter, RigCompletionData::CompletionType completionType );
 
 void generateCompsegTables( RifTextDataTableFormatter& formatter, RicMswExportInfo& exportInfo, bool exportLgrData );
 

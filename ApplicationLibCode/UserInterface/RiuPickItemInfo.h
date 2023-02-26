@@ -71,7 +71,7 @@ public:
     static RiuPickItemInfo              extractPickItemInfo( const cvf::HitItem* hitItem );
     static std::vector<RiuPickItemInfo> convertToPickItemInfos( const cvf::HitItemCollection& hitItems,
                                                                 const cvf::Vec3d&             globalRayOrigin,
-                                                                double coincidentRayDistanceTolerance = 1e-3 );
+                                                                double                        coincidentRayDistanceTolerance = 1e-3 );
 
 private:
     double             m_distanceAlongRay;

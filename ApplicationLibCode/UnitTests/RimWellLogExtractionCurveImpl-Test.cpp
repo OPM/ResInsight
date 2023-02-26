@@ -19,7 +19,7 @@ TEST( RimWellLogExtractionCurveImplTest, StripOffInvalidValAtEndsOfVector )
     values.push_back( HUGE_VAL );
 
     bool includePositiveValuesOnly = false;
-    auto valuesIntervals = RiaCurveDataTools::calculateIntervalsOfValidValues( values, includePositiveValuesOnly );
+    auto valuesIntervals           = RiaCurveDataTools::calculateIntervalsOfValidValues( values, includePositiveValuesOnly );
 
     EXPECT_EQ( 1, static_cast<int>( valuesIntervals.size() ) );
     EXPECT_EQ( 2, static_cast<int>( valuesIntervals[0].first ) );
@@ -42,7 +42,7 @@ TEST( RimWellLogExtractionCurveImplTest, StripOffHugeValAtEndsAndInteriorOfVecto
     values.push_back( HUGE_VAL );
 
     bool includePositiveValuesOnly = false;
-    auto valuesIntervals = RiaCurveDataTools::calculateIntervalsOfValidValues( values, includePositiveValuesOnly );
+    auto valuesIntervals           = RiaCurveDataTools::calculateIntervalsOfValidValues( values, includePositiveValuesOnly );
 
     EXPECT_EQ( 2, static_cast<int>( valuesIntervals.size() ) );
     EXPECT_EQ( 2, static_cast<int>( valuesIntervals[0].first ) );
@@ -70,7 +70,7 @@ TEST( RimWellLogExtractionCurveImplTest, PositiveValuesOnly )
     values.push_back( HUGE_VAL );
 
     bool includePositiveValuesOnly = true;
-    auto valuesIntervals = RiaCurveDataTools::calculateIntervalsOfValidValues( values, includePositiveValuesOnly );
+    auto valuesIntervals           = RiaCurveDataTools::calculateIntervalsOfValidValues( values, includePositiveValuesOnly );
 
     EXPECT_EQ( 2, static_cast<int>( valuesIntervals.size() ) );
     EXPECT_EQ( 4, static_cast<int>( valuesIntervals[0].first ) );

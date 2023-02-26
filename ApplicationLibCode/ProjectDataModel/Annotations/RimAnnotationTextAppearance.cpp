@@ -107,9 +107,7 @@ void RimAnnotationTextAppearance::defineUiOrdering( QString uiConfigName, caf::P
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnnotationTextAppearance::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                    const QVariant&            oldValue,
-                                                    const QVariant&            newValue )
+void RimAnnotationTextAppearance::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimAnnotationCollectionBase* annColl = nullptr;
     this->firstAncestorOrThisOfTypeAsserted( annColl );

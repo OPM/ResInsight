@@ -218,47 +218,43 @@ void RigCaseToCaseRangeFilterMapper::convertRangeFilterEndPoints( const RigRange
 
             if ( femIsDestination )
             {
-                rangeFilterMatches[cornerIdx].cellMatchType =
-                    findBestFemCellFromEclCell( eclGrid,
-                                                srcRangeCube[cornerIdx][0],
-                                                srcRangeCube[cornerIdx][1],
-                                                srcRangeCube[cornerIdx][2],
-                                                femPart,
-                                                &( rangeFilterMatches[cornerIdx].ijk[0] ),
-                                                &( rangeFilterMatches[cornerIdx].ijk[1] ),
-                                                &( rangeFilterMatches[cornerIdx].ijk[2] ) );
+                rangeFilterMatches[cornerIdx].cellMatchType = findBestFemCellFromEclCell( eclGrid,
+                                                                                          srcRangeCube[cornerIdx][0],
+                                                                                          srcRangeCube[cornerIdx][1],
+                                                                                          srcRangeCube[cornerIdx][2],
+                                                                                          femPart,
+                                                                                          &( rangeFilterMatches[cornerIdx].ijk[0] ),
+                                                                                          &( rangeFilterMatches[cornerIdx].ijk[1] ),
+                                                                                          &( rangeFilterMatches[cornerIdx].ijk[2] ) );
 
-                rangeFilterMatches[diagIdx].cellMatchType =
-                    findBestFemCellFromEclCell( eclGrid,
-                                                srcRangeCube[diagIdx][0],
-                                                srcRangeCube[diagIdx][1],
-                                                srcRangeCube[diagIdx][2],
-                                                femPart,
-                                                &( rangeFilterMatches[diagIdx].ijk[0] ),
-                                                &( rangeFilterMatches[diagIdx].ijk[1] ),
-                                                &( rangeFilterMatches[diagIdx].ijk[2] ) );
+                rangeFilterMatches[diagIdx].cellMatchType = findBestFemCellFromEclCell( eclGrid,
+                                                                                        srcRangeCube[diagIdx][0],
+                                                                                        srcRangeCube[diagIdx][1],
+                                                                                        srcRangeCube[diagIdx][2],
+                                                                                        femPart,
+                                                                                        &( rangeFilterMatches[diagIdx].ijk[0] ),
+                                                                                        &( rangeFilterMatches[diagIdx].ijk[1] ),
+                                                                                        &( rangeFilterMatches[diagIdx].ijk[2] ) );
             }
             else
             {
-                rangeFilterMatches[cornerIdx].cellMatchType =
-                    findBestEclCellFromFemCell( femPart,
-                                                srcRangeCube[cornerIdx][0],
-                                                srcRangeCube[cornerIdx][1],
-                                                srcRangeCube[cornerIdx][2],
-                                                eclGrid,
-                                                &( rangeFilterMatches[cornerIdx].ijk[0] ),
-                                                &( rangeFilterMatches[cornerIdx].ijk[1] ),
-                                                &( rangeFilterMatches[cornerIdx].ijk[2] ) );
+                rangeFilterMatches[cornerIdx].cellMatchType = findBestEclCellFromFemCell( femPart,
+                                                                                          srcRangeCube[cornerIdx][0],
+                                                                                          srcRangeCube[cornerIdx][1],
+                                                                                          srcRangeCube[cornerIdx][2],
+                                                                                          eclGrid,
+                                                                                          &( rangeFilterMatches[cornerIdx].ijk[0] ),
+                                                                                          &( rangeFilterMatches[cornerIdx].ijk[1] ),
+                                                                                          &( rangeFilterMatches[cornerIdx].ijk[2] ) );
 
-                rangeFilterMatches[diagIdx].cellMatchType =
-                    findBestEclCellFromFemCell( femPart,
-                                                srcRangeCube[diagIdx][0],
-                                                srcRangeCube[diagIdx][1],
-                                                srcRangeCube[diagIdx][2],
-                                                eclGrid,
-                                                &( rangeFilterMatches[diagIdx].ijk[0] ),
-                                                &( rangeFilterMatches[diagIdx].ijk[1] ),
-                                                &( rangeFilterMatches[diagIdx].ijk[2] ) );
+                rangeFilterMatches[diagIdx].cellMatchType = findBestEclCellFromFemCell( femPart,
+                                                                                        srcRangeCube[diagIdx][0],
+                                                                                        srcRangeCube[diagIdx][1],
+                                                                                        srcRangeCube[diagIdx][2],
+                                                                                        eclGrid,
+                                                                                        &( rangeFilterMatches[diagIdx].ijk[0] ),
+                                                                                        &( rangeFilterMatches[diagIdx].ijk[1] ),
+                                                                                        &( rangeFilterMatches[diagIdx].ijk[2] ) );
             }
 
             if ( rangeFilterMatches[cornerIdx].cellMatchType == EXACT && rangeFilterMatches[diagIdx].cellMatchType == EXACT )
@@ -356,15 +352,14 @@ void RigCaseToCaseRangeFilterMapper::convertRangeFilterEndPoints( const RigRange
 //--------------------------------------------------------------------------------------------------
 /// Return 0 for collapsed cell 1 for
 //--------------------------------------------------------------------------------------------------
-RigCaseToCaseRangeFilterMapper::CellMatchType
-    RigCaseToCaseRangeFilterMapper::findBestFemCellFromEclCell( const RigMainGrid* masterEclGrid,
-                                                                size_t             ei,
-                                                                size_t             ej,
-                                                                size_t             ek,
-                                                                const RigFemPart*  dependentFemPart,
-                                                                size_t*            fi,
-                                                                size_t*            fj,
-                                                                size_t*            fk )
+RigCaseToCaseRangeFilterMapper::CellMatchType RigCaseToCaseRangeFilterMapper::findBestFemCellFromEclCell( const RigMainGrid* masterEclGrid,
+                                                                                                          size_t             ei,
+                                                                                                          size_t             ej,
+                                                                                                          size_t             ek,
+                                                                                                          const RigFemPart* dependentFemPart,
+                                                                                                          size_t*           fi,
+                                                                                                          size_t*           fj,
+                                                                                                          size_t*           fk )
 {
     // Find tolerance
 
@@ -411,14 +406,9 @@ RigCaseToCaseRangeFilterMapper::CellMatchType
             sqDistToClosestElmCenter = sqDist;
         }
 
-        RigCaseToCaseCellMapperTools::rotateCellTopologicallyToMatchBaseCell( geoMechConvertedEclCell,
-                                                                              isEclFaceNormalsOutwards,
-                                                                              elmCorners );
+        RigCaseToCaseCellMapperTools::rotateCellTopologicallyToMatchBaseCell( geoMechConvertedEclCell, isEclFaceNormalsOutwards, elmCorners );
 
-        foundExactMatch = RigCaseToCaseCellMapperTools::isEclFemCellsMatching( geoMechConvertedEclCell,
-                                                                               elmCorners,
-                                                                               xyTolerance,
-                                                                               zTolerance );
+        foundExactMatch = RigCaseToCaseCellMapperTools::isEclFemCellsMatching( geoMechConvertedEclCell, elmCorners, xyTolerance, zTolerance );
 
         if ( foundExactMatch )
         {
@@ -447,15 +437,14 @@ RigCaseToCaseRangeFilterMapper::CellMatchType
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigCaseToCaseRangeFilterMapper::CellMatchType
-    RigCaseToCaseRangeFilterMapper::findBestEclCellFromFemCell( const RigFemPart*  dependentFemPart,
-                                                                size_t             fi,
-                                                                size_t             fj,
-                                                                size_t             fk,
-                                                                const RigMainGrid* masterEclGrid,
-                                                                size_t*            ei,
-                                                                size_t*            ej,
-                                                                size_t*            ek )
+RigCaseToCaseRangeFilterMapper::CellMatchType RigCaseToCaseRangeFilterMapper::findBestEclCellFromFemCell( const RigFemPart* dependentFemPart,
+                                                                                                          size_t            fi,
+                                                                                                          size_t            fj,
+                                                                                                          size_t            fk,
+                                                                                                          const RigMainGrid* masterEclGrid,
+                                                                                                          size_t*            ei,
+                                                                                                          size_t*            ej,
+                                                                                                          size_t*            ek )
 {
     // Find tolerance
 
@@ -511,14 +500,9 @@ RigCaseToCaseRangeFilterMapper::CellMatchType
         rotatedElm[6] = elmCorners[6];
         rotatedElm[7] = elmCorners[7];
 
-        RigCaseToCaseCellMapperTools::rotateCellTopologicallyToMatchBaseCell( geoMechConvertedEclCell,
-                                                                              isEclFaceNormalsOutwards,
-                                                                              rotatedElm );
+        RigCaseToCaseCellMapperTools::rotateCellTopologicallyToMatchBaseCell( geoMechConvertedEclCell, isEclFaceNormalsOutwards, rotatedElm );
 
-        foundExactMatch = RigCaseToCaseCellMapperTools::isEclFemCellsMatching( geoMechConvertedEclCell,
-                                                                               rotatedElm,
-                                                                               xyTolerance,
-                                                                               zTolerance );
+        foundExactMatch = RigCaseToCaseCellMapperTools::isEclFemCellsMatching( geoMechConvertedEclCell, rotatedElm, xyTolerance, zTolerance );
 
         if ( foundExactMatch )
         {

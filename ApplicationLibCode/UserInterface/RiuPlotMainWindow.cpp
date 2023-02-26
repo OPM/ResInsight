@@ -98,8 +98,7 @@ RiuPlotMainWindow::RiuPlotMainWindow()
     menuForMdiArea << "RicOpenSummaryPlotEditorFromMdiAreaFeature";
     new RiuContextMenuLauncher( m_mdiArea, menuForMdiArea );
 
-    ads::CDockWidget* cWidget =
-        RiuDockWidgetTools::createDockWidget( "Plot Window", RiuDockWidgetTools::mainPlotWindowName(), this );
+    ads::CDockWidget* cWidget = RiuDockWidgetTools::createDockWidget( "Plot Window", RiuDockWidgetTools::mainPlotWindowName(), this );
 
     cWidget->setWidget( m_mdiArea );
     auto dockArea = dockManager()->setCentralWidget( cWidget );
@@ -121,9 +120,7 @@ RiuPlotMainWindow::RiuPlotMainWindow()
     {
         m_undoView->setStack( caf::CmdExecCommandManager::instance()->undoStack() );
     }
-    connect( caf::CmdExecCommandManager::instance()->undoStack(),
-             SIGNAL( indexChanged( int ) ),
-             SLOT( slotRefreshUndoRedoActions() ) );
+    connect( caf::CmdExecCommandManager::instance()->undoStack(), SIGNAL( indexChanged( int ) ), SLOT( slotRefreshUndoRedoActions() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -209,8 +206,7 @@ void RiuPlotMainWindow::initializeGuiNewProjectLoaded()
 
     m_mdiArea->applyTiling();
 
-    if ( m_activePlotViewWindow && m_activePlotViewWindow->viewWidget() &&
-         !RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
+    if ( m_activePlotViewWindow && m_activePlotViewWindow->viewWidget() && !RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
     {
         if ( m_activePlotViewWindow->mdiWindowGeometry().isMaximized )
         {
@@ -507,12 +503,9 @@ void RiuPlotMainWindow::refreshToolbars()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::createDockPanels()
 {
-    const int                  nTreeViews        = 4;
-    const std::vector<QString> treeViewTitles    = { "Plots", "Data Sources", "Templates", "Scripts" };
-    const std::vector<QString> treeViewConfigs   = { "PlotWindow.Plots",
-                                                   "PlotWindow.DataSources",
-                                                   "PlotWindow.Templates",
-                                                   "PlotWindow.Scripts" };
+    const int                  nTreeViews     = 4;
+    const std::vector<QString> treeViewTitles = { "Plots", "Data Sources", "Templates", "Scripts" };
+    const std::vector<QString> treeViewConfigs = { "PlotWindow.Plots", "PlotWindow.DataSources", "PlotWindow.Templates", "PlotWindow.Scripts" };
     const std::vector<QString> treeViewDockNames = { RiuDockWidgetTools::plotMainWindowPlotsTreeName(),
                                                      RiuDockWidgetTools::plotMainWindowDataSourceTreeName(),
                                                      RiuDockWidgetTools::plotMainWindowTemplateTreeName(),
@@ -555,25 +548,21 @@ void RiuPlotMainWindow::createDockPanels()
         projectTree->treeView()->installEventFilter( treeViewEventFilter );
 
         if ( defaultDockWidgetArea[i] == ads::DockWidgetArea::LeftDockWidgetArea ) leftWidgets.push_back( dockWidget );
-        if ( defaultDockWidgetArea[i] == ads::DockWidgetArea::RightDockWidgetArea )
-            rightWidgets.push_back( dockWidget );
+        if ( defaultDockWidgetArea[i] == ads::DockWidgetArea::RightDockWidgetArea ) rightWidgets.push_back( dockWidget );
 
         connect( dockWidget, SIGNAL( visibilityChanged( bool ) ), projectTree, SLOT( treeVisibilityChanged( bool ) ) );
         connect( projectTree, SIGNAL( selectionChanged() ), this, SLOT( selectedObjectsChanged() ) );
 
         projectTree->treeView()->setContextMenuPolicy( Qt::CustomContextMenu );
-        connect( projectTree->treeView(),
-                 SIGNAL( customContextMenuRequested( const QPoint& ) ),
-                 SLOT( customMenuRequested( const QPoint& ) ) );
+        connect( projectTree->treeView(), SIGNAL( customContextMenuRequested( const QPoint& ) ), SLOT( customMenuRequested( const QPoint& ) ) );
 
         projectTree->setUiConfigurationName( treeViewConfigs[i] );
     }
 
     // the plot manager
     {
-        auto dockWidget = RiuDockWidgetTools::createDockWidget( "Plot Manager",
-                                                                RiuDockWidgetTools::plotMainWindowPlotManagerName(),
-                                                                dockManager() );
+        auto dockWidget =
+            RiuDockWidgetTools::createDockWidget( "Plot Manager", RiuDockWidgetTools::plotMainWindowPlotManagerName(), dockManager() );
 
         m_summaryPlotManagerView = std::make_unique<caf::PdmUiPropertyView>( dockWidget );
 
@@ -590,25 +579,22 @@ void RiuPlotMainWindow::createDockPanels()
     // the undo stack
     if ( m_undoView && RiaPreferences::current()->useUndoRedo() )
     {
-        auto dockWidget = RiuDockWidgetTools::createDockWidget( "Undo Stack",
-                                                                RiuDockWidgetTools::plotMainWindowUndoStackName(),
-                                                                dockManager() );
+        auto dockWidget =
+            RiuDockWidgetTools::createDockWidget( "Undo Stack", RiuDockWidgetTools::plotMainWindowUndoStackName(), dockManager() );
 
         dockWidget->setWidget( m_undoView );
         rightWidgets.push_back( dockWidget );
     }
 
-    ads::CDockAreaWidget* leftArea   = addTabbedWidgets( leftWidgets, ads::DockWidgetArea::LeftDockWidgetArea );
-    ads::CDockAreaWidget* rightArea  = addTabbedWidgets( rightWidgets, ads::DockWidgetArea::RightDockWidgetArea );
-    ads::CDockAreaWidget* bottomArea = addTabbedWidgets( bottomWidgets,
-                                                         ads::DockWidgetArea::BottomDockWidgetArea,
-                                                         dockManager()->centralWidget()->dockAreaWidget() );
+    ads::CDockAreaWidget* leftArea  = addTabbedWidgets( leftWidgets, ads::DockWidgetArea::LeftDockWidgetArea );
+    ads::CDockAreaWidget* rightArea = addTabbedWidgets( rightWidgets, ads::DockWidgetArea::RightDockWidgetArea );
+    ads::CDockAreaWidget* bottomArea =
+        addTabbedWidgets( bottomWidgets, ads::DockWidgetArea::BottomDockWidgetArea, dockManager()->centralWidget()->dockAreaWidget() );
 
     // the property editor
     {
-        auto dockWidget = RiuDockWidgetTools::createDockWidget( "Property Editor",
-                                                                RiuDockWidgetTools::plotMainWindowPropertyEditorName(),
-                                                                dockManager() );
+        auto dockWidget =
+            RiuDockWidgetTools::createDockWidget( "Property Editor", RiuDockWidgetTools::plotMainWindowPropertyEditorName(), dockManager() );
 
         m_pdmUiPropertyView = std::make_unique<caf::PdmUiPropertyView>( dockWidget );
         dockWidget->setWidget( m_pdmUiPropertyView.get() );
@@ -617,9 +603,7 @@ void RiuPlotMainWindow::createDockPanels()
 
     // the log message view
     {
-        auto dockWidget = RiuDockWidgetTools::createDockWidget( "Messages",
-                                                                RiuDockWidgetTools::plotMainWindowMessagesName(),
-                                                                dockManager() );
+        auto dockWidget = RiuDockWidgetTools::createDockWidget( "Messages", RiuDockWidgetTools::plotMainWindowMessagesName(), dockManager() );
 
         m_messagePanel = new RiuMessagePanel( dockWidget );
         dockWidget->setWidget( m_messagePanel );
@@ -818,8 +802,7 @@ RiuMessagePanel* RiuPlotMainWindow::messagePanel()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::showAndSetKeyboardFocusToSummaryPlotManager()
 {
-    auto dockWidget =
-        RiuDockWidgetTools::findDockWidget( this->dockManager(), RiuDockWidgetTools::plotMainWindowPlotManagerName() );
+    auto dockWidget = RiuDockWidgetTools::findDockWidget( this->dockManager(), RiuDockWidgetTools::plotMainWindowPlotManagerName() );
     if ( dockWidget )
     {
         dockWidget->setVisible( true );
@@ -1034,8 +1017,7 @@ void RiuPlotMainWindow::selectedObjectsChanged()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::restoreTreeViewState()
 {
-    restoreTreeViewStates( RimProject::current()->plotWindowTreeViewStates(),
-                           RimProject::current()->plotWindowCurrentModelIndexPaths() );
+    restoreTreeViewStates( RimProject::current()->plotWindowTreeViewStates(), RimProject::current()->plotWindowCurrentModelIndexPaths() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1103,8 +1085,7 @@ void RiuPlotMainWindow::dropEvent( QDropEvent* event )
 //--------------------------------------------------------------------------------------------------
 QStringList RiuPlotMainWindow::defaultDockStateNames()
 {
-    QStringList retList = { RiuDockWidgetTools::dockStatePlotWindowName(),
-                            RiuDockWidgetTools::dockStateHideAllPlotWindowName() };
+    QStringList retList = { RiuDockWidgetTools::dockStatePlotWindowName(), RiuDockWidgetTools::dockStateHideAllPlotWindowName() };
     return retList;
 }
 

@@ -72,8 +72,7 @@ public:
     void removeExtractors( const RigGeoMechCaseData* caseData );
 
 private:
-    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
     caf::PdmChildArrayField<RimWellLogPlot*>    m_wellLogPlots;
     cvf::Collection<RigEclipseWellLogExtractor> m_extractors;

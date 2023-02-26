@@ -42,10 +42,7 @@ class RigEclipseResultAddress;
 class RivNNCGeometryGenerator : public cvf::Object
 {
 public:
-    RivNNCGeometryGenerator( bool                       includeAllan,
-                             RigNNCData*                nncData,
-                             const cvf::Vec3d&          offset,
-                             const std::vector<size_t>& nncIndexes );
+    RivNNCGeometryGenerator( bool includeAllan, RigNNCData* nncData, const cvf::Vec3d& offset, const std::vector<size_t>& nncIndexes );
 
     ~RivNNCGeometryGenerator() override;
 

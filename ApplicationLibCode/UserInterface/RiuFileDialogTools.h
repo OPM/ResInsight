@@ -37,8 +37,7 @@ QStringList getOpenFileNames( QWidget*       parent         = nullptr,
                               const QString& filter         = QString(),
                               QString*       selectedFilter = nullptr );
 
-QString
-    getExistingDirectory( QWidget* parent = nullptr, const QString& caption = QString(), const QString& dir = QString() );
+QString getExistingDirectory( QWidget* parent = nullptr, const QString& caption = QString(), const QString& dir = QString() );
 
 QString getOpenFileName( QWidget*       parent         = nullptr,
                          const QString& caption        = QString(),

@@ -70,10 +70,9 @@ protected:
 
     bool isRftPlotChild() const;
 
-    std::pair<std::vector<double>, std::vector<double>>
-        adjustByIndexDepthOffsets( const std::vector<double>& measuredDepthValues,
-                                   const std::vector<double>& values,
-                                   const std::vector<double>& kIndexValues ) const;
+    std::pair<std::vector<double>, std::vector<double>> adjustByIndexDepthOffsets( const std::vector<double>& measuredDepthValues,
+                                                                                   const std::vector<double>& values,
+                                                                                   const std::vector<double>& kIndexValues ) const;
 
 protected:
     caf::PdmPtrField<RimWellPath*>    m_wellPath;

@@ -55,18 +55,14 @@ public:
     static QString vecToString( const cvf::Vec3d& vec );
 
     static std::tuple<const RigFault*, double, cvf::Vec3d, double>
-        findClosestFaultBarrier( RigEclipseCaseData* eclipseCaseData,
-                                 const cvf::Vec3d&   position,
-                                 const cvf::Vec3d&   directionToBarrier );
-
-    static std::vector<WellPathCellIntersectionInfo> generateBarrierIntersections( RigEclipseCaseData* eclipseCaseData,
-                                                                                   const cvf::Vec3d&   position,
-                                                                                   const cvf::Vec3d& directionToBarrier );
+        findClosestFaultBarrier( RigEclipseCaseData* eclipseCaseData, const cvf::Vec3d& position, const cvf::Vec3d& directionToBarrier );
 
     static std::vector<WellPathCellIntersectionInfo>
-        generateBarrierIntersectionsBetweenPoints( RigEclipseCaseData* eclipseCaseData,
-                                                   const cvf::Vec3d&   startPosition,
-                                                   const cvf::Vec3d&   endPosition );
+        generateBarrierIntersections( RigEclipseCaseData* eclipseCaseData, const cvf::Vec3d& position, const cvf::Vec3d& directionToBarrier );
+
+    static std::vector<WellPathCellIntersectionInfo> generateBarrierIntersectionsBetweenPoints( RigEclipseCaseData* eclipseCaseData,
+                                                                                                const cvf::Vec3d&   startPosition,
+                                                                                                const cvf::Vec3d&   endPosition );
 
     static double calculatePerforationLength( const cvf::Vec3d& wellPathDirection, double perforationLength );
 };

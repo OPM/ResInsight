@@ -118,9 +118,7 @@ void RimStackablePlotCurve::setIsStacked( bool stacked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStackablePlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                              const QVariant&            oldValue,
-                                              const QVariant&            newValue )
+void RimStackablePlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimPlotCurve::fieldChangedByUi( changedField, oldValue, newValue );
 

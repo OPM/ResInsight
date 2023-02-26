@@ -37,8 +37,8 @@ public:
     caf::PdmScriptResponse execute() override;
 
     static std::vector<RimStackablePlotCurve*> plotCurvesFromSelection( const std::vector<caf::PdmUiItem*>& selectedItems );
-    static std::vector<RimStackablePlotCurve*>
-        subsetOfPlotCurvesFromStacking( const std::vector<RimStackablePlotCurve*>& plotCurves, bool isStacked );
+    static std::vector<RimStackablePlotCurve*> subsetOfPlotCurvesFromStacking( const std::vector<RimStackablePlotCurve*>& plotCurves,
+                                                                               bool                                       isStacked );
 
 protected:
     bool isCommandEnabled() override;

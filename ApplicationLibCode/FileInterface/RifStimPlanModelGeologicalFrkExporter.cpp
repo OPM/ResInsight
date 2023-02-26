@@ -38,9 +38,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifStimPlanModelGeologicalFrkExporter::writeToFile( RimStimPlanModel* stimPlanModel,
-                                                         bool              useDetailedLoss,
-                                                         const QString&    filepath )
+bool RifStimPlanModelGeologicalFrkExporter::writeToFile( RimStimPlanModel* stimPlanModel, bool useDetailedLoss, const QString& filepath )
 {
     std::vector<QString> labels;
     // TVD depth of top of zone (ft)
@@ -105,10 +103,9 @@ bool RifStimPlanModelGeologicalFrkExporter::writeToFile( RimStimPlanModel* stimP
     // Warn if the generated model has too many layers for StimPlan
     if ( tvd.size() > MAX_STIMPLAN_LAYERS )
     {
-        RiaLogging::warning(
-            QString( "Exporting model with too many layers: %1. Maximum supported number of layers is %2." )
-                .arg( tvd.size() )
-                .arg( MAX_STIMPLAN_LAYERS ) );
+        RiaLogging::warning( QString( "Exporting model with too many layers: %1. Maximum supported number of layers is %2." )
+                                 .arg( tvd.size() )
+                                 .arg( MAX_STIMPLAN_LAYERS ) );
     }
 
     // Make sure stress gradients are in the valid interval
@@ -170,8 +167,7 @@ bool RifStimPlanModelGeologicalFrkExporter::writeToFile( RimStimPlanModel* stimP
     for ( const QString& label : labels )
         csvLabels.push_back( label );
 
-    return writeToFrkFile( filepath, labels, values ) &&
-           writeToCsvFile( filepath, csvLabels, values, faciesNames, formationNames );
+    return writeToFrkFile( filepath, labels, values ) && writeToCsvFile( filepath, csvLabels, values, faciesNames, formationNames );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -212,7 +208,7 @@ bool RifStimPlanModelGeologicalFrkExporter::writeToCsvFile( const QString&      
                                                             const std::vector<QString>&                   labels,
                                                             const std::map<QString, std::vector<double>>& values,
                                                             const std::vector<QString>&                   faciesNames,
-                                                            const std::vector<QString>& formationNames )
+                                                            const std::vector<QString>&                   formationNames )
 {
     // Create the csv in the same directory as the frk file
     QFileInfo fi( filepath );
@@ -281,9 +277,7 @@ void RifStimPlanModelGeologicalFrkExporter::appendHeaderToStream( QTextStream& s
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifStimPlanModelGeologicalFrkExporter::appendToStream( QTextStream&               stream,
-                                                            const QString&             label,
-                                                            const std::vector<double>& values )
+void RifStimPlanModelGeologicalFrkExporter::appendToStream( QTextStream& stream, const QString& label, const std::vector<double>& values )
 {
     stream << "<cNamedSet>" << caf::endl
            << "<name>" << caf::endl
@@ -324,12 +318,11 @@ void RifStimPlanModelGeologicalFrkExporter::fixupStressGradients( std::vector<do
     {
         if ( stressGradients[i] < minStressGradient || stressGradients[i] > maxStressGradient )
         {
-            RiaLogging::warning(
-                QString( "Found stress gradient outside valid range [%1, %2]. Replacing %3 with default value: %4." )
-                    .arg( minStressGradient )
-                    .arg( maxStressGradient )
-                    .arg( stressGradients[i] )
-                    .arg( defaultStressGradient ) );
+            RiaLogging::warning( QString( "Found stress gradient outside valid range [%1, %2]. Replacing %3 with default value: %4." )
+                                     .arg( minStressGradient )
+                                     .arg( maxStressGradient )
+                                     .arg( stressGradients[i] )
+                                     .arg( defaultStressGradient ) );
 
             stressGradients[i] = defaultStressGradient;
         }
@@ -339,19 +332,16 @@ void RifStimPlanModelGeologicalFrkExporter::fixupStressGradients( std::vector<do
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifStimPlanModelGeologicalFrkExporter::fixupLowerBoundary( std::vector<double>& values,
-                                                                double               minValue,
-                                                                const QString&       property )
+void RifStimPlanModelGeologicalFrkExporter::fixupLowerBoundary( std::vector<double>& values, double minValue, const QString& property )
 {
     for ( double& value : values )
     {
         if ( value < minValue )
         {
-            RiaLogging::warning(
-                QString( "Found %1 outside valid lower boundary (%2). Replacing %3 with default value: %2." )
-                    .arg( property )
-                    .arg( minValue )
-                    .arg( value ) );
+            RiaLogging::warning( QString( "Found %1 outside valid lower boundary (%2). Replacing %3 with default value: %2." )
+                                     .arg( property )
+                                     .arg( minValue )
+                                     .arg( value ) );
             value = minValue;
         }
     }
@@ -387,8 +377,7 @@ bool RifStimPlanModelGeologicalFrkExporter::hasInvalidData( const std::vector<do
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<std::vector<double>, std::vector<double>>
-    RifStimPlanModelGeologicalFrkExporter::createDepthRanges( const std::vector<double>& tvd )
+std::pair<std::vector<double>, std::vector<double>> RifStimPlanModelGeologicalFrkExporter::createDepthRanges( const std::vector<double>& tvd )
 {
     std::vector<double> startTvd;
     std::vector<double> endTvd;
@@ -411,8 +400,8 @@ std::pair<std::vector<double>, std::vector<double>>
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RifStimPlanModelGeologicalFrkExporter::createPerforationValues( const std::vector<double>& depthStart,
                                                                                     const std::vector<double>& depthEnd,
-                                                                                    double perforationTop,
-                                                                                    double perforationBottom )
+                                                                                    double                     perforationTop,
+                                                                                    double                     perforationBottom )
 {
     std::vector<double> perfs;
     for ( size_t idx = 0; idx < depthStart.size(); idx++ )

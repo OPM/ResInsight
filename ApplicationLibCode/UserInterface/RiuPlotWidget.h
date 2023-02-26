@@ -87,10 +87,8 @@ public:
                                            int  valueFontSize,
                                            bool titleBold = false,
                                            int  alignment = (int)Qt::AlignCenter ) = 0;
-    virtual void setAxesFontsAndAlignment( int  titleFontSize,
-                                           int  valueFontSize,
-                                           bool titleBold = false,
-                                           int  alignment = (int)Qt::AlignCenter ) = 0;
+    virtual void
+        setAxesFontsAndAlignment( int titleFontSize, int valueFontSize, bool titleBold = false, int alignment = (int)Qt::AlignCenter ) = 0;
 
     virtual void enableAxisNumberLabels( RiuPlotAxis axis, bool isEnabled ) = 0;
     virtual void enableAxis( RiuPlotAxis axis, bool isEnabled )             = 0;
@@ -102,8 +100,8 @@ public:
     virtual void setAxisMaxMinor( RiuPlotAxis axis, int maxMinor ) = 0;
     virtual void setAxisMaxMajor( RiuPlotAxis axis, int maxMajor ) = 0;
 
-    virtual RiuPlotWidget::AxisScaleType axisScaleType( RiuPlotAxis axis ) const                  = 0;
-    virtual void setAxisScaleType( RiuPlotAxis axis, RiuPlotWidget::AxisScaleType axisScaleType ) = 0;
+    virtual RiuPlotWidget::AxisScaleType axisScaleType( RiuPlotAxis axis ) const                                          = 0;
+    virtual void                         setAxisScaleType( RiuPlotAxis axis, RiuPlotWidget::AxisScaleType axisScaleType ) = 0;
 
     virtual void setAxisTitleText( RiuPlotAxis axis, const QString& title ) = 0;
     virtual void setAxisTitleEnabled( RiuPlotAxis axis, bool enable )       = 0;
@@ -135,23 +133,21 @@ public:
 
     virtual void enableGridLines( RiuPlotAxis axis, bool majorGridLines, bool minorGridLines ) = 0;
 
-    virtual void
-                 setMajorTicksList( RiuPlotAxis axis, const QList<double>& majorTicks, double minValue, double maxValue ) = 0;
+    virtual void setMajorTicksList( RiuPlotAxis axis, const QList<double>& majorTicks, double minValue, double maxValue ) = 0;
     virtual void setMajorAndMinorTickIntervals( RiuPlotAxis axis,
                                                 double      majorTickInterval,
                                                 double      minorTickInterval,
                                                 double      minValue,
-                                                double      maxValue )         = 0;
+                                                double      maxValue )                                                         = 0;
     virtual void setMajorAndMinorTickIntervalsAndRange( RiuPlotAxis axis,
                                                         double      majorTickInterval,
                                                         double      minorTickInterval,
                                                         double      minTickValue,
                                                         double      maxTickValue,
                                                         double      rangeMin,
-                                                        double      rangeMax ) = 0;
+                                                        double      rangeMax )                                                 = 0;
 
-    virtual void
-        setAutoTickIntervalCounts( RiuPlotAxis axis, int maxMajorTickIntervalCount, int maxMinorTickIntervalCount ) = 0;
+    virtual void setAutoTickIntervalCounts( RiuPlotAxis axis, int maxMajorTickIntervalCount, int maxMinorTickIntervalCount ) = 0;
 
     virtual double majorTickInterval( RiuPlotAxis axis ) const = 0;
     virtual double minorTickInterval( RiuPlotAxis axis ) const = 0;

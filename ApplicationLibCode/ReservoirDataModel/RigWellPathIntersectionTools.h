@@ -42,29 +42,24 @@ class StructGridInterface;
 class RigWellPathIntersectionTools
 {
 public:
-    static std::vector<WellPathCellIntersectionInfo>
-        findCellIntersectionInfosAlongPath( const RigEclipseCaseData*      caseData,
-                                            const QString&                 wellPathName,
-                                            const std::vector<cvf::Vec3d>& pathCoords,
-                                            const std::vector<double>&     pathMds );
+    static std::vector<WellPathCellIntersectionInfo> findCellIntersectionInfosAlongPath( const RigEclipseCaseData*      caseData,
+                                                                                         const QString&                 wellPathName,
+                                                                                         const std::vector<cvf::Vec3d>& pathCoords,
+                                                                                         const std::vector<double>&     pathMds );
 
-    static std::set<size_t> findIntersectedGlobalCellIndicesForWellPath( const RigEclipseCaseData* caseData,
-                                                                         const RigWellPath*        wellPath );
+    static std::set<size_t> findIntersectedGlobalCellIndicesForWellPath( const RigEclipseCaseData* caseData, const RigWellPath* wellPath );
 
     static std::set<size_t> findIntersectedGlobalCellIndices( const RigEclipseCaseData*      caseData,
                                                               const std::vector<cvf::Vec3d>& coords,
                                                               const std::vector<double>&     measuredDepths = {} );
 
-    static cvf::Vec3d calculateLengthInCell( const std::array<cvf::Vec3d, 8>& hexCorners,
-                                             const cvf::Vec3d&                startPoint,
-                                             const cvf::Vec3d&                endPoint );
+    static cvf::Vec3d
+        calculateLengthInCell( const std::array<cvf::Vec3d, 8>& hexCorners, const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint );
 
     // Returns the length along each axis in local cell coordinate system
     // The returned vector has unsigned component values
-    static cvf::Vec3d calculateLengthInCell( const RigMainGrid* grid,
-                                             size_t             cellIndex,
-                                             const cvf::Vec3d&  startPoint,
-                                             const cvf::Vec3d&  endPoint );
+    static cvf::Vec3d
+        calculateLengthInCell( const RigMainGrid* grid, size_t cellIndex, const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint );
 
     // Insert dummy intersections used to represent gap in grid
     static std::vector<WellPathCellIntersectionInfo>

@@ -45,10 +45,7 @@ RiaPreferencesGeoMech::RiaPreferencesGeoMech()
     CAF_PDM_InitField( &m_keepTemporaryFiles, "keepTemporaryFile", false, "Keep temporary parameter files (for debugging)" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_keepTemporaryFiles );
 
-    CAF_PDM_InitField( &m_waitForInputFileEdit,
-                       "waitForInputFileEdit",
-                       true,
-                       "Pause to allow modification of input files before running modeling." );
+    CAF_PDM_InitField( &m_waitForInputFileEdit, "waitForInputFileEdit", true, "Pause to allow modification of input files before running modeling." );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_waitForInputFileEdit );
 }
 

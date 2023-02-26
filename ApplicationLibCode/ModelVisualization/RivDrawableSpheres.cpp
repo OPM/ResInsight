@@ -41,9 +41,7 @@ RivDrawableSpheres::RivDrawableSpheres( cvf::String vectorMatrixUniformName, cvf
 //--------------------------------------------------------------------------------------------------
 /// Estimate the intersection of a sphere by the sphere inscribed in a bounding box
 //--------------------------------------------------------------------------------------------------
-bool RivDrawableSpheres::rayIntersectCreateDetail( const cvf::Ray&           ray,
-                                                   cvf::Vec3d*               intersectionPoint,
-                                                   cvf::ref<cvf::HitDetail>* hitDetail ) const
+bool RivDrawableSpheres::rayIntersectCreateDetail( const cvf::Ray& ray, cvf::Vec3d* intersectionPoint, cvf::ref<cvf::HitDetail>* hitDetail ) const
 {
     if ( m_centerCoordArray.isNull() ) return false;
 

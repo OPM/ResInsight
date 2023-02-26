@@ -62,12 +62,10 @@ public:
     std::set<RifEclipseSummaryAddress::SummaryVarCategory> categories() const;
     std::vector<std::vector<RifEclipseSummaryAddress>>     addressesGroupedByObject() const;
 
-    std::vector<QString> identifierTexts( RifEclipseSummaryAddress::SummaryVarCategory category,
-                                          const std::string&                           secondaryIdentifier ) const;
+    std::vector<QString> identifierTexts( RifEclipseSummaryAddress::SummaryVarCategory category, const std::string& secondaryIdentifier ) const;
 
-    static std::vector<RifEclipseSummaryAddress>
-        addressesForCategory( const std::set<RifEclipseSummaryAddress>&    addresses,
-                              RifEclipseSummaryAddress::SummaryVarCategory category );
+    static std::vector<RifEclipseSummaryAddress> addressesForCategory( const std::set<RifEclipseSummaryAddress>&    addresses,
+                                                                       RifEclipseSummaryAddress::SummaryVarCategory category );
 
     static std::string correspondingHistorySummaryCurveName( const std::string& curveName );
 
@@ -84,11 +82,9 @@ private:
     static std::set<RifEclipseSummaryAddress::SummaryVarCategory>
         keysInMap( const std::map<RifEclipseSummaryAddress::SummaryVarCategory, std::set<std::string>>& map );
 
-    static std::vector<std::vector<RifEclipseSummaryAddress>>
-        valuesInMap( const std::multimap<std::string, RifEclipseSummaryAddress>& map );
+    static std::vector<std::vector<RifEclipseSummaryAddress>> valuesInMap( const std::multimap<std::string, RifEclipseSummaryAddress>& map );
 
-    static std::vector<std::vector<RifEclipseSummaryAddress>>
-        valuesInMap( const std::multimap<int, RifEclipseSummaryAddress>& map );
+    static std::vector<std::vector<RifEclipseSummaryAddress>> valuesInMap( const std::multimap<int, RifEclipseSummaryAddress>& map );
 
 private:
     std::set<std::string>         m_quantities;

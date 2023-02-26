@@ -42,10 +42,7 @@ private:
 private:
     struct DirSet
     {
-        DirSet( const std::string& title,
-                const std::string& baseImageDir,
-                const std::string& newImagesDir,
-                const std::string& diffImagesDir )
+        DirSet( const std::string& title, const std::string& baseImageDir, const std::string& newImagesDir, const std::string& diffImagesDir )
             : m_title( title )
             , m_baseImageDir( baseImageDir )
             , m_newImagesDir( newImagesDir )

@@ -82,8 +82,8 @@ private:
     static std::pair<RigEclipseResultAddress, QString> pressureResultDataInfo( const RigEclipseCaseData* eclipseCaseData );
 
 public:
-    static void addTimeStepsToMap( std::map<QDateTime, std::set<RifDataSourceForRftPlt>>&       destMap,
-                                   const std::map<QDateTime, std::set<RifDataSourceForRftPlt>>& timeStepsToAdd );
+    static void                         addTimeStepsToMap( std::map<QDateTime, std::set<RifDataSourceForRftPlt>>&       destMap,
+                                                           const std::map<QDateTime, std::set<RifDataSourceForRftPlt>>& timeStepsToAdd );
     static std::vector<RimWellLogFile*> wellLogFilesContainingPressure( const QString& wellPathNameOrSimWellName );
     static RimWellLogFileChannel*       getPressureChannelFromWellFile( const RimWellLogFile* wellLogFile );
     static RimWellPath*                 wellPathFromWellLogFile( const RimWellLogFile* wellLogFile );
@@ -103,16 +103,15 @@ public:
     static std::vector<RimObservedFmuRftData*>    observedFmuRftData();
     static QString                                simWellName( const QString& wellPathNameOrSimWellName );
 
-    static std::map<QDateTime, std::set<RifDataSourceForRftPlt>> calculateRelevantTimeStepsFromCases(
-        const QString&                                               wellPathNameOrSimWellName,
-        const std::vector<RifDataSourceForRftPlt>&                   selSources,
-        const std::set<RifEclipseRftAddress::RftWellLogChannelType>& interestingRFTResults );
+    static std::map<QDateTime, std::set<RifDataSourceForRftPlt>>
+        calculateRelevantTimeStepsFromCases( const QString&                                               wellPathNameOrSimWellName,
+                                             const std::vector<RifDataSourceForRftPlt>&                   selSources,
+                                             const std::set<RifEclipseRftAddress::RftWellLogChannelType>& interestingRFTResults );
 
-    static void
-        calculateValueOptionsForTimeSteps( const QString&                             wellPathNameOrSimWellName,
-                                           const std::vector<RifDataSourceForRftPlt>& selSources,
-                                           const std::set<RifEclipseRftAddress::RftWellLogChannelType>& interestingRFTResults,
-                                           QList<caf::PdmOptionItemInfo>&                               options );
+    static void calculateValueOptionsForTimeSteps( const QString&                                               wellPathNameOrSimWellName,
+                                                   const std::vector<RifDataSourceForRftPlt>&                   selSources,
+                                                   const std::set<RifEclipseRftAddress::RftWellLogChannelType>& interestingRFTResults,
+                                                   QList<caf::PdmOptionItemInfo>&                               options );
 
     static std::set<RiaRftPltCurveDefinition>
         curveDefsFromTimesteps( const QString&                                               wellPathNameOrSimWellName,
@@ -121,17 +120,12 @@ public:
                                 const std::vector<RifDataSourceForRftPlt>&                   selectedSourcesExpanded,
                                 const std::set<RifEclipseRftAddress::RftWellLogChannelType>& interestingRFTResults );
 
-    static QString flowPlotAxisTitle( RimWellLogFile::WellFlowCondition condition,
-                                      RiaDefines::EclipseUnitSystem     unitSystem );
+    static QString flowPlotAxisTitle( RimWellLogFile::WellFlowCondition condition, RiaDefines::EclipseUnitSystem unitSystem );
     static QString flowUnitText( RimWellLogFile::WellFlowCondition condition, RiaDefines::EclipseUnitSystem unitSystem );
-    static QString flowVolumePlotAxisTitle( RimWellLogFile::WellFlowCondition condition,
-                                            RiaDefines::EclipseUnitSystem     unitSystem );
-    static QString flowVolumeUnitText( RimWellLogFile::WellFlowCondition condition,
-                                       RiaDefines::EclipseUnitSystem     unitSystem );
+    static QString flowVolumePlotAxisTitle( RimWellLogFile::WellFlowCondition condition, RiaDefines::EclipseUnitSystem unitSystem );
+    static QString flowVolumeUnitText( RimWellLogFile::WellFlowCondition condition, RiaDefines::EclipseUnitSystem unitSystem );
 
-    static QString curveUnitText( RimWellLogFile::WellFlowCondition condition,
-                                  RiaDefines::EclipseUnitSystem     unitSystem,
-                                  FlowPhase                         flowPhase );
+    static QString curveUnitText( RimWellLogFile::WellFlowCondition condition, RiaDefines::EclipseUnitSystem unitSystem, FlowPhase flowPhase );
 
     static bool hasFlowData( const RimWellPath* wellPath );
 
@@ -149,15 +143,14 @@ private:
 
     static std::set<QString> FLOW_DATA_NAMES;
 
-    static bool hasPressureData( const RimWellLogFile* wellLogFile );
-    static bool isPressureChannel( RimWellLogFileChannel* channel );
-    static bool hasPressureData( RimEclipseResultCase* gridCase );
-    static bool hasPressureData( RimWellPath* wellPath );
-    static bool hasFlowData( RimEclipseResultCase* gridCase );
-    static bool isFlowChannel( RimWellLogFileChannel* channel );
-    static bool tryMatchChannelName( const std::set<QString>& channelNames, const QString& channelNameToMatch );
+    static bool                hasPressureData( const RimWellLogFile* wellLogFile );
+    static bool                isPressureChannel( RimWellLogFileChannel* channel );
+    static bool                hasPressureData( RimEclipseResultCase* gridCase );
+    static bool                hasPressureData( RimWellPath* wellPath );
+    static bool                hasFlowData( RimEclipseResultCase* gridCase );
+    static bool                isFlowChannel( RimWellLogFileChannel* channel );
+    static bool                tryMatchChannelName( const std::set<QString>& channelNames, const QString& channelNameToMatch );
     static std::set<QDateTime> findMatchingOrAdjacentTimeSteps( const std::set<QDateTime>& baseTimeLine,
                                                                 const std::set<QDateTime>& availableTimeSteps );
-    static std::set<QDateTime>
-        availableSimWellTimesteps( RimEclipseCase* eclCase, const QString& simWellName, bool addFirstReportTimeStep );
+    static std::set<QDateTime> availableSimWellTimesteps( RimEclipseCase* eclCase, const QString& simWellName, bool addFirstReportTimeStep );
 };

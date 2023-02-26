@@ -66,8 +66,7 @@ public:
     // Used by sync code
     std::vector<caf::PdmObject*> allPdmAnnotations() const;
 
-    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
 private:
     void reloadPolylinesFromFile( const std::vector<RimPolylinesFromFileAnnotation*>& polyLinesObjsToReload );

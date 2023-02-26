@@ -221,10 +221,9 @@ void RimTensorResults::mappingRange( double* min, double* max ) const
 //--------------------------------------------------------------------------------------------------
 std::vector<RigFemResultAddress> RimTensorResults::observedResults() const
 {
-    RigFemResultAddress              mainResult       = selectedTensorResult();
-    std::vector<RigFemResultAddress> tensorComponents = RigFemPartResultsCollection::tensorComponentAddresses( mainResult );
-    std::vector<RigFemResultAddress> principleComponents =
-        RigFemPartResultsCollection::tensorPrincipalComponentAdresses( mainResult );
+    RigFemResultAddress              mainResult          = selectedTensorResult();
+    std::vector<RigFemResultAddress> tensorComponents    = RigFemPartResultsCollection::tensorComponentAddresses( mainResult );
+    std::vector<RigFemResultAddress> principleComponents = RigFemPartResultsCollection::tensorPrincipalComponentAdresses( mainResult );
     tensorComponents.insert( tensorComponents.end(), principleComponents.begin(), principleComponents.end() );
     return tensorComponents;
 }
@@ -261,9 +260,7 @@ std::vector<std::string> RimTensorResults::getResultMetaDataForUIFieldSetting()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimTensorResults::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                         const QVariant&            oldValue,
-                                         const QVariant&            newValue )
+void RimTensorResults::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_resultFieldNameUiField )
     {
@@ -300,8 +297,8 @@ QList<caf::PdmOptionItemInfo> RimTensorResults::calculateValueOptions( const caf
 
         for ( size_t oIdx = 0; oIdx < fieldCompNames.size(); ++oIdx )
         {
-            options.push_back( caf::PdmOptionItemInfo( QString::fromStdString( fieldCompNames[oIdx] ),
-                                                       QString::fromStdString( fieldCompNames[oIdx] ) ) );
+            options.push_back(
+                caf::PdmOptionItemInfo( QString::fromStdString( fieldCompNames[oIdx] ), QString::fromStdString( fieldCompNames[oIdx] ) ) );
         }
     }
     else if ( fieldNeedingOptions == &m_rangeMode )
@@ -356,9 +353,7 @@ void RimTensorResults::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimTensorResults::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                              QString                    uiConfigName,
-                                              caf::PdmUiEditorAttribute* attribute )
+void RimTensorResults::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_resultFieldNameUiField )
     {

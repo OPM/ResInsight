@@ -25,8 +25,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaPolyArcLineSampler::RiaPolyArcLineSampler( const cvf::Vec3d&              startTangent,
-                                              const std::vector<cvf::Vec3d>& lineArcEndPoints )
+RiaPolyArcLineSampler::RiaPolyArcLineSampler( const cvf::Vec3d& startTangent, const std::vector<cvf::Vec3d>& lineArcEndPoints )
     : m_startTangent( startTangent )
     , m_lineArcEndPoints( lineArcEndPoints )
     , m_maxSamplingsInterval( 0.15 )
@@ -38,8 +37,8 @@ RiaPolyArcLineSampler::RiaPolyArcLineSampler( const cvf::Vec3d&              sta
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<std::vector<cvf::Vec3d>, std::vector<double>>
-    RiaPolyArcLineSampler::sampledPointsAndMDs( double sampleInterval, bool isResamplingLines )
+std::pair<std::vector<cvf::Vec3d>, std::vector<double>> RiaPolyArcLineSampler::sampledPointsAndMDs( double sampleInterval,
+                                                                                                    bool   isResamplingLines )
 {
     CVF_ASSERT( sampleInterval > 0.0 );
 

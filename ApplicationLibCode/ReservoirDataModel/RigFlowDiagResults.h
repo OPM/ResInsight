@@ -65,9 +65,7 @@ public:
                               int                             timeStepIndex,
                               double*                         localPosClosestToZero,
                               double*                         localNegClosestToZero );
-    void posNegClosestToZero( const RigFlowDiagResultAddress& resVarAddr,
-                              double*                         globalPosClosestToZero,
-                              double*                         globalNegClosestToZero );
+    void posNegClosestToZero( const RigFlowDiagResultAddress& resVarAddr, double* globalPosClosestToZero, double* globalNegClosestToZero );
     void meanScalarValue( const RigFlowDiagResultAddress& resVarAddr, double* meanValue );
     void meanScalarValue( const RigFlowDiagResultAddress& resVarAddr, int timeStepIndex, double* meanValue );
     void p10p90ScalarValues( const RigFlowDiagResultAddress& resVarAddr, double* p10, double* p90 );
@@ -78,23 +76,21 @@ public:
     const std::vector<size_t>& scalarValuesHistogram( const RigFlowDiagResultAddress& resVarAddr, int timeStepIndex );
     const std::vector<int>&    uniqueCellScalarValues( const RigFlowDiagResultAddress& resVarAddr );
     const std::vector<int>&    uniqueCellScalarValues( const RigFlowDiagResultAddress& resVarAddr, int timeStepIndex );
-    void mobileVolumeWeightedMean( const RigFlowDiagResultAddress& resVarAddr, int timeStepIndex, double* mean );
-    void mobileVolumeWeightedMean( const RigFlowDiagResultAddress& resVarAddr, double* mean );
+    void                       mobileVolumeWeightedMean( const RigFlowDiagResultAddress& resVarAddr, int timeStepIndex, double* mean );
+    void                       mobileVolumeWeightedMean( const RigFlowDiagResultAddress& resVarAddr, double* mean );
 
-    std::pair<double, double> injectorProducerPairFluxes( const std::string& injTracername,
-                                                          const std::string& prodTracerName,
-                                                          int                timeStepIndex );
-    double                    maxAbsPairFlux( int timeStepIndex );
+    std::pair<double, double>
+           injectorProducerPairFluxes( const std::string& injTracername, const std::string& prodTracerName, int timeStepIndex );
+    double maxAbsPairFlux( int timeStepIndex );
 
     std::vector<int> calculatedTimeSteps( RigFlowDiagResultAddress::PhaseSelection phaseSelection );
 
-    RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame
-        flowCharacteristicsResults( int                         timeStepIndex,
-                                    CellFilter                  cellSelection,
-                                    const std::vector<QString>& tracerNames,
-                                    double                      max_pv_fraction,
-                                    double                      minCommunication,
-                                    int                         maxTof );
+    RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame flowCharacteristicsResults( int                         timeStepIndex,
+                                                                                           CellFilter                  cellSelection,
+                                                                                           const std::vector<QString>& tracerNames,
+                                                                                           double                      max_pv_fraction,
+                                                                                           double                      minCommunication,
+                                                                                           int                         maxTof );
 
     RigFlowDiagSolverInterface::FlowCharacteristicsResultFrame
         flowCharacteristicsResults( int timeStepIndex, const std::vector<char>& visibleActiveCells, double max_pv_fraction );
@@ -105,23 +101,20 @@ public:
 
 private:
     const std::vector<double>* findOrCalculateResult( const RigFlowDiagResultAddress& resVarAddr, size_t timeStepIndex );
-    void                       calculateNativeResultsIfNotPreviouslyAttempted( size_t                                   timeStepIndex,
-                                                                               RigFlowDiagResultAddress::PhaseSelection phaseSelection );
+    void calculateNativeResultsIfNotPreviouslyAttempted( size_t timeStepIndex, RigFlowDiagResultAddress::PhaseSelection phaseSelection );
 
     std::vector<double>* calculateDerivedResult( const RigFlowDiagResultAddress& resVarAddr, size_t timeStepIndex );
 
     std::vector<double>* calculateAverageTOFResult( const RigFlowDiagResultAddress& resVarAddr, size_t timeStepIndex );
     std::vector<double>* calculateSumOfFractionsResult( const RigFlowDiagResultAddress& resVarAddr, size_t timeStepIndex );
-    std::vector<double>* calculateTracerWithMaxFractionResult( const RigFlowDiagResultAddress& resVarAddr,
-                                                               size_t                          timeStepIndex );
+    std::vector<double>* calculateTracerWithMaxFractionResult( const RigFlowDiagResultAddress& resVarAddr, size_t timeStepIndex );
     std::vector<double>* calculateCommunicationResult( const RigFlowDiagResultAddress& resVarAddr, size_t timeStepIndex );
     void                 calculateNumFloodedPV( const RigFlowDiagResultAddress& resVarAddr );
 
-    std::vector<const std::vector<double>*>
-        findResultsForSelectedTracers( const RigFlowDiagResultAddress&       resVarAddr,
-                                       size_t                                timeStepIndex,
-                                       const std::string&                    nativeResultName,
-                                       RimFlowDiagSolution::TracerStatusType wantedTracerType );
+    std::vector<const std::vector<double>*> findResultsForSelectedTracers( const RigFlowDiagResultAddress&       resVarAddr,
+                                                                           size_t                                timeStepIndex,
+                                                                           const std::string&                    nativeResultName,
+                                                                           RimFlowDiagSolution::TracerStatusType wantedTracerType );
     std::vector<std::pair<std::string, const std::vector<double>*>>
         findNamedResultsForSelectedTracers( const RigFlowDiagResultAddress&       resVarAddr,
                                             size_t                                timeStepIndex,
@@ -131,8 +124,8 @@ private:
     void calculateSumOfFractionAndFractionMultTOF( size_t                                         activeCellCount,
                                                    const std::vector<const std::vector<double>*>& injectorFractions,
                                                    const std::vector<const std::vector<double>*>& injectorTOFs,
-                                                   std::vector<double>* injectorTotalFractions,
-                                                   std::vector<double>* injectorFractMultTof );
+                                                   std::vector<double>*                           injectorTotalFractions,
+                                                   std::vector<double>*                           injectorFractMultTof );
 
     void calculateSumOfFractions( const std::vector<const std::vector<double>*>& fractions,
                                   size_t                                         activeCellCount,

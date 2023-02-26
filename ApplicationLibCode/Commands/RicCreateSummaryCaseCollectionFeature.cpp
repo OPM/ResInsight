@@ -36,9 +36,8 @@ CAF_CMD_SOURCE_INIT( RicCreateSummaryCaseCollectionFeature, "RicCreateSummaryCas
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCaseCollection* RicCreateSummaryCaseCollectionFeature::groupSummaryCases( std::vector<RimSummaryCase*> cases,
-                                                                                    const QString& groupName,
-                                                                                    bool           isEnsemble )
+RimSummaryCaseCollection*
+    RicCreateSummaryCaseCollectionFeature::groupSummaryCases( std::vector<RimSummaryCase*> cases, const QString& groupName, bool isEnsemble )
 {
     RimSummaryCaseMainCollection* summaryCaseMainCollection = RiaSummaryTools::summaryCaseMainCollection();
     if ( !cases.empty() )
@@ -88,8 +87,7 @@ void RicCreateSummaryCaseCollectionFeature::onActionTriggered( bool isChecked )
 
     for ( const auto sumCase : selection )
     {
-        auto copy =
-            dynamic_cast<RimSummaryCase*>( sumCase->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+        auto copy = dynamic_cast<RimSummaryCase*>( sumCase->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
 
         duplicates.push_back( copy );
     }

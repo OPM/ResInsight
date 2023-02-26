@@ -69,9 +69,7 @@ RiuAdvancedSnapshotExportWidget::RiuAdvancedSnapshotExportWidget( QWidget* paren
     m_pdmTableView->tableView()->setContextMenuPolicy( Qt::CustomContextMenu );
     m_pdmTableView->enableHeaderText( false );
 
-    connect( m_pdmTableView->tableView(),
-             SIGNAL( customContextMenuRequested( QPoint ) ),
-             SLOT( customMenuRequested( QPoint ) ) );
+    connect( m_pdmTableView->tableView(), SIGNAL( customContextMenuRequested( QPoint ) ), SLOT( customMenuRequested( QPoint ) ) );
 
     m_pdmTableView->setChildArrayField( &( project->multiSnapshotDefinitions() ) );
 
@@ -246,8 +244,7 @@ void RiuAdvancedSnapshotExportWidget::folderSelectionClicked()
 {
     QString defaultPath = m_exportFolderLineEdit->text();
 
-    QString directoryPath =
-        RiuFileDialogTools::getExistingDirectory( m_exportFolderLineEdit, tr( "Get existing directory" ), defaultPath );
+    QString directoryPath = RiuFileDialogTools::getExistingDirectory( m_exportFolderLineEdit, tr( "Get existing directory" ), defaultPath );
 
     if ( !directoryPath.isEmpty() )
     {

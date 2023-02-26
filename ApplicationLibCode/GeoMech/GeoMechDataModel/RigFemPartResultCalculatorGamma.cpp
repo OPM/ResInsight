@@ -49,9 +49,8 @@ RigFemPartResultCalculatorGamma::~RigFemPartResultCalculatorGamma()
 bool RigFemPartResultCalculatorGamma::isMatching( const RigFemResultAddress& resVarAddr ) const
 {
     return ( resVarAddr.fieldName == "Gamma" &&
-             ( resVarAddr.componentName == "Gamma1" || resVarAddr.componentName == "Gamma2" ||
-               resVarAddr.componentName == "Gamma3" || resVarAddr.componentName == "Gamma11" ||
-               resVarAddr.componentName == "Gamma22" || resVarAddr.componentName == "Gamma33" ) );
+             ( resVarAddr.componentName == "Gamma1" || resVarAddr.componentName == "Gamma2" || resVarAddr.componentName == "Gamma3" ||
+               resVarAddr.componentName == "Gamma11" || resVarAddr.componentName == "Gamma22" || resVarAddr.componentName == "Gamma33" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -60,8 +59,8 @@ bool RigFemPartResultCalculatorGamma::isMatching( const RigFemResultAddress& res
 RigFemScalarResultFrames* RigFemPartResultCalculatorGamma::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
 {
     caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 3, "" );
-    stepCountProgress.setProgressDescription(
-        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
+    stepCountProgress.setProgressDescription( "Calculating " +
+                                              QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
     stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemResultAddress totStressCompAddr( resVarAddr.resultPosType, "ST", "" );
@@ -94,12 +93,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorGamma::calculate( int partIn
 
     stepCountProgress.incrementProgress();
 
-    calculateGammaFromFrames( partIndex,
-                              m_resultCollection->parts(),
-                              srcDataFrames,
-                              srcPORDataFrames,
-                              dstDataFrames,
-                              &stepCountProgress );
+    calculateGammaFromFrames( partIndex, m_resultCollection->parts(), srcDataFrames, srcPORDataFrames, dstDataFrames, &stepCountProgress );
 
     return dstDataFrames;
 }
@@ -107,8 +101,8 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorGamma::calculate( int partIn
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFemPartResultCalculatorGamma::calculateGammaFromFrames( int                         partIndex,
-                                                                const RigFemPartCollection* femParts,
+void RigFemPartResultCalculatorGamma::calculateGammaFromFrames( int                             partIndex,
+                                                                const RigFemPartCollection*     femParts,
                                                                 const RigFemScalarResultFrames* totalStressComponentDataFrames,
                                                                 const RigFemScalarResultFrames* srcPORDataFrames,
                                                                 RigFemScalarResultFrames*       dstDataFrames,

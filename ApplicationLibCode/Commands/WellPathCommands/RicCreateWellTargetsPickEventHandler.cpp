@@ -99,8 +99,7 @@ bool RicCreateWellTargetsPickEventHandler::handle3dPickEvent( const Ric3dPickEve
         auto firstPickItem      = eventObject.m_pickItemInfos.front();
         auto wellPathSourceInfo = dynamic_cast<const RivWellPathSourceInfo*>( firstPickItem.sourceInfo() );
 
-        auto intersectionPointInDomain =
-            rimView->displayCoordTransform()->transformToDomainCoord( firstPickItem.globalPickedPoint() );
+        auto   intersectionPointInDomain  = rimView->displayCoordTransform()->transformToDomainCoord( firstPickItem.globalPickedPoint() );
         bool   doSetAzimuthAndInclination = false;
         double azimuth                    = 0.0;
         double inclination                = 0.0;
@@ -109,14 +108,13 @@ bool RicCreateWellTargetsPickEventHandler::handle3dPickEvent( const Ric3dPickEve
         {
             auto wellPathGeometry = wellPathSourceInfo->wellPath()->wellPathGeometry();
 
-            targetPointInDomain =
-                wellPathSourceInfo->closestPointOnCenterLine( firstPickItem.faceIdx(), intersectionPointInDomain );
-            double md = wellPathSourceInfo->measuredDepth( firstPickItem.faceIdx(), intersectionPointInDomain );
+            targetPointInDomain = wellPathSourceInfo->closestPointOnCenterLine( firstPickItem.faceIdx(), intersectionPointInDomain );
+            double md           = wellPathSourceInfo->measuredDepth( firstPickItem.faceIdx(), intersectionPointInDomain );
 
             {
-                const auto [az, inc] = RigWellPathGeometryTools::calculateAzimuthAndInclinationAtMd( md, wellPathGeometry );
-                azimuth              = az;
-                inclination          = inc;
+                const auto [az, inc]       = RigWellPathGeometryTools::calculateAzimuthAndInclinationAtMd( md, wellPathGeometry );
+                azimuth                    = az;
+                inclination                = inc;
                 doSetAzimuthAndInclination = true;
             }
 
@@ -131,12 +129,10 @@ bool RicCreateWellTargetsPickEventHandler::handle3dPickEvent( const Ric3dPickEve
             targetPointInDomain        = intersectionPointInDomain;
             doSetAzimuthAndInclination = false;
 
-            cvf::Vec3d domainRayOrigin =
-                rimView->displayCoordTransform()->transformToDomainCoord( firstPickItem.globalRayOrigin() );
-            cvf::Vec3d domainRayEnd = targetPointInDomain + ( targetPointInDomain - domainRayOrigin );
+            cvf::Vec3d domainRayOrigin = rimView->displayCoordTransform()->transformToDomainCoord( firstPickItem.globalRayOrigin() );
+            cvf::Vec3d domainRayEnd    = targetPointInDomain + ( targetPointInDomain - domainRayOrigin );
 
-            cvf::Vec3d hexElementIntersection =
-                findHexElementIntersection( rimView, firstPickItem, domainRayOrigin, domainRayEnd );
+            cvf::Vec3d hexElementIntersection = findHexElementIntersection( rimView, firstPickItem, domainRayOrigin, domainRayEnd );
             CVF_TIGHT_ASSERT( !hexElementIntersection.isUndefined() );
             if ( !hexElementIntersection.isUndefined() )
             {
@@ -155,8 +151,7 @@ bool RicCreateWellTargetsPickEventHandler::handle3dPickEvent( const Ric3dPickEve
 
             if ( wellPathSourceInfo )
             {
-                double mdAtFirstTarget =
-                    wellPathSourceInfo->measuredDepth( firstPickItem.faceIdx(), intersectionPointInDomain );
+                double mdAtFirstTarget = wellPathSourceInfo->measuredDepth( firstPickItem.faceIdx(), intersectionPointInDomain );
 
                 RimModeledWellPath* modeledWellPath = dynamic_cast<RimModeledWellPath*>( wellPathSourceInfo->wellPath() );
                 if ( modeledWellPath )
@@ -175,16 +170,13 @@ bool RicCreateWellTargetsPickEventHandler::handle3dPickEvent( const Ric3dPickEve
 
         if ( doSetAzimuthAndInclination )
         {
-            newTarget->setAsPointXYZAndTangentTarget( cvf::Vec3d( relativeTagetPoint.x(),
-                                                                  relativeTagetPoint.y(),
-                                                                  relativeTagetPoint.z() ),
+            newTarget->setAsPointXYZAndTangentTarget( cvf::Vec3d( relativeTagetPoint.x(), relativeTagetPoint.y(), relativeTagetPoint.z() ),
                                                       azimuth,
                                                       inclination );
         }
         else
         {
-            newTarget->setAsPointTargetXYD(
-                cvf::Vec3d( relativeTagetPoint.x(), relativeTagetPoint.y(), -relativeTagetPoint.z() ) );
+            newTarget->setAsPointTargetXYD( cvf::Vec3d( relativeTagetPoint.x(), relativeTagetPoint.y(), -relativeTagetPoint.z() ) );
         }
 
         m_geometryToAddTargetsTo->insertTarget( nullptr, newTarget );
@@ -262,11 +254,7 @@ cvf::Vec3d RicCreateWellTargetsPickEventHandler::findHexElementIntersection( gsl
     if ( cellIndex )
     {
         std::vector<HexIntersectionInfo> intersectionInfo;
-        RigHexIntersectionTools::lineHexCellIntersection( domainRayOrigin,
-                                                          domainRayEnd,
-                                                          cornerVertices.data(),
-                                                          cellIndex,
-                                                          &intersectionInfo );
+        RigHexIntersectionTools::lineHexCellIntersection( domainRayOrigin, domainRayEnd, cornerVertices.data(), cellIndex, &intersectionInfo );
         if ( !intersectionInfo.empty() )
         {
             // Sort intersection on distance to ray origin
@@ -278,9 +266,8 @@ cvf::Vec3d RicCreateWellTargetsPickEventHandler::findHexElementIntersection( gsl
                                   ( rhs.m_intersectionPoint - domainRayOrigin ).lengthSquared();
                        } );
             const double eps             = 1.0e-2;
-            cvf::Vec3d   intersectionRay = intersectionInfo.back().m_intersectionPoint -
-                                         intersectionInfo.front().m_intersectionPoint;
-            cvf::Vec3d newPoint = intersectionInfo.front().m_intersectionPoint + intersectionRay * eps;
+            cvf::Vec3d   intersectionRay = intersectionInfo.back().m_intersectionPoint - intersectionInfo.front().m_intersectionPoint;
+            cvf::Vec3d   newPoint        = intersectionInfo.front().m_intersectionPoint + intersectionRay * eps;
             CVF_ASSERT( RigHexIntersectionTools::isPointInCell( newPoint, cornerVertices.data() ) );
             return newPoint;
         }

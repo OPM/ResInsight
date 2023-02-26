@@ -97,11 +97,9 @@ void RimSummaryCaseCollection::sortByBinnedVariation( std::vector<RigEnsemblePar
 
     // Sort by variation bin (highest first) but keep name as sorting parameter when parameters have the same variation
     // index
-    std::stable_sort( parameterVector.begin(),
-                      parameterVector.end(),
-                      [&bins]( const RigEnsembleParameter& lhs, const RigEnsembleParameter& rhs ) {
-                          return lhs.variationBin > rhs.variationBin;
-                      } );
+    std::stable_sort( parameterVector.begin(), parameterVector.end(), [&bins]( const RigEnsembleParameter& lhs, const RigEnsembleParameter& rhs ) {
+        return lhs.variationBin > rhs.variationBin;
+    } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -173,8 +171,7 @@ void RimSummaryCaseCollection::removeCase( RimSummaryCase* summaryCase, bool not
 
     if ( m_isEnsemble && m_cases.size() != caseCountBeforeRemove )
     {
-        if ( dynamic_cast<RimDerivedSummaryCase*>( summaryCase ) == nullptr )
-            calculateEnsembleParametersIntersectionHash();
+        if ( dynamic_cast<RimDerivedSummaryCase*>( summaryCase ) == nullptr ) calculateEnsembleParametersIntersectionHash();
     }
 
     clearChildNodes();
@@ -262,8 +259,7 @@ void RimSummaryCaseCollection::ensureNameIsUpdated()
             fileNames.push_back( summaryCase->summaryHeaderFilename() );
         }
 
-        RiaEnsembleNameTools::EnsembleGroupingMode groupingMode =
-            RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE;
+        RiaEnsembleNameTools::EnsembleGroupingMode groupingMode = RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE;
 
         QString ensembleName = RiaEnsembleNameTools::findSuitableEnsembleName( fileNames, groupingMode );
         m_name               = ensembleName;
@@ -487,8 +483,7 @@ std::vector<std::pair<RigEnsembleParameter, double>>
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<std::pair<RigEnsembleParameter, double>>
-    RimSummaryCaseCollection::correlationSortedEnsembleParameters( const RifEclipseSummaryAddress& address,
-                                                                   time_t selectedTimeStep ) const
+    RimSummaryCaseCollection::correlationSortedEnsembleParameters( const RifEclipseSummaryAddress& address, time_t selectedTimeStep ) const
 {
     auto parameters = parameterCorrelations( address, selectedTimeStep );
     std::sort( parameters.begin(),
@@ -524,9 +519,8 @@ std::vector<std::pair<RigEnsembleParameter, double>>
         parameters.erase( std::remove_if( parameters.begin(),
                                           parameters.end(),
                                           [&selectedParameters]( const RigEnsembleParameter& parameter ) {
-                                              return std::find( selectedParameters.begin(),
-                                                                selectedParameters.end(),
-                                                                parameter.name ) == selectedParameters.end();
+                                              return std::find( selectedParameters.begin(), selectedParameters.end(), parameter.name ) ==
+                                                     selectedParameters.end();
                                           } ),
                           parameters.end() );
     }
@@ -591,7 +585,7 @@ std::vector<std::pair<RigEnsembleParameter, double>>
 //--------------------------------------------------------------------------------------------------
 std::vector<std::pair<RigEnsembleParameter, double>>
     RimSummaryCaseCollection::parameterCorrelationsAllTimeSteps( const RifEclipseSummaryAddress& address,
-                                                                 const std::vector<QString>& selectedParameters ) const
+                                                                 const std::vector<QString>&     selectedParameters ) const
 {
     const size_t     maxTimeStepCount = 10;
     std::set<time_t> timeSteps        = ensembleTimeSteps();
@@ -860,14 +854,13 @@ bool RimSummaryCaseCollection::validateEnsembleCases( const std::vector<RimSumma
     {
         if ( rimCase->caseRealizationParameters() == nullptr || rimCase->caseRealizationParameters()->parameters().empty() )
         {
-            errors.append( QString( "The case %1 has no ensemble parameters\n" )
-                               .arg( QFileInfo( rimCase->summaryHeaderFilename() ).fileName() ) );
+            errors.append(
+                QString( "The case %1 has no ensemble parameters\n" ).arg( QFileInfo( rimCase->summaryHeaderFilename() ).fileName() ) );
         }
         else
         {
             QString paramNames;
-            for ( std::pair<QString, RigCaseRealizationParameters::Value> paramPair :
-                  rimCase->caseRealizationParameters()->parameters() )
+            for ( std::pair<QString, RigCaseRealizationParameters::Value> paramPair : rimCase->caseRealizationParameters()->parameters() )
             {
                 paramNames.append( paramPair.first );
             }
@@ -1000,8 +993,7 @@ void RimSummaryCaseCollection::computeMinMax( const RifEclipseSummaryAddress& ad
         maximumValue = std::max( *max, maximumValue );
     }
 
-    if ( minimumValue != std::numeric_limits<double>::infinity() &&
-         maximumValue != -std::numeric_limits<double>::infinity() )
+    if ( minimumValue != std::numeric_limits<double>::infinity() && maximumValue != -std::numeric_limits<double>::infinity() )
     {
         setMinMax( address, minimumValue, maximumValue );
     }
@@ -1074,9 +1066,7 @@ void RimSummaryCaseCollection::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                 const QVariant&            oldValue,
-                                                 const QVariant&            newValue )
+void RimSummaryCaseCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_isEnsemble )
     {
@@ -1118,8 +1108,7 @@ void RimSummaryCaseCollection::defineUiOrdering( QString uiConfigName, caf::PdmU
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
-                                                     QString                 uiConfigName /*= ""*/ )
+void RimSummaryCaseCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
     if ( m_isEnsemble() )
     {

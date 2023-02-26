@@ -36,8 +36,7 @@ class RifStimPlanModelPerfsFrkExporter
 public:
     static bool writeToFile( RimStimPlanModel* stimPlanModel, const QString& filepath );
 
-    static std::pair<double, double> calculateTopAndBottomMeasuredDepth( RimStimPlanModel* stimPlanModel,
-                                                                         RimWellPath*      wellPath );
+    static std::pair<double, double> calculateTopAndBottomMeasuredDepth( RimStimPlanModel* stimPlanModel, RimWellPath* wellPath );
 
     static double computeMeasuredDepthForPosition( const RimWellPath* wellPath, const cvf::Vec3d& position );
 

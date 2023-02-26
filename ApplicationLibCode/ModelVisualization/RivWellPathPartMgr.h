@@ -126,10 +126,10 @@ private:
 
     void                          clearAllBranchData();
     inline RimWellPathCollection* wellPathCollection() const;
-    inline double wellPathRadius( double characteristicCellSize, RimWellPathCollection* wellPathCollection );
-    double        wellMeasurementRadius( double                          characteristicCellSize,
-                                         const RimWellPathCollection*    wellPathCollection,
-                                         const RimWellMeasurementInView* wellMeasurementInView );
+    inline double                 wellPathRadius( double characteristicCellSize, RimWellPathCollection* wellPathCollection );
+    double                        wellMeasurementRadius( double                          characteristicCellSize,
+                                                         const RimWellPathCollection*    wellPathCollection,
+                                                         const RimWellMeasurementInView* wellMeasurementInView );
 
     bool isWellPathWithinBoundingBox( const cvf::BoundingBox& wellPathClipBoundingBox ) const;
 

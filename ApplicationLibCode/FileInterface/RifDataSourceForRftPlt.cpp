@@ -47,9 +47,7 @@ void caf::AppEnum<RifDataSourceForRftPlt::SourceType>::setUp()
     addItem( RifDataSourceForRftPlt::SourceType::SUMMARY_RFT, "SUMMARY_RFT", "Summary Data" );
     addItem( RifDataSourceForRftPlt::SourceType::ENSEMBLE_RFT, "ENSEMBLE", "Ensembles with RFT Data" );
     addItem( RifDataSourceForRftPlt::SourceType::OBSERVED_FMU_RFT, "OBSERVED_FMU", "Observed FMU Data" );
-    addItem( RifDataSourceForRftPlt::SourceType::OBSERVED_PRESSURE_DEPTH,
-             "OBSERVED_PRESSURE_DEPTH",
-             "Observed Pressure/Depth Data" );
+    addItem( RifDataSourceForRftPlt::SourceType::OBSERVED_PRESSURE_DEPTH, "OBSERVED_PRESSURE_DEPTH", "Observed Pressure/Depth Data" );
     setDefault( RifDataSourceForRftPlt::SourceType::NONE );
 }
 } // namespace caf
@@ -255,9 +253,9 @@ QString RifDataSourceForRftPlt::sourceTypeUiText( SourceType sourceType )
 //--------------------------------------------------------------------------------------------------
 bool operator==( const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPlt& addr2 )
 {
-    return addr1.sourceType() == addr2.sourceType() && addr1.eclCase() == addr2.eclCase() &&
-           addr1.wellLogFile() == addr2.wellLogFile() && addr1.summaryCase() == addr2.summaryCase() &&
-           addr1.ensemble() == addr2.ensemble() && addr1.observedFmuRftData() == addr2.observedFmuRftData();
+    return addr1.sourceType() == addr2.sourceType() && addr1.eclCase() == addr2.eclCase() && addr1.wellLogFile() == addr2.wellLogFile() &&
+           addr1.summaryCase() == addr2.summaryCase() && addr1.ensemble() == addr2.ensemble() &&
+           addr1.observedFmuRftData() == addr2.observedFmuRftData();
 }
 
 //--------------------------------------------------------------------------------------------------

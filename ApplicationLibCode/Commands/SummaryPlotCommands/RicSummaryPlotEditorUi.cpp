@@ -128,8 +128,7 @@ RicSummaryPlotEditorUi::RicSummaryPlotEditorUi()
 
     m_summaryCurveSelectionEditor = std::make_unique<RiuSummaryVectorSelectionWidgetCreator>();
 
-    m_summaryCurveSelectionEditor->summaryAddressSelection()->setFieldChangedHandler(
-        [this]() { this->selectionEditorFieldChanged(); } );
+    m_summaryCurveSelectionEditor->summaryAddressSelection()->setFieldChangedHandler( [this]() { this->selectionEditorFieldChanged(); } );
     m_summaryCurveSelectionEditor->summaryAddressSelection()->setMultiSelectionMode( true );
 }
 
@@ -151,8 +150,7 @@ RimSummaryPlot* RicSummaryPlotEditorUi::previewPlot() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryPlotEditorUi::updateFromSummaryPlot( RimSummaryPlot*                    targetPlot,
-                                                    const std::vector<SummarySource*>& defaultSources )
+void RicSummaryPlotEditorUi::updateFromSummaryPlot( RimSummaryPlot* targetPlot, const std::vector<SummarySource*>& defaultSources )
 {
     if ( targetPlot == nullptr || m_targetPlot != targetPlot )
     {
@@ -228,9 +226,7 @@ void RicSummaryPlotEditorUi::clearCloseButton()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryPlotEditorUi::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                               const QVariant&            oldValue,
-                                               const QVariant&            newValue )
+void RicSummaryPlotEditorUi::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_applyButtonField || changedField == &m_okButtonField )
     {
@@ -253,8 +249,7 @@ void RicSummaryPlotEditorUi::fieldChangedByUi( const caf::PdmFieldHandle* change
         m_applyButtonField = false;
         m_okButtonField    = false;
 
-        caf::PdmField<bool>* field =
-            dynamic_cast<caf::PdmField<bool>*>( m_targetPlot->uiCapability()->objectToggleField() );
+        caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>*>( m_targetPlot->uiCapability()->objectToggleField() );
         field->setValueWithFieldChanged( true );
 
         RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
@@ -331,8 +326,8 @@ void RicSummaryPlotEditorUi::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     }
 
     // Name config
-    caf::PdmUiGroup* autoNameGroup = uiOrdering.addNewGroupWithKeyword( "Plot and Curve Name Configuration",
-                                                                        RiuSummaryCurveDefinitionKeywords::nameConfig() );
+    caf::PdmUiGroup* autoNameGroup =
+        uiOrdering.addNewGroupWithKeyword( "Plot and Curve Name Configuration", RiuSummaryCurveDefinitionKeywords::nameConfig() );
     autoNameGroup->setCollapsedByDefault();
 
     autoNameGroup->add( &m_useAutoPlotTitleProxy );
@@ -434,8 +429,8 @@ void RicSummaryPlotEditorUi::syncPreviewCurvesFromUiSelection()
 
                 for ( const auto& curveSet : currentCurveSetsInPreviewPlot )
                 {
-                    RimSummaryCaseCollection* ensemble = curveSet->summaryCaseCollection();
-                    RiaCurveSetDefinition curveSetDef  = RiaCurveSetDefinition( ensemble, curveSet->summaryAddress() );
+                    RimSummaryCaseCollection* ensemble    = curveSet->summaryCaseCollection();
+                    RiaCurveSetDefinition     curveSetDef = RiaCurveSetDefinition( ensemble, curveSet->summaryAddress() );
                     if ( deleteCurveSetDefs.count( curveSetDef ) > 0 ) curveSetsToDelete.insert( curveSet );
                 }
             }
@@ -448,11 +443,10 @@ void RicSummaryPlotEditorUi::syncPreviewCurvesFromUiSelection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryPlotEditorUi::updatePreviewCurvesFromCurveDefinitions(
-    const std::set<RiaSummaryCurveDefinition>& allCurveDefsToDisplay,
-    const std::set<RiaSummaryCurveDefinition>& curveDefsToAdd,
-    const std::set<RimSummaryCurve*>&          curvesToDelete,
-    const std::set<RimEnsembleCurveSet*>&      curveSetsToDelete )
+void RicSummaryPlotEditorUi::updatePreviewCurvesFromCurveDefinitions( const std::set<RiaSummaryCurveDefinition>& allCurveDefsToDisplay,
+                                                                      const std::set<RiaSummaryCurveDefinition>& curveDefsToAdd,
+                                                                      const std::set<RimSummaryCurve*>&          curvesToDelete,
+                                                                      const std::set<RimEnsembleCurveSet*>&      curveSetsToDelete )
 {
     static bool warningDisplayed = false;
 
@@ -497,8 +491,7 @@ void RicSummaryPlotEditorUi::updatePreviewCurvesFromCurveDefinitions(
             RimEnsembleCurveSet* curveSet = nullptr;
             for ( const auto& cs : m_previewPlot->ensembleCurveSetCollection()->curveSets() )
             {
-                if ( cs->summaryCaseCollection() == curveDef.ensemble() &&
-                     cs->summaryAddress() == curveDef.summaryAddress() )
+                if ( cs->summaryCaseCollection() == curveDef.ensemble() && cs->summaryAddress() == curveDef.summaryAddress() )
                 {
                     curveSet = cs;
                     break;
@@ -513,17 +506,15 @@ void RicSummaryPlotEditorUi::updatePreviewCurvesFromCurveDefinitions(
 
                 // Set single curve set color
                 auto   allCurveSets = m_previewPlot->ensembleCurveSetCollection()->curveSets();
-                size_t colorIndex =
-                    std::count_if( allCurveSets.begin(), allCurveSets.end(), []( RimEnsembleCurveSet* curveSet ) {
-                        return curveSet->colorMode() == RimEnsembleCurveSet::ColorMode::SINGLE_COLOR;
-                    } );
+                size_t colorIndex   = std::count_if( allCurveSets.begin(), allCurveSets.end(), []( RimEnsembleCurveSet* curveSet ) {
+                    return curveSet->colorMode() == RimEnsembleCurveSet::ColorMode::SINGLE_COLOR;
+                } );
                 curveSet->setColor( RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f( colorIndex ) );
 
                 // Add curve to plot
                 m_previewPlot->ensembleCurveSetCollection()->addCurveSet( curveSet );
 
-                if ( m_previewPlot->ensembleCurveSetCollection()->curveSets().size() > 1 &&
-                     ensembleCurveCnt > ENSEMBLE_CURVE_COUNT_THRESHOLD )
+                if ( m_previewPlot->ensembleCurveSetCollection()->curveSets().size() > 1 && ensembleCurveCnt > ENSEMBLE_CURVE_COUNT_THRESHOLD )
                 {
                     // Toggle off new curve set and display warning
                     curveSet->showCurves( false );
@@ -532,8 +523,7 @@ void RicSummaryPlotEditorUi::updatePreviewCurvesFromCurveDefinitions(
                     {
                         QMessageBox mbox;
                         mbox.setIcon( QMessageBox::Icon::Warning );
-                        mbox.setInformativeText(
-                            "The new curve set is hidden. Too many visible curve sets may lead to poor performance" );
+                        mbox.setInformativeText( "The new curve set is hidden. Too many visible curve sets may lead to poor performance" );
                         mbox.exec();
                         warningDisplayed = true;
                     }
@@ -545,8 +535,7 @@ void RicSummaryPlotEditorUi::updatePreviewCurvesFromCurveDefinitions(
             RimSummaryCurve* curve = new RimSummaryCurve();
             if ( speedCheatsRequired )
             {
-                stashedErrorBarsAndLegendVisibility[curve] =
-                    std::make_pair( curve->errorBarsVisible(), curve->showInLegend() );
+                stashedErrorBarsAndLegendVisibility[curve] = std::make_pair( curve->errorBarsVisible(), curve->showInLegend() );
                 curve->setErrorBarsVisible( false );
                 curve->setShowInLegend( false );
             }
@@ -582,9 +571,7 @@ void RicSummaryPlotEditorUi::updatePreviewCurvesFromCurveDefinitions(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryPlotEditorUi::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                    QString                    uiConfigName,
-                                                    caf::PdmUiEditorAttribute* attribute )
+void RicSummaryPlotEditorUi::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( &m_applyButtonField == field )
     {
@@ -728,8 +715,8 @@ void RicSummaryPlotEditorUi::updateTargetPlot()
 //--------------------------------------------------------------------------------------------------
 void RicSummaryPlotEditorUi::copyCurveAndAddToPlot( const RimSummaryCurve* curve, RimSummaryPlot* plot, bool forceVisible )
 {
-    RimSummaryCurve* curveCopy = dynamic_cast<RimSummaryCurve*>(
-        curve->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+    RimSummaryCurve* curveCopy =
+        dynamic_cast<RimSummaryCurve*>( curve->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
     CVF_ASSERT( curveCopy );
 
     if ( forceVisible )
@@ -749,12 +736,10 @@ void RicSummaryPlotEditorUi::copyCurveAndAddToPlot( const RimSummaryCurve* curve
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryPlotEditorUi::copyEnsembleCurveAndAddToCurveSet( const RimSummaryCurve* curve,
-                                                                RimEnsembleCurveSet*   curveSet,
-                                                                bool                   forceVisible )
+void RicSummaryPlotEditorUi::copyEnsembleCurveAndAddToCurveSet( const RimSummaryCurve* curve, RimEnsembleCurveSet* curveSet, bool forceVisible )
 {
-    RimSummaryCurve* curveCopy = dynamic_cast<RimSummaryCurve*>(
-        curve->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+    RimSummaryCurve* curveCopy =
+        dynamic_cast<RimSummaryCurve*>( curve->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
     CVF_ASSERT( curveCopy );
 
     if ( forceVisible )

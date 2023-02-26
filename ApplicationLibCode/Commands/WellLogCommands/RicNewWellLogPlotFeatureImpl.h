@@ -34,14 +34,13 @@ class RimDepthTrackPlot;
 class RicNewWellLogPlotFeatureImpl
 {
 public:
-    static RimWellBoreStabilityPlot* createWellBoreStabilityPlot( bool           showAfterCreation = true,
-                                                                  const QString& plotDescription   = QString( "" ),
-                                                                  const RimWbsParameters* params   = nullptr );
+    static RimWellBoreStabilityPlot* createWellBoreStabilityPlot( bool                    showAfterCreation = true,
+                                                                  const QString&          plotDescription   = QString( "" ),
+                                                                  const RimWbsParameters* params            = nullptr );
 
     static RimWellLogPlot* createHorizontalWellLogPlot();
 
-    static RimWellLogPlot* createWellLogPlot( bool           showAfterCreation = true,
-                                              const QString& plotDescription   = QString( "" ) );
+    static RimWellLogPlot* createWellLogPlot( bool showAfterCreation = true, const QString& plotDescription = QString( "" ) );
 
     static RimWellLogTrack* createWellLogPlotTrack( bool               updateAfterCreation = true,
                                                     const QString&     trackDescription    = QString( "" ),

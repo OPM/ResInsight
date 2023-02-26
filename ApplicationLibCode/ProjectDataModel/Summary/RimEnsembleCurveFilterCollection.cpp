@@ -97,8 +97,7 @@ int RimEnsembleCurveFilterCollection::countActiveFilters() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimEnsembleCurveFilterCollection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RimEnsembleCurveFilterCollection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -108,9 +107,7 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveFilterCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                         const QVariant&            oldValue,
-                                                         const QVariant&            newValue )
+void RimEnsembleCurveFilterCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimEnsembleCurveSet* curveSet = nullptr;
     firstAncestorOrThisOfType( curveSet );
@@ -153,9 +150,8 @@ void RimEnsembleCurveFilterCollection::defineUiOrdering( QString uiConfigName, c
             }
             else
             {
-                groupTitle += QString( " [%2 .. %3]" )
-                                  .arg( QString::number( filter->minValue() ) )
-                                  .arg( QString::number( filter->maxValue() ) );
+                groupTitle +=
+                    QString( " [%2 .. %3]" ).arg( QString::number( filter->minValue() ) ).arg( QString::number( filter->maxValue() ) );
             }
         }
         else if ( selEnsembleParam.isText() )
@@ -186,8 +182,7 @@ void RimEnsembleCurveFilterCollection::defineUiOrdering( QString uiConfigName, c
             }
         }
 
-        caf::PdmUiGroup* filterGroup =
-            group->addNewGroupWithKeyword( groupTitle, QString( "EnsembleFilter_" ) + filter->filterId() );
+        caf::PdmUiGroup* filterGroup = group->addNewGroupWithKeyword( groupTitle, QString( "EnsembleFilter_" ) + filter->filterId() );
         filter->defineUiOrdering( uiConfigName, *filterGroup );
     }
 
@@ -197,8 +192,7 @@ void RimEnsembleCurveFilterCollection::defineUiOrdering( QString uiConfigName, c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveFilterCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
-                                                             QString                 uiConfigName /* = "" */ )
+void RimEnsembleCurveFilterCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /* = "" */ )
 {
     for ( auto filter : filters() )
     {

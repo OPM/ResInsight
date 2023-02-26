@@ -35,9 +35,8 @@ class RigEclipseTimeStepInfo
 public:
     RigEclipseTimeStepInfo( const QDateTime& date, int reportNumber, double daysSinceSimulationStart );
 
-    static std::vector<RigEclipseTimeStepInfo> createTimeStepInfos( std::vector<QDateTime> dates,
-                                                                    std::vector<int>       reportNumbers,
-                                                                    std::vector<double>    daysSinceSimulationStarts );
+    static std::vector<RigEclipseTimeStepInfo>
+        createTimeStepInfos( std::vector<QDateTime> dates, std::vector<int> reportNumbers, std::vector<double> daysSinceSimulationStarts );
 
 public:
     QDateTime m_date;

@@ -54,10 +54,7 @@ void RicSaveEclipseInputVisibleCellsFeature::openDialogAndExecuteCommand( RimEcl
     if ( !view ) return;
 
     RicSaveEclipseInputVisibleCellsUi exportSettings;
-    caf::PdmUiPropertyViewDialog      propertyDialog( Riu3DMainWindowTools::mainWindowWidget(),
-                                                 &exportSettings,
-                                                 "Export FLUXNUM/MULTNUM/ACTNUM",
-                                                 "" );
+    caf::PdmUiPropertyViewDialog propertyDialog( Riu3DMainWindowTools::mainWindowWidget(), &exportSettings, "Export FLUXNUM/MULTNUM/ACTNUM", "" );
     RicExportFeatureImpl::configureForExport( propertyDialog.dialogButtonBox() );
 
     if ( propertyDialog.exec() == QDialog::Accepted )
@@ -76,8 +73,7 @@ void RicSaveEclipseInputVisibleCellsFeature::executeCommand( RimEclipseView*    
     std::vector<double> values;
     cvf::UByteArray     visibleCells;
     view->calculateCurrentTotalCellVisibility( &visibleCells, view->currentTimeStep() );
-    RigActiveCellInfo* activeCellInfo =
-        view->eclipseCase()->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    RigActiveCellInfo* activeCellInfo = view->eclipseCase()->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
     values.resize( visibleCells.size() );
     for ( size_t i = 0; i < visibleCells.size(); ++i )
     {
@@ -100,8 +96,7 @@ void RicSaveEclipseInputVisibleCellsFeature::executeCommand( RimEclipseView*    
     QFile exportFile( exportSettings.exportFilename );
     if ( !exportFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
     {
-        RiaLogging::error(
-            QString( "%1: Unable to open file '%2' for writing." ).arg( logPrefix ).arg( exportSettings.exportFilename ) );
+        RiaLogging::error( QString( "%1: Unable to open file '%2' for writing." ).arg( logPrefix ).arg( exportSettings.exportFilename ) );
         return;
     }
 

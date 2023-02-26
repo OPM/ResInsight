@@ -229,8 +229,7 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments( gsl::n
             {
                 // One argument is available, use replace case for first occurrence in the project
 
-                std::vector<QString> gridFileNames =
-                    readFileListFromTextFile( cvfqt::Utils::toQString( o.safeValue( 0 ) ) );
+                std::vector<QString> gridFileNames = readFileListFromTextFile( cvfqt::Utils::toQString( o.safeValue( 0 ) ) );
                 projectModifier->setReplaceSourceCasesFirstOccurrence( gridFileNames );
             }
             else
@@ -238,9 +237,8 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments( gsl::n
                 size_t optionIdx = 0;
                 while ( optionIdx < o.valueCount() )
                 {
-                    const int            groupId = o.safeValue( optionIdx++ ).toInt( -1 );
-                    std::vector<QString> gridFileNames =
-                        readFileListFromTextFile( cvfqt::Utils::toQString( o.safeValue( optionIdx++ ) ) );
+                    const int            groupId       = o.safeValue( optionIdx++ ).toInt( -1 );
+                    std::vector<QString> gridFileNames = readFileListFromTextFile( cvfqt::Utils::toQString( o.safeValue( optionIdx++ ) ) );
 
                     if ( groupId != -1 && !gridFileNames.empty() )
                     {
@@ -282,8 +280,7 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments( gsl::n
 
     if ( cvf::Option o = progOpt->option( "case" ) )
     {
-        QStringList fileNames =
-            RicImportGeneralDataFeature::fileNamesFromCaseNames( cvfqt::Utils::toQStringList( o.values() ) );
+        QStringList fileNames = RicImportGeneralDataFeature::fileNamesFromCaseNames( cvfqt::Utils::toQStringList( o.values() ) );
 
         bool createView = true;
         bool createPlot = true;

@@ -74,10 +74,8 @@ bool RicNewContourMapViewFeature::isCommandEnabled()
         if ( gmView->femParts()->partCount() > 1 ) return false;
     }
 
-    bool selectedEclipseContourMapCollection =
-        caf::SelectionManager::instance()->selectedItemOfType<RimEclipseContourMapViewCollection>();
-    bool selectedGeoMechContourMapCollection =
-        caf::SelectionManager::instance()->selectedItemOfType<RimGeoMechContourMapViewCollection>();
+    bool selectedEclipseContourMapCollection = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseContourMapViewCollection>();
+    bool selectedGeoMechContourMapCollection = caf::SelectionManager::instance()->selectedItemOfType<RimGeoMechContourMapViewCollection>();
     return selectedView || selectedCase || selectedEclipseContourMapCollection || selectedGeoMechContourMapCollection;
 }
 
@@ -86,17 +84,15 @@ bool RicNewContourMapViewFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewContourMapViewFeature::onActionTriggered( bool isChecked )
 {
-    RimEclipseView*           reservoirView = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseView>();
-    RimEclipseContourMapView* existingEclipseContourMap =
-        caf::SelectionManager::instance()->selectedItemOfType<RimEclipseContourMapView>();
-    RimEclipseCase* eclipseCase = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimEclipseCase>();
-    RimEclipseContourMapView* eclipseContourMap = nullptr;
+    RimEclipseView*           reservoirView             = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseView>();
+    RimEclipseContourMapView* existingEclipseContourMap = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseContourMapView>();
+    RimEclipseCase*           eclipseCase               = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimEclipseCase>();
+    RimEclipseContourMapView* eclipseContourMap         = nullptr;
 
-    RimGeoMechView*           geoMechView = caf::SelectionManager::instance()->selectedItemOfType<RimGeoMechView>();
-    RimGeoMechContourMapView* existingGeoMechContourMap =
-        caf::SelectionManager::instance()->selectedItemOfType<RimGeoMechContourMapView>();
-    RimGeoMechCase* geoMechCase = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimGeoMechCase>();
-    RimGeoMechContourMapView* geoMechContourMap = nullptr;
+    RimGeoMechView*           geoMechView               = caf::SelectionManager::instance()->selectedItemOfType<RimGeoMechView>();
+    RimGeoMechContourMapView* existingGeoMechContourMap = caf::SelectionManager::instance()->selectedItemOfType<RimGeoMechContourMapView>();
+    RimGeoMechCase*           geoMechCase               = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimGeoMechCase>();
+    RimGeoMechContourMapView* geoMechContourMap         = nullptr;
 
     // Find case to insert into
     if ( existingEclipseContourMap )
@@ -130,8 +126,7 @@ void RicNewContourMapViewFeature::onActionTriggered( bool isChecked )
         eclipseContourMap->loadDataAndUpdate();
 
         // make sure no surfaces are shown in the view when the contourmap is generated
-        if ( eclipseContourMap->surfaceInViewCollection() )
-            eclipseContourMap->surfaceInViewCollection()->setCheckState( Qt::Unchecked );
+        if ( eclipseContourMap->surfaceInViewCollection() ) eclipseContourMap->surfaceInViewCollection()->setCheckState( Qt::Unchecked );
 
         if ( eclipseCase )
         {
@@ -149,8 +144,7 @@ void RicNewContourMapViewFeature::onActionTriggered( bool isChecked )
     {
         geoMechContourMap->loadDataAndUpdate();
         // make sure no surfaces are shown in the view when the contourmap is generated
-        if ( geoMechContourMap->surfaceInViewCollection() )
-            geoMechContourMap->surfaceInViewCollection()->setCheckState( Qt::Unchecked );
+        if ( geoMechContourMap->surfaceInViewCollection() ) geoMechContourMap->surfaceInViewCollection()->setCheckState( Qt::Unchecked );
 
         if ( geoMechCase )
         {
@@ -169,9 +163,8 @@ void RicNewContourMapViewFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicNewContourMapViewFeature::setupActionLook( QAction* actionToSetup )
 {
-    bool contourMapSelected =
-        caf::SelectionManager::instance()->selectedItemOfType<RimEclipseContourMapView>() != nullptr ||
-        caf::SelectionManager::instance()->selectedItemOfType<RimGeoMechContourMapView>() != nullptr;
+    bool contourMapSelected = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseContourMapView>() != nullptr ||
+                              caf::SelectionManager::instance()->selectedItemOfType<RimGeoMechContourMapView>() != nullptr;
 
     bool viewSelected = caf::SelectionManager::instance()->selectedItemOfType<RimEclipseView>() != nullptr ||
                         caf::SelectionManager::instance()->selectedItemOfType<RimGeoMechView>() != nullptr;
@@ -223,7 +216,7 @@ RimEclipseContourMapView*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMapFrom3dView( RimEclipseCase* eclipseCase,
+RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMapFrom3dView( RimEclipseCase*       eclipseCase,
                                                                                           const RimEclipseView* sourceView )
 {
     RimEclipseContourMapView* contourMap = dynamic_cast<RimEclipseContourMapView*>(
@@ -232,9 +225,8 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMapFr
                                                                     caf::PdmDefaultObjectFactory::instance() ) );
     CVF_ASSERT( contourMap );
 
-    const RigActiveCellInfo* activeCellInfo =
-        eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    size_t activeCellCount = activeCellInfo->reservoirActiveCellCount();
+    const RigActiveCellInfo* activeCellInfo = eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    size_t                   activeCellCount = activeCellInfo->reservoirActiveCellCount();
     if ( activeCellCount >= largeSamplingThresholdCellCount )
     {
         contourMap->contourMapProjection()->setSampleSpacingFactor( 1.5 );
@@ -294,9 +286,8 @@ RimEclipseContourMapView* RicNewContourMapViewFeature::createEclipseContourMap( 
     size_t i = eclipseCase->contourMapCollection()->views().size();
     contourMap->setName( QString( "Contour Map %1" ).arg( i + 1 ) );
 
-    const RigActiveCellInfo* activeCellInfo =
-        eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    size_t activeCellCount = activeCellInfo->reservoirActiveCellCount();
+    const RigActiveCellInfo* activeCellInfo = eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    size_t                   activeCellCount = activeCellInfo->reservoirActiveCellCount();
     if ( activeCellCount >= largeSamplingThresholdCellCount )
     {
         contourMap->contourMapProjection()->setSampleSpacingFactor( 1.5 );
@@ -351,7 +342,7 @@ RimGeoMechContourMapView*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechContourMapView* RicNewContourMapViewFeature::createGeoMechContourMapFrom3dView( RimGeoMechCase* geoMechCase,
+RimGeoMechContourMapView* RicNewContourMapViewFeature::createGeoMechContourMapFrom3dView( RimGeoMechCase*       geoMechCase,
                                                                                           const RimGeoMechView* sourceView )
 {
     RimGeoMechContourMapView* contourMap = dynamic_cast<RimGeoMechContourMapView*>(

@@ -79,12 +79,9 @@ protected:
                                           std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo>* uniqueIntersections );
 
     void populateReturnArrays( std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo>& uniqueIntersections );
-    void appendIntersectionToArrays( double                      measuredDepth,
-                                     const HexIntersectionInfo&  intersection,
-                                     gsl::not_null<QStringList*> errorMessages );
+    void appendIntersectionToArrays( double measuredDepth, const HexIntersectionInfo& intersection, gsl::not_null<QStringList*> errorMessages );
 
-    virtual cvf::Vec3d
-        calculateLengthInCell( size_t cellIndex, const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint ) const = 0;
+    virtual cvf::Vec3d calculateLengthInCell( size_t cellIndex, const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint ) const = 0;
 
     std::vector<cvf::Vec3d>                         m_intersections;
     std::vector<size_t>                             m_intersectedCellsGlobIdx;

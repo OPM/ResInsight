@@ -79,8 +79,7 @@ RimFaultInViewCollection::RimFaultInViewCollection()
 
     CAF_PDM_InitField( &faultResult,
                        "FaultFaceCulling",
-                       caf::AppEnum<RimFaultInViewCollection::FaultFaceCullingMode>(
-                           RimFaultInViewCollection::FAULT_BACK_FACE_CULLING ),
+                       caf::AppEnum<RimFaultInViewCollection::FaultFaceCullingMode>( RimFaultInViewCollection::FAULT_BACK_FACE_CULLING ),
                        "Dynamic Face Selection" );
 
     CAF_PDM_InitField( &showFaultLabel, "ShowFaultLabel", false, "Show Labels" );
@@ -92,10 +91,7 @@ RimFaultInViewCollection::RimFaultInViewCollection()
     CAF_PDM_InitField( &showNNCs, "ShowNNCs", true, "Show NNCs" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &showNNCs );
 
-    CAF_PDM_InitField( &hideNncsWhenNoResultIsAvailable,
-                       "HideNncsWhenNoResultIsAvailable",
-                       true,
-                       "Hide NNC Geometry if No NNC Result is Available" );
+    CAF_PDM_InitField( &hideNncsWhenNoResultIsAvailable, "HideNncsWhenNoResultIsAvailable", true, "Hide NNC Geometry if No NNC Result is Available" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &hideNncsWhenNoResultIsAvailable );
 
     CAF_PDM_InitFieldNoDefault( &faults, "Faults", "Faults" );
@@ -113,9 +109,7 @@ RimFaultInViewCollection::~RimFaultInViewCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaultInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                 const QVariant&            oldValue,
-                                                 const QVariant&            newValue )
+void RimFaultInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     this->updateUiIconFromToggleField();
 
@@ -130,9 +124,8 @@ void RimFaultInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* chan
         parentView()->scheduleReservoirGridGeometryRegen();
     }
 
-    if ( &showFaultFaces == changedField || &showOppositeFaultFaces == changedField ||
-         &showFaultCollection == changedField || &showFaultLabel == changedField ||
-         &m_showFaultsOutsideFilters == changedField || &faultLabelColor == changedField ||
+    if ( &showFaultFaces == changedField || &showOppositeFaultFaces == changedField || &showFaultCollection == changedField ||
+         &showFaultLabel == changedField || &m_showFaultsOutsideFilters == changedField || &faultLabelColor == changedField ||
          &m_onlyShowWithNeighbor == changedField || &faultResult == changedField || &showNNCs == changedField ||
          &hideNncsWhenNoResultIsAvailable == changedField )
     {
@@ -209,8 +202,7 @@ void RimFaultInViewCollection::syncronizeFaults()
                 undefinedFaults = sortedFaults[i];
             }
 
-            if ( faultName.startsWith( RiaResultNames::undefinedGridFaultName(), Qt::CaseInsensitive ) &&
-                 faultName.contains( "Inactive" ) )
+            if ( faultName.startsWith( RiaResultNames::undefinedGridFaultName(), Qt::CaseInsensitive ) && faultName.contains( "Inactive" ) )
             {
                 undefinedFaultsWInactive = sortedFaults[i];
             }
@@ -247,8 +239,7 @@ void RimFaultInViewCollection::syncronizeFaults()
             rimFault->faultColor = colorTable.cycledColor3f( fIdx );
             QString faultName    = rigFaults[fIdx]->name();
 
-            if ( faultName.startsWith( RiaResultNames::undefinedGridFaultName(), Qt::CaseInsensitive ) &&
-                 faultName.contains( "Inactive" ) )
+            if ( faultName.startsWith( RiaResultNames::undefinedGridFaultName(), Qt::CaseInsensitive ) && faultName.contains( "Inactive" ) )
             {
                 rimFault->showFault = false; // Turn fault against inactive cells off by default
             }

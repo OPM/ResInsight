@@ -137,9 +137,7 @@ void RimWellIASettings::updateVisualization()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellIASettings::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                          const QVariant&            oldValue,
-                                          const QVariant&            newValue )
+void RimWellIASettings::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( ( changedField == &m_startMD ) || ( changedField == &m_endMD ) || ( changedField == objectToggleField() ) ||
          ( changedField == &m_bufferXY ) || ( changedField == &m_showBox ) )
@@ -206,9 +204,7 @@ void RimWellIASettings::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellIASettings::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                               QString                    uiConfigName,
-                                               caf::PdmUiEditorAttribute* attribute )
+void RimWellIASettings::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_startMD || field == &m_endMD )
     {
@@ -461,9 +457,8 @@ bool RimWellIASettings::updateResInsightParameters()
     RimParameterGroup* initialStress = new RimParameterGroup();
     initialStress->setName( "initial_stress" );
     initialStress->setLabel( "Initial Stress" );
-    initialStress->setComment(
-        "SXX is in North direction, SYY is East, SZZ is vertical; PP is the initial pore pressure in the "
-        "formation, set to 0 for hydrostatic assumption; inclination is 0 for a vertical well" );
+    initialStress->setComment( "SXX is in North direction, SYY is East, SZZ is vertical; PP is the initial pore pressure in the "
+                               "formation, set to 0 for hydrostatic assumption; inclination is 0 for a vertical well" );
 
     cvf::Vec3d           position = m_modelbox.center();
     RimWellIADataAccess  dataAccess( m_geomechCase );
@@ -472,8 +467,7 @@ bool RimWellIASettings::updateResInsightParameters()
 
     for ( size_t i = 0; i < nativeKeys.size(); i++ )
     {
-        double stressValue =
-            dataAccess.interpolatedResultValue( "ST", nativeKeys[i], RigFemResultPosEnum::RIG_ELEMENT_NODAL, position, 0, 0 );
+        double stressValue = dataAccess.interpolatedResultValue( "ST", nativeKeys[i], RigFemResultPosEnum::RIG_ELEMENT_NODAL, position, 0, 0 );
         if ( std::isfinite( stressValue ) )
         {
             initialStress->addParameter( paramKeys[i], stressValue * 100000.0 );
@@ -494,8 +488,7 @@ bool RimWellIASettings::updateResInsightParameters()
         initialStress->addParameter( "PP", 0.0 );
     }
 
-    auto angles = RigWellPathGeometryTools::calculateAzimuthAndInclinationAtMd( ( m_startMD + m_endMD ) / 2.0,
-                                                                                wellPath()->wellPathGeometry() );
+    auto angles = RigWellPathGeometryTools::calculateAzimuthAndInclinationAtMd( ( m_startMD + m_endMD ) / 2.0, wellPath()->wellPathGeometry() );
     initialStress->addParameter( "azimuth_well", cvf::Math::toDegrees( angles.first ) );
     initialStress->addParameter( "inclination_well", cvf::Math::toDegrees( angles.second ) );
 
@@ -656,8 +649,7 @@ std::vector<QDateTime> RimWellIASettings::timeStepDates()
 {
     std::vector<QDateTime> dates = m_geomechCase->timeStepDates();
 
-    if ( dates.size() < (size_t)m_geomechCase->timeStepStrings().size() )
-        dates.insert( dates.begin(), m_geostaticDate );
+    if ( dates.size() < (size_t)m_geomechCase->timeStepStrings().size() ) dates.insert( dates.begin(), m_geostaticDate );
 
     return dates;
 }
@@ -674,12 +666,9 @@ std::vector<cvf::Vec3d> RimWellIASettings::extractDisplacements( std::vector<cvf
     for ( auto& pos : corners )
     {
         int    lastFrame = -1;
-        double u1 =
-            dataAccess.interpolatedResultValue( "U", "U1", RigFemResultPosEnum::RIG_NODAL, pos, timeStep, lastFrame );
-        double u2 =
-            dataAccess.interpolatedResultValue( "U", "U2", RigFemResultPosEnum::RIG_NODAL, pos, timeStep, lastFrame );
-        double u3 =
-            dataAccess.interpolatedResultValue( "U", "U3", RigFemResultPosEnum::RIG_NODAL, pos, timeStep, lastFrame );
+        double u1        = dataAccess.interpolatedResultValue( "U", "U1", RigFemResultPosEnum::RIG_NODAL, pos, timeStep, lastFrame );
+        double u2        = dataAccess.interpolatedResultValue( "U", "U2", RigFemResultPosEnum::RIG_NODAL, pos, timeStep, lastFrame );
+        double u3        = dataAccess.interpolatedResultValue( "U", "U3", RigFemResultPosEnum::RIG_NODAL, pos, timeStep, lastFrame );
 
         displacements.push_back( cvf::Vec3d( u1, u2, u3 ) );
     }

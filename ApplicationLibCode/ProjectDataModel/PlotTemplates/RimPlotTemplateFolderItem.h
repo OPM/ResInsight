@@ -46,11 +46,9 @@ public:
     std::vector<RimPlotTemplateFileItem*>   fileItems() const;
     std::vector<RimPlotTemplateFolderItem*> subFolders() const;
 
-    static void appendOptionItemsForPlotTemplates( QList<caf::PdmOptionItemInfo>& options,
-                                                   RimPlotTemplateFolderItem*     templateFolderItem );
+    static void appendOptionItemsForPlotTemplates( QList<caf::PdmOptionItemInfo>& options, RimPlotTemplateFolderItem* templateFolderItem );
 
-    static void allPlotTemplates( std::vector<RimPlotTemplateFileItem*>& fileItems,
-                                  RimPlotTemplateFolderItem*             templateFolderItem );
+    static void allPlotTemplates( std::vector<RimPlotTemplateFileItem*>& fileItems, RimPlotTemplateFolderItem* templateFolderItem );
     void        updateIconState() const;
 
 private:
@@ -58,9 +56,7 @@ private:
     void setFolderPath( const QString& path );
     void createSubFolderItemsFromFolderPaths( const QStringList& folderPaths, int levelsLeft );
 
-    void defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                QString                    uiConfigName,
-                                caf::PdmUiEditorAttribute* attribute ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
     static void appendOptionItemsForPlotTemplatesRecursively( QList<caf::PdmOptionItemInfo>& options,

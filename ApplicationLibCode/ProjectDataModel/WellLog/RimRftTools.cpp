@@ -36,12 +36,10 @@ QList<caf::PdmOptionItemInfo> RimRftTools::wellLogChannelsOptions( RifReaderRftI
 
     if ( readerRft )
     {
-        for ( const RifEclipseRftAddress::RftWellLogChannelType& channelName :
-              readerRft->availableWellLogChannels( wellName ) )
+        for ( const RifEclipseRftAddress::RftWellLogChannelType& channelName : readerRft->availableWellLogChannels( wellName ) )
         {
             options.push_back(
-                caf::PdmOptionItemInfo( caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText( channelName ),
-                                        channelName ) );
+                caf::PdmOptionItemInfo( caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText( channelName ), channelName ) );
         }
     }
 
@@ -112,19 +110,16 @@ QList<caf::PdmOptionItemInfo> RimRftTools::segmentTimeStepOptions( RifReaderRftI
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimRftTools::segmentResultNameOptions( RifReaderRftInterface* readerRft,
-                                                                     const QString&         wellName,
-                                                                     const QDateTime&       timeStep )
+QList<caf::PdmOptionItemInfo>
+    RimRftTools::segmentResultNameOptions( RifReaderRftInterface* readerRft, const QString& wellName, const QDateTime& timeStep )
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    options.push_front(
-        caf::PdmOptionItemInfo( RiaResultNames::undefinedResultName(), RiaResultNames::undefinedResultName() ) );
+    options.push_front( caf::PdmOptionItemInfo( RiaResultNames::undefinedResultName(), RiaResultNames::undefinedResultName() ) );
 
     if ( readerRft )
     {
-        options.push_back(
-            caf::PdmOptionItemInfo( RiaDefines::segmentNumberResultName(), RiaDefines::segmentNumberResultName() ) );
+        options.push_back( caf::PdmOptionItemInfo( RiaDefines::segmentNumberResultName(), RiaDefines::segmentNumberResultName() ) );
 
         for ( const auto& resultAdr : readerRft->eclipseRftAddresses( wellName, timeStep ) )
         {

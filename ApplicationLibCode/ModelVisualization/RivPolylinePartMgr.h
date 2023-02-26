@@ -59,9 +59,8 @@ private:
     void buildPolylineParts( const caf::DisplayCoordTransform* displayXf, const cvf::BoundingBox& boundingBox );
 
     std::vector<std::vector<cvf::Vec3d>> getPolylinesPointsInDomain( bool snapToPlaneZ, double planeZ );
-    std::vector<std::vector<cvf::Vec3d>>
-        transformPolylinesPointsToDisplay( const std::vector<std::vector<cvf::Vec3d>>& pointsInDomain,
-                                           const caf::DisplayCoordTransform*           displayXf );
+    std::vector<std::vector<cvf::Vec3d>> transformPolylinesPointsToDisplay( const std::vector<std::vector<cvf::Vec3d>>& pointsInDomain,
+                                                                            const caf::DisplayCoordTransform*           displayXf );
 
     bool collectionVisible();
 

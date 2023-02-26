@@ -51,12 +51,7 @@ CAF_PDM_SOURCE_INIT( RimEclipseCellColors, "ResultSlot" );
 RimEclipseCellColors::RimEclipseCellColors()
     : legendConfigChanged( this )
 {
-    CAF_PDM_InitScriptableObjectWithNameAndComment( "Cell Result",
-                                                    ":/CellResult.png",
-                                                    "",
-                                                    "",
-                                                    "CellColors",
-                                                    "Eclipse Cell Colors class" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Cell Result", ":/CellResult.png", "", "", "CellColors", "Eclipse Cell Colors class" );
 
     CAF_PDM_InitFieldNoDefault( &obsoleteField_legendConfig, "LegendDefinition", "Color Legend" );
     this->obsoleteField_legendConfig.xmlCapability()->setIOWritable( false );
@@ -89,9 +84,7 @@ RimEclipseCellColors::~RimEclipseCellColors()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseCellColors::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                             const QVariant&            oldValue,
-                                             const QVariant&            newValue )
+void RimEclipseCellColors::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimEclipseResultDefinition::fieldChangedByUi( changedField, oldValue, newValue );
 
@@ -149,9 +142,7 @@ void RimEclipseCellColors::changeLegendConfig( QString resultVarNameOfNewLegend 
 
             if ( !found )
             {
-                auto newLegend = createLegendForResult( resultVarNameOfNewLegend,
-                                                        this->m_useDiscreteLogLevels,
-                                                        this->hasCategoryResult() );
+                auto newLegend = createLegendForResult( resultVarNameOfNewLegend, this->m_useDiscreteLogLevels, this->hasCategoryResult() );
 
                 newLegend->changed.connect( this, &RimEclipseCellColors::onLegendConfigChanged );
 
@@ -174,9 +165,7 @@ void RimEclipseCellColors::onLegendConfigChanged( const caf::SignalEmitter* emit
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimRegularLegendConfig* RimEclipseCellColors::createLegendForResult( const QString& resultName,
-                                                                     bool           useDiscreteLogLevels,
-                                                                     bool           isCategoryResult )
+RimRegularLegendConfig* RimEclipseCellColors::createLegendForResult( const QString& resultName, bool useDiscreteLogLevels, bool isCategoryResult )
 {
     auto* newLegend               = new RimRegularLegendConfig;
     newLegend->resultVariableName = resultName;

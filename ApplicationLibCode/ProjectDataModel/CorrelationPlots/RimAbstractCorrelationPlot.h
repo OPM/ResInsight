@@ -50,9 +50,9 @@ public:
 
 public:
     std::vector<RiaSummaryCurveDefinition> curveDefinitions() const;
-    void setCurveDefinitions( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions );
-    void setTimeStep( std::time_t timeStep );
-    std::set<RimSummaryCaseCollection*> ensembles();
+    void                                   setCurveDefinitions( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions );
+    void                                   setTimeStep( std::time_t timeStep );
+    std::set<RimSummaryCaseCollection*>    ensembles();
 
     // Get summary cases filtered by attached ensemble parameter filter
     std::set<RimSummaryCase*> filterEnsembleCases( RimSummaryCaseCollection* ensemble ) const;
@@ -80,9 +80,7 @@ protected:
     // Overridden PDM methods
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                QString                    uiConfigName,
-                                caf::PdmUiEditorAttribute* attribute ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     caf::PdmFieldHandle*          userDescriptionField() override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;

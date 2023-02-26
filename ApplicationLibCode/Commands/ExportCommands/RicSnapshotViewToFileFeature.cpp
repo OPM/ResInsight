@@ -128,8 +128,7 @@ void RicSnapshotViewToFileFeature::savePlotPdfReportAs( const QString& fileName,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSnapshotViewToFileFeature::saveViewWindowToFile( RimViewWindow* viewWindow,
-                                                         const QString& defaultFileBaseName /*= "image" */ )
+void RicSnapshotViewToFileFeature::saveViewWindowToFile( RimViewWindow* viewWindow, const QString& defaultFileBaseName /*= "image" */ )
 {
     auto* plotWindow = dynamic_cast<RimPlotWindow*>( viewWindow );
 
@@ -162,9 +161,7 @@ void RicSnapshotViewToFileFeature::saveImageToFile( const QImage& image, const Q
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicSnapshotViewToFileFeature::generateSaveFileName( const QString& defaultFileBaseName,
-                                                            bool           supportPDF,
-                                                            const QString& defaultExtension )
+QString RicSnapshotViewToFileFeature::generateSaveFileName( const QString& defaultFileBaseName, bool supportPDF, const QString& defaultExtension )
 {
     RiaApplication* app  = RiaApplication::instance();
     RimProject*     proj = app->project();
@@ -194,19 +191,15 @@ QString RicSnapshotViewToFileFeature::generateSaveFileName( const QString& defau
         fileExtensionFilter += QString( ";;%1" ).arg( pdfFilter );
     }
 
-    QString defaultAbsFileName =
-        caf::Utils::constructFullFileName( startPath, defaultFileBaseName, "." + defaultExtension );
+    QString defaultAbsFileName = caf::Utils::constructFullFileName( startPath, defaultFileBaseName, "." + defaultExtension );
 
     QString selectedExtension;
     if ( supportPDF && defaultExtension.compare( "pdf", Qt::CaseInsensitive ) == 0 )
     {
         selectedExtension = pdfFilter;
     }
-    QString fileName = RiuFileDialogTools::getSaveFileName( nullptr,
-                                                            tr( "Export to File" ),
-                                                            defaultAbsFileName,
-                                                            fileExtensionFilter,
-                                                            &selectedExtension );
+    QString fileName =
+        RiuFileDialogTools::getSaveFileName( nullptr, tr( "Export to File" ), defaultAbsFileName, fileExtensionFilter, &selectedExtension );
     if ( !fileName.isEmpty() )
     {
         // Remember the directory to next time

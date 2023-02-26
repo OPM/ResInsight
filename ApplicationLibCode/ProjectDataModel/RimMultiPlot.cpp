@@ -579,8 +579,7 @@ void RimMultiPlot::onPlotsReordered( const caf::SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiPlot::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                                   std::vector<caf::PdmObjectHandle*>& referringObjects )
+void RimMultiPlot::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     updateSubPlotNames();
     recreatePlotWidgets();
@@ -720,9 +719,7 @@ void RimMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& u
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                          QString                    uiConfigName,
-                                          caf::PdmUiEditorAttribute* attribute )
+void RimMultiPlot::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_rowsPerPage || field == &m_columnCount )
     {
@@ -761,15 +758,12 @@ QList<caf::PdmOptionItemInfo> RimMultiPlot::calculateValueOptions( const caf::Pd
     {
         for ( size_t i = 0; i < ColumnCountEnum::size(); ++i )
         {
-            RiaDefines::ColumnCount enumVal           = ColumnCountEnum::fromIndex( i );
-            QString                 columnCountString = ( enumVal == RiaDefines::ColumnCount::COLUMNS_UNLIMITED )
-                                            ? "Unlimited"
-                                            : QString( "%1" ).arg( static_cast<int>( enumVal ) );
+            RiaDefines::ColumnCount enumVal = ColumnCountEnum::fromIndex( i );
+            QString                 columnCountString =
+                ( enumVal == RiaDefines::ColumnCount::COLUMNS_UNLIMITED ) ? "Unlimited" : QString( "%1" ).arg( static_cast<int>( enumVal ) );
             QString iconPath = QString( ":/Columns%1.png" ).arg( columnCountString );
-            options.push_back( caf::PdmOptionItemInfo( ColumnCountEnum::uiText( enumVal ),
-                                                       enumVal,
-                                                       false,
-                                                       caf::IconProvider( iconPath, QSize( 24, 16 ) ) ) );
+            options.push_back(
+                caf::PdmOptionItemInfo( ColumnCountEnum::uiText( enumVal ), enumVal, false, caf::IconProvider( iconPath, QSize( 24, 16 ) ) ) );
         }
     }
     if ( fieldNeedingOptions == &m_rowsPerPage )
@@ -778,10 +772,8 @@ QList<caf::PdmOptionItemInfo> RimMultiPlot::calculateValueOptions( const caf::Pd
         {
             RiaDefines::RowCount enumVal  = RowCountEnum::fromIndex( i );
             QString              iconPath = QString( ":/Rows%1.png" ).arg( static_cast<int>( enumVal ) );
-            options.push_back( caf::PdmOptionItemInfo( RowCountEnum::uiText( enumVal ),
-                                                       enumVal,
-                                                       false,
-                                                       caf::IconProvider( iconPath, QSize( 24, 16 ) ) ) );
+            options.push_back(
+                caf::PdmOptionItemInfo( RowCountEnum::uiText( enumVal ), enumVal, false, caf::IconProvider( iconPath, QSize( 24, 16 ) ) ) );
         }
     }
     else if ( fieldNeedingOptions == &m_subTitleFontSize || fieldNeedingOptions == &m_axisTitleFontSize ||

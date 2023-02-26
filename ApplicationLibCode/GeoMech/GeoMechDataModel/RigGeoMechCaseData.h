@@ -41,11 +41,7 @@ public:
     bool open( std::string* errorMessage );
     bool readTimeSteps( std::string* errorMessage, std::vector<std::string>* stepNames );
     bool readFemParts( std::string* errorMessage, const std::vector<size_t>& timeStepFilter, bool readOnlyLastFrame );
-    bool readDisplacements( std::string*             errorMessage,
-                            int                      partId,
-                            int                      timeStep,
-                            int                      frameIndex,
-                            std::vector<cvf::Vec3f>* displacements );
+    bool readDisplacements( std::string* errorMessage, int partId, int timeStep, int frameIndex, std::vector<cvf::Vec3f>* displacements );
 
     RigFemPartCollection*       femParts();
     const RigFemPartCollection* femParts() const;

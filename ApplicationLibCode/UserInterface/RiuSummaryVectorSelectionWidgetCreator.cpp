@@ -59,9 +59,8 @@ RiuSummaryVectorSelectionUi* RiuSummaryVectorSelectionWidgetCreator::summaryAddr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryVectorSelectionWidgetCreator::recursivelyConfigureAndUpdateTopLevelUiOrdering(
-    const caf::PdmUiOrdering& topLevelUiOrdering,
-    const QString&            uiConfigName )
+void RiuSummaryVectorSelectionWidgetCreator::recursivelyConfigureAndUpdateTopLevelUiOrdering( const caf::PdmUiOrdering& topLevelUiOrdering,
+                                                                                              const QString&            uiConfigName )
 {
     if ( !m_firstRowLeftLayout || !m_firstRowRightLayout ) return;
 
@@ -142,10 +141,10 @@ QWidget* RiuSummaryVectorSelectionWidgetCreator::createWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryVectorSelectionWidgetCreator::configureAndUpdateFields( int         widgetStartIndex,
-                                                                       QBoxLayout* layout,
+void RiuSummaryVectorSelectionWidgetCreator::configureAndUpdateFields( int                                 widgetStartIndex,
+                                                                       QBoxLayout*                         layout,
                                                                        const std::vector<caf::PdmUiItem*>& uiItems,
-                                                                       const QString& uiConfigName )
+                                                                       const QString&                      uiConfigName )
 {
     int currentWidgetIndex = widgetStartIndex;
 
@@ -211,8 +210,7 @@ void RiuSummaryVectorSelectionWidgetCreator::configureAndUpdateFields( int      
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QMinimizePanel* RiuSummaryVectorSelectionWidgetCreator::createGroupBoxWithContent( caf::PdmUiGroup* group,
-                                                                                   const QString&   uiConfigName )
+QMinimizePanel* RiuSummaryVectorSelectionWidgetCreator::createGroupBoxWithContent( caf::PdmUiGroup* group, const QString& uiConfigName )
 {
     QMinimizePanel* groupBox = findOrCreateGroupBox( this->widget(), group, uiConfigName );
 

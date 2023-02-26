@@ -39,8 +39,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicPasteFeatureImpl::populateObjectGroupFromReferences( const std::vector<QString>& referenceList,
-                                                             caf::PdmObjectGroup*        objectGroup )
+void RicPasteFeatureImpl::populateObjectGroupFromReferences( const std::vector<QString>& referenceList, caf::PdmObjectGroup* objectGroup )
 {
     caf::PdmObjectHandle* referenceRoot = RimProject::current();
 

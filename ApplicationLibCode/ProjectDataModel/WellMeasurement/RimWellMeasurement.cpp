@@ -179,9 +179,7 @@ void RimWellMeasurement::setFilePath( const QString& filePath )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellMeasurement::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                           const QVariant&            oldValue,
-                                           const QVariant&            newValue )
+void RimWellMeasurement::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimProject* proj;
     this->firstAncestorOrThisOfTypeAsserted( proj );

@@ -59,9 +59,7 @@ RimSummaryCalculationVariable::RimSummaryCalculationVariable()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCalculationVariable::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                      const QVariant&            oldValue,
-                                                      const QVariant&            newValue )
+void RimSummaryCalculationVariable::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_button )
     {
@@ -158,9 +156,7 @@ void RimSummaryCalculationVariable::setSummaryAddress( const RimSummaryAddress& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCalculationVariable::handleDroppedMimeData( const QMimeData*     data,
-                                                           Qt::DropAction       action,
-                                                           caf::PdmFieldHandle* destinationField )
+void RimSummaryCalculationVariable::handleDroppedMimeData( const QMimeData* data, Qt::DropAction action, caf::PdmFieldHandle* destinationField )
 {
     auto objects = RiuDragDrop::convertToObjects( data );
     if ( !objects.empty() )
@@ -187,8 +183,7 @@ void RimSummaryCalculationVariable::defineUiOrdering( QString uiConfigName, caf:
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCalculationVariable::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
-    caf::PdmUiTableViewPushButtonEditorAttribute* attr =
-        dynamic_cast<caf::PdmUiTableViewPushButtonEditorAttribute*>( attribute );
+    caf::PdmUiTableViewPushButtonEditorAttribute* attr = dynamic_cast<caf::PdmUiTableViewPushButtonEditorAttribute*>( attribute );
     if ( attr )
     {
         attr->registerPushButtonTextForFieldKeyword( m_button.keyword(), "Edit" );
@@ -214,11 +209,10 @@ void RimSummaryCalculationVariable::readDataFromApplicationStore( RiuSummaryVect
             sumAddress = lastUsedAddress;
         }
 
-        QString lastUsedSummaryCaseString =
-            RiaApplication::instance()->cacheDataObject( "CalculatorSummaryCase" ).toString();
+        QString lastUsedSummaryCaseString = RiaApplication::instance()->cacheDataObject( "CalculatorSummaryCase" ).toString();
 
-        auto* lastUsedSummaryCase = dynamic_cast<RimSummaryCase*>(
-            caf::PdmReferenceHelper::objectFromReference( RimProject::current(), lastUsedSummaryCaseString ) );
+        auto* lastUsedSummaryCase =
+            dynamic_cast<RimSummaryCase*>( caf::PdmReferenceHelper::objectFromReference( RimProject::current(), lastUsedSummaryCaseString ) );
         if ( lastUsedSummaryCase )
         {
             sumCase = lastUsedSummaryCase;

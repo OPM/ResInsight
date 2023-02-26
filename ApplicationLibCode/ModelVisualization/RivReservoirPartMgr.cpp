@@ -33,9 +33,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivReservoirPartMgr::clearAndSetReservoir( RivCellSetEnum  cellSetType,
-                                                RimEclipseCase* eclipseCase,
-                                                RimEclipseView* reservoirView )
+void RivReservoirPartMgr::clearAndSetReservoir( RivCellSetEnum cellSetType, RimEclipseCase* eclipseCase, RimEclipseView* reservoirView )
 {
     m_allGrids.clear();
 

@@ -43,10 +43,9 @@
 /// The returned CellIds is one less than the number of centerline points,
 /// and are describing the lines between the points, starting with the first line
 //--------------------------------------------------------------------------------------------------
-void RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline(
-    RimSimWellInView*                             rimWell,
-    std::vector<std::vector<cvf::Vec3d>>&         pipeBranchesCLCoords,
-    std::vector<std::vector<RigWellResultPoint>>& pipeBranchesCellIds )
+void RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( RimSimWellInView*                     rimWell,
+                                                                               std::vector<std::vector<cvf::Vec3d>>& pipeBranchesCLCoords,
+                                                                               std::vector<std::vector<RigWellResultPoint>>& pipeBranchesCellIds )
 {
     CVF_ASSERT( rimWell );
 
@@ -283,8 +282,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellF
 
                 // First make sure this cell is not starting a new "display" branch for none MSW's
 
-                if ( isMultiSegmentWell || !isAutoDetectBranches || ( prevWellResPoint == whResCell ) ||
-                     distanceToWellHeadIsLonger )
+                if ( isMultiSegmentWell || !isAutoDetectBranches || ( prevWellResPoint == whResCell ) || distanceToWellHeadIsLonger )
                 {
                     // Not starting a "display" branch for normal wells
                     // Calculate the exit of the previous cell, and the entry point into this cell
@@ -302,7 +300,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellF
 
                         // Intersect with the current cell to find a better entry point than the cell center
 
-                        int  intersectionCount = cell.firstIntersectionPoint( rayToThisCell, &intoThisCell );
+                        int  intersectionCount                   = cell.firstIntersectionPoint( rayToThisCell, &intoThisCell );
                         bool isPreviousResPointInsideCurrentCell = ( intersectionCount % 2 ); // Must intersect uneven
                                                                                               // times to be inside. (1
                                                                                               // % 2 = 1)
@@ -401,8 +399,8 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigSimulationWellCenterLineCalculator::addCellCenterPoints( const RigEclipseCaseData*             eclipseCaseData,
-                                                                 std::vector<std::vector<cvf::Vec3d>>& pipeBranchesCLCoords,
+void RigSimulationWellCenterLineCalculator::addCellCenterPoints( const RigEclipseCaseData*                     eclipseCaseData,
+                                                                 std::vector<std::vector<cvf::Vec3d>>&         pipeBranchesCLCoords,
                                                                  std::vector<std::vector<RigWellResultPoint>>& pipeBranchesCellIds )
 {
     for ( size_t brIdx = 0; brIdx < pipeBranchesCellIds.size(); brIdx++ )
@@ -491,9 +489,7 @@ public:
         class DistToEndPoint
         {
         public:
-            DistToEndPoint( double                                                   adist,
-                            std::list<std::pair<bool, std::deque<size_t>>>::iterator aBranchLineIt,
-                            bool                                                     aToFrontOfBranchLine2 )
+            DistToEndPoint( double adist, std::list<std::pair<bool, std::deque<size_t>>>::iterator aBranchLineIt, bool aToFrontOfBranchLine2 )
                 : dist( adist )
                 , branchLineIt( aBranchLineIt )
                 , toFrontOfBranchLine( aToFrontOfBranchLine2 )
@@ -517,31 +513,28 @@ public:
 
         /// Creating useful lambda functions
 
-        auto buildResBranchToBranchLineEndsDistMap = [&unusedBranchLineIterators,
-                                                      &resBranchIdxToBranchLineEndPointsDists,
-                                                      this]( const cvf::Vec3d& fromPoint, int resultBranchIndex ) {
-            for ( auto it : unusedBranchLineIterators )
-            {
+        auto buildResBranchToBranchLineEndsDistMap =
+            [&unusedBranchLineIterators, &resBranchIdxToBranchLineEndPointsDists, this]( const cvf::Vec3d& fromPoint, int resultBranchIndex ) {
+                for ( auto it : unusedBranchLineIterators )
                 {
-                    double dist = calculateFrontToPointDistance( it->second, fromPoint );
-                    resBranchIdxToBranchLineEndPointsDists[resultBranchIndex].insert( DistToEndPoint( dist, it, true ) );
-                }
+                    {
+                        double dist = calculateFrontToPointDistance( it->second, fromPoint );
+                        resBranchIdxToBranchLineEndPointsDists[resultBranchIndex].insert( DistToEndPoint( dist, it, true ) );
+                    }
 
-                {
-                    double dist = calculateEndToPointDistance( it->second, fromPoint );
-                    resBranchIdxToBranchLineEndPointsDists[resultBranchIndex].insert( DistToEndPoint( dist, it, false ) );
+                    {
+                        double dist = calculateEndToPointDistance( it->second, fromPoint );
+                        resBranchIdxToBranchLineEndPointsDists[resultBranchIndex].insert( DistToEndPoint( dist, it, false ) );
+                    }
                 }
-            }
-        };
+            };
 
         auto removeBranchLineFromDistanceMap =
-            [&resBranchIdxToBranchLineEndPointsDists](
-                std::list<std::pair<bool, std::deque<size_t>>>::iterator branchLineToMergeIt ) {
+            [&resBranchIdxToBranchLineEndPointsDists]( std::list<std::pair<bool, std::deque<size_t>>>::iterator branchLineToMergeIt ) {
                 for ( auto& brIdx_DistToEndPointSet : resBranchIdxToBranchLineEndPointsDists )
                 {
                     std::vector<std::multiset<DistToEndPoint>::iterator> iteratorsToErase;
-                    for ( auto it = brIdx_DistToEndPointSet.second.begin(); it != brIdx_DistToEndPointSet.second.end();
-                          ++it )
+                    for ( auto it = brIdx_DistToEndPointSet.second.begin(); it != brIdx_DistToEndPointSet.second.end(); ++it )
                     {
                         if ( it->branchLineIt == branchLineToMergeIt )
                         {
@@ -568,7 +561,7 @@ public:
 
         // Calculate wellhead to branch line ends distances
         {
-            const RigCell& whCell = m_eclipseCaseData->cellFromWellResultCell( m_orgWellResultFrame.wellHeadOrStartCell() );
+            const RigCell& whCell     = m_eclipseCaseData->cellFromWellResultCell( m_orgWellResultFrame.wellHeadOrStartCell() );
             cvf::Vec3d     whStartPos = whCell.faceCenter( cvf::StructGridInterface::NEG_K );
 
             buildResBranchToBranchLineEndsDistMap( whStartPos, -1 );
@@ -598,8 +591,7 @@ public:
         {
             //    Calculate distance from end of all currently added result branches to all branch lines
 
-            for ( size_t resultBranchIndex = 0; resultBranchIndex < m_branchedWell.m_wellResultBranches.size();
-                  ++resultBranchIndex )
+            for ( size_t resultBranchIndex = 0; resultBranchIndex < m_branchedWell.m_wellResultBranches.size(); ++resultBranchIndex )
             {
                 if ( !resBranchIdxToBranchLineEndPointsDists.count( (int)resultBranchIndex ) &&
                      m_branchedWell.m_wellResultBranches[resultBranchIndex].m_branchResultPoints.size() &&
@@ -650,28 +642,23 @@ private:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    void addBranchLineToLastWellResultBranch( std::list<std::pair<bool, std::deque<size_t>>>::iterator branchLineIt,
-                                              bool                                                     startAtFront )
+    void addBranchLineToLastWellResultBranch( std::list<std::pair<bool, std::deque<size_t>>>::iterator branchLineIt, bool startAtFront )
     {
-        addBranchLineToWellResultBranch( static_cast<int>( m_branchedWell.m_wellResultBranches.size() ) - 1,
-                                         branchLineIt,
-                                         startAtFront );
+        addBranchLineToWellResultBranch( static_cast<int>( m_branchedWell.m_wellResultBranches.size() ) - 1, branchLineIt, startAtFront );
     }
 
     //--------------------------------------------------------------------------------------------------
     /// branchIdx == -1 creates a new branch
     //--------------------------------------------------------------------------------------------------
-    void addBranchLineToWellResultBranch( int                                                      branchIdx,
-                                          std::list<std::pair<bool, std::deque<size_t>>>::iterator branchLineIt,
-                                          bool                                                     startAtFront )
+    void addBranchLineToWellResultBranch( int branchIdx, std::list<std::pair<bool, std::deque<size_t>>>::iterator branchLineIt, bool startAtFront )
     {
         if ( branchIdx < 0 )
         {
             m_branchedWell.m_wellResultBranches.push_back( RigWellResultBranch() );
             branchIdx = static_cast<int>( m_branchedWell.m_wellResultBranches.size() ) - 1;
             RigWellResultPoint wellHeadAsPoint;
-            const RigCell& whCell = m_eclipseCaseData->cellFromWellResultCell( m_orgWellResultFrame.wellHeadOrStartCell() );
-            cvf::Vec3d     whStartPos = whCell.faceCenter( cvf::StructGridInterface::NEG_K );
+            const RigCell&     whCell     = m_eclipseCaseData->cellFromWellResultCell( m_orgWellResultFrame.wellHeadOrStartCell() );
+            cvf::Vec3d         whStartPos = whCell.faceCenter( cvf::StructGridInterface::NEG_K );
 
             wellHeadAsPoint.m_bottomPosition = whStartPos;
             m_branchedWell.m_wellResultBranches[branchIdx].m_branchResultPoints.push_back( wellHeadAsPoint );
@@ -681,8 +668,7 @@ private:
         std::deque<size_t>   wellCellIndices = branchLineIt->second;
         if ( !startAtFront ) std::reverse( wellCellIndices.begin(), wellCellIndices.end() );
 
-        const std::vector<RigWellResultPoint>& orgWellResultPoints =
-            m_orgWellResultFrame.m_wellResultBranches[0].m_branchResultPoints;
+        const std::vector<RigWellResultPoint>& orgWellResultPoints = m_orgWellResultFrame.m_wellResultBranches[0].m_branchResultPoints;
 
 #if 1
         if ( wellCellIndices.size() )
@@ -690,9 +676,8 @@ private:
             if ( !branchLineIt->first ) // Is real branch, with first cell as cell *before* entry point on main branch
             {
                 RigWellResultPoint branchStartAsResultPoint;
-                const RigCell&     branchStartCell =
-                    m_eclipseCaseData->cellFromWellResultCell( orgWellResultPoints[wellCellIndices.front()] );
-                cvf::Vec3d branchStartPos = branchStartCell.center();
+                const RigCell& branchStartCell = m_eclipseCaseData->cellFromWellResultCell( orgWellResultPoints[wellCellIndices.front()] );
+                cvf::Vec3d     branchStartPos  = branchStartCell.center();
 
                 if ( wellCellIndices.size() > 1 )
                 {
@@ -736,9 +721,8 @@ private:
     //--------------------------------------------------------------------------------------------------
     void buildCellSearchTree()
     {
-        const std::vector<RigWellResultPoint>& orgWellResultPoints =
-            m_orgWellResultFrame.m_wellResultBranches[0].m_branchResultPoints;
-        size_t cellCount = orgWellResultPoints.size();
+        const std::vector<RigWellResultPoint>& orgWellResultPoints = m_orgWellResultFrame.m_wellResultBranches[0].m_branchResultPoints;
+        size_t                                 cellCount           = orgWellResultPoints.size();
 
         m_cellBoundingBoxes.resize( cellCount );
 
@@ -769,11 +753,10 @@ private:
     //--------------------------------------------------------------------------------------------------
     void buildCellsToNeighborsMap()
     {
-        const std::vector<RigWellResultPoint>& orgWellResultPoints =
-            m_orgWellResultFrame.m_wellResultBranches[0].m_branchResultPoints;
-        size_t                         cellCount = orgWellResultPoints.size();
-        const std::vector<cvf::Vec3d>& nodes     = m_eclipseCaseData->mainGrid()->nodes();
-        double                         cellSizeI, cellSizeJ, cellSizeK;
+        const std::vector<RigWellResultPoint>& orgWellResultPoints = m_orgWellResultFrame.m_wellResultBranches[0].m_branchResultPoints;
+        size_t                                 cellCount           = orgWellResultPoints.size();
+        const std::vector<cvf::Vec3d>&         nodes               = m_eclipseCaseData->mainGrid()->nodes();
+        double                                 cellSizeI, cellSizeJ, cellSizeK;
         m_eclipseCaseData->mainGrid()->characteristicCellSizes( &cellSizeI, &cellSizeJ, &cellSizeK );
         double stdArea = cellSizeK * ( cellSizeI + cellSizeJ ) * 0.5;
 
@@ -790,16 +773,15 @@ private:
             {
                 if ( idxToCloseCell != cIdx && m_cellsWithNeighbors[cIdx].count( idxToCloseCell ) == 0 )
                 {
-                    const RigCell& c2 = m_eclipseCaseData->cellFromWellResultCell( orgWellResultPoints[idxToCloseCell] );
+                    const RigCell&          c2 = m_eclipseCaseData->cellFromWellResultCell( orgWellResultPoints[idxToCloseCell] );
                     std::vector<size_t>     poygonIndices;
                     std::vector<cvf::Vec3d> intersections;
 
-                    auto contactFace =
-                        RigCellFaceGeometryTools::calculateCellFaceOverlap( c1,
-                                                                            c2,
-                                                                            *( m_eclipseCaseData->mainGrid() ),
-                                                                            &poygonIndices,
-                                                                            &intersections );
+                    auto contactFace = RigCellFaceGeometryTools::calculateCellFaceOverlap( c1,
+                                                                                           c2,
+                                                                                           *( m_eclipseCaseData->mainGrid() ),
+                                                                                           &poygonIndices,
+                                                                                           &intersections );
 
                     if ( contactFace != cvf::StructGridInterface::NO_FACE )
                     {
@@ -832,9 +814,8 @@ private:
     //--------------------------------------------------------------------------------------------------
     void buildUnusedCellsSet()
     {
-        const std::vector<RigWellResultPoint>& orgWellResultPoints =
-            m_orgWellResultFrame.m_wellResultBranches[0].m_branchResultPoints;
-        size_t cellCount = orgWellResultPoints.size();
+        const std::vector<RigWellResultPoint>& orgWellResultPoints = m_orgWellResultFrame.m_wellResultBranches[0].m_branchResultPoints;
+        size_t                                 cellCount           = orgWellResultPoints.size();
 
         for ( size_t i = 0; i < cellCount; ++i )
         {
@@ -881,10 +862,8 @@ private:
                     }
                     else // if ( endToGrow > 1 )
                     {
-                        m_branchLines.push_back( std::make_pair( false,
-                                                                 std::deque<size_t>{ branchList.front(),
-                                                                                     cellWithNeighborsPair.first,
-                                                                                     neighbour } ) );
+                        m_branchLines.push_back(
+                            std::make_pair( false, std::deque<size_t>{ branchList.front(), cellWithNeighborsPair.first, neighbour } ) );
                         auto newBranchLineIt = std::prev( m_branchLines.end() );
                         growBranchListEnd( newBranchLineIt );
                         if ( newBranchLineIt->second.size() == 3 )
@@ -906,19 +885,16 @@ private:
     //--------------------------------------------------------------------------------------------------
     size_t findBestNeighbor( size_t cell, std::set<size_t> neighbors )
     {
-        size_t                                 posKNeighbor = cvf::UNDEFINED_SIZE_T;
-        size_t                                 firstUnused  = cvf::UNDEFINED_SIZE_T;
-        const std::vector<RigWellResultPoint>& orgWellResultPoints =
-            m_orgWellResultFrame.m_wellResultBranches[0].m_branchResultPoints;
+        size_t                                 posKNeighbor        = cvf::UNDEFINED_SIZE_T;
+        size_t                                 firstUnused         = cvf::UNDEFINED_SIZE_T;
+        const std::vector<RigWellResultPoint>& orgWellResultPoints = m_orgWellResultFrame.m_wellResultBranches[0].m_branchResultPoints;
 
         for ( size_t neighbor : neighbors )
         {
             if ( m_unusedWellCellIndices.count( neighbor ) )
             {
                 cvf::StructGridInterface::FaceType sharedFace;
-                m_eclipseCaseData->findSharedSourceFace( sharedFace,
-                                                         orgWellResultPoints[cell],
-                                                         orgWellResultPoints[neighbor] );
+                m_eclipseCaseData->findSharedSourceFace( sharedFace, orgWellResultPoints[cell], orgWellResultPoints[neighbor] );
                 if ( sharedFace == cvf::StructGridInterface::NEG_K ) return neighbor;
                 if ( sharedFace == cvf::StructGridInterface::POS_K )
                     posKNeighbor = neighbor;
@@ -1063,8 +1039,7 @@ private:
     //--------------------------------------------------------------------------------------------------
     double calculateWellCellToPointDistance( size_t wellCellIdx, const cvf::Vec3d& point )
     {
-        const std::vector<RigWellResultPoint>& orgWellResultPoints =
-            m_orgWellResultFrame.m_wellResultBranches[0].m_branchResultPoints;
+        const std::vector<RigWellResultPoint>& orgWellResultPoints = m_orgWellResultFrame.m_wellResultBranches[0].m_branchResultPoints;
 
         const RigCell& c = m_eclipseCaseData->cellFromWellResultCell( orgWellResultPoints[wellCellIdx] );
 

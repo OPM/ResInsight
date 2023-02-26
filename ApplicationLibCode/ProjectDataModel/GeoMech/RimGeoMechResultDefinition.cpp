@@ -87,10 +87,7 @@ RimGeoMechResultDefinition::RimGeoMechResultDefinition( void )
     CAF_PDM_InitField( &m_resultComponentName, "ResultComponentName", QString( "" ), "Component" );
     m_resultComponentName.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_timeLapseBaseTimestep,
-                       "TimeLapseBaseTimeStep",
-                       RigFemResultAddress::noTimeLapseValue(),
-                       "Base Time Step" );
+    CAF_PDM_InitField( &m_timeLapseBaseTimestep, "TimeLapseBaseTimeStep", RigFemResultAddress::noTimeLapseValue(), "Base Time Step" );
     CAF_PDM_InitField( &m_referenceTimeStep, "ReferenceTimeStep", 0, "Reference Time Step" );
 
     CAF_PDM_InitField( &m_compactionRefLayer, "CompactionRefLayer", 0, "Compaction Ref Layer" );
@@ -180,12 +177,8 @@ void RimGeoMechResultDefinition::defineUiOrdering( QString uiConfigName, caf::Pd
         {
             if ( m_geomCase && m_geomCase->geoMechData() )
             {
-                m_compactionRefLayerUiField = (int)m_geomCase->geoMechData()
-                                                  ->femParts()
-                                                  ->part( 0 )
-                                                  ->getOrCreateStructGrid()
-                                                  ->reservoirIJKBoundingBox()
-                                                  .first.z();
+                m_compactionRefLayerUiField =
+                    (int)m_geomCase->geoMechData()->femParts()->part( 0 )->getOrCreateStructGrid()->reservoirIJKBoundingBox().first.z();
             }
         }
     }
@@ -204,8 +197,7 @@ void RimGeoMechResultDefinition::defineUiOrdering( QString uiConfigName, caf::Pd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimGeoMechResultDefinition::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RimGeoMechResultDefinition::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -226,8 +218,7 @@ QList<caf::PdmOptionItemInfo>
             }
             for ( RigFemResultPosEnum value : optionItems )
             {
-                options.push_back(
-                    caf::PdmOptionItemInfo( caf::AppEnum<RigFemResultPosEnum>::uiText( value ), QVariant( value ) ) );
+                options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RigFemResultPosEnum>::uiText( value ), QVariant( value ) ) );
             }
         }
         else if ( &m_resultVariableUiField == fieldNeedingOptions )
@@ -279,8 +270,7 @@ QList<caf::PdmOptionItemInfo>
         {
             if ( m_geomCase->geoMechData() )
             {
-                size_t kCount =
-                    m_geomCase->geoMechData()->femParts()->part( 0 )->getOrCreateStructGrid()->gridPointCountK() - 1;
+                size_t kCount = m_geomCase->geoMechData()->femParts()->part( 0 )->getOrCreateStructGrid()->gridPointCountK() - 1;
                 for ( size_t layerIdx = 0; layerIdx < kCount; ++layerIdx )
                 {
                     options.push_back( caf::PdmOptionItemInfo( QString::number( layerIdx + 1 ), (int)layerIdx ) );
@@ -311,9 +301,7 @@ RimGeoMechCase* RimGeoMechResultDefinition::geoMechCase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                   const QVariant&            oldValue,
-                                                   const QVariant&            newValue )
+void RimGeoMechResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     m_isChangedByField = true;
 
@@ -330,8 +318,7 @@ void RimGeoMechResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
         }
     }
 
-    if ( &m_resultPositionTypeUiField == changedField || &m_timeLapseBaseTimestep == changedField ||
-         &m_referenceTimeStep == changedField )
+    if ( &m_resultPositionTypeUiField == changedField || &m_timeLapseBaseTimestep == changedField || &m_referenceTimeStep == changedField )
     {
         std::map<std::string, std::vector<std::string>> fieldCompNames = getResultMetaDataForUIFieldSetting();
         QStringList                                     uiVarNames;
@@ -496,8 +483,7 @@ std::map<std::string, std::vector<std::string>> RimGeoMechResultDefinition::getR
     std::map<std::string, std::vector<std::string>> fieldWithComponentNames;
     if ( gmCase && gmCase->geoMechData() )
     {
-        fieldWithComponentNames =
-            gmCase->geoMechData()->femPartResults()->scalarFieldAndComponentNames( m_resultPositionTypeUiField() );
+        fieldWithComponentNames = gmCase->geoMechData()->femPartResults()->scalarFieldAndComponentNames( m_resultPositionTypeUiField() );
     }
 
     return fieldWithComponentNames;
@@ -506,10 +492,9 @@ std::map<std::string, std::vector<std::string>> RimGeoMechResultDefinition::getR
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechResultDefinition::getUiAndResultVariableStringList(
-    QStringList*                                           uiNames,
-    QStringList*                                           variableNames,
-    const std::map<std::string, std::vector<std::string>>& fieldCompNames )
+void RimGeoMechResultDefinition::getUiAndResultVariableStringList( QStringList*                                           uiNames,
+                                                                   QStringList*                                           variableNames,
+                                                                   const std::map<std::string, std::vector<std::string>>& fieldCompNames )
 {
     CVF_ASSERT( uiNames && variableNames );
 
@@ -539,8 +524,7 @@ void RimGeoMechResultDefinition::getUiAndResultVariableStringList(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimGeoMechResultDefinition::composeFieldCompString( const QString& resultFieldName,
-                                                            const QString& resultComponentName )
+QString RimGeoMechResultDefinition::composeFieldCompString( const QString& resultFieldName, const QString& resultComponentName )
 {
     if ( resultComponentName.isEmpty() )
         return resultFieldName;
@@ -565,9 +549,7 @@ void RimGeoMechResultDefinition::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechResultDefinition::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                        QString                    uiConfigName,
-                                                        caf::PdmUiEditorAttribute* attribute )
+void RimGeoMechResultDefinition::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_normalizationAirGap )
     {
@@ -704,8 +686,8 @@ QString RimGeoMechResultDefinition::diffResultUiName() const
         }
         else if ( m_timeLapseBaseTimestep != RigFemResultAddress::noTimeLapseValue() )
         {
-            std::vector<std::string> timeStepNames = m_geomCase->geoMechData()->femPartResults()->stepNames();
-            QString timeStepString                 = QString::fromStdString( timeStepNames[m_timeLapseBaseTimestep()] );
+            std::vector<std::string> timeStepNames  = m_geomCase->geoMechData()->femPartResults()->stepNames();
+            QString                  timeStepString = QString::fromStdString( timeStepNames[m_timeLapseBaseTimestep()] );
             diffResultString += QString( "<b>Base Time Step</b>: %1" ).arg( timeStepString );
         }
     }
@@ -963,19 +945,12 @@ void RimGeoMechResultDefinition::updateLegendTextAndRanges( RimRegularLegendConf
     auto [stepIdx, frameIdx] = gmCase->femPartResults()->stepListIndexToTimeStepAndDataFrameIndex( viewerStepIndex );
 
     gmCase->femPartResults()->minMaxScalarValues( resVarAddress, stepIdx, frameIdx, &localMin, &localMax );
-    gmCase->femPartResults()->posNegClosestToZero( resVarAddress,
-                                                   stepIdx,
-                                                   frameIdx,
-                                                   &localPosClosestToZero,
-                                                   &localNegClosestToZero );
+    gmCase->femPartResults()->posNegClosestToZero( resVarAddress, stepIdx, frameIdx, &localPosClosestToZero, &localNegClosestToZero );
 
     gmCase->femPartResults()->minMaxScalarValues( resVarAddress, &globalMin, &globalMax );
     gmCase->femPartResults()->posNegClosestToZero( resVarAddress, &globalPosClosestToZero, &globalNegClosestToZero );
 
-    legendConfigToUpdate->setClosestToZeroValues( globalPosClosestToZero,
-                                                  globalNegClosestToZero,
-                                                  localPosClosestToZero,
-                                                  localNegClosestToZero );
+    legendConfigToUpdate->setClosestToZeroValues( globalPosClosestToZero, globalNegClosestToZero, localPosClosestToZero, localNegClosestToZero );
     legendConfigToUpdate->setAutomaticRanges( globalMin, globalMax, localMin, localMax );
 
     if ( this->hasCategoryResult() )
@@ -984,8 +959,8 @@ void RimGeoMechResultDefinition::updateLegendTextAndRanges( RimRegularLegendConf
         legendConfigToUpdate->setNamedCategories( fnVector );
     }
 
-    QString legendTitle = legendHeading + caf::AppEnum<RigFemResultPosEnum>( this->resultPositionType() ).uiText() +
-                          "\n" + this->resultFieldUiName();
+    QString legendTitle = legendHeading + caf::AppEnum<RigFemResultPosEnum>( this->resultPositionType() ).uiText() + "\n" +
+                          this->resultFieldUiName();
 
     if ( !this->resultComponentUiName().isEmpty() )
     {

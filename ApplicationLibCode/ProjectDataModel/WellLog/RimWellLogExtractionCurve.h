@@ -91,10 +91,9 @@ public:
     void setBranchDetection( bool branchDetection );
     void setBranchIndex( int index );
 
-    static void findAndLoadWbsParametersFromLasFiles( const RimWellPath*          wellPath,
-                                                      RigGeoMechWellLogExtractor* geomExtractor );
+    static void findAndLoadWbsParametersFromLasFiles( const RimWellPath* wellPath, RigGeoMechWellLogExtractor* geomExtractor );
 
-    void setAutoNameComponents( bool addCaseName, bool addProperty, bool addWellname, bool addTimeStep, bool addDate );
+    void                  setAutoNameComponents( bool addCaseName, bool addProperty, bool addWellname, bool addTimeStep, bool addDate );
     RiaDefines::PhaseType phaseType() const override;
 
     static QString wellDateFromGridCaseModel( RimCase* gridCaseModel, int timeStep );
@@ -106,7 +105,7 @@ protected:
     void    connectCaseSignals( RimCase* rimCase );
 
     virtual void performDataExtraction( bool* isUsingPseudoLength );
-    void extractData( bool* isUsingPseudoLength, bool performDataSmoothing = false, double smoothingThreshold = -1.0 );
+    void         extractData( bool* isUsingPseudoLength, bool performDataSmoothing = false, double smoothingThreshold = -1.0 );
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

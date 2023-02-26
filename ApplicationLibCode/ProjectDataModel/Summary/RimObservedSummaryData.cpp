@@ -133,9 +133,7 @@ QList<caf::PdmOptionItemInfo> RimObservedSummaryData::calculateValueOptions( con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimObservedSummaryData::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                               const QVariant&            oldValue,
-                                               const QVariant&            newValue )
+void RimObservedSummaryData::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_useCustomIdentifier || changedField == &m_summaryCategory || changedField == &m_identifierName )
     {

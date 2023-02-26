@@ -56,26 +56,23 @@ RigFemPartResultCalculatorMudWeightWindow::~RigFemPartResultCalculatorMudWeightW
 //--------------------------------------------------------------------------------------------------
 bool RigFemPartResultCalculatorMudWeightWindow::isMatching( const RigFemResultAddress& resVarAddr ) const
 {
-    return ( resVarAddr.fieldName == "MUD-WEIGHT" &&
-             ( resVarAddr.componentName == "MWW" || resVarAddr.componentName == "MWM" ||
-               resVarAddr.componentName == "UMWL" || resVarAddr.componentName == "LMWL" ) );
+    return ( resVarAddr.fieldName == "MUD-WEIGHT" && ( resVarAddr.componentName == "MWW" || resVarAddr.componentName == "MWM" ||
+                                                       resVarAddr.componentName == "UMWL" || resVarAddr.componentName == "LMWL" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( int                        partIndex,
-                                                                                const RigFemResultAddress& resVarAddr )
+RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
 {
     CVF_ASSERT( isMatching( resVarAddr ) );
 
-    const std::vector<RimMudWeightWindowParameters::ParameterType> parameterTypes =
-        { RimMudWeightWindowParameters::ParameterType::WELL_DEVIATION,
-          RimMudWeightWindowParameters::ParameterType::WELL_AZIMUTH,
-          RimMudWeightWindowParameters::ParameterType::UCS,
-          RimMudWeightWindowParameters::ParameterType::POISSONS_RATIO,
-          RimMudWeightWindowParameters::ParameterType::K0_FG,
-          RimMudWeightWindowParameters::ParameterType::OBG0 };
+    const std::vector<RimMudWeightWindowParameters::ParameterType> parameterTypes = { RimMudWeightWindowParameters::ParameterType::WELL_DEVIATION,
+                                                                                      RimMudWeightWindowParameters::ParameterType::WELL_AZIMUTH,
+                                                                                      RimMudWeightWindowParameters::ParameterType::UCS,
+                                                                                      RimMudWeightWindowParameters::ParameterType::POISSONS_RATIO,
+                                                                                      RimMudWeightWindowParameters::ParameterType::K0_FG,
+                                                                                      RimMudWeightWindowParameters::ParameterType::OBG0 };
 
     caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * ( 5 + parameterTypes.size() ), "" );
     stepCountProgress.setProgressDescription( "Calculating Mud Weight Window" );
@@ -85,10 +82,9 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
 
     for ( auto parameterType : parameterTypes )
     {
-        auto task =
-            stepCountProgress.task( "Loading parameter: " +
-                                        caf::AppEnum<RimMudWeightWindowParameters::ParameterType>::uiText( parameterType ),
-                                    m_resultCollection->timeStepCount() );
+        auto task = stepCountProgress.task( "Loading parameter: " +
+                                                caf::AppEnum<RimMudWeightWindowParameters::ParameterType>::uiText( parameterType ),
+                                            m_resultCollection->timeStepCount() );
         loadParameterFramesOrValue( parameterType, partIndex, parameterFrames, parameterValues );
     }
 
@@ -97,10 +93,8 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
 
     RimMudWeightWindowParameters::FractureGradientCalculationType fractureGradientCalculationType =
         m_resultCollection->fractureGradientCalculationTypeMudWeightWindow();
-    RimMudWeightWindowParameters::UpperLimitType upperLimitParameter =
-        m_resultCollection->upperLimitParameterMudWeightWindow();
-    RimMudWeightWindowParameters::LowerLimitType lowerLimitParameter =
-        m_resultCollection->lowerLimitParameterMudWeightWindow();
+    RimMudWeightWindowParameters::UpperLimitType upperLimitParameter = m_resultCollection->upperLimitParameterMudWeightWindow();
+    RimMudWeightWindowParameters::LowerLimitType lowerLimitParameter = m_resultCollection->lowerLimitParameterMudWeightWindow();
 
     // Pore pressure
     RigFemScalarResultFrames* porePressureDataFrames = nullptr;
@@ -113,33 +107,25 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
     // Stress (ST.S3)
     RigFemScalarResultFrames* stressDataFrames = nullptr;
     {
-        auto task = stepCountProgress.task( "Loading ST.S3", m_resultCollection->timeStepCount() );
-        stressDataFrames =
-            m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                        RigFemResultAddress( resVarAddr.resultPosType, "ST", "S3" ) );
+        auto task        = stepCountProgress.task( "Loading ST.S3", m_resultCollection->timeStepCount() );
+        stressDataFrames = m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "ST", "S3" ) );
     }
 
     // Initial overburden gradient (ST.S33)
     RigFemScalarResultFrames* obg0DataFrames = nullptr;
     {
-        auto task = stepCountProgress.task( "Loading ST.S33", m_resultCollection->timeStepCount() );
-        obg0DataFrames =
-            m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                        RigFemResultAddress( resVarAddr.resultPosType, "ST", "S33" ) );
+        auto task      = stepCountProgress.task( "Loading ST.S33", m_resultCollection->timeStepCount() );
+        obg0DataFrames = m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "ST", "S33" ) );
     }
 
     RigFemScalarResultFrames* mudWeightWindowFrames =
-        m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "MWW" ) );
+        m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "MWW" ) );
     RigFemScalarResultFrames* mudWeightMiddleFrames =
-        m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "MWM" ) );
+        m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "MWM" ) );
     RigFemScalarResultFrames* upperMudWeightLimitFrames =
-        m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "UMWL" ) );
+        m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "UMWL" ) );
     RigFemScalarResultFrames* lowerMudWeightLimitFrames =
-        m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "LMWL" ) );
+        m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "LMWL" ) );
 
     const RigFemPart*     femPart     = m_resultCollection->parts()->part( partIndex );
     const RigFemPartGrid* femPartGrid = femPart->getOrCreateStructGrid();
@@ -149,19 +135,15 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
 
     RimMudWeightWindowParameters::NonReservoirPorePressureType PP_NonReservoirType =
         m_resultCollection->nonReservoirPorePressureTypeMudWeightWindow();
-    double         hydrostaticMultiplier = m_resultCollection->hydrostaticMultiplierPPNonRes();
-    const QString& nonReservoirAddress   = m_resultCollection->nonReservoirPorePressureAddressMudWeightWindow();
+    double                    hydrostaticMultiplier    = m_resultCollection->hydrostaticMultiplierPPNonRes();
+    const QString&            nonReservoirAddress      = m_resultCollection->nonReservoirPorePressureAddressMudWeightWindow();
     RigFemScalarResultFrames* nonReservoirResultFrames = nullptr;
 
-    if ( PP_NonReservoirType != RimMudWeightWindowParameters::NonReservoirPorePressureType::HYDROSTATIC &&
-         !nonReservoirAddress.isEmpty() )
+    if ( PP_NonReservoirType != RimMudWeightWindowParameters::NonReservoirPorePressureType::HYDROSTATIC && !nonReservoirAddress.isEmpty() )
     {
         auto task = stepCountProgress.task( "Loading non-reservoir pore pressure.", m_resultCollection->timeStepCount() );
         nonReservoirResultFrames =
-            m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                        RigFemResultAddress( RIG_ELEMENT,
-                                                                             nonReservoirAddress.toStdString(),
-                                                                             "" ) );
+            m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_ELEMENT, nonReservoirAddress.toStdString(), "" ) );
     }
 
     float inf = std::numeric_limits<float>::infinity();
@@ -211,8 +193,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
 
             // Load stress
             RigFemResultAddress     stressResAddr( RIG_ELEMENT_NODAL, "ST", "" );
-            std::vector<caf::Ten3f> vertexStressesFloat =
-                m_resultCollection->tensors( stressResAddr, partIndex, stepIdx, fIdx );
+            std::vector<caf::Ten3f> vertexStressesFloat = m_resultCollection->tensors( stressResAddr, partIndex, stepIdx, fIdx );
 
             std::vector<caf::Ten3d> vertexStresses;
             vertexStresses.reserve( vertexStressesFloat.size() );
@@ -232,46 +213,37 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
                 cvf::Vec3d cellCentroid       = femPartGrid->cellCentroid( elmIdx );
                 double     cellCentroidTvdRKB = -cellCentroid.z() + airGap;
                 double     waterDensityGCM3   = 1.03;
-                double     hydroStaticPressure =
-                    RigGeoMechWellLogExtractor::hydroStaticPorePressureAtDepth( cellCentroidTvdRKB, waterDensityGCM3 );
+                double hydroStaticPressure = RigGeoMechWellLogExtractor::hydroStaticPorePressureAtDepth( cellCentroidTvdRKB, waterDensityGCM3 );
                 double hydroStaticPressureForNormalization =
                     RigGeoMechWellLogExtractor::hydroStaticPorePressureAtDepth( cellCentroidTvdRKB, 1.0 );
 
                 if ( isHexahedron && hydroStaticPressureForNormalization != 0.0 )
                 {
-                    double wellPathDeviation =
-                        getValueForElement( RimMudWeightWindowParameters::ParameterType::WELL_DEVIATION,
-                                            parameterFrameData,
-                                            parameterValues,
-                                            elmIdx );
+                    double wellPathDeviation = getValueForElement( RimMudWeightWindowParameters::ParameterType::WELL_DEVIATION,
+                                                                   parameterFrameData,
+                                                                   parameterValues,
+                                                                   elmIdx );
 
                     double wellPathAzimuth = getValueForElement( RimMudWeightWindowParameters::ParameterType::WELL_AZIMUTH,
                                                                  parameterFrameData,
                                                                  parameterValues,
                                                                  elmIdx );
 
-                    double ucsBar = getValueForElement( RimMudWeightWindowParameters::ParameterType::UCS,
-                                                        parameterFrameData,
-                                                        parameterValues,
-                                                        elmIdx );
+                    double ucsBar =
+                        getValueForElement( RimMudWeightWindowParameters::ParameterType::UCS, parameterFrameData, parameterValues, elmIdx );
 
                     double poissonsRatio = getValueForElement( RimMudWeightWindowParameters::ParameterType::POISSONS_RATIO,
                                                                parameterFrameData,
                                                                parameterValues,
                                                                elmIdx );
 
-                    double K0_FG = getValueForElement( RimMudWeightWindowParameters::ParameterType::K0_FG,
-                                                       parameterFrameData,
-                                                       parameterValues,
-                                                       elmIdx );
+                    double K0_FG =
+                        getValueForElement( RimMudWeightWindowParameters::ParameterType::K0_FG, parameterFrameData, parameterValues, elmIdx );
 
                     double OBG0 = 0.0;
                     if ( !OBG0FromGrid )
                     {
-                        OBG0 = getValueForElement( RimMudWeightWindowParameters::ParameterType::OBG0,
-                                                   parameterFrameData,
-                                                   parameterValues,
-                                                   elmIdx );
+                        OBG0 = getValueForElement( RimMudWeightWindowParameters::ParameterType::OBG0, parameterFrameData, parameterValues, elmIdx );
                     }
 
                     for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
@@ -296,8 +268,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
                             if ( porePressureBar == inf )
                             {
                                 //
-                                if ( PP_NonReservoirType ==
-                                     RimMudWeightWindowParameters::NonReservoirPorePressureType::HYDROSTATIC )
+                                if ( PP_NonReservoirType == RimMudWeightWindowParameters::NonReservoirPorePressureType::HYDROSTATIC )
                                 {
                                     porePressureBar        = hydroStaticPressure * hydrostaticMultiplier;
                                     initialPorePressureBar = hydroStaticPressure * hydrostaticMultiplier;
@@ -314,8 +285,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
 
                             cvf::Vec3d wellPathTangent = calculateWellPathTangent( wellPathAzimuth, wellPathDeviation );
                             caf::Ten3d wellPathStressFloat =
-                                RigGeoMechWellLogExtractor::transformTensorToWellPathOrientation( wellPathTangent,
-                                                                                                  segmentStress );
+                                RigGeoMechWellLogExtractor::transformTensorToWellPathOrientation( wellPathTangent, segmentStress );
                             caf::Ten3d wellPathStressDouble( wellPathStressFloat );
 
                             // Calculate upper limit
@@ -346,8 +316,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
                                 }
                                 else
                                 {
-                                    upperLimit = stressFrameData[elmNodResIdx] * shMultiplier /
-                                                 hydroStaticPressureForNormalization;
+                                    upperLimit = stressFrameData[elmNodResIdx] * shMultiplier / hydroStaticPressureForNormalization;
                                 }
                             }
 
@@ -357,8 +326,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
                             {
                                 lowerLimit = porePressureBar;
                             }
-                            else if ( lowerLimitParameter ==
-                                      RimMudWeightWindowParameters::LowerLimitType::MAX_OF_PORE_PRESSURE_AND_SFG )
+                            else if ( lowerLimitParameter == RimMudWeightWindowParameters::LowerLimitType::MAX_OF_PORE_PRESSURE_AND_SFG )
                             {
                                 if ( isSand )
                                 {
@@ -429,8 +397,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
                             size_t kElmIdx = femPartGrid->cellIndexFromIJK( i, j, currentK );
                             if ( kElmIdx != cvf::UNDEFINED_SIZE_T && femPart->isHexahedron( kElmIdx ) )
                             {
-                                size_t kElmNodResIdx =
-                                    femPart->elementNodeResultIdx( static_cast<int>( kElmIdx ), elmNodIdx );
+                                size_t kElmNodResIdx = femPart->elementNodeResultIdx( static_cast<int>( kElmIdx ), elmNodIdx );
 
                                 float currentLowerMudWeightLimit = lowerMudWeightLimitFrameData[kElmNodResIdx];
                                 if ( currentLowerMudWeightLimit > maxLowerMudWeightLimit )
@@ -491,8 +458,7 @@ void RigFemPartResultCalculatorMudWeightWindow::loadParameterFramesOrValue(
     if ( !resultAddress.isEmpty() )
     {
         resultFrames =
-            m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                        RigFemResultAddress( RIG_ELEMENT, resultAddress.toStdString(), "" ) );
+            m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( RIG_ELEMENT, resultAddress.toStdString(), "" ) );
         parameterFrames[parameterType] = resultFrames;
     }
 

@@ -160,9 +160,7 @@ void RimSummaryAddressCollection::addToSubfolderTree( std::vector<QString>      
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclipseSummaryAddress>& addresses,
-                                                         int                                       caseId,
-                                                         int                                       ensembleId )
+void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclipseSummaryAddress>& addresses, int caseId, int ensembleId )
 {
     if ( addresses.empty() ) return;
 
@@ -185,15 +183,13 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
     // Sort addresses to have calculated results last per category
     std::vector<RifEclipseSummaryAddress> sortedAddresses( addresses.size() );
     std::copy( addresses.begin(), addresses.end(), sortedAddresses.begin() );
-    std::sort( sortedAddresses.begin(),
-               sortedAddresses.end(),
-               []( const RifEclipseSummaryAddress& a, const RifEclipseSummaryAddress& b ) -> bool {
-                   if ( a.category() < b.category() ) return false;
-                   // Calculated results are sorted last.
-                   if ( a.isCalculated() && !b.isCalculated() ) return false;
-                   if ( !a.isCalculated() && b.isCalculated() ) return true;
-                   return a.vectorName() < b.vectorName();
-               } );
+    std::sort( sortedAddresses.begin(), sortedAddresses.end(), []( const RifEclipseSummaryAddress& a, const RifEclipseSummaryAddress& b ) -> bool {
+        if ( a.category() < b.category() ) return false;
+        // Calculated results are sorted last.
+        if ( a.isCalculated() && !b.isCalculated() ) return false;
+        if ( !a.isCalculated() && b.isCalculated() ) return true;
+        return a.vectorName() < b.vectorName();
+    } );
 
     for ( const auto& address : sortedAddresses )
     {
@@ -204,11 +200,7 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
                 break;
 
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_AQUIFER:
-                aquifer->addToSubfolder( QString::number( address.aquiferNumber() ),
-                                         CollectionContentType::AQUIFER,
-                                         address,
-                                         caseId,
-                                         ensembleId );
+                aquifer->addToSubfolder( QString::number( address.aquiferNumber() ), CollectionContentType::AQUIFER, address, caseId, ensembleId );
                 break;
 
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_NETWORK:
@@ -220,11 +212,7 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
                 break;
 
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_REGION:
-                regions->addToSubfolder( QString::number( address.regionNumber() ),
-                                         CollectionContentType::REGION,
-                                         address,
-                                         caseId,
-                                         ensembleId );
+                regions->addToSubfolder( QString::number( address.regionNumber() ), CollectionContentType::REGION, address, caseId, ensembleId );
                 break;
 
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_REGION_2_REGION:
@@ -236,19 +224,11 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
                 break;
 
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_GROUP:
-                groups->addToSubfolder( QString::fromStdString( address.groupName() ),
-                                        CollectionContentType::GROUP,
-                                        address,
-                                        caseId,
-                                        ensembleId );
+                groups->addToSubfolder( QString::fromStdString( address.groupName() ), CollectionContentType::GROUP, address, caseId, ensembleId );
                 break;
 
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL:
-                wells->addToSubfolder( QString::fromStdString( address.wellName() ),
-                                       CollectionContentType::WELL,
-                                       address,
-                                       caseId,
-                                       ensembleId );
+                wells->addToSubfolder( QString::fromStdString( address.wellName() ), CollectionContentType::WELL, address, caseId, ensembleId );
                 break;
 
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_COMPLETION:
@@ -261,8 +241,7 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
                 break;
 
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_SEGMENT:
-                segment->addToSubfolderTree( { QString::fromStdString( address.wellName() ),
-                                               QString::number( address.wellSegmentNumber() ) },
+                segment->addToSubfolderTree( { QString::fromStdString( address.wellName() ), QString::number( address.wellSegmentNumber() ) },
                                              CollectionContentType::WELL_SEGMENT,
                                              address,
                                              caseId,
@@ -270,16 +249,11 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
                 break;
 
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_BLOCK:
-                blocks->addToSubfolder( QString::fromStdString( address.blockAsString() ),
-                                        CollectionContentType::BLOCK,
-                                        address,
-                                        caseId,
-                                        ensembleId );
+                blocks->addToSubfolder( QString::fromStdString( address.blockAsString() ), CollectionContentType::BLOCK, address, caseId, ensembleId );
                 break;
 
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_LGR:
-                lgrwell->addToSubfolderTree( { QString::fromStdString( address.lgrName() ),
-                                               QString::fromStdString( address.wellName() ) },
+                lgrwell->addToSubfolderTree( { QString::fromStdString( address.lgrName() ), QString::fromStdString( address.wellName() ) },
                                              CollectionContentType::WELL_LGR,
                                              address,
                                              caseId,
@@ -297,8 +271,7 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
                 break;
 
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_BLOCK_LGR:
-                lgrblock->addToSubfolderTree( { QString::fromStdString( address.lgrName() ),
-                                                QString::fromStdString( address.blockAsString() ) },
+                lgrblock->addToSubfolderTree( { QString::fromStdString( address.lgrName() ), QString::fromStdString( address.blockAsString() ) },
                                               CollectionContentType::BLOCK_LGR,
                                               address,
                                               caseId,
@@ -306,11 +279,7 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
                 break;
 
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_IMPORTED:
-                imported->addToSubfolder( QString::fromStdString( address.itemUiText() ),
-                                          CollectionContentType::IMPORTED,
-                                          address,
-                                          caseId,
-                                          ensembleId );
+                imported->addToSubfolder( QString::fromStdString( address.itemUiText() ), CollectionContentType::IMPORTED, address, caseId, ensembleId );
                 break;
 
             default:
@@ -322,8 +291,7 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryAddressCollection* RimSummaryAddressCollection::getOrCreateSubfolder( const QString         folderName,
-                                                                                CollectionContentType createFolderType )
+RimSummaryAddressCollection* RimSummaryAddressCollection::getOrCreateSubfolder( const QString folderName, CollectionContentType createFolderType )
 {
     for ( auto& folder : m_subfolders )
     {

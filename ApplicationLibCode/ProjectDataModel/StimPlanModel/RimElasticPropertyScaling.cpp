@@ -64,8 +64,7 @@ RimElasticPropertyScaling::~RimElasticPropertyScaling()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimElasticPropertyScaling::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RimElasticPropertyScaling::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &m_formation )
@@ -91,8 +90,7 @@ QList<caf::PdmOptionItemInfo>
         std::vector<RiaDefines::CurveProperty> properties = RimElasticProperties::scalableProperties();
         for ( auto property : properties )
         {
-            options.push_back(
-                caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::CurveProperty>::uiText( property ), property ) );
+            options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::CurveProperty>::uiText( property ), property ) );
         }
     }
 
@@ -102,9 +100,7 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimElasticPropertyScaling::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                  const QVariant&            oldValue,
-                                                  const QVariant&            newValue )
+void RimElasticPropertyScaling::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     updateAutoName();
     changed.send();

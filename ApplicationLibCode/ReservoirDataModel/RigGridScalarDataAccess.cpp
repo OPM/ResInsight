@@ -49,8 +49,7 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigGridAllCellsScalarDataAccess::RigGridAllCellsScalarDataAccess( const RigGridBase*   grid,
-                                                                  std::vector<double>* reservoirResultValues )
+RigGridAllCellsScalarDataAccess::RigGridAllCellsScalarDataAccess( const RigGridBase* grid, std::vector<double>* reservoirResultValues )
     : m_grid( grid )
     , m_reservoirResultValues( reservoirResultValues )
 {
@@ -88,9 +87,7 @@ void RigGridAllCellsScalarDataAccess::setCellScalar( size_t gridLocalCellIndex, 
 class RigGridActiveCellsScalarDataAccess : public cvf::StructGridScalarDataAccess
 {
 public:
-    RigGridActiveCellsScalarDataAccess( const RigGridBase*       grid,
-                                        std::vector<double>*     reservoirResultValues,
-                                        const RigActiveCellInfo* activeCellInfo )
+    RigGridActiveCellsScalarDataAccess( const RigGridBase* grid, std::vector<double>* reservoirResultValues, const RigActiveCellInfo* activeCellInfo )
         : m_grid( grid )
         , m_reservoirResultValues( reservoirResultValues )
         , m_activeCellInfo( activeCellInfo )
@@ -144,8 +141,8 @@ cvf::ref<cvf::StructGridScalarDataAccess>
     RigResultAccessObjectFactory::createNativeDataAccessObject( RigCaseData*                                eclipseCase,
                                                                 size_t                                      gridIndex,
                                                                 RifReaderInterface::PorosityModelResultType porosityModel,
-                                                                size_t timeStepIndex,
-                                                                size_t scalarSetIndex )
+                                                                size_t                                      timeStepIndex,
+                                                                size_t                                      scalarSetIndex )
 {
     CVF_ASSERT( gridIndex < eclipseCase->gridCount() );
     CVF_ASSERT( eclipseCase );
@@ -159,8 +156,7 @@ cvf::ref<cvf::StructGridScalarDataAccess>
         return NULL;
     }
 
-    std::vector<std::vector<double>>& scalarSetResults =
-        eclipseCase->results( porosityModel )->cellScalarResults( scalarSetIndex );
+    std::vector<std::vector<double>>& scalarSetResults = eclipseCase->results( porosityModel )->cellScalarResults( scalarSetIndex );
 
     // A generated result with a generated results for a subset of time steps, will end up with a result container with
     // less entries than time steps See RiaSetGridProperty command in RiaPropertyDataCommands

@@ -33,8 +33,7 @@ class RicAppendSummaryPlotsForSummaryAddressesFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    static void appendPlotsForAddresses( RimSummaryMultiPlot*                   summaryMultiPlot,
-                                         const std::vector<RimSummaryAddress*>& addresses );
+    static void appendPlotsForAddresses( RimSummaryMultiPlot* summaryMultiPlot, const std::vector<RimSummaryAddress*>& addresses );
 
 protected:
     bool isCommandEnabled() override;

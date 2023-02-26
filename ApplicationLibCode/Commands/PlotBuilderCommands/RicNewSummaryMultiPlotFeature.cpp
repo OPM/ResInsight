@@ -112,7 +112,7 @@ RimSummaryMultiPlotCollection* RicNewSummaryMultiPlotFeature::selectedCollection
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewSummaryMultiPlotFeature::selectedCases( std::vector<RimSummaryCase*>* selectedIndividualSummaryCases,
+bool RicNewSummaryMultiPlotFeature::selectedCases( std::vector<RimSummaryCase*>*           selectedIndividualSummaryCases,
                                                    std::vector<RimSummaryCaseCollection*>* selectedEnsembles )
 {
     CAF_ASSERT( selectedIndividualSummaryCases && selectedEnsembles );

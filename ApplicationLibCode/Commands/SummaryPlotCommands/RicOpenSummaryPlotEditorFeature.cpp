@@ -62,8 +62,7 @@ bool RicOpenSummaryPlotEditorFeature::isCommandEnabled()
     std::vector<RimSummaryCaseCollection*> selectedGroups = caf::selectedObjectsByType<RimSummaryCaseCollection*>();
     if ( selectedGroups.size() > 0 ) return true;
 
-    std::vector<RimSummaryMultiPlotCollection*> selectedPlotCollections =
-        caf::selectedObjectsByType<RimSummaryMultiPlotCollection*>();
+    std::vector<RimSummaryMultiPlotCollection*> selectedPlotCollections = caf::selectedObjectsByType<RimSummaryMultiPlotCollection*>();
     if ( selectedPlotCollections.size() > 0 ) return true;
 
     caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
@@ -105,8 +104,8 @@ void RicOpenSummaryPlotEditorFeature::onActionTriggered( bool isChecked )
 
     if ( sourcesToSelect.empty() && selectedGroups.empty() )
     {
-        const auto allSingleCases = project->firstSummaryCaseMainCollection()->topLevelSummaryCases();
-        const auto allGroups      = project->summaryGroups();
+        const auto                             allSingleCases = project->firstSummaryCaseMainCollection()->topLevelSummaryCases();
+        const auto                             allGroups      = project->summaryGroups();
         std::vector<RimSummaryCaseCollection*> allEnsembles;
         for ( const auto group : allGroups )
             if ( group->isEnsemble() ) allEnsembles.push_back( group );

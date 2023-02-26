@@ -40,9 +40,9 @@ public:
         MIRROR_AUTO = 2
     };
 
-    static cvf::ref<RigStimPlanFractureDefinition> readStimPlanXMLFile( const QString& stimPlanFileName,
-                                                                        double         conductivityScalingFactor,
-                                                                        MirrorMode     mirrorMode,
+    static cvf::ref<RigStimPlanFractureDefinition> readStimPlanXMLFile( const QString&                stimPlanFileName,
+                                                                        double                        conductivityScalingFactor,
+                                                                        MirrorMode                    mirrorMode,
                                                                         RiaDefines::EclipseUnitSystem requiredUnit,
                                                                         QString*                      errorMessage );
 
@@ -54,7 +54,7 @@ private:
 
     static double  getAttributeValueDouble( QXmlStreamReader& xmlStream, const QString& parameterName );
     static QString getAttributeValueString( QXmlStreamReader& xmlStream, const QString& parameterName );
-    static void getGriddingValues( QXmlStreamReader& xmlStream, std::vector<double>& gridValues, size_t& startNegValues );
+    static void    getGriddingValues( QXmlStreamReader& xmlStream, std::vector<double>& gridValues, size_t& startNegValues );
 
     static std::vector<std::vector<double>> getAllDepthDataAtTimeStep( QXmlStreamReader& xmlStream );
 
@@ -62,9 +62,8 @@ private:
                                                            RiaDefines::EclipseUnitSystem requiredUnit,
                                                            const std::vector<double>&    values );
 
-    static double valueInRequiredUnitSystem( RiaDefines::EclipseUnitSystem sourceUnit,
-                                             RiaDefines::EclipseUnitSystem requiredUnit,
-                                             double                        value );
+    static double
+        valueInRequiredUnitSystem( RiaDefines::EclipseUnitSystem sourceUnit, RiaDefines::EclipseUnitSystem requiredUnit, double value );
 
     static bool isTextEqual( const QStringRef& text, const QString& compareText );
 };

@@ -68,7 +68,7 @@ public:
     size_t elementNodeResultCount() const;
     int    nodeIdxFromElementNodeResultIdx( size_t elmNodeResultIdx ) const;
 
-    size_t resultValueIdxFromResultPosType( RigFemResultPosEnum resultPosType, int elementIdx, int elmLocalNodeIdx ) const;
+    size_t                 resultValueIdxFromResultPosType( RigFemResultPosEnum resultPosType, int elementIdx, int elmLocalNodeIdx ) const;
     RigFemPartNodes&       nodes();
     const RigFemPartNodes& nodes() const;
 
@@ -83,9 +83,8 @@ public:
     cvf::BoundingBox        boundingBox() const;
     float                   characteristicElementSize() const;
     const std::vector<int>& possibleGridCornerElements() const;
-    void findIntersectingCells( const cvf::BoundingBox& inputBB, std::vector<size_t>* elementIndices ) const;
-    void findIntersectingCellsWithExistingSearchTree( const cvf::BoundingBox& inputBB,
-                                                      std::vector<size_t>*    elementIndices ) const;
+    void                    findIntersectingCells( const cvf::BoundingBox& inputBB, std::vector<size_t>* elementIndices ) const;
+    void findIntersectingCellsWithExistingSearchTree( const cvf::BoundingBox& inputBB, std::vector<size_t>* elementIndices ) const;
 
     void ensureIntersectionSearchTreeIsBuilt() const;
 

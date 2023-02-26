@@ -58,10 +58,7 @@ RimSummaryCalculation::RimSummaryCalculation()
 {
     CAF_PDM_InitObject( "RimSummaryCalculation", ":/octave.png", "Calculation", "" );
 
-    CAF_PDM_InitField( &m_distributeToOtherItems,
-                       "DistributeToOtherItems",
-                       true,
-                       "Distribute to other items (wells, groups, ..)" );
+    CAF_PDM_InitField( &m_distributeToOtherItems, "DistributeToOtherItems", true, "Distribute to other items (wells, groups, ..)" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -181,7 +178,7 @@ bool RimSummaryCalculation::detectCyclicCalculation( int id, std::set<int>& ids 
 
         // Get calculation for the referenced id
         RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
-        auto calc = dynamic_cast<RimSummaryCalculation*>( calcColl->findCalculationById( id ) );
+        auto                             calc     = dynamic_cast<RimSummaryCalculation*>( calcColl->findCalculationById( id ) );
 
         // Check if any of the variables references already seen calculations
         auto vars = calc->variables();
@@ -213,8 +210,7 @@ bool RimSummaryCalculation::calculate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCalculation::substituteVariables( std::vector<SummaryCalculationVariable>& vars,
-                                                 const RifEclipseSummaryAddress&          address )
+void RimSummaryCalculation::substituteVariables( std::vector<SummaryCalculationVariable>& vars, const RifEclipseSummaryAddress& address )
 {
     auto firstVariable = vars.front();
 
@@ -247,8 +243,7 @@ void RimSummaryCalculation::substituteVariables( std::vector<SummaryCalculationV
         newValue                 = address.aquiferNumber();
         isHandledBySteppingTools = true;
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION ||
-              category == RifEclipseSummaryAddress::SUMMARY_BLOCK )
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION || category == RifEclipseSummaryAddress::SUMMARY_BLOCK )
     {
         oldValue                 = QString::fromStdString( firstVariable.summaryAddress.blockAsString() );
         newValue                 = QString::fromStdString( address.blockAsString() );
@@ -362,8 +357,7 @@ std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
                 std::vector<time_t> validTimeSteps( timeHistoryCurveMerger.allXValues().begin() + firstValidTimeStep,
                                                     timeHistoryCurveMerger.allXValues().begin() + lastValidTimeStep );
 
-                std::vector<double> validValues( resultValues.begin() + firstValidTimeStep,
-                                                 resultValues.begin() + lastValidTimeStep );
+                std::vector<double> validValues( resultValues.begin() + firstValidTimeStep, resultValues.begin() + lastValidTimeStep );
 
                 return std::make_pair( validValues, validTimeSteps );
             }
@@ -469,7 +463,7 @@ std::vector<RimSummaryCalculationAddress> RimSummaryCalculation::allAddressesFor
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCalculationAddress>
     RimSummaryCalculation::allAddressesForCategory( RifEclipseSummaryAddress::SummaryVarCategory category,
-                                                    const std::set<RifEclipseSummaryAddress>& allResultAddresses ) const
+                                                    const std::set<RifEclipseSummaryAddress>&    allResultAddresses ) const
 {
     std::vector<RimSummaryCalculationAddress> addresses;
 
@@ -487,8 +481,7 @@ std::vector<RimSummaryCalculationAddress>
 
         for ( auto num : uniqueNumbers )
         {
-            addresses.push_back(
-                RimSummaryCalculationAddress( RifEclipseSummaryAddress::aquiferAddress( name, num, m_id ) ) );
+            addresses.push_back( RimSummaryCalculationAddress( RifEclipseSummaryAddress::aquiferAddress( name, num, m_id ) ) );
         }
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_MISC )
@@ -508,8 +501,7 @@ std::vector<RimSummaryCalculationAddress>
 
         for ( auto wellName : uniqueWellNames )
         {
-            addresses.push_back(
-                RimSummaryCalculationAddress( RifEclipseSummaryAddress::wellAddress( name, wellName, m_id ) ) );
+            addresses.push_back( RimSummaryCalculationAddress( RifEclipseSummaryAddress::wellAddress( name, wellName, m_id ) ) );
         }
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_GROUP )
@@ -521,8 +513,7 @@ std::vector<RimSummaryCalculationAddress>
 
         for ( auto groupName : uniqueGroupNames )
         {
-            addresses.push_back(
-                RimSummaryCalculationAddress( RifEclipseSummaryAddress::groupAddress( name, groupName, m_id ) ) );
+            addresses.push_back( RimSummaryCalculationAddress( RifEclipseSummaryAddress::groupAddress( name, groupName, m_id ) ) );
         }
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_REGION )
@@ -534,8 +525,7 @@ std::vector<RimSummaryCalculationAddress>
 
         for ( auto regionNumber : uniqueRegionNumbers )
         {
-            addresses.push_back(
-                RimSummaryCalculationAddress( RifEclipseSummaryAddress::regionAddress( name, regionNumber, m_id ) ) );
+            addresses.push_back( RimSummaryCalculationAddress( RifEclipseSummaryAddress::regionAddress( name, regionNumber, m_id ) ) );
         }
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION )
@@ -548,8 +538,7 @@ std::vector<RimSummaryCalculationAddress>
         for ( auto regionNumber : uniqueRegionNumbers )
         {
             auto [r1, r2] = regionNumber;
-            addresses.push_back(
-                RimSummaryCalculationAddress( RifEclipseSummaryAddress::regionToRegionAddress( name, r1, r2, m_id ) ) );
+            addresses.push_back( RimSummaryCalculationAddress( RifEclipseSummaryAddress::regionToRegionAddress( name, r1, r2, m_id ) ) );
         }
     }
 
@@ -621,8 +610,7 @@ std::vector<double> RimSummaryCalculation::values( RimSummaryCase* summaryCase, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<time_t> RimSummaryCalculation::timeSteps( RimSummaryCase*                     summaryCase,
-                                                      const RimSummaryCalculationAddress& address )
+std::vector<time_t> RimSummaryCalculation::timeSteps( RimSummaryCase* summaryCase, const RimSummaryCalculationAddress& address )
 {
     CAF_ASSERT( summaryCase );
 

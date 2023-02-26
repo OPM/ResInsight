@@ -34,8 +34,7 @@ CAF_PDM_SOURCE_INIT( RicfCreateGridCaseGroupResult, "createGridCaseGroupResult" 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicfCreateGridCaseGroupResult::RicfCreateGridCaseGroupResult( int            caseGroupId /*= -1*/,
-                                                              const QString& caseGroupName /*= ""*/ )
+RicfCreateGridCaseGroupResult::RicfCreateGridCaseGroupResult( int caseGroupId /*= -1*/, const QString& caseGroupName /*= ""*/ )
 {
     CAF_PDM_InitObject( "case_group_result" );
     CAF_PDM_InitField( &this->caseGroupId, "groupId", caseGroupId, "" );

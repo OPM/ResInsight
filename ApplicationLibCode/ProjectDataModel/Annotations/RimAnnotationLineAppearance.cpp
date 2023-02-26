@@ -135,9 +135,7 @@ void RimAnnotationLineAppearance::defineUiOrdering( QString uiConfigName, caf::P
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnnotationLineAppearance::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                    const QVariant&            oldValue,
-                                                    const QVariant&            newValue )
+void RimAnnotationLineAppearance::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimAnnotationCollection* annColl = nullptr;
     this->firstAncestorOrThisOfType( annColl );
@@ -230,9 +228,7 @@ void RimPolylineAppearance::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolylineAppearance::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                              const QVariant&            oldValue,
-                                              const QVariant&            newValue )
+void RimPolylineAppearance::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimAnnotationLineAppearance::fieldChangedByUi( changedField, oldValue, newValue );
 }

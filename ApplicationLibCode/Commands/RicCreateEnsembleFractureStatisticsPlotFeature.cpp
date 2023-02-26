@@ -44,8 +44,7 @@ bool RicCreateEnsembleFractureStatisticsPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCreateEnsembleFractureStatisticsPlotFeature::onActionTriggered( bool isChecked )
 {
-    RimEnsembleFractureStatisticsPlotCollection* collection =
-        RimMainPlotCollection::current()->ensembleFractureStatisticsPlotCollection();
+    RimEnsembleFractureStatisticsPlotCollection* collection = RimMainPlotCollection::current()->ensembleFractureStatisticsPlotCollection();
 
     RimEnsembleFractureStatisticsPlot* plot = new RimEnsembleFractureStatisticsPlot();
     plot->zoomAll();

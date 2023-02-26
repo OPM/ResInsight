@@ -45,8 +45,7 @@ public:
                                         bool           convertCurveUnits  = false );
 
 private:
-    std::vector<SingleLasFileMetaData> createLasFileDescriptions( const std::vector<RimWellLogCurve*>& curves,
-                                                                  bool convertCurveUnits );
+    std::vector<SingleLasFileMetaData> createLasFileDescriptions( const std::vector<RimWellLogCurve*>& curves, bool convertCurveUnits );
     void                               appendLasFileDescriptions( const std::vector<RimWellLogCurve*>& curves,
                                                                   std::vector<SingleLasFileMetaData>*  lasFileDescriptions,
                                                                   bool                                 convertCurveUnits );

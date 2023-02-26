@@ -43,8 +43,8 @@ public:
     bool open() override;
     void close() override;
 
-    size_t timeStepCount() override;
-    void   timeSteps( std::vector<QDateTime>* timeSteps, std::vector<double>* daysSinceSimulationStart ) override;
+    size_t           timeStepCount() override;
+    void             timeSteps( std::vector<QDateTime>* timeSteps, std::vector<double>* daysSinceSimulationStart ) override;
     std::vector<int> reportNumbers() override;
 
     void resultNames( QStringList* resultNames, std::vector<size_t>* resultDataItemCounts ) override;

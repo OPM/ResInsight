@@ -93,9 +93,8 @@ RiuGridCrossQwtPlot::RiuGridCrossQwtPlot( RimGridCrossPlot* plot, QWidget* paren
     m_selectedPointMarker = new QwtPlotMarker;
 
     // QwtPlotMarker takes ownership of the symbol, it is deleted in destructor of QwtPlotMarker
-    auto       color = RiuGuiTheme::getColorByVariableName( "markerColor" );
-    QwtSymbol* mySymbol =
-        new QwtSymbol( QwtSymbol::Ellipse, QBrush( QColor( 255, 255, 255, 50 ) ), QPen( color, 2.0 ), QSize( 10, 10 ) );
+    auto       color    = RiuGuiTheme::getColorByVariableName( "markerColor" );
+    QwtSymbol* mySymbol = new QwtSymbol( QwtSymbol::Ellipse, QBrush( QColor( 255, 255, 255, 50 ) ), QPen( color, 2.0 ), QSize( 10, 10 ) );
 
     m_selectedPointMarker->setSymbol( mySymbol );
     m_selectedPointMarker->setLabelAlignment( Qt::AlignRight | Qt::AlignVCenter );
@@ -208,8 +207,7 @@ void RiuGridCrossQwtPlot::onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotI
             if ( curveText( curve, &curveName, &xAxisName, &yAxisName ) )
             {
                 QString labelFormat( "<div style=\"margin: 4px;\"><b>%1:</b><br/>%2 = %3, %4 = %5</div>" );
-                QString labelString =
-                    labelFormat.arg( curveName ).arg( xAxisName ).arg( sample.x() ).arg( yAxisName ).arg( sample.y() );
+                QString labelString = labelFormat.arg( curveName ).arg( xAxisName ).arg( sample.x() ).arg( yAxisName ).arg( sample.y() );
                 QwtText curveLabel( labelString, QwtText::RichText );
                 curveLabel.setBackgroundBrush( QBrush( QColor( 250, 250, 250, 220 ) ) );
                 curveLabel.setPaintAttribute( QwtText::PaintBackground );

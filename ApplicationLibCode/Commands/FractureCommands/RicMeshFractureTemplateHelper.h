@@ -42,7 +42,7 @@ public:
     static void            selectFractureTemplateAndUpdate( RimFractureTemplate* fractureTemplate );
     static std::vector<T*> createNewTemplatesFromFiles( const std::vector<QString>& fileNames,
                                                         const QString&              defaultTemplateName,
-                                                        bool reuseExistingTemplatesWithMatchingNames = false );
+                                                        bool                        reuseExistingTemplatesWithMatchingNames = false );
     static std::vector<T*> createNewTemplates( const QString& title,
                                                const QString& lastUsedDialogFallback,
                                                const QString& fileFilter,

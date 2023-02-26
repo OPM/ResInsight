@@ -33,13 +33,8 @@ public:
         SWITCHED
     };
 
-    static void calculateBasicStatistics( const std::vector<double>& values,
-                                          double*                    min,
-                                          double*                    max,
-                                          double*                    sum,
-                                          double*                    range,
-                                          double*                    mean,
-                                          double*                    dev );
+    static void
+        calculateBasicStatistics( const std::vector<double>& values, double* min, double* max, double* sum, double* range, double* mean, double* dev );
 
     static void calculateStatisticsCurves( const std::vector<double>& values,
                                            double*                    p10,

@@ -42,20 +42,10 @@ public:
     static void interpolateMissingValues( const std::vector<double>& x, std::vector<double>& y );
 
 private:
-    static int    interpolateRange( int                        start,
-                                    int                        end,
-                                    int                        firstPoint,
-                                    int                        lastPoint,
-                                    const std::vector<double>& x,
-                                    std::vector<double>&       y );
-    static int    extrapolateRange( int                        start,
-                                    int                        end,
-                                    int                        firstPoint,
-                                    int                        lastPoint,
-                                    const std::vector<double>& x,
-                                    std::vector<double>&       y );
-    static int    findNextDataPoint( const std::vector<double>& values, int index );
-    static int    findPreviousDataPoint( const std::vector<double>& values, int index );
+    static int interpolateRange( int start, int end, int firstPoint, int lastPoint, const std::vector<double>& x, std::vector<double>& y );
+    static int extrapolateRange( int start, int end, int firstPoint, int lastPoint, const std::vector<double>& x, std::vector<double>& y );
+    static int findNextDataPoint( const std::vector<double>& values, int index );
+    static int findPreviousDataPoint( const std::vector<double>& values, int index );
     static double extrapolate( const std::vector<double>& x, const std::vector<double>& y, double value );
     static double extrapolateClosestValue( const std::vector<double>& x, const std::vector<double>& y, double value );
 };

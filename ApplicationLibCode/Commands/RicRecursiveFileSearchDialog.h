@@ -85,10 +85,8 @@ private:
 
     // File search methods
 
-    QStringList    findMatchingFiles();
-    void           buildDirectoryListRecursiveSimple( const QString& currentDir,
-                                                      const QString& currentPathFilter,
-                                                      QStringList*   accumulatedDirs );
+    QStringList findMatchingFiles();
+    void buildDirectoryListRecursiveSimple( const QString& currentDir, const QString& currentPathFilter, QStringList* accumulatedDirs );
     QStringList    findFilesInDirs( const QStringList& dirs );
     QStringList    createFileNameFilterList();
     static QString replaceWithRealizationStar( const QString& text );

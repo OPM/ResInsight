@@ -119,8 +119,8 @@ QString Rim3dWellLogRftCurve::createAutoName() const
     {
         name.push_back( m_eclipseResultCase->caseUserDescription() );
     }
-    if ( m_wellLogChannelName().text() != caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::text(
-                                              RifEclipseRftAddress::RftWellLogChannelType::NONE ) )
+    if ( m_wellLogChannelName().text() !=
+         caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::text( RifEclipseRftAddress::RftWellLogChannelType::NONE ) )
     {
         RifEclipseRftAddress::RftWellLogChannelType channelNameEnum = m_wellLogChannelName();
         name.push_back( caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText( channelNameEnum ) );
@@ -144,9 +144,7 @@ caf::PdmFieldHandle* Rim3dWellLogRftCurve::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dWellLogRftCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                             const QVariant&            oldValue,
-                                             const QVariant&            newValue )
+void Rim3dWellLogRftCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_wellLogChannelName || changedField == &m_timeStep )
     {

@@ -45,15 +45,9 @@ CAF_PDM_SOURCE_INIT( RimWellBoreStabilityPlot, "WellBoreStabilityPlot" );
 //--------------------------------------------------------------------------------------------------
 RimWellBoreStabilityPlot::RimWellBoreStabilityPlot()
 {
-    CAF_PDM_InitScriptableObject( "Well Bore Stability Plot",
-                                  ":/WellBoreStability16x16.png",
-                                  "",
-                                  "A GeoMechanical Well Bore Stability Plot" );
+    CAF_PDM_InitScriptableObject( "Well Bore Stability Plot", ":/WellBoreStability16x16.png", "", "A GeoMechanical Well Bore Stability Plot" );
 
-    CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_wbsParameters,
-                                                           "WbsParameters",
-                                                           "Parameters",
-                                                           "Well Bore Stability Parameters" );
+    CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_wbsParameters, "WbsParameters", "Parameters", "Well Bore Stability Parameters" );
     m_wbsParameters = new RimWbsParameters;
     m_wbsParameters.uiCapability()->setUiTreeHidden( true );
     m_wbsParameters.uiCapability()->setUiTreeChildrenHidden( true );
@@ -109,10 +103,7 @@ void RimWellBoreStabilityPlot::copyWbsParameters( const RimWbsParameters* wbsPar
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellBoreStabilityPlot::setCaseWellPathAndTimeStep( RimGeoMechCase* geoMechCase,
-                                                           RimWellPath*    wellPath,
-                                                           int             timeStep,
-                                                           int             frameIndex /* = -1 */ )
+void RimWellBoreStabilityPlot::setCaseWellPathAndTimeStep( RimGeoMechCase* geoMechCase, RimWellPath* wellPath, int timeStep, int frameIndex /* = -1 */ )
 {
     m_wbsParameters->setGeoMechCase( geoMechCase );
     m_wbsParameters->setWellPath( wellPath );

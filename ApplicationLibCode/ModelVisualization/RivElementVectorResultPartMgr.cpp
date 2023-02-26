@@ -110,7 +110,7 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
 
     std::vector<RigEclipseResultAddress>            resultAddresses;
     std::vector<cvf::StructGridInterface::FaceType> directions;
-    RigCaseCellResultsData* resultsData = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+    RigCaseCellResultsData*                         resultsData = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
     {
         std::vector<RigEclipseResultAddress> addresses;
         result->resultAddressesIJK( addresses );
@@ -122,8 +122,7 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
                 if ( fluidIndex == 0 ) directions.push_back( cvf::StructGridInterface::POS_I );
 
                 auto candidate = addresses[0 + fluidIndex];
-                if ( resultsData->hasResultEntry( candidate ) &&
-                     !resultsData->cellScalarResults( candidate, timeStepIndex ).empty() )
+                if ( resultsData->hasResultEntry( candidate ) && !resultsData->cellScalarResults( candidate, timeStepIndex ).empty() )
                 {
                     resultAddresses.push_back( candidate );
                 }
@@ -132,8 +131,7 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
             {
                 if ( fluidIndex == 0 ) directions.push_back( cvf::StructGridInterface::POS_J );
                 auto candidate = addresses[1 + fluidIndex];
-                if ( resultsData->hasResultEntry( candidate ) &&
-                     !resultsData->cellScalarResults( candidate, timeStepIndex ).empty() )
+                if ( resultsData->hasResultEntry( candidate ) && !resultsData->cellScalarResults( candidate, timeStepIndex ).empty() )
                 {
                     resultAddresses.push_back( candidate );
                 }
@@ -142,8 +140,7 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
             {
                 if ( fluidIndex == 0 ) directions.push_back( cvf::StructGridInterface::POS_K );
                 auto candidate = addresses[2 + fluidIndex];
-                if ( resultsData->hasResultEntry( candidate ) &&
-                     !resultsData->cellScalarResults( candidate, timeStepIndex ).empty() )
+                if ( resultsData->hasResultEntry( candidate ) && !resultsData->cellScalarResults( candidate, timeStepIndex ).empty() )
                 {
                     resultAddresses.push_back( candidate );
                 }
@@ -155,15 +152,14 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
 
     const std::vector<RigCell>& cells = eclipseCase->mainGrid()->globalCellArray();
 
-    auto getFaceCenterAndNormal =
-        [activeCellInfo, cells, arrowScaling, displayCordXf]( size_t                             globalCellIdx,
-                                                              cvf::StructGridInterface::FaceType faceType,
-                                                              cvf::Vec3d&                        faceCenter,
-                                                              cvf::Vec3d&                        faceNormal ) {
-            faceCenter = displayCordXf->transformToDisplayCoord( cells[globalCellIdx].faceCenter( faceType ) );
-            cvf::Vec3d cellCenter = displayCordXf->transformToDisplayCoord( cells[globalCellIdx].center() );
-            faceNormal            = ( faceCenter - cellCenter ).getNormalized() * arrowScaling;
-        };
+    auto getFaceCenterAndNormal = [activeCellInfo, cells, arrowScaling, displayCordXf]( size_t                             globalCellIdx,
+                                                                                        cvf::StructGridInterface::FaceType faceType,
+                                                                                        cvf::Vec3d&                        faceCenter,
+                                                                                        cvf::Vec3d&                        faceNormal ) {
+        faceCenter            = displayCordXf->transformToDisplayCoord( cells[globalCellIdx].faceCenter( faceType ) );
+        cvf::Vec3d cellCenter = displayCordXf->transformToDisplayCoord( cells[globalCellIdx].center() );
+        faceNormal            = ( faceCenter - cellCenter ).getNormalized() * arrowScaling;
+    };
 
     if ( !resultAddresses.empty() && !directions.empty() )
     {
@@ -180,8 +176,7 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
                         double resultValue = 0.0;
                         for ( size_t flIdx = dir; flIdx < resultAddresses.size(); flIdx += directions.size() )
                         {
-                            resultValue +=
-                                resultsData->cellScalarResults( resultAddresses[flIdx], timeStepIndex ).at( resultIdx );
+                            resultValue += resultsData->cellScalarResults( resultAddresses[flIdx], timeStepIndex ).at( resultIdx );
                         }
 
                         if ( std::abs( resultValue ) >= result->threshold() )
@@ -192,20 +187,18 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
                             faceNormal *= std::abs( resultValue );
 
                             bool centerArrow = false;
-                            if ( result->vectorSuraceCrossingLocation() ==
-                                     RimElementVectorResult::VectorSurfaceCrossingLocation::VECTOR_CENTER &&
+                            if ( result->vectorSuraceCrossingLocation() == RimElementVectorResult::VectorSurfaceCrossingLocation::VECTOR_CENTER &&
                                  result->vectorView() == RimElementVectorResult::VectorView::PER_FACE )
                             {
                                 centerArrow = true;
                             }
 
 #pragma omp critical( critical_section_RivElementVectorResultPartMgr_add_1 )
-                            tensorVisualizations.push_back(
-                                ElementVectorResultVisualization( faceCenter,
-                                                                  faceNormal,
-                                                                  resultValue,
-                                                                  std::cbrt( cells[gcIdx].volume() / 3.0 ),
-                                                                  centerArrow ) );
+                            tensorVisualizations.push_back( ElementVectorResultVisualization( faceCenter,
+                                                                                              faceNormal,
+                                                                                              resultValue,
+                                                                                              std::cbrt( cells[gcIdx].volume() / 3.0 ),
+                                                                                              centerArrow ) );
                         }
                     }
                 }
@@ -218,8 +211,7 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
                         double resultValue = 0.0;
                         for ( size_t flIdx = dir; flIdx < resultAddresses.size(); flIdx += directions.size() )
                         {
-                            resultValue +=
-                                resultsData->cellScalarResults( resultAddresses[flIdx], timeStepIndex ).at( resultIdx );
+                            resultValue += resultsData->cellScalarResults( resultAddresses[flIdx], timeStepIndex ).at( resultIdx );
                         }
 
                         cvf::Vec3d faceCenter;
@@ -233,8 +225,7 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
                     if ( aggregatedResult.length() >= result->threshold() )
                     {
                         bool centerArrow = false;
-                        if ( result->vectorSuraceCrossingLocation() ==
-                             RimElementVectorResult::VectorSurfaceCrossingLocation::VECTOR_CENTER )
+                        if ( result->vectorSuraceCrossingLocation() == RimElementVectorResult::VectorSurfaceCrossingLocation::VECTOR_CENTER )
                         {
                             centerArrow = true;
                         }
@@ -287,8 +278,7 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
                     }
                 }
 
-                cvf::Vec3d connCenter =
-                    static_cast<cvf::Vec3d>( cvf::GeometryTools::computePolygonCenter<cvf::Vec3f>( conn.polygon() ) );
+                cvf::Vec3d connCenter = static_cast<cvf::Vec3d>( cvf::GeometryTools::computePolygonCenter<cvf::Vec3f>( conn.polygon() ) );
 
                 cvf::Vec3d faceCenter;
                 cvf::Vec3d connNormal;
@@ -304,18 +294,16 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
                     }
                     else if ( result->vectorView() == RimElementVectorResult::VectorView::PER_FACE )
                     {
-                        if ( result->vectorSuraceCrossingLocation() ==
-                             RimElementVectorResult::VectorSurfaceCrossingLocation::VECTOR_CENTER )
+                        if ( result->vectorSuraceCrossingLocation() == RimElementVectorResult::VectorSurfaceCrossingLocation::VECTOR_CENTER )
                             centerArrow = true;
                     }
 
 #pragma omp critical( critical_section_RivElementVectorResultPartMgr_add_nnc )
-                    tensorVisualizations.push_back(
-                        ElementVectorResultVisualization( displayCordXf->transformToDisplayCoord( connCenter ),
-                                                          connNormal,
-                                                          resultValue,
-                                                          std::cbrt( cells[conn.c1GlobIdx()].volume() / 3.0 ),
-                                                          centerArrow ) );
+                    tensorVisualizations.push_back( ElementVectorResultVisualization( displayCordXf->transformToDisplayCoord( connCenter ),
+                                                                                      connNormal,
+                                                                                      resultValue,
+                                                                                      std::cbrt( cells[conn.c1GlobIdx()].volume() / 3.0 ),
+                                                                                      centerArrow ) );
                 }
             }
         }
@@ -332,9 +320,8 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Part>
-    RivElementVectorResultPartMgr::createPart( const RimElementVectorResult&                        result,
-                                               const std::vector<ElementVectorResultVisualization>& tensorVisualizations ) const
+cvf::ref<cvf::Part> RivElementVectorResultPartMgr::createPart( const RimElementVectorResult&                        result,
+                                                               const std::vector<ElementVectorResultVisualization>& tensorVisualizations ) const
 {
     std::vector<uint> shaftIndices;
     shaftIndices.reserve( tensorVisualizations.size() * 2 );
@@ -366,13 +353,11 @@ cvf::ref<cvf::Part>
         counter += 7;
     }
 
-    cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUIntShaft =
-        new cvf::PrimitiveSetIndexedUInt( cvf::PrimitiveType::PT_LINES );
-    cvf::ref<cvf::UIntArray> indexArrayShaft = new cvf::UIntArray( shaftIndices );
+    cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUIntShaft = new cvf::PrimitiveSetIndexedUInt( cvf::PrimitiveType::PT_LINES );
+    cvf::ref<cvf::UIntArray>               indexArrayShaft  = new cvf::UIntArray( shaftIndices );
 
-    cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUIntHead =
-        new cvf::PrimitiveSetIndexedUInt( cvf::PrimitiveType::PT_TRIANGLES );
-    cvf::ref<cvf::UIntArray> indexArrayHead = new cvf::UIntArray( headIndices );
+    cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUIntHead = new cvf::PrimitiveSetIndexedUInt( cvf::PrimitiveType::PT_TRIANGLES );
+    cvf::ref<cvf::UIntArray>               indexArrayHead  = new cvf::UIntArray( headIndices );
 
     cvf::ref<cvf::DrawableGeo> drawable = new cvf::DrawableGeo();
 
@@ -426,10 +411,9 @@ cvf::ref<cvf::Part>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivElementVectorResultPartMgr::createResultColorTextureCoords(
-    cvf::Vec2fArray*                                     textureCoords,
-    const std::vector<ElementVectorResultVisualization>& elementVectorResultVisualizations,
-    const cvf::ScalarMapper*                             mapper )
+void RivElementVectorResultPartMgr::createResultColorTextureCoords( cvf::Vec2fArray*                                     textureCoords,
+                                                                    const std::vector<ElementVectorResultVisualization>& elementVectorResultVisualizations,
+                                                                    const cvf::ScalarMapper*                             mapper )
 {
     CVF_ASSERT( textureCoords );
     CVF_ASSERT( mapper );
@@ -450,8 +434,7 @@ void RivElementVectorResultPartMgr::createResultColorTextureCoords(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::array<cvf::Vec3f, 7>
-    RivElementVectorResultPartMgr::createArrowVertices( const ElementVectorResultVisualization& evrViz ) const
+std::array<cvf::Vec3f, 7> RivElementVectorResultPartMgr::createArrowVertices( const ElementVectorResultVisualization& evrViz ) const
 {
     std::array<cvf::Vec3f, 7> vertices;
 

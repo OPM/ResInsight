@@ -61,10 +61,9 @@ public:
 
     std::vector<std::pair<QString, RiaDefines::ResultCatType>> properties() const;
 
-    static std::vector<std::pair<QString, RiaDefines::ResultCatType>>
-        properties( const std::vector<QString>&                   resultNames,
-                    const std::vector<RiaDefines::ResultCatType>& resultCategories,
-                    const RigEclipseCaseData*                     caseData );
+    static std::vector<std::pair<QString, RiaDefines::ResultCatType>> properties( const std::vector<QString>&                   resultNames,
+                                                                                  const std::vector<RiaDefines::ResultCatType>& resultCategories,
+                                                                                  const RigEclipseCaseData*                     caseData );
 
     void setCaseData( RigEclipseCaseData* caseData );
 
@@ -72,9 +71,7 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
-    void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                         QString                    uiConfigName,
-                                                         caf::PdmUiEditorAttribute* attribute ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     std::vector<RiaDefines::ResultCatType> validResultCategories() const;
 

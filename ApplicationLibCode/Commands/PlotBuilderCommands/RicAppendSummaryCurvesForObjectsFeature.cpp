@@ -82,7 +82,7 @@ void RicAppendSummaryCurvesForObjectsFeature::setupActionLook( QAction* actionTo
     if ( !addresses.empty() )
     {
         auto firstAdr = addresses.front();
-        objectType = caf::AppEnum<RimSummaryAddressCollection::CollectionContentType>::uiText( firstAdr->contentType() );
+        objectType    = caf::AppEnum<RimSummaryAddressCollection::CollectionContentType>::uiText( firstAdr->contentType() );
     }
 
     auto text = QString( "Append Curves For " ) + objectType;

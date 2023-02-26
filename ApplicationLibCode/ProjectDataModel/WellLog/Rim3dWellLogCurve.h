@@ -70,9 +70,7 @@ public:
     virtual bool showInView( const Rim3dView* gridView ) const { return isShowingCurve(); }
     virtual bool followAnimationTimeStep() const { return false; }
     virtual void curveValuesAndMds( std::vector<double>* values, std::vector<double>* measuredDepthValues ) const = 0;
-    virtual void curveValuesAndMdsAtTimeStep( std::vector<double>* values,
-                                              std::vector<double>* measuredDepthValues,
-                                              int                  timeStep ) const;
+    virtual void curveValuesAndMdsAtTimeStep( std::vector<double>* values, std::vector<double>* measuredDepthValues, int timeStep ) const;
     virtual std::pair<double, double> findCurveValueRange();
 
     void setColor( const cvf::Color3f& color );
@@ -90,12 +88,10 @@ public:
 
 protected:
     caf::PdmFieldHandle* objectToggleField() override;
-    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void                 configurationUiOrdering( caf::PdmUiOrdering& uiOrdering );
-    void                 defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                QString                    uiConfigName,
-                                                caf::PdmUiEditorAttribute* attribute ) override;
-    void                 initAfterRead() override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void configurationUiOrdering( caf::PdmUiOrdering& uiOrdering );
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    void initAfterRead() override;
 
 protected:
     caf::PdmField<DrawPlaneEnum>                 m_drawPlane;

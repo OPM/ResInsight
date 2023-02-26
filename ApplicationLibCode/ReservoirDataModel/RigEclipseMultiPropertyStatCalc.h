@@ -38,8 +38,7 @@ class RigEclipseMultiPropertyStatCalc : public RigStatisticsCalculator
 public:
     RigEclipseMultiPropertyStatCalc();
     void addStatisticsCalculator( RigStatisticsCalculator* statisticsCalculator );
-    void addNativeStatisticsCalculator( RigCaseCellResultsData*        cellResultsData,
-                                        const RigEclipseResultAddress& scalarResultIndices );
+    void addNativeStatisticsCalculator( RigCaseCellResultsData* cellResultsData, const RigEclipseResultAddress& scalarResultIndices );
 
     void minMaxCellScalarValues( size_t timeStepIndex, double& min, double& max ) override;
     void posNegClosestToZero( size_t timeStepIndex, double& pos, double& neg ) override;

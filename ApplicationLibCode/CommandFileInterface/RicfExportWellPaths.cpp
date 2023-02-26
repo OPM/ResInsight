@@ -64,8 +64,7 @@ caf::PdmScriptResponse RicfExportWellPaths::execute()
         wellPaths = TOOLS::wellPathsFromNames( TOOLS::toQStringList( m_wellPathNames ), &wellsNotFound );
         if ( !wellsNotFound.empty() )
         {
-            QString error( QString( "exportWellPaths: These well paths were not found: " ) +
-                           wellsNotFound.join( ", " ) );
+            QString error( QString( "exportWellPaths: These well paths were not found: " ) + wellsNotFound.join( ", " ) );
             RiaLogging::error( error );
             return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
         }
@@ -78,16 +77,15 @@ caf::PdmScriptResponse RicfExportWellPaths::execute()
         return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
     }
 
-    QString exportFolder =
-        RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::ExportType::WELLPATHS );
+    QString exportFolder = RicfCommandFileExecutor::instance()->getExportPath( RicfCommandFileExecutor::ExportType::WELLPATHS );
     if ( exportFolder.isNull() )
     {
         exportFolder = RiaApplication::instance()->createAbsolutePathFromProjectRelativePath( "wellpaths" );
     }
 
     caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
-    auto                    feature        = dynamic_cast<RicExportSelectedWellPathsFeature*>(
-        commandManager->getCommandFeature( "RicExportSelectedWellPathsFeature" ) );
+    auto                    feature =
+        dynamic_cast<RicExportSelectedWellPathsFeature*>( commandManager->getCommandFeature( "RicExportSelectedWellPathsFeature" ) );
 
     for ( const auto wellPath : wellPaths )
     {

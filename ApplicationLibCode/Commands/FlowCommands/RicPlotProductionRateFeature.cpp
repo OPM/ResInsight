@@ -78,8 +78,7 @@ void RicPlotProductionRateFeature::onActionTriggered( bool isChecked )
     RimProject* project = RimProject::current();
     CAF_ASSERT( project );
 
-    RimSummaryCaseMainCollection* sumCaseColl =
-        project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection() : nullptr;
+    RimSummaryCaseMainCollection* sumCaseColl = project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection() : nullptr;
     if ( !sumCaseColl ) return;
 
     std::vector<RimSimWellInView*> collection;
@@ -196,8 +195,7 @@ void RicPlotProductionRateFeature::onActionTriggered( bool isChecked )
                                                                gridSummaryCase,
                                                                parameterName,
                                                                plotAxis,
-                                                               RimSummaryCurveAppearanceCalculator::cycledNoneRGBBrColor(
-                                                                   0 ) );
+                                                               RimSummaryCurveAppearanceCalculator::cycledNoneRGBBrColor( 0 ) );
             }
 
             {
@@ -207,8 +205,7 @@ void RicPlotProductionRateFeature::onActionTriggered( bool isChecked )
                                                                gridSummaryCase,
                                                                parameterName,
                                                                plotAxis,
-                                                               RimSummaryCurveAppearanceCalculator::cycledNoneRGBBrColor(
-                                                                   1 ) );
+                                                               RimSummaryCurveAppearanceCalculator::cycledNoneRGBBrColor( 1 ) );
             }
         }
 

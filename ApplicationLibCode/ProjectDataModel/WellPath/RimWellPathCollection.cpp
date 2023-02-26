@@ -86,12 +86,7 @@ CAF_PDM_SOURCE_INIT( RimWellPathCollection, "WellPaths" );
 //--------------------------------------------------------------------------------------------------
 RimWellPathCollection::RimWellPathCollection()
 {
-    CAF_PDM_InitScriptableObjectWithNameAndComment( "Wells",
-                                                    ":/WellCollection.png",
-                                                    "",
-                                                    "",
-                                                    "WellPathCollection",
-                                                    "Collection of Well Paths" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Wells", ":/WellCollection.png", "", "", "WellPathCollection", "Collection of Well Paths" );
 
     CAF_PDM_InitField( &isActive, "Active", true, "Active" );
     isActive.uiCapability()->setUiHidden( true );
@@ -101,10 +96,7 @@ RimWellPathCollection::RimWellPathCollection()
     cvf::Color3f defWellLabelColor = RiaPreferences::current()->defaultWellLabelColor();
     CAF_PDM_InitField( &wellPathLabelColor, "WellPathLabelColor", defWellLabelColor, "Well label color" );
 
-    CAF_PDM_InitField( &wellPathVisibility,
-                       "GlobalWellPathVisibility",
-                       WellVisibilityEnum( ALL_ON ),
-                       "Global Well Path Visibility" );
+    CAF_PDM_InitField( &wellPathVisibility, "GlobalWellPathVisibility", WellVisibilityEnum( ALL_ON ), "Global Well Path Visibility" );
 
     CAF_PDM_InitField( &wellPathRadiusScaleFactor, "WellPathRadiusScale", 0.1, "Well Path Radius Scale" );
     CAF_PDM_InitField( &wellPathCrossSectionVertexCount, "WellPathVertexCount", 12, "Well Path Vertex Count" );
@@ -139,9 +131,7 @@ RimWellPathCollection::~RimWellPathCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                              const QVariant&            oldValue,
-                                              const QVariant&            newValue )
+void RimWellPathCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     scheduleRedrawAffectedViews();
 }
@@ -211,8 +201,7 @@ void RimWellPathCollection::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellPath*>
-    RimWellPathCollection::addWellPaths( QStringList filePaths, bool importGrouped, QStringList* errorMessages )
+std::vector<RimWellPath*> RimWellPathCollection::addWellPaths( QStringList filePaths, bool importGrouped, QStringList* errorMessages )
 {
     CAF_ASSERT( errorMessages );
 
@@ -608,8 +597,7 @@ void RimWellPathCollection::groupWellPaths( const std::vector<RimWellPath*>& wel
 
                     if ( wellPath->name() < existingWellPath->name() ) continue;
 
-                    double identicalTubeLength =
-                        existingWellPath->wellPathGeometry()->identicalTubeLength( *wellPathGeometry );
+                    double identicalTubeLength = existingWellPath->wellPathGeometry()->identicalTubeLength( *wellPathGeometry );
                     if ( identicalTubeLength > eps )
                     {
                         wellPathsWithCommonGeometry[existingWellPath] = identicalTubeLength;
@@ -620,8 +608,7 @@ void RimWellPathCollection::groupWellPaths( const std::vector<RimWellPath*>& wel
                 double       longestIdenticalTubeLength = 0.0;
                 for ( auto [existingWellPath, identicalTubeLength] : wellPathsWithCommonGeometry )
                 {
-                    if ( existingWellPath && ( existingWellPath != wellPath ) &&
-                         identicalTubeLength > longestIdenticalTubeLength )
+                    if ( existingWellPath && ( existingWellPath != wellPath ) && identicalTubeLength > longestIdenticalTubeLength )
                     {
                         mostSimilarWellPath        = existingWellPath;
                         longestIdenticalTubeLength = identicalTubeLength;
@@ -923,9 +910,7 @@ std::map<QString, std::vector<RimWellPath*>>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::buildUiTreeOrdering( cafTreeNode*            treeNode,
-                                                 caf::PdmUiTreeOrdering* parentUiTreeNode,
-                                                 const QString&          uiConfigName )
+void RimWellPathCollection::buildUiTreeOrdering( cafTreeNode* treeNode, caf::PdmUiTreeOrdering* parentUiTreeNode, const QString& uiConfigName )
 {
     CAF_ASSERT( treeNode );
     CAF_ASSERT( parentUiTreeNode );
@@ -986,8 +971,7 @@ const RimWellMeasurementCollection* RimWellPathCollection::measurementCollection
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                                            std::vector<caf::PdmObjectHandle*>& referringObjects )
+void RimWellPathCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     rebuildWellPathNodes();
 

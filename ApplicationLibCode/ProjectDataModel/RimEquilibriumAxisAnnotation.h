@@ -49,9 +49,7 @@ public:
 
     RimEquilibriumAxisAnnotation();
 
-    void setEquilibriumData( RimEclipseCase*        eclipseCase,
-                             int                    zeroBasedEquilRegionIndex,
-                             PlotAxisAnnotationType annotationType );
+    void setEquilibriumData( RimEclipseCase* eclipseCase, int zeroBasedEquilRegionIndex, PlotAxisAnnotationType annotationType );
 
     double value() const override;
     QColor color() const override;

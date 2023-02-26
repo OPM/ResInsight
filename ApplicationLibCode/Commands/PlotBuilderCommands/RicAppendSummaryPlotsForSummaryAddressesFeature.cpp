@@ -38,7 +38,7 @@ CAF_CMD_SOURCE_INIT( RicAppendSummaryPlotsForSummaryAddressesFeature, "RicAppend
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicAppendSummaryPlotsForSummaryAddressesFeature::appendPlotsForAddresses( RimSummaryMultiPlot* summaryMultiPlot,
+void RicAppendSummaryPlotsForSummaryAddressesFeature::appendPlotsForAddresses( RimSummaryMultiPlot*                   summaryMultiPlot,
                                                                                const std::vector<RimSummaryAddress*>& addresses )
 {
     if ( !summaryMultiPlot ) return;

@@ -138,13 +138,11 @@ double RimPerforationInterval::diameter( RiaDefines::EclipseUnitSystem unitSyste
 {
     RimWellPath* wellPath;
     firstAncestorOrThisOfTypeAsserted( wellPath );
-    if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC &&
-         wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
+    if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC && wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
         return RiaEclipseUnitTools::feetToMeter( m_diameter() );
     }
-    else if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD &&
-              wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
+    else if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD && wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
         return RiaEclipseUnitTools::meterToFeet( m_diameter() );
     }
@@ -318,9 +316,7 @@ void RimPerforationInterval::applyOffset( double offsetMD )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPerforationInterval::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                               const QVariant&            oldValue,
-                                               const QVariant&            newValue )
+void RimPerforationInterval::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_startMD || changedField == &m_endMD )
     {
@@ -389,9 +385,7 @@ void RimPerforationInterval::defineUiOrdering( QString uiConfigName, caf::PdmUiO
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPerforationInterval::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                    QString                    uiConfigName,
-                                                    caf::PdmUiEditorAttribute* attribute )
+void RimPerforationInterval::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_startDate || field == &m_endDate )
     {

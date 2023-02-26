@@ -62,9 +62,8 @@ void RicWellPathsImportSsihubFeature::onActionTriggered( bool isChecked )
             QMessageBox msgBox( guiApp->mainWindow() );
             msgBox.setIcon( QMessageBox::Question );
 
-            QString questionText =
-                QString( "Import of well paths will be stored as a part of a ResInsight project file. Please "
-                         "save the project to file before importing well paths." );
+            QString questionText = QString( "Import of well paths will be stored as a part of a ResInsight project file. Please "
+                                            "save the project to file before importing well paths." );
 
             msgBox.setText( questionText );
             msgBox.setInformativeText( "Do you want to save the project?" );
@@ -127,8 +126,7 @@ void RicWellPathsImportSsihubFeature::onActionTriggered( bool isChecked )
     }
     else
     {
-        app->project()->wellPathImport()->readObjectFromXmlString( copyOfOriginalObject,
-                                                                   caf::PdmDefaultObjectFactory::instance() );
+        app->project()->wellPathImport()->readObjectFromXmlString( copyOfOriginalObject, caf::PdmDefaultObjectFactory::instance() );
     }
 }
 

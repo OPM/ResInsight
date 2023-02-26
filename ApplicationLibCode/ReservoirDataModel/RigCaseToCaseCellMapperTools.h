@@ -34,21 +34,15 @@ class RigFemPart;
 class RigCaseToCaseCellMapperTools
 {
 public:
-    static void       estimatedFemCellFromEclCell( const RigMainGrid* eclGrid,
-                                                   size_t             reservoirCellIndex,
-                                                   cvf::Vec3d         estimatedElmCorners[8] );
-    static void       rotateCellTopologicallyToMatchBaseCell( const cvf::Vec3d* baseCell,
-                                                              bool              baseCellFaceNormalsIsOutwards,
-                                                              cvf::Vec3d*       cell );
+    static void estimatedFemCellFromEclCell( const RigMainGrid* eclGrid, size_t reservoirCellIndex, cvf::Vec3d estimatedElmCorners[8] );
+    static void rotateCellTopologicallyToMatchBaseCell( const cvf::Vec3d* baseCell, bool baseCellFaceNormalsIsOutwards, cvf::Vec3d* cell );
     static cvf::Vec3d calculateCellCenter( cvf::Vec3d elmCorners[8] );
     static bool       elementCorners( const RigFemPart* femPart, int elmIdx, cvf::Vec3d elmCorners[8] );
-    static bool
-        isEclFemCellsMatching( const cvf::Vec3d baseCell[8], cvf::Vec3d cell[8], double xyTolerance, double zTolerance );
+    static bool       isEclFemCellsMatching( const cvf::Vec3d baseCell[8], cvf::Vec3d cell[8], double xyTolerance, double zTolerance );
 
 private:
     static void rotateQuad( cvf::Vec3d quad[4], int idxToNewStart );
     static void flipQuadWinding( cvf::Vec3d quad[4] );
     static int  quadVxClosestToXYOfPoint( const cvf::Vec3d point, const cvf::Vec3d quad[4] );
-    static int
-        findMatchingPOSKFaceIdx( const cvf::Vec3d baseCell[8], bool isBaseCellNormalsOutwards, const cvf::Vec3d c2[8] );
+    static int  findMatchingPOSKFaceIdx( const cvf::Vec3d baseCell[8], bool isBaseCellNormalsOutwards, const cvf::Vec3d c2[8] );
 };

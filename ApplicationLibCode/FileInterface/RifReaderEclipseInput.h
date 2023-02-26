@@ -38,10 +38,7 @@ public:
     {
         return false;
     }
-    bool dynamicResult( const QString&                result,
-                        RiaDefines::PorosityModelType matrixOrFracture,
-                        size_t                        stepIndex,
-                        std::vector<double>*          values ) override
+    bool dynamicResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values ) override
     {
         return false;
     }

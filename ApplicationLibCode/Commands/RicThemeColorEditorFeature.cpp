@@ -101,33 +101,30 @@ void RicThemeColorEditorFeature::onActionTriggered( bool isChecked )
             }
             delete widget->layout();
         }
-        QGridLayout*           innerLayout = new QGridLayout();
-        int                    row         = 0;
-        int                    column      = 0;
-        RiaDefines::ThemeEnum  theme       = static_cast<RiaDefines::ThemeEnum>( themeSelector->currentData().toInt() );
+        QGridLayout*           innerLayout        = new QGridLayout();
+        int                    row                = 0;
+        int                    column             = 0;
+        RiaDefines::ThemeEnum  theme              = static_cast<RiaDefines::ThemeEnum>( themeSelector->currentData().toInt() );
         QMap<QString, QString> variableValueMap   = RiuGuiTheme::getVariableValueMap( theme );
         QMap<QString, QString> variableGuiTextMap = RiuGuiTheme::getVariableGuiTextMap( theme );
         for ( const QString& variableName : variableValueMap.keys() )
         {
-            innerLayout->addWidget( new QLabel( !variableGuiTextMap[variableName].isEmpty() ? variableGuiTextMap[variableName]
-                                                                                            : variableName ),
+            innerLayout->addWidget( new QLabel( !variableGuiTextMap[variableName].isEmpty() ? variableGuiTextMap[variableName] : variableName ),
                                     row,
                                     column );
             QPushButton* colorBox = new QPushButton( "" );
             colorBox->setStyleSheet( QString( "background-color: %0;" ).arg( variableValueMap.value( variableName ) ) );
-            connect( colorBox,
-                     &QPushButton::clicked,
-                     [variableValueMap, variableName, theme, editor, widget, colorBox]() -> void {
-                         QColor color = QColorDialog::getColor( colorBox->palette().color( QPalette::Button ), widget );
-                         if ( color.isValid() )
-                         {
-                             colorBox->setStyleSheet( QString( "background-color: %0;" ).arg( color.name() ) );
-                             colorBox->style()->unpolish( colorBox );
-                             colorBox->style()->polish( colorBox );
-                             RiuGuiTheme::changeVariableValue( theme, variableName, color.name() );
-                             editor->setPlainText( RiuGuiTheme::applyVariableValueMapToStyleSheet( theme ) );
-                         }
-                     } );
+            connect( colorBox, &QPushButton::clicked, [variableValueMap, variableName, theme, editor, widget, colorBox]() -> void {
+                QColor color = QColorDialog::getColor( colorBox->palette().color( QPalette::Button ), widget );
+                if ( color.isValid() )
+                {
+                    colorBox->setStyleSheet( QString( "background-color: %0;" ).arg( color.name() ) );
+                    colorBox->style()->unpolish( colorBox );
+                    colorBox->style()->polish( colorBox );
+                    RiuGuiTheme::changeVariableValue( theme, variableName, color.name() );
+                    editor->setPlainText( RiuGuiTheme::applyVariableValueMapToStyleSheet( theme ) );
+                }
+            } );
             innerLayout->addWidget( colorBox, row++, column + 1 );
             if ( row == 10 )
             {

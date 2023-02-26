@@ -106,8 +106,7 @@ bool RigCellGeometryTools::estimateHexOverlapWithBoundingBox( const std::array<c
     if ( uniqueBottomEnd - uniqueBottomPoints.begin() < 3u ) return false;
 
     cvf::Plane bottomPlane;
-    if ( !bottomPlane.setFromPoints( uniqueBottomPoints[0], uniqueBottomPoints[1], uniqueBottomPoints[2] ) )
-        return false;
+    if ( !bottomPlane.setFromPoints( uniqueBottomPoints[0], uniqueBottomPoints[1], uniqueBottomPoints[2] ) ) return false;
 
     const cvf::Vec3d& boundingMin = boundingBox.min();
     const cvf::Vec3d& boundingMax = boundingBox.max();
@@ -162,8 +161,8 @@ bool RigCellGeometryTools::estimateHexOverlapWithBoundingBox( const std::array<c
 ///
 //--------------------------------------------------------------------------------------------------
 void RigCellGeometryTools::createPolygonFromLineSegments( std::list<std::pair<cvf::Vec3d, cvf::Vec3d>>& intersectionLineSegments,
-                                                          std::vector<std::vector<cvf::Vec3d>>& polygons,
-                                                          double                                tolerance )
+                                                          std::vector<std::vector<cvf::Vec3d>>&         polygons,
+                                                          double                                        tolerance )
 {
     bool startNewPolygon = true;
     while ( !intersectionLineSegments.empty() )
@@ -382,9 +381,7 @@ double RigCellGeometryTools::polygonLengthInLocalXdirWeightedByArea( const std::
         {
             areaVector = cvf::GeometryTools::polygonAreaNormal3D( clippedPolygon );
             area += areaVector.length();
-            length += ( getLengthOfPolygonAlongLine( line1, clippedPolygon ) +
-                        getLengthOfPolygonAlongLine( line2, clippedPolygon ) ) /
-                      2;
+            length += ( getLengthOfPolygonAlongLine( line1, clippedPolygon ) + getLengthOfPolygonAlongLine( line2, clippedPolygon ) ) / 2;
         }
         areasOfPolygonContributions.push_back( area );
         lengthOfPolygonContributions.push_back( length );
@@ -481,9 +478,8 @@ std::vector<std::vector<cvf::Vec3d>>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<cvf::Vec3d>>
-    RigCellGeometryTools::intersectionWithPolygon( const std::vector<cvf::Vec3d>& polygon1,
-                                                   const std::vector<cvf::Vec3d>& polygon2 )
+std::vector<std::vector<cvf::Vec3d>> RigCellGeometryTools::intersectionWithPolygon( const std::vector<cvf::Vec3d>& polygon1,
+                                                                                    const std::vector<cvf::Vec3d>& polygon2 )
 {
     return intersectionWithPolygons( polygon1, { polygon2 } );
 }
@@ -491,9 +487,8 @@ std::vector<std::vector<cvf::Vec3d>>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<cvf::Vec3d>>
-    RigCellGeometryTools::subtractPolygons( const std::vector<cvf::Vec3d>&              sourcePolygon,
-                                            const std::vector<std::vector<cvf::Vec3d>>& polygonsToSubtract )
+std::vector<std::vector<cvf::Vec3d>> RigCellGeometryTools::subtractPolygons( const std::vector<cvf::Vec3d>&              sourcePolygon,
+                                                                             const std::vector<std::vector<cvf::Vec3d>>& polygonsToSubtract )
 {
     ClipperLib::Clipper clpr;
 
@@ -606,7 +601,7 @@ void fillUndefinedZ( ClipperLib::IntPoint& e1bot,
 //--------------------------------------------------------------------------------------------------
 std::vector<std::vector<cvf::Vec3d>> RigCellGeometryTools::clipPolylineByPolygon( const std::vector<cvf::Vec3d>& polyLine,
                                                                                   const std::vector<cvf::Vec3d>& polygon,
-                                                                                  ZInterpolationType interpolType )
+                                                                                  ZInterpolationType             interpolType )
 {
     std::vector<std::vector<cvf::Vec3d>> clippedPolyline;
 
@@ -665,7 +660,7 @@ std::vector<std::vector<cvf::Vec3d>> RigCellGeometryTools::clipPolylineByPolygon
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<cvf::Vec3d, cvf::Vec3d> RigCellGeometryTools::getLineThroughBoundingBox( const cvf::Vec3d& lineDirection,
+std::pair<cvf::Vec3d, cvf::Vec3d> RigCellGeometryTools::getLineThroughBoundingBox( const cvf::Vec3d&       lineDirection,
                                                                                    const cvf::BoundingBox& polygonBBox,
                                                                                    const cvf::Vec3d&       pointOnLine )
 {
@@ -699,8 +694,7 @@ std::pair<cvf::Vec3d, cvf::Vec3d> RigCellGeometryTools::getLineThroughBoundingBo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigCellGeometryTools::getLengthOfPolygonAlongLine( const std::pair<cvf::Vec3d, cvf::Vec3d>& line,
-                                                          const std::vector<cvf::Vec3d>&           polygon )
+double RigCellGeometryTools::getLengthOfPolygonAlongLine( const std::pair<cvf::Vec3d, cvf::Vec3d>& line, const std::vector<cvf::Vec3d>& polygon )
 {
     cvf::BoundingBox lineBoundingBox;
 
@@ -754,9 +748,8 @@ std::vector<cvf::Vec3d> RigCellGeometryTools::unionOfPolygons( const std::vector
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d>
-    RigCellGeometryTools::ajustPolygonToAvoidIntersectionsAtVertex( const std::vector<cvf::Vec3d>& polyLine,
-                                                                    const std::vector<cvf::Vec3d>& polygon )
+std::vector<cvf::Vec3d> RigCellGeometryTools::ajustPolygonToAvoidIntersectionsAtVertex( const std::vector<cvf::Vec3d>& polyLine,
+                                                                                        const std::vector<cvf::Vec3d>& polygon )
 {
     std::vector<cvf::Vec3d> adjustedPolygon;
 
@@ -794,11 +787,9 @@ std::vector<cvf::Vec3d>
 ///            <0 for P3  right of the line
 ///   ref. http://geomalgorithms.com/a01-_area.html
 //--------------------------------------------------------------------------------------------------
-inline double
-    RigCellGeometryTools::isLeftOfLine2D( const cvf::Vec3d& point1, const cvf::Vec3d& point2, const cvf::Vec3d& point3 )
+inline double RigCellGeometryTools::isLeftOfLine2D( const cvf::Vec3d& point1, const cvf::Vec3d& point2, const cvf::Vec3d& point3 )
 {
-    return ( ( point2.x() - point1.x() ) * ( point3.y() - point1.y() ) -
-             ( point3.x() - point1.x() ) * ( point2.y() - point1.y() ) );
+    return ( ( point2.x() - point1.x() ) * ( point3.y() - point1.y() ) - ( point3.x() - point1.x() ) * ( point2.y() - point1.y() ) );
 }
 
 //--------------------------------------------------------------------------------------------------

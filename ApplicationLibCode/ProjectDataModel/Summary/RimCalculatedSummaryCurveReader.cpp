@@ -106,8 +106,7 @@ void RifCalculatedSummaryCurveReader::buildMetaData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCalculation*
-    RifCalculatedSummaryCurveReader::findCalculationByName( const RifEclipseSummaryAddress& resultAddress ) const
+RimSummaryCalculation* RifCalculatedSummaryCurveReader::findCalculationByName( const RifEclipseSummaryAddress& resultAddress ) const
 {
     if ( !m_calculationCollection || !resultAddress.isCalculated() ) return nullptr;
 

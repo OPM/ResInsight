@@ -74,8 +74,7 @@ void RicGeoMechPropertyFilterFeatureImpl::addPropertyFilter( RimGeoMechPropertyF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicGeoMechPropertyFilterFeatureImpl::insertPropertyFilter( RimGeoMechPropertyFilterCollection* propertyFilterCollection,
-                                                                size_t                              index )
+void RicGeoMechPropertyFilterFeatureImpl::insertPropertyFilter( RimGeoMechPropertyFilterCollection* propertyFilterCollection, size_t index )
 {
     RimGeoMechPropertyFilter* propertyFilter = createPropertyFilter( propertyFilterCollection );
     CVF_ASSERT( propertyFilter );
@@ -100,8 +99,7 @@ bool RicGeoMechPropertyFilterFeatureImpl::isPropertyFilterCommandAvailable( caf:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechPropertyFilter*
-    RicGeoMechPropertyFilterFeatureImpl::createPropertyFilter( RimGeoMechPropertyFilterCollection* propertyFilterCollection )
+RimGeoMechPropertyFilter* RicGeoMechPropertyFilterFeatureImpl::createPropertyFilter( RimGeoMechPropertyFilterCollection* propertyFilterCollection )
 {
     CVF_ASSERT( propertyFilterCollection );
 

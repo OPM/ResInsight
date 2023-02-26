@@ -87,10 +87,7 @@ RimCellEdgeColors::RimCellEdgeColors()
 
     m_legendConfig = new RimRegularLegendConfig();
 
-    CAF_PDM_InitFieldNoDefault( &m_singleVarEdgeResultColors_OBSOLETE,
-                                "SingleVarEdgeResult",
-                                "Result Property",
-                                ":/CellResult.png" );
+    CAF_PDM_InitFieldNoDefault( &m_singleVarEdgeResultColors_OBSOLETE, "SingleVarEdgeResult", "Result Property", ":/CellResult.png" );
     m_singleVarEdgeResultColors_OBSOLETE = new RimEclipseCellColors();
     m_singleVarEdgeResultColors_OBSOLETE.uiCapability()->setUiHidden( true );
 
@@ -133,19 +130,16 @@ void RimCellEdgeColors::loadResult()
         {
             QString title = "Cell Edge Results";
 
-            QString text =
-                QString( "Selected Cell Edge result property count is %1. Up to 6 results are supported, no "
-                         "data will be loaded.\n\nPlease select equal to or less than 6 properties to show data." )
-                    .arg( resultNames.size() );
+            QString text = QString( "Selected Cell Edge result property count is %1. Up to 6 results are supported, no "
+                                    "data will be loaded.\n\nPlease select equal to or less than 6 properties to show data." )
+                               .arg( resultNames.size() );
 
             RiaLogging::errorInMessageBox( nullptr, title, text );
 
             return;
         }
 
-        auto properties = RicCreateEnsembleWellLogUi::properties( resultNames,
-                                                                  categories,
-                                                                  m_reservoirView->eclipseCase()->eclipseCaseData() );
+        auto properties = RicCreateEnsembleWellLogUi::properties( resultNames, categories, m_reservoirView->eclipseCase()->eclipseCaseData() );
 
         for ( size_t i = 0; i < properties.size(); i++ )
         {
@@ -179,8 +173,7 @@ void RimCellEdgeColors::loadResult()
                     if ( vars[i].endsWith( varEnd ) )
                     {
                         m_resultNameToAddressPairs[cubeFaceIdx] =
-                            std::make_pair( vars[i],
-                                            RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, vars[i] ) );
+                            std::make_pair( vars[i], RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, vars[i] ) );
                     }
                 }
             }
@@ -206,9 +199,7 @@ void RimCellEdgeColors::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCellEdgeColors::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                          const QVariant&            oldValue,
-                                          const QVariant&            newValue )
+void RimCellEdgeColors::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     loadResult();
 
@@ -316,8 +307,7 @@ QList<caf::PdmOptionItemInfo> RimCellEdgeColors::calculateValueOptions( const ca
 
         for ( auto catType : resultCategories )
         {
-            QList<caf::PdmOptionItemInfo> allOptions =
-                RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard( catType, resultData );
+            QList<caf::PdmOptionItemInfo> allOptions = RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard( catType, resultData );
 
             bool isFirstOfCategory = true;
             for ( const caf::PdmOptionItemInfo& option : allOptions )
@@ -328,8 +318,7 @@ QList<caf::PdmOptionItemInfo> RimCellEdgeColors::calculateValueOptions( const ca
                     {
                         // Add the category title only when there is at least one valid result
                         options.push_back(
-                            caf::PdmOptionItemInfo::createHeader( caf::AppEnum<RiaDefines::ResultCatType>::uiText( catType ),
-                                                                  true ) );
+                            caf::PdmOptionItemInfo::createHeader( caf::AppEnum<RiaDefines::ResultCatType>::uiText( catType ), true ) );
                         isFirstOfCategory = false;
                     }
 

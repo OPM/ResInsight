@@ -63,8 +63,7 @@ RicCreateDepthAdjustedLasFilesUi::~RicCreateDepthAdjustedLasFilesUi()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RicCreateDepthAdjustedLasFilesUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RicCreateDepthAdjustedLasFilesUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -132,9 +131,7 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreateDepthAdjustedLasFilesUi::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                         const QVariant&            oldValue,
-                                                         const QVariant&            newValue )
+void RicCreateDepthAdjustedLasFilesUi::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &sourceWell )
     {
@@ -175,9 +172,8 @@ void RicCreateDepthAdjustedLasFilesUi::defineEditorAttribute( const caf::PdmFiel
 void RicCreateDepthAdjustedLasFilesUi::setDefaultValues()
 {
     // Default folder directory
-    QString defaultDir =
-        RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( "WELL_LOGS_DIR" );
-    exportFolder = defaultDir;
+    QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( "WELL_LOGS_DIR" );
+    exportFolder       = defaultDir;
 
     // Default selected case and source well
     RimProject* proj = RimProject::current();
@@ -205,8 +201,8 @@ void RicCreateDepthAdjustedLasFilesUi::setDefaultValues()
 //--------------------------------------------------------------------------------------------------
 bool RicCreateDepthAdjustedLasFilesUi::hasValidSelections() const
 {
-    return !exportFolder().isEmpty() && sourceWell() != nullptr && selectedCase() != nullptr &&
-           wellLogFile != nullptr && !selectedResultProperties().empty() && !destinationWells.empty();
+    return !exportFolder().isEmpty() && sourceWell() != nullptr && selectedCase() != nullptr && wellLogFile != nullptr &&
+           !selectedResultProperties().empty() && !destinationWells.empty();
 }
 
 //--------------------------------------------------------------------------------------------------

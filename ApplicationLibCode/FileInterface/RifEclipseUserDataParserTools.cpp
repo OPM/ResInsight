@@ -117,10 +117,7 @@ std::vector<std::string> RifEclipseUserDataParserTools::splitLineAndRemoveCommen
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseUserDataParserTools::keywordParser( const std::string& line,
-                                                   std::string&       origin,
-                                                   std::string&       dateFormat,
-                                                   std::string&       startDate )
+bool RifEclipseUserDataParserTools::keywordParser( const std::string& line, std::string& origin, std::string& dateFormat, std::string& startDate )
 {
     std::vector<std::string> words = splitLineAndRemoveComments( line );
     if ( words.size() < 2 ) return false;
@@ -229,8 +226,7 @@ bool RifEclipseUserDataParserTools::hasTimeUnit( const std::string& word )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseUserDataParserTools::hasOnlyValidDoubleValues( const std::vector<std::string>& words,
-                                                              std::vector<double>*            doubleValues )
+bool RifEclipseUserDataParserTools::hasOnlyValidDoubleValues( const std::vector<std::string>& words, std::vector<double>* doubleValues )
 {
     bool onlyValidValues = true;
 
@@ -283,8 +279,7 @@ bool RifEclipseUserDataParserTools::isValidTableData( size_t columnCount, const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TableData RifEclipseUserDataParserTools::tableDataFromText( std::stringstream&        streamData,
-                                                            std::vector<std::string>* errorText )
+TableData RifEclipseUserDataParserTools::tableDataFromText( std::stringstream& streamData, std::vector<std::string>* errorText )
 {
     TableData emptyTable;
 
@@ -435,8 +430,7 @@ TableData RifEclipseUserDataParserTools::tableDataFromText( std::stringstream&  
 
             std::vector<std::string> columnHeader;
 
-            if ( columnText.size() > 1 )
-                columnHeader.insert( columnHeader.begin(), columnText.begin() + 1, columnText.end() );
+            if ( columnText.size() > 1 ) columnHeader.insert( columnHeader.begin(), columnText.begin() + 1, columnText.end() );
 
             RifEclipseSummaryAddress adr = RifEclipseUserDataKeywordTools::makeAndFillAddress( vectorName, columnHeader );
 
@@ -547,8 +541,7 @@ std::vector<std::string> RifEclipseUserDataParserTools::findValidHeaderLines( st
 
                     columnCount = words.size();
 
-                    minimunRequiredExtraHeaderLines =
-                        RifEclipseUserDataKeywordTools::computeRequiredHeaderLineCount( words );
+                    minimunRequiredExtraHeaderLines = RifEclipseUserDataKeywordTools::computeRequiredHeaderLineCount( words );
 
                     headerLines.push_back( line );
                 }
@@ -589,8 +582,7 @@ std::vector<std::string> RifEclipseUserDataParserTools::findValidHeaderLines( st
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<std::string>>
-    RifEclipseUserDataParserTools::splitIntoColumnHeaders( const std::vector<std::string>& headerLines )
+std::vector<std::vector<std::string>> RifEclipseUserDataParserTools::splitIntoColumnHeaders( const std::vector<std::string>& headerLines )
 {
     std::vector<std::vector<std::string>> headerLinesPerColumn;
 
@@ -622,8 +614,7 @@ std::vector<std::vector<std::string>>
                     }
 
                     std::string subString;
-                    if ( columnWidth != std::string::npos && colStart < headerLine.size() &&
-                         colStart + columnWidth <= headerLine.size() )
+                    if ( columnWidth != std::string::npos && colStart < headerLine.size() && colStart + columnWidth <= headerLine.size() )
                     {
                         subString = headerLine.substr( colStart, columnWidth );
                     }
@@ -642,8 +633,7 @@ std::vector<std::vector<std::string>>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<Column>
-    RifEclipseUserDataParserTools::columnInfoFromColumnHeaders( const std::vector<std::vector<std::string>>& columnData )
+std::vector<Column> RifEclipseUserDataParserTools::columnInfoFromColumnHeaders( const std::vector<std::vector<std::string>>& columnData )
 {
     std::vector<Column> table;
 
@@ -781,8 +771,7 @@ std::vector<TableData> RifEclipseUserDataParserTools::mergeEqualTimeSteps( const
             }
         }
 
-        if ( tables[i].columnInfos().size() > 0 && tables[i].columnInfos()[0].itemCount() == itemsInFirstTable &&
-             isDatesEqual )
+        if ( tables[i].columnInfos().size() > 0 && tables[i].columnInfos()[0].itemCount() == itemsInFirstTable && isDatesEqual )
         {
             for ( auto& c : tables[i].columnInfos() )
             {
@@ -866,9 +855,7 @@ size_t Column::itemCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Column Column::createColumnInfoFromRsmData( const std::string&              vectorName,
-                                            const std::string&              unit,
-                                            const RifEclipseSummaryAddress& addr )
+Column Column::createColumnInfoFromRsmData( const std::string& vectorName, const std::string& unit, const RifEclipseSummaryAddress& addr )
 {
     Column ci( addr, unit );
 

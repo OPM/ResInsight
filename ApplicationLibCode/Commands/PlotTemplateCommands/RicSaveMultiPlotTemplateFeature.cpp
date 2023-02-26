@@ -105,9 +105,7 @@ void RicSaveMultiPlotTemplateFeature::onActionTriggered( bool isChecked )
         QFile exportFile( fileName );
         if ( !exportFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
         {
-            RiaLogging::errorInMessageBox( nullptr,
-                                           "Save Plot Template",
-                                           QString( "Could not save to the file: %1" ).arg( fileName ) );
+            RiaLogging::errorInMessageBox( nullptr, "Save Plot Template", QString( "Could not save to the file: %1" ).arg( fileName ) );
             return;
         }
 
@@ -155,7 +153,7 @@ void RicSaveMultiPlotTemplateFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicSaveMultiPlotTemplateFeature::createTextFromObject( RimSummaryMultiPlot* summaryPlot,
+QString RicSaveMultiPlotTemplateFeature::createTextFromObject( RimSummaryMultiPlot*                           summaryPlot,
                                                                const RicSaveMultiPlotTemplateFeatureSettings& settings )
 {
     if ( !summaryPlot ) return {};
@@ -175,8 +173,7 @@ QString RicSaveMultiPlotTemplateFeature::createTextFromObject( RimSummaryMultiPl
                 auto fieldHandle = curve->findField( summaryFieldKeyword );
                 if ( fieldHandle )
                 {
-                    auto reference =
-                        caf::PdmReferenceHelper::referenceFromFieldToObject( fieldHandle, curve->summaryCaseY() );
+                    auto reference = caf::PdmReferenceHelper::referenceFromFieldToObject( fieldHandle, curve->summaryCaseY() );
 
                     sourceStrings.insert( reference );
                 }
@@ -184,10 +181,7 @@ QString RicSaveMultiPlotTemplateFeature::createTextFromObject( RimSummaryMultiPl
                 addresses.push_back( curve->summaryAddressY() );
             }
 
-            replaceStrings( sourceStrings,
-                            summaryFieldKeyword,
-                            RicSummaryPlotTemplateTools::placeholderTextForSummaryCase(),
-                            objectAsText );
+            replaceStrings( sourceStrings, summaryFieldKeyword, RicSummaryPlotTemplateTools::placeholderTextForSummaryCase(), objectAsText );
         }
 
         {
@@ -200,9 +194,7 @@ QString RicSaveMultiPlotTemplateFeature::createTextFromObject( RimSummaryMultiPl
                 auto fieldHandle = curveSet->findField( summaryGroupFieldKeyword );
                 if ( fieldHandle )
                 {
-                    auto reference =
-                        caf::PdmReferenceHelper::referenceFromFieldToObject( fieldHandle,
-                                                                             curveSet->summaryCaseCollection() );
+                    auto reference = caf::PdmReferenceHelper::referenceFromFieldToObject( fieldHandle, curveSet->summaryCaseCollection() );
                     ensembleReferenceStrings.insert( reference );
                 }
 
@@ -285,8 +277,7 @@ void RicSaveMultiPlotTemplateFeature::replaceStrings( const std::set<QString>& s
     {
         QString sourceTextWithTags = QString( "<%1>%2</%1>" ).arg( fieldKeyword ).arg( sourceString );
 
-        QString replacementTextWithIndex =
-            QString( "<%1>%2 %3</%1>" ).arg( fieldKeyword ).arg( placeholderText ).arg( index++ );
+        QString replacementTextWithIndex = QString( "<%1>%2 %3</%1>" ).arg( fieldKeyword ).arg( placeholderText ).arg( index++ );
 
         objectAsText.replace( sourceTextWithTags, replacementTextWithIndex );
     }

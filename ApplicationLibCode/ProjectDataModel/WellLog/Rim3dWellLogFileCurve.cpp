@@ -180,9 +180,7 @@ caf::PdmFieldHandle* Rim3dWellLogFileCurve::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dWellLogFileCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                              const QVariant&            oldValue,
-                                              const QVariant&            newValue )
+void Rim3dWellLogFileCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_wellLogFile || changedField == &m_wellLogChannelName )
     {

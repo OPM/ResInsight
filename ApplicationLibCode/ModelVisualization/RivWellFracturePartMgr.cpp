@@ -94,8 +94,7 @@ void RivWellFracturePartMgr::appendGeometryPartsToModel( cvf::ModelBasicList* mo
     double characteristicCellSize = eclView.ownerCase()->characteristicCellSize();
 
     cvf::Collection<cvf::Part> parts;
-    RimMeshFractureTemplate*   stimPlanFracTemplate =
-        dynamic_cast<RimMeshFractureTemplate*>( m_rimFracture->fractureTemplate() );
+    RimMeshFractureTemplate*   stimPlanFracTemplate = dynamic_cast<RimMeshFractureTemplate*>( m_rimFracture->fractureTemplate() );
 
     if ( stimPlanFracTemplate )
     {
@@ -151,8 +150,7 @@ void RivWellFracturePartMgr::appendGeometryPartsToModel( cvf::ModelBasicList* mo
 
     auto fractureMatrix = m_rimFracture->transformMatrix();
 
-    if ( m_rimFracture->fractureTemplate() &&
-         m_rimFracture->fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH )
+    if ( m_rimFracture->fractureTemplate() && m_rimFracture->fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH )
     {
         cvf::Vec3d partTranslation = distanceToCenterLine * cvf::Vec3d( fractureMatrix.col( 2 ) );
 
@@ -186,9 +184,7 @@ void RivWellFracturePartMgr::appendGeometryPartsToModel( cvf::ModelBasicList* mo
 
                 cvf::Vec3d partTranslation = scaleFactor * cvf::Vec3d( fractureMatrix.col( 2 ) );
 
-                RivWellFracturePartMgr::addPartAtPositiveAndNegativeTranslation( model,
-                                                                                 maskOfFractureAreasOutsideGrid.p(),
-                                                                                 partTranslation );
+                RivWellFracturePartMgr::addPartAtPositiveAndNegativeTranslation( model, maskOfFractureAreasOutsideGrid.p(), partTranslation );
             }
         }
 
@@ -220,8 +216,7 @@ void RivWellFracturePartMgr::appendGeometryPartsToModel( cvf::ModelBasicList* mo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QString RivWellFracturePartMgr::resultInfoText( const RimEclipseView& activeView,
-                                                      cvf::Vec3d            domainIntersectionPoint ) const
+const QString RivWellFracturePartMgr::resultInfoText( const RimEclipseView& activeView, cvf::Vec3d domainIntersectionPoint ) const
 {
     QString text;
 
@@ -403,8 +398,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createEllipseSurfacePart( const RimE
 cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanColorInterpolatedSurfacePart( const RimEclipseView& activeView )
 {
     CVF_ASSERT( m_rimFracture );
-    RimMeshFractureTemplate* stimPlanFracTemplate =
-        dynamic_cast<RimMeshFractureTemplate*>( m_rimFracture->fractureTemplate() );
+    RimMeshFractureTemplate* stimPlanFracTemplate = dynamic_cast<RimMeshFractureTemplate*>( m_rimFracture->fractureTemplate() );
     CVF_ASSERT( stimPlanFracTemplate );
 
     auto displayCoordTransform = activeView.displayCoordTransform();
@@ -483,7 +477,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanColorInterpolatedSurfa
             return nullptr;
         }
 
-        cvf::ref<cvf::DrawableGeo> geo = buildDrawableGeoFromTriangles( triIndicesToInclude, nodeDisplayCoords );
+        cvf::ref<cvf::DrawableGeo> geo          = buildDrawableGeoFromTriangles( triIndicesToInclude, nodeDisplayCoords );
         const cvf::ScalarMapper*   scalarMapper = legendConfig->scalarMapper();
         CVF_ASSERT( scalarMapper );
 
@@ -499,8 +493,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanColorInterpolatedSurfa
         }
         geo->setTextureCoordArray( textureCoords.p() );
 
-        cvf::ref<cvf::Part> surfacePart =
-            createScalarMapperPart( geo.p(), scalarMapper, m_rimFracture, activeView.isLightingDisabled() );
+        cvf::ref<cvf::Part> surfacePart = createScalarMapperPart( geo.p(), scalarMapper, m_rimFracture, activeView.isLightingDisabled() );
 
         return surfacePart;
     }
@@ -508,16 +501,14 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanColorInterpolatedSurfa
     {
         // No result is mapped, show the entire StimPlan surface with default color
 
-        return createSingleColorSurfacePart( triangleIndices,
-                                             nodeDisplayCoords,
-                                             activeView.fractureColors()->defaultColor() );
+        return createSingleColorSurfacePart( triangleIndices, nodeDisplayCoords, activeView.fractureColors()->defaultColor() );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Part> RivWellFracturePartMgr::createSingleColorSurfacePart( const std::vector<cvf::uint>& triangleIndices,
+cvf::ref<cvf::Part> RivWellFracturePartMgr::createSingleColorSurfacePart( const std::vector<cvf::uint>&  triangleIndices,
                                                                           const std::vector<cvf::Vec3f>& nodeCoords,
                                                                           const cvf::Color3f&            color )
 {
@@ -542,8 +533,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createSingleColorSurfacePart( const 
 cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanElementColorSurfacePart( const RimEclipseView& activeView )
 {
     CVF_ASSERT( m_rimFracture );
-    RimMeshFractureTemplate* stimPlanFracTemplate =
-        dynamic_cast<RimMeshFractureTemplate*>( m_rimFracture->fractureTemplate() );
+    RimMeshFractureTemplate* stimPlanFracTemplate = dynamic_cast<RimMeshFractureTemplate*>( m_rimFracture->fractureTemplate() );
     CVF_ASSERT( stimPlanFracTemplate );
 
     if ( !m_rimFracture->fractureGrid() ) return nullptr;
@@ -559,8 +549,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanElementColorSurfacePar
         std::vector<RigFractureCell> stimPlanCells = m_rimFracture->fractureGrid()->fractureCells();
 
         RimRegularLegendConfig* legendConfig = nullptr;
-        if ( activeView.fractureColors() && activeView.fractureColors()->isChecked() &&
-             activeView.fractureColors()->activeLegend() )
+        if ( activeView.fractureColors() && activeView.fractureColors()->isChecked() && activeView.fractureColors()->activeLegend() )
         {
             legendConfig = activeView.fractureColors()->activeLegend();
 
@@ -569,10 +558,9 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanElementColorSurfacePar
             QString resultNameFromColors = activeView.fractureColors()->uiResultName();
             QString resultUnitFromColors = activeView.fractureColors()->unit();
 
-            std::vector<double> prCellResults =
-                stimPlanFracTemplate->fractureGridResults( resultNameFromColors,
-                                                           resultUnitFromColors,
-                                                           stimPlanFracTemplate->activeTimeStepIndex() );
+            std::vector<double> prCellResults = stimPlanFracTemplate->fractureGridResults( resultNameFromColors,
+                                                                                           resultUnitFromColors,
+                                                                                           stimPlanFracTemplate->activeTimeStepIndex() );
 
             textureCoords->reserve( prCellResults.size() * 4 );
 
@@ -609,9 +597,8 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanElementColorSurfacePar
         return nullptr;
     }
 
-    cvf::Mat4d              fractureXf = m_rimFracture->transformMatrix();
-    std::vector<cvf::Vec3f> nodeDisplayCoords =
-        transformToFractureDisplayCoords( stimPlanMeshVertices, fractureXf, *displayCoordTransform );
+    cvf::Mat4d              fractureXf        = m_rimFracture->transformMatrix();
+    std::vector<cvf::Vec3f> nodeDisplayCoords = transformToFractureDisplayCoords( stimPlanMeshVertices, fractureXf, *displayCoordTransform );
 
     std::vector<cvf::uint> triIndicesToInclude;
 
@@ -638,8 +625,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanElementColorSurfacePar
         cvf::ref<cvf::DrawableGeo> geo = buildDrawableGeoFromTriangles( triIndicesToInclude, nodeDisplayCoords );
         geo->setTextureCoordArray( textureCoords.p() );
 
-        cvf::ref<cvf::Part> surfacePart =
-            createScalarMapperPart( geo.p(), scalarMapper, m_rimFracture, activeView.isLightingDisabled() );
+        cvf::ref<cvf::Part> surfacePart = createScalarMapperPart( geo.p(), scalarMapper, m_rimFracture, activeView.isLightingDisabled() );
 
         return surfacePart;
     }
@@ -647,9 +633,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanElementColorSurfacePar
     {
         // No result is mapped, show the entire StimPlan surface with default color
 
-        return createSingleColorSurfacePart( triIndicesToInclude,
-                                             nodeDisplayCoords,
-                                             activeView.fractureColors()->defaultColor() );
+        return createSingleColorSurfacePart( triIndicesToInclude, nodeDisplayCoords, activeView.fractureColors()->defaultColor() );
     }
 }
 
@@ -680,8 +664,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createContainmentMaskPart( const Rim
 
     RimEclipseCase* eclipseCase = nullptr;
     activeView.firstAncestorOrThisOfType( eclipseCase );
-    auto reservoirCellIndicesOpenForFlow =
-        RimFractureContainmentTools::reservoirCellIndicesOpenForFlow( eclipseCase, m_rimFracture );
+    auto reservoirCellIndicesOpenForFlow = RimFractureContainmentTools::reservoirCellIndicesOpenForFlow( eclipseCase, m_rimFracture );
 
     for ( size_t resCellIdx : cellCandidates )
     {
@@ -741,8 +724,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createContainmentMaskPart( const Rim
 
                     for ( size_t idx : triangleIndices )
                     {
-                        maskTriangles.push_back(
-                            cvf::Vec3f( displCoordTrans->transformToDisplayCoord( clippedPolygon[idx] ) ) );
+                        maskTriangles.push_back( cvf::Vec3f( displCoordTrans->transformToDisplayCoord( clippedPolygon[idx] ) ) );
                     }
                 }
             }
@@ -848,8 +830,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createMaskOfFractureOutsideGrid( con
                     activeView.mainGrid()->cellCornerVertices( resCellIdx, corners.data() );
 
                     std::vector<std::vector<cvf::Vec3d>> eclCellPolygons;
-                    bool                                 hasIntersection =
-                        RigHexIntersectionTools::planeHexIntersectionPolygons( corners, frMx, eclCellPolygons );
+                    bool hasIntersection = RigHexIntersectionTools::planeHexIntersectionPolygons( corners, frMx, eclCellPolygons );
 
                     if ( !hasIntersection || eclCellPolygons.empty() ) continue;
 
@@ -940,8 +921,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createMaskOfFractureOutsideGrid( con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivWellFracturePartMgr::appendFracturePerforationLengthParts( const RimEclipseView& activeView,
-                                                                   cvf::ModelBasicList*  model )
+void RivWellFracturePartMgr::appendFracturePerforationLengthParts( const RimEclipseView& activeView, cvf::ModelBasicList* model )
 {
     if ( !m_rimFracture->isChecked() ) return;
 
@@ -1002,8 +982,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanMeshPart( const RimEcl
 {
     if ( !m_rimFracture->fractureTemplate() ) return nullptr;
 
-    RimMeshFractureTemplate* stimPlanFracTemplate =
-        dynamic_cast<RimMeshFractureTemplate*>( m_rimFracture->fractureTemplate() );
+    RimMeshFractureTemplate* stimPlanFracTemplate = dynamic_cast<RimMeshFractureTemplate*>( m_rimFracture->fractureTemplate() );
     if ( !stimPlanFracTemplate ) return nullptr;
 
     cvf::ref<cvf::DrawableGeo> stimPlanMeshGeo = createStimPlanMeshDrawable( stimPlanFracTemplate, activeView );
@@ -1030,8 +1009,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanMeshPart( const RimEcl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivWellFracturePartMgr::createVisibleFracturePolygons( RimMeshFractureTemplate* stimPlanFracTemplate,
-                                                            const RimEclipseView&    activeView )
+void RivWellFracturePartMgr::createVisibleFracturePolygons( RimMeshFractureTemplate* stimPlanFracTemplate, const RimEclipseView& activeView )
 {
     if ( !m_rimFracture->fractureGrid() ) return;
 
@@ -1041,9 +1019,7 @@ void RivWellFracturePartMgr::createVisibleFracturePolygons( RimMeshFractureTempl
     QString resultUnitFromColors = activeView.fractureColors()->unit();
 
     std::vector<double> prCellResults =
-        stimPlanFracTemplate->fractureGridResults( resultNameFromColors,
-                                                   resultUnitFromColors,
-                                                   stimPlanFracTemplate->activeTimeStepIndex() );
+        stimPlanFracTemplate->fractureGridResults( resultNameFromColors, resultUnitFromColors, stimPlanFracTemplate->activeTimeStepIndex() );
 
     m_visibleFracturePolygons.clear();
     for ( size_t cIdx = 0; cIdx < stimPlanCells.size(); ++cIdx )
@@ -1061,7 +1037,7 @@ void RivWellFracturePartMgr::createVisibleFracturePolygons( RimMeshFractureTempl
 ///
 //--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createStimPlanMeshDrawable( RimMeshFractureTemplate* stimPlanFracTemplate,
-                                                                               const RimEclipseView& activeView )
+                                                                               const RimEclipseView&    activeView )
 {
     if ( !m_rimFracture->fractureGrid() ) return nullptr;
 
@@ -1075,9 +1051,7 @@ cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createStimPlanMeshDrawable( R
     QString resultUnitFromColors = activeView.fractureColors()->unit();
 
     std::vector<double> prCellResults =
-        stimPlanFracTemplate->fractureGridResults( resultNameFromColors,
-                                                   resultUnitFromColors,
-                                                   stimPlanFracTemplate->activeTimeStepIndex() );
+        stimPlanFracTemplate->fractureGridResults( resultNameFromColors, resultUnitFromColors, stimPlanFracTemplate->activeTimeStepIndex() );
 
     for ( size_t cIdx = 0; cIdx < stimPlanCells.size(); ++cIdx )
     {
@@ -1107,8 +1081,7 @@ cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createStimPlanMeshDrawable( R
 
     cvf::ref<cvf::DrawableGeo> stimPlanMeshGeo = new cvf::DrawableGeo;
     stimPlanMeshGeo->setVertexArray( stimPlanMeshVertexList );
-    cvf::ref<cvf::UIntArray> indices =
-        cvf::StructGridGeometryGenerator::lineIndicesFromQuadVertexArray( stimPlanMeshVertexList );
+    cvf::ref<cvf::UIntArray> indices = cvf::StructGridGeometryGenerator::lineIndicesFromQuadVertexArray( stimPlanMeshVertexList );
     cvf::ref<cvf::PrimitiveSetIndexedUInt> prim = new cvf::PrimitiveSetIndexedUInt( cvf::PT_LINES );
     prim->setIndices( indices.p() );
 
@@ -1150,10 +1123,9 @@ std::vector<cvf::Vec3d> RivWellFracturePartMgr::fractureBorderPolygon()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3f>
-    RivWellFracturePartMgr::transformToFractureDisplayCoords( const std::vector<cvf::Vec3f>&    coordinatesVector,
-                                                              cvf::Mat4d                        m,
-                                                              const caf::DisplayCoordTransform& displayCoordTransform )
+std::vector<cvf::Vec3f> RivWellFracturePartMgr::transformToFractureDisplayCoords( const std::vector<cvf::Vec3f>&    coordinatesVector,
+                                                                                  cvf::Mat4d                        m,
+                                                                                  const caf::DisplayCoordTransform& displayCoordTransform )
 {
     std::vector<cvf::Vec3f> polygonInDisplayCoords;
     polygonInDisplayCoords.reserve( coordinatesVector.size() );
@@ -1172,9 +1144,8 @@ std::vector<cvf::Vec3f>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo>
-    RivWellFracturePartMgr::buildDrawableGeoFromTriangles( const std::vector<cvf::uint>&  triangleIndices,
-                                                           const std::vector<cvf::Vec3f>& nodeCoords )
+cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::buildDrawableGeoFromTriangles( const std::vector<cvf::uint>&  triangleIndices,
+                                                                                  const std::vector<cvf::Vec3f>& nodeCoords )
 {
     CVF_ASSERT( triangleIndices.size() > 0 );
     CVF_ASSERT( nodeCoords.size() > 0 );
@@ -1207,9 +1178,7 @@ cvf::ref<cvf::Transform> RivWellFracturePartMgr::createLocalTransformFromTransla
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivWellFracturePartMgr::addPartAtPositiveAndNegativeTranslation( cvf::ModelBasicList* model,
-                                                                      cvf::Part*           part,
-                                                                      const cvf::Vec3d&    translation )
+void RivWellFracturePartMgr::addPartAtPositiveAndNegativeTranslation( cvf::ModelBasicList* model, cvf::Part* part, const cvf::Vec3d& translation )
 {
     {
         cvf::ref<cvf::Transform> partTransform = RivWellFracturePartMgr::createLocalTransformFromTranslation( translation );
@@ -1222,8 +1191,7 @@ void RivWellFracturePartMgr::addPartAtPositiveAndNegativeTranslation( cvf::Model
         // Create a copy of the part to be able to assign a transformation matrix representing the translation in the
         // opposite direction
 
-        cvf::ref<cvf::Transform> partTransform =
-            RivWellFracturePartMgr::createLocalTransformFromTranslation( -translation );
+        cvf::ref<cvf::Transform> partTransform = RivWellFracturePartMgr::createLocalTransformFromTranslation( -translation );
 
         auto copy = part->shallowCopy();
         copy->setTransform( partTransform.p() );

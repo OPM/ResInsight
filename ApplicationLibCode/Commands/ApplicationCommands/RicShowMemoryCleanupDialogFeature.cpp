@@ -52,11 +52,7 @@ void RicShowMemoryCleanupDialogFeature::onActionTriggered( bool isChecked )
         memoryCleanup.setPropertiesFromView( view );
     }
 
-    caf::PdmUiPropertyViewDialog dialog( RiuMainWindow::instance(),
-                                         &memoryCleanup,
-                                         "Clear Results From Memory",
-                                         "",
-                                         QDialogButtonBox::Close );
+    caf::PdmUiPropertyViewDialog dialog( RiuMainWindow::instance(), &memoryCleanup, "Clear Results From Memory", "", QDialogButtonBox::Close );
     dialog.resize( QSize( 400, 400 ) );
     if ( dialog.exec() == QDialog::Accepted )
     {

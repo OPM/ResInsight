@@ -373,8 +373,7 @@ void RimSurfaceCollection::updateViews()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSurfaceCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                                           std::vector<caf::PdmObjectHandle*>& referringObjects )
+void RimSurfaceCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     updateViews();
 }

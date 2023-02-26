@@ -41,10 +41,7 @@ void RigWbsParameter::SourceEnum::setUp()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigWbsParameter::RigWbsParameter( const QString&      name,
-                                  bool                normalizeByHydroStaticPP,
-                                  const SourceVector& sources,
-                                  bool                exclusiveOption )
+RigWbsParameter::RigWbsParameter( const QString& name, bool normalizeByHydroStaticPP, const SourceVector& sources, bool exclusiveOption )
     : m_name( name )
     , m_sources( sources )
     , m_normalizeByHydroStaticPP( normalizeByHydroStaticPP )
@@ -185,9 +182,8 @@ void RigWbsParameter::setOptionsExclusive( bool exclusive )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<QString>
-    RigWbsParameter::allSourceUiLabels( const QString& delimiter /*= " "*/,
-                                        double         userDefinedValue /*= std::numeric_limits<double>::infinity() */ )
+std::vector<QString> RigWbsParameter::allSourceUiLabels( const QString& delimiter /*= " "*/,
+                                                         double         userDefinedValue /*= std::numeric_limits<double>::infinity() */ )
 {
     std::vector<QString> allLabels;
     for ( size_t i = 0; i < SourceEnum::size(); ++i )
@@ -238,13 +234,12 @@ bool RigWbsParameter::operator<( const RigWbsParameter& rhs ) const
 //--------------------------------------------------------------------------------------------------
 RigWbsParameter RigWbsParameter::PP_Reservoir()
 {
-    SourceVector sources =
-        { { GRID, SourceAddress( "POR-Bar", "", RiaWellLogUnitTools<double>::barUnitString() ) },
-          { LAS_FILE, SourceAddress( "PP_INP", "", RiaWellLogUnitTools<double>::sg_emwUnitString() ) },
-          { LAS_FILE, SourceAddress( "PP_RES_INP", "", RiaWellLogUnitTools<double>::sg_emwUnitString() ) },
-          { LAS_FILE, SourceAddress( "POR_RES_INP", "", RiaWellLogUnitTools<double>::gPerCm3UnitString() ) },
-          { ELEMENT_PROPERTY_TABLE, SourceAddress( "POR_INP", "", RiaWellLogUnitTools<double>::pascalUnitString() ) },
-          { ELEMENT_PROPERTY_TABLE, SourceAddress( "PP_INP", "", RiaWellLogUnitTools<double>::sg_emwUnitString() ) } };
+    SourceVector sources = { { GRID, SourceAddress( "POR-Bar", "", RiaWellLogUnitTools<double>::barUnitString() ) },
+                             { LAS_FILE, SourceAddress( "PP_INP", "", RiaWellLogUnitTools<double>::sg_emwUnitString() ) },
+                             { LAS_FILE, SourceAddress( "PP_RES_INP", "", RiaWellLogUnitTools<double>::sg_emwUnitString() ) },
+                             { LAS_FILE, SourceAddress( "POR_RES_INP", "", RiaWellLogUnitTools<double>::gPerCm3UnitString() ) },
+                             { ELEMENT_PROPERTY_TABLE, SourceAddress( "POR_INP", "", RiaWellLogUnitTools<double>::pascalUnitString() ) },
+                             { ELEMENT_PROPERTY_TABLE, SourceAddress( "PP_INP", "", RiaWellLogUnitTools<double>::sg_emwUnitString() ) } };
     return RigWbsParameter( "PP_Reservoir", true, sources );
 }
 
@@ -253,12 +248,11 @@ RigWbsParameter RigWbsParameter::PP_Reservoir()
 //--------------------------------------------------------------------------------------------------
 RigWbsParameter RigWbsParameter::PP_NonReservoir()
 {
-    SourceVector sources =
-        { { LAS_FILE, SourceAddress( "PP_NONRES_INP", "", RiaWellLogUnitTools<double>::sg_emwUnitString() ) },
-          { LAS_FILE, SourceAddress( "POR_NONRES_INP", "", RiaWellLogUnitTools<double>::gPerCm3UnitString() ) },
-          { ELEMENT_PROPERTY_TABLE, SourceAddress( "POR_NONRES_INP", "", RiaWellLogUnitTools<double>::pascalUnitString() ) },
-          { ELEMENT_PROPERTY_TABLE, SourceAddress( "PP_NONRES_INP", "", RiaWellLogUnitTools<double>::sg_emwUnitString() ) },
-          { HYDROSTATIC, SourceAddress( "Hydrostatic", "", RiaWellLogUnitTools<double>::barUnitString() ) } };
+    SourceVector sources = { { LAS_FILE, SourceAddress( "PP_NONRES_INP", "", RiaWellLogUnitTools<double>::sg_emwUnitString() ) },
+                             { LAS_FILE, SourceAddress( "POR_NONRES_INP", "", RiaWellLogUnitTools<double>::gPerCm3UnitString() ) },
+                             { ELEMENT_PROPERTY_TABLE, SourceAddress( "POR_NONRES_INP", "", RiaWellLogUnitTools<double>::pascalUnitString() ) },
+                             { ELEMENT_PROPERTY_TABLE, SourceAddress( "PP_NONRES_INP", "", RiaWellLogUnitTools<double>::sg_emwUnitString() ) },
+                             { HYDROSTATIC, SourceAddress( "Hydrostatic", "", RiaWellLogUnitTools<double>::barUnitString() ) } };
 
     return RigWbsParameter( "PP_Non-Reservoir", true, sources );
 }
@@ -283,8 +277,7 @@ RigWbsParameter RigWbsParameter::UCS()
     return RigWbsParameter( "UCS",
                             false,
                             { { LAS_FILE, SourceAddress( "UCS_INP", "", RiaWellLogUnitTools<double>::MPaUnitString() ) },
-                              { ELEMENT_PROPERTY_TABLE,
-                                SourceAddress( "UCS_INP", "", RiaWellLogUnitTools<double>::pascalUnitString() ) },
+                              { ELEMENT_PROPERTY_TABLE, SourceAddress( "UCS_INP", "", RiaWellLogUnitTools<double>::pascalUnitString() ) },
                               { USER_DEFINED, SourceAddress( "", "", RiaWellLogUnitTools<double>::barUnitString() ) } } );
 }
 
@@ -365,8 +358,7 @@ RigWbsParameter RigWbsParameter::FG_Shale()
                            false,
                            { { DERIVED_FROM_K0FG, SourceAddress() },
                              { PROPORTIONAL_TO_SH, SourceAddress() },
-                             { LAS_FILE,
-                               SourceAddress( "FG_SHALE_INP", "", RiaWellLogUnitTools<double>::sg_emwUnitString() ) } } );
+                             { LAS_FILE, SourceAddress( "FG_SHALE_INP", "", RiaWellLogUnitTools<double>::sg_emwUnitString() ) } } );
     param.setOptionsExclusive( true );
     return param;
 }
@@ -379,8 +371,7 @@ RigWbsParameter RigWbsParameter::waterDensity()
     RigWbsParameter param( "WaterDensity",
                            false,
                            { { USER_DEFINED, SourceAddress() },
-                             { LAS_FILE,
-                               SourceAddress( "RHO_INP", "", RiaWellLogUnitTools<double>::gPerCm3UnitString() ) } } );
+                             { LAS_FILE, SourceAddress( "RHO_INP", "", RiaWellLogUnitTools<double>::gPerCm3UnitString() ) } } );
     return param;
 }
 //--------------------------------------------------------------------------------------------------
@@ -388,18 +379,7 @@ RigWbsParameter RigWbsParameter::waterDensity()
 //--------------------------------------------------------------------------------------------------
 std::set<RigWbsParameter> RigWbsParameter::allParameters()
 {
-    return { PP_Reservoir(),
-             PP_NonReservoir(),
-             poissonRatio(),
-             UCS(),
-             OBG(),
-             OBG0(),
-             SH(),
-             DF(),
-             K0_FG(),
-             K0_SH(),
-             FG_Shale(),
-             waterDensity() };
+    return { PP_Reservoir(), PP_NonReservoir(), poissonRatio(), UCS(), OBG(), OBG0(), SH(), DF(), K0_FG(), K0_SH(), FG_Shale(), waterDensity() };
 }
 
 //--------------------------------------------------------------------------------------------------

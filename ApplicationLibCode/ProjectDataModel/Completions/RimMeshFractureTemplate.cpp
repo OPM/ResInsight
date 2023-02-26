@@ -68,10 +68,7 @@ RimMeshFractureTemplate::RimMeshFractureTemplate()
     m_borderPolygonResultName.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitScriptableField( &m_activeTimeStepIndex, "ActiveTimeStepIndex", 0, "Active TimeStep Index" );
-    CAF_PDM_InitScriptableField( &m_conductivityResultNameOnFile,
-                                 "ConductivityResultName",
-                                 QString( "" ),
-                                 "Active Conductivity Result Name" );
+    CAF_PDM_InitScriptableField( &m_conductivityResultNameOnFile, "ConductivityResultName", QString( "" ), "Active Conductivity Result Name" );
 
     m_readError = false;
 
@@ -96,9 +93,7 @@ int RimMeshFractureTemplate::activeTimeStepIndex()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMeshFractureTemplate::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                const QVariant&            oldValue,
-                                                const QVariant&            newValue )
+void RimMeshFractureTemplate::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimFractureTemplate::fieldChangedByUi( changedField, oldValue, newValue );
 
@@ -130,8 +125,8 @@ void RimMeshFractureTemplate::fieldChangedByUi( const caf::PdmFieldHandle* chang
         proj->scheduleCreateDisplayModelAndRedrawAllViews();
     }
 
-    if ( &m_borderPolygonResultName == changedField || &m_activeTimeStepIndex == changedField ||
-         &m_stimPlanFileName == changedField || &m_conductivityResultNameOnFile == changedField )
+    if ( &m_borderPolygonResultName == changedField || &m_activeTimeStepIndex == changedField || &m_stimPlanFileName == changedField ||
+         &m_conductivityResultNameOnFile == changedField )
     {
         // Update fracture grid for all fractures using this template
         RimProject* proj = RimProject::current();
@@ -174,25 +169,23 @@ QList<caf::PdmOptionItemInfo> RimMeshFractureTemplate::calculateValueOptions( co
 
     if ( fieldNeedingOptions == &m_fractureWidthType )
     {
-        options.push_back(
-            caf::PdmOptionItemInfo( caf::AppEnum<WidthEnum>::uiText( USER_DEFINED_WIDTH ), USER_DEFINED_WIDTH ) );
+        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<WidthEnum>::uiText( USER_DEFINED_WIDTH ), USER_DEFINED_WIDTH ) );
 
         if ( !widthResultValues().empty() )
         {
-            options.push_back(
-                caf::PdmOptionItemInfo( caf::AppEnum<WidthEnum>::uiText( WIDTH_FROM_FRACTURE ), WIDTH_FROM_FRACTURE ) );
+            options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<WidthEnum>::uiText( WIDTH_FROM_FRACTURE ), WIDTH_FROM_FRACTURE ) );
         }
     }
 
     if ( fieldNeedingOptions == &m_betaFactorType )
     {
-        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<BetaFactorEnum>::uiText( USER_DEFINED_BETA_FACTOR ),
-                                                   USER_DEFINED_BETA_FACTOR ) );
+        options.push_back(
+            caf::PdmOptionItemInfo( caf::AppEnum<BetaFactorEnum>::uiText( USER_DEFINED_BETA_FACTOR ), USER_DEFINED_BETA_FACTOR ) );
 
         if ( isBetaFactorAvailableOnFile() )
         {
-            options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<BetaFactorEnum>::uiText( BETA_FACTOR_FROM_FRACTURE ),
-                                                       BETA_FACTOR_FROM_FRACTURE ) );
+            options.push_back(
+                caf::PdmOptionItemInfo( caf::AppEnum<BetaFactorEnum>::uiText( BETA_FACTOR_FROM_FRACTURE ), BETA_FACTOR_FROM_FRACTURE ) );
         }
     }
 
@@ -250,20 +243,16 @@ WellFractureIntersectionData RimMeshFractureTemplate::wellFractureIntersectionDa
             {
                 std::vector<double> widthResultValues;
                 {
-                    auto nameUnit     = widthParameterNameAndUnit();
-                    widthResultValues = fractureGridResultsForUnitSystem( nameUnit.first,
-                                                                          nameUnit.second,
-                                                                          m_activeTimeStepIndex,
-                                                                          fractureTemplateUnit() );
+                    auto nameUnit = widthParameterNameAndUnit();
+                    widthResultValues =
+                        fractureGridResultsForUnitSystem( nameUnit.first, nameUnit.second, m_activeTimeStepIndex, fractureTemplateUnit() );
                 }
 
                 std::vector<double> conductivityResultValues;
                 {
-                    auto nameUnit            = conductivityParameterNameAndUnit();
-                    conductivityResultValues = fractureGridResultsForUnitSystem( nameUnit.first,
-                                                                                 nameUnit.second,
-                                                                                 m_activeTimeStepIndex,
-                                                                                 fractureTemplateUnit() );
+                    auto nameUnit = conductivityParameterNameAndUnit();
+                    conductivityResultValues =
+                        fractureGridResultsForUnitSystem( nameUnit.first, nameUnit.second, m_activeTimeStepIndex, fractureTemplateUnit() );
                 }
 
                 std::vector<double> betaFactorResultValues;
@@ -277,8 +266,7 @@ WellFractureIntersectionData RimMeshFractureTemplate::wellFractureIntersectionDa
                 RiaWeightedGeometricMeanCalculator betaFactorCalc;
 
                 std::vector<cvf::Vec3d> wellPathPoints =
-                    rimWellPath->wellPathGeometry()->wellPathPointsIncludingInterpolatedIntersectionPoint(
-                        fractureInstance->fractureMD() );
+                    rimWellPath->wellPathGeometry()->wellPathPointsIncludingInterpolatedIntersectionPoint( fractureInstance->fractureMD() );
                 RigWellPathStimplanIntersector intersector( wellPathPoints, fractureInstance );
                 for ( const auto& v : intersector.intersections() )
                 {
@@ -292,8 +280,7 @@ WellFractureIntersectionData RimMeshFractureTemplate::wellFractureIntersectionDa
 
                     if ( fractureGlobalCellIndex < conductivityResultValues.size() )
                     {
-                        conductivityCalc.addValueAndWeight( conductivityResultValues[fractureGlobalCellIndex],
-                                                            intersectionLength );
+                        conductivityCalc.addValueAndWeight( conductivityResultValues[fractureGlobalCellIndex], intersectionLength );
                     }
 
                     if ( fractureGlobalCellIndex < betaFactorResultValues.size() )
@@ -340,9 +327,9 @@ WellFractureIntersectionData RimMeshFractureTemplate::wellFractureIntersectionDa
     }
     else
     {
-        std::pair<size_t, size_t> wellCellIJ = fractureGrid->fractureCellAtWellCenter();
-        size_t wellCellIndex            = fractureGrid->getGlobalIndexFromIJ( wellCellIJ.first, wellCellIJ.second );
-        const RigFractureCell& wellCell = fractureGrid->cellFromIndex( wellCellIndex );
+        std::pair<size_t, size_t> wellCellIJ    = fractureGrid->fractureCellAtWellCenter();
+        size_t                    wellCellIndex = fractureGrid->getGlobalIndexFromIJ( wellCellIJ.first, wellCellIJ.second );
+        const RigFractureCell&    wellCell      = fractureGrid->cellFromIndex( wellCellIndex );
 
         double conductivity   = wellCell.getConductivityValue();
         values.m_conductivity = conductivity;
@@ -353,10 +340,8 @@ WellFractureIntersectionData RimMeshFractureTemplate::wellFractureIntersectionDa
             {
                 double widthInRequiredUnit = HUGE_VAL;
                 {
-                    auto resultValues = fractureGridResultsForUnitSystem( nameUnit.first,
-                                                                          nameUnit.second,
-                                                                          m_activeTimeStepIndex,
-                                                                          fractureTemplateUnit() );
+                    auto resultValues =
+                        fractureGridResultsForUnitSystem( nameUnit.first, nameUnit.second, m_activeTimeStepIndex, fractureTemplateUnit() );
 
                     if ( wellCellIndex < resultValues.size() )
                     {
@@ -373,9 +358,8 @@ WellFractureIntersectionData RimMeshFractureTemplate::wellFractureIntersectionDa
         }
 
         {
-            auto                nameUnit = betaFactorParameterNameAndUnit();
-            std::vector<double> betaFactorResultValues =
-                fractureGridResults( nameUnit.first, nameUnit.second, m_activeTimeStepIndex );
+            auto                nameUnit               = betaFactorParameterNameAndUnit();
+            std::vector<double> betaFactorResultValues = fractureGridResults( nameUnit.first, nameUnit.second, m_activeTimeStepIndex );
 
             if ( wellCellIndex < betaFactorResultValues.size() )
             {
@@ -458,10 +442,7 @@ std::vector<double> RimMeshFractureTemplate::widthResultValues() const
     auto nameUnit = widthParameterNameAndUnit();
     if ( !nameUnit.first.isEmpty() )
     {
-        resultValues = fractureGridResultsForUnitSystem( nameUnit.first,
-                                                         nameUnit.second,
-                                                         m_activeTimeStepIndex,
-                                                         fractureTemplateUnit() );
+        resultValues = fractureGridResultsForUnitSystem( nameUnit.first, nameUnit.second, m_activeTimeStepIndex, fractureTemplateUnit() );
     }
 
     return resultValues;
@@ -519,9 +500,7 @@ void RimMeshFractureTemplate::defineUiOrdering( QString uiConfigName, caf::PdmUi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMeshFractureTemplate::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                     QString                    uiConfigName,
-                                                     caf::PdmUiEditorAttribute* attribute )
+void RimMeshFractureTemplate::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     RimFractureTemplate::defineEditorAttribute( field, uiConfigName, attribute );
 

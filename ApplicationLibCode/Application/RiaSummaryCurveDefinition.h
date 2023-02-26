@@ -37,9 +37,7 @@ class RiaSummaryCurveDefinition
 {
 public:
     RiaSummaryCurveDefinition();
-    explicit RiaSummaryCurveDefinition( RimSummaryCase*                 summaryCase,
-                                        const RifEclipseSummaryAddress& summaryAddress,
-                                        bool                            isEnsembleCurve );
+    explicit RiaSummaryCurveDefinition( RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& summaryAddress, bool isEnsembleCurve );
     explicit RiaSummaryCurveDefinition( RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& summaryAddress );
 
     RimSummaryCase*                 summaryCase() const;
@@ -51,7 +49,7 @@ public:
     bool operator<( const RiaSummaryCurveDefinition& other ) const;
 
     // TODO: Consider moving to a separate tools class
-    static void resultValues( const RiaSummaryCurveDefinition& curveDefinition, gsl::not_null<std::vector<double>*> values );
+    static void                resultValues( const RiaSummaryCurveDefinition& curveDefinition, gsl::not_null<std::vector<double>*> values );
     static std::vector<time_t> timeSteps( const RiaSummaryCurveDefinition& curveDefinition );
 
     QString curveDefinitionText() const;

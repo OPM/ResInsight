@@ -32,8 +32,7 @@ class Rim3dView;
 class RimViewManipulator
 {
 public:
-    static void       applySourceViewCameraOnDestinationViews( Rim3dView*                     sourceView,
-                                                               const std::vector<Rim3dView*>& destinationViews );
+    static void       applySourceViewCameraOnDestinationViews( Rim3dView* sourceView, const std::vector<Rim3dView*>& destinationViews );
     static cvf::Vec3d calculateEquivalentCamPosOffset( Rim3dView* sourceView, Rim3dView* destView );
 
 private:

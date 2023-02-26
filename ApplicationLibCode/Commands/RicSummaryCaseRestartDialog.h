@@ -66,14 +66,14 @@ public:
     RicSummaryCaseRestartDialog( QWidget* parent );
     ~RicSummaryCaseRestartDialog() override;
 
-    static RicSummaryCaseRestartDialogResult openDialog( const QString& initialSummaryFile,
-                                                         const QString& initialGridFile,
-                                                         bool           failOnSummaryImportError,
-                                                         bool           showApplyToAllWidget,
-                                                         bool           useFirstSummaryCaseAsTemplate,
-                                                         ImportOptions  defaultSummaryImportOption,
-                                                         ImportOptions  defaultGridImportOption,
-                                                         bool           hideSplitCases,
+    static RicSummaryCaseRestartDialogResult openDialog( const QString&                     initialSummaryFile,
+                                                         const QString&                     initialGridFile,
+                                                         bool                               failOnSummaryImportError,
+                                                         bool                               showApplyToAllWidget,
+                                                         bool                               useFirstSummaryCaseAsTemplate,
+                                                         ImportOptions                      defaultSummaryImportOption,
+                                                         ImportOptions                      defaultGridImportOption,
+                                                         bool                               hideSplitCases,
                                                          RicSummaryCaseRestartDialogResult* lastResult,
                                                          QWidget*                           parent );
 
@@ -83,9 +83,7 @@ public:
 
 private:
     void    updateFileListWidget( QGridLayout* gridLayout, int listIndex );
-    void    appendFileInfoToGridLayout( QGridLayout*              gridLayout,
-                                        const RifRestartFileInfo& fileInfo,
-                                        const QString&            fullPathFileName );
+    void    appendFileInfoToGridLayout( QGridLayout* gridLayout, const RifRestartFileInfo& fileInfo, const QString& fullPathFileName );
     void    appendTextToGridLayout( QGridLayout* gridLayout, const QString& text );
     void    displayWarningsIfAny( const std::vector<QString>& warnings );
     QString fullFileName( const QString& shortOrFullFileName );

@@ -248,8 +248,8 @@ void RicHoloLensExportImpl::appendTextureImage( VdeExportPart& exportPart, cvf::
     if ( part && part->effect() )
     {
         {
-            auto textureBindings = dynamic_cast<cvf::RenderStateTextureBindings*>(
-                part->effect()->renderStateOfType( cvf::RenderState::TEXTURE_BINDINGS ) );
+            auto textureBindings =
+                dynamic_cast<cvf::RenderStateTextureBindings*>( part->effect()->renderStateOfType( cvf::RenderState::TEXTURE_BINDINGS ) );
 
             if ( textureBindings && textureBindings->bindingCount() > 0 )
             {
@@ -262,8 +262,8 @@ void RicHoloLensExportImpl::appendTextureImage( VdeExportPart& exportPart, cvf::
         }
 
         {
-            auto textureMappingFF = dynamic_cast<cvf::RenderStateTextureMapping_FF*>(
-                part->effect()->renderStateOfType( cvf::RenderState::TEXTURE_MAPPING_FF ) );
+            auto textureMappingFF =
+                dynamic_cast<cvf::RenderStateTextureMapping_FF*>( part->effect()->renderStateOfType( cvf::RenderState::TEXTURE_MAPPING_FF ) );
 
             if ( textureMappingFF && textureMappingFF->texture() )
             {

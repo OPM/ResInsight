@@ -72,8 +72,7 @@ void RicNewSummaryCurveFeature::onActionTriggered( bool isChecked )
 
         if ( !defaultCase )
         {
-            std::vector<RimSummaryCase*> allSummaryCases =
-                project->activeOilField()->summaryCaseMainCollection()->allSummaryCases();
+            std::vector<RimSummaryCase*> allSummaryCases = project->activeOilField()->summaryCaseMainCollection()->allSummaryCases();
 
             if ( !allSummaryCases.empty() )
             {
@@ -94,8 +93,7 @@ void RicNewSummaryCurveFeature::onActionTriggered( bool isChecked )
         RimSummaryCurve* newCurve = new RimSummaryCurve();
 
         // Use same counting as RicNewSummaryEnsembleCurveSetFeature::onActionTriggered
-        cvf::Color3f curveColor =
-            RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f( plot->singleColorCurveCount() );
+        cvf::Color3f curveColor = RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f( plot->singleColorCurveCount() );
         newCurve->setColor( curveColor );
 
         plot->addCurveNoUpdate( newCurve );

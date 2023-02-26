@@ -40,18 +40,14 @@ protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
-    static RimEclipseContourMapView*
-                                     createEclipseContourMapFromExistingContourMap( RimEclipseCase*           eclipseCase,
+    static RimEclipseContourMapView* createEclipseContourMapFromExistingContourMap( RimEclipseCase*           eclipseCase,
                                                                                     RimEclipseContourMapView* existingContourMap );
-    static RimEclipseContourMapView* createEclipseContourMapFrom3dView( RimEclipseCase*       eclipseCase,
-                                                                        const RimEclipseView* sourceView );
+    static RimEclipseContourMapView* createEclipseContourMapFrom3dView( RimEclipseCase* eclipseCase, const RimEclipseView* sourceView );
     static RimEclipseContourMapView* createEclipseContourMap( RimEclipseCase* eclipseCase );
 
-    static RimGeoMechContourMapView*
-                                     createGeoMechContourMapFromExistingContourMap( RimGeoMechCase*           geoMechCase,
+    static RimGeoMechContourMapView* createGeoMechContourMapFromExistingContourMap( RimGeoMechCase*           geoMechCase,
                                                                                     RimGeoMechContourMapView* existingContourMap );
-    static RimGeoMechContourMapView* createGeoMechContourMapFrom3dView( RimGeoMechCase*       geoMechCase,
-                                                                        const RimGeoMechView* sourceView );
+    static RimGeoMechContourMapView* createGeoMechContourMapFrom3dView( RimGeoMechCase* geoMechCase, const RimGeoMechView* sourceView );
     static RimGeoMechContourMapView* createGeoMechContourMap( RimGeoMechCase* geoMechCase );
 
     static void assignDefaultResultAndLegend( RimEclipseContourMapView* contourMap );

@@ -50,8 +50,7 @@ public:
         double computeLength() const { return cvf::Math::sqrt( hlength * hlength + vlength * vlength ); }
     };
 
-    RigWellPathStimplanIntersector( const std::vector<cvf::Vec3d>&    wellPathPoints,
-                                    gsl::not_null<const RimFracture*> rimFracture );
+    RigWellPathStimplanIntersector( const std::vector<cvf::Vec3d>& wellPathPoints, gsl::not_null<const RimFracture*> rimFracture );
 
     const std::map<size_t, WellCellIntersection>& intersections() const;
 
@@ -73,13 +72,12 @@ private:
 class RigWellPathStimplanIntersectorTester
 {
 public:
-    static void testCalculate(
-        const cvf::Mat4d&                                                       fractureXf,
-        const std::vector<cvf::Vec3d>&                                          wellPathPoints,
-        double                                                                  wellRadius,
-        double                                                                  perforationLength,
-        const std::vector<std::vector<cvf::Vec3d>>&                             stpCellPolygons,
-        std::map<size_t, RigWellPathStimplanIntersector::WellCellIntersection>& stimPlanCellIdxToIntersectionInfoMap )
+    static void testCalculate( const cvf::Mat4d&                                                       fractureXf,
+                               const std::vector<cvf::Vec3d>&                                          wellPathPoints,
+                               double                                                                  wellRadius,
+                               double                                                                  perforationLength,
+                               const std::vector<std::vector<cvf::Vec3d>>&                             stpCellPolygons,
+                               std::map<size_t, RigWellPathStimplanIntersector::WellCellIntersection>& stimPlanCellIdxToIntersectionInfoMap )
     {
         RigWellPathStimplanIntersector::calculate( fractureXf,
                                                    wellPathPoints,

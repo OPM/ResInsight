@@ -65,10 +65,9 @@ bool RigWellResultPoint::isValid() const
 //--------------------------------------------------------------------------------------------------
 bool RigWellResultPoint::isEqual( const RigWellResultPoint& other ) const
 {
-    return ( m_gridIndex == other.m_gridIndex && m_gridCellIndex == other.m_gridCellIndex &&
-             m_isOpen == other.m_isOpen && m_ertBranchId == other.m_ertBranchId &&
-             m_ertSegmentId == other.m_ertSegmentId && m_flowRate == other.m_flowRate && m_oilRate == other.m_oilRate &&
-             m_gasRate == other.m_gasRate && m_waterRate == other.m_waterRate );
+    return ( m_gridIndex == other.m_gridIndex && m_gridCellIndex == other.m_gridCellIndex && m_isOpen == other.m_isOpen &&
+             m_ertBranchId == other.m_ertBranchId && m_ertSegmentId == other.m_ertSegmentId && m_flowRate == other.m_flowRate &&
+             m_oilRate == other.m_oilRate && m_gasRate == other.m_gasRate && m_waterRate == other.m_waterRate );
 }
 
 //--------------------------------------------------------------------------------------------------

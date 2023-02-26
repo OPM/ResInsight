@@ -91,8 +91,7 @@ QString RiaEnsembleNameTools::findSuitableEnsembleName( const QStringList& fileN
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<QStringList> RiaEnsembleNameTools::groupFilesByEnsemble( const QStringList&   fileNames,
-                                                                     EnsembleGroupingMode groupingMode )
+std::vector<QStringList> RiaEnsembleNameTools::groupFilesByEnsemble( const QStringList& fileNames, EnsembleGroupingMode groupingMode )
 {
     std::vector<QStringList> componentsForAllFilePaths;
 
@@ -282,12 +281,9 @@ QString RiaEnsembleNameTools::findCommonBaseName( const QStringList& fileNames )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaEnsembleNameTools::uniqueShortName( const QString&     sourceFileName,
-                                               const QStringList& allFileNames,
-                                               const QString&     ensembleCaseName )
+QString RiaEnsembleNameTools::uniqueShortName( const QString& sourceFileName, const QStringList& allFileNames, const QString& ensembleCaseName )
 {
-    std::map<QString, QStringList> keyFileComponentsForAllFiles =
-        RiaFilePathTools::keyPathComponentsForEachFilePath( allFileNames );
+    std::map<QString, QStringList> keyFileComponentsForAllFiles = RiaFilePathTools::keyPathComponentsForEachFilePath( allFileNames );
 
     return uniqueShortNameFromComponents( sourceFileName, keyFileComponentsForAllFiles, ensembleCaseName );
 }

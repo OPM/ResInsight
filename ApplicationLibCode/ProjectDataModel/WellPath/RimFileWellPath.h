@@ -26,12 +26,12 @@ public:
     RimFileWellPath();
     ~RimFileWellPath() override;
 
-    QString filePath() const;
-    void    setFilepath( const QString& path );
-    bool    readWellPathFile( QString* errorMessage, RifWellPathImporter* wellPathImporter, bool setWellNameForExport );
-    int     wellPathIndexInFile() const; // -1 means none.
-    void    updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath );
-    void    setWellPathIndexInFile( int index );
+    QString        filePath() const;
+    void           setFilepath( const QString& path );
+    bool           readWellPathFile( QString* errorMessage, RifWellPathImporter* wellPathImporter, bool setWellNameForExport );
+    int            wellPathIndexInFile() const; // -1 means none.
+    void           updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath );
+    void           setWellPathIndexInFile( int index );
     static QString getCacheDirectoryPath();
 
 protected:

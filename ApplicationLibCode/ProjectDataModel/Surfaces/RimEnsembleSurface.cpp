@@ -48,13 +48,12 @@ RimEnsembleSurface::RimEnsembleSurface()
 
     CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSet, "FilterEnsembleCurveSet", "Filter by Ensemble Curve Set" );
 
-    std::vector<RigSurfaceStatisticsCalculator::StatisticsType> statisticsTypes =
-        { RigSurfaceStatisticsCalculator::StatisticsType::MIN,
-          RigSurfaceStatisticsCalculator::StatisticsType::MAX,
-          RigSurfaceStatisticsCalculator::StatisticsType::MEAN,
-          RigSurfaceStatisticsCalculator::StatisticsType::P10,
-          RigSurfaceStatisticsCalculator::StatisticsType::P50,
-          RigSurfaceStatisticsCalculator::StatisticsType::P90 };
+    std::vector<RigSurfaceStatisticsCalculator::StatisticsType> statisticsTypes = { RigSurfaceStatisticsCalculator::StatisticsType::MIN,
+                                                                                    RigSurfaceStatisticsCalculator::StatisticsType::MAX,
+                                                                                    RigSurfaceStatisticsCalculator::StatisticsType::MEAN,
+                                                                                    RigSurfaceStatisticsCalculator::StatisticsType::P10,
+                                                                                    RigSurfaceStatisticsCalculator::StatisticsType::P50,
+                                                                                    RigSurfaceStatisticsCalculator::StatisticsType::P90 };
 
     for ( auto s : statisticsTypes )
     {
@@ -166,8 +165,7 @@ void RimEnsembleSurface::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimFileSurface*>
-    RimEnsembleSurface::filterByEnsembleCurveSet( const std::vector<RimFileSurface*>& fileSurfaces ) const
+std::vector<RimFileSurface*> RimEnsembleSurface::filterByEnsembleCurveSet( const std::vector<RimFileSurface*>& fileSurfaces ) const
 {
     std::vector<RimFileSurface*> filteredCases;
 
@@ -177,8 +175,7 @@ std::vector<RimFileSurface*>
         RimSummaryCaseCollection* summaryCaseCollection = m_ensembleCurveSet->summaryCaseCollection();
 
         //
-        std::vector<RimSummaryCase*> sumCases =
-            m_ensembleCurveSet->filterEnsembleCases( summaryCaseCollection->allSummaryCases() );
+        std::vector<RimSummaryCase*> sumCases = m_ensembleCurveSet->filterEnsembleCases( summaryCaseCollection->allSummaryCases() );
         for ( auto sumCase : sumCases )
         {
             for ( auto fileSurface : fileSurfaces )
@@ -317,9 +314,7 @@ void RimEnsembleSurface::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                           const QVariant&            oldValue,
-                                           const QVariant&            newValue )
+void RimEnsembleSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_ensembleCurveSet )
     {

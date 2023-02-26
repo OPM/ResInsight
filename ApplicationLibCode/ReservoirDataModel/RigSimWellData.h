@@ -57,7 +57,7 @@ public:
 public: // Todo: Clean up this regarding public members and constness etc.
     QString m_wellName;
 
-    std::vector<size_t> m_resultTimeStepIndexToWellTimeStepIndex; // Well result timesteps may differ from result timesteps
+    std::vector<size_t>             m_resultTimeStepIndexToWellTimeStepIndex; // Well result timesteps may differ from result timesteps
     std::vector<RigWellResultFrame> m_wellCellsTimeSteps;
 
 private:

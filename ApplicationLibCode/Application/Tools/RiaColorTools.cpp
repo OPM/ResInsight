@@ -160,10 +160,7 @@ cvf::Color3f RiaColorTools::textColor3f()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Color3f RiaColorTools::blendCvfColors( const cvf::Color3f& color1,
-                                            const cvf::Color3f& color2,
-                                            int                 weight1 /*= 1*/,
-                                            int                 weight2 /*= 1*/ )
+cvf::Color3f RiaColorTools::blendCvfColors( const cvf::Color3f& color1, const cvf::Color3f& color2, int weight1 /*= 1*/, int weight2 /*= 1*/ )
 {
     CVF_ASSERT( weight1 > 0 && weight2 > 0 );
     int weightsum = weight1 + weight2;

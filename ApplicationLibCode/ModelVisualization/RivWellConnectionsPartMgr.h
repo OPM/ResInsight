@@ -51,14 +51,13 @@ public:
     void appendDynamicGeometryPartsToModel( cvf::ModelBasicList* model, size_t frameIndex );
 
 private:
-    cvf::ref<cvf::Part> createArrowPart( const cvf::Vec3f&   startPoint,
-                                         const cvf::Vec3f&   endPoint,
-                                         float               width,
-                                         bool                isProducer,
-                                         const cvf::Color4f& arrowColor,
-                                         bool                enableLighting );
-    cvf::ref<cvf::DrawableGeo>
-        createArrowGeometry( const cvf::Vec3f& startPoint, const cvf::Vec3f& endPoint, double width, bool useArrowEnd );
+    cvf::ref<cvf::Part>        createArrowPart( const cvf::Vec3f&   startPoint,
+                                                const cvf::Vec3f&   endPoint,
+                                                float               width,
+                                                bool                isProducer,
+                                                const cvf::Color4f& arrowColor,
+                                                bool                enableLighting );
+    cvf::ref<cvf::DrawableGeo> createArrowGeometry( const cvf::Vec3f& startPoint, const cvf::Vec3f& endPoint, double width, bool useArrowEnd );
 
 private:
     caf::PdmPointer<RimEclipseView>   m_rimReservoirView;

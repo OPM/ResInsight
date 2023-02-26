@@ -53,7 +53,7 @@ public:
     RiuSummaryVectorSelectionUi();
     ~RiuSummaryVectorSelectionUi() override;
 
-    void setSelectedCurveDefinitions( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions );
+    void                                   setSelectedCurveDefinitions( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions );
     std::vector<RiaSummaryCurveDefinition> allCurveDefinitionsFromSelection() const;
     std::vector<RiaCurveSetDefinition>     allCurveSetDefinitionsFromSelections() const;
     std::vector<RiaSummaryCurveDefinition> selection() const;
@@ -76,35 +76,28 @@ public:
         optionsForSummaryDataSource( bool hideSummaryCases, bool hideEnsembles, bool showIndividualEnsembleCases );
 
 private:
-    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                         QString                    uiConfigName,
-                                                         caf::PdmUiEditorAttribute* attribute ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
-    std::set<RifEclipseSummaryAddress>
-        findPossibleSummaryAddresses( const std::vector<SummarySource*>& selectedSources,
-                                      const SummaryIdentifierAndField*   identifierAndField ) const;
-    std::set<RifEclipseSummaryAddress>
-        findPossibleSummaryAddressesFromSelectedCases( const SummaryIdentifierAndField* identifierAndField ) const;
+    std::set<RifEclipseSummaryAddress> findPossibleSummaryAddresses( const std::vector<SummarySource*>& selectedSources,
+                                                                     const SummaryIdentifierAndField*   identifierAndField ) const;
+    std::set<RifEclipseSummaryAddress> findPossibleSummaryAddressesFromSelectedCases( const SummaryIdentifierAndField* identifierAndField ) const;
     std::set<RifEclipseSummaryAddress>
         findPossibleSummaryAddressesFromSelectedObservedData( const SummaryIdentifierAndField* identifierAndField ) const;
 
-    std::vector<SummaryIdentifierAndField*>
-                               buildControllingFieldList( const SummaryIdentifierAndField* identifierAndField ) const;
-    SummaryIdentifierAndField* lookupIdentifierAndFieldFromFieldHandle( const caf::PdmFieldHandle* pdmFieldHandle ) const;
-    SummaryIdentifierAndField* lookupControllingField( const SummaryIdentifierAndField* dependentField ) const;
-    bool                       isAddressCompatibleWithControllingFieldSelection(
-                              const RifEclipseSummaryAddress&                address,
-                              const std::vector<SummaryIdentifierAndField*>& identifierAndFieldList ) const;
+    std::vector<SummaryIdentifierAndField*> buildControllingFieldList( const SummaryIdentifierAndField* identifierAndField ) const;
+    SummaryIdentifierAndField*              lookupIdentifierAndFieldFromFieldHandle( const caf::PdmFieldHandle* pdmFieldHandle ) const;
+    SummaryIdentifierAndField*              lookupControllingField( const SummaryIdentifierAndField* dependentField ) const;
+    bool                                    isAddressCompatibleWithControllingFieldSelection( const RifEclipseSummaryAddress&                address,
+                                                                                              const std::vector<SummaryIdentifierAndField*>& identifierAndFieldList ) const;
 
     std::set<RifEclipseSummaryAddress> buildAddressListFromSelections() const;
-    void                               buildAddressListForCategoryRecursively(
-                                      RifEclipseSummaryAddress::SummaryVarCategory                                      category,
-                                      std::vector<SummaryIdentifierAndField*>::const_iterator                           identifierAndFieldItr,
-                                      std::vector<std::pair<RifEclipseSummaryAddress::SummaryIdentifierType, QString>>& identifierPath,
-                                      std::set<RifEclipseSummaryAddress>&                                               addressSet ) const;
+    void                               buildAddressListForCategoryRecursively( RifEclipseSummaryAddress::SummaryVarCategory            category,
+                                                                               std::vector<SummaryIdentifierAndField*>::const_iterator identifierAndFieldItr,
+                                                                               std::vector<std::pair<RifEclipseSummaryAddress::SummaryIdentifierType, QString>>& identifierPath,
+                                                                               std::set<RifEclipseSummaryAddress>& addressSet ) const;
 
     void resetAllFields();
     bool isObservedData( const RimSummaryCase* sumCase ) const;

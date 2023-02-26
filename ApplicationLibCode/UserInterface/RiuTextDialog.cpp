@@ -115,7 +115,7 @@ void RiuQPlainTextEdit::slotExportToFile()
     if ( dialog )
     {
         QString defaultDir = RicAsciiExportSummaryPlotFeature::defaultExportDir();
-        auto fileName = RicAsciiExportSummaryPlotFeature::getFileNameFromUserDialog( dialog->description(), defaultDir );
+        auto    fileName   = RicAsciiExportSummaryPlotFeature::getFileNameFromUserDialog( dialog->description(), defaultDir );
         RicAsciiExportSummaryPlotFeature::exportTextToFile( fileName, this->toPlainText() );
     }
 }
@@ -279,8 +279,7 @@ RiuQPlainTextEdit* RiuTabbedTextDialog::currentTextEdit() const
 void RiuTabbedTextDialog::updateTabText()
 {
     auto currIndex = m_tabWidget->currentIndex();
-    if ( m_textProvider && m_textProvider->isValid() &&
-         m_tabWidget->tabText( currIndex ) == m_textProvider->tabTitle( currIndex ) )
+    if ( m_textProvider && m_textProvider->isValid() && m_tabWidget->tabText( currIndex ) == m_textProvider->tabTitle( currIndex ) )
     {
         m_tabTexts[currIndex] = m_textProvider->tabText( currIndex );
     }

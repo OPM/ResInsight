@@ -70,16 +70,14 @@ CAF_CMD_SOURCE_INIT( RicNewWellBoreStabilityPlotFeature, "RicNewWellBoreStabilit
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellBoreStabilityPlot*
-    RicNewWellBoreStabilityPlotFeature::createPlot( RimGeoMechCase*         geoMechCase,
-                                                    RimWellPath*            wellPath,
-                                                    int                     timeStep,
-                                                    const RimWbsParameters* parameters /* = nullptr*/ )
+RimWellBoreStabilityPlot* RicNewWellBoreStabilityPlotFeature::createPlot( RimGeoMechCase*         geoMechCase,
+                                                                          RimWellPath*            wellPath,
+                                                                          int                     timeStep,
+                                                                          const RimWbsParameters* parameters /* = nullptr*/ )
 {
     caf::ProgressInfo progInfo( 100, "Creating Well Bore Stability Plot" );
 
-    RimWellBoreStabilityPlot* plot =
-        RicNewWellLogPlotFeatureImpl::createWellBoreStabilityPlot( false, "Well Bore Stability", parameters );
+    RimWellBoreStabilityPlot* plot = RicNewWellLogPlotFeatureImpl::createWellBoreStabilityPlot( false, "Well Bore Stability", parameters );
     plot->setCaseWellPathAndTimeStep( geoMechCase, wellPath, timeStep );
 
     {
@@ -150,9 +148,8 @@ bool RicNewWellBoreStabilityPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewWellBoreStabilityPlotFeature::onActionTriggered( bool isChecked )
 {
-    RimWellPath*              wellPath = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPath>();
-    RimWellLogPlotCollection* plotCollection =
-        caf::SelectionManager::instance()->selectedItemOfType<RimWellLogPlotCollection>();
+    RimWellPath*              wellPath       = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPath>();
+    RimWellLogPlotCollection* plotCollection = caf::SelectionManager::instance()->selectedItemOfType<RimWellLogPlotCollection>();
     if ( !wellPath )
     {
         if ( plotCollection )
@@ -190,17 +187,15 @@ void RicNewWellBoreStabilityPlotFeature::onActionTriggered( bool isChecked )
 
     if ( !wellPathGeometry )
     {
-        RiaLogging::error(
-            QString( "The well path %1 has no geometry. Cannot create a Well Bore Stability Plot" ).arg( wellPath->name() ) );
+        RiaLogging::error( QString( "The well path %1 has no geometry. Cannot create a Well Bore Stability Plot" ).arg( wellPath->name() ) );
         return;
     }
     if ( wellPathGeometry->rkbDiff() == HUGE_VAL )
     {
-        RiaLogging::error(
-            QString( "The well path %1 has no datum elevation and we cannot estimate TVDRKB. Cannot "
-                     "create a Well Bore Stability Plot\nTo solve this issue, please activate the Property Editor, "
-                     "select Well Targets and activate Generate Well Target at Sea Level" )
-                .arg( wellPath->name() ) );
+        RiaLogging::error( QString( "The well path %1 has no datum elevation and we cannot estimate TVDRKB. Cannot "
+                                    "create a Well Bore Stability Plot\nTo solve this issue, please activate the Property Editor, "
+                                    "select Well Targets and activate Generate Well Target at Sea Level" )
+                               .arg( wellPath->name() ) );
         return;
     }
 
@@ -219,9 +214,7 @@ void RicNewWellBoreStabilityPlotFeature::setupActionLook( QAction* actionToSetup
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewWellBoreStabilityPlotFeature::createFormationTrack( RimWellBoreStabilityPlot* plot,
-                                                               RimWellPath*              wellPath,
-                                                               RimGeoMechCase*           geoMechCase )
+void RicNewWellBoreStabilityPlotFeature::createFormationTrack( RimWellBoreStabilityPlot* plot, RimWellPath* wellPath, RimGeoMechCase* geoMechCase )
 {
     RimWellLogTrack* formationTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, "Formations", plot );
     formationTrack->setFormationWellPath( wellPath );
@@ -235,9 +228,7 @@ void RicNewWellBoreStabilityPlotFeature::createFormationTrack( RimWellBoreStabil
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewWellBoreStabilityPlotFeature::createCasingShoeTrack( RimWellBoreStabilityPlot* plot,
-                                                                RimWellPath*              wellPath,
-                                                                RimGeoMechCase*           geoMechCase )
+void RicNewWellBoreStabilityPlotFeature::createCasingShoeTrack( RimWellBoreStabilityPlot* plot, RimWellPath* wellPath, RimGeoMechCase* geoMechCase )
 {
     RimWellLogTrack* casingShoeTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, "Well Design", plot );
     casingShoeTrack->setColSpan( RimPlot::ONE );
@@ -264,8 +255,7 @@ void RicNewWellBoreStabilityPlotFeature::createParametersTrack( RimWellBoreStabi
                                                                 RimGeoMechCase*           geoMechCase,
                                                                 int                       timeStep )
 {
-    RimWellLogTrack* paramCurvesTrack =
-        RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, "WBS Parameters", plot );
+    RimWellLogTrack* paramCurvesTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, "WBS Parameters", plot );
     paramCurvesTrack->setColSpan( RimPlot::TWO );
     paramCurvesTrack->setVisiblePropertyValueRange( 0.0, 2.0 );
     paramCurvesTrack->setAutoScalePropertyValuesEnabled( true );
@@ -328,15 +318,10 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
 
     std::vector<QString> resultNames = RiaResultNames::wbsDerivedResultNames();
 
-    std::vector<cvf::Color3f> colors = { cvf::Color3f::BLUE,
-                                         cvf::Color3f::BROWN,
-                                         cvf::Color3f::RED,
-                                         cvf::Color3f::PURPLE,
-                                         cvf::Color3f::DARK_GREEN,
-                                         cvf::Color3f::OLIVE };
+    std::vector<cvf::Color3f> colors =
+        { cvf::Color3f::BLUE, cvf::Color3f::BROWN, cvf::Color3f::RED, cvf::Color3f::PURPLE, cvf::Color3f::DARK_GREEN, cvf::Color3f::OLIVE };
 
-    std::vector<RiuQwtPlotCurveDefines::LineStyleEnum> lineStyles( resultNames.size(),
-                                                                   RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
+    std::vector<RiuQwtPlotCurveDefines::LineStyleEnum> lineStyles( resultNames.size(), RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
     lineStyles.back() = RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DASH;
 
     for ( size_t i = 0; i < resultNames.size(); ++i )
@@ -370,8 +355,7 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
         {
             if ( measurement->wellName() == wellPath->name() && measurement->kind() == wbsMeasurementKind )
             {
-                RimWellMeasurementCurve* curve =
-                    RicWellLogTools::addWellMeasurementCurve( stabilityCurvesTrack, wellPath, wbsMeasurementKind );
+                RimWellMeasurementCurve* curve = RicWellLogTools::addWellMeasurementCurve( stabilityCurvesTrack, wellPath, wbsMeasurementKind );
                 curve->loadDataAndUpdate( false );
                 break; // Only one per measurement kind
             }
@@ -389,8 +373,7 @@ void RicNewWellBoreStabilityPlotFeature::createAnglesTrack( RimWellBoreStability
                                                             RimGeoMechCase*           geoMechCase,
                                                             int                       timeStep )
 {
-    RimWellLogTrack* wellPathAnglesTrack =
-        RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, "Well Path Angles", plot );
+    RimWellLogTrack*     wellPathAnglesTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, "Well Path Angles", plot );
     double               minValue = 360.0, maxValue = 0.0;
     const double         angleIncrement = 90.0;
     std::vector<QString> resultNames    = RiaResultNames::wbsAngleResultNames();
@@ -404,14 +387,8 @@ void RicNewWellBoreStabilityPlotFeature::createAnglesTrack( RimWellBoreStability
     {
         const QString&             resultName = resultNames[i];
         RigFemResultAddress        resAddr( RIG_WELLPATH_DERIVED, resultName.toStdString(), "" );
-        RimWellLogExtractionCurve* curve = RicWellLogTools::addWellLogExtractionCurve( wellPathAnglesTrack,
-                                                                                       geoMechCase,
-                                                                                       nullptr,
-                                                                                       wellPath,
-                                                                                       nullptr,
-                                                                                       -1,
-                                                                                       false,
-                                                                                       false );
+        RimWellLogExtractionCurve* curve =
+            RicWellLogTools::addWellLogExtractionCurve( wellPathAnglesTrack, geoMechCase, nullptr, wellPath, nullptr, -1, false, false );
         curve->setGeoMechResultAddress( resAddr );
         curve->setCurrentTimeStep( timeStep );
         curve->setCustomName( resultName );

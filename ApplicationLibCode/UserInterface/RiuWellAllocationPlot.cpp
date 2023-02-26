@@ -86,8 +86,7 @@ RiuWellAllocationPlot::RiuWellAllocationPlot( RimWellAllocationPlot* plotDefinit
     new RiuContextMenuLauncher( totalFlowAllocationWidget, menuForSubWidgets );
 
     leftColumnLayout->addWidget( totalFlowAllocationWidget, Qt::AlignTop );
-    leftColumnLayout->addWidget( m_plotDefinition->tofAccumulatedPhaseFractionsPlot()->createViewWidget( this ),
-                                 Qt::AlignTop );
+    leftColumnLayout->addWidget( m_plotDefinition->tofAccumulatedPhaseFractionsPlot()->createViewWidget( this ), Qt::AlignTop );
     leftColumnLayout->addStretch();
 
     QWidget* wellFlowWidget = m_plotDefinition->accumulatedWellFlowPlot()->createPlotWidget();

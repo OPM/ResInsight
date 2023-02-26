@@ -56,8 +56,7 @@ bool RigFemPartResultCalculatorShearSlipIndicator::isMatching( const RigFemResul
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames*
-    RigFemPartResultCalculatorShearSlipIndicator::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
+RigFemScalarResultFrames* RigFemPartResultCalculatorShearSlipIndicator::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
 {
     CVF_ASSERT( isMatching( resVarAddr ) );
 
@@ -67,15 +66,13 @@ RigFemScalarResultFrames*
     // Pore pressure
     stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
     RigFemScalarResultFrames* porePressureDataFrames =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( resVarAddr.resultPosType, "POR-Bar", "" ) );
+        m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "POR-Bar", "" ) );
     stepCountProgress.incrementProgress();
 
     // Total vertical stress (ST.S33)
     stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
     RigFemScalarResultFrames* stressDataFrames =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( resVarAddr.resultPosType, "ST", "S33" ) );
+        m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "ST", "S33" ) );
     stepCountProgress.incrementProgress();
 
     stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );

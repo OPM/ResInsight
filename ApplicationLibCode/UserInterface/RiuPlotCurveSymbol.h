@@ -64,10 +64,7 @@ public:
         SYMBOL_DOWN_ALIGNED_TRIANGLE
     };
 
-    RiuPlotCurveSymbol( PointSymbolEnum riuStyle,
-                        const QString&  label,
-                        LabelPosition   labelPosition   = LabelAboveSymbol,
-                        int             labelFontSizePt = 8 );
+    RiuPlotCurveSymbol( PointSymbolEnum riuStyle, const QString& label, LabelPosition labelPosition = LabelAboveSymbol, int labelFontSizePt = 8 );
 
     QString globalLabel() const;
 

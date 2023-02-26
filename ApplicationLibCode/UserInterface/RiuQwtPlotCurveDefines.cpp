@@ -26,9 +26,7 @@ namespace caf
 template <>
 void caf::AppEnum<RiuQwtPlotCurveDefines::CurveInterpolationEnum>::setUp()
 {
-    addItem( RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT,
-             "INTERPOLATION_POINT_TO_POINT",
-             "Point to Point" );
+    addItem( RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT, "INTERPOLATION_POINT_TO_POINT", "Point to Point" );
     addItem( RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT, "INTERPOLATION_STEP_LEFT", "Step Left" );
 
     setDefault( RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT );

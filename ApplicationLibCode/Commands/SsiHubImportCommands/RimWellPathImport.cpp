@@ -74,9 +74,7 @@ RimWellPathImport::RimWellPathImport()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathImport::updateRegions( const QStringList& regionStrings,
-                                       const QStringList& fieldStrings,
-                                       const QStringList& edmIds )
+void RimWellPathImport::updateRegions( const QStringList& regionStrings, const QStringList& fieldStrings, const QStringList& edmIds )
 {
     assert( regionStrings.size() == fieldStrings.size() && regionStrings.size() == edmIds.size() );
 
@@ -193,9 +191,7 @@ void RimWellPathImport::updateFieldVisibility()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathImport::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                          const QVariant&            oldValue,
-                                          const QVariant&            newValue )
+void RimWellPathImport::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &utmFilterMode )
     {

@@ -28,14 +28,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaSCurveCalculator::RiaSCurveCalculator( cvf::Vec3d p1,
-                                          double     azi1,
-                                          double     inc1,
-                                          double     rad1,
-                                          cvf::Vec3d p2,
-                                          double     azi2,
-                                          double     inc2,
-                                          double     rad2 )
+RiaSCurveCalculator::RiaSCurveCalculator( cvf::Vec3d p1, double azi1, double inc1, double rad1, cvf::Vec3d p2, double azi2, double inc2, double rad2 )
     : m_isCalculationOK( false )
     , m_p1( p1 )
     , m_p2( p2 )
@@ -66,10 +59,10 @@ RiaSCurveCalculator::RiaSCurveCalculator( cvf::Vec3d p1, cvf::Vec3d q1, cvf::Vec
     Vec3d tq1q2 = ( q2 - q1 ).getNormalized( &isOk ); // !ok means the control points are in the same place. Could
                                                       // fallback to use only one circle segment + one line.
     m_isCalculationOK = m_isCalculationOK && isOk;
-    Vec3d t1 = ( q1 - p1 ).getNormalized( &isOk ); // !ok means no tangent specified. Could fallback to use only one
+    Vec3d t1          = ( q1 - p1 ).getNormalized( &isOk ); // !ok means no tangent specified. Could fallback to use only one
                                                    // circle segment + one line.
     m_isCalculationOK = m_isCalculationOK && isOk;
-    Vec3d t2 = ( p2 - q2 ).getNormalized( &isOk ); // !ok means no tangent specified. Could fallback to use only one
+    Vec3d t2          = ( p2 - q2 ).getNormalized( &isOk ); // !ok means no tangent specified. Could fallback to use only one
                                                    // circle segment + one line or only one straight line if both
                                                    // tangents are missing
     m_isCalculationOK = m_isCalculationOK && isOk;
@@ -221,14 +214,7 @@ bool isZeroCrossing( double newError, double oldError, double maxError )
 /// R1(q1, q2), R2(q1, q2)
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaSCurveCalculator::initializeByFinding_q1q2( cvf::Vec3d p1,
-                                                    double     azi1,
-                                                    double     inc1,
-                                                    double     r1,
-                                                    cvf::Vec3d p2,
-                                                    double     azi2,
-                                                    double     inc2,
-                                                    double     r2 )
+void RiaSCurveCalculator::initializeByFinding_q1q2( cvf::Vec3d p1, double azi1, double inc1, double r1, cvf::Vec3d p2, double azi2, double inc2, double r2 )
 {
     // Algorithm options
 
@@ -249,8 +235,7 @@ void RiaSCurveCalculator::initializeByFinding_q1q2( cvf::Vec3d p1,
     double initialq1q2 = 0.2 * p1p2Length;
     double deltaPos    = initialq1q2 + delta;
 
-    RiaSCurveCalculator ev_0 =
-        RiaSCurveCalculator::fromTangentsAndLength( p1, azi1, inc1, initialq1q2, p2, azi2, inc2, initialq1q2 );
+    RiaSCurveCalculator ev_0 = RiaSCurveCalculator::fromTangentsAndLength( p1, azi1, inc1, initialq1q2, p2, azi2, inc2, initialq1q2 );
 
     if ( ev_0.curveStatus() == RiaSCurveCalculator::OK_INFINITE_RADIUS12 )
     {
@@ -259,10 +244,8 @@ void RiaSCurveCalculator::initializeByFinding_q1q2( cvf::Vec3d p1,
         return;
     } // Todo: Handle infinite radius in one place
 
-    RiaSCurveCalculator ev_dq1 =
-        RiaSCurveCalculator::fromTangentsAndLength( p1, azi1, inc1, deltaPos, p2, azi2, inc2, initialq1q2 );
-    RiaSCurveCalculator ev_dq2 =
-        RiaSCurveCalculator::fromTangentsAndLength( p1, azi1, inc1, initialq1q2, p2, azi2, inc2, deltaPos );
+    RiaSCurveCalculator ev_dq1 = RiaSCurveCalculator::fromTangentsAndLength( p1, azi1, inc1, deltaPos, p2, azi2, inc2, initialq1q2 );
+    RiaSCurveCalculator ev_dq2 = RiaSCurveCalculator::fromTangentsAndLength( p1, azi1, inc1, initialq1q2, p2, azi2, inc2, deltaPos );
 
     // Initial Jacobi
     double dR1_dq1 = ( ( r1 - ev_dq1.firstRadius() ) - ( r1 - ev_0.firstRadius() ) ) / delta;
@@ -290,9 +273,8 @@ void RiaSCurveCalculator::initializeByFinding_q1q2( cvf::Vec3d p1,
     std::cout << std::endl;
     std::cout << "Targets: R1, R2: " << r1 << " , " << r2 << std::endl;
 
-    std::cout << 0 << ": " << q1Step << " , " << q2Step << " : " << q1 << " , " << q2 << " | " << ev_0.isOk() << " : "
-              << ev_0.firstRadius() << " , " << ev_0.secondRadius() << " : " << R1_error << " , " << R2_error
-              << std::endl;
+    std::cout << 0 << ": " << q1Step << " , " << q2Step << " : " << q1 << " , " << q2 << " | " << ev_0.isOk() << " : " << ev_0.firstRadius()
+              << " , " << ev_0.secondRadius() << " : " << R1_error << " , " << R2_error << std::endl;
 #endif
 
     SolveStatus solveResultStatus = NOT_SOLVED;
@@ -338,9 +320,9 @@ void RiaSCurveCalculator::initializeByFinding_q1q2( cvf::Vec3d p1,
         double R2_error_new = r2 - ev_1.secondRadius();
 
 #ifdef DEBUG_OUTPUT_ON
-        std::cout << iteration << ": " << q1Step << q1R1StepCorrMarker << " , " << q2Step << q2R2StepCorrMarker << " : "
-                  << q1 << " , " << q2 << " | " << ev_1.isOk() << " : " << ev_1.firstRadius() << " , "
-                  << ev_1.secondRadius() << " : " << R1_error_new << " , " << R2_error_new;
+        std::cout << iteration << ": " << q1Step << q1R1StepCorrMarker << " , " << q2Step << q2R2StepCorrMarker << " : " << q1 << " , "
+                  << q2 << " | " << ev_1.isOk() << " : " << ev_1.firstRadius() << " , " << ev_1.secondRadius() << " : " << R1_error_new
+                  << " , " << R2_error_new;
 #endif
 
         if ( ( fabs( R1_error_new ) < maxError || ev_1.curveStatus() == OK_INFINITE_RADIUS1 ) &&

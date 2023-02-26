@@ -41,7 +41,7 @@ public:
 
     caf::PdmObjectHandle* execute() override;
 
-    static bool readMinMaxLayerFromGridFile( const QString& gridFileName, int& minK, int& maxK );
+    static bool                         readMinMaxLayerFromGridFile( const QString& gridFileName, int& minK, int& maxK );
     static std::pair<bool, QStringList> extractSurfaces( const QString&          gridModelFileName,
                                                          const std::vector<int>& layers,
                                                          int                     minI = -1,

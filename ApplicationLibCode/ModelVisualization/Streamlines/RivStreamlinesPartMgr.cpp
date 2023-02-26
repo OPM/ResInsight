@@ -119,9 +119,8 @@ void RivStreamlinesPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicLi
 void RivStreamlinesPartMgr::updateAnimation()
 {
     RimStreamlineInViewCollection* streamlineCollection = m_rimReservoirView->streamlineCollection();
-    if ( streamlineCollection &&
-         ( streamlineCollection->visualizationMode() == RimStreamlineInViewCollection::VisualizationMode::ANIMATION ||
-           streamlineCollection->visualizationMode() == RimStreamlineInViewCollection::VisualizationMode::MANUAL ) )
+    if ( streamlineCollection && ( streamlineCollection->visualizationMode() == RimStreamlineInViewCollection::VisualizationMode::ANIMATION ||
+                                   streamlineCollection->visualizationMode() == RimStreamlineInViewCollection::VisualizationMode::MANUAL ) )
     {
         for ( Streamline& streamline : m_streamlines )
         {
@@ -135,8 +134,7 @@ void RivStreamlinesPartMgr::updateAnimation()
                     size_t startIndex = 0;
                     size_t endIndex   = primitiveSet->indices()->size();
 
-                    if ( streamlineCollection->visualizationMode() ==
-                         RimStreamlineInViewCollection::VisualizationMode::ANIMATION )
+                    if ( streamlineCollection->visualizationMode() == RimStreamlineInViewCollection::VisualizationMode::ANIMATION )
                     {
                         streamline.incrementAnimationIndex( streamlineCollection->animationSpeed() );
 
@@ -164,8 +162,7 @@ void RivStreamlinesPartMgr::updateAnimation()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Part> RivStreamlinesPartMgr::createPart( const RimStreamlineInViewCollection& streamlineCollection,
-                                                       Streamline&                          streamline )
+cvf::ref<cvf::Part> RivStreamlinesPartMgr::createPart( const RimStreamlineInViewCollection& streamlineCollection, Streamline& streamline )
 {
     cvf::ref<caf::DisplayCoordTransform> displayCordXf = m_rimReservoirView->displayCoordTransform();
 
@@ -188,9 +185,8 @@ cvf::ref<cvf::Part> RivStreamlinesPartMgr::createPart( const RimStreamlineInView
         }
     }
 
-    cvf::ref<cvf::PrimitiveSetIndexedUIntScoped> indexedUIntLine =
-        new cvf::PrimitiveSetIndexedUIntScoped( cvf::PrimitiveType::PT_LINES );
-    cvf::ref<cvf::UIntArray> indexedArrayLine = new cvf::UIntArray( indices );
+    cvf::ref<cvf::PrimitiveSetIndexedUIntScoped> indexedUIntLine  = new cvf::PrimitiveSetIndexedUIntScoped( cvf::PrimitiveType::PT_LINES );
+    cvf::ref<cvf::UIntArray>                     indexedArrayLine = new cvf::UIntArray( indices );
 
     cvf::ref<cvf::DrawableGeo> drawable = new cvf::DrawableGeo();
 

@@ -50,20 +50,18 @@ public:
                                  bool*                 foundFile,
                                  std::vector<QString>* searchedPaths );
 
-    static void                   wellPathOptionItemsSubset( const std::vector<RimWellPath*>& wellPathsToExclude,
-                                                             QList<caf::PdmOptionItemInfo>*   options );
-    static void                   wellPathOptionItems( QList<caf::PdmOptionItemInfo>* options );
-    static void                   wellPathWithFormationsOptionItems( QList<caf::PdmOptionItemInfo>* options );
-    static void                   wellPathWithFormations( std::vector<RimWellPath*>* wellPaths );
-    static void                   caseOptionItems( QList<caf::PdmOptionItemInfo>* options );
-    static void                   eclipseCaseOptionItems( QList<caf::PdmOptionItemInfo>* options );
-    static void                   geoMechCaseOptionItems( QList<caf::PdmOptionItemInfo>* options );
-    static void                   colorLegendOptionItems( QList<caf::PdmOptionItemInfo>* options );
+    static void wellPathOptionItemsSubset( const std::vector<RimWellPath*>& wellPathsToExclude, QList<caf::PdmOptionItemInfo>* options );
+    static void wellPathOptionItems( QList<caf::PdmOptionItemInfo>* options );
+    static void wellPathWithFormationsOptionItems( QList<caf::PdmOptionItemInfo>* options );
+    static void wellPathWithFormations( std::vector<RimWellPath*>* wellPaths );
+    static void caseOptionItems( QList<caf::PdmOptionItemInfo>* options );
+    static void eclipseCaseOptionItems( QList<caf::PdmOptionItemInfo>* options );
+    static void geoMechCaseOptionItems( QList<caf::PdmOptionItemInfo>* options );
+    static void colorLegendOptionItems( QList<caf::PdmOptionItemInfo>* options );
     static RimWellPathCollection* wellPathCollection();
 
     static void timeStepsForCase( RimCase* gridCase, QList<caf::PdmOptionItemInfo>* options );
 
 private:
-    static void optionItemsForSpecifiedWellPaths( const std::vector<RimWellPath*>& wellPaths,
-                                                  QList<caf::PdmOptionItemInfo>*   options );
+    static void optionItemsForSpecifiedWellPaths( const std::vector<RimWellPath*>& wellPaths, QList<caf::PdmOptionItemInfo>* options );
 };

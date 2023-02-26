@@ -48,18 +48,11 @@ public:
     RifEclipseOutputFileTools();
     virtual ~RifEclipseOutputFileTools();
 
-    static void findKeywordsAndItemCount( std::vector<ecl_file_type*> ecl_files,
-                                          QStringList*                resultNames,
-                                          std::vector<size_t>*        resultDataItemCounts );
+    static void
+        findKeywordsAndItemCount( std::vector<ecl_file_type*> ecl_files, QStringList* resultNames, std::vector<size_t>* resultDataItemCounts );
 
-    static bool keywordData( const ecl_file_type* ecl_file,
-                             const QString&       keyword,
-                             size_t               fileKeywordOccurrence,
-                             std::vector<double>* values );
-    static bool keywordData( const ecl_file_type* ecl_file,
-                             const QString&       keyword,
-                             size_t               fileKeywordOccurrence,
-                             std::vector<int>*    values );
+    static bool keywordData( const ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<double>* values );
+    static bool keywordData( const ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<int>* values );
 
     static void timeSteps( const ecl_file_type*    ecl_file,
                            std::vector<QDateTime>* timeSteps,
@@ -94,6 +87,5 @@ public:
     static FILE* fopen( const QString& filePath, const QString& mode );
 
 private:
-    static void createReportStepsMetaData( std::vector<ecl_file_type*>        ecl_files,
-                                           std::vector<RifRestartReportStep>* reportSteps );
+    static void createReportStepsMetaData( std::vector<ecl_file_type*> ecl_files, std::vector<RifRestartReportStep>* reportSteps );
 };

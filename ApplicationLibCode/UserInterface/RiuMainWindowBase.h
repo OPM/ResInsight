@@ -66,11 +66,9 @@ public:
 
     QMdiSubWindow* createViewWindow();
 
-    virtual void removeViewer( QWidget* viewer )                                 = 0;
-    virtual void initializeViewer( QMdiSubWindow*              viewWindow,
-                                   QWidget*                    viewWidget,
-                                   const RimMdiWindowGeometry& windowsGeometry ) = 0;
-    virtual void setActiveViewer( QWidget* subWindow )                           = 0;
+    virtual void removeViewer( QWidget* viewer )                                                                                 = 0;
+    virtual void initializeViewer( QMdiSubWindow* viewWindow, QWidget* viewWidget, const RimMdiWindowGeometry& windowsGeometry ) = 0;
+    virtual void setActiveViewer( QWidget* subWindow )                                                                           = 0;
 
     virtual QMdiSubWindow* findMdiSubWindow( QWidget* viewer ) = 0;
 
@@ -103,10 +101,7 @@ public:
 protected:
     void createTreeViews( int numberOfTrees );
     void removeViewerFromMdiArea( RiuMdiArea* mdiArea, QWidget* viewer );
-    void initializeSubWindow( RiuMdiArea*    mdiArea,
-                              QMdiSubWindow* mdiSubWindow,
-                              const QPoint&  subWindowPos,
-                              const QSize&   subWindowSize );
+    void initializeSubWindow( RiuMdiArea* mdiArea, QMdiSubWindow* mdiSubWindow, const QPoint& subWindowPos, const QSize& subWindowSize );
 
     void restoreTreeViewStates( QString treeStateString, QString treeIndexString );
 

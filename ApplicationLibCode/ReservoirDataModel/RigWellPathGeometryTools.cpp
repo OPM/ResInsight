@@ -85,8 +85,7 @@ double RigWellPathGeometryTools::value( double x, const QPolygonF& values )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> RigWellPathGeometryTools::calculateLineSegmentNormals( const std::vector<cvf::Vec3d>& vertices,
-                                                                               double planeAngle )
+std::vector<cvf::Vec3d> RigWellPathGeometryTools::calculateLineSegmentNormals( const std::vector<cvf::Vec3d>& vertices, double planeAngle )
 {
     std::vector<cvf::Vec3d> pointNormals;
 
@@ -95,8 +94,7 @@ std::vector<cvf::Vec3d> RigWellPathGeometryTools::calculateLineSegmentNormals( c
     pointNormals.reserve( vertices.size() );
 
     const cvf::Vec3d up( 0, 0, 1 );
-    const cvf::Vec3d rotatedUp =
-        up.getTransformedVector( cvf::Mat3d::fromRotation( cvf::Vec3d( 0.0, 1.0, 0.0 ), planeAngle ) );
+    const cvf::Vec3d rotatedUp = up.getTransformedVector( cvf::Mat3d::fromRotation( cvf::Vec3d( 0.0, 1.0, 0.0 ), planeAngle ) );
 
     const cvf::Vec3d dominantDirection = estimateDominantDirectionInXYPlane( vertices );
 
@@ -113,10 +111,9 @@ std::vector<cvf::Vec3d> RigWellPathGeometryTools::calculateLineSegmentNormals( c
         cvf::Vec3d normal( 0, 0, 0 );
         if ( cvf::Math::abs( tangent * projectionPlaneNormal ) < 0.7071 )
         {
-            cvf::Vec3d projectedTangent =
-                ( tangent - ( tangent * projectionPlaneNormal ) * projectionPlaneNormal ).getNormalized();
-            normal = ( projectedTangent ^ projectionPlaneNormal ).getNormalized();
-            normal = normal.getTransformedVector( cvf::Mat3d::fromRotation( tangent, planeAngle ) );
+            cvf::Vec3d projectedTangent = ( tangent - ( tangent * projectionPlaneNormal ) * projectionPlaneNormal ).getNormalized();
+            normal                      = ( projectedTangent ^ projectionPlaneNormal ).getNormalized();
+            normal                      = normal.getTransformedVector( cvf::Mat3d::fromRotation( tangent, planeAngle ) );
         }
         pointNormals.push_back( normal );
         sumDotWithRotatedUp += normal * rotatedUp;
@@ -192,9 +189,8 @@ std::vector<double> RigWellPathGeometryTools::interpolateMdFromTvd( const std::v
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, double>
-    RigWellPathGeometryTools::calculateAzimuthAndInclinationAtMd( double                            measuredDepth,
-                                                                  gsl::not_null<const RigWellPath*> wellPathGeometry )
+std::pair<double, double> RigWellPathGeometryTools::calculateAzimuthAndInclinationAtMd( double                            measuredDepth,
+                                                                                        gsl::not_null<const RigWellPath*> wellPathGeometry )
 {
     int  mdIndex = -1;
     auto mdList  = wellPathGeometry->measuredDepths();
@@ -247,9 +243,8 @@ std::pair<double, double>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<int>
-    RigWellPathGeometryTools::findSplineSegmentsContainingRoots( const QPolygonF&           points,
-                                                                 const std::vector<double>& tvdValuesToInterpolateFrom )
+std::vector<int> RigWellPathGeometryTools::findSplineSegmentsContainingRoots( const QPolygonF&           points,
+                                                                              const std::vector<double>& tvdValuesToInterpolateFrom )
 {
     std::vector<int> segmentStartIndices;
     segmentStartIndices.reserve( tvdValuesToInterpolateFrom.size() );
@@ -294,7 +289,7 @@ std::vector<int>
     return segmentStartIndices;
 }
 
-std::vector<cvf::Vec3d> RigWellPathGeometryTools::interpolateUndefinedNormals( const cvf::Vec3d& planeNormal,
+std::vector<cvf::Vec3d> RigWellPathGeometryTools::interpolateUndefinedNormals( const cvf::Vec3d&              planeNormal,
                                                                                const std::vector<cvf::Vec3d>& normals,
                                                                                const std::vector<cvf::Vec3d>& vertices )
 {
@@ -328,8 +323,7 @@ std::vector<cvf::Vec3d> RigWellPathGeometryTools::interpolateUndefinedNormals( c
             if ( lastNormalNonInterpolated.length() > 0.0 && nextNormal.length() > 0.0 )
             {
                 // Both last and next are acceptable, interpolate!
-                currentNormal =
-                    ( distanceToNext * lastNormalNonInterpolated + distanceFromLast * nextNormal ).getNormalized();
+                currentNormal = ( distanceToNext * lastNormalNonInterpolated + distanceFromLast * nextNormal ).getNormalized();
             }
             else if ( lastNormalNonInterpolated.length() > 0.0 )
             {

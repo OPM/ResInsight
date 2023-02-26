@@ -38,8 +38,7 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    static QString createTextFromObject( RimSummaryMultiPlot*                           summaryPlot,
-                                         const RicSaveMultiPlotTemplateFeatureSettings& settings );
+    static QString createTextFromObject( RimSummaryMultiPlot* summaryPlot, const RicSaveMultiPlotTemplateFeatureSettings& settings );
 
     static void replaceStrings( const std::set<QString>& sourceStrings,
                                 const QString&           fieldKeyword,

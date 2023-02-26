@@ -40,13 +40,12 @@ public:
 public:
     RimCustomObjectiveFunctionCollection();
 
-    RimCustomObjectiveFunction* addObjectiveFunction();
-    void                        onObjectiveFunctionChanged( RimCustomObjectiveFunction* objectiveFunction );
+    RimCustomObjectiveFunction*              addObjectiveFunction();
+    void                                     onObjectiveFunctionChanged( RimCustomObjectiveFunction* objectiveFunction );
     std::vector<RimCustomObjectiveFunction*> objectiveFunctions() const;
 
 private:
-    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
 
 private:

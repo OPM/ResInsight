@@ -49,9 +49,7 @@ public:
 
     typedef caf::AppEnum<PhaseSelection> PhaseSelectionEnum;
 
-    RigFlowDiagResultAddress( const std::string&           aVariableName,
-                              PhaseSelection               phaseSelection,
-                              const std::set<std::string>& someSelectedTracerNames )
+    RigFlowDiagResultAddress( const std::string& aVariableName, PhaseSelection phaseSelection, const std::set<std::string>& someSelectedTracerNames )
         : variableName( aVariableName )
         , selectedTracerNames( someSelectedTracerNames )
         , phaseSelection( phaseSelection )

@@ -41,10 +41,7 @@ bool almostEqual( double a, double b, double maxRelDiff = std::numeric_limits<do
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RiaInterpolationTools::linear( const std::vector<double>& x,
-                                      const std::vector<double>& y,
-                                      double                     value,
-                                      ExtrapolationMode          extrapolationMode )
+double RiaInterpolationTools::linear( const std::vector<double>& x, const std::vector<double>& y, double value, ExtrapolationMode extrapolationMode )
 {
     CAF_ASSERT( x.size() == y.size() );
 
@@ -151,12 +148,7 @@ int RiaInterpolationTools::findPreviousDataPoint( const std::vector<double>& val
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiaInterpolationTools::extrapolateRange( int                        start,
-                                             int                        end,
-                                             int                        firstPoint,
-                                             int                        lastPoint,
-                                             const std::vector<double>& x,
-                                             std::vector<double>&       y )
+int RiaInterpolationTools::extrapolateRange( int start, int end, int firstPoint, int lastPoint, const std::vector<double>& x, std::vector<double>& y )
 {
     std::vector<double> xs = { x[firstPoint], x[lastPoint] };
     std::vector<double> ys = { y[firstPoint], y[lastPoint] };
@@ -175,12 +167,7 @@ int RiaInterpolationTools::extrapolateRange( int                        start,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiaInterpolationTools::interpolateRange( int                        start,
-                                             int                        end,
-                                             int                        firstPoint,
-                                             int                        lastPoint,
-                                             const std::vector<double>& x,
-                                             std::vector<double>&       y )
+int RiaInterpolationTools::interpolateRange( int start, int end, int firstPoint, int lastPoint, const std::vector<double>& x, std::vector<double>& y )
 {
     CAF_ASSERT( start <= end );
 

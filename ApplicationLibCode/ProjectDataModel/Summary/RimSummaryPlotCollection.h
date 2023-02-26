@@ -43,8 +43,7 @@ public:
 
     void updateSummaryNameHasChanged();
     void summaryPlotItemInfos( QList<caf::PdmOptionItemInfo>* optionInfos ) const;
-    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
     std::vector<RimSummaryPlot*> plots() const final;
     size_t                       plotCount() const final;

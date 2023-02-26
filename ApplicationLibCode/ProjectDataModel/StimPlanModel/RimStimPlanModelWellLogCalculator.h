@@ -55,9 +55,9 @@ public:
                                                    const QString&                propertyName );
 
 protected:
-    static bool hasMissingValues( const std::vector<double>& values );
-    static void replaceMissingValues( std::vector<double>& values, double defaultValue );
-    static void replaceMissingValues( std::vector<double>& values, const std::vector<double>& replacementValues );
+    static bool                 hasMissingValues( const std::vector<double>& values );
+    static void                 replaceMissingValues( std::vector<double>& values, double defaultValue );
+    static void                 replaceMissingValues( std::vector<double>& values, const std::vector<double>& replacementValues );
     cvf::ref<RigResultAccessor> findMissingValuesAccessor( RigEclipseCaseData*                caseData,
                                                            RimEclipseInputPropertyCollection* inputPropertyCollection,
                                                            int                                gridIndex,
@@ -76,9 +76,7 @@ protected:
                          std::vector<double>&      measuredDepthValues,
                          std::vector<double>&      values ) const;
 
-    static void scaleByNetToGross( const RimStimPlanModel*    stimPlanModel,
-                                   const std::vector<double>& netToGross,
-                                   std::vector<double>&       values );
+    static void scaleByNetToGross( const RimStimPlanModel* stimPlanModel, const std::vector<double>& netToGross, std::vector<double>& values );
 
     virtual bool extractValuesForProperty( RiaDefines::CurveProperty curveProperty,
                                            const RimStimPlanModel*   stimPlanModel,

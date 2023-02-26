@@ -56,12 +56,11 @@ bool RigFemPartResultCalculatorKIndices::isMatching( const RigFemResultAddress& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultCalculatorKIndices::calculate( int                        partIndex,
-                                                                         const RigFemResultAddress& resVarAddr )
+RigFemScalarResultFrames* RigFemPartResultCalculatorKIndices::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
 {
     caf::ProgressInfo stepCountProgress( 2, "" );
-    stepCountProgress.setProgressDescription(
-        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
+    stepCountProgress.setProgressDescription( "Calculating " +
+                                              QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
 
     RigFemScalarResultFrames* resFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );
     resFrames->enableAsSingleStepResult();

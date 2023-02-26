@@ -178,8 +178,8 @@ public:
 
     std::deque<RimStimPlanModel::MissingValueStrategy> missingValueStrategies( RiaDefines::CurveProperty curveProperty ) const;
     RimStimPlanModel::BurdenStrategy                   burdenStrategy( RiaDefines::CurveProperty curveProperty ) const;
-    RiaDefines::ResultCatType eclipseResultCategory( RiaDefines::CurveProperty curveProperty ) const;
-    QString                   eclipseResultVariable( RiaDefines::CurveProperty curveProperty ) const;
+    RiaDefines::ResultCatType                          eclipseResultCategory( RiaDefines::CurveProperty curveProperty ) const;
+    QString                                            eclipseResultVariable( RiaDefines::CurveProperty curveProperty ) const;
 
     std::deque<RimExtractionConfiguration> extractionConfigurations( RiaDefines::CurveProperty curveProperty ) const;
     RimEclipseCase*                        eclipseCaseForType( RimExtractionConfiguration::EclipseCaseType ) const;
@@ -192,17 +192,14 @@ public:
 
     QString unitForProperty( RiaDefines::CurveProperty curveProperty ) const;
 
-    static cvf::Vec3d projectVectorIntoFracturePlane( const cvf::Vec3d& position,
-                                                      const cvf::Vec3d& fractureDirectionNormal,
-                                                      const cvf::Vec3d& direction );
+    static cvf::Vec3d
+        projectVectorIntoFracturePlane( const cvf::Vec3d& position, const cvf::Vec3d& fractureDirectionNormal, const cvf::Vec3d& direction );
 
 protected:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
-    void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                         QString                    uiConfigName,
-                                                         caf::PdmUiEditorAttribute* attribute ) override;
-    void                          initAfterRead() override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    void initAfterRead() override;
 
 private:
     void updatePositionFromMeasuredDepth();
@@ -217,7 +214,7 @@ private:
 
     void updateBarrierProperties();
     void addBarrierAnnotation( const cvf::Vec3d& startPosition, const cvf::Vec3d& endPosition, const QString& barrierText );
-    void                         clearBarrierAnnotation();
+    void clearBarrierAnnotation();
     RimAnnotationCollectionBase* annotationCollection();
 
     void updateViewsAndPlots();

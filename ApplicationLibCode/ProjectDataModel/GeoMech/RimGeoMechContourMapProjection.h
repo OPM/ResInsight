@@ -67,19 +67,16 @@ protected:
     std::vector<bool>         getMapCellVisibility() override;
     std::vector<double>       retrieveParameterWeights() override;
     std::vector<double>       generateResults( int viewerStepIndex ) override;
-    std::vector<double>       generateResultsFromAddress( RigFemResultAddress      resultAddress,
-                                                          const std::vector<bool>& mapCellVisibility,
-                                                          int                      viewerStepIndex );
-    bool                      resultVariableChanged() const override;
-    void                      clearResultVariable() override;
-    RimGridView*              baseView() const override;
-    std::vector<size_t>       findIntersectingCells( const cvf::BoundingBox& bbox ) const override;
-    size_t                    kLayer( size_t globalCellIdx ) const override;
-    size_t                    kLayers() const override;
-    double calculateOverlapVolume( size_t globalCellIdx, const cvf::BoundingBox& bbox ) const override;
-    double calculateRayLengthInCell( size_t            globalCellIdx,
-                                     const cvf::Vec3d& highestPoint,
-                                     const cvf::Vec3d& lowestPoint ) const override;
+    std::vector<double>
+                        generateResultsFromAddress( RigFemResultAddress resultAddress, const std::vector<bool>& mapCellVisibility, int viewerStepIndex );
+    bool                resultVariableChanged() const override;
+    void                clearResultVariable() override;
+    RimGridView*        baseView() const override;
+    std::vector<size_t> findIntersectingCells( const cvf::BoundingBox& bbox ) const override;
+    size_t              kLayer( size_t globalCellIdx ) const override;
+    size_t              kLayers() const override;
+    double              calculateOverlapVolume( size_t globalCellIdx, const cvf::BoundingBox& bbox ) const override;
+    double calculateRayLengthInCell( size_t globalCellIdx, const cvf::Vec3d& highestPoint, const cvf::Vec3d& lowestPoint ) const override;
     double getParameterWeightForCell( size_t globalCellIdx, const std::vector<double>& parameterWeights ) const override;
     std::vector<double>       gridCellValues( RigFemResultAddress resAddr, std::vector<float>& resultValues ) const;
     RimGeoMechCase*           geoMechCase() const;
@@ -91,12 +88,10 @@ protected:
 
 protected:
     // Framework overrides
-    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                         QString                    uiConfigName,
-                                                         caf::PdmUiEditorAttribute* attribute ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
 protected:
     caf::PdmField<bool>       m_limitToPorePressureRegions;

@@ -60,26 +60,18 @@ public:
 
     static const size_t* eclipseCellIndexMapping();
 
-    bool openAndReadActiveCellData( const QString&                fileName,
-                                    const std::vector<QDateTime>& mainCaseTimeSteps,
-                                    RigEclipseCaseData*           eclipseCase );
+    bool openAndReadActiveCellData( const QString& fileName, const std::vector<QDateTime>& mainCaseTimeSteps, RigEclipseCaseData* eclipseCase );
 
-    bool staticResult( const QString&                result,
-                       RiaDefines::PorosityModelType matrixOrFracture,
-                       std::vector<double>*          values ) override;
-    bool dynamicResult( const QString&                result,
-                        RiaDefines::PorosityModelType matrixOrFracture,
-                        size_t                        stepIndex,
-                        std::vector<double>*          values ) override;
+    bool staticResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values ) override;
+    bool dynamicResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, size_t stepIndex, std::vector<double>* values ) override;
     void sourSimRlResult( const QString& result, size_t stepIndex, std::vector<double>* values );
 
     std::vector<QDateTime> allTimeSteps() const;
 
     static bool transferGeometry( const ecl_grid_type* mainEclGrid, RigEclipseCaseData* eclipseCase );
     static void transferCoarseningInfo( const ecl_grid_type* eclGrid, RigGridBase* grid );
-    static void importEquilData( const QString&      deckFileName,
-                                 const QString&      includeStatementAbsolutePathPrefix,
-                                 RigEclipseCaseData* eclipseCase );
+    static void
+        importEquilData( const QString& deckFileName, const QString& includeStatementAbsolutePathPrefix, RigEclipseCaseData* eclipseCase );
 
     std::set<RiaDefines::PhaseType> availablePhases() const override;
 

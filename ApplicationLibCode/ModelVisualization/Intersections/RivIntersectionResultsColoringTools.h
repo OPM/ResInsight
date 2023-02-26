@@ -42,14 +42,14 @@ class ScalarMapper;
 class RivIntersectionResultsColoringTools
 {
 public:
-    static void calculateIntersectionResultColors( int              timeStepIndex,
-                                                   bool             useSeparateIntersectionResDefTimeStep,
-                                                   RimIntersection* rimIntersectionHandle,
+    static void calculateIntersectionResultColors( int                                              timeStepIndex,
+                                                   bool                                             useSeparateIntersectionResDefTimeStep,
+                                                   RimIntersection*                                 rimIntersectionHandle,
                                                    const RivIntersectionGeometryGeneratorInterface* intersectionGeomGenIF,
-                                                   const cvf::ScalarMapper*      explicitScalarColorMapper,
-                                                   const RivTernaryScalarMapper* explicitTernaryColorMapper,
-                                                   cvf::Part*                    intersectionFacesPart,
-                                                   cvf::Vec2fArray*              intersectionFacesTextureCoords );
+                                                   const cvf::ScalarMapper*                         explicitScalarColorMapper,
+                                                   const RivTernaryScalarMapper*                    explicitTernaryColorMapper,
+                                                   cvf::Part*                                       intersectionFacesPart,
+                                                   cvf::Vec2fArray*                                 intersectionFacesTextureCoords );
 
 private:
     static void updateEclipseCellResultColors( const RimEclipseResultDefinition* eclipseResDef,
@@ -66,7 +66,7 @@ private:
                                                       bool                              isLightingDisabled,
                                                       const std::vector<size_t>&        triangleToCellIndexMapping,
                                                       cvf::Part*                        m_intersectionBoxFaces,
-                                                      cvf::Vec2fArray* m_intersectionBoxFacesTextureCoords );
+                                                      cvf::Vec2fArray*                  m_intersectionBoxFacesTextureCoords );
 
     static void updateGeoMechCellResultColors( const RimGeoMechResultDefinition*                geomResultDef,
                                                int                                              timeStepIndex,
@@ -74,28 +74,27 @@ private:
                                                bool                                             isLightingDisabled,
                                                const RivIntersectionGeometryGeneratorInterface* geomGenerator,
                                                cvf::Part*                                       m_intersectionBoxFaces,
-                                               cvf::Vec2fArray* m_intersectionBoxFacesTextureCoords );
+                                               cvf::Vec2fArray*                                 m_intersectionBoxFacesTextureCoords );
 
     static void calculateEclipseTextureCoordinates( cvf::Vec2fArray*           textureCoords,
                                                     const std::vector<size_t>& triangleToCellIdxMap,
                                                     const RigResultAccessor*   resultAccessor,
                                                     const cvf::ScalarMapper*   mapper );
 
-    static void
-        calculateNodeOrElementNodeBasedGeoMechTextureCoords( cvf::Vec2fArray* textureCoords,
-                                                             const std::vector<RivIntersectionVertexWeights>& vertexWeights,
-                                                             const std::vector<float>&   resultValues,
-                                                             bool                        isElementNodalResult,
-                                                             const RigFemPartCollection* femParts,
-                                                             const cvf::ScalarMapper*    mapper );
+    static void calculateNodeOrElementNodeBasedGeoMechTextureCoords( cvf::Vec2fArray*                                 textureCoords,
+                                                                     const std::vector<RivIntersectionVertexWeights>& vertexWeights,
+                                                                     const std::vector<float>&                        resultValues,
+                                                                     bool                                             isElementNodalResult,
+                                                                     const RigFemPartCollection*                      femParts,
+                                                                     const cvf::ScalarMapper*                         mapper );
 
     static void calculateElementBasedGeoMechTextureCoords( cvf::Vec2fArray*           textureCoords,
                                                            const std::vector<float>&  resultValues,
                                                            const std::vector<size_t>& triangleToCellIdx,
                                                            const cvf::ScalarMapper*   mapper );
 
-    static void calculateGeoMechTensorXfTextureCoords( cvf::Vec2fArray*       textureCoords,
-                                                       const cvf::Vec3fArray* triangelVertices,
+    static void calculateGeoMechTensorXfTextureCoords( cvf::Vec2fArray*                                 textureCoords,
+                                                       const cvf::Vec3fArray*                           triangelVertices,
                                                        const std::vector<RivIntersectionVertexWeights>& vertexWeights,
                                                        RigGeoMechCaseData*                              caseData,
                                                        const RigFemResultAddress&                       resVarAddress,

@@ -69,13 +69,12 @@ public:
 
     void calculate( const RifEclipseSummaryAddress& address );
 
-    static std::pair<std::vector<time_t>, std::vector<double>>
-        calculateDerivedValues( RifSummaryReaderInterface*      reader1,
-                                int                             fixedTimeStepCase1,
-                                RifSummaryReaderInterface*      reader2,
-                                int                             fixedTimeStepCase2,
-                                DerivedSummaryOperator          m_operator,
-                                const RifEclipseSummaryAddress& address );
+    static std::pair<std::vector<time_t>, std::vector<double>> calculateDerivedValues( RifSummaryReaderInterface*      reader1,
+                                                                                       int                             fixedTimeStepCase1,
+                                                                                       RifSummaryReaderInterface*      reader2,
+                                                                                       int                             fixedTimeStepCase2,
+                                                                                       DerivedSummaryOperator          m_operator,
+                                                                                       const RifEclipseSummaryAddress& address );
 
     void                       createSummaryReaderInterface() override;
     RifSummaryReaderInterface* summaryReader() override;
@@ -89,13 +88,11 @@ protected:
     QString caseName() const override;
 
 private:
-    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                QString                    uiConfigName,
-                                caf::PdmUiEditorAttribute* attribute ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     void clearData( const RifEclipseSummaryAddress& address );
 

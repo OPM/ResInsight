@@ -52,9 +52,7 @@ void RicImportObservedFmuDataFeature::selectObservedDataPathInDialog()
 {
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( "SUMMARY_CASE_DIR" );
-    QString         directory  = RiuFileDialogTools::getExistingDirectory( nullptr,
-                                                                  "Import Observed FMU Data Recursively from Directory",
-                                                                  defaultDir );
+    QString directory = RiuFileDialogTools::getExistingDirectory( nullptr, "Import Observed FMU Data Recursively from Directory", defaultDir );
 
     QStringList subDirsWithFmuData = RifReaderFmuRft::findSubDirectoriesWithFmuRftData( directory );
     if ( subDirsWithFmuData.empty() )
@@ -69,9 +67,8 @@ void RicImportObservedFmuDataFeature::selectObservedDataPathInDialog()
         return;
     }
 
-    RimProject*                proj = app->project();
-    RimObservedDataCollection* observedDataCollection =
-        proj->activeOilField() ? proj->activeOilField()->observedDataCollection() : nullptr;
+    RimProject*                proj                   = app->project();
+    RimObservedDataCollection* observedDataCollection = proj->activeOilField() ? proj->activeOilField()->observedDataCollection() : nullptr;
     if ( !observedDataCollection ) return;
 
     const RimObservedFmuRftData* importedData = nullptr;

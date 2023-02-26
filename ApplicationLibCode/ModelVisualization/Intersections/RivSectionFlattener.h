@@ -25,9 +25,7 @@
 class RivSectionFlattener
 {
 public:
-    static size_t indexToNextValidPoint( const std::vector<cvf::Vec3d>& polyLine,
-                                         const cvf::Vec3d               extrDir,
-                                         size_t                         idxToStartOfLineSegment );
+    static size_t indexToNextValidPoint( const std::vector<cvf::Vec3d>& polyLine, const cvf::Vec3d extrDir, size_t idxToStartOfLineSegment );
 
     static std::vector<cvf::Mat4d> calculateFlatteningCSsForPolyline( const std::vector<cvf::Vec3d>& polyLine,
                                                                       const cvf::Vec3d&              extrusionDir,
@@ -35,6 +33,5 @@ public:
                                                                       cvf::Vec3d*                    endOffset );
 
 private:
-    static cvf::Mat4d
-        calculateSectionLocalFlatteningCS( const cvf::Vec3d& p1, const cvf::Vec3d& p2, const cvf::Vec3d& extrusionDir );
+    static cvf::Mat4d calculateSectionLocalFlatteningCS( const cvf::Vec3d& p1, const cvf::Vec3d& p2, const cvf::Vec3d& extrusionDir );
 };

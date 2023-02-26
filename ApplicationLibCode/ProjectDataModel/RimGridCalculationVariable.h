@@ -62,8 +62,7 @@ private:
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     RigCaseCellResultsData*       currentGridCellResults() const;
-    QStringList                   getResultNamesForResultType( RiaDefines::ResultCatType     resultCatType,
-                                                               const RigCaseCellResultsData* results );
+    QStringList getResultNamesForResultType( RiaDefines::ResultCatType resultCatType, const RigCaseCellResultsData* results );
 
 private:
     caf::PdmPtrField<RimEclipseCase*>                      m_eclipseCase;

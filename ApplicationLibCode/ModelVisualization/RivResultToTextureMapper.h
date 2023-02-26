@@ -32,8 +32,7 @@
 class RivResultToTextureMapper : public cvf::Object
 {
 public:
-    explicit RivResultToTextureMapper( const cvf::ScalarMapper*      scalarMapper,
-                                       const RigPipeInCellEvaluator* pipeInCellEvaluator )
+    explicit RivResultToTextureMapper( const cvf::ScalarMapper* scalarMapper, const RigPipeInCellEvaluator* pipeInCellEvaluator )
         : m_scalarMapper( scalarMapper )
         , m_pipeInCellEvaluator( pipeInCellEvaluator )
     {

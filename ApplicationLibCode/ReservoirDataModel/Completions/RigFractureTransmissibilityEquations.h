@@ -49,19 +49,12 @@ public:
                                                  double cDarcyForRelevantUnit,
                                                  double wellRadius );
 
-    static double matrixToFractureTrans( double permX,
-                                         double NTG,
-                                         double Ay,
-                                         double dx,
-                                         double skinfactor,
-                                         double fractureAreaWeightedlength,
-                                         double cDarcy );
+    static double
+        matrixToFractureTrans( double permX, double NTG, double Ay, double dx, double skinfactor, double fractureAreaWeightedlength, double cDarcy );
 
-    static double effectiveInternalFractureToWellTransPDDHC( double sumScaledMatrixToFractureTrans,
-                                                             double scaledMatrixToWellTrans );
+    static double effectiveInternalFractureToWellTransPDDHC( double sumScaledMatrixToFractureTrans, double scaledMatrixToWellTrans );
 
-    static double effectiveMatrixToWellTransPDDHC( double sumOriginalMatrixToFractureTrans,
-                                                   double effectiveInternalFractureToWellTrans );
+    static double effectiveMatrixToWellTransPDDHC( double sumOriginalMatrixToFractureTrans, double effectiveInternalFractureToWellTrans );
 
     static double matrixPermeability( double permx, double permy, double NTG );
 

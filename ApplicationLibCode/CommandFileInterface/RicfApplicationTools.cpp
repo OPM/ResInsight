@@ -34,8 +34,7 @@
 //--------------------------------------------------------------------------------------------------
 /// Empty wellPathNames returns all well paths
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellPath*> RicfApplicationTools::wellPathsFromNames( const QStringList& wellPathNames,
-                                                                    QStringList*       wellsNotFound )
+std::vector<RimWellPath*> RicfApplicationTools::wellPathsFromNames( const QStringList& wellPathNames, QStringList* wellsNotFound )
 {
     std::vector<RimWellPath*> wellPaths;
     auto                      allWellPaths = RimProject::current()->allWellPaths();

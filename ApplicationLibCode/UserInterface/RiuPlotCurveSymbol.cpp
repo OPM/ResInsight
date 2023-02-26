@@ -28,10 +28,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuPlotCurveSymbol::RiuPlotCurveSymbol( PointSymbolEnum riuStyle,
-                                        const QString&  label,
-                                        LabelPosition   labelPosition,
-                                        int             labelFontSizePt )
+RiuPlotCurveSymbol::RiuPlotCurveSymbol( PointSymbolEnum riuStyle, const QString& label, LabelPosition labelPosition, int labelFontSizePt )
     : m_style( riuStyle )
     , m_globalLabel( label )
     , m_labelPosition( labelPosition )

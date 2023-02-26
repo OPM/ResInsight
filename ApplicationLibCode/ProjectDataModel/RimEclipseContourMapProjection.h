@@ -72,9 +72,7 @@ protected:
     size_t              kLayer( size_t globalCellIdx ) const override;
     size_t              kLayers() const override;
     double              calculateOverlapVolume( size_t globalCellIdx, const cvf::BoundingBox& bbox ) const override;
-    double              calculateRayLengthInCell( size_t            globalCellIdx,
-                                                  const cvf::Vec3d& highestPoint,
-                                                  const cvf::Vec3d& lowestPoint ) const override;
+    double calculateRayLengthInCell( size_t globalCellIdx, const cvf::Vec3d& highestPoint, const cvf::Vec3d& lowestPoint ) const override;
     double getParameterWeightForCell( size_t cellResultIdx, const std::vector<double>& parameterWeights ) const override;
     size_t gridResultIndex( size_t globalCellIdx ) const override;
 

@@ -197,9 +197,9 @@ public:
     static void moveCurvesToPlot( RimSummaryPlot* plot, const std::vector<RimSummaryCurve*> curves, int insertAtPosition );
 
     std::vector<RimSummaryDataSourceStepping::Axis> availableAxes() const override;
-    std::vector<RimSummaryCurve*>     curvesForStepping( RimSummaryDataSourceStepping::Axis axis ) const override;
-    std::vector<RimEnsembleCurveSet*> curveSets() const override;
-    std::vector<RimSummaryCurve*>     allCurves( RimSummaryDataSourceStepping::Axis axis ) const override;
+    std::vector<RimSummaryCurve*>                   curvesForStepping( RimSummaryDataSourceStepping::Axis axis ) const override;
+    std::vector<RimEnsembleCurveSet*>               curveSets() const override;
+    std::vector<RimSummaryCurve*>                   allCurves( RimSummaryDataSourceStepping::Axis axis ) const override;
 
     std::vector<RimPlotAxisPropertiesInterface*> plotAxes() const;
     std::vector<RimPlotAxisProperties*>          plotYAxes() const;
@@ -244,8 +244,7 @@ private:
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
-    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -273,8 +272,7 @@ private:
     void updateZoomForTimeAxis( RimSummaryTimeAxisProperties* timeAxisProperties );
 
     void createAndSetCustomTimeAxisTickmarks( RimSummaryTimeAxisProperties* timeAxisProperties );
-    void overrideTimeAxisSettingsIfTooManyCustomTickmarks( RimSummaryTimeAxisProperties* timeAxisProperties,
-                                                           bool                          showMessageBox );
+    void overrideTimeAxisSettingsIfTooManyCustomTickmarks( RimSummaryTimeAxisProperties* timeAxisProperties, bool showMessageBox );
 
     void deletePlotCurvesAndPlotWidget();
 
@@ -300,7 +298,7 @@ private:
 
     void assignPlotAxis( RimSummaryCurve* curve );
 
-    RimSummaryCurve* addNewCurveY( const RifEclipseSummaryAddress& address, RimSummaryCase* summaryCase );
+    RimSummaryCurve*     addNewCurveY( const RifEclipseSummaryAddress& address, RimSummaryCase* summaryCase );
     RimEnsembleCurveSet* addNewEnsembleCurveY( const RifEclipseSummaryAddress& address, RimSummaryCaseCollection* ensemble );
 
     void updateStackedCurveData();
@@ -309,8 +307,8 @@ private:
 
     std::pair<int, std::vector<RimSummaryCurve*>>     handleSummaryCaseDrop( RimSummaryCase* summaryCase );
     std::pair<int, std::vector<RimEnsembleCurveSet*>> handleEnsembleDrop( RimSummaryCaseCollection* ensemble );
-    std::pair<int, std::vector<RimSummaryCurve*>> handleAddressCollectionDrop( RimSummaryAddressCollection* addrColl );
-    std::pair<int, std::vector<RimSummaryCurve*>> handleSummaryAddressDrop( RimSummaryAddress* summaryAddr );
+    std::pair<int, std::vector<RimSummaryCurve*>>     handleAddressCollectionDrop( RimSummaryAddressCollection* addrColl );
+    std::pair<int, std::vector<RimSummaryCurve*>>     handleSummaryAddressDrop( RimSummaryAddress* summaryAddr );
 
     bool isOnlyWaterCutCurvesVisible( RiuPlotAxis plotAxis );
 

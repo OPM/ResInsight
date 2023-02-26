@@ -151,9 +151,7 @@ RimFracture::RimFracture()
     m_uiWellPathAzimuth.uiCapability()->setUiReadOnly( true );
     m_uiWellPathAzimuth.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &m_uiWellFractureAzimuthDiff,
-                                "WellFractureAzimuthDiff",
-                                "Azimuth Difference Between\nFracture and Well" );
+    CAF_PDM_InitFieldNoDefault( &m_uiWellFractureAzimuthDiff, "WellFractureAzimuthDiff", "Azimuth Difference Between\nFracture and Well" );
     m_uiWellFractureAzimuthDiff.registerGetMethod( this, &RimFracture::wellFractureAzimuthDiffText );
     m_uiWellFractureAzimuthDiff.uiCapability()->setUiReadOnly( true );
     m_uiWellFractureAzimuthDiff.xmlCapability()->disableIO();
@@ -229,10 +227,9 @@ void RimFracture::fieldChangedByUi( const caf::PdmFieldHandle* changedField, con
         {
             QString fractureUnitText = caf::AppEnum<RiaDefines::EclipseUnitSystem>::uiText( fractureUnit() );
 
-            QString warningText =
-                QString( "Using a fracture template defined in a different unit is not supported.\n\nPlease select a "
-                         "fracture template of unit '%1'" )
-                    .arg( fractureUnitText );
+            QString warningText = QString( "Using a fracture template defined in a different unit is not supported.\n\nPlease select a "
+                                           "fracture template of unit '%1'" )
+                                      .arg( fractureUnitText );
 
             RiaLogging::errorInMessageBox( nullptr, "Fracture Template Selection", warningText );
 
@@ -284,9 +281,8 @@ void RimFracture::fieldChangedByUi( const caf::PdmFieldHandle* changedField, con
         if ( m_autoUpdateWellPathDepthAtFractureFromTemplate() ) placeUsingTemplateData();
     }
 
-    if ( changedField == &m_azimuth || changedField == &m_fractureTemplate ||
-         changedField == &m_stimPlanTimeIndexToPlot || changedField == this->objectToggleField() ||
-         changedField == &m_dip || changedField == &m_tilt || changedField == &m_perforationLength )
+    if ( changedField == &m_azimuth || changedField == &m_fractureTemplate || changedField == &m_stimPlanTimeIndexToPlot ||
+         changedField == this->objectToggleField() || changedField == &m_dip || changedField == &m_tilt || changedField == &m_perforationLength )
     {
         clearCachedNonDarcyProperties();
 
@@ -294,8 +290,7 @@ void RimFracture::fieldChangedByUi( const caf::PdmFieldHandle* changedField, con
         this->firstAncestorOrThisOfType( eclipseCase );
         if ( eclipseCase )
         {
-            RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews(
-                { eclipseCase } );
+            RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews( { eclipseCase } );
         }
         else
         {
@@ -578,10 +573,9 @@ void RimFracture::setFractureTemplateNoUpdate( RimFractureTemplate* fractureTemp
     {
         QString fractureUnitText = caf::AppEnum<RiaDefines::EclipseUnitSystem>::uiText( fractureUnit() );
 
-        QString warningText =
-            QString( "Using a fracture template defined in a different unit is not supported.\n\nPlease select a "
-                     "fracture template of unit '%1'" )
-                .arg( fractureUnitText );
+        QString warningText = QString( "Using a fracture template defined in a different unit is not supported.\n\nPlease select a "
+                                       "fracture template of unit '%1'" )
+                                  .arg( fractureUnitText );
 
         RiaLogging::errorInMessageBox( nullptr, "Fracture Template Selection", warningText );
 
@@ -597,8 +591,7 @@ void RimFracture::setFractureTemplateNoUpdate( RimFractureTemplate* fractureTemp
 
     if ( m_fractureTemplate )
     {
-        m_fractureTemplate->wellPathDepthAtFractureChanged.connect( this,
-                                                                    &RimFracture::onWellPathDepthAtFractureInTemplateChanged );
+        m_fractureTemplate->wellPathDepthAtFractureChanged.connect( this, &RimFracture::onWellPathDepthAtFractureInTemplateChanged );
     }
 }
 
@@ -613,9 +606,7 @@ void RimFracture::triangleGeometry( std::vector<cvf::Vec3f>* nodeCoords, std::ve
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFracture::triangleGeometryTransformed( std::vector<cvf::uint>*  triangleIndices,
-                                               std::vector<cvf::Vec3f>* nodeCoords,
-                                               bool                     transform ) const
+void RimFracture::triangleGeometryTransformed( std::vector<cvf::uint>* triangleIndices, std::vector<cvf::Vec3f>* nodeCoords, bool transform ) const
 {
     RimFractureTemplate* fractureDef = fractureTemplate();
     if ( fractureDef )
@@ -757,8 +748,7 @@ void RimFracture::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& ui
         fractureTemplate()->useUserDefinedPerforationLength();
 
         if ( fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH ||
-             ( fractureTemplate()->orientationType() == RimFractureTemplate::AZIMUTH &&
-               fractureTemplate()->useUserDefinedPerforationLength() ) )
+             ( fractureTemplate()->orientationType() == RimFractureTemplate::AZIMUTH && fractureTemplate()->useUserDefinedPerforationLength() ) )
         {
             m_perforationEfficiency.uiCapability()->setUiHidden( false );
             m_perforationLength.uiCapability()->setUiHidden( false );
@@ -799,9 +789,7 @@ void RimFracture::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& ui
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFracture::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                         QString                    uiConfigName,
-                                         caf::PdmUiEditorAttribute* attribute )
+void RimFracture::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_azimuth )
     {
@@ -884,9 +872,7 @@ bool RimFracture::isEclipseCellOpenForFlow( const RigMainGrid*      mainGrid,
     CVF_ASSERT( fractureTemplate() );
     if ( !fractureTemplate()->fractureContainment()->isEnabled() ) return true;
 
-    return fractureTemplate()->fractureContainment()->isEclipseCellOpenForFlow( mainGrid,
-                                                                                globalCellIndex,
-                                                                                reservoirCellIndicesOpenForFlow );
+    return fractureTemplate()->fractureContainment()->isEclipseCellOpenForFlow( mainGrid, globalCellIndex, reservoirCellIndicesOpenForFlow );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -979,10 +965,8 @@ void RimFracture::initAfterRead()
     {
         if ( m_fractureTemplate() )
         {
-            RimStimPlanFractureTemplate* stimPlanFracTemplate =
-                dynamic_cast<RimStimPlanFractureTemplate*>( m_fractureTemplate() );
-            RimEllipseFractureTemplate* ellipseFracTemplate =
-                dynamic_cast<RimEllipseFractureTemplate*>( m_fractureTemplate() );
+            RimStimPlanFractureTemplate* stimPlanFracTemplate = dynamic_cast<RimStimPlanFractureTemplate*>( m_fractureTemplate() );
+            RimEllipseFractureTemplate*  ellipseFracTemplate  = dynamic_cast<RimEllipseFractureTemplate*>( m_fractureTemplate() );
 
             if ( stimPlanFracTemplate )
             {
@@ -1001,8 +985,7 @@ void RimFracture::initAfterRead()
 
     if ( m_fractureTemplate() )
     {
-        m_fractureTemplate->wellPathDepthAtFractureChanged.connect( this,
-                                                                    &RimFracture::onWellPathDepthAtFractureInTemplateChanged );
+        m_fractureTemplate->wellPathDepthAtFractureChanged.connect( this, &RimFracture::onWellPathDepthAtFractureInTemplateChanged );
     }
 }
 

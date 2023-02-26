@@ -303,9 +303,7 @@ void RimWellLogFileCurve::setIndexDepthOffsets( std::shared_ptr<RigWellLogIndexD
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogFileCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                            const QVariant&            oldValue,
-                                            const QVariant&            newValue )
+void RimWellLogFileCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimWellLogCurve::fieldChangedByUi( changedField, oldValue, newValue );
 

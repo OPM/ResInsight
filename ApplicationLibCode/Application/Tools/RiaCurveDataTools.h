@@ -43,12 +43,10 @@ public:
     };
 
 public:
-    static CurveIntervals calculateIntervalsOfValidValues( const std::vector<double>& values,
-                                                           bool                       includePositiveValuesOnly );
+    static CurveIntervals calculateIntervalsOfValidValues( const std::vector<double>& values, bool includePositiveValuesOnly );
 
     template <typename T>
-    static void
-        getValuesByIntervals( const std::vector<T>& values, const CurveIntervals& intervals, std::vector<T>* filteredValues )
+    static void getValuesByIntervals( const std::vector<T>& values, const CurveIntervals& intervals, std::vector<T>* filteredValues )
     {
         CVF_ASSERT( filteredValues );
 

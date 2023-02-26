@@ -40,22 +40,19 @@ public:
     RifReaderOpmRft( const QString& fileName, const QString& dataDeckFileName );
 
     std::set<RifEclipseRftAddress> eclipseRftAddresses() override;
-    void values( const RifEclipseRftAddress& rftAddress, std::vector<double>* values ) override;
+    void                           values( const RifEclipseRftAddress& rftAddress, std::vector<double>* values ) override;
 
-    std::set<QDateTime> availableTimeSteps( const QString& wellName ) override;
-    std::set<QDateTime> availableTimeSteps( const QString&                                     wellName,
-                                            const RifEclipseRftAddress::RftWellLogChannelType& wellLogChannelName ) override;
-    std::set<QDateTime>
-                                                          availableTimeSteps( const QString&                                               wellName,
+    std::set<QDateTime>                                   availableTimeSteps( const QString& wellName ) override;
+    std::set<QDateTime>                                   availableTimeSteps( const QString&                                     wellName,
+                                                                              const RifEclipseRftAddress::RftWellLogChannelType& wellLogChannelName ) override;
+    std::set<QDateTime>                                   availableTimeSteps( const QString&                                               wellName,
                                                                               const std::set<RifEclipseRftAddress::RftWellLogChannelType>& relevantChannels ) override;
     std::set<RifEclipseRftAddress::RftWellLogChannelType> availableWellLogChannels( const QString& wellName ) override;
     std::set<QString>                                     wellNames() override;
 
     void cellIndices( const RifEclipseRftAddress& rftAddress, std::vector<caf::VecIjk>* indices ) override;
 
-    std::map<int, int> branchIdsAndOneBasedIndices( const QString&            wellName,
-                                                    const QDateTime&          timeStep,
-                                                    RiaDefines::RftBranchType branchType );
+    std::map<int, int> branchIdsAndOneBasedIndices( const QString& wellName, const QDateTime& timeStep, RiaDefines::RftBranchType branchType );
 
     RifRftSegment segmentForWell( const QString& wellName, const QDateTime& timeStep );
 
@@ -87,10 +84,9 @@ private:
     std::vector<int>                 annulusSegmentsForWell( const std::string& wellName ) const;
 
     static RifEclipseRftAddress::RftWellLogChannelType identifyChannelType( const std::string& resultName );
-    static std::string resultNameFromChannelType( RifEclipseRftAddress::RftWellLogChannelType channelType );
+    static std::string                                 resultNameFromChannelType( RifEclipseRftAddress::RftWellLogChannelType channelType );
 
-    std::vector<float>
-        resultAsFloat( const std::string& resultName, const std::string& wellName, int year, int month, int day ) const;
+    std::vector<float> resultAsFloat( const std::string& resultName, const std::string& wellName, int year, int month, int day ) const;
 
     bool openFiles();
 

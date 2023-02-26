@@ -44,6 +44,5 @@ public:
     static std::map<QString, std::vector<RifPerforationInterval>> readPerforationIntervals( const QString& filePath );
 
 private:
-    static void readFileIntoMap( const QString&                                          filePath,
-                                 std::map<QString, std::vector<RifPerforationInterval>>* perforations );
+    static void readFileIntoMap( const QString& filePath, std::map<QString, std::vector<RifPerforationInterval>>* perforations );
 };

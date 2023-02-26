@@ -62,8 +62,7 @@ public:
     cvf::Vec3d interpolatedVectorValuesAlongWellPath( const std::vector<cvf::Vec3d>& vectors,
                                                       double                         measuredDepth,
                                                       double* horizontalLengthAlongWellToStartClipPoint = nullptr ) const;
-    cvf::Vec3d interpolatedPointAlongWellPath( double  measuredDepth,
-                                               double* horizontalLengthAlongWellToStartClipPoint = nullptr ) const;
+    cvf::Vec3d interpolatedPointAlongWellPath( double measuredDepth, double* horizontalLengthAlongWellToStartClipPoint = nullptr ) const;
 
     cvf::Vec3d tangentAlongWellPath( double measuredDepth ) const;
 
@@ -88,8 +87,8 @@ public:
 
     static std::vector<cvf::Vec3d> clipPolylineStartAboveZ( const std::vector<cvf::Vec3d>& polyLine,
                                                             double                         maxZ,
-                                                            double* horizontalLengthAlongWellToClipPoint,
-                                                            size_t* indexToFirstVisibleSegment );
+                                                            double*                        horizontalLengthAlongWellToClipPoint,
+                                                            size_t*                        indexToFirstVisibleSegment );
 
 private:
     std::pair<size_t, size_t> closestIndices( const cvf::Vec3d& position ) const;

@@ -35,8 +35,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivContourMapProjectionPartMgr::RivContourMapProjectionPartMgr( RimContourMapProjection* contourMapProjection,
-                                                                RimGridView*             contourMap )
+RivContourMapProjectionPartMgr::RivContourMapProjectionPartMgr( RimContourMapProjection* contourMapProjection, RimGridView* contourMap )
 {
     m_contourMapProjection = contourMapProjection;
     m_parentContourMap     = contourMap;
@@ -104,10 +103,9 @@ cvf::ref<cvf::Vec2fArray> RivContourMapProjectionPartMgr::createTextureCoords( c
     {
         if ( values[i] != std::numeric_limits<double>::infinity() )
         {
-            cvf::Vec2f textureCoord =
-                m_contourMapProjection->legendConfig()->scalarMapper()->mapToTextureCoord( values[i] );
-            textureCoord.y()      = 0.0;
-            ( *textureCoords )[i] = textureCoord;
+            cvf::Vec2f textureCoord = m_contourMapProjection->legendConfig()->scalarMapper()->mapToTextureCoord( values[i] );
+            textureCoord.y()        = 0.0;
+            ( *textureCoords )[i]   = textureCoord;
         }
         else
         {
@@ -190,8 +188,7 @@ void RivContourMapProjectionPartMgr::appendContourLinesToModel( const cvf::Camer
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableText> RivContourMapProjectionPartMgr::createTextLabel( const cvf::Color3f& textColor,
-                                                                             const cvf::Color3f& backgroundColor )
+cvf::ref<cvf::DrawableText> RivContourMapProjectionPartMgr::createTextLabel( const cvf::Color3f& textColor, const cvf::Color3f& backgroundColor )
 {
     auto font = RiaFontCache::getFont( RiaFontCache::FontSize::FONT_SIZE_10 );
 
@@ -212,8 +209,7 @@ cvf::ref<cvf::DrawableText> RivContourMapProjectionPartMgr::createTextLabel( con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Part>
-    RivContourMapProjectionPartMgr::createProjectionMapPart( const caf::DisplayCoordTransform* displayCoordTransform ) const
+cvf::ref<cvf::Part> RivContourMapProjectionPartMgr::createProjectionMapPart( const caf::DisplayCoordTransform* displayCoordTransform ) const
 {
     const std::vector<cvf::Vec4d>& vertices = m_contourMapTriangles;
     if ( vertices.size() < 3u )
@@ -225,16 +221,14 @@ cvf::ref<cvf::Part>
     std::vector<double>       values( vertices.size() );
     for ( uint i = 0; i < vertices.size(); ++i )
     {
-        cvf::Vec3d globalVertex = cvf::Vec3d( vertices[i].x(), vertices[i].y(), vertices[i].z() ) +
-                                  m_contourMapProjection->origin3d();
+        cvf::Vec3d globalVertex = cvf::Vec3d( vertices[i].x(), vertices[i].y(), vertices[i].z() ) + m_contourMapProjection->origin3d();
         cvf::Vec3f displayVertexPos( displayCoordTransform->transformToDisplayCoord( globalVertex ) );
         ( *vertexArray )[i] = displayVertexPos;
         ( *faceList )[i]    = i;
         values[i]           = vertices[i].w();
     }
 
-    cvf::ref<cvf::PrimitiveSetIndexedUInt> indexUInt =
-        new cvf::PrimitiveSetIndexedUInt( cvf::PrimitiveType::PT_TRIANGLES, faceList.p() );
+    cvf::ref<cvf::PrimitiveSetIndexedUInt> indexUInt = new cvf::PrimitiveSetIndexedUInt( cvf::PrimitiveType::PT_TRIANGLES, faceList.p() );
 
     cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
     geo->addPrimitiveSet( indexUInt.p() );
@@ -264,7 +258,7 @@ cvf::ref<cvf::Part>
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<std::vector<cvf::ref<cvf::Drawable>>>
-    RivContourMapProjectionPartMgr::createContourPolygons( const caf::DisplayCoordTransform* displayCoordTransform,
+    RivContourMapProjectionPartMgr::createContourPolygons( const caf::DisplayCoordTransform*                 displayCoordTransform,
                                                            const std::vector<std::vector<cvf::BoundingBox>>& labelBBoxes ) const
 {
     const cvf::ScalarMapper* mapper = m_contourMapProjection->legendConfig()->scalarMapper();
@@ -292,7 +286,7 @@ std::vector<std::vector<cvf::ref<cvf::Drawable>>>
             displayLines.reserve( nVertices * 2 );
             for ( size_t v = 0; v < nVertices; ++v )
             {
-                cvf::Vec3d globalVertex1 = m_contourLinePolygons[i][j].vertices[v] + m_contourMapProjection->origin3d();
+                cvf::Vec3d globalVertex1  = m_contourLinePolygons[i][j].vertices[v] + m_contourMapProjection->origin3d();
                 cvf::Vec3d displayVertex1 = displayCoordTransform->transformToDisplayCoord( globalVertex1 );
 
                 cvf::Vec3d globalVertex2;
@@ -372,9 +366,8 @@ std::vector<std::vector<cvf::ref<cvf::Drawable>>>
                 indices.push_back( k );
             }
 
-            cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUInt =
-                new cvf::PrimitiveSetIndexedUInt( cvf::PrimitiveType::PT_LINES );
-            cvf::ref<cvf::UIntArray> indexArray = new cvf::UIntArray( indices );
+            cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUInt = new cvf::PrimitiveSetIndexedUInt( cvf::PrimitiveType::PT_LINES );
+            cvf::ref<cvf::UIntArray>               indexArray  = new cvf::UIntArray( indices );
             indexedUInt->setIndices( indexArray.p() );
 
             cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
@@ -395,8 +388,8 @@ std::vector<std::vector<cvf::ref<cvf::Drawable>>>
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::ref<cvf::Drawable>>
-    RivContourMapProjectionPartMgr::createContourLabels( const cvf::Camera*                camera,
-                                                         const caf::DisplayCoordTransform* displayCoordTransform,
+    RivContourMapProjectionPartMgr::createContourLabels( const cvf::Camera*                          camera,
+                                                         const caf::DisplayCoordTransform*           displayCoordTransform,
                                                          std::vector<std::vector<cvf::BoundingBox>>* labelBBoxes ) const
 {
     CVF_ASSERT( camera && displayCoordTransform && labelBBoxes );
@@ -422,8 +415,8 @@ std::vector<cvf::ref<cvf::Drawable>>
         {
             if ( m_contourLinePolygons[i][j].vertices.empty() ) continue;
 
-            QString qLabelText = m_contourMapProjection->legendConfig()->valueToText( m_contourLinePolygons[i][j].value );
-            cvf::String labelText = cvfqt::Utils::toString( qLabelText );
+            QString     qLabelText = m_contourMapProjection->legendConfig()->valueToText( m_contourLinePolygons[i][j].value );
+            cvf::String labelText  = cvfqt::Utils::toString( qLabelText );
 
             size_t nVertices              = m_contourLinePolygons[i][j].vertices.size();
             size_t nLabels                = nVertices;
@@ -453,17 +446,15 @@ std::vector<cvf::ref<cvf::Drawable>>
                 camera->project( displayVertex, &windowVertex );
                 CVF_ASSERT( !windowVertex.isUndefined() );
                 displayVertex.z() += 10.0f;
-                cvf::BoundingBox windowBBox =
-                    label->textBoundingBox( labelText, cvf::Vec3f::ZERO, cvf::Vec3f( segment.getNormalized() ) );
-                cvf::Vec3d displayBBoxMin, displayBBoxMax;
+                cvf::BoundingBox windowBBox = label->textBoundingBox( labelText, cvf::Vec3f::ZERO, cvf::Vec3f( segment.getNormalized() ) );
+                cvf::Vec3d       displayBBoxMin, displayBBoxMax;
                 camera->unproject( windowBBox.min() + windowVertex, &displayBBoxMin );
                 camera->unproject( windowBBox.max() + windowVertex, &displayBBoxMax );
 
                 CVF_ASSERT( !displayBBoxMin.isUndefined() );
                 CVF_ASSERT( !displayBBoxMax.isUndefined() );
 
-                cvf::BoundingBox displayBBox( displayBBoxMin - cvf::Vec3d::Z_AXIS * 20.0,
-                                              displayBBoxMax + cvf::Vec3d::Z_AXIS * 20.0 );
+                cvf::BoundingBox displayBBox( displayBBoxMin - cvf::Vec3d::Z_AXIS * 20.0, displayBBoxMax + cvf::Vec3d::Z_AXIS * 20.0 );
 
                 cvf::Vec3d currentExtent = displayBBoxMax - displayBBoxMin;
 
@@ -546,9 +537,8 @@ cvf::ref<cvf::DrawableGeo>
             indices.push_back( j );
         }
 
-        cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUInt =
-            new cvf::PrimitiveSetIndexedUInt( cvf::PrimitiveType::PT_LINES );
-        cvf::ref<cvf::UIntArray> indexArray = new cvf::UIntArray( indices );
+        cvf::ref<cvf::PrimitiveSetIndexedUInt> indexedUInt = new cvf::PrimitiveSetIndexedUInt( cvf::PrimitiveType::PT_LINES );
+        cvf::ref<cvf::UIntArray>               indexArray  = new cvf::UIntArray( indices );
         indexedUInt->setIndices( indexArray.p() );
 
         geo = new cvf::DrawableGeo;
@@ -562,9 +552,8 @@ cvf::ref<cvf::DrawableGeo>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RivContourMapProjectionPartMgr::lineOverlapsWithPreviousContourLevel(
-    const cvf::Vec3d&                               lineCenter,
-    const RimContourMapProjection::ContourPolygons* previousLevel ) const
+bool RivContourMapProjectionPartMgr::lineOverlapsWithPreviousContourLevel( const cvf::Vec3d&                               lineCenter,
+                                                                           const RimContourMapProjection::ContourPolygons* previousLevel ) const
 {
     const int64_t jump = 50;
     CVF_ASSERT( previousLevel );
@@ -576,7 +565,7 @@ bool RivContourMapProjectionPartMgr::lineOverlapsWithPreviousContourLevel(
         {
             const cvf::Vec3d& edgeVertex1 = edgePolygon.vertices[i];
             const cvf::Vec3d& edgeVertex2 = edgePolygon.vertices[( i + 1 ) % edgePolygon.vertices.size()];
-            double            dist1 = cvf::GeometryTools::linePointSquareDist( edgeVertex1, edgeVertex2, lineCenter );
+            double            dist1       = cvf::GeometryTools::linePointSquareDist( edgeVertex1, edgeVertex2, lineCenter );
             if ( dist1 < tolerance )
             {
                 return true;
@@ -592,7 +581,7 @@ bool RivContourMapProjectionPartMgr::lineOverlapsWithPreviousContourLevel(
         {
             const cvf::Vec3d& edgeVertex1 = edgePolygon.vertices[i];
             const cvf::Vec3d& edgeVertex2 = edgePolygon.vertices[( i + 1 ) % edgePolygon.vertices.size()];
-            double            dist1 = cvf::GeometryTools::linePointSquareDist( edgeVertex1, edgeVertex2, lineCenter );
+            double            dist1       = cvf::GeometryTools::linePointSquareDist( edgeVertex1, edgeVertex2, lineCenter );
             if ( dist1 < tolerance )
             {
                 return true;

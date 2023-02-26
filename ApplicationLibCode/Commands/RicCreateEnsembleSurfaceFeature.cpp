@@ -55,13 +55,12 @@ void RicCreateEnsembleSurfaceFeature::openDialogAndExecuteCommand()
     QString pathFilter( "*" );
     QString fileNameFilter( "*" );
 
-    RicRecursiveFileSearchDialogResult result =
-        RicRecursiveFileSearchDialog::runRecursiveSearchDialog( nullptr,
-                                                                "Choose Eclipse Cases",
-                                                                defaultDir,
-                                                                pathFilter,
-                                                                fileNameFilter,
-                                                                QStringList( ".EGRID" ) );
+    RicRecursiveFileSearchDialogResult result = RicRecursiveFileSearchDialog::runRecursiveSearchDialog( nullptr,
+                                                                                                        "Choose Eclipse Cases",
+                                                                                                        defaultDir,
+                                                                                                        pathFilter,
+                                                                                                        fileNameFilter,
+                                                                                                        QStringList( ".EGRID" ) );
 
     if ( !result.ok || result.files.isEmpty() )
     {
@@ -71,16 +70,12 @@ void RicCreateEnsembleSurfaceFeature::openDialogAndExecuteCommand()
     // Read min/max k layer from first grid case
     int minLayerK = -1;
     int maxLayerK = -1;
-    if ( !RimcCommandRouter_extractSurfaces::readMinMaxLayerFromGridFile( result.files[0], minLayerK, maxLayerK ) )
-        return;
+    if ( !RimcCommandRouter_extractSurfaces::readMinMaxLayerFromGridFile( result.files[0], minLayerK, maxLayerK ) ) return;
 
     RicCreateEnsembleSurfaceUi* ui = RimProject::current()->dialogData()->createEnsembleSurfaceUi();
     ui->setLayersMinMax( minLayerK, maxLayerK );
 
-    RiuPropertyViewTabWidget propertyDialog( Riu3DMainWindowTools::mainWindowWidget(),
-                                             ui,
-                                             "Create Ensemble Surface",
-                                             ui->tabNames() );
+    RiuPropertyViewTabWidget propertyDialog( Riu3DMainWindowTools::mainWindowWidget(), ui, "Create Ensemble Surface", ui->tabNames() );
 
     if ( propertyDialog.exec() == QDialog::Accepted )
     {
@@ -92,8 +87,7 @@ void RicCreateEnsembleSurfaceFeature::openDialogAndExecuteCommand()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicCreateEnsembleSurfaceFeature::executeCommand( const RicCreateEnsembleSurfaceUi& ui,
-                                                      const std::vector<QString>&       fileNames )
+void RicCreateEnsembleSurfaceFeature::executeCommand( const RicCreateEnsembleSurfaceUi& ui, const std::vector<QString>& fileNames )
 {
     std::vector layers = ui.layers();
 

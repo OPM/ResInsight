@@ -102,9 +102,7 @@ bool RimReachCircleAnnotationInView::isVisible() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimReachCircleAnnotationInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                       const QVariant&            oldValue,
-                                                       const QVariant&            newValue )
+void RimReachCircleAnnotationInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_isActive )
     {

@@ -42,7 +42,7 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    caf::PdmFieldHandle* commonParentForAllSelections( const std::vector<caf::PdmObject*>& selectedObjects );
+    caf::PdmFieldHandle*               commonParentForAllSelections( const std::vector<caf::PdmObject*>& selectedObjects );
     std::vector<caf::PdmObjectHandle*> childObjects( caf::PdmFieldHandle* parent );
     caf::PdmField<bool>*               objectToggleField( caf::PdmObjectHandle* objectHandle );
 };

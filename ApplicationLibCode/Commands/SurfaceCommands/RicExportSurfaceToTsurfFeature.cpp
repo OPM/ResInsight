@@ -62,29 +62,22 @@ void RicExportSurfaceToTsurfFeature::onActionTriggered( bool isChecked )
     QString defaultExtension    = "ts";
     QString defaultFileBaseName = "surface";
 
-    QString defaultAbsFileName =
-        caf::Utils::constructFullFileName( defaultDir, defaultFileBaseName, "." + defaultExtension );
+    QString defaultAbsFileName = caf::Utils::constructFullFileName( defaultDir, defaultFileBaseName, "." + defaultExtension );
 
     QString selectedExtension;
 
     std::vector<RimSurface*> surfaces = caf::selectedObjectsByTypeStrict<RimSurface*>();
     for ( RimSurface* surf : surfaces )
     {
-        QString fileName = RiuFileDialogTools::getSaveFileName( nullptr,
-                                                                tr( "Export to File" ),
-                                                                defaultAbsFileName,
-                                                                fileExtensionFilter,
-                                                                &selectedExtension );
+        QString fileName =
+            RiuFileDialogTools::getSaveFileName( nullptr, tr( "Export to File" ), defaultAbsFileName, fileExtensionFilter, &selectedExtension );
         if ( fileName.isEmpty() ) return;
 
         app->setLastUsedDialogDirectory( "EXPORT_SURFACE", QFileInfo( fileName ).absolutePath() );
 
         RigSurface* surface = surf->surfaceData();
 
-        RifSurfaceExporter::writeGocadTSurfFile( fileName,
-                                                 surf->userDescription(),
-                                                 surface->vertices(),
-                                                 surface->triangleIndices() );
+        RifSurfaceExporter::writeGocadTSurfFile( fileName, surf->userDescription(), surface->vertices(), surface->triangleIndices() );
     }
 }
 

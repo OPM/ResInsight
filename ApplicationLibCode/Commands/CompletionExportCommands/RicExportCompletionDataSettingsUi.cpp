@@ -102,9 +102,7 @@ RicExportCompletionDataSettingsUi::RicExportCompletionDataSettingsUi()
                        "definition",
                        "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_reportCompletionTypesSeparately,
-                                "ReportCompletionTypesSeparately",
-                                "Export Completion Types" );
+    CAF_PDM_InitFieldNoDefault( &m_reportCompletionTypesSeparately, "ReportCompletionTypesSeparately", "Export Completion Types" );
 
     CAF_PDM_InitField( &m_exportDataSourceAsComment, "ExportDataSourceAsComment", true, "Comments" );
 
@@ -275,8 +273,7 @@ void RicExportCompletionDataSettingsUi::fieldChangedByUi( const caf::PdmFieldHan
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RicExportCompletionDataSettingsUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RicExportCompletionDataSettingsUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &timeStep )
@@ -285,8 +282,7 @@ QList<caf::PdmOptionItemInfo>
     }
     else if ( fieldNeedingOptions == &transScalingTimeStep )
     {
-        std::map<int, std::vector<std::pair<QString, QString>>> wellProductionStartStrings =
-            generateWellProductionStartStrings();
+        std::map<int, std::vector<std::pair<QString, QString>>> wellProductionStartStrings = generateWellProductionStartStrings();
 
         QStringList timeStepNames;
 
@@ -317,8 +313,7 @@ QList<caf::PdmOptionItemInfo>
                         wellList = candidateWellList;
                     }
 
-                    QString wellStringWithPressure =
-                        QString( "%1 (%2)" ).arg( it->second[w].first ).arg( it->second[w].second );
+                    QString     wellStringWithPressure    = QString( "%1 (%2)" ).arg( it->second[w].first ).arg( it->second[w].second );
                     QStringList candidateWellPressureList = wellPressureList;
                     candidateWellPressureList << wellStringWithPressure;
                     if ( startStringFormat.arg( candidateWellPressureList.join( ", " ) ).length() < maxStringLength )
@@ -443,8 +438,8 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering( QString uiConfigName, 
             }
 
             // Set visibility
-            includeFractures.uiCapability()->setUiHidden(
-                compdatExport == CompdatExport::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS && !includeMsw );
+            includeFractures.uiCapability()->setUiHidden( compdatExport == CompdatExport::WPIMULT_AND_DEFAULT_CONNECTION_FACTORS &&
+                                                          !includeMsw );
         }
 
         if ( !m_displayForSimWell )
@@ -469,8 +464,7 @@ void RicExportCompletionDataSettingsUi::defineUiOrdering( QString uiConfigName, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<int, std::vector<std::pair<QString, QString>>>
-    RicExportCompletionDataSettingsUi::generateWellProductionStartStrings()
+std::map<int, std::vector<std::pair<QString, QString>>> RicExportCompletionDataSettingsUi::generateWellProductionStartStrings()
 {
     std::map<int, std::vector<std::pair<QString, QString>>> wellProductionStartStrings;
 
@@ -483,19 +477,18 @@ std::map<int, std::vector<std::pair<QString, QString>>>
             int    initialWellProductionTimeStep = -1;
             double initialWellPressure           = 0.0;
             double currentWellPressure           = 0.0;
-            RicExportFractureCompletionsImpl::
-                getWellPressuresAndInitialProductionTimeStepFromSummaryData( caseToApply,
-                                                                             wellPath->completionSettings()->wellNameForExport(),
-                                                                             0,
-                                                                             &initialWellProductionTimeStep,
-                                                                             &initialWellPressure,
-                                                                             &currentWellPressure );
+            RicExportFractureCompletionsImpl::getWellPressuresAndInitialProductionTimeStepFromSummaryData( caseToApply,
+                                                                                                           wellPath->completionSettings()
+                                                                                                               ->wellNameForExport(),
+                                                                                                           0,
+                                                                                                           &initialWellProductionTimeStep,
+                                                                                                           &initialWellPressure,
+                                                                                                           &currentWellPressure );
             if ( initialWellProductionTimeStep >= 0 )
             {
                 QString pressureUnits = RiaEclipseUnitTools::unitStringPressure( wellPath->unitSystem() );
                 wellProductionStartStrings[initialWellProductionTimeStep].push_back(
-                    std::make_pair( wellPath->name(),
-                                    QString( "%1 %2" ).arg( initialWellPressure, 4, 'f', 1 ).arg( pressureUnits ) ) );
+                    std::make_pair( wellPath->name(), QString( "%1 %2" ).arg( initialWellPressure, 4, 'f', 1 ).arg( pressureUnits ) ) );
             }
         }
     }

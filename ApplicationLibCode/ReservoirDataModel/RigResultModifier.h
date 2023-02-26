@@ -62,9 +62,7 @@ private:
 class RigActiveCellsResultModifier : public RigResultModifier
 {
 public:
-    RigActiveCellsResultModifier( const RigGridBase*       grid,
-                                  const RigActiveCellInfo* activeCellInfo,
-                                  std::vector<double>*     reservoirResultValues )
+    RigActiveCellsResultModifier( const RigGridBase* grid, const RigActiveCellInfo* activeCellInfo, std::vector<double>* reservoirResultValues )
         : m_grid( grid )
         , m_activeCellInfo( activeCellInfo )
         , m_reservoirResultValues( reservoirResultValues )

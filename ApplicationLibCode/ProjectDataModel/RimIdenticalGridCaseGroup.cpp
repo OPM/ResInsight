@@ -54,12 +54,7 @@ CAF_PDM_SOURCE_INIT( RimIdenticalGridCaseGroup, "RimIdenticalGridCaseGroup" );
 //--------------------------------------------------------------------------------------------------
 RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
 {
-    CAF_PDM_InitScriptableObjectWithNameAndComment( "Grid Case Group",
-                                                    ":/GridCaseGroup16x16.png",
-                                                    "",
-                                                    "",
-                                                    "GridCaseGroup",
-                                                    "A statistics case group" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Grid Case Group", ":/GridCaseGroup16x16.png", "", "", "GridCaseGroup", "A statistics case group" );
 
     CAF_PDM_InitScriptableField( &name, "UserDescription", QString( "Grid Case Group" ), "Name" );
 
@@ -67,9 +62,7 @@ RimIdenticalGridCaseGroup::RimIdenticalGridCaseGroup()
     groupId.uiCapability()->setUiReadOnly( true );
     groupId.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( false );
 
-    CAF_PDM_InitFieldNoDefault( &statisticsCaseCollection,
-                                "StatisticsCaseCollection",
-                                "statisticsCaseCollection ChildArrayField" );
+    CAF_PDM_InitFieldNoDefault( &statisticsCaseCollection, "StatisticsCaseCollection", "statisticsCaseCollection ChildArrayField" );
     statisticsCaseCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &caseCollection, "CaseCollection", "Source Cases ChildArrayField" );
@@ -190,9 +183,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
         QString errorMessage = QString( "Could not open the Eclipse Grid file: \n" ) + mainCase->gridFileName() + "\n" +
                                "Current working directory is: \n" + QDir::currentPath();
 
-        RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(),
-                                       "Error when opening project file",
-                                       errorMessage );
+        RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), "Error when opening project file", errorMessage );
         return;
     }
 
@@ -358,8 +349,7 @@ RimEclipseStatisticsCase* RimIdenticalGridCaseGroup::createAndAppendStatisticsCa
 {
     RimEclipseStatisticsCase* newStatisticsCase = new RimEclipseStatisticsCase;
 
-    newStatisticsCase->setCaseUserDescription( QString( "Statistics " ) +
-                                               QString::number( statisticsCaseCollection()->reservoirs.size() + 1 ) );
+    newStatisticsCase->setCaseUserDescription( QString( "Statistics " ) + QString::number( statisticsCaseCollection()->reservoirs.size() + 1 ) );
     statisticsCaseCollection()->reservoirs.push_back( newStatisticsCase );
 
     newStatisticsCase->populateResultSelectionAfterLoadingGrid();

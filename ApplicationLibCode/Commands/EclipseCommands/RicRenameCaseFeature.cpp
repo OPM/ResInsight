@@ -45,12 +45,8 @@ void RicRenameCaseFeature::onActionTriggered( bool isChecked )
     if ( !rimCase ) return;
 
     bool    ok;
-    QString userDefinedName = QInputDialog::getText( nullptr,
-                                                     "Rename Case",
-                                                     "Enter new name:",
-                                                     QLineEdit::Normal,
-                                                     rimCase->caseUserDescription(),
-                                                     &ok );
+    QString userDefinedName =
+        QInputDialog::getText( nullptr, "Rename Case", "Enter new name:", QLineEdit::Normal, rimCase->caseUserDescription(), &ok );
 
     if ( !ok ) return;
 

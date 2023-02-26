@@ -52,9 +52,8 @@ public:
     std::vector<RimSummaryCase*>           topLevelSummaryCases() const;
     std::vector<RimSummaryCaseCollection*> summaryCaseCollections() const;
 
-    std::vector<RimSummaryCase*>
-        createSummaryCasesFromFileInfos( const std::vector<RifSummaryCaseFileResultInfo>& summaryHeaderFileInfos,
-                                         bool                                             showProgress = false );
+    std::vector<RimSummaryCase*> createSummaryCasesFromFileInfos( const std::vector<RifSummaryCaseFileResultInfo>& summaryHeaderFileInfos,
+                                                                  bool                                             showProgress = false );
 
     RimSummaryCase* findSummaryCaseFromEclipseResultCase( const RimEclipseResultCase* eclResCase ) const;
     RimSummaryCase* findSummaryCaseFromFileName( const QString& fileName ) const;
@@ -81,9 +80,9 @@ public:
 private:
     void initAfterRead() override;
 
-    static void loadSummaryCaseData( std::vector<RimSummaryCase*> summaryCases );
-    static void loadFileSummaryCaseData( std::vector<RimFileSummaryCase*> fileSummaryCases );
-    static void reassignSummaryCurves( const RimGridSummaryCase* fromGridCase, RimFileSummaryCase* toFileCase );
+    static void                      loadSummaryCaseData( std::vector<RimSummaryCase*> summaryCases );
+    static void                      loadFileSummaryCaseData( std::vector<RimFileSummaryCase*> fileSummaryCases );
+    static void                      reassignSummaryCurves( const RimGridSummaryCase* fromGridCase, RimFileSummaryCase* toFileCase );
     static RimSummaryCaseCollection* defaultAllocator();
 
     void onCaseNameChanged( const SignalEmitter* emitter );

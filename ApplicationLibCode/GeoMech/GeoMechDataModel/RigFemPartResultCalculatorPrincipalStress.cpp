@@ -52,96 +52,66 @@ bool RigFemPartResultCalculatorPrincipalStress::isMatching( const RigFemResultAd
 {
     return ( ( resVarAddr.fieldName == "SE" || resVarAddr.fieldName == "ST" ) &&
              ( resVarAddr.componentName == "S1" || resVarAddr.componentName == "S2" || resVarAddr.componentName == "S3" ||
-               resVarAddr.componentName == "S1inc" || resVarAddr.componentName == "S1azi" ||
-               resVarAddr.componentName == "S2inc" || resVarAddr.componentName == "S2azi" ||
-               resVarAddr.componentName == "S3inc" || resVarAddr.componentName == "S3azi" ) );
+               resVarAddr.componentName == "S1inc" || resVarAddr.componentName == "S1azi" || resVarAddr.componentName == "S2inc" ||
+               resVarAddr.componentName == "S2azi" || resVarAddr.componentName == "S3inc" || resVarAddr.componentName == "S3azi" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultCalculatorPrincipalStress::calculate( int                        partIndex,
-                                                                                const RigFemResultAddress& resVarAddr )
+RigFemScalarResultFrames* RigFemPartResultCalculatorPrincipalStress::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
 {
     CVF_ASSERT( resVarAddr.componentName == "S1" || resVarAddr.componentName == "S2" || resVarAddr.componentName == "S3" ||
-                resVarAddr.componentName == "S1inc" || resVarAddr.componentName == "S1azi" ||
-                resVarAddr.componentName == "S2inc" || resVarAddr.componentName == "S2azi" ||
-                resVarAddr.componentName == "S3inc" || resVarAddr.componentName == "S3azi" );
+                resVarAddr.componentName == "S1inc" || resVarAddr.componentName == "S1azi" || resVarAddr.componentName == "S2inc" ||
+                resVarAddr.componentName == "S2azi" || resVarAddr.componentName == "S3inc" || resVarAddr.componentName == "S3azi" );
 
     caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 7, "" );
-    stepCountProgress.setProgressDescription(
-        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
+    stepCountProgress.setProgressDescription( "Calculating " +
+                                              QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
     stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* s11Frames =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( resVarAddr.resultPosType,
-                                                                         resVarAddr.fieldName,
-                                                                         "S11" ) );
+        m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "S11" ) );
     stepCountProgress.incrementProgress();
     stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
     RigFemScalarResultFrames* s22Frames =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( resVarAddr.resultPosType,
-                                                                         resVarAddr.fieldName,
-                                                                         "S22" ) );
+        m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "S22" ) );
     stepCountProgress.incrementProgress();
     stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
     RigFemScalarResultFrames* s33Frames =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( resVarAddr.resultPosType,
-                                                                         resVarAddr.fieldName,
-                                                                         "S33" ) );
+        m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "S33" ) );
     stepCountProgress.incrementProgress();
     stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
     RigFemScalarResultFrames* s12Frames =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( resVarAddr.resultPosType,
-                                                                         resVarAddr.fieldName,
-                                                                         "S12" ) );
+        m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "S12" ) );
     stepCountProgress.incrementProgress();
     stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
     RigFemScalarResultFrames* s13Frames =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( resVarAddr.resultPosType,
-                                                                         resVarAddr.fieldName,
-                                                                         "S13" ) );
+        m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "S13" ) );
     stepCountProgress.incrementProgress();
     stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
     RigFemScalarResultFrames* s23Frames =
-        m_resultCollection->findOrLoadScalarResult( partIndex,
-                                                    RigFemResultAddress( resVarAddr.resultPosType,
-                                                                         resVarAddr.fieldName,
-                                                                         "S23" ) );
+        m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "S23" ) );
 
     RigFemScalarResultFrames* s1Frames =
-        m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "S1" ) );
+        m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "S1" ) );
     RigFemScalarResultFrames* s2Frames =
-        m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "S2" ) );
+        m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "S2" ) );
     RigFemScalarResultFrames* s3Frames =
-        m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "S3" ) );
+        m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "S3" ) );
 
     RigFemScalarResultFrames* s1IncFrames =
-        m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "S1inc" ) );
+        m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "S1inc" ) );
     RigFemScalarResultFrames* s1AziFrames =
-        m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "S1azi" ) );
+        m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "S1azi" ) );
     RigFemScalarResultFrames* s2IncFrames =
-        m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "S2inc" ) );
+        m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "S2inc" ) );
     RigFemScalarResultFrames* s2AziFrames =
-        m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "S2azi" ) );
+        m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "S2azi" ) );
     RigFemScalarResultFrames* s3IncFrames =
-        m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "S3inc" ) );
+        m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "S3inc" ) );
     RigFemScalarResultFrames* s3AziFrames =
-        m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "S3azi" ) );
+        m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "S3azi" ) );
 
     stepCountProgress.incrementProgress();
 

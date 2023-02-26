@@ -102,8 +102,7 @@ RimWellMeasurementInView::~RimWellMeasurementInView()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellMeasurementInView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
-                                                     QString                 uiConfigName /*= ""*/ )
+void RimWellMeasurementInView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
     uiTreeOrdering.add( &m_legendConfig );
     uiTreeOrdering.skipRemainingChildren( true );
@@ -133,9 +132,7 @@ void RimWellMeasurementInView::defineUiOrdering( QString uiConfigName, caf::PdmU
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellMeasurementInView::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                      QString                    uiConfigName,
-                                                      caf::PdmUiEditorAttribute* attribute )
+void RimWellMeasurementInView::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( m_minimumResultValue == cvf::UNDEFINED_DOUBLE || m_maximumResultValue == cvf::UNDEFINED_DOUBLE )
     {
@@ -154,8 +151,7 @@ void RimWellMeasurementInView::defineEditorAttribute( const caf::PdmFieldHandle*
 
     if ( field == &m_radiusScaleFactor )
     {
-        caf::PdmUiDoubleValueEditorAttribute* uiDoubleValueEditorAttr =
-            dynamic_cast<caf::PdmUiDoubleValueEditorAttribute*>( attribute );
+        caf::PdmUiDoubleValueEditorAttribute* uiDoubleValueEditorAttr = dynamic_cast<caf::PdmUiDoubleValueEditorAttribute*>( attribute );
         if ( uiDoubleValueEditorAttr )
         {
             uiDoubleValueEditorAttr->m_decimals  = 2;
@@ -167,9 +163,7 @@ void RimWellMeasurementInView::defineEditorAttribute( const caf::PdmFieldHandle*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellMeasurementInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                 const QVariant&            oldValue,
-                                                 const QVariant&            newValue )
+void RimWellMeasurementInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_wells )
     {
@@ -228,7 +222,7 @@ bool RimWellMeasurementInView::updateLegendData()
 
     if ( hasCategoryResult() )
     {
-        cvf::Color3ub color = cvf::Color3ub( RimWellMeasurement::mapToColor( measurementKind() ) );
+        cvf::Color3ub                                        color = cvf::Color3ub( RimWellMeasurement::mapToColor( measurementKind() ) );
         std::vector<std::tuple<QString, int, cvf::Color3ub>> categories;
         categories.push_back( std::make_tuple( measurementKind(), 0, color ) );
         m_legendConfig->setCategoryItems( categories );
@@ -241,8 +235,7 @@ bool RimWellMeasurementInView::updateLegendData()
         std::vector<QString> selectedMeasurementKinds;
         selectedMeasurementKinds.push_back( m_measurementKind );
         std::vector<RimWellMeasurement*> wellMeasurements =
-            RimWellMeasurementFilter::filterMeasurements( wellMeasurementCollection->measurements(),
-                                                          selectedMeasurementKinds );
+            RimWellMeasurementFilter::filterMeasurements( wellMeasurementCollection->measurements(), selectedMeasurementKinds );
 
         m_minimumResultValue    = HUGE_VAL;
         m_maximumResultValue    = -HUGE_VAL;
@@ -269,10 +262,7 @@ bool RimWellMeasurementInView::updateLegendData()
             }
 
             m_legendConfig->setTitle( QString( "Well Measurement: \n" ) + selectedMeasurementKinds[0] );
-            m_legendConfig->setAutomaticRanges( m_minimumResultValue,
-                                                m_maximumResultValue,
-                                                m_minimumResultValue,
-                                                m_maximumResultValue );
+            m_legendConfig->setAutomaticRanges( m_minimumResultValue, m_maximumResultValue, m_minimumResultValue, m_maximumResultValue );
             m_legendConfig->setClosestToZeroValues( posClosestToZero, negClosestToZero, posClosestToZero, negClosestToZero );
             return true;
         }
@@ -284,14 +274,12 @@ bool RimWellMeasurementInView::updateLegendData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellMeasurementInView::updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer,
-                                                                    bool       isUsingOverrideViewer )
+void RimWellMeasurementInView::updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer )
 {
     bool addToViewer = updateLegendData();
     if ( addToViewer )
     {
-        nativeOrOverrideViewer->addColorLegendToBottomLeftCorner( m_legendConfig->titledOverlayFrame(),
-                                                                  isUsingOverrideViewer );
+        nativeOrOverrideViewer->addColorLegendToBottomLeftCorner( m_legendConfig->titledOverlayFrame(), isUsingOverrideViewer );
     }
 }
 

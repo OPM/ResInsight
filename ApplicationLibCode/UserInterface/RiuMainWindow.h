@@ -251,8 +251,7 @@ private slots:
     void customMenuRequested( const QPoint& pos );
 
 private:
-    void selectViewInProjectTreePreservingSubItemSelection( const Rim3dView* previousActiveReservoirView,
-                                                            Rim3dView*       activatedView );
+    void selectViewInProjectTreePreservingSubItemSelection( const Rim3dView* previousActiveReservoirView, Rim3dView* activatedView );
 
     // Pdm System :
 public:

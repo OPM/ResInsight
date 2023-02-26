@@ -40,13 +40,11 @@ public:
 
     cvf::Vec3d       displayOffset() const override;
     cvf::BoundingBox boundingBox() const override;
-    void             findIntersectingCells( const cvf::BoundingBox& intersectingBB,
-                                            std::vector<size_t>*    intersectedCells ) const override;
+    void             findIntersectingCells( const cvf::BoundingBox& intersectingBB, std::vector<size_t>* intersectedCells ) const override;
     bool             useCell( size_t cellIndex ) const override;
     void             cellCornerVertices( size_t cellIndex, cvf::Vec3d cellCorners[8] ) const override;
     void             cellCornerIndices( size_t cellIndex, size_t cornerIndices[8] ) const override;
-    const RigFault*  findFaultFromCellIndexAndCellFace( size_t                             reservoirCellIndex,
-                                                        cvf::StructGridInterface::FaceType face ) const override;
+    const RigFault*  findFaultFromCellIndexAndCellFace( size_t reservoirCellIndex, cvf::StructGridInterface::FaceType face ) const override;
 
 private:
     cvf::cref<RigFemPartCollection> m_femParts;

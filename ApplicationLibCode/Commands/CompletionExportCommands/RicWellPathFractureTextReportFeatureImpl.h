@@ -49,10 +49,8 @@ private:
     QString createFractureText( const std::vector<RimFractureTemplate*>& fractureTemplates ) const;
     QString createFractureInstancesText( const std::vector<RimWellPathFracture*>& fractureTemplates ) const;
 
-    QString createFractureCompletionSummaryText(
-        const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems ) const;
-    QString createFracturePressureDepletionSummaryText(
-        const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems ) const;
+    QString createFractureCompletionSummaryText( const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems ) const;
+    QString createFracturePressureDepletionSummaryText( const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems ) const;
 
     QString createConnectionsPerWellText( const std::vector<RicWellPathFractureReportItem>& wellPathFractureReportItems ) const;
 

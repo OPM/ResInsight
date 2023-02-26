@@ -47,11 +47,8 @@ public:
     using Curve = std::pair<std::vector<double>, std::vector<double>>;
 
     // Used to "steal" the data from this one using swap
-    std::map<RigFlowDiagResultAddress, std::vector<double>>& nativeResults() { return m_nativeResults; }
-    std::map<std::pair<std::string, std::string>, std::pair<double, double>>& injProdWellPairFluxes()
-    {
-        return m_injProdWellPairFluxes;
-    }
+    std::map<RigFlowDiagResultAddress, std::vector<double>>&                  nativeResults() { return m_nativeResults; }
+    std::map<std::pair<std::string, std::string>, std::pair<double, double>>& injProdWellPairFluxes() { return m_injProdWellPairFluxes; }
 
 private:
     void addResult( const RigFlowDiagResultAddress& resAddr, const std::map<int, double>& cellValues );
@@ -149,7 +146,7 @@ public:
     std::vector<RelPermCurve> calculateRelPermCurves( size_t activeCellIndex );
 
     std::vector<PvtCurve> calculatePvtCurves( PvtCurveType pvtCurveType, int pvtNum );
-    bool calculatePvtDynamicPropertiesFvf( int pvtNum, double pressure, double rs, double rv, double* bo, double* bg );
+    bool                  calculatePvtDynamicPropertiesFvf( int pvtNum, double pressure, double rs, double rv, double* bo, double* bg );
     bool calculatePvtDynamicPropertiesViscosity( int pvtNum, double pressure, double rs, double rv, double* mu_o, double* mu_g );
 
 private:

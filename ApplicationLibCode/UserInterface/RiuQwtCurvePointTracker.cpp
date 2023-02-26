@@ -36,9 +36,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQwtCurvePointTracker::RiuQwtCurvePointTracker( QwtPlot*                      plot,
-                                                  bool                          isMainAxisHorizontal,
-                                                  RiuPlotCurveInfoTextProvider* curveInfoTextProvider )
+RiuQwtCurvePointTracker::RiuQwtCurvePointTracker( QwtPlot* plot, bool isMainAxisHorizontal, RiuPlotCurveInfoTextProvider* curveInfoTextProvider )
     : QwtPlotPicker( plot->canvas() )
     , m_plot( plot )
     , m_isMainAxisHorizontal( isMainAxisHorizontal )
@@ -222,8 +220,8 @@ QPointF RiuQwtCurvePointTracker::closestCurvePoint( const QPoint& cursorPosition
 
         if ( m_curveInfoTextProvider )
         {
-            auto additionalText = m_curveInfoTextProvider->additionalText( dynamic_cast<RiuPlotCurve*>( closestCurve ),
-                                                                           closestPointSampleIndex );
+            auto additionalText =
+                m_curveInfoTextProvider->additionalText( dynamic_cast<RiuPlotCurve*>( closestCurve ), closestPointSampleIndex );
 
             if ( !additionalText.isEmpty() )
             {
@@ -239,9 +237,7 @@ QPointF RiuQwtCurvePointTracker::closestCurvePoint( const QPoint& cursorPosition
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtCurvePointTracker::updateClosestCurvePointMarker( const QPointF& closestPoint,
-                                                             QwtAxisId      relatedXAxis,
-                                                             QwtAxisId      relatedYAxis ) const
+void RiuQwtCurvePointTracker::updateClosestCurvePointMarker( const QPointF& closestPoint, QwtAxisId relatedXAxis, QwtAxisId relatedYAxis ) const
 {
     bool replotRequired = false;
 

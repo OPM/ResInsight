@@ -84,8 +84,7 @@ public:
 
     void distributeNNCsToFaults();
 
-    const RigFault* findFaultFromCellIndexAndCellFace( size_t                             reservoirCellIndex,
-                                                       cvf::StructGridInterface::FaceType face ) const;
+    const RigFault* findFaultFromCellIndexAndCellFace( size_t reservoirCellIndex, cvf::StructGridInterface::FaceType face ) const;
     bool            isFaceNormalsOutwards() const;
     void            computeFaceNormalsDirection( const std::vector<size_t>& reservoirCellIndices ) const;
 

@@ -108,8 +108,7 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t frameIndex, const caf::Displ
     cvf::ref<RivSimWellPipeSourceInfo> sourceInfo = new RivSimWellPipeSourceInfo( m_rimWell, 0 );
 
     // Well disk geometry
-    double arrowLength =
-        characteristicCellSize * simWellInViewCollection()->wellHeadScaleFactor() * m_rimWell->wellHeadScaleFactor();
+    double arrowLength = characteristicCellSize * simWellInViewCollection()->wellHeadScaleFactor() * m_rimWell->wellHeadScaleFactor();
 
     cvf::Vec3d diskPosition = whEndPos;
     diskPosition.z() += pipeRadius + arrowLength * 2.0;
@@ -253,20 +252,14 @@ void RivWellDiskPartMgr::buildWellDiskParts( size_t frameIndex, const caf::Displ
 
             if ( gasFraction > valueThresholdForLabel )
             {
-                auto p = createTextAndLocation( aggregatedFraction + gasFraction / 2.0,
-                                                diskPosition,
-                                                ijScaleFactor,
-                                                diskData.gasSigned() );
+                auto p = createTextAndLocation( aggregatedFraction + gasFraction / 2.0, diskPosition, ijScaleFactor, diskData.gasSigned() );
                 labelsWithPosition.push_back( p );
                 aggregatedFraction += gasFraction;
             }
 
             if ( waterFraction > valueThresholdForLabel )
             {
-                auto p = createTextAndLocation( aggregatedFraction + waterFraction / 2.0,
-                                                diskPosition,
-                                                ijScaleFactor,
-                                                diskData.waterSigned() );
+                auto p = createTextAndLocation( aggregatedFraction + waterFraction / 2.0, diskPosition, ijScaleFactor, diskData.waterSigned() );
 
                 labelsWithPosition.push_back( p );
                 aggregatedFraction += waterFraction;

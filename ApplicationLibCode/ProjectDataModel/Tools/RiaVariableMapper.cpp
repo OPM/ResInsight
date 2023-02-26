@@ -30,8 +30,7 @@ RiaVariableMapper::RiaVariableMapper( const QString& variableNameValueTable )
     m_maxUsedIdNumber = 0;
     QStringList lines = RiaTextStringTools::splitSkipEmptyParts( variableNameValueTable, ";" );
 
-    QRegularExpression realizationRe =
-        QRegularExpression( QString( "[%1]\\w*[%2]" ).arg( variableToken() ).arg( variableToken() ) );
+    QRegularExpression realizationRe = QRegularExpression( QString( "[%1]\\w*[%2]" ).arg( variableToken() ).arg( variableToken() ) );
 
     for ( const QString& line : lines )
     {
@@ -50,7 +49,7 @@ RiaVariableMapper::RiaVariableMapper( const QString& variableNameValueTable )
             {
                 bool    isOk       = false;
                 QString numberText = variableNameStripped.right( variableNameStripped.size() - pathIdBaseString().size() );
-                size_t idNumber    = numberText.toUInt( &isOk );
+                size_t  idNumber   = numberText.toUInt( &isOk );
 
                 if ( isOk )
                 {

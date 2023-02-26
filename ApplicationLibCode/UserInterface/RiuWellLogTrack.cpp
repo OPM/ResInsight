@@ -105,9 +105,8 @@ void RiuWellLogTrack::createAnnotationsInPlot( const std::vector<RimPlotAxisAnno
     m_plotDefinition->firstAncestorOfType( depthTrackPlot );
     if ( !depthTrackPlot ) return;
 
-    auto orientation = depthTrackPlot->depthOrientation() == RiaDefines::Orientation::HORIZONTAL
-                           ? RiaDefines::Orientation::VERTICAL
-                           : RiaDefines::Orientation::HORIZONTAL;
+    auto orientation = depthTrackPlot->depthOrientation() == RiaDefines::Orientation::HORIZONTAL ? RiaDefines::Orientation::VERTICAL
+                                                                                                 : RiaDefines::Orientation::HORIZONTAL;
     for ( auto annotation : annotations )
     {
         m_annotationTool->attachAnnotation( qwtPlot(), annotation, orientation );
@@ -184,8 +183,7 @@ QwtText RiuWellLogCurvePointTracker::trackerText( const QPoint& pos ) const
         QString curveInfoText;
         QString depthAxisValueString;
         QString xAxisValueString;
-        QPointF closestPoint =
-            closestCurvePoint( pos, &curveInfoText, &xAxisValueString, &depthAxisValueString, &relatedXAxis, &relatedYAxis );
+        QPointF closestPoint = closestCurvePoint( pos, &curveInfoText, &xAxisValueString, &depthAxisValueString, &relatedXAxis, &relatedYAxis );
         if ( !closestPoint.isNull() )
         {
             QString str;

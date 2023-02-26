@@ -45,9 +45,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicHoloLensRestClient::RicHoloLensRestClient( QString                         serverUrl,
-                                              QString                         sessionName,
-                                              RicHoloLensRestResponseHandler* responseHandler )
+RicHoloLensRestClient::RicHoloLensRestClient( QString serverUrl, QString sessionName, RicHoloLensRestResponseHandler* responseHandler )
     : m_serverUrl( serverUrl )
     , m_sessionName( sessionName )
     , m_responseHandler( responseHandler )
@@ -199,9 +197,7 @@ void RicHoloLensRestClient::slotDeleteSessionFinished()
 void RicHoloLensRestClient::sendMetaData( int metaDataSequenceNumber, const QString& jsonMetaDataString )
 {
     const QString url = m_serverUrl + "/sessions/" + m_sessionName + "/metadata";
-    cvf::Trace::show( "sendMetaData (metaDataSequenceNumber=%d): POST on url: %s",
-                      metaDataSequenceNumber,
-                      url.toLatin1().constData() );
+    cvf::Trace::show( "sendMetaData (metaDataSequenceNumber=%d): POST on url: %s", metaDataSequenceNumber, url.toLatin1().constData() );
 
     const qint64 sendStartTimeStamp_ms = getCurrentTimeStamp_ms();
 
@@ -263,9 +259,7 @@ void RicHoloLensRestClient::slotSendMetaDataFinished()
 
     reply->deleteLater();
 
-    cvf::Trace::show( "sendMetaData (metaDataSequenceNumber=%d) OK, elapsedTime=%.2fs",
-                      metaDataSequenceNumber,
-                      elapsedTime_s );
+    cvf::Trace::show( "sendMetaData (metaDataSequenceNumber=%d) OK, elapsedTime=%.2fs", metaDataSequenceNumber, elapsedTime_s );
     if ( m_responseHandler )
     {
         m_responseHandler->handleSuccessfulSendMetaData( metaDataSequenceNumber, serverData );
@@ -418,8 +412,8 @@ bool RicHoloLensRestClient::detectAndHandleErrorReply( QString operationName, QN
 {
     CVF_ASSERT( reply );
 
-    const QNetworkReply::NetworkError nwErrCode = reply->error();
-    const int httpStatusCode                    = reply->attribute( QNetworkRequest::HttpStatusCodeAttribute ).toInt();
+    const QNetworkReply::NetworkError nwErrCode      = reply->error();
+    const int                         httpStatusCode = reply->attribute( QNetworkRequest::HttpStatusCodeAttribute ).toInt();
     if ( nwErrCode == QNetworkReply::NoError && httpStatusCode == 200 )
     {
         // No error detected
@@ -431,11 +425,8 @@ bool RicHoloLensRestClient::detectAndHandleErrorReply( QString operationName, QN
     {
         const QString nwErrCodeAsString = networkErrorCodeAsString( nwErrCode );
         const QString errText           = reply->errorString();
-        mainErrMsg += QString( "  [nwErr='%1'(%2)  httpStatus=%3]:  %4" )
-                          .arg( nwErrCodeAsString )
-                          .arg( nwErrCode )
-                          .arg( httpStatusCode )
-                          .arg( errText );
+        mainErrMsg +=
+            QString( "  [nwErr='%1'(%2)  httpStatus=%3]:  %4" ).arg( nwErrCodeAsString ).arg( nwErrCode ).arg( httpStatusCode ).arg( errText );
     }
     else
     {

@@ -57,8 +57,7 @@
 
 CAF_PDM_SOURCE_INIT( Rim2dIntersectionView, "Intersection2dView" );
 
-const cvf::Mat4d Rim2dIntersectionView::sm_defaultViewMatrix =
-    cvf::Mat4d( 1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 1000, 0, 0, 0, 1 );
+const cvf::Mat4d Rim2dIntersectionView::sm_defaultViewMatrix = cvf::Mat4d( 1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 1000, 0, 0, 0, 1 );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -194,9 +193,8 @@ bool Rim2dIntersectionView::isTimeStepDependentDataVisible() const
     {
         if ( RimIntersectionResultDefinition* sepInterResultDef = m_intersection->activeSeparateResultDefinition() )
         {
-            return sepInterResultDef->isEclipseResultDefinition()
-                       ? sepInterResultDef->eclipseResultDefinition()->hasDynamicResult()
-                       : sepInterResultDef->geoMechResultDefinition()->hasResult();
+            return sepInterResultDef->isEclipseResultDefinition() ? sepInterResultDef->eclipseResultDefinition()->hasDynamicResult()
+                                                                  : sepInterResultDef->geoMechResultDefinition()->hasResult();
         }
         else
         {
@@ -334,8 +332,7 @@ void Rim2dIntersectionView::update3dInfo()
             }
             else
             {
-                overlayInfoText +=
-                    QString( "<b>Cell result:</b> %1, %2, %3<br>" ).arg( resultPos ).arg( fieldName ).arg( compName );
+                overlayInfoText += QString( "<b>Cell result:</b> %1, %2, %3<br>" ).arg( resultPos ).arg( fieldName ).arg( compName );
             }
         }
     }
@@ -557,8 +554,7 @@ void Rim2dIntersectionView::onCreateDisplayModel()
     m_flatSimWellPipePartMgr = nullptr;
     m_flatWellHeadPartMgr    = nullptr;
 
-    if ( m_intersection->type() == RimExtrudedCurveIntersection::CrossSectionEnum::CS_SIMULATION_WELL &&
-         m_intersection->simulationWell() )
+    if ( m_intersection->type() == RimExtrudedCurveIntersection::CrossSectionEnum::CS_SIMULATION_WELL && m_intersection->simulationWell() )
     {
         RimEclipseView* eclipseView = nullptr;
         m_intersection->firstAncestorOrThisOfType( eclipseView );
@@ -571,8 +567,7 @@ void Rim2dIntersectionView::onCreateDisplayModel()
     }
 
     m_flatWellpathPartMgr = nullptr;
-    if ( m_intersection->type() == RimExtrudedCurveIntersection::CrossSectionEnum::CS_WELL_PATH &&
-         m_intersection->wellPath() )
+    if ( m_intersection->type() == RimExtrudedCurveIntersection::CrossSectionEnum::CS_WELL_PATH && m_intersection->wellPath() )
     {
         Rim3dView* settingsView = nullptr;
         m_intersection->firstAncestorOrThisOfType( settingsView );
@@ -654,12 +649,11 @@ void Rim2dIntersectionView::onUpdateDisplayModelForCurrentTimeStep()
                 cvf::ref<cvf::ModelBasicList> dynWellPathModel = new cvf::ModelBasicList;
                 dynWellPathModel->setName( name );
 
-                m_flatWellpathPartMgr
-                    ->appendFlattenedDynamicGeometryPartsToModel( dynWellPathModel.p(),
-                                                                  m_currentTimeStep,
-                                                                  this->displayCoordTransform().p(),
-                                                                  this->ownerCase()->characteristicCellSize(),
-                                                                  this->ownerCase()->activeCellsBoundingBox() );
+                m_flatWellpathPartMgr->appendFlattenedDynamicGeometryPartsToModel( dynWellPathModel.p(),
+                                                                                   m_currentTimeStep,
+                                                                                   this->displayCoordTransform().p(),
+                                                                                   this->ownerCase()->characteristicCellSize(),
+                                                                                   this->ownerCase()->activeCellsBoundingBox() );
                 dynWellPathModel->updateBoundingBoxesRecursive();
                 frameScene->addModel( dynWellPathModel.p() );
             }
@@ -846,9 +840,7 @@ void Rim2dIntersectionView::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim2dIntersectionView::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                              const QVariant&            oldValue,
-                                              const QVariant&            newValue )
+void Rim2dIntersectionView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     Rim3dView::fieldChangedByUi( changedField, oldValue, newValue );
 

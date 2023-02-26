@@ -77,9 +77,7 @@ RimThermalFractureTemplate::RimThermalFractureTemplate()
 {
     CAF_PDM_InitScriptableObject( "Fracture Template", ":/FractureTemplate16x16.png" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_filterCakePressureDropType,
-                                          "FilterCakePressureDrop",
-                                          "Filter Cake Pressure Drop" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_filterCakePressureDropType, "FilterCakePressureDrop", "Filter Cake Pressure Drop" );
 
     m_readError = false;
 
@@ -160,8 +158,7 @@ void RimThermalFractureTemplate::loadDataAndUpdate()
 {
     if ( m_readError ) return;
 
-    auto [fractureDefinitionData, errorMessage] =
-        RifThermalFractureReader::readFractureCsvFile( m_stimPlanFileName().path() );
+    auto [fractureDefinitionData, errorMessage] = RifThermalFractureReader::readFractureCsvFile( m_stimPlanFileName().path() );
     if ( errorMessage.size() > 0 ) RiaLogging::error( errorMessage );
 
     m_fractureDefinitionData = fractureDefinitionData;
@@ -171,8 +168,7 @@ void RimThermalFractureTemplate::loadDataAndUpdate()
             int     leakoffPressureDropIndex  = def->getPropertyIndex( RiaDefines::leakoffPressureDropResultName() );
             int     filtratePressureDropIndex = def->getPropertyIndex( RiaDefines::filtratePressureDropResultName() );
             QString injectivityValueTag       = RiaDefines::injectivityFactorResultName();
-            def->addProperty( injectivityValueTag,
-                              RiaDefines::getExpectedThermalFractureUnit( injectivityValueTag, def->unitSystem() ) );
+            def->addProperty( injectivityValueTag, RiaDefines::getExpectedThermalFractureUnit( injectivityValueTag, def->unitSystem() ) );
 
             int injectivityFactorIndex = def->getPropertyIndex( injectivityValueTag );
 
@@ -180,10 +176,8 @@ void RimThermalFractureTemplate::loadDataAndUpdate()
             {
                 for ( int timeStepIndex = 0; timeStepIndex < static_cast<int>( def->numTimeSteps() ); timeStepIndex++ )
                 {
-                    double leakoffPressureDrop =
-                        def->getPropertyValue( leakoffPressureDropIndex, nodeIndex, timeStepIndex );
-                    double filtratePressureDrop =
-                        def->getPropertyValue( filtratePressureDropIndex, nodeIndex, timeStepIndex );
+                    double leakoffPressureDrop  = def->getPropertyValue( leakoffPressureDropIndex, nodeIndex, timeStepIndex );
+                    double filtratePressureDrop = def->getPropertyValue( filtratePressureDropIndex, nodeIndex, timeStepIndex );
 
                     double injectivityValue = ( leakoffPressureDrop - filtratePressureDrop ) / leakoffPressureDrop;
                     def->appendPropertyValue( injectivityFactorIndex, nodeIndex, injectivityValue );
@@ -205,11 +199,9 @@ void RimThermalFractureTemplate::loadDataAndUpdate()
             {
                 for ( int timeStepIndex = 0; timeStepIndex < static_cast<int>( def->numTimeSteps() ); timeStepIndex++ )
                 {
-                    double leakoffPressureDrop =
-                        def->getPropertyValue( leakoffPressureDropIndex, nodeIndex, timeStepIndex );
-                    double filtratePressureDrop =
-                        def->getPropertyValue( filtratePressureDropIndex, nodeIndex, timeStepIndex );
-                    double leakoffMobility = def->getPropertyValue( leakoffMobilityIndex, nodeIndex, timeStepIndex );
+                    double leakoffPressureDrop  = def->getPropertyValue( leakoffPressureDropIndex, nodeIndex, timeStepIndex );
+                    double filtratePressureDrop = def->getPropertyValue( filtratePressureDropIndex, nodeIndex, timeStepIndex );
+                    double leakoffMobility      = def->getPropertyValue( leakoffMobilityIndex, nodeIndex, timeStepIndex );
 
                     double filterCakeMobilityValue = leakoffMobility * ( leakoffPressureDrop / filtratePressureDrop );
                     def->appendPropertyValue( filterCakeMobilityIndex, nodeIndex, filterCakeMobilityValue );
@@ -292,8 +284,7 @@ void RimThermalFractureTemplate::computePerforationLength()
 {
     if ( m_fractureDefinitionData )
     {
-        auto [firstTvd, lastTvd] =
-            RigThermalFractureResultUtil::minMaxDepth( m_fractureDefinitionData, m_activeTimeStepIndex );
+        auto [firstTvd, lastTvd] = RigThermalFractureResultUtil::minMaxDepth( m_fractureDefinitionData, m_activeTimeStepIndex );
 
         if ( firstTvd != HUGE_VAL && lastTvd != HUGE_VAL )
         {
@@ -316,11 +307,10 @@ void RimThermalFractureTemplate::computePerforationLength()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double>
-    RimThermalFractureTemplate::fractureGridResultsForUnitSystem( const QString&                resultName,
-                                                                  const QString&                unitName,
-                                                                  size_t                        timeStepIndex,
-                                                                  RiaDefines::EclipseUnitSystem requiredUnitSystem ) const
+std::vector<double> RimThermalFractureTemplate::fractureGridResultsForUnitSystem( const QString&                resultName,
+                                                                                  const QString&                unitName,
+                                                                                  size_t                        timeStepIndex,
+                                                                                  RiaDefines::EclipseUnitSystem requiredUnitSystem ) const
 {
     auto resultValues = fractureGridResults( resultName, unitName, m_activeTimeStepIndex );
 
@@ -358,8 +348,7 @@ std::pair<QString, QString>
 {
     if ( fractureDefinitionData )
     {
-        std::vector<std::pair<QString, QString>> propertyNamesUnitsOnFile =
-            fractureDefinitionData->getPropertyNamesUnits();
+        std::vector<std::pair<QString, QString>> propertyNamesUnitsOnFile = fractureDefinitionData->getPropertyNamesUnits();
 
         for ( const auto& nameUnit : propertyNamesUnitsOnFile )
         {
@@ -385,8 +374,7 @@ std::pair<QString, QString> RimThermalFractureTemplate::conductivityParameterNam
 {
     if ( m_fractureDefinitionData )
     {
-        std::vector<std::pair<QString, QString>> propertyNamesUnitsOnFile =
-            m_fractureDefinitionData->getPropertyNamesUnits();
+        std::vector<std::pair<QString, QString>> propertyNamesUnitsOnFile = m_fractureDefinitionData->getPropertyNamesUnits();
 
         for ( const auto& nameUnit : propertyNamesUnitsOnFile )
         {
@@ -407,8 +395,7 @@ std::pair<QString, QString> RimThermalFractureTemplate::betaFactorParameterNameA
 {
     if ( m_fractureDefinitionData )
     {
-        std::vector<std::pair<QString, QString>> propertyNamesUnitsOnFile =
-            m_fractureDefinitionData->getPropertyNamesUnits();
+        std::vector<std::pair<QString, QString>> propertyNamesUnitsOnFile = m_fractureDefinitionData->getPropertyNamesUnits();
 
         for ( const auto& nameUnit : propertyNamesUnitsOnFile )
         {
@@ -585,18 +572,14 @@ std::vector<std::pair<QString, QString>> RimThermalFractureTemplate::uiResultNam
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<double>> RimThermalFractureTemplate::resultValues( const QString& uiResultName,
-                                                                           const QString& unitName,
-                                                                           size_t         timeStepIndex ) const
+std::vector<std::vector<double>>
+    RimThermalFractureTemplate::resultValues( const QString& uiResultName, const QString& unitName, size_t timeStepIndex ) const
 {
     if ( m_fractureDefinitionData )
     {
         QString fileResultName = mapUiResultNameToFileResultName( uiResultName );
 
-        return RigThermalFractureResultUtil::getDataAtTimeIndex( m_fractureDefinitionData,
-                                                                 fileResultName,
-                                                                 unitName,
-                                                                 timeStepIndex );
+        return RigThermalFractureResultUtil::getDataAtTimeIndex( m_fractureDefinitionData, fileResultName, unitName, timeStepIndex );
     }
 
     return std::vector<std::vector<double>>();
@@ -605,18 +588,14 @@ std::vector<std::vector<double>> RimThermalFractureTemplate::resultValues( const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RimThermalFractureTemplate::fractureGridResults( const QString& uiResultName,
-                                                                     const QString& unitName,
-                                                                     size_t         timeStepIndex ) const
+std::vector<double>
+    RimThermalFractureTemplate::fractureGridResults( const QString& uiResultName, const QString& unitName, size_t timeStepIndex ) const
 {
     if ( m_fractureDefinitionData )
     {
         QString fileResultName = mapUiResultNameToFileResultName( uiResultName );
 
-        return RigThermalFractureResultUtil::fractureGridResults( m_fractureDefinitionData,
-                                                                  fileResultName,
-                                                                  unitName,
-                                                                  timeStepIndex );
+        return RigThermalFractureResultUtil::fractureGridResults( m_fractureDefinitionData, fileResultName, unitName, timeStepIndex );
     }
 
     return std::vector<double>();
@@ -806,10 +785,8 @@ bool RimThermalFractureTemplate::placeFractureUsingTemplateData( RimFracture* fr
 
     double md = wellPathGeometry->closestMeasuredDepth( centerPosition );
 
-    RiaLogging::info( QString( "Placing thermal fracture. Posotion: [%1 %2 %3]" )
-                          .arg( centerPosition.x() )
-                          .arg( centerPosition.y() )
-                          .arg( centerPosition.z() ) );
+    RiaLogging::info(
+        QString( "Placing thermal fracture. Posotion: [%1 %2 %3]" ).arg( centerPosition.x() ).arg( centerPosition.y() ).arg( centerPosition.z() ) );
     RiaLogging::info( QString( "Computed MD: %1" ).arg( md ) );
 
     RimWellPathFracture* wellPathFracture = dynamic_cast<RimWellPathFracture*>( fracture );

@@ -124,8 +124,7 @@ size_t RigCompletionDataGridCell::localCellIndexK() const
 //--------------------------------------------------------------------------------------------------
 QString RigCompletionDataGridCell::oneBasedLocalCellIndexString() const
 {
-    QString text =
-        QString( "[%1, %2, %3]" ).arg( m_localCellIndexI + 1 ).arg( m_localCellIndexJ + 1 ).arg( m_localCellIndexK + 1 );
+    QString text = QString( "[%1, %2, %3]" ).arg( m_localCellIndexI + 1 ).arg( m_localCellIndexJ + 1 ).arg( m_localCellIndexK + 1 );
 
     return text;
 }

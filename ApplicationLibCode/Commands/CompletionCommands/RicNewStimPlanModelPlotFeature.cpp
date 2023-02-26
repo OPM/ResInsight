@@ -78,9 +78,8 @@ RimStimPlanModelPlot* RicNewStimPlanModelPlotFeature::createPlot( RimStimPlanMod
     plot->setStimPlanModel( stimPlanModel );
 
     {
-        auto            task = progInfo.task( "Creating formation track", 2 );
-        RimEclipseCase* formationEclipseCase =
-            stimPlanModel->eclipseCaseForType( RimExtractionConfiguration::EclipseCaseType::STATIC_CASE );
+        auto            task                 = progInfo.task( "Creating formation track", 2 );
+        RimEclipseCase* formationEclipseCase = stimPlanModel->eclipseCaseForType( RimExtractionConfiguration::EclipseCaseType::STATIC_CASE );
         createFormationTrack( plot, stimPlanModel, formationEclipseCase );
     }
 
@@ -123,12 +122,7 @@ RimStimPlanModelPlot* RicNewStimPlanModelPlotFeature::createPlot( RimStimPlanMod
                                timeStep,
                                "Stress",
                                { RiaDefines::CurveProperty::INITIAL_STRESS, RiaDefines::CurveProperty::STRESS } );
-        createParametersTrack( plot,
-                               stimPlanModel,
-                               eclipseCase,
-                               timeStep,
-                               "Stress Gradient",
-                               { RiaDefines::CurveProperty::STRESS_GRADIENT } );
+        createParametersTrack( plot, stimPlanModel, eclipseCase, timeStep, "Stress Gradient", { RiaDefines::CurveProperty::STRESS_GRADIENT } );
     }
 
     {
@@ -156,12 +150,7 @@ RimStimPlanModelPlot* RicNewStimPlanModelPlotFeature::createPlot( RimStimPlanMod
 
     {
         auto task = progInfo.task( "Creating temperature track", 2 );
-        createParametersTrack( plot,
-                               stimPlanModel,
-                               eclipseCase,
-                               timeStep,
-                               "Temperature",
-                               { RiaDefines::CurveProperty::TEMPERATURE } );
+        createParametersTrack( plot, stimPlanModel, eclipseCase, timeStep, "Temperature", { RiaDefines::CurveProperty::TEMPERATURE } );
     }
 
     {
@@ -213,9 +202,7 @@ void RicNewStimPlanModelPlotFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewStimPlanModelPlotFeature::createFormationTrack( RimStimPlanModelPlot* plot,
-                                                           RimStimPlanModel*     stimPlanModel,
-                                                           RimEclipseCase*       eclipseCase )
+void RicNewStimPlanModelPlotFeature::createFormationTrack( RimStimPlanModelPlot* plot, RimStimPlanModel* stimPlanModel, RimEclipseCase* eclipseCase )
 {
     RimWellLogTrack* formationTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, "Formations", plot );
     formationTrack->setFormationWellPath( stimPlanModel->thicknessDirectionWellPath() );
@@ -236,9 +223,7 @@ void RicNewStimPlanModelPlotFeature::createFormationTrack( RimStimPlanModelPlot*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewStimPlanModelPlotFeature::createFaciesTrack( RimStimPlanModelPlot* plot,
-                                                        RimStimPlanModel*     stimPlanModel,
-                                                        RimEclipseCase*       eclipseCase )
+void RicNewStimPlanModelPlotFeature::createFaciesTrack( RimStimPlanModelPlot* plot, RimStimPlanModel* stimPlanModel, RimEclipseCase* eclipseCase )
 {
     RimStimPlanModelTemplate* stimPlanModelTemplate = stimPlanModel->stimPlanModelTemplate();
     if ( !stimPlanModelTemplate ) return;
@@ -296,9 +281,7 @@ void RicNewStimPlanModelPlotFeature::createFaciesTrack( RimStimPlanModelPlot* pl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewStimPlanModelPlotFeature::createLayersTrack( RimStimPlanModelPlot* plot,
-                                                        RimStimPlanModel*     stimPlanModel,
-                                                        RimEclipseCase*       eclipseCase )
+void RicNewStimPlanModelPlotFeature::createLayersTrack( RimStimPlanModelPlot* plot, RimStimPlanModel* stimPlanModel, RimEclipseCase* eclipseCase )
 {
     RimWellLogTrack* faciesTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, "Layers", plot );
     faciesTrack->setFormationWellPath( stimPlanModel->thicknessDirectionWellPath() );
@@ -351,7 +334,7 @@ void RicNewStimPlanModelPlotFeature::createParametersTrack( RimStimPlanModelPlot
                                                             int                                           timeStep,
                                                             const QString&                                trackTitle,
                                                             const std::vector<RiaDefines::CurveProperty>& propertyTypes,
-                                                            bool isPlotLogarithmic )
+                                                            bool                                          isPlotLogarithmic )
 {
     CAF_ASSERT( !propertyTypes.empty() );
 
@@ -430,8 +413,7 @@ void RicNewStimPlanModelPlotFeature::createParametersTrack( RimStimPlanModelPlot
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimStimPlanModelPlot* RicNewStimPlanModelPlotFeature::createStimPlanModelPlot( bool           showAfterCreation,
-                                                                               const QString& plotDescription )
+RimStimPlanModelPlot* RicNewStimPlanModelPlotFeature::createStimPlanModelPlot( bool showAfterCreation, const QString& plotDescription )
 
 {
     RimStimPlanModelPlotCollection* stimPlanModelPlotColl = stimPlanModelPlotCollection();
@@ -477,8 +459,7 @@ RimStimPlanModelPlotCollection* RicNewStimPlanModelPlotFeature::stimPlanModelPlo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewStimPlanModelPlotFeature::shouldShowByDefault( const std::vector<RiaDefines::CurveProperty>& propertyTypes,
-                                                          bool useDetailedFluidLoss )
+bool RicNewStimPlanModelPlotFeature::shouldShowByDefault( const std::vector<RiaDefines::CurveProperty>& propertyTypes, bool useDetailedFluidLoss )
 {
     std::vector<RiaDefines::CurveProperty> defaultPropertyTypes = {
         RiaDefines::CurveProperty::FACIES,
