@@ -56,15 +56,14 @@ bool RigFemPartResultCalculatorNodalGradients::isMatching( const RigFemResultAdd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultCalculatorNodalGradients::calculate( int                        partIndex,
-                                                                               const RigFemResultAddress& resVarAddr )
+RigFemScalarResultFrames* RigFemPartResultCalculatorNodalGradients::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
 {
     CVF_ASSERT( resVarAddr.fieldName == "POR-Bar" );
     CVF_ASSERT( resVarAddr.componentName == "X" || resVarAddr.componentName == "Y" || resVarAddr.componentName == "Z" );
 
     caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 5, "" );
-    stepCountProgress.setProgressDescription(
-        "Calculating gradient: " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
+    stepCountProgress.setProgressDescription( "Calculating gradient: " +
+                                              QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
     stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemScalarResultFrames* dataFramesX =
@@ -133,9 +132,8 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNodalGradients::calculate( i
                         int elmNodeCount = RigFemTypes::elementNodeCount( elmType );
                         for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
                         {
-                            size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
-                            size_t resultValueIdx =
-                                femPart->resultValueIdxFromResultPosType( RIG_NODAL, elmIdx, elmNodIdx );
+                            size_t elmNodResIdx   = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
+                            size_t resultValueIdx = femPart->resultValueIdxFromResultPosType( RIG_NODAL, elmIdx, elmNodIdx );
 
                             cornerValues[elmNodIdx] = srcFrameData[resultValueIdx];
                             hexCorners[elmNodIdx]   = cvf::Vec3d( nodeCoords[resultValueIdx] );
@@ -145,9 +143,8 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNodalGradients::calculate( i
 
                         for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
                         {
-                            size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
-                            size_t resultValueIdx =
-                                femPart->resultValueIdxFromResultPosType( RIG_NODAL, elmIdx, elmNodIdx );
+                            size_t elmNodResIdx   = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
+                            size_t resultValueIdx = femPart->resultValueIdxFromResultPosType( RIG_NODAL, elmIdx, elmNodIdx );
                             // Only use the gradient for particular corner corresponding to the node
                             if ( static_cast<size_t>( nodeIdx ) == resultValueIdx )
                             {

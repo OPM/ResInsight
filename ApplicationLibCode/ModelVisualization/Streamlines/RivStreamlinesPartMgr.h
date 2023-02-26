@@ -80,12 +80,9 @@ private:
     };
 
 private:
-    cvf::ref<cvf::Part> createPart( const RimStreamlineInViewCollection& streamlineCollection,
-                                    Streamline&                          streamlineVisualization );
+    cvf::ref<cvf::Part> createPart( const RimStreamlineInViewCollection& streamlineCollection, Streamline& streamlineVisualization );
 
-    void createResultColorTextureCoords( cvf::Vec2fArray*         textureCoords,
-                                         const Streamline&        streamline,
-                                         const cvf::ScalarMapper* mapper );
+    void createResultColorTextureCoords( cvf::Vec2fArray* textureCoords, const Streamline& streamline, const cvf::ScalarMapper* mapper );
 
     void setAlpha( cvf::ref<cvf::Part> part, float alpha );
 

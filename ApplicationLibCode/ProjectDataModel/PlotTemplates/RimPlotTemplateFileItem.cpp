@@ -57,8 +57,7 @@ void RimPlotTemplateFileItem::setFilePath( const QString& filePath )
 
     m_absoluteFileName = filePath;
 
-    if ( isEnsembleTemplate() )
-        this->uiCapability()->setUiIcon( caf::IconProvider( ":/SummaryEnsembleTemplate16x16.png" ) );
+    if ( isEnsembleTemplate() ) this->uiCapability()->setUiIcon( caf::IconProvider( ":/SummaryEnsembleTemplate16x16.png" ) );
 }
 
 //--------------------------------------------------------------------------------------------------

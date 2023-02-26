@@ -85,7 +85,7 @@ void RicFlyToObjectFeature::onActionTriggered( bool isChecked )
     // Scale to make the object fit in view
     largesExtent *= 2.0;
 
-    cvf::Vec3d cameraEye = centerInDisplayCoords + directionNormalToLargesExtent * std::max( largesExtent, 30.0 );
+    cvf::Vec3d cameraEye          = centerInDisplayCoords + directionNormalToLargesExtent * std::max( largesExtent, 30.0 );
     cvf::Vec3d cameraViewRefPoint = centerInDisplayCoords;
     cvf::Vec3d cameraUp           = cvf::Vec3d::Z_AXIS;
 

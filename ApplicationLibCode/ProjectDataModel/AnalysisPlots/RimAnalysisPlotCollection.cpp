@@ -84,9 +84,8 @@ RimAnalysisPlot* RimAnalysisPlotCollection::createAnalysisPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimAnalysisPlot* RimAnalysisPlotCollection::createAnalysisPlot( RimSummaryCaseCollection* ensemble,
-                                                                const QString&            quantityName,
-                                                                std::time_t               timeStep )
+RimAnalysisPlot*
+    RimAnalysisPlotCollection::createAnalysisPlot( RimSummaryCaseCollection* ensemble, const QString& quantityName, std::time_t timeStep )
 {
     RimAnalysisPlot* plot = new RimAnalysisPlot();
     plot->setAsPlotMdiWindow();
@@ -138,8 +137,7 @@ size_t RimAnalysisPlotCollection::plotCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnalysisPlotCollection::applyFirstEnsembleFieldAddressesToPlot( RimAnalysisPlot*   plot,
-                                                                        const std::string& quantityName )
+void RimAnalysisPlotCollection::applyFirstEnsembleFieldAddressesToPlot( RimAnalysisPlot* plot, const std::string& quantityName )
 {
     auto ensemble = firstSummaryCaseCollection();
     if ( ensemble )
@@ -151,7 +149,7 @@ void RimAnalysisPlotCollection::applyFirstEnsembleFieldAddressesToPlot( RimAnaly
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnalysisPlotCollection::applyFirstSummaryCaseCollectionAndFieldAddressesToPlot( RimAnalysisPlot* plot,
+void RimAnalysisPlotCollection::applyFirstSummaryCaseCollectionAndFieldAddressesToPlot( RimAnalysisPlot*   plot,
                                                                                         const std::string& quantityName /*= "" */ )
 {
     auto summaryCaseCollection = firstSummaryCaseCollection();
@@ -164,8 +162,7 @@ void RimAnalysisPlotCollection::applyFirstSummaryCaseCollectionAndFieldAddresses
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnalysisPlotCollection::applyAllSummaryCasesAndFieldAddressesToPlot( RimAnalysisPlot*   plot,
-                                                                             const std::string& quantityName /*= "" */ )
+void RimAnalysisPlotCollection::applyAllSummaryCasesAndFieldAddressesToPlot( RimAnalysisPlot* plot, const std::string& quantityName /*= "" */ )
 {
     std::vector<RimSummaryCase*> allSummaryCases;
     RimProject::current()->descendantsOfType( allSummaryCases );
@@ -176,8 +173,7 @@ void RimAnalysisPlotCollection::applyAllSummaryCasesAndFieldAddressesToPlot( Rim
 
         for ( auto summaryCase : allSummaryCases )
         {
-            curveDefs.push_back(
-                RiaSummaryCurveDefinition( summaryCase, RifEclipseSummaryAddress::fieldAddress( quantityName ), false ) );
+            curveDefs.push_back( RiaSummaryCurveDefinition( summaryCase, RifEclipseSummaryAddress::fieldAddress( quantityName ), false ) );
         }
 
         plot->setCurveDefinitions( curveDefs );
@@ -189,7 +185,7 @@ void RimAnalysisPlotCollection::applyAllSummaryCasesAndFieldAddressesToPlot( Rim
 //--------------------------------------------------------------------------------------------------
 void RimAnalysisPlotCollection::applySummaryCaseCollectionAndFieldAddressToPlot( RimAnalysisPlot*          plot,
                                                                                  RimSummaryCaseCollection* summaryCaseCollection,
-                                                                                 const std::string& quantityName )
+                                                                                 const std::string&        quantityName )
 {
     if ( summaryCaseCollection )
     {
@@ -199,9 +195,7 @@ void RimAnalysisPlotCollection::applySummaryCaseCollectionAndFieldAddressToPlot(
         {
             for ( auto summaryCase : summaryCaseCollection->allSummaryCases() )
             {
-                curveDefs.push_back( RiaSummaryCurveDefinition( summaryCase,
-                                                                RifEclipseSummaryAddress::fieldAddress( quantityName ),
-                                                                false ) );
+                curveDefs.push_back( RiaSummaryCurveDefinition( summaryCase, RifEclipseSummaryAddress::fieldAddress( quantityName ), false ) );
             }
         }
         else

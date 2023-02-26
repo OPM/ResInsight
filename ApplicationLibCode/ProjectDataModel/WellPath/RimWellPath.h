@@ -112,7 +112,7 @@ public:
     void setFormationsGeometry( cvf::ref<RigWellPathFormations> wellPathFormations );
     bool readWellPathFormationsFile( QString* errorMessage, RifWellPathFormationsImporter* wellPathFormationsImporter );
     bool reloadWellPathFormationsFile( QString* errorMessage, RifWellPathFormationsImporter* wellPathFormationsImporter );
-    bool                         hasFormations() const;
+    bool hasFormations() const;
     const RigWellPathFormations* formationsGeometry() const;
 
     void                         add3dWellLogCurve( Rim3dWellLogCurve* rim3dWellLogCurve );
@@ -155,8 +155,7 @@ public:
     cvf::Color3f                      defaultComponentColor() const override;
     void                              applyOffset( double offsetMD ) override;
 
-    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
     bool                      isTopLevelWellPath() const;
     bool                      isMultiLateralWellPath() const;
@@ -175,12 +174,12 @@ protected:
     caf::PdmFieldHandle* objectToggleField() override;
     bool                 isDeletable() const override;
 
-    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          initAfterRead() override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
-    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    void                          defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
+    void                          defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     static void copyCompletionSettings( RimWellPath* from, RimWellPath* to );
 

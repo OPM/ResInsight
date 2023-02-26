@@ -50,9 +50,7 @@ void RicMswBranch::addSegment( std::unique_ptr<RicMswSegment> segment )
 //--------------------------------------------------------------------------------------------------
 void RicMswBranch::insertAfterSegment( const RicMswSegment* insertAfter, std::unique_ptr<RicMswSegment> insertItem )
 {
-    auto it = std::find_if( m_segments.begin(), m_segments.end(), [insertAfter]( auto& item ) {
-        return item.get() == insertAfter;
-    } );
+    auto it = std::find_if( m_segments.begin(), m_segments.end(), [insertAfter]( auto& item ) { return item.get() == insertAfter; } );
 
     m_segments.insert( it, std::move( insertItem ) );
 }
@@ -64,9 +62,7 @@ void RicMswBranch::sortSegments()
 {
     std::stable_sort( m_segments.begin(),
                       m_segments.end(),
-                      []( const std::unique_ptr<RicMswSegment>& lhs, const std::unique_ptr<RicMswSegment>& rhs ) {
-                          return *lhs < *rhs;
-                      } );
+                      []( const std::unique_ptr<RicMswSegment>& lhs, const std::unique_ptr<RicMswSegment>& rhs ) { return *lhs < *rhs; } );
 }
 
 //--------------------------------------------------------------------------------------------------

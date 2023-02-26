@@ -30,9 +30,7 @@ template <>
 void RicExportToLasFileResampleUi::CurveUnitConversionEnum::setUp()
 {
     addItem( RicExportToLasFileResampleUi::CurveUnitConversion::EXPORT_NORMALIZED, "NORMALIZED", "Current Plot Units" );
-    addItem( RicExportToLasFileResampleUi::CurveUnitConversion::EXPORT_WITH_STANDARD_UNITS,
-             "STANDARD_UNITS",
-             "Convert to Standard Import Units" );
+    addItem( RicExportToLasFileResampleUi::CurveUnitConversion::EXPORT_WITH_STANDARD_UNITS, "STANDARD_UNITS", "Convert to Standard Import Units" );
     setDefault( RicExportToLasFileResampleUi::CurveUnitConversion::EXPORT_WITH_STANDARD_UNITS );
 }
 
@@ -136,9 +134,7 @@ void RicExportToLasFileResampleUi::setUnitConversionOptionEnabled( bool enabled 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportToLasFileResampleUi::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                     const QVariant&            oldValue,
-                                                     const QVariant&            newValue )
+void RicExportToLasFileResampleUi::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     updateFieldVisibility();
 }
@@ -200,8 +196,7 @@ void RicExportToLasFileResampleUi::defineUiOrdering( QString uiConfigName, caf::
     caf::PdmUiGroup* tvdrkbGroup = uiOrdering.addNewGroup( "TVDRKB" );
     tvdrkbGroup->add( &exportTvdrkb );
 
-    caf::PdmUiGroup* group =
-        tvdrkbGroup->addNewGroup( "Difference between TVDRKB and TVDMSL, clear diff for no export" );
+    caf::PdmUiGroup* group = tvdrkbGroup->addNewGroup( "Difference between TVDRKB and TVDMSL, clear diff for no export" );
     for ( auto& obj : m_tvdrkbOffsets )
     {
         group->add( &obj->tvdrkbOffset );

@@ -91,8 +91,7 @@ void RicNewParameterResultCrossPlotFeature::onActionTriggered( bool isChecked )
 
             timeStep = params.timeStep;
 
-            newPlot =
-                correlationPlotColl->createParameterResultCrossPlot( ensemble, ensembleParameter, quantityName, timeStep );
+            newPlot = correlationPlotColl->createParameterResultCrossPlot( ensemble, ensembleParameter, quantityName, timeStep );
         }
     }
 

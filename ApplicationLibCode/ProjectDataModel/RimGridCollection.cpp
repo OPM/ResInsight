@@ -233,9 +233,7 @@ caf::PdmFieldHandle* RimGridInfoCollection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridInfoCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                              const QVariant&            oldValue,
-                                              const QVariant&            newValue )
+void RimGridInfoCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimGridView* rimView = nullptr;
     this->firstAncestorOrThisOfType( rimView );
@@ -438,9 +436,7 @@ void RimGridCollection::setMainGridActive( bool active )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                          const QVariant&            oldValue,
-                                          const QVariant&            newValue )
+void RimGridCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_isActive )
     {

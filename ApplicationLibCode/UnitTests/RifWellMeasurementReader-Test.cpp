@@ -175,8 +175,7 @@ TEST( RifWellMeasurementReaderTest, ReadEmptyWellNameThrows )
 
     QStringList filePaths;
     filePaths.append( file.fileName() );
-    ASSERT_TRUE( readingThrowsException( filePaths,
-                                         QString( "Unexpected empty 'Well Name' on line 2: %1" ).arg( file.fileName() ) ) );
+    ASSERT_TRUE( readingThrowsException( filePaths, QString( "Unexpected empty 'Well Name' on line 2: %1" ).arg( file.fileName() ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -195,9 +194,7 @@ TEST( RifWellMeasurementReaderTest, ReadInvalidMeasureDepthThrows )
 
     QStringList filePaths;
     filePaths.append( file.fileName() );
-    ASSERT_TRUE(
-        readingThrowsException( filePaths,
-                                QString( "Invalid number for 'Measured Depth' on line 2: %1" ).arg( file.fileName() ) ) );
+    ASSERT_TRUE( readingThrowsException( filePaths, QString( "Invalid number for 'Measured Depth' on line 2: %1" ).arg( file.fileName() ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -216,8 +213,7 @@ TEST( RifWellMeasurementReaderTest, ReadInvalidQualityThrows )
 
     QStringList filePaths;
     filePaths.append( file.fileName() );
-    ASSERT_TRUE( readingThrowsException( filePaths,
-                                         QString( "Invalid number for 'Quality' on line 1: %1" ).arg( file.fileName() ) ) );
+    ASSERT_TRUE( readingThrowsException( filePaths, QString( "Invalid number for 'Quality' on line 1: %1" ).arg( file.fileName() ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -237,8 +233,7 @@ TEST( RifWellMeasurementReaderTest, ReadInvalidDateFormateThrows )
     QStringList filePaths;
     filePaths.append( file.fileName() );
     ASSERT_TRUE( readingThrowsException( filePaths,
-                                         QString( "Invalid date format (must be ISO 8601) for 'Date' on line 1: %1" )
-                                             .arg( file.fileName() ) ) );
+                                         QString( "Invalid date format (must be ISO 8601) for 'Date' on line 1: %1" ).arg( file.fileName() ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------

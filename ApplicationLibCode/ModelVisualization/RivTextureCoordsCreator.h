@@ -45,8 +45,7 @@ public:
     void createTextureCoords( cvf::Vec2fArray* quadTextureCoords );
     void setResultToTextureMapper( RivResultToTextureMapper* textureMapper );
 
-    static RigPipeInCellEvaluator*
-        createPipeInCellEvaluator( RimEclipseCellColors* cellColors, size_t timeStep, size_t gridIndex );
+    static RigPipeInCellEvaluator* createPipeInCellEvaluator( RimEclipseCellColors* cellColors, size_t timeStep, size_t gridIndex );
 
 private:
     static void                                    createTextureCoords( cvf::Vec2fArray*                           quadTextureCoords,

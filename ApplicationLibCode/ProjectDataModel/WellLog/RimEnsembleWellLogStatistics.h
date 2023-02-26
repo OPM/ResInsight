@@ -65,12 +65,9 @@ public:
     bool hasP90Data() const;
     bool hasMeanData() const;
 
-    void calculate( const std::vector<RimWellLogFile*>& sumCases,
-                    const QString&                      wellLogChannelName,
-                    DepthEqualization                   depthEqualization );
+    void calculate( const std::vector<RimWellLogFile*>& sumCases, const QString& wellLogChannelName, DepthEqualization depthEqualization );
 
-    static std::shared_ptr<RigWellLogIndexDepthOffset>
-        calculateIndexDepthOffset( const std::vector<RimWellLogFile*>& wellLogFiles );
+    static std::shared_ptr<RigWellLogIndexDepthOffset> calculateIndexDepthOffset( const std::vector<RimWellLogFile*>& wellLogFiles );
 
     void clearData();
 

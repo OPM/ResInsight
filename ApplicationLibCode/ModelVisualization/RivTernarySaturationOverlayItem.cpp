@@ -58,9 +58,7 @@ void RivTernarySaturationOverlayItem::setAxisLabelsColor( const cvf::Color3f& co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivTernarySaturationOverlayItem::render( cvf::OpenGLContext* oglContext,
-                                              const cvf::Vec2i&   position,
-                                              const cvf::Vec2ui&  size )
+void RivTernarySaturationOverlayItem::render( cvf::OpenGLContext* oglContext, const cvf::Vec2i& position, const cvf::Vec2ui& size )
 {
     renderGeneric( oglContext, position, size, false );
 }
@@ -68,9 +66,7 @@ void RivTernarySaturationOverlayItem::render( cvf::OpenGLContext* oglContext,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivTernarySaturationOverlayItem::renderSoftware( cvf::OpenGLContext* oglContext,
-                                                      const cvf::Vec2i&   position,
-                                                      const cvf::Vec2ui&  size )
+void RivTernarySaturationOverlayItem::renderSoftware( cvf::OpenGLContext* oglContext, const cvf::Vec2i& position, const cvf::Vec2ui& size )
 {
     renderGeneric( oglContext, position, size, true );
 }
@@ -78,10 +74,7 @@ void RivTernarySaturationOverlayItem::renderSoftware( cvf::OpenGLContext* oglCon
 //--------------------------------------------------------------------------------------------------
 /// Set up camera/viewport and render
 //--------------------------------------------------------------------------------------------------
-void RivTernarySaturationOverlayItem::renderGeneric( cvf::OpenGLContext* oglContext,
-                                                     const cvf::Vec2i&   position,
-                                                     const cvf::Vec2ui&  size,
-                                                     bool                software )
+void RivTernarySaturationOverlayItem::renderGeneric( cvf::OpenGLContext* oglContext, const cvf::Vec2i& position, const cvf::Vec2ui& size, bool software )
 {
     if ( size.x() <= 0 || size.y() <= 0 )
     {
@@ -146,8 +139,7 @@ void RivTernarySaturationOverlayItem::renderGeneric( cvf::OpenGLContext* oglCont
 
         cvf::uint sgasRangeTextWidth = this->font()->textExtent( m_sgasRange ).x();
         textPosY -= lineHeightInPixels;
-        textDrawer.addText( m_sgasRange,
-                            cvf::Vec2f( static_cast<float>( ( size.x() / 2 ) - sgasRangeTextWidth / 2 ), textPosY ) );
+        textDrawer.addText( m_sgasRange, cvf::Vec2f( static_cast<float>( ( size.x() / 2 ) - sgasRangeTextWidth / 2 ), textPosY ) );
     }
 
     textDrawer.addText( "SWAT", cvf::Vec2f( (float)border, (float)( lineHeightInPixels + border ) ) );
@@ -155,9 +147,7 @@ void RivTernarySaturationOverlayItem::renderGeneric( cvf::OpenGLContext* oglCont
 
     {
         cvf::uint soilTextWidth = this->font()->textExtent( "SOIL" ).x();
-        textDrawer.addText( "SOIL",
-                            cvf::Vec2f( static_cast<float>( size.x() - soilTextWidth - border ),
-                                        lineHeightInPixels + border ) );
+        textDrawer.addText( "SOIL", cvf::Vec2f( static_cast<float>( size.x() - soilTextWidth - border ), lineHeightInPixels + border ) );
 
         cvf::uint soilRangeTextWidth = this->font()->textExtent( m_soilRange ).x();
         float     soilRangePos       = static_cast<float>( size.x() ) - soilRangeTextWidth - border;
@@ -240,9 +230,7 @@ void RivTernarySaturationOverlayItem::renderAxisImmediateMode( float            
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivTernarySaturationOverlayItem::setRangeText( const cvf::String& soilRange,
-                                                    const cvf::String& sgasRange,
-                                                    const cvf::String& swatRange )
+void RivTernarySaturationOverlayItem::setRangeText( const cvf::String& soilRange, const cvf::String& sgasRange, const cvf::String& swatRange )
 {
     m_soilRange = soilRange;
     m_sgasRange = sgasRange;

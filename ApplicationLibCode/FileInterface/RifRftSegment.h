@@ -52,7 +52,7 @@ public:
     void                           setSegmentData( std::vector<RifRftSegmentData> segmentData );
     std::vector<RifRftSegmentData> topology() const;
 
-    void addResultNameAndSize( const Opm::EclIO::EclFile::EclEntry& resultNameAndSize );
+    void                                       addResultNameAndSize( const Opm::EclIO::EclFile::EclEntry& resultNameAndSize );
     std::vector<Opm::EclIO::EclFile::EclEntry> resultNameAndSize() const;
 
     std::vector<int>   tubingBranchIds() const;
@@ -63,9 +63,7 @@ public:
     const RifRftSegmentData* segmentData( int segmentNumber ) const;
     const RifRftSegmentData* segmentDataByIndex( int segmentIndex ) const;
 
-    void createDeviceBranch( int                        deviceBranchFirstSegmentNumber,
-                             int                        oneBasedBranchIndex,
-                             const std::vector<double>& seglenstValues );
+    void createDeviceBranch( int deviceBranchFirstSegmentNumber, int oneBasedBranchIndex, const std::vector<double>& seglenstValues );
 
     void setBranchLength( int branchId, double length );
     void setBranchType( int branchId, RiaDefines::RftBranchType branchType );

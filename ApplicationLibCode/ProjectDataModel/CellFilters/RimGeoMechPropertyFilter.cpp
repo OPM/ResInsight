@@ -75,12 +75,10 @@ RimGeoMechPropertyFilter::~RimGeoMechPropertyFilter()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechPropertyFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                 const QVariant&            oldValue,
-                                                 const QVariant&            newValue )
+void RimGeoMechPropertyFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( &lowerBound == changedField || &upperBound == changedField || &m_isActive == changedField ||
-         &m_filterMode == changedField || &m_selectedCategoryValues == changedField )
+    if ( &lowerBound == changedField || &upperBound == changedField || &m_isActive == changedField || &m_filterMode == changedField ||
+         &m_selectedCategoryValues == changedField )
     {
         this->updateIconState();
         this->updateFilterName();
@@ -229,9 +227,7 @@ bool RimGeoMechPropertyFilter::isActiveAndHasResult()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechPropertyFilter::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                      QString                    uiConfigName,
-                                                      caf::PdmUiEditorAttribute* attribute )
+void RimGeoMechPropertyFilter::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( m_minimumResultValue == cvf::UNDEFINED_DOUBLE || m_maximumResultValue == cvf::UNDEFINED_DOUBLE )
     {
@@ -319,8 +315,8 @@ void RimGeoMechPropertyFilter::updateFilterName()
         QString fieldUiName = resultDefinition->resultFieldUiName();
         QString compoUiName = resultDefinition->resultComponentUiName();
 
-        newFiltername = posName + ", " + fieldUiName + ", " + compoUiName + " (" + QString::number( lowerBound() ) +
-                        " .. " + QString::number( upperBound ) + ")";
+        newFiltername = posName + ", " + fieldUiName + ", " + compoUiName + " (" + QString::number( lowerBound() ) + " .. " +
+                        QString::number( upperBound ) + ")";
     }
 
     m_name = newFiltername;

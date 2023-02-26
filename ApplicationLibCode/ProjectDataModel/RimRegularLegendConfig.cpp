@@ -122,9 +122,7 @@ template <>
 void AppEnum<RimRegularLegendConfig::CategoryColorModeType>::setUp()
 {
     addItem( RimRegularLegendConfig::CategoryColorModeType::INTERPOLATE, "INTERPOLATE", "Interpolate" );
-    addItem( RimRegularLegendConfig::CategoryColorModeType::EXCLUSIVELY_COLORS,
-             "COLOR_LEGEND_VALUES",
-             "Exclusively Category Colors" );
+    addItem( RimRegularLegendConfig::CategoryColorModeType::EXCLUSIVELY_COLORS, "COLOR_LEGEND_VALUES", "Exclusively Category Colors" );
     setDefault( RimRegularLegendConfig::CategoryColorModeType::INTERPOLATE );
 }
 
@@ -150,13 +148,7 @@ RimRegularLegendConfig::RimRegularLegendConfig()
     CAF_PDM_InitField( &m_showLegend, "ShowLegend", true, "Show Legend" );
     m_showLegend.uiCapability()->setUiHidden( true );
     CAF_PDM_InitField( &m_numLevels, "NumberOfLevels", 8, "Number of Levels", "", "A hint on how many tick marks you whish.", "" );
-    CAF_PDM_InitField( &m_precision,
-                       "Precision",
-                       4,
-                       "Significant Digits",
-                       "",
-                       "The number of significant digits displayed in the legend numbers",
-                       "" );
+    CAF_PDM_InitField( &m_precision, "Precision", 4, "Significant Digits", "", "The number of significant digits displayed in the legend numbers", "" );
     m_significantDigitsInData = m_precision;
     CAF_PDM_InitField( &m_tickNumberFormat,
                        "TickNumberFormat",
@@ -251,9 +243,7 @@ void RimRegularLegendConfig::setNamedCategories( const std::vector<QString>& cat
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                               const QVariant&            oldValue,
-                                               const QVariant&            newValue )
+void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     sendChangedSignal( changedField );
     if ( changedField == &m_numLevels )
@@ -286,8 +276,7 @@ void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
         return;
     }
 
-    if ( ( changedField == &m_colorLegend || changedField == &m_mappingMode ) &&
-         m_mappingMode() == MappingType::CATEGORY_INTEGER )
+    if ( ( changedField == &m_colorLegend || changedField == &m_mappingMode ) && m_mappingMode() == MappingType::CATEGORY_INTEGER )
     {
         updateCategoryItems();
     }
@@ -570,8 +559,7 @@ void RimRegularLegendConfig::updateLegend()
 
     if ( m_globalAutoMax != cvf::UNDEFINED_DOUBLE )
     {
-        m_userDefinedMaxValue.uiCapability()->setUiName( QString( "Max " ) + "(" +
-                                                         QString::number( m_globalAutoMax, 'g', m_precision ) + ")" );
+        m_userDefinedMaxValue.uiCapability()->setUiName( QString( "Max " ) + "(" + QString::number( m_globalAutoMax, 'g', m_precision ) + ")" );
     }
     else
     {
@@ -580,8 +568,7 @@ void RimRegularLegendConfig::updateLegend()
 
     if ( m_globalAutoMin != cvf::UNDEFINED_DOUBLE )
     {
-        m_userDefinedMinValue.uiCapability()->setUiName( QString( "Min " ) + "(" +
-                                                         QString::number( m_globalAutoMin, 'g', m_precision ) + ")" );
+        m_userDefinedMinValue.uiCapability()->setUiName( QString( "Min " ) + "(" + QString::number( m_globalAutoMin, 'g', m_precision ) + ")" );
     }
     else
     {
@@ -624,8 +611,7 @@ void RimRegularLegendConfig::disableAllTimeStepsRange( bool doDisable )
 
     m_isAllTimeStepsRangeDisabled = doDisable;
 
-    if ( doDisable && m_rangeMode == RangeModeType::AUTOMATIC_ALLTIMESTEPS )
-        m_rangeMode = RangeModeType::AUTOMATIC_CURRENT_TIMESTEP;
+    if ( doDisable && m_rangeMode == RangeModeType::AUTOMATIC_ALLTIMESTEPS ) m_rangeMode = RangeModeType::AUTOMATIC_CURRENT_TIMESTEP;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -688,9 +674,7 @@ caf::PdmFieldHandle* RimRegularLegendConfig::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimRegularLegendConfig::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                    QString                    uiConfigName,
-                                                    caf::PdmUiEditorAttribute* attribute )
+void RimRegularLegendConfig::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( &m_resetUserDefinedValuesButton == field )
     {
@@ -1129,8 +1113,7 @@ cvf::Color3ubArray RimRegularLegendConfig::colorArrayFromColorType( ColorRangesT
             return RiaColorTables::correlationPaletteColors().color3ubArray();
             break;
         default:
-            if ( ColorManager::isEnsembleColorRange( colorType ) )
-                return ColorManager::EnsembleColorRanges().at( colorType );
+            if ( ColorManager::isEnsembleColorRange( colorType ) ) return ColorManager::EnsembleColorRanges().at( colorType );
             break;
     }
     return RiaColorTables::normalPaletteColors().color3ubArray();
@@ -1169,9 +1152,7 @@ QString RimRegularLegendConfig::valueToText( double value ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimRegularLegendConfig::setDefaultConfigForResultName( const QString& resultName,
-                                                            bool           useDiscreteLogLevels,
-                                                            bool           isCategoryResult )
+void RimRegularLegendConfig::setDefaultConfigForResultName( const QString& resultName, bool useDiscreteLogLevels, bool isCategoryResult )
 {
     bool useLog = RiaResultNames::isLogarithmicResult( resultName );
 
@@ -1347,19 +1328,15 @@ QList<caf::PdmOptionItemInfo> RimRegularLegendConfig::calculateValueOptions( con
             else
                 uiText = "Auto Range";
 
-            options.push_back(
-                caf::PdmOptionItemInfo( uiText, RimRegularLegendConfig::RangeModeType::AUTOMATIC_ALLTIMESTEPS ) );
+            options.push_back( caf::PdmOptionItemInfo( uiText, RimRegularLegendConfig::RangeModeType::AUTOMATIC_ALLTIMESTEPS ) );
         }
         if ( !hasStimPlanParent && !hasEnsembleCurveSetParent && !hasRftPlotParent )
         {
-            options.push_back(
-                caf::PdmOptionItemInfo( RangeModeEnum::uiText(
-                                            RimRegularLegendConfig::RangeModeType::AUTOMATIC_CURRENT_TIMESTEP ),
-                                        RimRegularLegendConfig::RangeModeType::AUTOMATIC_CURRENT_TIMESTEP ) );
+            options.push_back( caf::PdmOptionItemInfo( RangeModeEnum::uiText( RimRegularLegendConfig::RangeModeType::AUTOMATIC_CURRENT_TIMESTEP ),
+                                                       RimRegularLegendConfig::RangeModeType::AUTOMATIC_CURRENT_TIMESTEP ) );
         }
-        options.push_back(
-            caf::PdmOptionItemInfo( RangeModeEnum::uiText( RimRegularLegendConfig::RangeModeType::USER_DEFINED ),
-                                    RimRegularLegendConfig::RangeModeType::USER_DEFINED ) );
+        options.push_back( caf::PdmOptionItemInfo( RangeModeEnum::uiText( RimRegularLegendConfig::RangeModeType::USER_DEFINED ),
+                                                   RimRegularLegendConfig::RangeModeType::USER_DEFINED ) );
     }
 
     return options;

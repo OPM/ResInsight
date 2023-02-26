@@ -28,10 +28,7 @@
 class RiuQwtLinearScaleEngine : public QwtLinearScaleEngine
 {
 public:
-    QwtScaleDiv divideScaleWithExplicitIntervals( double tickStart,
-                                                  double tickEnd,
-                                                  double majorStepInterval,
-                                                  double minorStepInterval );
+    QwtScaleDiv divideScaleWithExplicitIntervals( double tickStart, double tickEnd, double majorStepInterval, double minorStepInterval );
     QwtScaleDiv divideScaleWithExplicitIntervalsAndRange( double tickStart,
                                                           double tickEnd,
                                                           double majorStepInterval,

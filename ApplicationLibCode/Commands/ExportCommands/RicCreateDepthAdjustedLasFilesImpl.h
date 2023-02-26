@@ -81,8 +81,7 @@ void createDestinationWellLasFile( const QString&                               
 std::string createDepthUnitText( RiaDefines::DepthUnitType depthUnitType );
 std::string createDepthUnitComment( RiaDefines::DepthUnitType depthUnitType );
 
-LasDepthValueAndIndexPerKLayer
-                               createLasDepthIndexAndPercValuePerKLayerFromMap( const std::vector<double>&            lasWellDepths,
+LasDepthValueAndIndexPerKLayer createLasDepthIndexAndPercValuePerKLayerFromMap( const std::vector<double>&            lasWellDepths,
                                                                                 const std::map<int, IndexKDepthData>& indexKDepthDataMap );
 std::map<int, IndexKDepthData> createIndexKDepthDataMapFromCase( RimCase* selectedCase, RimWellPath* wellPath );
 std::map<int, IndexKDepthData> createIndexKDepthDataMap( cvf::ref<RigEclipseWellLogExtractor> wellExtractor,

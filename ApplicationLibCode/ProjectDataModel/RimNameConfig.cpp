@@ -95,9 +95,7 @@ void RimNameConfig::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimNameConfig::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                      const QVariant&            oldValue,
-                                      const QVariant&            newValue )
+void RimNameConfig::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     updateAllSettings();
 }

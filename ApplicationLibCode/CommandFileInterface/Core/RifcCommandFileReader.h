@@ -37,9 +37,8 @@ class PdmScriptIOMessages;
 class RicfCommandFileReader
 {
 public:
-    static std::vector<RicfCommandObject*> readCommands( QTextStream&              inputStream,
-                                                         caf::PdmObjectFactory*    objectFactory,
-                                                         caf::PdmScriptIOMessages* errorMessageContainer );
+    static std::vector<RicfCommandObject*>
+        readCommands( QTextStream& inputStream, caf::PdmObjectFactory* objectFactory, caf::PdmScriptIOMessages* errorMessageContainer );
 
     static void writeCommands( QTextStream& outputStream, const std::vector<RicfCommandObject*>& commandsToWrite );
 };

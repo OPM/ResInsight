@@ -39,13 +39,13 @@ void RiuQtChartsPlotTools::setCommonPlotBehaviour( RiuQtChartsPlotWidget* plot )
     plot->setAutoFillBackground( true );
 
     // Axis number font
-    int axisFontSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(),
-                                                          caf::FontTools::RelativeSize::Medium );
+    int axisFontSize =
+        caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), caf::FontTools::RelativeSize::Medium );
 
     // Axis title font
-    int  titleFontSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(),
-                                                           caf::FontTools::RelativeSize::Medium );
-    bool titleBold     = false;
+    int titleFontSize =
+        caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), caf::FontTools::RelativeSize::Medium );
+    bool titleBold = false;
     plot->setAxesFontsAndAlignment( titleFontSize, axisFontSize, titleBold, Qt::AlignRight );
 
     // Store the pointer address as an object name. This way

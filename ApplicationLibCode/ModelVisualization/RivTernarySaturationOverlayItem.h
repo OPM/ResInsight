@@ -51,11 +51,7 @@ private:
     void renderSoftware( cvf::OpenGLContext* oglContext, const cvf::Vec2i& position, const cvf::Vec2ui& size ) override;
 
     void renderGeneric( cvf::OpenGLContext* oglContext, const cvf::Vec2i& position, const cvf::Vec2ui& size, bool software );
-    void renderAxisImmediateMode( float               upperY,
-                                  float               lowerBoundY,
-                                  float               border,
-                                  unsigned int        totalWidth,
-                                  cvf::OpenGLContext* oglContext );
+    void renderAxisImmediateMode( float upperY, float lowerBoundY, float border, unsigned int totalWidth, cvf::OpenGLContext* oglContext );
 
 private:
     cvf::String m_soilRange;

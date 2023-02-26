@@ -225,8 +225,7 @@ caf::PdmObjectHandle* RimSummaryCase_resampleValues::execute()
 
         if ( period != RiaDefines::DateTimePeriod::NONE )
         {
-            auto [resampledTimeSteps, resampledValues] =
-                RiaSummaryTools::resampledValuesForPeriod( adr, timeValues, values, period );
+            auto [resampledTimeSteps, resampledValues] = RiaSummaryTools::resampledValuesForPeriod( adr, timeValues, values, period );
 
             dataObject->m_timeValues   = resampledTimeSteps;
             dataObject->m_doubleValues = resampledValues;

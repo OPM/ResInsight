@@ -41,9 +41,9 @@ public:
     void setRestartFiles( const QStringList& fileSet ) override;
     void close() override;
 
-    void   setTimeSteps( const std::vector<QDateTime>& timeSteps ) override;
-    size_t timeStepCount() override;
-    void   timeSteps( std::vector<QDateTime>* timeSteps, std::vector<double>* daysSinceSimulationStart ) override;
+    void             setTimeSteps( const std::vector<QDateTime>& timeSteps ) override;
+    size_t           timeStepCount() override;
+    void             timeSteps( std::vector<QDateTime>* timeSteps, std::vector<double>* daysSinceSimulationStart ) override;
     std::vector<int> reportNumbers() override;
 
     void resultNames( QStringList* resultNames, std::vector<size_t>* resultDataItemCounts ) override;

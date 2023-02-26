@@ -199,8 +199,7 @@ QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress&
             if ( m_longVectorName() )
             {
                 auto quantityName = summaryAddress.vectorName();
-                if ( summaryAddress.isHistoryVector() )
-                    quantityName = quantityName.substr( 0, quantityName.size() - 1 );
+                if ( summaryAddress.isHistoryVector() ) quantityName = quantityName.substr( 0, quantityName.size() - 1 );
 
                 text = RiuSummaryQuantityNameInfoProvider::instance()->longNameFromVectorName( quantityName );
             }
@@ -320,8 +319,8 @@ void RimSummaryCurveAutoName::appendAddressDetails( std::string&                
                 if ( !skipSubString )
                 {
                     if ( !text.empty() ) text += ":";
-                    text += std::to_string( summaryAddress.cellI() ) + ", " + std::to_string( summaryAddress.cellJ() ) +
-                            ", " + std::to_string( summaryAddress.cellK() );
+                    text += std::to_string( summaryAddress.cellI() ) + ", " + std::to_string( summaryAddress.cellJ() ) + ", " +
+                            std::to_string( summaryAddress.cellK() );
                 }
             }
         }
@@ -343,8 +342,8 @@ void RimSummaryCurveAutoName::appendAddressDetails( std::string&                
                 if ( !skipSubString )
                 {
                     if ( !text.empty() ) text += ":";
-                    text += std::to_string( summaryAddress.cellI() ) + ", " + std::to_string( summaryAddress.cellJ() ) +
-                            ", " + std::to_string( summaryAddress.cellK() );
+                    text += std::to_string( summaryAddress.cellI() ) + ", " + std::to_string( summaryAddress.cellJ() ) + ", " +
+                            std::to_string( summaryAddress.cellK() );
                 }
             }
         }
@@ -372,8 +371,8 @@ void RimSummaryCurveAutoName::appendAddressDetails( std::string&                
                 if ( !skipSubString )
                 {
                     if ( !text.empty() ) text += ":";
-                    text += std::to_string( summaryAddress.cellI() ) + ", " + std::to_string( summaryAddress.cellJ() ) +
-                            ", " + std::to_string( summaryAddress.cellK() );
+                    text += std::to_string( summaryAddress.cellI() ) + ", " + std::to_string( summaryAddress.cellJ() ) + ", " +
+                            std::to_string( summaryAddress.cellK() );
                 }
             }
         }
@@ -388,8 +387,8 @@ void RimSummaryCurveAutoName::appendAddressDetails( std::string&                
                 if ( !skipSubString )
                 {
                     if ( !text.empty() ) text += ":";
-                    text += std::to_string( summaryAddress.cellI() ) + ", " + std::to_string( summaryAddress.cellJ() ) +
-                            ", " + std::to_string( summaryAddress.cellK() );
+                    text += std::to_string( summaryAddress.cellI() ) + ", " + std::to_string( summaryAddress.cellJ() ) + ", " +
+                            std::to_string( summaryAddress.cellK() );
                 }
             }
         }
@@ -400,9 +399,7 @@ void RimSummaryCurveAutoName::appendAddressDetails( std::string&                
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveAutoName::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                const QVariant&            oldValue,
-                                                const QVariant&            newValue )
+void RimSummaryCurveAutoName::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     // NOTE: The curve filter is parent object of a summary curve, and the update is supposed to update
     // the first parent, not the grandparent. This is the reason for not using firstAncestorOrThisOfType()

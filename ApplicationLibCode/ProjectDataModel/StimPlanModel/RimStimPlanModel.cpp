@@ -95,10 +95,7 @@ void caf::AppEnum<RimStimPlanModel::ExtractionType>::setUp()
 template <>
 void caf::AppEnum<RimStimPlanModel::FractureOrientation>::setUp()
 {
-    addItem( RimStimPlanModel::FractureOrientation::ALONG_WELL_PATH,
-             "Longitudinal",
-             "Along Well Path",
-             QStringList( "ALONG_WELL_PATH" ) );
+    addItem( RimStimPlanModel::FractureOrientation::ALONG_WELL_PATH, "Longitudinal", "Along Well Path", QStringList( "ALONG_WELL_PATH" ) );
     addItem( RimStimPlanModel::FractureOrientation::TRANSVERSE_WELL_PATH,
              "Transverse",
              "Transverse (normal) to Well Path",
@@ -147,9 +144,7 @@ RimStimPlanModel::RimStimPlanModel()
     CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "Time Step" );
     m_timeStep.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_initialPressureEclipseCase,
-                                          "InitialPressureEclipseCase",
-                                          "Initial Pressure Case" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_initialPressureEclipseCase, "InitialPressureEclipseCase", "Initial Pressure Case" );
     m_initialPressureEclipseCase.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_staticEclipseCase, "StaticEclipseCase", "Static Case" );
@@ -194,16 +189,12 @@ RimStimPlanModel::RimStimPlanModel()
     m_thicknessDirection.xmlCapability()->disableIO();
     m_thicknessDirection.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( false );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_originalThicknessDirection,
-                                          "OriginalThicknessDirection",
-                                          "Original Thickness Direction" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_originalThicknessDirection, "OriginalThicknessDirection", "Original Thickness Direction" );
     m_originalThicknessDirection.uiCapability()->setUiReadOnly( true );
     m_originalThicknessDirection.xmlCapability()->disableIO();
     m_originalThicknessDirection.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( false );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_thicknessDirectionWellPath,
-                                          "ThicknessDirectionWellPath",
-                                          "Thickness Direction Well Path" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_thicknessDirectionWellPath, "ThicknessDirectionWellPath", "Thickness Direction Well Path" );
     m_thicknessDirectionWellPath.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( false );
 
     CAF_PDM_InitScriptableField( &m_boundingBoxHorizontal, "BoundingBoxHorizontal", 50.0, "Bounding Box Horizontal" );
@@ -211,15 +202,9 @@ RimStimPlanModel::RimStimPlanModel()
 
     CAF_PDM_InitScriptableField( &m_useDetailedFluidLoss, "UseDetailedFluidLoss", true, "Use Detailed Fluid Loss" );
 
-    CAF_PDM_InitScriptableField( &m_relativePermeabilityFactorDefault,
-                                 "RelativePermeabilityFactor",
-                                 0.5,
-                                 "Relative Permeability Factor" );
+    CAF_PDM_InitScriptableField( &m_relativePermeabilityFactorDefault, "RelativePermeabilityFactor", 0.5, "Relative Permeability Factor" );
     CAF_PDM_InitScriptableField( &m_poroElasticConstantDefault, "PoroElasticConstant", 0.0, "Poro-Elastic Constant" );
-    CAF_PDM_InitScriptableField( &m_thermalExpansionCoeffientDefault,
-                                 "ThermalExpansionCoefficient",
-                                 0.0,
-                                 "Thermal Expansion Coefficient [1/C]" );
+    CAF_PDM_InitScriptableField( &m_thermalExpansionCoeffientDefault, "ThermalExpansionCoefficient", 0.0, "Thermal Expansion Coefficient [1/C]" );
 
     CAF_PDM_InitScriptableField( &m_perforationLength, "PerforationLength", 10.0, "Perforation Length [m]" );
     CAF_PDM_InitScriptableField( &m_fractureOrientation,
@@ -312,9 +297,7 @@ void RimStimPlanModel::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStimPlanModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                         const QVariant&            oldValue,
-                                         const QVariant&            newValue )
+void RimStimPlanModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_MD )
     {
@@ -328,12 +311,10 @@ void RimStimPlanModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField
     }
 
     if ( changedField == &m_MD || changedField == &m_extractionType || changedField == &m_boundingBoxVertical ||
-         changedField == &m_boundingBoxHorizontal || changedField == &m_fractureOrientation ||
-         changedField == &m_autoComputeBarrier || changedField == &m_azimuthAngle ||
-         changedField == &m_showOnlyBarrierFault || changedField == &m_eclipseCase ||
-         changedField == &m_extractionOffsetTop || changedField == &m_extractionOffsetBottom ||
-         changedField == &m_extractionDepthTop || changedField == &m_extractionDepthBottom ||
-         changedField == &m_perforationLength )
+         changedField == &m_boundingBoxHorizontal || changedField == &m_fractureOrientation || changedField == &m_autoComputeBarrier ||
+         changedField == &m_azimuthAngle || changedField == &m_showOnlyBarrierFault || changedField == &m_eclipseCase ||
+         changedField == &m_extractionOffsetTop || changedField == &m_extractionOffsetBottom || changedField == &m_extractionDepthTop ||
+         changedField == &m_extractionDepthBottom || changedField == &m_perforationLength )
     {
         updateThicknessDirection();
         updateBarrierProperties();
@@ -414,8 +395,7 @@ QList<caf::PdmOptionItemInfo> RimStimPlanModel::calculateValueOptions( const caf
         RimOilField* oilField = RimProject::current()->activeOilField();
         if ( oilField && oilField->completionTemplateCollection() )
         {
-            RimStimPlanModelTemplateCollection* fracDefColl =
-                oilField->completionTemplateCollection()->stimPlanModelTemplateCollection();
+            RimStimPlanModelTemplateCollection* fracDefColl = oilField->completionTemplateCollection()->stimPlanModelTemplateCollection();
 
             for ( RimStimPlanModelTemplate* fracDef : fracDefColl->stimPlanModelTemplates() )
             {
@@ -666,27 +646,22 @@ void RimStimPlanModel::updateDistanceToBarrierAndDip()
     // Update formation dip. The direction for the barrier search follows the
     // inclination of the formation, and is in effect the formation dip in the
     // fracture plane. -90 to convert from horizontal to vertical.
-    cvf::Vec3d formationDirection =
-        projectVectorIntoFracturePlane( position, fractureDirectionNormal, m_originalThicknessDirection );
+    cvf::Vec3d formationDirection = projectVectorIntoFracturePlane( position, fractureDirectionNormal, m_originalThicknessDirection );
     if ( formationDirection.isUndefined() ) return;
     m_formationDip = std::abs( RigStimPlanModelTools::calculateFormationDip( formationDirection ) - 90.0 );
 
-    cvf::Vec3d directionToBarrier =
-        projectVectorIntoFracturePlane( position, fractureDirectionNormal, m_thicknessDirection );
+    cvf::Vec3d directionToBarrier = projectVectorIntoFracturePlane( position, fractureDirectionNormal, m_thicknessDirection );
     if ( directionToBarrier.isUndefined() ) return;
 
-    RiaLogging::info(
-        QString( "Direction to barrier: %1" ).arg( RigStimPlanModelTools::vecToString( directionToBarrier ) ) );
+    RiaLogging::info( QString( "Direction to barrier: %1" ).arg( RigStimPlanModelTools::vecToString( directionToBarrier ) ) );
 
     auto [foundFault, shortestDistance, barrierPosition, barrierDip] =
         RigStimPlanModelTools::findClosestFaultBarrier( eclipseCaseData, position, directionToBarrier );
 
     if ( foundFault )
     {
-        RiaLogging::info( QString( "Found barrier distance: %1. Dip: %2. Fault: %3" )
-                              .arg( shortestDistance )
-                              .arg( barrierDip )
-                              .arg( foundFault->name() ) );
+        RiaLogging::info(
+            QString( "Found barrier distance: %1. Dip: %2. Fault: %3" ).arg( shortestDistance ).arg( barrierDip ).arg( foundFault->name() ) );
         QString barrierText =
             QString( "Barrier Fault for %1\nFault: %2\nDistance: %3m" ).arg( name() ).arg( foundFault->name() ).arg( shortestDistance );
 
@@ -796,9 +771,7 @@ void RimStimPlanModel::clearBarrierAnnotation()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStimPlanModel::addBarrierAnnotation( const cvf::Vec3d& startPosition,
-                                             const cvf::Vec3d& endPosition,
-                                             const QString&    text )
+void RimStimPlanModel::addBarrierAnnotation( const cvf::Vec3d& startPosition, const cvf::Vec3d& endPosition, const QString& text )
 {
     RimAnnotationCollectionBase* coll = annotationCollection();
     if ( !coll ) return;
@@ -844,8 +817,7 @@ void RimStimPlanModel::updatePerforationInterval()
     {
         // Adjust perforation interval for longitudinal fractures to correct TVD depth
         cvf::Vec3d wellPathTangent = wellPath()->wellPathGeometry()->tangentAlongWellPath( m_MD() );
-        halfPerforationLength =
-            RigStimPlanModelTools::calculatePerforationLength( wellPathTangent, m_perforationLength() ) * 0.5;
+        halfPerforationLength      = RigStimPlanModelTools::calculatePerforationLength( wellPathTangent, m_perforationLength() ) * 0.5;
     }
 
     double closestMd = m_thicknessDirectionWellPath->wellPathGeometry()->closestMeasuredDepth( m_anchorPosition );
@@ -920,9 +892,7 @@ void RimStimPlanModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStimPlanModel::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                              QString                    uiConfigName,
-                                              caf::PdmUiEditorAttribute* attribute )
+void RimStimPlanModel::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_formationDip || field == &m_barrierDip || field == &m_distanceToBarrier )
     {
@@ -1020,8 +990,7 @@ double RimStimPlanModel::defaultPorosity() const
 //--------------------------------------------------------------------------------------------------
 double RimStimPlanModel::defaultPermeability() const
 {
-    return m_stimPlanModelTemplate() ? m_stimPlanModelTemplate()->defaultPermeability()
-                                     : RiaDefines::defaultPermeability();
+    return m_stimPlanModelTemplate() ? m_stimPlanModelTemplate()->defaultPermeability() : RiaDefines::defaultPermeability();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1029,13 +998,11 @@ double RimStimPlanModel::defaultPermeability() const
 //--------------------------------------------------------------------------------------------------
 double RimStimPlanModel::getDefaultForMissingValue( RiaDefines::CurveProperty curveProperty ) const
 {
-    if ( curveProperty == RiaDefines::CurveProperty::POROSITY ||
-         curveProperty == RiaDefines::CurveProperty::POROSITY_UNSCALED )
+    if ( curveProperty == RiaDefines::CurveProperty::POROSITY || curveProperty == RiaDefines::CurveProperty::POROSITY_UNSCALED )
     {
         return defaultPorosity();
     }
-    else if ( curveProperty == RiaDefines::CurveProperty::PERMEABILITY_X ||
-              curveProperty == RiaDefines::CurveProperty::PERMEABILITY_Z )
+    else if ( curveProperty == RiaDefines::CurveProperty::PERMEABILITY_X || curveProperty == RiaDefines::CurveProperty::PERMEABILITY_Z )
     {
         return defaultPermeability();
     }
@@ -1067,13 +1034,11 @@ RiaDefines::CurveProperty RimStimPlanModel::getDefaultPropertyForMissingValues( 
 //--------------------------------------------------------------------------------------------------
 double RimStimPlanModel::getDefaultForMissingOverburdenValue( RiaDefines::CurveProperty curveProperty ) const
 {
-    if ( curveProperty == RiaDefines::CurveProperty::POROSITY ||
-         curveProperty == RiaDefines::CurveProperty::POROSITY_UNSCALED )
+    if ( curveProperty == RiaDefines::CurveProperty::POROSITY || curveProperty == RiaDefines::CurveProperty::POROSITY_UNSCALED )
     {
         return defaultOverburdenPorosity();
     }
-    else if ( curveProperty == RiaDefines::CurveProperty::PERMEABILITY_X ||
-              curveProperty == RiaDefines::CurveProperty::PERMEABILITY_Z )
+    else if ( curveProperty == RiaDefines::CurveProperty::PERMEABILITY_X || curveProperty == RiaDefines::CurveProperty::PERMEABILITY_Z )
     {
         return defaultOverburdenPermeability();
     }
@@ -1098,13 +1063,11 @@ double RimStimPlanModel::getDefaultForMissingOverburdenValue( RiaDefines::CurveP
 //--------------------------------------------------------------------------------------------------
 double RimStimPlanModel::getDefaultForMissingUnderburdenValue( RiaDefines::CurveProperty curveProperty ) const
 {
-    if ( curveProperty == RiaDefines::CurveProperty::POROSITY ||
-         curveProperty == RiaDefines::CurveProperty::POROSITY_UNSCALED )
+    if ( curveProperty == RiaDefines::CurveProperty::POROSITY || curveProperty == RiaDefines::CurveProperty::POROSITY_UNSCALED )
     {
         return defaultUnderburdenPorosity();
     }
-    else if ( curveProperty == RiaDefines::CurveProperty::PERMEABILITY_X ||
-              curveProperty == RiaDefines::CurveProperty::PERMEABILITY_Z )
+    else if ( curveProperty == RiaDefines::CurveProperty::PERMEABILITY_X || curveProperty == RiaDefines::CurveProperty::PERMEABILITY_Z )
     {
         return defaultUnderburdenPermeability();
     }
@@ -1129,8 +1092,7 @@ double RimStimPlanModel::getDefaultForMissingUnderburdenValue( RiaDefines::Curve
 //--------------------------------------------------------------------------------------------------
 double RimStimPlanModel::getOverburdenGradient( RiaDefines::CurveProperty curveProperty ) const
 {
-    if ( curveProperty == RiaDefines::CurveProperty::PRESSURE ||
-         curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
+    if ( curveProperty == RiaDefines::CurveProperty::PRESSURE || curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
     {
         if ( !m_stimPlanModelTemplate )
         {
@@ -1140,8 +1102,8 @@ double RimStimPlanModel::getOverburdenGradient( RiaDefines::CurveProperty curveP
     }
     else
     {
-        RiaLogging::error( QString( "Missing overburden gradient for %1." )
-                               .arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
+        RiaLogging::error(
+            QString( "Missing overburden gradient for %1." ).arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
         return std::numeric_limits<double>::infinity();
     }
 }
@@ -1151,8 +1113,7 @@ double RimStimPlanModel::getOverburdenGradient( RiaDefines::CurveProperty curveP
 //--------------------------------------------------------------------------------------------------
 double RimStimPlanModel::getUnderburdenGradient( RiaDefines::CurveProperty curveProperty ) const
 {
-    if ( curveProperty == RiaDefines::CurveProperty::PRESSURE ||
-         curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
+    if ( curveProperty == RiaDefines::CurveProperty::PRESSURE || curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
     {
         if ( !m_stimPlanModelTemplate )
         {
@@ -1163,8 +1124,8 @@ double RimStimPlanModel::getUnderburdenGradient( RiaDefines::CurveProperty curve
     }
     else
     {
-        RiaLogging::error( QString( "Missing underburden gradient for %1." )
-                               .arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
+        RiaLogging::error(
+            QString( "Missing underburden gradient for %1." ).arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
         return std::numeric_limits<double>::infinity();
     }
 }
@@ -1188,8 +1149,7 @@ double RimStimPlanModel::getDefaultValueForProperty( RiaDefines::CurveProperty c
     }
     else
     {
-        RiaLogging::error(
-            QString( "Missing default for %1." ).arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
+        RiaLogging::error( QString( "Missing default for %1." ).arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
         return std::numeric_limits<double>::infinity();
     }
 }
@@ -1197,8 +1157,7 @@ double RimStimPlanModel::getDefaultValueForProperty( RiaDefines::CurveProperty c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::deque<RimStimPlanModel::MissingValueStrategy>
-    RimStimPlanModel::missingValueStrategies( RiaDefines::CurveProperty curveProperty ) const
+std::deque<RimStimPlanModel::MissingValueStrategy> RimStimPlanModel::missingValueStrategies( RiaDefines::CurveProperty curveProperty ) const
 {
     if ( curveProperty == RiaDefines::CurveProperty::PRESSURE )
         return { RimStimPlanModel::MissingValueStrategy::OTHER_CURVE_PROPERTY };
@@ -1216,8 +1175,7 @@ std::deque<RimStimPlanModel::MissingValueStrategy>
 //--------------------------------------------------------------------------------------------------
 RimStimPlanModel::BurdenStrategy RimStimPlanModel::burdenStrategy( RiaDefines::CurveProperty curveProperty ) const
 {
-    if ( curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
-        return RimStimPlanModel::BurdenStrategy::GRADIENT;
+    if ( curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE ) return RimStimPlanModel::BurdenStrategy::GRADIENT;
 
     return RimStimPlanModel::BurdenStrategy::DEFAULT_VALUE;
 }
@@ -1443,8 +1401,8 @@ bool RimStimPlanModel::useStaticEclipseCase( RiaDefines::CurveProperty curveProp
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase* RimStimPlanModel::eclipseCaseForProperty( RiaDefines::CurveProperty curveProperty ) const
 {
-    if ( m_initialPressureEclipseCase && ( curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE ||
-                                           curveProperty == RiaDefines::CurveProperty::EQLNUM ) )
+    if ( m_initialPressureEclipseCase &&
+         ( curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE || curveProperty == RiaDefines::CurveProperty::EQLNUM ) )
     {
         return m_initialPressureEclipseCase;
     }
@@ -1597,8 +1555,7 @@ void RimStimPlanModel::updateViewsAndPlots()
     this->firstAncestorOrThisOfType( eclipseCase );
     if ( eclipseCase )
     {
-        RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews(
-            { eclipseCase } );
+        RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews( { eclipseCase } );
     }
     else
     {
@@ -1657,8 +1614,7 @@ std::shared_ptr<RimStimPlanModelCalculator> RimStimPlanModel::calculator() const
 //--------------------------------------------------------------------------------------------------
 RiaDefines::ResultCatType RimStimPlanModel::eclipseResultCategory( RiaDefines::CurveProperty curveProperty ) const
 {
-    if ( curveProperty == RiaDefines::CurveProperty::PRESSURE ||
-         curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
+    if ( curveProperty == RiaDefines::CurveProperty::PRESSURE || curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
     {
         return RiaDefines::ResultCatType::DYNAMIC_NATIVE;
     }
@@ -1697,8 +1653,7 @@ RiaDefines::ResultCatType RimStimPlanModel::eclipseResultCategory( RiaDefines::C
 //--------------------------------------------------------------------------------------------------
 QString RimStimPlanModel::eclipseResultVariable( RiaDefines::CurveProperty curveProperty ) const
 {
-    if ( curveProperty == RiaDefines::CurveProperty::PRESSURE ||
-         curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
+    if ( curveProperty == RiaDefines::CurveProperty::PRESSURE || curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
         return "PRESSURE";
     else if ( curveProperty == RiaDefines::CurveProperty::EQLNUM )
         return "EQLNUM";
@@ -1706,8 +1661,7 @@ QString RimStimPlanModel::eclipseResultVariable( RiaDefines::CurveProperty curve
         return "PERMX";
     else if ( curveProperty == RiaDefines::CurveProperty::PERMEABILITY_Z )
         return "PERMZ";
-    else if ( curveProperty == RiaDefines::CurveProperty::POROSITY ||
-              curveProperty == RiaDefines::CurveProperty::POROSITY_UNSCALED )
+    else if ( curveProperty == RiaDefines::CurveProperty::POROSITY || curveProperty == RiaDefines::CurveProperty::POROSITY_UNSCALED )
         return "PORO";
     else if ( curveProperty == RiaDefines::CurveProperty::FACIES )
     {
@@ -1805,8 +1759,7 @@ QString RimStimPlanModel::pressureDate() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::deque<RimExtractionConfiguration>
-    RimStimPlanModel::extractionConfigurations( RiaDefines::CurveProperty curveProperty ) const
+std::deque<RimExtractionConfiguration> RimStimPlanModel::extractionConfigurations( RiaDefines::CurveProperty curveProperty ) const
 {
     if ( curveProperty == RiaDefines::CurveProperty::EQLNUM )
     {
@@ -1841,10 +1794,8 @@ std::deque<RimExtractionConfiguration>
 
         };
     }
-    else if ( curveProperty == RiaDefines::CurveProperty::POROSITY ||
-              curveProperty == RiaDefines::CurveProperty::POROSITY_UNSCALED ||
-              curveProperty == RiaDefines::CurveProperty::PERMEABILITY_X ||
-              curveProperty == RiaDefines::CurveProperty::PERMEABILITY_Z )
+    else if ( curveProperty == RiaDefines::CurveProperty::POROSITY || curveProperty == RiaDefines::CurveProperty::POROSITY_UNSCALED ||
+              curveProperty == RiaDefines::CurveProperty::PERMEABILITY_X || curveProperty == RiaDefines::CurveProperty::PERMEABILITY_Z )
     {
         QString resultName = eclipseResultVariable( curveProperty );
         return {
@@ -1867,8 +1818,7 @@ RimEclipseCase* RimStimPlanModel::eclipseCaseForType( RimExtractionConfiguration
 {
     if ( caseType == RimExtractionConfiguration::EclipseCaseType::STATIC_CASE ) return m_staticEclipseCase;
     if ( caseType == RimExtractionConfiguration::EclipseCaseType::DYNAMIC_CASE ) return m_eclipseCase;
-    if ( caseType == RimExtractionConfiguration::EclipseCaseType::INITIAL_PRESSURE_CASE )
-        return m_initialPressureEclipseCase;
+    if ( caseType == RimExtractionConfiguration::EclipseCaseType::INITIAL_PRESSURE_CASE ) return m_initialPressureEclipseCase;
 
     return nullptr;
 }

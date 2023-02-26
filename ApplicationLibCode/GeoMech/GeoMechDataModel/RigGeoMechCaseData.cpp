@@ -121,9 +121,7 @@ bool RigGeoMechCaseData::readTimeSteps( std::string* errorMessage, std::vector<s
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigGeoMechCaseData::readFemParts( std::string*               errorMessage,
-                                       const std::vector<size_t>& timeStepFilter,
-                                       bool                       readOnlyLastFrame )
+bool RigGeoMechCaseData::readFemParts( std::string* errorMessage, const std::vector<size_t>& timeStepFilter, bool readOnlyLastFrame )
 {
     CVF_ASSERT( errorMessage );
 #ifdef USE_ODB_API
@@ -141,8 +139,7 @@ bool RigGeoMechCaseData::readFemParts( std::string*               errorMessage,
 
             m_elementPropertyReader = new RifElementPropertyReader( m_femParts->part( 0 )->elementIdxToId() );
             // Initialize results containers
-            m_femPartResultsColl =
-                new RigFemPartResultsCollection( m_readerInterface.p(), m_elementPropertyReader.p(), m_femParts.p() );
+            m_femPartResultsColl = new RigFemPartResultsCollection( m_readerInterface.p(), m_elementPropertyReader.p(), m_femParts.p() );
 
             // Calculate derived Fem data
             for ( int pIdx = 0; pIdx < m_femParts->partCount(); ++pIdx )
@@ -161,11 +158,7 @@ bool RigGeoMechCaseData::readFemParts( std::string*               errorMessage,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigGeoMechCaseData::readDisplacements( std::string*             errorMessage,
-                                            int                      partId,
-                                            int                      timeStep,
-                                            int                      frameIndex,
-                                            std::vector<cvf::Vec3f>* displacements )
+bool RigGeoMechCaseData::readDisplacements( std::string* errorMessage, int partId, int timeStep, int frameIndex, std::vector<cvf::Vec3f>* displacements )
 {
     CVF_ASSERT( errorMessage );
 #ifdef USE_ODB_API

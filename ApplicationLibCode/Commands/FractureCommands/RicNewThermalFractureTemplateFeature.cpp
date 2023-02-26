@@ -62,7 +62,7 @@ std::vector<RimThermalFractureTemplate*> RicNewThermalFractureTemplateFeature::c
 //--------------------------------------------------------------------------------------------------
 std::vector<RimThermalFractureTemplate*>
     RicNewThermalFractureTemplateFeature::createNewTemplatesFromFiles( const std::vector<QString>& fileNames,
-                                                                       bool reuseExistingTemplatesWithMatchingNames )
+                                                                       bool                        reuseExistingTemplatesWithMatchingNames )
 {
     return RicMeshFractureTemplateHelper<RimThermalFractureTemplate>::createNewTemplatesFromFiles( fileNames,
                                                                                                    defaultTemplateName(),

@@ -28,10 +28,10 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultModifier> RigResultModifierFactory::createResultModifier( RigEclipseCaseData*           eclipseCase,
-                                                                            size_t                        gridIndex,
-                                                                            RiaDefines::PorosityModelType porosityModel,
-                                                                            size_t                        timeStepIndex,
+cvf::ref<RigResultModifier> RigResultModifierFactory::createResultModifier( RigEclipseCaseData*            eclipseCase,
+                                                                            size_t                         gridIndex,
+                                                                            RiaDefines::PorosityModelType  porosityModel,
+                                                                            size_t                         timeStepIndex,
                                                                             const RigEclipseResultAddress& resVarAddr )
 {
     if ( !eclipseCase ) return nullptr;

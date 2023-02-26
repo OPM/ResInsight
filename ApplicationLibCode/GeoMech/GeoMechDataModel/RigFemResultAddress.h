@@ -99,10 +99,9 @@ public:
 
     bool isValid() const
     {
-        bool isTypeValid = resultPosType == RIG_NODAL || resultPosType == RIG_ELEMENT_NODAL ||
-                           resultPosType == RIG_INTEGRATION_POINT || resultPosType == RIG_ELEMENT_NODAL_FACE ||
-                           resultPosType == RIG_FORMATION_NAMES || resultPosType == RIG_ELEMENT ||
-                           resultPosType == RIG_DIFFERENTIALS;
+        bool isTypeValid = resultPosType == RIG_NODAL || resultPosType == RIG_ELEMENT_NODAL || resultPosType == RIG_INTEGRATION_POINT ||
+                           resultPosType == RIG_ELEMENT_NODAL_FACE || resultPosType == RIG_FORMATION_NAMES ||
+                           resultPosType == RIG_ELEMENT || resultPosType == RIG_DIFFERENTIALS;
         bool isFieldValid = fieldName != "";
 
         return isTypeValid && isFieldValid;
@@ -140,9 +139,8 @@ public:
 
     bool operator==( const RigFemResultAddress& other ) const
     {
-        if ( resultPosType != other.resultPosType || fieldName != other.fieldName ||
-             componentName != other.componentName || timeLapseBaseStepIdx != other.timeLapseBaseStepIdx ||
-             normalizedByHydrostaticPressure != other.normalizedByHydrostaticPressure )
+        if ( resultPosType != other.resultPosType || fieldName != other.fieldName || componentName != other.componentName ||
+             timeLapseBaseStepIdx != other.timeLapseBaseStepIdx || normalizedByHydrostaticPressure != other.normalizedByHydrostaticPressure )
         {
             return false;
         }

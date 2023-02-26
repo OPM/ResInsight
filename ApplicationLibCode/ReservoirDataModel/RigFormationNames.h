@@ -52,7 +52,7 @@ public:
 
 private:
     static cvf::Color3f undefinedColor();
-    void appendFormationRangeWithColor( const QString& name, cvf::Color3f color, int kStartIdx, int kEndIdx );
+    void                appendFormationRangeWithColor( const QString& name, cvf::Color3f color, int kStartIdx, int kEndIdx );
 
 private:
     std::vector<int>          m_nameIndexPrKLayer;

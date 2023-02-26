@@ -139,13 +139,10 @@ void RimEclipsePropertyFilter::setIsDuplicatedFromLinkedView( bool isDuplicated 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipsePropertyFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                 const QVariant&            oldValue,
-                                                 const QVariant&            newValue )
+void RimEclipsePropertyFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( &m_lowerBound == changedField || &m_upperBound == changedField || &m_isActive == changedField ||
-         &m_filterMode == changedField || &m_selectedCategoryValues == changedField ||
-         &m_useCategorySelection == changedField )
+    if ( &m_lowerBound == changedField || &m_upperBound == changedField || &m_isActive == changedField || &m_filterMode == changedField ||
+         &m_selectedCategoryValues == changedField || &m_useCategorySelection == changedField )
     {
         m_isDuplicatedFromLinkedView = false;
 
@@ -328,9 +325,7 @@ void RimEclipsePropertyFilter::updateActiveState()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipsePropertyFilter::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                      QString                    uiConfigName,
-                                                      caf::PdmUiEditorAttribute* attribute )
+void RimEclipsePropertyFilter::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( m_minimumResultValue == cvf::UNDEFINED_DOUBLE || m_maximumResultValue == cvf::UNDEFINED_DOUBLE )
     {
@@ -432,17 +427,15 @@ void RimEclipsePropertyFilter::computeResultValueRange()
                     }
                     else if ( m_resultDefinition->resultVariable() == RiaResultNames::completionTypeResultName() )
                     {
-                        std::vector<RiaDefines::WellPathComponentType> componentTypes =
-                            { RiaDefines::WellPathComponentType::WELL_PATH,
-                              RiaDefines::WellPathComponentType::PERFORATION_INTERVAL,
-                              RiaDefines::WellPathComponentType::FISHBONES,
-                              RiaDefines::WellPathComponentType::FRACTURE };
-                        std::vector<std::pair<QString, int>> ctNamesAndValues;
+                        std::vector<RiaDefines::WellPathComponentType> componentTypes = { RiaDefines::WellPathComponentType::WELL_PATH,
+                                                                                          RiaDefines::WellPathComponentType::PERFORATION_INTERVAL,
+                                                                                          RiaDefines::WellPathComponentType::FISHBONES,
+                                                                                          RiaDefines::WellPathComponentType::FRACTURE };
+                        std::vector<std::pair<QString, int>>           ctNamesAndValues;
                         for ( RiaDefines::WellPathComponentType type : componentTypes )
                         {
-                            ctNamesAndValues.push_back(
-                                std::make_pair( caf::AppEnum<RiaDefines::WellPathComponentType>::uiText( type ),
-                                                static_cast<int>( type ) ) );
+                            ctNamesAndValues.push_back( std::make_pair( caf::AppEnum<RiaDefines::WellPathComponentType>::uiText( type ),
+                                                                        static_cast<int>( type ) ) );
                         }
                         setCategoryNamesAndValues( ctNamesAndValues );
                     }

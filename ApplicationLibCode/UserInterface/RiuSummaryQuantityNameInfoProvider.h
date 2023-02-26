@@ -56,9 +56,8 @@ private:
 private:
     RiuSummaryQuantityNameInfoProvider();
 
-    RiuSummaryQuantityInfo quantityInfo( const std::string& vectorName, bool exactMatch = false ) const;
-    RifEclipseSummaryAddress::SummaryVarCategory categoryFromVectorName( const std::string& vectorName,
-                                                                         bool               exactMatch = false ) const;
+    RiuSummaryQuantityInfo                       quantityInfo( const std::string& vectorName, bool exactMatch = false ) const;
+    RifEclipseSummaryAddress::SummaryVarCategory categoryFromVectorName( const std::string& vectorName, bool exactMatch = false ) const;
 
     static std::unordered_map<std::string, RiuSummaryQuantityInfo> createInfoForEclipseKeywords();
     static std::unordered_map<std::string, RiuSummaryQuantityInfo> createInfoFor6xKeywords();

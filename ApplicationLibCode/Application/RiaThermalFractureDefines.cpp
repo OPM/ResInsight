@@ -78,8 +78,7 @@ QString viscosityResultName()
 //--------------------------------------------------------------------------------------------------
 QString getExpectedThermalFractureUnit( const QString& name, RiaDefines::EclipseUnitSystem unitSystem )
 {
-    CAF_ASSERT( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC ||
-                unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD );
+    CAF_ASSERT( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC || unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD );
 
     // parameter name --> { metric unit, field unit }
     std::map<QString, std::pair<QString, QString>> mapping =

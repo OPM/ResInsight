@@ -44,13 +44,11 @@ TEST( RigHexIntersectionTools, planeHexCellIntersectionTest )
     cvf::Plane                                   fracturePlane;
 
     fracturePlane.setFromPointAndNormal( cvf::Vec3d( 0.5, 0.5, 0.5 ), cvf::Vec3d( 1, 0, 0 ) );
-    isCellIntersected =
-        RigHexIntersectionTools::planeHexCellIntersection( hexCorners, fracturePlane, intersectionLineSegments );
+    isCellIntersected = RigHexIntersectionTools::planeHexCellIntersection( hexCorners, fracturePlane, intersectionLineSegments );
     EXPECT_TRUE( isCellIntersected );
 
     fracturePlane.setFromPointAndNormal( cvf::Vec3d( 1.5, 1.5, 1.5 ), cvf::Vec3d( 1, 0, 0 ) );
-    isCellIntersected =
-        RigHexIntersectionTools::planeHexCellIntersection( hexCorners, fracturePlane, intersectionLineSegments );
+    isCellIntersected = RigHexIntersectionTools::planeHexCellIntersection( hexCorners, fracturePlane, intersectionLineSegments );
     EXPECT_FALSE( isCellIntersected );
 }
 
@@ -88,12 +86,10 @@ TEST( RigHexIntersectionTools, DISABLED_planeHexCellIntersectionPerformanceTest 
         {
             std::list<std::pair<cvf::Vec3d, cvf::Vec3d>> intersectionLineSegments;
 
-            isCellIntersected = RigHexIntersectionTools::planeHexCellIntersection( hexCorners,
-                                                                                   fracturePlaneIntersecting,
-                                                                                   intersectionLineSegments );
-            isCellIntersected = RigHexIntersectionTools::planeHexCellIntersection( hexCorners,
-                                                                                   fracturePlaneNotIntersecting,
-                                                                                   intersectionLineSegments );
+            isCellIntersected =
+                RigHexIntersectionTools::planeHexCellIntersection( hexCorners, fracturePlaneIntersecting, intersectionLineSegments );
+            isCellIntersected =
+                RigHexIntersectionTools::planeHexCellIntersection( hexCorners, fracturePlaneNotIntersecting, intersectionLineSegments );
         }
 
         qDebug() << "Time rim elapsed: " << timeLocal.elapsed();

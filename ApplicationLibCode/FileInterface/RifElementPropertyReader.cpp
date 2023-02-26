@@ -88,8 +88,7 @@ std::vector<std::string> RifElementPropertyReader::scalarElementFields() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<std::string, std::vector<float>>
-    RifElementPropertyReader::readAllElementPropertiesInFileContainingField( const std::string& fieldName )
+std::map<std::string, std::vector<float>> RifElementPropertyReader::readAllElementPropertiesInFileContainingField( const std::string& fieldName )
 {
     std::map<std::string, std::vector<float>> fieldAndData;
 

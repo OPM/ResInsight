@@ -136,10 +136,7 @@ void RigEclipseWellLogExtractor::calculateIntersection()
                             // Mark the first well path point as entering the cell
 
                             bool                      isEntering = true;
-                            HexIntersectionInfo       info( firstPoint,
-                                                      isEntering,
-                                                      cvf::StructGridInterface::NO_FACE,
-                                                      globalCellIndex );
+                            HexIntersectionInfo       info( firstPoint, isEntering, cvf::StructGridInterface::NO_FACE, globalCellIndex );
                             RigMDCellIdxEnterLeaveKey enterLeaveKey( m_wellPathGeometry->measuredDepths().front(),
                                                                      globalCellIndex,
                                                                      isEntering,
@@ -151,8 +148,8 @@ void RigEclipseWellLogExtractor::calculateIntersection()
                         {
                             // Mark the last well path point as leaving cell
 
-                            bool                isEntering = false;
-                            HexIntersectionInfo info( lastPoint, isEntering, cvf::StructGridInterface::NO_FACE, globalCellIndex );
+                            bool                      isEntering = false;
+                            HexIntersectionInfo       info( lastPoint, isEntering, cvf::StructGridInterface::NO_FACE, globalCellIndex );
                             RigMDCellIdxEnterLeaveKey enterLeaveKey( m_wellPathGeometry->measuredDepths().back(),
                                                                      globalCellIndex,
                                                                      isEntering,
@@ -163,8 +160,7 @@ void RigEclipseWellLogExtractor::calculateIntersection()
                     }
                     else
                     {
-                        QString txt =
-                            "Detected two points assumed to be in the same cell, but they are in two different cells";
+                        QString txt = "Detected two points assumed to be in the same cell, but they are in two different cells";
                         RiaLogging::debug( txt );
                     }
                 }
@@ -204,9 +200,7 @@ std::vector<size_t> RigEclipseWellLogExtractor::findCloseCellIndices( const cvf:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3d RigEclipseWellLogExtractor::calculateLengthInCell( size_t            cellIndex,
-                                                              const cvf::Vec3d& startPoint,
-                                                              const cvf::Vec3d& endPoint ) const
+cvf::Vec3d RigEclipseWellLogExtractor::calculateLengthInCell( size_t cellIndex, const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint ) const
 {
     std::array<cvf::Vec3d, 8> hexCorners;
     m_caseData->mainGrid()->cellCornerVertices( cellIndex, hexCorners.data() );
@@ -226,8 +220,7 @@ double RigEclipseWellLogExtractor::computeLengthThreshold() const
     // If not, the intersection will be considered as non-valid cell edge intersection and discarded
     // https://github.com/OPM/ResInsight/issues/9244
 
-    auto gridCellResult =
-        const_cast<RigCaseCellResultsData*>( m_caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) );
+    auto gridCellResult = const_cast<RigCaseCellResultsData*>( m_caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) );
 
     auto resultAdr = RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "DZ" );
     if ( gridCellResult && gridCellResult->hasResultEntry( resultAdr ) )

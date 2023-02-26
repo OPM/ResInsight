@@ -35,15 +35,14 @@ void RimDataSourceSteppingTools::modifyCurrentIndex( caf::PdmValueField*        
 {
     if ( valueField && !options.isEmpty() )
     {
-        QVariant                              currentValue = valueField->toQVariant();
+        QVariant                              currentValue  = valueField->toQVariant();
         caf::PdmPointer<caf::PdmObjectHandle> currentHandle = currentValue.value<caf::PdmPointer<caf::PdmObjectHandle>>();
-        int                                   currentIndex = -1;
+        int                                   currentIndex  = -1;
         for ( int i = 0; i < options.size(); i++ )
         {
             QVariant optionValue = options[i].value();
             // First try pointer variety. They are not supported by QVariant::operator==
-            caf::PdmPointer<caf::PdmObjectHandle> optionHandle =
-                optionValue.value<caf::PdmPointer<caf::PdmObjectHandle>>();
+            caf::PdmPointer<caf::PdmObjectHandle> optionHandle = optionValue.value<caf::PdmPointer<caf::PdmObjectHandle>>();
             if ( optionHandle )
             {
                 if ( currentHandle == optionHandle )
@@ -130,8 +129,7 @@ bool RimDataSourceSteppingTools::updateAddressIfMatching( const QVariant&       
             return true;
         }
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_BLOCK ||
-              category == RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION )
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_BLOCK || category == RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION )
     {
         std::string oldString = oldValue.toString().toStdString();
         std::string newString = newValue.toString().toStdString();
@@ -205,9 +203,7 @@ bool RimDataSourceSteppingTools::updateHistoryAndSummaryQuantityIfMatching( cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimDataSourceSteppingTools::updateQuantityIfMatching( const QVariant&           oldValue,
-                                                           const QVariant&           newValue,
-                                                           RifEclipseSummaryAddress* adr )
+bool RimDataSourceSteppingTools::updateQuantityIfMatching( const QVariant& oldValue, const QVariant& newValue, RifEclipseSummaryAddress* adr )
 {
     if ( !adr ) return false;
 

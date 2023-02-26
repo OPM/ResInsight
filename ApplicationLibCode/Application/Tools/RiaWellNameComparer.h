@@ -41,9 +41,8 @@ public:
     static QString removeSpacesFromName( const QString& wellName );
 
 private:
-    static QString tryMatchName( QString                           searchName,
-                                 const std::vector<QString>&       nameList,
-                                 std::function<QString( QString )> stringFormatter = nullptr );
+    static QString
+        tryMatchName( QString searchName, const std::vector<QString>& nameList, std::function<QString( QString )> stringFormatter = nullptr );
 
     static QString removeWellNamePrefix( const QString& name );
 

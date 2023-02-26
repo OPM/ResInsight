@@ -48,9 +48,7 @@ public:
 
     static bool addEclipseCases( const QStringList& fileNames, RimIdenticalGridCaseGroup** resultingCaseGroup = nullptr );
 
-    static int openEclipseCaseFromFile( const QString&                     fileName,
-                                        bool                               createView,
-                                        std::shared_ptr<RifReaderSettings> readerSettings = nullptr );
+    static int openEclipseCaseFromFile( const QString& fileName, bool createView, std::shared_ptr<RifReaderSettings> readerSettings = nullptr );
 
     static int openRoffCaseFromFileNames( const QStringList& fileNames, bool createDefaultView );
 

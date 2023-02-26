@@ -556,14 +556,10 @@ void RigMainGrid::addUnNamedFaultFaces( int                               gcIdx,
             m_cells[neighborReservoirCellIdx].faceIndices( StructGridInterface::oppositeFace( face ), &nbFaceIdxs );
 
             bool sharedFaceVertices = true;
-            if ( sharedFaceVertices && vxs[faceIdxs[0]].pointDistance( vxs[nbFaceIdxs[0]] ) > tolerance )
-                sharedFaceVertices = false;
-            if ( sharedFaceVertices && vxs[faceIdxs[1]].pointDistance( vxs[nbFaceIdxs[3]] ) > tolerance )
-                sharedFaceVertices = false;
-            if ( sharedFaceVertices && vxs[faceIdxs[2]].pointDistance( vxs[nbFaceIdxs[2]] ) > tolerance )
-                sharedFaceVertices = false;
-            if ( sharedFaceVertices && vxs[faceIdxs[3]].pointDistance( vxs[nbFaceIdxs[1]] ) > tolerance )
-                sharedFaceVertices = false;
+            if ( sharedFaceVertices && vxs[faceIdxs[0]].pointDistance( vxs[nbFaceIdxs[0]] ) > tolerance ) sharedFaceVertices = false;
+            if ( sharedFaceVertices && vxs[faceIdxs[1]].pointDistance( vxs[nbFaceIdxs[3]] ) > tolerance ) sharedFaceVertices = false;
+            if ( sharedFaceVertices && vxs[faceIdxs[2]].pointDistance( vxs[nbFaceIdxs[2]] ) > tolerance ) sharedFaceVertices = false;
+            if ( sharedFaceVertices && vxs[faceIdxs[3]].pointDistance( vxs[nbFaceIdxs[1]] ) > tolerance ) sharedFaceVertices = false;
 
             if ( sharedFaceVertices )
             {
@@ -671,10 +667,8 @@ bool RigMainGrid::isFaceNormalsOutwards() const
 //--------------------------------------------------------------------------------------------------
 void RigMainGrid::computeFaceNormalsDirection( const std::vector<size_t>& reservoirCellIndices ) const
 {
-    auto isValidAndFaceNormalDir = []( const double                       ijSize,
-                                       const double                       kSize,
-                                       const RigCell&                     cell,
-                                       cvf::StructGridInterface::FaceType face ) -> std::pair<bool, bool> {
+    auto isValidAndFaceNormalDir =
+        []( const double ijSize, const double kSize, const RigCell& cell, cvf::StructGridInterface::FaceType face ) -> std::pair<bool, bool> {
         const cvf::Vec3d cellCenter = cell.center();
         const cvf::Vec3d faceCenter = cell.faceCenter( face );
         const cvf::Vec3d faceNormal = cell.faceNormalWithAreaLength( face );
@@ -708,14 +702,10 @@ void RigMainGrid::computeFaceNormalsDirection( const std::vector<size_t>& reserv
             const double cellVolume = cell.volume();
             if ( cellVolume < characteristicVolume * 0.8 ) continue;
 
-            auto [isValid1, direction1] =
-                isValidAndFaceNormalDir( ijSize, kSize, cell, cvf::StructGridInterface::FaceType::NEG_I );
-            auto [isValid2, direction2] =
-                isValidAndFaceNormalDir( ijSize, kSize, cell, cvf::StructGridInterface::FaceType::POS_I );
-            auto [isValid3, direction3] =
-                isValidAndFaceNormalDir( ijSize, kSize, cell, cvf::StructGridInterface::FaceType::NEG_J );
-            auto [isValid4, direction4] =
-                isValidAndFaceNormalDir( ijSize, kSize, cell, cvf::StructGridInterface::FaceType::POS_J );
+            auto [isValid1, direction1] = isValidAndFaceNormalDir( ijSize, kSize, cell, cvf::StructGridInterface::FaceType::NEG_I );
+            auto [isValid2, direction2] = isValidAndFaceNormalDir( ijSize, kSize, cell, cvf::StructGridInterface::FaceType::POS_I );
+            auto [isValid3, direction3] = isValidAndFaceNormalDir( ijSize, kSize, cell, cvf::StructGridInterface::FaceType::NEG_J );
+            auto [isValid4, direction4] = isValidAndFaceNormalDir( ijSize, kSize, cell, cvf::StructGridInterface::FaceType::POS_J );
 
             if ( !isValid1 || !isValid2 || !isValid3 || !isValid4 ) continue;
 
@@ -746,8 +736,7 @@ void RigMainGrid::computeFaceNormalsDirection( const std::vector<size_t>& reserv
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RigFault* RigMainGrid::findFaultFromCellIndexAndCellFace( size_t                             reservoirCellIndex,
-                                                                cvf::StructGridInterface::FaceType face ) const
+const RigFault* RigMainGrid::findFaultFromCellIndexAndCellFace( size_t reservoirCellIndex, cvf::StructGridInterface::FaceType face ) const
 {
     if ( m_faultsPrCellAcc.isNull() ) return nullptr;
 
@@ -904,8 +893,7 @@ void RigMainGrid::buildCellSearchTreeOptimized( size_t cellsPerBoundingBox )
                                     const auto& localCell = subGrid->cell( localIdx );
                                     if ( localCell.mainGridCellIndex() == cellIdx )
                                     {
-                                        aggregatedCellIndices.push_back(
-                                            static_cast<int>( subGrid->reservoirCellIndex( localIdx ) ) );
+                                        aggregatedCellIndices.push_back( static_cast<int>( subGrid->reservoirCellIndex( localIdx ) ) );
                                     }
                                 }
                             }
@@ -942,9 +930,7 @@ void RigMainGrid::buildCellSearchTreeOptimized( size_t cellsPerBoundingBox )
                                             threadCellIndicesForBoundingBoxes[i].begin(),
                                             threadCellIndicesForBoundingBoxes[i].end() );
 
-        cellBoundingBoxes.insert( cellBoundingBoxes.end(),
-                                  threadCellBoundingBoxes[i].begin(),
-                                  threadCellBoundingBoxes[i].end() );
+        cellBoundingBoxes.insert( cellBoundingBoxes.end(), threadCellBoundingBoxes[i].begin(), threadCellBoundingBoxes[i].end() );
     }
 
     m_cellSearchTree = new cvf::BoundingBoxTree;

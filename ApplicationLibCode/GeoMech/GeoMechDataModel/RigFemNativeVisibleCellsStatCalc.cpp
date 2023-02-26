@@ -76,8 +76,7 @@ void RigFemNativeVisibleCellsStatCalc::valueSumAndSampleCount( size_t timeStepIn
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFemNativeVisibleCellsStatCalc::addDataToHistogramCalculator( size_t                  timeStepIndex,
-                                                                     RigHistogramCalculator& histogramCalculator )
+void RigFemNativeVisibleCellsStatCalc::addDataToHistogramCalculator( size_t timeStepIndex, RigHistogramCalculator& histogramCalculator )
 {
     traverseElementNodes( histogramCalculator, timeStepIndex );
 }

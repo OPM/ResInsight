@@ -82,7 +82,7 @@ public:
 
     RigActiveCellInfo*       activeCellInfo( RiaDefines::PorosityModelType porosityModel );
     const RigActiveCellInfo* activeCellInfo( RiaDefines::PorosityModelType porosityModel ) const;
-    void setActiveCellInfo( RiaDefines::PorosityModelType porosityModel, RigActiveCellInfo* activeCellInfo );
+    void                     setActiveCellInfo( RiaDefines::PorosityModelType porosityModel, RigActiveCellInfo* activeCellInfo );
 
     bool hasFractureResults() const;
 
@@ -111,16 +111,15 @@ public:
     std::vector<QString> simulationWellNames() const;
     bool                 hasSimulationWell( const QString& simWellName ) const;
 
-    std::vector<const RigWellPath*> simulationWellBranches( const QString& simWellName,
-                                                            bool           includeAllCellCenters,
-                                                            bool           useAutoDetectionOfBranches ) const;
+    std::vector<const RigWellPath*>
+        simulationWellBranches( const QString& simWellName, bool includeAllCellCenters, bool useAutoDetectionOfBranches ) const;
 
-    void                                           setVirtualPerforationTransmissibilities( RigVirtualPerforationTransmissibilities* virtualPerforationTransmissibilities );
+    void setVirtualPerforationTransmissibilities( RigVirtualPerforationTransmissibilities* virtualPerforationTransmissibilities );
     const RigVirtualPerforationTransmissibilities* virtualPerforationTransmissibilities() const;
 
     void clearWellCellsInGridCache() { m_wellCellsInGrid.clear(); }
 
-    void ensureDeckIsParsedForEquilData( const QString& dataDeckFile, const QString& includeFileAbsolutePathPrefix );
+    void                  ensureDeckIsParsedForEquilData( const QString& dataDeckFile, const QString& includeFileAbsolutePathPrefix );
     std::vector<RigEquil> equilData() const;
     void                  setEquilData( const std::vector<RigEquil>& equilObjects );
 

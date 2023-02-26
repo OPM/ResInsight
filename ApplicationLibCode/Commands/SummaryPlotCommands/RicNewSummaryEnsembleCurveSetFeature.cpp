@@ -56,8 +56,8 @@ CAF_CMD_SOURCE_INIT( RicNewSummaryEnsembleCurveSetFeature, "RicNewSummaryEnsembl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimEnsembleCurveSet*>
-    RicNewSummaryEnsembleCurveSetFeature::addDefaultCurveSets( RimSummaryPlot* plot, RimSummaryCaseCollection* ensemble )
+std::vector<RimEnsembleCurveSet*> RicNewSummaryEnsembleCurveSetFeature::addDefaultCurveSets( RimSummaryPlot*           plot,
+                                                                                             RimSummaryCaseCollection* ensemble )
 {
     CVF_ASSERT( plot && ensemble );
 
@@ -84,8 +84,7 @@ std::vector<RimEnsembleCurveSet*>
                 auto colorIndex = plot->singleColorCurveCount();
 
                 curveSet->setColor(
-                    RimSummaryCurveAppearanceCalculator::computeTintedCurveColorForAddress( addr,
-                                                                                            static_cast<int>( colorIndex ) ) );
+                    RimSummaryCurveAppearanceCalculator::computeTintedCurveColorForAddress( addr, static_cast<int>( colorIndex ) ) );
                 curveSet->legendConfig()->setColorLegend( RimRegularLegendConfig::mapToColorLegend(
                     RimEnsembleCurveSetColorManager::cycledEnsembleColorRange( static_cast<int>( colorIndex ) ) ) );
 
@@ -106,8 +105,7 @@ std::vector<RimEnsembleCurveSet*>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlot*
-    RicNewSummaryEnsembleCurveSetFeature::createPlotForCurveSetsAndUpdate( std::vector<RimSummaryCaseCollection*> ensembles )
+RimSummaryPlot* RicNewSummaryEnsembleCurveSetFeature::createPlotForCurveSetsAndUpdate( std::vector<RimSummaryCaseCollection*> ensembles )
 {
     RiaGuiApplication* app  = RiaGuiApplication::instance();
     RimProject*        proj = app->project();
@@ -123,8 +121,7 @@ RimSummaryPlot*
     RimEnsembleCurveSet* firstCurveSetCreated = nullptr;
     for ( RimSummaryCaseCollection* ensemble : ensembles )
     {
-        std::vector<RimEnsembleCurveSet*> curveSets =
-            RicNewSummaryEnsembleCurveSetFeature::addDefaultCurveSets( plot, ensemble );
+        std::vector<RimEnsembleCurveSet*> curveSets = RicNewSummaryEnsembleCurveSetFeature::addDefaultCurveSets( plot, ensemble );
         if ( !firstCurveSetCreated && !curveSets.empty() ) firstCurveSetCreated = curveSets.front();
     }
 

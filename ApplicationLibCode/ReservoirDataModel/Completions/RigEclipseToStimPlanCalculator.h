@@ -47,8 +47,7 @@ public:
                                              const RigFractureGrid& fractureGrid,
                                              const RimFracture*     fracture );
 
-    void appendDataToTransmissibilityCondenser( bool                          useFiniteConductivityInFracture,
-                                                RigTransmissibilityCondenser* condenser ) const;
+    void appendDataToTransmissibilityCondenser( bool useFiniteConductivityInFracture, RigTransmissibilityCondenser* condenser ) const;
 
     // Returns the area intersecting eclipse cells open for flow, from both active and inactive cells
     // Truncated parts of the fracture are not included

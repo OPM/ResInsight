@@ -39,9 +39,8 @@ public:
     static bool writeToFile( RimStimPlanModel* plot, bool useDetailedFluidLoss, const QString& filepath );
 
 private:
-    static bool writeToFrkFile( const QString&                                filepath,
-                                const std::vector<QString>&                   labels,
-                                const std::map<QString, std::vector<double>>& values );
+    static bool
+                writeToFrkFile( const QString& filepath, const std::vector<QString>& labels, const std::map<QString, std::vector<double>>& values );
     static bool writeToCsvFile( const QString&                                filepath,
                                 const std::vector<QString>&                   labels,
                                 const std::map<QString, std::vector<double>>& values,

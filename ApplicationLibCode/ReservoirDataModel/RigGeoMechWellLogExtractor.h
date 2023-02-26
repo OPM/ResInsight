@@ -81,11 +81,9 @@ public:
     std::vector<double> poissonSourceRegions( int timeStepIndex, int frameIndex );
     std::vector<double> ucsSourceRegions( int timeStepIndex, int frameIndex );
 
-    static caf::Ten3d transformTensorToWellPathOrientation( const cvf::Vec3d& wellPathTangent,
-                                                            const caf::Ten3d& wellPathTensor );
+    static caf::Ten3d transformTensorToWellPathOrientation( const cvf::Vec3d& wellPathTangent, const caf::Ten3d& wellPathTensor );
 
-    static double hydroStaticPorePressureAtDepth( double effectiveDepthMeters,
-                                                  double waterDensityGCM3 = PURE_WATER_DENSITY_GCM3 );
+    static double hydroStaticPorePressureAtDepth( double effectiveDepthMeters, double waterDensityGCM3 = PURE_WATER_DENSITY_GCM3 );
 
     double waterDepth() const;
     double estimateWaterDepth() const;
@@ -112,36 +110,29 @@ private:
                                                                           int                        timeStepIndex,
                                                                           int                        frameIndex,
                                                                           std::vector<double>*       values,
-                                                                          bool allowNormalization );
+                                                                          bool                       allowNormalization );
 
     void                            wellPathAngles( const RigFemResultAddress& resAddr, std::vector<double>* values );
     std::vector<WbsParameterSource> wellPathScaledCurveData( const RigFemResultAddress& resAddr,
                                                              int                        timeStepIndex,
                                                              int                        frameIndex,
                                                              std::vector<double>*       values,
-                                                             bool forceGridSourceforPPReservoir = false );
-    void                            wellBoreWallCurveData( const RigFemResultAddress& resAddr,
-                                                           int                        timeStepIndex,
-                                                           int                        frameIndex,
-                                                           std::vector<double>*       values );
+                                                             bool                       forceGridSourceforPPReservoir = false );
+    void wellBoreWallCurveData( const RigFemResultAddress& resAddr, int timeStepIndex, int frameIndex, std::vector<double>* values );
 
     void wellBoreFGShale( int timeStepIndex, int frameIndex, std::vector<double>* values );
     void wellBoreSH_MatthewsKelly( int timeStepIndex, int frameIndex, std::vector<double>* values );
 
     template <typename T>
-    T      interpolateGridResultValue( RigFemResultPosEnum   resultPosType,
-                                       const std::vector<T>& gridResultValues,
-                                       int64_t               intersectionIdx ) const;
-    size_t gridResultIndexFace( size_t elementIdx, cvf::StructGridInterface::FaceType cellFace, int faceLocalNodeIdx ) const;
+    T interpolateGridResultValue( RigFemResultPosEnum resultPosType, const std::vector<T>& gridResultValues, int64_t intersectionIdx ) const;
+    size_t              gridResultIndexFace( size_t elementIdx, cvf::StructGridInterface::FaceType cellFace, int faceLocalNodeIdx ) const;
     void                calculateIntersection();
     std::vector<size_t> findCloseCells( const cvf::BoundingBox& bb );
-    cvf::Vec3d
-               calculateLengthInCell( size_t cellIndex, const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint ) const override;
-    cvf::Vec3d calculateWellPathTangent( int64_t intersectionIdx, WellPathTangentCalculation calculationType ) const;
+    cvf::Vec3d          calculateLengthInCell( size_t cellIndex, const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint ) const override;
+    cvf::Vec3d          calculateWellPathTangent( int64_t intersectionIdx, WellPathTangentCalculation calculationType ) const;
 
     cvf::Vec3f cellCentroid( size_t intersectionIdx ) const;
-    double     getWellLogIntersectionValue( size_t                                        intersectionIdx,
-                                            const std::vector<std::pair<double, double>>& wellLogValues ) const;
+    double     getWellLogIntersectionValue( size_t intersectionIdx, const std::vector<std::pair<double, double>>& wellLogValues ) const;
 
     template <typename T>
     bool          averageIntersectionValuesToSegmentValue( size_t                intersectionIdx,
@@ -168,10 +159,8 @@ private:
 
     std::vector<unsigned char> determineFilteringOrSmoothing( const std::vector<double>& porePressures );
 
-    double hydroStaticPorePressureForIntersection( size_t intersectionIdx,
-                                                   double waterDensityGCM3 = PURE_WATER_DENSITY_GCM3 ) const;
-    double hydroStaticPorePressureForSegment( size_t intersectionIdx,
-                                              double waterDensityGCM3 = PURE_WATER_DENSITY_GCM3 ) const;
+    double hydroStaticPorePressureForIntersection( size_t intersectionIdx, double waterDensityGCM3 = PURE_WATER_DENSITY_GCM3 ) const;
+    double hydroStaticPorePressureForSegment( size_t intersectionIdx, double waterDensityGCM3 = PURE_WATER_DENSITY_GCM3 ) const;
 
     double wbsCurveValuesAtMsl() const;
 

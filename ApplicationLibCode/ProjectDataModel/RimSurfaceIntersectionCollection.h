@@ -47,8 +47,7 @@ public:
     std::vector<RimSurfaceIntersectionBand*>  surfaceIntersectionBands() const;
 
 private:
-    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
     void onObjectChanged( const caf::SignalEmitter* emitter );
     void initAfterRead() override;

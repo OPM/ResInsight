@@ -45,12 +45,8 @@ void RicRenameSummaryCaseFeature::onActionTriggered( bool isChecked )
     if ( !summaryCase ) return;
 
     bool    ok;
-    QString userDefinedName = QInputDialog::getText( nullptr,
-                                                     "Rename Case",
-                                                     "Enter new name:",
-                                                     QLineEdit::Normal,
-                                                     summaryCase->displayCaseName(),
-                                                     &ok );
+    QString userDefinedName =
+        QInputDialog::getText( nullptr, "Rename Case", "Enter new name:", QLineEdit::Normal, summaryCase->displayCaseName(), &ok );
 
     if ( !ok ) return;
 

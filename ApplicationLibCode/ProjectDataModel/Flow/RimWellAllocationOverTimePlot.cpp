@@ -66,13 +66,9 @@ template <>
 void AppEnum<RimWellAllocationOverTimePlot::FlowValueType>::setUp()
 {
     addItem( RimWellAllocationOverTimePlot::FlowValueType::FLOW_RATE, "FLOW_RATE", "Flow Rates" );
-    addItem( RimWellAllocationOverTimePlot::FlowValueType::FLOW_RATE_PERCENTAGE,
-             "FLOW_RATE_PERCENTAGE",
-             "Flow Rate Percentage" );
+    addItem( RimWellAllocationOverTimePlot::FlowValueType::FLOW_RATE_PERCENTAGE, "FLOW_RATE_PERCENTAGE", "Flow Rate Percentage" );
     addItem( RimWellAllocationOverTimePlot::FlowValueType::FLOW_VOLUME, "FLOW_VOLUME", "Flow Volumes" );
-    addItem( RimWellAllocationOverTimePlot::FlowValueType::ACCUMULATED_FLOW_VOLUME,
-             "ACCUMULATED_FLOW_VOLUME",
-             "Accumulated Flow Volumes" );
+    addItem( RimWellAllocationOverTimePlot::FlowValueType::ACCUMULATED_FLOW_VOLUME, "ACCUMULATED_FLOW_VOLUME", "Accumulated Flow Volumes" );
     addItem( RimWellAllocationOverTimePlot::FlowValueType::ACCUMULATED_FLOW_VOLUME_PERCENTAGE,
              "ACCUMULATED_FLOW_VOLUME_PERCENTAGE",
              "Accumulated Flow Volume Percentage" );
@@ -208,8 +204,7 @@ QString RimWellAllocationOverTimePlot::asciiDataForPlotExport() const
         dataText += timeStep.toString( dateFormatStr ) + "\t";
         for ( auto& [wellName, wellValues] : allocationOverTimeCollection.wellValuesMap() )
         {
-            dataText += wellValues.count( timeStep ) == 0 ? QString::number( 0.0 )
-                                                          : QString::number( wellValues.at( timeStep ) );
+            dataText += wellValues.count( timeStep ) == 0 ? QString::number( 0.0 ) : QString::number( wellValues.at( timeStep ) );
             dataText += "\t";
         }
         dataText += "\n";
@@ -438,8 +433,7 @@ RimWellAllocationOverTimeCollection RimWellAllocationOverTimePlot::createWellAll
 
     // Note: Threshold per calculator does not work for accumulated data - use no threshold for each calculator
     // and filter on threshold value after accumulating non-filtered values.
-    const double smallContributionThreshold = m_groupSmallContributions() &&
-                                                      m_flowValueType != FlowValueType::ACCUMULATED_FLOW_VOLUME &&
+    const double smallContributionThreshold = m_groupSmallContributions() && m_flowValueType != FlowValueType::ACCUMULATED_FLOW_VOLUME &&
                                                       m_flowValueType != FlowValueType::ACCUMULATED_FLOW_VOLUME_PERCENTAGE
                                                   ? m_smallContributionsThreshold
                                                   : 0.0;
@@ -448,7 +442,7 @@ RimWellAllocationOverTimeCollection RimWellAllocationOverTimePlot::createWellAll
     std::map<QDateTime, RigAccWellFlowCalculator> timeStepAndCalculatorPairs;
     std::vector<QDateTime>                        allTimeSteps      = m_case->timeStepDates();
     std::set<QDateTime>                           selectedTimeSteps = getSelectedTimeSteps( allTimeSteps );
-    std::set<QDateTime> excludedTimeSteps = std::set( m_excludeTimeSteps().begin(), m_excludeTimeSteps().end() );
+    std::set<QDateTime>                           excludedTimeSteps = std::set( m_excludeTimeSteps().begin(), m_excludeTimeSteps().end() );
 
     // NOTE: Must iterate all time step dates for case to have correct time step index for simulation well data
     for ( size_t i = 0; i < allTimeSteps.size(); ++i )
@@ -475,12 +469,10 @@ RimWellAllocationOverTimeCollection RimWellAllocationOverTimePlot::createWellAll
 
         if ( tracerFractionCellValues.size() )
         {
-            bool isProducer =
-                ( simWellData->wellProductionType( i ) == RiaDefines::WellProductionType::PRODUCER ||
-                  simWellData->wellProductionType( i ) == RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE );
+            bool                      isProducer = ( simWellData->wellProductionType( i ) == RiaDefines::WellProductionType::PRODUCER ||
+                                simWellData->wellProductionType( i ) == RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE );
             RigEclCellIndexCalculator cellIdxCalc( m_case->eclipseCaseData()->mainGrid(),
-                                                   m_case->eclipseCaseData()->activeCellInfo(
-                                                       RiaDefines::PorosityModelType::MATRIX_MODEL ) );
+                                                   m_case->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ) );
             const auto                calculator = RigAccWellFlowCalculator( pipeBranchesCLCoords,
                                                               pipeBranchesCellIds,
                                                               tracerFractionCellValues,
@@ -491,8 +483,7 @@ RimWellAllocationOverTimeCollection RimWellAllocationOverTimePlot::createWellAll
         }
         else if ( pipeBranchesCLCoords.size() > 0 )
         {
-            const auto calculator =
-                RigAccWellFlowCalculator( pipeBranchesCLCoords, pipeBranchesCellIds, smallContributionThreshold );
+            const auto calculator = RigAccWellFlowCalculator( pipeBranchesCLCoords, pipeBranchesCellIds, smallContributionThreshold );
             // NOTE: Would like to prevent this check. Is added due to calculator.tracerNames() gives
             // "oil", "water" and "gas" as return value when calculator.totalTracerFractions().size() = 0
             if ( calculator.totalTracerFractions().size() > 0 )
@@ -503,7 +494,7 @@ RimWellAllocationOverTimeCollection RimWellAllocationOverTimePlot::createWellAll
     }
 
     // Create collection
-    const auto selectedTimeStepsVector = std::vector( selectedTimeSteps.begin(), selectedTimeSteps.end() );
+    const auto                          selectedTimeStepsVector = std::vector( selectedTimeSteps.begin(), selectedTimeSteps.end() );
     RimWellAllocationOverTimeCollection collection( selectedTimeStepsVector, timeStepAndCalculatorPairs );
 
     if ( m_flowValueType == FlowValueType::FLOW_RATE_PERCENTAGE )
@@ -613,9 +604,7 @@ void RimWellAllocationOverTimePlot::defineEditorAttribute( const caf::PdmFieldHa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellAllocationOverTimePlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                      const QVariant&            oldValue,
-                                                      const QVariant&            newValue )
+void RimWellAllocationOverTimePlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimPlot::fieldChangedByUi( changedField, oldValue, newValue );
 
@@ -675,8 +664,7 @@ std::set<QString> RimWellAllocationOverTimePlot::findSortedWellNames()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimWellAllocationOverTimePlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RimWellAllocationOverTimePlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options = RimPlot::calculateValueOptions( fieldNeedingOptions );
     if ( !options.empty() )
@@ -807,11 +795,10 @@ void RimWellAllocationOverTimePlot::setValidTimeStepRangeForCase()
     }
 
     auto isTimeStepInCase = [&]( const QDateTime timeStep ) -> bool {
-        return std::find( m_case->timeStepDates().cbegin(), m_case->timeStepDates().cend(), timeStep ) !=
-               m_case->timeStepDates().cend();
+        return std::find( m_case->timeStepDates().cbegin(), m_case->timeStepDates().cend(), timeStep ) != m_case->timeStepDates().cend();
     };
-    if ( m_selectedFromTimeStep().isValid() && isTimeStepInCase( m_selectedFromTimeStep() ) &&
-         m_selectedToTimeStep().isValid() && isTimeStepInCase( m_selectedToTimeStep() ) )
+    if ( m_selectedFromTimeStep().isValid() && isTimeStepInCase( m_selectedFromTimeStep() ) && m_selectedToTimeStep().isValid() &&
+         isTimeStepInCase( m_selectedToTimeStep() ) )
     {
         return;
     }
@@ -839,8 +826,7 @@ int RimWellAllocationOverTimePlot::axisValueFontSize() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<QDateTime>
-    RimWellAllocationOverTimePlot::getTimeStepsWithinSelectedRange( const std::vector<QDateTime>& timeSteps ) const
+std::vector<QDateTime> RimWellAllocationOverTimePlot::getTimeStepsWithinSelectedRange( const std::vector<QDateTime>& timeSteps ) const
 {
     std::vector<QDateTime> selectedTimeSteps;
     auto                   isTimeStepInSelectedRange = [&]( const QDateTime& timeStep ) -> bool {
@@ -857,16 +843,14 @@ std::vector<QDateTime>
 std::set<QDateTime> RimWellAllocationOverTimePlot::getSelectedTimeSteps( const std::vector<QDateTime>& timeSteps ) const
 {
     const auto timeStepsInRange = getTimeStepsWithinSelectedRange( timeSteps );
-    return m_timeStepFilterMode == TimeStepFilterMode::TIME_STEP_COUNT
-               ? createEvenlyDistributedDates( timeStepsInRange, m_timeStepCount )
-               : std::set( timeStepsInRange.begin(), timeStepsInRange.end() );
+    return m_timeStepFilterMode == TimeStepFilterMode::TIME_STEP_COUNT ? createEvenlyDistributedDates( timeStepsInRange, m_timeStepCount )
+                                                                       : std::set( timeStepsInRange.begin(), timeStepsInRange.end() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<QDateTime>
-    RimWellAllocationOverTimePlot::createEvenlyDistributedDates( const std::vector<QDateTime>& inputDates, int numDates )
+std::set<QDateTime> RimWellAllocationOverTimePlot::createEvenlyDistributedDates( const std::vector<QDateTime>& inputDates, int numDates )
 {
     std::set<QDateTime> outputDates;
     if ( inputDates.empty() || numDates <= 0 )
@@ -889,8 +873,7 @@ std::set<QDateTime>
     QDateTime maxDate = *std::max_element( inputDates.begin(), inputDates.end() );
 
     // Calculate the time step between each selected date
-    qint64 timeStep =
-        ( maxDate.toMSecsSinceEpoch() - minDate.toMSecsSinceEpoch() ) / ( static_cast<qint64>( numDates ) - 1 );
+    qint64 timeStep = ( maxDate.toMSecsSinceEpoch() - minDate.toMSecsSinceEpoch() ) / ( static_cast<qint64>( numDates ) - 1 );
 
     // Find the index of the input date that is closest to each new date
     for ( int i = 0; i < numDates; ++i )

@@ -54,8 +54,7 @@ public:
     virtual std::map<std::string, std::vector<std::string>> scalarElementNodeFieldAndComponentNames()      = 0;
     virtual std::map<std::string, std::vector<std::string>> scalarIntegrationPointFieldAndComponentNames() = 0;
 
-    virtual void
-        readDisplacements( int partIndex, int stepIndex, int frameIndex, std::vector<cvf::Vec3f>* displacements ) = 0;
+    virtual void readDisplacements( int partIndex, int stepIndex, int frameIndex, std::vector<cvf::Vec3f>* displacements ) = 0;
 
     virtual void readNodeField( const std::string&                fieldName,
                                 int                               partIndex,

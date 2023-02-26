@@ -282,8 +282,7 @@ void printQ1Q2R1R2Matrix( cvf::Vec3d p1, double azi1, double inc1, cvf::Vec3d p2
         std::cout << q1 << "  ";
         for ( double q2 = q2Start; q2 < q2End; q2 += step2 )
         {
-            RiaSCurveCalculator sCurveCalc =
-                RiaSCurveCalculator::fromTangentsAndLength( p1, azi1, inc1, q1, p2, azi2, inc2, q2 );
+            RiaSCurveCalculator sCurveCalc = RiaSCurveCalculator::fromTangentsAndLength( p1, azi1, inc1, q1, p2, azi2, inc2, q2 );
             if ( sCurveCalc.isOk() )
             {
                 std::cout << sCurveCalc.firstRadius() << "  ";
@@ -314,8 +313,7 @@ void printQ1Q2R1R2Matrix( cvf::Vec3d p1, double azi1, double inc1, cvf::Vec3d p2
         std::cout << q1 << "  ";
         for ( double q2 = q2Start; q2 < q2End; q2 += step2 )
         {
-            RiaSCurveCalculator sCurveCalc =
-                RiaSCurveCalculator::fromTangentsAndLength( p1, azi1, inc1, q1, p2, azi2, inc2, q2 );
+            RiaSCurveCalculator sCurveCalc = RiaSCurveCalculator::fromTangentsAndLength( p1, azi1, inc1, q1, p2, azi2, inc2, q2 );
             if ( sCurveCalc.isOk() )
             {
                 std::cout << sCurveCalc.secondRadius() << "  ";

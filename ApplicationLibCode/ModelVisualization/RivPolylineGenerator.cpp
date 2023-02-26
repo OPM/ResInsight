@@ -25,8 +25,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo>
-    RivPolylineGenerator::createLineAlongPolylineDrawable( const std::vector<cvf::Vec3d>& polyLine, bool closeLine )
+cvf::ref<cvf::DrawableGeo> RivPolylineGenerator::createLineAlongPolylineDrawable( const std::vector<cvf::Vec3d>& polyLine, bool closeLine )
 {
     std::vector<std::vector<cvf::Vec3d>> polyLines;
     polyLines.push_back( polyLine );
@@ -36,9 +35,8 @@ cvf::ref<cvf::DrawableGeo>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo>
-    RivPolylineGenerator::createLineAlongPolylineDrawable( const std::vector<std::vector<cvf::Vec3d>>& polyLines,
-                                                           bool                                        closeLine )
+cvf::ref<cvf::DrawableGeo> RivPolylineGenerator::createLineAlongPolylineDrawable( const std::vector<std::vector<cvf::Vec3d>>& polyLines,
+                                                                                  bool                                        closeLine )
 {
     std::vector<cvf::uint>  lineIndices;
     std::vector<cvf::Vec3f> vertices;
@@ -96,8 +94,7 @@ cvf::ref<cvf::DrawableGeo> RivPolylineGenerator::createPointsFromPolylineDrawabl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo>
-    RivPolylineGenerator::createPointsFromPolylineDrawable( const std::vector<std::vector<cvf::Vec3d>>& polyLines )
+cvf::ref<cvf::DrawableGeo> RivPolylineGenerator::createPointsFromPolylineDrawable( const std::vector<std::vector<cvf::Vec3d>>& polyLines )
 {
     std::vector<cvf::Vec3f> vertices;
 

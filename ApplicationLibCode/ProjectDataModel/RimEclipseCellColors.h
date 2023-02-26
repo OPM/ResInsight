@@ -76,10 +76,9 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
-    void changeLegendConfig( QString resultVarNameOfNewLegend );
-    void onLegendConfigChanged( const caf::SignalEmitter* emitter, RimLegendConfigChangeType changeType );
-    static RimRegularLegendConfig*
-        createLegendForResult( const QString& resultName, bool useDiscreteLevels, bool isCategoryResult );
+    void                           changeLegendConfig( QString resultVarNameOfNewLegend );
+    void                           onLegendConfigChanged( const caf::SignalEmitter* emitter, RimLegendConfigChangeType changeType );
+    static RimRegularLegendConfig* createLegendForResult( const QString& resultName, bool useDiscreteLevels, bool isCategoryResult );
 
     caf::PdmChildArrayField<RimRegularLegendConfig*> m_legendConfigData;
     caf::PdmPtrField<RimRegularLegendConfig*>        m_legendConfigPtrField;

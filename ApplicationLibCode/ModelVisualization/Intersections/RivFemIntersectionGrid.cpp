@@ -51,8 +51,7 @@ cvf::BoundingBox RivFemIntersectionGrid::boundingBox() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivFemIntersectionGrid::findIntersectingCells( const cvf::BoundingBox& intersectingBB,
-                                                    std::vector<size_t>*    intersectedCells ) const
+void RivFemIntersectionGrid::findIntersectingCells( const cvf::BoundingBox& intersectingBB, std::vector<size_t>* intersectedCells ) const
 {
     for ( int i = 0; i < m_femParts->partCount(); i++ )
     {
@@ -75,8 +74,7 @@ bool RivFemIntersectionGrid::useCell( size_t globalCellIndex ) const
 {
     auto [part, elementIdx] = m_femParts->partAndElementIndex( globalCellIndex );
 
-    return ( ( part->elementType( elementIdx ) == RigElementType::HEX8 ) ||
-             ( part->elementType( elementIdx ) == RigElementType::HEX8P ) );
+    return ( ( part->elementType( elementIdx ) == RigElementType::HEX8 ) || ( part->elementType( elementIdx ) == RigElementType::HEX8P ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -132,7 +130,7 @@ void RivFemIntersectionGrid::cellCornerIndices( size_t globalCellIndex, size_t c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RigFault* RivFemIntersectionGrid::findFaultFromCellIndexAndCellFace( size_t reservoirCellIndex,
+const RigFault* RivFemIntersectionGrid::findFaultFromCellIndexAndCellFace( size_t                             reservoirCellIndex,
                                                                            cvf::StructGridInterface::FaceType face ) const
 {
     return nullptr;

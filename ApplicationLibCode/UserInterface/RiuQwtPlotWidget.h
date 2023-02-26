@@ -73,10 +73,7 @@ public:
                                    int  valueFontSize,
                                    bool titleBold = false,
                                    int  alignment = (int)Qt::AlignCenter ) override;
-    void setAxesFontsAndAlignment( int  titleFontSize,
-                                   int  valueFontSize,
-                                   bool titleBold = false,
-                                   int  alignment = (int)Qt::AlignCenter ) override;
+    void setAxesFontsAndAlignment( int titleFontSize, int valueFontSize, bool titleBold = false, int alignment = (int)Qt::AlignCenter ) override;
 
     void enableAxis( RiuPlotAxis axis, bool isEnabled ) override;
     void enableAxisNumberLabels( RiuPlotAxis axis, bool isEnabled ) override;
@@ -89,7 +86,7 @@ public:
     void setAxisMaxMajor( RiuPlotAxis axis, int maxMajor ) override;
 
     RiuPlotWidget::AxisScaleType axisScaleType( RiuPlotAxis axis ) const override;
-    void setAxisScaleType( RiuPlotAxis axis, RiuPlotWidget::AxisScaleType axisScaleType ) override;
+    void                         setAxisScaleType( RiuPlotAxis axis, RiuPlotWidget::AxisScaleType axisScaleType ) override;
 
     void setAxisTitleText( RiuPlotAxis axis, const QString& title ) override;
     void setAxisTitleEnabled( RiuPlotAxis axis, bool enable ) override;
@@ -118,23 +115,18 @@ public:
 
     void enableGridLines( RiuPlotAxis axis, bool majorGridLines, bool minorGridLines ) override;
 
-    virtual void
-         setMajorTicksList( RiuPlotAxis axis, const QList<double>& majorTicks, double minValue, double maxValue ) override;
-    void setMajorAndMinorTickIntervals( RiuPlotAxis axis,
-                                        double      majorTickInterval,
-                                        double      minorTickInterval,
-                                        double      minValue,
-                                        double      maxValue ) override;
-    void setMajorAndMinorTickIntervalsAndRange( RiuPlotAxis axis,
-                                                double      majorTickInterval,
-                                                double      minorTickInterval,
-                                                double      minTickValue,
-                                                double      maxTickValue,
-                                                double      rangeMin,
-                                                double      rangeMax ) override;
-    void setAutoTickIntervalCounts( RiuPlotAxis axis, int maxMajorTickIntervalCount, int maxMinorTickIntervalCount ) override;
-    double majorTickInterval( RiuPlotAxis axis ) const override;
-    double minorTickInterval( RiuPlotAxis axis ) const override;
+    virtual void setMajorTicksList( RiuPlotAxis axis, const QList<double>& majorTicks, double minValue, double maxValue ) override;
+    void         setMajorAndMinorTickIntervals( RiuPlotAxis axis, double majorTickInterval, double minorTickInterval, double minValue, double maxValue ) override;
+    void         setMajorAndMinorTickIntervalsAndRange( RiuPlotAxis axis,
+                                                        double      majorTickInterval,
+                                                        double      minorTickInterval,
+                                                        double      minTickValue,
+                                                        double      maxTickValue,
+                                                        double      rangeMin,
+                                                        double      rangeMax ) override;
+    void         setAutoTickIntervalCounts( RiuPlotAxis axis, int maxMajorTickIntervalCount, int maxMinorTickIntervalCount ) override;
+    double       majorTickInterval( RiuPlotAxis axis ) const override;
+    double       minorTickInterval( RiuPlotAxis axis ) const override;
 
     int axisExtent( RiuPlotAxis axis ) const override;
 
@@ -163,10 +155,7 @@ public:
 
     void detachItems( RiuPlotWidget::PlotItemType plotItemType ) override;
 
-    void findClosestPlotItem( const QPoint& pos,
-                              QwtPlotItem** closestItem,
-                              int*          closestCurvePoint,
-                              double*       distanceFromClick ) const;
+    void findClosestPlotItem( const QPoint& pos, QwtPlotItem** closestItem, int* closestCurvePoint, double* distanceFromClick ) const;
 
     const QColor& backgroundColor() const override;
 

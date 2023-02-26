@@ -87,10 +87,7 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
             size_t indexToFirstNoneNncItem     = cvf::UNDEFINED_SIZE_T;
             size_t indexToNncItemNearFirstItem = cvf::UNDEFINED_SIZE_T;
 
-            RiuViewerCommands::findFirstItems( mainOrComparisonView,
-                                               pickItemInfos,
-                                               &indexToFirstNoneNncItem,
-                                               &indexToNncItemNearFirstItem );
+            RiuViewerCommands::findFirstItems( mainOrComparisonView, pickItemInfos, &indexToFirstNoneNncItem, &indexToNncItemNearFirstItem );
 
             if ( indexToFirstNoneNncItem != cvf::UNDEFINED_SIZE_T )
             {

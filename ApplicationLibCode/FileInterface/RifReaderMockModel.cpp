@@ -55,8 +55,7 @@ bool RifReaderMockModel::open( const QString& fileName, RigEclipseCaseData* ecli
 
     for ( size_t i = 0; i < m_reservoirBuilder.resultCount(); i++ )
     {
-        RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                         QString( "Dynamic_Result_%1" ).arg( i ) );
+        RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, QString( "Dynamic_Result_%1" ).arg( i ) );
         cellResults->createResultEntry( resAddr, false );
         cellResults->setTimeStepInfos( resAddr, timeStepInfos );
     }
@@ -110,9 +109,7 @@ bool RifReaderMockModel::inputProperty( const QString& propertyName, std::vector
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifReaderMockModel::staticResult( const QString&                result,
-                                       RiaDefines::PorosityModelType matrixOrFracture,
-                                       std::vector<double>*          values )
+bool RifReaderMockModel::staticResult( const QString& result, RiaDefines::PorosityModelType matrixOrFracture, std::vector<double>* values )
 {
     m_reservoirBuilder.staticResult( m_reservoir, result, values );
 

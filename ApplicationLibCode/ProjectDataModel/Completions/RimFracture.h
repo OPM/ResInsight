@@ -146,17 +146,13 @@ public:
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                         QString                    uiConfigName,
-                                                         caf::PdmUiEditorAttribute* attribute ) override;
-    void                          initAfterRead() override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    void initAfterRead() override;
 
 private:
     cvf::Vec3d fracturePositionForUi() const;
     double     wellFractureAzimuthDiff() const;
-    void       triangleGeometryTransformed( std::vector<cvf::uint>*  triangleIndices,
-                                            std::vector<cvf::Vec3f>* vxCoords,
-                                            bool                     transform ) const;
+    void triangleGeometryTransformed( std::vector<cvf::uint>* triangleIndices, std::vector<cvf::Vec3f>* vxCoords, bool transform ) const;
 
     QString wellFractureAzimuthDiffText() const;
     QString wellAzimuthAtFracturePositionText() const;

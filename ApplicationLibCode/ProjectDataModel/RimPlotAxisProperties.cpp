@@ -191,8 +191,7 @@ QList<caf::PdmOptionItemInfo> RimPlotAxisProperties::calculateValueOptions( cons
     }
     else if ( fieldNeedingOptions == &m_plotAxis )
     {
-        std::vector<RiaDefines::PlotAxis> plotAxes = { RiaDefines::PlotAxis::PLOT_AXIS_LEFT,
-                                                       RiaDefines::PlotAxis::PLOT_AXIS_RIGHT };
+        std::vector<RiaDefines::PlotAxis> plotAxes = { RiaDefines::PlotAxis::PLOT_AXIS_LEFT, RiaDefines::PlotAxis::PLOT_AXIS_RIGHT };
 
         for ( auto plotAxis : plotAxes )
         {
@@ -269,10 +268,7 @@ void RimPlotAxisProperties::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotAxisProperties::setNameAndAxis( const QString&       objectName,
-                                            const QString&       axistTitle,
-                                            RiaDefines::PlotAxis axis,
-                                            int                  axisIndex )
+void RimPlotAxisProperties::setNameAndAxis( const QString& objectName, const QString& axistTitle, RiaDefines::PlotAxis axis, int axisIndex )
 {
     m_objectName    = objectName;
     m_axisTitle     = axistTitle;
@@ -683,9 +679,7 @@ void RimPlotAxisProperties::showAnnotationObjectsInProjectTree()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotAxisProperties::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                              const QVariant&            oldValue,
-                                              const QVariant&            newValue )
+void RimPlotAxisProperties::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &isAutoTitle )
     {

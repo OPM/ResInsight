@@ -32,9 +32,7 @@ class RiuPlotCurveInfoTextProvider;
 class RiuQwtCurvePointTracker : public QwtPlotPicker
 {
 public:
-    explicit RiuQwtCurvePointTracker( QwtPlot*                      plot,
-                                      bool                          isMainAxisHorizontal,
-                                      RiuPlotCurveInfoTextProvider* curveInfoTextProvider = nullptr );
+    explicit RiuQwtCurvePointTracker( QwtPlot* plot, bool isMainAxisHorizontal, RiuPlotCurveInfoTextProvider* curveInfoTextProvider = nullptr );
     ~RiuQwtCurvePointTracker() override;
 
 protected:
@@ -48,7 +46,7 @@ protected:
                                QString*      mainAxisValueString,
                                QwtAxisId*    relatedXAxis,
                                QwtAxisId*    relatedYAxis ) const;
-    void updateClosestCurvePointMarker( const QPointF& closestPoint, QwtAxisId relatedXAxis, QwtAxisId relatedYAxis ) const;
+    void    updateClosestCurvePointMarker( const QPointF& closestPoint, QwtAxisId relatedXAxis, QwtAxisId relatedYAxis ) const;
 
     QPointer<QwtPlot>             m_plot;
     QwtPlotMarker*                m_plotMarker;

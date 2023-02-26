@@ -167,8 +167,8 @@ void RicHoloLensSession::updateSessionDataFromView( const RimGridView& activeVie
 
     if ( m_restClient )
     {
-        RiaLogging::info( QString( "HoloLens: Sending updated meta data to sharing server (sequenceNumber=%1)" )
-                              .arg( m_lastExtractionMetaDataSequenceNumber ) );
+        RiaLogging::info(
+            QString( "HoloLens: Sending updated meta data to sharing server (sequenceNumber=%1)" ).arg( m_lastExtractionMetaDataSequenceNumber ) );
         m_restClient->sendMetaData( m_lastExtractionMetaDataSequenceNumber, modelMetaJsonStr );
     }
 
@@ -198,9 +198,8 @@ void RicHoloLensSession::updateSessionDataFromView( const RimGridView& activeVie
         // This will write all packets seen in this extraction to file
         // packetIdsToWrite = allReferencedPacketIds;
 
-        RiaLogging::info( QString( "HoloLens: Doing debug export of data (%1 packets) to folder: %2" )
-                              .arg( packetIdsToWrite.size() )
-                              .arg( absOutputFolder ) );
+        RiaLogging::info(
+            QString( "HoloLens: Doing debug export of data (%1 packets) to folder: %2" ).arg( packetIdsToWrite.size() ).arg( absOutputFolder ) );
         VdeFileExporter fileExporter( absOutputFolder );
         if ( !fileExporter.exportToFile( modelMetaJsonStr, m_packetDirectory, packetIdsToWrite ) )
         {
@@ -236,19 +235,16 @@ void RicHoloLensSession::handleFailedCreateSession()
 //--------------------------------------------------------------------------------------------------
 /// Handle the server response we receive after sending new meta data
 //--------------------------------------------------------------------------------------------------
-void RicHoloLensSession::handleSuccessfulSendMetaData( int               metaDataSequenceNumber,
-                                                       const QByteArray& jsonServerResponseString )
+void RicHoloLensSession::handleSuccessfulSendMetaData( int metaDataSequenceNumber, const QByteArray& jsonServerResponseString )
 {
     cvf::Timer tim;
 
-    RiaLogging::info(
-        QString( "HoloLens: Processing server response (meta data sequenceNumber=%1)" ).arg( metaDataSequenceNumber ) );
+    RiaLogging::info( QString( "HoloLens: Processing server response (meta data sequenceNumber=%1)" ).arg( metaDataSequenceNumber ) );
 
     if ( m_lastExtractionMetaDataSequenceNumber != metaDataSequenceNumber )
     {
         RiaLogging::warning(
-            QString( "HoloLens: Ignoring server response, the meta data sequenceNumber(%1) has been superseded" )
-                .arg( metaDataSequenceNumber ) );
+            QString( "HoloLens: Ignoring server response, the meta data sequenceNumber(%1) has been superseded" ).arg( metaDataSequenceNumber ) );
         return;
     }
 
@@ -260,8 +256,7 @@ void RicHoloLensSession::handleSuccessfulSendMetaData( int               metaDat
     {
         if ( !parseJsonIntegerArray( trimmedServerResponseString, &arrayIdsToSend ) )
         {
-            RiaLogging::error(
-                "HoloLens: Error parsing array server response with array Ids, no data will be sent to server" );
+            RiaLogging::error( "HoloLens: Error parsing array server response with array Ids, no data will be sent to server" );
             return;
         }
     }
@@ -281,8 +276,7 @@ void RicHoloLensSession::handleSuccessfulSendMetaData( int               metaDat
         return;
     }
 
-    RiaLogging::info(
-        QString( "HoloLens: Start sending data to server, %1 data arrays have been requested" ).arg( arrayIdsToSend.size() ) );
+    RiaLogging::info( QString( "HoloLens: Start sending data to server, %1 data arrays have been requested" ).arg( arrayIdsToSend.size() ) );
 
     size_t totalBytesSent     = 0;
     size_t totalNumArraysSent = 0;
@@ -298,8 +292,7 @@ void RicHoloLensSession::handleSuccessfulSendMetaData( int               metaDat
             const VdeArrayDataPacket* packet  = m_packetDirectory.lookupPacket( arrayId );
             if ( !packet )
             {
-                RiaLogging::warning(
-                    QString( "HoloLens: Could not get the requested data from cache, array id: %1 " ).arg( arrayId ) );
+                RiaLogging::warning( QString( "HoloLens: Could not get the requested data from cache, array id: %1 " ).arg( arrayId ) );
                 continue;
             }
 

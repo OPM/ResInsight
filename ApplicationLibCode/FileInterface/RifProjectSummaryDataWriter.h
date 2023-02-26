@@ -40,9 +40,7 @@ public:
     void importFromProjectSummaryFile( const std::string& projectSummaryFileName );
 
     // Set data for a list of keyword/unit/values. If a keyword exist, the data will be overwritten
-    void setData( const std::vector<std::string>&        keywords,
-                  const std::vector<std::string>&        units,
-                  const std::vector<std::vector<float>>& values );
+    void setData( const std::vector<std::string>& keywords, const std::vector<std::string>& units, const std::vector<std::vector<float>>& values );
 
     void writeDataToFile( const std::string& fileName );
 

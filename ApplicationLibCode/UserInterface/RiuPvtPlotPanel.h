@@ -82,7 +82,7 @@ private:
     QPointer<RiuDockedQwtPlot> m_qwtPlot;
 
     std::vector<RigFlowDiagSolverInterface::PvtCurve> m_pvtCurveArr; // Array of source Pvt curves currently being plotted
-    std::vector<const QwtPlotCurve*> m_qwtCurveArr; // Array of corresponding qwt curves used for mapping to Pvt curve
+    std::vector<const QwtPlotCurve*>                  m_qwtCurveArr; // Array of corresponding qwt curves used for mapping to Pvt curve
                                                     // when doing tracking
 
     QPointer<RiuPvtQwtPicker> m_qwtPicker;
@@ -136,8 +136,7 @@ public:
 
 private:
     void           plotUiSelectedCurves();
-    static QString unitLabelFromCurveIdent( RiaDefines::EclipseUnitSystem               unitSystem,
-                                            RigFlowDiagSolverInterface::PvtCurve::Ident curveIdent );
+    static QString unitLabelFromCurveIdent( RiaDefines::EclipseUnitSystem unitSystem, RigFlowDiagSolverInterface::PvtCurve::Ident curveIdent );
 
 private slots:
     void slotPhaseComboCurrentIndexChanged( int );

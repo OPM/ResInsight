@@ -180,9 +180,7 @@ RigEnsembleParameter::Type RimWellRftEnsembleCurveSet::currentEnsembleParameterT
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellRftEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                   const QVariant&            oldValue,
-                                                   const QVariant&            newValue )
+void RimWellRftEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_ensembleColorMode || changedField == &m_ensembleParameter )
     {
@@ -196,8 +194,7 @@ void RimWellRftEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* ch
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimWellRftEnsembleCurveSet::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RimWellRftEnsembleCurveSet::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &m_ensembleParameter )
@@ -228,8 +225,7 @@ void RimWellRftEnsembleCurveSet::defineUiOrdering( QString uiConfigName, caf::Pd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellRftEnsembleCurveSet::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
-                                                       QString                 uiConfigName /*= "" */ )
+void RimWellRftEnsembleCurveSet::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= "" */ )
 {
     if ( m_ensembleColorMode == ColorMode::BY_ENSEMBLE_PARAM && !m_ensembleParameter().isEmpty() )
     {

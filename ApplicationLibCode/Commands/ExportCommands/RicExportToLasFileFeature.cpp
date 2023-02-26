@@ -108,8 +108,7 @@ std::vector<QString> RicExportToLasFileFeature::exportToLasFiles( const QString&
         lasExporter.setRkbDiffs( wellNames, rkbDiffs );
     }
 
-    writtenFiles =
-        lasExporter.writeToFolder( exportFolder, filePrefix, capitalizeFileNames, alwaysOverwrite, convertCurveUnits );
+    writtenFiles = lasExporter.writeToFolder( exportFolder, filePrefix, capitalizeFileNames, alwaysOverwrite, convertCurveUnits );
 
     // Remember the path to next time
     RiaApplication::instance()->setLastUsedDialogDirectory( "WELL_LOGS_DIR", exportFolder );
@@ -139,8 +138,7 @@ void RicExportToLasFileFeature::onActionTriggered( bool isChecked )
     std::vector<RimWellLogCurve*> curves = RicWellLogPlotCurveFeatureImpl::selectedWellLogCurves();
     if ( curves.size() == 0 ) return;
 
-    QString defaultDir =
-        RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( "WELL_LOGS_DIR" );
+    QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( "WELL_LOGS_DIR" );
 
     RigLasFileExporter           lasExporter( curves );
     RicExportToLasFileResampleUi featureUi;
@@ -195,8 +193,7 @@ void RicExportToLasFileFeature::onActionTriggered( bool isChecked )
                           featureUi.capitalizeFileName,
                           false,
                           resampleInterval,
-                          featureUi.curveUnitConversion() ==
-                              RicExportToLasFileResampleUi::CurveUnitConversion::EXPORT_WITH_STANDARD_UNITS );
+                          featureUi.curveUnitConversion() == RicExportToLasFileResampleUi::CurveUnitConversion::EXPORT_WITH_STANDARD_UNITS );
     }
 }
 

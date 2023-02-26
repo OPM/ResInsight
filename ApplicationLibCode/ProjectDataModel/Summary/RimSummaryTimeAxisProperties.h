@@ -94,10 +94,10 @@ public:
     double                fromTimeTToDisplayUnitScale();
     double                fromDaysToDisplayUnitScale();
 
-    RiaDefines::DateFormatComponents dateComponents(
-        RiaDefines::DateFormatComponents fallback = RiaDefines::DateFormatComponents::DATE_FORMAT_UNSPECIFIED ) const;
-    RiaDefines::TimeFormatComponents timeComponents(
-        RiaDefines::TimeFormatComponents fallback = RiaDefines::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED ) const;
+    RiaDefines::DateFormatComponents
+        dateComponents( RiaDefines::DateFormatComponents fallback = RiaDefines::DateFormatComponents::DATE_FORMAT_UNSPECIFIED ) const;
+    RiaDefines::TimeFormatComponents
+        timeComponents( RiaDefines::TimeFormatComponents fallback = RiaDefines::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED ) const;
 
     std::vector<RimPlotAxisAnnotation*> annotations() const override;
     void                                appendAnnotation( RimPlotAxisAnnotation* annotation ) override;
@@ -126,9 +126,9 @@ public:
     void setTickmarkInterval( TickmarkInterval interval );
     void setTickmarkIntervalStep( int step );
 
-    QList<double> createTickmarkList( const QDateTime& minDateTime, const QDateTime& maxDateTime ) const;
-    double        getTickmarkIntervalDouble();
-    TickmarkType  tickmarkType() const;
+    QList<double>                    createTickmarkList( const QDateTime& minDateTime, const QDateTime& maxDateTime ) const;
+    double                           getTickmarkIntervalDouble();
+    TickmarkType                     tickmarkType() const;
     std::pair<TickmarkInterval, int> tickmarkIntervalAndStep() const;
 
     LegendTickmarkCount majorTickmarkCount() const override;
@@ -140,13 +140,11 @@ public:
     const QString axisTitleText() const override;
 
 protected:
-    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     caf::PdmFieldHandle*          objectToggleField() override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                         QString                    uiConfigName,
-                                                         caf::PdmUiEditorAttribute* attribute ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     double                   fromDateToDisplayTime( const QDateTime& displayTime );
     QDateTime                fromDisplayTimeToDate( double displayTime );

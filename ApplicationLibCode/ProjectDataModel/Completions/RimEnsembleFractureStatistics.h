@@ -108,9 +108,7 @@ public:
     bool excludeZeroWidthFractures() const;
 
 protected:
-    void defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                QString                    uiConfigName,
-                                caf::PdmUiEditorAttribute* attribute ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
@@ -119,12 +117,11 @@ protected:
     QString generateFilePathsTable();
 
     std::vector<QString> computeStatistics();
-    static double computeDepthOfWellPathAtFracture( cvf::ref<RigStimPlanFractureDefinition> stimPlanFractureDefinitionData );
-    static bool isCoordinateInsideFractureCell( double x, double y, const RigFractureCell& cell );
+    static double        computeDepthOfWellPathAtFracture( cvf::ref<RigStimPlanFractureDefinition> stimPlanFractureDefinitionData );
+    static bool          isCoordinateInsideFractureCell( double x, double y, const RigFractureCell& cell );
 
     std::pair<std::vector<cvf::ref<RigStimPlanFractureDefinition>>, std::vector<QString>>
-        readFractureDefinitions( const std::vector<caf::FilePath>& filePaths,
-                                 RiaDefines::EclipseUnitSystem     unitSystem ) const;
+        readFractureDefinitions( const std::vector<caf::FilePath>& filePaths, RiaDefines::EclipseUnitSystem unitSystem ) const;
 
     static std::set<std::pair<QString, QString>>
         findAllResultNames( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions );
@@ -134,12 +131,7 @@ protected:
                                std::vector<double>&                                        gridXs,
                                std::vector<double>&                                        gridYs ) const;
 
-    void generateUniformMesh( double               minX,
-                              double               maxX,
-                              double               minY,
-                              double               maxY,
-                              std::vector<double>& gridXs,
-                              std::vector<double>& gridYs ) const;
+    void generateUniformMesh( double minX, double maxX, double minY, double maxY, std::vector<double>& gridXs, std::vector<double>& gridYs ) const;
 
     void generateNaiveMesh( double                                                      minX,
                             double                                                      maxX,
@@ -187,23 +179,21 @@ protected:
                                                                  const RigSlice2D& distanceGrid,
                                                                  double            targetArea );
 
-    static void generateStatisticsGrids(
-        const std::vector<std::vector<double>>&                                               samples,
-        size_t                                                                                numSamplesX,
-        size_t                                                                                numSamplesY,
-        size_t                                                                                numGrids,
-        std::map<RimEnsembleFractureStatistics::StatisticsType, std::shared_ptr<RigSlice2D>>& statisticsGrids,
-        const std::vector<caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>>&       statisticsTypes,
-        const RigHistogramData&                                                               areaHistogram,
-        std::shared_ptr<RigSlice2D>                                                           areaGrid,
-        std::shared_ptr<RigSlice2D>                                                           distanceGrid );
+    static void generateStatisticsGrids( const std::vector<std::vector<double>>&                                               samples,
+                                         size_t                                                                                numSamplesX,
+                                         size_t                                                                                numSamplesY,
+                                         size_t                                                                                numGrids,
+                                         std::map<RimEnsembleFractureStatistics::StatisticsType, std::shared_ptr<RigSlice2D>>& statisticsGrids,
+                                         const std::vector<caf::AppEnum<RimEnsembleFractureStatistics::StatisticsType>>& statisticsTypes,
+                                         const RigHistogramData&                                                         areaHistogram,
+                                         std::shared_ptr<RigSlice2D>                                                     areaGrid,
+                                         std::shared_ptr<RigSlice2D>                                                     distanceGrid );
 
     static bool writeStatisticsToCsv( const QString& filePath, const RigSlice2D& samples );
 
     static double linearSampling( double minValue, double maxValue, int numSamples, std::vector<double>& samples );
 
-    QString generateStatisticsTable(
-        const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions ) const;
+    QString generateStatisticsTable( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions ) const;
 
     caf::PdmField<std::vector<caf::FilePath>>      m_filePaths;
     caf::PdmField<QString>                         m_filePathsTable;

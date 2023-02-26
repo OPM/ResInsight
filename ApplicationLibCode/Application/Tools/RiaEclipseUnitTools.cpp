@@ -50,8 +50,7 @@ double RiaEclipseUnitTools::darcysConstant( RiaDefines::EclipseUnitSystem unitSy
 /// Convert Gas to oil equivalents
 /// If field unit, the Gas is in Mega ft^3 while the others are in [stb] (barrel)
 //--------------------------------------------------------------------------------------------------
-double RiaEclipseUnitTools::convertSurfaceGasFlowRateToOilEquivalents( RiaDefines::EclipseUnitSystem caseUnitSystem,
-                                                                       double                        eclGasFlowRate )
+double RiaEclipseUnitTools::convertSurfaceGasFlowRateToOilEquivalents( RiaDefines::EclipseUnitSystem caseUnitSystem, double eclGasFlowRate )
 {
     /// Unused Gas to Barrel conversion :
     /// we convert gas to stb as well. Based on
@@ -65,10 +64,8 @@ double RiaEclipseUnitTools::convertSurfaceGasFlowRateToOilEquivalents( RiaDefine
 
     double oilEquivalentGasRate = HUGE_VAL;
 
-    if ( caseUnitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
-        oilEquivalentGasRate = fieldGasToOilEquivalent * eclGasFlowRate;
-    if ( caseUnitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
-        oilEquivalentGasRate = metricGasToOilEquivalent * eclGasFlowRate;
+    if ( caseUnitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD ) oilEquivalentGasRate = fieldGasToOilEquivalent * eclGasFlowRate;
+    if ( caseUnitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC ) oilEquivalentGasRate = metricGasToOilEquivalent * eclGasFlowRate;
 
     return oilEquivalentGasRate;
 }

@@ -30,8 +30,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigEclipseAllanFaultsStatCalc::RigEclipseAllanFaultsStatCalc( RigNNCData*                    cellResultsData,
-                                                              const RigEclipseResultAddress& scalarResultIndex )
+RigEclipseAllanFaultsStatCalc::RigEclipseAllanFaultsStatCalc( RigNNCData* cellResultsData, const RigEclipseResultAddress& scalarResultIndex )
     : m_caseData( cellResultsData )
     , m_resultAddress( scalarResultIndex )
 {
@@ -73,8 +72,7 @@ void RigEclipseAllanFaultsStatCalc::valueSumAndSampleCount( size_t timeStepIndex
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigEclipseAllanFaultsStatCalc::addDataToHistogramCalculator( size_t                  timeStepIndex,
-                                                                  RigHistogramCalculator& histogramCalculator )
+void RigEclipseAllanFaultsStatCalc::addDataToHistogramCalculator( size_t timeStepIndex, RigHistogramCalculator& histogramCalculator )
 {
     traverseCells( histogramCalculator, timeStepIndex );
 }

@@ -85,8 +85,7 @@ public:
     virtual void reattachAllCurves() = 0;
     virtual void detachAllCurves()   = 0;
 
-    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
     template <typename PlotWindowType = RimPlotWindow>
     bool isSubPlot() const

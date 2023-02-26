@@ -54,11 +54,7 @@ public:
 private:
     struct ElementVectorResultVisualization
     {
-        ElementVectorResultVisualization( cvf::Vec3d faceCenter,
-                                          cvf::Vec3d faceNormal,
-                                          double     result,
-                                          double     approximateCellLength,
-                                          bool       centerArrow )
+        ElementVectorResultVisualization( cvf::Vec3d faceCenter, cvf::Vec3d faceNormal, double result, double approximateCellLength, bool centerArrow )
             : faceCenter( faceCenter )
             , faceNormal( faceNormal )
             , result( result )
@@ -78,10 +74,9 @@ private:
     cvf::ref<cvf::Part> createPart( const RimElementVectorResult&                        result,
                                     const std::vector<ElementVectorResultVisualization>& tensorVisualizations ) const;
 
-    static void
-        createResultColorTextureCoords( cvf::Vec2fArray*                                     textureCoords,
-                                        const std::vector<ElementVectorResultVisualization>& elementVectorResultVisualizations,
-                                        const cvf::ScalarMapper*                             mapper );
+    static void createResultColorTextureCoords( cvf::Vec2fArray*                                     textureCoords,
+                                                const std::vector<ElementVectorResultVisualization>& elementVectorResultVisualizations,
+                                                const cvf::ScalarMapper*                             mapper );
 
     std::array<cvf::Vec3f, 7> createArrowVertices( const ElementVectorResultVisualization& tensorVisualization ) const;
     std::array<uint, 2>       createArrowShaftIndices( uint startIndex ) const;

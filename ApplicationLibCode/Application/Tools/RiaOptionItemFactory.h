@@ -29,7 +29,7 @@ class Rim3dView;
 class RiaOptionItemFactory
 {
 public:
-    static void appendOptionItemFromViewNameAndCaseName( Rim3dView* view, QList<caf::PdmOptionItemInfo>* optionItems );
-    static void appendOptionItemsForEnsembleCurveSets( QList<caf::PdmOptionItemInfo>* options );
+    static void                   appendOptionItemFromViewNameAndCaseName( Rim3dView* view, QList<caf::PdmOptionItemInfo>* optionItems );
+    static void                   appendOptionItemsForEnsembleCurveSets( QList<caf::PdmOptionItemInfo>* options );
     static caf::PdmOptionItemInfo optionItemFromSummaryType( RifEclipseSummaryAddress::SummaryVarCategory summaryType );
 };

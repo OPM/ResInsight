@@ -43,22 +43,20 @@ typedef std::function<void( QRegularExpressionMatch& )> CustomStyleSheetApplicat
 class RiuGuiTheme
 {
 public:
-    static RiaDefines::ThemeEnum currentGuiTheme();
-    static void                  updateGuiTheme( RiaDefines::ThemeEnum theme );
-    static bool                  applyStyleSheet( RiaDefines::ThemeEnum theme );
-    static void changeVariableValue( RiaDefines::ThemeEnum theme, const QString& variableName, const QString& newValue );
+    static RiaDefines::ThemeEnum  currentGuiTheme();
+    static void                   updateGuiTheme( RiaDefines::ThemeEnum theme );
+    static bool                   applyStyleSheet( RiaDefines::ThemeEnum theme );
+    static void                   changeVariableValue( RiaDefines::ThemeEnum theme, const QString& variableName, const QString& newValue );
     static QMap<QString, QString> getVariableValueMap( RiaDefines::ThemeEnum theme );
     static QMap<QString, QString> getVariableGuiTextMap( RiaDefines::ThemeEnum theme );
     static QString                applyVariableValueMapToStyleSheet( RiaDefines::ThemeEnum theme );
     static bool                   writeStyleSheetToFile( RiaDefines::ThemeEnum theme, const QString& styleSheet );
     static QString                loadStyleSheet( RiaDefines::ThemeEnum theme );
     static QAbstractItemModel*    getQssCompletionModel( QCompleter* completer );
-    static QColor                 getColorByVariableName( const QString&        variable,
-                                                          RiaDefines::ThemeEnum theme = RiaDefines::ThemeEnum::UNDEFINED );
-    static QString
-                getQwtStyleSheetProperty( QString plotName, const QString& itemType, QString itemName, const QString& propertyName );
-    static void styleQwtItem( QwtPlotItem* item );
-    static void styleQwtItem( QwtPicker* item );
+    static QColor  getColorByVariableName( const QString& variable, RiaDefines::ThemeEnum theme = RiaDefines::ThemeEnum::UNDEFINED );
+    static QString getQwtStyleSheetProperty( QString plotName, const QString& itemType, QString itemName, const QString& propertyName );
+    static void    styleQwtItem( QwtPlotItem* item );
+    static void    styleQwtItem( QwtPicker* item );
 
 private:
     static void       preparseStyleSheet( RiaDefines::ThemeEnum theme, QString& styleSheet );

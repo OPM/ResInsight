@@ -105,9 +105,7 @@ void RimCommandExecuteScript::undo()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCommandExecuteScript::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                     QString                    uiConfigName,
-                                                     caf::PdmUiEditorAttribute* attribute )
+void RimCommandExecuteScript::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     caf::PdmUiTextEditorAttribute* myAttr = dynamic_cast<caf::PdmUiTextEditorAttribute*>( attribute );
     if ( myAttr )
@@ -127,9 +125,7 @@ caf::PdmFieldHandle* RimCommandExecuteScript::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCommandExecuteScript::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                const QVariant&            oldValue,
-                                                const QVariant&            newValue )
+void RimCommandExecuteScript::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( &execute == changedField )
     {
@@ -150,8 +146,7 @@ bool RimCommandExecuteScript::isAsyncronous()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCommandFactory::createCommandObjects( const caf::PdmObjectGroup&      selectedObjects,
-                                              std::vector<RimCommandObject*>* commandObjects )
+void RimCommandFactory::createCommandObjects( const caf::PdmObjectGroup& selectedObjects, std::vector<RimCommandObject*>* commandObjects )
 {
     for ( size_t i = 0; i < selectedObjects.objects.size(); i++ )
     {
@@ -308,8 +303,7 @@ caf::PdmObjectHandle* RimCommandIssueFieldChanged::findObjectByName( caf::PdmObj
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimCommandIssueFieldChanged::findFieldByKeyword( caf::PdmObjectHandle* pdmObject,
-                                                                      const QString&        keywordName )
+caf::PdmFieldHandle* RimCommandIssueFieldChanged::findFieldByKeyword( caf::PdmObjectHandle* pdmObject, const QString& keywordName )
 {
     std::vector<caf::PdmFieldHandle*> fields;
     pdmObject->fields( fields );

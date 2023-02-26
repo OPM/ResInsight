@@ -68,12 +68,10 @@ caf::PdmScriptResponse RicfLoadCase::execute()
     std::shared_ptr<RifReaderSettings> readerSettings;
     if ( m_gridOnly ) readerSettings = RifReaderSettings::createGridOnlyReaderSettings();
 
-    bool createPlot       = false;
-    bool createView       = false;
-    auto fileOpenMetaData = RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList{ absolutePath },
-                                                                                        createPlot,
-                                                                                        createView,
-                                                                                        readerSettings );
+    bool createPlot = false;
+    bool createView = false;
+    auto fileOpenMetaData =
+        RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList{ absolutePath }, createPlot, createView, readerSettings );
 
     if ( fileOpenMetaData.createdCaseIds.empty() )
     {

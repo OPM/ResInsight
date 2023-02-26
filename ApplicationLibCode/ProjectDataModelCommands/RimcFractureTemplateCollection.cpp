@@ -38,8 +38,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimFractureTemplateCollection,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimcFractureTemplateCollection_appendFractureTemplate::RimcFractureTemplateCollection_appendFractureTemplate(
-    caf::PdmObjectHandle* self )
+RimcFractureTemplateCollection_appendFractureTemplate::RimcFractureTemplateCollection_appendFractureTemplate( caf::PdmObjectHandle* self )
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Create Fracture Template", "", "", "Create a new StimPlan Fracture Template" );
@@ -55,8 +54,7 @@ caf::PdmObjectHandle* RimcFractureTemplateCollection_appendFractureTemplate::exe
 
     bool reuseExistingTemplatesWithMatchingNames = false;
     auto newTemplates =
-        RicNewStimPlanFractureTemplateFeature::createNewTemplatesFromFiles( { m_filePath },
-                                                                            reuseExistingTemplatesWithMatchingNames );
+        RicNewStimPlanFractureTemplateFeature::createNewTemplatesFromFiles( { m_filePath }, reuseExistingTemplatesWithMatchingNames );
 
     if ( newTemplates.empty() ) return nullptr;
 
@@ -87,8 +85,7 @@ CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimFractureTemplateCollection,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimcFractureTemplateCollection_appendThermalFractureTemplate::RimcFractureTemplateCollection_appendThermalFractureTemplate(
-    caf::PdmObjectHandle* self )
+RimcFractureTemplateCollection_appendThermalFractureTemplate::RimcFractureTemplateCollection_appendThermalFractureTemplate( caf::PdmObjectHandle* self )
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Create Fracture Template", "", "", "Create a new Thermal Fracture Template" );
@@ -104,8 +101,7 @@ caf::PdmObjectHandle* RimcFractureTemplateCollection_appendThermalFractureTempla
 
     bool reuseExistingTemplatesWithMatchingNames = false;
     auto newTemplates =
-        RicNewThermalFractureTemplateFeature::createNewTemplatesFromFiles( { m_filePath },
-                                                                           reuseExistingTemplatesWithMatchingNames );
+        RicNewThermalFractureTemplateFeature::createNewTemplatesFromFiles( { m_filePath }, reuseExistingTemplatesWithMatchingNames );
 
     if ( newTemplates.empty() ) return nullptr;
 

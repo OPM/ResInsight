@@ -54,12 +54,8 @@ public:
     void setLorenzCurve( const QStringList&            dateTimeStrings,
                          const std::vector<QDateTime>& dateTimes,
                          const std::vector<double>&    timeHistoryValues );
-    void addFlowCapStorageCapCurve( const QDateTime&           dateTime,
-                                    const std::vector<double>& xVals,
-                                    const std::vector<double>& yVals );
-    void addSweepEfficiencyCurve( const QDateTime&           dateTime,
-                                  const std::vector<double>& xVals,
-                                  const std::vector<double>& yVals );
+    void addFlowCapStorageCapCurve( const QDateTime& dateTime, const std::vector<double>& xVals, const std::vector<double>& yVals );
+    void addSweepEfficiencyCurve( const QDateTime& dateTime, const std::vector<double>& xVals, const std::vector<double>& yVals );
 
     void removeAllCurves();
     void zoomAll();
@@ -81,11 +77,8 @@ private:
     void setDefaults();
     void initializeColors( const std::vector<QDateTime>& dateTimes );
 
-    static void addCurveWithLargeSymbol( QwtPlot*         plot,
-                                         const QString&   curveName,
-                                         const QColor&    color,
-                                         const QDateTime& dateTime,
-                                         double           timeHistoryValue );
+    static void
+        addCurveWithLargeSymbol( QwtPlot* plot, const QString& curveName, const QColor& color, const QDateTime& dateTime, double timeHistoryValue );
 
 private:
     caf::PdmPointer<RimFlowCharacteristicsPlot> m_plotDefinition;

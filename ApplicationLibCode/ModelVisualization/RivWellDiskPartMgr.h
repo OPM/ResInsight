@@ -54,17 +54,13 @@ public:
     RivWellDiskPartMgr( RimSimWellInView* well );
     ~RivWellDiskPartMgr() override;
 
-    void appendDynamicGeometryPartsToModel( cvf::ModelBasicList*              model,
-                                            size_t                            frameIndex,
-                                            const caf::DisplayCoordTransform* displayXf );
+    void appendDynamicGeometryPartsToModel( cvf::ModelBasicList* model, size_t frameIndex, const caf::DisplayCoordTransform* displayXf );
 
 private:
     void buildWellDiskParts( size_t frameIndex, const caf::DisplayCoordTransform* displayXf );
 
-    std::pair<cvf::String, cvf::Vec3f> createTextAndLocation( const double aggregatedFraction,
-                                                              cvf::Vec3d   diskPosition,
-                                                              double       ijScaleFactor,
-                                                              const double fraction );
+    std::pair<cvf::String, cvf::Vec3f>
+        createTextAndLocation( const double aggregatedFraction, cvf::Vec3d diskPosition, double ijScaleFactor, const double fraction );
 
     void                        clearAllGeometry();
     Rim3dView*                  viewWithSettings();

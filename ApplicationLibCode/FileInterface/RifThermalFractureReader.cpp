@@ -37,8 +37,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<std::shared_ptr<RigThermalFractureDefinition>, QString>
-    RifThermalFractureReader::readFractureCsvFile( const QString& filePath )
+std::pair<std::shared_ptr<RigThermalFractureDefinition>, QString> RifThermalFractureReader::readFractureCsvFile( const QString& filePath )
 {
     QFile file( filePath );
     if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
@@ -50,27 +49,26 @@ std::pair<std::shared_ptr<RigThermalFractureDefinition>, QString>
 
     QString separator = ",";
 
-    auto appendPropertyValues =
-        [definition]( int nodeIndex, int valueOffset, const QStringList& values, double conductivityFactor ) {
-            CAF_ASSERT( valueOffset <= values.size() );
-            for ( int i = valueOffset; i < values.size(); i++ )
+    auto appendPropertyValues = [definition]( int nodeIndex, int valueOffset, const QStringList& values, double conductivityFactor ) {
+        CAF_ASSERT( valueOffset <= values.size() );
+        for ( int i = valueOffset; i < values.size(); i++ )
+        {
+            bool   isOk  = false;
+            double value = values[i].toDouble( &isOk );
+            if ( isOk )
             {
-                bool   isOk  = false;
-                double value = values[i].toDouble( &isOk );
-                if ( isOk )
+                int propertyIndex = i - valueOffset;
+
+                // Convert conductivity from Darcy to milliDarcy
+                if ( definition->getPropertyIndex( "Conductivity" ) == propertyIndex )
                 {
-                    int propertyIndex = i - valueOffset;
-
-                    // Convert conductivity from Darcy to milliDarcy
-                    if ( definition->getPropertyIndex( "Conductivity" ) == propertyIndex )
-                    {
-                        value *= conductivityFactor;
-                    }
-
-                    definition->appendPropertyValue( propertyIndex, nodeIndex, value );
+                    value *= conductivityFactor;
                 }
+
+                definition->appendPropertyValue( propertyIndex, nodeIndex, value );
             }
-        };
+        }
+    };
 
     QTextStream in( &file );
     int         lineNumber = 1;
@@ -219,9 +217,8 @@ bool RifThermalFractureReader::isPerimeterNodeLine( const QString& line )
 {
     std::vector<QString> validPerimeterNames = { "Perimeter Node", "Bottom Node", "Top Node", "Right Node", "Left Node" };
 
-    bool result = std::any_of( validPerimeterNames.begin(), validPerimeterNames.end(), [line]( const QString& str ) {
-        return line.contains( str );
-    } );
+    bool result =
+        std::any_of( validPerimeterNames.begin(), validPerimeterNames.end(), [line]( const QString& str ) { return line.contains( str ); } );
 
     return result;
 }
@@ -248,15 +245,12 @@ std::pair<QString, QString> RifThermalFractureReader::parseNameAndUnit( const QS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaDefines::EclipseUnitSystem
-    RifThermalFractureReader::detectUnitSystem( std::shared_ptr<const RigThermalFractureDefinition> definition )
+RiaDefines::EclipseUnitSystem RifThermalFractureReader::detectUnitSystem( std::shared_ptr<const RigThermalFractureDefinition> definition )
 {
     // Use XCoord property to determine expected unit for entire file
     QString targetName    = "XCoord";
     auto    namesAndUnits = definition->getPropertyNamesUnits();
-    auto    res           = std::find_if( namesAndUnits.begin(), namesAndUnits.end(), [&]( const auto& val ) {
-        return val.first == targetName;
-    } );
+    auto    res = std::find_if( namesAndUnits.begin(), namesAndUnits.end(), [&]( const auto& val ) { return val.first == targetName; } );
 
     if ( res != namesAndUnits.end() )
     {

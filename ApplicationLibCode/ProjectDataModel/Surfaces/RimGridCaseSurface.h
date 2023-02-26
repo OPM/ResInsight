@@ -44,15 +44,12 @@ public:
     bool        onLoadData() override;
     RimSurface* createCopy() override;
 
-    bool exportStructSurfaceFromGridCase( std::vector<cvf::Vec3d>*            vertices,
-                                          std::vector<std::pair<uint, uint>>* structGridVertexIndices );
+    bool exportStructSurfaceFromGridCase( std::vector<cvf::Vec3d>* vertices, std::vector<std::pair<uint, uint>>* structGridVertexIndices );
 
 protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
-    void defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                QString                    uiConfigName,
-                                caf::PdmUiEditorAttribute* attribute ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     bool    updateSurfaceData() override;
     void    clearCachedNativeData() override;

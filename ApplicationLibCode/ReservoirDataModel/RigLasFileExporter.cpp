@@ -45,10 +45,7 @@ class LasWell;
 class SingleChannelData
 {
 public:
-    SingleChannelData( const std::string&         channelName,
-                       const std::string&         unit,
-                       const std::string&         comment,
-                       const RigWellLogCurveData* curveData )
+    SingleChannelData( const std::string& channelName, const std::string& unit, const std::string& comment, const RigWellLogCurveData* curveData )
         : m_channelName( channelName )
         , m_unit( unit )
         , m_comment( comment )
@@ -112,10 +109,7 @@ public:
 
     double rkbDiff() { return m_rkbDiff; }
 
-    void addLogData( const std::string&         channelName,
-                     const std::string&         unit,
-                     const std::string&         comment,
-                     const RigWellLogCurveData* curveData )
+    void addLogData( const std::string& channelName, const std::string& unit, const std::string& comment, const RigWellLogCurveData* curveData )
     {
         m_logCurveData.push_back( SingleChannelData( channelName, unit, comment, curveData ) );
 
@@ -180,24 +174,15 @@ public:
 
         if ( firstCurveData->depthUnit() == RiaDefines::DepthUnitType::UNIT_METER )
         {
-            lasFile->AddLog( "DEPTH",
-                             "M",
-                             "Depth in meters",
-                             firstCurveData->depths( RiaDefines::DepthTypeEnum::MEASURED_DEPTH ) );
+            lasFile->AddLog( "DEPTH", "M", "Depth in meters", firstCurveData->depths( RiaDefines::DepthTypeEnum::MEASURED_DEPTH ) );
         }
         else if ( firstCurveData->depthUnit() == RiaDefines::DepthUnitType::UNIT_FEET )
         {
-            lasFile->AddLog( "DEPTH",
-                             "FT",
-                             "Depth in feet",
-                             firstCurveData->depths( RiaDefines::DepthTypeEnum::MEASURED_DEPTH ) );
+            lasFile->AddLog( "DEPTH", "FT", "Depth in feet", firstCurveData->depths( RiaDefines::DepthTypeEnum::MEASURED_DEPTH ) );
         }
         else if ( firstCurveData->depthUnit() == RiaDefines::DepthUnitType::UNIT_NONE )
         {
-            lasFile->AddLog( "DEPTH",
-                             "",
-                             "Depth in Connection number",
-                             firstCurveData->depths( RiaDefines::DepthTypeEnum::MEASURED_DEPTH ) );
+            lasFile->AddLog( "DEPTH", "", "Depth in Connection number", firstCurveData->depths( RiaDefines::DepthTypeEnum::MEASURED_DEPTH ) );
         }
 
         if ( firstCurveData->depths( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH ).size() )
@@ -234,10 +219,7 @@ public:
 
         double minDepth = 0.0;
         double maxDepth = 0.0;
-        firstCurveData->calculateDepthRange( RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
-                                             firstCurveData->depthUnit(),
-                                             &minDepth,
-                                             &maxDepth );
+        firstCurveData->calculateDepthRange( RiaDefines::DepthTypeEnum::MEASURED_DEPTH, firstCurveData->depthUnit(), &minDepth, &maxDepth );
 
         lasFile->setStartDepth( minDepth );
         lasFile->setStopDepth( maxDepth );
@@ -398,8 +380,7 @@ std::vector<QString> RigLasFileExporter::writeToFolder( const QString& exportFol
         if ( caf::Utils::fileExists( fullPathName ) && !alwaysOverwrite )
         {
             QString txt = QString( "File %1 exists.\n\nDo you want to overwrite the file?" ).arg( fullPathName );
-            int     ret =
-                QMessageBox::question( nullptr, "LAS File Export", txt, QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes );
+            int     ret = QMessageBox::question( nullptr, "LAS File Export", txt, QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes );
 
             if ( ret != QMessageBox::Yes ) continue;
         }
@@ -418,8 +399,8 @@ std::vector<QString> RigLasFileExporter::writeToFolder( const QString& exportFol
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<SingleLasFileMetaData>
-    RigLasFileExporter::createLasFileDescriptions( const std::vector<RimWellLogCurve*>& curves, bool convertCurveUnits )
+std::vector<SingleLasFileMetaData> RigLasFileExporter::createLasFileDescriptions( const std::vector<RimWellLogCurve*>& curves,
+                                                                                  bool                                 convertCurveUnits )
 {
     std::vector<RimWellLogCurve*> eclipseCurves;
     std::vector<RimWellLogCurve*> geoMechCurves;
@@ -526,8 +507,7 @@ void RigLasFileExporter::appendLasFileDescriptions( const std::vector<RimWellLog
                 const RigWellLogCurveData* curveData = nullptr;
                 if ( m_isResampleActive )
                 {
-                    cvf::ref<RigWellLogCurveData> resampledData =
-                        curve->curveData()->calculateResampledCurveData( m_resamplingInterval );
+                    cvf::ref<RigWellLogCurveData> resampledData = curve->curveData()->calculateResampledCurveData( m_resamplingInterval );
                     m_resampledCurveDatas.push_back( resampledData.p() );
 
                     curveData = resampledData.p();

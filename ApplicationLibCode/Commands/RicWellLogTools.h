@@ -49,12 +49,10 @@ public:
     static bool              hasRftData();
     static bool              hasRftDataForWell( const QString& wellName );
     static bool              isWellPathOrSimWellSelectedInView();
-    static void              addWellLogChannelsToPlotTrack( RimWellLogTrack*                           plotTrack,
-                                                            const std::vector<RimWellLogFileChannel*>& wellLogFileChannels );
-    static RimWellPath*      selectedWellPathWithLogFile();
-    static RimWellPath*      findWellPathWithLogFileFromSelection();
-    static RimWellLogRftCurve*
-                                addRftCurve( RimWellLogTrack* plotTrack, const RimSimWellInView* simWell, bool showPlotWindow = true );
+    static void addWellLogChannelsToPlotTrack( RimWellLogTrack* plotTrack, const std::vector<RimWellLogFileChannel*>& wellLogFileChannels );
+    static RimWellPath*         selectedWellPathWithLogFile();
+    static RimWellPath*         findWellPathWithLogFileFromSelection();
+    static RimWellLogRftCurve*  addRftCurve( RimWellLogTrack* plotTrack, const RimSimWellInView* simWell, bool showPlotWindow = true );
     static RimWellLogFileCurve* addFileCurve( RimWellLogTrack* plotTrack, bool showPlotWindow = true );
 
     static RimWellLogExtractionCurve* addWellLogExtractionCurve( RimWellLogTrack*        plotTrack,
@@ -72,10 +70,8 @@ public:
                                                           int              branchIndex,
                                                           bool             useBranchDetection,
                                                           bool             showPlotWindow = true );
-    static RimWellMeasurementCurve*   addWellMeasurementCurve( RimWellLogTrack* plotTrack,
-                                                               RimWellPath*     wellPath,
-                                                               const QString&   measurementName,
-                                                               bool             showPlotWindow = true );
+    static RimWellMeasurementCurve*
+        addWellMeasurementCurve( RimWellLogTrack* plotTrack, RimWellPath* wellPath, const QString& measurementName, bool showPlotWindow = true );
 
     static RimWellLogCurve*    addSummaryRftCurve( RimWellLogTrack* plotTrack, RimSummaryCase* rimCase );
     static RimWellLogRftCurve* addSummaryRftSegmentCurve( RimWellLogTrack*          plotTrack,
@@ -83,10 +79,7 @@ public:
                                                           const QString&            wellName,
                                                           RiaDefines::RftBranchType branchType,
                                                           RimSummaryCase*           rimCase );
-    static bool                hasData( const QString&            resultName,
-                                        const QString&            wellName,
-                                        RiaDefines::RftBranchType branchType,
-                                        RimSummaryCase*           rimCase );
+    static bool hasData( const QString& resultName, const QString& wellName, RiaDefines::RftBranchType branchType, RimSummaryCase* rimCase );
 
 private:
     template <typename ExtractionCurveType>

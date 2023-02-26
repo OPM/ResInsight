@@ -245,8 +245,7 @@ std::set<RifEclipseSummaryAddress> RicSummaryPlotBuilder::addressesForSource( ca
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEnsembleCurveSet* RicSummaryPlotBuilder::createCurveSet( RimSummaryCaseCollection*       ensemble,
-                                                            const RifEclipseSummaryAddress& addr )
+RimEnsembleCurveSet* RicSummaryPlotBuilder::createCurveSet( RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& addr )
 {
     auto curveSet = new RimEnsembleCurveSet();
 
@@ -289,8 +288,7 @@ std::vector<RimPlot*> RicSummaryPlotBuilder::duplicatePlots( const std::vector<R
             auto saturationPressurePlotCopy     = dynamic_cast<RimSaturationPressurePlot*>( copy );
             if ( saturationPressurePlotCopy && saturationPressurePlotOriginal )
             {
-                RimSaturationPressurePlot::fixPointersAfterCopy( saturationPressurePlotOriginal,
-                                                                 saturationPressurePlotCopy );
+                RimSaturationPressurePlot::fixPointersAfterCopy( saturationPressurePlotOriginal, saturationPressurePlotCopy );
             }
         }
 
@@ -309,8 +307,7 @@ std::vector<RimSummaryPlot*> RicSummaryPlotBuilder::duplicateSummaryPlots( const
 
     for ( auto plot : sourcePlots )
     {
-        auto copy =
-            dynamic_cast<RimSummaryPlot*>( plot->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+        auto copy = dynamic_cast<RimSummaryPlot*>( plot->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
 
         if ( copy )
         {
@@ -353,8 +350,7 @@ RimMultiPlot* RicSummaryPlotBuilder::createAndAppendMultiPlot( const std::vector
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryMultiPlot*
-    RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( const std::vector<caf::PdmObjectHandle*>& objects )
+RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( const std::vector<caf::PdmObjectHandle*>& objects )
 {
     RimSummaryMultiPlotCollection* plotCollection = RimMainPlotCollection::current()->summaryMultiPlotCollection();
 
@@ -405,15 +401,13 @@ void RicSummaryPlotBuilder::appendPlotsToMultiPlot( RimMultiPlot* multiPlot, con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryMultiPlot*
-    RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( const std::vector<RimSummaryCase*>&           cases,
-                                                                   const std::vector<RimSummaryCaseCollection*>& ensembles,
-                                                                   bool skipCreationOfPlotBasedOnPreferences )
+RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( const std::vector<RimSummaryCase*>&           cases,
+                                                                                    const std::vector<RimSummaryCaseCollection*>& ensembles,
+                                                                                    bool skipCreationOfPlotBasedOnPreferences )
 {
     RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
 
-    if ( skipCreationOfPlotBasedOnPreferences &&
-         prefs->defaultSummaryPlotType() == RiaPreferencesSummary::DefaultSummaryPlotType::NONE )
+    if ( skipCreationOfPlotBasedOnPreferences && prefs->defaultSummaryPlotType() == RiaPreferencesSummary::DefaultSummaryPlotType::NONE )
         return nullptr;
 
     if ( prefs->defaultSummaryPlotType() == RiaPreferencesSummary::DefaultSummaryPlotType::PLOT_TEMPLATES )
@@ -433,8 +427,7 @@ RimSummaryMultiPlot*
         }
     }
 
-    if ( skipCreationOfPlotBasedOnPreferences && prefs->defaultSummaryCurvesTextFilter().trimmed().isEmpty() )
-        return nullptr;
+    if ( skipCreationOfPlotBasedOnPreferences && prefs->defaultSummaryCurvesTextFilter().trimmed().isEmpty() ) return nullptr;
 
     auto* plotCollection = RimMainPlotCollection::current()->summaryMultiPlotCollection();
 
@@ -572,8 +565,7 @@ RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryPlotBuilder::appendPlotsToSummaryMultiPlot( RimSummaryMultiPlot*                multiPlot,
-                                                           const std::vector<RimSummaryPlot*>& plots )
+void RicSummaryPlotBuilder::appendPlotsToSummaryMultiPlot( RimSummaryMultiPlot* multiPlot, const std::vector<RimSummaryPlot*>& plots )
 {
     multiPlot->startBatchAddOperation();
     for ( auto plot : plots )

@@ -51,9 +51,9 @@ void RiuPlotAnnotationTool::attachNamedRegions( QwtPlot*                        
                                                 const caf::ColorTable&                        colorTable,
                                                 int                                           shadingAlphaByte,
                                                 bool                                          showNames /*= true */,
-                                                RiaDefines::TrackSpan              trackSpan /*= FULL_WIDTH*/,
-                                                const std::vector<Qt::BrushStyle>& brushStyles /* = {}*/,
-                                                int                                fontSize )
+                                                RiaDefines::TrackSpan                         trackSpan /*= FULL_WIDTH*/,
+                                                const std::vector<Qt::BrushStyle>&            brushStyles /* = {}*/,
+                                                int                                           fontSize )
 {
     if ( names.size() != regionRanges.size() ) return;
     m_plot = plot;
@@ -68,8 +68,7 @@ void RiuPlotAnnotationTool::attachNamedRegions( QwtPlot*                        
     catMapper.setInterpolateColors( colorTable.color3ubArray() );
 
     RiaDefines::Orientation annotationOrientation = RiaDefines::Orientation::HORIZONTAL;
-    if ( depthOrientation == RiaDefines::Orientation::HORIZONTAL )
-        annotationOrientation = RiaDefines::Orientation::VERTICAL;
+    if ( depthOrientation == RiaDefines::Orientation::HORIZONTAL ) annotationOrientation = RiaDefines::Orientation::VERTICAL;
 
     for ( size_t i = 0; i < names.size(); i++ )
     {
@@ -112,8 +111,7 @@ void RiuPlotAnnotationTool::attachNamedRegions( QwtPlot*                        
 
         QColor lineColor( 0, 0, 0, 0 );
         QColor textColor( 0, 0, 0, 255 );
-        if ( regionDisplay & RiaDefines::DARK_LINES || regionDisplay & RiaDefines::COLORED_LINES ||
-             regionDisplay & RiaDefines::LIGHT_LINES )
+        if ( regionDisplay & RiaDefines::DARK_LINES || regionDisplay & RiaDefines::COLORED_LINES || regionDisplay & RiaDefines::LIGHT_LINES )
         {
             cvf::Color3ub cvfColor = catMapper.mapToColor( static_cast<double>( i ) );
             QColor        cycledColor( cvfColor.r(), cvfColor.g(), cvfColor.b() );
@@ -168,9 +166,7 @@ void RiuPlotAnnotationTool::attachNamedRegions( QwtPlot*                        
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuPlotAnnotationTool::attachWellPicks( QwtPlot*                    plot,
-                                             const std::vector<QString>& names,
-                                             const std::vector<double>&  yPositions )
+void RiuPlotAnnotationTool::attachWellPicks( QwtPlot* plot, const std::vector<QString>& names, const std::vector<double>& yPositions )
 {
     detachAllAnnotations();
 
@@ -214,18 +210,11 @@ void RiuPlotAnnotationTool::attachAnnotationLine( QwtPlot*                plot,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuPlotAnnotationTool::attachAnnotation( QwtPlot*                plot,
-                                              RimPlotAxisAnnotation*  annotation,
-                                              RiaDefines::Orientation orientation )
+void RiuPlotAnnotationTool::attachAnnotation( QwtPlot* plot, RimPlotAxisAnnotation* annotation, RiaDefines::Orientation orientation )
 {
     if ( annotation->annotationType() == RimPlotAxisAnnotation::AnnotationType::LINE )
     {
-        attachAnnotationLine( plot,
-                              annotation->color(),
-                              annotation->name(),
-                              annotation->penStyle(),
-                              annotation->value(),
-                              orientation );
+        attachAnnotationLine( plot, annotation->color(), annotation->name(), annotation->penStyle(), annotation->value(), orientation );
     }
 }
 
@@ -316,25 +305,12 @@ void RiuPlotAnnotationTool::horizontalRange( const QString&                  nam
     m_plotItems.push_back( shading );
 
     auto* line( new QwtPlotMarker() );
-    RiuPlotAnnotationTool::setLineProperties( line,
-                                              name,
-                                              RiaDefines::Orientation::HORIZONTAL,
-                                              yRange.first,
-                                              Qt::DashLine,
-                                              color,
-                                              color,
-                                              horizontalAlignment );
+    RiuPlotAnnotationTool::setLineProperties( line, name, RiaDefines::Orientation::HORIZONTAL, yRange.first, Qt::DashLine, color, color, horizontalAlignment );
     line->attach( m_plot );
     m_plotItems.push_back( line );
 
     auto* bottomLine( new QwtPlotMarker() );
-    RiuPlotAnnotationTool::setLineProperties( bottomLine,
-                                              QString(),
-                                              RiaDefines::Orientation::HORIZONTAL,
-                                              yRange.second,
-                                              Qt::DashLine,
-                                              color,
-                                              color );
+    RiuPlotAnnotationTool::setLineProperties( bottomLine, QString(), RiaDefines::Orientation::HORIZONTAL, yRange.second, Qt::DashLine, color, color );
 
     bottomLine->attach( m_plot );
     m_plotItems.push_back( bottomLine );

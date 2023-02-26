@@ -104,8 +104,7 @@ void RicResampleDialog::setPeriodOptions( const std::vector<RiaDefines::DateTime
     QStringList s;
     for ( auto& period : dateTimePeriods )
     {
-        QString text = period != RiaDefines::DateTimePeriod::NONE ? RiaQDateTimeTools::dateTimePeriodName( period )
-                                                                  : "No Resampling";
+        QString text = period != RiaDefines::DateTimePeriod::NONE ? RiaQDateTimeTools::dateTimePeriodName( period ) : "No Resampling";
         m_timePeriodCombo->addItem( text, QVariant( (int)period ) );
     }
 }

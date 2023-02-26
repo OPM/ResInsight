@@ -127,9 +127,7 @@ void RimGridStatisticsPlot::setPropertiesFromView( RimEclipseView* view )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridStatisticsPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                              const QVariant&            oldValue,
-                                              const QVariant&            newValue )
+void RimGridStatisticsPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimStatisticsPlot::fieldChangedByUi( changedField, oldValue, newValue );
 
@@ -253,9 +251,8 @@ RigHistogramData RimGridStatisticsPlot::createStatisticsData() const
 
     RimHistogramCalculator::StatisticsCellRangeType cellRange = RimHistogramCalculator::StatisticsCellRangeType::ALL_CELLS;
 
-    RimHistogramCalculator::StatisticsTimeRangeType timeRange =
-        RimHistogramCalculator::StatisticsTimeRangeType::ALL_TIMESTEPS;
-    int timeStep = 0;
+    RimHistogramCalculator::StatisticsTimeRangeType timeRange = RimHistogramCalculator::StatisticsTimeRangeType::ALL_TIMESTEPS;
+    int                                             timeStep  = 0;
     if ( m_timeStep() != -1 && !m_property()->hasStaticResult() )
     {
         timeStep  = m_timeStep();
@@ -267,14 +264,12 @@ RigHistogramData RimGridStatisticsPlot::createStatisticsData() const
         // Filter by visible cells of the view
         cellRange                   = RimHistogramCalculator::StatisticsCellRangeType::VISIBLE_CELLS;
         RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( m_cellFilterView.value() );
-        histogramData =
-            histogramCalculator->histogramData( eclipseView, m_property.value(), cellRange, timeRange, timeStep );
+        histogramData               = histogramCalculator->histogramData( eclipseView, m_property.value(), cellRange, timeRange, timeStep );
     }
     else
     {
         RimEclipseView* eclipseView = nullptr;
-        histogramData =
-            histogramCalculator->histogramData( eclipseView, m_property.value(), cellRange, timeRange, timeStep );
+        histogramData               = histogramCalculator->histogramData( eclipseView, m_property.value(), cellRange, timeRange, timeStep );
     }
 
     return histogramData;

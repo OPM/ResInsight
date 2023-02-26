@@ -308,9 +308,7 @@ void RimEnsembleCurveSetCollection::deleteAllCurveSets()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSetCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                      const QVariant&            oldValue,
-                                                      const QVariant&            newValue )
+void RimEnsembleCurveSetCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_showCurves )
     {

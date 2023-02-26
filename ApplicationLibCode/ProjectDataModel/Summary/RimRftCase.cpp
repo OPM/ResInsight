@@ -93,9 +93,7 @@ void RimRftCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField, cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimRftCase::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                        QString                    uiConfigName,
-                                        caf::PdmUiEditorAttribute* attribute )
+void RimRftCase::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_dataDeckFilePath )
     {

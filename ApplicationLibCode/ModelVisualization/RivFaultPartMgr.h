@@ -58,9 +58,7 @@ public:
     void applySingleColorEffect();
     void setOpacityLevel( float opacity ) { m_opacityLevel = opacity; }
     void updateCellResultColor( size_t timeStepIndex, RimEclipseCellColors* cellResultColors );
-    void updateCellEdgeResultColor( size_t                timeStepIndex,
-                                    RimEclipseCellColors* cellResultColors,
-                                    RimCellEdgeColors*    cellEdgeResultColors );
+    void updateCellEdgeResultColor( size_t timeStepIndex, RimEclipseCellColors* cellResultColors, RimCellEdgeColors* cellEdgeResultColors );
 
     void appendNativeFaultFacesToModel( cvf::ModelBasicList* model );
     void appendOppositeFaultFacesToModel( cvf::ModelBasicList* model );

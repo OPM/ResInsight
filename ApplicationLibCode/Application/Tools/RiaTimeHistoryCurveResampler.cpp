@@ -100,9 +100,7 @@ const std::vector<double>& RiaTimeHistoryCurveResampler::resampledValues() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<time_t> RiaTimeHistoryCurveResampler::timeStepsFromTimeRange( RiaDefines::DateTimePeriod period,
-                                                                          time_t                     minTime,
-                                                                          time_t                     maxTime )
+std::vector<time_t> RiaTimeHistoryCurveResampler::timeStepsFromTimeRange( RiaDefines::DateTimePeriod period, time_t minTime, time_t maxTime )
 {
     if ( minTime > maxTime ) return std::vector<time_t>();
 
@@ -145,8 +143,7 @@ void RiaTimeHistoryCurveResampler::computeWeightedMeanValues( RiaDefines::DateTi
         double wMean = 0.0;
         time_t periodStart =
             i > 0 ? m_timeSteps[i - 1]
-                  : RiaQDateTimeTools::subtractPeriod( RiaQDateTimeTools::fromTime_t( m_timeSteps[0] ), period )
-                        .toSecsSinceEpoch();
+                  : RiaQDateTimeTools::subtractPeriod( RiaQDateTimeTools::fromTime_t( m_timeSteps[0] ), period ).toSecsSinceEpoch();
         time_t periodEnd    = m_timeSteps[i];
         time_t periodLength = periodEnd - periodStart;
 
@@ -272,13 +269,11 @@ void RiaTimeHistoryCurveResampler::computeResampledTimeSteps( RiaDefines::DateTi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QDateTime RiaTimeHistoryCurveResampler::firstResampledTimeStep( const QDateTime&           firstTimeStep,
-                                                                RiaDefines::DateTimePeriod period )
+QDateTime RiaTimeHistoryCurveResampler::firstResampledTimeStep( const QDateTime& firstTimeStep, RiaDefines::DateTimePeriod period )
 {
     QDateTime truncatedTime = RiaQDateTimeTools::truncateTime( firstTimeStep, period );
 
-    if ( RiaQDateTimeTools::lessThan( truncatedTime, firstTimeStep ) )
-        return RiaQDateTimeTools::addPeriod( truncatedTime, period );
+    if ( RiaQDateTimeTools::lessThan( truncatedTime, firstTimeStep ) ) return RiaQDateTimeTools::addPeriod( truncatedTime, period );
     return truncatedTime;
 }
 

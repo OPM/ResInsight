@@ -51,13 +51,11 @@ public:
 
     const RimEnsembleCurveSet* curveSet() const;
 
-    void calculate( const std::vector<RimSummaryCase*>& sumCases, bool includeIncompleteCurves );
+    void                          calculate( const std::vector<RimSummaryCase*>& sumCases, bool includeIncompleteCurves );
     RiaDefines::EclipseUnitSystem unitSystem() const;
 
 private:
-    void                         calculate( const std::vector<RimSummaryCase*> sumCases,
-                                            const RifEclipseSummaryAddress&    inputAddress,
-                                            bool                               includeIncompleteCurves );
+    void calculate( const std::vector<RimSummaryCase*> sumCases, const RifEclipseSummaryAddress& inputAddress, bool includeIncompleteCurves );
     void                         clearData();
     std::vector<RimSummaryCase*> validSummaryCases( const std::vector<RimSummaryCase*> allSumCases,
                                                     const RifEclipseSummaryAddress&    inputAddress,

@@ -70,10 +70,7 @@ RivWellHeadPartMgr::~RivWellHeadPartMgr()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivWellHeadPartMgr::buildWellHeadParts( size_t                            frameIndex,
-                                             const caf::DisplayCoordTransform* displayXf,
-                                             bool                              doFlatten,
-                                             double                            xOffset )
+void RivWellHeadPartMgr::buildWellHeadParts( size_t frameIndex, const caf::DisplayCoordTransform* displayXf, bool doFlatten, double xOffset )
 {
     clearAllGeometry();
 
@@ -179,8 +176,7 @@ void RivWellHeadPartMgr::buildWellHeadParts( size_t                            f
         }
     }
 
-    double arrowLength =
-        characteristicCellSize * simWellInViewCollection()->wellHeadScaleFactor() * m_rimWell->wellHeadScaleFactor();
+    double arrowLength = characteristicCellSize * simWellInViewCollection()->wellHeadScaleFactor() * m_rimWell->wellHeadScaleFactor();
 
     if ( wellResultFrame->m_isOpen )
     {

@@ -65,11 +65,7 @@ void RimEclipseGeometrySelectionItem::setFromSelectionItem( const RiuEclipseSele
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseGeometrySelectionItem::setFromCaseGridAndIJK( RimEclipseCase* eclipseCase,
-                                                             size_t          gridIndex,
-                                                             size_t          i,
-                                                             size_t          j,
-                                                             size_t          k )
+void RimEclipseGeometrySelectionItem::setFromCaseGridAndIJK( RimEclipseCase* eclipseCase, size_t gridIndex, size_t i, size_t j, size_t k )
 {
     m_eclipseCase = eclipseCase;
     m_gridIndex   = gridIndex;
@@ -98,8 +94,7 @@ QString RimEclipseGeometrySelectionItem::geometrySelectionText() const
     text += ", ";
     text += QString( "Grid index %1" ).arg( m_gridIndex );
     text += ", ";
-    text +=
-        RigTimeHistoryResultAccessor::geometrySelectionText( m_eclipseCase->eclipseCaseData(), m_gridIndex, m_cellIndex );
+    text += RigTimeHistoryResultAccessor::geometrySelectionText( m_eclipseCase->eclipseCaseData(), m_gridIndex, m_cellIndex );
 
     return text;
 }

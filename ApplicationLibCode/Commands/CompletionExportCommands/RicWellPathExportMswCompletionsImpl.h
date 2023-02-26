@@ -110,25 +110,22 @@ private:
                                                    gsl::not_null<RicMswExportInfo*>                 exportInfo,
                                                    gsl::not_null<RicMswBranch*>                     branch );
 
-    static std::vector<WellPathCellIntersectionInfo> generateCellSegments( const RimEclipseCase* eclipseCase,
-                                                                           const RimWellPath*    wellPath );
+    static std::vector<WellPathCellIntersectionInfo> generateCellSegments( const RimEclipseCase* eclipseCase, const RimWellPath* wellPath );
 
     static double computeIntitialMeasuredDepth( const RimEclipseCase*                            eclipseCase,
                                                 const RimWellPath*                               wellPath,
                                                 const RimMswCompletionParameters*                mswParameters,
                                                 const std::vector<WellPathCellIntersectionInfo>& allIntersections );
 
-    static std::vector<WellPathCellIntersectionInfo>
-        filterIntersections( const std::vector<WellPathCellIntersectionInfo>& intersections,
-                             double                                           initialMD,
-                             gsl::not_null<const RigWellPath*>                wellPathGeometry,
-                             gsl::not_null<const RimEclipseCase*>             eclipseCase );
+    static std::vector<WellPathCellIntersectionInfo> filterIntersections( const std::vector<WellPathCellIntersectionInfo>& intersections,
+                                                                          double                                           initialMD,
+                                                                          gsl::not_null<const RigWellPath*>                wellPathGeometry,
+                                                                          gsl::not_null<const RimEclipseCase*>             eclipseCase );
 
-    static std::pair<double, double>
-        calculateOverlapWithActiveCells( double                                           startMD,
-                                         double                                           endMD,
-                                         const std::vector<WellPathCellIntersectionInfo>& wellPathIntersections,
-                                         const RigActiveCellInfo*                         activeCellInfo );
+    static std::pair<double, double> calculateOverlapWithActiveCells( double                                           startMD,
+                                                                      double                                           endMD,
+                                                                      const std::vector<WellPathCellIntersectionInfo>& wellPathIntersections,
+                                                                      const RigActiveCellInfo*                         activeCellInfo );
 
     static void createWellPathSegments( gsl::not_null<RicMswBranch*>                      branch,
                                         const std::vector<WellPathCellIntersectionInfo>&  cellSegmentIntersections,
@@ -143,12 +140,11 @@ private:
                                         const RimWellPath*                                wellPath,
                                         RiaDefines::EclipseUnitSystem                     unitSystem );
 
-    static void
-        assignValveContributionsToSuperICDsOrAICDs( gsl::not_null<RicMswBranch*>                      branch,
-                                                    const std::vector<const RimPerforationInterval*>& perforationIntervals,
-                                                    const std::vector<WellPathCellIntersectionInfo>& wellPathIntersections,
-                                                    const RigActiveCellInfo*                         activeCellInfo,
-                                                    RiaDefines::EclipseUnitSystem                    unitSystem );
+    static void assignValveContributionsToSuperICDsOrAICDs( gsl::not_null<RicMswBranch*>                      branch,
+                                                            const std::vector<const RimPerforationInterval*>& perforationIntervals,
+                                                            const std::vector<WellPathCellIntersectionInfo>&  wellPathIntersections,
+                                                            const RigActiveCellInfo*                          activeCellInfo,
+                                                            RiaDefines::EclipseUnitSystem                     unitSystem );
 
     static void moveIntersectionsToICVs( gsl::not_null<RicMswBranch*>                      branch,
                                          const std::vector<const RimPerforationInterval*>& perforationIntervals,
@@ -169,13 +165,12 @@ private:
                                                         const RimWellPathFracture*            fracture,
                                                         const std::vector<RigCompletionData>& completionData,
                                                         gsl::not_null<RicMswSegment*>         segment,
-                                                        bool* foundSubGridIntersections );
+                                                        bool*                                 foundSubGridIntersections );
 
-    static std::vector<RigCompletionData>
-        generatePerforationIntersections( gsl::not_null<const RimWellPath*>            wellPath,
-                                          gsl::not_null<const RimPerforationInterval*> perforationInterval,
-                                          int                                          timeStep,
-                                          gsl::not_null<const RimEclipseCase*>         eclipseCase );
+    static std::vector<RigCompletionData> generatePerforationIntersections( gsl::not_null<const RimWellPath*>            wellPath,
+                                                                            gsl::not_null<const RimPerforationInterval*> perforationInterval,
+                                                                            int                                          timeStep,
+                                                                            gsl::not_null<const RimEclipseCase*>         eclipseCase );
 
     static void assignPerforationIntersections( const std::vector<RigCompletionData>& completionData,
                                                 gsl::not_null<RicMswCompletion*>      perforationCompletion,

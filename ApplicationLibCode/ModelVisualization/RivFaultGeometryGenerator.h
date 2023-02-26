@@ -44,10 +44,7 @@ class RigFault;
 class RivFaultGeometryGenerator : public cvf::Object
 {
 public:
-    RivFaultGeometryGenerator( const cvf::StructGridInterface* grid,
-                               const RigFault*                 fault,
-                               RigNNCData*                     nncData,
-                               bool                            computeNativeFaultFaces );
+    RivFaultGeometryGenerator( const cvf::StructGridInterface* grid, const RigFault* fault, RigNNCData* nncData, bool computeNativeFaultFaces );
     ~RivFaultGeometryGenerator() override;
 
     void setCellVisibility( const cvf::UByteArray* cellVisibilities );

@@ -66,10 +66,8 @@ void RicImportColorCategoriesFeature::onActionTriggered( bool isChecked )
 
     QString filterText = QString( "Formation Names description File (*.lyr);;All Files (*.*)" );
 
-    QString fileName = RiuFileDialogTools::getOpenFileName( Riu3DMainWindowTools::mainWindowWidget(),
-                                                            "Import Formation File",
-                                                            defaultDir,
-                                                            filterText );
+    QString fileName =
+        RiuFileDialogTools::getOpenFileName( Riu3DMainWindowTools::mainWindowWidget(), "Import Formation File", defaultDir, filterText );
 
     if ( fileName.isEmpty() ) return;
 

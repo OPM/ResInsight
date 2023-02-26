@@ -166,9 +166,7 @@ void RimSimWellFracture::applyOffset( double offsetMD )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSimWellFracture::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                           const QVariant&            oldValue,
-                                           const QVariant&            newValue )
+void RimSimWellFracture::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimFracture::fieldChangedByUi( changedField, oldValue, newValue );
 
@@ -257,9 +255,7 @@ void RimSimWellFracture::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSimWellFracture::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                QString                    uiConfigName,
-                                                caf::PdmUiEditorAttribute* attribute )
+void RimSimWellFracture::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     RimFracture::defineEditorAttribute( field, uiConfigName, attribute );
 
@@ -378,9 +374,5 @@ QString RimSimWellFracture::createOneBasedIJKText() const
     bool ok = hostGrid->ijkFromCellIndex( gridLocalCellIdx, &i, &j, &k );
     if ( !ok ) return "";
 
-    return QString( "Grid %1: [%2, %3, %4]" )
-        .arg( QString::fromStdString( hostGrid->gridName() ) )
-        .arg( i + 1 )
-        .arg( j + 1 )
-        .arg( k + 1 );
+    return QString( "Grid %1: [%2, %3, %4]" ).arg( QString::fromStdString( hostGrid->gridName() ) ).arg( i + 1 ).arg( j + 1 ).arg( k + 1 );
 }

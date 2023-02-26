@@ -60,10 +60,8 @@ RigTofWellDistributionCalculator::RigTofWellDistributionCalculator( RimEclipseRe
     RigFlowDiagResults* flowDiagResults = flowDiagSolution->flowDiagResults();
     CVF_ASSERT( flowDiagResults );
 
-    const std::vector<double>* porvResults = eclipseCaseData->resultValues( RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                                                            RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                                            "PORV",
-                                                                            0 );
+    const std::vector<double>* porvResults =
+        eclipseCaseData->resultValues( RiaDefines::PorosityModelType::MATRIX_MODEL, RiaDefines::ResultCatType::STATIC_NATIVE, "PORV", 0 );
     if ( !porvResults )
     {
         return;
@@ -85,9 +83,7 @@ RigTofWellDistributionCalculator::RigTofWellDistributionCalculator( RimEclipseRe
         return;
     }
 
-    const RigFlowDiagResultAddress resultAddrTof( "TOF",
-                                                  RigFlowDiagResultAddress::PhaseSelection::PHASE_ALL,
-                                                  targetWellname.toStdString() );
+    const RigFlowDiagResultAddress resultAddrTof( "TOF", RigFlowDiagResultAddress::PhaseSelection::PHASE_ALL, targetWellname.toStdString() );
     const RigFlowDiagResultAddress resultAddrFraction( "Fraction",
                                                        RigFlowDiagResultAddress::PhaseSelection::PHASE_ALL,
                                                        targetWellname.toStdString() );
@@ -112,8 +108,7 @@ RigTofWellDistributionCalculator::RigTofWellDistributionCalculator( RimEclipseRe
         const RigFlowDiagResultAddress resultAddrContribWellFraction( "Fraction",
                                                                       RigFlowDiagResultAddress::PhaseSelection::PHASE_ALL,
                                                                       contribWellName.toStdString() );
-        const std::vector<double>*     contribWellFractionData =
-            flowDiagResults->resultValues( resultAddrContribWellFraction, timeStepIndex );
+        const std::vector<double>* contribWellFractionData = flowDiagResults->resultValues( resultAddrContribWellFraction, timeStepIndex );
         if ( !contribWellFractionData )
         {
             continue;
@@ -207,8 +202,7 @@ void RigTofWellDistributionCalculator::groupSmallContributions( double smallCont
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<double, std::vector<size_t>>
-    RigTofWellDistributionCalculator::buildSortedTofToCellIndicesMap( const std::vector<double>& tofData )
+std::map<double, std::vector<size_t>> RigTofWellDistributionCalculator::buildSortedTofToCellIndicesMap( const std::vector<double>& tofData )
 {
     std::map<double, std::vector<size_t>> tofToCellIndicesMap;
 
@@ -227,7 +221,7 @@ std::map<double, std::vector<size_t>>
         }
 
         std::vector<size_t> vectorOfIndexes{ i };
-        auto iteratorBoolFromInsertToMap = tofToCellIndicesMap.insert( std::make_pair( tofValue, vectorOfIndexes ) );
+        auto                iteratorBoolFromInsertToMap = tofToCellIndicesMap.insert( std::make_pair( tofValue, vectorOfIndexes ) );
         if ( !iteratorBoolFromInsertToMap.second )
         {
             // Map element for this tofValue already exist => we must add the cell index ourselves
@@ -241,15 +235,13 @@ std::map<double, std::vector<size_t>>
 //--------------------------------------------------------------------------------------------------
 /// Determine name of the the wells that are candidates for contributing in our calculation
 //--------------------------------------------------------------------------------------------------
-std::vector<QString>
-    RigTofWellDistributionCalculator::findCandidateContributingWellNames( const RimFlowDiagSolution& flowDiagSolution,
-                                                                          QString                    targetWellname,
-                                                                          size_t                     timeStepIndex )
+std::vector<QString> RigTofWellDistributionCalculator::findCandidateContributingWellNames( const RimFlowDiagSolution& flowDiagSolution,
+                                                                                           QString                    targetWellname,
+                                                                                           size_t                     timeStepIndex )
 {
     std::vector<QString> candidateWellNames;
 
-    const RimFlowDiagSolution::TracerStatusType targetWellStatus =
-        flowDiagSolution.tracerStatusInTimeStep( targetWellname, timeStepIndex );
+    const RimFlowDiagSolution::TracerStatusType targetWellStatus = flowDiagSolution.tracerStatusInTimeStep( targetWellname, timeStepIndex );
     if ( targetWellStatus != RimFlowDiagSolution::TracerStatusType::INJECTOR &&
          targetWellStatus != RimFlowDiagSolution::TracerStatusType::PRODUCER )
     {
@@ -257,10 +249,9 @@ std::vector<QString>
         return candidateWellNames;
     }
 
-    const RimFlowDiagSolution::TracerStatusType oppositeStatus =
-        ( targetWellStatus == RimFlowDiagSolution::TracerStatusType::INJECTOR )
-            ? RimFlowDiagSolution::TracerStatusType::PRODUCER
-            : RimFlowDiagSolution::TracerStatusType::INJECTOR;
+    const RimFlowDiagSolution::TracerStatusType oppositeStatus = ( targetWellStatus == RimFlowDiagSolution::TracerStatusType::INJECTOR )
+                                                                     ? RimFlowDiagSolution::TracerStatusType::PRODUCER
+                                                                     : RimFlowDiagSolution::TracerStatusType::INJECTOR;
 
     const std::vector<QString> allWellNames = flowDiagSolution.tracerNames();
     for ( const QString& name : allWellNames )
@@ -309,8 +300,7 @@ const QString& RigTofWellDistributionCalculator::contributingWellName( size_t co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<double>&
-    RigTofWellDistributionCalculator::accumulatedVolumeForContributingWell( size_t contributingWellIndex ) const
+const std::vector<double>& RigTofWellDistributionCalculator::accumulatedVolumeForContributingWell( size_t contributingWellIndex ) const
 {
     CVF_ASSERT( contributingWellIndex < m_contributingWells.size() );
     const ContribWellEntry& entry = m_contributingWells[contributingWellIndex];

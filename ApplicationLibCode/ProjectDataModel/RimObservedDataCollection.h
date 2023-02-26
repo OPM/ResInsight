@@ -36,13 +36,11 @@ public:
     RimObservedDataCollection();
     ~RimObservedDataCollection() override;
 
-    void                                 removeObservedSummaryData( RimObservedSummaryData* observedSummaryData );
-    void                                 removeObservedFmuRftData( RimObservedFmuRftData* observedFmuRftData );
-    RimObservedSummaryData*              createAndAddRsmObservedSummaryDataFromFile( const QString& fileName,
-                                                                                     QString*       errorText = nullptr );
-    RimObservedSummaryData*              createAndAddCvsObservedSummaryDataFromFile( const QString& fileName,
-                                                                                     bool           useSavedFieldsValuesInDialog,
-                                                                                     QString*       errorText = nullptr );
+    void                    removeObservedSummaryData( RimObservedSummaryData* observedSummaryData );
+    void                    removeObservedFmuRftData( RimObservedFmuRftData* observedFmuRftData );
+    RimObservedSummaryData* createAndAddRsmObservedSummaryDataFromFile( const QString& fileName, QString* errorText = nullptr );
+    RimObservedSummaryData*
+                                         createAndAddCvsObservedSummaryDataFromFile( const QString& fileName, bool useSavedFieldsValuesInDialog, QString* errorText = nullptr );
     RimObservedFmuRftData*               createAndAddFmuRftDataFromPath( const QString& directoryPath );
     RimPressureDepthData*                createAndAddPressureDepthDataFromPath( const QString& fileName );
     std::vector<RimObservedSummaryData*> allObservedSummaryData() const;

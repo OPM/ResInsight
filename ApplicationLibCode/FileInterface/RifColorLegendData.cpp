@@ -88,8 +88,7 @@ cvf::ref<RigFormationNames> RifColorLegendData::readLyrFormationNameFile( const 
             // extract last word which may contain formation color
             QString colorWord = RiaTextStringTools::splitSkipEmptyParts( numberString ).last();
 
-            if ( QColor::isValidColor( colorWord ) )
-                numberString.remove( colorWord ); // remove color if present as last word on line
+            if ( QColor::isValidColor( colorWord ) ) numberString.remove( colorWord ); // remove color if present as last word on line
 
             // extract words containing formation number(s)
             QStringList numberWords = RiaTextStringTools::splitSkipEmptyParts( numberString, QRegExp( "-" ) );
@@ -103,8 +102,7 @@ cvf::ref<RigFormationNames> RifColorLegendData::readLyrFormationNameFile( const 
 
                 if ( !( isNumber2 && isNumber1 ) )
                 {
-                    if ( errorMessage )
-                        ( *errorMessage ) += "Format error on line: " + QString::number( lineNumber ) + "\n";
+                    if ( errorMessage ) ( *errorMessage ) += "Format error on line: " + QString::number( lineNumber ) + "\n";
                     continue;
                 }
 
@@ -131,8 +129,7 @@ cvf::ref<RigFormationNames> RifColorLegendData::readLyrFormationNameFile( const 
 
                 if ( !isNumber1 )
                 {
-                    if ( errorMessage )
-                        ( *errorMessage ) += "Format error on line: " + QString::number( lineNumber ) + "\n";
+                    if ( errorMessage ) ( *errorMessage ) += "Format error on line: " + QString::number( lineNumber ) + "\n";
                     continue;
                 }
 
@@ -150,8 +147,7 @@ cvf::ref<RigFormationNames> RifColorLegendData::readLyrFormationNameFile( const 
             }
             else
             {
-                if ( errorMessage )
-                    ( *errorMessage ) += "Format error on line: " + QString::number( lineNumber ) + "\n";
+                if ( errorMessage ) ( *errorMessage ) += "Format error on line: " + QString::number( lineNumber ) + "\n";
             }
         }
 

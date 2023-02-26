@@ -33,9 +33,7 @@ class RimSummaryCase;
 class RiaRftPltCurveDefinition
 {
 public:
-    explicit RiaRftPltCurveDefinition( const RifDataSourceForRftPlt& address,
-                                       const QString&                wellName,
-                                       const QDateTime&              timeStep );
+    explicit RiaRftPltCurveDefinition( const RifDataSourceForRftPlt& address, const QString& wellName, const QDateTime& timeStep );
 
     const RifDataSourceForRftPlt& address() const;
     const QString&                wellName() const;

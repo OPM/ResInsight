@@ -207,9 +207,7 @@ const RifRftSegmentData* RifRftSegment::segmentDataByIndex( int segmentIndex ) c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifRftSegment::createDeviceBranch( int                        deviceBranchFirstSegmentNumber,
-                                        int                        oneBasedBranchIndex,
-                                        const std::vector<double>& seglenstValues )
+void RifRftSegment::createDeviceBranch( int deviceBranchFirstSegmentNumber, int oneBasedBranchIndex, const std::vector<double>& seglenstValues )
 {
     double lastAssignedDeviceBranchDepth = -1.0;
     for ( auto& segData : m_topology )
@@ -343,8 +341,7 @@ std::vector<size_t> RifRftSegment::packerSegmentIndicesOnAnnulus( int branchInde
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<int> RifRftSegment::segmentNumbersForBranchIndex( int                       oneBasedBranchIndex,
-                                                              RiaDefines::RftBranchType branchType ) const
+std::vector<int> RifRftSegment::segmentNumbersForBranchIndex( int oneBasedBranchIndex, RiaDefines::RftBranchType branchType ) const
 {
     std::vector<int> v;
 

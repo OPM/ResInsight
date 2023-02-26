@@ -105,9 +105,7 @@ public:
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                QString                    uiConfigName,
-                                caf::PdmUiEditorAttribute* attribute ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
@@ -152,7 +150,7 @@ private:
     caf::PdmField<QString>                  m_obg0Address;
 
     typedef std::tuple<caf::PdmField<caf::AppEnum<SourceType>>*, caf::PdmField<double>*, caf::PdmField<QString>*> ParameterPdmFields;
-    std::map<ParameterType, ParameterPdmFields> m_parameterFields;
+    std::map<ParameterType, ParameterPdmFields>                                                                   m_parameterFields;
 
     caf::PdmField<double> m_airGap;
     caf::PdmField<double> m_shMultiplier;

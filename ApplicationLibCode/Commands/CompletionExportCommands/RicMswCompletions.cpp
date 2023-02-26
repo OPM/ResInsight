@@ -87,11 +87,7 @@ RigCompletionData::CompletionType RicMswPerforation::completionType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswValve::RicMswValve( const QString&          label,
-                          const RimWellPath*      wellPath,
-                          double                  startMD,
-                          double                  startTVD,
-                          const RimWellPathValve* wellPathValve )
+RicMswValve::RicMswValve( const QString& label, const RimWellPath* wellPath, double startMD, double startTVD, const RimWellPathValve* wellPathValve )
     : RicMswCompletion( label, wellPath, startMD, startTVD )
     , m_wellPathValve( wellPathValve )
     , m_valid( false )
@@ -137,8 +133,7 @@ std::unique_ptr<RicMswValve> RicMswValve::createTieInValve( const QString&      
         return nullptr;
     }
 
-    std::unique_ptr<RicMswTieInICV> tieInValve =
-        std::make_unique<RicMswTieInICV>( label, wellPath, startMD, startTVD, wellPathValve );
+    std::unique_ptr<RicMswTieInICV> tieInValve = std::make_unique<RicMswTieInICV>( label, wellPath, startMD, startTVD, wellPathValve );
 
     return tieInValve;
 }
@@ -146,11 +141,7 @@ std::unique_ptr<RicMswValve> RicMswValve::createTieInValve( const QString&      
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswWsegValve::RicMswWsegValve( const QString&          label,
-                                  const RimWellPath*      wellPath,
-                                  double                  startMD,
-                                  double                  startTVD,
-                                  const RimWellPathValve* wellPathValve )
+RicMswWsegValve::RicMswWsegValve( const QString& label, const RimWellPath* wellPath, double startMD, double startTVD, const RimWellPathValve* wellPathValve )
     : RicMswValve( label, wellPath, startMD, startTVD, wellPathValve )
     , m_flowCoefficient( 0.0 )
     , m_area( 0.0 )
@@ -346,11 +337,7 @@ std::array<double, AICD_NUM_PARAMS>& RicMswPerforationAICD::values()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicMswTieInICV::RicMswTieInICV( const QString&          label,
-                                const RimWellPath*      wellPath,
-                                double                  startMD,
-                                double                  startTVD,
-                                const RimWellPathValve* wellPathValve )
+RicMswTieInICV::RicMswTieInICV( const QString& label, const RimWellPath* wellPath, double startMD, double startTVD, const RimWellPathValve* wellPathValve )
     : RicMswWsegValve( label, wellPath, startMD, startTVD, wellPathValve )
 {
     setIsValid( true );

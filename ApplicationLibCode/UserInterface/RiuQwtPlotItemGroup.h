@@ -37,8 +37,8 @@ public:
     void addPlotItem( QwtPlotItem* plotItem );
     void addLegendItem( QwtPlotItem* legendItem );
 
-    int rtti() const override { return 5000; }
-    void draw( QPainter* painter, const QwtScaleMap& xMap, const QwtScaleMap& yMap, const QRectF& canvasRect ) const override;
+    int        rtti() const override { return 5000; }
+    void       draw( QPainter* painter, const QwtScaleMap& xMap, const QwtScaleMap& yMap, const QRectF& canvasRect ) const override;
     QRectF     boundingRect() const override;
     QwtGraphic legendIcon( int index, const QSizeF& size ) const override;
 

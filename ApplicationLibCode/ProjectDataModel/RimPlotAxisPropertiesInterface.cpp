@@ -20,9 +20,7 @@
 
 #include "cafAppEnum.h"
 
-CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimPlotAxisPropertiesInterface,
-                                  "PlotAxisPropertiesInterface",
-                                  "RimPlotAxisPropertiesInterface" );
+CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimPlotAxisPropertiesInterface, "PlotAxisPropertiesInterface", "RimPlotAxisPropertiesInterface" );
 
 namespace caf
 {

@@ -75,9 +75,7 @@ caf::PdmFieldHandle* RimOilFieldEntry::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimOilFieldEntry::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                         const QVariant&            oldValue,
-                                         const QVariant&            newValue )
+void RimOilFieldEntry::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &selected )
     {

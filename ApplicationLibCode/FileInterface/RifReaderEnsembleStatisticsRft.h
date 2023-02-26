@@ -30,13 +30,12 @@ public:
     RifReaderEnsembleStatisticsRft( const RimSummaryCaseCollection* summaryCaseCollection );
 
     std::set<RifEclipseRftAddress> eclipseRftAddresses() override;
-    void values( const RifEclipseRftAddress& rftAddress, std::vector<double>* values ) override;
+    void                           values( const RifEclipseRftAddress& rftAddress, std::vector<double>* values ) override;
 
-    std::set<QDateTime> availableTimeSteps( const QString& wellName ) override;
-    std::set<QDateTime> availableTimeSteps( const QString&                                     wellName,
-                                            const RifEclipseRftAddress::RftWellLogChannelType& wellLogChannelName ) override;
-    std::set<QDateTime>
-                                                          availableTimeSteps( const QString&                                               wellName,
+    std::set<QDateTime>                                   availableTimeSteps( const QString& wellName ) override;
+    std::set<QDateTime>                                   availableTimeSteps( const QString&                                     wellName,
+                                                                              const RifEclipseRftAddress::RftWellLogChannelType& wellLogChannelName ) override;
+    std::set<QDateTime>                                   availableTimeSteps( const QString&                                               wellName,
                                                                               const std::set<RifEclipseRftAddress::RftWellLogChannelType>& relevantChannels ) override;
     std::set<RifEclipseRftAddress::RftWellLogChannelType> availableWellLogChannels( const QString& wellName ) override;
     std::set<QString>                                     wellNames() override;

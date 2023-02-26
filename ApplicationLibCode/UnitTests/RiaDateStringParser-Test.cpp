@@ -51,15 +51,8 @@ TEST( RiaDateStringParserTest, ParseDayFirstWithSeparators )
     QDateTime may2ndDT = RiaQDateTimeTools::createDateTime( QDate( 2011, 05, 02 ) );
     may2ndDT.setTimeSpec( RiaQDateTimeTools::currentTimeSpec() );
 
-    std::vector<std::string> may2ndStrings = { "02 05 2011",
-                                               "02 May 2011",
-                                               "02_05_2011",
-                                               "02_May_2011",
-                                               "02_may_2011",
-                                               "02-05-2011",
-                                               "02-May-2011",
-                                               "02-may-2011",
-                                               "02.05.2011" };
+    std::vector<std::string> may2ndStrings =
+        { "02 05 2011", "02 May 2011", "02_05_2011", "02_May_2011", "02_may_2011", "02-05-2011", "02-May-2011", "02-may-2011", "02.05.2011" };
     for ( auto may2ndString : may2ndStrings )
     {
         QDateTime parsedDate = RiaDateStringParser::parseDateString( may2ndString );
@@ -148,8 +141,7 @@ TEST( RiaDateStringParserTest, ParseDayFirst )
 
     for ( auto [dateString, expected] : dates )
     {
-        QDateTime actual =
-            RiaDateStringParser::parseDateString( dateString, RiaDateStringParser::OrderPreference::DAY_FIRST );
+        QDateTime actual = RiaDateStringParser::parseDateString( dateString, RiaDateStringParser::OrderPreference::DAY_FIRST );
         EXPECT_EQ( expected.day(), actual.date().day() );
         EXPECT_EQ( expected.month(), actual.date().month() );
         EXPECT_EQ( expected.year(), actual.date().year() );

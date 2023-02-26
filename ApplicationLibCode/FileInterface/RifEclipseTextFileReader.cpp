@@ -39,8 +39,7 @@
 //--------------------------------------------------------------------------------------------------
 std::vector<RifEclipseKeywordContent> RifEclipseTextFileReader::readKeywordAndValues( const std::string& filename )
 {
-    if ( RiaPreferencesSystem::current()->eclipseTextFileReaderMode() ==
-         RiaPreferencesSystem::EclipseTextFileReaderMode::MEMORY_MAPPED_FILE )
+    if ( RiaPreferencesSystem::current()->eclipseTextFileReaderMode() == RiaPreferencesSystem::EclipseTextFileReaderMode::MEMORY_MAPPED_FILE )
     {
         return readKeywordAndValuesMemoryMappedFile( filename );
     }
@@ -69,8 +68,7 @@ std::vector<RifEclipseKeywordContent> RifEclipseTextFileReader::readKeywordAndVa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RifEclipseKeywordContent>
-    RifEclipseTextFileReader::readKeywordAndValuesMemoryMappedFile( const std::string& filename )
+std::vector<RifEclipseKeywordContent> RifEclipseTextFileReader::readKeywordAndValuesMemoryMappedFile( const std::string& filename )
 {
     if ( !std::filesystem::exists( filename ) ) return {};
 

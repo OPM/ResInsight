@@ -286,9 +286,7 @@ void RimPolygonFilter::deleteTarget( RimPolylineTarget* targetToDelete )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygonFilter::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                              QString                    uiConfigName,
-                                              caf::PdmUiEditorAttribute* attribute )
+void RimPolygonFilter::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_enablePicking )
     {
@@ -359,9 +357,7 @@ void RimPolygonFilter::defineEditorAttribute( const caf::PdmFieldHandle* field,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygonFilter::defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu,
-                                                QMenu*                     menu,
-                                                QWidget*                   fieldEditorWidget )
+void RimPolygonFilter::defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget )
 {
     caf::CmdFeatureMenuBuilder menuBuilder;
 
@@ -427,9 +423,7 @@ void RimPolygonFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygonFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                         const QVariant&            oldValue,
-                                         const QVariant&            newValue )
+void RimPolygonFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_enablePicking )
     {
@@ -511,9 +505,7 @@ void RimPolygonFilter::updateCompundFilter( cvf::CellRangeFilter* cellRangeFilte
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimPolygonFilter::cellInsidePolygon2D( cvf::Vec3d                 center,
-                                            std::array<cvf::Vec3d, 8>& corners,
-                                            std::vector<cvf::Vec3d>    polygon )
+bool RimPolygonFilter::cellInsidePolygon2D( cvf::Vec3d center, std::array<cvf::Vec3d, 8>& corners, std::vector<cvf::Vec3d> polygon )
 {
     bool bInside = false;
     switch ( m_polyIncludeType() )

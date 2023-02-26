@@ -64,16 +64,15 @@ static void        sortStringsByLength( QStringList& strings, bool ascending = t
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSearchDialog( QWidget*       parent,
-                                                                                           const QString& caption,
-                                                                                           const QString& dir,
-                                                                                           const QString& pathFilter,
-                                                                                           const QString& fileNameFilter,
+RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSearchDialog( QWidget*           parent,
+                                                                                           const QString&     caption,
+                                                                                           const QString&     dir,
+                                                                                           const QString&     pathFilter,
+                                                                                           const QString&     fileNameFilter,
                                                                                            const QStringList& fileExtensions )
 {
-    const QString filePathRegistryKey = QString( "RicRecursiveFileSearchDialog %1" ).arg( caption ).replace( " ", "_" );
-    const QString fileFilterRegistryKey =
-        QString( "RicRecursiveFileSearchDialog file filter %1" ).arg( caption ).replace( " ", "_" );
+    const QString filePathRegistryKey   = QString( "RicRecursiveFileSearchDialog %1" ).arg( caption ).replace( " ", "_" );
+    const QString fileFilterRegistryKey = QString( "RicRecursiveFileSearchDialog file filter %1" ).arg( caption ).replace( " ", "_" );
     const QString useRealizationStarRegistryKey = "RecursiveFileSearchDialog_use_realization";
     QSettings     settings;
 
@@ -181,23 +180,11 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent, con
     m_buttons = new QDialogButtonBox( QDialogButtonBox::Ok | QDialogButtonBox::Cancel );
 
     // Connect to signals
-    connect( m_pathFilterField,
-             SIGNAL( currentTextChanged( const QString& ) ),
-             this,
-             SLOT( slotPathFilterChanged( const QString& ) ) );
-    connect( m_pathFilterField,
-             SIGNAL( editTextChanged( const QString& ) ),
-             this,
-             SLOT( slotPathFilterChanged( const QString& ) ) );
+    connect( m_pathFilterField, SIGNAL( currentTextChanged( const QString& ) ), this, SLOT( slotPathFilterChanged( const QString& ) ) );
+    connect( m_pathFilterField, SIGNAL( editTextChanged( const QString& ) ), this, SLOT( slotPathFilterChanged( const QString& ) ) );
 
-    connect( m_fileFilterField,
-             SIGNAL( currentTextChanged( const QString& ) ),
-             this,
-             SLOT( slotFileFilterChanged( const QString& ) ) );
-    connect( m_fileFilterField,
-             SIGNAL( editTextChanged( const QString& ) ),
-             this,
-             SLOT( slotFileFilterChanged( const QString& ) ) );
+    connect( m_fileFilterField, SIGNAL( currentTextChanged( const QString& ) ), this, SLOT( slotFileFilterChanged( const QString& ) ) );
+    connect( m_fileFilterField, SIGNAL( editTextChanged( const QString& ) ), this, SLOT( slotFileFilterChanged( const QString& ) ) );
 
     connect( m_fileExtensionsField, SIGNAL( editingFinished() ), this, SLOT( slotFileExtensionsChanged() ) );
 
@@ -289,16 +276,15 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent, con
     setLayout( dialogLayout );
 
     {
-        QString text =
-            "The path filter uses normal wildcard file globbing, like in any unix shell. \n"
-            "When the filter ends with a single \"*\" (eg. \"/home/*\"), however, ResInsight will \n"
-            "search recursively in all subdirectories from that point.\n"
-            "This is indicated by \"...\" in the Effective Filter label below.\n"
-            "\n"
-            "An asterix \"*\" matches any number of any characters, except the path separator.\n"
-            "A question mark \"?\" matches any single character, except the path separator.\n"
-            "Square brackets \"[]\" encloses a list of characters and matches one of the enclosed characters.\n"
-            "they are also used to escape the characters *,? and []";
+        QString text = "The path filter uses normal wildcard file globbing, like in any unix shell. \n"
+                       "When the filter ends with a single \"*\" (eg. \"/home/*\"), however, ResInsight will \n"
+                       "search recursively in all subdirectories from that point.\n"
+                       "This is indicated by \"...\" in the Effective Filter label below.\n"
+                       "\n"
+                       "An asterix \"*\" matches any number of any characters, except the path separator.\n"
+                       "A question mark \"?\" matches any single character, except the path separator.\n"
+                       "Square brackets \"[]\" encloses a list of characters and matches one of the enclosed characters.\n"
+                       "they are also used to escape the characters *,? and []";
 
         // https://doc.qt.io/qt-5/qregularexpression.html#wildcardToRegularExpression
 
@@ -424,13 +410,11 @@ void RicRecursiveFileSearchDialog::updateFileListWidget()
 
     if ( ensembleGroupingMode() != RiaEnsembleNameTools::EnsembleGroupingMode::NONE )
     {
-        std::vector<QStringList> groupedByEnsemble =
-            RiaEnsembleNameTools::groupFilesByEnsemble( m_foundFiles, ensembleGroupingMode() );
+        std::vector<QStringList> groupedByEnsemble = RiaEnsembleNameTools::groupFilesByEnsemble( m_foundFiles, ensembleGroupingMode() );
         for ( const QStringList& groupedFileNames : groupedByEnsemble )
         {
-            QString ensembleName =
-                RiaEnsembleNameTools::findSuitableEnsembleName( groupedFileNames, ensembleGroupingMode() );
-            QListWidgetItem* item = new QListWidgetItem( QDir::toNativeSeparators( ensembleName ), m_fileListWidget );
+            QString          ensembleName = RiaEnsembleNameTools::findSuitableEnsembleName( groupedFileNames, ensembleGroupingMode() );
+            QListWidgetItem* item         = new QListWidgetItem( QDir::toNativeSeparators( ensembleName ), m_fileListWidget );
             addToFileListWidget( groupedFileNames );
         }
     }
@@ -846,8 +830,7 @@ void RicRecursiveFileSearchDialog::slotFindOrCancelButtonClicked()
             m_searchRootLabel->setVisible( true );
             m_searchRootContentLabel->setVisible( true );
 
-            if ( height() < RECURSIVE_FILESEARCH_DEFAULT_DIALOG_HEIGHT )
-                resize( width(), RECURSIVE_FILESEARCH_DEFAULT_DIALOG_HEIGHT );
+            if ( height() < RECURSIVE_FILESEARCH_DEFAULT_DIALOG_HEIGHT ) resize( width(), RECURSIVE_FILESEARCH_DEFAULT_DIALOG_HEIGHT );
         }
 
         m_findOrCancelButton->setText( "Cancel" );
@@ -946,10 +929,8 @@ void RicRecursiveFileSearchDialog::slotUseRealizationStarClicked()
 //--------------------------------------------------------------------------------------------------
 RiaEnsembleNameTools::EnsembleGroupingMode RicRecursiveFileSearchDialog::ensembleGroupingMode() const
 {
-    if ( m_ensembleGroupingMode->currentIndex() == 0 )
-        return RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE;
-    if ( m_ensembleGroupingMode->currentIndex() == 1 )
-        return RiaEnsembleNameTools::EnsembleGroupingMode::EVEREST_FOLDER_STRUCTURE;
+    if ( m_ensembleGroupingMode->currentIndex() == 0 ) return RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE;
+    if ( m_ensembleGroupingMode->currentIndex() == 1 ) return RiaEnsembleNameTools::EnsembleGroupingMode::EVEREST_FOLDER_STRUCTURE;
     if ( m_ensembleGroupingMode->currentIndex() == 2 ) return RiaEnsembleNameTools::EnsembleGroupingMode::NONE;
 
     return RiaEnsembleNameTools::EnsembleGroupingMode::FMU_FOLDER_STRUCTURE;

@@ -91,8 +91,7 @@ void RicSaveEclipseResultAsInputPropertyFeature::onActionTriggered( bool isCheck
 
     if ( eclipseCellColors )
     {
-        RicSaveEclipseResultAsInputPropertyExec* cellResultSaveExec =
-            new RicSaveEclipseResultAsInputPropertyExec( eclipseCellColors );
+        RicSaveEclipseResultAsInputPropertyExec* cellResultSaveExec = new RicSaveEclipseResultAsInputPropertyExec( eclipseCellColors );
         caf::CmdExecCommandManager::instance()->processExecuteCommand( cellResultSaveExec );
     }
 }

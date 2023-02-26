@@ -116,8 +116,7 @@ void RimViewLinker::updateTimeStep( Rim3dView* sourceView, int timeStep )
     {
         if ( !viewController->isTimeStepLinked() ) continue;
 
-        if ( viewController->managedView() && viewController->managedView() != sourceView &&
-             viewController->managedView()->viewer() )
+        if ( viewController->managedView() && viewController->managedView() != sourceView && viewController->managedView()->viewer() )
         {
             viewController->managedView()->viewer()->setCurrentFrame( timeStep );
         }
@@ -187,8 +186,7 @@ void RimViewLinker::updateCellResult()
 
                         if ( viewController->isLegendDefinitionsControlled() )
                         {
-                            geoView->cellResult()->legendConfig()->setUiValuesFromLegendConfig(
-                                masterGeoView->cellResult()->legendConfig() );
+                            geoView->cellResult()->legendConfig()->setUiValuesFromLegendConfig( masterGeoView->cellResult()->legendConfig() );
                             geoView->cellResult()->legendConfig()->updateLegend();
                         }
 
@@ -545,8 +543,7 @@ void RimViewLinker::updateCursorPosition( const Rim3dView* sourceView, const cvf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                                    std::vector<caf::PdmObjectHandle*>& referringObjects )
+void RimViewLinker::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     RimViewLinkerCollection* viewLinkerCollection = nullptr;
     this->firstAncestorOrThisOfType( viewLinkerCollection );

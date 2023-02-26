@@ -83,30 +83,21 @@ bool RimStimPlanModelWellLogCalculator::calculate( RiaDefines::CurveProperty cur
                                                    std::vector<double>&      tvDepthValues,
                                                    double&                   rkbDiff ) const
 {
-    RiaLogging::debug(
-        QString( "Calculating well log for '%1'." ).arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
+    RiaLogging::debug( QString( "Calculating well log for '%1'." ).arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
 
-    std::deque<RimExtractionConfiguration> extractionConfigurations =
-        stimPlanModel->extractionConfigurations( curveProperty );
+    std::deque<RimExtractionConfiguration> extractionConfigurations = stimPlanModel->extractionConfigurations( curveProperty );
 
-    std::deque<RimStimPlanModel::MissingValueStrategy> missingValueStratgies =
-        stimPlanModel->missingValueStrategies( curveProperty );
+    std::deque<RimStimPlanModel::MissingValueStrategy> missingValueStratgies = stimPlanModel->missingValueStrategies( curveProperty );
 
     if ( extractionConfigurations.empty() )
     {
         if ( !extractValuesForProperty( curveProperty, stimPlanModel, timeStep, values, measuredDepthValues, tvDepthValues, rkbDiff ) )
         {
-            if ( std::find( missingValueStratgies.begin(),
-                            missingValueStratgies.end(),
-                            RimStimPlanModel::MissingValueStrategy::DEFAULT_VALUE ) != missingValueStratgies.end() )
+            if ( std::find( missingValueStratgies.begin(), missingValueStratgies.end(), RimStimPlanModel::MissingValueStrategy::DEFAULT_VALUE ) !=
+                 missingValueStratgies.end() )
             {
                 RiaLogging::warning( QString( "Extraction failed. Trying fallback" ) );
-                if ( !replaceMissingValuesWithDefault( curveProperty,
-                                                       stimPlanModel,
-                                                       values,
-                                                       measuredDepthValues,
-                                                       tvDepthValues,
-                                                       rkbDiff ) )
+                if ( !replaceMissingValuesWithDefault( curveProperty, stimPlanModel, values, measuredDepthValues, tvDepthValues, rkbDiff ) )
                 {
                     RiaLogging::error( "Fallback failed too." );
                     return false;
@@ -116,13 +107,7 @@ bool RimStimPlanModelWellLogCalculator::calculate( RiaDefines::CurveProperty cur
     }
     else
     {
-        if ( !extractValuesForPropertyWithConfigurations( curveProperty,
-                                                          stimPlanModel,
-                                                          timeStep,
-                                                          values,
-                                                          measuredDepthValues,
-                                                          tvDepthValues,
-                                                          rkbDiff ) )
+        if ( !extractValuesForPropertyWithConfigurations( curveProperty, stimPlanModel, timeStep, values, measuredDepthValues, tvDepthValues, rkbDiff ) )
 
         {
             return false;
@@ -168,13 +153,7 @@ bool RimStimPlanModelWellLogCalculator::calculate( RiaDefines::CurveProperty cur
         {
             // K-1 is up
             int kDirection = -1;
-            if ( !replaceMissingValuesWithOtherKLayer( curveProperty,
-                                                       stimPlanModel,
-                                                       timeStep,
-                                                       measuredDepthValues,
-                                                       tvDepthValues,
-                                                       values,
-                                                       kDirection ) )
+            if ( !replaceMissingValuesWithOtherKLayer( curveProperty, stimPlanModel, timeStep, measuredDepthValues, tvDepthValues, values, kDirection ) )
             {
                 return false;
             }
@@ -183,13 +162,7 @@ bool RimStimPlanModelWellLogCalculator::calculate( RiaDefines::CurveProperty cur
         {
             // K+1 is down
             int kDirection = 1;
-            if ( !replaceMissingValuesWithOtherKLayer( curveProperty,
-                                                       stimPlanModel,
-                                                       timeStep,
-                                                       measuredDepthValues,
-                                                       tvDepthValues,
-                                                       values,
-                                                       kDirection ) )
+            if ( !replaceMissingValuesWithOtherKLayer( curveProperty, stimPlanModel, timeStep, measuredDepthValues, tvDepthValues, values, kDirection ) )
             {
                 return false;
             }
@@ -198,8 +171,7 @@ bool RimStimPlanModelWellLogCalculator::calculate( RiaDefines::CurveProperty cur
 
     if ( stimPlanModel->isScaledByNetToGross( curveProperty ) )
     {
-        std::vector<double> netToGross =
-            m_stimPlanModelCalculator->extractValues( RiaDefines::CurveProperty::NET_TO_GROSS, timeStep );
+        std::vector<double> netToGross = m_stimPlanModelCalculator->extractValues( RiaDefines::CurveProperty::NET_TO_GROSS, timeStep );
 
         scaleByNetToGross( stimPlanModel, netToGross, values );
     }
@@ -211,12 +183,7 @@ bool RimStimPlanModelWellLogCalculator::calculate( RiaDefines::CurveProperty cur
         std::vector<double> targetMds;
         std::vector<double> targetTvds;
         std::vector<double> faciesValues;
-        if ( !stimPlanModel->calculator()->extractCurveData( RiaDefines::CurveProperty::FACIES,
-                                                             timeStep,
-                                                             faciesValues,
-                                                             targetMds,
-                                                             targetTvds,
-                                                             rkbDiff ) )
+        if ( !stimPlanModel->calculator()->extractCurveData( RiaDefines::CurveProperty::FACIES, timeStep, faciesValues, targetMds, targetTvds, rkbDiff ) )
         {
             return false;
         }
@@ -224,13 +191,11 @@ bool RimStimPlanModelWellLogCalculator::calculate( RiaDefines::CurveProperty cur
         if ( targetMds.size() != measuredDepthValues.size() )
         {
             RiaLogging::info( "Resampling data to fit static case." );
-            auto [tvds, mds, results] = RimStimPlanModelPressureCalculator::interpolateMissingValues( targetTvds,
-                                                                                                      targetMds,
-                                                                                                      measuredDepthValues,
-                                                                                                      values );
-            tvDepthValues             = tvds;
-            measuredDepthValues       = mds;
-            values                    = results;
+            auto [tvds, mds, results] =
+                RimStimPlanModelPressureCalculator::interpolateMissingValues( targetTvds, targetMds, measuredDepthValues, values );
+            tvDepthValues       = tvds;
+            measuredDepthValues = mds;
+            values              = results;
         }
     }
 
@@ -273,8 +238,7 @@ void RimStimPlanModelWellLogCalculator::replaceMissingValues( std::vector<double
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStimPlanModelWellLogCalculator::replaceMissingValues( std::vector<double>&       values,
-                                                              const std::vector<double>& replacementValues )
+void RimStimPlanModelWellLogCalculator::replaceMissingValues( std::vector<double>& values, const std::vector<double>& replacementValues )
 {
     CVF_ASSERT( values.size() == replacementValues.size() );
     for ( size_t i = 0; i < values.size(); i++ )
@@ -305,16 +269,12 @@ cvf::ref<RigResultAccessor>
         // Look for input properties starting with the same name as result definition
         if ( inputProperty && inputProperty->resultName().startsWith( resultName ) )
         {
-            RiaLogging::info(
-                QString( "Found missing values result for %1: %2" ).arg( resultName ).arg( inputProperty->resultName() ) );
+            RiaLogging::info( QString( "Found missing values result for %1: %2" ).arg( resultName ).arg( inputProperty->resultName() ) );
 
             RigEclipseResultAddress resultAddress( RiaDefines::ResultCatType::INPUT_PROPERTY, inputProperty->resultName() );
             caseData->results( porosityModelType )->ensureKnownResultLoaded( resultAddress );
-            cvf::ref<RigResultAccessor> resAcc = RigResultAccessorFactory::createFromResultAddress( caseData,
-                                                                                                    gridIndex,
-                                                                                                    porosityModelType,
-                                                                                                    timeStepIndex,
-                                                                                                    resultAddress );
+            cvf::ref<RigResultAccessor> resAcc =
+                RigResultAccessorFactory::createFromResultAddress( caseData, gridIndex, porosityModelType, timeStepIndex, resultAddress );
 
             return resAcc;
         }
@@ -450,15 +410,14 @@ void RimStimPlanModelWellLogCalculator::scaleByNetToGross( const RimStimPlanMode
 ///
 //--------------------------------------------------------------------------------------------------
 bool RimStimPlanModelWellLogCalculator::extractValuesForPropertyWithConfigurations( RiaDefines::CurveProperty curveProperty,
-                                                                                    const RimStimPlanModel* stimPlanModel,
-                                                                                    int                     timeStep,
-                                                                                    std::vector<double>&    values,
-                                                                                    std::vector<double>& measuredDepthValues,
-                                                                                    std::vector<double>& tvDepthValues,
-                                                                                    double&              rkbDiff ) const
+                                                                                    const RimStimPlanModel*   stimPlanModel,
+                                                                                    int                       timeStep,
+                                                                                    std::vector<double>&      values,
+                                                                                    std::vector<double>&      measuredDepthValues,
+                                                                                    std::vector<double>&      tvDepthValues,
+                                                                                    double&                   rkbDiff ) const
 {
-    std::deque<RimExtractionConfiguration> extractionConfigurations =
-        stimPlanModel->extractionConfigurations( curveProperty );
+    std::deque<RimExtractionConfiguration> extractionConfigurations = stimPlanModel->extractionConfigurations( curveProperty );
 
     QString curvePropertyName = caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText();
 
@@ -468,12 +427,11 @@ bool RimStimPlanModelWellLogCalculator::extractValuesForPropertyWithConfiguratio
         QString                                     resultVariable  = extractionConfig.resultVariable;
         RimExtractionConfiguration::EclipseCaseType eclipseCaseType = extractionConfig.eclipseCaseType;
 
-        RiaLogging::info(
-            QString( "Trying extraction option for '%1': result property: '%2' result type: '%3' case type: '%4'" )
-                .arg( curvePropertyName )
-                .arg( resultVariable )
-                .arg( caf::AppEnum<RiaDefines::ResultCatType>( resultType ).uiText() )
-                .arg( caf::AppEnum<RimExtractionConfiguration::EclipseCaseType>( eclipseCaseType ).uiText() ) );
+        RiaLogging::info( QString( "Trying extraction option for '%1': result property: '%2' result type: '%3' case type: '%4'" )
+                              .arg( curvePropertyName )
+                              .arg( resultVariable )
+                              .arg( caf::AppEnum<RiaDefines::ResultCatType>( resultType ).uiText() )
+                              .arg( caf::AppEnum<RimExtractionConfiguration::EclipseCaseType>( eclipseCaseType ).uiText() ) );
 
         RimEclipseCase* eclipseCase = stimPlanModel->eclipseCaseForType( eclipseCaseType );
 
@@ -585,8 +543,7 @@ bool RimStimPlanModelWellLogCalculator::extractValuesForProperty( RiaDefines::Cu
 
     eclipseResultDefinition.loadResult();
 
-    if ( resultCategory != RiaDefines::ResultCatType::DYNAMIC_NATIVE ||
-         curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
+    if ( resultCategory != RiaDefines::ResultCatType::DYNAMIC_NATIVE || curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
     {
         timeStep = 0;
     }
@@ -648,11 +605,8 @@ bool RimStimPlanModelWellLogCalculator::replaceMissingValuesWithDefault( RiaDefi
     }
 
     // Try to locate a backup accessor (e.g. PORO_1 for PORO)
-    cvf::ref<RigResultAccessor> backupResAcc = findMissingValuesAccessor( eclipseCaseData,
-                                                                          eclipseCase->inputPropertyCollection(),
-                                                                          0,
-                                                                          replacementTimeStep,
-                                                                          resultVariable );
+    cvf::ref<RigResultAccessor> backupResAcc =
+        findMissingValuesAccessor( eclipseCaseData, eclipseCase->inputPropertyCollection(), 0, replacementTimeStep, resultVariable );
 
     if ( backupResAcc.notNull() )
     {
@@ -779,7 +733,7 @@ bool RimStimPlanModelWellLogCalculator::replaceMissingValuesWithOtherKLayer( Ria
                                                                              const std::vector<double>& measuredDepths,
                                                                              const std::vector<double>& tvDepthValues,
                                                                              std::vector<double>&       values,
-                                                                             int moveDirection ) const
+                                                                             int                        moveDirection ) const
 {
     RimEclipseCase* eclipseCase = stimPlanModel->eclipseCaseForProperty( curveProperty );
     if ( !eclipseCase ) return false;
@@ -829,13 +783,12 @@ bool RimStimPlanModelWellLogCalculator::replaceMissingValuesWithOtherKLayer( Ria
                 bool   isValid = mainGrid->ijkFromCellIndex( cellIdx, &i, &j, &k );
                 if ( isValid )
                 {
-                    RiaLogging::debug(
-                        QString( "K-Layer replacement: Replace missing value at MD: %1 TVD: %2. Cell [%3, %4, %5]" )
-                            .arg( measuredDepth )
-                            .arg( tvd )
-                            .arg( i + 1 )
-                            .arg( j + 1 )
-                            .arg( k + 1 ) );
+                    RiaLogging::debug( QString( "K-Layer replacement: Replace missing value at MD: %1 TVD: %2. Cell [%3, %4, %5]" )
+                                           .arg( measuredDepth )
+                                           .arg( tvd )
+                                           .arg( i + 1 )
+                                           .arg( j + 1 )
+                                           .arg( k + 1 ) );
 
                     int       neighborK = static_cast<int>( k ) + moveDirection;
                     const int minK      = static_cast<int>( 1 );

@@ -32,9 +32,7 @@
 class RivTextLabelSourceInfo : public RivObjectSourceInfo
 {
 public:
-    explicit RivTextLabelSourceInfo( caf::PdmObject*    pdmObject,
-                                     const cvf::String& text,
-                                     const cvf::Vec3f&  positionDisplayCoord );
+    explicit RivTextLabelSourceInfo( caf::PdmObject* pdmObject, const cvf::String& text, const cvf::Vec3f& positionDisplayCoord );
 
     cvf::String text() const;
     cvf::Vec3f  textPositionDisplayCoord() const;

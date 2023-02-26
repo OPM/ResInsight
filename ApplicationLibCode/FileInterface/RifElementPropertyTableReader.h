@@ -36,7 +36,7 @@ class RifElementPropertyTableReader : cvf::Object
 {
 public:
     static RifElementPropertyMetadata readMetadata( const QString& filePath );
-    static void readData( const RifElementPropertyMetadata* metadata, RifElementPropertyTable* table );
+    static void                       readData( const RifElementPropertyMetadata* metadata, RifElementPropertyTable* table );
 };
 
 //==================================================================================================

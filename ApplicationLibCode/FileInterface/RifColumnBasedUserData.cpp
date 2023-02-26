@@ -193,28 +193,24 @@ std::vector<time_t> RifColumnBasedUserData::createTimeSteps( const TableData& ta
     {
         const Column& ci = tableData.columnInfos()[columIndex];
 
-        if ( dateColumnIndex == tableData.columnInfos().size() &&
-             RifEclipseUserDataKeywordTools::isDate( ci.summaryAddress.vectorName() ) )
+        if ( dateColumnIndex == tableData.columnInfos().size() && RifEclipseUserDataKeywordTools::isDate( ci.summaryAddress.vectorName() ) )
         {
             dateColumnIndex = columIndex;
         }
 
-        if ( daysColumnIndex == tableData.columnInfos().size() &&
-             RifEclipseUserDataKeywordTools::isTime( ci.summaryAddress.vectorName() ) &&
+        if ( daysColumnIndex == tableData.columnInfos().size() && RifEclipseUserDataKeywordTools::isTime( ci.summaryAddress.vectorName() ) &&
              RifEclipseUserDataKeywordTools::isDays( ci.unitName ) )
         {
             daysColumnIndex = columIndex;
         }
 
-        if ( yearsColumnIndex == tableData.columnInfos().size() &&
-             RifEclipseUserDataKeywordTools::isYears( ci.summaryAddress.vectorName() ) &&
+        if ( yearsColumnIndex == tableData.columnInfos().size() && RifEclipseUserDataKeywordTools::isYears( ci.summaryAddress.vectorName() ) &&
              RifEclipseUserDataKeywordTools::isYears( ci.unitName ) )
         {
             yearsColumnIndex = columIndex;
         }
 
-        if ( yearXColumnIndex == tableData.columnInfos().size() &&
-             RifEclipseUserDataKeywordTools::isYearX( ci.summaryAddress.vectorName() ) &&
+        if ( yearXColumnIndex == tableData.columnInfos().size() && RifEclipseUserDataKeywordTools::isYearX( ci.summaryAddress.vectorName() ) &&
              RifEclipseUserDataKeywordTools::isYears( ci.unitName ) )
         {
             yearXColumnIndex = columIndex;

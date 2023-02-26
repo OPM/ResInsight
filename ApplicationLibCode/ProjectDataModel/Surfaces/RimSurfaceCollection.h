@@ -61,8 +61,7 @@ public:
     void updateViews();
     void updateViews( const std::vector<RimSurface*>& surfsToReload, bool showLegend = true );
 
-    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
     QString collectionName() const;
     void    setCollectionName( const QString name );

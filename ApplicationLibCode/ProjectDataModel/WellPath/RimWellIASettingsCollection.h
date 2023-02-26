@@ -41,14 +41,10 @@ public:
     bool isEnabled() const;
     bool hasSettings() const;
 
-    RimWellIASettings* startWellIntegrationAnalysis( QString         baseDir,
-                                                     RimWellPath*    wellPath,
-                                                     double          measuredDepth,
-                                                     RimGeoMechCase* theCase,
-                                                     QString&        outErrmsg );
+    RimWellIASettings*
+        startWellIntegrationAnalysis( QString baseDir, RimWellPath* wellPath, double measuredDepth, RimGeoMechCase* theCase, QString& outErrmsg );
 
-    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
 private:
     caf::PdmChildArrayField<RimWellIASettings*> m_wellIASettings;

@@ -82,15 +82,14 @@ bool RigCaseCellResultCalculator::computeDifference( RigEclipseCaseData*        
         auto gridB_j = baseMainGrid->cellCountJ();
         auto gridB_k = baseMainGrid->cellCountK();
 
-        RiaLogging::error(
-            QString( "Not able to compute cell value difference between two grids, as the Grid Cell Count is not "
-                     "matching: Grid 1 IJK [%1,%2,%3] vs Grid 2 IJK [%4,%5,%6]" )
-                .arg( gridA_i )
-                .arg( gridA_j )
-                .arg( gridA_k )
-                .arg( gridB_i )
-                .arg( gridB_j )
-                .arg( gridB_k ) );
+        RiaLogging::error( QString( "Not able to compute cell value difference between two grids, as the Grid Cell Count is not "
+                                    "matching: Grid 1 IJK [%1,%2,%3] vs Grid 2 IJK [%4,%5,%6]" )
+                               .arg( gridA_i )
+                               .arg( gridA_j )
+                               .arg( gridA_k )
+                               .arg( gridB_i )
+                               .arg( gridB_j )
+                               .arg( gridB_k ) );
 
         return false;
     }
@@ -124,9 +123,8 @@ bool RigCaseCellResultCalculator::computeDifference( RigEclipseCaseData*        
 
     // Initialize difference result with infinity for correct number of time steps and values per time step
     {
-        const std::vector<std::vector<double>>& srcFrames = sourceCaseResults->cellScalarResults( nativeAddress );
-        std::vector<std::vector<double>>*       diffResultFrames =
-            sourceCaseResults->modifiableCellScalarResultTimesteps( address );
+        const std::vector<std::vector<double>>& srcFrames        = sourceCaseResults->cellScalarResults( nativeAddress );
+        std::vector<std::vector<double>>*       diffResultFrames = sourceCaseResults->modifiableCellScalarResultTimesteps( address );
         diffResultFrames->resize( srcFrames.size() );
         for ( size_t fIdx = 0; fIdx < srcFrames.size(); ++fIdx )
         {
@@ -236,9 +234,8 @@ bool RigCaseCellResultCalculator::computeDivideByCellFaceArea( RigMainGrid*     
 
     // Initialize difference result with infinity for correct number of time steps and values per time step
     {
-        const std::vector<std::vector<double>>& srcFrames = baseCaseResults->cellScalarResults( nativeAddress );
-        std::vector<std::vector<double>>*       diffResultFrames =
-            baseCaseResults->modifiableCellScalarResultTimesteps( address );
+        const std::vector<std::vector<double>>& srcFrames        = baseCaseResults->cellScalarResults( nativeAddress );
+        std::vector<std::vector<double>>*       diffResultFrames = baseCaseResults->modifiableCellScalarResultTimesteps( address );
         diffResultFrames->resize( srcFrames.size() );
         for ( size_t fIdx = 0; fIdx < srcFrames.size(); ++fIdx )
         {

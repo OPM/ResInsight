@@ -46,8 +46,8 @@ RimSummaryCurve* RicPasteSummaryCurveFeature::copyCurveAndAddToPlot( RimSummaryC
 {
     RimSummaryPlot* summaryPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot*>();
 
-    RimSummaryCurve* newCurve = dynamic_cast<RimSummaryCurve*>(
-        sourceCurve->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+    RimSummaryCurve* newCurve =
+        dynamic_cast<RimSummaryCurve*>( sourceCurve->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
     CVF_ASSERT( newCurve );
 
     summaryPlot->addCurveAndUpdate( newCurve );

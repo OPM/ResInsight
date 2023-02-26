@@ -73,8 +73,7 @@ RimEclipseView* RicSelectOrCreateViewFeatureImpl::showViewSelection( RimEclipseR
         viewToManipulate = featureUi.selectedView();
     }
 
-    QString refFromProjectToView =
-        caf::PdmReferenceHelper::referenceFromRootToObject( RimProject::current(), viewToManipulate );
+    QString refFromProjectToView = caf::PdmReferenceHelper::referenceFromRootToObject( RimProject::current(), viewToManipulate );
     RiaApplication::instance()->setCacheDataObject( lastUsedViewKey, refFromProjectToView );
 
     return viewToManipulate;
@@ -93,14 +92,13 @@ void RicSelectOrCreateViewFeatureImpl::focusView( RimEclipseView* view )
 //==================================================================================================
 ///
 //==================================================================================================
-RimEclipseView* RicSelectOrCreateViewFeatureImpl::getDefaultSelectedView( RimEclipseResultCase* resultCase,
-                                                                          const QString&        lastUsedViewKey )
+RimEclipseView* RicSelectOrCreateViewFeatureImpl::getDefaultSelectedView( RimEclipseResultCase* resultCase, const QString& lastUsedViewKey )
 {
     RimEclipseView* defaultSelectedView = nullptr;
 
     QString         lastUsedViewRef = RiaApplication::instance()->cacheDataObject( lastUsedViewKey ).toString();
-    RimEclipseView* lastUsedView    = dynamic_cast<RimEclipseView*>(
-        caf::PdmReferenceHelper::objectFromReference( RimProject::current(), lastUsedViewRef ) );
+    RimEclipseView* lastUsedView =
+        dynamic_cast<RimEclipseView*>( caf::PdmReferenceHelper::objectFromReference( RimProject::current(), lastUsedViewRef ) );
     if ( lastUsedView )
     {
         RimEclipseResultCase* lastUsedViewResultCase = nullptr;

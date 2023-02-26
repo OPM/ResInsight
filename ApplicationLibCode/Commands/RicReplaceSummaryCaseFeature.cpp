@@ -55,8 +55,7 @@ void RicReplaceSummaryCaseFeature::updateRequredCalculatedCurves( RimSummaryCase
 
     for ( RimUserDefinedCalculation* summaryCalculation : calcColl->calculations() )
     {
-        bool needsUpdate =
-            RicReplaceSummaryCaseFeature::checkIfCalculationNeedsUpdate( summaryCalculation, sourceSummaryCase );
+        bool needsUpdate = RicReplaceSummaryCaseFeature::checkIfCalculationNeedsUpdate( summaryCalculation, sourceSummaryCase );
         if ( needsUpdate )
         {
             summaryCalculation->parseExpression();

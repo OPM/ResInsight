@@ -56,10 +56,7 @@ CAF_PDM_SOURCE_INIT( RimWellLogPlot, "WellLogPlot" );
 //--------------------------------------------------------------------------------------------------
 RimWellLogPlot::RimWellLogPlot()
 {
-    CAF_PDM_InitScriptableObject( "Well Log Plot",
-                                  ":/WellLogPlot16x16.png",
-                                  "",
-                                  "A Well Log Plot With a shared Depth Axis and Multiple Tracks" );
+    CAF_PDM_InitScriptableObject( "Well Log Plot", ":/WellLogPlot16x16.png", "", "A Well Log Plot With a shared Depth Axis and Multiple Tracks" );
 
     setDeletable( true );
 }

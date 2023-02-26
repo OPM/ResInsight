@@ -60,8 +60,7 @@ RimUserDefinedCalculation* RimUserDefinedCalculationCollection::addCalculation()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimUserDefinedCalculation*
-    RimUserDefinedCalculationCollection::addCalculationCopy( const RimUserDefinedCalculation* sourceCalculation )
+RimUserDefinedCalculation* RimUserDefinedCalculationCollection::addCalculationCopy( const RimUserDefinedCalculation* sourceCalculation )
 {
     RimUserDefinedCalculation* calcCopy = dynamic_cast<RimUserDefinedCalculation*>(
         sourceCalculation->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );

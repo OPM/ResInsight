@@ -97,8 +97,7 @@ void RimPolylinesFromFileAnnotation::readPolyLinesFile( QString* errorMessage )
 
         if ( lineSegs.size() != 3 )
         {
-            if ( errorMessage )
-                ( *errorMessage ) += "Unexpected number of words on line: " + QString::number( lineNumber ) + "\n";
+            if ( errorMessage ) ( *errorMessage ) += "Unexpected number of words on line: " + QString::number( lineNumber ) + "\n";
             continue;
         }
 
@@ -114,8 +113,7 @@ void RimPolylinesFromFileAnnotation::readPolyLinesFile( QString* errorMessage )
 
             if ( !isNumberParsingOk )
             {
-                if ( errorMessage )
-                    ( *errorMessage ) += "Could not read the point at line: " + QString::number( lineNumber ) + "\n";
+                if ( errorMessage ) ( *errorMessage ) += "Could not read the point at line: " + QString::number( lineNumber ) + "\n";
                 continue;
             }
 
@@ -200,9 +198,7 @@ void RimPolylinesFromFileAnnotation::defineUiOrdering( QString uiConfigName, caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolylinesFromFileAnnotation::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                       const QVariant&            oldValue,
-                                                       const QVariant&            newValue )
+void RimPolylinesFromFileAnnotation::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_polyLinesFileName )
     {

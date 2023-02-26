@@ -35,8 +35,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurvesData::populateTimeHistoryCurvesData( std::vector<RimGridTimeHistoryCurve*> curves,
-                                                          RimSummaryCurvesData*                 curvesData )
+void RimSummaryCurvesData::populateTimeHistoryCurvesData( std::vector<RimGridTimeHistoryCurve*> curves, RimSummaryCurvesData* curvesData )
 {
     CVF_ASSERT( curvesData );
 
@@ -56,8 +55,7 @@ void RimSummaryCurvesData::populateTimeHistoryCurvesData( std::vector<RimGridTim
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurvesData::populateAsciiDataCurvesData( std::vector<RimAsciiDataCurve*> curves,
-                                                        RimSummaryCurvesData*           curvesData )
+void RimSummaryCurvesData::populateAsciiDataCurvesData( std::vector<RimAsciiDataCurve*> curves, RimSummaryCurvesData* curvesData )
 {
     CVF_ASSERT( curvesData );
 
@@ -156,16 +154,10 @@ QString RimSummaryCurvesData::createTextForExport( const std::vector<RimSummaryC
     std::vector<RimSummaryCurvesData> exportData( 2 );
 
     // Summary grid data for export
-    RimSummaryCurvesData::prepareCaseCurvesForExport( resamplingPeriod,
-                                                      ResampleAlgorithm::DATA_DECIDES,
-                                                      summaryCurvesGridData,
-                                                      &exportData[0] );
+    RimSummaryCurvesData::prepareCaseCurvesForExport( resamplingPeriod, ResampleAlgorithm::DATA_DECIDES, summaryCurvesGridData, &exportData[0] );
 
     // Time history data for export
-    RimSummaryCurvesData::prepareCaseCurvesForExport( resamplingPeriod,
-                                                      ResampleAlgorithm::PERIOD_END,
-                                                      timeHistoryCurvesData,
-                                                      &exportData[1] );
+    RimSummaryCurvesData::prepareCaseCurvesForExport( resamplingPeriod, ResampleAlgorithm::PERIOD_END, timeHistoryCurvesData, &exportData[1] );
 
     // Export resampled summary and time history data
     RimSummaryCurvesData::appendToExportData( out, exportData, showTimeAsLongString );
@@ -269,8 +261,7 @@ void RimSummaryCurvesData::prepareCaseCurvesForExport( RiaDefines::DateTimePerio
             {
                 resampler.setCurveData( curveDataItem.values, caseTimeSteps );
 
-                if ( RiaSummaryTools::hasAccumulatedData( curveDataItem.address ) ||
-                     algorithm == ResampleAlgorithm::PERIOD_END )
+                if ( RiaSummaryTools::hasAccumulatedData( curveDataItem.address ) || algorithm == ResampleAlgorithm::PERIOD_END )
                 {
                     resampler.resampleAndComputePeriodEndValues( period );
                 }
@@ -295,9 +286,7 @@ void RimSummaryCurvesData::prepareCaseCurvesForExport( RiaDefines::DateTimePerio
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurvesData::appendToExportDataForCase( QString&                      out,
-                                                      const std::vector<time_t>&    timeSteps,
-                                                      const std::vector<CurveData>& curveData )
+void RimSummaryCurvesData::appendToExportDataForCase( QString& out, const std::vector<time_t>& timeSteps, const std::vector<CurveData>& curveData )
 {
     for ( size_t j = 0; j < timeSteps.size(); j++ ) // time steps & data points
     {
@@ -327,9 +316,7 @@ void RimSummaryCurvesData::appendToExportDataForCase( QString&                  
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurvesData::appendToExportData( QString&                                 out,
-                                               const std::vector<RimSummaryCurvesData>& curvesData,
-                                               bool                                     showTimeAsLongString )
+void RimSummaryCurvesData::appendToExportData( QString& out, const std::vector<RimSummaryCurvesData>& curvesData, bool showTimeAsLongString )
 {
     RimSummaryCurvesData data = RimSummaryCurvesData::concatCurvesData( curvesData );
 
@@ -347,8 +334,7 @@ void RimSummaryCurvesData::appendToExportData( QString&                         
             }
         }
 
-        auto allTimeSteps =
-            RiaTimeHistoryCurveResampler::timeStepsFromTimeRange( data.resamplePeriod, minTimeStep, maxTimeStep );
+        auto allTimeSteps = RiaTimeHistoryCurveResampler::timeStepsFromTimeRange( data.resamplePeriod, minTimeStep, maxTimeStep );
 
         out += "\n\n";
         out += "Date and time";
@@ -428,8 +414,8 @@ void RimSummaryCurvesData::appendToExportData( QString&                         
             for ( size_t i = 0; i < data.caseIds.size(); i++ ) // cases
             {
                 // Check is time step exists in curr case
-                size_t& currIndex   = currIndexes[i];
-                bool timeStepExists = currIndex < data.timeSteps[i].size() && timeStep == data.timeSteps[i][currIndex];
+                size_t& currIndex      = currIndexes[i];
+                bool    timeStepExists = currIndex < data.timeSteps[i].size() && timeStep == data.timeSteps[i][currIndex];
 
                 for ( auto& j : data.allCurveData[i] ) // vectors
                 {
@@ -484,12 +470,8 @@ RimSummaryCurvesData RimSummaryCurvesData::concatCurvesData( const std::vector<R
 
         CVF_ASSERT( curvesDataItem.resamplePeriod == period );
 
-        resultCurvesData.caseIds.insert( resultCurvesData.caseIds.end(),
-                                         curvesDataItem.caseIds.begin(),
-                                         curvesDataItem.caseIds.end() );
-        resultCurvesData.timeSteps.insert( resultCurvesData.timeSteps.end(),
-                                           curvesDataItem.timeSteps.begin(),
-                                           curvesDataItem.timeSteps.end() );
+        resultCurvesData.caseIds.insert( resultCurvesData.caseIds.end(), curvesDataItem.caseIds.begin(), curvesDataItem.caseIds.end() );
+        resultCurvesData.timeSteps.insert( resultCurvesData.timeSteps.end(), curvesDataItem.timeSteps.begin(), curvesDataItem.timeSteps.end() );
         resultCurvesData.allCurveData.insert( resultCurvesData.allCurveData.end(),
                                               curvesDataItem.allCurveData.begin(),
                                               curvesDataItem.allCurveData.end() );

@@ -121,9 +121,7 @@ void RimTotalWellAllocationPlot::zoomAll()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimTotalWellAllocationPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                   const QVariant&            oldValue,
-                                                   const QVariant&            newValue )
+void RimTotalWellAllocationPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimViewWindow::fieldChangedByUi( changedField, oldValue, newValue );
 

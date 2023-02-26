@@ -29,10 +29,7 @@ public:
     RigAllanDiagramData();
     ~RigAllanDiagramData() override;
 
-    const std::map<std::pair<int, int>, int>& formationCombinationToCategory()
-    {
-        return m_formationCombinationToCategory;
-    }
+    const std::map<std::pair<int, int>, int>& formationCombinationToCategory() { return m_formationCombinationToCategory; }
 
     std::pair<int, int> formationIndexCombinationFromCategory( int category )
     {

@@ -79,12 +79,10 @@ public:
     void updateCurveNames();
 
 private:
-    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                         QString                    uiConfigName,
-                                                         caf::PdmUiEditorAttribute* attribute ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     void syncPreviewCurvesFromUiSelection();
     void updatePreviewCurvesFromCurveDefinitions( const std::set<RiaSummaryCurveDefinition>& allCurveDefsToDisplay,
@@ -95,9 +93,7 @@ private:
     void        populateCurveCreator( const RimSummaryPlot& sourceSummaryPlot );
     void        updateTargetPlot();
     static void copyCurveAndAddToPlot( const RimSummaryCurve* curve, RimSummaryPlot* plot, bool forceVisible = false );
-    static void copyEnsembleCurveAndAddToCurveSet( const RimSummaryCurve* curve,
-                                                   RimEnsembleCurveSet*   curveSet,
-                                                   bool                   forceVisible = false );
+    static void copyEnsembleCurveAndAddToCurveSet( const RimSummaryCurve* curve, RimEnsembleCurveSet* curveSet, bool forceVisible = false );
     void        setDefaultCurveSelection( const std::vector<caf::PdmObject*>& defaultCases );
 
     void resetAllFields();

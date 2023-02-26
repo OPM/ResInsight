@@ -29,20 +29,20 @@ class RimWellMeasurementFilter
 {
 public:
     static std::vector<RimWellMeasurement*> filterMeasurements( const std::vector<RimWellMeasurement*>& measurements,
-                                                                const RimWellPathCollection& wellPathCollection,
-                                                                const RimWellPath&           rimWellPath,
-                                                                const std::vector<QString>&  measurementKinds );
+                                                                const RimWellPathCollection&            wellPathCollection,
+                                                                const RimWellPath&                      rimWellPath,
+                                                                const std::vector<QString>&             measurementKinds );
 
     static std::vector<RimWellMeasurement*> filterMeasurements( const std::vector<RimWellMeasurement*>& measurements,
-                                                                const RimWellPathCollection& wellPathCollection,
-                                                                const RimWellPath&           rimWellPath,
-                                                                const std::vector<QString>&  measurementKinds,
-                                                                double                       lowerBound,
-                                                                double                       upperBound,
-                                                                const std::vector<int>&      qualityFilter );
+                                                                const RimWellPathCollection&            wellPathCollection,
+                                                                const RimWellPath&                      rimWellPath,
+                                                                const std::vector<QString>&             measurementKinds,
+                                                                double                                  lowerBound,
+                                                                double                                  upperBound,
+                                                                const std::vector<int>&                 qualityFilter );
 
     static std::vector<RimWellMeasurement*> filterMeasurements( const std::vector<RimWellMeasurement*>& measurements,
-                                                                const std::vector<QString>& measurementKinds );
+                                                                const std::vector<QString>&             measurementKinds );
 
 private:
     RimWellMeasurementFilter();

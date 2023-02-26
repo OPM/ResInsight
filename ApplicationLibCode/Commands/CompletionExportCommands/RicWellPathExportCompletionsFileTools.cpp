@@ -36,9 +36,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::shared_ptr<QFile> RicWellPathExportCompletionsFileTools::openFile( const QString& folderName,
-                                                                        const QString& fileName,
-                                                                        const QString& suffix )
+std::shared_ptr<QFile> RicWellPathExportCompletionsFileTools::openFile( const QString& folderName, const QString& fileName, const QString& suffix )
 {
     QString validFileName = caf::Utils::makeValidFileBasename( fileName );
 

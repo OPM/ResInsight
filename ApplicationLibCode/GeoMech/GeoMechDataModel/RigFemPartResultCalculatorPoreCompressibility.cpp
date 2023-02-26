@@ -52,19 +52,16 @@ RigFemPartResultCalculatorPoreCompressibility::~RigFemPartResultCalculatorPoreCo
 //--------------------------------------------------------------------------------------------------
 bool RigFemPartResultCalculatorPoreCompressibility::isMatching( const RigFemResultAddress& resVarAddr ) const
 {
-    return ( resVarAddr.fieldName == "COMPRESSIBILITY" &&
-             ( resVarAddr.componentName == "PORE" || resVarAddr.componentName == "VERTICAL" ||
-               resVarAddr.componentName == "VERTICAL-RATIO" ) );
+    return ( resVarAddr.fieldName == "COMPRESSIBILITY" && ( resVarAddr.componentName == "PORE" || resVarAddr.componentName == "VERTICAL" ||
+                                                            resVarAddr.componentName == "VERTICAL-RATIO" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultCalculatorPoreCompressibility::calculate( int partIndex,
-                                                                                    const RigFemResultAddress& resAddr )
+RigFemScalarResultFrames* RigFemPartResultCalculatorPoreCompressibility::calculate( int partIndex, const RigFemResultAddress& resAddr )
 {
-    caf::ProgressInfo stepCountProgress( static_cast<size_t>( m_resultCollection->timeStepCount() ) * 7,
-                                         "Calculating Pore Compressibility" );
+    caf::ProgressInfo stepCountProgress( static_cast<size_t>( m_resultCollection->timeStepCount() ) * 7, "Calculating Pore Compressibility" );
 
     auto loadFrameLambda = [&]( RigFemResultAddress addr, const QString& errMsg = "" ) -> RigFemScalarResultFrames* {
         auto task   = stepCountProgress.task( QString( "Loading %1: %2" )
@@ -86,46 +83,36 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorPoreCompressibility::calcula
     RigFemScalarResultFrames* srcEVDataFrames = loadFrameLambda( RigFemResultAddress( resAddr.resultPosType, "NE", "EV" ) );
 
     // Vertical Strain
-    RigFemScalarResultFrames* verticalStrainDataFrames =
-        loadFrameLambda( RigFemResultAddress( resAddr.resultPosType, "NE", "E33" ) );
+    RigFemScalarResultFrames* verticalStrainDataFrames = loadFrameLambda( RigFemResultAddress( resAddr.resultPosType, "NE", "E33" ) );
 
     // Biot porelastic coefficient (alpha)
     RigFemScalarResultFrames* biotCoefficient = nullptr;
     if ( !m_resultCollection->biotResultAddress().isEmpty() )
     {
-        biotCoefficient = loadFrameLambda(
-            RigFemResultAddress( RIG_ELEMENT, m_resultCollection->biotResultAddress().toStdString(), "" ) );
+        biotCoefficient = loadFrameLambda( RigFemResultAddress( RIG_ELEMENT, m_resultCollection->biotResultAddress().toStdString(), "" ) );
     }
 
     QString youngsErrMsg = QString( "Failed to compute %1\n" ).arg( QString::fromStdString( resAddr.componentName ) );
     youngsErrMsg += "Missing Young's Modulus element data (MODULUS)";
 
-    RigFemScalarResultFrames* youngsModuliFrames =
-        loadFrameLambda( RigFemResultAddress( RIG_ELEMENT, "MODULUS", "" ), youngsErrMsg );
+    RigFemScalarResultFrames* youngsModuliFrames = loadFrameLambda( RigFemResultAddress( RIG_ELEMENT, "MODULUS", "" ), youngsErrMsg );
     if ( !youngsModuliFrames ) return nullptr;
 
     QString poissonError = QString( "Failed to compute %1\n" ).arg( QString::fromStdString( resAddr.componentName ) );
     poissonError += "Missing Poisson Ratio element data (RATIO)";
 
-    RigFemScalarResultFrames* poissonRatioFrames =
-        loadFrameLambda( RigFemResultAddress( RIG_ELEMENT, "RATIO", "" ), poissonError );
+    RigFemScalarResultFrames* poissonRatioFrames = loadFrameLambda( RigFemResultAddress( RIG_ELEMENT, "RATIO", "" ), poissonError );
     if ( !poissonRatioFrames ) return nullptr;
 
-    RigFemScalarResultFrames* voidRatioFrames =
-        loadFrameLambda( RigFemResultAddress( resAddr.resultPosType, "VOIDR", "" ) );
+    RigFemScalarResultFrames* voidRatioFrames = loadFrameLambda( RigFemResultAddress( resAddr.resultPosType, "VOIDR", "" ) );
 
     RigFemScalarResultFrames* poreCompressibilityFrames =
-        m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resAddr.resultPosType, resAddr.fieldName, "PORE" ) );
+        m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( resAddr.resultPosType, resAddr.fieldName, "PORE" ) );
 
     RigFemScalarResultFrames* verticalCompressibilityFrames =
-        m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resAddr.resultPosType, resAddr.fieldName, "VERTICAL" ) );
+        m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( resAddr.resultPosType, resAddr.fieldName, "VERTICAL" ) );
     RigFemScalarResultFrames* verticalCompressibilityRatioFrames =
-        m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resAddr.resultPosType,
-                                                                     resAddr.fieldName,
-                                                                     "VERTICAL-RATIO" ) );
+        m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( resAddr.resultPosType, resAddr.fieldName, "VERTICAL-RATIO" ) );
 
     const RigFemPart* femPart = m_resultCollection->parts()->part( partIndex );
     float             inf     = std::numeric_limits<float>::infinity();
@@ -141,11 +128,10 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorPoreCompressibility::calcula
         const int frameCount = srcEVDataFrames->frameCount( stepIdx );
         for ( int fIdx = 0; fIdx < frameCount; fIdx++ )
         {
-            const std::vector<float>& evData             = srcEVDataFrames->frameData( stepIdx, fIdx );
-            const std::vector<float>& referenceEvData    = srcEVDataFrames->frameData( refStepIdx, refFrameIdx );
-            const std::vector<float>& verticalStrainData = verticalStrainDataFrames->frameData( stepIdx, fIdx );
-            const std::vector<float>& referenceVerticalStrainData =
-                verticalStrainDataFrames->frameData( refStepIdx, refFrameIdx );
+            const std::vector<float>& evData                      = srcEVDataFrames->frameData( stepIdx, fIdx );
+            const std::vector<float>& referenceEvData             = srcEVDataFrames->frameData( refStepIdx, refFrameIdx );
+            const std::vector<float>& verticalStrainData          = verticalStrainDataFrames->frameData( stepIdx, fIdx );
+            const std::vector<float>& referenceVerticalStrainData = verticalStrainDataFrames->frameData( refStepIdx, refFrameIdx );
 
             const std::vector<float>& youngsModuliData      = youngsModuliFrames->frameData( stepIdx, fIdx );
             const std::vector<float>& poissonRatioData      = poissonRatioFrames->frameData( stepIdx, fIdx );
@@ -153,11 +139,9 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorPoreCompressibility::calcula
             const std::vector<float>& referencePorFrameData = srcPORDataFrames->frameData( refStepIdx, refFrameIdx );
             const std::vector<float>& porFrameData          = srcPORDataFrames->frameData( stepIdx, fIdx );
 
-            std::vector<float>& poreCompressibilityFrameData = poreCompressibilityFrames->frameData( stepIdx, fIdx );
-            std::vector<float>& verticalCompressibilityFrameData =
-                verticalCompressibilityFrames->frameData( stepIdx, fIdx );
-            std::vector<float>& verticalCompressibilityRatioFrameData =
-                verticalCompressibilityRatioFrames->frameData( stepIdx, fIdx );
+            std::vector<float>& poreCompressibilityFrameData          = poreCompressibilityFrames->frameData( stepIdx, fIdx );
+            std::vector<float>& verticalCompressibilityFrameData      = verticalCompressibilityFrames->frameData( stepIdx, fIdx );
+            std::vector<float>& verticalCompressibilityRatioFrameData = verticalCompressibilityRatioFrames->frameData( stepIdx, fIdx );
 
             size_t valCount = evData.size();
             poreCompressibilityFrameData.resize( valCount );
@@ -216,8 +200,8 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorPoreCompressibility::calcula
 
                                 // Calculate bulk modulus for solids (grains).
                                 // Incoming unit for Young's Modulus is GPa: convert to Pa.
-                                double poissonRatio = poissonRatioData[elmIdx];
-                                double youngsModuli = RiaEclipseUnitTools::gigaPascalToPascal( youngsModuliData[elmIdx] );
+                                double poissonRatio     = poissonRatioData[elmIdx];
+                                double youngsModuli     = RiaEclipseUnitTools::gigaPascalToPascal( youngsModuliData[elmIdx] );
                                 double bulkModulusFrame = youngsModuli / ( 3.0 * ( 1.0 - 2.0 * poissonRatio ) );
                                 double bulkModulus      = bulkModulusFrame / ( 1.0 - biotCoefficient );
 
@@ -229,8 +213,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorPoreCompressibility::calcula
                                 // and convert unit from Bar to Pascal.
                                 double referencePorePressure = referencePorFrameData[nodeIdx];
                                 double framePorePressure     = porFrameData[nodeIdx];
-                                double deltaPorePressure =
-                                    RiaEclipseUnitTools::barToPascal( framePorePressure - referencePorePressure );
+                                double deltaPorePressure = RiaEclipseUnitTools::barToPascal( framePorePressure - referencePorePressure );
 
                                 // Calculate pore compressibility
                                 double poreCompressibility = inf;
@@ -253,16 +236,14 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorPoreCompressibility::calcula
 
                                 if ( biotCoefficient != 0.0 && deltaPorePressure != 0.0 )
                                 {
-                                    double deltaStrain = verticalStrainData[elmNodResIdx] -
-                                                         referenceVerticalStrainData[elmNodResIdx];
+                                    double deltaStrain = verticalStrainData[elmNodResIdx] - referenceVerticalStrainData[elmNodResIdx];
 
                                     // Calculate vertical compressibility (unit: 1/Pa)
                                     verticalCompressibility = -deltaStrain / ( biotCoefficient * deltaPorePressure );
 
                                     // Calculate vertical compressibility ratio
-                                    verticalCompressibilityRatio =
-                                        ( verticalCompressibility * youngsModuli * ( 1.0 - poissonRatio ) ) /
-                                        ( ( 1.0 + poissonRatio ) * ( 1.0 - 2.0 * poissonRatio ) );
+                                    verticalCompressibilityRatio = ( verticalCompressibility * youngsModuli * ( 1.0 - poissonRatio ) ) /
+                                                                   ( ( 1.0 + poissonRatio ) * ( 1.0 - 2.0 * poissonRatio ) );
                                 }
 
                                 // Convert from 1/Pa to 1/GPa

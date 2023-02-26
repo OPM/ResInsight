@@ -292,9 +292,7 @@ void RimUserDefinedCalculation::attachToWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimUserDefinedCalculation::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                  const QVariant&            oldValue,
-                                                  const QVariant&            newValue )
+void RimUserDefinedCalculation::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_helpButton )
     {
@@ -372,9 +370,7 @@ QString RimUserDefinedCalculation::buildCalculationName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimUserDefinedCalculation::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                       QString                    uiConfigName,
-                                                       caf::PdmUiEditorAttribute* attribute )
+void RimUserDefinedCalculation::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_expression )
     {

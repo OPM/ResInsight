@@ -42,11 +42,10 @@ public:
     RiuSummaryQtChartsPlot( RimSummaryPlot* plot, QWidget* parent );
     ~RiuSummaryQtChartsPlot() override;
 
-    void useDateBasedTimeAxis(
-        const QString&                   dateFormat,
-        const QString&                   timeFormat,
-        RiaDefines::DateFormatComponents dateComponents = RiaDefines::DateFormatComponents::DATE_FORMAT_UNSPECIFIED,
-        RiaDefines::TimeFormatComponents timeComponents = RiaDefines::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED ) override;
+    void useDateBasedTimeAxis( const QString&                   dateFormat,
+                               const QString&                   timeFormat,
+                               RiaDefines::DateFormatComponents dateComponents = RiaDefines::DateFormatComponents::DATE_FORMAT_UNSPECIFIED,
+                               RiaDefines::TimeFormatComponents timeComponents = RiaDefines::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED ) override;
 
     void useTimeBasedTimeAxis() override;
 

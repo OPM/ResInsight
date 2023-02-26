@@ -178,9 +178,9 @@ void RicGridStatisticsDialog::setHistogramData( RimGridView* view )
         {
             QVector<QwtIntervalSample> histSamples;
             QVector<QPointF>           aggrSamples;
-            double xStep     = ( histogramData.max - histogramData.min ) / histogramData.histogram.size();
-            double xCurr     = histogramData.min;
-            double aggrValue = 0.0;
+            double                     xStep     = ( histogramData.max - histogramData.min ) / histogramData.histogram.size();
+            double                     xCurr     = histogramData.min;
+            double                     aggrValue = 0.0;
             for ( size_t value : histogramData.histogram )
             {
                 double xNext = xCurr + xStep;
@@ -195,12 +195,8 @@ void RicGridStatisticsDialog::setHistogramData( RimGridView* view )
             // Axis
             double xAxisSize      = histogramData.max - histogramData.min;
             double xAxisExtension = xAxisSize * 0.02;
-            m_historgramPlot->setAxisScale( QwtAxis::XBottom,
-                                            histogramData.min - xAxisExtension,
-                                            histogramData.max + xAxisExtension );
-            m_aggregatedPlot->setAxisScale( QwtAxis::XBottom,
-                                            histogramData.min - xAxisExtension,
-                                            histogramData.max + xAxisExtension );
+            m_historgramPlot->setAxisScale( QwtAxis::XBottom, histogramData.min - xAxisExtension, histogramData.max + xAxisExtension );
+            m_aggregatedPlot->setAxisScale( QwtAxis::XBottom, histogramData.min - xAxisExtension, histogramData.max + xAxisExtension );
 
             // Set y axis label area width
             m_historgramPlot->axisScaleDraw( QwtAxis::YLeft )->setMinimumExtent( 60 );
@@ -232,8 +228,7 @@ void RicGridStatisticsDialog::createAndConnectToolbarActions()
         m_toolBar->addAction( RicSnapshotViewToClipboardFeature::icon(), RicSnapshotViewToClipboardFeature::text() );
     connect( scrShotToClipboardAction, SIGNAL( triggered() ), this, SLOT( slotScreenShotToClipboard() ) );
 
-    QAction* scrShotToFileAction =
-        m_toolBar->addAction( RicSnapshotViewToFileFeature::icon(), RicSnapshotViewToFileFeature::text() );
+    QAction* scrShotToFileAction = m_toolBar->addAction( RicSnapshotViewToFileFeature::icon(), RicSnapshotViewToFileFeature::text() );
     connect( scrShotToFileAction, SIGNAL( triggered() ), this, SLOT( slotScreenShotToFile() ) );
 }
 
@@ -245,8 +240,7 @@ void RicGridStatisticsDialog::deletePlotItems( QwtPlot* plot )
     QwtPlotItemList itemList = plot->itemList();
     for ( auto item : itemList )
     {
-        if ( dynamic_cast<QwtPlotMarker*>( item ) || dynamic_cast<QwtPlotCurve*>( item ) ||
-             dynamic_cast<QwtPlotHistogram*>( item ) )
+        if ( dynamic_cast<QwtPlotMarker*>( item ) || dynamic_cast<QwtPlotCurve*>( item ) || dynamic_cast<QwtPlotHistogram*>( item ) )
         {
             item->detach();
             delete item;

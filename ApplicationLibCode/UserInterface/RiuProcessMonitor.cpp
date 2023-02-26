@@ -92,9 +92,7 @@ void RiuProcessMonitor::startMonitorWorkProcess( caf::UiProcess* pProcess )
     m_monitoredProcess = pProcess;
     if ( !m_monitoredProcess ) return;
 
-    connect( m_monitoredProcess,
-             SIGNAL( signalStatusMsg( const QString&, int ) ),
-             SLOT( slotShowProcStatusMsg( const QString&, int ) ) );
+    connect( m_monitoredProcess, SIGNAL( signalStatusMsg( const QString&, int ) ), SLOT( slotShowProcStatusMsg( const QString&, int ) ) );
     connect( m_monitoredProcess, SIGNAL( readyReadStandardError() ), SLOT( slotProcReadyReadStdErr() ) );
     connect( m_monitoredProcess, SIGNAL( readyReadStandardOutput() ), SLOT( slotProcReadyReadStdOut() ) );
 

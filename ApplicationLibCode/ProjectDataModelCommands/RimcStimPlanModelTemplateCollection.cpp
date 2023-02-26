@@ -45,18 +45,8 @@ RimcStimPlanModelTemplateCollection_appendStimPlanModelTemplate::RimcStimPlanMod
     CAF_PDM_InitScriptableFieldNoDefault( &m_eclipseCase, "EclipseCase", "", "", "", "Eclipse Case" );
     CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "", "", "", "Time Step" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_faciesPropertiesFilePath,
-                                          "FaciesPropertiesFilePath",
-                                          "",
-                                          "",
-                                          "",
-                                          "Facies Properties File Path" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_elasticPropertiesFilePath,
-                                          "ElasticPropertiesFilePath",
-                                          "",
-                                          "",
-                                          "",
-                                          "Elastic Properties File Path" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_faciesPropertiesFilePath, "FaciesPropertiesFilePath", "", "", "", "Facies Properties File Path" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_elasticPropertiesFilePath, "ElasticPropertiesFilePath", "", "", "", "Elastic Properties File Path" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,11 +67,8 @@ caf::PdmObjectHandle* RimcStimPlanModelTemplateCollection_appendStimPlanModelTem
 
     stimPlanModelTemplateCollection->addStimPlanModelTemplate( appendStimPlanModelTemplate );
 
-    RicElasticPropertiesImportTools::importElasticPropertiesFromFile( m_elasticPropertiesFilePath,
-                                                                      appendStimPlanModelTemplate );
-    RicFaciesPropertiesImportTools::importFaciesPropertiesFromFile( m_faciesPropertiesFilePath,
-                                                                    appendStimPlanModelTemplate,
-                                                                    true );
+    RicElasticPropertiesImportTools::importElasticPropertiesFromFile( m_elasticPropertiesFilePath, appendStimPlanModelTemplate );
+    RicFaciesPropertiesImportTools::importFaciesPropertiesFromFile( m_faciesPropertiesFilePath, appendStimPlanModelTemplate, true );
     stimPlanModelTemplateCollection->updateAllRequiredEditors();
     return appendStimPlanModelTemplate;
 }

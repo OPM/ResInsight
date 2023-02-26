@@ -41,12 +41,8 @@ template <>
 void caf::AppEnum<RimDerivedEnsembleCaseCollection::FixedTimeStepMode>::setUp()
 {
     addItem( RimDerivedEnsembleCaseCollection::FixedTimeStepMode::FIXED_TIME_STEP_NONE, "FIXED_TIME_STEP_NONE", "None" );
-    addItem( RimDerivedEnsembleCaseCollection::FixedTimeStepMode::FIXED_TIME_STEP_CASE_1,
-             "FIXED_TIME_STEP_CASE_1",
-             "Ensemble 1" );
-    addItem( RimDerivedEnsembleCaseCollection::FixedTimeStepMode::FIXED_TIME_STEP_CASE_2,
-             "FIXED_TIME_STEP_CASE_2",
-             "Ensemble 2" );
+    addItem( RimDerivedEnsembleCaseCollection::FixedTimeStepMode::FIXED_TIME_STEP_CASE_1, "FIXED_TIME_STEP_CASE_1", "Ensemble 1" );
+    addItem( RimDerivedEnsembleCaseCollection::FixedTimeStepMode::FIXED_TIME_STEP_CASE_2, "FIXED_TIME_STEP_CASE_2", "Ensemble 2" );
     setDefault( RimDerivedEnsembleCaseCollection::FixedTimeStepMode::FIXED_TIME_STEP_NONE );
 }
 } // namespace caf
@@ -239,8 +235,7 @@ void RimDerivedEnsembleCaseCollection::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimDerivedEnsembleCaseCollection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RimDerivedEnsembleCaseCollection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -314,9 +309,7 @@ void RimDerivedEnsembleCaseCollection::defineUiOrdering( QString uiConfigName, c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDerivedEnsembleCaseCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                         const QVariant&            oldValue,
-                                                         const QVariant&            newValue )
+void RimDerivedEnsembleCaseCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     bool doUpdate      = false;
     bool doUpdateCases = false;
@@ -413,10 +406,9 @@ void RimDerivedEnsembleCaseCollection::deleteCasesNoInUse()
 {
     std::vector<RimDerivedSummaryCase*> inactiveCases;
     auto                                allCases = allDerivedCases( false );
-    std::copy_if( allCases.begin(),
-                  allCases.end(),
-                  std::back_inserter( inactiveCases ),
-                  []( RimDerivedSummaryCase* derCase ) { return !derCase->isInUse(); } );
+    std::copy_if( allCases.begin(), allCases.end(), std::back_inserter( inactiveCases ), []( RimDerivedSummaryCase* derCase ) {
+        return !derCase->isInUse();
+    } );
 
     for ( auto derCase : inactiveCases )
     {
@@ -431,9 +423,7 @@ void RimDerivedEnsembleCaseCollection::deleteCasesNoInUse()
 RimDerivedSummaryCase* RimDerivedEnsembleCaseCollection::firstCaseNotInUse()
 {
     auto allCases = allDerivedCases( false );
-    auto itr      = std::find_if( allCases.begin(), allCases.end(), []( RimDerivedSummaryCase* derCase ) {
-        return !derCase->isInUse();
-    } );
+    auto itr      = std::find_if( allCases.begin(), allCases.end(), []( RimDerivedSummaryCase* derCase ) { return !derCase->isInUse(); } );
     if ( itr != allCases.end() )
     {
         return *itr;
@@ -554,8 +544,7 @@ void RimDerivedEnsembleCaseCollection::updateDerivedEnsembleCases()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCase* RimDerivedEnsembleCaseCollection::findCaseByParametersHash( const std::vector<RimSummaryCase*>& cases,
-                                                                            size_t hash ) const
+RimSummaryCase* RimDerivedEnsembleCaseCollection::findCaseByParametersHash( const std::vector<RimSummaryCase*>& cases, size_t hash ) const
 {
     for ( auto sumCase : cases )
     {
@@ -569,7 +558,7 @@ RimSummaryCase* RimDerivedEnsembleCaseCollection::findCaseByParametersHash( cons
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCase* RimDerivedEnsembleCaseCollection::findCaseByRealizationNumber( const std::vector<RimSummaryCase*>& cases,
-                                                                               int realizationNumber ) const
+                                                                               int                                 realizationNumber ) const
 {
     for ( auto sumCase : cases )
     {

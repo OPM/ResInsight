@@ -103,8 +103,7 @@ bool RifEclipseUnifiedRestartFileAccess::openFile()
 
         if ( !m_ecl_file )
         {
-            m_ecl_file =
-                ecl_file_open( RiaStringEncodingTools::toNativeEncoded( m_filename ).data(), ECL_FILE_CLOSE_STREAM );
+            m_ecl_file = ecl_file_open( RiaStringEncodingTools::toNativeEncoded( m_filename ).data(), ECL_FILE_CLOSE_STREAM );
             if ( !m_ecl_file )
             {
                 RiaLogging::error( QString( "Failed to open file %1" ).arg( m_filename ) );
@@ -117,9 +116,7 @@ bool RifEclipseUnifiedRestartFileAccess::openFile()
                     QString   resultPath = fi.absolutePath();
                     if ( caf::Utils::isFolderWritable( resultPath ) )
                     {
-                        bool success =
-                            ecl_file_write_index( m_ecl_file,
-                                                  RiaStringEncodingTools::toNativeEncoded( indexFileName ).data() );
+                        bool success = ecl_file_write_index( m_ecl_file, RiaStringEncodingTools::toNativeEncoded( indexFileName ).data() );
 
                         if ( success )
                         {
@@ -212,8 +209,7 @@ size_t RifEclipseUnifiedRestartFileAccess::timeStepCount()
 //--------------------------------------------------------------------------------------------------
 /// Get the time steps
 //--------------------------------------------------------------------------------------------------
-void RifEclipseUnifiedRestartFileAccess::timeSteps( std::vector<QDateTime>* timeSteps,
-                                                    std::vector<double>*    daysSinceSimulationStart )
+void RifEclipseUnifiedRestartFileAccess::timeSteps( std::vector<QDateTime>* timeSteps, std::vector<double>* daysSinceSimulationStart )
 {
     if ( m_timeSteps.size() == 0 )
     {
@@ -234,19 +230,14 @@ void RifEclipseUnifiedRestartFileAccess::resultNames( QStringList* resultNames, 
         std::vector<ecl_file_type*> filesUsedToFindAvailableKeywords;
         filesUsedToFindAvailableKeywords.push_back( m_ecl_file );
 
-        RifEclipseOutputFileTools::findKeywordsAndItemCount( filesUsedToFindAvailableKeywords,
-                                                             resultNames,
-                                                             resultDataItemCounts );
+        RifEclipseOutputFileTools::findKeywordsAndItemCount( filesUsedToFindAvailableKeywords, resultNames, resultDataItemCounts );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 /// Get result values for given time step
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseUnifiedRestartFileAccess::results( const QString&       resultName,
-                                                  size_t               timeStep,
-                                                  size_t               gridCount,
-                                                  std::vector<double>* values )
+bool RifEclipseUnifiedRestartFileAccess::results( const QString& resultName, size_t timeStep, size_t gridCount, std::vector<double>* values )
 {
     if ( !openFile() )
     {

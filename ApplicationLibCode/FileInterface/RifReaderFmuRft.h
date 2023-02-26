@@ -72,10 +72,9 @@ public:
     std::vector<QString> labels( const RifEclipseRftAddress& rftAddress );
 
     std::set<RifEclipseRftAddress> eclipseRftAddresses() override;
-    void values( const RifEclipseRftAddress& rftAddress, std::vector<double>* values ) override;
+    void                           values( const RifEclipseRftAddress& rftAddress, std::vector<double>* values ) override;
 
-    std::set<QDateTime>
-                        availableTimeSteps( const QString&                                               wellName,
+    std::set<QDateTime> availableTimeSteps( const QString&                                               wellName,
                                             const std::set<RifEclipseRftAddress::RftWellLogChannelType>& relevantChannels ) override;
     std::set<QDateTime> availableTimeSteps( const QString& wellName ) override;
     std::set<QDateTime> availableTimeSteps( const QString&                                     wellName,
@@ -92,8 +91,8 @@ private:
     typedef std::map<QString, WellObservationSet>        WellObservationMap;
 
     WellObservationMap loadWellDates( QDir& dir, QString* errorMsg );
-    static bool readTxtFile( const QString& txtFileName, QString* errorMsg, WellObservationSet* wellObservationSet );
-    static bool readObsFile( const QString& obsFileName, QString* errorMsg, WellObservationSet* wellObservationSet );
+    static bool        readTxtFile( const QString& txtFileName, QString* errorMsg, WellObservationSet* wellObservationSet );
+    static bool        readObsFile( const QString& obsFileName, QString* errorMsg, WellObservationSet* wellObservationSet );
 
 private:
     QString            m_filePath;

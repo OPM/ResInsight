@@ -62,8 +62,7 @@ void RicExportCompletionsWellSegmentsFeature::onActionTriggered( bool isChecked 
     RimWellPath* wellPath = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPath>();
     CVF_ASSERT( wellPath );
 
-    RimFishbonesCollection* fishbonesCollection =
-        caf::SelectionManager::instance()->selectedItemAncestorOfType<RimFishbonesCollection>();
+    RimFishbonesCollection* fishbonesCollection = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimFishbonesCollection>();
     RimWellPathFractureCollection* fractureCollection =
         caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPathFractureCollection>();
     RimPerforationCollection* perforationCollection =
@@ -73,8 +72,7 @@ void RicExportCompletionsWellSegmentsFeature::onActionTriggered( bool isChecked 
 
     RiaApplication* app = RiaApplication::instance();
 
-    QString defaultDir =
-        RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( "COMPLETIONS" );
+    QString defaultDir = RiaApplication::instance()->lastUsedDialogDirectoryWithFallbackToProjectFolder( "COMPLETIONS" );
 
     RicCaseAndFileExportSettingsUi exportSettings;
     std::vector<RimCase*>          cases;
@@ -91,10 +89,7 @@ void RicExportCompletionsWellSegmentsFeature::onActionTriggered( bool isChecked 
 
     exportSettings.folder = defaultDir;
 
-    caf::PdmUiPropertyViewDialog propertyDialog( Riu3DMainWindowTools::mainWindowWidget(),
-                                                 &exportSettings,
-                                                 "Export Well Segments",
-                                                 "" );
+    caf::PdmUiPropertyViewDialog propertyDialog( Riu3DMainWindowTools::mainWindowWidget(), &exportSettings, "Export Well Segments", "" );
     RicExportFeatureImpl::configureForExport( propertyDialog.dialogButtonBox() );
 
     if ( propertyDialog.exec() == QDialog::Accepted )
@@ -110,16 +105,13 @@ void RicExportCompletionsWellSegmentsFeature::onActionTriggered( bool isChecked 
             }
         }
 
-        RiaApplication::instance()->setLastUsedDialogDirectory( "COMPLETIONS",
-                                                                QFileInfo( exportSettings.folder ).absolutePath() );
+        RiaApplication::instance()->setLastUsedDialogDirectory( "COMPLETIONS", QFileInfo( exportSettings.folder ).absolutePath() );
         RicExportCompletionDataSettingsUi completionExportSettings;
         completionExportSettings.caseToApply.setValue( exportSettings.caseToApply );
         completionExportSettings.folder.setValue( exportSettings.folder );
 
-        completionExportSettings.includeFishbones = fishbonesCollection != nullptr &&
-                                                    !fishbonesCollection->activeFishbonesSubs().empty();
-        completionExportSettings.includeFractures = fractureCollection != nullptr &&
-                                                    !fractureCollection->activeFractures().empty();
+        completionExportSettings.includeFishbones = fishbonesCollection != nullptr && !fishbonesCollection->activeFishbonesSubs().empty();
+        completionExportSettings.includeFractures = fractureCollection != nullptr && !fractureCollection->activeFractures().empty();
         completionExportSettings.includePerforations = perforationCollection != nullptr &&
                                                        !perforationCollection->activePerforations().empty();
 

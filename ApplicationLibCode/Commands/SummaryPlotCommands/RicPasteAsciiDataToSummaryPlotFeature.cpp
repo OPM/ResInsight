@@ -51,8 +51,7 @@ CAF_CMD_SOURCE_INIT( RicPasteAsciiDataToSummaryPlotFeature, "RicPasteAsciiDataTo
 //--------------------------------------------------------------------------------------------------
 bool RicPasteAsciiDataToSummaryPlotFeature::isCommandEnabled()
 {
-    caf::PdmObjectHandle* destinationObject =
-        dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
+    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
 
     if ( !destinationObject ) return false;
 
@@ -71,9 +70,8 @@ bool RicPasteAsciiDataToSummaryPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicPasteAsciiDataToSummaryPlotFeature::onActionTriggered( bool isChecked )
 {
-    caf::PdmObjectHandle* destinationObject =
-        dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
-    RimSummaryPlot* summaryPlot = nullptr;
+    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
+    RimSummaryPlot*       summaryPlot       = nullptr;
     destinationObject->firstAncestorOrThisOfType( summaryPlot );
 
     QString text = getPastedData();
@@ -153,9 +151,8 @@ bool RicPasteAsciiDataToSummaryPlotFeature::hasPastedText()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimAsciiDataCurve*>
-    RicPasteAsciiDataToSummaryPlotFeature::parseCurves( QString&                                       data,
-                                                        const RicPasteAsciiDataToSummaryPlotFeatureUi& settings )
+std::vector<RimAsciiDataCurve*> RicPasteAsciiDataToSummaryPlotFeature::parseCurves( QString&                                       data,
+                                                                                    const RicPasteAsciiDataToSummaryPlotFeatureUi& settings )
 {
     std::vector<RimAsciiDataCurve*> curves;
     const AsciiDataParseOptions&    parseOptions = settings.parseOptions();
@@ -229,8 +226,7 @@ std::vector<RimAsciiDataCurve*>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicPasteAsciiDataToSummaryPlotFeature::CurveType
-    RicPasteAsciiDataToSummaryPlotFeature::guessCurveType( const QString& curveName )
+RicPasteAsciiDataToSummaryPlotFeature::CurveType RicPasteAsciiDataToSummaryPlotFeature::guessCurveType( const QString& curveName )
 {
     if ( curveName.contains( "SW" ) || curveName.contains( "water", Qt::CaseInsensitive ) )
     {

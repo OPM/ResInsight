@@ -56,8 +56,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimStimPlanModelElasticPropertyCalculator::RimStimPlanModelElasticPropertyCalculator(
-    RimStimPlanModelCalculator* stimPlanModelCalculator )
+RimStimPlanModelElasticPropertyCalculator::RimStimPlanModelElasticPropertyCalculator( RimStimPlanModelCalculator* stimPlanModelCalculator )
     : m_stimPlanModelCalculator( stimPlanModelCalculator )
 {
 }
@@ -139,8 +138,7 @@ bool RimStimPlanModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
         return false;
     }
 
-    CurveSamplingPointData curveData =
-        RimWellLogTrack::curveSamplingPointData( &eclExtractor, formationResultAccessor.p() );
+    CurveSamplingPointData curveData = RimWellLogTrack::curveSamplingPointData( &eclExtractor, formationResultAccessor.p() );
 
     std::vector<double> formationValues = curveData.data;
 
@@ -174,16 +172,14 @@ bool RimStimPlanModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
         return false;
     }
 
-    std::vector<double> faciesValues =
-        m_stimPlanModelCalculator->extractValues( RiaDefines::CurveProperty::FACIES, timeStep );
+    std::vector<double> faciesValues = m_stimPlanModelCalculator->extractValues( RiaDefines::CurveProperty::FACIES, timeStep );
     if ( faciesValues.empty() )
     {
         RiaLogging::error( QString( "No facies values found when extracting elastic properties." ) );
         return false;
     }
 
-    std::vector<double> poroValues =
-        m_stimPlanModelCalculator->extractValues( RiaDefines::CurveProperty::POROSITY_UNSCALED, timeStep );
+    std::vector<double> poroValues = m_stimPlanModelCalculator->extractValues( RiaDefines::CurveProperty::POROSITY_UNSCALED, timeStep );
     if ( poroValues.empty() )
     {
         RiaLogging::error( QString( "No porosity values found when extracting elastic properties." ) );
@@ -194,28 +190,17 @@ bool RimStimPlanModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
     if ( overburdenHeight > 0.0 )
     {
         QString overburdenFormation = stimPlanModel->overburdenFormation();
-        addOverburden( formationNamesVector,
-                       formationValues,
-                       tvDepthValues,
-                       measuredDepthValues,
-                       overburdenHeight,
-                       overburdenFormation );
+        addOverburden( formationNamesVector, formationValues, tvDepthValues, measuredDepthValues, overburdenHeight, overburdenFormation );
     }
 
     double underburdenHeight = stimPlanModel->underburdenHeight();
     if ( underburdenHeight > 0.0 )
     {
         QString underburdenFormation = stimPlanModel->underburdenFormation();
-        addUnderburden( formationNamesVector,
-                        formationValues,
-                        tvDepthValues,
-                        measuredDepthValues,
-                        underburdenHeight,
-                        underburdenFormation );
+        addUnderburden( formationNamesVector, formationValues, tvDepthValues, measuredDepthValues, underburdenHeight, underburdenFormation );
     }
 
-    std::vector<double> netToGrossValues =
-        m_stimPlanModelCalculator->extractValues( RiaDefines::CurveProperty::NET_TO_GROSS, timeStep );
+    std::vector<double> netToGrossValues = m_stimPlanModelCalculator->extractValues( RiaDefines::CurveProperty::NET_TO_GROSS, timeStep );
 
     CAF_ASSERT( tvDepthValues.size() == faciesValues.size() );
     CAF_ASSERT( tvDepthValues.size() == poroValues.size() );
@@ -240,9 +225,8 @@ bool RimStimPlanModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
         int     idx        = static_cast<int>( formationValues[i] );
         if ( std::isinf( formationValues[i] ) || idx < 0 || idx >= static_cast<int>( formationNamesVector.size() ) )
         {
-            RiaLogging::error( QString( "Unknown formation found in elastic properties. Value: %1, tvd: %2" )
-                                   .arg( formationValues[i] )
-                                   .arg( tvDepthValues[i] ) );
+            RiaLogging::error(
+                QString( "Unknown formation found in elastic properties. Value: %1, tvd: %2" ).arg( formationValues[i] ).arg( tvDepthValues[i] ) );
             values.clear();
             return false;
         }
@@ -256,22 +240,21 @@ bool RimStimPlanModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
             if ( RimElasticProperties::isScalableProperty( curveProperty ) )
             {
                 const RigElasticProperties& rigElasticProperties = elasticProperties->propertiesForFacies( faciesKey );
-                double scale = elasticProperties->getPropertyScaling( formationName, faciesName, curveProperty );
-                auto [val, isExtrapolated] = rigElasticProperties.getValueForPorosity( curveProperty, porosity, scale );
+                double                      scale = elasticProperties->getPropertyScaling( formationName, faciesName, curveProperty );
+                auto [val, isExtrapolated]        = rigElasticProperties.getValueForPorosity( curveProperty, porosity, scale );
                 if ( isExtrapolated )
                 {
                     QString propertyName = caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText();
-                    RiaLogging::error(
-                        QString( "Elastic property '%1' outside porosity range [%2, %3] for formation='%4', "
-                                 "facies='%5', depth=%6, porosity=%7. Extrapolated value: %8" )
-                            .arg( propertyName )
-                            .arg( rigElasticProperties.porosityMin() )
-                            .arg( rigElasticProperties.porosityMax() )
-                            .arg( formationName )
-                            .arg( faciesName )
-                            .arg( tvDepthValues[i] )
-                            .arg( porosity )
-                            .arg( val ) );
+                    RiaLogging::error( QString( "Elastic property '%1' outside porosity range [%2, %3] for formation='%4', "
+                                                "facies='%5', depth=%6, porosity=%7. Extrapolated value: %8" )
+                                           .arg( propertyName )
+                                           .arg( rigElasticProperties.porosityMin() )
+                                           .arg( rigElasticProperties.porosityMax() )
+                                           .arg( formationName )
+                                           .arg( faciesName )
+                                           .arg( tvDepthValues[i] )
+                                           .arg( porosity )
+                                           .arg( val ) );
                 }
 
                 //
@@ -280,28 +263,24 @@ bool RimStimPlanModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
                     double netToGross = netToGrossValues[i];
                     if ( netToGross < netToGrossCutoff )
                     {
-                        FaciesKey ntgFaciesKey = std::make_tuple( "", formationName, netToGrossFaciesName );
-                        const RigElasticProperties& rigNtgElasticProperties =
-                            elasticProperties->propertiesForFacies( ntgFaciesKey );
-                        double ntgScale =
-                            elasticProperties->getPropertyScaling( formationName, netToGrossFaciesName, curveProperty );
-                        auto [ntgValue, isExtrapolated] =
-                            rigNtgElasticProperties.getValueForPorosity( curveProperty, porosity, ntgScale );
-                        val = val * netToGross + ( 1.0 - netToGross ) * ntgValue;
+                        FaciesKey                   ntgFaciesKey            = std::make_tuple( "", formationName, netToGrossFaciesName );
+                        const RigElasticProperties& rigNtgElasticProperties = elasticProperties->propertiesForFacies( ntgFaciesKey );
+                        double ntgScale = elasticProperties->getPropertyScaling( formationName, netToGrossFaciesName, curveProperty );
+                        auto [ntgValue, isExtrapolated] = rigNtgElasticProperties.getValueForPorosity( curveProperty, porosity, ntgScale );
+                        val                             = val * netToGross + ( 1.0 - netToGross ) * ntgValue;
                         if ( std::isinf( val ) || isExtrapolated )
                         {
                             QString propertyName = caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText();
-                            RiaLogging::error(
-                                QString( "Elastic property '%1' outside porosity range [%2, %3] for formation='%4', "
-                                         "facies='%5', depth=%6, porosity=%7 (NTG). Extrapolated value: %8" )
-                                    .arg( propertyName )
-                                    .arg( rigNtgElasticProperties.porosityMin() )
-                                    .arg( rigNtgElasticProperties.porosityMax() )
-                                    .arg( formationName )
-                                    .arg( netToGrossFaciesName )
-                                    .arg( tvDepthValues[i] )
-                                    .arg( porosity )
-                                    .arg( val ) );
+                            RiaLogging::error( QString( "Elastic property '%1' outside porosity range [%2, %3] for formation='%4', "
+                                                        "facies='%5', depth=%6, porosity=%7 (NTG). Extrapolated value: %8" )
+                                                   .arg( propertyName )
+                                                   .arg( rigNtgElasticProperties.porosityMin() )
+                                                   .arg( rigNtgElasticProperties.porosityMax() )
+                                                   .arg( formationName )
+                                                   .arg( netToGrossFaciesName )
+                                                   .arg( tvDepthValues[i] )
+                                                   .arg( porosity )
+                                                   .arg( val ) );
                         }
                     }
                 }
@@ -316,10 +295,8 @@ bool RimStimPlanModelElasticPropertyCalculator::calculate( RiaDefines::CurveProp
         }
         else
         {
-            RiaLogging::error( QString( "Missing elastic properties. Field='%1', formation='%2', facies='%3'" )
-                                   .arg( fieldName )
-                                   .arg( formationName )
-                                   .arg( faciesName ) );
+            RiaLogging::error(
+                QString( "Missing elastic properties. Field='%1', formation='%2', facies='%3'" ).arg( fieldName ).arg( formationName ).arg( faciesName ) );
             values.clear();
             return false;
         }

@@ -93,8 +93,8 @@ void RifOpmGridTools::importCoordinatesForRadialGrid( const std::string& gridFil
     }
     catch ( ... )
     {
-        RiaLogging::warning( QString( "Failed to open grid case for import of radial coordinates : %1" )
-                                 .arg( QString::fromStdString( gridFilePath ) ) );
+        RiaLogging::warning(
+            QString( "Failed to open grid case for import of radial coordinates : %1" ).arg( QString::fromStdString( gridFilePath ) ) );
     }
 }
 
@@ -129,10 +129,7 @@ void RifOpmGridTools::importCoordinatesForRadialGrid( const std::string& gridFil
 // 3. Find the closest point on this pillar, and use this point as the adjusted coordinate for the node
 //
 //--------------------------------------------------------------------------------------------------
-void RifOpmGridTools::transferCoordinates( Opm::EclIO::EGrid& opmMainGrid,
-                                           Opm::EclIO::EGrid& opmGrid,
-                                           RigMainGrid*       riMainGrid,
-                                           RigGridBase*       riGrid )
+void RifOpmGridTools::transferCoordinates( Opm::EclIO::EGrid& opmMainGrid, Opm::EclIO::EGrid& opmGrid, RigMainGrid* riMainGrid, RigGridBase* riGrid )
 {
     size_t cellCount = opmGrid.totalNumberOfCells();
     if ( cellCount != riGrid->cellCount() ) return;
@@ -141,8 +138,7 @@ void RifOpmGridTools::transferCoordinates( Opm::EclIO::EGrid& opmMainGrid,
     // Prefix OPM structures with _opm_and ResInsight structures with _ri_
 
     // Compute the center of the LGR radial grid cells for each K layer
-    std::map<int, std::pair<double, double>> radialGridCenterTopLayerOpm =
-        computeXyCenterForTopOfCells( opmMainGrid, opmGrid, riGrid );
+    std::map<int, std::pair<double, double>> radialGridCenterTopLayerOpm = computeXyCenterForTopOfCells( opmMainGrid, opmGrid, riGrid );
 
     std::array<double, 8> opmX{};
     std::array<double, 8> opmY{};
@@ -258,9 +254,8 @@ void RifOpmGridTools::transferCoordinates( Opm::EclIO::EGrid& opmMainGrid,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<int, std::pair<double, double>> RifOpmGridTools::computeXyCenterForTopOfCells( Opm::EclIO::EGrid& opmMainGrid,
-                                                                                        Opm::EclIO::EGrid& opmGrid,
-                                                                                        RigGridBase*       riGrid )
+std::map<int, std::pair<double, double>>
+    RifOpmGridTools::computeXyCenterForTopOfCells( Opm::EclIO::EGrid& opmMainGrid, Opm::EclIO::EGrid& opmGrid, RigGridBase* riGrid )
 {
     if ( !riGrid || riGrid->isMainGrid() ) return {};
 
@@ -319,10 +314,8 @@ std::map<int, std::pair<double, double>> RifOpmGridTools::computeXyCenterForTopO
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<cvf::Vec3d>> RifOpmGridTools::computeSnapToCoordinates( Opm::EclIO::EGrid& opmMainGrid,
-                                                                                Opm::EclIO::EGrid& opmGrid,
-                                                                                int                mainGridCellIndex,
-                                                                                int                lgrCellIndex )
+std::vector<std::vector<cvf::Vec3d>>
+    RifOpmGridTools::computeSnapToCoordinates( Opm::EclIO::EGrid& opmMainGrid, Opm::EclIO::EGrid& opmGrid, int mainGridCellIndex, int lgrCellIndex )
 {
     auto hostCellIndices = opmGrid.hostCellsGlobalIndex();
     auto lgrIjk          = opmGrid.ijk_from_global_index( lgrCellIndex );

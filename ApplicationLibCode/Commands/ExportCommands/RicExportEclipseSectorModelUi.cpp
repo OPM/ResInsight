@@ -80,13 +80,7 @@ RicExportEclipseSectorModelUi::RicExportEclipseSectorModelUi()
 
     CAF_PDM_InitField( &exportGrid, "ExportGrid", true, "Export Grid Data", "", "Includes COORD, ZCORN and ACTNUM", "" );
     CAF_PDM_InitField( &m_exportGridFilename, "ExportGridFilename", QString(), "Grid File Name" );
-    CAF_PDM_InitField( &exportInLocalCoordinates,
-                       "ExportInLocalCoords",
-                       false,
-                       "Export in Local Coordinates",
-                       "",
-                       "Remove UTM location on export",
-                       "" );
+    CAF_PDM_InitField( &exportInLocalCoordinates, "ExportInLocalCoords", false, "Export in Local Coordinates", "", "Remove UTM location on export", "" );
     CAF_PDM_InitField( &makeInvisibleCellsInactive, "InvisibleCellActnum", false, "Make Invisible Cells Inactive" );
 
     CAF_PDM_InitFieldNoDefault( &exportGridBox, "GridBoxSelection", "Cells to Export" );
@@ -173,9 +167,8 @@ void RicExportEclipseSectorModelUi::setCaseData( RigEclipseCaseData* caseData /*
     {
         for ( const QString& keyword : mainKeywords() )
         {
-            if ( caseData &&
-                 caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
-                     ->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, keyword ) ) )
+            if ( caseData && caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
+                                 ->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, keyword ) ) )
             {
                 selectedKeywords.v().push_back( keyword );
             }
@@ -186,9 +179,8 @@ void RicExportEclipseSectorModelUi::setCaseData( RigEclipseCaseData* caseData /*
         std::vector<QString> validSelectedKeywords;
         for ( const QString& keyword : selectedKeywords() )
         {
-            if ( caseData &&
-                 caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
-                     ->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, keyword ) ) )
+            if ( caseData && caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
+                                 ->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, keyword ) ) )
             {
                 validSelectedKeywords.push_back( keyword );
             }
@@ -243,7 +235,7 @@ void RicExportEclipseSectorModelUi::defineEditorAttribute( const caf::PdmFieldHa
     if ( !m_caseData ) return;
 
     const RigMainGrid* mainGrid = m_caseData->mainGrid();
-    cvf::Vec3i gridDimensions( int( mainGrid->cellCountI() ), int( mainGrid->cellCountJ() ), int( mainGrid->cellCountK() ) );
+    cvf::Vec3i         gridDimensions( int( mainGrid->cellCountI() ), int( mainGrid->cellCountJ() ), int( mainGrid->cellCountK() ) );
 
     auto* lineEditorAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
 
@@ -383,9 +375,7 @@ void RicExportEclipseSectorModelUi::defineUiOrdering( QString uiConfigName, caf:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicExportEclipseSectorModelUi::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                      const QVariant&            oldValue,
-                                                      const QVariant&            newValue )
+void RicExportEclipseSectorModelUi::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &exportGrid )
     {
@@ -412,24 +402,21 @@ void RicExportEclipseSectorModelUi::fieldChangedByUi( const caf::PdmFieldHandle*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RicExportEclipseSectorModelUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RicExportEclipseSectorModelUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &selectedKeywords )
     {
         RigCaseCellResultsData*       resultData = m_caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
         QList<caf::PdmOptionItemInfo> allOptions =
-            RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                                               resultData );
+            RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard( RiaDefines::ResultCatType::STATIC_NATIVE, resultData );
 
         std::set<QString> mainKeywords = this->mainKeywords();
         for ( const caf::PdmOptionItemInfo& option : allOptions )
         {
             if ( mainKeywords.count( option.optionUiText() ) )
             {
-                if ( resultData->hasResultEntry(
-                         RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, option.optionUiText() ) ) )
+                if ( resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, option.optionUiText() ) ) )
                 {
                     options.push_back( option );
                 }
@@ -439,8 +426,7 @@ QList<caf::PdmOptionItemInfo>
         {
             if ( !mainKeywords.count( option.optionUiText() ) && option.optionUiText() != "None" )
             {
-                if ( resultData->hasResultEntry(
-                         RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, option.optionUiText() ) ) )
+                if ( resultData->hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, option.optionUiText() ) ) )
                 {
                     if ( option.optionUiText() == "ACTNUM" && exportGrid() )
                     {
@@ -457,9 +443,7 @@ QList<caf::PdmOptionItemInfo>
     }
     else if ( fieldNeedingOptions == &exportFaults )
     {
-        std::set<ResultExportOptions> validFaultOptions = { EXPORT_NO_RESULTS,
-                                                            EXPORT_TO_GRID_FILE,
-                                                            EXPORT_TO_SINGLE_SEPARATE_FILE };
+        std::set<ResultExportOptions> validFaultOptions = { EXPORT_NO_RESULTS, EXPORT_TO_GRID_FILE, EXPORT_TO_SINGLE_SEPARATE_FILE };
         if ( !exportGrid() ) validFaultOptions.erase( EXPORT_TO_GRID_FILE );
         for ( ResultExportOptions option : validFaultOptions )
         {
@@ -499,8 +483,7 @@ QString RicExportEclipseSectorModelUi::defaultFolder() const
     if ( fallbackDirectory.isEmpty() )
     {
         QString generalFallback = RiaApplication::instance()->lastUsedDialogDirectory( "GENERAL_DATA" );
-        fallbackDirectory =
-            RiaApplication::instance()->lastUsedDialogDirectoryWithFallback( "BINARY_GRID", generalFallback );
+        fallbackDirectory       = RiaApplication::instance()->lastUsedDialogDirectoryWithFallback( "BINARY_GRID", generalFallback );
     }
     return RiaApplication::instance()->lastUsedDialogDirectoryWithFallback( "EXPORT_INPUT_GRID", fallbackDirectory );
 }
@@ -549,9 +532,7 @@ void RicExportEclipseSectorModelUi::applyBoundaryDefaults()
     else if ( exportGridBox == FULL_GRID_BOX )
     {
         const RigMainGrid* mainGrid = m_caseData->mainGrid();
-        cvf::Vec3i         gridDimensions( int( mainGrid->cellCountI() - 1 ),
-                                           int( mainGrid->cellCountJ() - 1 ),
-                                           int( mainGrid->cellCountK() - 1 ) );
+        cvf::Vec3i gridDimensions( int( mainGrid->cellCountI() - 1 ), int( mainGrid->cellCountJ() - 1 ), int( mainGrid->cellCountK() - 1 ) );
 
         setMin( cvf::Vec3i( 0, 0, 0 ) );
         setMax( gridDimensions );

@@ -332,9 +332,7 @@ QString RifEclipseOutputFileTools::firstFileNameOfType( const QStringList& fileS
     {
         bool formatted    = false;
         int  reportNumber = -1;
-        if ( ecl_util_get_file_type( RiaStringEncodingTools::toNativeEncoded( fileSet.at( i ) ).data(),
-                                     &formatted,
-                                     &reportNumber ) == fileType )
+        if ( ecl_util_get_file_type( RiaStringEncodingTools::toNativeEncoded( fileSet.at( i ) ).data(), &formatted, &reportNumber ) == fileType )
         {
             return fileSet.at( i );
         }
@@ -355,9 +353,7 @@ QStringList RifEclipseOutputFileTools::filterFileNamesOfType( const QStringList&
     {
         bool formatted    = false;
         int  reportNumber = -1;
-        if ( ecl_util_get_file_type( RiaStringEncodingTools::toNativeEncoded( fileSet.at( i ) ).data(),
-                                     &formatted,
-                                     &reportNumber ) == fileType )
+        if ( ecl_util_get_file_type( RiaStringEncodingTools::toNativeEncoded( fileSet.at( i ) ).data(), &formatted, &reportNumber ) == fileType )
         {
             fileNames.append( fileSet.at( i ) );
         }
@@ -397,8 +393,7 @@ QByteArray RifEclipseOutputFileTools::md5sum( const QString& fileName )
 //--------------------------------------------------------------------------------------------------
 /// Get set of Eclipse files based on an input file and its path
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName( const QString& fullPathFileName,
-                                                                  QStringList*   baseNameFiles )
+bool RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName( const QString& fullPathFileName, QStringList* baseNameFiles )
 {
     CVF_ASSERT( baseNameFiles );
     baseNameFiles->clear();
@@ -428,8 +423,7 @@ bool RifEclipseOutputFileTools::findSiblingFilesWithSameBaseName( const QString&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifEclipseOutputFileTools::readGridDimensions( const QString&                 gridFileName,
-                                                    std::vector<std::vector<int>>& gridDimensions )
+void RifEclipseOutputFileTools::readGridDimensions( const QString& gridFileName, std::vector<std::vector<int>>& gridDimensions )
 {
     ecl_grid_type* grid = ecl_grid_alloc( RiaStringEncodingTools::toNativeEncoded( gridFileName ).data() ); // bootstrap
                                                                                                             // ecl_grid
@@ -494,8 +488,7 @@ cvf::ref<RifEclipseRestartDataAccess> RifEclipseOutputFileTools::createDynamicRe
     cvf::ref<RifEclipseRestartDataAccess> resultsAccess;
 
     // Look for unified restart file
-    QString unrstFileName =
-        RifEclipseOutputFileTools::firstFileNameOfType( filesWithSameBaseName, ECL_UNIFIED_RESTART_FILE );
+    QString unrstFileName = RifEclipseOutputFileTools::firstFileNameOfType( filesWithSameBaseName, ECL_UNIFIED_RESTART_FILE );
     if ( unrstFileName.size() > 0 )
     {
         resultsAccess = new RifEclipseUnifiedRestartFileAccess();
@@ -504,8 +497,7 @@ cvf::ref<RifEclipseRestartDataAccess> RifEclipseOutputFileTools::createDynamicRe
     else
     {
         // Look for set of restart files (one file per time step)
-        QStringList restartFiles =
-            RifEclipseOutputFileTools::filterFileNamesOfType( filesWithSameBaseName, ECL_RESTART_FILE );
+        QStringList restartFiles = RifEclipseOutputFileTools::filterFileNamesOfType( filesWithSameBaseName, ECL_RESTART_FILE );
         if ( restartFiles.size() > 0 )
         {
             resultsAccess = new RifEclipseRestartFilesetAccess();
@@ -578,9 +570,7 @@ void RifEclipseOutputFileTools::transferNncFluxData( const ecl_grid_type*      g
         if ( waterFluxData )
         {
             const double* waterFluxValues = ecl_nnc_data_get_values( waterFluxData );
-            waterFlux->insert( waterFlux->end(),
-                               &waterFluxValues[0],
-                               &waterFluxValues[ecl_nnc_data_get_size( waterFluxData )] );
+            waterFlux->insert( waterFlux->end(), &waterFluxValues[0], &waterFluxValues[ecl_nnc_data_get_size( waterFluxData )] );
             ecl_nnc_data_free( waterFluxData );
         }
 
@@ -633,8 +623,8 @@ FILE* RifEclipseOutputFileTools::fopen( const QString& filePath, const QString& 
 #pragma warning( disable : 4996 )
 #endif
 
-    FILE* filePtr = std::fopen( RiaStringEncodingTools::toNativeEncoded( filePath ).data(),
-                                RiaStringEncodingTools::toNativeEncoded( mode ).data() );
+    FILE* filePtr =
+        std::fopen( RiaStringEncodingTools::toNativeEncoded( filePath ).data(), RiaStringEncodingTools::toNativeEncoded( mode ).data() );
 
 #ifdef _MSC_VER
 #pragma warning( pop )
@@ -646,8 +636,7 @@ FILE* RifEclipseOutputFileTools::fopen( const QString& filePath, const QString& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifEclipseOutputFileTools::createReportStepsMetaData( std::vector<ecl_file_type*>        ecl_files,
-                                                           std::vector<RifRestartReportStep>* reportSteps )
+void RifEclipseOutputFileTools::createReportStepsMetaData( std::vector<ecl_file_type*> ecl_files, std::vector<RifRestartReportStep>* reportSteps )
 {
     if ( !reportSteps ) return;
 
@@ -673,8 +662,8 @@ void RifEclipseOutputFileTools::createReportStepsMetaData( std::vector<ecl_file_
 
                     // Set Date
                     {
-                        QDateTime reportDateTime = RiaQDateTimeTools::createDateTime(
-                            QDate( restart_header->year, restart_header->month, restart_header->day ) );
+                        QDateTime reportDateTime =
+                            RiaQDateTimeTools::createDateTime( QDate( restart_header->year, restart_header->month, restart_header->day ) );
                         reportStep.dateTime = reportDateTime;
                     }
 
@@ -689,8 +678,7 @@ void RifEclipseOutputFileTools::createReportStepsMetaData( std::vector<ecl_file_
                         {
                             ecl_data_type dataType     = ecl_file_iget_named_data_type( ecl_file, kw, iOcc );
                             ecl_type_enum dataTypeEmum = ecl_type_get_type( dataType );
-                            if ( dataTypeEmum != ECL_DOUBLE_TYPE && dataTypeEmum != ECL_FLOAT_TYPE &&
-                                 dataTypeEmum != ECL_INT_TYPE )
+                            if ( dataTypeEmum != ECL_DOUBLE_TYPE && dataTypeEmum != ECL_FLOAT_TYPE && dataTypeEmum != ECL_INT_TYPE )
                             {
                                 continue;
                             }

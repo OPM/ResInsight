@@ -38,8 +38,7 @@ public:
     void                     setAddress( const RifEclipseSummaryAddress& address );
 
 private:
-    static std::vector<RifEclipseSummaryAddress>
-        convertToEclipseSummaryAddress( const std::vector<RimSummaryAddressModifier>& modifiers );
+    static std::vector<RifEclipseSummaryAddress> convertToEclipseSummaryAddress( const std::vector<RimSummaryAddressModifier>& modifiers );
 
 private:
     RimSummaryCurve*     m_curve;

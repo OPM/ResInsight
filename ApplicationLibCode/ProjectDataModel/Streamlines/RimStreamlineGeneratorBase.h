@@ -45,8 +45,7 @@ public:
 
     void initGenerator( RimStreamlineDataAccess* dataAccess, std::list<RiaDefines::PhaseType> phases );
 
-    virtual void
-        generateTracer( RigCell cell, double direction, QString simWellName, std::list<RimStreamline*>& outStreamlines ) = 0;
+    virtual void generateTracer( RigCell cell, double direction, QString simWellName, std::list<RimStreamline*>& outStreamlines ) = 0;
 
 protected:
     double m_flowThreshold;

@@ -35,33 +35,25 @@ class EdgeIntersectStorage;
 class GeometryTools
 {
 public:
-    static cvf::Vec3d
-                      computeFaceCenter( const cvf::Vec3d& v0, const cvf::Vec3d& v1, const cvf::Vec3d& v2, const cvf::Vec3d& v3 );
+    static cvf::Vec3d computeFaceCenter( const cvf::Vec3d& v0, const cvf::Vec3d& v1, const cvf::Vec3d& v2, const cvf::Vec3d& v3 );
     static cvf::Vec3d computeTriangleCenter( const cvf::Vec3d& v0, const cvf::Vec3d& v1, const cvf::Vec3d& v2 );
     template <typename Vec3Type>
     static Vec3Type   computePolygonCenter( const std::vector<Vec3Type>& polygon );
     static cvf::Mat3f computePlaneHorizontalRotationMx( const cvf::Vec3f& inPlaneVec0, const cvf::Vec3f& inPlaneVec1 );
 
-    static cvf::Vec3d projectPointOnLine( const cvf::Vec3d& p1,
-                                          const cvf::Vec3d& p2,
-                                          const cvf::Vec3d& p3,
-                                          double*           normalizedIntersection );
+    static cvf::Vec3d projectPointOnLine( const cvf::Vec3d& p1, const cvf::Vec3d& p2, const cvf::Vec3d& p3, double* normalizedIntersection );
 
-    static double linePointSquareDist( const cvf::Vec3d& p1, const cvf::Vec3d& p2, const cvf::Vec3d& p3 );
-    static int    intersectLineSegmentTriangle( const cvf::Vec3d& p0,
-                                                const cvf::Vec3d& p1,
-                                                const cvf::Vec3d& t0,
-                                                const cvf::Vec3d& t1,
-                                                const cvf::Vec3d& t2,
-                                                cvf::Vec3d*       intersectionPoint,
-                                                bool*             isLineDirDotNormalNegative );
-    static cvf::Vec3d
-                      barycentricCoords( const cvf::Vec3d& t0, const cvf::Vec3d& t1, const cvf::Vec3d& t2, const cvf::Vec3d& p );
-    static cvf::Vec4d barycentricCoords( const cvf::Vec3d& v0,
-                                         const cvf::Vec3d& v1,
-                                         const cvf::Vec3d& v2,
-                                         const cvf::Vec3d& v3,
-                                         const cvf::Vec3d& p );
+    static double     linePointSquareDist( const cvf::Vec3d& p1, const cvf::Vec3d& p2, const cvf::Vec3d& p3 );
+    static int        intersectLineSegmentTriangle( const cvf::Vec3d& p0,
+                                                    const cvf::Vec3d& p1,
+                                                    const cvf::Vec3d& t0,
+                                                    const cvf::Vec3d& t1,
+                                                    const cvf::Vec3d& t2,
+                                                    cvf::Vec3d*       intersectionPoint,
+                                                    bool*             isLineDirDotNormalNegative );
+    static cvf::Vec3d barycentricCoords( const cvf::Vec3d& t0, const cvf::Vec3d& t1, const cvf::Vec3d& t2, const cvf::Vec3d& p );
+    static cvf::Vec4d
+        barycentricCoords( const cvf::Vec3d& v0, const cvf::Vec3d& v1, const cvf::Vec3d& v2, const cvf::Vec3d& v3, const cvf::Vec3d& p );
     template <typename DataType>
     static DataType interpolateQuad( const cvf::Vec3d& v1,
                                      DataType          s1,
@@ -124,23 +116,22 @@ public:
                                                double                                          tolerance = 1e-6 );
 
     template <typename VerticeArrayType, typename IndexType>
-    static bool calculateOverlapPolygonOfTwoQuads( std::vector<IndexType>*          polygon,
-                                                   std::vector<cvf::Vec3d>*         createdVertexes,
-                                                   EdgeIntersectStorage<IndexType>* edgeIntersectionStorage,
+    static bool calculateOverlapPolygonOfTwoQuads( std::vector<IndexType>*                         polygon,
+                                                   std::vector<cvf::Vec3d>*                        createdVertexes,
+                                                   EdgeIntersectStorage<IndexType>*                edgeIntersectionStorage,
                                                    ArrayWrapperConst<VerticeArrayType, cvf::Vec3d> nodes,
-                                                   const IndexType cv1CubeFaceIndices[4],
-                                                   const IndexType cv2CubeFaceIndices[4],
-                                                   double          tolerance );
+                                                   const IndexType                                 cv1CubeFaceIndices[4],
+                                                   const IndexType                                 cv2CubeFaceIndices[4],
+                                                   double                                          tolerance );
 
     template <typename VerticeArrayType, typename PolygonArrayType, typename IndexType>
-    static void
-        calculatePartiallyFreeCubeFacePolygon( ArrayWrapperConst<VerticeArrayType, cvf::Vec3d> nodeCoords,
-                                               ArrayWrapperConst<PolygonArrayType, IndexType>  completeFacePolygon,
-                                               const cvf::Vec3d&                               faceNormal,
-                                               const std::vector<std::vector<IndexType>*>&     faceOverlapPolygons,
-                                               const std::vector<bool>& faceOverlapPolygonWindingSameAsCubeFaceFlags,
-                                               std::vector<IndexType>*  partialFacePolygon,
-                                               bool*                    m_partiallyFreeCubeFaceHasHoles );
+    static void calculatePartiallyFreeCubeFacePolygon( ArrayWrapperConst<VerticeArrayType, cvf::Vec3d> nodeCoords,
+                                                       ArrayWrapperConst<PolygonArrayType, IndexType>  completeFacePolygon,
+                                                       const cvf::Vec3d&                               faceNormal,
+                                                       const std::vector<std::vector<IndexType>*>&     faceOverlapPolygons,
+                                                       const std::vector<bool>& faceOverlapPolygonWindingSameAsCubeFaceFlags,
+                                                       std::vector<IndexType>*  partialFacePolygon,
+                                                       bool*                    m_partiallyFreeCubeFaceHasHoles );
 
     static cvf::Mat4d rotationMatrixBetweenVectors( const cvf::Vec3d& v1, const cvf::Vec3d& v2 );
 };
@@ -176,13 +167,7 @@ private:
         double                            fractionAlongEdge2;
     };
 
-    void canonizeAddress( IndexType& e1P1,
-                          IndexType& e1P2,
-                          IndexType& e2P1,
-                          IndexType& e2P2,
-                          bool&      flipE1,
-                          bool&      flipE2,
-                          bool&      flipE1E2 );
+    void canonizeAddress( IndexType& e1P1, IndexType& e1P2, IndexType& e2P1, IndexType& e2P2, bool& flipE1, bool& flipE2, bool& flipE1E2 );
 
     // A map containing the intersection data. The addressing is :
     // ( when leastVxIdxEdge1 < leastVxIdxEdge2 )
@@ -230,7 +215,7 @@ protected:
                                             std::list<size_t>::const_iterator v,
                                             std::list<size_t>::const_iterator w ) const;
 
-    bool isPointInsideTriangle( const cvf::Vec3d& A, const cvf::Vec3d& B, const cvf::Vec3d& C, const cvf::Vec3d& P ) const;
+    bool   isPointInsideTriangle( const cvf::Vec3d& A, const cvf::Vec3d& B, const cvf::Vec3d& C, const cvf::Vec3d& P ) const;
     double calculateProjectedPolygonArea() const;
 
 protected:

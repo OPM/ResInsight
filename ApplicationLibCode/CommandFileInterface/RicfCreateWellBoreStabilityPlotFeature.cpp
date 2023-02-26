@@ -91,8 +91,8 @@ caf::PdmScriptResponse RicfCreateWellBoreStabilityPlotFeature::execute()
     {
         if ( !chosenWellPath->wellPathGeometry() )
         {
-            QString error = QString( "The well path %1 has no geometry. Cannot create a Well Bore Stability Plot" )
-                                .arg( chosenWellPath->name() );
+            QString error =
+                QString( "The well path %1 has no geometry. Cannot create a Well Bore Stability Plot" ).arg( chosenWellPath->name() );
             RiaLogging::error( error );
             return caf::PdmScriptResponse( caf::PdmScriptResponse::COMMAND_ERROR, error );
         }

@@ -31,8 +31,7 @@
 class RigHexGradientTools
 {
 public:
-    static std::array<cvf::Vec3d, 8> gradients( const std::array<cvf::Vec3d, 8>& hexCorners,
-                                                const std::array<double, 8>&     values );
+    static std::array<cvf::Vec3d, 8> gradients( const std::array<cvf::Vec3d, 8>& hexCorners, const std::array<double, 8>& values );
 
 private:
     // Private to avoid instantiation

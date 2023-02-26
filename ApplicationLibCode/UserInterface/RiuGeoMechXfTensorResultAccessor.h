@@ -36,9 +36,7 @@ public:
                                       int                          timeStepIdx,
                                       int                          frameIdx );
 
-    void calculateInterpolatedValue( const cvf::Vec3f                   triangle[3],
-                                     const RivIntersectionVertexWeights vertexWeights[3],
-                                     float                              returnValues[3] );
+    void calculateInterpolatedValue( const cvf::Vec3f triangle[3], const RivIntersectionVertexWeights vertexWeights[3], float returnValues[3] );
 
     float calculateElmNodeValue( const std::array<cvf::Vec3f, 3>& triangle, int globalElmNodeResIndex );
 

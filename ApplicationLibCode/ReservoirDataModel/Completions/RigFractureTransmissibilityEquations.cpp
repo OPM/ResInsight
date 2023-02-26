@@ -36,14 +36,10 @@ double RigFractureTransmissibilityEquations::centerToCenterFractureCellTrans( do
                                                                               double sideLengthNormalTransCell2,
                                                                               double cDarcyForRelevantUnit )
 {
-    double transCell1 = centerToEdgeFractureCellTrans( conductivityCell1,
-                                                       sideLengthParallellTransCell1,
-                                                       sideLengthNormalTransCell1,
-                                                       cDarcyForRelevantUnit );
-    double transCell2 = centerToEdgeFractureCellTrans( conductivityCell2,
-                                                       sideLengthParallellTransCell2,
-                                                       sideLengthNormalTransCell2,
-                                                       cDarcyForRelevantUnit );
+    double transCell1 =
+        centerToEdgeFractureCellTrans( conductivityCell1, sideLengthParallellTransCell1, sideLengthNormalTransCell1, cDarcyForRelevantUnit );
+    double transCell2 =
+        centerToEdgeFractureCellTrans( conductivityCell2, sideLengthParallellTransCell2, sideLengthNormalTransCell2, cDarcyForRelevantUnit );
 
     double totalTrans = 1 / ( ( 1 / transCell1 ) + ( 1 / transCell2 ) );
 
@@ -196,7 +192,6 @@ double RigFractureTransmissibilityEquations::centerToEdgeFractureCellTrans( doub
                                                                             double sideLengthNormalTrans,
                                                                             double cDarcyForRelevantUnit )
 {
-    double transmissibility =
-        cDarcyForRelevantUnit * conductivity * sideLengthNormalTrans / ( sideLengthParallellTrans / 2 );
+    double transmissibility = cDarcyForRelevantUnit * conductivity * sideLengthNormalTrans / ( sideLengthParallellTrans / 2 );
     return transmissibility;
 }

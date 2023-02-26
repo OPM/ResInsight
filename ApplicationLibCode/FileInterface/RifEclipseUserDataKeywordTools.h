@@ -31,10 +31,9 @@ class RifEclipseUserDataKeywordTools
 public:
     static std::vector<size_t> requiredItemsPerLineForKeyword( const std::string& identifier );
 
-    static std::vector<std::vector<std::string>>
-        buildColumnHeaderText( const std::vector<std::string>&              quantityNames,
-                               const std::vector<std::vector<std::string>>& restOfHeaderRows,
-                               std::vector<std::string>*                    errorText = nullptr );
+    static std::vector<std::vector<std::string>> buildColumnHeaderText( const std::vector<std::string>&              quantityNames,
+                                                                        const std::vector<std::vector<std::string>>& restOfHeaderRows,
+                                                                        std::vector<std::string>*                    errorText = nullptr );
 
     static bool isTime( const std::string& identifier );
     static bool isDate( const std::string& identifier );
@@ -42,8 +41,7 @@ public:
     static bool isYears( const std::string& identifier );
     static bool isYearX( const std::string& identifier );
 
-    static RifEclipseSummaryAddress makeAndFillAddress( const std::string               quantityName,
-                                                        const std::vector<std::string>& columnHeaderText );
+    static RifEclipseSummaryAddress makeAndFillAddress( const std::string quantityName, const std::vector<std::string>& columnHeaderText );
 
     static bool   isStepType( const std::string& identifier );
     static size_t computeRequiredHeaderLineCount( const std::vector<std::string>& words );

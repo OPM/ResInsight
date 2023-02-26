@@ -112,10 +112,7 @@ void RimSurfaceResultDefinition::updateMinMaxValues()
             globalMax              = minMaxAccumulator.max;
         }
 
-        m_legendConfig->setClosestToZeroValues( globalPosClosestToZero,
-                                                globalNegClosestToZero,
-                                                globalPosClosestToZero,
-                                                globalNegClosestToZero );
+        m_legendConfig->setClosestToZeroValues( globalPosClosestToZero, globalNegClosestToZero, globalPosClosestToZero, globalNegClosestToZero );
 
         m_legendConfig->setAutomaticRanges( globalMin, globalMax, globalMin, globalMax );
     }
@@ -139,9 +136,7 @@ void RimSurfaceResultDefinition::assignDefaultProperty()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSurfaceResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                   const QVariant&            oldValue,
-                                                   const QVariant&            newValue )
+void RimSurfaceResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_propertyName )
     {
@@ -170,15 +165,13 @@ void RimSurfaceResultDefinition::defineUiOrdering( QString uiConfigName, caf::Pd
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimSurfaceResultDefinition::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RimSurfaceResultDefinition::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
     if ( fieldNeedingOptions == &m_propertyName )
     {
-        options.push_back(
-            caf::PdmOptionItemInfo( RiaResultNames::undefinedResultName(), RiaResultNames::undefinedResultName() ) );
+        options.push_back( caf::PdmOptionItemInfo( RiaResultNames::undefinedResultName(), RiaResultNames::undefinedResultName() ) );
 
         RigSurface* surfData = surfaceData();
         if ( surfData )

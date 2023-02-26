@@ -67,10 +67,7 @@ RimBoxIntersection::RimBoxIntersection()
 
     CAF_PDM_InitField( &m_name, "UserDescription", QString( "Intersection Name" ), "Name" );
 
-    CAF_PDM_InitField( &m_singlePlaneState,
-                       "singlePlaneState",
-                       caf::AppEnum<SinglePlaneState>( SinglePlaneState::PLANE_STATE_NONE ),
-                       "Box Type" );
+    CAF_PDM_InitField( &m_singlePlaneState, "singlePlaneState", caf::AppEnum<SinglePlaneState>( SinglePlaneState::PLANE_STATE_NONE ), "Box Type" );
 
     CAF_PDM_InitField( &m_minXCoord, "MinXCoord", 0.0, "Min" );
     m_minXCoord.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
@@ -278,9 +275,7 @@ void RimBoxIntersection::rebuildGeometry()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimBoxIntersection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                           const QVariant&            oldValue,
-                                           const QVariant&            newValue )
+void RimBoxIntersection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_singlePlaneState )
     {
@@ -367,8 +362,8 @@ void RimBoxIntersection::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
         }
     }
 
-    if ( changedField == &m_minXCoord || changedField == &m_minYCoord || changedField == &m_minDepth ||
-         changedField == &m_maxXCoord || changedField == &m_maxYCoord || changedField == &m_maxDepth )
+    if ( changedField == &m_minXCoord || changedField == &m_minYCoord || changedField == &m_minDepth || changedField == &m_maxXCoord ||
+         changedField == &m_maxYCoord || changedField == &m_maxDepth )
     {
         if ( m_boxManipulator )
         {
@@ -411,9 +406,7 @@ void RimBoxIntersection::updateBoxManipulatorGeometry()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimBoxIntersection::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                QString                    uiConfigName,
-                                                caf::PdmUiEditorAttribute* attribute )
+void RimBoxIntersection::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
     if ( myAttr )
@@ -498,8 +491,8 @@ void RimBoxIntersection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     }
 
     {
-        caf::PdmUiGroup* group = uiOrdering.addNewGroup(
-            "Depth" + QString( " [%1  %2]" ).arg( -cellsBoundingBox.max().z() ).arg( -cellsBoundingBox.min().z() ) );
+        caf::PdmUiGroup* group =
+            uiOrdering.addNewGroup( "Depth" + QString( " [%1  %2]" ).arg( -cellsBoundingBox.max().z() ).arg( -cellsBoundingBox.min().z() ) );
         group->add( &m_minDepth );
         group->add( &m_maxDepth );
     }

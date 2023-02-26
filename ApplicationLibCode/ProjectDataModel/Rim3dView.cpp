@@ -117,13 +117,7 @@ Rim3dView::Rim3dView()
     CAF_PDM_InitScriptableField( &isPerspectiveView, "PerspectiveProjection", true, "Perspective Projection" );
 
     double defaultScaleFactor = preferences->defaultScaleFactorZ();
-    CAF_PDM_InitScriptableField( &m_scaleZ,
-                                 "GridZScale",
-                                 defaultScaleFactor,
-                                 "Z Scale",
-                                 "",
-                                 "Scales the scene in the Z direction",
-                                 "" );
+    CAF_PDM_InitScriptableField( &m_scaleZ, "GridZScale", defaultScaleFactor, "Z Scale", "", "Scales the scene in the Z direction", "" );
     m_scaleZ.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
     cvf::Color3f defBackgColor = preferences->defaultViewerBackgroundColor();
@@ -588,8 +582,7 @@ std::set<Rim3dView*> Rim3dView::viewsUsingThisAsComparisonView()
 //--------------------------------------------------------------------------------------------------
 bool Rim3dView::isScaleZEditable()
 {
-    return ( this->viewsUsingThisAsComparisonView().empty() ||
-             ( this->viewController() && this->viewController()->isCameraLinked() ) );
+    return ( this->viewsUsingThisAsComparisonView().empty() || ( this->viewController() && this->viewController()->isCameraLinked() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1016,8 +1009,7 @@ void Rim3dView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const
         // !! Should be able to specify legal range for number properties
         if ( m_viewer )
         {
-            m_viewer->animationControl()->setTimeout( maximumFrameRate != 0 ? 1000 / maximumFrameRate
-                                                                            : std::numeric_limits<int>::max() );
+            m_viewer->animationControl()->setTimeout( maximumFrameRate != 0 ? 1000 / maximumFrameRate : std::numeric_limits<int>::max() );
         }
     }
     else if ( changedField == &m_showZScaleLabel )
@@ -1037,8 +1029,7 @@ void Rim3dView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dView::addWellPathsToModel( cvf::ModelBasicList*    wellPathModelBasicList,
-                                     const cvf::BoundingBox& wellPathClipBoundingBox )
+void Rim3dView::addWellPathsToModel( cvf::ModelBasicList* wellPathModelBasicList, const cvf::BoundingBox& wellPathClipBoundingBox )
 {
     if ( !this->ownerCase() ) return;
 
@@ -1055,8 +1046,7 @@ void Rim3dView::addWellPathsToModel( cvf::ModelBasicList*    wellPathModelBasicL
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dView::addDynamicWellPathsToModel( cvf::ModelBasicList*    wellPathModelBasicList,
-                                            const cvf::BoundingBox& wellPathClipBoundingBox )
+void Rim3dView::addDynamicWellPathsToModel( cvf::ModelBasicList* wellPathModelBasicList, const cvf::BoundingBox& wellPathClipBoundingBox )
 {
     if ( !this->ownerCase() ) return;
 
@@ -1089,9 +1079,7 @@ void Rim3dView::addAnnotationsToModel( cvf::ModelBasicList* annotationsModel )
     else
     {
         cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
-        m_annotationsPartManager->appendGeometryPartsToModel( annotationsModel,
-                                                              transForm.p(),
-                                                              ownerCase()->allCellsBoundingBox() );
+        m_annotationsPartManager->appendGeometryPartsToModel( annotationsModel, transForm.p(), ownerCase()->allCellsBoundingBox() );
     }
 
     annotationsModel->updateBoundingBoxesRecursive();
@@ -1126,7 +1114,7 @@ void Rim3dView::addMeasurementToModel( cvf::ModelBasicList* measureModel )
     else
     {
         cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
-        cvf::Camera* mainOrComparisonCamera = isUsingOverrideViewer() ? nativeOrOverrideViewer()->comparisonMainCamera()
+        cvf::Camera* mainOrComparisonCamera            = isUsingOverrideViewer() ? nativeOrOverrideViewer()->comparisonMainCamera()
                                                                       : nativeOrOverrideViewer()->mainCamera();
         m_measurementPartManager->appendGeometryPartsToModel( mainOrComparisonCamera,
                                                               measureModel,
@@ -1160,14 +1148,12 @@ void Rim3dView::updateGridBoxData()
     {
         using BBox = cvf::BoundingBox;
 
-        BBox masterDomainBBox = isShowingActiveCellsOnly() ? ownerCase()->activeCellsBoundingBox()
-                                                           : ownerCase()->allCellsBoundingBox();
+        BBox masterDomainBBox   = isShowingActiveCellsOnly() ? ownerCase()->activeCellsBoundingBox() : ownerCase()->allCellsBoundingBox();
         BBox combinedDomainBBox = masterDomainBBox;
 
         if ( Rim3dView* depView = activeComparisonView() )
         {
-            viewer()->setComparisonViewEyePointOffset(
-                RimViewManipulator::calculateEquivalentCamPosOffset( this, depView ) );
+            viewer()->setComparisonViewEyePointOffset( RimViewManipulator::calculateEquivalentCamPosOffset( this, depView ) );
 
             RimCase* destinationOwnerCase = depView->ownerCase();
 
@@ -1183,11 +1169,7 @@ void Rim3dView::updateGridBoxData()
             }
         }
 
-        viewer()->updateGridBoxData( m_scaleZ(),
-                                     ownerCase()->displayModelOffset(),
-                                     backgroundColor(),
-                                     combinedDomainBBox,
-                                     fontSize() );
+        viewer()->updateGridBoxData( m_scaleZ(), ownerCase()->displayModelOffset(), backgroundColor(), combinedDomainBBox, fontSize() );
     }
 }
 

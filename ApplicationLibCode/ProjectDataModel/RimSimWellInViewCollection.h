@@ -175,9 +175,9 @@ protected:
     caf::PdmFieldHandle* objectToggleField() override;
 
 private:
-    void calculateWellGeometryVisibility( size_t frameIndex );
-    void updateStateFromEnabledChildCount( size_t showLabelCount, caf::PdmField<caf::Tristate>* fieldToUpdate );
-    void scaleWellDisksFromConfig( const RimWellDiskConfig& wellDiskConfig );
+    void              calculateWellGeometryVisibility( size_t frameIndex );
+    void              updateStateFromEnabledChildCount( size_t showLabelCount, caf::PdmField<caf::Tristate>* fieldToUpdate );
+    void              scaleWellDisksFromConfig( const RimWellDiskConfig& wellDiskConfig );
     RimWellDiskConfig getActiveWellDiskConfig() const;
 
 private:

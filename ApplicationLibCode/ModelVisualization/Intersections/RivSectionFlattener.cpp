@@ -25,9 +25,7 @@
 ///
 /// Returns size_t(-1) if no point is found
 //--------------------------------------------------------------------------------------------------
-size_t RivSectionFlattener::indexToNextValidPoint( const std::vector<cvf::Vec3d>& polyLine,
-                                                   const cvf::Vec3d               extrDir,
-                                                   size_t                         idxToStartOfLineSegment )
+size_t RivSectionFlattener::indexToNextValidPoint( const std::vector<cvf::Vec3d>& polyLine, const cvf::Vec3d extrDir, size_t idxToStartOfLineSegment )
 {
     size_t lineCount = polyLine.size();
     if ( !( idxToStartOfLineSegment + 1 < lineCount ) ) return -1;
@@ -52,9 +50,9 @@ size_t RivSectionFlattener::indexToNextValidPoint( const std::vector<cvf::Vec3d>
 /// Returns one CS pr point, valid for the next segment
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::Mat4d> RivSectionFlattener::calculateFlatteningCSsForPolyline( const std::vector<cvf::Vec3d>& polyLine,
-                                                                                const cvf::Vec3d& extrusionDir,
-                                                                                const cvf::Vec3d& startOffset,
-                                                                                cvf::Vec3d*       endOffset )
+                                                                                const cvf::Vec3d&              extrusionDir,
+                                                                                const cvf::Vec3d&              startOffset,
+                                                                                cvf::Vec3d*                    endOffset )
 {
     CVF_ASSERT( endOffset );
     size_t pointCount = polyLine.size();
@@ -128,9 +126,7 @@ std::vector<cvf::Mat4d> RivSectionFlattener::calculateFlatteningCSsForPolyline( 
 /// Ey normal to the section plane
 /// Ex in plane along p1-p2
 //--------------------------------------------------------------------------------------------------
-cvf::Mat4d RivSectionFlattener::calculateSectionLocalFlatteningCS( const cvf::Vec3d& p1,
-                                                                   const cvf::Vec3d& p2,
-                                                                   const cvf::Vec3d& extrusionDir )
+cvf::Mat4d RivSectionFlattener::calculateSectionLocalFlatteningCS( const cvf::Vec3d& p1, const cvf::Vec3d& p2, const cvf::Vec3d& extrusionDir )
 {
     using namespace cvf;
 

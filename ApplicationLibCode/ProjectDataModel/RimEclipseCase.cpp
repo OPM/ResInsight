@@ -89,20 +89,9 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimEclipseCase, "RimReservoir" );
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase::RimEclipseCase()
 {
-    CAF_PDM_InitScriptableObjectWithNameAndComment( "EclipseCase",
-                                                    ":/Case48x48.png",
-                                                    "",
-                                                    "",
-                                                    "Reservoir",
-                                                    "Abtract base class for Eclipse Cases" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "EclipseCase", ":/Case48x48.png", "", "", "Reservoir", "Abtract base class for Eclipse Cases" );
 
-    CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &reservoirViews,
-                                                           "ReservoirViews",
-                                                           "Views",
-                                                           "",
-                                                           "",
-                                                           "",
-                                                           "All Eclipse Views in the case" );
+    CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &reservoirViews, "ReservoirViews", "Views", "", "", "", "All Eclipse Views in the case" );
     reservoirViews.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_matrixModelResults, "MatrixModelResults", "" );
@@ -346,8 +335,8 @@ RimEclipseView* RimEclipseCase::createCopyAndAddView( const RimEclipseView* sour
 {
     CVF_ASSERT( sourceView );
 
-    RimEclipseView* rimEclipseView = dynamic_cast<RimEclipseView*>(
-        sourceView->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+    RimEclipseView* rimEclipseView =
+        dynamic_cast<RimEclipseView*>( sourceView->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
     CVF_ASSERT( rimEclipseView );
     rimEclipseView->setEclipseCase( this );
 
@@ -412,9 +401,7 @@ const RigVirtualPerforationTransmissibilities* RimEclipseCase::computeAndGetVirt
                     std::vector<RigCompletionData> dynamicCompletionDataOneTimeStep =
                         RicWellPathExportCompletionDataFeatureImpl::computeDynamicCompletionsForWellPath( w, this, i );
 
-                    std::copy( staticCompletionData.begin(),
-                               staticCompletionData.end(),
-                               std::back_inserter( dynamicCompletionDataOneTimeStep ) );
+                    std::copy( staticCompletionData.begin(), staticCompletionData.end(), std::back_inserter( dynamicCompletionDataOneTimeStep ) );
 
                     allCompletionData.push_back( dynamicCompletionDataOneTimeStep );
                 }
@@ -446,8 +433,7 @@ const RigVirtualPerforationTransmissibilities* RimEclipseCase::computeAndGetVirt
                             if ( r.isCell() )
                             {
                                 RigCompletionData compData( wellRes->m_wellName,
-                                                            RigCompletionDataGridCell( r.m_gridCellIndex,
-                                                                                       rigEclipseCase->mainGrid() ),
+                                                            RigCompletionDataGridCell( r.m_gridCellIndex, rigEclipseCase->mainGrid() ),
                                                             0 );
                                 compData.setTransmissibility( r.connectionFactor() );
 
@@ -472,9 +458,7 @@ const RigVirtualPerforationTransmissibilities* RimEclipseCase::computeAndGetVirt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                       const QVariant&            oldValue,
-                                       const QVariant&            newValue )
+void RimEclipseCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimCase::fieldChangedByUi( changedField, oldValue, newValue );
     if ( changedField == &m_releaseResultMemory )
@@ -739,10 +723,7 @@ void RimEclipseCase::loadAndSynchronizeInputProperties( bool importGridOrFaultDa
         filenames.push_back( fileName );
     }
 
-    RifInputPropertyLoader::loadAndSynchronizeInputProperties( inputPropertyCollection(),
-                                                               eclipseCaseData(),
-                                                               filenames,
-                                                               importGridOrFaultData );
+    RifInputPropertyLoader::loadAndSynchronizeInputProperties( inputPropertyCollection(), eclipseCaseData(), filenames, importGridOrFaultData );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -803,8 +784,7 @@ void RimEclipseCase::setReservoirData( RigEclipseCaseData* eclipseCase )
     m_rigEclipseCase = eclipseCase;
     if ( this->eclipseCaseData() )
     {
-        m_fractureModelResults()->setCellResults(
-            eclipseCaseData()->results( RiaDefines::PorosityModelType::FRACTURE_MODEL ) );
+        m_fractureModelResults()->setCellResults( eclipseCaseData()->results( RiaDefines::PorosityModelType::FRACTURE_MODEL ) );
         m_matrixModelResults()->setCellResults( eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) );
     }
     else
@@ -979,8 +959,7 @@ bool RimEclipseCase::openReserviorCase()
         return false;
     }
 
-    if ( eclipseCaseData() && eclipseCaseData()->mainGrid() &&
-         !eclipseCaseData()->mainGrid()->hasValidCharacteristicCellSizes() )
+    if ( eclipseCaseData() && eclipseCaseData()->mainGrid() && !eclipseCaseData()->mainGrid()->hasValidCharacteristicCellSizes() )
     {
         RigMainGrid* mainGrid = eclipseCaseData()->mainGrid();
 
@@ -1030,24 +1009,21 @@ bool RimEclipseCase::openReserviorCase()
                                                                   RiaResultNames::combinedWaterFluxResultName() );
                 if ( results->hasResultEntry( combinedWaterFluxResAddr ) )
                 {
-                    eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress( RiaDefines::propertyNameFluxWat(),
-                                                                                   combinedWaterFluxResAddr );
+                    eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress( RiaDefines::propertyNameFluxWat(), combinedWaterFluxResAddr );
                 }
 
                 RigEclipseResultAddress combinedOilFluxResAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                                 RiaResultNames::combinedOilFluxResultName() );
                 if ( results->hasResultEntry( combinedOilFluxResAddr ) )
                 {
-                    eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress( RiaDefines::propertyNameFluxOil(),
-                                                                                   combinedOilFluxResAddr );
+                    eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress( RiaDefines::propertyNameFluxOil(), combinedOilFluxResAddr );
                 }
                 RigEclipseResultAddress combinedGasFluxResAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                                 RiaResultNames::combinedGasFluxResultName() );
 
                 if ( results->hasResultEntry( combinedGasFluxResAddr ) )
                 {
-                    eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress( RiaDefines::propertyNameFluxGas(),
-                                                                                   combinedGasFluxResAddr );
+                    eclipseCaseData()->mainGrid()->nncData()->setEclResultAddress( RiaDefines::propertyNameFluxGas(), combinedGasFluxResAddr );
                 }
             }
         }

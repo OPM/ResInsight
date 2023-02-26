@@ -96,9 +96,7 @@ void RimVirtualPerforationResults::loadData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVirtualPerforationResults::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                     const QVariant&            oldValue,
-                                                     const QVariant&            newValue )
+void RimVirtualPerforationResults::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_isActive )
     {

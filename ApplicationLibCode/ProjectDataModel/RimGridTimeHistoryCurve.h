@@ -54,12 +54,7 @@ public:
     ~RimGridTimeHistoryCurve() override;
 
     void        setFromSelectionItem( const RiuSelectionItem* selectionItem );
-    void        setFromEclipseCellAndResult( RimEclipseCase*                eclCase,
-                                             size_t                         gridIdx,
-                                             size_t                         i,
-                                             size_t                         j,
-                                             size_t                         k,
-                                             const RigEclipseResultAddress& resAddr );
+    void        setFromEclipseCellAndResult( RimEclipseCase* eclCase, size_t gridIdx, size_t i, size_t j, size_t k, const RigEclipseResultAddress& resAddr );
     RiuPlotAxis yAxis() const;
     void        setYAxis( RiaDefines::PlotAxis plotAxis );
 

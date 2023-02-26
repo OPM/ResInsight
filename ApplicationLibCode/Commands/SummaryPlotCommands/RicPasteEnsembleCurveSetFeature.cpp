@@ -40,9 +40,8 @@ CAF_CMD_SOURCE_INIT( RicPasteEnsembleCurveSetFeature, "RicPasteEnsembleCurveSetF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEnsembleCurveSet*
-    RicPasteEnsembleCurveSetFeature::copyCurveSetAndAddToCollection( RimEnsembleCurveSetCollection* curveSetCollection,
-                                                                     const RimEnsembleCurveSet*     sourceCurveSet )
+RimEnsembleCurveSet* RicPasteEnsembleCurveSetFeature::copyCurveSetAndAddToCollection( RimEnsembleCurveSetCollection* curveSetCollection,
+                                                                                      const RimEnsembleCurveSet*     sourceCurveSet )
 {
     CVF_ASSERT( curveSetCollection );
 
@@ -91,8 +90,7 @@ bool RicPasteEnsembleCurveSetFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicPasteEnsembleCurveSetFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<caf::PdmPointer<RimEnsembleCurveSet>> sourceObjects =
-        RicPasteEnsembleCurveSetFeature::ensembleCurveSetsOnClipboard();
+    std::vector<caf::PdmPointer<RimEnsembleCurveSet>> sourceObjects = RicPasteEnsembleCurveSetFeature::ensembleCurveSetsOnClipboard();
     if ( sourceObjects.empty() ) return;
 
     RimSummaryPlot*                plot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot*>();

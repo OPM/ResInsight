@@ -84,8 +84,8 @@ public:
 
     void setAutoAlignAxes( bool autoAlignAxes );
 
-    void scheduleUpdate( RiaDefines::MultiPlotPageUpdateType whatToUpdate = RiaDefines::MultiPlotPageUpdateType::ALL );
-    void scheduleReplotOfAllPlots();
+    void         scheduleUpdate( RiaDefines::MultiPlotPageUpdateType whatToUpdate = RiaDefines::MultiPlotPageUpdateType::ALL );
+    void         scheduleReplotOfAllPlots();
     virtual void updateVerticalScrollBar( double visibleMin, double visibleMax, double totalMin, double totalMax ) {}
     void         updateSubTitles();
 
@@ -125,12 +125,7 @@ protected:
     virtual void refreshLegends();
     void         updatePlotLayouts();
 
-    void addLegendWidget( RiuPlotWidget*            plotWidget,
-                          RiuQwtPlotLegend*         legend,
-                          RiuDraggableOverlayFrame* legendFrame,
-                          int                       row,
-                          int                       column,
-                          int                       colSpan );
+    void addLegendWidget( RiuPlotWidget* plotWidget, RiuQwtPlotLegend* legend, RiuDraggableOverlayFrame* legendFrame, int row, int column, int colSpan );
 
     void reinsertPlotWidget( RiuPlotWidget*            plotWidget,
                              RiuQwtPlotLegend*         legend,

@@ -67,8 +67,7 @@ public:
     std::vector<RimEnsembleCurveSet*> curveSetsForSourceStepping() const;
     RimSummaryPlotSourceStepping*     sourceSteppingObject() const;
 
-    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
 private:
     caf::PdmFieldHandle* objectToggleField() override;

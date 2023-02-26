@@ -103,10 +103,9 @@ double RigStimPlanModelTools::calculateFormationDip( const cvf::Vec3d& direction
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::tuple<const RigFault*, double, cvf::Vec3d, double>
-    RigStimPlanModelTools::findClosestFaultBarrier( RigEclipseCaseData* eclipseCaseData,
-                                                    const cvf::Vec3d&   position,
-                                                    const cvf::Vec3d&   directionToBarrier )
+std::tuple<const RigFault*, double, cvf::Vec3d, double> RigStimPlanModelTools::findClosestFaultBarrier( RigEclipseCaseData* eclipseCaseData,
+                                                                                                        const cvf::Vec3d&   position,
+                                                                                                        const cvf::Vec3d& directionToBarrier )
 {
     std::vector<WellPathCellIntersectionInfo> intersections =
         RigStimPlanModelTools::generateBarrierIntersections( eclipseCaseData, position, directionToBarrier );
@@ -123,8 +122,7 @@ std::tuple<const RigFault*, double, cvf::Vec3d, double>
     {
         // Find the closest cell face which is a fault
         double          distance = position.pointDistance( intersection.startPoint );
-        const RigFault* fault    = mainGrid->findFaultFromCellIndexAndCellFace( intersection.globCellIndex,
-                                                                             intersection.intersectedCellFaceIn );
+        const RigFault* fault = mainGrid->findFaultFromCellIndexAndCellFace( intersection.globCellIndex, intersection.intersectedCellFaceIn );
         if ( fault && distance < shortestDistance )
         {
             foundFault       = fault;
@@ -143,10 +141,9 @@ std::tuple<const RigFault*, double, cvf::Vec3d, double>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<WellPathCellIntersectionInfo>
-    RigStimPlanModelTools::generateBarrierIntersections( RigEclipseCaseData* eclipseCaseData,
-                                                         const cvf::Vec3d&   position,
-                                                         const cvf::Vec3d&   directionToBarrier )
+std::vector<WellPathCellIntersectionInfo> RigStimPlanModelTools::generateBarrierIntersections( RigEclipseCaseData* eclipseCaseData,
+                                                                                               const cvf::Vec3d&   position,
+                                                                                               const cvf::Vec3d&   directionToBarrier )
 {
     double                                    randoDistance    = 10000.0;
     cvf::Vec3d                                forwardPosition  = position + ( directionToBarrier * randoDistance );
@@ -164,10 +161,9 @@ std::vector<WellPathCellIntersectionInfo>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<WellPathCellIntersectionInfo>
-    RigStimPlanModelTools::generateBarrierIntersectionsBetweenPoints( RigEclipseCaseData* eclipseCaseData,
-                                                                      const cvf::Vec3d&   startPosition,
-                                                                      const cvf::Vec3d&   endPosition )
+std::vector<WellPathCellIntersectionInfo> RigStimPlanModelTools::generateBarrierIntersectionsBetweenPoints( RigEclipseCaseData* eclipseCaseData,
+                                                                                                            const cvf::Vec3d& startPosition,
+                                                                                                            const cvf::Vec3d& endPosition )
 {
     // Create a fake well path from the anchor point to
     // a point far away in the direction barrier direction
@@ -277,11 +273,10 @@ double RigStimPlanModelTools::calculatePerforationLength( const cvf::Vec3d& dire
 
     double correctedPerforationLength = perforationLength * std::cos( inclination );
 
-    RiaLogging::info(
-        QString( "Perforation length correction: original length: %1 inclination: %2 corrected length: %3" )
-            .arg( perforationLength )
-            .arg( cvf::Math::toDegrees( inclination ) )
-            .arg( correctedPerforationLength ) );
+    RiaLogging::info( QString( "Perforation length correction: original length: %1 inclination: %2 corrected length: %3" )
+                          .arg( perforationLength )
+                          .arg( cvf::Math::toDegrees( inclination ) )
+                          .arg( correctedPerforationLength ) );
 
     // Handle well inclination close to 90 dgr to ensure visual perforation interval in StimPlan model plot
     if ( std::fabs( cvf::Math::toDegrees( inclination ) - 90.0 ) < 0.1 )

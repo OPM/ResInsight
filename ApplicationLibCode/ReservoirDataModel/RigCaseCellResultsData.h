@@ -70,16 +70,16 @@ public:
     // Access the results data
 
     const std::vector<std::vector<double>>& cellScalarResults( const RigEclipseResultAddress& resVarAddr ) const;
-    const std::vector<double>& cellScalarResults( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex ) const;
-    std::vector<std::vector<double>>* modifiableCellScalarResultTimesteps( const RigEclipseResultAddress& resVarAddr );
-    std::vector<double>* modifiableCellScalarResult( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex );
+    const std::vector<double>&              cellScalarResults( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex ) const;
+    std::vector<std::vector<double>>*       modifiableCellScalarResultTimesteps( const RigEclipseResultAddress& resVarAddr );
+    std::vector<double>*                    modifiableCellScalarResult( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex );
 
     bool isUsingGlobalActiveIndex( const RigEclipseResultAddress& resVarAddr ) const;
 
     static const std::vector<double>* getResultIndexableStaticResult( RigActiveCellInfo*      actCellInfo,
                                                                       RigCaseCellResultsData* gridCellResults,
                                                                       QString                 porvResultName,
-                                                                      std::vector<double>& activeCellsResultsTempContainer );
+                                                                      std::vector<double>&    activeCellsResultsTempContainer );
     // Statistic values of the results
 
     void recalculateStatistics( const RigEclipseResultAddress& resVarAddr );
@@ -89,15 +89,15 @@ public:
     void posNegClosestToZero( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex, double& pos, double& neg );
     const std::vector<size_t>& cellScalarValuesHistogram( const RigEclipseResultAddress& resVarAddr );
     const std::vector<size_t>& cellScalarValuesHistogram( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex );
-    void p10p90CellScalarValues( const RigEclipseResultAddress& resVarAddr, double& p10, double& p90 );
+    void                       p10p90CellScalarValues( const RigEclipseResultAddress& resVarAddr, double& p10, double& p90 );
     void p10p90CellScalarValues( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex, double& p10, double& p90 );
     void meanCellScalarValues( const RigEclipseResultAddress& resVarAddr, double& meanValue );
     void meanCellScalarValues( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex, double& meanValue );
     const std::vector<int>& uniqueCellScalarValues( const RigEclipseResultAddress& resVarAddr );
     void                    sumCellScalarValues( const RigEclipseResultAddress& resVarAddr, double& sumValue );
-    void sumCellScalarValues( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex, double& sumValue );
-    void mobileVolumeWeightedMean( const RigEclipseResultAddress& resVarAddr, double& meanValue );
-    void mobileVolumeWeightedMean( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex, double& meanValue );
+    void                    sumCellScalarValues( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex, double& sumValue );
+    void                    mobileVolumeWeightedMean( const RigEclipseResultAddress& resVarAddr, double& meanValue );
+    void                    mobileVolumeWeightedMean( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex, double& meanValue );
 
     // Access meta-information about the results
 
@@ -112,8 +112,7 @@ public:
     int                    reportStepNumber( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex ) const;
 
     std::vector<RigEclipseTimeStepInfo> timeStepInfos( const RigEclipseResultAddress& resVarAddr ) const;
-    void                                setTimeStepInfos( const RigEclipseResultAddress&             resVarAddr,
-                                                          const std::vector<RigEclipseTimeStepInfo>& timeStepInfos );
+    void setTimeStepInfos( const RigEclipseResultAddress& resVarAddr, const std::vector<RigEclipseTimeStepInfo>& timeStepInfos );
 
     void clearScalarResult( RiaDefines::ResultCatType type, const QString& resultName );
     void clearScalarResult( const RigEclipseResultAddress& resultAddress );
@@ -130,8 +129,7 @@ public:
 
     bool ensureKnownResultLoaded( const RigEclipseResultAddress& resultAddress );
 
-    bool findAndLoadResultByName( const QString&                                resultName,
-                                  const std::vector<RiaDefines::ResultCatType>& resultCategorySearchOrder );
+    bool findAndLoadResultByName( const QString& resultName, const std::vector<RiaDefines::ResultCatType>& resultCategorySearchOrder );
 
     bool hasResultEntry( const RigEclipseResultAddress& resultAddress ) const;
     bool isResultLoaded( const RigEclipseResultAddress& resultAddress ) const;
@@ -161,10 +159,7 @@ private:
 
     size_t findScalarResultIndexFromAddress( const RigEclipseResultAddress& resVarAddr ) const;
 
-    size_t addStaticScalarResult( RiaDefines::ResultCatType type,
-                                  const QString&            resultName,
-                                  bool                      needsToBeStored,
-                                  size_t                    resultValueCount );
+    size_t addStaticScalarResult( RiaDefines::ResultCatType type, const QString& resultName, bool needsToBeStored, size_t resultValueCount );
 
     const std::vector<RigEclipseResultInfo>& infoForEachResultIndex();
     size_t                                   resultCount() const;
@@ -199,8 +194,7 @@ private:
 
     RigStatisticsDataCache* statistics( const RigEclipseResultAddress& resVarAddr );
 
-    static void
-        computeAllanResults( RigCaseCellResultsData* cellResultsData, RigMainGrid* mainGrid, bool includeInactiveCells );
+    static void computeAllanResults( RigCaseCellResultsData* cellResultsData, RigMainGrid* mainGrid, bool includeInactiveCells );
 
 private:
     cvf::ref<RifReaderInterface>  m_readerInterface;

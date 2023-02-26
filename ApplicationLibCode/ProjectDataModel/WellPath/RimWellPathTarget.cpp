@@ -54,12 +54,7 @@ RimWellPathTarget::RimWellPathTarget()
     : moved( this )
     , m_isFullUpdateEnabled( true )
 {
-    CAF_PDM_InitScriptableObjectWithNameAndComment( "Well Target",
-                                                    "",
-                                                    "",
-                                                    "",
-                                                    "WellPathTarget",
-                                                    "Class containing the Well Target definition" );
+    CAF_PDM_InitScriptableObjectWithNameAndComment( "Well Target", "", "", "", "WellPathTarget", "Class containing the Well Target definition" );
 
     CAF_PDM_InitField( &m_isEnabled, "IsEnabled", true, "" );
 
@@ -424,9 +419,7 @@ void RimWellPathTarget::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathTarget::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                               QString                    uiConfigName,
-                                               caf::PdmUiEditorAttribute* attribute )
+void RimWellPathTarget::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_targetPointXYD )
     {
@@ -524,9 +517,7 @@ RimWellPathGeometryDef* RimWellPathTarget::geometryDefinition() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathTarget::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                          const QVariant&            oldValue,
-                                          const QVariant&            newValue )
+void RimWellPathTarget::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     moved.send( m_isFullUpdateEnabled );
 }

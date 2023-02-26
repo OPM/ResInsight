@@ -48,9 +48,9 @@ TEST( RiaWeightedGeometricMeanCalculator, BigValues )
         calc.addValueAndWeight( values[i], weights[i] );
     }
 
-    double expectedValue = std::pow( std::pow( 3000000.0, 1.5 ) * std::pow( 6000000.0, 3.5 ) *
-                                         std::pow( 1250000.0, 7 ) * std::pow( 2200000.0, 5 ),
-                                     1 / ( 1.5 + 3.5 + 7 + 5 ) );
+    double expectedValue =
+        std::pow( std::pow( 3000000.0, 1.5 ) * std::pow( 6000000.0, 3.5 ) * std::pow( 1250000.0, 7 ) * std::pow( 2200000.0, 5 ),
+                  1 / ( 1.5 + 3.5 + 7 + 5 ) );
 
     EXPECT_DOUBLE_EQ( 17.0, calc.aggregatedWeight() );
     EXPECT_NEAR( expectedValue, calc.weightedMean(), 1e-8 );

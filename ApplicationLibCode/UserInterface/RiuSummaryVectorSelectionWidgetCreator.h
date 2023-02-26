@@ -52,8 +52,7 @@ public:
     RiuSummaryVectorSelectionUi* summaryAddressSelection() const;
 
 private:
-    void recursivelyConfigureAndUpdateTopLevelUiOrdering( const caf::PdmUiOrdering& topLevelUiOrdering,
-                                                          const QString&            uiConfigName ) override;
+    void recursivelyConfigureAndUpdateTopLevelUiOrdering( const caf::PdmUiOrdering& topLevelUiOrdering, const QString& uiConfigName ) override;
 
     QWidget* createWidget( QWidget* parent ) override;
 

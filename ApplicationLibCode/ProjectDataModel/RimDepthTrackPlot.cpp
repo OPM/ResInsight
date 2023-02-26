@@ -102,12 +102,7 @@ RimDepthTrackPlot::RimDepthTrackPlot()
 {
     CAF_PDM_InitObject( "Depth Track Plot", "", "", "A Plot With a shared Depth Axis and Multiple Tracks" );
 
-    CAF_PDM_InitFieldNoDefault( &m_commonDataSource,
-                                "CommonDataSource",
-                                "Data Source",
-                                "",
-                                "Change the Data Source of All Curves in the Plot",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_commonDataSource, "CommonDataSource", "Data Source", "", "Change the Data Source of All Curves in the Plot", "" );
     m_commonDataSource.uiCapability()->setUiTreeHidden( true );
     m_commonDataSource.uiCapability()->setUiTreeChildrenHidden( true );
     m_commonDataSource.xmlCapability()->disableIO();
@@ -639,8 +634,7 @@ std::map<QString, QString> RimDepthTrackPlot::createNameKeyValueMap() const
 
         if ( m_commonDataSource->timeStepToApply() != -1 )
         {
-            variableValueMap[RiaDefines::namingVariableTime()] =
-                commonCase->timeStepName( m_commonDataSource->timeStepToApply() );
+            variableValueMap[RiaDefines::namingVariableTime()] = commonCase->timeStepName( m_commonDataSource->timeStepToApply() );
         }
     }
     else
@@ -656,8 +650,7 @@ std::map<QString, QString> RimDepthTrackPlot::createNameKeyValueMap() const
             auto dateTime = m_commonDataSource->rftTime();
             if ( dateTime.isValid() )
             {
-                variableValueMap[RiaDefines::namingVariableTime()] =
-                    dateTime.toString( RiaQDateTimeTools::dateFormatString() );
+                variableValueMap[RiaDefines::namingVariableTime()] = dateTime.toString( RiaQDateTimeTools::dateFormatString() );
             }
 
             auto branchIndex = m_commonDataSource->rftBranchIndex();
@@ -1032,9 +1025,7 @@ void RimDepthTrackPlot::updateSubPlotNames()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDepthTrackPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                          const QVariant&            oldValue,
-                                          const QVariant&            newValue )
+void RimDepthTrackPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimPlotWindow::fieldChangedByUi( changedField, oldValue, newValue );
 
@@ -1079,8 +1070,7 @@ void RimDepthTrackPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
     {
         onLoadDataAndUpdate();
     }
-    else if ( changedField == &m_subTitleFontSize || changedField == &m_axisTitleFontSize ||
-              changedField == &m_axisValueFontSize )
+    else if ( changedField == &m_subTitleFontSize || changedField == &m_axisTitleFontSize || changedField == &m_axisValueFontSize )
     {
         updateFonts();
     }
@@ -1208,19 +1198,17 @@ QList<caf::PdmOptionItemInfo> RimDepthTrackPlot::calculateValueOptions( const ca
     }
     else if ( fieldNeedingOptions == &m_namingMethod )
     {
-        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::ObjectNamingMethod>::uiText(
-                                                       RiaDefines::ObjectNamingMethod::AUTO ),
+        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::ObjectNamingMethod>::uiText( RiaDefines::ObjectNamingMethod::AUTO ),
                                                    RiaDefines::ObjectNamingMethod::AUTO ) );
 
-        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::ObjectNamingMethod>::uiText(
-                                                       RiaDefines::ObjectNamingMethod::CUSTOM ),
+        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::ObjectNamingMethod>::uiText( RiaDefines::ObjectNamingMethod::CUSTOM ),
                                                    RiaDefines::ObjectNamingMethod::CUSTOM ) );
 
         if ( !supportedPlotNameVariables().isEmpty() )
         {
-            options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::ObjectNamingMethod>::uiText(
-                                                           RiaDefines::ObjectNamingMethod::TEMPLATE ),
-                                                       RiaDefines::ObjectNamingMethod::TEMPLATE ) );
+            options.push_back(
+                caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::ObjectNamingMethod>::uiText( RiaDefines::ObjectNamingMethod::TEMPLATE ),
+                                        RiaDefines::ObjectNamingMethod::TEMPLATE ) );
         }
     }
 
@@ -1244,8 +1232,7 @@ void RimDepthTrackPlot::initAfterRead()
         m_nameConfig->setCustomName( m_plotWindowTitle );
     }
 
-    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2022.06.2" ) &&
-         !m_nameConfig->customName().isEmpty() )
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2022.06.2" ) && !m_nameConfig->customName().isEmpty() )
     {
         m_namingMethod = RiaDefines::ObjectNamingMethod::CUSTOM;
     }
@@ -1256,9 +1243,7 @@ void RimDepthTrackPlot::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDepthTrackPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                               QString                    uiConfigName,
-                                               caf::PdmUiEditorAttribute* attribute )
+void RimDepthTrackPlot::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_minVisibleDepth || field == &m_maxVisibleDepth )
     {
@@ -1588,8 +1573,7 @@ void RimDepthTrackPlot::setDepthUnit( RiaDefines::DepthUnitType depthUnit )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDepthTrackPlot::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                                        std::vector<caf::PdmObjectHandle*>& referringObjects )
+void RimDepthTrackPlot::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     calculateAvailableDepthRange();
     updateZoom();

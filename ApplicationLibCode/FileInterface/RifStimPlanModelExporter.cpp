@@ -28,13 +28,9 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifStimPlanModelExporter::writeToDirectory( RimStimPlanModel* stimPlanModel,
-                                                 bool              useDetailedFluidLoss,
-                                                 const QString&    directoryPath )
+bool RifStimPlanModelExporter::writeToDirectory( RimStimPlanModel* stimPlanModel, bool useDetailedFluidLoss, const QString& directoryPath )
 {
-    return RifStimPlanModelGeologicalFrkExporter::writeToFile( stimPlanModel,
-                                                               useDetailedFluidLoss,
-                                                               directoryPath + "/Geological.frk" ) &&
+    return RifStimPlanModelGeologicalFrkExporter::writeToFile( stimPlanModel, useDetailedFluidLoss, directoryPath + "/Geological.frk" ) &&
            RifStimPlanModelDeviationFrkExporter::writeToFile( stimPlanModel, directoryPath + "/Deviation.frk" ) &&
            RifStimPlanModelPerfsFrkExporter::writeToFile( stimPlanModel, directoryPath + "/Perfs.frk" ) &&
            RifStimPlanModelAsymmetricFrkExporter::writeToFile( stimPlanModel, directoryPath + "/Asymmetric.frk" );

@@ -107,8 +107,7 @@ void RicCreateMultipleWellPathLateralsUi::defineUiOrdering( QString uiConfigName
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RicCreateMultipleWellPathLateralsUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+QList<caf::PdmOptionItemInfo> RicCreateMultipleWellPathLateralsUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

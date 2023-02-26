@@ -60,21 +60,18 @@ bool RigFemPartResultCalculatorSurfaceAngles::isMatching( const RigFemResultAddr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultCalculatorSurfaceAngles::calculate( int                        partIndex,
-                                                                              const RigFemResultAddress& resVarAddr )
+RigFemScalarResultFrames* RigFemPartResultCalculatorSurfaceAngles::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
 {
     CVF_ASSERT( resVarAddr.componentName == "Pazi" || resVarAddr.componentName == "Pinc" );
 
     caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 1, "" );
-    stepCountProgress.setProgressDescription(
-        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
+    stepCountProgress.setProgressDescription( "Calculating " +
+                                              QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
 
     RigFemScalarResultFrames* PaziFrames =
-        m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "Pazi" ) );
+        m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "Pazi" ) );
     RigFemScalarResultFrames* PincFrames =
-        m_resultCollection->createScalarResult( partIndex,
-                                                RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "Pinc" ) );
+        m_resultCollection->createScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, "Pinc" ) );
 
     const RigFemPart*              femPart         = m_resultCollection->parts()->part( partIndex );
     const std::vector<cvf::Vec3f>& nodeCoordinates = femPart->nodes().coordinates;
@@ -107,9 +104,8 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorSurfaceAngles::calculate( in
 
                 for ( int lfIdx = 0; lfIdx < faceCount; ++lfIdx )
                 {
-                    int        faceNodeCount = 0;
-                    const int* localElmNodeIndicesForFace =
-                        RigFemTypes::localElmNodeIndicesForFace( elmType, lfIdx, &faceNodeCount );
+                    int        faceNodeCount              = 0;
+                    const int* localElmNodeIndicesForFace = RigFemTypes::localElmNodeIndicesForFace( elmType, lfIdx, &faceNodeCount );
                     if ( faceNodeCount == 4 )
                     {
                         int        elmNodFaceResIdxFaceStart = elmNodFaceResIdxElmStart + lfIdx * 4; // HACK
@@ -120,8 +116,8 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorSurfaceAngles::calculate( in
                         quadVxs[2] = ( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[2]]] );
                         quadVxs[3] = ( nodeCoordinates[elmNodeIndices[localElmNodeIndicesForFace[3]]] );
 
-                        cvf::Mat3f rotMx = cvf::GeometryTools::computePlaneHorizontalRotationMx( quadVxs[2] - quadVxs[0],
-                                                                                                 quadVxs[3] - quadVxs[1] );
+                        cvf::Mat3f rotMx =
+                            cvf::GeometryTools::computePlaneHorizontalRotationMx( quadVxs[2] - quadVxs[0], quadVxs[3] - quadVxs[1] );
                         RiaOffshoreSphericalCoords sphCoord(
                             cvf::Vec3f( rotMx.rowCol( 2, 0 ), rotMx.rowCol( 2, 1 ), rotMx.rowCol( 2, 2 ) ) ); // Use Ez
                                                                                                               // from the

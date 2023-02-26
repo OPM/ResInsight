@@ -36,7 +36,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RivBoxIntersectionGeometryGenerator::RivBoxIntersectionGeometryGenerator( RimBoxIntersection* intersectionBox,
+RivBoxIntersectionGeometryGenerator::RivBoxIntersectionGeometryGenerator( RimBoxIntersection*                    intersectionBox,
                                                                           const RivIntersectionHexGridInterface* grid )
     : m_intersectionBoxDefinition( intersectionBox )
     , m_hexGrid( grid )
@@ -113,8 +113,7 @@ const std::vector<size_t>& RivBoxIntersectionGeometryGenerator::triangleToCellIn
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<RivIntersectionVertexWeights>&
-    RivBoxIntersectionGeometryGenerator::triangleVxToCellCornerInterpolationWeights() const
+const std::vector<RivIntersectionVertexWeights>& RivBoxIntersectionGeometryGenerator::triangleVxToCellCornerInterpolationWeights() const
 {
     CVF_ASSERT( m_triangleVxes->size() );
     return m_triVxToCellCornerWeights;
@@ -214,7 +213,7 @@ public:
 
     std::array<FaceType, 4> adjacentFaces( FaceType face )
     {
-        std::array<FaceType, 4> clipFaces = { FaceType::NO_FACE, FaceType::NO_FACE, FaceType::NO_FACE, FaceType::NO_FACE };
+        std::array<FaceType, 4> clipFaces     = { FaceType::NO_FACE, FaceType::NO_FACE, FaceType::NO_FACE, FaceType::NO_FACE };
         FaceType                oppFace       = cvf::StructGridInterface::oppositeFace( face );
         int                     clipFaceCount = 0;
         for ( int faceCand = 0; faceCand < 6; ++faceCand )
@@ -394,9 +393,8 @@ void RivBoxIntersectionGeometryGenerator::calculateArrays()
                     caf::HexGridIntersectionTools::ClipVx cvx = clippedTriangleVxes[triVxIdx + i];
                     if ( cvx.isVxIdsNative )
                     {
-                        m_triVxToCellCornerWeights.push_back( RivIntersectionVertexWeights( cvx.clippedEdgeVx1Id,
-                                                                                            cvx.clippedEdgeVx2Id,
-                                                                                            cvx.normDistFromEdgeVx1 ) );
+                        m_triVxToCellCornerWeights.push_back(
+                            RivIntersectionVertexWeights( cvx.clippedEdgeVx1Id, cvx.clippedEdgeVx2Id, cvx.normDistFromEdgeVx1 ) );
                     }
                     else
                     {
@@ -475,25 +473,23 @@ void RivBoxIntersectionGeometryGenerator::calculateArrays()
                                 CVF_ASSERT( false );
                             }
 
-                            CVF_TIGHT_ASSERT( cvx11.isVxIdsNative && cvx12.isVxIdsNative && cvx21.isVxIdsNative &&
-                                              cvx22.isVxIdsNative );
+                            CVF_TIGHT_ASSERT( cvx11.isVxIdsNative && cvx12.isVxIdsNative && cvx21.isVxIdsNative && cvx22.isVxIdsNative );
 
-                            m_triVxToCellCornerWeights.push_back(
-                                RivIntersectionVertexWeights( cvx11.clippedEdgeVx1Id,
-                                                              cvx11.clippedEdgeVx2Id,
-                                                              cvx11.normDistFromEdgeVx1,
-                                                              cvx12.clippedEdgeVx1Id,
-                                                              cvx12.clippedEdgeVx2Id,
-                                                              cvx2.normDistFromEdgeVx1,
-                                                              cvx21.clippedEdgeVx1Id,
-                                                              cvx21.clippedEdgeVx2Id,
-                                                              cvx21.normDistFromEdgeVx1,
-                                                              cvx22.clippedEdgeVx1Id,
-                                                              cvx22.clippedEdgeVx2Id,
-                                                              cvx22.normDistFromEdgeVx1,
-                                                              cvx1.normDistFromEdgeVx1,
-                                                              cvx2.normDistFromEdgeVx1,
-                                                              cvx.normDistFromEdgeVx1 ) );
+                            m_triVxToCellCornerWeights.push_back( RivIntersectionVertexWeights( cvx11.clippedEdgeVx1Id,
+                                                                                                cvx11.clippedEdgeVx2Id,
+                                                                                                cvx11.normDistFromEdgeVx1,
+                                                                                                cvx12.clippedEdgeVx1Id,
+                                                                                                cvx12.clippedEdgeVx2Id,
+                                                                                                cvx2.normDistFromEdgeVx1,
+                                                                                                cvx21.clippedEdgeVx1Id,
+                                                                                                cvx21.clippedEdgeVx2Id,
+                                                                                                cvx21.normDistFromEdgeVx1,
+                                                                                                cvx22.clippedEdgeVx1Id,
+                                                                                                cvx22.clippedEdgeVx2Id,
+                                                                                                cvx22.normDistFromEdgeVx1,
+                                                                                                cvx1.normDistFromEdgeVx1,
+                                                                                                cvx2.normDistFromEdgeVx1,
+                                                                                                cvx.normDistFromEdgeVx1 ) );
                         }
                     }
                 }

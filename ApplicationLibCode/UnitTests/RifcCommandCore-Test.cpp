@@ -24,8 +24,8 @@ public:
     caf::PdmScriptResponse execute() override
     {
         std::cout << "TestCommand1::execute("
-                  << "\"" << m_textArgument().toStdString() << "\", " << m_doubleArgument() << ", " << m_intArgument
-                  << ", " << m_boolArgument << ");" << std::endl;
+                  << "\"" << m_textArgument().toStdString() << "\", " << m_doubleArgument() << ", " << m_intArgument << ", "
+                  << m_boolArgument << ");" << std::endl;
         return caf::PdmScriptResponse();
     }
 
@@ -53,8 +53,8 @@ public:
     caf::PdmScriptResponse execute() override
     {
         std::cout << "TC2::execute("
-                  << "\"" << m_textArgument().toStdString() << "\", " << m_doubleArgument() << ", " << m_intArgument()
-                  << ", " << m_boolArgument() << ");" << std::endl;
+                  << "\"" << m_textArgument().toStdString() << "\", " << m_doubleArgument() << ", " << m_intArgument() << ", "
+                  << m_boolArgument() << ");" << std::endl;
         return caf::PdmScriptResponse();
     }
 
@@ -319,8 +319,7 @@ TEST( RicfCommands, WriteCommand )
         QTextStream              inputStream( &commandString );
         caf::PdmScriptIOMessages errors;
 
-        auto objects =
-            RicfCommandFileReader::readCommands( inputStream, caf::PdmDefaultObjectFactory::instance(), &errors );
+        auto objects = RicfCommandFileReader::readCommands( inputStream, caf::PdmDefaultObjectFactory::instance(), &errors );
         EXPECT_EQ( (size_t)1, objects.size() );
 
         TestCommand1* myObj = dynamic_cast<TestCommand1*>( objects.front() );

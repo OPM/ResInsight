@@ -52,9 +52,8 @@ std::vector<std::vector<int>> RifActiveCellsReader::activeCellsFromActnumKeyword
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<int>> RifActiveCellsReader::activeCellsFromPorvKeyword( const ecl_file_type* ecl_file,
-                                                                                bool                 dualPorosity,
-                                                                                const int            cellCountMainGrid )
+std::vector<std::vector<int>>
+    RifActiveCellsReader::activeCellsFromPorvKeyword( const ecl_file_type* ecl_file, bool dualPorosity, const int cellCountMainGrid )
 {
     CAF_ASSERT( ecl_file );
 
@@ -125,8 +124,7 @@ std::vector<std::vector<int>> RifActiveCellsReader::activeCellsFromPorvKeyword( 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifActiveCellsReader::applyActiveCellsToAllGrids( ecl_grid_type*                       ecl_main_grid,
-                                                       const std::vector<std::vector<int>>& activeCellsForAllGrids )
+void RifActiveCellsReader::applyActiveCellsToAllGrids( ecl_grid_type* ecl_main_grid, const std::vector<std::vector<int>>& activeCellsForAllGrids )
 {
     CAF_ASSERT( ecl_main_grid );
 

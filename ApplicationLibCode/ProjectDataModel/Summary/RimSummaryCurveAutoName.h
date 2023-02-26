@@ -46,12 +46,8 @@ private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
-    void appendAddressDetails( std::string&                    text,
-                               const RifEclipseSummaryAddress& summaryAddress,
-                               const RimSummaryNameHelper*     nameHelper ) const;
-    void appendWellName( std::string&                    text,
-                         const RifEclipseSummaryAddress& summaryAddress,
-                         const RimSummaryNameHelper*     nameHelper ) const;
+    void appendAddressDetails( std::string& text, const RifEclipseSummaryAddress& summaryAddress, const RimSummaryNameHelper* nameHelper ) const;
+    void appendWellName( std::string& text, const RifEclipseSummaryAddress& summaryAddress, const RimSummaryNameHelper* nameHelper ) const;
     void appendLgrName( std::string& text, const RifEclipseSummaryAddress& summaryAddress ) const;
 
     QString buildCurveName( const RifEclipseSummaryAddress& summaryAddress,

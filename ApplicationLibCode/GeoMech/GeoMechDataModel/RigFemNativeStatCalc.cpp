@@ -26,8 +26,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemNativeStatCalc::RigFemNativeStatCalc( RigFemPartResultsCollection* femResultCollection,
-                                            const RigFemResultAddress&   resVarAddr )
+RigFemNativeStatCalc::RigFemNativeStatCalc( RigFemPartResultsCollection* femResultCollection, const RigFemResultAddress& resVarAddr )
     : m_resVarAddr( resVarAddr )
 {
     m_resultsData = femResultCollection;
@@ -154,7 +153,7 @@ void RigFemNativeStatCalc::uniqueValues( size_t timeStepIndex, std::set<int>& va
     {
         auto frames = m_resultsData->findOrLoadScalarResult( pIdx, m_resVarAddr );
 
-        auto [stepIdx, frameIdx] = m_resultsData->stepListIndexToTimeStepAndDataFrameIndex( timeStepIndex );
+        auto [stepIdx, frameIdx]              = m_resultsData->stepListIndexToTimeStepAndDataFrameIndex( timeStepIndex );
         const std::vector<float>& floatValues = frames->frameData( stepIdx, frameIdx );
 
         for ( size_t i = 0; i < floatValues.size(); i++ )

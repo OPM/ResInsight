@@ -59,14 +59,11 @@ public:
     void setSummaryData( const std::string& keyword, const std::string& unit, const std::vector<float>& values );
     void onProjectBeingSaved();
 
-    static RifSummaryReaderInterface* findRelatedFilesAndCreateReader( const QString&       headerFileName,
-                                                                       bool                 includeRestartFiles,
-                                                                       RiaThreadSafeLogger* threadSafeLogger );
+    static RifSummaryReaderInterface*
+        findRelatedFilesAndCreateReader( const QString& headerFileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
 
 protected:
-    void defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                QString                    uiConfigName,
-                                caf::PdmUiEditorAttribute* attribute ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 

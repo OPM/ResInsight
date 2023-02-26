@@ -47,10 +47,10 @@ public:
                              RiaDefines::RegionDisplay                     regionDisplay,
                              const caf::ColorTable&                        colorTable,
                              int                                           shadingAlphaByte,
-                             bool                                          showNames = true,
-                             RiaDefines::TrackSpan              trackSpan   = RiaDefines::TrackSpan::FULL_WIDTH,
-                             const std::vector<Qt::BrushStyle>& brushStyles = {},
-                             int                                fontSize    = 0 );
+                             bool                                          showNames   = true,
+                             RiaDefines::TrackSpan                         trackSpan   = RiaDefines::TrackSpan::FULL_WIDTH,
+                             const std::vector<Qt::BrushStyle>&            brushStyles = {},
+                             int                                           fontSize    = 0 );
     void attachWellPicks( QwtPlot* plot, const std::vector<QString>& names, const std::vector<double>& yPositions );
 
     void attachAnnotationLine( QwtPlot*                plot,

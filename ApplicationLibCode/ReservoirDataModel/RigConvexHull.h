@@ -33,5 +33,5 @@ public:
 
 private:
     static std::vector<cvf::Vec3d> sortPoints( const std::vector<cvf::Vec3d>& unsorted );
-    static void removePointsWithoutConvexAngle( std::vector<cvf::Vec3d>& points, const cvf::Vec3d& current );
+    static void                    removePointsWithoutConvexAngle( std::vector<cvf::Vec3d>& points, const cvf::Vec3d& current );
 };

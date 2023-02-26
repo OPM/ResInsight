@@ -71,8 +71,7 @@ void RicDeleteWellPathAttributeFeature::onActionTriggered( bool isChecked )
     }
     else
     {
-        wellPathAttributeCollection =
-            caf::SelectionManager::instance()->selectedItemOfType<RimWellPathAttributeCollection>();
+        wellPathAttributeCollection = caf::SelectionManager::instance()->selectedItemOfType<RimWellPathAttributeCollection>();
         if ( wellPathAttributeCollection )
         {
             wellPathAttributeCollection->deleteAllAttributes();

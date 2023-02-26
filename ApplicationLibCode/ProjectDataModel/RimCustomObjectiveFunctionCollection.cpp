@@ -64,8 +64,7 @@ std::vector<RimCustomObjectiveFunction*> RimCustomObjectiveFunctionCollection::o
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCustomObjectiveFunctionCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
-                                                                 QString                 uiConfigName /* = "" */ )
+void RimCustomObjectiveFunctionCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /* = "" */ )
 {
     for ( auto func : objectiveFunctions() )
     {

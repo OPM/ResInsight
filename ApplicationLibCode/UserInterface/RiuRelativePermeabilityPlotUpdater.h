@@ -43,8 +43,7 @@ public:
     void updateOnSelectionChanged( const RiuSelectionItem* selectionItem );
     void updateOnTimeStepChanged( Rim3dView* changedView );
 
-    static RiuEclipseSelectionItem* extractEclipseSelectionItem( const RiuSelectionItem* selectionItem,
-                                                                 Rim3dView*&             newFollowAnimView );
+    static RiuEclipseSelectionItem* extractEclipseSelectionItem( const RiuSelectionItem* selectionItem, Rim3dView*& newFollowAnimView );
     static QString                  constructCellReferenceText( const RigEclipseCaseData* eclipseCaseData,
                                                                 size_t                    gridIndex,
                                                                 size_t                    gridLocalCellIndex,
@@ -71,6 +70,5 @@ private:
 class CellLookupHelper
 {
 public:
-    static size_t
-        mapToActiveCellIndex( const RigEclipseCaseData* eclipseCaseData, size_t gridIndex, size_t gridLocalCellIndex );
+    static size_t mapToActiveCellIndex( const RigEclipseCaseData* eclipseCaseData, size_t gridIndex, size_t gridLocalCellIndex );
 };

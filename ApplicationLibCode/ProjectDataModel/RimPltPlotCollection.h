@@ -52,15 +52,13 @@ public:
     RimPltPlotCollection();
     ~RimPltPlotCollection() override;
 
-    RigEclipseWellLogExtractor* findOrCreateSimWellExtractor( const QString&                    simWellName,
-                                                              const QString&                    caseUserDescription,
-                                                              gsl::not_null<const RigWellPath*> wellPathGeom,
+    RigEclipseWellLogExtractor* findOrCreateSimWellExtractor( const QString&                           simWellName,
+                                                              const QString&                           caseUserDescription,
+                                                              gsl::not_null<const RigWellPath*>        wellPathGeom,
                                                               gsl::not_null<const RigEclipseCaseData*> eclCaseData );
 
-    RigEclipseWellLogExtractor* findOrCreateExtractor( gsl::not_null<RimWellPath*>    wellPath,
-                                                       gsl::not_null<RimEclipseCase*> eclCase );
-    RigGeoMechWellLogExtractor* findOrCreateExtractor( gsl::not_null<RimWellPath*>    wellPath,
-                                                       gsl::not_null<RimGeoMechCase*> eclCase );
+    RigEclipseWellLogExtractor* findOrCreateExtractor( gsl::not_null<RimWellPath*> wellPath, gsl::not_null<RimEclipseCase*> eclCase );
+    RigGeoMechWellLogExtractor* findOrCreateExtractor( gsl::not_null<RimWellPath*> wellPath, gsl::not_null<RimGeoMechCase*> eclCase );
 
     void removeExtractors( const RigWellPath* wellPath );
     void removeExtractors( const RigEclipseCaseData* caseData );

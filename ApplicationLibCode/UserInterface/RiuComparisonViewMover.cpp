@@ -61,8 +61,8 @@ bool RiuComparisonViewMover::eventFilter( QObject* watched, QEvent* event )
 
                 if ( m_dragState == LEFT_EDGE )
                 {
-                    QPointF    mousePos     = mEv->windowPos();
-                    QPointF    normMousePos = { mousePos.x() / m_viewer->width(), mousePos.y() / m_viewer->height() };
+                    QPointF    mousePos          = mEv->windowPos();
+                    QPointF    normMousePos      = { mousePos.x() / m_viewer->width(), mousePos.y() / m_viewer->height() };
                     cvf::Rectf orgCompViewWindow = m_viewer->comparisonViewVisibleNormalizedRect();
 
                     float minx   = normMousePos.x();
@@ -117,11 +117,7 @@ void RiuComparisonViewMover::paintMoverHandles( QPainter* painter )
         handleColor = QColor( 255, 255, 255, 50 );
     }
 
-    painter->fillRect( leftEdgePos - handleThickness * 0.4,
-                       bottomEdgePosQt - 8 * handleThickness,
-                       handleThickness,
-                       handleThickness * 6,
-                       handleColor );
+    painter->fillRect( leftEdgePos - handleThickness * 0.4, bottomEdgePosQt - 8 * handleThickness, handleThickness, handleThickness * 6, handleColor );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -139,8 +135,7 @@ RiuComparisonViewMover::DragState RiuComparisonViewMover::findHandleUnderMouse( 
     int bottomEdgePosQt = height - viewerHeight * normalizedComparisonRect.min().y();
 
     if ( ( leftEdgePos - handleThickness * 0.4 ) < mousePos.x() && mousePos.x() < ( leftEdgePos + handleThickness * 0.5 ) &&
-         ( bottomEdgePosQt - 8 * handleThickness ) < mousePos.y() &&
-         mousePos.y() < ( bottomEdgePosQt - 2 * handleThickness ) )
+         ( bottomEdgePosQt - 8 * handleThickness ) < mousePos.y() && mousePos.y() < ( bottomEdgePosQt - 2 * handleThickness ) )
     {
         return LEFT_EDGE;
     }

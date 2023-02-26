@@ -51,8 +51,7 @@ bool RicPasteGeoMechViewsFeature::isCommandEnabled()
         return false;
     }
 
-    caf::PdmObjectHandle* destinationObject =
-        dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
+    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
 
     RimGeoMechCase* geoMechCase = RicPasteFeatureImpl::findGeoMechCase( destinationObject );
     if ( geoMechCase ) return true;
@@ -65,8 +64,7 @@ bool RicPasteGeoMechViewsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicPasteGeoMechViewsFeature::onActionTriggered( bool isChecked )
 {
-    caf::PdmObjectHandle* destinationObject =
-        dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
+    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
 
     RimGeoMechCase* geomCase = RicPasteFeatureImpl::findGeoMechCase( destinationObject );
     assert( geomCase );
@@ -84,8 +82,8 @@ void RicPasteGeoMechViewsFeature::onActionTriggered( bool isChecked )
     // Add cases to case group
     for ( size_t i = 0; i < geomViews.size(); i++ )
     {
-        RimGeoMechView* rimReservoirView = dynamic_cast<RimGeoMechView*>(
-            geomViews[i]->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+        RimGeoMechView* rimReservoirView =
+            dynamic_cast<RimGeoMechView*>( geomViews[i]->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
         QString nameOfCopy = QString( "Copy of " ) + rimReservoirView->name();
         rimReservoirView->setName( nameOfCopy );
         geomCase->geoMechViews().push_back( rimReservoirView );

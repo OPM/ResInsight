@@ -76,7 +76,7 @@ class RiaGetCurrentCase : public RiaSocketCommand
 {
 public:
     static QString commandName() { return QString( "GetCurrentCase" ); }
-    bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
+    bool           interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {
         qint64  caseId = RiaApplication::instance()->currentScriptCaseId();
         QString caseName;
@@ -165,11 +165,10 @@ class RiaGetCaseGroups : public RiaSocketCommand
 {
 public:
     static QString commandName() { return QString( "GetCaseGroups" ); }
-    bool interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
+    bool           interpretCommand( RiaSocketServer* server, const QList<QByteArray>& args, QDataStream& socketStream ) override
     {
-        RimProject*               proj = RimProject::current();
-        RimEclipseCaseCollection* analysisModels =
-            ( proj && proj->activeOilField() ) ? proj->activeOilField()->analysisModels() : nullptr;
+        RimProject*               proj           = RimProject::current();
+        RimEclipseCaseCollection* analysisModels = ( proj && proj->activeOilField() ) ? proj->activeOilField()->analysisModels() : nullptr;
         if ( analysisModels )
         {
             std::vector<QString> groupNames;
@@ -210,8 +209,7 @@ public:
     }
 };
 
-static bool RiaGetCaseGroups_init =
-    RiaSocketCommandFactory::instance()->registerCreator<RiaGetCaseGroups>( RiaGetCaseGroups::commandName() );
+static bool RiaGetCaseGroups_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetCaseGroups>( RiaGetCaseGroups::commandName() );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -230,9 +228,8 @@ public:
             argCaseGroupId = args[1].toInt();
         }
 
-        RimProject*               proj = RimProject::current();
-        RimEclipseCaseCollection* analysisModels =
-            ( proj && proj->activeOilField() ) ? proj->activeOilField()->analysisModels() : nullptr;
+        RimProject*               proj           = RimProject::current();
+        RimEclipseCaseCollection* analysisModels = ( proj && proj->activeOilField() ) ? proj->activeOilField()->analysisModels() : nullptr;
         if ( analysisModels )
         {
             std::vector<RimCase*> cases;
@@ -300,5 +297,4 @@ public:
     }
 };
 
-static bool RiaGetCases_init =
-    RiaSocketCommandFactory::instance()->registerCreator<RiaGetCases>( RiaGetCases::commandName() );
+static bool RiaGetCases_init = RiaSocketCommandFactory::instance()->registerCreator<RiaGetCases>( RiaGetCases::commandName() );

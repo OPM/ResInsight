@@ -66,9 +66,7 @@ public:
 
     struct FaultFace
     {
-        FaultFace( size_t                             nativeReservoirCellIndex,
-                   cvf::StructGridInterface::FaceType nativeFace,
-                   size_t                             oppositeReservoirCellIndex )
+        FaultFace( size_t nativeReservoirCellIndex, cvf::StructGridInterface::FaceType nativeFace, size_t oppositeReservoirCellIndex )
             : m_nativeReservoirCellIndex( nativeReservoirCellIndex )
             , m_nativeFace( nativeFace )
             , m_oppositeReservoirCellIndex( oppositeReservoirCellIndex )

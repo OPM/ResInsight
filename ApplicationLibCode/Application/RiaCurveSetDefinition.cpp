@@ -32,8 +32,7 @@ RiaCurveSetDefinition::RiaCurveSetDefinition()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaCurveSetDefinition::RiaCurveSetDefinition( RimSummaryCaseCollection*       ensemble,
-                                              const RifEclipseSummaryAddress& summaryAddress )
+RiaCurveSetDefinition::RiaCurveSetDefinition( RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& summaryAddress )
     : m_ensemble( ensemble )
     , m_summaryAddress( summaryAddress )
 {

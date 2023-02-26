@@ -59,8 +59,7 @@ public:
 
     static RicfCommandFileExecutor* instance();
 
-    static std::vector<RicfCommandObject*>
-        prepareFileCommandsForExecution( const std::vector<RicfCommandObject*>& commandsReadFromFile );
+    static std::vector<RicfCommandObject*> prepareFileCommandsForExecution( const std::vector<RicfCommandObject*>& commandsReadFromFile );
 
 private:
     void clearCachedData();

@@ -128,30 +128,26 @@ public:
 
     bool hasDualPorFractureResult();
 
-    static QList<caf::PdmOptionItemInfo> calcOptionsForVariableUiFieldStandard( RiaDefines::ResultCatType resultCatType,
+    static QList<caf::PdmOptionItemInfo> calcOptionsForVariableUiFieldStandard( RiaDefines::ResultCatType     resultCatType,
                                                                                 const RigCaseCellResultsData* results,
                                                                                 bool showDerivedResultsFirst   = false,
                                                                                 bool addPerCellFaceOptionItems = false,
-                                                                                bool enableTernary = false );
+                                                                                bool enableTernary             = false );
 
     void setTernaryEnabled( bool enabled );
 
-    void updateRangesForExplicitLegends( RimRegularLegendConfig* legendConfig,
-                                         RimTernaryLegendConfig* ternaryLegendConfig,
-                                         int                     currentTimeStep );
+    void updateRangesForExplicitLegends( RimRegularLegendConfig* legendConfig, RimTernaryLegendConfig* ternaryLegendConfig, int currentTimeStep );
     void updateLegendTitle( RimRegularLegendConfig* legendConfig, const QString& legendHeading );
 
 protected:
     virtual void updateLegendCategorySettings(){};
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
-    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     void initAfterRead() override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                QString                    uiConfigName,
-                                caf::PdmUiEditorAttribute* attribute ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
 protected:
     caf::PdmField<caf::AppEnum<RiaDefines::ResultCatType>>     m_resultType;
@@ -214,8 +210,7 @@ private:
     QString selectedTracersString() const;
 
     void               changedTracerSelectionField( bool injector );
-    static QStringList getResultNamesForResultType( RiaDefines::ResultCatType     resultCatType,
-                                                    const RigCaseCellResultsData* results );
+    static QStringList getResultNamesForResultType( RiaDefines::ResultCatType resultCatType, const RigCaseCellResultsData* results );
 
     std::vector<QString>          allTracerNames() const;
     std::set<QString, TracerComp> setOfTracersOfType( bool injector ) const;

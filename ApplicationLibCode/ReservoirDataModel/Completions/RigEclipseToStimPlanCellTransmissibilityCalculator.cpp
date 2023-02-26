@@ -38,13 +38,12 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigEclipseToStimPlanCellTransmissibilityCalculator::RigEclipseToStimPlanCellTransmissibilityCalculator(
-    const RimEclipseCase*  caseToApply,
-    cvf::Mat4d             fractureTransform,
-    double                 skinFactor,
-    double                 cDarcy,
-    const RigFractureCell& stimPlanCell,
-    const RimFracture*     fracture )
+RigEclipseToStimPlanCellTransmissibilityCalculator::RigEclipseToStimPlanCellTransmissibilityCalculator( const RimEclipseCase* caseToApply,
+                                                                                                        cvf::Mat4d fractureTransform,
+                                                                                                        double     skinFactor,
+                                                                                                        double     cDarcy,
+                                                                                                        const RigFractureCell& stimPlanCell,
+                                                                                                        const RimFracture*     fracture )
     : m_case( caseToApply )
     , m_fractureTransform( fractureTransform )
     , m_fractureSkinFactor( skinFactor )
@@ -160,9 +159,8 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
     cvf::ref<RigResultAccessor> dataAccessObjectDz = createResultAccessor( m_case, "DZ" );
     if ( dataAccessObjectDx.isNull() || dataAccessObjectDy.isNull() || dataAccessObjectDz.isNull() )
     {
-        RiaLogging::error(
-            "Data for DX/DY/DZ is not complete, and these values are required for export of COMPDAT. Make sure "
-            "'Preferences->Compute DEPTH Related Properties' is checked." );
+        RiaLogging::error( "Data for DX/DY/DZ is not complete, and these values are required for export of COMPDAT. Make sure "
+                           "'Preferences->Compute DEPTH Related Properties' is checked." );
 
         return;
     }
@@ -172,8 +170,7 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
     cvf::ref<RigResultAccessor> dataAccessObjectPermZ = createResultAccessor( m_case, "PERMZ" );
     if ( dataAccessObjectPermX.isNull() || dataAccessObjectPermY.isNull() || dataAccessObjectPermZ.isNull() )
     {
-        RiaLogging::error(
-            "Data for PERMX/PERMY/PERMZ is not complete, and these values are required for export of COMPDAT." );
+        RiaLogging::error( "Data for PERMX/PERMY/PERMZ is not complete, and these values are required for export of COMPDAT." );
 
         return;
     }
@@ -193,15 +190,13 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
     for ( size_t reservoirCellIndex : reservoirCellIndices )
     {
         const RigMainGrid* mainGrid = m_case->eclipseCaseData()->mainGrid();
-        if ( !m_fracture->isEclipseCellOpenForFlow( mainGrid, reservoirCellIndicesOpenForFlow, reservoirCellIndex ) )
-            continue;
+        if ( !m_fracture->isEclipseCellOpenForFlow( mainGrid, reservoirCellIndicesOpenForFlow, reservoirCellIndex ) ) continue;
 
         std::array<cvf::Vec3d, 8> hexCorners;
         mainGrid->cellCornerVertices( reservoirCellIndex, hexCorners.data() );
 
         std::vector<std::vector<cvf::Vec3d>> planeCellPolygons;
-        bool                                 isPlanIntersected =
-            RigHexIntersectionTools::planeHexIntersectionPolygons( hexCorners, m_fractureTransform, planeCellPolygons );
+        bool isPlanIntersected = RigHexIntersectionTools::planeHexIntersectionPolygons( hexCorners, m_fractureTransform, planeCellPolygons );
         if ( !isPlanIntersected || planeCellPolygons.empty() ) continue;
 
         cvf::Vec3d localX;
@@ -306,30 +301,27 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
                 NTG = dataAccessObjectNTG->cellScalarGlobIdx( reservoirCellIndex );
             }
 
-            double transmissibility_X =
-                RigFractureTransmissibilityEquations::matrixToFractureTrans( permY,
-                                                                             NTG,
-                                                                             Ay,
-                                                                             dx,
-                                                                             m_fractureSkinFactor,
-                                                                             fractureAreaWeightedlength,
-                                                                             m_cDarcy );
-            double transmissibility_Y =
-                RigFractureTransmissibilityEquations::matrixToFractureTrans( permX,
-                                                                             NTG,
-                                                                             Ax,
-                                                                             dy,
-                                                                             m_fractureSkinFactor,
-                                                                             fractureAreaWeightedlength,
-                                                                             m_cDarcy );
-            double transmissibility_Z =
-                RigFractureTransmissibilityEquations::matrixToFractureTrans( permZ,
-                                                                             1.0,
-                                                                             Az,
-                                                                             dz,
-                                                                             m_fractureSkinFactor,
-                                                                             fractureAreaWeightedlength,
-                                                                             m_cDarcy );
+            double transmissibility_X = RigFractureTransmissibilityEquations::matrixToFractureTrans( permY,
+                                                                                                     NTG,
+                                                                                                     Ay,
+                                                                                                     dx,
+                                                                                                     m_fractureSkinFactor,
+                                                                                                     fractureAreaWeightedlength,
+                                                                                                     m_cDarcy );
+            double transmissibility_Y = RigFractureTransmissibilityEquations::matrixToFractureTrans( permX,
+                                                                                                     NTG,
+                                                                                                     Ax,
+                                                                                                     dy,
+                                                                                                     m_fractureSkinFactor,
+                                                                                                     fractureAreaWeightedlength,
+                                                                                                     m_cDarcy );
+            double transmissibility_Z = RigFractureTransmissibilityEquations::matrixToFractureTrans( permZ,
+                                                                                                     1.0,
+                                                                                                     Az,
+                                                                                                     dz,
+                                                                                                     m_fractureSkinFactor,
+                                                                                                     fractureAreaWeightedlength,
+                                                                                                     m_cDarcy );
 
             cvf::Vec3d transmissibilityVector( transmissibility_X, transmissibility_Y, transmissibility_Z );
             transmissibility = calculateTransmissibility( transmissibilityVector, fractureArea );
@@ -347,8 +339,8 @@ void RigEclipseToStimPlanCellTransmissibilityCalculator::calculateStimPlanCellsM
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<size_t> RigEclipseToStimPlanCellTransmissibilityCalculator::getPotentiallyFracturedCellsForPolygon(
-    const std::vector<cvf::Vec3d>& polygon ) const
+std::vector<size_t>
+    RigEclipseToStimPlanCellTransmissibilityCalculator::getPotentiallyFracturedCellsForPolygon( const std::vector<cvf::Vec3d>& polygon ) const
 {
     std::vector<size_t> cellIndices;
 
@@ -379,19 +371,14 @@ std::vector<size_t> RigEclipseToStimPlanCellTransmissibilityCalculator::getPoten
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigResultAccessor>
-    RigEclipseToStimPlanCellTransmissibilityCalculator::createResultAccessor( const RimEclipseCase* eclipseCase,
-                                                                              const QString&        uiResultName )
+cvf::ref<RigResultAccessor> RigEclipseToStimPlanCellTransmissibilityCalculator::createResultAccessor( const RimEclipseCase* eclipseCase,
+                                                                                                      const QString&        uiResultName )
 {
     RiaDefines::PorosityModelType porosityModel   = RiaDefines::PorosityModelType::MATRIX_MODEL;
     const RigEclipseCaseData*     eclipseCaseData = eclipseCase->eclipseCaseData();
 
     // Create result accessor object for main grid at time step zero (static result date is always at first time step
-    return RigResultAccessorFactory::createFromResultAddress( eclipseCaseData,
-                                                              0,
-                                                              porosityModel,
-                                                              0,
-                                                              RigEclipseResultAddress( uiResultName ) );
+    return RigResultAccessorFactory::createFromResultAddress( eclipseCaseData, 0, porosityModel, 0, RigEclipseResultAddress( uiResultName ) );
 }
 
 //--------------------------------------------------------------------------------------------------

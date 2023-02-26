@@ -1,7 +1,6 @@
 #include "gtest/gtest.h"
 
-const std::string casePath =
-    "\\\\csfiles\\Store\\ProjectData\\StatoilReservoir\\ReferenceCases\\simple_FlowDiag_Model\\";
+const std::string casePath = "\\\\csfiles\\Store\\ProjectData\\StatoilReservoir\\ReferenceCases\\simple_FlowDiag_Model\\";
 
 /*
 #include "exampleSetup.hpp"

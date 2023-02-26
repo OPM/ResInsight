@@ -47,15 +47,8 @@ class Part;
 class RiuResultTextBuilder
 {
 public:
-    RiuResultTextBuilder( RimGridView*                settingsView,
-                          RimEclipseResultDefinition* eclResDef,
-                          size_t                      gridIndex,
-                          size_t                      cellIndex,
-                          size_t                      timeStepIndex );
-    RiuResultTextBuilder( RimGridView*                settingsView,
-                          RimEclipseResultDefinition* eclResDef,
-                          size_t                      reservoirCellIndex,
-                          size_t                      timeStepIndex );
+    RiuResultTextBuilder( RimGridView* settingsView, RimEclipseResultDefinition* eclResDef, size_t gridIndex, size_t cellIndex, size_t timeStepIndex );
+    RiuResultTextBuilder( RimGridView* settingsView, RimEclipseResultDefinition* eclResDef, size_t reservoirCellIndex, size_t timeStepIndex );
 
     void setFace( cvf::StructGridInterface::FaceType face );
     void setNncIndex( size_t nncIndex );

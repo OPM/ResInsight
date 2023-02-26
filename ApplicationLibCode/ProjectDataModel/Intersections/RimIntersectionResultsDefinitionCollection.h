@@ -37,13 +37,12 @@ public:
     std::vector<RimIntersectionResultDefinition*> intersectionResultsDefinitions() const;
 
     void appendIntersectionResultDefinition( RimIntersectionResultDefinition* interResDef );
-    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
 protected:
     caf::PdmFieldHandle* objectToggleField() override;
-    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void                 initAfterRead() override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void initAfterRead() override;
 
 private:
     caf::PdmField<bool>                                       m_isActive;

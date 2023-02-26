@@ -119,9 +119,8 @@ public:
 
         QString propertyName = args[2];
 
-        RigMainGrid*                            mainGrid = rimCase->eclipseCaseData()->mainGrid();
-        const std::vector<std::vector<double>>* nncValues =
-            mainGrid->nncData()->dynamicConnectionScalarResultByName( propertyName );
+        RigMainGrid*                            mainGrid  = rimCase->eclipseCaseData()->mainGrid();
+        const std::vector<std::vector<double>>* nncValues = mainGrid->nncData()->dynamicConnectionScalarResultByName( propertyName );
 
         if ( nncValues == nullptr )
         {
@@ -150,9 +149,8 @@ public:
 
             if ( timeStepReadError )
             {
-                server->showErrorMessage(
-                    RiaSocketServer::tr( "ResInsight SocketServer: riGetDynamicNNCValues : \n" ) +
-                    RiaSocketServer::tr( "An error occurred while interpreting the requested time steps." ) );
+                server->showErrorMessage( RiaSocketServer::tr( "ResInsight SocketServer: riGetDynamicNNCValues : \n" ) +
+                                          RiaSocketServer::tr( "An error occurred while interpreting the requested time steps." ) );
             }
         }
         else
@@ -220,10 +218,7 @@ public:
         size_t connectionCount = mainGrid->nncData()->allConnections().size();
         socketStream << (quint64)connectionCount;
 
-        RiaSocketTools::writeBlockData( server,
-                                        server->currentClient(),
-                                        (const char*)nncValues->data(),
-                                        sizeof( double ) * nncValues->size() );
+        RiaSocketTools::writeBlockData( server, server->currentClient(), (const char*)nncValues->data(), sizeof( double ) * nncValues->size() );
 
         return true;
     }
@@ -362,9 +357,8 @@ public:
             bool ok = createIJKCellResults( rimCase->results( m_porosityModelEnum ), propertyName );
             if ( !ok )
             {
-                server->showErrorMessage(
-                    RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
-                    RiaSocketServer::tr( "Could not find the property named: \"%2\"" ).arg( propertyName ) );
+                server->showErrorMessage( RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
+                                          RiaSocketServer::tr( "Could not find the property named: \"%2\"" ).arg( propertyName ) );
                 return true;
             }
             RigEclipseResultAddress resAddr( QString( "%1IJK" ).arg( propertyName ) );
@@ -403,9 +397,8 @@ public:
 
             if ( timeStepReadError )
             {
-                server->showErrorMessage(
-                    RiaSocketServer::tr( "ResInsight SocketServer: riSetNNCProperty : \n" ) +
-                    RiaSocketServer::tr( "An error occurred while interpreting the requested time steps." ) );
+                server->showErrorMessage( RiaSocketServer::tr( "ResInsight SocketServer: riSetNNCProperty : \n" ) +
+                                          RiaSocketServer::tr( "An error occurred while interpreting the requested time steps." ) );
             }
         }
 
@@ -481,19 +474,17 @@ public:
 
         size_t                            connectionCountFromOctave = m_bytesPerTimeStepToRead / sizeof( double );
         size_t                            connectionCount           = nncData->allConnections().size();
-        std::vector<std::vector<double>>* resultsToAdd =
-            nncData->generatedConnectionScalarResultByName( m_currentPropertyName );
+        std::vector<std::vector<double>>* resultsToAdd = nncData->generatedConnectionScalarResultByName( m_currentPropertyName );
 
         if ( connectionCountFromOctave != connectionCount )
         {
-            server->showErrorMessage( RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
-                                      RiaSocketServer::tr( "The number of connections in the data coming from octave "
-                                                           "does not match the case: '%1'\n" )
-                                          .arg( m_currentReservoir->caseUserDescription() ) +
-                                      RiaSocketServer::tr( "   Octave: %1\n" ).arg( connectionCountFromOctave ) +
-                                      RiaSocketServer::tr( "  %1: Connection count: %2" )
-                                          .arg( m_currentReservoir->caseUserDescription() )
-                                          .arg( connectionCount ) );
+            server->showErrorMessage(
+                RiaSocketServer::tr( "ResInsight SocketServer: \n" ) +
+                RiaSocketServer::tr( "The number of connections in the data coming from octave "
+                                     "does not match the case: '%1'\n" )
+                    .arg( m_currentReservoir->caseUserDescription() ) +
+                RiaSocketServer::tr( "   Octave: %1\n" ).arg( connectionCountFromOctave ) +
+                RiaSocketServer::tr( "  %1: Connection count: %2" ).arg( m_currentReservoir->caseUserDescription() ).arg( connectionCount ) );
 
             connectionCountFromOctave        = 0;
             m_invalidConnectionCountDetected = true;
@@ -520,10 +511,7 @@ public:
             internalMatrixData = resultsToAdd->at( m_requestedTimesteps[m_currentTimeStepNumberToRead] ).data();
 
             QStringList errorMessages;
-            if ( !RiaSocketDataTransfer::readBlockDataFromSocket( currentClient,
-                                                                  (char*)( internalMatrixData ),
-                                                                  m_bytesPerTimeStepToRead,
-                                                                  errorMessages ) )
+            if ( !RiaSocketDataTransfer::readBlockDataFromSocket( currentClient, (char*)( internalMatrixData ), m_bytesPerTimeStepToRead, errorMessages ) )
             {
                 for ( int i = 0; i < errorMessages.size(); i++ )
                 {
@@ -546,8 +534,7 @@ public:
                 RimEclipseInputCase* inputRes = dynamic_cast<RimEclipseInputCase*>( m_currentReservoir );
                 if ( inputRes )
                 {
-                    RimEclipseInputProperty* inputProperty =
-                        inputRes->inputPropertyCollection()->findInputProperty( m_currentPropertyName );
+                    RimEclipseInputProperty* inputProperty = inputRes->inputPropertyCollection()->findInputProperty( m_currentPropertyName );
                     if ( !inputProperty )
                     {
                         inputProperty                 = new RimEclipseInputProperty;
@@ -562,12 +549,9 @@ public:
 
                 if ( m_currentEclResultAddress.isValid() && // Will never be valid because it is never set. What is
                                                             // correct behaviour ?
-                     m_currentReservoir->eclipseCaseData() &&
-                     m_currentReservoir->eclipseCaseData()->results( m_porosityModelEnum ) )
+                     m_currentReservoir->eclipseCaseData() && m_currentReservoir->eclipseCaseData()->results( m_porosityModelEnum ) )
                 {
-                    m_currentReservoir->eclipseCaseData()
-                        ->results( m_porosityModelEnum )
-                        ->recalculateStatistics( m_currentEclResultAddress );
+                    m_currentReservoir->eclipseCaseData()->results( m_porosityModelEnum )->recalculateStatistics( m_currentEclResultAddress );
                 }
 
                 for ( size_t i = 0; i < m_currentReservoir->reservoirViews.size(); ++i )
@@ -580,9 +564,7 @@ public:
                         // It is usually not needed to create new display model, but if any derived geometry based on
                         // generated data (from Octave) a full display model rebuild is required
                         m_currentReservoir->reservoirViews[i]->scheduleCreateDisplayModelAndRedraw();
-                        m_currentReservoir->reservoirViews[i]
-                            ->intersectionCollection()
-                            ->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+                        m_currentReservoir->reservoirViews[i]->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
                     }
                 }
             }

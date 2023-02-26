@@ -132,8 +132,7 @@ RiuMainWindow::RiuMainWindow()
     m_mdiArea = new RiuMdiArea( this );
     connect( m_mdiArea, SIGNAL( subWindowActivated( QMdiSubWindow* ) ), SLOT( slotSubWindowActivated( QMdiSubWindow* ) ) );
 
-    ads::CDockWidget* cWidget =
-        RiuDockWidgetTools::createDockWidget( "3D Views", RiuDockWidgetTools::main3DWindowName(), this );
+    ads::CDockWidget* cWidget = RiuDockWidgetTools::createDockWidget( "3D Views", RiuDockWidgetTools::main3DWindowName(), this );
     cWidget->setWidget( m_mdiArea );
     dockManager()->setCentralWidget( cWidget );
 
@@ -148,9 +147,7 @@ RiuMainWindow::RiuMainWindow()
     {
         m_undoView->setStack( caf::CmdExecCommandManager::instance()->undoStack() );
     }
-    connect( caf::CmdExecCommandManager::instance()->undoStack(),
-             SIGNAL( indexChanged( int ) ),
-             SLOT( slotRefreshUndoRedoActions() ) );
+    connect( caf::CmdExecCommandManager::instance()->undoStack(), SIGNAL( indexChanged( int ) ), SLOT( slotRefreshUndoRedoActions() ) );
 
     initializeGuiNewProjectLoaded();
 
@@ -158,8 +155,7 @@ RiuMainWindow::RiuMainWindow()
     m_memoryUsedButton      = new QToolButton( nullptr );
     m_memoryTotalStatus     = new QLabel( "" );
 
-    m_memoryUsedButton->setDefaultAction(
-        caf::CmdFeatureManager::instance()->action( "RicShowMemoryCleanupDialogFeature" ) );
+    m_memoryUsedButton->setDefaultAction( caf::CmdFeatureManager::instance()->action( "RicShowMemoryCleanupDialogFeature" ) );
 
     statusBar()->addPermanentWidget( m_memoryCriticalWarning );
     statusBar()->addPermanentWidget( m_memoryUsedButton );
@@ -271,16 +267,15 @@ void RiuMainWindow::cleanupGuiCaseClose()
 
     for ( auto& additionalProjectView : m_additionalProjectViews )
     {
-        RiuProjectAndPropertyView* projPropView =
-            dynamic_cast<RiuProjectAndPropertyView*>( additionalProjectView->widget() );
+        RiuProjectAndPropertyView* projPropView = dynamic_cast<RiuProjectAndPropertyView*>( additionalProjectView->widget() );
         if ( projPropView )
         {
             projPropView->showProperties( nullptr );
         }
     }
 
-    RicEditSummaryPlotFeature* editSumCurves = dynamic_cast<RicEditSummaryPlotFeature*>(
-        caf::CmdFeatureManager::instance()->getCommandFeature( "RicEditSummaryPlotFeature" ) );
+    RicEditSummaryPlotFeature* editSumCurves =
+        dynamic_cast<RicEditSummaryPlotFeature*>( caf::CmdFeatureManager::instance()->getCommandFeature( "RicEditSummaryPlotFeature" ) );
     if ( editSumCurves )
     {
         editSumCurves->closeDialogAndResetTargetPlot();
@@ -396,15 +391,13 @@ void RiuMainWindow::createActions()
     m_drawStyleSurfOnlyAction = new QAction( QIcon( ":/DrawStyleSurface.svg" ), "&Surface Only", this );
     m_dsActionGroup->addAction( m_drawStyleSurfOnlyAction );
 
-    m_drawStyleDeformationsAction =
-        new QAction( QIcon( ":/draw_style_deformation_24x24.png" ), "Show &Displacements", this );
+    m_drawStyleDeformationsAction = new QAction( QIcon( ":/draw_style_deformation_24x24.png" ), "Show &Displacements", this );
     m_drawStyleDeformationsAction->setCheckable( true );
     m_dsActionGroup->addAction( m_drawStyleDeformationsAction );
 
     connect( m_dsActionGroup, SIGNAL( triggered( QAction* ) ), SLOT( slotDrawStyleChanged( QAction* ) ) );
 
-    m_drawStyleFaultLinesSolidAction =
-        new QAction( QIcon( ":/draw_style_surface_w_fault_mesh_24x24.png" ), "Fault Mesh And Surfaces", this );
+    m_drawStyleFaultLinesSolidAction = new QAction( QIcon( ":/draw_style_surface_w_fault_mesh_24x24.png" ), "Fault Mesh And Surfaces", this );
     m_dsActionGroup->addAction( m_drawStyleFaultLinesSolidAction );
 
     m_drawStyleHideGridCellsAction = new QAction( QIcon( ":/draw_style_faults_24x24.png" ), "&Hide Grid Cells", this );
@@ -415,8 +408,7 @@ void RiuMainWindow::createActions()
     m_toggleFaultsLabelAction->setCheckable( true );
     connect( m_toggleFaultsLabelAction, SIGNAL( toggled( bool ) ), SLOT( slotToggleFaultLabelsAction( bool ) ) );
 
-    m_showWellCellsAction =
-        new QAction( QIcon( ":/draw_style_WellCellsToRangeFilter_24x24.png" ), "&Show Well Cells", this );
+    m_showWellCellsAction = new QAction( QIcon( ":/draw_style_WellCellsToRangeFilter_24x24.png" ), "&Show Well Cells", this );
     m_showWellCellsAction->setCheckable( true );
     m_showWellCellsAction->setToolTip( "Show Well Cells" );
     connect( m_showWellCellsAction, SIGNAL( toggled( bool ) ), SLOT( slotShowWellCellsAction( bool ) ) );
@@ -753,9 +745,9 @@ void RiuMainWindow::createToolBars()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::createDockPanels()
 {
-    const int                  nTreeViews     = 3;
-    const std::vector<QString> treeViewTitles = { "Project Tree", "Calculator Data ", "Scripts" };
-    const std::vector<QString> treeViewConfigs = { "MainWindow.ProjectTree", "MainWindow.DataSources", "MainWindow.Scripts" };
+    const int                  nTreeViews        = 3;
+    const std::vector<QString> treeViewTitles    = { "Project Tree", "Calculator Data ", "Scripts" };
+    const std::vector<QString> treeViewConfigs   = { "MainWindow.ProjectTree", "MainWindow.DataSources", "MainWindow.Scripts" };
     const std::vector<QString> treeViewDockNames = { RiuDockWidgetTools::mainWindowProjectTreeName(),
                                                      RiuDockWidgetTools::mainWindowDataSourceTreeName(),
                                                      RiuDockWidgetTools::mainWindowScriptsTreeName() };
@@ -795,16 +787,13 @@ void RiuMainWindow::createDockPanels()
         projectTree->treeView()->installEventFilter( treeViewEventFilter );
 
         if ( defaultDockWidgetArea[i] == ads::DockWidgetArea::LeftDockWidgetArea ) leftWidgets.push_back( dockWidget );
-        if ( defaultDockWidgetArea[i] == ads::DockWidgetArea::RightDockWidgetArea )
-            rightWidgets.push_back( dockWidget );
+        if ( defaultDockWidgetArea[i] == ads::DockWidgetArea::RightDockWidgetArea ) rightWidgets.push_back( dockWidget );
 
         connect( dockWidget, SIGNAL( visibilityChanged( bool ) ), projectTree, SLOT( treeVisibilityChanged( bool ) ) );
         connect( projectTree, SIGNAL( selectionChanged() ), this, SLOT( selectedObjectsChanged() ) );
 
         projectTree->treeView()->setContextMenuPolicy( Qt::CustomContextMenu );
-        connect( projectTree->treeView(),
-                 SIGNAL( customContextMenuRequested( const QPoint& ) ),
-                 SLOT( customMenuRequested( const QPoint& ) ) );
+        connect( projectTree->treeView(), SIGNAL( customContextMenuRequested( const QPoint& ) ), SLOT( customMenuRequested( const QPoint& ) ) );
 
         projectTree->setUiConfigurationName( treeViewConfigs[i] );
     }
@@ -812,33 +801,27 @@ void RiuMainWindow::createDockPanels()
     // undo/redo view
     if ( m_undoView && RiaPreferences::current()->useUndoRedo() )
     {
-        auto dockWidget = RiuDockWidgetTools::createDockWidget( "Undo Stack",
-                                                                RiuDockWidgetTools::mainWindowUndoStackName(),
-                                                                dockManager() );
+        auto dockWidget = RiuDockWidgetTools::createDockWidget( "Undo Stack", RiuDockWidgetTools::mainWindowUndoStackName(), dockManager() );
         dockWidget->setWidget( m_undoView );
         rightWidgets.push_back( dockWidget );
     }
 
     {
-        auto dockWidget = RiuDockWidgetTools::createDockWidget( "Result Plot",
-                                                                RiuDockWidgetTools::mainWindowResultPlotName(),
-                                                                dockManager() );
+        auto dockWidget = RiuDockWidgetTools::createDockWidget( "Result Plot", RiuDockWidgetTools::mainWindowResultPlotName(), dockManager() );
 
         m_resultQwtPlot = new RiuResultQwtPlot( dockWidget );
         dockWidget->setWidget( m_resultQwtPlot );
         bottomWidgets.push_back( dockWidget );
     }
 
-    ads::CDockAreaWidget* leftArea   = addTabbedWidgets( leftWidgets, ads::DockWidgetArea::LeftDockWidgetArea );
-    ads::CDockAreaWidget* rightArea  = addTabbedWidgets( rightWidgets, ads::DockWidgetArea::RightDockWidgetArea );
-    ads::CDockAreaWidget* bottomArea = addTabbedWidgets( bottomWidgets,
-                                                         ads::DockWidgetArea::BottomDockWidgetArea,
-                                                         dockManager()->centralWidget()->dockAreaWidget() );
+    ads::CDockAreaWidget* leftArea  = addTabbedWidgets( leftWidgets, ads::DockWidgetArea::LeftDockWidgetArea );
+    ads::CDockAreaWidget* rightArea = addTabbedWidgets( rightWidgets, ads::DockWidgetArea::RightDockWidgetArea );
+    ads::CDockAreaWidget* bottomArea =
+        addTabbedWidgets( bottomWidgets, ads::DockWidgetArea::BottomDockWidgetArea, dockManager()->centralWidget()->dockAreaWidget() );
 
     {
-        auto dockWidget = RiuDockWidgetTools::createDockWidget( "Property Editor",
-                                                                RiuDockWidgetTools::mainWindowPropertyEditorName(),
-                                                                dockManager() );
+        auto dockWidget =
+            RiuDockWidgetTools::createDockWidget( "Property Editor", RiuDockWidgetTools::mainWindowPropertyEditorName(), dockManager() );
 
         m_pdmUiPropertyView = new caf::PdmUiPropertyView( dockWidget );
         dockWidget->setWidget( m_pdmUiPropertyView );
@@ -847,9 +830,8 @@ void RiuMainWindow::createDockPanels()
 
 #ifdef USE_ODB_API
     {
-        auto dockWidget = RiuDockWidgetTools::createDockWidget( "Mohr's Circle Plot",
-                                                                RiuDockWidgetTools::mainWindowMohrsCirclePlotName(),
-                                                                dockManager() );
+        auto dockWidget =
+            RiuDockWidgetTools::createDockWidget( "Mohr's Circle Plot", RiuDockWidgetTools::mainWindowMohrsCirclePlotName(), dockManager() );
 
         m_mohrsCirclePlot = new RiuMohrsCirclePlot( dockWidget );
         dockWidget->setWidget( m_mohrsCirclePlot );
@@ -868,8 +850,7 @@ void RiuMainWindow::createDockPanels()
     }
 
     {
-        auto dockWidget =
-            RiuDockWidgetTools::createDockWidget( "PVT Plot", RiuDockWidgetTools::mainWindowPvtPlotName(), dockManager() );
+        auto dockWidget = RiuDockWidgetTools::createDockWidget( "PVT Plot", RiuDockWidgetTools::mainWindowPvtPlotName(), dockManager() );
 
         m_pvtPlotPanel = new RiuPvtPlotPanel( dockWidget );
         dockWidget->setWidget( m_pvtPlotPanel );
@@ -878,9 +859,7 @@ void RiuMainWindow::createDockPanels()
 
     // result info
     {
-        auto dockWidget = RiuDockWidgetTools::createDockWidget( "Result Info",
-                                                                RiuDockWidgetTools::mainWindowResultInfoName(),
-                                                                dockManager() );
+        auto dockWidget = RiuDockWidgetTools::createDockWidget( "Result Info", RiuDockWidgetTools::mainWindowResultInfoName(), dockManager() );
 
         m_resultInfoPanel = new RiuResultInfoPanel( dockWidget );
         dockWidget->setWidget( m_resultInfoPanel );
@@ -890,9 +869,8 @@ void RiuMainWindow::createDockPanels()
     ads::CDockAreaWidget* procAndMsgTabs = nullptr;
     // process monitor
     {
-        auto dockWidget = RiuDockWidgetTools::createDockWidget( "Process Monitor",
-                                                                RiuDockWidgetTools::mainWindowProcessMonitorName(),
-                                                                dockManager() );
+        auto dockWidget =
+            RiuDockWidgetTools::createDockWidget( "Process Monitor", RiuDockWidgetTools::mainWindowProcessMonitorName(), dockManager() );
 
         m_processMonitor = new RiuProcessMonitor( dockWidget );
         dockWidget->setWidget( m_processMonitor );
@@ -900,8 +878,7 @@ void RiuMainWindow::createDockPanels()
     }
 
     {
-        auto dockWidget =
-            RiuDockWidgetTools::createDockWidget( "Messages", RiuDockWidgetTools::mainWindowMessagesName(), dockManager() );
+        auto dockWidget = RiuDockWidgetTools::createDockWidget( "Messages", RiuDockWidgetTools::mainWindowMessagesName(), dockManager() );
 
         m_messagePanel = new RiuMessagePanel( dockWidget );
         dockWidget->setWidget( m_messagePanel );
@@ -1253,8 +1230,7 @@ void RiuMainWindow::setPdmRoot( caf::PdmObject* pdmRoot )
     {
         if ( !additionalProjectView ) continue;
 
-        RiuProjectAndPropertyView* projPropView =
-            dynamic_cast<RiuProjectAndPropertyView*>( additionalProjectView->widget() );
+        RiuProjectAndPropertyView* projPropView = dynamic_cast<RiuProjectAndPropertyView*>( additionalProjectView->widget() );
         if ( projPropView )
         {
             projPropView->setPdmItem( pdmRoot );
@@ -1269,8 +1245,7 @@ void RiuMainWindow::slotViewFromNorth()
 {
     if ( RiaApplication::instance()->activeReservoirView() && RiaApplication::instance()->activeReservoirView()->viewer() )
     {
-        RiaApplication::instance()->activeReservoirView()->viewer()->setView( cvf::Vec3d( 0, -1, 0 ),
-                                                                              cvf::Vec3d( 0, 0, 1 ) );
+        RiaApplication::instance()->activeReservoirView()->viewer()->setView( cvf::Vec3d( 0, -1, 0 ), cvf::Vec3d( 0, 0, 1 ) );
     }
 }
 
@@ -1292,8 +1267,7 @@ void RiuMainWindow::slotViewFromEast()
 {
     if ( RiaApplication::instance()->activeReservoirView() && RiaApplication::instance()->activeReservoirView()->viewer() )
     {
-        RiaApplication::instance()->activeReservoirView()->viewer()->setView( cvf::Vec3d( -1, 0, 0 ),
-                                                                              cvf::Vec3d( 0, 0, 1 ) );
+        RiaApplication::instance()->activeReservoirView()->viewer()->setView( cvf::Vec3d( -1, 0, 0 ), cvf::Vec3d( 0, 0, 1 ) );
     }
 }
 
@@ -1315,8 +1289,7 @@ void RiuMainWindow::slotViewFromAbove()
 {
     if ( RiaApplication::instance()->activeReservoirView() && RiaApplication::instance()->activeReservoirView()->viewer() )
     {
-        RiaApplication::instance()->activeReservoirView()->viewer()->setView( cvf::Vec3d( 0, 0, -1 ),
-                                                                              cvf::Vec3d( 0, 1, 0 ) );
+        RiaApplication::instance()->activeReservoirView()->viewer()->setView( cvf::Vec3d( 0, 0, -1 ), cvf::Vec3d( 0, 1, 0 ) );
     }
 }
 
@@ -1357,8 +1330,7 @@ void RiuMainWindow::slotSubWindowActivated( QMdiSubWindow* subWindow )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::selectViewInProjectTreePreservingSubItemSelection( const Rim3dView* previousActiveReservoirView,
-                                                                       Rim3dView*       activatedView )
+void RiuMainWindow::selectViewInProjectTreePreservingSubItemSelection( const Rim3dView* previousActiveReservoirView, Rim3dView* activatedView )
 {
     bool is3dViewCurrentlySelected = false;
     if ( caf::SelectionManager::instance()->selectedItem() )
@@ -1745,8 +1717,7 @@ void RiuMainWindow::slotToggleLightingAction( bool enable )
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::restoreTreeViewState()
 {
-    restoreTreeViewStates( RimProject::current()->mainWindowTreeViewStates(),
-                           RimProject::current()->mainWindowCurrentModelIndexPaths() );
+    restoreTreeViewStates( RimProject::current()->mainWindowTreeViewStates(), RimProject::current()->mainWindowCurrentModelIndexPaths() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1803,8 +1774,7 @@ void RiuMainWindow::updateMemoryUsage()
 
     QColor usageColor( (int)( okColor.red() * ( 1.0 - currentUsageFraction ) + warningColor.red() * currentUsageFraction ),
                        (int)( okColor.green() * ( 1.0 - currentUsageFraction ) + warningColor.green() * currentUsageFraction ),
-                       (int)( okColor.blue() * ( 1.0 - currentUsageFraction ) +
-                              warningColor.blue() * currentUsageFraction ) );
+                       (int)( okColor.blue() * ( 1.0 - currentUsageFraction ) + warningColor.blue() * currentUsageFraction ) );
 
     m_memoryCriticalWarning->setText( QString( "" ) );
     if ( availVirtualFraction < caf::MemoryInspector::getRemainingMemoryCriticalThresholdFraction() )
@@ -1987,10 +1957,8 @@ void RiuMainWindow::slotExecutePaintEventPerformanceTest()
 
         double msPerFrame = totalTimeMS / redrawCount;
 
-        QString resultInfo = QString( "Total time '%1 ms' for %2 number of redraws, frame time '%3 ms'" )
-                                 .arg( totalTimeMS )
-                                 .arg( redrawCount )
-                                 .arg( msPerFrame );
+        QString resultInfo =
+            QString( "Total time '%1 ms' for %2 number of redraws, frame time '%3 ms'" ).arg( totalTimeMS ).arg( redrawCount ).arg( msPerFrame );
         setResultInfo( resultInfo );
     }
 }

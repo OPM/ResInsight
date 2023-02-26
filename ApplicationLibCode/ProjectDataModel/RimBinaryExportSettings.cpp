@@ -45,9 +45,7 @@ RimBinaryExportSettings::RimBinaryExportSettings()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimBinaryExportSettings::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                     QString                    uiConfigName,
-                                                     caf::PdmUiEditorAttribute* attribute )
+void RimBinaryExportSettings::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &fileName )
     {

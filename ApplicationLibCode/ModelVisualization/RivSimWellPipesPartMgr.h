@@ -52,15 +52,13 @@ public:
 
     ~RivSimWellPipesPartMgr() override;
 
-    void appendDynamicGeometryPartsToModel( cvf::ModelBasicList*              model,
-                                            size_t                            frameIndex,
-                                            const caf::DisplayCoordTransform* displayXf );
+    void appendDynamicGeometryPartsToModel( cvf::ModelBasicList* model, size_t frameIndex, const caf::DisplayCoordTransform* displayXf );
 
     void appendFlattenedDynamicGeometryPartsToModel( cvf::ModelBasicList*              model,
                                                      size_t                            frameIndex,
                                                      const caf::DisplayCoordTransform* displayXf,
-                                                     double flattenedIntersectionExtentLength,
-                                                     int    branchIndex );
+                                                     double                            flattenedIntersectionExtentLength,
+                                                     int                               branchIndex );
 
     void updatePipeResultColor( size_t frameIndex );
 

@@ -135,8 +135,7 @@ std::vector<QDateTime> RifHdf5Reader::timeSteps() const
 
             H5::H5File file( fileName.c_str(), H5F_ACC_RDONLY );
 
-            double timeStepValue = getDoubleAttribute( file,
-                                                       timeStepGroup,
+            double timeStepValue = getDoubleAttribute( file, timeStepGroup,
                                                        "timestep" ); // Assumes only one time step per file
             int    timeStepDays  = cvf::Math::floor( timeStepValue );
 

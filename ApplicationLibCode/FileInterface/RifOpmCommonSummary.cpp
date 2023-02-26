@@ -99,10 +99,8 @@ bool RifOpmCommonEclipseSummary::open( const QString& fileName, bool includeRest
             const QString smspecFileNameShort = QFileInfo( smspecFileName ).fileName();
             const QString esmryFileNameShort  = QFileInfo( candidateEsmryFileName ).fileName();
 
-            RiaLogging::debug( QString( " %3 : %1 is older than %2, recreating %1." )
-                                   .arg( esmryFileNameShort )
-                                   .arg( smspecFileNameShort )
-                                   .arg( root ) );
+            RiaLogging::debug(
+                QString( " %3 : %1 is older than %2, recreating %1." ).arg( esmryFileNameShort ).arg( smspecFileNameShort ).arg( root ) );
 
             std::filesystem::remove( candidateEsmryFileName.toStdString() );
         }
@@ -111,8 +109,7 @@ bool RifOpmCommonEclipseSummary::open( const QString& fileName, bool includeRest
         {
             try
             {
-                auto temporarySummaryFile =
-                    std::make_unique<Opm::EclIO::ESmry>( smspecFileName.toStdString(), includeRestartFiles );
+                auto temporarySummaryFile = std::make_unique<Opm::EclIO::ESmry>( smspecFileName.toStdString(), includeRestartFiles );
 
                 temporarySummaryFile->make_esmry_file();
 
@@ -243,9 +240,7 @@ void RifOpmCommonEclipseSummary::buildMetaData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifOpmCommonEclipseSummary::openFileReader( const QString&       fileName,
-                                                 bool                 includeRestartFiles,
-                                                 RiaThreadSafeLogger* threadSafeLogger )
+bool RifOpmCommonEclipseSummary::openFileReader( const QString& fileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger )
 {
     // Make sure to check the SMSPEC file name, as it is supported to import ESMRY files without any SMSPEC data.
     auto smspecFileName = smspecSummaryFilename( fileName );
@@ -265,8 +260,7 @@ bool RifOpmCommonEclipseSummary::openFileReader( const QString&       fileName,
                     // No SMSPEC file present, OK to import ESMRY file
                     isValidEsmryFile = true;
                 }
-                else if ( RiaFilePathTools::isFirstOlderThanSecond( smspecFileName.toStdString(),
-                                                                    candidateEsmryFileName.toStdString() ) )
+                else if ( RiaFilePathTools::isFirstOlderThanSecond( smspecFileName.toStdString(), candidateEsmryFileName.toStdString() ) )
                 {
                     isValidEsmryFile = true;
                 }
@@ -285,8 +279,7 @@ bool RifOpmCommonEclipseSummary::openFileReader( const QString&       fileName,
 
                 if ( isValidEsmryFile )
                 {
-                    m_enhancedReader = std::make_unique<Opm::EclIO::ExtESmry>( candidateEsmryFileName.toStdString(),
-                                                                               includeRestartFiles );
+                    m_enhancedReader = std::make_unique<Opm::EclIO::ExtESmry>( candidateEsmryFileName.toStdString(), includeRestartFiles );
 
                     return true;
                 }

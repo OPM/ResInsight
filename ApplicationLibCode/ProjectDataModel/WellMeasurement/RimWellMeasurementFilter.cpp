@@ -27,11 +27,10 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellMeasurement*>
-    RimWellMeasurementFilter::filterMeasurements( const std::vector<RimWellMeasurement*>& measurements,
-                                                  const RimWellPathCollection&            wellPathCollection,
-                                                  const RimWellPath&                      wellPath,
-                                                  const std::vector<QString>&             measurementKinds )
+std::vector<RimWellMeasurement*> RimWellMeasurementFilter::filterMeasurements( const std::vector<RimWellMeasurement*>& measurements,
+                                                                               const RimWellPathCollection&            wellPathCollection,
+                                                                               const RimWellPath&                      wellPath,
+                                                                               const std::vector<QString>&             measurementKinds )
 {
     std::vector<RimWellMeasurement*> filteredMeasurementsByKinds = filterMeasurements( measurements, measurementKinds );
 
@@ -51,14 +50,13 @@ std::vector<RimWellMeasurement*>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellMeasurement*>
-    RimWellMeasurementFilter::filterMeasurements( const std::vector<RimWellMeasurement*>& measurements,
-                                                  const RimWellPathCollection&            wellPathCollection,
-                                                  const RimWellPath&                      wellPath,
-                                                  const std::vector<QString>&             measurementKinds,
-                                                  double                                  lowerBound,
-                                                  double                                  upperBound,
-                                                  const std::vector<int>&                 qualityFilter )
+std::vector<RimWellMeasurement*> RimWellMeasurementFilter::filterMeasurements( const std::vector<RimWellMeasurement*>& measurements,
+                                                                               const RimWellPathCollection&            wellPathCollection,
+                                                                               const RimWellPath&                      wellPath,
+                                                                               const std::vector<QString>&             measurementKinds,
+                                                                               double                                  lowerBound,
+                                                                               double                                  upperBound,
+                                                                               const std::vector<int>&                 qualityFilter )
 {
     std::vector<RimWellMeasurement*> filteredMeasurementsByKindsAndWellPath =
         filterMeasurements( measurements, wellPathCollection, wellPath, measurementKinds );
@@ -79,9 +77,8 @@ std::vector<RimWellMeasurement*>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellMeasurement*>
-    RimWellMeasurementFilter::filterMeasurements( const std::vector<RimWellMeasurement*>& measurements,
-                                                  const std::vector<QString>&             measurementKinds )
+std::vector<RimWellMeasurement*> RimWellMeasurementFilter::filterMeasurements( const std::vector<RimWellMeasurement*>& measurements,
+                                                                               const std::vector<QString>&             measurementKinds )
 {
     std::vector<RimWellMeasurement*> filteredMeasurements;
 

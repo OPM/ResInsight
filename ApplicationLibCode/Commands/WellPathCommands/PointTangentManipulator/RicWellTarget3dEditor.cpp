@@ -200,8 +200,8 @@ void RicWellTarget3dEditor::slotUpdated( const cvf::Vec3d& origin, const cvf::Ve
             modeledWellPath->wellPathTieIn()->updateChildWellGeometry();
         }
 
-        bool modifyAllTargetsOnAllWells = ( ( QApplication::keyboardModifiers() & Qt::ControlModifier ) &&
-                                            ( QApplication::keyboardModifiers() & Qt::SHIFT ) );
+        bool modifyAllTargetsOnAllWells =
+            ( ( QApplication::keyboardModifiers() & Qt::ControlModifier ) && ( QApplication::keyboardModifiers() & Qt::SHIFT ) );
 
         if ( modifyAllTargetsOnAllWells )
         {
@@ -245,8 +245,8 @@ void RicWellTarget3dEditor::slotUpdated( const cvf::Vec3d& origin, const cvf::Ve
     {
         // Modification of top level well path
 
-        bool modifyReferencePoint = ( ( QApplication::keyboardModifiers() & Qt::ControlModifier ) &&
-                                      ( QApplication::keyboardModifiers() & Qt::SHIFT ) );
+        bool modifyReferencePoint =
+            ( ( QApplication::keyboardModifiers() & Qt::ControlModifier ) && ( QApplication::keyboardModifiers() & Qt::SHIFT ) );
         if ( modifyReferencePoint )
         {
             // Find all linked wells and update reference point with delta change
@@ -278,8 +278,8 @@ void RicWellTarget3dEditor::slotUpdated( const cvf::Vec3d& origin, const cvf::Ve
     }
     else if ( modeledWellPath && !modeledWellPath->isTopLevelWellPath() )
     {
-        bool modifyAllTargetsOnAllWells = ( ( QApplication::keyboardModifiers() & Qt::ControlModifier ) &&
-                                            ( QApplication::keyboardModifiers() & Qt::SHIFT ) );
+        bool modifyAllTargetsOnAllWells =
+            ( ( QApplication::keyboardModifiers() & Qt::ControlModifier ) && ( QApplication::keyboardModifiers() & Qt::SHIFT ) );
         if ( modifyAllTargetsOnAllWells )
         {
             // Update all well targets on all connected laterals

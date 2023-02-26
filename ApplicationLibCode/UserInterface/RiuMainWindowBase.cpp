@@ -180,8 +180,7 @@ void RiuMainWindowBase::loadWinGeoAndDockToolBarLayout()
 
         if ( !dockingOk )
         {
-            m_dockManager->restoreState( RiuDockWidgetTools::defaultDockState( defaultDockStateNames()[0] ),
-                                         DOCKSTATE_VERSION );
+            m_dockManager->restoreState( RiuDockWidgetTools::defaultDockState( defaultDockStateNames()[0] ), DOCKSTATE_VERSION );
         }
     }
 
@@ -215,8 +214,7 @@ void RiuMainWindowBase::saveWinGeoAndDockToolBarLayout()
 
     settings.setValue( QString( "%1/isMaximized" ).arg( registryFolderName() ), isMaximized() );
 
-    settings.setValue( QString( "%1/dockLayout" ).arg( registryFolderName() ),
-                       m_dockManager->saveState( DOCKSTATE_VERSION ) );
+    settings.setValue( QString( "%1/dockLayout" ).arg( registryFolderName() ), m_dockManager->saveState( DOCKSTATE_VERSION ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -416,10 +414,7 @@ void RiuMainWindowBase::slotDockWidgetToggleViewActionTriggered()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindowBase::initializeSubWindow( RiuMdiArea*    mdiArea,
-                                             QMdiSubWindow* mdiSubWindow,
-                                             const QPoint&  subWindowPos,
-                                             const QSize&   subWindowSize )
+void RiuMainWindowBase::initializeSubWindow( RiuMdiArea* mdiArea, QMdiSubWindow* mdiSubWindow, const QPoint& subWindowPos, const QSize& subWindowSize )
 {
     bool initialStateMaximized  = false;
     auto initialState3dWindow   = RimProject::current()->subWindowsTileMode3DWindow();
@@ -581,8 +576,7 @@ void RiuMainWindowBase::restoreTreeViewStates( QString treeStateString, QString 
         QString currentIndexString = treeIndexes[treeId];
         if ( !currentIndexString.isEmpty() )
         {
-            QModelIndex mi =
-                caf::QTreeViewStateSerializer::getModelIndexFromString( tv->treeView()->model(), currentIndexString );
+            QModelIndex mi = caf::QTreeViewStateSerializer::getModelIndexFromString( tv->treeView()->model(), currentIndexString );
             tv->treeView()->setCurrentIndex( mi );
         }
     }
@@ -651,11 +645,7 @@ void RiuMainWindowBase::deleteDockLayout()
         QString name = action->text();
 
         QString questionStr = "Are you sure you want to delete the window layout \"" + name + "\"?";
-        auto    reply       = QMessageBox::question( this,
-                                            "Delete Window Layout",
-                                            questionStr,
-                                            QMessageBox::Yes | QMessageBox::No,
-                                            QMessageBox::No );
+        auto reply = QMessageBox::question( this, "Delete Window Layout", questionStr, QMessageBox::Yes | QMessageBox::No, QMessageBox::No );
         if ( reply == QMessageBox::Yes )
         {
             dockManager()->removePerspective( name );
@@ -704,9 +694,8 @@ void RiuMainWindowBase::exportDockLayout()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::saveDockLayout()
 {
-    bool    ok = false;
-    QString name =
-        QInputDialog::getText( this, "Save Window Layout", "Give the window layout a name:", QLineEdit::Normal, "", &ok );
+    bool    ok   = false;
+    QString name = QInputDialog::getText( this, "Save Window Layout", "Give the window layout a name:", QLineEdit::Normal, "", &ok );
     if ( ok && !name.isEmpty() )
     {
         dockManager()->addPerspective( name );

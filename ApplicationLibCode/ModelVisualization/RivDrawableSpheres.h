@@ -26,9 +26,7 @@ public:
     RivDrawableSpheres();
     RivDrawableSpheres( cvf::String vectorMatrixUniformName, cvf::String colorUniformName );
 
-    bool rayIntersectCreateDetail( const cvf::Ray&           ray,
-                                   cvf::Vec3d*               intersectionPoint,
-                                   cvf::ref<cvf::HitDetail>* hitDetail ) const override;
+    bool rayIntersectCreateDetail( const cvf::Ray& ray, cvf::Vec3d* intersectionPoint, cvf::ref<cvf::HitDetail>* hitDetail ) const override;
 
     void setRadius( float radius );
     void setCenterCoords( cvf::Vec3fArray* vertexArray );

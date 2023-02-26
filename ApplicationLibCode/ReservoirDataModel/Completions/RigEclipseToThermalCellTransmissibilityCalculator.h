@@ -44,18 +44,17 @@ class RimFracture;
 class RigEclipseToThermalCellTransmissibilityCalculator : public RigEclipseToStimPlanCellTransmissibilityCalculator
 {
 public:
-    explicit RigEclipseToThermalCellTransmissibilityCalculator(
-        const RimEclipseCase*                              caseToApply,
-        cvf::Mat4d                                         fractureTransform,
-        double                                             skinFactor,
-        double                                             cDarcy,
-        const RigFractureCell&                             stimPlanCell,
-        const RimFracture*                                 fracture,
-        RimThermalFractureTemplate::FilterCakePressureDrop filterCakePressureDrop,
-        double                                             injectvityFactor,
-        double                                             filterCakeMobility,
-        double                                             viscosity,
-        double                                             relativePermeability );
+    explicit RigEclipseToThermalCellTransmissibilityCalculator( const RimEclipseCase*                              caseToApply,
+                                                                cvf::Mat4d                                         fractureTransform,
+                                                                double                                             skinFactor,
+                                                                double                                             cDarcy,
+                                                                const RigFractureCell&                             stimPlanCell,
+                                                                const RimFracture*                                 fracture,
+                                                                RimThermalFractureTemplate::FilterCakePressureDrop filterCakePressureDrop,
+                                                                double                                             injectvityFactor,
+                                                                double                                             filterCakeMobility,
+                                                                double                                             viscosity,
+                                                                double                                             relativePermeability );
 
 protected:
     double calculateTransmissibility( const cvf::Vec3d& transmissibilityVector, double fractureArea ) override;

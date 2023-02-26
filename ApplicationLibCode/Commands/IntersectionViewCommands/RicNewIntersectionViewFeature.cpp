@@ -110,8 +110,7 @@ std::set<RimExtrudedCurveIntersection*> RicNewIntersectionViewFeature::selectedI
     RiuGeneralSelectionItem* generalSelectionItem = static_cast<RiuGeneralSelectionItem*>( selItem );
     if ( generalSelectionItem )
     {
-        RimExtrudedCurveIntersection* intersection =
-            dynamic_cast<RimExtrudedCurveIntersection*>( generalSelectionItem->m_object );
+        RimExtrudedCurveIntersection* intersection = dynamic_cast<RimExtrudedCurveIntersection*>( generalSelectionItem->m_object );
         if ( intersection )
         {
             objects.insert( intersection );
@@ -123,8 +122,7 @@ std::set<RimExtrudedCurveIntersection*> RicNewIntersectionViewFeature::selectedI
     }
 
     {
-        std::vector<RimExtrudedCurveIntersection*> selectedObjects =
-            caf::selectedObjectsByType<RimExtrudedCurveIntersection*>();
+        std::vector<RimExtrudedCurveIntersection*> selectedObjects = caf::selectedObjectsByType<RimExtrudedCurveIntersection*>();
         for ( auto obj : selectedObjects )
         {
             objects.insert( obj );

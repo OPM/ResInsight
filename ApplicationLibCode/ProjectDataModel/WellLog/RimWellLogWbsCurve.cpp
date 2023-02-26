@@ -73,9 +73,7 @@ void RimWellLogWbsCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogWbsCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                           const QVariant&            oldValue,
-                                           const QVariant&            newValue )
+void RimWellLogWbsCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimWellLogExtractionCurve::fieldChangedByUi( changedField, oldValue, newValue );
 

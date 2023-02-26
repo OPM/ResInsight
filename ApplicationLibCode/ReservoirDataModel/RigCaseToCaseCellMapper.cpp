@@ -77,8 +77,7 @@ RigCaseToCaseCellMapper::RigCaseToCaseCellMapper( RigMainGrid* masterEclGrid, Ri
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const int* RigCaseToCaseCellMapper::masterCaseCellIndices( int  dependentCaseReservoirCellIndex,
-                                                           int* masterCaseCellIndexCount ) const
+const int* RigCaseToCaseCellMapper::masterCaseCellIndices( int dependentCaseReservoirCellIndex, int* masterCaseCellIndexCount ) const
 {
     int seriesIndex = m_masterCellOrIntervalIndex[dependentCaseReservoirCellIndex];
 
@@ -127,9 +126,7 @@ void RigCaseToCaseCellMapper::addMapping( int depCaseCellIdx, int masterCaseMatc
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCaseToCaseCellMapper::calculateEclToGeomCellMapping( RigMainGrid* masterEclGrid,
-                                                             RigFemPart*  dependentFemPart,
-                                                             bool         eclipseIsMaster )
+void RigCaseToCaseCellMapper::calculateEclToGeomCellMapping( RigMainGrid* masterEclGrid, RigFemPart* dependentFemPart, bool eclipseIsMaster )
 {
     // Find tolerance
 
@@ -171,14 +168,10 @@ void RigCaseToCaseCellMapper::calculateEclToGeomCellMapping( RigMainGrid* master
 
             RigCaseToCaseCellMapperTools::elementCorners( dependentFemPart, elmIdx, elmCorners );
 
-            RigCaseToCaseCellMapperTools::rotateCellTopologicallyToMatchBaseCell( geoMechConvertedEclCell,
-                                                                                  isEclFaceNormalsOutwards,
-                                                                                  elmCorners );
+            RigCaseToCaseCellMapperTools::rotateCellTopologicallyToMatchBaseCell( geoMechConvertedEclCell, isEclFaceNormalsOutwards, elmCorners );
 
-            bool isMatching = RigCaseToCaseCellMapperTools::isEclFemCellsMatching( geoMechConvertedEclCell,
-                                                                                   elmCorners,
-                                                                                   xyTolerance,
-                                                                                   zTolerance );
+            bool isMatching =
+                RigCaseToCaseCellMapperTools::isEclFemCellsMatching( geoMechConvertedEclCell, elmCorners, xyTolerance, zTolerance );
 
             if ( isMatching )
             {

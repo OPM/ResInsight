@@ -122,8 +122,7 @@ size_t RifEclipseRestartFilesetAccess::timeStepCount()
 //--------------------------------------------------------------------------------------------------
 /// Get the time steps
 //--------------------------------------------------------------------------------------------------
-void RifEclipseRestartFilesetAccess::timeSteps( std::vector<QDateTime>* timeSteps,
-                                                std::vector<double>*    daysSinceSimulationStart )
+void RifEclipseRestartFilesetAccess::timeSteps( std::vector<QDateTime>* timeSteps, std::vector<double>* daysSinceSimulationStart )
 {
     if ( m_timeSteps.size() == 0 )
     {
@@ -174,10 +173,7 @@ void RifEclipseRestartFilesetAccess::resultNames( QStringList* resultNames, std:
 //--------------------------------------------------------------------------------------------------
 /// Get result values for given time step
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseRestartFilesetAccess::results( const QString&       resultName,
-                                              size_t               timeStep,
-                                              size_t               gridCount,
-                                              std::vector<double>* values )
+bool RifEclipseRestartFilesetAccess::results( const QString& resultName, size_t timeStep, size_t gridCount, std::vector<double>* values )
 {
     if ( timeStep >= timeStepCount() )
     {
@@ -280,9 +276,8 @@ void RifEclipseRestartFilesetAccess::openTimeStep( size_t timeStep )
 
     if ( m_ecl_files[timeStep] == nullptr )
     {
-        int            index = static_cast<int>( timeStep );
-        ecl_file_type* ecl_file =
-            ecl_file_open( RiaStringEncodingTools::toNativeEncoded( m_fileNames[index] ).data(), ECL_FILE_CLOSE_STREAM );
+        int            index    = static_cast<int>( timeStep );
+        ecl_file_type* ecl_file = ecl_file_open( RiaStringEncodingTools::toNativeEncoded( m_fileNames[index] ).data(), ECL_FILE_CLOSE_STREAM );
 
         m_ecl_files[timeStep] = ecl_file;
 

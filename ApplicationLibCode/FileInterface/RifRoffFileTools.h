@@ -51,8 +51,7 @@ public:
 
     static bool openGridFile( const QString& fileName, RigEclipseCaseData* eclipseCase, QString* errorMessages );
 
-    static std::pair<bool, std::map<QString, QString>> createInputProperties( const QString&      fileName,
-                                                                              RigEclipseCaseData* eclipseCase );
+    static std::pair<bool, std::map<QString, QString>> createInputProperties( const QString& fileName, RigEclipseCaseData* eclipseCase );
 
 private:
     static void interpretSplitenzData( int                       nz,

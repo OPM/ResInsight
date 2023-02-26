@@ -64,8 +64,7 @@ public:
     bool                exclusiveOptions() const;
     void                setOptionsExclusive( bool exclusive );
 
-    std::vector<QString> allSourceUiLabels( const QString& delimiter        = " ",
-                                            double         userDefinedValue = std::numeric_limits<double>::infinity() );
+    std::vector<QString> allSourceUiLabels( const QString& delimiter = " ", double userDefinedValue = std::numeric_limits<double>::infinity() );
     QString              sourceUiLabel( Source         currentSource,
                                         const QString& delimiter        = " ",
                                         double         userDefinedValue = std::numeric_limits<double>::infinity() );
@@ -96,9 +95,7 @@ private:
         QString             primary; // i.e. grid field name, las entry, etc.
         QString             secondary; // i.e. grid component name
         QString             units; // The unit string
-        SourceAddress( QString primary   = "",
-                       QString secondary = "",
-                       QString units     = RiaWellLogUnitTools<double>::noUnitString() )
+        SourceAddress( QString primary = "", QString secondary = "", QString units = RiaWellLogUnitTools<double>::noUnitString() )
             : resType( RIG_NODAL )
             , primary( primary )
             , secondary( secondary )
@@ -113,5 +110,5 @@ private:
     QString                                       m_name;
     std::vector<std::pair<Source, SourceAddress>> m_sources;
     bool                                          m_normalizeByHydroStaticPP;
-    bool m_exclusiveOptions; // Options are exclusive rather than order of preference
+    bool                                          m_exclusiveOptions; // Options are exclusive rather than order of preference
 };

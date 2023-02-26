@@ -62,10 +62,7 @@ RimCorrelationPlot::RimCorrelationPlot()
 
     CAF_PDM_InitField( &m_showAbsoluteValues, "CorrelationAbsValues", false, "Show Absolute Values" );
     CAF_PDM_InitField( &m_sortByAbsoluteValues, "CorrelationAbsSorting", true, "Sort by Absolute Values" );
-    CAF_PDM_InitField( &m_excludeParametersWithoutVariation,
-                       "ExcludeParamsWithoutVariation",
-                       true,
-                       "Exclude Parameters Without Variation" );
+    CAF_PDM_InitField( &m_excludeParametersWithoutVariation, "ExcludeParamsWithoutVariation", true, "Exclude Parameters Without Variation" );
     CAF_PDM_InitField( &m_showOnlyTopNCorrelations, "ShowOnlyTopNCorrelations", true, "Show Only Top Correlations" );
     CAF_PDM_InitField( &m_topNFilterCount, "TopNFilterCount", 20, "Number rows/columns" );
 
@@ -90,9 +87,7 @@ RimCorrelationPlot::~RimCorrelationPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                           const QVariant&            oldValue,
-                                           const QVariant&            newValue )
+void RimCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimAbstractCorrelationPlot::fieldChangedByUi( changedField, oldValue, newValue );
     if ( changedField == &m_showAbsoluteValues || changedField == &m_sortByAbsoluteValues ||
@@ -184,9 +179,7 @@ void RimCorrelationPlot::onLoadDataAndUpdate()
 
         addDataToChartBuilder( chartBuilder );
 
-        chartBuilder.addBarChartToPlot( m_plotWidget->qwtPlot(),
-                                        Qt::Horizontal,
-                                        m_showOnlyTopNCorrelations() ? m_topNFilterCount() : -1 );
+        chartBuilder.addBarChartToPlot( m_plotWidget->qwtPlot(), Qt::Horizontal, m_showOnlyTopNCorrelations() ? m_topNFilterCount() : -1 );
         chartBuilder.setLabelFontSize( labelFontSize() );
 
         m_plotWidget->qwtPlot()->insertLegend( nullptr );
@@ -207,19 +200,11 @@ void RimCorrelationPlot::updateAxes()
 
     m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), "Parameter" );
     m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
-    m_plotWidget->setAxisFontsAndAlignment( RiuPlotAxis::defaultLeft(),
-                                            axisTitleFontSize(),
-                                            axisValueFontSize(),
-                                            false,
-                                            Qt::AlignCenter );
+    m_plotWidget->setAxisFontsAndAlignment( RiuPlotAxis::defaultLeft(), axisTitleFontSize(), axisValueFontSize(), false, Qt::AlignCenter );
 
     m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultBottom(), "Pearson Correlation Coefficient" );
     m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultBottom(), true );
-    m_plotWidget->setAxisFontsAndAlignment( RiuPlotAxis::defaultBottom(),
-                                            axisTitleFontSize(),
-                                            axisValueFontSize(),
-                                            false,
-                                            Qt::AlignCenter );
+    m_plotWidget->setAxisFontsAndAlignment( RiuPlotAxis::defaultBottom(), axisTitleFontSize(), axisValueFontSize(), false, Qt::AlignCenter );
     if ( m_showAbsoluteValues )
     {
         m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultBottom(), "Pearson Correlation Coefficient ABS" );
@@ -254,8 +239,7 @@ void RimCorrelationPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chart
     {
         double  value     = m_showAbsoluteValues() ? std::abs( parameterCorrPair.second ) : parameterCorrPair.second;
         double  sortValue = m_sortByAbsoluteValues() ? std::abs( value ) : value;
-        QString barText =
-            QString( "%1 (%2)" ).arg( parameterCorrPair.first.name ).arg( parameterCorrPair.second, 5, 'f', 2 );
+        QString barText   = QString( "%1 (%2)" ).arg( parameterCorrPair.first.name ).arg( parameterCorrPair.second, 5, 'f', 2 );
         QString majorText = "", medText = "", minText = "", legendText = barText;
         chartBuilder.addBarEntry( majorText, medText, minText, sortValue, legendText, barText, value );
     }
@@ -271,8 +255,7 @@ void RimCorrelationPlot::updatePlotTitle()
         QString vectorName = completeAddressText();
 
         auto ensemble = *ensembles().begin();
-        m_description =
-            QString( "Correlations for %2, %3 at %4" ).arg( ensemble->name() ).arg( vectorName ).arg( timeStepString() );
+        m_description = QString( "Correlations for %2, %3 at %4" ).arg( ensemble->name() ).arg( vectorName ).arg( timeStepString() );
     }
     m_plotWidget->setPlotTitle( m_description );
     m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && !isSubPlot() );

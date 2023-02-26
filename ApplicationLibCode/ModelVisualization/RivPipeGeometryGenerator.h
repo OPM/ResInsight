@@ -54,9 +54,7 @@ public:
     void pipeSurfaceTextureCoords( cvf::Vec2fArray*           textureCoords,
                                    const std::vector<double>& segmentResults,
                                    const cvf::ScalarMapper*   mapper ) const;
-    void centerlineTextureCoords( cvf::Vec2fArray*           textureCoords,
-                                  const std::vector<double>& segmentResults,
-                                  const cvf::ScalarMapper*   mapper ) const;
+    void centerlineTextureCoords( cvf::Vec2fArray* textureCoords, const std::vector<double>& segmentResults, const cvf::ScalarMapper* mapper ) const;
 
     void   setFirstVisibleSegmentIndex( size_t segmentIndex );
     size_t segmentIndexFromTriangleIndex( size_t triangleIndex ) const;
@@ -85,9 +83,8 @@ private:
                                std::vector<cvf::Vec3d>* nodes );
 
     static cvf::ref<cvf::DrawableGeo> generateLine( const cvf::Vec3dArray* coords );
-    static cvf::ref<cvf::DrawableGeo> generateExtrudedCylinder( double                 radius,
-                                                                size_t                 crossSectionNodeCount,
-                                                                const cvf::Vec3dArray* cylinderCenterCoords );
+    static cvf::ref<cvf::DrawableGeo>
+                                      generateExtrudedCylinder( double radius, size_t crossSectionNodeCount, const cvf::Vec3dArray* cylinderCenterCoords );
     static cvf::ref<cvf::DrawableGeo> generateVariableRadiusTube( size_t                     crossSectionNodeCount,
                                                                   const cvf::Vec3dArray*     cylinderCenterCoords,
                                                                   const std::vector<double>& radii );

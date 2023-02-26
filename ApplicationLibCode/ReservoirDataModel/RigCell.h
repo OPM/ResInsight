@@ -57,10 +57,7 @@ public:
     size_t parentCellIndex() const { return m_parentCellIndex; }
     void   setParentCellIndex( size_t parentCellIndex ) { m_parentCellIndex = parentCellIndex; }
     size_t mainGridCellIndex() const { return m_mainGridCellIndex; }
-    void   setMainGridCellIndex( size_t mainGridCellContainingThisCell )
-    {
-        m_mainGridCellIndex = mainGridCellContainingThisCell;
-    }
+    void   setMainGridCellIndex( size_t mainGridCellContainingThisCell ) { m_mainGridCellIndex = mainGridCellContainingThisCell; }
 
     size_t coarseningBoxIndex() const { return m_coarseningBoxIndex; }
     void   setCoarseningBoxIndex( size_t coarseningBoxIndex ) { m_coarseningBoxIndex = coarseningBoxIndex; }

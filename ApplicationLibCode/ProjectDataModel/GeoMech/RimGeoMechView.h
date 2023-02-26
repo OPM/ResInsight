@@ -81,7 +81,7 @@ public:
 
     RimGeoMechPropertyFilterCollection*       geoMechPropertyFilterCollection();
     const RimGeoMechPropertyFilterCollection* geoMechPropertyFilterCollection() const;
-    void setOverridePropertyFilterCollection( RimGeoMechPropertyFilterCollection* pfc );
+    void                                      setOverridePropertyFilterCollection( RimGeoMechPropertyFilterCollection* pfc );
 
     bool isTimeStepDependentDataVisible() const override;
 

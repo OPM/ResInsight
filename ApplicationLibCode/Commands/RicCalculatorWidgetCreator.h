@@ -52,8 +52,7 @@ public:
     RicUserDefinedCalculatorUi* calculator() const;
 
 private:
-    void recursivelyConfigureAndUpdateTopLevelUiOrdering( const caf::PdmUiOrdering& topLevelUiItems,
-                                                          const QString&            uiConfigName ) override;
+    void recursivelyConfigureAndUpdateTopLevelUiOrdering( const caf::PdmUiOrdering& topLevelUiItems, const QString& uiConfigName ) override;
 
     QWidget* createWidget( QWidget* parent ) override;
 

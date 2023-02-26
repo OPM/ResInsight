@@ -86,8 +86,7 @@ RicImportGeneralDataFeature::OpenCaseResults
             return OpenCaseResults();
         }
         results.eclipseCaseFiles = eclipseCaseFiles;
-        RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirectoryLabel( ImportFileType::ECLIPSE_EGRID_FILE ),
-                                                                defaultDir );
+        RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirectoryLabel( ImportFileType::ECLIPSE_EGRID_FILE ), defaultDir );
     }
     if ( !eclipseInputFiles.empty() )
     {
@@ -96,8 +95,7 @@ RicImportGeneralDataFeature::OpenCaseResults
             return OpenCaseResults();
         }
         results.eclipseInputFiles = eclipseInputFiles;
-        RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirectoryLabel( ImportFileType::ECLIPSE_INPUT_FILE ),
-                                                                defaultDir );
+        RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirectoryLabel( ImportFileType::ECLIPSE_INPUT_FILE ), defaultDir );
     }
     if ( !eclipseSummaryFiles.empty() )
     {
@@ -106,8 +104,7 @@ RicImportGeneralDataFeature::OpenCaseResults
             return OpenCaseResults();
         }
         results.eclipseSummaryFiles = eclipseSummaryFiles;
-        RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirectoryLabel( ImportFileType::ECLIPSE_SUMMARY_FILE ),
-                                                                defaultDir );
+        RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirectoryLabel( ImportFileType::ECLIPSE_SUMMARY_FILE ), defaultDir );
     }
     if ( !roffFiles.empty() )
     {
@@ -116,8 +113,7 @@ RicImportGeneralDataFeature::OpenCaseResults
             return OpenCaseResults();
         }
         results.roffFiles = roffFiles;
-        RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirectoryLabel( ImportFileType::ROFF_FILE ),
-                                                                defaultDir );
+        RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirectoryLabel( ImportFileType::ROFF_FILE ), defaultDir );
     }
 
     return results;
@@ -177,8 +173,7 @@ void RicImportGeneralDataFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicImportGeneralDataFeature::getFilePattern( const std::vector<RiaDefines::ImportFileType>& fileTypes,
-                                                     bool                                           allowWildcard )
+QString RicImportGeneralDataFeature::getFilePattern( const std::vector<RiaDefines::ImportFileType>& fileTypes, bool allowWildcard )
 {
     QStringList filePatternTexts;
 
@@ -296,8 +291,7 @@ void RicImportGeneralDataFeature::openFileDialog( ImportFileType fileTypes )
 
     if ( fileTypes == ImportFileType::ANY_ECLIPSE_FILE )
     {
-        RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirectoryLabel( ImportFileType::ANY_ECLIPSE_FILE ),
-                                                                fileNames.front() );
+        RiaApplication::instance()->setLastUsedDialogDirectory( defaultDirectoryLabel( ImportFileType::ANY_ECLIPSE_FILE ), fileNames.front() );
     }
 
     if ( !openEclipseFilesFromFileNames( fileNames, true, true, nullptr ) )
@@ -372,9 +366,7 @@ bool RicImportGeneralDataFeature::openSummaryCaseFromFileNames( const QStringLis
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportGeneralDataFeature::openRoffCaseFromFileNames( const QStringList& fileNames,
-                                                             bool               createDefaultView,
-                                                             std::vector<int>&  createdCaseIds )
+bool RicImportGeneralDataFeature::openRoffCaseFromFileNames( const QStringList& fileNames, bool createDefaultView, std::vector<int>& createdCaseIds )
 {
     CAF_ASSERT( !fileNames.empty() );
 

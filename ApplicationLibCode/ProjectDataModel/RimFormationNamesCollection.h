@@ -39,8 +39,7 @@ public:
 
     std::vector<RimFormationNames*> importFiles( const QStringList& fileNames );
 
-    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
 private:
     caf::PdmChildArrayField<RimFormationNames*> m_formationNamesList;

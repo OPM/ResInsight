@@ -58,8 +58,7 @@ bool RicPasteEclipseCasesFeature::isCommandEnabled()
         return false;
     }
 
-    caf::PdmObjectHandle* destinationObject =
-        dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
+    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
 
     RimIdenticalGridCaseGroup* gridCaseGroup = RicPasteFeatureImpl::findGridCaseGroup( destinationObject );
     if ( gridCaseGroup ) return true;
@@ -72,8 +71,7 @@ bool RicPasteEclipseCasesFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicPasteEclipseCasesFeature::onActionTriggered( bool isChecked )
 {
-    caf::PdmObjectHandle* destinationObject =
-        dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
+    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
 
     RimIdenticalGridCaseGroup* gridCaseGroup = RicPasteFeatureImpl::findGridCaseGroup( destinationObject );
     if ( !gridCaseGroup ) return;
@@ -101,8 +99,7 @@ void RicPasteEclipseCasesFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicPasteEclipseCasesFeature::addCasesToGridCaseGroup( caf::PdmObjectGroup&       objectGroup,
-                                                           RimIdenticalGridCaseGroup* gridCaseGroup )
+void RicPasteEclipseCasesFeature::addCasesToGridCaseGroup( caf::PdmObjectGroup& objectGroup, RimIdenticalGridCaseGroup* gridCaseGroup )
 {
     RimProject* proj = RimProject::current();
     CVF_ASSERT( proj );

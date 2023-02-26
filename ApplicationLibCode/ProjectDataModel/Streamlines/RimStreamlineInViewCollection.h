@@ -92,8 +92,8 @@ public:
 
     const RimRegularLegendConfig* legendConfig() const;
     void                          mappingRange( double& min, double& max ) const;
-    void updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer );
-    void updateFromCurrentTimeStep( int timeStep );
+    void                          updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer );
+    void                          updateFromCurrentTimeStep( int timeStep );
 
 protected:
     caf::PdmFieldHandle* objectToggleField() override;
@@ -107,9 +107,7 @@ private:
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                QString                    uiConfigName,
-                                caf::PdmUiEditorAttribute* attribute ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     void outputSummary() const;

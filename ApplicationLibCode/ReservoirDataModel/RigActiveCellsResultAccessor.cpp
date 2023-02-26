@@ -55,8 +55,7 @@ double RigActiveCellsResultAccessor::cellScalar( size_t gridLocalCellIndex ) con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigActiveCellsResultAccessor::cellFaceScalar( size_t                             gridLocalCellIndex,
-                                                     cvf::StructGridInterface::FaceType faceId ) const
+double RigActiveCellsResultAccessor::cellFaceScalar( size_t gridLocalCellIndex, cvf::StructGridInterface::FaceType faceId ) const
 {
     return cellScalar( gridLocalCellIndex );
 }
@@ -82,8 +81,7 @@ double RigActiveCellsResultAccessor::cellScalarGlobIdx( size_t reservoirCellInde
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigActiveCellsResultAccessor::cellFaceScalarGlobIdx( size_t                             globCellIndex,
-                                                            cvf::StructGridInterface::FaceType faceId ) const
+double RigActiveCellsResultAccessor::cellFaceScalarGlobIdx( size_t globCellIndex, cvf::StructGridInterface::FaceType faceId ) const
 {
     return cellScalarGlobIdx( globCellIndex );
 }

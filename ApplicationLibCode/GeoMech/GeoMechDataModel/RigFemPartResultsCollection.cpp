@@ -121,8 +121,7 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
             {
                 auto stepNameComplete = stepName;
 
-                if ( !( RiaRegressionTestRunner::instance()->isRunningRegressionTests() &&
-                        m_readerInterface->frameTimes( stepIdx ).size() == 1 ) )
+                if ( !( RiaRegressionTestRunner::instance()->isRunningRegressionTests() && m_readerInterface->frameTimes( stepIdx ).size() == 1 ) )
                 {
                     // Do not add postfix for time steps with a single frame to ensure identical generated snapshot
                     // name used by regression tests
@@ -158,75 +157,46 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
 
     m_waterDensityShearSlipIndicator = 1.03;
 
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorTimeLapse( *this ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorSurfaceAngles( *this ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorSurfaceAlignedStress( *this ) ) );
     m_resultCalculators.push_back(
-        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorTimeLapse( *this ) ) );
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorBarConverted( *this, "S-Bar", "S" ) ) );
     m_resultCalculators.push_back(
-        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorSurfaceAngles( *this ) ) );
-    m_resultCalculators.push_back(
-        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorSurfaceAlignedStress( *this ) ) );
-    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>(
-        new RigFemPartResultCalculatorBarConverted( *this, "S-Bar", "S" ) ) );
-    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>(
-        new RigFemPartResultCalculatorBarConverted( *this, "POR-Bar", "POR" ) ) );
-    m_resultCalculators.push_back(
-        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorEnIpPorBar( *this ) ) );
-    m_resultCalculators.push_back(
-        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorNodalGradients( *this ) ) );
-    m_resultCalculators.push_back(
-        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorCompaction( *this ) ) );
-    m_resultCalculators.push_back(
-        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorSFI( *this ) ) );
-    m_resultCalculators.push_back(
-        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorDSM( *this ) ) );
-    m_resultCalculators.push_back(
-        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorFOS( *this ) ) );
-    m_resultCalculators.push_back(
-        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorED( *this ) ) );
-    m_resultCalculators.push_back(
-        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorEV( *this ) ) );
-    m_resultCalculators.push_back(
-        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorSM( *this ) ) );
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorBarConverted( *this, "POR-Bar", "POR" ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorEnIpPorBar( *this ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorNodalGradients( *this ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorCompaction( *this ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorSFI( *this ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorDSM( *this ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorFOS( *this ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorED( *this ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorEV( *this ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorSM( *this ) ) );
     m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorQ( *this ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorStressGradients( *this ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorNormalized( *this ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorNormalST( *this ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorShearST( *this ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorNormalSE( *this ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorShearSE( *this ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorNE( *this ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorGamma( *this ) ) );
     m_resultCalculators.push_back(
-        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorStressGradients( *this ) ) );
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorPrincipalStrain( *this, "NE", "E" ) ) );
     m_resultCalculators.push_back(
-        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorNormalized( *this ) ) );
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorPrincipalStrain( *this, "LE", "LE" ) ) );
     m_resultCalculators.push_back(
-        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorNormalST( *this ) ) );
-    m_resultCalculators.push_back(
-        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorShearST( *this ) ) );
-    m_resultCalculators.push_back(
-        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorNormalSE( *this ) ) );
-    m_resultCalculators.push_back(
-        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorShearSE( *this ) ) );
-    m_resultCalculators.push_back(
-        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorNE( *this ) ) );
-    m_resultCalculators.push_back(
-        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorGamma( *this ) ) );
-    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>(
-        new RigFemPartResultCalculatorPrincipalStrain( *this, "NE", "E" ) ) );
-    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>(
-        new RigFemPartResultCalculatorPrincipalStrain( *this, "LE", "LE" ) ) );
-    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>(
-        new RigFemPartResultCalculatorPrincipalStrain( *this, "PE", "PE" ) ) );
-    m_resultCalculators.push_back(
-        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorPrincipalStress( *this ) ) );
-    m_resultCalculators.push_back(
-        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorStressAnisotropy( *this ) ) );
-    m_resultCalculators.push_back(
-        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorPoreCompressibility( *this ) ) );
-    m_resultCalculators.push_back(
-        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorPorosityPermeability( *this ) ) );
-    m_resultCalculators.push_back(
-        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorInitialPorosity( *this ) ) );
-    m_resultCalculators.push_back(
-        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorMudWeightWindow( *this ) ) );
-    m_resultCalculators.push_back(
-        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorShearSlipIndicator( *this ) ) );
-    m_resultCalculators.push_back(
-        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorFormationIndices( *this ) ) );
-    m_resultCalculators.push_back(
-        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorKIndices( *this ) ) );
+        std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorPrincipalStrain( *this, "PE", "PE" ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorPrincipalStress( *this ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorStressAnisotropy( *this ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorPoreCompressibility( *this ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorPorosityPermeability( *this ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorInitialPorosity( *this ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorMudWeightWindow( *this ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorShearSlipIndicator( *this ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorFormationIndices( *this ) ) );
+    m_resultCalculators.push_back( std::unique_ptr<RigFemPartResultCalculator>( new RigFemPartResultCalculatorKIndices( *this ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -295,8 +265,7 @@ void RigFemPartResultsCollection::addElementPropertyFiles( const std::vector<QSt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigFemResultAddress>
-    RigFemPartResultsCollection::removeElementPropertyFiles( const std::vector<QString>& filenames )
+std::vector<RigFemResultAddress> RigFemPartResultsCollection::removeElementPropertyFiles( const std::vector<QString>& filenames )
 {
     std::vector<RigFemResultAddress> addressesToRemove;
 
@@ -323,8 +292,7 @@ std::vector<RigFemResultAddress>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<std::string, QString>
-    RigFemPartResultsCollection::addressesInElementPropertyFiles( const std::vector<QString>& filenames )
+std::map<std::string, QString> RigFemPartResultsCollection::addressesInElementPropertyFiles( const std::vector<QString>& filenames )
 {
     std::map<std::string, QString> fieldsInFile;
     for ( const QString& filename : filenames )
@@ -457,8 +425,7 @@ double RigFemPartResultsCollection::permeabilityExponent() const
 //--------------------------------------------------------------------------------------------------
 /// Will always return a valid object, but it can be empty
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult( int                        partIndex,
-                                                                               const RigFemResultAddress& resVarAddr )
+RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult( int partIndex, const RigFemResultAddress& resVarAddr )
 {
     CVF_ASSERT( partIndex < (int)( m_femPartResults.size() ) );
     CVF_ASSERT( m_readerInterface.notNull() );
@@ -529,25 +496,13 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult( i
                 switch ( resVarAddr.resultPosType )
                 {
                     case RIG_NODAL:
-                        m_readerInterface->readNodeField( resVarAddr.fieldName,
-                                                          partIndex,
-                                                          stepIndex,
-                                                          frameIndex,
-                                                          &componentDataVectors );
+                        m_readerInterface->readNodeField( resVarAddr.fieldName, partIndex, stepIndex, frameIndex, &componentDataVectors );
                         break;
                     case RIG_ELEMENT_NODAL:
-                        m_readerInterface->readElementNodeField( resVarAddr.fieldName,
-                                                                 partIndex,
-                                                                 stepIndex,
-                                                                 frameIndex,
-                                                                 &componentDataVectors );
+                        m_readerInterface->readElementNodeField( resVarAddr.fieldName, partIndex, stepIndex, frameIndex, &componentDataVectors );
                         break;
                     case RIG_INTEGRATION_POINT:
-                        m_readerInterface->readIntegrationPointField( resVarAddr.fieldName,
-                                                                      partIndex,
-                                                                      stepIndex,
-                                                                      frameIndex,
-                                                                      &componentDataVectors );
+                        m_readerInterface->readIntegrationPointField( resVarAddr.fieldName, partIndex, stepIndex, frameIndex, &componentDataVectors );
                         break;
                     default:
                         break;
@@ -573,8 +528,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult( i
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultsCollection::createScalarResult( int                        partIndex,
-                                                                           const RigFemResultAddress& resVarAddr )
+RigFemScalarResultFrames* RigFemPartResultsCollection::createScalarResult( int partIndex, const RigFemResultAddress& resVarAddr )
 {
     CVF_ASSERT( partIndex < static_cast<int>( m_femPartResults.size() ) );
     CVF_ASSERT( resVarAddr.isValid() );
@@ -595,8 +549,7 @@ void RigFemPartResultsCollection::deleteAllScalarResults()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<std::string, std::vector<std::string>>
-    RigFemPartResultsCollection::scalarFieldAndComponentNames( RigFemResultPosEnum resPos )
+std::map<std::string, std::vector<std::string>> RigFemPartResultsCollection::scalarFieldAndComponentNames( RigFemResultPosEnum resPos )
 {
     std::map<std::string, std::vector<std::string>> fieldCompNames;
 
@@ -887,8 +840,7 @@ std::map<std::string, std::vector<std::string>>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult( int                        partIndex,
-                                                                               const RigFemResultAddress& resVarAddr )
+RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult( int partIndex, const RigFemResultAddress& resVarAddr )
 {
     for ( const auto& calculator : m_resultCalculators )
     {
@@ -913,8 +865,7 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::calculateDerivedResult( i
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigFemResultAddress>
-    RigFemPartResultsCollection::getResAddrToComponentsToRead( const RigFemResultAddress& resVarAddr )
+std::vector<RigFemResultAddress> RigFemPartResultsCollection::getResAddrToComponentsToRead( const RigFemResultAddress& resVarAddr )
 {
     std::map<std::string, std::vector<std::string>> fieldAndComponentNames;
     switch ( resVarAddr.resultPosType )
@@ -944,8 +895,7 @@ std::vector<RigFemResultAddress>
         {
             for ( const auto& compName : compNames )
             {
-                resAddressToComponents.push_back(
-                    RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, compName ) );
+                resAddressToComponents.push_back( RigFemResultAddress( resVarAddr.resultPosType, resVarAddr.fieldName, compName ) );
             }
         }
 
@@ -1116,10 +1066,8 @@ std::vector<RigFemResultAddress> RigFemPartResultsCollection::loadedResults() co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<float>& RigFemPartResultsCollection::resultValues( const RigFemResultAddress& resVarAddr,
-                                                                     int                        partIndex,
-                                                                     int                        stepIndex,
-                                                                     int                        frameIndex )
+const std::vector<float>&
+    RigFemPartResultsCollection::resultValues( const RigFemResultAddress& resVarAddr, int partIndex, int stepIndex, int frameIndex )
 {
     CVF_ASSERT( resVarAddr.isValid() );
 
@@ -1183,8 +1131,7 @@ void RigFemPartResultsCollection::globalResultValues( const RigFemResultAddress&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<caf::Ten3f>
-    RigFemPartResultsCollection::tensors( const RigFemResultAddress& resVarAddr, int partIndex, int stepIndex, int frameIndex )
+std::vector<caf::Ten3f> RigFemPartResultsCollection::tensors( const RigFemResultAddress& resVarAddr, int partIndex, int stepIndex, int frameIndex )
 {
     CVF_ASSERT( resVarAddr.resultPosType == RIG_ELEMENT_NODAL || resVarAddr.resultPosType == RIG_INTEGRATION_POINT );
 
@@ -1248,9 +1195,7 @@ void RigFemPartResultsCollection::minMaxScalarValues( const RigFemResultAddress&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFemPartResultsCollection::minMaxScalarValues( const RigFemResultAddress& resVarAddr,
-                                                      double*                    globalMin,
-                                                      double*                    globalMax )
+void RigFemPartResultsCollection::minMaxScalarValues( const RigFemResultAddress& resVarAddr, double* globalMin, double* globalMax )
 {
     this->statistics( resVarAddr )->minMaxCellScalarValues( *globalMin, *globalMax );
 }
@@ -1290,10 +1235,7 @@ void RigFemPartResultsCollection::meanScalarValue( const RigFemResultAddress& re
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFemPartResultsCollection::meanScalarValue( const RigFemResultAddress& resVarAddr,
-                                                   int                        stepIndex,
-                                                   int                        frameIndex,
-                                                   double*                    meanValue )
+void RigFemPartResultsCollection::meanScalarValue( const RigFemResultAddress& resVarAddr, int stepIndex, int frameIndex, double* meanValue )
 {
     this->statistics( resVarAddr )->meanCellScalarValues( stepIndex, *meanValue );
 }
@@ -1309,11 +1251,7 @@ void RigFemPartResultsCollection::p10p90ScalarValues( const RigFemResultAddress&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFemPartResultsCollection::p10p90ScalarValues( const RigFemResultAddress& resVarAddr,
-                                                      int                        stepIndex,
-                                                      int                        frameIndex,
-                                                      double*                    p10,
-                                                      double*                    p90 )
+void RigFemPartResultsCollection::p10p90ScalarValues( const RigFemResultAddress& resVarAddr, int stepIndex, int frameIndex, double* p10, double* p90 )
 {
     this->statistics( resVarAddr )->p10p90CellScalarValues( stepIndex, *p10, *p90 );
 }
@@ -1331,10 +1269,7 @@ void RigFemPartResultsCollection::sumScalarValue( const RigFemResultAddress& res
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFemPartResultsCollection::sumScalarValue( const RigFemResultAddress& resVarAddr,
-                                                  int                        stepIndex,
-                                                  int                        frameIndex,
-                                                  double*                    sum )
+void RigFemPartResultsCollection::sumScalarValue( const RigFemResultAddress& resVarAddr, int stepIndex, int frameIndex, double* sum )
 {
     CVF_ASSERT( sum );
 
@@ -1352,9 +1287,8 @@ const std::vector<size_t>& RigFemPartResultsCollection::scalarValuesHistogram( c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<size_t>& RigFemPartResultsCollection::scalarValuesHistogram( const RigFemResultAddress& resVarAddr,
-                                                                               int                        stepIndex,
-                                                                               int                        frameIndex )
+const std::vector<size_t>&
+    RigFemPartResultsCollection::scalarValuesHistogram( const RigFemResultAddress& resVarAddr, int stepIndex, int frameIndex )
 {
     return this->statistics( resVarAddr )->cellScalarValuesHistogram( stepIndex );
 }
@@ -1362,8 +1296,7 @@ const std::vector<size_t>& RigFemPartResultsCollection::scalarValuesHistogram( c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigFemResultAddress>
-    RigFemPartResultsCollection::tensorPrincipalComponentAdresses( const RigFemResultAddress& resVarAddr )
+std::vector<RigFemResultAddress> RigFemPartResultsCollection::tensorPrincipalComponentAdresses( const RigFemResultAddress& resVarAddr )
 {
     std::vector<RigFemResultAddress> addresses;
 
@@ -1395,13 +1328,11 @@ std::vector<RigFemResultAddress>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigFemPartResultsCollection::isResultInSet( const RigFemResultAddress&           result,
-                                                 const std::set<RigFemResultAddress>& results )
+bool RigFemPartResultsCollection::isResultInSet( const RigFemResultAddress& result, const std::set<RigFemResultAddress>& results )
 {
     for ( auto res : results )
     {
-        if ( res.resultPosType == result.resultPosType && res.fieldName == result.fieldName &&
-             res.componentName == result.componentName )
+        if ( res.resultPosType == result.resultPosType && res.fieldName == result.fieldName && res.componentName == result.componentName )
         {
             return true;
         }
@@ -1422,16 +1353,13 @@ std::set<RigFemResultAddress> RigFemPartResultsCollection::normalizedResults()
     {
         for ( auto component : validComponents )
         {
-            results.insert(
-                RigFemResultAddress( RIG_ELEMENT_NODAL, field, component, RigFemResultAddress::allTimeLapsesValue(), -1, true ) );
+            results.insert( RigFemResultAddress( RIG_ELEMENT_NODAL, field, component, RigFemResultAddress::allTimeLapsesValue(), -1, true ) );
         }
     }
-    results.insert(
-        RigFemResultAddress( RIG_ELEMENT_NODAL, "ST", "Q", RigFemResultAddress::allTimeLapsesValue(), -1, true ) );
+    results.insert( RigFemResultAddress( RIG_ELEMENT_NODAL, "ST", "Q", RigFemResultAddress::allTimeLapsesValue(), -1, true ) );
 
     results.insert( RigFemResultAddress( RIG_NODAL, "POR-Bar", "", RigFemResultAddress::allTimeLapsesValue(), -1, true ) );
-    results.insert(
-        RigFemResultAddress( RIG_ELEMENT_NODAL, "POR-Bar", "", RigFemResultAddress::allTimeLapsesValue(), -1, true ) );
+    results.insert( RigFemResultAddress( RIG_ELEMENT_NODAL, "POR-Bar", "", RigFemResultAddress::allTimeLapsesValue(), -1, true ) );
 
     return results;
 }
@@ -1452,14 +1380,9 @@ std::set<RigFemResultAddress> RigFemPartResultsCollection::referenceCaseDependen
     std::set<RigFemResultAddress> results;
     for ( auto elementType : { RIG_ELEMENT_NODAL, RIG_INTEGRATION_POINT } )
     {
-        results.insert(
-            RigFemResultAddress( elementType, "COMPRESSIBILITY", "PORE", RigFemResultAddress::allTimeLapsesValue() ) );
-        results.insert(
-            RigFemResultAddress( elementType, "COMPRESSIBILITY", "VERTICAL", RigFemResultAddress::allTimeLapsesValue() ) );
-        results.insert( RigFemResultAddress( elementType,
-                                             "COMPRESSIBILITY",
-                                             "VERTICAL-RATIO",
-                                             RigFemResultAddress::allTimeLapsesValue() ) );
+        results.insert( RigFemResultAddress( elementType, "COMPRESSIBILITY", "PORE", RigFemResultAddress::allTimeLapsesValue() ) );
+        results.insert( RigFemResultAddress( elementType, "COMPRESSIBILITY", "VERTICAL", RigFemResultAddress::allTimeLapsesValue() ) );
+        results.insert( RigFemResultAddress( elementType, "COMPRESSIBILITY", "VERTICAL-RATIO", RigFemResultAddress::allTimeLapsesValue() ) );
         results.insert( RigFemResultAddress( elementType, "PORO-PERM", "PHI", RigFemResultAddress::allTimeLapsesValue() ) );
         results.insert( RigFemResultAddress( elementType, "PORO-PERM", "DPHI", RigFemResultAddress::allTimeLapsesValue() ) );
         results.insert( RigFemResultAddress( elementType, "PORO-PERM", "PERM", RigFemResultAddress::allTimeLapsesValue() ) );
@@ -1597,8 +1520,8 @@ void RigFemPartResultsCollection::minMaxScalarValuesOverAllTensorComponents( con
 void RigFemPartResultsCollection::posNegClosestToZeroOverAllTensorComponents( const RigFemResultAddress& resVarAddr,
                                                                               int                        stepIndex,
                                                                               int                        frameIndex,
-                                                                              double* localPosClosestToZero,
-                                                                              double* localNegClosestToZero )
+                                                                              double*                    localPosClosestToZero,
+                                                                              double*                    localNegClosestToZero )
 {
     double currentPosClosestToZero = HUGE_VAL;
     double currentNegClosestToZero = -HUGE_VAL;
@@ -1626,8 +1549,8 @@ void RigFemPartResultsCollection::posNegClosestToZeroOverAllTensorComponents( co
 ///
 //--------------------------------------------------------------------------------------------------
 void RigFemPartResultsCollection::posNegClosestToZeroOverAllTensorComponents( const RigFemResultAddress& resVarAddr,
-                                                                              double* globalPosClosestToZero,
-                                                                              double* globalNegClosestToZero )
+                                                                              double*                    globalPosClosestToZero,
+                                                                              double*                    globalNegClosestToZero )
 {
     double currentPosClosestToZero = HUGE_VAL;
     double currentNegClosestToZero = -HUGE_VAL;
@@ -1750,9 +1673,8 @@ bool RigFemPartResultsCollection::isValidBiotData( const std::vector<float>& bio
 {
     if ( biotData.size() != elementCount )
     {
-        QString txt = QString( "Unexpected size of biot coefficient element properties: %1 (expected: %2)" )
-                          .arg( biotData.size() )
-                          .arg( elementCount );
+        QString txt =
+            QString( "Unexpected size of biot coefficient element properties: %1 (expected: %2)" ).arg( biotData.size() ).arg( elementCount );
 
         Riu3DMainWindowTools::reportAndShowWarning( "Wrong size of biot data", txt );
 
@@ -1763,8 +1685,7 @@ bool RigFemPartResultsCollection::isValidBiotData( const std::vector<float>& bio
     {
         if ( !std::isinf( b ) && ( b < 0.0 || b > 1.0 ) )
         {
-            RiaLogging::error(
-                QString( "Found unexpected biot coefficient. The value must be in the [0, 1] interval." ) );
+            RiaLogging::error( QString( "Found unexpected biot coefficient. The value must be in the [0, 1] interval." ) );
             return false;
         }
     }
@@ -1846,8 +1767,7 @@ double RigFemPartResultsCollection::hydrostaticMultiplierPPNonRes() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimMudWeightWindowParameters::NonReservoirPorePressureType
-    RigFemPartResultsCollection::nonReservoirPorePressureTypeMudWeightWindow() const
+RimMudWeightWindowParameters::NonReservoirPorePressureType RigFemPartResultsCollection::nonReservoirPorePressureTypeMudWeightWindow() const
 {
     return m_nonReservoirPorePressureTypeMudWeightWindow;
 }
@@ -1887,16 +1807,15 @@ size_t RigFemPartResultsCollection::referenceLayerMudWeightWindow() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigFemPartResultsCollection::setMudWeightWindowParameters(
-    double                                                        airGap,
-    RimMudWeightWindowParameters::UpperLimitType                  upperLimit,
-    RimMudWeightWindowParameters::LowerLimitType                  lowerLimit,
-    int                                                           referenceLayer,
-    RimMudWeightWindowParameters::FractureGradientCalculationType fgCalculationType,
-    double                                                        shMultiplier,
-    RimMudWeightWindowParameters::NonReservoirPorePressureType    nonReservoirPorePressureType,
-    double                                                        hydrostaticMultiplierPPNonRes,
-    const QString&                                                nonReservoirPorePressureAddress )
+void RigFemPartResultsCollection::setMudWeightWindowParameters( double                                       airGap,
+                                                                RimMudWeightWindowParameters::UpperLimitType upperLimit,
+                                                                RimMudWeightWindowParameters::LowerLimitType lowerLimit,
+                                                                int                                          referenceLayer,
+                                                                RimMudWeightWindowParameters::FractureGradientCalculationType fgCalculationType,
+                                                                double                                                        shMultiplier,
+                                                                RimMudWeightWindowParameters::NonReservoirPorePressureType nonReservoirPorePressureType,
+                                                                double         hydrostaticMultiplierPPNonRes,
+                                                                const QString& nonReservoirPorePressureAddress )
 {
     m_airGapMudWeightWindow                          = airGap;
     m_upperLimitParameterMudWeightWindow             = upperLimit;
@@ -1918,8 +1837,7 @@ void RigFemPartResultsCollection::setMudWeightWindowParameters(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimMudWeightWindowParameters::FractureGradientCalculationType
-    RigFemPartResultsCollection::fractureGradientCalculationTypeMudWeightWindow() const
+RimMudWeightWindowParameters::FractureGradientCalculationType RigFemPartResultsCollection::fractureGradientCalculationTypeMudWeightWindow() const
 {
     return m_fractureGradientCalculationTypeMudWeightWindow;
 }

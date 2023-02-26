@@ -173,8 +173,7 @@ size_t RigGridBase::cellIndexFromIJK( size_t i, size_t j, size_t k ) const
     CVF_TIGHT_ASSERT( i != cvf::UNDEFINED_SIZE_T && j != cvf::UNDEFINED_SIZE_T && k != cvf::UNDEFINED_SIZE_T );
     CVF_TIGHT_ASSERT( i < m_gridPointDimensions.x() && j < m_gridPointDimensions.y() && k < m_gridPointDimensions.z() );
 
-    size_t ci = i + j * ( m_gridPointDimensions.x() - 1 ) +
-                k * ( ( m_gridPointDimensions.x() - 1 ) * ( m_gridPointDimensions.y() - 1 ) );
+    size_t ci = i + j * ( m_gridPointDimensions.x() - 1 ) + k * ( ( m_gridPointDimensions.x() - 1 ) * ( m_gridPointDimensions.y() - 1 ) );
     return ci;
 }
 
@@ -183,8 +182,7 @@ size_t RigGridBase::cellIndexFromIJK( size_t i, size_t j, size_t k ) const
 //--------------------------------------------------------------------------------------------------
 size_t RigGridBase::cellIndexFromIJKUnguarded( size_t i, size_t j, size_t k ) const
 {
-    size_t ci = i + j * ( m_gridPointDimensions.x() - 1 ) +
-                k * ( ( m_gridPointDimensions.x() - 1 ) * ( m_gridPointDimensions.y() - 1 ) );
+    size_t ci = i + j * ( m_gridPointDimensions.x() - 1 ) + k * ( ( m_gridPointDimensions.x() - 1 ) * ( m_gridPointDimensions.y() - 1 ) );
     return ci;
 }
 
@@ -448,13 +446,7 @@ size_t RigGridBase::addCoarseningBox( size_t i1, size_t i2, size_t j1, size_t j2
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigGridBase::coarseningBox( size_t  coarseningBoxIndex,
-                                 size_t* i1,
-                                 size_t* i2,
-                                 size_t* j1,
-                                 size_t* j2,
-                                 size_t* k1,
-                                 size_t* k2 ) const
+void RigGridBase::coarseningBox( size_t coarseningBoxIndex, size_t* i1, size_t* i2, size_t* j1, size_t* j2, size_t* k1, size_t* k2 ) const
 {
     CVF_ASSERT( coarseningBoxIndex < m_coarseningBoxInfo.size() );
 
@@ -531,7 +523,7 @@ bool RigGridCellFaceVisibilityFilter::isFaceVisible( size_t                     
     // Do not show cell geometry if a fault is present to avoid z fighting between surfaces
     // It will always be a better solution to avoid geometry creation instead of part priority and polygon offset
     size_t          nativeResvCellIndex = m_grid->reservoirCellIndex( cellIndex );
-    const RigFault* fault = m_grid->mainGrid()->findFaultFromCellIndexAndCellFace( nativeResvCellIndex, face );
+    const RigFault* fault               = m_grid->mainGrid()->findFaultFromCellIndexAndCellFace( nativeResvCellIndex, face );
     if ( fault )
     {
         return false;

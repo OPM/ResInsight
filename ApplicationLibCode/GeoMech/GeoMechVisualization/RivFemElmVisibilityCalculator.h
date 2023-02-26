@@ -36,9 +36,7 @@ class RivFemElmVisibilityCalculator
 {
 public:
     static void computeAllVisible( cvf::UByteArray* elmVisibilities, const RigFemPart* femPart );
-    static void computeRangeVisibility( cvf::UByteArray*            elmVisibilities,
-                                        const RigFemPart*           femPart,
-                                        const cvf::CellRangeFilter& rangeFilter );
+    static void computeRangeVisibility( cvf::UByteArray* elmVisibilities, const RigFemPart* femPart, const cvf::CellRangeFilter& rangeFilter );
 
     static void computePropertyVisibility( cvf::UByteArray*                    cellVisibility,
                                            const RigFemPart*                   grid,
@@ -54,7 +52,6 @@ public:
                                              const RimCellFilter::FilterModeType filterType,
                                              cvf::UByteArray*                    cellVisibility );
 
-    static void computeOverriddenCellVisibility( cvf::UByteArray*   elmVisibilities,
-                                                 const RigFemPart*  femPart,
-                                                 RimViewController* masterViewLink );
+    static void
+        computeOverriddenCellVisibility( cvf::UByteArray* elmVisibilities, const RigFemPart* femPart, RimViewController* masterViewLink );
 };

@@ -39,18 +39,13 @@ RifEclipseRftAddress::RifEclipseRftAddress( const QString&            wellName,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseRftAddress RifEclipseRftAddress::createAddress( const QString&        wellName,
-                                                          const QDateTime&      timeStep,
-                                                          RftWellLogChannelType wellLogChannel )
+RifEclipseRftAddress
+    RifEclipseRftAddress::createAddress( const QString& wellName, const QDateTime& timeStep, RftWellLogChannelType wellLogChannel )
 {
     auto segmentResultName   = "";
     auto segmentBranchNumber = -1;
-    auto adr                 = RifEclipseRftAddress( wellName,
-                                     timeStep,
-                                     wellLogChannel,
-                                     segmentResultName,
-                                     segmentBranchNumber,
-                                     RiaDefines::RftBranchType::RFT_UNKNOWN );
+    auto adr =
+        RifEclipseRftAddress( wellName, timeStep, wellLogChannel, segmentResultName, segmentBranchNumber, RiaDefines::RftBranchType::RFT_UNKNOWN );
 
     return adr;
 }
@@ -77,9 +72,7 @@ RifEclipseRftAddress RifEclipseRftAddress::createBranchSegmentAddress( const QSt
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseRftAddress RifEclipseRftAddress::createSegmentAddress( const QString&   wellName,
-                                                                 const QDateTime& dateTime,
-                                                                 const QString&   resultName )
+RifEclipseRftAddress RifEclipseRftAddress::createSegmentAddress( const QString& wellName, const QDateTime& dateTime, const QString& resultName )
 {
     auto adr = RifEclipseRftAddress( wellName,
                                      dateTime,
@@ -183,12 +176,9 @@ bool operator<( const RifEclipseRftAddress& first, const RifEclipseRftAddress& s
 {
     if ( first.wellName() != second.wellName() ) return ( first.wellName() < second.wellName() );
     if ( first.timeStep() != second.timeStep() ) return ( first.timeStep() < second.timeStep() );
-    if ( first.wellLogChannel() != second.wellLogChannel() )
-        return ( first.wellLogChannel() < second.wellLogChannel() );
-    if ( first.segmentResultName() != second.segmentResultName() )
-        return first.segmentResultName() < second.segmentResultName();
-    if ( first.segmentBranchIndex() != second.segmentBranchIndex() )
-        return first.segmentBranchIndex() < second.segmentBranchIndex();
+    if ( first.wellLogChannel() != second.wellLogChannel() ) return ( first.wellLogChannel() < second.wellLogChannel() );
+    if ( first.segmentResultName() != second.segmentResultName() ) return first.segmentResultName() < second.segmentResultName();
+    if ( first.segmentBranchIndex() != second.segmentBranchIndex() ) return first.segmentBranchIndex() < second.segmentBranchIndex();
 
     return false;
 }

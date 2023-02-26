@@ -55,7 +55,7 @@
 //--------------------------------------------------------------------------------------------------
 RimSimWellInView* RicWellLogTools::selectedSimulationWell( int* branchIndex )
 {
-    RiuSelectionItem* selItem = Riu3dSelectionManager::instance()->selectedItem( Riu3dSelectionManager::RUI_TEMPORARY );
+    RiuSelectionItem*        selItem        = Riu3dSelectionManager::instance()->selectedItem( Riu3dSelectionManager::RUI_TEMPORARY );
     RiuSimWellSelectionItem* simWellSelItem = dynamic_cast<RiuSimWellSelectionItem*>( selItem );
     if ( simWellSelItem )
     {
@@ -141,8 +141,7 @@ bool RicWellLogTools::isWellPathOrSimWellSelectedInView()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellLogTools::addWellLogChannelsToPlotTrack( RimWellLogTrack*                           plotTrack,
-                                                     const std::vector<RimWellLogFileChannel*>& wellLogFileChannels )
+void RicWellLogTools::addWellLogChannelsToPlotTrack( RimWellLogTrack* plotTrack, const std::vector<RimWellLogFileChannel*>& wellLogFileChannels )
 {
     for ( size_t cIdx = 0; cIdx < wellLogFileChannels.size(); cIdx++ )
     {
@@ -340,8 +339,7 @@ ExtractionCurveType* RicWellLogTools::addExtractionCurve( RimWellLogTrack*      
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogRftCurve*
-    RicWellLogTools::addRftCurve( RimWellLogTrack* plotTrack, const RimSimWellInView* simWell, bool showPlotWindow )
+RimWellLogRftCurve* RicWellLogTools::addRftCurve( RimWellLogTrack* plotTrack, const RimSimWellInView* simWell, bool showPlotWindow )
 {
     CVF_ASSERT( plotTrack );
 
@@ -454,16 +452,9 @@ RimWellLogExtractionCurve* RicWellLogTools::addWellLogExtractionCurve( RimWellLo
                                                                        const RimSimWellInView* simWell,
                                                                        int                     branchIndex,
                                                                        bool                    useBranchDetection,
-                                                                       bool showPlotWindow /*= true */ )
+                                                                       bool                    showPlotWindow /*= true */ )
 {
-    return addExtractionCurve<RimWellLogExtractionCurve>( plotTrack,
-                                                          rimCase,
-                                                          view,
-                                                          wellPath,
-                                                          simWell,
-                                                          branchIndex,
-                                                          useBranchDetection,
-                                                          showPlotWindow );
+    return addExtractionCurve<RimWellLogExtractionCurve>( plotTrack, rimCase, view, wellPath, simWell, branchIndex, useBranchDetection, showPlotWindow );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -517,8 +508,7 @@ RimWellLogRftCurve* RicWellLogTools::addSummaryRftSegmentCurve( RimWellLogTrack*
         auto timeSteps = rftReader->availableTimeSteps( wellName );
         if ( !timeSteps.empty() ) dateTime = *timeSteps.rbegin();
 
-        RifEclipseRftAddress adr =
-            RifEclipseRftAddress::createBranchSegmentAddress( wellName, dateTime, resultName, 1, branchType );
+        RifEclipseRftAddress adr = RifEclipseRftAddress::createBranchSegmentAddress( wellName, dateTime, resultName, 1, branchType );
         curve->setRftAddress( adr );
         curve->assignColorFromResultName( resultName );
         curve->setLineThickness( 4 );
@@ -534,10 +524,7 @@ RimWellLogRftCurve* RicWellLogTools::addSummaryRftSegmentCurve( RimWellLogTrack*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicWellLogTools::hasData( const QString&            resultName,
-                               const QString&            wellName,
-                               RiaDefines::RftBranchType branchType,
-                               RimSummaryCase*           rimCase )
+bool RicWellLogTools::hasData( const QString& resultName, const QString& wellName, RiaDefines::RftBranchType branchType, RimSummaryCase* rimCase )
 {
     auto rftReader = rimCase->rftReader();
     if ( !rftReader ) return false;
@@ -547,8 +534,7 @@ bool RicWellLogTools::hasData( const QString&            resultName,
     auto timeSteps = rftReader->availableTimeSteps( wellName );
     if ( !timeSteps.empty() ) dateTime = *timeSteps.rbegin();
 
-    RifEclipseRftAddress adr =
-        RifEclipseRftAddress::createBranchSegmentAddress( wellName, dateTime, resultName, 1, branchType );
+    RifEclipseRftAddress adr = RifEclipseRftAddress::createBranchSegmentAddress( wellName, dateTime, resultName, 1, branchType );
 
     std::vector<double> values;
     rftReader->values( adr, &values );
@@ -567,14 +553,7 @@ RimWellLogWbsCurve* RicWellLogTools::addWellLogWbsCurve( RimWellLogTrack* plotTr
                                                          bool             useBranchDetection,
                                                          bool             showPlotWindow /*= true */ )
 {
-    return addExtractionCurve<RimWellLogWbsCurve>( plotTrack,
-                                                   rimCase,
-                                                   view,
-                                                   wellPath,
-                                                   nullptr,
-                                                   branchIndex,
-                                                   useBranchDetection,
-                                                   showPlotWindow );
+    return addExtractionCurve<RimWellLogWbsCurve>( plotTrack, rimCase, view, wellPath, nullptr, branchIndex, useBranchDetection, showPlotWindow );
 }
 
 //--------------------------------------------------------------------------------------------------

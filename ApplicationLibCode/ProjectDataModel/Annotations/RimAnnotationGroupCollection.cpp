@@ -33,11 +33,10 @@ CAF_PDM_SOURCE_INIT( RimAnnotationGroupCollection, "RimAnnotationGroupCollection
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QString RimAnnotationGroupCollection::TEXT_ANNOTATION_UI_NAME         = "Text Annotations";
-const QString RimAnnotationGroupCollection::REACH_CIRCLE_ANNOTATION_UI_NAME = "Reach Circle Annotations";
-const QString RimAnnotationGroupCollection::USED_DEFINED_POLYLINE_ANNOTATION_UI_NAME =
-    "User Defined Polyline Annotations";
-const QString RimAnnotationGroupCollection::POLYLINE_FROM_FILE_ANNOTATION_UI_NAME = "Polylines From File";
+const QString RimAnnotationGroupCollection::TEXT_ANNOTATION_UI_NAME                  = "Text Annotations";
+const QString RimAnnotationGroupCollection::REACH_CIRCLE_ANNOTATION_UI_NAME          = "Reach Circle Annotations";
+const QString RimAnnotationGroupCollection::USED_DEFINED_POLYLINE_ANNOTATION_UI_NAME = "User Defined Polyline Annotations";
+const QString RimAnnotationGroupCollection::POLYLINE_FROM_FILE_ANNOTATION_UI_NAME    = "Polylines From File";
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -109,9 +108,7 @@ std::vector<caf::PdmObject*> RimAnnotationGroupCollection::annotations() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnnotationGroupCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                     const QVariant&            oldValue,
-                                                     const QVariant&            newValue )
+void RimAnnotationGroupCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_isActive )
     {

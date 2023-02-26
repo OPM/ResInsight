@@ -50,20 +50,12 @@ public:
     RivTensorResultPartMgr( RimGeoMechView* reservoirView );
     ~RivTensorResultPartMgr() override;
 
-    void appendDynamicGeometryPartsToModel( cvf::ModelBasicList* model,
-                                            int                  viewerStepIndex,
-                                            int                  localTimeStepIndex,
-                                            int                  frameIndex ) const;
+    void appendDynamicGeometryPartsToModel( cvf::ModelBasicList* model, int viewerStepIndex, int localTimeStepIndex, int frameIndex ) const;
 
 private:
     struct TensorVisualization
     {
-        TensorVisualization( cvf::Vec3f vertex,
-                             cvf::Vec3f result,
-                             cvf::Vec3f faceNormal,
-                             bool       isPressure,
-                             int        princial,
-                             float      principalValue )
+        TensorVisualization( cvf::Vec3f vertex, cvf::Vec3f result, cvf::Vec3f faceNormal, bool isPressure, int princial, float principalValue )
             : vertex( vertex )
             , result( result )
             , faceNormal( faceNormal )
@@ -80,17 +72,15 @@ private:
     };
 
 private:
-    static void calculateElementTensors( const RigFemPart&              part,
-                                         const std::vector<caf::Ten3f>& vertexTensors,
-                                         std::vector<caf::Ten3f>*       elmTensors );
+    static void
+        calculateElementTensors( const RigFemPart& part, const std::vector<caf::Ten3f>& vertexTensors, std::vector<caf::Ten3f>* elmTensors );
 
     static void calculatePrincipalsAndDirections( const std::vector<caf::Ten3f>&          tensors,
                                                   std::array<std::vector<float>, 3>*      principals,
                                                   std::vector<std::array<cvf::Vec3f, 3>>* principalDirections );
 
-    static cvf::Vec3f calculateFaceNormal( const RigFemPartNodes&     nodes,
-                                           const std::vector<size_t>& quadVerticesToNodeIdxMapping,
-                                           int                        quadVertex );
+    static cvf::Vec3f
+        calculateFaceNormal( const RigFemPartNodes& nodes, const std::vector<size_t>& quadVerticesToNodeIdxMapping, int quadVertex );
 
     cvf::ref<cvf::Part> createPart( const std::vector<TensorVisualization>& tensorVisualizations ) const;
 

@@ -32,12 +32,11 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::StructGridInterface::FaceType
-    RigCellFaceGeometryTools::calculateCellFaceOverlap( const RigCell&           c1,
-                                                        const RigCell&           c2,
-                                                        const RigMainGrid&       mainGrid,
-                                                        std::vector<size_t>*     connectionPolygon,
-                                                        std::vector<cvf::Vec3d>* connectionIntersections )
+cvf::StructGridInterface::FaceType RigCellFaceGeometryTools::calculateCellFaceOverlap( const RigCell&           c1,
+                                                                                       const RigCell&           c2,
+                                                                                       const RigMainGrid&       mainGrid,
+                                                                                       std::vector<size_t>*     connectionPolygon,
+                                                                                       std::vector<cvf::Vec3d>* connectionIntersections )
 {
     // Try to find the shared face
 
@@ -59,12 +58,10 @@ cvf::StructGridInterface::FaceType
         isPossibleNeighborInDirection[cvf::StructGridInterface::POS_K] = ( ( k1 + 1 ) == k2 );
         isPossibleNeighborInDirection[cvf::StructGridInterface::NEG_K] = ( ( k2 + 1 ) == k1 );
 
-        hasNeighbourInAnyDirection = isPossibleNeighborInDirection[cvf::StructGridInterface::POS_I] +
-                                     isPossibleNeighborInDirection[cvf::StructGridInterface::NEG_I] +
-                                     isPossibleNeighborInDirection[cvf::StructGridInterface::POS_J] +
-                                     isPossibleNeighborInDirection[cvf::StructGridInterface::NEG_J] +
-                                     isPossibleNeighborInDirection[cvf::StructGridInterface::POS_K] +
-                                     isPossibleNeighborInDirection[cvf::StructGridInterface::NEG_K];
+        hasNeighbourInAnyDirection =
+            isPossibleNeighborInDirection[cvf::StructGridInterface::POS_I] + isPossibleNeighborInDirection[cvf::StructGridInterface::NEG_I] +
+            isPossibleNeighborInDirection[cvf::StructGridInterface::POS_J] + isPossibleNeighborInDirection[cvf::StructGridInterface::NEG_J] +
+            isPossibleNeighborInDirection[cvf::StructGridInterface::POS_K] + isPossibleNeighborInDirection[cvf::StructGridInterface::NEG_K];
 
         // If cell 2 is not adjancent with respect to any of the six ijk directions,
         // assume that we have no overlapping area.
@@ -97,14 +94,13 @@ cvf::StructGridInterface::FaceType
         c1.faceIndices( ( cvf::StructGridInterface::FaceType )( fIdx ), &face1 );
         c2.faceIndices( cvf::StructGridInterface::oppositeFace( ( cvf::StructGridInterface::FaceType )( fIdx ) ), &face2 );
 
-        bool foundOverlap =
-            cvf::GeometryTools::calculateOverlapPolygonOfTwoQuads( &polygon,
-                                                                   &intersections,
-                                                                   (cvf::EdgeIntersectStorage<size_t>*)nullptr,
-                                                                   cvf::wrapArrayConst( &mainGrid.nodes() ),
-                                                                   face1.data(),
-                                                                   face2.data(),
-                                                                   1e-6 );
+        bool foundOverlap = cvf::GeometryTools::calculateOverlapPolygonOfTwoQuads( &polygon,
+                                                                                   &intersections,
+                                                                                   (cvf::EdgeIntersectStorage<size_t>*)nullptr,
+                                                                                   cvf::wrapArrayConst( &mainGrid.nodes() ),
+                                                                                   face1.data(),
+                                                                                   face2.data(),
+                                                                                   1e-6 );
 
         if ( foundOverlap )
         {
@@ -320,8 +316,7 @@ void RigCellFaceGeometryTools::extractConnectionsForFace( const RigFault::FaultF
         // Test if this pair of cells already has a connection. Check both combinations of cell index ordering to avoid
         // duplicate NNC geometry for the same pair of cells
 
-        auto candidate = std::make_pair( static_cast<unsigned>( sourceReservoirCellIndex ),
-                                         static_cast<unsigned>( candidateCellIndex ) );
+        auto candidate = std::make_pair( static_cast<unsigned>( sourceReservoirCellIndex ), static_cast<unsigned>( candidateCellIndex ) );
 
         if ( nativeCellPairs.count( candidate ) > 0 )
         {
@@ -341,14 +336,13 @@ void RigCellFaceGeometryTools::extractConnectionsForFace( const RigFault::FaultF
         std::array<size_t, 4> candidateFaceIndices;
         mainGrid->globalCellArray()[candidateCellIndex].faceIndices( candidateFace, &candidateFaceIndices );
 
-        bool foundOverlap =
-            cvf::GeometryTools::calculateOverlapPolygonOfTwoQuads( &polygon,
-                                                                   &intersections,
-                                                                   (cvf::EdgeIntersectStorage<size_t>*)nullptr,
-                                                                   cvf::wrapArrayConst( &mainGridNodes ),
-                                                                   sourceFaceIndices.data(),
-                                                                   candidateFaceIndices.data(),
-                                                                   1e-6 );
+        bool foundOverlap = cvf::GeometryTools::calculateOverlapPolygonOfTwoQuads( &polygon,
+                                                                                   &intersections,
+                                                                                   (cvf::EdgeIntersectStorage<size_t>*)nullptr,
+                                                                                   cvf::wrapArrayConst( &mainGridNodes ),
+                                                                                   sourceFaceIndices.data(),
+                                                                                   candidateFaceIndices.data(),
+                                                                                   1e-6 );
 
         if ( foundOverlap )
         {

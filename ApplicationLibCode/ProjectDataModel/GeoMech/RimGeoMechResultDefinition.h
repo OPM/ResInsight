@@ -79,9 +79,7 @@ public:
 
     bool hasCategoryResult() const { return m_resultPositionType() == RIG_FORMATION_NAMES; }
 
-    void updateLegendTextAndRanges( RimRegularLegendConfig* legendConfigToUpdate,
-                                    const QString&          legendHeading,
-                                    int                     timeStepIndex );
+    void updateLegendTextAndRanges( RimRegularLegendConfig* legendConfigToUpdate, const QString& legendHeading, int timeStepIndex );
 
     bool isBiotCoefficientDependent() const;
 
@@ -95,15 +93,13 @@ private:
     // Overridden PDM methods
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
-    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     void calculateNormalizationAirGapDefault();
     bool useUndoRedoForFieldChanged() override;
 
     void initAfterRead() override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                QString                    uiConfigName,
-                                caf::PdmUiEditorAttribute* attribute ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     // Metadata and option build tools
 
     std::map<std::string, std::vector<std::string>> getResultMetaDataForUIFieldSetting();

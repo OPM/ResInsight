@@ -41,8 +41,7 @@ public:
     ~RimAnalysisPlotCollection() override;
 
     RimAnalysisPlot* createAnalysisPlot();
-    RimAnalysisPlot*
-        createAnalysisPlot( RimSummaryCaseCollection* ensemble, const QString& quantityName, std::time_t timeStep );
+    RimAnalysisPlot* createAnalysisPlot( RimSummaryCaseCollection* ensemble, const QString& quantityName, std::time_t timeStep );
 
     void updateSummaryNameHasChanged();
 
@@ -53,8 +52,7 @@ public:
 
 private:
     void applyFirstEnsembleFieldAddressesToPlot( RimAnalysisPlot* plot, const std::string& quantityName = "" );
-    void applyFirstSummaryCaseCollectionAndFieldAddressesToPlot( RimAnalysisPlot*   plot,
-                                                                 const std::string& quantityName = "" );
+    void applyFirstSummaryCaseCollectionAndFieldAddressesToPlot( RimAnalysisPlot* plot, const std::string& quantityName = "" );
     void applyAllSummaryCasesAndFieldAddressesToPlot( RimAnalysisPlot* plot, const std::string& quantityName = "" );
     void applySummaryCaseCollectionAndFieldAddressToPlot( RimAnalysisPlot*          plot,
                                                           RimSummaryCaseCollection* summaryCaseCollection,

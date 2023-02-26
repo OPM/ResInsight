@@ -32,11 +32,10 @@ class RimThermalFractureTemplate;
 class RicNewThermalFractureTemplateFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
-    static void createNewTemplateForFractureAndUpdate( RimFracture* fracture );
-    static void selectFractureTemplateAndUpdate( RimFractureTemplate* fractureTemplate );
-    static std::vector<RimThermalFractureTemplate*>
-        createNewTemplatesFromFiles( const std::vector<QString>& fileNames,
-                                     bool                        reuseExistingTemplatesWithMatchingNames = false );
+    static void                                     createNewTemplateForFractureAndUpdate( RimFracture* fracture );
+    static void                                     selectFractureTemplateAndUpdate( RimFractureTemplate* fractureTemplate );
+    static std::vector<RimThermalFractureTemplate*> createNewTemplatesFromFiles( const std::vector<QString>& fileNames,
+                                                                                 bool reuseExistingTemplatesWithMatchingNames = false );
 
 protected:
     static std::vector<RimThermalFractureTemplate*> createNewTemplates();

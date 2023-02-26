@@ -119,7 +119,7 @@ protected:
     // Pdm overrrides
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
-    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     std::vector<QString> perPointLabels() const;
 
@@ -140,10 +140,8 @@ private:
     std::vector<double> tvDepthValues();
     std::vector<double> measuredDepthValues();
 
-    bool deriveMeasuredDepthValuesFromWellPath( const std::vector<double>& tvDepthValues,
-                                                std::vector<double>&       derivedMDValues );
-    bool deriveMeasuredDepthFromObservedData( const std::vector<double>& tvDepthValues,
-                                              std::vector<double>&       derivedMDValues );
+    bool deriveMeasuredDepthValuesFromWellPath( const std::vector<double>& tvDepthValues, std::vector<double>& derivedMDValues );
+    bool deriveMeasuredDepthFromObservedData( const std::vector<double>& tvDepthValues, std::vector<double>& derivedMDValues );
 
     int segmentBranchIndex() const;
 

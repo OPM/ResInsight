@@ -53,8 +53,7 @@ public:
 
 private:
     void determineFilesToImport( const std::vector<RifSummaryCaseFileImportInfo>& initialFiles );
-    void determineFilesToImportByAskingUser( const std::vector<RifSummaryCaseFileImportInfo>& initialFiles,
-                                             bool                                             enableApplyToAllField );
+    void determineFilesToImportByAskingUser( const std::vector<RifSummaryCaseFileImportInfo>& initialFiles, bool enableApplyToAllField );
     void determineFilesToImportUsingPrefs( const std::vector<RifSummaryCaseFileImportInfo>& initialFiles );
 
     bool m_showDialog;

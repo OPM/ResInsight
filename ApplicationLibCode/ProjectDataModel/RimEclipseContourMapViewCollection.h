@@ -35,8 +35,7 @@ public:
     std::vector<RimEclipseContourMapView*> views();
     void                                   push_back( RimEclipseContourMapView* contourMap );
 
-    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
 private:
     caf::PdmChildArrayField<RimEclipseContourMapView*> m_contourMapViews;

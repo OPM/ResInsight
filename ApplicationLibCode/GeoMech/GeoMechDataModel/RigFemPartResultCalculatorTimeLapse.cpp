@@ -57,8 +57,7 @@ bool RigFemPartResultCalculatorTimeLapse::isMatching( const RigFemResultAddress&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames* RigFemPartResultCalculatorTimeLapse::calculate( int                        partIndex,
-                                                                          const RigFemResultAddress& resVarAddr )
+RigFemScalarResultFrames* RigFemPartResultCalculatorTimeLapse::calculate( int partIndex, const RigFemResultAddress& resVarAddr )
 {
     CVF_ASSERT( resVarAddr.isTimeLapse() );
 
@@ -80,12 +79,11 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorTimeLapse::calculate( int   
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames*
-    RigFemPartResultCalculatorTimeLapse::calculateTimeLapse( int partIndex, const RigFemResultAddress& resVarAddr )
+RigFemScalarResultFrames* RigFemPartResultCalculatorTimeLapse::calculateTimeLapse( int partIndex, const RigFemResultAddress& resVarAddr )
 {
     caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 2, "" );
-    stepCountProgress.setProgressDescription(
-        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
+    stepCountProgress.setProgressDescription( "Calculating " +
+                                              QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
     stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemResultAddress resVarNative( resVarAddr.resultPosType,
@@ -111,9 +109,8 @@ RigFemScalarResultFrames*
 
     stepCountProgress.incrementProgress();
 
-    const int timeSteps = srcDataFrames->timeStepCount();
-    auto [baseStepIdx, baseFrameIdx] =
-        m_resultCollection->stepListIndexToTimeStepAndDataFrameIndex( resVarAddr.timeLapseBaseStepIdx );
+    const int timeSteps              = srcDataFrames->timeStepCount();
+    auto [baseStepIdx, baseFrameIdx] = m_resultCollection->stepListIndexToTimeStepAndDataFrameIndex( resVarAddr.timeLapseBaseStepIdx );
 
     if ( baseStepIdx >= timeSteps ) return dstDataFrames;
 
@@ -147,15 +144,14 @@ RigFemScalarResultFrames*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigFemScalarResultFrames*
-    RigFemPartResultCalculatorTimeLapse::calculateGammaTimeLapse( int partIndex, const RigFemResultAddress& resVarAddr )
+RigFemScalarResultFrames* RigFemPartResultCalculatorTimeLapse::calculateGammaTimeLapse( int partIndex, const RigFemResultAddress& resVarAddr )
 {
     // Gamma time lapse needs to be calculated as ST_dt / POR_dt and not Gamma - Gamma_baseFrame see github
     // issue #937
 
     caf::ProgressInfo stepCountProgress( m_resultCollection->timeStepCount() * 3, "" );
-    stepCountProgress.setProgressDescription(
-        "Calculating " + QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
+    stepCountProgress.setProgressDescription( "Calculating " +
+                                              QString::fromStdString( resVarAddr.fieldName + ": " + resVarAddr.componentName ) );
     stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
 
     RigFemResultAddress totStressCompAddr( resVarAddr.resultPosType, "ST", "", resVarAddr.timeLapseBaseStepIdx );
@@ -181,9 +177,8 @@ RigFemScalarResultFrames*
     stepCountProgress.incrementProgress();
     stepCountProgress.setNextProgressIncrement( m_resultCollection->timeStepCount() );
     RigFemScalarResultFrames* srcPORDataFrames =
-        m_resultCollection
-            ->findOrLoadScalarResult( partIndex,
-                                      RigFemResultAddress( RIG_NODAL, "POR-Bar", "", resVarAddr.timeLapseBaseStepIdx ) );
+        m_resultCollection->findOrLoadScalarResult( partIndex,
+                                                    RigFemResultAddress( RIG_NODAL, "POR-Bar", "", resVarAddr.timeLapseBaseStepIdx ) );
     RigFemScalarResultFrames* dstDataFrames = m_resultCollection->createScalarResult( partIndex, resVarAddr );
 
     stepCountProgress.incrementProgress();

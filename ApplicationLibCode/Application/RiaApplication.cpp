@@ -243,8 +243,7 @@ void RiaApplication::createMockModelCustomized()
 void RiaApplication::createInputMockModel()
 {
     bool createView = true;
-    RiaImportEclipseCaseTools::openEclipseInputCaseFromFileNames( QStringList( RiaDefines::mockModelBasicInputCase() ),
-                                                                  createView );
+    RiaImportEclipseCaseTools::openEclipseInputCaseFromFileNames( QStringList( RiaDefines::mockModelBasicInputCase() ), createView );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -287,8 +286,7 @@ RimGridView* RiaApplication::activeMainOrComparisonGridView()
     RimGridView* activeView           = RiaApplication::instance()->activeGridView();
     RimGridView* viewOrComparisonView = activeView;
 
-    if ( activeView != nullptr && activeView->viewer() &&
-         activeView->viewer()->viewerCommands()->isCurrentPickInComparisonView() )
+    if ( activeView != nullptr && activeView->viewer() && activeView->viewer()->viewerCommands()->isCurrentPickInComparisonView() )
     {
         if ( RimGridView* compView = dynamic_cast<RimGridView*>( activeView->activeComparisonView() ) )
         {
@@ -347,10 +345,9 @@ bool RiaApplication::openFile( const QString& fileName )
     }
     else if ( int( fileType ) & int( RiaDefines::ImportFileType::ANY_ECLIPSE_FILE ) )
     {
-        bool createView = true;
-        bool createPlot = true;
-        loadingSucceded =
-            RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList{ fileName }, createPlot, createView );
+        bool createView   = true;
+        bool createPlot   = true;
+        loadingSucceded   = RicImportGeneralDataFeature::openEclipseFilesFromFileNames( QStringList{ fileName }, createPlot, createView );
         lastUsedDialogTag = RiaDefines::defaultDirectoryLabel( fileType );
     }
 
@@ -358,8 +355,7 @@ bool RiaApplication::openFile( const QString& fileName )
     {
         if ( !lastUsedDialogTag.isEmpty() )
         {
-            RiaApplication::instance()->setLastUsedDialogDirectory( lastUsedDialogTag,
-                                                                    QFileInfo( fileName ).absolutePath() );
+            RiaApplication::instance()->setLastUsedDialogDirectory( lastUsedDialogTag, QFileInfo( fileName ).absolutePath() );
         }
 
         onFileSuccessfullyLoaded( fileName, fileType );
@@ -429,9 +425,7 @@ QString RiaApplication::createAbsolutePathFromProjectRelativePath( QString proje
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaApplication::loadProject( const QString&      projectFileName,
-                                  ProjectLoadAction   loadAction,
-                                  RiaProjectModifier* projectModifier )
+bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAction loadAction, RiaProjectModifier* projectModifier )
 {
     // First Close the current project
 
@@ -468,8 +462,8 @@ bool RiaApplication::loadProject( const QString&      projectFileName,
     {
         closeProject();
 
-        QString errMsg = QString( "Unknown project file version detected in file \n%1\n\nCould not open project." )
-                             .arg( fullPathProjectFileName );
+        QString errMsg =
+            QString( "Unknown project file version detected in file \n%1\n\nCould not open project." ).arg( fullPathProjectFileName );
 
         onProjectOpeningError( errMsg );
 
@@ -919,9 +913,8 @@ bool RiaApplication::openOdbCaseFromFile( const QString& fileName, bool applyTim
 //--------------------------------------------------------------------------------------------------
 /// Add a list of well path file paths (JSON files) to the well path collection
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellPath*> RiaApplication::addWellPathsToModel( QList<QString>              wellPathFilePaths,
-                                                               bool                        importGrouped,
-                                                               gsl::not_null<QStringList*> errorMessages )
+std::vector<RimWellPath*>
+    RiaApplication::addWellPathsToModel( QList<QString> wellPathFilePaths, bool importGrouped, gsl::not_null<QStringList*> errorMessages )
 {
     if ( m_project == nullptr || m_project->oilFields.size() < 1 ) return {};
 
@@ -990,8 +983,7 @@ std::vector<RimWellLogFile*> RiaApplication::addWellLogsToModel( const QList<QSt
         m_project->updateConnectedEditors();
     }
 
-    std::vector<RimWellLogFile*> wellLogFiles =
-        oilField->wellPathCollection->addWellLogs( wellLogFilePaths, errorMessages );
+    std::vector<RimWellLogFile*> wellLogFiles = oilField->wellPathCollection->addWellLogs( wellLogFilePaths, errorMessages );
 
     oilField->wellPathCollection->updateConnectedEditors();
 
@@ -1103,9 +1095,7 @@ QProcessEnvironment RiaApplication::pythonProcessEnvironment() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaApplication::launchProcess( const QString&             program,
-                                    const QStringList&         arguments,
-                                    const QProcessEnvironment& processEnvironment )
+bool RiaApplication::launchProcess( const QString& program, const QStringList& arguments, const QProcessEnvironment& processEnvironment )
 {
     if ( m_workerProcess == nullptr )
     {
@@ -1242,8 +1232,7 @@ void RiaApplication::applyPreferences()
 //--------------------------------------------------------------------------------------------------
 QString RiaApplication::commandLineParameterHelp()
 {
-    QString helpText =
-        QString( "\n%1 v. %2\n" ).arg( RI_APPLICATION_NAME ).arg( RiaApplication::getVersionStringApp( false ) );
+    QString helpText = QString( "\n%1 v. %2\n" ).arg( RI_APPLICATION_NAME ).arg( RiaApplication::getVersionStringApp( false ) );
     helpText += "Copyright Equinor ASA, Ceetron Solution AS, Ceetron AS\n\n";
     helpText += m_commandLineHelpText;
 

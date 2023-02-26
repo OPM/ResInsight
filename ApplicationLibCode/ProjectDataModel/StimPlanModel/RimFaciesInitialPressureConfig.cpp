@@ -125,9 +125,7 @@ double RimFaciesInitialPressureConfig::fraction() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimFaciesInitialPressureConfig::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                       const QVariant&            oldValue,
-                                                       const QVariant&            newValue )
+void RimFaciesInitialPressureConfig::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     changed.send();
 }

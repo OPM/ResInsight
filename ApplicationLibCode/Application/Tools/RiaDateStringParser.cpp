@@ -62,11 +62,7 @@ QDateTime RiaDateStringParser::parseDateString( const std::string& dateString, O
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaDateStringParser::parseDateStringWithSeparators( const std::string& dateString,
-                                                         int&               year,
-                                                         int&               month,
-                                                         int&               day,
-                                                         OrderPreference    preference )
+bool RiaDateStringParser::parseDateStringWithSeparators( const std::string& dateString, int& year, int& month, int& day, OrderPreference preference )
 {
     auto tryParseAllYearFirst = []( const std::string& dateString, int& year, int& month, int& day ) {
         return tryParseYearFirst( dateString, year, month, day ) || tryParseDayFirst( dateString, year, month, day ) ||
@@ -85,21 +81,15 @@ bool RiaDateStringParser::parseDateStringWithSeparators( const std::string& date
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaDateStringParser::parseDateStringWithoutSeparators( const std::string& dateString,
-                                                            int&               year,
-                                                            int&               month,
-                                                            int&               day,
-                                                            OrderPreference    preference )
+bool RiaDateStringParser::parseDateStringWithoutSeparators( const std::string& dateString, int& year, int& month, int& day, OrderPreference preference )
 {
     auto tryParseAllYearFirstNoSeparators = []( const std::string& dateString, int& year, int& month, int& day ) {
         return tryParseYearFirstNoSeparators( dateString, year, month, day ) ||
-               tryParseDayFirstNoSeparators( dateString, year, month, day ) ||
-               tryParseMonthFirstNoSeparators( dateString, year, month, day );
+               tryParseDayFirstNoSeparators( dateString, year, month, day ) || tryParseMonthFirstNoSeparators( dateString, year, month, day );
     };
 
     auto tryParseAllDayFirstNoSeparators = []( const std::string& dateString, int& year, int& month, int& day ) {
-        return tryParseDayFirstNoSeparators( dateString, year, month, day ) ||
-               tryParseYearFirstNoSeparators( dateString, year, month, day ) ||
+        return tryParseDayFirstNoSeparators( dateString, year, month, day ) || tryParseYearFirstNoSeparators( dateString, year, month, day ) ||
                tryParseMonthFirstNoSeparators( dateString, year, month, day );
     };
 
@@ -108,9 +98,8 @@ bool RiaDateStringParser::parseDateStringWithoutSeparators( const std::string& d
     {
         std::string subString = dateString.substr( firstNumerical );
 
-        return ( preference == OrderPreference::YEAR_FIRST )
-                   ? tryParseAllYearFirstNoSeparators( subString, year, month, day )
-                   : tryParseAllDayFirstNoSeparators( subString, year, month, day );
+        return ( preference == OrderPreference::YEAR_FIRST ) ? tryParseAllYearFirstNoSeparators( subString, year, month, day )
+                                                             : tryParseAllDayFirstNoSeparators( subString, year, month, day );
     }
 
     return false;
@@ -297,9 +286,7 @@ bool RiaDateStringParser::tryParseMonth( const std::string& s, int& month )
     {
         auto sMonth = s;
         sMonth      = trimString( sMonth );
-        std::transform( sMonth.begin(), sMonth.end(), sMonth.begin(), []( const char c ) -> char {
-            return (char)::tolower( c );
-        } );
+        std::transform( sMonth.begin(), sMonth.end(), sMonth.begin(), []( const char c ) -> char { return (char)::tolower( c ); } );
 
         for ( int i = 0; i < 12; i++ )
         {

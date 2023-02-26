@@ -37,9 +37,7 @@ class VdeFileExporter
 public:
     VdeFileExporter( QString absOutputFolder );
 
-    bool exportToFile( const QString&            modelMetaJsonStr,
-                       const VdePacketDirectory& packetDirectory,
-                       const std::vector<int>&   packetIdsToExport );
+    bool exportToFile( const QString& modelMetaJsonStr, const VdePacketDirectory& packetDirectory, const std::vector<int>& packetIdsToExport );
     bool exportViewContents( const RimGridView& view );
 
 private:

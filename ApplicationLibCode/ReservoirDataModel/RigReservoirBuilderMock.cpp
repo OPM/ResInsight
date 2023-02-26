@@ -141,10 +141,7 @@ void RigReservoirBuilderMock::appendCubeNodes( const cvf::Vec3d& min, const cvf:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigReservoirBuilderMock::appendCells( size_t                nodeStartIndex,
-                                           size_t                cellCount,
-                                           RigGridBase*          hostGrid,
-                                           std::vector<RigCell>& cells )
+void RigReservoirBuilderMock::appendCells( size_t nodeStartIndex, size_t cellCount, RigGridBase* hostGrid, std::vector<RigCell>& cells )
 {
     size_t cellIndexStart = cells.size();
     cells.resize( cells.size() + cellCount );
@@ -216,14 +213,14 @@ void RigReservoirBuilderMock::populateReservoir( RigEclipseCaseData* eclipseCase
         localGrid->setParentGrid( eclipseCase->mainGrid() );
 
         localGrid->setIndexToStartOfCells( mainGridNodes.size() / 8 );
-        cvf::Vec3st gridPointDimensions( lgr.m_singleCellRefinementFactors.x() * ( lgr.m_mainGridMaxCellPosition.x() -
-                                                                                   lgr.m_mainGridMinCellPosition.x() + 1 ) +
+        cvf::Vec3st gridPointDimensions( lgr.m_singleCellRefinementFactors.x() *
+                                                 ( lgr.m_mainGridMaxCellPosition.x() - lgr.m_mainGridMinCellPosition.x() + 1 ) +
                                              1,
-                                         lgr.m_singleCellRefinementFactors.y() * ( lgr.m_mainGridMaxCellPosition.y() -
-                                                                                   lgr.m_mainGridMinCellPosition.y() + 1 ) +
+                                         lgr.m_singleCellRefinementFactors.y() *
+                                                 ( lgr.m_mainGridMaxCellPosition.y() - lgr.m_mainGridMinCellPosition.y() + 1 ) +
                                              1,
-                                         lgr.m_singleCellRefinementFactors.z() * ( lgr.m_mainGridMaxCellPosition.z() -
-                                                                                   lgr.m_mainGridMinCellPosition.z() + 1 ) +
+                                         lgr.m_singleCellRefinementFactors.z() *
+                                                 ( lgr.m_mainGridMaxCellPosition.z() - lgr.m_mainGridMinCellPosition.z() + 1 ) +
                                              1 );
         localGrid->setGridPointDimensions( gridPointDimensions );
 
@@ -302,9 +299,7 @@ void RigReservoirBuilderMock::setWorldCoordinates( cvf::Vec3d minWorldCoordinate
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigReservoirBuilderMock::inputProperty( RigEclipseCaseData*  eclipseCase,
-                                             const QString&       propertyName,
-                                             std::vector<double>* values )
+bool RigReservoirBuilderMock::inputProperty( RigEclipseCaseData* eclipseCase, const QString& propertyName, std::vector<double>* values )
 {
     size_t k;
 
@@ -341,10 +336,7 @@ bool RigReservoirBuilderMock::staticResult( RigEclipseCaseData* eclipseCase, con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigReservoirBuilderMock::dynamicResult( RigEclipseCaseData*  eclipseCase,
-                                             const QString&       result,
-                                             size_t               stepIndex,
-                                             std::vector<double>* values )
+bool RigReservoirBuilderMock::dynamicResult( RigEclipseCaseData* eclipseCase, const QString& result, size_t stepIndex, std::vector<double>* values )
 {
     int resultIndex = 1;
 
@@ -363,8 +355,7 @@ bool RigReservoirBuilderMock::dynamicResult( RigEclipseCaseData*  eclipseCase,
 #pragma omp parallel for
     for ( long long k = 0; k < static_cast<long long>( eclipseCase->mainGrid()->globalCellArray().size() ); k++ )
     {
-        double val = offsetValue +
-                     scaleValue * ( ( stepIndex * 1000 + k ) % eclipseCase->mainGrid()->globalCellArray().size() );
+        double val      = offsetValue + scaleValue * ( ( stepIndex * 1000 + k ) % eclipseCase->mainGrid()->globalCellArray().size() );
         values->at( k ) = val;
     }
 
@@ -560,8 +551,7 @@ void RigReservoirBuilderMock::addFaults( RigEclipseCaseData* eclipseCase )
 
     grid->nncData()->setEclipseConnections( nncConnections );
 
-    std::vector<double>& tranVals =
-        grid->nncData()->makeStaticConnectionScalarResult( RiaDefines::propertyNameCombTrans() );
+    std::vector<double>& tranVals = grid->nncData()->makeStaticConnectionScalarResult( RiaDefines::propertyNameCombTrans() );
     for ( size_t cIdx = 0; cIdx < tranVals.size(); ++cIdx )
     {
         tranVals[cIdx] = 0.2;
@@ -579,14 +569,7 @@ void RigReservoirBuilderMock::enableWellData( bool enableWellData )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigReservoirBuilderMock::addNnc( RigMainGrid*            grid,
-                                      size_t                  i1,
-                                      size_t                  j1,
-                                      size_t                  k1,
-                                      size_t                  i2,
-                                      size_t                  j2,
-                                      size_t                  k2,
-                                      RigConnectionContainer& nncConnections )
+void RigReservoirBuilderMock::addNnc( RigMainGrid* grid, size_t i1, size_t j1, size_t k1, size_t i2, size_t j2, size_t k2, RigConnectionContainer& nncConnections )
 {
     size_t c1GlobalIndex = grid->cellIndexFromIJK( i1, j1, k1 );
     size_t c2GlobalIndex = grid->cellIndexFromIJK( i2, j2, k2 );

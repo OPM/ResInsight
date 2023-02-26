@@ -48,12 +48,9 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    static void
-        createFormationTrack( RimStimPlanModelPlot* plot, RimStimPlanModel* stimPlanModel, RimEclipseCase* eclipseCase );
-    static void
-        createFaciesTrack( RimStimPlanModelPlot* plot, RimStimPlanModel* stimPlanModel, RimEclipseCase* eclipseCase );
-    static void
-        createLayersTrack( RimStimPlanModelPlot* plot, RimStimPlanModel* stimPlanModel, RimEclipseCase* eclipseCase );
+    static void createFormationTrack( RimStimPlanModelPlot* plot, RimStimPlanModel* stimPlanModel, RimEclipseCase* eclipseCase );
+    static void createFaciesTrack( RimStimPlanModelPlot* plot, RimStimPlanModel* stimPlanModel, RimEclipseCase* eclipseCase );
+    static void createLayersTrack( RimStimPlanModelPlot* plot, RimStimPlanModel* stimPlanModel, RimEclipseCase* eclipseCase );
 
     static void createParametersTrack( RimStimPlanModelPlot*                         plot,
                                        RimStimPlanModel*                             stimPlanModel,
@@ -63,8 +60,7 @@ private:
                                        const std::vector<RiaDefines::CurveProperty>& propertyTypes,
                                        bool                                          isPlotLogarithmic = false );
 
-    static bool shouldShowByDefault( const std::vector<RiaDefines::CurveProperty>& propertyTypes,
-                                     bool                                          useDetailedFluidLoss );
+    static bool shouldShowByDefault( const std::vector<RiaDefines::CurveProperty>& propertyTypes, bool useDetailedFluidLoss );
 
     static RimStimPlanModelPlot* createStimPlanModelPlot( bool showAfterCreation, const QString& plotDescription );
 

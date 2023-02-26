@@ -60,8 +60,7 @@ public:
 
     void appendTarget( const cvf::Vec3d& defaultPos = cvf::Vec3d::ZERO );
 
-    std::pair<RimPolylineTarget*, RimPolylineTarget*>
-        findActiveTargetsAroundInsertionPoint( const RimPolylineTarget* targetToInsertBefore );
+    std::pair<RimPolylineTarget*, RimPolylineTarget*> findActiveTargetsAroundInsertionPoint( const RimPolylineTarget* targetToInsertBefore );
 
     void enablePicking( bool enable );
 
@@ -72,10 +71,8 @@ protected:
     void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
-    void                 defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget ) override;
-    void                 defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                QString                    uiConfigName,
-                                                caf::PdmUiEditorAttribute* attribute ) override;
+    void defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     caf::PdmFieldHandle* userDescriptionField() override;
 
 private:

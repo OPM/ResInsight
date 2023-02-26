@@ -125,8 +125,7 @@ private:
 
     static bool                     isValidPrincipals( const cvf::Vec3f& principals );
     static float                    calculateFOS( const cvf::Vec3f& principals, double frictionAngle, double cohesion );
-    static RiuGeoMechSelectionItem* extractGeoMechSelectionItem( const RiuSelectionItem* selectionItem,
-                                                                 Rim3dView*&             newFollowAnimView );
+    static RiuGeoMechSelectionItem* extractGeoMechSelectionItem( const RiuSelectionItem* selectionItem, Rim3dView*& newFollowAnimView );
 
 private slots:
     void setAxesScaleAndReplot();
