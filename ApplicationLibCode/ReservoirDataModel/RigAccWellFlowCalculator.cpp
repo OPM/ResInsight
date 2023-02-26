@@ -713,8 +713,8 @@ std::vector<double> RigAccWellFlowCalculator::calculateWellCellFlowPrTracer( con
     {
         if ( wellCell.isCell() && wellCell.isOpen() )
         {
-            size_t resCellIndex = m_cellIndexCalculator.resultCellIndex( wellCell.gridIndex(), wellCell.cellIndex() );
-            size_t tracerIdx    = 0;
+            size_t resCellIndex              = m_cellIndexCalculator.resultCellIndex( wellCell.gridIndex(), wellCell.cellIndex() );
+            size_t tracerIdx                 = 0;
             double totalTracerFractionInCell = 0.0;
             for ( const auto& tracerFractionValsPair : ( *m_tracerCellFractionValues ) )
             {

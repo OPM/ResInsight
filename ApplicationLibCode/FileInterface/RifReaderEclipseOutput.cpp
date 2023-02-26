@@ -1312,8 +1312,7 @@ RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint( const RigGridB
         resultPoint.setSegmentData( branchId, segmentId );
         resultPoint.setOutletSegmentData( outletBranchId, outletSegmentId );
 
-        const double adjustedGasRate =
-            RiaEclipseUnitTools::convertSurfaceGasFlowRateToOilEquivalents( m_eclipseCase->unitsType(), gasRate );
+        const double adjustedGasRate = RiaEclipseUnitTools::convertSurfaceGasFlowRateToOilEquivalents( m_eclipseCase->unitsType(), gasRate );
         resultPoint.setFlowData( volumeRate, oilRate, adjustedGasRate, waterRate );
 
         resultPoint.setConnectionFactor( connectionFactor );
@@ -1325,9 +1324,8 @@ RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint( const RigGridB
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigWellResultPoint RifReaderEclipseOutput::createWellResultPoint( const RigGridBase*    grid,
-                                                                  const well_conn_type* ert_connection,
-                                                                  const char*           wellName )
+RigWellResultPoint
+    RifReaderEclipseOutput::createWellResultPoint( const RigGridBase* grid, const well_conn_type* ert_connection, const char* wellName )
 {
     return createWellResultPoint( grid, ert_connection, nullptr, wellName );
 }
@@ -1748,9 +1746,8 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
                                 // Prepare data for segment position calculation
 
                                 well_conn_type*    ert_connection = well_conn_collection_iget( connections, 0 );
-                                RigWellResultPoint point =
-                                    createWellResultPoint( grids[gridNr], ert_connection, segment, wellName );
-                                lastConnectionPos = grids[gridNr]->cell( point.cellIndex() ).center();
+                                RigWellResultPoint point = createWellResultPoint( grids[gridNr], ert_connection, segment, wellName );
+                                lastConnectionPos        = grids[gridNr]->cell( point.cellIndex() ).center();
                                 cvf::Vec3d cellVxes[8];
                                 grids[gridNr]->cellCornerVertices( point.cellIndex(), cellVxes );
                                 lastConnectionCellCorner = cellVxes[0];
@@ -1823,8 +1820,7 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
                                 // Select the deepest connection
                                 well_conn_type* ert_connection = well_conn_collection_iget( connections, connectionCount - 1 );
 
-                                auto resultPoint =
-                                    createWellResultPoint( grids[gridNr], ert_connection, outletSegment, wellName );
+                                auto resultPoint = createWellResultPoint( grids[gridNr], ert_connection, outletSegment, wellName );
                                 // This result point is only supposed to be used to indicate connection to a parent well
                                 // Clear all flow in this result point
                                 resultPoint.clearAllFlow();
@@ -1841,8 +1837,7 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
                             // Store the result point
 
                             RigWellResultPoint data;
-                            data.setSegmentData( well_segment_get_branch_id( outletSegment ),
-                                                 well_segment_get_id( outletSegment ) );
+                            data.setSegmentData( well_segment_get_branch_id( outletSegment ), well_segment_get_id( outletSegment ) );
                             wellResultBranch.m_branchResultPoints.push_back( data );
 
                             // Store data for segment position calculation,
@@ -1973,16 +1968,10 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
                                     prevResPoint = wellResultBranch.m_branchResultPoints[rpIdx - 1];
                                 }
 
-                                cvf::Vec3d lastConnectionPos =
-                                    grids[prevResPoint.gridIndex()]->cell( prevResPoint.cellIndex() ).center();
+                                cvf::Vec3d lastConnectionPos = grids[prevResPoint.gridIndex()]->cell( prevResPoint.cellIndex() ).center();
 
-                                SegmentPositionContribution posContrib( prevResPoint.segmentId(),
-                                                                        lastConnectionPos,
-                                                                        0.0,
-                                                                        false,
-                                                                        -1,
-                                                                        prevResPoint.segmentId(),
-                                                                        true );
+                                SegmentPositionContribution
+                                    posContrib( prevResPoint.segmentId(), lastConnectionPos, 0.0, false, -1, prevResPoint.segmentId(), true );
 
                                 int ertSegmentId = resPoint.segmentId();
 
@@ -2071,8 +2060,7 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
                             for ( int connIdx = 0; connIdx < connectionCount; connIdx++ )
                             {
                                 well_conn_type*    ert_connection = well_conn_collection_iget( connections, connIdx );
-                                RigWellResultPoint wellRp =
-                                    createWellResultPoint( grids[gridNr], ert_connection, wellName );
+                                RigWellResultPoint wellRp         = createWellResultPoint( grids[gridNr], ert_connection, wellName );
 
                                 if ( !subCellConnCalc.hasSubCellConnection( wellRp ) )
                                 {

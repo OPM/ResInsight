@@ -42,12 +42,11 @@ public:
     static std::vector<SimulationWellCellBranch> calculateMswWellPipeGeometry( RimSimWellInView* rimWell );
     static std::vector<SimulationWellCellBranch> calculateWellPipeStaticCenterline( RimSimWellInView* rimWell );
 
-    static std::vector<SimulationWellCellBranch>
-        calculateWellPipeCenterlineForTimeStep( const RigEclipseCaseData* eclipseCaseData,
-                                                const RigSimWellData*     simWellData,
-                                                int                       timeStepIndex,
-                                                bool                      isAutoDetectBranches,
-                                                bool                      useAllCellCenters );
+    static std::vector<SimulationWellCellBranch> calculateWellPipeCenterlineForTimeStep( const RigEclipseCaseData* eclipseCaseData,
+                                                                                         const RigSimWellData*     simWellData,
+                                                                                         int                       timeStepIndex,
+                                                                                         bool                      isAutoDetectBranches,
+                                                                                         bool                      useAllCellCenters );
 
     static std::pair<std::vector<std::vector<cvf::Vec3d>>, std::vector<std::vector<RigWellResultPoint>>>
         extractBranchData( const std::vector<SimulationWellCellBranch> simulationBranch );
@@ -70,8 +69,7 @@ private:
         {
             for ( const auto& [segmentId, gridAndCellIndex] : m_segmentsWithGridCells )
             {
-                if ( std::find( gridAndCellIndex.begin(), gridAndCellIndex.end(), candidateGridAndCellIndex ) !=
-                     gridAndCellIndex.end() )
+                if ( std::find( gridAndCellIndex.begin(), gridAndCellIndex.end(), candidateGridAndCellIndex ) != gridAndCellIndex.end() )
                 {
                     return true;
                 }
@@ -86,18 +84,17 @@ private:
                                                    std::vector<std::vector<cvf::Vec3d>>&         pipeBranchesCLCoords,
                                                    std::vector<std::vector<RigWellResultPoint>>& pipeBranchesCellIds );
 
-    static void calculateWellPipeCenterlineForTimeStep( const RigEclipseCaseData*             eclipseCaseData,
-                                                        const RigSimWellData*                 simWellData,
-                                                        int                                   timeStepIndex,
-                                                        bool                                  isAutoDetectBranches,
-                                                        bool                                  useAllCellCenters,
-                                                        std::vector<std::vector<cvf::Vec3d>>& pipeBranchesCLCoords,
+    static void calculateWellPipeCenterlineForTimeStep( const RigEclipseCaseData*                     eclipseCaseData,
+                                                        const RigSimWellData*                         simWellData,
+                                                        int                                           timeStepIndex,
+                                                        bool                                          isAutoDetectBranches,
+                                                        bool                                          useAllCellCenters,
+                                                        std::vector<std::vector<cvf::Vec3d>>&         pipeBranchesCLCoords,
                                                         std::vector<std::vector<RigWellResultPoint>>& pipeBranchesCellIds );
 
-    static std::vector<SimulationWellCellBranch>
-        calculateMswWellPipeGeometryForTimeStep( const RigEclipseCaseData* eclipseCaseData,
-                                                 const RigSimWellData*     simWellData,
-                                                 int                       timeStepIndex );
+    static std::vector<SimulationWellCellBranch> calculateMswWellPipeGeometryForTimeStep( const RigEclipseCaseData* eclipseCaseData,
+                                                                                          const RigSimWellData*     simWellData,
+                                                                                          int                       timeStepIndex );
 
     static std::vector<WellBranch> buildAccumulatedWellBranches( const std::vector<RigWellResultBranch>& resBranches );
 

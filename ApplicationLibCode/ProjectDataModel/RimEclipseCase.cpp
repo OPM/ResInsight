@@ -433,8 +433,7 @@ const RigVirtualPerforationTransmissibilities* RimEclipseCase::computeAndGetVirt
                             if ( r.isCell() )
                             {
                                 RigCompletionData compData( wellRes->m_wellName,
-                                                            RigCompletionDataGridCell( r.cellIndex(),
-                                                                                       rigEclipseCase->mainGrid() ),
+                                                            RigCompletionDataGridCell( r.cellIndex(), rigEclipseCase->mainGrid() ),
                                                             0 );
                                 compData.setTransmissibility( r.connectionFactor() );
 

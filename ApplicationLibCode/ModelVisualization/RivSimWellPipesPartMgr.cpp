@@ -161,8 +161,7 @@ void RivSimWellPipesPartMgr::buildWellPipeParts( const caf::DisplayCoordTransfor
     {
         std::vector<SimulationWellCellBranch> simWellBranches;
         const RigSimWellData*                 simWellData = m_simWellInView->simWellData();
-        if ( simWellData && simWellData->isMultiSegmentWell() &&
-             RiaPreferences::current()->showSimplifiedMswWellPathGeometry() )
+        if ( simWellData && simWellData->isMultiSegmentWell() && RiaPreferences::current()->showSimplifiedMswWellPathGeometry() )
         {
             simWellBranches = RigSimulationWellCenterLineCalculator::calculateMswWellPipeGeometry( m_simWellInView );
         }
@@ -312,8 +311,7 @@ void RivSimWellPipesPartMgr::buildWellPipeParts( const caf::DisplayCoordTransfor
                                 continue;
                             }
 
-                            if ( !virtualPerforationResult->showConnectionFactorsOnClosedConnections() &&
-                                 !wResCell->isOpen() )
+                            if ( !virtualPerforationResult->showConnectionFactorsOnClosedConnections() && !wResCell->isOpen() )
                             {
                                 continue;
                             }
@@ -436,8 +434,7 @@ void RivSimWellPipesPartMgr::updatePipeResultColor( size_t frameIndex )
 
                 if ( cellIds[wcIdx].isCell() )
                 {
-                    wResCell = wResFrame->findResultCellWellHeadExcluded( cellIds[wcIdx].gridIndex(),
-                                                                          cellIds[wcIdx].cellIndex() );
+                    wResCell = wResFrame->findResultCellWellHeadExcluded( cellIds[wcIdx].gridIndex(), cellIds[wcIdx].cellIndex() );
                 }
 
                 if ( wResCell )

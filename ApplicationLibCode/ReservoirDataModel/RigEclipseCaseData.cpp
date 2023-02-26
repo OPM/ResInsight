@@ -504,12 +504,11 @@ std::vector<const RigWellPath*>
 
     if ( m_simWellBranchCache.find( simWellSeachItem ) == m_simWellBranchCache.end() )
     {
-        const auto simWellBranches =
-            RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineForTimeStep( this,
-                                                                                           simWellData,
-                                                                                           -1,
-                                                                                           useAutoDetectionOfBranches,
-                                                                                           includeAllCellCenters );
+        const auto simWellBranches = RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineForTimeStep( this,
+                                                                                                                    simWellData,
+                                                                                                                    -1,
+                                                                                                                    useAutoDetectionOfBranches,
+                                                                                                                    includeAllCellCenters );
 
         m_simWellBranchCache.insert( std::make_pair( simWellSeachItem, cvf::Collection<RigWellPath>() ) );
 

@@ -359,8 +359,7 @@ public:
                                                       // main grid results from RFT
 
             const double adjustedGasRate =
-                RiaEclipseUnitTools::convertSurfaceGasFlowRateToOilEquivalents( eclCase->eclipseCaseData()->unitsType(),
-                                                                                gasRates[it->second] );
+                RiaEclipseUnitTools::convertSurfaceGasFlowRateToOilEquivalents( eclCase->eclipseCaseData()->unitsType(), gasRates[it->second] );
             resPoint.setFlowData( -1.0, oilRates[it->second], adjustedGasRate, watRates[it->second] );
 
             m_pipeBranchWellResultPoints.push_back( resPoint );

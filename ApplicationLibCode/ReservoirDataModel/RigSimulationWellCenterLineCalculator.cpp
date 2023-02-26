@@ -43,8 +43,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<SimulationWellCellBranch>
-    RigSimulationWellCenterLineCalculator::calculateMswWellPipeGeometry( RimSimWellInView* rimWell )
+std::vector<SimulationWellCellBranch> RigSimulationWellCenterLineCalculator::calculateMswWellPipeGeometry( RimSimWellInView* rimWell )
 {
     CVF_ASSERT( rimWell );
 
@@ -68,8 +67,8 @@ std::vector<SimulationWellCellBranch>
 //--------------------------------------------------------------------------------------------------
 std::vector<SimulationWellCellBranch>
     RigSimulationWellCenterLineCalculator::calculateMswWellPipeGeometryForTimeStep( const RigEclipseCaseData* eclipseCaseData,
-                                                                                    const RigSimWellData* wellResults,
-                                                                                    int timeStepIndex )
+                                                                                    const RigSimWellData*     wellResults,
+                                                                                    int                       timeStepIndex )
 {
     if ( timeStepIndex >= 0 && !wellResults->hasAnyValidCells( timeStepIndex ) ) return {};
 
@@ -127,8 +126,7 @@ std::vector<SimulationWellCellBranch>
                                 }
                             }
 
-                            wellBranch.m_segmentsWithGridCells[firstResultPoint.segmentId()].push_back(
-                                gridAndCellIndexForTieIn );
+                            wellBranch.m_segmentsWithGridCells[firstResultPoint.segmentId()].push_back( gridAndCellIndexForTieIn );
                         }
                     }
                 }
@@ -226,8 +224,7 @@ std::vector<RigSimulationWellCenterLineCalculator::WellBranch>
             size_t gridCellIndex = resPoint.cellIndex();
 
             auto gridAndCellIndex = std::make_pair( gridIndex, gridCellIndex );
-            if ( gridIndex != cvf::UNDEFINED_SIZE_T && gridCellIndex != cvf::UNDEFINED_SIZE_T &&
-                 !branch.containsGridCell( gridAndCellIndex ) )
+            if ( gridIndex != cvf::UNDEFINED_SIZE_T && gridCellIndex != cvf::UNDEFINED_SIZE_T && !branch.containsGridCell( gridAndCellIndex ) )
             {
                 OutputSegment outputSegment{ resPoint.outletSegmentId(), resPoint.outletBranchId() };
                 branch.m_gridCellsConnectedToSegments[gridAndCellIndex] = outputSegment;
@@ -270,8 +267,7 @@ std::vector<RigSimulationWellCenterLineCalculator::WellBranch>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<SimulationWellCellBranch>
-    RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( RimSimWellInView* rimWell )
+std::vector<SimulationWellCellBranch> RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( RimSimWellInView* rimWell )
 {
     std::vector<std::vector<cvf::Vec3d>>         pipeBranchesCLCoords;
     std::vector<std::vector<RigWellResultPoint>> pipeBranchesCellIds;
@@ -292,10 +288,10 @@ std::vector<SimulationWellCellBranch>
 //--------------------------------------------------------------------------------------------------
 std::vector<SimulationWellCellBranch>
     RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineForTimeStep( const RigEclipseCaseData* eclipseCaseData,
-                                                                                   const RigSimWellData* simWellData,
-                                                                                   int                   timeStepIndex,
-                                                                                   bool isAutoDetectBranches,
-                                                                                   bool useAllCellCenters )
+                                                                                   const RigSimWellData*     simWellData,
+                                                                                   int                       timeStepIndex,
+                                                                                   bool                      isAutoDetectBranches,
+                                                                                   bool                      useAllCellCenters )
 {
     std::vector<std::vector<cvf::Vec3d>>         pipeBranchesCLCoords;
     std::vector<std::vector<RigWellResultPoint>> pipeBranchesCellIds;
@@ -382,9 +378,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( R
                 QString myTxt;
                 int     fieldWidth = 3;
                 myTxt += QString( "Ri branch index: %1 " ).arg( branchIdx, fieldWidth );
-                myTxt += QString( "Seg: %1 Branch: %2 " )
-                             .arg( resultPoint.segmentId(), fieldWidth )
-                             .arg( resultPoint.branchId(), fieldWidth );
+                myTxt += QString( "Seg: %1 Branch: %2 " ).arg( resultPoint.segmentId(), fieldWidth ).arg( resultPoint.branchId(), fieldWidth );
 
                 if ( resultPoint.isCell() )
                 {
@@ -392,8 +386,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( R
                     auto   grid = eclipseCaseData->grid( resultPoint.gridIndex() );
                     grid->ijkFromCellIndex( resultPoint.cellIndex(), &i, &j, &k );
 
-                    myTxt +=
-                        QString( "Grid %1 %2 %3 " ).arg( i + 1, fieldWidth ).arg( j + 1, fieldWidth ).arg( k + 1, fieldWidth );
+                    myTxt += QString( "Grid %1 %2 %3 " ).arg( i + 1, fieldWidth ).arg( j + 1, fieldWidth ).arg( k + 1, fieldWidth );
                 }
 
                 myTxt += QString( "OutSeg: %1 OutBranch: %2 " )
@@ -420,14 +413,13 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( R
 /// The returned CellIds is one less than the number of centerline points,
 /// and are describing the lines between the points, starting with the first line
 //--------------------------------------------------------------------------------------------------
-void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineForTimeStep(
-    const RigEclipseCaseData*                     eclipseCaseData,
-    const RigSimWellData*                         wellResults,
-    int                                           timeStepIndex,
-    bool                                          isAutoDetectBranches,
-    bool                                          useAllCellCenters,
-    std::vector<std::vector<cvf::Vec3d>>&         pipeBranchesCLCoords,
-    std::vector<std::vector<RigWellResultPoint>>& pipeBranchesCellIds )
+void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineForTimeStep( const RigEclipseCaseData* eclipseCaseData,
+                                                                                    const RigSimWellData*     wellResults,
+                                                                                    int                       timeStepIndex,
+                                                                                    bool                      isAutoDetectBranches,
+                                                                                    bool                      useAllCellCenters,
+                                                                                    std::vector<std::vector<cvf::Vec3d>>& pipeBranchesCLCoords,
+                                                                                    std::vector<std::vector<RigWellResultPoint>>& pipeBranchesCellIds )
 {
     // Initialize the return arrays
     pipeBranchesCLCoords.clear();

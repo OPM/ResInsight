@@ -92,8 +92,7 @@ private:
 
     std::string ertGridName( size_t gridNr );
 
-    RigWellResultPoint
-        createWellResultPoint( const RigGridBase* grid, const well_conn_type* ert_connection, const char* wellName );
+    RigWellResultPoint createWellResultPoint( const RigGridBase* grid, const well_conn_type* ert_connection, const char* wellName );
 
     RigWellResultPoint createWellResultPoint( const RigGridBase*       grid,
                                               const well_conn_type*    ert_connection,

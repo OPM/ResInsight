@@ -246,14 +246,12 @@ void RimWellAllocationPlot::updateFromWell()
     if ( !simWellData ) return;
 
     // Set up the Accumulated Well Flow Calculator
-    const auto simWellBranches =
-        RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineForTimeStep( m_case->eclipseCaseData(),
-                                                                                       simWellData,
-                                                                                       m_timeStep,
-                                                                                       m_branchDetection,
-                                                                                       true );
-    const auto& [pipeBranchesCLCoords, pipeBranchesCellIds] =
-        RigSimulationWellCenterLineCalculator::extractBranchData( simWellBranches );
+    const auto simWellBranches = RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineForTimeStep( m_case->eclipseCaseData(),
+                                                                                                                simWellData,
+                                                                                                                m_timeStep,
+                                                                                                                m_branchDetection,
+                                                                                                                true );
+    const auto& [pipeBranchesCLCoords, pipeBranchesCellIds] = RigSimulationWellCenterLineCalculator::extractBranchData( simWellBranches );
 
     std::map<QString, const std::vector<double>*> tracerFractionCellValues =
         RimWellAllocationTools::findOrCreateRelevantTracerCellFractions( simWellData, m_flowDiagSolution, m_timeStep );
