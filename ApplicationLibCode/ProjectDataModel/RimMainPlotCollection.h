@@ -88,7 +88,6 @@ public:
     void scheduleUpdatePlotsWithCompletions();
     void deleteAllCachedData();
     void ensureDefaultFlowPlotsAreCreated();
-    void ensureCalculationIdsAreAssigned();
     void loadDataAndUpdateAllPlots();
     void updateSelectedWell( QString wellName );
 

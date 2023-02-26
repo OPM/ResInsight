@@ -18,12 +18,7 @@
 
 #include "RimSummaryCalculationCollection.h"
 
-#include "RimCalculatedSummaryCase.h"
-#include "RimProject.h"
 #include "RimSummaryCalculation.h"
-
-#include "cafPdmUiGroup.h"
-#include "cafPdmUiTreeSelectionEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimSummaryCalculationCollection, "RimSummaryCalculationCollection" );
 //--------------------------------------------------------------------------------------------------
@@ -32,10 +27,6 @@ CAF_PDM_SOURCE_INIT( RimSummaryCalculationCollection, "RimSummaryCalculationColl
 RimSummaryCalculationCollection::RimSummaryCalculationCollection()
 {
     CAF_PDM_InitObject( "Calculation Collection", ":/chain.png" );
-
-    CAF_PDM_InitFieldNoDefault( &m_calcuationSummaryCase, "CalculationsSummaryCase", "Calculations Summary Case" );
-    m_calcuationSummaryCase.xmlCapability()->disableIO();
-    m_calcuationSummaryCase = new RimCalculatedSummaryCase;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -49,18 +40,9 @@ RimSummaryCalculation* RimSummaryCalculationCollection::createCalculation() cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCase* RimSummaryCalculationCollection::calculationSummaryCase()
-{
-    return m_calcuationSummaryCase();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryCalculationCollection::rebuildCaseMetaData()
 {
     ensureValidCalculationIds();
-    m_calcuationSummaryCase->buildMetaData();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -1000,10 +1000,10 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
     auto addressesForCurve = []( RimSummaryCurve* curve, AxisRangeAggregation axisRangeAggregation ) {
         std::vector<RifEclipseSummaryAddress> addresses;
 
+        auto addr = curve->summaryAddressY();
         if ( axisRangeAggregation == AxisRangeAggregation::REALIZATIONS )
         {
-            RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::fieldAddress( curve->summaryAddressY().vectorName() );
-            addresses                     = { addr };
+            addresses = { RifEclipseSummaryAddress::fieldAddress( addr.vectorName(), addr.id() ) };
         }
         else if ( axisRangeAggregation == AxisRangeAggregation::WELLS ||
                   axisRangeAggregation == AxisRangeAggregation::REGIONS )
@@ -1032,7 +1032,7 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
                     for ( const auto& wellName : analyzer->wellNames() )
                     {
                         addresses.push_back(
-                            RifEclipseSummaryAddress::wellAddress( curve->summaryAddressY().vectorName(), wellName ) );
+                            RifEclipseSummaryAddress::wellAddress( addr.vectorName(), wellName, addr.id() ) );
                     }
                 }
 
@@ -1040,8 +1040,8 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
                 {
                     for ( auto regionNumber : analyzer->regionNumbers() )
                     {
-                        addresses.push_back( RifEclipseSummaryAddress::regionAddress( curve->summaryAddressY().vectorName(),
-                                                                                      regionNumber ) );
+                        addresses.push_back(
+                            RifEclipseSummaryAddress::regionAddress( addr.vectorName(), regionNumber, addr.id() ) );
                     }
                 }
             }

@@ -28,6 +28,7 @@
 #include "RimSummaryAddress.h"
 #include "RimSummaryCalculation.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
 
 #include "RiuDragDrop.h"
@@ -69,6 +70,7 @@ void RimSummaryCalculationVariable::fieldChangedByUi( const caf::PdmFieldHandle*
         {
             RiuSummaryVectorSelectionDialog dlg( nullptr );
             dlg.hideEnsembles();
+            dlg.hideCalculationIncompatibleCategories();
 
             readDataFromApplicationStore( &dlg );
 
@@ -139,6 +141,16 @@ void RimSummaryCalculationVariable::setSummaryAddress( const RimSummaryAddress& 
     m_summaryAddress()->setAddress( address.address() );
 
     auto summaryCase = RiaSummaryTools::summaryCaseById( address.caseId() );
+
+    // Use first summary case for ensemble addresses
+    if ( address.isEnsemble() )
+    {
+        auto ensemble = RiaSummaryTools::ensembleById( address.ensembleId() );
+        if ( ensemble )
+        {
+            summaryCase = ensemble->firstSummaryCase();
+        }
+    }
 
     if ( summaryCase ) m_case = summaryCase;
 }

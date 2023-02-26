@@ -30,6 +30,7 @@ class RifOpmCommonEclipseSummary;
 class RifEclipseSummaryAddress;
 class RifMultipleSummaryReaders;
 class RimRftCase;
+class RifCalculatedSummaryCurveReader;
 
 //==================================================================================================
 //
@@ -77,10 +78,11 @@ private:
     static RifReaderOpmRft* findRftDataAndCreateReader( const QString& rftFileName, const QString& dataDeckFileName );
 
 private:
-    cvf::ref<RifSummaryReaderInterface> m_fileSummaryReader;
-    cvf::ref<RifMultipleSummaryReaders> m_multiSummaryReader;
-    cvf::ref<RifReaderOpmRft>           m_summaryEclipseRftReader;
-    caf::PdmField<bool>                 m_includeRestartFiles;
+    cvf::ref<RifSummaryReaderInterface>       m_fileSummaryReader;
+    cvf::ref<RifCalculatedSummaryCurveReader> m_calculatedSummaryReader;
+    cvf::ref<RifMultipleSummaryReaders>       m_multiSummaryReader;
+    cvf::ref<RifReaderOpmRft>                 m_summaryEclipseRftReader;
+    caf::PdmField<bool>                       m_includeRestartFiles;
 
     caf::PdmField<caf::FilePath>         m_additionalSummaryFilePath;
     cvf::ref<RifOpmCommonEclipseSummary> m_additionalSummaryFileReader;

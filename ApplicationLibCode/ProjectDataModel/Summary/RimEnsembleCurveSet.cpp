@@ -27,6 +27,7 @@
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaTimeTTools.h"
 
+#include "RimSummaryCalculationCollection.h"
 #include "SummaryPlotCommands/RicSummaryPlotEditorUi.h"
 
 #include "RifEnsembleStatisticsReader.h"
@@ -46,6 +47,7 @@
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSummaryAddress.h"
+#include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"

@@ -642,7 +642,6 @@ void RicSummaryPlotBuilder::appendCurvesToPlot( RimSummaryPlot*                 
         for ( const auto summaryCase : summaryCases )
         {
             auto curve = createCurve( summaryCase, addr );
-
             summaryPlot->addCurveNoUpdate( curve );
         }
     }

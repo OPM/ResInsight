@@ -20,6 +20,7 @@
 
 #include "RiaSummaryAddressAnalyzer.h"
 
+#include "RifEclipseSummaryAddress.h"
 #include "cafPdmUiFieldHandle.h"
 
 #include "cvfAssert.h"
@@ -137,6 +138,19 @@ bool RimDataSourceSteppingTools::updateAddressIfMatching( const QVariant&       
         if ( adr->blockAsString() == oldString )
         {
             adr->setCellIjk( newString );
+
+            return true;
+        }
+    }
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION )
+    {
+        std::string oldString = oldValue.toString().toStdString();
+        std::string newString = newValue.toString().toStdString();
+        if ( adr->formatUiTextRegionToRegion() == oldString )
+        {
+            auto [region1, region2] = RifEclipseSummaryAddress::regionToRegionPairFromUiText( newString );
+            adr->setRegion( region1 );
+            adr->setRegion2( region2 );
 
             return true;
         }

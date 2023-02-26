@@ -34,7 +34,6 @@
 #include "RifSummaryReaderInterface.h"
 
 #include "RimAnalysisPlotDataEntry.h"
-#include "RimCalculatedSummaryCase.h"
 #include "RimDerivedSummaryCase.h"
 #include "RimPlotAxisProperties.h"
 #include "RimPlotAxisPropertiesInterface.h"
@@ -1590,10 +1589,7 @@ void RimAnalysisPlot::updatePlotTitle()
             QStringList caseNameList;
             for ( auto summaryCase : getOrCreateSelectedCurveDefAnalyser()->m_singleSummaryCases )
             {
-                if ( !dynamic_cast<RimCalculatedSummaryCase*>( summaryCase ) )
-                {
-                    caseNameList.push_back( summaryCase->displayCaseName() );
-                }
+                caseNameList.push_back( summaryCase->displayCaseName() );
             }
 
             QString root        = RiaTextStringTools::commonRoot( caseNameList );

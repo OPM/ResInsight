@@ -400,9 +400,6 @@ std::vector<SummarySource*> RimSummaryPlotFilterTextCurveSetEditor::selectedSumm
         sources.push_back( source );
     }
 
-    // Always add the summary case for calculated curves as this case is not displayed in UI
-    sources.push_back( RimProject::current()->calculationCollection()->calculationSummaryCase() );
-
     return sources;
 }
 

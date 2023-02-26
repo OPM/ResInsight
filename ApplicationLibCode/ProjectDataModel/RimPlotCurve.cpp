@@ -891,7 +891,7 @@ void RimPlotCurve::updateLegendEntryVisibilityNoPlotUpdate()
         bool anyCalculated = false;
         for ( const auto c : summaryPlot->summaryCurves() )
         {
-            if ( c->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
+            if ( c->summaryAddressY().isCalculated() )
             {
                 // Never hide the legend for calculated curves, as the curve legend is used to
                 // show some essential auto generated data

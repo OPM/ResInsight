@@ -277,8 +277,6 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( con
                 RifEclipseUserDataKeywordTools::extractThreeInts( &cellI, &cellJ, &cellK, columnHeaderText[1] );
             }
             break;
-        case RifEclipseSummaryAddress::SUMMARY_CALCULATED:
-            break;
         default:
             break;
     }

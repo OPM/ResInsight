@@ -55,6 +55,7 @@ public:
     void hideHistoryVectors();
     void hideDifferenceVectors();
     void hideVectorsWithNoHistory();
+    void hideCalculationIncompatibleCategories();
 
 private:
     RiuSummaryVectorSelectionUi* summaryAddressSelection() const;
