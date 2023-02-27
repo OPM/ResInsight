@@ -74,10 +74,8 @@ protected:
     void                 initAfterRead() override;
     caf::PdmFieldHandle* userDescriptionField() override;
     void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void                 defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                QString                    uiConfigName,
-                                                caf::PdmUiEditorAttribute* attribute ) override;
-    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     cvf::BoundingBox* boundingBox() const;
 

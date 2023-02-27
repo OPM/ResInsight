@@ -94,8 +94,7 @@ void RivSeismicSectionPartMgr::appendGeometryPartsToModel( cvf::ModelBasicList* 
             displayPoints.add( displayCoordTransform->transformToDisplayCoord( vOrg ) );
         }
 
-        cvf::ref<cvf::Part> quadPart =
-            createSingleTexturedQuadPart( displayPoints, texSection->width( i ), texSection->height() );
+        cvf::ref<cvf::Part> quadPart = createSingleTexturedQuadPart( displayPoints, texSection->width( i ), texSection->height() );
         model->addPart( quadPart.p() );
     }
 }
@@ -103,8 +102,7 @@ void RivSeismicSectionPartMgr::appendGeometryPartsToModel( cvf::ModelBasicList* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Part>
-    RivSeismicSectionPartMgr::createSingleTexturedQuadPart( const cvf::Vec3dArray& cornerPoints, int width, int height )
+cvf::ref<cvf::Part> RivSeismicSectionPartMgr::createSingleTexturedQuadPart( const cvf::Vec3dArray& cornerPoints, int width, int height )
 {
     cvf::ref<cvf::DrawableGeo> geo = createXYPlaneQuadGeoWithTexCoords( cornerPoints );
 

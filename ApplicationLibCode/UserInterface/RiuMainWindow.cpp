@@ -875,9 +875,8 @@ void RiuMainWindow::createDockPanels()
     }
 
     {
-        auto dockWidget = RiuDockWidgetTools::createDockWidget( "Seismic Histogram",
-                                                                RiuDockWidgetTools::mainWindowSeismicHistogramName(),
-                                                                dockManager() );
+        auto dockWidget =
+            RiuDockWidgetTools::createDockWidget( "Seismic Histogram", RiuDockWidgetTools::mainWindowSeismicHistogramName(), dockManager() );
 
         m_seismicHistogramPanel = new RiuSeismicHistogramPanel( dockWidget );
         dockWidget->setWidget( m_seismicHistogramPanel );

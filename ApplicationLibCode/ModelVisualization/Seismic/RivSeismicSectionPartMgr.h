@@ -59,7 +59,7 @@ public:
 
 protected:
     cvf::ref<cvf::DrawableGeo> createXYPlaneQuadGeoWithTexCoords( const cvf::Vec3dArray& cornerPoints );
-    cvf::ref<cvf::Part> createSingleTexturedQuadPart( const cvf::Vec3dArray& cornerPoints, int width, int height );
+    cvf::ref<cvf::Part>        createSingleTexturedQuadPart( const cvf::Vec3dArray& cornerPoints, int width, int height );
 
 private:
     caf::PdmPointer<RimSeismicSection> m_section;

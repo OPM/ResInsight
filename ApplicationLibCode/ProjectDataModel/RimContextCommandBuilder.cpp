@@ -1042,8 +1042,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicImportSeismicFeature";
         }
-        else if ( dynamic_cast<RimAnnotationCollection*>( firstUiItem ) ||
-                  dynamic_cast<RimAnnotationGroupCollection*>( firstUiItem ) )
+        else if ( dynamic_cast<RimAnnotationCollection*>( firstUiItem ) || dynamic_cast<RimAnnotationGroupCollection*>( firstUiItem ) )
         {
             menuBuilder << "RicCreateTextAnnotationFeature";
             menuBuilder << "RicCreateReachCircleAnnotationFeature";
