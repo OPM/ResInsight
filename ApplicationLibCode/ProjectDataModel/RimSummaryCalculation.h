@@ -21,6 +21,8 @@
 #include "RimSummaryCalculationVariable.h"
 #include "RimUserDefinedCalculation.h"
 
+#include <optional>
+
 //==================================================================================================
 ///
 ///
