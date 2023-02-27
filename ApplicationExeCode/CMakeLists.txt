@@ -257,7 +257,7 @@ endif()
 # According to ivarun rt is needed on OpenSuse, and Fedora. See:
 # https://github.com/OPM/ResInsight/pull/7
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  list(APPEND THIRD_PARTY_LIBRARIES rt)
+  list(APPEND THIRD_PARTY_LIBRARIES rt atomic)
 endif()
 
 set(LINK_LIBRARIES
