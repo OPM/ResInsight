@@ -61,7 +61,7 @@ private:
 
     std::vector<std::vector<cvf::Vec3d>> getPolylinesPointsInDomain( RigPolyLinesData* lineDef );
     std::vector<std::vector<cvf::Vec3d>> transformPolylinesPointsToDisplay( const std::vector<std::vector<cvf::Vec3d>>& pointsInDomain,
-                                           const caf::DisplayCoordTransform*           displayXf );
+                                                                            const caf::DisplayCoordTransform*           displayXf );
 
     bool collectionVisible();
 

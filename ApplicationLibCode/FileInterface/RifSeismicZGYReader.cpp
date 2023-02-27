@@ -221,4 +221,3 @@ cvf::Vec3d RifSeismicZGYReader::convertToWorldCoords( int iLine, int xLine, doub
 
     return cvf::Vec3d( x, y, depth );
 }
-
