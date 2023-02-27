@@ -1155,27 +1155,26 @@ QString RiuResultTextBuilder::wellResultText()
     if ( m_eclResDef->eclipseCase() && m_eclResDef->eclipseCase()->eclipseCaseData() )
     {
         cvf::Collection<RigSimWellData> simWellData = m_eclResDef->eclipseCase()->eclipseCaseData()->wellResults();
-        for ( size_t i = 0; i < simWellData.size(); i++ )
+        for ( const auto& singleWellResultData : simWellData )
         {
-            RigSimWellData* singleWellResultData = simWellData.at( i );
-
             if ( !singleWellResultData->hasWellResult( m_timeStepIndex ) )
             {
                 continue;
             }
 
             const RigWellResultFrame* wellResultFrame = singleWellResultData->wellResultFrame( m_timeStepIndex );
-            const RigWellResultPoint* wellResultCell  = wellResultFrame->findResultCellWellHeadIncluded( m_gridIndex, m_cellIndex );
+            if ( !wellResultFrame )
+            {
+                continue;
+            }
+
+            const RigWellResultPoint* wellResultCell = wellResultFrame->findResultCellWellHeadIncluded( m_gridIndex, m_cellIndex );
             if ( wellResultCell )
             {
-                int branchId = wellResultCell->branchId();
-                if ( branchId != -1 ) branchId++;
-                int segmentId = wellResultCell->segmentId();
-                if ( segmentId != -1 ) segmentId++;
-                int outletBranchId = wellResultCell->outletBranchId();
-                // if ( outletBranchId != -1 ) outletBranchId++;
+                int branchId        = wellResultCell->branchId();
+                int segmentId       = wellResultCell->segmentId();
+                int outletBranchId  = wellResultCell->outletBranchId();
                 int outletSegmentId = wellResultCell->outletSegmentId();
-                if ( outletSegmentId != -1 ) outletSegmentId++;
 
                 text += QString( "-- Well-cell connection info --\n Well Name: %1\n Branch Id: %2\n Segment "
                                  "Id: %3\n Outlet Branch Id: %4\n Outlet Segment Id: %5" )

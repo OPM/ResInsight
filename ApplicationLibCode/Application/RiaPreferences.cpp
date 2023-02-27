@@ -226,9 +226,6 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitField( &m_useQtChartsPlotByDefault, "useQtChartsPlotByDefault", false, "Use QtChart as Default Plot Type" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useQtChartsPlotByDefault );
 
-    CAF_PDM_InitField( &m_showSimplifiedMswWellPathGeometry, "useSimplifiedMswWellPathGeometry", false, "Show Simplified MSW Well Path Geometry" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showSimplifiedMswWellPathGeometry );
-
     CAF_PDM_InitField( &m_surfaceImportResamplingDistance,
                        "SurfaceImportResamplingDistance",
                        100.0,
@@ -356,8 +353,6 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         newCaseBehaviourGroup->add( &loadAndShowSoil );
 
         m_readerSettings->uiOrdering( uiConfigName, *newCaseBehaviourGroup );
-
-        newCaseBehaviourGroup->add( &m_showSimplifiedMswWellPathGeometry );
     }
     else if ( uiConfigName == RiaPreferences::tabNameSummary() )
     {
@@ -748,14 +743,6 @@ bool RiaPreferences::useQtChartsAsDefaultPlotType() const
 bool RiaPreferences::writeEchoInGrdeclFiles() const
 {
     return m_writeEchoInGrdeclFiles;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiaPreferences::showSimplifiedMswWellPathGeometry() const
-{
-    return m_showSimplifiedMswWellPathGeometry();
 }
 
 //--------------------------------------------------------------------------------------------------

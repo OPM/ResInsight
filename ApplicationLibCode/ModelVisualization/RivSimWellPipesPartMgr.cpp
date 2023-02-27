@@ -25,6 +25,7 @@
 #include "RiaPreferences.h"
 
 #include "RigEclipseWellLogExtractor.h"
+#include "RigMswCenterLineCalculator.h"
 #include "RigSimulationWellCenterLineCalculator.h"
 #include "RigVirtualPerforationTransmissibilities.h"
 #include "RigWellLogExtractor.h"
@@ -156,24 +157,27 @@ void RivSimWellPipesPartMgr::buildWellPipeParts( const caf::DisplayCoordTransfor
     m_wellBranches.clear();
     m_flattenedBranchWellHeadOffsets.clear();
     m_pipeBranchesCLCoords.clear();
-    std::vector<std::vector<RigWellResultPoint>> pipeBranchesCellIds;
 
-    {
+    auto createSimWells = []( RimSimWellInView* simWellInView ) -> std::vector<SimulationWellCellBranch> {
         std::vector<SimulationWellCellBranch> simWellBranches;
-        const RigSimWellData*                 simWellData = m_simWellInView->simWellData();
-        if ( simWellData && simWellData->isMultiSegmentWell() && RiaPreferences::current()->showSimplifiedMswWellPathGeometry() )
+        const RigSimWellData*                 simWellData = simWellInView->simWellData();
+        if ( simWellData && simWellData->isMultiSegmentWell() )
         {
-            simWellBranches = RigSimulationWellCenterLineCalculator::calculateMswWellPipeGeometry( m_simWellInView );
+            simWellBranches = RigMswCenterLineCalculator::calculateMswWellPipeGeometry( simWellInView );
         }
         else
         {
-            simWellBranches = RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( m_simWellInView );
+            simWellBranches = RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( simWellInView );
         }
-        const auto& [coords, wellCells] = RigSimulationWellCenterLineCalculator::extractBranchData( simWellBranches );
 
-        m_pipeBranchesCLCoords = coords;
-        pipeBranchesCellIds    = wellCells;
-    }
+        return simWellBranches;
+    };
+
+    auto simWells                   = createSimWells( m_simWellInView );
+    const auto& [coords, wellCells] = RigSimulationWellCenterLineCalculator::extractBranchData( simWells );
+
+    m_pipeBranchesCLCoords                                           = coords;
+    std::vector<std::vector<RigWellResultPoint>> pipeBranchesCellIds = wellCells;
 
     double pipeRadius              = m_simWellInView->pipeRadius();
     int    crossSectionVertexCount = m_simWellInView->pipeCrossSectionVertexCount();
