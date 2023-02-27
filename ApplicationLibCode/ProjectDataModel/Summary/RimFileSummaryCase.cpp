@@ -107,6 +107,11 @@ void RimFileSummaryCase::createSummaryReaderInterfaceThreadSafe( RiaThreadSafeLo
     m_multiSummaryReader->addReader( m_fileSummaryReader.p() );
 
     openAndAttachAdditionalReader();
+
+    RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
+    m_calculatedSummaryReader                 = new RifCalculatedSummaryCurveReader( calcColl, this );
+
+    m_multiSummaryReader->addReader( m_calculatedSummaryReader.p() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -115,18 +120,7 @@ void RimFileSummaryCase::createSummaryReaderInterfaceThreadSafe( RiaThreadSafeLo
 void RimFileSummaryCase::createSummaryReaderInterface()
 {
     RiaThreadSafeLogger threadSafeLogger;
-    m_fileSummaryReader =
-        RimFileSummaryCase::findRelatedFilesAndCreateReader( this->summaryHeaderFilename(), m_includeRestartFiles, &threadSafeLogger );
-
-    RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
-    m_calculatedSummaryReader                 = new RifCalculatedSummaryCurveReader( calcColl, this );
-
-    m_multiSummaryReader = new RifMultipleSummaryReaders;
-    m_multiSummaryReader->addReader( m_fileSummaryReader.p() );
-
-    openAndAttachAdditionalReader();
-
-    m_multiSummaryReader->addReader( m_calculatedSummaryReader.p() );
+    createSummaryReaderInterfaceThreadSafe( &threadSafeLogger );
 
     auto messages = threadSafeLogger.messages();
     for ( const auto& m : messages )
