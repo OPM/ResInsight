@@ -189,9 +189,7 @@ void RimSeismicSection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrde
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSeismicSection::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                               QString                    uiConfigName,
-                                               caf::PdmUiEditorAttribute* attribute )
+void RimSeismicSection::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_enablePicking )
     {
@@ -518,9 +516,7 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSeismicSection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                          const QVariant&            oldValue,
-                                          const QVariant&            newValue )
+void RimSeismicSection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_enablePicking )
     {
