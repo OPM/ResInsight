@@ -110,6 +110,14 @@ QString RiuDockWidgetTools::mainWindowPvtPlotName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiuDockWidgetTools::mainWindowSeismicHistogramName()
+{
+    return "dockSeisHist_mainWindow";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RiuDockWidgetTools::mainWindowMohrsCirclePlotName()
 {
     return "dockMohrsCirclePlot_mainWindow";
