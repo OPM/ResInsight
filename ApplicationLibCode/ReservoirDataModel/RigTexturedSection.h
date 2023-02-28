@@ -25,6 +25,11 @@
 
 #include <vector>
 
+namespace cvf
+{
+class TextureImage;
+}
+
 //==================================================================================================
 ///
 ///
@@ -35,18 +40,15 @@ public:
     RigTexturedSection();
     ~RigTexturedSection() override;
 
-    void setRects( const std::vector<cvf::Vec3dArray>& rects );
+    void addSection( cvf::Vec3dArray rect, cvf::TextureImage* image );
 
-    const std::vector<cvf::Vec3dArray>& rects() const;
+    const std::vector<cvf::Vec3dArray>&    rects() const;
+    const std::vector<cvf::TextureImage*>& images() const;
 
-    void setTextureWidths( std::vector<int> widths );
-    void setTextureHeight( int height );
-
-    int height() const;
-    int width( int index ) const;
+    cvf::Vec3dArray    rect( int index ) const;
+    cvf::TextureImage* image( int index ) const;
 
 private:
-    std::vector<cvf::Vec3dArray> m_sectionRects;
-    std::vector<int>             m_widths;
-    int                          m_heigth;
+    std::vector<cvf::Vec3dArray>    m_sectionRects;
+    std::vector<cvf::TextureImage*> m_images;
 };

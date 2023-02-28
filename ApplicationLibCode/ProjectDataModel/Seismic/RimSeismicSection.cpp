@@ -39,6 +39,7 @@
 #include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
+#include "cvfTextureImage.h"
 #include "cvfVector3.h"
 
 namespace caf
@@ -461,8 +462,10 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection() const
             points[2].set( p2.x(), p2.y(), zmax );
             points[3].set( p1.x(), p1.y(), zmax );
 
-            widths.push_back( 100 );
-            rects.push_back( points );
+            cvf::TextureImage* textureImage = new cvf::TextureImage();
+            textureImage->allocate( 100, height );
+            textureImage->fill( cvf::Color4ub( 255, 255, 255, 128 ) );
+            tex->addSection( points, textureImage );
         }
     }
     else if ( m_type() == CrossSectionEnum::CS_INLINE )
@@ -480,8 +483,10 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection() const
         points[2] = m_seismicData->convertToWorldCoords( ilStart, clStop, zmax );
         points[3] = m_seismicData->convertToWorldCoords( ilStart, clStart, zmax );
 
-        widths.push_back( ( clStop - clStart ) / clStep );
-        rects.push_back( points );
+        cvf::TextureImage* textureImage = new cvf::TextureImage();
+        textureImage->allocate( ( clStop - clStart ) / clStep, height );
+        textureImage->fill( cvf::Color4ub( 255, 255, 255, 128 ) );
+        tex->addSection( points, textureImage );
     }
     else if ( m_type() == CrossSectionEnum::CS_XLINE )
     {
@@ -498,17 +503,14 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection() const
         points[2] = m_seismicData->convertToWorldCoords( ilStop, clStart, zmax );
         points[3] = m_seismicData->convertToWorldCoords( ilStart, clStart, zmax );
 
-        widths.push_back( ( ilStop - ilStart ) / ilStep );
-        rects.push_back( points );
+        cvf::TextureImage* textureImage = new cvf::TextureImage();
+        textureImage->allocate( ( ilStop - ilStart ) / ilStep, height );
+        textureImage->fill( cvf::Color4ub( 255, 255, 255, 128 ) );
+        tex->addSection( points, textureImage );
     }
     else if ( m_type() == CrossSectionEnum::CS_DEPTHSLICE )
     {
-        return tex;
     }
-
-    tex->setTextureHeight( height );
-    tex->setTextureWidths( widths );
-    tex->setRects( rects );
 
     return tex;
 }

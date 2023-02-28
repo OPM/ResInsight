@@ -50,7 +50,7 @@ bool RifSeismicZGYReader::open( QString filename )
     try
     {
         m_reader = std::make_shared<ZGYAccess::ZGYReader>();
-        m_reader->Open( filename.toStdString() );
+        m_reader->open( filename.toStdString() );
     }
     catch ( const std::exception& err )
     {
@@ -78,7 +78,7 @@ void RifSeismicZGYReader::close()
 
     try
     {
-        m_reader->Close();
+        m_reader->close();
     }
     catch ( const std::exception& )
     {
@@ -98,7 +98,7 @@ std::vector<std::pair<QString, QString>> RifSeismicZGYReader::metaData()
 
     if ( !isOpen() ) return retValues;
 
-    auto stats = m_reader->MetaData();
+    auto stats = m_reader->metaData();
 
     for ( auto& [name, val] : stats )
     {
@@ -117,7 +117,7 @@ cvf::BoundingBox RifSeismicZGYReader::boundingBox()
 
     if ( isOpen() )
     {
-        auto [zmin, zmax] = m_reader->ZRange();
+        auto [zmin, zmax] = m_reader->zRange();
 
         auto outline = m_reader->seismicWorldOutline();
 
@@ -152,7 +152,7 @@ std::pair<double, double> RifSeismicZGYReader::dataRange()
 {
     if ( !isOpen() ) return std::make_pair( 0.0, 0.0 );
 
-    return m_reader->DataRange();
+    return m_reader->dataRange();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -160,7 +160,9 @@ std::pair<double, double> RifSeismicZGYReader::dataRange()
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3d> RifSeismicZGYReader::worldCorners()
 {
-    auto [zmin, zmax] = m_reader->ZRange();
+    if ( !isOpen() ) return {};
+
+    auto [zmin, zmax] = m_reader->zRange();
     auto outline      = m_reader->seismicWorldOutline();
 
     std::vector<cvf::Vec3d> retval;
@@ -181,7 +183,7 @@ double RifSeismicZGYReader::depthStep()
 {
     if ( !isOpen() ) return 0.0;
 
-    return m_reader->ZStep();
+    return m_reader->zStep();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -204,8 +206,8 @@ cvf::Vec3i RifSeismicZGYReader::crosslineMinMaxStep()
 {
     if ( !isOpen() ) return { 0, 0, 0 };
 
-    auto [minVal, maxVal] = m_reader->crosslineRange();
-    int step              = m_reader->crosslineStep();
+    auto [minVal, maxVal] = m_reader->xlineRange();
+    int step              = m_reader->xlineStep();
 
     return { minVal, maxVal, step };
 }

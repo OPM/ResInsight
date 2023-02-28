@@ -123,7 +123,6 @@ void RimSeismicData::logError( QString msg )
 void RimSeismicData::initAfterRead()
 {
     updateMetaData();
-    openFileIfNotOpen();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -177,6 +176,8 @@ caf::PdmFieldHandle* RimSeismicData::userDescriptionField()
 void RimSeismicData::updateMetaData()
 {
     m_metadata.deleteChildren();
+    m_boundingBox->reset();
+    m_worldOutline.clear();
 
     if ( !openFileIfNotOpen() ) return;
 
@@ -190,7 +191,6 @@ void RimSeismicData::updateMetaData()
         m_metadata.push_back( param );
     }
 
-    m_boundingBox->reset();
     m_boundingBox->add( m_filereader->boundingBox() );
 
     m_zStep = m_filereader->depthStep();
@@ -200,7 +200,6 @@ void RimSeismicData::updateMetaData()
 
     m_filereader->histogramData( m_histogramXvalues, m_histogramYvalues );
 
-    m_worldOutline.clear();
     for ( auto& p : m_filereader->worldCorners() )
     {
         m_worldOutline.push_back( p );
