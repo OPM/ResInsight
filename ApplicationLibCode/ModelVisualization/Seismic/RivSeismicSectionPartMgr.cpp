@@ -94,7 +94,7 @@ void RivSeismicSectionPartMgr::appendGeometryPartsToModel( cvf::ModelBasicList* 
             displayPoints.add( displayCoordTransform->transformToDisplayCoord( vOrg ) );
         }
 
-        cvf::ref<cvf::Part> quadPart = createSingleTexturedQuadPart( displayPoints, texSection->width( i ), texSection->height() );
+        cvf::ref<cvf::Part> quadPart = createSingleTexturedQuadPart( displayPoints, texSection->image( i ) );
         model->addPart( quadPart.p() );
     }
 }
@@ -102,16 +102,11 @@ void RivSeismicSectionPartMgr::appendGeometryPartsToModel( cvf::ModelBasicList* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Part> RivSeismicSectionPartMgr::createSingleTexturedQuadPart( const cvf::Vec3dArray& cornerPoints, int width, int height )
+cvf::ref<cvf::Part> RivSeismicSectionPartMgr::createSingleTexturedQuadPart( const cvf::Vec3dArray& cornerPoints, cvf::TextureImage* image )
 {
     cvf::ref<cvf::DrawableGeo> geo = createXYPlaneQuadGeoWithTexCoords( cornerPoints );
 
-    cvf::ref<cvf::TextureImage> textureImage = new cvf::TextureImage();
-
-    textureImage->allocate( width, height );
-    textureImage->fill( cvf::Color4ub( 255, 255, 255, 128 ) );
-
-    cvf::ref<cvf::Texture> texture = new cvf::Texture( textureImage.p() );
+    cvf::ref<cvf::Texture> texture = new cvf::Texture( image );
     cvf::ref<cvf::Sampler> sampler = new cvf::Sampler;
     sampler->setMinFilter( cvf::Sampler::LINEAR );
     sampler->setMagFilter( cvf::Sampler::NEAREST );

@@ -18,11 +18,12 @@
 
 #include "RigTexturedSection.h"
 
+#include "cvfTextureImage.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RigTexturedSection::RigTexturedSection()
-    : m_heigth( 0 )
 {
 }
 
@@ -31,6 +32,11 @@ RigTexturedSection::RigTexturedSection()
 //--------------------------------------------------------------------------------------------------
 RigTexturedSection::~RigTexturedSection()
 {
+    for ( auto image : m_images )
+    {
+        delete image;
+    }
+    m_images.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -44,41 +50,36 @@ const std::vector<cvf::Vec3dArray>& RigTexturedSection::rects() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigTexturedSection::setRects( const std::vector<cvf::Vec3dArray>& rects )
+void RigTexturedSection::addSection( cvf::Vec3dArray rect, cvf::TextureImage* image )
 {
-    m_sectionRects = rects;
+    m_sectionRects.push_back( rect );
+    m_images.push_back( image );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigTexturedSection::setTextureWidths( std::vector<int> widths )
+cvf::Vec3dArray RigTexturedSection::rect( int index ) const
 {
-    m_widths = widths;
+    if ( index >= (int)m_sectionRects.size() ) return {};
+    if ( index < 0 ) return {};
+    return m_sectionRects[index];
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigTexturedSection::setTextureHeight( int height )
+cvf::TextureImage* RigTexturedSection::image( int index ) const
 {
-    m_heigth = height;
+    if ( index >= (int)m_images.size() ) return nullptr;
+    if ( index < 0 ) return nullptr;
+    return m_images[index];
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RigTexturedSection::height() const
+const std::vector<cvf::TextureImage*>& RigTexturedSection::images() const
 {
-    return m_heigth;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-int RigTexturedSection::width( int index ) const
-{
-    if ( index >= (int)m_widths.size() ) return 0;
-    if ( index < 0 ) return 0;
-    return m_widths[index];
+    return m_images;
 }

@@ -31,6 +31,7 @@ class ScalarMapper;
 class DrawableGeo;
 class BoundingBox;
 class ShaderProgram;
+class TextureImage;
 } // namespace cvf
 
 namespace caf
@@ -59,7 +60,7 @@ public:
 
 protected:
     cvf::ref<cvf::DrawableGeo> createXYPlaneQuadGeoWithTexCoords( const cvf::Vec3dArray& cornerPoints );
-    cvf::ref<cvf::Part>        createSingleTexturedQuadPart( const cvf::Vec3dArray& cornerPoints, int width, int height );
+    cvf::ref<cvf::Part>        createSingleTexturedQuadPart( const cvf::Vec3dArray& cornerPoints, cvf::TextureImage* image );
 
 private:
     caf::PdmPointer<RimSeismicSection> m_section;
