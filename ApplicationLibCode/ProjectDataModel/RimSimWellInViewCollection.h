@@ -161,6 +161,8 @@ public:
     void   scaleWellDisks();
     double wellDiskScaleFactor() const;
 
+    bool showValves() const;
+
     caf::PdmField<cvf::Color3f> wellDiskColor;
 
 protected:
@@ -196,6 +198,7 @@ private:
     caf::PdmField<caf::Tristate> m_showWellCells;
     caf::PdmField<caf::Tristate> m_showWellCellFence;
 
+    caf::PdmField<bool> m_showWellValves;
     caf::PdmField<bool> m_showWellCommunicationLines;
 
     // Well Discs

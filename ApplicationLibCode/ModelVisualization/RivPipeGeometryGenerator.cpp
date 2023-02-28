@@ -60,6 +60,14 @@ void RivPipeGeometryGenerator::setPipeCenterCoords( const cvf::Vec3dArray* coord
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+cvf::cref<cvf::Vec3dArray> RivPipeGeometryGenerator::pipeCenterCoords() const
+{
+    return m_originalPipeCenterCoords.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RivPipeGeometryGenerator::setRadius( double radius )
 {
     CVF_ASSERT( 0 <= radius && radius < 1e100 );
@@ -823,12 +831,10 @@ void RivPipeGeometryGenerator::tubeWithCenterLinePartsAndVariableWidth( cvf::Col
                                                                         const std::vector<double>&     radii,
                                                                         const cvf::Color3f&            color )
 {
-    setCrossSectionVertexCount( 12 );
-
     cvf::ref<cvf::Vec3dArray> activeCoords = new cvf::Vec3dArray( centerCoords );
-    setPipeCenterCoords( activeCoords.p() );
 
-    cvf::ref<cvf::DrawableGeo> surfaceGeo = generateVariableRadiusTube( m_crossSectionNodeCount, activeCoords.p(), radii );
+    const size_t               crossSectionNodeCount = 12;
+    cvf::ref<cvf::DrawableGeo> surfaceGeo            = generateVariableRadiusTube( crossSectionNodeCount, activeCoords.p(), radii );
 
     if ( surfaceGeo.notNull() )
     {
@@ -844,7 +850,7 @@ void RivPipeGeometryGenerator::tubeWithCenterLinePartsAndVariableWidth( cvf::Col
         destinationParts->push_back( part );
     }
 
-    cvf::ref<cvf::DrawableGeo> centerLineGeo = createCenterLine();
+    cvf::ref<cvf::DrawableGeo> centerLineGeo = generateLine( activeCoords.p() );
     if ( centerLineGeo.notNull() )
     {
         cvf::Part* part = new cvf::Part;

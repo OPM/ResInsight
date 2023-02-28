@@ -212,6 +212,8 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
     m_showWellCellFence.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName() );
     m_showWellCellFence.xmlCapability()->disableIO();
 
+    CAF_PDM_InitFieldNoDefault( &m_showWellValves, "ShowWellValvesTristate", "Show Well Valves" );
+
     CAF_PDM_InitFieldNoDefault( &m_wellDiskSummaryCase, "WellDiskSummaryCase", "Summary Case" );
 
     CAF_PDM_InitField( &m_wellDiskQuantity, "WellDiskQuantity", QString( "WOPT" ), "Disk Quantity" );
@@ -439,7 +441,8 @@ void RimSimWellInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
         {
             m_reservoirView->updateDisplayModelForCurrentTimeStepAndRedraw();
         }
-        else if ( &spheresScaleFactor == changedField || &m_showWellSpheres == changedField || &showConnectionStatusColors == changedField )
+        else if ( &spheresScaleFactor == changedField || &m_showWellSpheres == changedField ||
+                  &showConnectionStatusColors == changedField || &m_showWellValves == changedField )
         {
             m_reservoirView->scheduleSimWellGeometryRegen();
             m_reservoirView->scheduleCreateDisplayModelAndRedraw();
@@ -650,6 +653,7 @@ void RimSimWellInViewCollection::defineUiOrdering( QString uiConfigName, caf::Pd
     appearanceGroup->add( &m_showWellSpheres );
     appearanceGroup->add( &m_showWellDisks );
     appearanceGroup->add( &m_showWellCommunicationLines );
+    appearanceGroup->add( &m_showWellValves );
 
     if ( !isContourMap )
     {
@@ -941,6 +945,14 @@ void RimSimWellInViewCollection::scaleWellDisksFromConfig( const RimWellDiskConf
 double RimSimWellInViewCollection::wellDiskScaleFactor() const
 {
     return m_wellDiskScaleFactor();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSimWellInViewCollection::showValves() const
+{
+    return m_showWellValves();
 }
 
 //--------------------------------------------------------------------------------------------------

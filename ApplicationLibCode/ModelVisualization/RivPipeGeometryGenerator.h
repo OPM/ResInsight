@@ -42,7 +42,8 @@ public:
     ~RivPipeGeometryGenerator() override;
 
     // Coordinates and orientations
-    void setPipeCenterCoords( const cvf::Vec3dArray* coords );
+    void                       setPipeCenterCoords( const cvf::Vec3dArray* coords );
+    cvf::cref<cvf::Vec3dArray> pipeCenterCoords() const;
 
     // Appearance
     void setRadius( double radius );
@@ -64,10 +65,10 @@ public:
                                       const cvf::Color3f&            color,
                                       double                         radius );
 
-    void tubeWithCenterLinePartsAndVariableWidth( cvf::Collection<cvf::Part>*    destinationParts,
-                                                  const std::vector<cvf::Vec3d>& centerCoords,
-                                                  const std::vector<double>&     radii,
-                                                  const cvf::Color3f&            color );
+    static void tubeWithCenterLinePartsAndVariableWidth( cvf::Collection<cvf::Part>*    destinationParts,
+                                                         const std::vector<cvf::Vec3d>& centerCoords,
+                                                         const std::vector<double>&     radii,
+                                                         const cvf::Color3f&            color );
 
 private:
     void clearComputedData();
