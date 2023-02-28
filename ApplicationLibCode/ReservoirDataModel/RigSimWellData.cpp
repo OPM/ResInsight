@@ -138,11 +138,11 @@ bool RigSimWellData::hasAnyValidCells( size_t resultTimeStepIndex ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-
 bool operator==( const RigWellResultPoint& p1, const RigWellResultPoint& p2 )
 {
-    return p1.m_gridIndex == p2.m_gridIndex && p1.m_gridCellIndex == p2.m_gridCellIndex && p1.m_ertBranchId == p2.m_ertBranchId &&
-           p1.m_ertSegmentId == p2.m_ertSegmentId;
+    // TODO : Remove when <=> operator has been added to RigWellResultPoint
+    return p1.gridIndex() == p2.gridIndex() && p1.cellIndex() == p2.cellIndex() && p1.branchId() == p2.branchId() &&
+           p1.segmentId() == p2.segmentId();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -369,7 +369,7 @@ const RigWellResultPoint* RigWellResultFrame::findResultCellWellHeadIncluded( si
     // This behavior was different prior to release 2019.04 and was rendered as a closed connection (gray)
     // https://github.com/OPM/ResInsight/issues/712
 
-    if ( m_wellHead.m_gridCellIndex == gridCellIndex && m_wellHead.m_gridIndex == gridIndex )
+    if ( m_wellHead.cellIndex() == gridCellIndex && m_wellHead.gridIndex() == gridIndex )
     {
         return &m_wellHead;
     }
@@ -388,8 +388,8 @@ const RigWellResultPoint* RigWellResultFrame::findResultCellWellHeadExcluded( si
     {
         for ( size_t wc = 0; wc < m_wellResultBranches[wb].m_branchResultPoints.size(); ++wc )
         {
-            if ( m_wellResultBranches[wb].m_branchResultPoints[wc].m_gridCellIndex == gridCellIndex &&
-                 m_wellResultBranches[wb].m_branchResultPoints[wc].m_gridIndex == gridIndex )
+            if ( m_wellResultBranches[wb].m_branchResultPoints[wc].cellIndex() == gridCellIndex &&
+                 m_wellResultBranches[wb].m_branchResultPoints[wc].gridIndex() == gridIndex )
             {
                 return &( m_wellResultBranches[wb].m_branchResultPoints[wc] );
             }

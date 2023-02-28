@@ -295,11 +295,11 @@ public:
                     size_t i;
                     size_t j;
                     size_t k;
-                    size_t gridIdx = resPoint.m_gridIndex;
-                    grids[gridIdx]->ijkFromCellIndex( resPoint.m_gridCellIndex, &i, &j, &k );
-                    bool isOpen    = resPoint.m_isOpen;
-                    int  branchId  = resPoint.m_ertBranchId;
-                    int  segmentId = resPoint.m_ertSegmentId;
+                    size_t gridIdx = resPoint.gridIndex();
+                    grids[gridIdx]->ijkFromCellIndex( resPoint.cellIndex(), &i, &j, &k );
+                    bool isOpen    = resPoint.isOpen();
+                    int  branchId  = resPoint.branchId();
+                    int  segmentId = resPoint.segmentId();
 
                     cellIs.push_back( static_cast<qint32>( i + 1 ) ); // NB: 1-based index in Octave
                     cellJs.push_back( static_cast<qint32>( j + 1 ) ); // NB: 1-based index in Octave

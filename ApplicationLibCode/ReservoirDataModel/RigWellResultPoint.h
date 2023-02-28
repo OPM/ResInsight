@@ -34,9 +34,21 @@ struct RigWellResultPoint
 {
     RigWellResultPoint();
 
+    void setGridIndex( size_t gridIndex );
+    void setGridCellIndex( size_t cellIndex );
+    void setIsOpen( bool isOpen );
+    void setFlowData( double flowRate, double oilRate, double gasRate, double waterRate );
+    void setConnectionFactor( double connectionFactor );
+
+    void setSegmentData( int branchId, int segmentId );
+    void setOutletSegmentData( int outletBranchId, int outletSegmentId );
+
+    void setBottomPosition( const cvf::Vec3d& bottomPosition );
+
     bool isPointValid() const;
     bool isCell() const;
     bool isValid() const;
+    bool isOpen() const;
     bool isEqual( const RigWellResultPoint& other ) const;
 
     double flowRate() const;
@@ -46,12 +58,25 @@ struct RigWellResultPoint
     double connectionFactor() const;
     void   clearAllFlow();
 
+    size_t gridIndex() const;
+    size_t cellIndex() const;
+
+    int branchId() const;
+    int segmentId() const;
+    int outletBranchId() const;
+    int outletSegmentId() const;
+
+    cvf::Vec3d bottomPosition() const;
+
+private:
     size_t m_gridIndex;
-    size_t m_gridCellIndex; //< Index to cell which is included in the well
+    size_t m_cellIndex; //< Index to cell which is included in the well
     bool   m_isOpen; //< Marks the well as open or closed as of Eclipse simulation
 
     int m_ertBranchId;
     int m_ertSegmentId;
+    int m_ertOutletBranchId;
+    int m_ertOutletSegmentId;
 
     cvf::Vec3d m_bottomPosition; //< The estimated bottom position of the well segment, when we have no grid cell
                                  // connections for the segment.
@@ -103,3 +128,5 @@ public:
 
     std::vector<RigWellResultBranch> m_wellResultBranches;
 };
+
+using SimulationWellCellBranch = std::pair<std::vector<cvf::Vec3d>, std::vector<RigWellResultPoint>>;

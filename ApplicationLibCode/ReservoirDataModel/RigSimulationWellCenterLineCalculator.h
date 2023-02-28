@@ -19,8 +19,11 @@
 
 #pragma once
 
+#include "RigWellResultPoint.h"
+
 #include "cvfVector3.h"
 
+#include <map>
 #include <vector>
 
 class RigEclipseCaseData;
@@ -36,19 +39,38 @@ class RigWellResultFrame;
 class RigSimulationWellCenterLineCalculator
 {
 public:
+    static std::vector<SimulationWellCellBranch> calculateWellPipeStaticCenterline( RimSimWellInView* rimWell );
+
+    static std::vector<SimulationWellCellBranch> calculateWellPipeCenterlineForTimeStep( const RigEclipseCaseData* eclipseCaseData,
+                                                                                         const RigSimWellData*     simWellData,
+                                                                                         int                       timeStepIndex,
+                                                                                         bool                      isAutoDetectBranches,
+                                                                                         bool                      useAllCellCenters );
+
+    static std::pair<std::vector<std::vector<cvf::Vec3d>>, std::vector<std::vector<RigWellResultPoint>>>
+        extractBranchData( const std::vector<SimulationWellCellBranch> simulationBranch );
+
+private:
     static void calculateWellPipeStaticCenterline( RimSimWellInView*                             rimWell,
                                                    std::vector<std::vector<cvf::Vec3d>>&         pipeBranchesCLCoords,
                                                    std::vector<std::vector<RigWellResultPoint>>& pipeBranchesCellIds );
 
-    static void calculateWellPipeCenterlineFromWellFrame( const RigEclipseCaseData*                     eclipseCaseData,
-                                                          const RigSimWellData*                         simWellData,
-                                                          int                                           timeStepIndex,
-                                                          bool                                          isAutoDetectBranches,
-                                                          bool                                          useAllCellCenters,
-                                                          std::vector<std::vector<cvf::Vec3d>>&         pipeBranchesCLCoords,
-                                                          std::vector<std::vector<RigWellResultPoint>>& pipeBranchesCellIds );
+    static void calculateWellPipeCenterlineForTimeStep( const RigEclipseCaseData*                     eclipseCaseData,
+                                                        const RigSimWellData*                         simWellData,
+                                                        int                                           timeStepIndex,
+                                                        bool                                          isAutoDetectBranches,
+                                                        bool                                          useAllCellCenters,
+                                                        std::vector<std::vector<cvf::Vec3d>>&         pipeBranchesCLCoords,
+                                                        std::vector<std::vector<RigWellResultPoint>>& pipeBranchesCellIds );
 
-private:
+    static std::vector<SimulationWellCellBranch> calculateMswWellPipeGeometryForTimeStep( const RigEclipseCaseData* eclipseCaseData,
+                                                                                          const RigSimWellData*     simWellData,
+                                                                                          int                       timeStepIndex );
+
+    static SimulationWellCellBranch addSegmentsToCellFaces( const std::vector<cvf::Vec3d>          branchCoords,
+                                                            const std::vector<RigWellResultPoint>& resultPoints,
+                                                            const RigEclipseCaseData*              eclipseCaseData );
+
     static bool hasAnyValidDataCells( const RigWellResultBranch& branch );
     static void finishPipeCenterLine( std::vector<std::vector<cvf::Vec3d>>& pipeBranchesCLCoords, const cvf::Vec3d& lastCellCenter );
 

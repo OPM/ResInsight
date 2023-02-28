@@ -23,10 +23,12 @@
 //--------------------------------------------------------------------------------------------------
 RigWellResultPoint::RigWellResultPoint()
     : m_gridIndex( cvf::UNDEFINED_SIZE_T )
-    , m_gridCellIndex( cvf::UNDEFINED_SIZE_T )
+    , m_cellIndex( cvf::UNDEFINED_SIZE_T )
     , m_isOpen( false )
     , m_ertBranchId( -1 )
     , m_ertSegmentId( -1 )
+    , m_ertOutletBranchId( -1 )
+    , m_ertOutletSegmentId( -1 )
     , m_bottomPosition( cvf::Vec3d::UNDEFINED )
     , m_flowRate( 0.0 )
     , m_oilRate( 0.0 )
@@ -34,6 +36,75 @@ RigWellResultPoint::RigWellResultPoint()
     , m_waterRate( 0.0 )
     , m_connectionFactor( 0.0 )
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigWellResultPoint::setGridIndex( size_t gridIndex )
+{
+    m_gridIndex = gridIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigWellResultPoint::setGridCellIndex( size_t cellIndex )
+{
+    m_cellIndex = cellIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigWellResultPoint::setIsOpen( bool isOpen )
+{
+    m_isOpen = isOpen;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigWellResultPoint::setFlowData( double flowRate, double oilRate, double gasRate, double waterRate )
+{
+    m_flowRate  = flowRate;
+    m_oilRate   = oilRate;
+    m_gasRate   = gasRate;
+    m_waterRate = waterRate;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigWellResultPoint::setConnectionFactor( double connectionFactor )
+{
+    m_connectionFactor = connectionFactor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigWellResultPoint::setSegmentData( int branchId, int segmentId )
+{
+    m_ertBranchId  = branchId;
+    m_ertSegmentId = segmentId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigWellResultPoint::setOutletSegmentData( int outletBranchId, int outletSegmentId )
+{
+    m_ertOutletBranchId  = outletBranchId;
+    m_ertOutletSegmentId = outletSegmentId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigWellResultPoint::setBottomPosition( const cvf::Vec3d& bottomPosition )
+{
+    m_bottomPosition = bottomPosition;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -49,7 +120,7 @@ bool RigWellResultPoint::isPointValid() const
 //--------------------------------------------------------------------------------------------------
 bool RigWellResultPoint::isCell() const
 {
-    return m_gridCellIndex != cvf::UNDEFINED_SIZE_T;
+    return m_cellIndex != cvf::UNDEFINED_SIZE_T;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,9 +134,17 @@ bool RigWellResultPoint::isValid() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RigWellResultPoint::isOpen() const
+{
+    return m_isOpen;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RigWellResultPoint::isEqual( const RigWellResultPoint& other ) const
 {
-    return ( m_gridIndex == other.m_gridIndex && m_gridCellIndex == other.m_gridCellIndex && m_isOpen == other.m_isOpen &&
+    return ( m_gridIndex == other.m_gridIndex && m_cellIndex == other.m_cellIndex && m_isOpen == other.m_isOpen &&
              m_ertBranchId == other.m_ertBranchId && m_ertSegmentId == other.m_ertSegmentId && m_flowRate == other.m_flowRate &&
              m_oilRate == other.m_oilRate && m_gasRate == other.m_gasRate && m_waterRate == other.m_waterRate );
 }
@@ -148,4 +227,60 @@ void RigWellResultPoint::clearAllFlow()
     m_oilRate          = 0.0;
     m_gasRate          = 0.0;
     m_waterRate        = 0.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RigWellResultPoint::gridIndex() const
+{
+    return m_gridIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t RigWellResultPoint::cellIndex() const
+{
+    return m_cellIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RigWellResultPoint::branchId() const
+{
+    return m_ertBranchId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RigWellResultPoint::segmentId() const
+{
+    return m_ertSegmentId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RigWellResultPoint::outletBranchId() const
+{
+    return m_ertOutletBranchId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RigWellResultPoint::outletSegmentId() const
+{
+    return m_ertOutletSegmentId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d RigWellResultPoint::bottomPosition() const
+{
+    return m_bottomPosition;
 }
