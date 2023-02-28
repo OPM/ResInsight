@@ -191,11 +191,11 @@ std::map<std::string, std::vector<int>> RimFlowDiagSolution::allTracerActiveCell
             {
                 for ( const RigWellResultPoint& wrp : wBr.m_branchResultPoints )
                 {
-                    if ( wrp.isValid() && wrp.m_isOpen &&
+                    if ( wrp.isValid() && wrp.isOpen() &&
                          ( ( useInjectors && wrp.flowRate() < 0.0 ) || ( !useInjectors && wrp.flowRate() > 0.0 ) ) )
                     {
-                        RigGridBase* grid               = mainGrid->gridByIndex( wrp.m_gridIndex );
-                        size_t       reservoirCellIndex = grid->reservoirCellIndex( wrp.m_gridCellIndex );
+                        RigGridBase* grid               = mainGrid->gridByIndex( wrp.gridIndex() );
+                        size_t       reservoirCellIndex = grid->reservoirCellIndex( wrp.cellIndex() );
 
                         int cellActiveIndex = static_cast<int>( activeCellInfo->cellResultIndex( reservoirCellIndex ) );
 

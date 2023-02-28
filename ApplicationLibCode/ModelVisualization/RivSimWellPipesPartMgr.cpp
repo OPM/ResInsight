@@ -22,8 +22,11 @@
 
 #include "RiaColorTables.h"
 #include "RiaExtractionTools.h"
+#include "RiaPreferences.h"
 
 #include "RigEclipseWellLogExtractor.h"
+#include "RigMswCenterLineCalculator.h"
+#include "RigSimulationWellCenterLineCalculator.h"
 #include "RigVirtualPerforationTransmissibilities.h"
 #include "RigWellLogExtractor.h"
 #include "RigWellPath.h"
@@ -154,9 +157,27 @@ void RivSimWellPipesPartMgr::buildWellPipeParts( const caf::DisplayCoordTransfor
     m_wellBranches.clear();
     m_flattenedBranchWellHeadOffsets.clear();
     m_pipeBranchesCLCoords.clear();
-    std::vector<std::vector<RigWellResultPoint>> pipeBranchesCellIds;
 
-    m_simWellInView->calculateWellPipeStaticCenterLine( m_pipeBranchesCLCoords, pipeBranchesCellIds );
+    auto createSimWells = []( RimSimWellInView* simWellInView ) -> std::vector<SimulationWellCellBranch> {
+        std::vector<SimulationWellCellBranch> simWellBranches;
+        const RigSimWellData*                 simWellData = simWellInView->simWellData();
+        if ( simWellData && simWellData->isMultiSegmentWell() )
+        {
+            simWellBranches = RigMswCenterLineCalculator::calculateMswWellPipeGeometry( simWellInView );
+        }
+        else
+        {
+            simWellBranches = RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( simWellInView );
+        }
+
+        return simWellBranches;
+    };
+
+    auto simWells                   = createSimWells( m_simWellInView );
+    const auto& [coords, wellCells] = RigSimulationWellCenterLineCalculator::extractBranchData( simWells );
+
+    m_pipeBranchesCLCoords                                           = coords;
+    std::vector<std::vector<RigWellResultPoint>> pipeBranchesCellIds = wellCells;
 
     double pipeRadius              = m_simWellInView->pipeRadius();
     int    crossSectionVertexCount = m_simWellInView->pipeCrossSectionVertexCount();
@@ -294,7 +315,7 @@ void RivSimWellPipesPartMgr::buildWellPipeParts( const caf::DisplayCoordTransfor
                                 continue;
                             }
 
-                            if ( !virtualPerforationResult->showConnectionFactorsOnClosedConnections() && !wResCell->m_isOpen )
+                            if ( !virtualPerforationResult->showConnectionFactorsOnClosedConnections() && !wResCell->isOpen() )
                             {
                                 continue;
                             }
@@ -417,14 +438,14 @@ void RivSimWellPipesPartMgr::updatePipeResultColor( size_t frameIndex )
 
                 if ( cellIds[wcIdx].isCell() )
                 {
-                    wResCell = wResFrame->findResultCellWellHeadExcluded( cellIds[wcIdx].m_gridIndex, cellIds[wcIdx].m_gridCellIndex );
+                    wResCell = wResFrame->findResultCellWellHeadExcluded( cellIds[wcIdx].gridIndex(), cellIds[wcIdx].cellIndex() );
                 }
 
                 if ( wResCell )
                 {
                     double cellState = defaultState;
 
-                    if ( wResCell->m_isOpen )
+                    if ( wResCell->isOpen() )
                     {
                         switch ( wResFrame->m_productionType )
                         {

@@ -39,9 +39,10 @@ class QDateTime;
 
 struct RigWellResultPoint;
 
-typedef struct ecl_grid_struct  ecl_grid_type;
-typedef struct ecl_file_struct  ecl_file_type;
-typedef struct well_conn_struct well_conn_type;
+typedef struct ecl_grid_struct     ecl_grid_type;
+typedef struct ecl_file_struct     ecl_file_type;
+typedef struct well_conn_struct    well_conn_type;
+typedef struct well_segment_struct well_segment_type;
 
 //==================================================================================================
 //
@@ -91,11 +92,12 @@ private:
 
     std::string ertGridName( size_t gridNr );
 
-    RigWellResultPoint createWellResultPoint( const RigGridBase*    grid,
-                                              const well_conn_type* ert_connection,
-                                              int                   ertBranchId,
-                                              int                   ertSegmentId,
-                                              const char*           wellName );
+    RigWellResultPoint createWellResultPoint( const RigGridBase* grid, const well_conn_type* ert_connection, const char* wellName );
+
+    RigWellResultPoint createWellResultPoint( const RigGridBase*       grid,
+                                              const well_conn_type*    ert_connection,
+                                              const well_segment_type* segment,
+                                              const char*              wellName );
 
     void importFaults( const QStringList& fileSet, cvf::Collection<RigFault>* faults );
 

@@ -193,15 +193,6 @@ std::vector<const RigWellPath*> RimSimWellInView::wellPipeBranches() const
 }
 
 //--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSimWellInView::calculateWellPipeStaticCenterLine( std::vector<std::vector<cvf::Vec3d>>&         pipeBranchesCLCoords,
-                                                          std::vector<std::vector<RigWellResultPoint>>& pipeBranchesCellIds )
-{
-    RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( this, pipeBranchesCLCoords, pipeBranchesCellIds );
-}
-
-//--------------------------------------------------------------------------------------------------
 /// frameIndex = -1 will use the static well frame
 //--------------------------------------------------------------------------------------------------
 void RimSimWellInView::wellHeadTopBottomPosition( int frameIndex, cvf::Vec3d* top, cvf::Vec3d* bottom )
@@ -340,8 +331,8 @@ bool RimSimWellInView::intersectsWellCellsFilteredCells( const RigWellResultFram
 
         // First check the wellhead:
 
-        size_t gridIndex     = wrsf->m_wellHead.m_gridIndex;
-        size_t gridCellIndex = wrsf->m_wellHead.m_gridCellIndex;
+        size_t gridIndex     = wrsf->m_wellHead.gridIndex();
+        size_t gridCellIndex = wrsf->m_wellHead.cellIndex();
 
         if ( gridIndex != cvf::UNDEFINED_SIZE_T && gridCellIndex != cvf::UNDEFINED_SIZE_T )
         {
@@ -362,8 +353,8 @@ bool RimSimWellInView::intersectsWellCellsFilteredCells( const RigWellResultFram
             {
                 if ( wellResultPoint.isCell() )
                 {
-                    gridIndex     = wellResultPoint.m_gridIndex;
-                    gridCellIndex = wellResultPoint.m_gridCellIndex;
+                    gridIndex     = wellResultPoint.gridIndex();
+                    gridCellIndex = wellResultPoint.cellIndex();
 
                     const cvf::UByteArray* cellVisibility = rvMan->cellVisibility( visGridPart, gridIndex, frameIndex );
                     if ( gridCellIndex < cellVisibility->size() && ( *cellVisibility )[gridCellIndex] )
@@ -770,24 +761,21 @@ void RimSimWellInView::scaleDisk( double minValue, double maxValue )
 //--------------------------------------------------------------------------------------------------
 cvf::BoundingBox RimSimWellInView::boundingBoxInDomainCoords() const
 {
-    std::vector<std::vector<cvf::Vec3d>>         pipeBranchesCLCoords;
-    std::vector<std::vector<RigWellResultPoint>> pipeBranchesCellIds;
-
-    auto noConst = const_cast<RimSimWellInView*>( this );
-    RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( noConst, pipeBranchesCLCoords, pipeBranchesCellIds );
+    auto noConst         = const_cast<RimSimWellInView*>( this );
+    auto simWellBranches = RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( noConst );
 
     cvf::BoundingBox bb;
-    for ( auto branch : pipeBranchesCLCoords )
+    for ( const auto& [coords, wellCells] : simWellBranches )
     {
-        if ( !branch.empty() )
+        if ( !coords.empty() )
         {
             // Estimate the bounding box based on first, middle and last coordinate of branches
-            bb.add( branch.front() );
+            bb.add( coords.front() );
 
-            size_t mid = branch.size() / 2;
-            bb.add( branch[mid] );
+            size_t mid = coords.size() / 2;
+            bb.add( coords[mid] );
 
-            bb.add( branch.back() );
+            bb.add( coords.back() );
         }
     }
 

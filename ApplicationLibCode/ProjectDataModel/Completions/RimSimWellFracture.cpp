@@ -21,6 +21,8 @@
 #include "RigCell.h"
 #include "RigMainGrid.h"
 #include "RigSimWellData.h"
+#include "RigSimulationWellCenterLineCalculator.h"
+#include "RigWellPath.h"
 #include "RigWellResultPoint.h"
 
 #include "RimEclipseView.h"
@@ -30,7 +32,6 @@
 #include "RimProject.h"
 #include "RimSimWellInView.h"
 
-#include "RigWellPath.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimSimWellFracture, "SimWellFracture" );
@@ -344,14 +345,10 @@ void RimSimWellFracture::computeSimWellBranchCenterLines()
     this->firstAncestorOrThisOfType( rimWell );
     CVF_ASSERT( rimWell );
 
-    std::vector<std::vector<cvf::Vec3d>>         pipeBranchesCLCoords;
-    std::vector<std::vector<RigWellResultPoint>> pipeBranchesCellIds;
-
-    rimWell->calculateWellPipeStaticCenterLine( pipeBranchesCLCoords, pipeBranchesCellIds );
-
-    for ( const auto& branch : pipeBranchesCLCoords )
+    const auto simWellBranches = RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( rimWell );
+    for ( const auto& [coords, wellCells] : simWellBranches )
     {
-        RigSimulationWellCoordsAndMD wellPathWithMD( branch );
+        RigSimulationWellCoordsAndMD wellPathWithMD( coords );
 
         m_branchCenterLines.push_back( wellPathWithMD );
     }
