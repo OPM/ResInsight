@@ -30,6 +30,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaDateTimeDefines.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaPlotCollectionScheduler.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaScheduler.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaSeismicDefines.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryDefines.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaLasDefines.h
 )

@@ -23,11 +23,12 @@
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
+#include <memory>
 #include <vector>
 
-namespace cvf
+namespace ZGYAccess
 {
-class TextureImage;
+class SeismicSliceData;
 }
 
 //==================================================================================================
@@ -40,15 +41,14 @@ public:
     RigTexturedSection();
     ~RigTexturedSection() override;
 
-    void addSection( cvf::Vec3dArray rect, cvf::TextureImage* image );
+    void addSection( cvf::Vec3dArray rect, std::shared_ptr<ZGYAccess::SeismicSliceData> data );
 
-    const std::vector<cvf::Vec3dArray>&    rects() const;
-    const std::vector<cvf::TextureImage*>& images() const;
+    const std::vector<cvf::Vec3dArray>& rects() const;
 
-    cvf::Vec3dArray    rect( int index ) const;
-    cvf::TextureImage* image( int index ) const;
+    cvf::Vec3dArray                              rect( int index ) const;
+    std::shared_ptr<ZGYAccess::SeismicSliceData> slicedata( int index ) const;
 
 private:
-    std::vector<cvf::Vec3dArray>    m_sectionRects;
-    std::vector<cvf::TextureImage*> m_images;
+    std::vector<cvf::Vec3dArray>                              m_sectionRects;
+    std::vector<std::shared_ptr<ZGYAccess::SeismicSliceData>> m_slicedata;
 };

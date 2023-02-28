@@ -235,9 +235,9 @@ void RimSeismicSection::defineEditorAttribute( const caf::PdmFieldHandle* field,
 
                 if ( field == &m_xlineIndex )
                 {
-                    minVal  = m_seismicData()->crosslineMin();
-                    maxVal  = m_seismicData()->crosslineMax();
-                    stepVal = m_seismicData()->crosslineStep();
+                    minVal  = m_seismicData()->xlineMin();
+                    maxVal  = m_seismicData()->xlineMax();
+                    stepVal = m_seismicData()->xlineStep();
                 }
                 else if ( field == &m_depthIndex )
                 {
@@ -462,31 +462,29 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection() const
             points[2].set( p2.x(), p2.y(), zmax );
             points[3].set( p1.x(), p1.y(), zmax );
 
-            cvf::TextureImage* textureImage = new cvf::TextureImage();
-            textureImage->allocate( 100, height );
-            textureImage->fill( cvf::Color4ub( 255, 255, 255, 128 ) );
-            tex->addSection( points, textureImage );
+            // cvf::TextureImage* textureImage = new cvf::TextureImage();
+            // textureImage->allocate( 100, height );
+            // textureImage->fill( cvf::Color4ub( 255, 255, 255, 128 ) );
+            // tex->addSection( points, textureImage );
         }
     }
     else if ( m_type() == CrossSectionEnum::CS_INLINE )
     {
-        int clStart = m_seismicData->crosslineMin();
-        int clStop  = m_seismicData->crosslineMax();
-        int clStep  = m_seismicData->crosslineStep();
+        int xlStart = m_seismicData->xlineMin();
+        int xlStop  = m_seismicData->xlineMax();
+        int xlStep  = m_seismicData->xlineStep();
 
         int ilStart = m_inlineIndex();
 
         cvf::Vec3dArray points;
         points.resize( 4 );
-        points[0] = m_seismicData->convertToWorldCoords( ilStart, clStart, zmin );
-        points[1] = m_seismicData->convertToWorldCoords( ilStart, clStop, zmin );
-        points[2] = m_seismicData->convertToWorldCoords( ilStart, clStop, zmax );
-        points[3] = m_seismicData->convertToWorldCoords( ilStart, clStart, zmax );
+        points[0] = m_seismicData->convertToWorldCoords( ilStart, xlStart, zmin );
+        points[1] = m_seismicData->convertToWorldCoords( ilStart, xlStop, zmin );
+        points[2] = m_seismicData->convertToWorldCoords( ilStart, xlStop, zmax );
+        points[3] = m_seismicData->convertToWorldCoords( ilStart, xlStart, zmax );
 
-        cvf::TextureImage* textureImage = new cvf::TextureImage();
-        textureImage->allocate( ( clStop - clStart ) / clStep, height );
-        textureImage->fill( cvf::Color4ub( 255, 255, 255, 128 ) );
-        tex->addSection( points, textureImage );
+        auto seismic = m_seismicData->sliceData( RiaDefines::SeismicSliceDirection::INLINE, ilStart );
+        tex->addSection( points, seismic );
     }
     else if ( m_type() == CrossSectionEnum::CS_XLINE )
     {
@@ -494,19 +492,17 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection() const
         int ilStop  = m_seismicData->inlineMax();
         int ilStep  = m_seismicData->inlineStep();
 
-        int clStart = m_xlineIndex();
+        int xlStart = m_xlineIndex();
 
         cvf::Vec3dArray points;
         points.resize( 4 );
-        points[0] = m_seismicData->convertToWorldCoords( ilStart, clStart, zmin );
-        points[1] = m_seismicData->convertToWorldCoords( ilStop, clStart, zmin );
-        points[2] = m_seismicData->convertToWorldCoords( ilStop, clStart, zmax );
-        points[3] = m_seismicData->convertToWorldCoords( ilStart, clStart, zmax );
+        points[0] = m_seismicData->convertToWorldCoords( ilStart, xlStart, zmin );
+        points[1] = m_seismicData->convertToWorldCoords( ilStop, xlStart, zmin );
+        points[2] = m_seismicData->convertToWorldCoords( ilStop, xlStart, zmax );
+        points[3] = m_seismicData->convertToWorldCoords( ilStart, xlStart, zmax );
 
-        cvf::TextureImage* textureImage = new cvf::TextureImage();
-        textureImage->allocate( ( ilStop - ilStart ) / ilStep, height );
-        textureImage->fill( cvf::Color4ub( 255, 255, 255, 128 ) );
-        tex->addSection( points, textureImage );
+        auto seismic = m_seismicData->sliceData( RiaDefines::SeismicSliceDirection::XLINE, xlStart );
+        tex->addSection( points, seismic );
     }
     else if ( m_type() == CrossSectionEnum::CS_DEPTHSLICE )
     {
@@ -551,6 +547,6 @@ void RimSeismicSection::initSliceRanges()
 {
     if ( m_seismicData() == nullptr ) return;
     if ( m_inlineIndex < 0 ) m_inlineIndex = m_seismicData->inlineMin();
-    if ( m_xlineIndex < 0 ) m_xlineIndex = m_seismicData->crosslineMin();
+    if ( m_xlineIndex < 0 ) m_xlineIndex = m_seismicData->xlineMin();
     if ( m_depthIndex < 0 ) m_depthIndex = m_seismicData->zMin();
 }

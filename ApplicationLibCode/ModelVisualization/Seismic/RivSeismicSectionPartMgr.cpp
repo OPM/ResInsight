@@ -39,6 +39,8 @@
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
 
+#include <zgyaccess/seismicslice.h>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -94,7 +96,7 @@ void RivSeismicSectionPartMgr::appendGeometryPartsToModel( cvf::ModelBasicList* 
             displayPoints.add( displayCoordTransform->transformToDisplayCoord( vOrg ) );
         }
 
-        cvf::ref<cvf::Part> quadPart = createSingleTexturedQuadPart( displayPoints, texSection->image( i ) );
+        cvf::ref<cvf::Part> quadPart = createSingleTexturedQuadPart( displayPoints, texSection->slicedata( i ).get() );
         model->addPart( quadPart.p() );
     }
 }
@@ -102,11 +104,14 @@ void RivSeismicSectionPartMgr::appendGeometryPartsToModel( cvf::ModelBasicList* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Part> RivSeismicSectionPartMgr::createSingleTexturedQuadPart( const cvf::Vec3dArray& cornerPoints, cvf::TextureImage* image )
+cvf::ref<cvf::Part> RivSeismicSectionPartMgr::createSingleTexturedQuadPart( const cvf::Vec3dArray&       cornerPoints,
+                                                                            ZGYAccess::SeismicSliceData* data )
 {
     cvf::ref<cvf::DrawableGeo> geo = createXYPlaneQuadGeoWithTexCoords( cornerPoints );
 
-    cvf::ref<cvf::Texture> texture = new cvf::Texture( image );
+    cvf::ref<cvf::TextureImage> image = createImageFromData( data );
+
+    cvf::ref<cvf::Texture> texture = new cvf::Texture( image.p() );
     cvf::ref<cvf::Sampler> sampler = new cvf::Sampler;
     sampler->setMinFilter( cvf::Sampler::LINEAR );
     sampler->setMagFilter( cvf::Sampler::NEAREST );
@@ -166,4 +171,16 @@ cvf::ref<cvf::DrawableGeo> RivSeismicSectionPartMgr::createXYPlaneQuadGeoWithTex
     geo->computeNormals();
 
     return geo;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::TextureImage* RivSeismicSectionPartMgr::createImageFromData( ZGYAccess::SeismicSliceData* data )
+{
+    cvf::TextureImage* textureImage = new cvf::TextureImage();
+    textureImage->allocate( data->width(), data->depth() );
+    textureImage->fill( cvf::Color4ub( 255, 255, 255, 128 ) );
+
+    return textureImage;
 }

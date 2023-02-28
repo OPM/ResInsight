@@ -18,6 +18,7 @@
 
 #include "RifSeismicZGYReader.h"
 
+#include <zgyaccess/seismicslice.h>
 #include <zgyaccess/zgyreader.h>
 
 #include "cvfBoundingBox.h"
@@ -222,4 +223,27 @@ cvf::Vec3d RifSeismicZGYReader::convertToWorldCoords( int iLine, int xLine, doub
     auto [x, y] = m_reader->toWorldCoordinate( iLine, xLine );
 
     return cvf::Vec3d( x, y, depth );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::shared_ptr<ZGYAccess::SeismicSliceData> RifSeismicZGYReader::slice( RiaDefines::SeismicSliceDirection direction, int sliceIndex )
+{
+    if ( isOpen() )
+    {
+        switch ( direction )
+        {
+            case RiaDefines::SeismicSliceDirection::INLINE:
+                return m_reader->inlineSlice( sliceIndex );
+            case RiaDefines::SeismicSliceDirection::XLINE:
+                return m_reader->xlineSlice( sliceIndex );
+            case RiaDefines::SeismicSliceDirection::DEPTH:
+                // return m_reader->zSlice( sliceIndex );
+                break;
+            default:
+                break;
+        }
+    }
+    return nullptr;
 }

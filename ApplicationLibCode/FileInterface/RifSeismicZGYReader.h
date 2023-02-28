@@ -20,6 +20,8 @@
 
 #include "cvfVector3.h"
 
+#include "RiaSeismicDefines.h"
+
 #include <QString>
 
 #include <memory>
@@ -29,7 +31,8 @@
 namespace ZGYAccess
 {
 class ZGYReader;
-}
+class SeismicSliceData;
+} // namespace ZGYAccess
 
 namespace cvf
 {
@@ -63,6 +66,8 @@ public:
     double depthStep();
 
     cvf::Vec3d convertToWorldCoords( int iLine, int xLine, double depth );
+
+    std::shared_ptr<ZGYAccess::SeismicSliceData> slice( RiaDefines::SeismicSliceDirection direction, int sliceIndex );
 
 private:
     QString                               m_filename;

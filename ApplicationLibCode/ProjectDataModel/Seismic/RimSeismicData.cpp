@@ -326,7 +326,7 @@ int RimSeismicData::inlineStep() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimSeismicData::crosslineMin() const
+int RimSeismicData::xlineMin() const
 {
     return m_xlineInfo[0];
 }
@@ -334,7 +334,7 @@ int RimSeismicData::crosslineMin() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimSeismicData::crosslineMax() const
+int RimSeismicData::xlineMax() const
 {
     return m_xlineInfo[1];
 }
@@ -342,7 +342,7 @@ int RimSeismicData::crosslineMax() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimSeismicData::crosslineStep() const
+int RimSeismicData::xlineStep() const
 {
     return m_xlineInfo[2];
 }
@@ -414,4 +414,31 @@ cvf::Vec3d RimSeismicData::convertToWorldCoords( int iLine, int xLine, double de
     if ( !openFileIfNotOpen() ) return { 0, 0, 0 };
 
     return m_filereader->convertToWorldCoords( iLine, xLine, depth );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::shared_ptr<ZGYAccess::SeismicSliceData> RimSeismicData::sliceData( RiaDefines::SeismicSliceDirection direction, int sliceNumber )
+{
+    if ( !openFileIfNotOpen() ) return nullptr;
+
+    int sliceIndex = 0;
+
+    switch ( direction )
+    {
+        case RiaDefines::SeismicSliceDirection::INLINE:
+            sliceIndex = ( sliceNumber - m_inlineInfo[0] ) / m_inlineInfo[2];
+            break;
+        case RiaDefines::SeismicSliceDirection::XLINE:
+            sliceIndex = ( sliceNumber - m_xlineInfo[0] ) / m_xlineInfo[2];
+            break;
+        case RiaDefines::SeismicSliceDirection::DEPTH:
+            sliceIndex = (int)( 1.0 * ( sliceNumber - zMin() ) / m_zStep );
+            break;
+        default:
+            return nullptr;
+    }
+
+    return m_filereader->slice( direction, sliceIndex );
 }
