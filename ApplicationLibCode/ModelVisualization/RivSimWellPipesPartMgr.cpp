@@ -50,6 +50,8 @@
 #include "cafEffectGenerator.h"
 
 #include "cvfDrawableGeo.h"
+#include "cvfGeometryBuilderDrawableGeo.h"
+#include "cvfGeometryUtils.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
 #include "cvfScalarMapperDiscreteLinear.h"
@@ -413,16 +415,9 @@ void RivSimWellPipesPartMgr::appendValvesGeo( const RimEclipseView*             
             auto startCoord        = ( segmentEndCoord + segmentStartCoord ) / 2.0;
 
             cvf::Color3f valveColor                      = cvf::Color3f::ORANGE;
-            auto         measuredDepthsRelativeToStartMD = { 0.0, 1.0, 1.5, 4.0, 5.0, 5.5, 8.0, 9.0 };
+            auto         measuredDepthsRelativeToStartMD = { 0.0, 1.0, 4.0, 8.0, 9.0 };
 
-            auto radii = { wellPathRadius,
-                           wellPathRadius * 1.8,
-                           wellPathRadius * 2.0,
-                           wellPathRadius * 2.0,
-                           wellPathRadius * 1.8,
-                           wellPathRadius * 1.7,
-                           wellPathRadius * 1.7,
-                           wellPathRadius };
+            auto radii = { wellPathRadius, wellPathRadius * 1.3, wellPathRadius * 1.3, wellPathRadius * 1.3, wellPathRadius };
 
             // The location of the valve is adjusted to locate the valve at the center of the segment
             const double locationAdjustment = -4.0;
@@ -434,6 +429,54 @@ void RivSimWellPipesPartMgr::appendValvesGeo( const RimEclipseView*             
             }
 
             RivPipeGeometryGenerator::tubeWithCenterLinePartsAndVariableWidth( &pbd.m_valvesParts, displayCoords, radii, valveColor );
+
+            {
+                // Create tubes
+
+                cvf::GeometryBuilderDrawableGeo builder;
+
+                float bottomRadius    = 1.0f;
+                float topRadius       = bottomRadius;
+                float height          = 1.0f;
+                float topOffsetX      = 0.0f;
+                float topOffsetY      = 0.0f;
+                uint  numSlices       = 12;
+                bool  normalsOutwards = true;
+                bool  closedBot       = true;
+                bool  closedTop       = true;
+                uint  numPolysZDir    = 1;
+
+                cvf::GeometryUtils::createObliqueCylinder( bottomRadius,
+                                                           topRadius,
+                                                           height,
+                                                           topOffsetX,
+                                                           topOffsetY,
+                                                           numSlices,
+                                                           normalsOutwards,
+                                                           closedBot,
+                                                           closedTop,
+                                                           numPolysZDir,
+                                                           &builder );
+
+                float s = 0.6 * wellPathRadius;
+                builder.transformVertexRange( 0, builder.vertexCount() - 1, cvf::Mat4f::fromTranslation( cvf::Vec3f( 0.0, 0.0, -height / 2.0 ) ) );
+                builder.transformVertexRange( 0, builder.vertexCount() - 1, cvf::Mat4f::fromScaling( { s, s, s * 5 } ) );
+                builder.transformVertexRange( 0, builder.vertexCount() - 1, cvf::Mat4f::fromTranslation( cvf::Vec3f( startCoord ) ) );
+
+                auto       drawableGeo = builder.drawableGeo();
+                cvf::Part* part        = new cvf::Part;
+                part->setName( "RivPipeGeometryGenerator::surface" );
+                part->setDrawable( drawableGeo.p() );
+
+                caf::SurfaceEffectGenerator surfaceGen( cvf::Color4f( cvf::Color3f::BLACK ), caf::PO_1 );
+                cvf::ref<cvf::Effect>       eff = surfaceGen.generateCachedEffect();
+
+                // create two parts, and rotate based on the direction of the well pipe
+
+                part->setEffect( eff.p() );
+
+                pbd.m_valvesParts.push_back( part );
+            }
         }
     }
 }
