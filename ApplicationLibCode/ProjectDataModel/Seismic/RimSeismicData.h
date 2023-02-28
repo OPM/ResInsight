@@ -28,6 +28,7 @@
 #include <QString>
 
 #include <memory>
+#include <utility>
 
 class RimGenericParameter;
 class RifSeismicZGYReader;
@@ -79,6 +80,8 @@ public:
 
     std::shared_ptr<ZGYAccess::SeismicSliceData> sliceData( RiaDefines::SeismicSliceDirection direction, int sliceNumber );
 
+    std::pair<double, double> dataRangeMinMax() const;
+
 protected:
     void                 initAfterRead() override;
     caf::PdmFieldHandle* userDescriptionField() override;
@@ -110,6 +113,8 @@ private:
     std::vector<double>               m_clippedHistogramXvalues;
     std::vector<double>               m_clippedHistogramYvalues;
     std::vector<cvf::Vec3d>           m_worldOutline;
+    std::pair<double, double>         m_activeDataRange;
+    std::pair<double, double>         m_fileDataRange;
 
     std::shared_ptr<RifSeismicZGYReader> m_filereader;
     int                                  m_nErrorsLogged;

@@ -84,6 +84,8 @@ public:
 
     RimSeismicData* seismicData() const;
 
+    RimRegularLegendConfig* legendConfig() const;
+
 protected:
     void                 initAfterRead() override;
     caf::PdmFieldHandle* userDescriptionField() override;

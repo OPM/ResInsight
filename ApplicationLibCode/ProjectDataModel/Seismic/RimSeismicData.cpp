@@ -26,6 +26,8 @@
 #include "RiuMainWindow.h"
 #include "RiuSeismicHistogramPanel.h"
 
+#include <zgyaccess/seismicslice.h>
+
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTableViewEditor.h"
 
@@ -45,6 +47,8 @@ RimSeismicData::RimSeismicData()
     : m_zStep( 0 )
     , m_filereader( nullptr )
     , m_nErrorsLogged( 0 )
+    , m_fileDataRange( 0, 0 )
+    , m_activeDataRange( 0, 0 )
 {
     CAF_PDM_InitObject( "SeismicData", ":/Seismic16x16.png" );
 
@@ -207,6 +211,8 @@ void RimSeismicData::updateMetaData()
 
     m_inlineInfo = m_filereader->inlineMinMaxStep();
     m_xlineInfo  = m_filereader->crosslineMinMaxStep();
+
+    m_fileDataRange = m_filereader->dataRange();
 
     updateDataRange( false );
 }
@@ -384,6 +390,8 @@ void RimSeismicData::updateDataRange( bool updatePlot )
 
     if ( m_overrideDataRange() )
     {
+        m_activeDataRange = std::make_pair( -m_maxAbsDataValue, m_maxAbsDataValue );
+
         const int nVals = (int)m_histogramXvalues.size();
 
         for ( int i = 0; i < nVals; i++ )
@@ -401,6 +409,8 @@ void RimSeismicData::updateDataRange( bool updatePlot )
 
         for ( auto val : m_histogramYvalues )
             m_clippedHistogramYvalues.push_back( val );
+
+        m_activeDataRange = std::make_pair( m_fileDataRange.first, m_fileDataRange.second );
     }
 
     if ( updatePlot ) RiuMainWindow::instance()->seismicHistogramPanel()->showHistogram( this );
@@ -414,6 +424,11 @@ cvf::Vec3d RimSeismicData::convertToWorldCoords( int iLine, int xLine, double de
     if ( !openFileIfNotOpen() ) return { 0, 0, 0 };
 
     return m_filereader->convertToWorldCoords( iLine, xLine, depth );
+}
+
+std::pair<double, double> RimSeismicData::dataRangeMinMax() const
+{
+    return m_activeDataRange;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -440,5 +455,20 @@ std::shared_ptr<ZGYAccess::SeismicSliceData> RimSeismicData::sliceData( RiaDefin
             return nullptr;
     }
 
-    return m_filereader->slice( direction, sliceIndex );
+    auto data = m_filereader->slice( direction, sliceIndex );
+
+    double tmp                  = 0.0;
+    float* pValue               = data->values();
+    const auto [minVal, maxVal] = dataRangeMinMax();
+
+    for ( int i = 0; i < data->size(); i++, pValue++ )
+    {
+        tmp = *pValue;
+        if ( tmp < minVal )
+            *pValue = minVal;
+        else if ( tmp > maxVal )
+            *pValue = maxVal;
+    }
+
+    return data;
 }
