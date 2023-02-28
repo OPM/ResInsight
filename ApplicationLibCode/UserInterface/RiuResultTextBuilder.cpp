@@ -1171,10 +1171,10 @@ QString RiuResultTextBuilder::wellResultText()
             const RigWellResultPoint* wellResultCell = wellResultFrame->findResultCellWellHeadIncluded( m_gridIndex, m_cellIndex );
             if ( wellResultCell )
             {
-                int branchId        = wellResultCell->branchId();
-                int segmentId       = wellResultCell->segmentId();
-                int outletBranchId  = wellResultCell->outletBranchId();
-                int outletSegmentId = wellResultCell->outletSegmentId();
+                const int branchId        = wellResultCell->branchId();
+                const int segmentId       = wellResultCell->segmentId();
+                const int outletBranchId  = wellResultCell->outletBranchId();
+                const int outletSegmentId = wellResultCell->outletSegmentId();
 
                 text += QString( "-- Well-cell connection info --\n Well Name: %1\n Branch Id: %2\n Segment "
                                  "Id: %3\n Outlet Branch Id: %4\n Outlet Segment Id: %5" )

@@ -53,7 +53,10 @@ std::vector<SimulationWellCellBranch> RigSimulationWellCenterLineCalculator::cal
     std::vector<SimulationWellCellBranch> simuationBranches;
     for ( size_t i = 0; i < pipeBranchesCLCoords.size(); i++ )
     {
-        simuationBranches.emplace_back( std::make_pair( pipeBranchesCLCoords[i], pipeBranchesCellIds[i] ) );
+        if ( i < pipeBranchesCellIds.size() )
+        {
+            simuationBranches.emplace_back( std::make_pair( pipeBranchesCLCoords[i], pipeBranchesCellIds[i] ) );
+        }
     }
 
     return simuationBranches;
@@ -83,7 +86,10 @@ std::vector<SimulationWellCellBranch>
     std::vector<SimulationWellCellBranch> simuationBranches;
     for ( size_t i = 0; i < pipeBranchesCLCoords.size(); i++ )
     {
-        simuationBranches.emplace_back( std::make_pair( pipeBranchesCLCoords[i], pipeBranchesCellIds[i] ) );
+        if ( i < pipeBranchesCellIds.size() )
+        {
+            simuationBranches.emplace_back( std::make_pair( pipeBranchesCLCoords[i], pipeBranchesCellIds[i] ) );
+        }
     }
 
     return simuationBranches;
@@ -146,14 +152,14 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( R
     {
         QString txt;
 
-        for ( size_t branchIdx = 0; branchIdx < pipeBranchesCLCoords.size(); branchIdx++ )
+        for ( size_t idx = 0; idx < pipeBranchesCellIds.size(); idx++ )
         {
-            std::vector<RigWellResultPoint>& branchCells = pipeBranchesCellIds[branchIdx];
+            const auto& branchCells = pipeBranchesCellIds[idx];
             for ( const auto& resultPoint : branchCells )
             {
                 QString myTxt;
                 int     fieldWidth = 3;
-                myTxt += QString( "Ri branch index: %1 " ).arg( branchIdx, fieldWidth );
+                myTxt += QString( "Ri branch index: %1 " ).arg( idx, fieldWidth );
                 myTxt += QString( "Seg: %1 Branch: %2 " ).arg( resultPoint.segmentId(), fieldWidth ).arg( resultPoint.branchId(), fieldWidth );
 
                 if ( resultPoint.isCell() )

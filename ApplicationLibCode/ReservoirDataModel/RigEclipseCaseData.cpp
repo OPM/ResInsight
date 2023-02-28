@@ -512,10 +512,9 @@ std::vector<const RigWellPath*>
 
         m_simWellBranchCache.insert( std::make_pair( simWellSeachItem, cvf::Collection<RigWellPath>() ) );
 
-        for ( size_t brIdx = 0; brIdx < simWellBranches.size(); ++brIdx )
+        for ( const auto& [coords, wellCells] : simWellBranches )
         {
-            const auto& [coords, wellCells] = simWellBranches[brIdx];
-            auto wellMdCalculator           = RigSimulationWellCoordsAndMD( coords );
+            auto wellMdCalculator = RigSimulationWellCoordsAndMD( coords );
 
             cvf::ref<RigWellPath> newWellPath = new RigWellPath( wellMdCalculator.wellPathPoints(), wellMdCalculator.measuredDepths() );
 

@@ -125,7 +125,7 @@ grpc::Status RiaGrpcSimulationWellService::GetSimulationWellCells( grpc::ServerC
                     size_t                        i;
                     size_t                        j;
                     size_t                        k;
-                    size_t                        gridIdx = resPoint.gridIndex();
+                    const size_t                  gridIdx = resPoint.gridIndex();
                     grids[gridIdx]->ijkFromCellIndex( resPoint.cellIndex(), &i, &j, &k );
 
                     Vec3i* ijk = new Vec3i;

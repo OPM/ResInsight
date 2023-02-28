@@ -48,11 +48,15 @@ std::vector<SimulationWellCellBranch> RigMswCenterLineCalculator::calculateMswWe
 
     CVF_ASSERT( eclipseView );
 
-    RigEclipseCaseData* eclipseCaseData = eclipseView->eclipseCase()->eclipseCaseData();
+    if ( eclipseView->eclipseCase() && eclipseView->eclipseCase()->eclipseCaseData() )
+    {
+        auto eclipseCaseData = eclipseView->eclipseCase()->eclipseCaseData();
+        int  timeStepIndex   = eclipseView->currentTimeStep();
 
-    int timeStepIndex = eclipseView->currentTimeStep();
+        return calculateMswWellPipeGeometryForTimeStep( eclipseCaseData, simWellData, timeStepIndex );
+    }
 
-    return calculateMswWellPipeGeometryForTimeStep( eclipseCaseData, simWellData, timeStepIndex );
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -139,33 +143,35 @@ std::vector<SimulationWellCellBranch>
             if ( !gridAndCellIndices.empty() )
             {
                 const auto& [gridIndex, cellIndex] = gridAndCellIndices.front();
-
-                const RigCell& cell       = eclipseCaseData->grid( gridIndex )->cell( cellIndex );
-                cvf::Vec3d     whStartPos = cell.faceCenter( cvf::StructGridInterface::NEG_K );
-
-                // Add extra coordinate between cell face and cell center
-                // to make sure the well pipe terminated in a segment parallel to z-axis
-
-                cvf::Vec3d whIntermediate = whStartPos;
-                whIntermediate.z()        = ( whStartPos.z() + cell.center().z() ) / 2.0;
-
-                RigWellResultPoint resPoint;
-                for ( const auto& resBranch : resultBranches )
+                if ( gridIndex < eclipseCaseData->gridCount() && cellIndex < eclipseCaseData->grid( gridIndex )->cellCount() )
                 {
-                    for ( const auto& respoint : resBranch.m_branchResultPoints )
+                    const RigCell& cell       = eclipseCaseData->grid( gridIndex )->cell( cellIndex );
+                    cvf::Vec3d     whStartPos = cell.faceCenter( cvf::StructGridInterface::NEG_K );
+
+                    // Add extra coordinate between cell face and cell center
+                    // to make sure the well pipe terminated in a segment parallel to z-axis
+
+                    cvf::Vec3d whIntermediate = whStartPos;
+                    whIntermediate.z()        = ( whStartPos.z() + cell.center().z() ) / 2.0;
+
+                    RigWellResultPoint resPoint;
+                    for ( const auto& resBranch : resultBranches )
                     {
-                        if ( respoint.segmentId() == firstSegment )
+                        for ( const auto& respoint : resBranch.m_branchResultPoints )
                         {
-                            resPoint = respoint;
-                            break;
+                            if ( respoint.segmentId() == firstSegment )
+                            {
+                                resPoint = respoint;
+                                break;
+                            }
                         }
                     }
-                }
 
-                cellCenterCoords.push_back( whStartPos );
-                cellCenterResultPoints.push_back( resPoint );
-                cellCenterCoords.push_back( whIntermediate );
-                cellCenterResultPoints.push_back( resPoint );
+                    cellCenterCoords.push_back( whStartPos );
+                    cellCenterResultPoints.push_back( resPoint );
+                    cellCenterCoords.push_back( whIntermediate );
+                    cellCenterResultPoints.push_back( resPoint );
+                }
             }
         }
 
@@ -173,19 +179,22 @@ std::vector<SimulationWellCellBranch>
         {
             for ( const auto& [gridIndex, cellIndex] : gridAndCellIndices )
             {
-                const RigCell& cell = eclipseCaseData->grid( gridIndex )->cell( cellIndex );
-                cvf::Vec3d     pos  = cell.center();
+                if ( gridIndex < eclipseCaseData->gridCount() && cellIndex < eclipseCaseData->grid( gridIndex )->cellCount() )
+                {
+                    const RigCell& cell = eclipseCaseData->grid( gridIndex )->cell( cellIndex );
+                    cvf::Vec3d     pos  = cell.center();
 
-                RigWellResultPoint resPoint;
+                    RigWellResultPoint resPoint;
 
-                // The result point is only used to transport the grid index and cell index
-                // The current implementation will propagate the cell open state to the well segment from one cell to
-                // the next. It this is misleading, the two following lines can be removed.
-                resPoint.setGridIndex( gridIndex );
-                resPoint.setGridCellIndex( cellIndex );
+                    // The result point is only used to transport the grid index and cell index
+                    // The current implementation will propagate the cell open state to the well segment from one cell to
+                    // the next.
+                    resPoint.setGridIndex( gridIndex );
+                    resPoint.setGridCellIndex( cellIndex );
 
-                cellCenterCoords.push_back( pos );
-                cellCenterResultPoints.push_back( resPoint );
+                    cellCenterCoords.push_back( pos );
+                    cellCenterResultPoints.push_back( resPoint );
+                }
             }
         }
 
@@ -212,8 +221,10 @@ SimulationWellCellBranch
 
     for ( size_t resPointIdx = 0; resPointIdx < resultPoints.size(); resPointIdx++ )
     {
-        auto currentPoint      = resultPoints[resPointIdx];
-        auto currentCellCenter = branchCoords[resPointIdx];
+        if ( resPointIdx >= branchCoords.size() ) continue;
+
+        const auto& currentPoint      = resultPoints[resPointIdx];
+        const auto& currentCellCenter = branchCoords[resPointIdx];
 
         if ( previusPoint.isCell() )
         {
@@ -314,7 +325,7 @@ std::vector<RigMswCenterLineCalculator::WellBranch>
     {
         if ( branch.m_gridCellsConnectedToSegments.empty() ) continue;
 
-        auto outputSegment = branch.m_gridCellsConnectedToSegments.begin()->second;
+        const auto& outputSegment = branch.m_gridCellsConnectedToSegments.begin()->second;
         for ( auto& longBranch : longWellBranches )
         {
             if ( longBranch.m_branchId == outputSegment.outputSegmentBranchId )
