@@ -405,31 +405,32 @@ void RivSimWellPipesPartMgr::appendValvesGeo( const RimEclipseView*             
     for ( size_t i = 0; i < pbd.m_cellIds.size(); i++ )
     {
         auto resultPoint = pbd.m_cellIds[i];
-        if ( resultPoint.isCell() )
+        if ( resultPoint.isConnectedToValve() )
         {
-            auto coord        = coords->get( i );
-            auto nextCoord    = coords->get( i + 1 );
-            auto direction    = ( nextCoord - coord ).getNormalized();
-            auto startOfValve = ( nextCoord + coord ) / 2.0;
+            auto segmentStartCoord = coords->get( i );
+            auto segmentEndCoord   = coords->get( i + 1 );
+            auto direction         = ( segmentEndCoord - segmentStartCoord ).getNormalized();
+            auto startCoord        = ( segmentEndCoord + segmentStartCoord ) / 2.0;
 
-            std::vector<double> measuredDepthsRelativeToStartMD;
-            std::vector<double> radii;
-            cvf::Color3f        valveColor = cvf::Color3f::ORANGE;
+            cvf::Color3f valveColor                      = cvf::Color3f::ORANGE;
+            auto         measuredDepthsRelativeToStartMD = { 0.0, 1.0, 1.5, 4.0, 5.0, 5.5, 8.0, 9.0 };
 
-            measuredDepthsRelativeToStartMD = { 0.0, 1.0, 1.5, 4.0, 5.0, 5.5, 8.0, 9.0 };
-            radii                           = { wellPathRadius,
-                      wellPathRadius * 1.8,
-                      wellPathRadius * 2.0,
-                      wellPathRadius * 2.0,
-                      wellPathRadius * 1.8,
-                      wellPathRadius * 1.7,
-                      wellPathRadius * 1.7,
-                      wellPathRadius };
+            auto radii = { wellPathRadius,
+                           wellPathRadius * 1.8,
+                           wellPathRadius * 2.0,
+                           wellPathRadius * 2.0,
+                           wellPathRadius * 1.8,
+                           wellPathRadius * 1.7,
+                           wellPathRadius * 1.7,
+                           wellPathRadius };
+
+            // The location of the valve is adjusted to locate the valve at the center of the segment
+            const double locationAdjustment = -4.0;
 
             std::vector<cvf::Vec3d> displayCoords;
             for ( double mdRelativeToStart : measuredDepthsRelativeToStartMD )
             {
-                displayCoords.push_back( startOfValve + mdRelativeToStart * direction );
+                displayCoords.push_back( startCoord + ( locationAdjustment + mdRelativeToStart ) * direction );
             }
 
             RivPipeGeometryGenerator::tubeWithCenterLinePartsAndVariableWidth( &pbd.m_valvesParts, displayCoords, radii, valveColor );
