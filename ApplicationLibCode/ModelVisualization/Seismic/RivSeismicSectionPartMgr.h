@@ -39,6 +39,11 @@ namespace caf
 class DisplayCoordTransform;
 }
 
+namespace ZGYAccess
+{
+class SeismicSliceData;
+}
+
 class RimSeismicSectionCollection;
 class RimSeismicSection;
 class Rim3dView;
@@ -60,7 +65,9 @@ public:
 
 protected:
     cvf::ref<cvf::DrawableGeo> createXYPlaneQuadGeoWithTexCoords( const cvf::Vec3dArray& cornerPoints );
-    cvf::ref<cvf::Part>        createSingleTexturedQuadPart( const cvf::Vec3dArray& cornerPoints, cvf::TextureImage* image );
+    cvf::ref<cvf::Part>        createSingleTexturedQuadPart( const cvf::Vec3dArray& cornerPoints, ZGYAccess::SeismicSliceData* data );
+
+    cvf::TextureImage* createImageFromData( ZGYAccess::SeismicSliceData* data );
 
 private:
     caf::PdmPointer<RimSeismicSection> m_section;

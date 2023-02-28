@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RiaSeismicDefines.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -33,7 +35,12 @@ class RifSeismicZGYReader;
 namespace cvf
 {
 class BoundingBox;
-} // namespace cvf
+}
+
+namespace ZGYAccess
+{
+class SeismicSliceData;
+}
 
 class RimSeismicData : public caf::PdmObject
 {
@@ -59,9 +66,9 @@ public:
     int inlineMax() const;
     int inlineStep() const;
 
-    int crosslineMin() const;
-    int crosslineMax() const;
-    int crosslineStep() const;
+    int xlineMin() const;
+    int xlineMax() const;
+    int xlineStep() const;
 
     std::vector<double> histogramXvalues() const;
     std::vector<double> histogramYvalues() const;
@@ -69,6 +76,8 @@ public:
     std::vector<cvf::Vec3d> worldOutline() const;
 
     cvf::Vec3d convertToWorldCoords( int iLine, int xLine, double depth );
+
+    std::shared_ptr<ZGYAccess::SeismicSliceData> sliceData( RiaDefines::SeismicSliceDirection direction, int sliceNumber );
 
 protected:
     void                 initAfterRead() override;

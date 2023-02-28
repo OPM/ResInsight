@@ -20,6 +20,8 @@
 
 #include "cvfTextureImage.h"
 
+#include <zgyaccess/seismicslice.h>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -32,11 +34,6 @@ RigTexturedSection::RigTexturedSection()
 //--------------------------------------------------------------------------------------------------
 RigTexturedSection::~RigTexturedSection()
 {
-    for ( auto image : m_images )
-    {
-        delete image;
-    }
-    m_images.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -50,10 +47,10 @@ const std::vector<cvf::Vec3dArray>& RigTexturedSection::rects() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigTexturedSection::addSection( cvf::Vec3dArray rect, cvf::TextureImage* image )
+void RigTexturedSection::addSection( cvf::Vec3dArray rect, std::shared_ptr<ZGYAccess::SeismicSliceData> data )
 {
     m_sectionRects.push_back( rect );
-    m_images.push_back( image );
+    m_slicedata.push_back( data );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -69,17 +66,9 @@ cvf::Vec3dArray RigTexturedSection::rect( int index ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::TextureImage* RigTexturedSection::image( int index ) const
+std::shared_ptr<ZGYAccess::SeismicSliceData> RigTexturedSection::slicedata( int index ) const
 {
-    if ( index >= (int)m_images.size() ) return nullptr;
+    if ( index >= (int)m_slicedata.size() ) return nullptr;
     if ( index < 0 ) return nullptr;
-    return m_images[index];
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const std::vector<cvf::TextureImage*>& RigTexturedSection::images() const
-{
-    return m_images;
+    return m_slicedata[index];
 }
