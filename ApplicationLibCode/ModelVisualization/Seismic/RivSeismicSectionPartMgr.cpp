@@ -24,6 +24,7 @@
 
 #include "Rim3dView.h"
 #include "RimGridView.h"
+#include "RimRegularLegendConfig.h"
 #include "RimSeismicSection.h"
 #include "RimSeismicSectionCollection.h"
 
@@ -38,6 +39,7 @@
 #include "cvfLibRender.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
+#include "cvfScalarMapper.h"
 
 #include <zgyaccess/seismicslice.h>
 
@@ -180,7 +182,30 @@ cvf::TextureImage* RivSeismicSectionPartMgr::createImageFromData( ZGYAccess::Sei
 {
     cvf::TextureImage* textureImage = new cvf::TextureImage();
     textureImage->allocate( data->width(), data->depth() );
-    textureImage->fill( cvf::Color4ub( 255, 255, 255, 128 ) );
+
+    auto legend = m_section->legendConfig();
+
+    auto colorMapper = legend->scalarMapper();
+
+    float*      pData = data->values();
+    cvf::ubyte* pRGBA = textureImage->ptr();
+
+    // TODO - fix pixel vs. data layout order
+
+    for ( int i = 0; i < data->size(); i++, pData++ )
+    {
+        auto rgb = colorMapper->mapToColor( *pData );
+
+        *pRGBA = rgb.r();
+        pRGBA++;
+        *pRGBA = rgb.g();
+        pRGBA++;
+        *pRGBA = rgb.b();
+        pRGBA++;
+
+        *pRGBA = 255;
+        pRGBA++;
+    }
 
     return textureImage;
 }

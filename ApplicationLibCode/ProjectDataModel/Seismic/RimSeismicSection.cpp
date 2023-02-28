@@ -550,3 +550,11 @@ void RimSeismicSection::initSliceRanges()
     if ( m_xlineIndex < 0 ) m_xlineIndex = m_seismicData->xlineMin();
     if ( m_depthIndex < 0 ) m_depthIndex = m_seismicData->zMin();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimRegularLegendConfig* RimSeismicSection::legendConfig() const
+{
+    return m_legendConfig();
+}
