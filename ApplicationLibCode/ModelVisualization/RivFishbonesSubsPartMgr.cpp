@@ -87,18 +87,16 @@ void RivFishbonesSubsPartMgr::buildParts( const caf::DisplayCoordTransform* disp
     RimWellPath* wellPath = nullptr;
     m_rimFishbonesSubs->firstAncestorOrThisOfTypeAsserted( wellPath );
 
-    RivPipeGeometryGenerator geoGenerator;
-
     for ( const auto& [subIndex, lateralIndex] : m_rimFishbonesSubs->installedLateralIndices() )
     {
         std::vector<cvf::Vec3d> lateralDomainCoords = m_rimFishbonesSubs->coordsForLateral( subIndex, lateralIndex );
 
         std::vector<cvf::Vec3d> displayCoords = displayCoordTransform->transformToDisplayCoords( lateralDomainCoords );
 
-        geoGenerator.cylinderWithCenterLineParts( &m_parts,
-                                                  displayCoords,
-                                                  m_rimFishbonesSubs->fishbonesColor(),
-                                                  wellPath->combinedScaleFactor() * characteristicCellSize * 0.5 );
+        RivPipeGeometryGenerator::cylinderWithCenterLineParts( &m_parts,
+                                                               displayCoords,
+                                                               m_rimFishbonesSubs->fishbonesColor(),
+                                                               wellPath->combinedScaleFactor() * characteristicCellSize * 0.5 );
     }
 
     cvf::ref<RivObjectSourceInfo> objectSourceInfo = new RivObjectSourceInfo( m_rimFishbonesSubs );

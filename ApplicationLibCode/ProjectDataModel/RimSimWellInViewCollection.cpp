@@ -212,7 +212,7 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
     m_showWellCellFence.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName() );
     m_showWellCellFence.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &m_showWellValves, "ShowWellValvesTristate", "Show Well Valves" );
+    CAF_PDM_InitFieldNoDefault( &m_showWellValves, "ShowWellValvesTristate", "Valves" );
 
     CAF_PDM_InitFieldNoDefault( &m_wellDiskSummaryCase, "WellDiskSummaryCase", "Summary Case" );
 
