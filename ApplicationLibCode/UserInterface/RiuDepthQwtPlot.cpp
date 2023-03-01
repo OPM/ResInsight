@@ -95,7 +95,7 @@ void RiuDepthQwtPlot::addCurve( const RimCase*             rimCase,
     plotCurve->attach( this );
     m_plotCurves.push_back( plotCurve );
 
-    this->setAxisScale( QwtAxis::XBottom, kIndexes.front(), kIndexes.back() );
+    this->setAxisScale( QwtAxis::XBottom, kValues.front() - 0.1, kValues.back() + 0.1 );
     this->applyFontSizes( false );
 
     this->replot();
@@ -173,6 +173,8 @@ void RiuDepthQwtPlot::setDefaults()
 
     setAxisMaxMinor( QwtAxis::XBottom, 2 );
     setAxisMaxMinor( QwtAxis::YLeft, 3 );
+
+    setAxisTitle( QwtAxis::XBottom, "K" );
 
     applyFontSizes( false );
 
