@@ -20,8 +20,6 @@
 
 #include "RiaApplication.h"
 #include "RiaCurveDataTools.h"
-#include "RiaPreferences.h"
-#include "RiaQDateTimeTools.h"
 
 #include "RimCase.h"
 #include "RimContextCommandBuilder.h"
@@ -31,12 +29,8 @@
 #include "RiuQwtSymbol.h"
 #include "RiuTextDialog.h"
 
-#include "cafCmdFeatureMenuBuilder.h"
-
 #include "cvfColor3.h"
 
-#include "qwt_date_scale_draw.h"
-#include "qwt_date_scale_engine.h"
 #include "qwt_legend.h"
 #include "qwt_plot_curve.h"
 #include "qwt_plot_grid.h"
@@ -154,17 +148,12 @@ QSize RiuDepthQwtPlot::minimumSizeHint() const
 //--------------------------------------------------------------------------------------------------
 void RiuDepthQwtPlot::contextMenuEvent( QContextMenuEvent* event )
 {
-    QMenu                      menu;
-    caf::CmdFeatureMenuBuilder menuBuilder;
-
-    menuBuilder << "RicNewGridTimeHistoryCurveFeature";
+    QMenu menu;
 
     const int curveCount = this->itemList( QwtPlotItem::Rtti_PlotCurve ).count();
 
     QAction* act = menu.addAction( "Show Plot Data", this, SLOT( slotCurrentPlotDataInTextDialog() ) );
     act->setEnabled( curveCount > 0 );
-
-    menuBuilder.appendToMenu( &menu );
 
     if ( !menu.actions().empty() )
     {
