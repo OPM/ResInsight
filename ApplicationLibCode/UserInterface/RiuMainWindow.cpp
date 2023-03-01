@@ -50,6 +50,7 @@
 #include "RimViewLinkerCollection.h"
 #include "RimViewWindow.h"
 
+#include "RiuDepthQwtPlot.h"
 #include "RiuDockWidgetTools.h"
 #include "RiuMdiArea.h"
 #include "RiuMdiSubWindow.h"
@@ -256,6 +257,7 @@ void RiuMainWindow::cleanupGuiCaseClose()
     setResultInfo( "" );
 
     m_resultQwtPlot->deleteAllCurves();
+    m_depthQwtPlot->deleteAllCurves();
     if ( m_relPermPlotPanel ) m_relPermPlotPanel->clearPlot();
     if ( m_pvtPlotPanel ) m_pvtPlotPanel->clearPlot();
     if ( m_mohrsCirclePlot ) m_mohrsCirclePlot->clearPlot();
@@ -814,6 +816,14 @@ void RiuMainWindow::createDockPanels()
         bottomWidgets.push_back( dockWidget );
     }
 
+    {
+        auto dockWidget = RiuDockWidgetTools::createDockWidget( "Depth Plot", RiuDockWidgetTools::mainWindowDepthPlotName(), dockManager() );
+
+        m_depthQwtPlot = new RiuDepthQwtPlot( dockWidget );
+        dockWidget->setWidget( m_depthQwtPlot );
+        bottomWidgets.push_back( dockWidget );
+    }
+
     ads::CDockAreaWidget* leftArea  = addTabbedWidgets( leftWidgets, ads::DockWidgetArea::LeftDockWidgetArea );
     ads::CDockAreaWidget* rightArea = addTabbedWidgets( rightWidgets, ads::DockWidgetArea::RightDockWidgetArea );
     ads::CDockAreaWidget* bottomArea =
@@ -1147,6 +1157,14 @@ QList<QMdiSubWindow*> RiuMainWindow::subWindowList( QMdiArea::WindowOrder order 
 RiuResultQwtPlot* RiuMainWindow::resultPlot()
 {
     return m_resultQwtPlot;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuDepthQwtPlot* RiuMainWindow::depthPlot()
+{
+    return m_depthQwtPlot;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1819,6 +1837,10 @@ void RiuMainWindow::applyFontSizesToDockedPlots()
     if ( m_resultQwtPlot )
     {
         m_resultQwtPlot->applyFontSizes( true );
+    }
+    if ( m_depthQwtPlot )
+    {
+        m_depthQwtPlot->applyFontSizes( true );
     }
     if ( m_mohrsCirclePlot )
     {

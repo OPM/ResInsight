@@ -118,6 +118,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/ResultStatisticsCache
   ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel
   ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel/Completions
+  ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel/ResultAccessors
   ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/OdbReader
   ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/GeoMechDataModel
   ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/GeoMechVisualization
@@ -164,6 +165,7 @@ list(
   ReservoirDataModel/CMakeLists_files.cmake
   ReservoirDataModel/CMakeLists_filesNotToUnitTest.cmake
   ReservoirDataModel/Completions/CMakeLists_files.cmake
+  ReservoirDataModel/ResultAccessors/CMakeLists_files.cmake
   FileInterface/CMakeLists_files.cmake
   ProjectDataModel/CMakeLists_files.cmake
   ProjectDataModel/AnalysisPlots/CMakeLists_files.cmake
@@ -438,6 +440,7 @@ target_include_directories(
          ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel/Flow
          ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel/Intersections
          ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ReservoirDataModel
+         ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ReservoirDataModel/ResultAccessors
          ${CMAKE_SOURCE_DIR}/ApplicationLibCode/SocketInterface
          ${CMAKE_SOURCE_DIR}/ApplicationLibCode/UserInterface
 )
