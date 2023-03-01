@@ -35,6 +35,7 @@ RigWellResultPoint::RigWellResultPoint()
     , m_gasRate( 0.0 )
     , m_waterRate( 0.0 )
     , m_connectionFactor( 0.0 )
+    , m_isConnectedToValve( false )
 {
 }
 
@@ -110,6 +111,14 @@ void RigWellResultPoint::setBottomPosition( const cvf::Vec3d& bottomPosition )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RigWellResultPoint::setIsConnectedToValve( bool enable )
+{
+    m_isConnectedToValve = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RigWellResultPoint::isPointValid() const
 {
     return m_bottomPosition != cvf::Vec3d::UNDEFINED;
@@ -147,6 +156,14 @@ bool RigWellResultPoint::isEqual( const RigWellResultPoint& other ) const
     return ( m_gridIndex == other.m_gridIndex && m_cellIndex == other.m_cellIndex && m_isOpen == other.m_isOpen &&
              m_ertBranchId == other.m_ertBranchId && m_ertSegmentId == other.m_ertSegmentId && m_flowRate == other.m_flowRate &&
              m_oilRate == other.m_oilRate && m_gasRate == other.m_gasRate && m_waterRate == other.m_waterRate );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigWellResultPoint::isConnectedToValve() const
+{
+    return m_isConnectedToValve;
 }
 
 //--------------------------------------------------------------------------------------------------

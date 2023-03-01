@@ -44,12 +44,14 @@ struct RigWellResultPoint
     void setOutletSegmentData( int outletBranchId, int outletSegmentId );
 
     void setBottomPosition( const cvf::Vec3d& bottomPosition );
+    void setIsConnectedToValve( bool enable );
 
     bool isPointValid() const;
     bool isCell() const;
     bool isValid() const;
     bool isOpen() const;
     bool isEqual( const RigWellResultPoint& other ) const;
+    bool isConnectedToValve() const;
 
     double flowRate() const;
     double oilRate() const;
@@ -86,6 +88,7 @@ private:
     double m_waterRate; //< Surface water rate
 
     double m_connectionFactor;
+    bool   m_isConnectedToValve;
 };
 
 //==================================================================================================

@@ -192,6 +192,14 @@ std::vector<SimulationWellCellBranch>
                     resPoint.setGridIndex( gridIndex );
                     resPoint.setGridCellIndex( cellIndex );
 
+                    auto gridAndCellIndex = std::make_pair( gridIndex, cellIndex );
+                    if ( std::find( wellBranch.m_gridCellsConnectedToValve.begin(),
+                                    wellBranch.m_gridCellsConnectedToValve.end(),
+                                    gridAndCellIndex ) != wellBranch.m_gridCellsConnectedToValve.end() )
+                    {
+                        resPoint.setIsConnectedToValve( true );
+                    }
+
                     cellCenterCoords.push_back( pos );
                     cellCenterResultPoints.push_back( resPoint );
                 }
@@ -333,6 +341,7 @@ std::vector<RigMswCenterLineCalculator::WellBranch>
                 for ( const auto& [gridAndCellIndex, localOutputSegment] : branch.m_gridCellsConnectedToSegments )
                 {
                     longBranch.m_segmentsWithGridCells[outputSegment.outputSegmentId].push_back( gridAndCellIndex );
+                    longBranch.m_gridCellsConnectedToValve.push_back( gridAndCellIndex );
                 }
             }
         }

@@ -577,6 +577,43 @@ bool RimSimWellInView::isWellSpheresVisible( size_t frameIndex ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimSimWellInView::isWellValvesVisible( size_t frameIndex ) const
+{
+    const RimEclipseView* reservoirView = nullptr;
+    this->firstAncestorOrThisOfType( reservoirView );
+
+    if ( reservoirView == nullptr ) return false;
+    if ( this->simWellData() == nullptr ) return false;
+
+    if ( frameIndex >= this->simWellData()->m_resultTimeStepIndexToWellTimeStepIndex.size() )
+    {
+        return false;
+    }
+
+    size_t wellTimeStepIndex = this->simWellData()->m_resultTimeStepIndexToWellTimeStepIndex[frameIndex];
+    if ( wellTimeStepIndex == cvf::UNDEFINED_SIZE_T )
+    {
+        return false;
+    }
+
+    if ( !this->showWell() ) return false;
+
+    if ( !reservoirView->wellCollection()->isActive() ) return false;
+    if ( !reservoirView->wellCollection()->showValves() ) return false;
+
+    if ( reservoirView->intersectionCollection()->hasActiveIntersectionForSimulationWell( this ) ) return true;
+
+    if ( reservoirView->wellCollection()->showWellsIntersectingVisibleCells() && reservoirView->cellFilterCollection()->hasActiveFilters() )
+    {
+        return intersectsDynamicWellCellsFilteredCells( frameIndex );
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimSimWellInView::isUsingCellCenterForPipe() const
 {
     const RimSimWellInViewCollection* wellColl = nullptr;

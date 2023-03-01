@@ -50,6 +50,7 @@ private:
 
         std::map<std::pair<size_t, size_t>, OutputSegment>    m_gridCellsConnectedToSegments;
         std::map<int, std::vector<std::pair<size_t, size_t>>> m_segmentsWithGridCells;
+        std::vector<std::pair<size_t, size_t>>                m_gridCellsConnectedToValve;
 
         bool containsGridCell( const std::pair<size_t, size_t>& candidateGridAndCellIndex ) const
         {

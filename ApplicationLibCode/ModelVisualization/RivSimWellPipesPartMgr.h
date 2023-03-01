@@ -20,10 +20,11 @@
 
 #include "RigSimWellData.h"
 
+#include "cafPdmPointer.h"
+
+#include "cvfCollection.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
-
-#include "cafPdmPointer.h"
 
 #include <list>
 
@@ -42,6 +43,7 @@ class DisplayCoordTransform;
 class RivPipeGeometryGenerator;
 class Rim3dView;
 class RimSimWellInView;
+class RimEclipseView;
 class RivWellConnectionFactorGeometryGenerator;
 struct RigWellResultPoint;
 
@@ -65,15 +67,6 @@ public:
     std::vector<double> flattenedBranchWellHeadOffsets();
 
 private:
-    Rim3dView* viewWithSettings();
-    void       buildWellPipeParts( const caf::DisplayCoordTransform* displayXf,
-                                   bool                              doFlatten,
-                                   double                            flattenedIntersectionExtentLength,
-                                   int                               branchIndex,
-                                   size_t                            frameIndex );
-
-    caf::PdmPointer<RimSimWellInView> m_simWellInView;
-
     struct RivPipeBranchData
     {
         std::vector<RigWellResultPoint>    m_cellIds;
@@ -87,10 +80,35 @@ private:
 
         cvf::ref<RivWellConnectionFactorGeometryGenerator> m_connectionFactorGeometryGenerator;
         cvf::ref<cvf::Part>                                m_connectionFactorsPart;
+
+        cvf::Collection<cvf::Part> m_valveParts;
     };
+
+    Rim3dView* viewWithSettings();
+    void       buildWellPipeParts( const caf::DisplayCoordTransform* displayXf,
+                                   bool                              doFlatten,
+                                   double                            flattenedIntersectionExtentLength,
+                                   int                               branchIndex,
+                                   size_t                            frameIndex );
+
+    void appendVirtualConnectionFactorGeo( const RimEclipseView*             eclipseView,
+                                           size_t                            frameIndex,
+                                           size_t                            brIdx,
+                                           const caf::DisplayCoordTransform* displayXf,
+                                           double                            pipeRadius,
+                                           RivPipeBranchData&                pbd );
+
+    void appendValvesGeo( const RimEclipseView*             eclipseView,
+                          size_t                            frameIndex,
+                          size_t                            brIdx,
+                          const caf::DisplayCoordTransform* displayXf,
+                          double                            pipeRadius,
+                          RivPipeBranchData&                pbd );
+
+private:
+    caf::PdmPointer<RimSimWellInView> m_simWellInView;
 
     std::list<RivPipeBranchData> m_wellBranches;
 
-    std::vector<std::vector<cvf::Vec3d>> m_pipeBranchesCLCoords;
-    std::vector<double>                  m_flattenedBranchWellHeadOffsets;
+    std::vector<double> m_flattenedBranchWellHeadOffsets;
 };

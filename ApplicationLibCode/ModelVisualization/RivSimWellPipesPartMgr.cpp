@@ -33,6 +33,7 @@
 #include "RigWellResultPoint.h"
 
 #include "Rim3dView.h"
+#include "RimCase.h"
 #include "RimEclipseView.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSimWellInView.h"
@@ -50,9 +51,13 @@
 #include "cafEffectGenerator.h"
 
 #include "cvfDrawableGeo.h"
+#include "cvfGeometryBuilderDrawableGeo.h"
+#include "cvfGeometryUtils.h"
 #include "cvfModelBasicList.h"
 #include "cvfPart.h"
 #include "cvfScalarMapperDiscreteLinear.h"
+
+#include <numbers>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -110,6 +115,11 @@ void RivSimWellPipesPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicL
         {
             model->addPart( it->m_connectionFactorsPart.p() );
         }
+
+        for ( auto valvePart : it->m_valveParts )
+        {
+            model->addPart( valvePart.p() );
+        }
     }
 }
 
@@ -156,7 +166,6 @@ void RivSimWellPipesPartMgr::buildWellPipeParts( const caf::DisplayCoordTransfor
 
     m_wellBranches.clear();
     m_flattenedBranchWellHeadOffsets.clear();
-    m_pipeBranchesCLCoords.clear();
 
     auto createSimWells = []( RimSimWellInView* simWellInView ) -> std::vector<SimulationWellCellBranch> {
         std::vector<SimulationWellCellBranch> simWellBranches;
@@ -176,8 +185,8 @@ void RivSimWellPipesPartMgr::buildWellPipeParts( const caf::DisplayCoordTransfor
     auto simWells                   = createSimWells( m_simWellInView );
     const auto& [coords, wellCells] = RigSimulationWellCenterLineCalculator::extractBranchData( simWells );
 
-    m_pipeBranchesCLCoords                                           = coords;
-    std::vector<std::vector<RigWellResultPoint>> pipeBranchesCellIds = wellCells;
+    auto pipeBranchesCLCoords = coords;
+    auto pipeBranchesCellIds  = wellCells;
 
     double pipeRadius              = m_simWellInView->pipeRadius();
     int    crossSectionVertexCount = m_simWellInView->pipeCrossSectionVertexCount();
@@ -185,7 +194,7 @@ void RivSimWellPipesPartMgr::buildWellPipeParts( const caf::DisplayCoordTransfor
     // Take branch selection into account
     size_t branchIdxStart = 0;
     size_t branchIdxStop  = pipeBranchesCellIds.size();
-    if ( m_pipeBranchesCLCoords.size() > 1 )
+    if ( pipeBranchesCLCoords.size() > 1 )
     {
         if ( branchIndex >= 0 && branchIndex < static_cast<int>( branchIdxStop ) )
         {
@@ -195,16 +204,16 @@ void RivSimWellPipesPartMgr::buildWellPipeParts( const caf::DisplayCoordTransfor
     }
 
     cvf::Vec3d flattenedStartOffset = cvf::Vec3d::ZERO;
-    if ( m_pipeBranchesCLCoords.size() > branchIdxStart && m_pipeBranchesCLCoords[branchIdxStart].size() )
+    if ( pipeBranchesCLCoords.size() > branchIdxStart && pipeBranchesCLCoords[branchIdxStart].size() )
     {
-        flattenedStartOffset = { 0.0, 0.0, m_pipeBranchesCLCoords[branchIdxStart][0].z() };
+        flattenedStartOffset = { 0.0, 0.0, pipeBranchesCLCoords[branchIdxStart][0].z() };
     }
 
     for ( size_t brIdx = branchIdxStart; brIdx < branchIdxStop; ++brIdx )
     {
         cvf::ref<RivSimWellPipeSourceInfo> sourceInfo = new RivSimWellPipeSourceInfo( m_simWellInView, brIdx );
 
-        m_wellBranches.push_back( RivPipeBranchData() );
+        m_wellBranches.emplace_back();
         RivPipeBranchData& pbd = m_wellBranches.back();
 
         pbd.m_cellIds = pipeBranchesCellIds[brIdx];
@@ -215,15 +224,15 @@ void RivSimWellPipesPartMgr::buildWellPipeParts( const caf::DisplayCoordTransfor
         pbd.m_pipeGeomGenerator->setCrossSectionVertexCount( crossSectionVertexCount );
 
         cvf::ref<cvf::Vec3dArray> cvfCoords = new cvf::Vec3dArray;
-        cvfCoords->assign( m_pipeBranchesCLCoords[brIdx] );
+        cvfCoords->assign( pipeBranchesCLCoords[brIdx] );
 
-        flattenedStartOffset.z() = m_pipeBranchesCLCoords[brIdx][0].z();
+        flattenedStartOffset.z() = pipeBranchesCLCoords[brIdx][0].z();
 
         m_flattenedBranchWellHeadOffsets.push_back( flattenedStartOffset.x() );
 
         if ( doFlatten )
         {
-            std::vector<cvf::Mat4d> flatningCSs = RivSectionFlattener::calculateFlatteningCSsForPolyline( m_pipeBranchesCLCoords[brIdx],
+            std::vector<cvf::Mat4d> flatningCSs = RivSectionFlattener::calculateFlatteningCSsForPolyline( pipeBranchesCLCoords[brIdx],
                                                                                                           cvf::Vec3d::Z_AXIS,
                                                                                                           flattenedStartOffset,
                                                                                                           &flattenedStartOffset );
@@ -280,93 +289,238 @@ void RivSimWellPipesPartMgr::buildWellPipeParts( const caf::DisplayCoordTransfor
 
         pbd.m_connectionFactorGeometryGenerator = nullptr;
         pbd.m_connectionFactorsPart             = nullptr;
+        pbd.m_valveParts.clear();
 
         RimEclipseView* eclipseView = nullptr;
         m_simWellInView->firstAncestorOrThisOfType( eclipseView );
 
-        if ( eclipseView && eclipseView->isVirtualConnectionFactorGeometryVisible() )
+        appendVirtualConnectionFactorGeo( eclipseView, frameIndex, brIdx, displayXf, pipeRadius, pbd );
+        appendValvesGeo( eclipseView, frameIndex, brIdx, displayXf, pipeRadius, pbd );
+
+        if ( doFlatten ) flattenedStartOffset += { 2 * flattenedIntersectionExtentLength, 0.0, 0.0 };
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivSimWellPipesPartMgr::appendVirtualConnectionFactorGeo( const RimEclipseView*             eclipseView,
+                                                               size_t                            frameIndex,
+                                                               size_t                            brIdx,
+                                                               const caf::DisplayCoordTransform* displayXf,
+                                                               double                            pipeRadius,
+                                                               RivPipeBranchData&                pbd )
+{
+    if ( eclipseView && eclipseView->isVirtualConnectionFactorGeometryVisible() )
+    {
+        RigSimWellData* simWellData = m_simWellInView->simWellData();
+
+        if ( simWellData && simWellData->hasWellResult( frameIndex ) )
         {
-            RigSimWellData* simWellData = m_simWellInView->simWellData();
+            const RigWellResultFrame* wResFrame = simWellData->wellResultFrame( frameIndex );
 
-            if ( simWellData && simWellData->hasWellResult( frameIndex ) )
+            std::vector<CompletionVizData> completionVizDataItems;
+
+            RimVirtualPerforationResults* virtualPerforationResult = eclipseView->virtualPerforationResult();
             {
-                const RigWellResultFrame* wResFrame = simWellData->wellResultFrame( frameIndex );
+                auto wellPaths = m_simWellInView->wellPipeBranches();
 
-                std::vector<CompletionVizData> completionVizDataItems;
+                const RigWellPath* wellPath = wellPaths[brIdx];
 
-                RimVirtualPerforationResults* virtualPerforationResult = eclipseView->virtualPerforationResult();
+                RigEclipseWellLogExtractor* extractor = RiaExtractionTools::findOrCreateSimWellExtractor( m_simWellInView, wellPath );
+                if ( extractor )
                 {
-                    auto wellPaths = m_simWellInView->wellPipeBranches();
+                    std::vector<WellPathCellIntersectionInfo> wellPathCellIntersections = extractor->cellIntersectionInfosAlongWellPath();
 
-                    const RigWellPath* wellPath = wellPaths[brIdx];
-
-                    RigEclipseWellLogExtractor* extractor = RiaExtractionTools::findOrCreateSimWellExtractor( m_simWellInView, wellPath );
-                    if ( extractor )
+                    for ( const auto& intersectionInfo : wellPathCellIntersections )
                     {
-                        std::vector<WellPathCellIntersectionInfo> wellPathCellIntersections = extractor->cellIntersectionInfosAlongWellPath();
+                        size_t                    globalCellIndex = intersectionInfo.globCellIndex;
+                        const RigWellResultPoint* wResCell        = wResFrame->findResultCellWellHeadIncluded( 0, globalCellIndex );
 
-                        for ( const auto& intersectionInfo : wellPathCellIntersections )
+                        if ( !wResCell || !wResCell->isValid() )
                         {
-                            size_t                    globalCellIndex = intersectionInfo.globCellIndex;
-                            const RigWellResultPoint* wResCell        = wResFrame->findResultCellWellHeadIncluded( 0, globalCellIndex );
+                            continue;
+                        }
 
-                            if ( !wResCell || !wResCell->isValid() )
-                            {
-                                continue;
-                            }
+                        if ( !virtualPerforationResult->showConnectionFactorsOnClosedConnections() && !wResCell->isOpen() )
+                        {
+                            continue;
+                        }
 
-                            if ( !virtualPerforationResult->showConnectionFactorsOnClosedConnections() && !wResCell->isOpen() )
-                            {
-                                continue;
-                            }
+                        double startMD = intersectionInfo.startMD;
+                        double endMD   = intersectionInfo.endMD;
 
-                            double startMD = intersectionInfo.startMD;
-                            double endMD   = intersectionInfo.endMD;
+                        double middleMD = ( startMD + endMD ) / 2.0;
 
-                            double middleMD = ( startMD + endMD ) / 2.0;
+                        cvf::Vec3d domainCoord = wellPath->interpolatedPointAlongWellPath( middleMD );
 
-                            cvf::Vec3d domainCoord = wellPath->interpolatedPointAlongWellPath( middleMD );
+                        cvf::Vec3d p1;
+                        cvf::Vec3d p2;
+                        wellPath->twoClosestPoints( domainCoord, &p1, &p2 );
 
-                            cvf::Vec3d p1;
-                            cvf::Vec3d p2;
-                            wellPath->twoClosestPoints( domainCoord, &p1, &p2 );
+                        cvf::Vec3d direction = ( p2 - p1 ).getNormalized();
 
-                            cvf::Vec3d direction = ( p2 - p1 ).getNormalized();
+                        cvf::Vec3d anchor = displayXf->transformToDisplayCoord( domainCoord );
+                        {
+                            CompletionVizData data( anchor, direction, wResCell->connectionFactor(), globalCellIndex );
 
-                            cvf::Vec3d anchor = displayXf->transformToDisplayCoord( domainCoord );
-                            {
-                                CompletionVizData data( anchor, direction, wResCell->connectionFactor(), globalCellIndex );
-
-                                completionVizDataItems.push_back( data );
-                            }
+                            completionVizDataItems.push_back( data );
                         }
                     }
                 }
+            }
 
-                if ( !completionVizDataItems.empty() )
+            if ( !completionVizDataItems.empty() )
+            {
+                double radius = pipeRadius * virtualPerforationResult->geometryScaleFactor();
+                radius *= 2.0; // Enlarge the radius slightly to make the connection factor visible if geometry
+                               // scale factor is set to 1.0
+
+                pbd.m_connectionFactorGeometryGenerator = new RivWellConnectionFactorGeometryGenerator( completionVizDataItems, radius );
+
+                cvf::ScalarMapper*  scalarMapper = virtualPerforationResult->legendConfig()->scalarMapper();
+                cvf::ref<cvf::Part> part =
+                    pbd.m_connectionFactorGeometryGenerator->createSurfacePart( scalarMapper, eclipseView->isLightingDisabled() );
+                if ( part.notNull() )
                 {
-                    double radius = pipeRadius * virtualPerforationResult->geometryScaleFactor();
-                    radius *= 2.0; // Enlarge the radius slightly to make the connection factor visible if geometry
-                                   // scale factor is set to 1.0
-
-                    pbd.m_connectionFactorGeometryGenerator = new RivWellConnectionFactorGeometryGenerator( completionVizDataItems, radius );
-
-                    cvf::ScalarMapper*  scalarMapper = virtualPerforationResult->legendConfig()->scalarMapper();
-                    cvf::ref<cvf::Part> part =
-                        pbd.m_connectionFactorGeometryGenerator->createSurfacePart( scalarMapper, eclipseView->isLightingDisabled() );
-                    if ( part.notNull() )
-                    {
-                        cvf::ref<RivSimWellConnectionSourceInfo> simWellSourceInfo =
-                            new RivSimWellConnectionSourceInfo( m_simWellInView, pbd.m_connectionFactorGeometryGenerator.p() );
-                        part->setSourceInfo( simWellSourceInfo.p() );
-                    }
-
-                    pbd.m_connectionFactorsPart = part;
+                    cvf::ref<RivSimWellConnectionSourceInfo> simWellSourceInfo =
+                        new RivSimWellConnectionSourceInfo( m_simWellInView, pbd.m_connectionFactorGeometryGenerator.p() );
+                    part->setSourceInfo( simWellSourceInfo.p() );
                 }
+
+                pbd.m_connectionFactorsPart = part;
             }
         }
+    }
+}
 
-        if ( doFlatten ) flattenedStartOffset += { 2 * flattenedIntersectionExtentLength, 0.0, 0.0 };
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivSimWellPipesPartMgr::appendValvesGeo( const RimEclipseView*             eclipseView,
+                                              size_t                            frameIndex,
+                                              size_t                            brIdx,
+                                              const caf::DisplayCoordTransform* displayXf,
+                                              double                            wellPathRadius,
+                                              RivPipeBranchData&                pbd )
+{
+    if ( !m_simWellInView || !m_simWellInView->isWellValvesVisible( frameIndex ) ) return;
+    if ( !eclipseView || !eclipseView->ownerCase() ) return;
+
+    const auto characteristicCellSize = eclipseView->ownerCase()->characteristicCellSize();
+    const auto coords                 = pbd.m_pipeGeomGenerator->pipeCenterCoords();
+
+    std::set<std::pair<size_t, size_t>> resultPointWithValve;
+    for ( size_t i = 0; i < pbd.m_cellIds.size(); i++ )
+    {
+        const auto resultPoint = pbd.m_cellIds[i];
+
+        if ( resultPointWithValve.contains( { resultPoint.gridIndex(), resultPoint.cellIndex() } ) ) continue;
+
+        const auto   segmentStartCoord = coords->get( i );
+        const auto   segmentEndCoord   = coords->get( i + 1 );
+        const auto   segmentLength     = ( segmentEndCoord - segmentStartCoord ).length();
+        const double valveLength       = characteristicCellSize * 0.2;
+
+        // Insert valve geometry if the length of the segment is sufficient
+        if ( resultPoint.isConnectedToValve() && ( valveLength * 2 < segmentLength ) )
+        {
+            resultPointWithValve.insert( { resultPoint.gridIndex(), resultPoint.cellIndex() } );
+
+            const auto segmentDirection = ( segmentEndCoord - segmentStartCoord ).getNormalized();
+
+            // A segment ends at the center of a simulation cell
+            auto valveCenterCoord = ( segmentEndCoord + segmentStartCoord ) / 2.0;
+
+            const cvf::Color3f valveColor                      = cvf::Color3f::ORANGE;
+            const auto         measuredDepthsRelativeToStartMD = { 0.0, 1.0, valveLength - 1.0, valveLength };
+
+            const auto outerValveRadius = wellPathRadius * 1.3;
+            const auto radii            = { wellPathRadius, outerValveRadius, outerValveRadius, wellPathRadius };
+
+            // The location of the valve is adjusted to locate the valve at the center of the segment
+            double locationAdjustment = -valveLength / 2.0;
+
+            std::vector<cvf::Vec3d> displayCoords;
+            for ( const auto& mdRelativeToStart : measuredDepthsRelativeToStartMD )
+            {
+                displayCoords.push_back( valveCenterCoord + ( locationAdjustment + mdRelativeToStart ) * segmentDirection );
+            }
+
+            RivPipeGeometryGenerator::tubeWithCenterLinePartsAndVariableWidth( &pbd.m_valveParts, displayCoords, radii, valveColor );
+
+            auto computeRotationAxisAndAngle = []( const cvf::Vec3f& direction ) {
+                // Compute upwards normal based on direction
+                // Compute the rotation axis and angle between up vector and Z_AXIS
+
+                cvf::Vec3f crossBetweenZAndDirection;
+                crossBetweenZAndDirection.cross( cvf::Vec3f::Z_AXIS, cvf::Vec3f( direction ) );
+
+                cvf::Vec3f upVector;
+                upVector.cross( cvf::Vec3f( direction ), crossBetweenZAndDirection );
+                if ( upVector.z() < 0.0 ) upVector = -upVector;
+
+                cvf::Vec3f rotationAxis;
+                rotationAxis.cross( upVector, cvf::Vec3f::Z_AXIS );
+
+                float angle = cvf::Math::acos( upVector * cvf::Vec3f::Z_AXIS );
+
+                return std::make_pair( rotationAxis, angle );
+            };
+
+            const auto& [rotationAxis, angle] = computeRotationAxisAndAngle( cvf::Vec3f( segmentDirection ) );
+
+            // Add visualization of valves openings for segments close to horizontal segments
+            if ( !std::isnan( angle ) && ( std::fabs( angle ) < ( std::numbers::pi / 2.0 ) ) )
+            {
+                cvf::GeometryBuilderDrawableGeo builder;
+
+                const float bottomRadius    = wellPathRadius * 0.4f;
+                const float topRadius       = bottomRadius;
+                const float height          = outerValveRadius * 2.1f;
+                const float topOffsetX      = 0.0f;
+                const float topOffsetY      = 0.0f;
+                const uint  numSlices       = 12;
+                const bool  normalsOutwards = true;
+                const bool  closedBot       = true;
+                const bool  closedTop       = true;
+                const uint  numPolysZDir    = 1;
+
+                cvf::GeometryUtils::createObliqueCylinder( bottomRadius,
+                                                           topRadius,
+                                                           height,
+                                                           topOffsetX,
+                                                           topOffsetY,
+                                                           numSlices,
+                                                           normalsOutwards,
+                                                           closedBot,
+                                                           closedTop,
+                                                           numPolysZDir,
+                                                           &builder );
+
+                // Move center of cylinder to origo
+                builder.transformVertexRange( 0, builder.vertexCount() - 1, cvf::Mat4f::fromTranslation( cvf::Vec3f( 0.0, 0.0, -height / 2.0 ) ) );
+
+                // Rotate cylinder to match the be normal to the well path direction
+                const cvf::Mat4f rotMat = cvf::Mat4f::fromRotation( rotationAxis, -angle );
+                builder.transformVertexRange( 0, builder.vertexCount() - 1, rotMat );
+
+                // Move the cylinder to display coordinate location
+                builder.transformVertexRange( 0, builder.vertexCount() - 1, cvf::Mat4f::fromTranslation( cvf::Vec3f( valveCenterCoord ) ) );
+
+                auto drawableGeo = builder.drawableGeo();
+                auto part        = new cvf::Part;
+                part->setName( "RivPipeGeometryGenerator::surface" );
+                part->setDrawable( drawableGeo.p() );
+
+                caf::SurfaceEffectGenerator surfaceGen( cvf::Color4f( cvf::Color3f::BLACK ), caf::PO_1 );
+                auto                        eff = surfaceGen.generateCachedEffect();
+
+                part->setEffect( eff.p() );
+
+                pbd.m_valveParts.push_back( part );
+            }
+        }
     }
 }
 
