@@ -182,18 +182,6 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
         size_t numActiveCells = computeActiveCellMatrixIndex( activeCells );
 
         // Loop over cells and fill them with data
-#pragma omp parallel
-        {
-            int cellCountPerThread = cellCount;
-#ifdef USE_OPENMP
-            cellCountPerThread = std::max( 1, cellCount / omp_get_num_threads() );
-#endif
-
-            int computedThreadCellCount = 0;
-
-            int cellsPrProgressTick = std::max( 1, cellCountPerThread / progTicks );
-            int maxProgressCell     = cellsPrProgressTick * progTicks;
-
 #pragma omp for
             for ( int gridLocalCellIndex = 0; gridLocalCellIndex < cellCount; ++gridLocalCellIndex )
             {
@@ -225,20 +213,6 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
 
                 // Mark inactive long pyramid looking cells as invalid
                 cell.setInvalid( cell.isLongPyramidCell() );
-
-#ifdef USE_OPENMP
-                if ( omp_get_thread_num() == 0 )
-                {
-                    computedThreadCellCount++;
-                    if ( computedThreadCellCount <= maxProgressCell && computedThreadCellCount % cellsPrProgressTick == 0 )
-                        progInfo.incrementProgress();
-                }
-#else
-                computedThreadCellCount++;
-                if ( computedThreadCellCount <= maxProgressCell && computedThreadCellCount % cellsPrProgressTick == 0 )
-                    progInfo.incrementProgress();
-#endif
-            }
         }
 
         activeCellInfo->setGridActiveCellCounts( 0, numActiveCells );
