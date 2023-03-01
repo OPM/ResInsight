@@ -183,36 +183,36 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
 
         // Loop over cells and fill them with data
 #pragma omp for
-            for ( int gridLocalCellIndex = 0; gridLocalCellIndex < cellCount; ++gridLocalCellIndex )
+        for ( int gridLocalCellIndex = 0; gridLocalCellIndex < cellCount; ++gridLocalCellIndex )
+        {
+            RigCell& cell = mainGrid->globalCellArray()[cellStartIndex + gridLocalCellIndex];
+
+            cell.setGridLocalCellIndex( gridLocalCellIndex );
+
+            // Active cell index
+            int matrixActiveIndex = activeCells[gridLocalCellIndex];
+            if ( matrixActiveIndex != -1 )
             {
-                RigCell& cell = mainGrid->globalCellArray()[cellStartIndex + gridLocalCellIndex];
+                activeCellInfo->setCellResultIndex( cellStartIndex + gridLocalCellIndex, matrixActiveIndex );
+            }
 
-                cell.setGridLocalCellIndex( gridLocalCellIndex );
+            cell.setParentCellIndex( cvf::UNDEFINED_SIZE_T );
 
-                // Active cell index
-                int matrixActiveIndex = activeCells[gridLocalCellIndex];
-                if ( matrixActiveIndex != -1 )
-                {
-                    activeCellInfo->setCellResultIndex( cellStartIndex + gridLocalCellIndex, matrixActiveIndex );
-                }
+            // Corner coordinates
+            for ( int cIdx = 0; cIdx < 8; ++cIdx )
+            {
+                double* point  = mainGrid->nodes()[nodeStartIndex + (size_t)gridLocalCellIndex * 8 + cellMappingECLRi[cIdx]].ptr();
+                auto    corner = getCorner( *mainGrid, cornerLines, zCorners, gridLocalCellIndex, cIdx, offset, scale );
 
-                cell.setParentCellIndex( cvf::UNDEFINED_SIZE_T );
+                point[0] = corner.x();
+                point[1] = corner.y();
+                point[2] = corner.z();
 
-                // Corner coordinates
-                for ( int cIdx = 0; cIdx < 8; ++cIdx )
-                {
-                    double* point  = mainGrid->nodes()[nodeStartIndex + (size_t)gridLocalCellIndex * 8 + cellMappingECLRi[cIdx]].ptr();
-                    auto    corner = getCorner( *mainGrid, cornerLines, zCorners, gridLocalCellIndex, cIdx, offset, scale );
+                cell.cornerIndices()[cIdx] = nodeStartIndex + (size_t)gridLocalCellIndex * 8 + cIdx;
+            }
 
-                    point[0] = corner.x();
-                    point[1] = corner.y();
-                    point[2] = corner.z();
-
-                    cell.cornerIndices()[cIdx] = nodeStartIndex + (size_t)gridLocalCellIndex * 8 + cIdx;
-                }
-
-                // Mark inactive long pyramid looking cells as invalid
-                cell.setInvalid( cell.isLongPyramidCell() );
+            // Mark inactive long pyramid looking cells as invalid
+            cell.setInvalid( cell.isLongPyramidCell() );
         }
 
         activeCellInfo->setGridActiveCellCounts( 0, numActiveCells );
