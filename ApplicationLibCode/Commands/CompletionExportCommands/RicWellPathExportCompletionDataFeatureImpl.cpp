@@ -136,7 +136,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
             else
             {
                 fractureTransmissibilityExportInformationStream =
-                    std::unique_ptr<QTextStream>( new QTextStream( &fractureTransmissibilityExportInformationFile ) );
+                    std::make_unique<QTextStream>( &fractureTransmissibilityExportInformationFile );
             }
         }
 
@@ -575,9 +575,10 @@ RigCompletionData RicWellPathExportCompletionDataFeatureImpl::combineEclipseCell
                                                                                                 cellIndexIJK.globalCellIndex(),
                                                                                                 cellDirection );
 
-        double wpimult = combinedTrans / transmissibilityEclipseCalculation;
+        double defaultKh = RigCompletionData::defaultValue();
+        double wpimult   = combinedTrans / transmissibilityEclipseCalculation;
         resultCompletion.setCombinedValuesImplicitTransWPImult( wpimult,
-                                                                combinedKh,
+                                                                defaultKh,
                                                                 combinedDFactor,
                                                                 combinedSkinFactor,
                                                                 combinedDiameter,
@@ -1617,7 +1618,7 @@ std::pair<double, cvf::Vec2i>
         if ( grid ) gridId = grid->gridId();
     }
 
-    for ( WellPathCellIntersectionInfo intersection : intersections )
+    for ( const WellPathCellIntersectionInfo& intersection : intersections )
     {
         size_t             gridLocalCellIndex = 0;
         const RigGridBase* grid = mainGrid->gridAndGridLocalIdxFromGlobalCellIdx( intersection.globCellIndex, &gridLocalCellIndex );
