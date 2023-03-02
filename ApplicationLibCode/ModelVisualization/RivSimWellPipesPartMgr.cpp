@@ -204,7 +204,7 @@ void RivSimWellPipesPartMgr::buildWellPipeParts( const caf::DisplayCoordTransfor
     }
 
     cvf::Vec3d flattenedStartOffset = cvf::Vec3d::ZERO;
-    if ( pipeBranchesCLCoords.size() > branchIdxStart && pipeBranchesCLCoords[branchIdxStart].size() )
+    if ( pipeBranchesCLCoords.size() > branchIdxStart && !pipeBranchesCLCoords[branchIdxStart].empty() )
     {
         flattenedStartOffset = { 0.0, 0.0, pipeBranchesCLCoords[branchIdxStart][0].z() };
     }
@@ -458,10 +458,10 @@ void RivSimWellPipesPartMgr::appendValvesGeo( const RimEclipseView*             
 
                 cvf::Vec3f upVector;
                 upVector.cross( cvf::Vec3f( direction ), crossBetweenZAndDirection );
-                if ( upVector.z() < 0.0 ) upVector = -upVector;
 
                 cvf::Vec3f rotationAxis;
                 rotationAxis.cross( upVector, cvf::Vec3f::Z_AXIS );
+                upVector.normalize();
 
                 float angle = cvf::Math::acos( upVector * cvf::Vec3f::Z_AXIS );
 
