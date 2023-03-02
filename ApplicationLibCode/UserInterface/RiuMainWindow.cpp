@@ -821,7 +821,7 @@ void RiuMainWindow::createDockPanels()
 
         m_depthQwtPlot = new RiuDepthQwtPlot( dockWidget );
         dockWidget->setWidget( m_depthQwtPlot );
-        bottomWidgets.push_back( dockWidget );
+        rightWidgets.push_back( dockWidget );
     }
 
     ads::CDockAreaWidget* leftArea  = addTabbedWidgets( leftWidgets, ads::DockWidgetArea::LeftDockWidgetArea );
