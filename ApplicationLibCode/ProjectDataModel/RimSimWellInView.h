@@ -65,6 +65,7 @@ public:
     bool isWellCellsVisible() const;
     bool isWellPipeVisible( size_t frameIndex ) const;
     bool isWellSpheresVisible( size_t frameIndex ) const;
+    bool isWellValvesVisible( size_t frameIndex ) const;
     bool isUsingCellCenterForPipe() const;
 
     RigWellDiskData wellDiskData() const;

@@ -961,11 +961,10 @@ void RivWellFracturePartMgr::appendFracturePerforationLengthParts( const RimEcli
         double                        perforationRadius = wellPathRadius * 1.2;
         cvf::Collection<cvf::Part>    parts;
 
-        RivPipeGeometryGenerator geoGenerator;
-        geoGenerator.cylinderWithCenterLineParts( &parts,
-                                                  displayCoords,
-                                                  RiaColorTables::wellPathComponentColors()[RiaDefines::WellPathComponentType::PERFORATION_INTERVAL],
-                                                  perforationRadius );
+        RivPipeGeometryGenerator::cylinderWithCenterLineParts( &parts,
+                                                               displayCoords,
+                                                               RiaColorTables::wellPathComponentColors()[RiaDefines::WellPathComponentType::PERFORATION_INTERVAL],
+                                                               perforationRadius );
 
         for ( auto part : parts )
         {

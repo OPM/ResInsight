@@ -107,8 +107,7 @@ private:
     void appendPerforationValvesToModel( cvf::ModelBasicList*              model,
                                          RimPerforationInterval*           perforation,
                                          double                            wellPathRadius,
-                                         const caf::DisplayCoordTransform* displayCoordTransform,
-                                         RivPipeGeometryGenerator&         geoGenerator );
+                                         const caf::DisplayCoordTransform* displayCoordTransform );
 
     void appendVirtualTransmissibilitiesToModel( cvf::ModelBasicList*              model,
                                                  size_t                            timeStepIndex,
