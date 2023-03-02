@@ -41,6 +41,7 @@
 #include "RimSimWellFractureCollection.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimSimWellInViewTools.h"
+#include "RimSummaryCase.h"
 #include "RimWellDiskConfig.h"
 
 #include "RiuMainWindow.h"

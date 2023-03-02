@@ -59,7 +59,6 @@ class RiuSummaryQwtPlot;
 class RimSummaryNameHelper;
 class RimSummaryPlotNameHelper;
 class RimPlotTemplateFileItem;
-class RimSummaryPlotFilterTextCurveSetEditor;
 class RimSummaryPlotSourceStepping;
 class RiaSummaryCurveDefinition;
 
@@ -174,8 +173,7 @@ public:
     void setNormalizationEnabled( bool enable );
     bool isNormalizationEnabled();
 
-    virtual RimSummaryPlotSourceStepping*     sourceSteppingObjectForKeyEventHandling() const;
-    virtual std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
+    virtual RimSummaryPlotSourceStepping* sourceSteppingObjectForKeyEventHandling() const;
 
     void           setAutoScaleXEnabled( bool enabled ) override;
     void           setAutoScaleYEnabled( bool enabled ) override;
@@ -335,8 +333,6 @@ private:
     caf::PdmChildField<RimSummaryTimeAxisProperties*> m_timeAxisProperties_OBSOLETE;
 
     caf::PdmChildArrayField<RimPlotAxisPropertiesInterface*> m_axisPropertiesArray;
-
-    caf::PdmChildField<RimSummaryPlotFilterTextCurveSetEditor*> m_textCurveSetEditor;
 
     std::unique_ptr<RiuSummaryPlot>   m_summaryPlot;
     std::unique_ptr<QwtPlotTextLabel> m_plotInfoLabel;

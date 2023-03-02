@@ -36,6 +36,7 @@
 #include "RimSimWellFractureCollection.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewTools.h"
+#include "RimSummaryCase.h"
 #include "RimVirtualPerforationResults.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellDiskConfig.h"
@@ -616,11 +617,7 @@ void RimSimWellInViewCollection::setDefaultSourceCaseForWellDisks()
 {
     if ( m_wellDiskSummaryCase == nullptr && !wells.empty() )
     {
-        RimGridSummaryCase* gridSummaryCase = RimSimWellInViewTools::summaryCaseForWell( wells[0] );
-        if ( gridSummaryCase )
-        {
-            m_wellDiskSummaryCase = gridSummaryCase;
-        }
+        m_wellDiskSummaryCase = RimSimWellInViewTools::summaryCaseForWell( wells[0] );
     }
 }
 

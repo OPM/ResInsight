@@ -125,21 +125,14 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList&    
                 RimEclipseCase* gridCase = project->eclipseCaseFromGridFileName( gridCaseFile );
                 if ( gridCase )
                 {
-                    RimSummaryCase* existingSummaryCase = sumCaseColl->findSummaryCaseFromFileName( newSumCase->summaryHeaderFilename() );
-                    auto*           existingGridSummaryCase = dynamic_cast<RimGridSummaryCase*>( existingSummaryCase );
-                    auto*           existingFileSummaryCase = dynamic_cast<RimFileSummaryCase*>( existingSummaryCase );
-                    if ( existingGridSummaryCase )
+                    auto existingSummaryCase = sumCaseColl->findSummaryCaseFromFileName( newSumCase->summaryHeaderFilename() );
+                    if ( existingSummaryCase )
                     {
-                        duplicatedCases.push_back( newSumCase );
-                        continue;
-                    }
-                    else if ( existingFileSummaryCase )
-                    {
-                        existingFileSummaryCase->firstAncestorOrThisOfType( existingCollection );
+                        existingSummaryCase->firstAncestorOrThisOfType( existingCollection );
 
                         // Replace file summary case pointers in Rft Curves
                         std::vector<RimWellLogRftCurve*> rftCurves;
-                        existingFileSummaryCase->objectsWithReferringPtrFieldsOfType( rftCurves );
+                        existingSummaryCase->objectsWithReferringPtrFieldsOfType( rftCurves );
                         for ( RimWellLogRftCurve* curve : rftCurves )
                         {
                             if ( curve->summaryCase() == existingSummaryCase )
@@ -151,7 +144,7 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList&    
                         // Replace all occurrences of file sum with ecl sum
 
                         std::vector<RimSummaryCurve*> objects;
-                        existingFileSummaryCase->objectsWithReferringPtrFieldsOfType( objects );
+                        existingSummaryCase->objectsWithReferringPtrFieldsOfType( objects );
 
                         // UI settings of a curve filter is updated based
                         // on the new case association for the curves in the curve filter
@@ -182,9 +175,9 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList&    
                         }
 
                         // Remove existing case
-                        sumCaseColl->removeCase( existingFileSummaryCase );
+                        sumCaseColl->removeCase( existingSummaryCase );
 
-                        duplicatedCases.push_back( existingFileSummaryCase );
+                        duplicatedCases.push_back( existingSummaryCase );
                     }
                 }
                 if ( existingCollection )
