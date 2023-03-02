@@ -438,27 +438,32 @@ void RiuSelectionChangedHandler::addDepthCurveFromSelectionItem( const RiuSelect
     {
         RiaDefines::PorosityModelType porosityModel = eclResDef->porosityModel();
 
-        QString curveName = eclResDef->eclipseCase()->caseUserDescription();
-        curveName += ", ";
-        curveName += eclResDef->resultVariableUiShortName();
-        curveName += ", ";
-        curveName += QString( "Grid index %1" ).arg( eclipseSelectionItem->m_gridIndex );
+        QString curveName = eclResDef->resultVariableUiShortName();
         curveName += ", ";
         curveName += RigDepthResultAccessor::geometrySelectionText( eclResDef->eclipseCase()->eclipseCaseData(),
                                                                     eclipseSelectionItem->m_gridIndex,
                                                                     eclipseSelectionItem->m_gridLocalCellIndex );
 
-        std::vector<double> depthValues = RigDepthResultAccessor::depthValues( eclResDef->eclipseCase()->eclipseCaseData(),
-                                                                               eclResDef,
-                                                                               eclipseSelectionItem->m_gridIndex,
-                                                                               eclipseSelectionItem->m_gridLocalCellIndex,
-                                                                               currentTimeStep );
+        std::vector<double> resultValues = RigDepthResultAccessor::resultValues( eclResDef->eclipseCase()->eclipseCaseData(),
+                                                                                 eclResDef,
+                                                                                 eclipseSelectionItem->m_gridIndex,
+                                                                                 eclipseSelectionItem->m_gridLocalCellIndex,
+                                                                                 currentTimeStep );
 
         std::vector<int> kValues =
             RigDepthResultAccessor::kValues( eclResDef->eclipseCase()->eclipseCaseData(), eclipseSelectionItem->m_gridIndex );
 
-        CVF_ASSERT( kValues.size() == depthValues.size() );
+        std::vector<double> depthValues = RigDepthResultAccessor::depthValues( eclResDef->eclipseCase()->eclipseCaseData(),
+                                                                               eclipseSelectionItem->m_gridLocalCellIndex,
+                                                                               eclipseSelectionItem->m_gridIndex );
 
-        RiuMainWindow::instance()->depthPlot()->addCurve( eclResDef->eclipseCase(), curveName, eclipseSelectionItem->m_color, kValues, depthValues );
+        CVF_ASSERT( kValues.size() == resultValues.size() );
+
+        RiuMainWindow::instance()->depthPlot()->addCurve( eclResDef->eclipseCase(),
+                                                          curveName,
+                                                          eclipseSelectionItem->m_color,
+                                                          kValues,
+                                                          depthValues,
+                                                          resultValues );
     }
 }

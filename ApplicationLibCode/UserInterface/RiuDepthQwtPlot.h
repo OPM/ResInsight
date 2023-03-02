@@ -50,7 +50,8 @@ public:
                    const QString&             curveName,
                    const cvf::Color3f&        curveColor,
                    const std::vector<int>&    kIndexes,
-                   const std::vector<double>& depthValues );
+                   const std::vector<double>& depthValues,
+                   const std::vector<double>& resultValues );
 
     void deleteAllCurves();
 
@@ -61,6 +62,8 @@ protected:
 
 private:
     void setDefaults();
+    void resetRanges();
+    void updateAxisScaling();
 
     QString asciiDataForUiSelectedCurves() const;
 
@@ -71,7 +74,15 @@ private:
     std::vector<QwtPlotCurve*> m_plotCurves;
 
     std::map<int, QString>                          m_caseNames;
-    std::map<int, std::vector<double>>              m_kSteps;
+    std::map<int, std::vector<int>>                 m_kSteps;
+    std::map<int, std::vector<double>>              m_depthValues;
     std::map<int, std::vector<std::vector<double>>> m_curveData;
     std::map<int, std::vector<QString>>             m_curveNames;
+
+    double m_maxY;
+    double m_minY;
+    double m_maxX;
+    double m_minX;
+
+    bool m_bShowDepth;
 };

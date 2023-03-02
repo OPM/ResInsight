@@ -18,6 +18,7 @@
 
 #include "RigDepthResultAccessor.h"
 
+#include "RigCell.h"
 #include "RigEclipseCaseData.h"
 #include "RigGridBase.h"
 #include "RigResultAccessor.h"
@@ -28,11 +29,11 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigDepthResultAccessor::depthValues( RigEclipseCaseData*         eclipseCaseData,
-                                                         RimEclipseResultDefinition* resultDefinition,
-                                                         int                         gridIndex,
-                                                         int                         cellIndex,
-                                                         int                         currentTimeStep )
+std::vector<double> RigDepthResultAccessor::resultValues( RigEclipseCaseData*         eclipseCaseData,
+                                                          RimEclipseResultDefinition* resultDefinition,
+                                                          int                         gridIndex,
+                                                          int                         cellIndex,
+                                                          int                         currentTimeStep )
 {
     std::vector<double> values;
 
@@ -72,6 +73,9 @@ std::vector<double> RigDepthResultAccessor::depthValues( RigEclipseCaseData*    
     return values;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<int> RigDepthResultAccessor::kValues( RigEclipseCaseData* eclipseCaseData, int gridIndex )
 {
     std::vector<int> kvals;
@@ -83,6 +87,41 @@ std::vector<int> RigDepthResultAccessor::kValues( RigEclipseCaseData* eclipseCas
     }
 
     return kvals;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigDepthResultAccessor::depthValues( RigEclipseCaseData* eclipseCaseData, int startCellIndex, int gridIndex )
+{
+    std::vector<double> depthVals;
+
+    auto   grid  = eclipseCaseData->grid( gridIndex );
+    size_t i     = 0;
+    size_t j     = 0;
+    size_t dummy = 0;
+
+    if ( grid->ijkFromCellIndex( startCellIndex, &i, &j, &dummy ) )
+    {
+        int maxK = grid->cellCountK();
+
+        for ( int k = 0; k < maxK; k++ )
+        {
+            auto cellIdx = grid->cellIndexFromIJK( i, j, k );
+
+            auto& cell = grid->cell( cellIdx );
+            if ( cell.isInvalid() )
+            {
+                depthVals.push_back( std::nan( "" ) );
+            }
+            else
+            {
+                auto center = cell.center();
+                depthVals.push_back( -1.0 * center.z() );
+            }
+        }
+    }
+    return depthVals;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -105,7 +144,7 @@ QString RigDepthResultAccessor::geometrySelectionText( RigEclipseCaseData* eclip
                 i++;
                 j++;
 
-                text += QString( "Cell column: [%1, %2]" ).arg( i ).arg( j );
+                text += QString( "[%1, %2]" ).arg( i ).arg( j );
             }
         }
     }

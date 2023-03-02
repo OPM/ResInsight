@@ -70,6 +70,8 @@ public:
     static QwtAxis::Position    toQwtPlotAxisEnum( RiaDefines::PlotAxis riaPlotAxis );
 
     static RiaDefines::PlotAxis fromQwtPlotAxis( QwtAxis::Position );
+
+    static void enableGridLines( QwtPlot* plot, QwtAxis::Position axis, bool enableMajor, bool enableMinor );
 };
 
 //--------------------------------------------------------------------------------------------------

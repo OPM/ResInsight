@@ -28,11 +28,12 @@ class RigDepthResultAccessor
 {
 public:
     static QString             geometrySelectionText( RigEclipseCaseData* eclipseCaseData, size_t m_gridIndex, size_t m_cellIndex );
-    static std::vector<double> depthValues( RigEclipseCaseData*         eclipseCaseData,
-                                            RimEclipseResultDefinition* resultDefinition,
-                                            int                         gridIndex,
-                                            int                         cellIndex,
-                                            int                         currentTimeStep );
+    static std::vector<double> resultValues( RigEclipseCaseData*         eclipseCaseData,
+                                             RimEclipseResultDefinition* resultDefinition,
+                                             int                         gridIndex,
+                                             int                         cellIndex,
+                                             int                         currentTimeStep );
 
-    static std::vector<int> kValues( RigEclipseCaseData* eclipseCaseData, int gridIndex );
+    static std::vector<int>    kValues( RigEclipseCaseData* eclipseCaseData, int gridIndex );
+    static std::vector<double> depthValues( RigEclipseCaseData* eclipseCaseData, int startCellIndex, int gridIndex );
 };

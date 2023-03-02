@@ -24,6 +24,7 @@
 #include "RimCase.h"
 #include "RimContextCommandBuilder.h"
 
+#include "RiuQwtLinearScaleEngine.h"
 #include "RiuQwtPlotCurve.h"
 #include "RiuQwtPlotTools.h"
 #include "RiuQwtSymbol.h"
@@ -40,14 +41,19 @@
 #include <QContextMenuEvent>
 #include <QMenu>
 
+#include <cmath>
+#include <limits>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RiuDepthQwtPlot::RiuDepthQwtPlot( QWidget* parent )
     : RiuDockedQwtPlot( parent )
+    , m_bShowDepth( true )
 {
     setAutoFillBackground( true );
     setDefaults();
+    resetRanges();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -61,27 +67,69 @@ RiuDepthQwtPlot::~RiuDepthQwtPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuDepthQwtPlot::resetRanges()
+{
+    m_minX = std::numeric_limits<double>::max();
+    m_minY = std::numeric_limits<double>::max();
+    m_maxX = std::numeric_limits<double>::lowest();
+    m_maxY = std::numeric_limits<double>::lowest();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuDepthQwtPlot::addCurve( const RimCase*             rimCase,
                                 const QString&             curveName,
                                 const cvf::Color3f&        curveColor,
                                 const std::vector<int>&    kIndexes,
-                                const std::vector<double>& depthValues )
+                                const std::vector<double>& depthValues,
+                                const std::vector<double>& resultValues )
 {
-    if ( kIndexes.empty() || depthValues.empty() )
+    if ( kIndexes.empty() || resultValues.empty() || depthValues.empty() )
     {
         return;
     }
 
     std::vector<double> kValues;
-    for ( auto k : kIndexes )
+
+    if ( m_bShowDepth )
     {
-        kValues.push_back( 1.0 * k + 1.0 ); // adjust to eclipse index
+        kValues = depthValues;
+        setAxisTitle( QwtAxis::YLeft, "Depth" );
+    }
+    else
+    {
+        for ( auto k : kIndexes )
+        {
+            kValues.push_back( 1.0 * k + 1.0 ); // adjust to eclipse index
+        }
+        setAxisTitle( QwtAxis::YLeft, "K" );
     }
 
-    RiuQwtPlotCurve* plotCurve = new RiuQwtPlotCurve( nullptr, "Curve 1" );
+    double yMax = *std::max_element( kValues.begin(), kValues.end() );
+    double yMin = *std::min_element( kValues.begin(), kValues.end() );
+    m_maxY      = std::max( yMax, m_maxY );
+    m_minY      = std::min( yMin, m_minY );
 
-    plotCurve->setSamplesFromXValuesAndYValues( kValues, depthValues, false );
+    std::vector<double> tmpResultValues;
+
+    for ( auto val : resultValues )
+    {
+        if ( std::isinf( val ) )
+            tmpResultValues.push_back( std::nan( "" ) );
+        else
+        {
+            if ( val > m_maxX ) m_maxX = val;
+            if ( val < m_minX ) m_minX = val;
+            tmpResultValues.push_back( val );
+        }
+    }
+
+    RiuQwtPlotCurve* plotCurve = new RiuQwtPlotCurve( nullptr );
+
+    plotCurve->setSamplesFromXValuesAndYValues( tmpResultValues, kValues, false );
     plotCurve->setTitle( curveName );
+    plotCurve->setAxes( QwtAxis::XTop, QwtAxis::YLeft );
 
     auto color = QColor( curveColor.rByte(), curveColor.gByte(), curveColor.bByte() );
 
@@ -95,7 +143,8 @@ void RiuDepthQwtPlot::addCurve( const RimCase*             rimCase,
     plotCurve->attach( this );
     m_plotCurves.push_back( plotCurve );
 
-    this->setAxisScale( QwtAxis::XBottom, kValues.front() - 0.1, kValues.back() + 0.1 );
+    updateAxisScaling();
+
     this->applyFontSizes( false );
 
     this->replot();
@@ -104,8 +153,9 @@ void RiuDepthQwtPlot::addCurve( const RimCase*             rimCase,
 
     m_caseNames[caseId] = rimCase->caseUserDescription();
     m_curveNames[caseId].push_back( curveName );
-    m_curveData[caseId].push_back( depthValues );
-    m_kSteps[caseId] = kValues;
+    m_curveData[caseId].push_back( resultValues );
+    m_kSteps[caseId]      = kIndexes;
+    m_depthValues[caseId] = depthValues;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -125,6 +175,9 @@ void RiuDepthQwtPlot::deleteAllCurves()
     m_curveNames.clear();
     m_curveData.clear();
     m_kSteps.clear();
+    m_depthValues.clear();
+
+    resetRanges();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -168,20 +221,23 @@ void RiuDepthQwtPlot::setDefaults()
 {
     RiuQwtPlotTools::setCommonPlotBehaviour( this );
 
-    setAxesCount( QwtAxis::XBottom, 1 );
+    setAxesCount( QwtAxis::XTop, 1 );
     setAxesCount( QwtAxis::YLeft, 1 );
 
-    setAxisMaxMinor( QwtAxis::XBottom, 2 );
-    setAxisMaxMinor( QwtAxis::YLeft, 3 );
+    setAxisVisible( QwtAxis::XTop, true );
+    setAxisVisible( QwtAxis::XBottom, false );
 
-    setAxisTitle( QwtAxis::XBottom, "K" );
+    setAxisMaxMinor( QwtAxis::XTop, 2 );
+    setAxisMaxMinor( QwtAxis::YLeft, 6 );
 
     applyFontSizes( false );
 
-    // The legend will be deleted in the destructor of the plot or when
-    // another legend is inserted.
     QwtLegend* legend = new QwtLegend( this );
-    this->insertLegend( legend, BottomLegend );
+    insertLegend( legend, BottomLegend );
+
+    RiuQwtPlotTools::enableGridLines( this, QwtAxis::XBottom, false, false );
+    RiuQwtPlotTools::enableGridLines( this, QwtAxis::XTop, true, true );
+    RiuQwtPlotTools::enableGridLines( this, QwtAxis::YLeft, true, true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -202,6 +258,7 @@ QString RiuDepthQwtPlot::asciiDataForUiSelectedCurves() const
             if ( i == 0 )
             {
                 out += "K Index";
+                out += "\tDepth";
                 for ( QString curveName : m_curveNames.at( caseId ) )
                 {
                     out += "\t" + curveName;
@@ -212,6 +269,9 @@ QString RiuDepthQwtPlot::asciiDataForUiSelectedCurves() const
             QString kString = QString::number( m_kSteps.at( caseId )[i] );
 
             out += kString;
+
+            QString depthString = QString::number( m_depthValues.at( caseId )[i], 'f', 2 );
+            out += "\t" + depthString;
 
             for ( size_t j = 0; j < m_curveData.at( caseId ).size(); j++ ) // curves
             {
@@ -232,8 +292,18 @@ void RiuDepthQwtPlot::slotCurrentPlotDataInTextDialog()
     QString outTxt = asciiDataForUiSelectedCurves();
 
     RiuTextDialog* textDialog = new RiuTextDialog( this );
-    textDialog->setMinimumSize( 400, 600 );
+    textDialog->setMinimumSize( 600, 600 );
     textDialog->setWindowTitle( "Depth Plot Data" );
     textDialog->setText( outTxt );
     textDialog->show();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuDepthQwtPlot::updateAxisScaling()
+{
+    double valRangeX = m_maxX - m_minX;
+    this->setAxisScale( QwtAxis::YLeft, m_maxY + 0.1, m_minY - 0.1 );
+    this->setAxisScale( QwtAxis::XTop, m_minX - 0.02 * valRangeX, m_maxX + 0.1 * valRangeX );
 }
