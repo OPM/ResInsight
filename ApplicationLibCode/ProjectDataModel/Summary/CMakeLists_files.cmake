@@ -1,7 +1,6 @@
 set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimAsciiDataCurve.h
     ${CMAKE_CURRENT_LIST_DIR}/RimFileSummaryCase.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimGridSummaryCase.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCase.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCaseMainCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCaseCollection.h
@@ -51,7 +50,6 @@ set(SOURCE_GROUP_HEADER_FILES
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimAsciiDataCurve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimFileSummaryCase.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimGridSummaryCase.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCase.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCaseMainCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCaseCollection.cpp

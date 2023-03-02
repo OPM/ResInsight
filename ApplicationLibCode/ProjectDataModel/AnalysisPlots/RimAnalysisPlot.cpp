@@ -1427,11 +1427,6 @@ void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBui
 
         if ( !reader ) continue;
 
-        // Todo:
-        // If curveDef.summaryCase() is a RimGridSummaryCase and we are using summary item as legend and the summary
-        // items are wells, then:
-        /// use color from eclCase->defaultWellColor( wellName );
-
         std::vector<time_t> timeSteps;
         std::vector<double> values;
 
