@@ -756,6 +756,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimSummaryCaseMainCollection*>( firstUiItem ) )
         {
             menuBuilder << "RicImportSummaryCaseFeature";
+            menuBuilder << "RicImportRevealSummaryCaseFeature";
+            menuBuilder << "RicImportStimPlanSummaryCaseFeature";
             menuBuilder << "RicImportSummaryCasesFeature";
             menuBuilder << "RicImportSummaryGroupFeature";
             menuBuilder << "RicImportEnsembleFeature";
