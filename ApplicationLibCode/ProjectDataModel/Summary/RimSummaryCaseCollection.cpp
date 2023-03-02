@@ -31,7 +31,6 @@
 #include "RimAnalysisPlotDataEntry.h"
 #include "RimDerivedEnsembleCaseCollection.h"
 #include "RimEnsembleCurveSet.h"
-#include "RimGridSummaryCase.h"
 #include "RimProject.h"
 #include "RimSummaryAddressCollection.h"
 #include "RimSummaryCalculationCollection.h"

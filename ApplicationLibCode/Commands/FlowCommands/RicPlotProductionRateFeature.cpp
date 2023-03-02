@@ -30,12 +30,12 @@
 #include "RiaSummaryTools.h"
 #include "Rim3dView.h"
 #include "RimEclipseResultCase.h"
-#include "RimGridSummaryCase.h"
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewTools.h"
+#include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveAppearanceCalculator.h"
@@ -60,8 +60,8 @@ bool RicPlotProductionRateFeature::isCommandEnabled()
 
     for ( RimSimWellInView* well : collection )
     {
-        RimGridSummaryCase* gridSummaryCase = RimSimWellInViewTools::gridSummaryCaseForWell( well );
-        if ( gridSummaryCase )
+        auto summaryCase = RimSimWellInViewTools::summaryCaseForWell( well );
+        if ( summaryCase )
         {
             return true;
         }
@@ -88,8 +88,8 @@ void RicPlotProductionRateFeature::onActionTriggered( bool isChecked )
 
     for ( RimSimWellInView* well : collection )
     {
-        RimGridSummaryCase* gridSummaryCase = RimSimWellInViewTools::gridSummaryCaseForWell( well );
-        if ( !gridSummaryCase ) continue;
+        auto summaryCase = RimSimWellInViewTools::summaryCaseForWell( well );
+        if ( !summaryCase ) continue;
 
         QString description = "Well Production Rates : ";
 
@@ -115,7 +115,7 @@ void RicPlotProductionRateFeature::onActionTriggered( bool isChecked )
                 QString parameterName = "WOIR";
                 RicPlotProductionRateFeature::addSummaryCurve( plot,
                                                                well,
-                                                               gridSummaryCase,
+                                                               summaryCase,
                                                                parameterName,
                                                                plotAxis,
                                                                RimSummaryCurveAppearanceCalculator::cycledGreenColor( 0 ) );
@@ -126,7 +126,7 @@ void RicPlotProductionRateFeature::onActionTriggered( bool isChecked )
                 QString parameterName = "WWIR";
                 RicPlotProductionRateFeature::addSummaryCurve( plot,
                                                                well,
-                                                               gridSummaryCase,
+                                                               summaryCase,
                                                                parameterName,
                                                                plotAxis,
                                                                RimSummaryCurveAppearanceCalculator::cycledBlueColor( 0 ) );
@@ -137,7 +137,7 @@ void RicPlotProductionRateFeature::onActionTriggered( bool isChecked )
                 QString parameterName = "WGIR";
                 RicPlotProductionRateFeature::addSummaryCurve( plot,
                                                                well,
-                                                               gridSummaryCase,
+                                                               summaryCase,
                                                                parameterName,
                                                                plotAxis,
                                                                RimSummaryCurveAppearanceCalculator::cycledRedColor( 0 ) );
@@ -154,7 +154,7 @@ void RicPlotProductionRateFeature::onActionTriggered( bool isChecked )
                 QString parameterName = "WOPR";
                 RicPlotProductionRateFeature::addSummaryCurve( plot,
                                                                well,
-                                                               gridSummaryCase,
+                                                               summaryCase,
                                                                parameterName,
                                                                plotAxis,
                                                                RimSummaryCurveAppearanceCalculator::cycledGreenColor( 0 ) );
@@ -165,7 +165,7 @@ void RicPlotProductionRateFeature::onActionTriggered( bool isChecked )
                 QString parameterName = "WWPR";
                 RicPlotProductionRateFeature::addSummaryCurve( plot,
                                                                well,
-                                                               gridSummaryCase,
+                                                               summaryCase,
                                                                parameterName,
                                                                plotAxis,
                                                                RimSummaryCurveAppearanceCalculator::cycledBlueColor( 0 ) );
@@ -176,7 +176,7 @@ void RicPlotProductionRateFeature::onActionTriggered( bool isChecked )
                 QString parameterName = "WGPR";
                 RicPlotProductionRateFeature::addSummaryCurve( plot,
                                                                well,
-                                                               gridSummaryCase,
+                                                               summaryCase,
                                                                parameterName,
                                                                plotAxis,
                                                                RimSummaryCurveAppearanceCalculator::cycledRedColor( 0 ) );
@@ -192,7 +192,7 @@ void RicPlotProductionRateFeature::onActionTriggered( bool isChecked )
                 QString parameterName = "WTHP";
                 RicPlotProductionRateFeature::addSummaryCurve( plot,
                                                                well,
-                                                               gridSummaryCase,
+                                                               summaryCase,
                                                                parameterName,
                                                                plotAxis,
                                                                RimSummaryCurveAppearanceCalculator::cycledNoneRGBBrColor( 0 ) );
@@ -202,7 +202,7 @@ void RicPlotProductionRateFeature::onActionTriggered( bool isChecked )
                 QString parameterName = "WBHP";
                 RicPlotProductionRateFeature::addSummaryCurve( plot,
                                                                well,
-                                                               gridSummaryCase,
+                                                               summaryCase,
                                                                parameterName,
                                                                plotAxis,
                                                                RimSummaryCurveAppearanceCalculator::cycledNoneRGBBrColor( 1 ) );
@@ -240,13 +240,13 @@ void RicPlotProductionRateFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 RimSummaryCurve* RicPlotProductionRateFeature::addSummaryCurve( RimSummaryPlot*         plot,
                                                                 const RimSimWellInView* well,
-                                                                RimGridSummaryCase*     gridSummaryCase,
+                                                                RimSummaryCase*         summaryCase,
                                                                 const QString&          vectorName,
                                                                 RiaDefines::PlotAxis    plotAxis,
                                                                 const cvf::Color3f&     color )
 {
     CVF_ASSERT( plot );
-    CVF_ASSERT( gridSummaryCase );
+    CVF_ASSERT( summaryCase );
     CVF_ASSERT( well );
 
     RifEclipseSummaryAddress addr( RifEclipseSummaryAddress::SUMMARY_WELL,
@@ -264,7 +264,7 @@ RimSummaryCurve* RicPlotProductionRateFeature::addSummaryCurve( RimSummaryPlot* 
                                    false,
                                    -1 );
 
-    if ( !gridSummaryCase->summaryReader()->hasAddress( addr ) )
+    if ( !summaryCase->summaryReader()->hasAddress( addr ) )
     {
         return nullptr;
     }
@@ -272,7 +272,7 @@ RimSummaryCurve* RicPlotProductionRateFeature::addSummaryCurve( RimSummaryPlot* 
     RimSummaryCurve* newCurve = new RimSummaryCurve();
     plot->addCurveAndUpdate( newCurve );
 
-    newCurve->setSummaryCaseY( gridSummaryCase );
+    newCurve->setSummaryCaseY( summaryCase );
     newCurve->setSummaryAddressYAndApplyInterpolation( addr );
     newCurve->setColor( color );
     newCurve->setLeftOrRightAxisY( RiuPlotAxis( plotAxis ) );

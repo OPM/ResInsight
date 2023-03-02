@@ -29,7 +29,6 @@
 
 #include "Rim3dView.h"
 #include "RimEclipseResultCase.h"
-#include "RimGridSummaryCase.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSimWellInView.h"
@@ -41,7 +40,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGridSummaryCase* RimSimWellInViewTools::gridSummaryCaseForWell( RimSimWellInView* well )
+RimSummaryCase* RimSimWellInViewTools::summaryCaseForWell( RimSimWellInView* well )
 {
     RimProject* project = RimProject::current();
     if ( !project ) return nullptr;
@@ -53,11 +52,7 @@ RimGridSummaryCase* RimSimWellInViewTools::gridSummaryCaseForWell( RimSimWellInV
     well->firstAncestorOrThisOfType( eclCase );
     if ( eclCase )
     {
-        RimGridSummaryCase* gridSummaryCase = dynamic_cast<RimGridSummaryCase*>( sumCaseColl->findSummaryCaseFromEclipseResultCase( eclCase ) );
-        if ( gridSummaryCase )
-        {
-            return gridSummaryCase;
-        }
+        return sumCaseColl->findSummaryCaseFromEclipseResultCase( eclCase );
     }
 
     return nullptr;

@@ -27,7 +27,6 @@
 #include "RimEclipseStatisticsCase.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechModels.h"
-#include "RimGridSummaryCase.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
@@ -183,24 +182,6 @@ void RicCloseCaseFeature::deleteEclipseCase( RimEclipseCase* eclipseCase )
     else
     {
         removeCaseFromAllGroups( eclipseCase );
-    }
-
-    RimEclipseResultCase* resultCase = dynamic_cast<RimEclipseResultCase*>( eclipseCase );
-    if ( resultCase )
-    {
-        RimProject*                   project     = RimProject::current();
-        RimSummaryCaseMainCollection* sumCaseColl = project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection()
-                                                                              : nullptr;
-        if ( sumCaseColl )
-        {
-            RimSummaryCase* summaryCase = sumCaseColl->findSummaryCaseFromEclipseResultCase( resultCase );
-            if ( summaryCase )
-            {
-                RimGridSummaryCase* gridSummaryCase = dynamic_cast<RimGridSummaryCase*>( summaryCase );
-                sumCaseColl->convertGridSummaryCasesToFileSummaryCases( gridSummaryCase );
-                sumCaseColl->updateConnectedEditors();
-            }
-        }
     }
 
     delete eclipseCase;

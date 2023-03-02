@@ -36,7 +36,6 @@
 #include "RimDerivedEnsembleCaseCollection.h"
 #include "RimEclipseResultCase.h"
 #include "RimFileSummaryCase.h"
-#include "RimGridSummaryCase.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
@@ -650,27 +649,8 @@ std::vector<RimSummaryCase*>
         {
             QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
 
-            RimEclipseCase* eclCase      = nullptr;
-            QString         gridCaseFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile( fileInfo.summaryFileName() );
-            if ( !gridCaseFile.isEmpty() )
-            {
-                eclCase = project->eclipseCaseFromGridFileName( gridCaseFile );
-            }
-
-            RimGridSummaryCase* existingGridSummaryCase =
-                dynamic_cast<RimGridSummaryCase*>( findSummaryCaseFromFileName( fileInfo.summaryFileName() ) );
-
-            if ( eclCase && !existingGridSummaryCase )
-            {
-                RimGridSummaryCase* newSumCase = new RimGridSummaryCase();
-
-                newSumCase->setIncludeRestartFiles( fileInfo.includeRestartFiles() );
-                newSumCase->setAssociatedEclipseCase( eclCase );
-                newSumCase->updateOptionSensitivity();
-                project->assignCaseIdToSummaryCase( newSumCase );
-                sumCases.push_back( newSumCase );
-            }
-            else
+            auto existingSummaryCase = findSummaryCaseFromFileName( fileInfo.summaryFileName() );
+            if ( !existingSummaryCase )
             {
                 const QString& smspecFileName = fileInfo.summaryFileName();
 

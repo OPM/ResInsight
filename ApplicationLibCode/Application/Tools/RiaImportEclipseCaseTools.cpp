@@ -42,7 +42,6 @@
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 #include "RimFileSummaryCase.h"
-#include "RimGridSummaryCase.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"

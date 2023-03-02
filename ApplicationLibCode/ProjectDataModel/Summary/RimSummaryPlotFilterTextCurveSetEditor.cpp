@@ -33,7 +33,6 @@
 #include "RimEclipseCase.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
-#include "RimGridSummaryCase.h"
 #include "RimGridTimeHistoryCurve.h"
 #include "RimObservedDataCollection.h"
 #include "RimObservedSummaryData.h"

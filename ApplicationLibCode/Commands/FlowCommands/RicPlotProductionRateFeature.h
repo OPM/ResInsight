@@ -23,7 +23,7 @@
 #include "RiaPlotDefines.h"
 #include "RimFlowDiagSolution.h"
 
-class RimGridSummaryCase;
+class RimSummaryCase;
 class RimSimWellInView;
 class RimSummaryCurve;
 class RimSummaryPlot;
@@ -41,12 +41,12 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    static RimGridSummaryCase* gridSummaryCaseForWell( RimSimWellInView* well );
-    static bool                isInjector( RimSimWellInView* well );
-    static RimSummaryCurve*    addSummaryCurve( RimSummaryPlot*         plot,
-                                                const RimSimWellInView* well,
-                                                RimGridSummaryCase*     gridSummaryCase,
-                                                const QString&          vectorName,
-                                                RiaDefines::PlotAxis    plotAxis,
-                                                const cvf::Color3f&     color );
+    static RimSummaryCase*  gridSummaryCaseForWell( RimSimWellInView* well );
+    static bool             isInjector( RimSimWellInView* well );
+    static RimSummaryCurve* addSummaryCurve( RimSummaryPlot*         plot,
+                                             const RimSimWellInView* well,
+                                             RimSummaryCase*         summaryCase,
+                                             const QString&          vectorName,
+                                             RiaDefines::PlotAxis    plotAxis,
+                                             const cvf::Color3f&     color );
 };

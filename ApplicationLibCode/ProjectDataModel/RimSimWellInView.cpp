@@ -35,7 +35,6 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimExtrudedCurveIntersection.h"
-#include "RimGridSummaryCase.h"
 #include "RimIntersectionCollection.h"
 #include "RimPropertyFilterCollection.h"
 #include "RimSimWellFracture.h"
