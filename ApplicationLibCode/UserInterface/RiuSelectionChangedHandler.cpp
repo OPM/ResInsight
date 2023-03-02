@@ -436,8 +436,6 @@ void RiuSelectionChangedHandler::addDepthCurveFromSelectionItem( const RiuSelect
     else if ( eclResDef->hasResult() && !RiaResultNames::isPerCellFaceResult( eclResDef->resultVariable() ) && eclResDef->eclipseCase() &&
               eclResDef->eclipseCase()->eclipseCaseData() )
     {
-        RiaDefines::PorosityModelType porosityModel = eclResDef->porosityModel();
-
         QString curveName = eclResDef->resultVariableUiShortName();
         curveName += ", ";
         curveName += RigDepthResultAccessor::geometrySelectionText( eclResDef->eclipseCase()->eclipseCaseData(),

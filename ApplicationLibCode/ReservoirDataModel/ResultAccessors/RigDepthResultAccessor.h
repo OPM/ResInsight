@@ -31,7 +31,7 @@ public:
     static std::vector<double> resultValues( RigEclipseCaseData*         eclipseCaseData,
                                              RimEclipseResultDefinition* resultDefinition,
                                              int                         gridIndex,
-                                             int                         cellIndex,
+                                             size_t                      cellIndex,
                                              int                         currentTimeStep );
 
     static std::vector<int>    kValues( RigEclipseCaseData* eclipseCaseData, int gridIndex );

@@ -24,7 +24,7 @@
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
 
-// #include <cmath> // Needed for HUGE_VAL on Linux
+#include <cmath>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -32,7 +32,7 @@
 std::vector<double> RigDepthResultAccessor::resultValues( RigEclipseCaseData*         eclipseCaseData,
                                                           RimEclipseResultDefinition* resultDefinition,
                                                           int                         gridIndex,
-                                                          int                         cellIndex,
+                                                          size_t                      cellIndex,
                                                           int                         currentTimeStep )
 {
     std::vector<double> values;
