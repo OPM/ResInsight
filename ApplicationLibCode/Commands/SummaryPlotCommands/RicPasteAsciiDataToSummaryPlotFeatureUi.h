@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include "RifEclipseSummaryAddress.h"
 #include "RimPlotCurve.h"
 
 #include "RifCsvUserDataParser.h"
@@ -41,6 +42,7 @@ public:
         : useCustomDateTimeFormat( false )
         , assumeNumericDataColumns( false )
         , curveSymbolSkipDistance( 0.0f )
+        , defaultCategory( RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_INVALID )
     {
     }
 
@@ -57,7 +59,10 @@ public:
     QString cellSeparator;
     QString timeSeriesColumnName;
 
-    bool assumeNumericDataColumns;
+    QDateTime startDateTime;
+    bool      assumeNumericDataColumns;
+
+    RifEclipseSummaryAddress::SummaryVarCategory defaultCategory;
 
     RiuQwtPlotCurveDefines::LineStyleEnum curveLineStyle;
     RiuPlotCurveSymbol::PointSymbolEnum   curveSymbol;
