@@ -24,7 +24,6 @@
 #include <functional>
 #include <vector>
 
-class RimGridSummaryCase;
 class RimSummaryCase;
 class RimFileSummaryCase;
 class RimEclipseResultCase;
@@ -57,7 +56,6 @@ public:
 
     RimSummaryCase* findSummaryCaseFromEclipseResultCase( const RimEclipseResultCase* eclResCase ) const;
     RimSummaryCase* findSummaryCaseFromFileName( const QString& fileName ) const;
-    void            convertGridSummaryCasesToFileSummaryCases( RimGridSummaryCase* gridSummaryCase );
 
     void addCases( const std::vector<RimSummaryCase*> cases );
     void addCase( RimSummaryCase* summaryCase );
@@ -82,7 +80,6 @@ private:
 
     static void                      loadSummaryCaseData( std::vector<RimSummaryCase*> summaryCases );
     static void                      loadFileSummaryCaseData( std::vector<RimFileSummaryCase*> fileSummaryCases );
-    static void                      reassignSummaryCurves( const RimGridSummaryCase* fromGridCase, RimFileSummaryCase* toFileCase );
     static RimSummaryCaseCollection* defaultAllocator();
 
     void onCaseNameChanged( const SignalEmitter* emitter );

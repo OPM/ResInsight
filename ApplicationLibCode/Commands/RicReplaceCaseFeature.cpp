@@ -26,7 +26,6 @@
 
 #include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"
-#include "RimGridSummaryCase.h"
 #include "RimReloadCaseTools.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -101,14 +100,12 @@ void RicReplaceCaseFeature::onActionTriggered( bool isChecked )
         RimSummaryCaseMainCollection* sumCaseColl = RiaSummaryTools::summaryCaseMainCollection();
         if ( sumCaseColl )
         {
-            RimGridSummaryCase* gridSummaryCase =
-                dynamic_cast<RimGridSummaryCase*>( sumCaseColl->findSummaryCaseFromEclipseResultCase( selectedCase ) );
-            if ( gridSummaryCase )
+            auto summaryCase = sumCaseColl->findSummaryCaseFromEclipseResultCase( selectedCase );
+            if ( summaryCase )
             {
-                gridSummaryCase->setAssociatedEclipseCase( selectedCase );
-                gridSummaryCase->updateAutoShortName();
-                gridSummaryCase->createSummaryReaderInterface();
-                gridSummaryCase->createRftReaderInterface();
+                summaryCase->updateAutoShortName();
+                summaryCase->createSummaryReaderInterface();
+                summaryCase->createRftReaderInterface();
 
                 RimSummaryMultiPlotCollection* summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
                 for ( RimSummaryMultiPlot* multiPlot : summaryPlotColl->multiPlots() )

@@ -37,7 +37,6 @@
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotFilterTextCurveSetEditor.h"
 #include "RimSummaryPlotManager.h"
 #include "RimViewWindow.h"
 #include "RimWellAllocationPlot.h"

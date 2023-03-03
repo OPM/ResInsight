@@ -31,12 +31,12 @@
 #include "RimEclipseContourMapView.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
-#include "RimGridSummaryCase.h"
 #include "RimIntersectionCollection.h"
 #include "RimProject.h"
 #include "RimSimWellFractureCollection.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewTools.h"
+#include "RimSummaryCase.h"
 #include "RimVirtualPerforationResults.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellDiskConfig.h"
@@ -617,11 +617,7 @@ void RimSimWellInViewCollection::setDefaultSourceCaseForWellDisks()
 {
     if ( m_wellDiskSummaryCase == nullptr && !wells.empty() )
     {
-        RimGridSummaryCase* gridSummaryCase = RimSimWellInViewTools::gridSummaryCaseForWell( wells[0] );
-        if ( gridSummaryCase )
-        {
-            m_wellDiskSummaryCase = gridSummaryCase;
-        }
+        m_wellDiskSummaryCase = RimSimWellInViewTools::summaryCaseForWell( wells[0] );
     }
 }
 

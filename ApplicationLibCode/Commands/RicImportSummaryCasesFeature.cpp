@@ -29,7 +29,6 @@
 #include "RifSummaryCaseRestartSelector.h"
 
 #include "RimEnsembleCurveSet.h"
-#include "RimGridSummaryCase.h"
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"

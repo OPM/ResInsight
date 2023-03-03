@@ -21,7 +21,6 @@
 #include "RiaFilePathTools.h"
 #include "RiaPreferences.h"
 
-#include "RimGridSummaryCase.h"
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
