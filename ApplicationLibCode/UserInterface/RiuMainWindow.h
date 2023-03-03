@@ -49,6 +49,7 @@ class RiuMessagePanel;
 class RiuProcessMonitor;
 class RiuResultInfoPanel;
 class RiuResultQwtPlot;
+class RiuDepthQwtPlot;
 class RiuRelativePermeabilityPlotPanel;
 class RiuPvtPlotPanel;
 class RiuMohrsCirclePlot;
@@ -123,6 +124,7 @@ public:
     QList<QMdiSubWindow*> subWindowList( QMdiArea::WindowOrder order );
 
     RiuResultQwtPlot*                 resultPlot();
+    RiuDepthQwtPlot*                  depthPlot();
     RiuRelativePermeabilityPlotPanel* relativePermeabilityPlotPanel();
     RiuPvtPlotPanel*                  pvtPlotPanel();
     RiuMohrsCirclePlot*               mohrsCirclePlot();
@@ -184,6 +186,7 @@ private:
     QPointer<RiuMessagePanel> m_messagePanel;
 
     RiuResultQwtPlot*                        m_resultQwtPlot;
+    RiuDepthQwtPlot*                         m_depthQwtPlot;
     RiuMohrsCirclePlot*                      m_mohrsCirclePlot;
     RiuRelativePermeabilityPlotPanel*        m_relPermPlotPanel;
     RiuPvtPlotPanel*                         m_pvtPlotPanel;

@@ -4,14 +4,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseCaseData.h
     ${CMAKE_CURRENT_LIST_DIR}/RigGridBase.h
     ${CMAKE_CURRENT_LIST_DIR}/RigGridManager.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigResultAccessor.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigResultAccessorFactory.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigAllGridCellsResultAccessor.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigActiveCellsResultAccessor.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigCellEdgeResultAccessor.h
     ${CMAKE_CURRENT_LIST_DIR}/RigCellGeometryTools.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigCombTransResultAccessor.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigCombMultResultAccessor.h
     ${CMAKE_CURRENT_LIST_DIR}/RigResultModifier.h
     ${CMAKE_CURRENT_LIST_DIR}/RigResultModifierFactory.h
     ${CMAKE_CURRENT_LIST_DIR}/RigFormationNames.h
@@ -37,14 +30,12 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/cvfGeometryTools.h
     ${CMAKE_CURRENT_LIST_DIR}/cvfGeometryTools.inl
     ${CMAKE_CURRENT_LIST_DIR}/RigPipeInCellEvaluator.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigTernaryResultAccessor.h
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseNativeStatCalc.h
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseNativeVisibleCellsStatCalc.h
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseMultiPropertyStatCalc.h
     ${CMAKE_CURRENT_LIST_DIR}/RigWellLogCurveData.h
     ${CMAKE_CURRENT_LIST_DIR}/RigWellLogExtractionTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RigHexIntersectionTools.h
-    ${CMAKE_CURRENT_LIST_DIR}/RigTimeHistoryResultAccessor.h
     ${CMAKE_CURRENT_LIST_DIR}/RigLasFileExporter.h
     ${CMAKE_CURRENT_LIST_DIR}/RigSimulationWellCoordsAndMD.h
     ${CMAKE_CURRENT_LIST_DIR}/RigFishbonesGeometry.h
@@ -105,14 +96,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseCaseData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigGridBase.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigGridManager.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RigResultAccessor.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RigResultAccessorFactory.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RigAllGridCellsResultAccessor.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RigActiveCellsResultAccessor.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RigCellEdgeResultAccessor.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigCellGeometryTools.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RigCombTransResultAccessor.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RigCombMultResultAccessor.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigResultModifierFactory.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigFormationNames.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigAllanDiagramData.cpp
@@ -134,13 +118,11 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigFault.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigNNCData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/cvfGeometryTools.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RigTernaryResultAccessor.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseNativeStatCalc.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseNativeVisibleCellsStatCalc.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigEclipseMultiPropertyStatCalc.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigWellLogCurveData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigHexIntersectionTools.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RigTimeHistoryResultAccessor.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigLasFileExporter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigSimulationWellCoordsAndMD.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigFishbonesGeometry.cpp

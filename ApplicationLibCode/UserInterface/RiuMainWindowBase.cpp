@@ -52,7 +52,7 @@
 #include <QUndoStack>
 #include <QUndoView>
 
-#define DOCKSTATE_VERSION 2
+#define DOCKSTATE_VERSION 3
 
 //--------------------------------------------------------------------------------------------------
 ///

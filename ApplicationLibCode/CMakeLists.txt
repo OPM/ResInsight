@@ -118,6 +118,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/ResultStatisticsCache
   ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel
   ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel/Completions
+  ${CMAKE_CURRENT_SOURCE_DIR}/ReservoirDataModel/ResultAccessors
   ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/OdbReader
   ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/GeoMechDataModel
   ${CMAKE_CURRENT_SOURCE_DIR}/GeoMech/GeoMechVisualization
@@ -164,6 +165,7 @@ list(
   ReservoirDataModel/CMakeLists_files.cmake
   ReservoirDataModel/CMakeLists_filesNotToUnitTest.cmake
   ReservoirDataModel/Completions/CMakeLists_files.cmake
+  ReservoirDataModel/ResultAccessors/CMakeLists_files.cmake
   FileInterface/CMakeLists_files.cmake
   ProjectDataModel/CMakeLists_files.cmake
   ProjectDataModel/AnalysisPlots/CMakeLists_files.cmake
@@ -426,20 +428,22 @@ target_link_libraries(
 target_include_directories(
   ${PROJECT_NAME}
   PRIVATE ${CMAKE_BINARY_DIR}/Generated
-  PUBLIC ${CMAKE_SOURCE_DIR}/ApplicationLibCode
-         ${CMAKE_SOURCE_DIR}/ApplicationLibCode/Application
-         ${CMAKE_SOURCE_DIR}/ApplicationLibCode/Application/Tools
-         ${CMAKE_SOURCE_DIR}/ApplicationLibCode/CommandFileInterface
-         ${CMAKE_SOURCE_DIR}/ApplicationLibCode/CommandFileInterface/Core
-         ${CMAKE_SOURCE_DIR}/ApplicationLibCode/FileInterface
-         ${CMAKE_SOURCE_DIR}/ApplicationLibCode/GeoMech
-         ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ModelVisualization
-         ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel
-         ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel/Flow
-         ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel/Intersections
-         ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ReservoirDataModel
-         ${CMAKE_SOURCE_DIR}/ApplicationLibCode/SocketInterface
-         ${CMAKE_SOURCE_DIR}/ApplicationLibCode/UserInterface
+  PUBLIC
+    ${CMAKE_SOURCE_DIR}/ApplicationLibCode
+    ${CMAKE_SOURCE_DIR}/ApplicationLibCode/Application
+    ${CMAKE_SOURCE_DIR}/ApplicationLibCode/Application/Tools
+    ${CMAKE_SOURCE_DIR}/ApplicationLibCode/CommandFileInterface
+    ${CMAKE_SOURCE_DIR}/ApplicationLibCode/CommandFileInterface/Core
+    ${CMAKE_SOURCE_DIR}/ApplicationLibCode/FileInterface
+    ${CMAKE_SOURCE_DIR}/ApplicationLibCode/GeoMech
+    ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ModelVisualization
+    ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel
+    ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel/Flow
+    ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ProjectDataModel/Intersections
+    ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ReservoirDataModel
+    ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ReservoirDataModel/ResultAccessors
+    ${CMAKE_SOURCE_DIR}/ApplicationLibCode/SocketInterface
+    ${CMAKE_SOURCE_DIR}/ApplicationLibCode/UserInterface
 )
 
 # ##############################################################################

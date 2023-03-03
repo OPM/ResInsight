@@ -319,3 +319,29 @@ QList<QwtLegendData> RiuQwtPlotTools::createLegendData( const std::vector<RimPlo
 
     return legendDataList;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotTools::enableGridLines( QwtPlot* plot, QwtAxis::Position axis, bool enableMajor, bool enableMinor )
+{
+    QwtPlotItemList plotItems = plot->itemList( QwtPlotItem::Rtti_PlotGrid );
+    for ( QwtPlotItem* plotItem : plotItems )
+    {
+        auto* grid = static_cast<QwtPlotGrid*>( plotItem );
+        if ( axis == QwtAxis::XTop || axis == QwtAxis::XBottom )
+        {
+            grid->setXAxis( axis );
+            grid->enableX( enableMajor );
+            grid->enableXMin( enableMinor );
+        }
+        else
+        {
+            grid->setYAxis( axis );
+            grid->enableY( enableMajor );
+            grid->enableYMin( enableMinor );
+        }
+        grid->setMajorPen( Qt::lightGray, 1.0, Qt::SolidLine );
+        grid->setMinorPen( Qt::lightGray, 1.0, Qt::DashLine );
+    }
+}
