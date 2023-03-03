@@ -38,6 +38,7 @@ public:
         ECLIPSE_UNRST,
         ECLIPSE_SMSPEC,
         ECLIPSE_UNSMRY,
+        ECLIPSE_ESMRY,
         RESINSIGHT_PROJECT,
         UNKNOWN
     };
@@ -45,9 +46,10 @@ public:
 public:
     explicit RiaEclipseFileNameTools( const QString& fileName );
 
-    QString findRelatedGridFile();
-    QString findRelatedSummarySpecFile();
-    QString findRelatedDataFile();
+    // Returns both files ending with SMSPEC and ESMRY
+    std::vector<QString> findSummaryFileCandidates();
+    QString              findRelatedGridFile();
+    QString              findRelatedDataFile();
 
 private:
     QString relatedFilePath( EclipseFileType fileType ) const;

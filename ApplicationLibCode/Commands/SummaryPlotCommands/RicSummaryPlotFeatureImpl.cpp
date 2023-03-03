@@ -219,15 +219,16 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
         else
         {
             RiaEclipseFileNameTools nameTool( arguments[optionIdx] );
-            QString                 smSpecFileName = nameTool.findRelatedSummarySpecFile();
-            QString                 gridFileName   = nameTool.findRelatedGridFile();
 
-            if ( smSpecFileName != "" || gridFileName != "" )
+            for ( const auto& fileName : nameTool.findSummaryFileCandidates() )
             {
-                if ( smSpecFileName != "" ) summaryFileNames.push_back( smSpecFileName );
-                if ( gridFileName != "" ) gridFileNames.push_back( gridFileName );
+                if ( !fileName.isEmpty() ) summaryFileNames.push_back( fileName );
             }
-            else
+
+            QString gridFileName = nameTool.findRelatedGridFile();
+            if ( !gridFileName.isEmpty() ) gridFileNames.push_back( gridFileName );
+
+            if ( summaryFileNames.empty() && gridFileNames.empty() )
             {
                 // Remove space from address string https://github.com/OPM/ResInsight/issues/9707
 
