@@ -89,6 +89,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuDockWidgetTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotItemGroup.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiuDepthQwtPlot.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuWellPathComponentPlotItem.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuMeasurementViewEventFilter.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuDraggableOverlayFrame.h
@@ -193,6 +194,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuDockWidgetTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotItemGroup.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuDepthQwtPlot.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuWellPathComponentPlotItem.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuDraggableOverlayFrame.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuMdiMaximizeWindowGuard.cpp
@@ -258,6 +260,7 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/RiuRelativePermeabilityPlotPanel.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuResultInfoPanel.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuResultQwtPlot.h
+  ${CMAKE_CURRENT_LIST_DIR}/RiuDepthQwtPlot.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuTextDialog.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuViewer.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuProcessMonitor.h

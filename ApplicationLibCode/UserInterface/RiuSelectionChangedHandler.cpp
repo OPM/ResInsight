@@ -20,6 +20,7 @@
 #include "RiuSelectionChangedHandler.h"
 
 #include "RigCaseCellResultsData.h"
+#include "RigDepthResultAccessor.h"
 #include "RigEclipseCaseData.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartResultsCollection.h"
@@ -38,6 +39,7 @@
 #include "RimProject.h"
 
 #include "Riu3dSelectionManager.h"
+#include "RiuDepthQwtPlot.h"
 #include "RiuFemResultTextBuilder.h"
 #include "RiuMainWindow.h"
 #include "RiuMohrsCirclePlot.h"
@@ -82,6 +84,7 @@ void RiuSelectionChangedHandler::handleSelectionDeleted() const
     if ( !RiuMainWindow::instance() ) return;
 
     RiuMainWindow::instance()->resultPlot()->deleteAllCurves();
+    RiuMainWindow::instance()->depthPlot()->deleteAllCurves();
 
     RiuRelativePermeabilityPlotUpdater* relPermPlotUpdater = RiuMainWindow::instance()->relativePermeabilityPlotPanel()->plotUpdater();
     relPermPlotUpdater->updateOnSelectionChanged( nullptr );
@@ -104,7 +107,9 @@ void RiuSelectionChangedHandler::handleItemAppended( const RiuSelectionItem* ite
 {
     if ( !RiuMainWindow::instance() ) return;
 
-    addCurveFromSelectionItem( item );
+    addResultCurveFromSelectionItem( item );
+
+    addDepthCurveFromSelectionItem( item );
 
     RiuRelativePermeabilityPlotUpdater* relPermUpdater = RiuMainWindow::instance()->relativePermeabilityPlotPanel()->plotUpdater();
     relPermUpdater->updateOnSelectionChanged( item );
@@ -128,6 +133,7 @@ void RiuSelectionChangedHandler::handleSetSelectedItem( const RiuSelectionItem* 
     if ( !RiuMainWindow::instance() ) return;
 
     RiuMainWindow::instance()->resultPlot()->deleteAllCurves();
+    RiuMainWindow::instance()->depthPlot()->deleteAllCurves();
 
     RiuMohrsCirclePlot* mohrsCirclePlot = RiuMainWindow::instance()->mohrsCirclePlot();
     if ( mohrsCirclePlot ) mohrsCirclePlot->clearPlot();
@@ -138,7 +144,7 @@ void RiuSelectionChangedHandler::handleSetSelectedItem( const RiuSelectionItem* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSelectionChangedHandler::addCurveFromSelectionItem( const RiuEclipseSelectionItem* eclipseSelectionItem ) const
+void RiuSelectionChangedHandler::addResultCurveFromSelectionItem( const RiuEclipseSelectionItem* eclipseSelectionItem ) const
 {
     RimEclipseResultDefinition* eclResDef = eclipseSelectionItem->m_resultDefinition;
     if ( !eclResDef ) return;
@@ -184,7 +190,7 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem( const RiuEclipseSele
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSelectionChangedHandler::addCurveFromSelectionItem( const RiuGeoMechSelectionItem* geomSelectionItem ) const
+void RiuSelectionChangedHandler::addResultCurveFromSelectionItem( const RiuGeoMechSelectionItem* geomSelectionItem ) const
 {
     RimGeoMechResultDefinition* geomResDef = geomSelectionItem->m_resultDefinition;
 
@@ -271,40 +277,40 @@ void RiuSelectionChangedHandler::addCurveFromSelectionItem( const RiuGeoMechSele
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSelectionChangedHandler::addCurveFromSelectionItem( const Riu2dIntersectionSelectionItem* selectionItem ) const
+void RiuSelectionChangedHandler::addResultCurveFromSelectionItem( const Riu2dIntersectionSelectionItem* selectionItem ) const
 {
     if ( selectionItem->eclipseSelectionItem() )
     {
-        addCurveFromSelectionItem( selectionItem->eclipseSelectionItem() );
+        addResultCurveFromSelectionItem( selectionItem->eclipseSelectionItem() );
     }
     else if ( selectionItem->geoMechSelectionItem() )
     {
-        addCurveFromSelectionItem( selectionItem->geoMechSelectionItem() );
+        addResultCurveFromSelectionItem( selectionItem->geoMechSelectionItem() );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSelectionChangedHandler::addCurveFromSelectionItem( const RiuSelectionItem* itemAdded ) const
+void RiuSelectionChangedHandler::addResultCurveFromSelectionItem( const RiuSelectionItem* itemAdded ) const
 {
     if ( itemAdded->type() == RiuSelectionItem::ECLIPSE_SELECTION_OBJECT )
     {
         const RiuEclipseSelectionItem* eclipseSelectionItem = static_cast<const RiuEclipseSelectionItem*>( itemAdded );
 
-        addCurveFromSelectionItem( eclipseSelectionItem );
+        addResultCurveFromSelectionItem( eclipseSelectionItem );
     }
     else if ( itemAdded->type() == RiuSelectionItem::GEOMECH_SELECTION_OBJECT )
     {
         const RiuGeoMechSelectionItem* geomSelectionItem = static_cast<const RiuGeoMechSelectionItem*>( itemAdded );
 
-        addCurveFromSelectionItem( geomSelectionItem );
+        addResultCurveFromSelectionItem( geomSelectionItem );
     }
     else if ( itemAdded->type() == RiuSelectionItem::INTERSECTION_SELECTION_OBJECT )
     {
         const Riu2dIntersectionSelectionItem* _2dSelectionItem = static_cast<const Riu2dIntersectionSelectionItem*>( itemAdded );
 
-        addCurveFromSelectionItem( _2dSelectionItem );
+        addResultCurveFromSelectionItem( _2dSelectionItem );
     }
 }
 
@@ -405,4 +411,57 @@ void RiuSelectionChangedHandler::updateResultInfo( const RiuSelectionItem* itemA
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
     mainWnd->statusBar()->showMessage( pickInfo );
     mainWnd->setResultInfo( resultInfo );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuSelectionChangedHandler::addDepthCurveFromSelectionItem( const RiuSelectionItem* itemAdded ) const
+{
+    if ( itemAdded->type() != RiuSelectionItem::ECLIPSE_SELECTION_OBJECT ) return;
+
+    const RiuEclipseSelectionItem* eclipseSelectionItem = static_cast<const RiuEclipseSelectionItem*>( itemAdded );
+    if ( eclipseSelectionItem == nullptr ) return;
+
+    int currentTimeStep = eclipseSelectionItem->m_view->currentTimeStep();
+
+    RimEclipseResultDefinition* eclResDef = eclipseSelectionItem->m_resultDefinition;
+    if ( !eclResDef ) return;
+
+    if ( eclResDef->isFlowDiagOrInjectionFlooding() && eclResDef->resultVariable() != RIG_NUM_FLOODED_PV )
+    {
+        // NB! Do not read out data for flow results, as this can be a time consuming operation
+        return;
+    }
+    else if ( eclResDef->hasResult() && !RiaResultNames::isPerCellFaceResult( eclResDef->resultVariable() ) && eclResDef->eclipseCase() &&
+              eclResDef->eclipseCase()->eclipseCaseData() )
+    {
+        QString curveName = eclResDef->resultVariableUiShortName();
+        curveName += ", ";
+        curveName += RigDepthResultAccessor::geometrySelectionText( eclResDef->eclipseCase()->eclipseCaseData(),
+                                                                    eclipseSelectionItem->m_gridIndex,
+                                                                    eclipseSelectionItem->m_gridLocalCellIndex );
+
+        std::vector<double> resultValues = RigDepthResultAccessor::resultValues( eclResDef->eclipseCase()->eclipseCaseData(),
+                                                                                 eclResDef,
+                                                                                 eclipseSelectionItem->m_gridIndex,
+                                                                                 eclipseSelectionItem->m_gridLocalCellIndex,
+                                                                                 currentTimeStep );
+
+        std::vector<int> kValues =
+            RigDepthResultAccessor::kValues( eclResDef->eclipseCase()->eclipseCaseData(), eclipseSelectionItem->m_gridIndex );
+
+        std::vector<double> depthValues = RigDepthResultAccessor::depthValues( eclResDef->eclipseCase()->eclipseCaseData(),
+                                                                               eclipseSelectionItem->m_gridLocalCellIndex,
+                                                                               eclipseSelectionItem->m_gridIndex );
+
+        CVF_ASSERT( kValues.size() == resultValues.size() );
+
+        RiuMainWindow::instance()->depthPlot()->addCurve( eclResDef->eclipseCase(),
+                                                          curveName,
+                                                          eclipseSelectionItem->m_color,
+                                                          kValues,
+                                                          depthValues,
+                                                          resultValues );
+    }
 }

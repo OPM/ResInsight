@@ -51,6 +51,7 @@ public:
     static QString mainWindowResultInfoName();
     static QString mainWindowProcessMonitorName();
     static QString mainWindowResultPlotName();
+    static QString mainWindowDepthPlotName();
     static QString mainWindowRelPermPlotName();
     static QString mainWindowPvtPlotName();
     static QString mainWindowMessagesName();

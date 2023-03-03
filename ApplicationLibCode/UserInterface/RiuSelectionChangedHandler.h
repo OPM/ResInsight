@@ -38,10 +38,12 @@ public:
     void handleSetSelectedItem( const RiuSelectionItem* item ) const;
 
 private:
-    void addCurveFromSelectionItem( const RiuSelectionItem* itemAdded ) const;
-    void addCurveFromSelectionItem( const RiuEclipseSelectionItem* selectionItem ) const;
-    void addCurveFromSelectionItem( const RiuGeoMechSelectionItem* selectionItem ) const;
-    void addCurveFromSelectionItem( const Riu2dIntersectionSelectionItem* selectionItem ) const;
+    void addResultCurveFromSelectionItem( const RiuSelectionItem* itemAdded ) const;
+    void addResultCurveFromSelectionItem( const RiuEclipseSelectionItem* selectionItem ) const;
+    void addResultCurveFromSelectionItem( const RiuGeoMechSelectionItem* selectionItem ) const;
+    void addResultCurveFromSelectionItem( const Riu2dIntersectionSelectionItem* selectionItem ) const;
+
+    void addDepthCurveFromSelectionItem( const RiuSelectionItem* itemAdded ) const;
 
     void scheduleUpdateForAllVisibleViews() const;
     void updateResultInfo( const RiuSelectionItem* itemAdded ) const;
