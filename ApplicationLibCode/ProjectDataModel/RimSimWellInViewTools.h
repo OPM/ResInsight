@@ -25,7 +25,6 @@ class QString;
 class QDateTime;
 
 class RimSimWellInView;
-class RimGridSummaryCase;
 class RifSummaryReaderInterface;
 class RimSummaryCase;
 
@@ -36,7 +35,7 @@ class RimSummaryCase;
 class RimSimWellInViewTools
 {
 public:
-    static RimGridSummaryCase*          gridSummaryCaseForWell( RimSimWellInView* well );
+    static RimSummaryCase*              summaryCaseForWell( RimSimWellInView* well );
     static std::vector<RimSummaryCase*> summaryCases();
     static bool                         isInjector( RimSimWellInView* well );
 

@@ -58,7 +58,6 @@
 #include "RimGeoMechModels.h"
 #include "RimGridCalculationCollection.h"
 #include "RimGridCrossPlotCollection.h"
-#include "RimGridSummaryCase.h"
 #include "RimGridView.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"

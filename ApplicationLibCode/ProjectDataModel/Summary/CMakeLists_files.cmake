@@ -1,7 +1,6 @@
 set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimAsciiDataCurve.h
     ${CMAKE_CURRENT_LIST_DIR}/RimFileSummaryCase.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimGridSummaryCase.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCase.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCaseMainCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCaseCollection.h
@@ -33,7 +32,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleStatisticsCase.h
     ${CMAKE_CURRENT_LIST_DIR}/RimDerivedSummaryCase.h
     ${CMAKE_CURRENT_LIST_DIR}/RimDerivedEnsembleCaseCollection.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotFilterTextCurveSetEditor.h
     ${CMAKE_CURRENT_LIST_DIR}/RimObjectiveFunction.h
     ${CMAKE_CURRENT_LIST_DIR}/RimObjectiveFunctionTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotManager.h
@@ -52,7 +50,6 @@ set(SOURCE_GROUP_HEADER_FILES
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimAsciiDataCurve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimFileSummaryCase.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimGridSummaryCase.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCase.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCaseMainCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCaseCollection.cpp
@@ -84,7 +81,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleStatisticsCase.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimDerivedSummaryCase.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimDerivedEnsembleCaseCollection.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotFilterTextCurveSetEditor.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimObjectiveFunction.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimObjectiveFunctionTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotManager.cpp

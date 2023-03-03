@@ -42,7 +42,6 @@
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 #include "RimFileSummaryCase.h"
-#include "RimGridSummaryCase.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
@@ -122,72 +121,61 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList&    
             for ( RimSummaryCase* newSumCase : candidateCases )
             {
                 RimSummaryCaseCollection* existingCollection = nullptr;
-                QString gridCaseFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile( newSumCase->summaryHeaderFilename() );
-                RimEclipseCase* gridCase = project->eclipseCaseFromGridFileName( gridCaseFile );
-                if ( gridCase )
+                auto existingSummaryCase = sumCaseColl->findSummaryCaseFromFileName( newSumCase->summaryHeaderFilename() );
+                if ( existingSummaryCase )
                 {
-                    RimSummaryCase* existingSummaryCase = sumCaseColl->findSummaryCaseFromFileName( newSumCase->summaryHeaderFilename() );
-                    auto*           existingGridSummaryCase = dynamic_cast<RimGridSummaryCase*>( existingSummaryCase );
-                    auto*           existingFileSummaryCase = dynamic_cast<RimFileSummaryCase*>( existingSummaryCase );
-                    if ( existingGridSummaryCase )
-                    {
-                        duplicatedCases.push_back( newSumCase );
-                        continue;
-                    }
-                    else if ( existingFileSummaryCase )
-                    {
-                        existingFileSummaryCase->firstAncestorOrThisOfType( existingCollection );
+                    existingSummaryCase->firstAncestorOrThisOfType( existingCollection );
 
-                        // Replace file summary case pointers in Rft Curves
-                        std::vector<RimWellLogRftCurve*> rftCurves;
-                        existingFileSummaryCase->objectsWithReferringPtrFieldsOfType( rftCurves );
-                        for ( RimWellLogRftCurve* curve : rftCurves )
+                    // Replace file summary case pointers in Rft Curves
+                    std::vector<RimWellLogRftCurve*> rftCurves;
+                    existingSummaryCase->objectsWithReferringPtrFieldsOfType( rftCurves );
+                    for ( RimWellLogRftCurve* curve : rftCurves )
+                    {
+                        if ( curve->summaryCase() == existingSummaryCase )
                         {
-                            if ( curve->summaryCase() == existingSummaryCase )
+                            curve->setSummaryCase( newSumCase );
+                        }
+                    }
+
+                    // Replace all occurrences of file sum with ecl sum
+
+                    std::vector<RimSummaryCurve*> objects;
+                    existingSummaryCase->objectsWithReferringPtrFieldsOfType( objects );
+
+                    // UI settings of a curve filter is updated based
+                    // on the new case association for the curves in the curve filter
+                    // UI is updated by loadDataAndUpdate()
+
+                    for ( RimSummaryCurve* summaryCurve : objects )
+                    {
+                        if ( summaryCurve )
+                        {
+                            if ( summaryCurve->summaryCaseX() == existingSummaryCase )
                             {
-                                curve->setSummaryCase( newSumCase );
+                                summaryCurve->setSummaryCaseX( newSumCase );
+                            }
+                            if ( summaryCurve->summaryCaseY() == existingSummaryCase )
+                            {
+                                summaryCurve->setSummaryCaseY( newSumCase );
+                            }
+
+                            RimSummaryCurveCollection* parentCollection = nullptr;
+                            summaryCurve->firstAncestorOrThisOfType( parentCollection );
+                            if ( parentCollection )
+                            {
+                                parentCollection->loadDataAndUpdate( true );
+                                parentCollection->updateConnectedEditors();
+                                break;
                             }
                         }
-
-                        // Replace all occurrences of file sum with ecl sum
-
-                        std::vector<RimSummaryCurve*> objects;
-                        existingFileSummaryCase->objectsWithReferringPtrFieldsOfType( objects );
-
-                        // UI settings of a curve filter is updated based
-                        // on the new case association for the curves in the curve filter
-                        // UI is updated by loadDataAndUpdate()
-
-                        for ( RimSummaryCurve* summaryCurve : objects )
-                        {
-                            if ( summaryCurve )
-                            {
-                                if ( summaryCurve->summaryCaseX() == existingSummaryCase )
-                                {
-                                    summaryCurve->setSummaryCaseX( newSumCase );
-                                }
-                                if ( summaryCurve->summaryCaseY() == existingSummaryCase )
-                                {
-                                    summaryCurve->setSummaryCaseY( newSumCase );
-                                }
-
-                                RimSummaryCurveCollection* parentCollection = nullptr;
-                                summaryCurve->firstAncestorOrThisOfType( parentCollection );
-                                if ( parentCollection )
-                                {
-                                    parentCollection->loadDataAndUpdate( true );
-                                    parentCollection->updateConnectedEditors();
-                                    break;
-                                }
-                            }
-                        }
-
-                        // Remove existing case
-                        sumCaseColl->removeCase( existingFileSummaryCase );
-
-                        duplicatedCases.push_back( existingFileSummaryCase );
                     }
+
+                    // Remove existing case
+                    sumCaseColl->removeCase( existingSummaryCase );
+
+                    duplicatedCases.push_back( existingSummaryCase );
                 }
+
                 if ( existingCollection )
                 {
                     existingCollection->addCase( newSumCase );

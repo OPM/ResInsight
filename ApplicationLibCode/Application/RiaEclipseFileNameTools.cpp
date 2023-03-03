@@ -31,6 +31,7 @@ void caf::AppEnum<RiaEclipseFileNameTools::EclipseFileType>::setUp()
     addItem( RiaEclipseFileNameTools::EclipseFileType::ECLIPSE_UNRST, "UNRST", "Unified Restart" );
     addItem( RiaEclipseFileNameTools::EclipseFileType::ECLIPSE_SMSPEC, "SMSPEC", "Summary Specification" );
     addItem( RiaEclipseFileNameTools::EclipseFileType::ECLIPSE_UNSMRY, "UNSMR", "Summary Vectors" );
+    addItem( RiaEclipseFileNameTools::EclipseFileType::ECLIPSE_ESMRY, "ESMRY", "ESRMY Summary Vectors" );
 
     addItem( RiaEclipseFileNameTools::EclipseFileType::RESINSIGHT_PROJECT, "rsp", "ResInsight Project" );
 }
@@ -50,14 +51,6 @@ RiaEclipseFileNameTools::RiaEclipseFileNameTools( const QString& inputFilePath )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaEclipseFileNameTools::findRelatedSummarySpecFile()
-{
-    return relatedFilePath( EclipseFileType::ECLIPSE_SMSPEC );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QString RiaEclipseFileNameTools::findRelatedGridFile()
 {
     QString candidate = relatedFilePath( EclipseFileType::ECLIPSE_EGRID );
@@ -67,6 +60,17 @@ QString RiaEclipseFileNameTools::findRelatedGridFile()
     }
 
     return relatedFilePath( EclipseFileType::ECLIPSE_GRID );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RiaEclipseFileNameTools::findSummaryFileCandidates()
+{
+    auto smryCandidate  = relatedFilePath( EclipseFileType::ECLIPSE_SMSPEC );
+    auto esmryCandidate = relatedFilePath( EclipseFileType::ECLIPSE_ESMRY );
+
+    return { smryCandidate, esmryCandidate };
 }
 
 //--------------------------------------------------------------------------------------------------
