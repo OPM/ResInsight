@@ -2,5 +2,6 @@
     <qresource prefix="/caf">
         <file>Down16x16.png</file>
         <file>Up16x16.png</file>
+        <file>duplicate.svg</file>
     </qresource>
 </RCC>

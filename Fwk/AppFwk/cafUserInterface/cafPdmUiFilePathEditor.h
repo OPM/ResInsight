@@ -95,11 +95,13 @@ protected:
 protected slots:
     void slotEditingFinished();
     void fileSelectionClicked();
+    void copyToClipboard();
 
 private:
     QPointer<QLineEdit>       m_lineEdit;
     QPointer<QShortenedLabel> m_label;
     QPointer<QToolButton>     m_button;
+    QPointer<QToolButton>     m_copyToClipboardButton;
 
     PdmUiFilePathEditorAttribute m_attributes;
 };
