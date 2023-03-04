@@ -46,6 +46,7 @@
 #include "cafQShortenedLabel.h"
 
 #include <QBoxLayout>
+#include <QClipboard>
 #include <QDir>
 #include <QFileDialog>
 #include <QIntValidator>
@@ -69,7 +70,7 @@ void PdmUiFilePathEditor::configureAndUpdateUi( const QString& uiConfigName )
     PdmUiLineEditor::updateLineEditFromReadOnlyState( m_lineEdit, uiField()->isUiReadOnly( uiConfigName ) );
 
     m_lineEdit->setToolTip( uiField()->uiToolTip( uiConfigName ) );
-    m_button->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
+    m_button->setHidden( uiField()->isUiReadOnly( uiConfigName ) );
 
     caf::PdmUiObjectHandle* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
     if ( uiObject )
@@ -102,10 +103,17 @@ QWidget* PdmUiFilePathEditor::createEditorWidget( QWidget* parent )
     m_button->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Preferred ) );
     m_button->setText( QLatin1String( "..." ) );
 
+    m_copyToClipboardButton = new QToolButton( parent );
+    m_copyToClipboardButton->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Preferred ) );
+    m_copyToClipboardButton->setToolTip( QLatin1String( "Copy to Clipboard" ) );
+    m_copyToClipboardButton->setIcon( QIcon( ":/caf/duplicate.svg" ) );
+
     layout->addWidget( m_lineEdit );
     layout->addWidget( m_button );
+    layout->addWidget( m_copyToClipboardButton );
 
     connect( m_button, SIGNAL( clicked() ), this, SLOT( fileSelectionClicked() ) );
+    connect( m_copyToClipboardButton, SIGNAL( clicked() ), this, SLOT( copyToClipboard() ) );
     connect( m_lineEdit, SIGNAL( editingFinished() ), this, SLOT( slotEditingFinished() ) );
 
     return placeholder;
@@ -214,6 +222,18 @@ void PdmUiFilePathEditor::fileSelectionClicked()
             m_lineEdit->setText( filePath );
             slotEditingFinished();
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiFilePathEditor::copyToClipboard()
+{
+    QClipboard* clipboard = QApplication::clipboard();
+    if ( clipboard )
+    {
+        clipboard->setText( m_lineEdit->text() );
     }
 }
 
