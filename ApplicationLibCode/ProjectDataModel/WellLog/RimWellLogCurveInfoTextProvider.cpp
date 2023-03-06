@@ -55,6 +55,8 @@ QString RimWellLogCurveInfoTextProvider::additionalText( RiuPlotCurve* curve, in
     auto annotationCurves = sourceCurve->additionalDataSources();
     for ( auto annotationCurve : annotationCurves )
     {
+        if ( !annotationCurve ) continue;
+
         RimDepthTrackPlot* depthTrackPlot = nullptr;
         annotationCurve->firstAncestorOfType( depthTrackPlot );
         if ( depthTrackPlot )
