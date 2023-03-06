@@ -50,6 +50,17 @@ RigWellLogCurveData::~RigWellLogCurveData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RigWellLogCurveData::clear()
+{
+    m_propertyValues.clear();
+    m_depths.clear();
+    m_intervalsOfContinousValidValues.clear();
+    m_propertyValueUnitString.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigWellLogCurveData::setDepthUnit( RiaDefines::DepthUnitType depthUnit )
 {
     m_depthUnit = depthUnit;

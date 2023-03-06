@@ -79,8 +79,14 @@ public:
     void                                setFillStyle( Qt::BrushStyle brushStyle );
     void                                setFillColor( const cvf::Color3f& fillColor );
 
-    bool isCurveVisible() const;
-    void setCurveVisibility( bool visible );
+    bool isChecked() const;
+    void setCheckState( bool isChecked );
+
+    // The check state of the curve (m_showCurve) can automatically be updated based on presens of curve data. The virtual method
+    // isAnyCurveDataPresent() can be overridden. Similar concept is used in RimWellLogTrack
+    void         setAutoCheckStateBasedOnCurveData( bool enable );
+    void         updateCheckStateBasedOnCurveData();
+    virtual bool isAnyCurveDataPresent() const;
 
     void updateCurveName();
     void updateCurveNameAndUpdatePlotLegendAndTitle();
@@ -184,6 +190,7 @@ private:
 
 protected:
     caf::PdmField<bool> m_showCurve;
+    caf::PdmField<bool> m_autoCheckStateBasedOnCurveData;
 
     caf::PdmField<QString> m_curveName;
     caf::PdmField<QString> m_curveNameTemplateText;

@@ -38,7 +38,8 @@ public:
                                                                   const QString&          plotDescription   = QString( "" ),
                                                                   const RimWbsParameters* params            = nullptr );
 
-    static RimWellLogPlot* createHorizontalWellLogPlot();
+    static RimWellLogPlot*  createHorizontalWellLogPlot();
+    static RimWellLogTrack* createWellLogTrackWithAutoUpdate();
 
     static RimWellLogPlot* createWellLogPlot( bool showAfterCreation = true, const QString& plotDescription = QString( "" ) );
 

@@ -80,7 +80,7 @@ void RicNewMultiPhaseRftSegmentPlotFeature::onActionTriggered( bool isChecked )
     if ( !wellNames.empty() ) wellName = *wellNames.begin();
 
     appendTrackAndCurveForBranchType( plot,
-                                      "Connection Rates",
+                                      "Reservoir Rates",
                                       { "CONGRAT", "CONORAT", "CONWRAT" },
                                       wellName,
                                       RiaDefines::RftBranchType::RFT_ANNULUS,
@@ -90,7 +90,10 @@ void RicNewMultiPhaseRftSegmentPlotFeature::onActionTriggered( bool isChecked )
         for ( auto branchType :
               { RiaDefines::RftBranchType::RFT_ANNULUS, RiaDefines::RftBranchType::RFT_DEVICE, RiaDefines::RftBranchType::RFT_TUBING } )
         {
-            appendTrackAndCurveForBranchType( plot, "Segment Rates", { "SEGGRAT", "SEGORAT", "SEGWRAT" }, wellName, branchType, summaryCase );
+            QString trackName = caf::AppEnum<RiaDefines::RftBranchType>::uiText( branchType );
+            trackName += " Rates";
+
+            appendTrackAndCurveForBranchType( plot, trackName, { "SEGGRAT", "SEGORAT", "SEGWRAT" }, wellName, branchType, summaryCase );
         }
     }
 
@@ -99,6 +102,7 @@ void RicNewMultiPhaseRftSegmentPlotFeature::onActionTriggered( bool isChecked )
     RicNewRftSegmentWellLogPlotFeature::appendTopologyTrack( plot, wellName, summaryCase );
 
     plot->loadDataAndUpdate();
+    plot->updateTrackVisibility();
 
     RiaPlotWindowRedrawScheduler::instance()->performScheduledUpdatesAndReplots();
     plot->updateLayout();
@@ -116,11 +120,9 @@ void RicNewMultiPhaseRftSegmentPlotFeature::appendTrackAndCurveForBranchType( Ri
                                                                               RiaDefines::RftBranchType   branchType,
                                                                               RimSummaryCase*             summaryCase )
 {
-    auto plotTrack = new RimWellLogTrack();
+    auto plotTrack = RicNewWellLogPlotFeatureImpl::createWellLogTrackWithAutoUpdate();
     plot->addPlot( plotTrack );
     plotTrack->setDescription( trackName );
-
-    plot->loadDataAndUpdate();
 
     for ( const auto& resultName : resultNames )
     {
@@ -137,7 +139,6 @@ void RicNewMultiPhaseRftSegmentPlotFeature::appendTrackAndCurveForBranchType( Ri
         curve->setFillStyle( Qt::SolidPattern );
 
         curve->setIsStacked( true );
-        curve->loadDataAndUpdate( true );
 
         curve->updateAllRequiredEditors();
     }

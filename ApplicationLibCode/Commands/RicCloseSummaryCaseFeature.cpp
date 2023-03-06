@@ -21,6 +21,8 @@
 #include "RiaGuiApplication.h"
 #include "RiaSummaryTools.h"
 
+#include "RicDeleteItemFeature.h"
+
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
@@ -28,6 +30,7 @@
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
+#include "RimWellLogPlot.h"
 
 #include "RiuPlotMainWindow.h"
 
@@ -59,6 +62,7 @@ void RicCloseSummaryCaseFeature::deleteSummaryCases( std::vector<RimSummaryCase*
     RimSummaryCaseMainCollection*  summaryCaseMainCollection = RiaSummaryTools::summaryCaseMainCollection();
 
     std::set<RimSummaryMultiPlot*> plotsToUpdate;
+    std::set<RimWellLogPlot*>      wellLogPlotsToDelete;
 
     for ( RimSummaryCase* summaryCase : cases )
     {
@@ -70,6 +74,23 @@ void RicCloseSummaryCaseFeature::deleteSummaryCases( std::vector<RimSummaryCase*
             }
             plotsToUpdate.insert( multiPlot );
         }
+
+        std::vector<caf::PdmObjectHandle*> referringObjects;
+        summaryCase->objectsWithReferringPtrFields( referringObjects );
+
+        for ( auto object : referringObjects )
+        {
+            if ( !object ) continue;
+
+            RimWellLogPlot* wellLogPlot = nullptr;
+            object->firstAncestorOrThisOfType( wellLogPlot );
+            if ( wellLogPlot ) wellLogPlotsToDelete.insert( wellLogPlot );
+        }
+    }
+
+    for ( auto wellLogPlot : wellLogPlotsToDelete )
+    {
+        RicDeleteItemFeature::deleteObject( wellLogPlot );
     }
 
     summaryCaseMainCollection->removeCases( cases );

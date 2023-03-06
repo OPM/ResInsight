@@ -705,7 +705,7 @@ size_t RimGridCrossPlotDataSet::visibleCurveCount() const
     size_t visibleCurves = 0;
     for ( auto curve : m_crossPlotCurves )
     {
-        if ( curve && curve->isCurveVisible() ) visibleCurves++;
+        if ( curve && curve->isChecked() ) visibleCurves++;
     }
     return visibleCurves;
 }
@@ -718,7 +718,7 @@ size_t RimGridCrossPlotDataSet::sampleCount() const
     size_t sampleCount = 0;
     for ( auto curve : m_crossPlotCurves )
     {
-        if ( curve && curve->isCurveVisible() ) sampleCount += curve->sampleCount();
+        if ( curve && curve->isChecked() ) sampleCount += curve->sampleCount();
     }
     return sampleCount;
 }

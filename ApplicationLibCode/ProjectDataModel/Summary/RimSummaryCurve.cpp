@@ -598,7 +598,7 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
     setZIndexFromCurveInfo();
 
-    if ( isCurveVisible() )
+    if ( isChecked() )
     {
         std::vector<double> curveValuesY = this->valuesY();
 

@@ -270,6 +270,8 @@ RimWellLogTrack::RimWellLogTrack()
     CAF_PDM_InitFieldNoDefault( &m_wellPathComponentSource, "AttributesWellPathSource", "Well Path" );
     CAF_PDM_InitFieldNoDefault( &m_wellPathAttributeCollection, "AttributesCollection", "Well Attributes" );
 
+    CAF_PDM_InitField( &m_autoCheckStateBasedOnCurveData, "AutoCheckStateBasedOnCurveData", false, "Hide Track if No Curve Data" );
+
     CAF_PDM_InitField( &m_overburdenHeight, "OverburdenHeight", 0.0, "Overburden Height" );
     m_overburdenHeight.uiCapability()->setUiHidden( true );
     CAF_PDM_InitField( &m_underburdenHeight, "UnderburdenHeight", 0.0, "Underburden Height" );
@@ -379,7 +381,7 @@ void RimWellLogTrack::calculatePropertyValueZoomRange()
         double minCurveValue = HUGE_VAL;
         double maxCurveValue = -HUGE_VAL;
 
-        if ( curve->isCurveVisible() )
+        if ( curve->isChecked() )
         {
             visibleCurves++;
             if ( curve->propertyValueRangeInData( &minCurveValue, &maxCurveValue ) )
@@ -443,7 +445,7 @@ void RimWellLogTrack::calculateDepthZoomRange()
         double minCurveDepth = HUGE_VAL;
         double maxCurveDepth = -HUGE_VAL;
 
-        if ( curve->isCurveVisible() && curve->depthValueRangeInData( &minCurveDepth, &maxCurveDepth ) )
+        if ( curve->isChecked() && curve->depthValueRangeInData( &minCurveDepth, &maxCurveDepth ) )
         {
             if ( minCurveDepth < minDepth )
             {
@@ -759,6 +761,10 @@ void RimWellLogTrack::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         updateParentLayout();
         RiuPlotMainWindowTools::refreshToolbars();
     }
+    else if ( changedField == &m_autoCheckStateBasedOnCurveData )
+    {
+        updateCheckStateBasedOnCurveData();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -954,7 +960,7 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
 
     for ( RimWellLogCurve* curve : m_curves() )
     {
-        if ( !curve->isCurveVisible() ) continue;
+        if ( !curve->isChecked() ) continue;
 
         const RigWellLogCurveData* curveData = curve->curveData();
         if ( !curveData ) continue;
@@ -1279,6 +1285,36 @@ bool RimWellLogTrack::isEmptyVisiblePropertyRange() const
 {
     return std::abs( m_visiblePropertyValueRangeMax() - m_visiblePropertyValueRangeMin ) <
            1.0e-6 * std::max( 1.0, std::max( m_visiblePropertyValueRangeMax(), m_visiblePropertyValueRangeMin() ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setAutoCheckStateBasedOnCurveData( bool enable )
+{
+    m_autoCheckStateBasedOnCurveData = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::updateCheckStateBasedOnCurveData()
+{
+    bool curveDataPresent = false;
+    for ( const auto& curve : curves() )
+    {
+        curve->updateCheckStateBasedOnCurveData();
+        curve->updateCurveVisibility();
+
+        if ( curve->isAnyCurveDataPresent() ) curveDataPresent = true;
+    }
+
+    // As the visibility of a curve might have changed, update the legend
+    updateLegend();
+
+    if ( !m_autoCheckStateBasedOnCurveData ) return;
+
+    setShowWindow( curveDataPresent );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1999,6 +2035,10 @@ void RimWellLogTrack::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     else
         uiOrdering.add( &m_colSpan );
 
+    caf::PdmUiGroup* automationGroup = uiOrdering.addNewGroup( "Automation" );
+    automationGroup->setCollapsedByDefault();
+    automationGroup->add( &m_autoCheckStateBasedOnCurveData );
+
     caf::PdmUiGroup* annotationGroup = uiOrdering.addNewGroup( "Regions/Annotations" );
     annotationGroup->setCollapsedByDefault();
 
@@ -2373,11 +2413,11 @@ void RimWellLogTrack::computeAndSetPropertyValueRangeMinForLogarithmicScale()
         double pos = HUGE_VAL;
         double neg = -HUGE_VAL;
 
-        for ( size_t cIdx = 0; cIdx < m_curves.size(); cIdx++ )
+        for ( const auto& curve : m_curves )
         {
-            if ( m_curves[cIdx]->isCurveVisible() && m_curves[cIdx]->curveData() )
+            if ( curve->isChecked() && curve->curveData() )
             {
-                RigStatisticsCalculator::posNegClosestToZero( m_curves[cIdx]->curveData()->propertyValuesByIntervals(), pos, neg );
+                RigStatisticsCalculator::posNegClosestToZero( curve->curveData()->propertyValuesByIntervals(), pos, neg );
             }
         }
 
@@ -2415,7 +2455,7 @@ std::map<int, std::vector<RimWellLogCurve*>> RimWellLogTrack::visibleStackedCurv
     std::map<int, std::vector<RimWellLogCurve*>> stackedCurves;
     for ( RimWellLogCurve* curve : m_curves )
     {
-        if ( curve && curve->isCurveVisible() )
+        if ( curve && curve->isChecked() )
         {
             RimWellFlowRateCurve* wfrCurve = dynamic_cast<RimWellFlowRateCurve*>( curve );
             if ( wfrCurve != nullptr ) // Flow rate curves are always stacked
@@ -2449,7 +2489,7 @@ std::vector<RimWellLogCurve*> RimWellLogTrack::visibleCurves() const
 
     for ( RimWellLogCurve* curve : m_curves.children() )
     {
-        if ( curve->isCurveVisible() )
+        if ( curve->isChecked() )
         {
             curvesVector.push_back( curve );
         }

@@ -217,7 +217,7 @@ void RimWellAllocationPlot::updateFromWell()
         {
             for ( auto c : t->curves() )
             {
-                if ( !c->isCurveVisible() )
+                if ( !c->isChecked() )
                 {
                     uncheckedCurveNames.insert( c->curveName() );
                 }
@@ -462,7 +462,7 @@ void RimWellAllocationPlot::addStackedCurve( const QString&             tracerNa
     plotTrack->addCurve( curve );
 
     curve->loadDataAndUpdate( true );
-    curve->setCurveVisibility( showCurve );
+    curve->setCheckState( showCurve );
 }
 
 //--------------------------------------------------------------------------------------------------

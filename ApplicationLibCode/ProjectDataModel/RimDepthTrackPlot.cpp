@@ -1533,6 +1533,17 @@ RiuPlotAxis RimDepthTrackPlot::annotationAxis( RiaDefines::Orientation depthOrie
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimDepthTrackPlot::updateTrackVisibility()
+{
+    for ( auto& track : m_plots )
+    {
+        track->updateCheckStateBasedOnCurveData();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimDepthTrackPlot::setAutoScalePropertyValuesEnabled( bool enabled )
 {
     for ( auto plot : m_plots.children() )

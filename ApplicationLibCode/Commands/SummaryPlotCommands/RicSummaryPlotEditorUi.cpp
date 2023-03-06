@@ -681,7 +681,7 @@ void RicSummaryPlotEditorUi::updateTargetPlot()
     // Add edited curves to target plot
     for ( const auto& editedCurve : m_previewPlot->summaryCurves() )
     {
-        if ( !editedCurve->isCurveVisible() )
+        if ( !editedCurve->isChecked() )
         {
             continue;
         }
@@ -724,7 +724,7 @@ void RicSummaryPlotEditorUi::copyCurveAndAddToPlot( const RimSummaryCurve* curve
 
     if ( forceVisible )
     {
-        curveCopy->setCurveVisibility( true );
+        curveCopy->setCheckState( true );
     }
 
     plot->addCurveNoUpdate( curveCopy, false );
@@ -747,7 +747,7 @@ void RicSummaryPlotEditorUi::copyEnsembleCurveAndAddToCurveSet( const RimSummary
 
     if ( forceVisible )
     {
-        curveCopy->setCurveVisibility( true );
+        curveCopy->setCheckState( true );
     }
 
     curveSet->addCurve( curveCopy );
@@ -951,7 +951,7 @@ void RicSummaryPlotEditorUi::setInitialCurveVisibility( const RimSummaryPlot* ta
         auto curveDef = std::make_pair( curve->summaryCaseY(), curve->summaryAddressY() );
         if ( sourceCurveDefs.count( curveDef ) == 0 )
         {
-            curve->setCurveVisibility( false );
+            curve->setCheckState( false );
         }
     }
 

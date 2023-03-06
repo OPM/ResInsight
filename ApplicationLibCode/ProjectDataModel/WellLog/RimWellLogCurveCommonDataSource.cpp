@@ -328,10 +328,6 @@ void RimWellLogCurveCommonDataSource::analyseCurvesAndTracks( const std::vector<
     // Check to see if the parameters are unique
     for ( RimWellLogCurve* curve : curves )
     {
-        if ( !curve->isCurveVisible() )
-        {
-            continue;
-        }
         auto* extractionCurve = dynamic_cast<RimWellLogExtractionCurve*>( curve );
         auto* fileCurve       = dynamic_cast<RimWellLogFileCurve*>( curve );
         auto* flowRateCurve   = dynamic_cast<RimWellFlowRateCurve*>( curve );
@@ -521,10 +517,6 @@ void RimWellLogCurveCommonDataSource::applyDataSourceChanges( const std::vector<
     std::set<RimWellLogPlot*> plots;
     for ( RimWellLogCurve* curve : curves )
     {
-        if ( !curve->isCurveVisible() )
-        {
-            continue;
-        }
         auto* fileCurve        = dynamic_cast<RimWellLogFileCurve*>( curve );
         auto* extractionCurve  = dynamic_cast<RimWellLogExtractionCurve*>( curve );
         auto* measurementCurve = dynamic_cast<RimWellMeasurementCurve*>( curve );
@@ -719,6 +711,11 @@ void RimWellLogCurveCommonDataSource::applyDataSourceChanges()
         parentPlot->descendantsIncludingThisOfType( tracks );
 
         this->applyDataSourceChanges( curves, tracks );
+
+        for ( auto& track : tracks )
+        {
+            track->updateCheckStateBasedOnCurveData();
+        }
     }
 }
 

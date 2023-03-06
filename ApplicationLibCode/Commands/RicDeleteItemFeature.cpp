@@ -44,12 +44,12 @@ bool RicDeleteItemFeature::isCommandEnabled()
 
     for ( caf::PdmUiItem* item : items )
     {
-        caf::PdmObject* currentPdmObject = dynamic_cast<caf::PdmObject*>( item );
+        auto* currentPdmObject = dynamic_cast<caf::PdmObject*>( item );
         if ( !currentPdmObject ) return false;
 
         if ( !currentPdmObject->isDeletable() ) return false;
 
-        caf::PdmChildArrayFieldHandle* childArrayFieldHandle = dynamic_cast<caf::PdmChildArrayFieldHandle*>( currentPdmObject->parentField() );
+        auto* childArrayFieldHandle = dynamic_cast<caf::PdmChildArrayFieldHandle*>( currentPdmObject->parentField() );
         if ( !childArrayFieldHandle ) return false;
     }
 
@@ -63,68 +63,75 @@ void RicDeleteItemFeature::onActionTriggered( bool isChecked )
 {
     std::vector<caf::PdmUiItem*> items;
     caf::SelectionManager::instance()->selectedItems( items );
-    assert( items.size() > 0 );
 
     for ( caf::PdmUiItem* item : items )
     {
-        caf::PdmObject* currentPdmObject = dynamic_cast<caf::PdmObject*>( item );
+        auto* currentPdmObject = dynamic_cast<caf::PdmObject*>( item );
         if ( !currentPdmObject ) continue;
 
-        if ( !currentPdmObject->isDeletable() ) continue;
+        deleteObject( currentPdmObject );
+    }
+}
 
-        caf::PdmChildArrayFieldHandle* childArrayFieldHandle = dynamic_cast<caf::PdmChildArrayFieldHandle*>( currentPdmObject->parentField() );
-        if ( !childArrayFieldHandle ) continue;
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicDeleteItemFeature::deleteObject( caf::PdmObject* objectToDelete )
+{
+    if ( !objectToDelete || !objectToDelete->isDeletable() ) return;
 
-        int indexAfter = -1;
+    auto* childArrayFieldHandle = dynamic_cast<caf::PdmChildArrayFieldHandle*>( objectToDelete->parentField() );
+    if ( !childArrayFieldHandle ) return;
 
-        std::vector<caf::PdmObjectHandle*> childObjects;
-        childArrayFieldHandle->children( &childObjects );
+    int indexToObject = -1;
 
-        for ( size_t i = 0; i < childObjects.size(); i++ )
+    std::vector<caf::PdmObjectHandle*> childObjects;
+    childArrayFieldHandle->children( &childObjects );
+
+    for ( size_t i = 0; i < childObjects.size(); i++ )
+    {
+        if ( childObjects[i] == objectToDelete )
         {
-            if ( childObjects[i] == currentPdmObject )
-            {
-                indexAfter = static_cast<int>( i );
-            }
+            indexToObject = static_cast<int>( i );
         }
+    }
 
-        // Did not find currently selected pdm object in the current list field
-        assert( indexAfter != -1 );
+    // Did not find object in the current list field
+    if ( indexToObject == -1 ) return;
 
-        RicDeleteItemExec* executeCmd = new RicDeleteItemExec( caf::SelectionManager::instance()->notificationCenter() );
+    auto* executeCmd = new RicDeleteItemExec( caf::SelectionManager::instance()->notificationCenter() );
 
-        RicDeleteItemExecData& data = executeCmd->commandData();
-        data.m_rootObject           = caf::PdmReferenceHelper::findRoot( childArrayFieldHandle );
-        data.m_pathToField          = caf::PdmReferenceHelper::referenceFromRootToField( data.m_rootObject, childArrayFieldHandle );
-        data.m_indexToObject        = indexAfter;
+    RicDeleteItemExecData& data = executeCmd->commandData();
+    data.m_rootObject           = caf::PdmReferenceHelper::findRoot( childArrayFieldHandle );
+    data.m_pathToField          = caf::PdmReferenceHelper::referenceFromRootToField( data.m_rootObject, childArrayFieldHandle );
+    data.m_indexToObject        = indexToObject;
 
+    {
+        QString desc;
+        if ( objectToDelete->userDescriptionField() )
         {
-            QString desc;
-            if ( currentPdmObject->userDescriptionField() )
-            {
-                desc = currentPdmObject->userDescriptionField()->uiCapability()->uiValue().toString();
-            }
-            else
-            {
-                desc = currentPdmObject->uiName();
-            }
-
-            data.m_description = desc + " (delete)";
-        }
-
-        // When the delete feature is ready for redo/undo, activate by using the line below
-        // Temporarily do not insert these object into undo/redo system as this requires a lot of testing
-        // for reinserting objects.
-        bool useUndoRedo = false;
-        if ( useUndoRedo )
-        {
-            caf::CmdExecCommandManager::instance()->processExecuteCommand( executeCmd );
+            desc = objectToDelete->userDescriptionField()->uiCapability()->uiValue().toString();
         }
         else
         {
-            executeCmd->redo();
-            delete executeCmd;
+            desc = objectToDelete->uiName();
         }
+
+        data.m_description = desc + " (delete)";
+    }
+
+    // When the delete feature is ready for redo/undo, activate by using the line below
+    // Temporarily do not insert these object into undo/redo system as this requires a lot of testing
+    // for reinserting objects.
+    bool useUndoRedo = false;
+    if ( useUndoRedo )
+    {
+        caf::CmdExecCommandManager::instance()->processExecuteCommand( executeCmd );
+    }
+    else
+    {
+        executeCmd->redo();
+        delete executeCmd;
     }
 }
 
