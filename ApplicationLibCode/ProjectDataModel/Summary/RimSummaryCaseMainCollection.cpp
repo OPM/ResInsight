@@ -119,7 +119,7 @@ RimSummaryCase* RimSummaryCaseMainCollection::findSummaryCaseFromEclipseResultCa
     auto summaryFileName = helper.findSummaryFileCandidates();
     for ( const auto& candidateFileName : summaryFileName )
     {
-        auto summaryCase = findSummaryCaseFromFileName( candidateFileName );
+        auto summaryCase = findTopLevelSummaryCaseFromFileName( candidateFileName );
         if ( summaryCase )
         {
             return summaryCase;
@@ -132,9 +132,9 @@ RimSummaryCase* RimSummaryCaseMainCollection::findSummaryCaseFromEclipseResultCa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCase* RimSummaryCaseMainCollection::findSummaryCaseFromFileName( const QString& fileName ) const
+RimSummaryCase* RimSummaryCaseMainCollection::findTopLevelSummaryCaseFromFileName( const QString& fileName ) const
 {
-    for ( const auto& summaryCase : allSummaryCases() )
+    for ( const auto& summaryCase : topLevelSummaryCases() )
     {
         if ( summaryCase->summaryHeaderFilename() == fileName )
         {
@@ -553,7 +553,7 @@ std::vector<RimSummaryCase*>
         {
             QCoreApplication::processEvents( QEventLoop::ExcludeUserInputEvents );
 
-            auto existingSummaryCase = findSummaryCaseFromFileName( fileInfo.summaryFileName() );
+            auto existingSummaryCase = findTopLevelSummaryCaseFromFileName( fileInfo.summaryFileName() );
             if ( !existingSummaryCase )
             {
                 const QString& smspecFileName = fileInfo.summaryFileName();
