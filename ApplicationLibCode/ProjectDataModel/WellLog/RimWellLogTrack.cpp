@@ -2413,11 +2413,11 @@ void RimWellLogTrack::computeAndSetPropertyValueRangeMinForLogarithmicScale()
         double pos = HUGE_VAL;
         double neg = -HUGE_VAL;
 
-        for ( size_t cIdx = 0; cIdx < m_curves.size(); cIdx++ )
+        for ( const auto& curve : m_curves )
         {
-            if ( m_curves[cIdx]->isChecked() && m_curves[cIdx]->curveData() )
+            if ( curve->isChecked() && curve->curveData() )
             {
-                RigStatisticsCalculator::posNegClosestToZero( m_curves[cIdx]->curveData()->propertyValuesByIntervals(), pos, neg );
+                RigStatisticsCalculator::posNegClosestToZero( curve->curveData()->propertyValuesByIntervals(), pos, neg );
             }
         }
 
