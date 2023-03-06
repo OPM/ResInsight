@@ -233,7 +233,9 @@ void PdmUiFilePathEditor::copyToClipboard()
     QClipboard* clipboard = QApplication::clipboard();
     if ( clipboard )
     {
-        clipboard->setText( m_lineEdit->text() );
+        auto text = QDir::toNativeSeparators( m_lineEdit->text() );
+
+        clipboard->setText( text );
     }
 }
 
