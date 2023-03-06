@@ -121,7 +121,7 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList&    
             for ( RimSummaryCase* newSumCase : candidateCases )
             {
                 RimSummaryCaseCollection* existingCollection = nullptr;
-                auto existingSummaryCase = sumCaseColl->findSummaryCaseFromFileName( newSumCase->summaryHeaderFilename() );
+                auto existingSummaryCase = sumCaseColl->findTopLevelSummaryCaseFromFileName( newSumCase->summaryHeaderFilename() );
                 if ( existingSummaryCase )
                 {
                     existingSummaryCase->firstAncestorOrThisOfType( existingCollection );

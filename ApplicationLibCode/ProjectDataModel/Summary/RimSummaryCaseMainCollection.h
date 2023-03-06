@@ -55,7 +55,7 @@ public:
                                                                   bool                                             showProgress = false );
 
     RimSummaryCase* findSummaryCaseFromEclipseResultCase( const RimEclipseResultCase* eclResCase ) const;
-    RimSummaryCase* findSummaryCaseFromFileName( const QString& fileName ) const;
+    RimSummaryCase* findTopLevelSummaryCaseFromFileName( const QString& fileName ) const;
 
     void addCases( const std::vector<RimSummaryCase*> cases );
     void addCase( RimSummaryCase* summaryCase );
