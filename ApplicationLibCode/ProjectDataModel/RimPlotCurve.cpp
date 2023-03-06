@@ -359,7 +359,7 @@ cvf::Color3f RimPlotCurve::color() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimPlotCurve::isCurveVisible() const
+bool RimPlotCurve::isChecked() const
 {
     return m_showCurve;
 }
@@ -367,9 +367,9 @@ bool RimPlotCurve::isCurveVisible() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::setCurveVisibility( bool visible )
+void RimPlotCurve::setCheckState( bool isChecked )
 {
-    m_showCurve = visible;
+    m_showCurve = isChecked;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -379,7 +379,7 @@ void RimWellLogTrack::calculatePropertyValueZoomRange()
         double minCurveValue = HUGE_VAL;
         double maxCurveValue = -HUGE_VAL;
 
-        if ( curve->isCurveVisible() )
+        if ( curve->isChecked() )
         {
             visibleCurves++;
             if ( curve->propertyValueRangeInData( &minCurveValue, &maxCurveValue ) )
@@ -443,7 +443,7 @@ void RimWellLogTrack::calculateDepthZoomRange()
         double minCurveDepth = HUGE_VAL;
         double maxCurveDepth = -HUGE_VAL;
 
-        if ( curve->isCurveVisible() && curve->depthValueRangeInData( &minCurveDepth, &maxCurveDepth ) )
+        if ( curve->isChecked() && curve->depthValueRangeInData( &minCurveDepth, &maxCurveDepth ) )
         {
             if ( minCurveDepth < minDepth )
             {
@@ -954,7 +954,7 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
 
     for ( RimWellLogCurve* curve : m_curves() )
     {
-        if ( !curve->isCurveVisible() ) continue;
+        if ( !curve->isChecked() ) continue;
 
         const RigWellLogCurveData* curveData = curve->curveData();
         if ( !curveData ) continue;
@@ -2375,7 +2375,7 @@ void RimWellLogTrack::computeAndSetPropertyValueRangeMinForLogarithmicScale()
 
         for ( size_t cIdx = 0; cIdx < m_curves.size(); cIdx++ )
         {
-            if ( m_curves[cIdx]->isCurveVisible() && m_curves[cIdx]->curveData() )
+            if ( m_curves[cIdx]->isChecked() && m_curves[cIdx]->curveData() )
             {
                 RigStatisticsCalculator::posNegClosestToZero( m_curves[cIdx]->curveData()->propertyValuesByIntervals(), pos, neg );
             }
@@ -2415,7 +2415,7 @@ std::map<int, std::vector<RimWellLogCurve*>> RimWellLogTrack::visibleStackedCurv
     std::map<int, std::vector<RimWellLogCurve*>> stackedCurves;
     for ( RimWellLogCurve* curve : m_curves )
     {
-        if ( curve && curve->isCurveVisible() )
+        if ( curve && curve->isChecked() )
         {
             RimWellFlowRateCurve* wfrCurve = dynamic_cast<RimWellFlowRateCurve*>( curve );
             if ( wfrCurve != nullptr ) // Flow rate curves are always stacked
@@ -2449,7 +2449,7 @@ std::vector<RimWellLogCurve*> RimWellLogTrack::visibleCurves() const
 
     for ( RimWellLogCurve* curve : m_curves.children() )
     {
-        if ( curve->isCurveVisible() )
+        if ( curve->isChecked() )
         {
             curvesVector.push_back( curve );
         }

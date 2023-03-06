@@ -328,7 +328,7 @@ void RimWellLogCurveCommonDataSource::analyseCurvesAndTracks( const std::vector<
     // Check to see if the parameters are unique
     for ( RimWellLogCurve* curve : curves )
     {
-        if ( !curve->isCurveVisible() )
+        if ( !curve->isChecked() )
         {
             continue;
         }
@@ -521,7 +521,7 @@ void RimWellLogCurveCommonDataSource::applyDataSourceChanges( const std::vector<
     std::set<RimWellLogPlot*> plots;
     for ( RimWellLogCurve* curve : curves )
     {
-        if ( !curve->isCurveVisible() )
+        if ( !curve->isChecked() )
         {
             continue;
         }

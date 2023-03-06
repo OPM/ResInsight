@@ -648,7 +648,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
     DerivedMDSource derivedMDSource = DerivedMDSource::NO_SOURCE;
 
-    if ( isCurveVisible() )
+    if ( isChecked() )
     {
         RimDepthTrackPlot* wellLogPlot;
         firstAncestorOrThisOfType( wellLogPlot );

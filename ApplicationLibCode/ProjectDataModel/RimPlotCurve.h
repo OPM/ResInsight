@@ -79,8 +79,8 @@ public:
     void                                setFillStyle( Qt::BrushStyle brushStyle );
     void                                setFillColor( const cvf::Color3f& fillColor );
 
-    bool isCurveVisible() const;
-    void setCurveVisibility( bool visible );
+    bool isChecked() const;
+    void setCheckState( bool isChecked );
 
     void updateCurveName();
     void updateCurveNameAndUpdatePlotLegendAndTitle();

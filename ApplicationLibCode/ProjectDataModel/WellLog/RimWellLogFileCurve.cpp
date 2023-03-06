@@ -78,7 +78,7 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
     this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
 
-    if ( isCurveVisible() )
+    if ( isChecked() )
     {
         RimWellLogPlot* wellLogPlot;
         firstAncestorOrThisOfType( wellLogPlot );

@@ -968,7 +968,7 @@ std::vector<const RimPlotCurve*> RimGridCrossPlot::visibleCurves() const
         {
             for ( auto curve : dataSet->curves() )
             {
-                if ( curve->isCurveVisible() )
+                if ( curve->isChecked() )
                 {
                     plotCurves.push_back( curve );
                 }
