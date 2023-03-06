@@ -381,6 +381,20 @@ RifEclipseRftAddress RimWellLogRftCurve::rftAddress() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::string RimWellLogRftCurve::unitText() const
+{
+    if ( auto reader = rftReader() )
+    {
+        const auto& adr = rftAddress();
+        return reader->unitText( adr );
+    }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogRftCurve::setDefaultAddress( QString wellName )
 {
     RifReaderRftInterface* reader = rftReader();

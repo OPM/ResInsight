@@ -351,6 +351,29 @@ RifRftSegment RifReaderOpmRft::segmentForWell( const QString& wellName, const QD
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::string RifReaderOpmRft::unitText( const RifEclipseRftAddress& address ) const
+{
+    const auto wellName = address.wellName().toStdString();
+
+    if ( m_unitNames.contains( wellName ) )
+    {
+        const auto unitsForWell = m_unitNames.at( wellName );
+
+        const auto segmentResultName = address.segmentResultName().toUpper();
+
+        if ( segmentResultName.contains( "DEPTH" ) ) return unitsForWell.depth;
+        if ( segmentResultName.contains( "PRES" ) ) return unitsForWell.pressure;
+        if ( segmentResultName.contains( "ORAT" ) || segmentResultName.contains( "WRAT" ) ) return unitsForWell.oilAndWaterFlowRate;
+        if ( segmentResultName.contains( "GRAT" ) ) return unitsForWell.gasFlowRate;
+        if ( segmentResultName.contains( "VEL" ) ) return unitsForWell.flowVelocity;
+    }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RifReaderOpmRft::readWseglink( const std::string& filePath )
 {
     if ( filePath.empty() ) return;
@@ -387,6 +410,7 @@ void RifReaderOpmRft::openFiles( const QString& fileName, const QString& dataDec
         readWseglink( dataDeckFileName.toStdString() );
 
         buildMetaData();
+        buildUnitTexts();
 
         return;
     }
@@ -456,6 +480,41 @@ void RifReaderOpmRft::buildMetaData()
         auto adr = RifEclipseRftAddress::createSegmentAddress( QString::fromStdString( wellName ), dt, RiaDefines::segmentNumberResultName() );
 
         m_addresses.insert( adr );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderOpmRft::buildUnitTexts()
+{
+    auto listOfArrays = m_opm_rft->getList();
+
+    for ( size_t i = 0; i < listOfArrays.size(); i++ )
+    {
+        std::string name = std::get<0>( listOfArrays[i] );
+
+        if ( name == "WELLETC" )
+        {
+            auto wellNameAndUnitStrings = m_opm_rft->get<std::string>( i );
+
+            if ( wellNameAndUnitStrings.size() > 11 )
+            {
+                UnitTextsForWell unitTexts;
+
+                // Use 1-based Eclipse numbering and subtract 1 to make it easier to compare with Eclipse documentation
+                unitTexts.time                    = wellNameAndUnitStrings[1 - 1];
+                auto wellName                     = wellNameAndUnitStrings[2 - 1];
+                unitTexts.depth                   = wellNameAndUnitStrings[4 - 1];
+                unitTexts.pressure                = wellNameAndUnitStrings[5 - 1];
+                unitTexts.oilAndWaterFlowRate     = wellNameAndUnitStrings[8 - 1];
+                unitTexts.gasFlowRate             = wellNameAndUnitStrings[9 - 1];
+                unitTexts.localVolumetricFlowRate = wellNameAndUnitStrings[10 - 1];
+                unitTexts.flowVelocity            = wellNameAndUnitStrings[11 - 1];
+
+                if ( !wellName.empty() ) m_unitNames[wellName] = unitTexts;
+            }
+        }
     }
 }
 

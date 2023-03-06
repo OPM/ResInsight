@@ -99,6 +99,8 @@ public:
     void                 setRftAddress( RifEclipseRftAddress address );
     RifEclipseRftAddress rftAddress() const;
 
+    std::string unitText() const;
+
     void setDefaultAddress( QString wellName );
 
     void setSimWellBranchData( bool branchDetection, int branchIndex );

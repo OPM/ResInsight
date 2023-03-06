@@ -31,6 +31,17 @@ namespace caf
 class VecIjk;
 };
 
+struct UnitTextsForWell
+{
+    std::string time;
+    std::string depth;
+    std::string pressure;
+    std::string oilAndWaterFlowRate;
+    std::string gasFlowRate;
+    std::string localVolumetricFlowRate;
+    std::string flowVelocity;
+};
+
 class RifReaderRftInterface
 {
 public:
@@ -45,6 +56,8 @@ public:
                                                                                       const RifEclipseRftAddress::RftWellLogChannelType& wellLogChannelName ) = 0;
     virtual std::set<RifEclipseRftAddress::RftWellLogChannelType> availableWellLogChannels( const QString& wellName ) = 0;
     virtual std::set<QString>                                     wellNames()                                         = 0;
+
+    virtual std::string unitText( const RifEclipseRftAddress& address ) const;
 
     virtual void cellIndices( const RifEclipseRftAddress& rftAddress, std::vector<caf::VecIjk>* indices );
 };

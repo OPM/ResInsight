@@ -56,6 +56,8 @@ public:
 
     RifRftSegment segmentForWell( const QString& wellName, const QDateTime& timeStep );
 
+    std::string unitText( const RifEclipseRftAddress& address ) const override;
+
 private:
     // Segment data
     // RftDate must be synced with definition in Opm::EclIO::ERft::RftDate
@@ -64,6 +66,7 @@ private:
 
     void openFiles( const QString& fileName, const QString& dataDeckFileName );
     void buildMetaData();
+    void buildUnitTexts();
     void buildSegmentData();
     void segmentDataDebugLog() const;
     bool isOpen() const;
@@ -102,6 +105,8 @@ private:
 
     std::map<std::string, size_t> m_segmentResultItemCount;
     std::map<std::string, size_t> m_connectionResultItemCount;
+
+    std::map<std::string, UnitTextsForWell> m_unitNames;
 
     std::map<std::string, std::vector<std::pair<int, int>>> m_wseglink;
 
