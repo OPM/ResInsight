@@ -182,6 +182,14 @@ void RimWellLogCurve::setPropertyAndDepthsAndErrors( const std::vector<double>& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellLogCurve::clearCurveData()
+{
+    m_curveData->clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogCurve::setPropertyAndDepthValuesToPlotCurve( const std::vector<double>& propertyValues, const std::vector<double>& depthValues )
 {
     if ( !m_plotCurve ) return;
@@ -457,4 +465,12 @@ RiuPlotAxis RimWellLogCurve::valueAxis() const
     this->firstAncestorOrThisOfTypeAsserted( depthTrackPlot );
 
     return depthTrackPlot->valueAxis();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellLogCurve::isAnyCurveDataPresent() const
+{
+    return !m_curveData->propertyValues().empty();
 }

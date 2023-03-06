@@ -21,6 +21,11 @@
 
 #include "cafCmdFeature.h"
 
+namespace caf
+{
+class PdmObject;
+}
+
 //==================================================================================================
 ///
 //==================================================================================================
@@ -28,8 +33,12 @@ class RicDeleteItemFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
+public:
+    static void deleteObject( caf::PdmObject* objectToDelete );
+
 protected:
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
+
     void setupActionLook( QAction* actionToSetup ) override;
 };

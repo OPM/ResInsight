@@ -236,6 +236,9 @@ public:
     void updateAxesVisibility( RiaDefines::Orientation orientation, bool isFirstTrack, bool isLastTrack );
     void updateDepthMarkerLine();
 
+    void setAutoCheckStateBasedOnCurveData( bool enable );
+    void updateCheckStateBasedOnCurveData();
+
 protected:
     // RimViewWindow overrides
     void deleteViewWidget() override;
@@ -360,6 +363,8 @@ private:
     caf::PdmField<double>                                              m_overburdenHeight;
     caf::PdmField<double>                                              m_underburdenHeight;
     caf::PdmChildField<RimEnsembleWellLogCurveSet*>                    m_ensembleWellLogCurveSet;
+
+    caf::PdmField<bool> m_autoCheckStateBasedOnCurveData;
 
     std::vector<std::unique_ptr<RiuWellPathComponentPlotItem>> m_wellPathAttributePlotObjects;
 

@@ -107,6 +107,17 @@ RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createHorizontalWellLogPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimWellLogTrack* RicNewWellLogPlotFeatureImpl::createWellLogTrackWithAutoUpdate()
+{
+    auto track = new RimWellLogTrack();
+    track->setAutoCheckStateBasedOnCurveData( true );
+
+    return track;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createWellLogPlot( bool showAfterCreation, const QString& plotDescription )
 {
     RimWellLogPlotCollection* wellLogPlotColl = wellLogPlotCollection();

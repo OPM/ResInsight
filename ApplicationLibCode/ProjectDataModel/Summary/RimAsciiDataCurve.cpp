@@ -127,7 +127,7 @@ void RimAsciiDataCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
     this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
 
-    if ( isCurveVisible() )
+    if ( isChecked() )
     {
         std::vector<time_t> dateTimes = this->timeSteps();
         std::vector<double> values    = this->yValues();

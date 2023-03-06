@@ -344,7 +344,7 @@ void RimWellLogExtractionCurve::fieldChangedByUi( const caf::PdmFieldHandle* cha
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
-    if ( isCurveVisible() )
+    if ( isChecked() )
     {
         bool isUsingPseudoLength = false;
         performDataExtraction( &isUsingPseudoLength );

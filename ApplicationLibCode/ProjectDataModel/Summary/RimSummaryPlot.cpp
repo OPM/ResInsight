@@ -1171,7 +1171,7 @@ std::vector<RimSummaryCurve*> RimSummaryPlot::visibleSummaryCurvesForAxis( RiuPl
         {
             for ( RimSummaryCurve* curve : m_summaryCurveCollection->curves() )
             {
-                if ( curve->isCurveVisible() )
+                if ( curve->isChecked() )
                 {
                     curves.push_back( curve );
                 }
@@ -1184,7 +1184,7 @@ std::vector<RimSummaryCurve*> RimSummaryPlot::visibleSummaryCurvesForAxis( RiuPl
         {
             for ( RimSummaryCurve* curve : m_summaryCurveCollection->curves() )
             {
-                if ( curve->isCurveVisible() && curve->axisY() == plotAxis )
+                if ( curve->isChecked() && curve->axisY() == plotAxis )
                 {
                     curves.push_back( curve );
                 }
@@ -1197,7 +1197,7 @@ std::vector<RimSummaryCurve*> RimSummaryPlot::visibleSummaryCurvesForAxis( RiuPl
             {
                 for ( RimSummaryCurve* curve : curveSet->curves() )
                 {
-                    if ( curve->isCurveVisible() && curve->axisY() == plotAxis )
+                    if ( curve->isChecked() && curve->axisY() == plotAxis )
                     {
                         curves.push_back( curve );
                     }
@@ -1254,7 +1254,7 @@ std::vector<RimGridTimeHistoryCurve*> RimSummaryPlot::visibleTimeHistoryCurvesFo
 
     for ( const auto& c : m_gridTimeHistoryCurves )
     {
-        if ( c->isCurveVisible() )
+        if ( c->isChecked() )
         {
             if ( c->yAxis() == plotAxis || plotAxis.axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
             {
@@ -1275,7 +1275,7 @@ std::vector<RimAsciiDataCurve*> RimSummaryPlot::visibleAsciiDataCurvesForAxis( R
 
     for ( const auto& c : m_asciiDataCurves )
     {
-        if ( c->isCurveVisible() )
+        if ( c->isChecked() )
         {
             if ( c->yAxis() == plotAxis || plotAxis.axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
             {
@@ -2041,7 +2041,7 @@ std::vector<RimPlotCurve*> RimSummaryPlot::visibleCurvesForLegend()
 
     for ( auto c : summaryCurves() )
     {
-        if ( !c->isCurveVisible() ) continue;
+        if ( !c->isChecked() ) continue;
         if ( !c->showInLegend() ) continue;
         curves.push_back( c );
     }
@@ -2815,7 +2815,7 @@ void RimSummaryPlot::updateCurveNames()
     {
         for ( auto c : summaryCurves() )
         {
-            if ( c->isCurveVisible() )
+            if ( c->isChecked() )
             {
                 c->updateCurveNameNoLegendUpdate();
             }

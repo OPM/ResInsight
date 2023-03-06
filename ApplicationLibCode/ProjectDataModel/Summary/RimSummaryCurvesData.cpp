@@ -43,7 +43,7 @@ void RimSummaryCurvesData::populateTimeHistoryCurvesData( std::vector<RimGridTim
 
     for ( RimGridTimeHistoryCurve* curve : curves )
     {
-        if ( !curve->isCurveVisible() ) continue;
+        if ( !curve->isChecked() ) continue;
         QString curveCaseName = curve->caseName();
 
         CurveData curveData = { curve->curveExportDescription(), RifEclipseSummaryAddress(), curve->yValues() };
@@ -63,7 +63,7 @@ void RimSummaryCurvesData::populateAsciiDataCurvesData( std::vector<RimAsciiData
 
     for ( RimAsciiDataCurve* curve : curves )
     {
-        if ( !curve->isCurveVisible() ) continue;
+        if ( !curve->isChecked() ) continue;
 
         CurveData curveData = { curve->curveExportDescription(), RifEclipseSummaryAddress(), curve->yValues() };
 
@@ -188,7 +188,7 @@ void RimSummaryCurvesData::populateSummaryCurvesData( std::vector<RimSummaryCurv
     {
         bool isObservedCurve = curve->summaryCaseY() ? curve->summaryCaseY()->isObservedData() : false;
 
-        if ( !curve->isCurveVisible() ) continue;
+        if ( !curve->isChecked() ) continue;
         if ( isObservedCurve && ( curveType != SummaryCurveType::CURVE_TYPE_OBSERVED ) ) continue;
         if ( !isObservedCurve && ( curveType != SummaryCurveType::CURVE_TYPE_GRID ) ) continue;
         if ( !curve->summaryCaseY() ) continue;

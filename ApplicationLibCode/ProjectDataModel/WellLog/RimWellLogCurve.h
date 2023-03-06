@@ -48,6 +48,7 @@ public:
     bool depthValueRangeInData( double* minimumValue, double* maximumValue ) const;
 
     const RigWellLogCurveData* curveData() const;
+    bool                       isAnyCurveDataPresent() const override;
 
     void updateCurveAppearance() override;
 
@@ -104,6 +105,8 @@ protected:
     void setPropertyAndDepthsAndErrors( const std::vector<double>& propertyValues,
                                         const std::vector<double>& depthValues,
                                         const std::vector<double>& errorValues );
+
+    void clearCurveData();
 
     bool        isVerticalCurve() const;
     RiuPlotAxis depthAxis() const;
