@@ -648,7 +648,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
     DerivedMDSource derivedMDSource = DerivedMDSource::NO_SOURCE;
 
-    if ( isChecked() )
+    if ( m_autoCheckStateBasedOnCurveData() || isChecked() )
     {
         RimDepthTrackPlot* wellLogPlot;
         firstAncestorOrThisOfType( wellLogPlot );
@@ -666,6 +666,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         if ( values.empty() || values.size() != tvDepthVector.size() )
         {
+            clearCurveData();
             this->detach( true );
             return;
         }
@@ -747,78 +748,81 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
             displayUnit = wellLogPlot->depthUnit();
         }
 
-        if ( wellLogPlot->depthType() == RiaDefines::DepthTypeEnum::MEASURED_DEPTH )
+        if ( m_plotCurve )
         {
-            m_plotCurve->setPerPointLabels( perPointLabels );
-
-            auto propertyValues = this->curveData()->propertyValuesByIntervals();
-            auto depthValues    = this->curveData()->depthValuesByIntervals( RiaDefines::DepthTypeEnum::MEASURED_DEPTH, displayUnit );
-
-            if ( !errors.empty() )
+            if ( wellLogPlot->depthType() == RiaDefines::DepthTypeEnum::MEASURED_DEPTH )
             {
-                setPropertyAndDepthsAndErrors( propertyValues, depthValues, errors );
-            }
-            else
-            {
-                setPropertyAndDepthValuesToPlotCurve( propertyValues, depthValues );
-            }
+                m_plotCurve->setPerPointLabels( perPointLabels );
 
-            m_plotCurve->setLineSegmentStartStopIndices( this->curveData()->polylineStartStopIndices() );
+                auto propertyValues = this->curveData()->propertyValuesByIntervals();
+                auto depthValues    = this->curveData()->depthValuesByIntervals( RiaDefines::DepthTypeEnum::MEASURED_DEPTH, displayUnit );
 
-            RimWellLogTrack* wellLogTrack;
-            firstAncestorOrThisOfType( wellLogTrack );
-            CVF_ASSERT( wellLogTrack );
-
-            RiuQwtPlotWidget* viewer = wellLogTrack->viewer();
-            if ( viewer )
-            {
-                QString text;
-
-                if ( derivedMDSource != DerivedMDSource::NO_SOURCE )
+                if ( !errors.empty() )
                 {
-                    if ( derivedMDSource == DerivedMDSource::WELL_PATH )
-                    {
-                        text = "WELL/" + wellLogPlot->depthAxisTitle();
-                    }
-                    else
-                    {
-                        text = "OBS/" + wellLogPlot->depthAxisTitle();
-                    }
-                }
-                else // Standard depth title set from plot
-                {
-                    text = wellLogPlot->depthAxisTitle();
-                }
-
-                viewer->setAxisTitleText( wellLogPlot->depthAxis(), text );
-            }
-        }
-        else
-        {
-            m_plotCurve->setPerPointLabels( perPointLabels );
-
-            auto propertyValues = this->curveData()->propertyValuesByIntervals();
-            auto depthValues    = this->curveData()->depthValuesByIntervals( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH, displayUnit );
-            bool useLogarithmicScale = false;
-
-            if ( !errors.empty() )
-            {
-                setPropertyAndDepthsAndErrors( propertyValues, depthValues, errors );
-            }
-            else
-            {
-                if ( isVerticalCurve() )
-                {
-                    m_plotCurve->setSamplesFromXValuesAndYValues( propertyValues, depthValues, useLogarithmicScale );
+                    setPropertyAndDepthsAndErrors( propertyValues, depthValues, errors );
                 }
                 else
                 {
-                    m_plotCurve->setSamplesFromXValuesAndYValues( depthValues, propertyValues, useLogarithmicScale );
+                    setPropertyAndDepthValuesToPlotCurve( propertyValues, depthValues );
+                }
+
+                m_plotCurve->setLineSegmentStartStopIndices( this->curveData()->polylineStartStopIndices() );
+
+                RimWellLogTrack* wellLogTrack;
+                firstAncestorOrThisOfType( wellLogTrack );
+                CVF_ASSERT( wellLogTrack );
+
+                RiuQwtPlotWidget* viewer = wellLogTrack->viewer();
+                if ( viewer )
+                {
+                    QString text;
+
+                    if ( derivedMDSource != DerivedMDSource::NO_SOURCE )
+                    {
+                        if ( derivedMDSource == DerivedMDSource::WELL_PATH )
+                        {
+                            text = "WELL/" + wellLogPlot->depthAxisTitle();
+                        }
+                        else
+                        {
+                            text = "OBS/" + wellLogPlot->depthAxisTitle();
+                        }
+                    }
+                    else // Standard depth title set from plot
+                    {
+                        text = wellLogPlot->depthAxisTitle();
+                    }
+
+                    viewer->setAxisTitleText( wellLogPlot->depthAxis(), text );
                 }
             }
-        }
+            else
+            {
+                m_plotCurve->setPerPointLabels( perPointLabels );
 
-        m_plotCurve->setLineSegmentStartStopIndices( this->curveData()->polylineStartStopIndices() );
+                auto propertyValues = this->curveData()->propertyValuesByIntervals();
+                auto depthValues = this->curveData()->depthValuesByIntervals( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH, displayUnit );
+                bool useLogarithmicScale = false;
+
+                if ( !errors.empty() )
+                {
+                    setPropertyAndDepthsAndErrors( propertyValues, depthValues, errors );
+                }
+                else
+                {
+                    if ( isVerticalCurve() )
+                    {
+                        m_plotCurve->setSamplesFromXValuesAndYValues( propertyValues, depthValues, useLogarithmicScale );
+                    }
+                    else
+                    {
+                        m_plotCurve->setSamplesFromXValuesAndYValues( depthValues, propertyValues, useLogarithmicScale );
+                    }
+                }
+            }
+
+            m_plotCurve->setLineSegmentStartStopIndices( this->curveData()->polylineStartStopIndices() );
+        }
 
         if ( updateParentPlot )
         {
@@ -846,6 +850,10 @@ void RimWellLogRftCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     curveDataGroup->add( &m_timeStep );
     curveDataGroup->add( &m_rftDataType );
     curveDataGroup->add( &m_scaleFactor );
+
+    caf::PdmUiGroup* automationGroup = uiOrdering.addNewGroup( "Automation" );
+    automationGroup->setCollapsedByDefault();
+    automationGroup->add( &m_autoCheckStateBasedOnCurveData );
 
     if ( m_rftDataType() == RimWellLogRftCurve::RftDataType::RFT_DATA )
     {

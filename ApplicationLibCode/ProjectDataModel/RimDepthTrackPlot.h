@@ -172,6 +172,8 @@ public:
     static RiuPlotAxis valueAxis( RiaDefines::Orientation depthOrientation );
     static RiuPlotAxis annotationAxis( RiaDefines::Orientation depthOrientation );
 
+    void updateTrackVisibility();
+
 protected:
     QImage snapshotWindowContent() override;
 

@@ -60,6 +60,8 @@ RimPlotCurve::RimPlotCurve()
     CAF_PDM_InitField( &m_showCurve, "Show", true, "Show curve" );
     m_showCurve.uiCapability()->setUiHidden( true );
 
+    CAF_PDM_InitField( &m_autoCheckStateBasedOnCurveData, "AutoCheckStateBasedOnCurveData", false, "Hide Curve If No Curve Data" );
+
     CAF_PDM_InitFieldNoDefault( &m_curveName, "CurveName", "" );
 
     auto templateText = QString( "%1, %2" ).arg( RiaDefines::namingVariableCase() ).arg( RiaDefines::namingVariableResultName() );
@@ -157,6 +159,10 @@ void RimPlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, co
         this->updateCurveVisibility();
         if ( m_showCurve() ) loadDataAndUpdate( false );
         visibilityChanged.send( m_showCurve() );
+    }
+    else if ( changedField == &m_autoCheckStateBasedOnCurveData )
+    {
+        updateCheckStateBasedOnCurveData();
     }
     else if ( changedField == &m_curveName )
     {
@@ -370,6 +376,24 @@ bool RimPlotCurve::isChecked() const
 void RimPlotCurve::setCheckState( bool isChecked )
 {
     m_showCurve = isChecked;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setAutoCheckStateBasedOnCurveData( bool enable )
+{
+    m_autoCheckStateBasedOnCurveData = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::updateCheckStateBasedOnCurveData()
+{
+    if ( !m_autoCheckStateBasedOnCurveData ) return;
+
+    setCheckState( isAnyCurveDataPresent() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -859,6 +883,14 @@ void RimPlotCurve::setSamplesFromXYErrorValues( const std::vector<double>&   xVa
 void RimPlotCurve::updateAxisInPlot( RiuPlotAxis plotAxis )
 {
     if ( m_plotCurve ) m_plotCurve->setYAxis( plotAxis );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPlotCurve::isAnyCurveDataPresent() const
+{
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

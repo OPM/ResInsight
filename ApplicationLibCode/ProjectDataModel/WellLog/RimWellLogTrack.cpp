@@ -270,6 +270,8 @@ RimWellLogTrack::RimWellLogTrack()
     CAF_PDM_InitFieldNoDefault( &m_wellPathComponentSource, "AttributesWellPathSource", "Well Path" );
     CAF_PDM_InitFieldNoDefault( &m_wellPathAttributeCollection, "AttributesCollection", "Well Attributes" );
 
+    CAF_PDM_InitField( &m_autoCheckStateBasedOnCurveData, "AutoCheckStateBasedOnCurveData", false, "Hide Track if No Curve Data" );
+
     CAF_PDM_InitField( &m_overburdenHeight, "OverburdenHeight", 0.0, "Overburden Height" );
     m_overburdenHeight.uiCapability()->setUiHidden( true );
     CAF_PDM_InitField( &m_underburdenHeight, "UnderburdenHeight", 0.0, "Underburden Height" );
@@ -758,6 +760,10 @@ void RimWellLogTrack::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         updateWellPathAttributesOnPlot();
         updateParentLayout();
         RiuPlotMainWindowTools::refreshToolbars();
+    }
+    else if ( changedField == &m_autoCheckStateBasedOnCurveData )
+    {
+        updateCheckStateBasedOnCurveData();
     }
 }
 
@@ -1279,6 +1285,36 @@ bool RimWellLogTrack::isEmptyVisiblePropertyRange() const
 {
     return std::abs( m_visiblePropertyValueRangeMax() - m_visiblePropertyValueRangeMin ) <
            1.0e-6 * std::max( 1.0, std::max( m_visiblePropertyValueRangeMax(), m_visiblePropertyValueRangeMin() ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setAutoCheckStateBasedOnCurveData( bool enable )
+{
+    m_autoCheckStateBasedOnCurveData = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::updateCheckStateBasedOnCurveData()
+{
+    bool curveDataPresent = false;
+    for ( const auto& curve : curves() )
+    {
+        curve->updateCheckStateBasedOnCurveData();
+        curve->updateCurveVisibility();
+
+        if ( curve->isAnyCurveDataPresent() ) curveDataPresent = true;
+    }
+
+    // As the visibility of a curve might have changed, update the legend
+    updateLegend();
+
+    if ( !m_autoCheckStateBasedOnCurveData ) return;
+
+    setShowWindow( curveDataPresent );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1998,6 +2034,10 @@ void RimWellLogTrack::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
         uiOrdering.add( &m_rowSpan );
     else
         uiOrdering.add( &m_colSpan );
+
+    caf::PdmUiGroup* automationGroup = uiOrdering.addNewGroup( "Automation" );
+    automationGroup->setCollapsedByDefault();
+    automationGroup->add( &m_autoCheckStateBasedOnCurveData );
 
     caf::PdmUiGroup* annotationGroup = uiOrdering.addNewGroup( "Regions/Annotations" );
     annotationGroup->setCollapsedByDefault();
