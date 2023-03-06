@@ -41,6 +41,7 @@
 
 #include "cafSelectionManager.h"
 
+#include "RimWellLogPlot.h"
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicNewRftSegmentWellLogPlotFeature, "RicNewRftSegmentWellLogPlotFeature" );
@@ -103,6 +104,7 @@ void RicNewRftSegmentWellLogPlotFeature::onActionTriggered( bool isChecked )
     appendConnectionFactorTrack( plot, wellName, summaryCase );
     appendTopologyTrack( plot, wellName, summaryCase );
 
+    RicNewRftSegmentWellLogPlotFeature::updateUnitTexts( plot );
     plot->loadDataAndUpdate();
     plot->updateTrackVisibility();
 
@@ -201,8 +203,9 @@ void RicNewRftSegmentWellLogPlotFeature::appendTopologyTrack( RimWellLogPlot* pl
 
     auto track = new RimWellLogTrack();
     track->setDescription( "Topology" );
-    track->enablePropertyAxis( false );
+    // track->enablePropertyAxis( false );
     track->setRowSpan( RimPlot::TWO );
+    track->setPropertyValueAxisTitle( "Topology" );
 
     plot->addPlot( track );
 
@@ -291,6 +294,43 @@ void RicNewRftSegmentWellLogPlotFeature::appendConnectionFactorTrack( RimWellLog
     auto fillColor = RiaColorTools::makeLighter( curveColor, 0.3f );
     curve->setFillColor( fillColor );
     curve->setFillStyle( Qt::SolidPattern );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicNewRftSegmentWellLogPlotFeature::updateUnitTexts( RimWellLogPlot* plot )
+{
+    for ( auto plot : plot->plots() )
+    {
+        auto wellLogTrack = dynamic_cast<RimWellLogTrack*>( plot );
+        if ( !wellLogTrack ) continue;
+
+        std::set<std::string> unitTexts;
+
+        bool isTopologyCurve = false;
+        for ( auto curve : wellLogTrack->curves() )
+        {
+            if ( dynamic_cast<RimRftTopologyCurve*>( curve ) )
+            {
+                isTopologyCurve = true;
+                break;
+            }
+            auto rftCurve = dynamic_cast<RimWellLogRftCurve*>( curve );
+            if ( !rftCurve ) continue;
+            unitTexts.insert( rftCurve->unitText() );
+        }
+
+        if ( isTopologyCurve ) continue;
+
+        std::string trackTitle;
+        for ( const auto& str : unitTexts )
+        {
+            trackTitle += str + " ";
+        }
+
+        wellLogTrack->setPropertyValueAxisTitle( QString::fromStdString( trackTitle ) );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

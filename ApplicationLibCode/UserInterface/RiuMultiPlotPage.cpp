@@ -905,7 +905,7 @@ int RiuMultiPlotPage::alignCanvasTops()
         if ( qwtPlotWidget )
         {
             int row = visibleIndex / rowAndColumnCount.second;
-            if ( plotWidgets[visibleIndex]->axisEnabled( RiuPlotAxis::defaultTop() ) )
+            // if ( plotWidgets[visibleIndex]->axisEnabled( RiuPlotAxis::defaultTop() ) )
             {
                 QFont font      = qwtPlotWidget->qwtPlot()->axisFont( QwtAxis::XTop );
                 maxExtents[row] = std::max( maxExtents[row], qwtPlotWidget->qwtPlot()->axisScaleDraw( QwtAxis::XTop )->extent( font ) );

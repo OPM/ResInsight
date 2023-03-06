@@ -40,6 +40,8 @@ public:
     static void appendPressureTrack( RimWellLogPlot* plot, const QString& wellName, RimSummaryCase* summaryCase );
     static void appendConnectionFactorTrack( RimWellLogPlot* plot, const QString& wellName, RimSummaryCase* summaryCase );
 
+    static void updateUnitTexts( RimWellLogPlot* plot );
+
 private:
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;

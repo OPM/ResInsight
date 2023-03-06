@@ -101,6 +101,7 @@ void RicNewMultiPhaseRftSegmentPlotFeature::onActionTriggered( bool isChecked )
     RicNewRftSegmentWellLogPlotFeature::appendConnectionFactorTrack( plot, wellName, summaryCase );
     RicNewRftSegmentWellLogPlotFeature::appendTopologyTrack( plot, wellName, summaryCase );
 
+    RicNewRftSegmentWellLogPlotFeature::updateUnitTexts( plot );
     plot->loadDataAndUpdate();
     plot->updateTrackVisibility();
 
