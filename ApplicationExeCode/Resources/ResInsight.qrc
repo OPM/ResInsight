@@ -39,7 +39,7 @@
         <file>CorrelationPlots16x16.png</file>
         <file>CorrelationReportPlot16x16.png</file>
         <file>CorrelationTornadoPlot16x16.png</file>
-        <file>CreateGridCaseGroup16x16.png</file> 
+        <file>CreateGridCaseGroup16x16.png</file>
         <file>CrossSection16x16.png</file>
         <file>CrossSections16x16.png</file>
         <file>CumulativePhaseDist16x16.png</file>
@@ -243,7 +243,6 @@
         <file>ComboBoxDown.svg</file>
         <file>ComboBoxUp.svg</file>
         <file>WellIntAnalysis.png</file>
-        <file>DataVector.png</file>
         <file>data-sources.svg</file>
         <file>edit.svg</file>
         <file>graph.svg</file>
@@ -272,6 +271,8 @@
         <file>CheckOverlay16x16.png</file>
         <file>Link3DandPlots.png</file>
         <file>info.png</file>
+        <file>DataVector.svg</file>
+        <file>DataVectorCalculated.svg</file>
     </qresource>
     <qresource prefix="/Shader">
         <file>fs_CellFace.glsl</file>

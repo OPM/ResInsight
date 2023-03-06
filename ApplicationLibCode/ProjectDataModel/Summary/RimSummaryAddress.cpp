@@ -255,7 +255,7 @@ bool RimSummaryAddress::isEnsemble() const
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryAddress::iconResourceText() const
 {
-    if ( m_calculationId != -1 ) return ":/summary/components/images/calculated.svg";
+    if ( m_calculationId != -1 ) return ":/DataVectorCalculated.svg";
 
-    return ":/DataVector.png";
+    return ":/DataVector.svg";
 }
