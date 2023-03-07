@@ -293,7 +293,6 @@ void RimWellPathCollection::readAndAddWellPaths( std::vector<RimFileWellPath*>& 
 {
     caf::ProgressInfo progress( wellPathArray.size(), "Reading well paths from file" );
 
-    std::vector<RimWellPath*> wellPathsToGroup;
     for ( RimFileWellPath* wellPath : wellPathArray )
     {
         wellPath->readWellPathFile( nullptr, m_wellPathImporter.get(), true );
@@ -322,15 +321,13 @@ void RimWellPathCollection::readAndAddWellPaths( std::vector<RimFileWellPath*>& 
             wellPath->setWellPathColor( RiaColorTables::wellPathsPaletteColors().cycledColor3f( m_wellPaths.size() ) );
             wellPath->setUnitSystem( findUnitSystemForWellPath( wellPath ) );
             addWellPath( wellPath );
-
-            wellPathsToGroup.push_back( wellPath );
         }
 
         progress.incrementProgress();
     }
     wellPathArray.clear(); // This should not be used again. We may have deleted items
 
-    groupWellPaths( wellPathsToGroup );
+    groupWellPaths( allWellPaths() );
     sortWellsByName();
     rebuildWellPathNodes();
 }
@@ -345,7 +342,7 @@ void RimWellPathCollection::addWellPaths( const std::vector<RimWellPath*> incomi
         addWellPath( wellPath );
     }
 
-    groupWellPaths( incomingWellPaths );
+    groupWellPaths( allWellPaths() );
     sortWellsByName();
     rebuildWellPathNodes();
 
@@ -574,56 +571,77 @@ void RimWellPathCollection::deleteWell( RimWellPath* wellPath )
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::groupWellPaths( const std::vector<RimWellPath*>& wellPaths )
 {
-    auto rootWells = wellPathsForWellNameStem( wellPaths );
+    const auto& rootWells = wellPathsForWellNameStem( wellPaths );
 
-    for ( auto [groupName, wellPathCommonName] : rootWells )
+    for ( const auto& [groupName, wellPathsInGroup] : rootWells )
     {
         if ( groupName == unGroupedText() ) continue;
 
-        for ( auto wellPath : wellPathCommonName )
+        for ( const auto& wellPathToConnect : wellPathsInGroup )
         {
             // Assign the group names as well name for export
-            wellPath->completionSettings()->setWellNameForExport( groupName );
+            wellPathToConnect->completionSettings()->setWellNameForExport( groupName );
 
-            auto wellPathGeometry = wellPath->wellPathGeometry();
+            const auto wellPathGeometry = wellPathToConnect->wellPathGeometry();
             if ( wellPathGeometry )
             {
-                const double                   eps = 1.0e-2;
-                std::map<RimWellPath*, double> wellPathsWithCommonGeometry;
+                std::map<RimWellPath*, double> sharedWellPathLengths;
 
-                for ( auto existingWellPath : wellPathCommonName )
+                for ( const auto& otherWellPath : wellPathsInGroup )
                 {
-                    if ( existingWellPath == wellPath ) continue;
+                    if ( otherWellPath == wellPathToConnect ) continue;
 
-                    if ( wellPath->name() < existingWellPath->name() ) continue;
-
-                    double identicalTubeLength = existingWellPath->wellPathGeometry()->identicalTubeLength( *wellPathGeometry );
-                    if ( identicalTubeLength > eps )
+                    if ( otherWellPath && otherWellPath->wellPathGeometry() )
                     {
-                        wellPathsWithCommonGeometry[existingWellPath] = identicalTubeLength;
+                        const double sharedWellPathLength = otherWellPath->wellPathGeometry()->identicalTubeLength( *wellPathGeometry );
+                        const double eps                  = 1.0e-2;
+                        if ( sharedWellPathLength > eps )
+                        {
+                            sharedWellPathLengths[otherWellPath] = sharedWellPathLength;
+                        }
                     }
                 }
 
-                RimWellPath* mostSimilarWellPath        = nullptr;
-                double       longestIdenticalTubeLength = 0.0;
-                for ( auto [existingWellPath, identicalTubeLength] : wellPathsWithCommonGeometry )
+                RimWellPath* longestSharedWellPath       = nullptr;
+                double       longestSharedWellPathLength = 0.0;
+                for ( const auto& [wellPathCandidate, sharedWellPathLength] : sharedWellPathLengths )
                 {
-                    if ( existingWellPath && ( existingWellPath != wellPath ) && identicalTubeLength > longestIdenticalTubeLength )
+                    if ( wellPathCandidate )
                     {
-                        mostSimilarWellPath        = existingWellPath;
-                        longestIdenticalTubeLength = identicalTubeLength;
+                        const double distanceDifference = fabs( sharedWellPathLength - longestSharedWellPathLength );
+
+                        const double differenceThreshold = 1.0;
+                        if ( longestSharedWellPath && ( distanceDifference < differenceThreshold ) )
+                        {
+                            // If the main well is named WELL_A, each side steps of a MSW can be given the following names
+                            // WELL_A_Y1
+                            // WELL_A_Y2
+                            // WELL_A_Y3
+                            //
+                            // If Y3 has equal shared geometry with both Y2 and Y1, make sure that Y3 is connected to Y1.
+                            if ( wellPathCandidate->name() < longestSharedWellPath->name() )
+                            {
+                                longestSharedWellPath       = wellPathCandidate;
+                                longestSharedWellPathLength = sharedWellPathLength;
+                            }
+                        }
+                        else if ( sharedWellPathLength > longestSharedWellPathLength )
+                        {
+                            longestSharedWellPath       = wellPathCandidate;
+                            longestSharedWellPathLength = sharedWellPathLength;
+                        }
                     }
                 }
 
-                if ( mostSimilarWellPath )
+                if ( longestSharedWellPath )
                 {
-                    if ( wellPath->name() > mostSimilarWellPath->name() )
+                    if ( wellPathToConnect->name() > longestSharedWellPath->name() )
                     {
-                        wellPath->connectWellPaths( mostSimilarWellPath, longestIdenticalTubeLength );
+                        wellPathToConnect->connectWellPaths( longestSharedWellPath, longestSharedWellPathLength );
                     }
                     else
                     {
-                        mostSimilarWellPath->connectWellPaths( wellPath, longestIdenticalTubeLength );
+                        longestSharedWellPath->connectWellPaths( wellPathToConnect, longestSharedWellPathLength );
                     }
                 }
             }
