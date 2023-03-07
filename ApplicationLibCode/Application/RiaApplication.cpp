@@ -913,8 +913,7 @@ bool RiaApplication::openOdbCaseFromFile( const QString& fileName, bool applyTim
 //--------------------------------------------------------------------------------------------------
 /// Add a list of well path file paths (JSON files) to the well path collection
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellPath*>
-    RiaApplication::addWellPathsToModel( QList<QString> wellPathFilePaths, bool importGrouped, gsl::not_null<QStringList*> errorMessages )
+std::vector<RimWellPath*> RiaApplication::addWellPathsToModel( QList<QString> wellPathFilePaths, gsl::not_null<QStringList*> errorMessages )
 {
     if ( m_project == nullptr || m_project->oilFields.size() < 1 ) return {};
 
@@ -932,7 +931,7 @@ std::vector<RimWellPath*>
     std::vector<RimWellPath*> wellPaths;
     if ( oilField->wellPathCollection )
     {
-        wellPaths = oilField->wellPathCollection->addWellPaths( wellPathFilePaths, importGrouped, errorMessages );
+        wellPaths = oilField->wellPathCollection->addWellPaths( wellPathFilePaths, errorMessages );
     }
 
     oilField->wellPathCollection->updateConnectedEditors();

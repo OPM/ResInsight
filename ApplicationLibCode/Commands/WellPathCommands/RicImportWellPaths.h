@@ -42,7 +42,7 @@ public:
     RicImportWellPaths();
     caf::PdmScriptResponse execute() override;
 
-    static std::vector<RimWellPath*> importWellPaths( const QStringList& wellPathFilePaths, bool importGrouped, QStringList* errorMessages );
+    static std::vector<RimWellPath*> importWellPaths( const QStringList& wellPathFilePaths, QStringList* errorMessages );
 
 protected:
     static QStringList wellPathNameFilters();
@@ -54,5 +54,4 @@ protected:
 protected:
     caf::PdmField<QString>              m_wellPathFolder;
     caf::PdmField<std::vector<QString>> m_wellPathFiles;
-    caf::PdmField<bool>                 m_importGrouped;
 };

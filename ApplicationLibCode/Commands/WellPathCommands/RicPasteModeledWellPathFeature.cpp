@@ -155,7 +155,7 @@ RimModeledWellPath* RicPasteModeledWellPathFeature::duplicateAndInitializeWellPa
     QString name = sourceWellPath->name() + "(copy)";
     destinationWellPath->setName( name );
 
-    wpc->addWellPath( destinationWellPath, false );
+    wpc->addWellPath( destinationWellPath );
 
     // Resolve references, will connect to the fracture template
     destinationWellPath->resolveReferencesRecursively();

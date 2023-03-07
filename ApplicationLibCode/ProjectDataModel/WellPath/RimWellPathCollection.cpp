@@ -149,8 +149,8 @@ void RimWellPathCollection::loadDataAndUpdate()
     {
         progress.setProgressDescription( QString( "Reading file %1" ).arg( wellPath->name() ) );
 
-        RimFileWellPath*    fWPath = dynamic_cast<RimFileWellPath*>( wellPath );
-        RimModeledWellPath* mWPath = dynamic_cast<RimModeledWellPath*>( wellPath );
+        auto* fWPath = dynamic_cast<RimFileWellPath*>( wellPath );
+        auto* mWPath = dynamic_cast<RimModeledWellPath*>( wellPath );
         if ( fWPath )
         {
             if ( !fWPath->filePath().isEmpty() )
@@ -201,19 +201,19 @@ void RimWellPathCollection::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellPath*> RimWellPathCollection::addWellPaths( QStringList filePaths, bool importGrouped, QStringList* errorMessages )
+std::vector<RimWellPath*> RimWellPathCollection::addWellPaths( QStringList filePaths, QStringList* errorMessages )
 {
     CAF_ASSERT( errorMessages );
 
     std::vector<RimFileWellPath*> wellPathArray;
 
-    for ( QString filePath : filePaths )
+    for ( const QString& filePath : filePaths )
     {
         // Check if this file is already open
         bool alreadyOpen = false;
-        for ( auto wellPath : m_wellPaths )
+        for ( const auto& wellPath : m_wellPaths )
         {
-            RimFileWellPath* fWPath = dynamic_cast<RimFileWellPath*>( wellPath.p() );
+            auto* fWPath = dynamic_cast<RimFileWellPath*>( wellPath.p() );
             if ( !fWPath ) continue;
 
             QFile f1;
@@ -238,7 +238,7 @@ std::vector<RimWellPath*> RimWellPathCollection::addWellPaths( QStringList fileP
 
             if ( fi.suffix().compare( "json" ) == 0 )
             {
-                RimFileWellPath* wellPath = new RimFileWellPath();
+                auto* wellPath = new RimFileWellPath();
                 wellPath->setFilepath( filePath );
                 wellPathArray.push_back( wellPath );
             }
@@ -248,7 +248,7 @@ std::vector<RimWellPath*> RimWellPathCollection::addWellPaths( QStringList fileP
                 size_t wellPathCount = m_wellPathImporter->wellDataCount( filePath );
                 for ( size_t i = 0; i < wellPathCount; ++i )
                 {
-                    RimFileWellPath* wellPath = new RimFileWellPath();
+                    auto* wellPath = new RimFileWellPath();
                     wellPath->setFilepath( filePath );
                     wellPath->setWellPathIndexInFile( static_cast<int>( i ) );
                     wellPathArray.push_back( wellPath );
@@ -257,7 +257,7 @@ std::vector<RimWellPath*> RimWellPathCollection::addWellPaths( QStringList fileP
         }
     }
 
-    readAndAddWellPaths( wellPathArray, importGrouped );
+    readAndAddWellPaths( wellPathArray );
     CAF_ASSERT( wellPathArray.empty() );
 
     scheduleRedrawAffectedViews();
@@ -269,7 +269,7 @@ std::vector<RimWellPath*> RimWellPathCollection::addWellPaths( QStringList fileP
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::addWellPath( gsl::not_null<RimWellPath*> wellPath, bool importGrouped )
+void RimWellPathCollection::addWellPath( gsl::not_null<RimWellPath*> wellPath )
 {
     m_wellPaths.push_back( wellPath );
 
@@ -289,11 +289,10 @@ std::vector<RimWellPath*> RimWellPathCollection::allWellPaths() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::readAndAddWellPaths( std::vector<RimFileWellPath*>& wellPathArray, bool importGrouped )
+void RimWellPathCollection::readAndAddWellPaths( std::vector<RimFileWellPath*>& wellPathArray )
 {
     caf::ProgressInfo progress( wellPathArray.size(), "Reading well paths from file" );
 
-    std::vector<RimWellPath*> wellPathsToGroup;
     for ( RimFileWellPath* wellPath : wellPathArray )
     {
         wellPath->readWellPathFile( nullptr, m_wellPathImporter.get(), true );
@@ -321,16 +320,14 @@ void RimWellPathCollection::readAndAddWellPaths( std::vector<RimFileWellPath*>& 
         {
             wellPath->setWellPathColor( RiaColorTables::wellPathsPaletteColors().cycledColor3f( m_wellPaths.size() ) );
             wellPath->setUnitSystem( findUnitSystemForWellPath( wellPath ) );
-            addWellPath( wellPath, false );
-
-            wellPathsToGroup.push_back( wellPath );
+            addWellPath( wellPath );
         }
 
         progress.incrementProgress();
     }
     wellPathArray.clear(); // This should not be used again. We may have deleted items
 
-    groupWellPaths( wellPathsToGroup );
+    groupWellPaths( allWellPaths() );
     sortWellsByName();
     rebuildWellPathNodes();
 }
@@ -338,14 +335,14 @@ void RimWellPathCollection::readAndAddWellPaths( std::vector<RimFileWellPath*>& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::addWellPaths( const std::vector<RimWellPath*> incomingWellPaths, bool importGrouped )
+void RimWellPathCollection::addWellPaths( const std::vector<RimWellPath*> incomingWellPaths )
 {
     for ( const auto& wellPath : incomingWellPaths )
     {
-        addWellPath( wellPath, importGrouped );
+        addWellPath( wellPath );
     }
 
-    groupWellPaths( incomingWellPaths );
+    groupWellPaths( allWellPaths() );
     sortWellsByName();
     rebuildWellPathNodes();
 
@@ -375,7 +372,7 @@ std::vector<RimWellLogFile*> RimWellPathCollection::addWellLogs( const QStringLi
             if ( !wellPath )
             {
                 wellPath = new RimWellPath();
-                addWellPath( wellPath, false );
+                addWellPath( wellPath );
             }
 
             wellPath->addWellLogFile( logFileInfo );
@@ -400,30 +397,30 @@ void RimWellPathCollection::addWellPathFormations( const QStringList& filePaths 
 
     bool fileReadSuccess = false;
 
-    for ( QString filePath : filePaths )
+    for ( const QString& filePath : filePaths )
     {
         std::map<QString, cvf::ref<RigWellPathFormations>> newFormations =
             m_wellPathFormationsImporter->readWellPathFormationsFromPath( filePath );
 
-        for ( auto it = newFormations.begin(); it != newFormations.end(); it++ )
+        for ( const auto& newFormation : newFormations )
         {
             fileReadSuccess = true;
 
-            RimWellPath* wellPath = tryFindMatchingWellPath( it->first );
+            RimWellPath* wellPath = tryFindMatchingWellPath( newFormation.first );
             if ( !wellPath )
             {
                 wellPath = new RimWellPath();
-                wellPath->setName( it->first );
-                addWellPath( wellPath, false );
+                wellPath->setName( newFormation.first );
+                addWellPath( wellPath );
                 RiaLogging::info( QString( "Created new well: %1" ).arg( wellPath->name() ) );
             }
-            wellPath->setFormationsGeometry( it->second );
+            wellPath->setFormationsGeometry( newFormation.second );
 
-            QString wellFormationsCount = QString( "%1" ).arg( it->second->formationNamesCount() );
+            QString wellFormationsCount = QString( "%1" ).arg( newFormation.second->formationNamesCount() );
 
             m_mostRecentlyUpdatedWellPath = wellPath;
 
-            outputMessage += it->first + "\t\t";
+            outputMessage += newFormation.first + "\t\t";
             outputMessage += wellPath->name() + " \t\t\t";
             outputMessage += wellFormationsCount + "\n";
         }
@@ -498,7 +495,7 @@ void RimWellPathCollection::scheduleRedrawAffectedViews()
 //--------------------------------------------------------------------------------------------------
 bool RimWellPathCollection::anyWellsContainingPerforationIntervals() const
 {
-    for ( auto wellPath : m_wellPaths )
+    for ( const auto& wellPath : m_wellPaths )
     {
         if ( !wellPath->perforationIntervalCollection()->perforations().empty() ) return true;
     }
@@ -511,7 +508,7 @@ bool RimWellPathCollection::anyWellsContainingPerforationIntervals() const
 size_t RimWellPathCollection::modelledWellPathCount() const
 {
     size_t count = 0;
-    for ( auto wellPath : m_wellPaths )
+    for ( const auto& wellPath : m_wellPaths )
     {
         if ( dynamic_cast<const RimModeledWellPath*>( wellPath.p() ) )
         {
@@ -526,7 +523,7 @@ size_t RimWellPathCollection::modelledWellPathCount() const
 //--------------------------------------------------------------------------------------------------
 RimWellPath* RimWellPathCollection::wellPathByName( const QString& wellPathName ) const
 {
-    for ( auto wellPath : m_wellPaths )
+    for ( const auto& wellPath : m_wellPaths )
     {
         if ( wellPath->name() == wellPathName )
         {
@@ -574,56 +571,77 @@ void RimWellPathCollection::deleteWell( RimWellPath* wellPath )
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::groupWellPaths( const std::vector<RimWellPath*>& wellPaths )
 {
-    auto rootWells = wellPathsForWellNameStem( wellPaths );
+    const auto& rootWells = wellPathsForWellNameStem( wellPaths );
 
-    for ( auto [groupName, wellPathCommonName] : rootWells )
+    for ( const auto& [groupName, wellPathsInGroup] : rootWells )
     {
         if ( groupName == unGroupedText() ) continue;
 
-        for ( auto wellPath : wellPathCommonName )
+        for ( const auto& wellPathToConnect : wellPathsInGroup )
         {
             // Assign the group names as well name for export
-            wellPath->completionSettings()->setWellNameForExport( groupName );
+            wellPathToConnect->completionSettings()->setWellNameForExport( groupName );
 
-            auto wellPathGeometry = wellPath->wellPathGeometry();
+            const auto wellPathGeometry = wellPathToConnect->wellPathGeometry();
             if ( wellPathGeometry )
             {
-                const double                   eps = 1.0e-2;
-                std::map<RimWellPath*, double> wellPathsWithCommonGeometry;
+                std::map<RimWellPath*, double> sharedWellPathLengths;
 
-                for ( auto existingWellPath : wellPathCommonName )
+                for ( const auto& otherWellPath : wellPathsInGroup )
                 {
-                    if ( existingWellPath == wellPath ) continue;
+                    if ( otherWellPath == wellPathToConnect ) continue;
 
-                    if ( wellPath->name() < existingWellPath->name() ) continue;
-
-                    double identicalTubeLength = existingWellPath->wellPathGeometry()->identicalTubeLength( *wellPathGeometry );
-                    if ( identicalTubeLength > eps )
+                    if ( otherWellPath && otherWellPath->wellPathGeometry() )
                     {
-                        wellPathsWithCommonGeometry[existingWellPath] = identicalTubeLength;
+                        const double sharedWellPathLength = otherWellPath->wellPathGeometry()->identicalTubeLength( *wellPathGeometry );
+                        const double eps                  = 1.0e-2;
+                        if ( sharedWellPathLength > eps )
+                        {
+                            sharedWellPathLengths[otherWellPath] = sharedWellPathLength;
+                        }
                     }
                 }
 
-                RimWellPath* mostSimilarWellPath        = nullptr;
-                double       longestIdenticalTubeLength = 0.0;
-                for ( auto [existingWellPath, identicalTubeLength] : wellPathsWithCommonGeometry )
+                RimWellPath* longestSharedWellPath       = nullptr;
+                double       longestSharedWellPathLength = 0.0;
+                for ( const auto& [wellPathCandidate, sharedWellPathLength] : sharedWellPathLengths )
                 {
-                    if ( existingWellPath && ( existingWellPath != wellPath ) && identicalTubeLength > longestIdenticalTubeLength )
+                    if ( wellPathCandidate )
                     {
-                        mostSimilarWellPath        = existingWellPath;
-                        longestIdenticalTubeLength = identicalTubeLength;
+                        const double distanceDifference = fabs( sharedWellPathLength - longestSharedWellPathLength );
+
+                        const double differenceThreshold = 1.0;
+                        if ( longestSharedWellPath && ( distanceDifference < differenceThreshold ) )
+                        {
+                            // If the main well is named WELL_A, each side steps of a MSW can be given the following names
+                            // WELL_A_Y1
+                            // WELL_A_Y2
+                            // WELL_A_Y3
+                            //
+                            // If Y3 has equal shared geometry with both Y2 and Y1, make sure that Y3 is connected to Y1.
+                            if ( wellPathCandidate->name() < longestSharedWellPath->name() )
+                            {
+                                longestSharedWellPath       = wellPathCandidate;
+                                longestSharedWellPathLength = sharedWellPathLength;
+                            }
+                        }
+                        else if ( sharedWellPathLength > longestSharedWellPathLength )
+                        {
+                            longestSharedWellPath       = wellPathCandidate;
+                            longestSharedWellPathLength = sharedWellPathLength;
+                        }
                     }
                 }
 
-                if ( mostSimilarWellPath )
+                if ( longestSharedWellPath )
                 {
-                    if ( wellPath->name() > mostSimilarWellPath->name() )
+                    if ( wellPathToConnect->name() > longestSharedWellPath->name() )
                     {
-                        wellPath->connectWellPaths( mostSimilarWellPath, longestIdenticalTubeLength );
+                        wellPathToConnect->connectWellPaths( longestSharedWellPath, longestSharedWellPathLength );
                     }
                     else
                     {
-                        mostSimilarWellPath->connectWellPaths( wellPath, longestIdenticalTubeLength );
+                        longestSharedWellPath->connectWellPaths( wellPathToConnect, longestSharedWellPathLength );
                     }
                 }
             }
@@ -666,7 +684,7 @@ void RimWellPathCollection::reloadAllWellPathFormations()
 {
     caf::ProgressInfo progress( m_wellPaths.size(), "Reloading well picks from file" );
 
-    for ( auto wellPath : m_wellPaths )
+    for ( const auto& wellPath : m_wellPaths )
     {
         QString errorMessage;
         if ( !wellPath->reloadWellPathFormationsFile( &errorMessage, m_wellPathFormationsImporter.get() ) )
@@ -723,10 +741,10 @@ bool lessWellPath( const caf::PdmPointer<RimWellPath>& w1, const caf::PdmPointer
         collator.setNumericMode( true );
         return collator.compare( w1->name(), w2->name() ) < 0;
     }
-    else if ( w1.notNull() )
-        return true;
-    else
-        return false;
+
+    if ( w1.notNull() ) return true;
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

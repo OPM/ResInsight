@@ -127,9 +127,8 @@ void RicCreateEnsembleWellLogFeature::executeCommand( const RicCreateEnsembleWel
         // Load well path from file
         QStringList wellPathFilePaths;
         wellPathFilePaths << ui.wellPathFilePath();
-        bool                      importGrouped = false;
         QStringList               errorMessages;
-        std::vector<RimWellPath*> wellPaths = RicImportWellPaths::importWellPaths( wellPathFilePaths, importGrouped, &errorMessages );
+        std::vector<RimWellPath*> wellPaths = RicImportWellPaths::importWellPaths( wellPathFilePaths, &errorMessages );
         if ( wellPaths.empty() ) return;
 
         wellPath = wellPaths[0];

@@ -116,8 +116,7 @@ RimModeledWellPath* RicNewWellPathLateralAtDepthFeature::createLateralAtMeasured
 
         newModeledWellPath->createWellPathGeometry();
 
-        bool importGrouped = false;
-        wellPathColl->addWellPath( newModeledWellPath, importGrouped );
+        wellPathColl->addWellPath( newModeledWellPath );
         wellPathColl->updateAllRequiredEditors();
 
         project->scheduleCreateDisplayModelAndRedrawAllViews();
