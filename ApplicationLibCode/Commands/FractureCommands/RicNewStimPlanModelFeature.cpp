@@ -81,7 +81,7 @@ RimStimPlanModel* RicNewStimPlanModelFeature::addStimPlanModel( RimWellPath*    
     stimPlanModel->setThicknessDirectionWellPath( thicknessDirectionWellPath );
 
     std::vector<RimWellPath*> wellPaths = { thicknessDirectionWellPath };
-    wellPathCollection->addWellPaths( wellPaths, false );
+    wellPathCollection->addWellPaths( wellPaths );
 
     if ( project )
     {
