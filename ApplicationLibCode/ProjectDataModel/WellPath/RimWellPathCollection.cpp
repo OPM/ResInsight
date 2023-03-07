@@ -201,7 +201,7 @@ void RimWellPathCollection::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellPath*> RimWellPathCollection::addWellPaths( QStringList filePaths, bool importGrouped, QStringList* errorMessages )
+std::vector<RimWellPath*> RimWellPathCollection::addWellPaths( QStringList filePaths, QStringList* errorMessages )
 {
     CAF_ASSERT( errorMessages );
 
@@ -257,7 +257,7 @@ std::vector<RimWellPath*> RimWellPathCollection::addWellPaths( QStringList fileP
         }
     }
 
-    readAndAddWellPaths( wellPathArray, importGrouped );
+    readAndAddWellPaths( wellPathArray);
     CAF_ASSERT( wellPathArray.empty() );
 
     scheduleRedrawAffectedViews();
@@ -269,7 +269,7 @@ std::vector<RimWellPath*> RimWellPathCollection::addWellPaths( QStringList fileP
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::addWellPath( gsl::not_null<RimWellPath*> wellPath, bool importGrouped )
+void RimWellPathCollection::addWellPath( gsl::not_null<RimWellPath*> wellPath)
 {
     m_wellPaths.push_back( wellPath );
 
@@ -289,7 +289,7 @@ std::vector<RimWellPath*> RimWellPathCollection::allWellPaths() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::readAndAddWellPaths( std::vector<RimFileWellPath*>& wellPathArray, bool importGrouped )
+void RimWellPathCollection::readAndAddWellPaths( std::vector<RimFileWellPath*>& wellPathArray)
 {
     caf::ProgressInfo progress( wellPathArray.size(), "Reading well paths from file" );
 
@@ -321,7 +321,7 @@ void RimWellPathCollection::readAndAddWellPaths( std::vector<RimFileWellPath*>& 
         {
             wellPath->setWellPathColor( RiaColorTables::wellPathsPaletteColors().cycledColor3f( m_wellPaths.size() ) );
             wellPath->setUnitSystem( findUnitSystemForWellPath( wellPath ) );
-            addWellPath( wellPath, false );
+            addWellPath( wellPath);
 
             wellPathsToGroup.push_back( wellPath );
         }
@@ -338,11 +338,11 @@ void RimWellPathCollection::readAndAddWellPaths( std::vector<RimFileWellPath*>& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::addWellPaths( const std::vector<RimWellPath*> incomingWellPaths, bool importGrouped )
+void RimWellPathCollection::addWellPaths( const std::vector<RimWellPath*> incomingWellPaths)
 {
     for ( const auto& wellPath : incomingWellPaths )
     {
-        addWellPath( wellPath, importGrouped );
+        addWellPath( wellPath);
     }
 
     groupWellPaths( incomingWellPaths );
@@ -375,7 +375,7 @@ std::vector<RimWellLogFile*> RimWellPathCollection::addWellLogs( const QStringLi
             if ( !wellPath )
             {
                 wellPath = new RimWellPath();
-                addWellPath( wellPath, false );
+                addWellPath( wellPath);
             }
 
             wellPath->addWellLogFile( logFileInfo );
@@ -414,7 +414,7 @@ void RimWellPathCollection::addWellPathFormations( const QStringList& filePaths 
             {
                 wellPath = new RimWellPath();
                 wellPath->setName( it->first );
-                addWellPath( wellPath, false );
+                addWellPath( wellPath);
                 RiaLogging::info( QString( "Created new well: %1" ).arg( wellPath->name() ) );
             }
             wellPath->setFormationsGeometry( it->second );
