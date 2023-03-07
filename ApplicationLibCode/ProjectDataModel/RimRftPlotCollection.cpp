@@ -204,8 +204,13 @@ const std::vector<RimWellRftPlot*> RimRftPlotCollection::rftPlots() const
     std::vector<RimWellRftPlot*> plots;
     for ( const auto& plot : m_rftPlots )
     {
-        plots.push_back( plot );
+        auto wellRftPlot = dynamic_cast<RimWellRftPlot*>( plot.p() );
+        if ( wellRftPlot )
+        {
+            plots.push_back( wellRftPlot );
+        }
     }
+
     return plots;
 }
 
@@ -231,7 +236,7 @@ size_t RimRftPlotCollection::plotCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimRftPlotCollection::addPlot( gsl::not_null<RimWellRftPlot*> newPlot )
+void RimRftPlotCollection::addPlot( gsl::not_null<RimWellLogPlot*> newPlot )
 {
     m_rftPlots.push_back( newPlot );
 }
@@ -239,7 +244,7 @@ void RimRftPlotCollection::addPlot( gsl::not_null<RimWellRftPlot*> newPlot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimRftPlotCollection::removePlot( gsl::not_null<RimWellRftPlot*> plot )
+void RimRftPlotCollection::removePlot( gsl::not_null<RimWellLogPlot*> plot )
 {
     m_rftPlots.removeChild( plot );
     updateAllRequiredEditors();

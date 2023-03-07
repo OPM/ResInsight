@@ -72,7 +72,7 @@ void RicNewRftSegmentWellLogPlotFeature::onActionTriggered( bool isChecked )
         return;
     }
 
-    auto plot = RicNewWellLogPlotFeatureImpl::createHorizontalWellLogPlot();
+    auto plot = RicNewWellLogPlotFeatureImpl::createRftSegmentPlot();
 
     QString wellName  = "Unknown";
     auto    wellNames = rftReader->wellNames();

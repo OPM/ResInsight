@@ -66,14 +66,14 @@ public:
     void deleteAllExtractors();
 
     const std::vector<RimWellRftPlot*> rftPlots() const;
-    void                               addPlot( gsl::not_null<RimWellRftPlot*> newPlot );
-    void                               removePlot( gsl::not_null<RimWellRftPlot*> plot );
+    void                               addPlot( gsl::not_null<RimWellLogPlot*> newPlot );
+    void                               removePlot( gsl::not_null<RimWellLogPlot*> plot );
     void                               deleteAllPlots() override;
     void                               loadDataAndUpdateAllPlots() override;
     size_t                             plotCount() const override;
 
 private:
-    caf::PdmChildArrayField<RimWellRftPlot*>    m_rftPlots;
+    caf::PdmChildArrayField<RimWellLogPlot*>    m_rftPlots;
     cvf::Collection<RigEclipseWellLogExtractor> m_extractors;
     cvf::Collection<RigGeoMechWellLogExtractor> m_geomExtractors;
 };
