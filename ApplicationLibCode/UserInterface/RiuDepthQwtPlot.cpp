@@ -49,7 +49,6 @@
 //--------------------------------------------------------------------------------------------------
 RiuDepthQwtPlot::RiuDepthQwtPlot( QWidget* parent )
     : RiuDockedQwtPlot( parent )
-    , m_bShowDepth( true )
 {
     setAutoFillBackground( true );
     setDefaults();
@@ -145,8 +144,8 @@ void RiuDepthQwtPlot::addCurve( const RimCase*             rimCase,
     m_caseNames[caseId] = rimCase->caseUserDescription();
     m_curveNames[caseId].push_back( curveName );
     m_curveData[caseId].push_back( resultValues );
-    m_kSteps[caseId]      = kIndexes;
-    m_depthValues[caseId] = depthValues;
+    m_kSteps[caseId] = kIndexes;
+    m_depthValues[caseId].push_back( depthValues );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -254,9 +253,9 @@ QString RiuDepthQwtPlot::asciiDataForUiSelectedCurves() const
             if ( i == 0 )
             {
                 out += "K Index";
-                out += "\tDepth";
                 for ( QString curveName : m_curveNames.at( caseId ) )
                 {
+                    out += "\tDepth";
                     out += "\t" + curveName;
                 }
             }
@@ -266,11 +265,10 @@ QString RiuDepthQwtPlot::asciiDataForUiSelectedCurves() const
 
             out += kString;
 
-            QString depthString = QString::number( m_depthValues.at( caseId )[i], 'f', 2 );
-            out += "\t" + depthString;
-
             for ( size_t j = 0; j < m_curveData.at( caseId ).size(); j++ ) // curves
             {
+                QString depthString = QString::number( m_depthValues.at( caseId )[j][i], 'f', 2 );
+                out += "\t" + depthString;
                 out += "\t" + QString::number( m_curveData.at( caseId )[j][i], 'g', 6 );
             }
         }
@@ -301,6 +299,9 @@ void RiuDepthQwtPlot::updateAxisScaling()
 {
     double valRangeX = m_maxX - m_minX;
     if ( valRangeX == 0.0 ) valRangeX = 1.0;
-    this->setAxisScale( QwtAxis::YLeft, m_maxY + 0.1, m_minY - 0.1 );
+    double valRangeY = m_maxY - m_minY;
+    if ( valRangeY == 0.0 ) valRangeY = 1.0;
+
+    this->setAxisScale( QwtAxis::YLeft, m_maxY + 0.02 * valRangeY, m_minY - 0.02 * valRangeY );
     this->setAxisScale( QwtAxis::XTop, m_minX - 0.02 * valRangeX, m_maxX + 0.1 * valRangeX );
 }
