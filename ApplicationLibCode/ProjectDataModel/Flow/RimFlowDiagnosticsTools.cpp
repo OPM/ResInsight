@@ -42,8 +42,7 @@ bool RimFlowDiagnosticsTools::TracerComp::operator()( const QString& lhs, const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimFlowDiagnosticsTools::calcOptionsForSelectedTracerField( RimFlowDiagSolution* flowSol,
-                                                                                          bool isInjector )
+QList<caf::PdmOptionItemInfo> RimFlowDiagnosticsTools::calcOptionsForSelectedTracerField( RimFlowDiagSolution* flowSol, bool isInjector )
 {
     if ( !flowSol ) return QList<caf::PdmOptionItemInfo>();
 
@@ -69,8 +68,8 @@ QList<caf::PdmOptionItemInfo> RimFlowDiagnosticsTools::calcOptionsForSelectedTra
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<QString, RimFlowDiagnosticsTools::TracerComp>
-    RimFlowDiagnosticsTools::setOfTracersOfType( RimFlowDiagSolution* flowSol, bool isInjector )
+std::set<QString, RimFlowDiagnosticsTools::TracerComp> RimFlowDiagnosticsTools::setOfTracersOfType( RimFlowDiagSolution* flowSol,
+                                                                                                    bool                 isInjector )
 {
     if ( !flowSol ) return std::set<QString, TracerComp>();
 
@@ -78,8 +77,8 @@ std::set<QString, RimFlowDiagnosticsTools::TracerComp>
     std::vector<QString>          tracerNames = flowSol->tracerNames();
     for ( const QString& tracerName : tracerNames )
     {
-        RimFlowDiagSolution::TracerStatusType status = flowSol->tracerStatusOverall( tracerName );
-        bool includeTracer                           = status == RimFlowDiagSolution::TracerStatusType::VARYING ||
+        RimFlowDiagSolution::TracerStatusType status        = flowSol->tracerStatusOverall( tracerName );
+        bool                                  includeTracer = status == RimFlowDiagSolution::TracerStatusType::VARYING ||
                              status == RimFlowDiagSolution::TracerStatusType::UNDEFINED;
         includeTracer |= isInjector && status == RimFlowDiagSolution::TracerStatusType::INJECTOR;
         includeTracer |= !isInjector && status == RimFlowDiagSolution::TracerStatusType::PRODUCER;
@@ -113,7 +112,7 @@ std::vector<QString> RimFlowDiagnosticsTools::injectorTracersInTimeStep( RimFlow
 //--------------------------------------------------------------------------------------------------
 std::vector<QString> RimFlowDiagnosticsTools::tracersOfStatusInTimeStep( RimFlowDiagSolution*                  flowSol,
                                                                          RimFlowDiagSolution::TracerStatusType status,
-                                                                         int timeStepIndex )
+                                                                         int                                   timeStepIndex )
 {
     if ( !flowSol || timeStepIndex < 0 ) return std::vector<QString>();
 
@@ -149,9 +148,7 @@ std::set<QString, RimFlowDiagnosticsTools::TracerComp>
             for ( const auto& timeStepIndex : timeStepIndices )
             {
                 std::pair<double, double> commFluxes =
-                    flowSol->flowDiagResults()->injectorProducerPairFluxes( injector.toStdString(),
-                                                                            producer.toStdString(),
-                                                                            timeStepIndex );
+                    flowSol->flowDiagResults()->injectorProducerPairFluxes( injector.toStdString(), producer.toStdString(), timeStepIndex );
                 if ( std::abs( commFluxes.first ) > epsilon || std::abs( commFluxes.second ) > epsilon )
                 {
                     communicatingInjectors.insert( injector );
@@ -195,9 +192,7 @@ std::set<QString, RimFlowDiagnosticsTools::TracerComp>
             for ( const auto& timeStepIndex : timeStepIndices )
             {
                 std::pair<double, double> commFluxes =
-                    flowSol->flowDiagResults()->injectorProducerPairFluxes( injector.toStdString(),
-                                                                            producer.toStdString(),
-                                                                            timeStepIndex );
+                    flowSol->flowDiagResults()->injectorProducerPairFluxes( injector.toStdString(), producer.toStdString(), timeStepIndex );
                 if ( std::abs( commFluxes.first ) > epsilon || std::abs( commFluxes.second ) > epsilon )
                 {
                     communicatingProducers.insert( producer );

@@ -84,9 +84,7 @@ private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                QString                    uiConfigName,
-                                caf::PdmUiEditorAttribute* attribute ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
@@ -113,7 +111,7 @@ private:
     void createAndEmplaceTimeStepAndCalculatorPairInMap( std::map<QDateTime, RigAccWellFlowCalculator>& rTimeStepAndCalculatorPairs,
                                                          const QDateTime                                timeStep,
                                                          int                                            timeStepIndex,
-                                                         const RigSimWellData* simWellData ) const;
+                                                         const RigSimWellData*                          simWellData ) const;
 
     std::set<QDateTime>  getSelectedTimeSteps( const std::vector<QDateTime>& timeSteps ) const;
     QString              dateFormatString() const;
