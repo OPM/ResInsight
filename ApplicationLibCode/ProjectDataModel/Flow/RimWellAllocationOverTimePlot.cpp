@@ -108,7 +108,7 @@ RimWellAllocationOverTimePlot::RimWellAllocationOverTimePlot()
     m_selectedFromTimeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     CAF_PDM_InitFieldNoDefault( &m_selectedToTimeStep, "ToTimeStep", "To Time Step" );
     m_selectedToTimeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
-    CAF_PDM_InitFieldNoDefault( &m_timeStepFilterMode, "TimeStepFilterMode", "Filter" );
+    CAF_PDM_InitFieldNoDefault( &m_timeStepFilterMode, "TimeStepRangeFilterMode", "Filter" );
     m_timeStepFilterMode.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_timeStepCount, "TimeStepCount", m_initialNumberOfTimeSteps, "Number of Time Steps" );
     CAF_PDM_InitFieldNoDefault( &m_excludeTimeSteps, "ExcludeTimeSteps", "" );
@@ -782,8 +782,8 @@ QString RimWellAllocationOverTimePlot::dateFormatString() const
 
 //--------------------------------------------------------------------------------------------------
 /// Update selected "From Time Step" and "To Time Step" according to selected case.
-/// If both selected time steps exist for case, keep as is. Otherwise set the 10 first time steps
-/// for case. If less than 10 time steps exist, all are selected.
+/// If both selected time steps exist for case, keep as is, otherwise select first and last time
+/// step in case.
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationOverTimePlot::setValidTimeStepRangeForCase()
 {
@@ -824,74 +824,11 @@ int RimWellAllocationOverTimePlot::axisValueFontSize() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<QDateTime> RimWellAllocationOverTimePlot::getTimeStepsWithinSelectedRange( const std::vector<QDateTime>& timeSteps ) const
-{
-    std::vector<QDateTime> selectedTimeSteps;
-    auto                   isTimeStepInSelectedRange = [&]( const QDateTime& timeStep ) -> bool {
-        return m_selectedFromTimeStep() <= timeStep && timeStep <= m_selectedToTimeStep();
-    };
-    std::copy_if( timeSteps.begin(), timeSteps.end(), std::back_inserter( selectedTimeSteps ), isTimeStepInSelectedRange );
-
-    return selectedTimeSteps;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::set<QDateTime> RimWellAllocationOverTimePlot::getSelectedTimeSteps( const std::vector<QDateTime>& timeSteps ) const
 {
-    const auto timeStepsInRange = getTimeStepsWithinSelectedRange( timeSteps );
-    return m_timeStepFilterMode == TimeStepFilterMode::TIME_STEP_COUNT ? createEvenlyDistributedDates( timeStepsInRange, m_timeStepCount )
-                                                                       : std::set( timeStepsInRange.begin(), timeStepsInRange.end() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::set<QDateTime> RimWellAllocationOverTimePlot::createEvenlyDistributedDates( const std::vector<QDateTime>& inputDates, int numDates )
-{
-    std::set<QDateTime> outputDates;
-    if ( inputDates.empty() || numDates <= 0 )
-    {
-        return outputDates;
-    }
-    if ( static_cast<size_t>( numDates ) > inputDates.size() )
-    {
-        outputDates = std::set( inputDates.begin(), inputDates.end() );
-        return outputDates;
-    }
-    if ( numDates == 1 )
-    {
-        outputDates = { inputDates.front() };
-        return outputDates;
-    }
-
-    // Find the minimum and maximum dates in the input vector
-    QDateTime minDate = *std::min_element( inputDates.begin(), inputDates.end() );
-    QDateTime maxDate = *std::max_element( inputDates.begin(), inputDates.end() );
-
-    // Calculate the time step between each selected date
-    qint64 timeStep = ( maxDate.toMSecsSinceEpoch() - minDate.toMSecsSinceEpoch() ) / ( static_cast<qint64>( numDates ) - 1 );
-
-    // Find the index of the input date that is closest to each new date
-    for ( int i = 0; i < numDates; ++i )
-    {
-        qint64 targetTime      = minDate.toMSecsSinceEpoch() + i * timeStep;
-        int    closestIndex    = 0;
-        qint64 closestTimeDiff = std::numeric_limits<qint64>::max();
-        for ( size_t j = 0; j < inputDates.size(); ++j )
-        {
-            qint64 timeDiff = std::abs( inputDates[j].toMSecsSinceEpoch() - targetTime );
-            if ( timeDiff < closestTimeDiff )
-            {
-                closestIndex    = j;
-                closestTimeDiff = timeDiff;
-            }
-        }
-
-        // Add the closest date to the output vector
-        outputDates.insert( inputDates[closestIndex] );
-    }
-
-    return outputDates;
+    const auto timeStepsInRange =
+        RiaQDateTimeTools::getTimeStepsWithinSelectedRange( timeSteps, m_selectedFromTimeStep(), m_selectedToTimeStep() );
+    return m_timeStepFilterMode == TimeStepFilterMode::TIME_STEP_COUNT
+               ? RiaQDateTimeTools::createEvenlyDistributedDates( timeStepsInRange, m_timeStepCount )
+               : std::set( timeStepsInRange.begin(), timeStepsInRange.end() );
 }

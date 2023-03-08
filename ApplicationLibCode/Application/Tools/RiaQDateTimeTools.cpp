@@ -499,3 +499,71 @@ QList<caf::PdmOptionItemInfo> RiaQDateTimeTools::createOptionItems( const std::v
 
     return options;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<QDateTime> RiaQDateTimeTools::createEvenlyDistributedDates( const std::vector<QDateTime>& inputDates, int numDates )
+{
+    std::set<QDateTime> outputDates;
+    if ( inputDates.empty() || numDates <= 0 )
+    {
+        return outputDates;
+    }
+    if ( static_cast<size_t>( numDates ) > inputDates.size() )
+    {
+        outputDates = std::set( inputDates.begin(), inputDates.end() );
+        return outputDates;
+    }
+    if ( numDates == 1 )
+    {
+        outputDates = { inputDates.front() };
+        return outputDates;
+    }
+
+    // Find the minimum and maximum dates in the input vector
+    QDateTime minDate = *std::min_element( inputDates.begin(), inputDates.end() );
+    QDateTime maxDate = *std::max_element( inputDates.begin(), inputDates.end() );
+
+    // Calculate the time step between each selected date
+    qint64 timeStep =
+        ( maxDate.toMSecsSinceEpoch() - minDate.toMSecsSinceEpoch() ) / ( static_cast<qint64>( numDates ) - 1 );
+
+    // Find the index of the input date that is closest to each new date
+    for ( int i = 0; i < numDates; ++i )
+    {
+        qint64 targetTime      = minDate.toMSecsSinceEpoch() + i * timeStep;
+        int    closestIndex    = 0;
+        qint64 closestTimeDiff = std::numeric_limits<qint64>::max();
+        for ( size_t j = 0; j < inputDates.size(); ++j )
+        {
+            qint64 timeDiff = std::abs( inputDates[j].toMSecsSinceEpoch() - targetTime );
+            if ( timeDiff < closestTimeDiff )
+            {
+                closestIndex    = j;
+                closestTimeDiff = timeDiff;
+            }
+        }
+
+        // Add the closest date to the output vector
+        outputDates.insert( inputDates[closestIndex] );
+    }
+
+    return outputDates;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QDateTime> RiaQDateTimeTools::getTimeStepsWithinSelectedRange( const std::vector<QDateTime>& timeSteps,
+                                                                           const QDateTime&              fromTimeStep,
+                                                                           const QDateTime&              toTimeStep )
+{
+    std::vector<QDateTime> selectedTimeSteps;
+    auto                   isTimeStepInSelectedRange = [&]( const QDateTime& timeStep ) -> bool {
+        return fromTimeStep <= timeStep && timeStep <= toTimeStep;
+    };
+    std::copy_if( timeSteps.begin(), timeSteps.end(), std::back_inserter( selectedTimeSteps ), isTimeStepInSelectedRange );
+
+    return selectedTimeSteps;
+}
