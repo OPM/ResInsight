@@ -46,6 +46,7 @@ public:
 
     void setTickPrecision( int precision );
     void setTickFormat( NumberFormat format );
+    void updateTickValues();
 
 private:
     void    layoutInfo( LayoutInfo* layout ) const override;
