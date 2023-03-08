@@ -393,6 +393,7 @@ void RimRegularLegendConfig::updateLegend()
 {
     m_significantDigitsInData = m_precision;
 
+    updateTickCountAndUserDefinedRange();
     if ( m_resetUserDefinedValues && m_globalAutoMax != cvf::UNDEFINED_DOUBLE )
     {
         updateTickCountAndUserDefinedRange();
@@ -1231,6 +1232,13 @@ void RimRegularLegendConfig::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     else if ( uiConfigName == "ColorsOnly" )
     {
         uiOrdering.add( &m_colorLegend );
+        uiOrdering.skipRemainingFields( true );
+    }
+    else if ( uiConfigName == "TableSettings" ) // TODO: UPDATE NAME!
+    {
+        uiOrdering.add( &m_showLegend );
+        uiOrdering.add( &m_colorLegend );
+        uiOrdering.add( &m_mappingMode );
         uiOrdering.skipRemainingFields( true );
     }
     else
