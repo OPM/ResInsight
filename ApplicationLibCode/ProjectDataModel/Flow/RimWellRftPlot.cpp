@@ -1282,8 +1282,18 @@ cvf::Color3f RimWellRftPlot::findCurveColor( RimWellLogCurve* curve )
         }
         else
         {
-            RifDataSourceForRftPlt sourceAddress( curveDef.address().ensemble() );
-            curveColor = m_dataSourceColors[sourceAddress];
+            if ( curveDef.address().ensemble() )
+            {
+                // If we have an ensemble, we need to use the ensemble address to find one single color for all curves in the ensemble. If
+                // we also include the summary case, each curve will be assigned a separate color.
+
+                RifDataSourceForRftPlt dataSource( curveDef.address().ensemble() );
+                curveColor = m_dataSourceColors[dataSource];
+            }
+            else
+            {
+                curveColor = m_dataSourceColors[curveDef.address()];
+            }
         }
 
         if ( m_showStatisticsCurves )
@@ -1308,9 +1318,6 @@ cvf::Color3f RimWellRftPlot::findCurveColor( RimWellLogCurve* curve )
 //--------------------------------------------------------------------------------------------------
 void RimWellRftPlot::defineCurveColorsAndSymbols( const std::set<RiaRftPltCurveDefinition>& allCurveDefs )
 {
-    m_dataSourceColors.clear();
-    m_timeStepSymbols.clear();
-
     // Clear all ensemble legends
     RiuQwtPlotWidget* viewer = nullptr;
     RimWellLogTrack*  track  = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
@@ -1368,22 +1375,21 @@ void RimWellRftPlot::defineCurveColorsAndSymbols( const std::set<RiaRftPltCurveD
         auto colorTableIndex  = m_dataSourceColors.size();
         auto symbolTableIndex = m_timeStepSymbols.size();
 
-        const RifDataSourceForRftPlt& address      = curveDefToAdd.address();
-        RifDataSourceForRftPlt        colorAddress = address;
-        if ( address.sourceType() == RifDataSourceForRftPlt::SourceType::SUMMARY_RFT )
+        RifDataSourceForRftPlt address = curveDefToAdd.address();
+        if ( address.ensemble() )
         {
-            colorAddress = RifDataSourceForRftPlt( address.ensemble() );
+            // Strip the summary case from the address, so that all curves in the ensemble will get the same color
+            address = RifDataSourceForRftPlt( address.ensemble() );
         }
 
-        if ( !m_dataSourceColors.count( colorAddress ) )
+        if ( !m_dataSourceColors.contains( address ) )
         {
-            colorTableIndex                  = colorTableIndex % colorTable.size();
-            m_dataSourceColors[colorAddress] = colorTable[colorTableIndex];
+            colorTableIndex             = colorTableIndex % colorTable.size();
+            m_dataSourceColors[address] = colorTable[colorTableIndex];
         }
 
-        if ( address.sourceType() != RifDataSourceForRftPlt::SourceType::ENSEMBLE_RFT )
         {
-            if ( !m_timeStepSymbols.count( curveDefToAdd.timeStep() ) )
+            if ( !m_timeStepSymbols.contains( curveDefToAdd.timeStep() ) )
             {
                 symbolTableIndex                            = symbolTableIndex % symbolTable.size();
                 m_timeStepSymbols[curveDefToAdd.timeStep()] = symbolTable[symbolTableIndex];
