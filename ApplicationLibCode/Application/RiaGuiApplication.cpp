@@ -1183,7 +1183,7 @@ void RiaGuiApplication::onFileSuccessfullyLoaded( const QString& fileName, RiaDe
             auto plotWindow = getOrCreateAndShowMainPlotWindow();
             plotWindow->raise();
         }
-        else
+        else if ( fileType != RiaDefines::ImportFileType::RESINSIGHT_PROJECT_FILE )
         {
             auto mainWindow = getOrCreateAndShowMainWindow();
             mainWindow->raise();
@@ -1271,6 +1271,12 @@ void RiaGuiApplication::onProjectOpened()
 
     // Make sure to process events before this function to avoid strange Qt crash
     RiuPlotMainWindowTools::refreshToolbars();
+
+    if ( m_project->showPlotWindow() && m_project->showPlotWindowOnTop() )
+    {
+        m_mainPlotWindow->raise();
+        m_mainPlotWindow->activateWindow();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
