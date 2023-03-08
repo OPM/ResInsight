@@ -20,6 +20,8 @@
 
 #include "RimPlotWindow.h"
 
+#include "RigFlowDiagResultAddress.h"
+
 #include "cafPdmField.h"
 #include "cafPdmPtrField.h"
 
@@ -28,7 +30,11 @@
 class RimEclipseResultCase;
 class RimFlowDiagSolution;
 class RimRegularLegendConfig;
+class RimSimWellInView;
+class RimWellAllocationOverTimeCollection;
 class RiuMatrixPlotWidget;
+class RigSimWellData;
+class RigAccWellFlowCalculator;
 
 //==================================================================================================
 ///
@@ -38,16 +44,47 @@ class RimWellConnectivityTable : public RimPlotWindow
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class TimeStepSelection
+    {
+        SINGLE_TIME_STEP,
+        TIME_STEP_RANGE,
+    };
+
+    enum class TimeSampleValueType
+    {
+        FLOW_RATE,
+        FLOW_RATE_FRACTION,
+        FLOW_RATE_PERCENTAGE,
+    };
+    enum class TimeRangeValueType
+    {
+        ACCUMULATED_FLOW_VOLUME,
+        ACCUMULATED_FLOW_VOLUME_FRACTION,
+        ACCUMULATED_FLOW_VOLUME_PERCENTAGE,
+    };
+
+    enum class TimeStepRangeFilterMode
+    {
+        NONE,
+        TIME_STEP_COUNT,
+    };
+
+public:
     RimWellConnectivityTable();
     ~RimWellConnectivityTable() override;
+
+    void setFromSimulationWell( RimSimWellInView* simWell );
 
 private:
     void cleanupBeforeClose();
 
+    void onLoadDataAndUpdate() override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void onLoadDataAndUpdate() override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
@@ -67,19 +104,68 @@ private:
     int valueLabelFontSize() const;
 
 private:
+    std::map<QString, RimWellAllocationOverTimeCollection>
+                                        createProductionWellAllocationOverTimeCollections( const std::set<QString>& selectedProductionWells ) const;
+    RimWellAllocationOverTimeCollection createWellAllocationOverTimeCollection( const RigSimWellData* simWellData ) const;
+
+    void createAndEmplaceTimeStepAndCalculatorPairInMap( std::map<QDateTime, RigAccWellFlowCalculator>& rTimeStepAndCalculatorPairs,
+                                                         const QDateTime                                timeStep,
+                                                         int                                            timeStepIndex,
+                                                         const RigSimWellData* simWellData ) const;
+
+    std::set<QDateTime>  getSelectedTimeSteps( const std::vector<QDateTime>& timeSteps ) const;
+    QString              dateFormatString() const;
+    std::vector<QString> getProductionWellNames() const;
+
+    QString createTableTitle() const;
+
+    std::pair<double, double> createLegendMinMaxValues( const double maxTableValue ) const;
+
+    int  getTimeStepIndex( const QDateTime timeStep, const std::vector<QDateTime> timeSteps ) const;
+    void setSelectedProducersAndInjectorsForSingleTimeStep();
+    void setSelectedProducersAndInjectorsForTimeStepRange();
+
+    void syncSelectedInjectorsFromProducerSelection();
+    void syncSelectedProducersFromInjectorSelection();
+
+private:
+    // Matrix plot for visualizing table data
+    QPointer<RiuMatrixPlotWidget> m_matrixPlotWidget;
+
     caf::PdmPtrField<RimEclipseResultCase*> m_case;
     caf::PdmPtrField<RimFlowDiagSolution*>  m_flowDiagSolution;
 
-    caf::PdmField<int> m_timeStep; // TODO: Replace with time step logic from WellAllocationOverTimePlot?
+    caf::PdmField<caf::AppEnum<TimeStepSelection>>   m_timeStepSelection;
+    caf::PdmField<caf::AppEnum<TimeSampleValueType>> m_timeSampleValueType;
+    caf::PdmField<caf::AppEnum<TimeRangeValueType>>  m_timeRangeValueType;
 
-    QPointer<RiuMatrixPlotWidget> m_matrixPlotWidget; // Matrix plot to plot table data
-    QString                       m_tableTitle = "This is a test title";
+    caf::PdmField<bool> m_selectProducersAndInjectorsForTimeSteps;
 
-    caf::PdmField<int>                          m_rowCount;
-    caf::PdmField<int>                          m_colCount;
+    caf::PdmField<double> m_thresholdValue;
+
+    // For single time sample
+    caf::PdmField<QDateTime> m_selectedTimeStep;
+
+    // For time step range
+    caf::PdmField<QDateTime>                             m_selectedFromTimeStep;
+    caf::PdmField<QDateTime>                             m_selectedToTimeStep;
+    caf::PdmField<caf::AppEnum<TimeStepRangeFilterMode>> m_timeStepFilterMode;
+    caf::PdmField<int>                                   m_timeStepCount;
+    caf::PdmField<std::vector<QDateTime>>                m_excludeTimeSteps;
+    caf::PdmField<bool>                                  m_applyTimeStepSelections;
+
     caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
+
+    caf::PdmField<std::vector<QString>> m_selectedInjectorTracersUiField;
+    caf::PdmField<std::vector<QString>> m_selectedProducerTracersUiField;
+    caf::PdmField<bool>                 m_syncSelectedProducersFromInjectorSelection;
+    caf::PdmField<bool>                 m_syncSelectedInjectorsFromProducerSelection;
+    caf::PdmField<bool>                 m_applySelectedInectorProducerTracers;
 
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisTitleFontSize;
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisLabelFontSize;
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_valueLabelFontSize;
+    caf::PdmField<bool>                             m_showValueLabels;
+
+    const int m_initialNumberOfTimeSteps = 10;
 };

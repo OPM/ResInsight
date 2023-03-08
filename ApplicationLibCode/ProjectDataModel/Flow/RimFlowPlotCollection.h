@@ -49,6 +49,7 @@ public:
 
     void                               addWellAllocPlotToStoredPlots( RimWellAllocationPlot* plot );
     void                               addFlowCharacteristicsPlotToStoredPlots( RimFlowCharacteristicsPlot* plot );
+    RimWellConnectivityTable*          defaultWellConnectivityTable();
     RimWellAllocationOverTimePlot*     defaultWellAllocOverTimePlot();
     RimWellAllocationPlot*             defaultWellAllocPlot();
     RimFlowCharacteristicsPlot*        defaultFlowCharacteristicsPlot();

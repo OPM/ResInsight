@@ -29,6 +29,7 @@
 #include "RimSimWellInViewCollection.h"
 #include "RimWellAllocationOverTimePlot.h"
 #include "RimWellAllocationPlot.h"
+#include "RimWellConnectivityTable.h"
 #include "RimWellPath.h"
 
 #include "RiuPlotMainWindowTools.h"
@@ -110,6 +111,8 @@ void RicShowWellAllocationPlotFeature::onActionTriggered( bool isChecked )
 
         flowPlotColl->defaultWellAllocOverTimePlot()->setFromSimulationWell( simWell );
         flowPlotColl->defaultWellAllocOverTimePlot()->updateConnectedEditors();
+
+        flowPlotColl->defaultWellConnectivityTable()->setFromSimulationWell( simWell );
 
         RiuPlotMainWindowTools::showPlotMainWindow();
         RiuPlotMainWindowTools::onObjectAppended( flowPlotColl->defaultWellAllocOverTimePlot() );

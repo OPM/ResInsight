@@ -157,6 +157,21 @@ void RimFlowPlotCollection::addFlowCharacteristicsPlotToStoredPlots( RimFlowChar
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimWellConnectivityTable* RimFlowPlotCollection::defaultWellConnectivityTable()
+{
+    if ( !m_defaultWellConnectivityTable )
+    {
+        m_defaultWellConnectivityTable = new RimWellConnectivityTable;
+    }
+
+    this->updateConnectedEditors();
+
+    return m_defaultWellConnectivityTable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimWellAllocationOverTimePlot* RimFlowPlotCollection::defaultWellAllocOverTimePlot()
 {
     if ( !m_defaultWellAllocOverTimePlot() )
@@ -229,7 +244,6 @@ void RimFlowPlotCollection::ensureDefaultFlowPlotsAreCreated()
     if ( !m_defaultWellConnectivityTable() )
     {
         m_defaultWellConnectivityTable = new RimWellConnectivityTable;
-        // m_defaultWellConnectivityTable->setDescription( "Default Well Allocation Over Time Plot" );
     }
 
     if ( !m_flowCharacteristicsPlot() )
