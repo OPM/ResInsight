@@ -198,8 +198,6 @@ QString RiuAdvancedSnapshotExportWidget::exportFolder() const
 //--------------------------------------------------------------------------------------------------
 void RiuAdvancedSnapshotExportWidget::customMenuRequested( QPoint pos )
 {
-    caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
-
     QMenu menu;
 
     QAction* newRowAction = new QAction( "New row", this );
