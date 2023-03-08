@@ -39,10 +39,7 @@ RiuScalarMapperLegendFrame::RiuScalarMapperLegendFrame( QWidget* parent, const Q
     , m_tickNumberPrecision( 4 )
     , m_numberFormat( RiaNumberFormat::NumberFormatType::AUTO )
 {
-    if ( m_scalarMapper.notNull() )
-    {
-        m_scalarMapper->majorTickValues( &m_tickValues );
-    }
+    updateTickValues();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -66,6 +63,18 @@ void RiuScalarMapperLegendFrame::setTickPrecision( int precision )
 void RiuScalarMapperLegendFrame::setTickFormat( NumberFormat format )
 {
     m_numberFormat = format;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuScalarMapperLegendFrame::updateTickValues()
+{
+    if ( m_scalarMapper.notNull() )
+    {
+        m_tickValues = {};
+        m_scalarMapper->majorTickValues( &m_tickValues );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
