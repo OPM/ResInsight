@@ -115,6 +115,8 @@ std::vector<QString> RimFlowDiagnosticsTools::tracersOfStatusInTimeStep( RimFlow
                                                                          RimFlowDiagSolution::TracerStatusType status,
                                                                          int timeStepIndex )
 {
+    if ( !flowSol || timeStepIndex < 0 ) return std::vector<QString>();
+
     std::vector<QString> tracers;
     for ( const auto& tracer : flowSol->tracerNames() )
     {

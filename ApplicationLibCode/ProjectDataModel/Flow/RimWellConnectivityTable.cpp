@@ -736,16 +736,42 @@ std::vector<QString> RimWellConnectivityTable::getProductionWellNames() const
     if ( !m_flowDiagSolution ) return {};
 
     std::vector<QString> productionWellNames;
-    for ( const auto& well : m_flowDiagSolution->tracerNames() )
+    if ( m_timeStepSelection == TimeStepSelection::SINGLE_TIME_STEP )
     {
-        const auto status = m_flowDiagSolution->tracerStatusOverall( well );
-        if ( status == RimFlowDiagSolution::TracerStatusType::PRODUCER ||
-             status == RimFlowDiagSolution::TracerStatusType::VARYING )
-        {
-            productionWellNames.push_back( well );
-        }
+        const auto timeStepIndex = getTimeStepIndex( m_selectedTimeStep, m_case->timeStepDates() );
+        productionWellNames = RimFlowDiagnosticsTools::producerTracersInTimeStep( m_flowDiagSolution(), timeStepIndex );
+    }
+    else if ( m_timeStepSelection == TimeStepSelection::TIME_STEP_RANGE )
+    {
+        const auto selectedTimeSteps = getSelectedTimeSteps( m_case->timeStepDates() );
+        productionWellNames          = getProductionWellNamesAtTimeSteps( selectedTimeSteps );
     }
     return productionWellNames;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RimWellConnectivityTable::getProductionWellNamesAtTimeSteps( const std::set<QDateTime>& timeSteps ) const
+{
+    if ( !m_flowDiagSolution ) return {};
+
+    std::set<QString> productionWellNames;
+    const auto        allTimeSteps = m_case->timeStepDates();
+    for ( const auto& timeStep : timeSteps )
+    {
+        const auto timeStepIndex = getTimeStepIndex( timeStep, allTimeSteps );
+
+        if ( timeStepIndex < 0 ) continue;
+
+        const auto producers = RimFlowDiagnosticsTools::producerTracersInTimeStep( m_flowDiagSolution(), timeStepIndex );
+        for ( const auto& producer : producers )
+        {
+            productionWellNames.insert( producer );
+        }
+    }
+
+    return std::vector<QString>( productionWellNames.begin(), productionWellNames.end() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -858,10 +884,10 @@ void RimWellConnectivityTable::setSelectedProducersAndInjectorsForSingleTimeStep
     injectorVec.push_back( RiaDefines::reservoirTracerName() );
 
     // No filtering if all producers/injectors are selected and assign to UI-elements
-    m_selectedProducerTracersUiField =
-        m_selectedProducerTracersUiField().size() == producerVec.size() ? std::vector<QString>() : producerVec;
-    m_selectedInjectorTracersUiField =
-        m_selectedInjectorTracersUiField().size() == injectorVec.size() ? std::vector<QString>() : injectorVec;
+    m_selectedProducerTracersUiField = producerVec;
+    // m_selectedProducerTracersUiField().size() == producerVec.size() ? std::vector<QString>() : producerVec;
+    m_selectedInjectorTracersUiField = injectorVec;
+    // m_selectedInjectorTracersUiField().size() == injectorVec.size() ? std::vector<QString>() : injectorVec;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -902,8 +928,8 @@ void RimWellConnectivityTable::setSelectedProducersAndInjectorsForTimeStepRange(
                                                  : std::vector<QString>( injectorSet.begin(), injectorSet.end() );
 
     // Assign to UI-elements
-    m_selectedProducerTracersUiField = producerVec;
-    m_selectedInjectorTracersUiField = injectorVec;
+    m_selectedProducerTracersUiField = std::vector<QString>( producerSet.begin(), producerSet.end() );
+    m_selectedInjectorTracersUiField = std::vector<QString>( injectorSet.begin(), injectorSet.end() );
 }
 
 //--------------------------------------------------------------------------------------------------
