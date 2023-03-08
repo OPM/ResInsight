@@ -1095,17 +1095,16 @@ void RimWellConnectivityTable::createAndEmplaceTimeStepAndCalculatorPairInMap( s
     if ( timeStepIndex < 0 ) return;
 
     // NB: No threshold when generating calculators!
-    const double                                 smallContributionThreshold = 0.0;
-    const bool                                   branchDetection            = false;
-    std::vector<std::vector<cvf::Vec3d>>         pipeBranchesCLCoords;
-    std::vector<std::vector<RigWellResultPoint>> pipeBranchesCellIds;
-    RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineFromWellFrame( m_case->eclipseCaseData(),
-                                                                                     simWellData,
-                                                                                     timeStepIndex,
-                                                                                     branchDetection,
-                                                                                     true,
-                                                                                     pipeBranchesCLCoords,
-                                                                                     pipeBranchesCellIds );
+    const double smallContributionThreshold = 0.0;
+    const bool   branchDetection            = false;
+
+    auto simWellBranches = RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineForTimeStep( m_case->eclipseCaseData(),
+                                                                                                          simWellData,
+                                                                                                          timeStepIndex,
+                                                                                                          branchDetection,
+                                                                                                          true );
+
+    const auto& [pipeBranchesCLCoords, pipeBranchesCellIds] = RigSimulationWellCenterLineCalculator::extractBranchData( simWellBranches );
 
     std::map<QString, const std::vector<double>*> tracerFractionCellValues =
         RimWellAllocationTools::findOrCreateRelevantTracerCellFractions( simWellData, m_flowDiagSolution, timeStepIndex );
