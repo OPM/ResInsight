@@ -99,11 +99,36 @@ bool RicToggleItemsFeatureImpl::isToggleCommandsForSubItems()
 //--------------------------------------------------------------------------------------------------
 void RicToggleItemsFeatureImpl::setObjectToggleStateForSelection( SelectionToggleType state )
 {
-    auto fields = findToggleFieldsFromSelection( state );
-    if ( fields.empty() ) return;
+    auto selectedFields = findToggleFieldsFromSelection( state );
 
-    auto lastField = fields.back();
-    for ( auto field : fields )
+    std::vector<caf::PdmField<bool>*> fieldsToUpdate;
+    if ( state == TOGGLE_OFF || state == TOGGLE_ON )
+    {
+        // Exclude field having the target state. If these fields are included, the one and only call to setValueWithFieldChanged() can
+        // contain a field with the target state value. When setting a value to a field with the same value, nothing happens and the UI will
+        // get an inconsistent state (some curves toggled off are still visible in a plot).
+
+        const bool targetState = ( state == TOGGLE_ON ) ? true : false;
+
+        for ( const auto& field : selectedFields )
+        {
+            bool currentValue = field->v();
+            if ( currentValue != targetState )
+            {
+                fieldsToUpdate.push_back( field );
+            }
+        }
+    }
+    else
+    {
+        // All fields will be updated when toggling
+        fieldsToUpdate = selectedFields;
+    }
+
+    if ( fieldsToUpdate.empty() ) return;
+
+    auto lastField = fieldsToUpdate.back();
+    for ( auto field : fieldsToUpdate )
     {
         bool value = !( field->v() );
 

@@ -18,6 +18,8 @@
 
 #include "RicImportGridModelFromSummaryCaseFeature.h"
 
+#include "ApplicationCommands/RicShowMainWindowFeature.h"
+
 #include "RiaEclipseFileNameTools.h"
 #include "RiaImportEclipseCaseTools.h"
 #include "RiaLogging.h"
@@ -125,6 +127,8 @@ bool RicImportGridModelFromSummaryCaseFeature::findAndActivateFirstView( const R
     {
         if ( !gridCase->gridViews().empty() )
         {
+            RicShowMainWindowFeature::showMainWindow();
+
             Riu3DMainWindowTools::selectAsCurrentItem( gridCase->gridViews().front() );
 
             return true;

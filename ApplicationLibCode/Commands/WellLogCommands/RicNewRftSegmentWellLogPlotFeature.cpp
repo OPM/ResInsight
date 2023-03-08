@@ -27,6 +27,7 @@
 #include "RiaLogging.h"
 #include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaRftDefines.h"
+#include "RiaSummaryTools.h"
 
 #include "RifReaderOpmRft.h"
 
@@ -58,11 +59,7 @@ bool RicNewRftSegmentWellLogPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewRftSegmentWellLogPlotFeature::onActionTriggered( bool isChecked )
 {
-    auto rftCase = caf::SelectionManager::instance()->selectedItemOfType<RimRftCase>();
-    if ( !rftCase ) return;
-
-    RimSummaryCase* summaryCase = nullptr;
-    rftCase->firstAncestorOfType( summaryCase );
+    RimSummaryCase* summaryCase = RicNewRftSegmentWellLogPlotFeature::getSelectedOrFirstRftCase();
     if ( !summaryCase ) return;
 
     auto rftReader = summaryCase->rftReader();
@@ -72,7 +69,7 @@ void RicNewRftSegmentWellLogPlotFeature::onActionTriggered( bool isChecked )
         return;
     }
 
-    auto plot = RicNewWellLogPlotFeatureImpl::createHorizontalWellLogPlot();
+    auto plot = RicNewWellLogPlotFeatureImpl::createRftSegmentPlot();
 
     QString wellName  = "Unknown";
     auto    wellNames = rftReader->wellNames();
@@ -291,6 +288,31 @@ void RicNewRftSegmentWellLogPlotFeature::appendConnectionFactorTrack( RimWellLog
     auto fillColor = RiaColorTools::makeLighter( curveColor, 0.3f );
     curve->setFillColor( fillColor );
     curve->setFillStyle( Qt::SolidPattern );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCase* RicNewRftSegmentWellLogPlotFeature::getSelectedOrFirstRftCase()
+{
+    auto rftCase = caf::SelectionManager::instance()->selectedItemOfType<RimRftCase>();
+    if ( rftCase )
+    {
+        RimSummaryCase* summaryCase = nullptr;
+        rftCase->firstAncestorOfType( summaryCase );
+        if ( summaryCase ) return summaryCase;
+    }
+
+    auto summaryCases = RiaSummaryTools::singleTopLevelSummaryCases();
+    for ( const auto& candidateCase : summaryCases )
+    {
+        if ( candidateCase && candidateCase->rftReader() )
+        {
+            return candidateCase;
+        }
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

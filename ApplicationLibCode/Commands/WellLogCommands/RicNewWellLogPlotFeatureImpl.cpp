@@ -23,6 +23,7 @@
 #include "RimEclipseCase.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
+#include "RimRftPlotCollection.h"
 #include "RimStimPlanModelPlot.h"
 #include "RimStimPlanModelPlotCollection.h"
 #include "RimWellBoreStabilityPlot.h"
@@ -84,9 +85,22 @@ RimWellBoreStabilityPlot* RicNewWellLogPlotFeatureImpl::createWellBoreStabilityP
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createHorizontalWellLogPlot()
+RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createRftSegmentPlot()
 {
-    auto plot = createWellLogPlot();
+    auto rftPlotCollection = RimMainPlotCollection::current()->rftPlotCollection();
+    CVF_ASSERT( rftPlotCollection );
+
+    // Make sure the summary plot window is created
+    RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
+
+    RimWellLogPlot* plot = new RimWellLogPlot();
+    plot->setAsPlotMdiWindow();
+
+    rftPlotCollection->addPlot( plot );
+
+    plot->nameConfig()->setCustomName( QString( "RFT Segment Plot %1" ).arg( rftPlotCollection->plotCount() ) );
+
+    rftPlotCollection->updateConnectedEditors();
 
     plot->setDepthOrientation( RiaDefines::Orientation::HORIZONTAL );
     plot->setNamingMethod( RiaDefines::ObjectNamingMethod::TEMPLATE );
