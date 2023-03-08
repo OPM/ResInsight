@@ -71,17 +71,13 @@ void AppEnum<RimWellConnectivityTable::TimeSampleValueType>::setUp()
 {
     addItem( RimWellConnectivityTable::TimeSampleValueType::FLOW_RATE, "FLOW_RATE", "Flow Rate" );
     addItem( RimWellConnectivityTable::TimeSampleValueType::FLOW_RATE_FRACTION, "FLOW_RATE_FRACTION", "Flow Rate Fraction" );
-    addItem( RimWellConnectivityTable::TimeSampleValueType::FLOW_RATE_PERCENTAGE,
-             "FLOW_RATE_PERCENTAGE",
-             "Flow Rate Percentage" );
+    addItem( RimWellConnectivityTable::TimeSampleValueType::FLOW_RATE_PERCENTAGE, "FLOW_RATE_PERCENTAGE", "Flow Rate Percentage" );
     setDefault( RimWellConnectivityTable::TimeSampleValueType::FLOW_RATE_FRACTION );
 }
 template <>
 void AppEnum<RimWellConnectivityTable::TimeRangeValueType>::setUp()
 {
-    addItem( RimWellConnectivityTable::TimeRangeValueType::ACCUMULATED_FLOW_VOLUME,
-             "ACCUMULATED_FLOW_VOLUME",
-             "Accumulated Flow Volume" );
+    addItem( RimWellConnectivityTable::TimeRangeValueType::ACCUMULATED_FLOW_VOLUME, "ACCUMULATED_FLOW_VOLUME", "Accumulated Flow Volume" );
     addItem( RimWellConnectivityTable::TimeRangeValueType::ACCUMULATED_FLOW_VOLUME_FRACTION,
              "ACCUMULATED_FLOW_VOLUME_FRACTION",
              "Accumulated Flow Volume Fraction" );
@@ -115,10 +111,7 @@ RimWellConnectivityTable::RimWellConnectivityTable()
     CAF_PDM_InitFieldNoDefault( &m_timeStepSelection, "TimeStepSelectopn", "Time Step Type" );
     m_timeStepSelection.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_selectProducersAndInjectorsForTimeSteps,
-                       "SelectProducersAndInjectorsForTimeSteps",
-                       true,
-                       "Select Wells For Time Step(s)" );
+    CAF_PDM_InitField( &m_selectProducersAndInjectorsForTimeSteps, "SelectProducersAndInjectorsForTimeSteps", true, "Select Wells For Time Step(s)" );
 
     CAF_PDM_InitField( &m_thresholdValue, "ThresholdValue", 0.0, "Threshold" );
 
@@ -146,20 +139,16 @@ RimWellConnectivityTable::RimWellConnectivityTable()
     // Producer/Injector tracer configuration
     CAF_PDM_InitFieldNoDefault( &m_selectedProducerTracersUiField, "SelectedProducerTracers", "Producer Tracers" );
     m_selectedProducerTracersUiField.xmlCapability()->disableIO();
-    m_selectedProducerTracersUiField.uiCapability()->setUiEditorTypeName(
-        caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_selectedProducerTracersUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedProducerTracersUiField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     CAF_PDM_InitFieldNoDefault( &m_selectedInjectorTracersUiField, "SelectedInjectorTracers", "Injector Tracers" );
     m_selectedInjectorTracersUiField.xmlCapability()->disableIO();
-    m_selectedInjectorTracersUiField.uiCapability()->setUiEditorTypeName(
-        caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_selectedInjectorTracersUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedInjectorTracersUiField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     CAF_PDM_InitField( &m_syncSelectedInjectorsFromProducerSelection, "SyncSelectedProdInj", false, "Synch Communicators ->" );
-    m_syncSelectedInjectorsFromProducerSelection.uiCapability()->setUiEditorTypeName(
-        caf::PdmUiToolButtonEditor::uiEditorTypeName() );
+    m_syncSelectedInjectorsFromProducerSelection.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_syncSelectedProducersFromInjectorSelection, "SyncSelectedInjProd", false, "<- Synch Communicators" );
-    m_syncSelectedProducersFromInjectorSelection.uiCapability()->setUiEditorTypeName(
-        caf::PdmUiToolButtonEditor::uiEditorTypeName() );
+    m_syncSelectedProducersFromInjectorSelection.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
     CAF_PDM_InitFieldNoDefault( &m_applySelectedInectorProducerTracers, "ApplySelectedInectorProducerTracers", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_applySelectedInectorProducerTracers );
 
@@ -177,8 +166,7 @@ RimWellConnectivityTable::RimWellConnectivityTable()
     m_legendConfig = new RimRegularLegendConfig();
     m_legendConfig->setShowLegend( true );
     m_legendConfig->setAutomaticRanges( 0.0, 100.0, 0.0, 100.0 );
-    m_legendConfig->setColorLegend(
-        RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::HEAT_MAP ) );
+    m_legendConfig->setColorLegend( RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::HEAT_MAP ) );
 
     setLegendsVisible( true );
     setAsPlotMdiWindow();
@@ -237,9 +225,7 @@ void RimWellConnectivityTable::cleanupBeforeClose()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellConnectivityTable::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                 const QVariant&            oldValue,
-                                                 const QVariant&            newValue )
+void RimWellConnectivityTable::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimViewWindow::fieldChangedByUi( changedField, oldValue, newValue );
 
@@ -416,9 +402,7 @@ void RimWellConnectivityTable::defineUiOrdering( QString uiConfigName, caf::PdmU
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellConnectivityTable::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                      QString                    uiConfigName,
-                                                      caf::PdmUiEditorAttribute* attribute )
+void RimWellConnectivityTable::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
     if ( field == &m_applyTimeStepSelections || field == &m_applySelectedInectorProducerTracers )
     {
@@ -595,8 +579,8 @@ QList<caf::PdmOptionItemInfo> RimWellConnectivityTable::calculateValueOptions( c
             options.push_back( caf::PdmOptionItemInfo( "Default Flow Diag Solution", defaultFlowSolution ) );
         }
     }
-    else if ( m_case && ( fieldNeedingOptions == &m_selectedFromTimeStep ||
-                          fieldNeedingOptions == &m_selectedToTimeStep || fieldNeedingOptions == &m_selectedTimeStep ) )
+    else if ( m_case && ( fieldNeedingOptions == &m_selectedFromTimeStep || fieldNeedingOptions == &m_selectedToTimeStep ||
+                          fieldNeedingOptions == &m_selectedTimeStep ) )
     {
         const QString dateFormatStr = dateFormatString();
         const auto    timeSteps     = m_case->timeStepDates();
@@ -617,17 +601,16 @@ QList<caf::PdmOptionItemInfo> RimWellConnectivityTable::calculateValueOptions( c
     else if ( fieldNeedingOptions == &m_selectedInjectorTracersUiField && m_flowDiagSolution() )
     {
         const bool isInjector = true;
-        options = RimFlowDiagnosticsTools::calcOptionsForSelectedTracerField( m_flowDiagSolution(), isInjector );
+        options               = RimFlowDiagnosticsTools::calcOptionsForSelectedTracerField( m_flowDiagSolution(), isInjector );
         if ( !options.empty() )
         {
-            options.push_back(
-                caf::PdmOptionItemInfo( RiaDefines::reservoirTracerName(), RiaDefines::reservoirTracerName() ) );
+            options.push_back( caf::PdmOptionItemInfo( RiaDefines::reservoirTracerName(), RiaDefines::reservoirTracerName() ) );
         }
     }
     else if ( fieldNeedingOptions == &m_selectedProducerTracersUiField && m_flowDiagSolution() )
     {
         const bool isInjector = false;
-        options = RimFlowDiagnosticsTools::calcOptionsForSelectedTracerField( m_flowDiagSolution(), isInjector );
+        options               = RimFlowDiagnosticsTools::calcOptionsForSelectedTracerField( m_flowDiagSolution(), isInjector );
     }
     else if ( fieldNeedingOptions == &m_axisTitleFontSize || fieldNeedingOptions == &m_axisLabelFontSize ||
               fieldNeedingOptions == &m_valueLabelFontSize )
@@ -739,7 +722,7 @@ std::vector<QString> RimWellConnectivityTable::getProductionWellNames() const
     if ( m_timeStepSelection == TimeStepSelection::SINGLE_TIME_STEP )
     {
         const auto timeStepIndex = getTimeStepIndex( m_selectedTimeStep, m_case->timeStepDates() );
-        productionWellNames = RimFlowDiagnosticsTools::producerTracersInTimeStep( m_flowDiagSolution(), timeStepIndex );
+        productionWellNames      = RimFlowDiagnosticsTools::producerTracersInTimeStep( m_flowDiagSolution(), timeStepIndex );
     }
     else if ( m_timeStepSelection == TimeStepSelection::TIME_STEP_RANGE )
     {
@@ -836,15 +819,13 @@ QString RimWellConnectivityTable::createTableTitle() const
 
 std::pair<double, double> RimWellConnectivityTable::createLegendMinMaxValues( const double maxTableValue ) const
 {
-    if ( ( m_timeStepSelection == TimeStepSelection::SINGLE_TIME_STEP &&
-           m_timeSampleValueType == TimeSampleValueType::FLOW_RATE_PERCENTAGE ) ||
+    if ( ( m_timeStepSelection == TimeStepSelection::SINGLE_TIME_STEP && m_timeSampleValueType == TimeSampleValueType::FLOW_RATE_PERCENTAGE ) ||
          ( m_timeStepSelection == TimeStepSelection::TIME_STEP_RANGE &&
            m_timeRangeValueType == TimeRangeValueType::ACCUMULATED_FLOW_VOLUME_PERCENTAGE ) )
     {
         return std::make_pair( 0.0, 100.0 );
     }
-    if ( ( m_timeStepSelection == TimeStepSelection::SINGLE_TIME_STEP &&
-           m_timeSampleValueType == TimeSampleValueType::FLOW_RATE_FRACTION ) ||
+    if ( ( m_timeStepSelection == TimeStepSelection::SINGLE_TIME_STEP && m_timeSampleValueType == TimeSampleValueType::FLOW_RATE_FRACTION ) ||
          ( m_timeStepSelection == TimeStepSelection::TIME_STEP_RANGE &&
            m_timeRangeValueType == TimeRangeValueType::ACCUMULATED_FLOW_VOLUME_FRACTION ) )
     {
@@ -877,10 +858,8 @@ void RimWellConnectivityTable::setSelectedProducersAndInjectorsForSingleTimeStep
         m_selectedInjectorTracersUiField = std::vector<QString>();
     }
 
-    const std::vector<QString> producerVec =
-        RimFlowDiagnosticsTools::producerTracersInTimeStep( m_flowDiagSolution, timeStepIndex );
-    std::vector<QString> injectorVec =
-        RimFlowDiagnosticsTools::injectorTracersInTimeStep( m_flowDiagSolution, timeStepIndex );
+    const std::vector<QString> producerVec = RimFlowDiagnosticsTools::producerTracersInTimeStep( m_flowDiagSolution, timeStepIndex );
+    std::vector<QString>       injectorVec = RimFlowDiagnosticsTools::injectorTracersInTimeStep( m_flowDiagSolution, timeStepIndex );
     injectorVec.push_back( RiaDefines::reservoirTracerName() );
 
     // No filtering if all producers/injectors are selected and assign to UI-elements
@@ -907,11 +886,9 @@ void RimWellConnectivityTable::setSelectedProducersAndInjectorsForTimeStepRange(
     {
         if ( excludedTimeSteps.contains( timeStep ) ) continue;
 
-        const auto timeStepIndex = getTimeStepIndex( timeStep, allTimeSteps );
-        const auto timeStepProducers =
-            RimFlowDiagnosticsTools::producerTracersInTimeStep( m_flowDiagSolution, timeStepIndex );
-        const auto timeStepInjectors =
-            RimFlowDiagnosticsTools::injectorTracersInTimeStep( m_flowDiagSolution, timeStepIndex );
+        const auto timeStepIndex     = getTimeStepIndex( timeStep, allTimeSteps );
+        const auto timeStepProducers = RimFlowDiagnosticsTools::producerTracersInTimeStep( m_flowDiagSolution, timeStepIndex );
+        const auto timeStepInjectors = RimFlowDiagnosticsTools::injectorTracersInTimeStep( m_flowDiagSolution, timeStepIndex );
 
         // Insert vectors into set
         std::copy( timeStepProducers.begin(), timeStepProducers.end(), std::inserter( producerSet, producerSet.end() ) );
@@ -941,10 +918,9 @@ void RimWellConnectivityTable::syncSelectedInjectorsFromProducerSelection()
     if ( m_timeStepSelection == TimeStepSelection::SINGLE_TIME_STEP )
     {
         const auto timeStepIndex = getTimeStepIndex( m_selectedTimeStep, m_case->timeStepDates() );
-        const auto newInjectors =
-            RimFlowDiagnosticsTools::setOfInjectorTracersFromProducers( m_flowDiagSolution(),
-                                                                        m_selectedProducerTracersUiField(),
-                                                                        timeStepIndex );
+        const auto newInjectors  = RimFlowDiagnosticsTools::setOfInjectorTracersFromProducers( m_flowDiagSolution(),
+                                                                                              m_selectedProducerTracersUiField(),
+                                                                                              timeStepIndex );
 
         injectors = std::vector<QString>( newInjectors.begin(), newInjectors.end() );
         injectors.push_back( RiaDefines::reservoirTracerName() );
@@ -958,10 +934,9 @@ void RimWellConnectivityTable::syncSelectedInjectorsFromProducerSelection()
         {
             timeStepIndices.push_back( getTimeStepIndex( timeStep, allTimeSteps ) );
         }
-        const auto newInjectors =
-            RimFlowDiagnosticsTools::setOfInjectorTracersFromProducers( m_flowDiagSolution(),
-                                                                        m_selectedProducerTracersUiField(),
-                                                                        timeStepIndices );
+        const auto newInjectors = RimFlowDiagnosticsTools::setOfInjectorTracersFromProducers( m_flowDiagSolution(),
+                                                                                              m_selectedProducerTracersUiField(),
+                                                                                              timeStepIndices );
 
         injectors = std::vector<QString>( newInjectors.begin(), newInjectors.end() );
         injectors.push_back( RiaDefines::reservoirTracerName() );
@@ -979,10 +954,9 @@ void RimWellConnectivityTable::syncSelectedProducersFromInjectorSelection()
     if ( m_timeStepSelection == TimeStepSelection::SINGLE_TIME_STEP )
     {
         const auto timeStepIndex = getTimeStepIndex( m_selectedTimeStep, m_case->timeStepDates() );
-        const auto newProducers =
-            RimFlowDiagnosticsTools::setOfProducerTracersFromInjectors( m_flowDiagSolution(),
-                                                                        m_selectedInjectorTracersUiField(),
-                                                                        timeStepIndex );
+        const auto newProducers  = RimFlowDiagnosticsTools::setOfProducerTracersFromInjectors( m_flowDiagSolution(),
+                                                                                              m_selectedInjectorTracersUiField(),
+                                                                                              timeStepIndex );
 
         producers = std::vector<QString>( newProducers.begin(), newProducers.end() );
     }
@@ -995,10 +969,9 @@ void RimWellConnectivityTable::syncSelectedProducersFromInjectorSelection()
         {
             timeStepIndices.push_back( getTimeStepIndex( timeStep, allTimeSteps ) );
         }
-        const auto newProducers =
-            RimFlowDiagnosticsTools::setOfProducerTracersFromInjectors( m_flowDiagSolution(),
-                                                                        m_selectedInjectorTracersUiField(),
-                                                                        timeStepIndices );
+        const auto newProducers = RimFlowDiagnosticsTools::setOfProducerTracersFromInjectors( m_flowDiagSolution(),
+                                                                                              m_selectedInjectorTracersUiField(),
+                                                                                              timeStepIndices );
 
         producers = std::vector<QString>( newProducers.begin(), newProducers.end() );
         producers.push_back( RiaDefines::reservoirTracerName() );
@@ -1011,8 +984,7 @@ void RimWellConnectivityTable::syncSelectedProducersFromInjectorSelection()
 ///
 //--------------------------------------------------------------------------------------------------
 std::map<QString, RimWellAllocationOverTimeCollection>
-    RimWellConnectivityTable::createProductionWellAllocationOverTimeCollections(
-        const std::set<QString>& selectedProductionWells ) const
+    RimWellConnectivityTable::createProductionWellAllocationOverTimeCollections( const std::set<QString>& selectedProductionWells ) const
 {
     if ( !m_case || !m_flowDiagSolution )
     {
@@ -1039,8 +1011,7 @@ std::map<QString, RimWellAllocationOverTimeCollection>
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellAllocationOverTimeCollection
-    RimWellConnectivityTable::createWellAllocationOverTimeCollection( const RigSimWellData* simWellData ) const
+RimWellAllocationOverTimeCollection RimWellConnectivityTable::createWellAllocationOverTimeCollection( const RigSimWellData* simWellData ) const
 {
     if ( !m_case || !simWellData || !m_flowDiagSolution )
     {
@@ -1066,7 +1037,7 @@ RimWellAllocationOverTimeCollection
         }
 
         // Create collection with map
-        const auto selectedTimeStepsVector = std::vector( selectedTimeSteps.begin(), selectedTimeSteps.end() );
+        const auto                          selectedTimeStepsVector = std::vector( selectedTimeSteps.begin(), selectedTimeSteps.end() );
         RimWellAllocationOverTimeCollection collection( selectedTimeStepsVector, timeStepAndCalculatorPairs );
 
         // NB: No threshold when generating calculators - filtering must be done after collecting data
@@ -1090,10 +1061,7 @@ RimWellAllocationOverTimeCollection
     if ( m_timeStepSelection() == TimeStepSelection::SINGLE_TIME_STEP )
     {
         const auto timeStepIndex = getTimeStepIndex( m_selectedTimeStep(), allTimeSteps );
-        createAndEmplaceTimeStepAndCalculatorPairInMap( timeStepAndCalculatorPairs,
-                                                        m_selectedTimeStep(),
-                                                        timeStepIndex,
-                                                        simWellData );
+        createAndEmplaceTimeStepAndCalculatorPairInMap( timeStepAndCalculatorPairs, m_selectedTimeStep(), timeStepIndex, simWellData );
 
         // Create collection
         RimWellAllocationOverTimeCollection collection( { m_selectedTimeStep() }, timeStepAndCalculatorPairs );
@@ -1119,11 +1087,10 @@ RimWellAllocationOverTimeCollection
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellConnectivityTable::createAndEmplaceTimeStepAndCalculatorPairInMap(
-    std::map<QDateTime, RigAccWellFlowCalculator>& rTimeStepAndCalculatorPairs,
-    const QDateTime                                timeStep,
-    int                                            timeStepIndex,
-    const RigSimWellData*                          simWellData ) const
+void RimWellConnectivityTable::createAndEmplaceTimeStepAndCalculatorPairInMap( std::map<QDateTime, RigAccWellFlowCalculator>& rTimeStepAndCalculatorPairs,
+                                                                               const QDateTime                                timeStep,
+                                                                               int                                            timeStepIndex,
+                                                                               const RigSimWellData* simWellData ) const
 {
     if ( timeStepIndex < 0 ) return;
 
@@ -1145,11 +1112,9 @@ void RimWellConnectivityTable::createAndEmplaceTimeStepAndCalculatorPairInMap(
     if ( !tracerFractionCellValues.empty() )
     {
         bool isProducer = ( simWellData->wellProductionType( timeStepIndex ) == RiaDefines::WellProductionType::PRODUCER ||
-                            simWellData->wellProductionType( timeStepIndex ) ==
-                                RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE );
+                            simWellData->wellProductionType( timeStepIndex ) == RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE );
         RigEclCellIndexCalculator cellIdxCalc( m_case->eclipseCaseData()->mainGrid(),
-                                               m_case->eclipseCaseData()->activeCellInfo(
-                                                   RiaDefines::PorosityModelType::MATRIX_MODEL ) );
+                                               m_case->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ) );
         const auto                calculator = RigAccWellFlowCalculator( pipeBranchesCLCoords,
                                                           pipeBranchesCellIds,
                                                           tracerFractionCellValues,

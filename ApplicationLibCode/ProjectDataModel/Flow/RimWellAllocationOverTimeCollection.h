@@ -50,12 +50,10 @@ private:
         PERCENTAGE
     };
 
-    void fillWithAccumulatedFlowVolumeFractionOrPercentageValues( FractionOrPercentage selection,
-                                                                  double               smallContributionsThreshold );
+    void fillWithAccumulatedFlowVolumeFractionOrPercentageValues( FractionOrPercentage selection, double smallContributionsThreshold );
 
     void groupAccumulatedFlowVolumes( std::map<QString, std::map<QDateTime, double>>& rWellValuesMap, double threshold );
-    void groupAccumulatedFlowVolumeFractionsOrPercentages( std::map<QString, std::map<QDateTime, double>>& rWellValuesMap,
-                                                           double                                          threshold );
+    void groupAccumulatedFlowVolumeFractionsOrPercentages( std::map<QString, std::map<QDateTime, double>>& rWellValuesMap, double threshold );
 
 private:
     std::map<QDateTime, RigAccWellFlowCalculator>  m_timeStepAndCalculatorPairs;

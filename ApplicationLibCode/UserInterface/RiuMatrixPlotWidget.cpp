@@ -165,8 +165,7 @@ void RiuMatrixPlotWidget::setColumnHeaders( const std::vector<QString>& columnHe
 void RiuMatrixPlotWidget::setRowValues( const QString& rowLabel, const std::vector<double>& values )
 {
     CAF_ASSERT( !m_columnHeaders.empty() && "Matrix column headers are not configured - headers are empty!" );
-    CAF_ASSERT( values.size() == m_columnHeaders.size() &&
-                "Number of row values must be equal number of configured matrix columns" );
+    CAF_ASSERT( values.size() == m_columnHeaders.size() && "Number of row values must be equal number of configured matrix columns" );
 
     // Insert in front to get rows from bottom to top in plot
     m_rowHeaders.insert( m_rowHeaders.begin(), rowLabel );
@@ -332,11 +331,7 @@ void RiuMatrixPlotWidget::updateAxes()
     m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtAxis::YLeft, new RiuQwtLinearScaleEngine );
     m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), m_rowTitle );
     m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
-    m_plotWidget->setAxisFontsAndAlignment( RiuPlotAxis::defaultLeft(),
-                                            m_axisTitleFontSize,
-                                            m_axisLabelFontSize,
-                                            false,
-                                            Qt::AlignCenter );
+    m_plotWidget->setAxisFontsAndAlignment( RiuPlotAxis::defaultLeft(), m_axisTitleFontSize, m_axisLabelFontSize, false, Qt::AlignCenter );
     m_plotWidget->setAxisLabelsAndTicksEnabled( RiuPlotAxis::defaultLeft(), true, false );
     m_plotWidget->setAxisRange( RiuPlotAxis::defaultLeft(), 0.0, static_cast<double>( m_rowHeaders.size() ) + 1 );
     m_plotWidget->setMajorAndMinorTickIntervalsAndRange( RiuPlotAxis::defaultLeft(),
@@ -377,8 +372,7 @@ void RiuMatrixPlotWidget::updateAxes()
 //--------------------------------------------------------------------------------------------------
 void RiuMatrixPlotWidget::createMatrixCells()
 {
-    CAF_ASSERT( m_legendConfig.notNull() && m_legendConfig->scalarMapper() &&
-                "Scalar mapper must be set for legend config!" );
+    CAF_ASSERT( m_legendConfig.notNull() && m_legendConfig->scalarMapper() && "Scalar mapper must be set for legend config!" );
 
     for ( size_t rowIdx = 0u; rowIdx < m_rowValues.size(); ++rowIdx )
     {

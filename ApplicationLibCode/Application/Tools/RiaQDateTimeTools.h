@@ -95,9 +95,8 @@ public:
     static QList<caf::PdmOptionItemInfo> createOptionItems( const std::vector<time_t>& timeSteps );
 
     static std::set<QDateTime> createEvenlyDistributedDates( const std::vector<QDateTime>& inputDates, int numDates );
-    static std::vector<QDateTime> getTimeStepsWithinSelectedRange( const std::vector<QDateTime>& timeSteps,
-                                                                   const QDateTime&              fromTimeStep,
-                                                                   const QDateTime&              toTimeStep );
+    static std::vector<QDateTime>
+        getTimeStepsWithinSelectedRange( const std::vector<QDateTime>& timeSteps, const QDateTime& fromTimeStep, const QDateTime& toTimeStep );
 
 private:
     static const DateTimeSpan TIMESPAN_DAY;
