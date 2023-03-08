@@ -1177,7 +1177,7 @@ QString RiuResultTextBuilder::wellResultText()
                 const int outletSegmentId = wellResultCell->outletSegmentId();
 
                 text += QString( "-- Well-cell connection info --\n Well Name: %1\n Branch Id: %2\n Segment "
-                                 "Id: %3\n Outlet Branch Id: %4\n Outlet Segment Id: %5" )
+                                 "Id: %3\n Outlet Branch Id: %4\n Outlet Segment Id: %5\n" )
                             .arg( singleWellResultData->m_wellName )
                             .arg( branchId )
                             .arg( segmentId )
