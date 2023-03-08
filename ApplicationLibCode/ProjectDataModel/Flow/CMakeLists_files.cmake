@@ -18,6 +18,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellAllocationTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellAllocationOverTimeCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellConnectivityTable.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimFlowDiagnosticsTools.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -40,6 +41,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimWellAllocationTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellAllocationOverTimeCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellConnectivityTable.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimFlowDiagnosticsTools.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
