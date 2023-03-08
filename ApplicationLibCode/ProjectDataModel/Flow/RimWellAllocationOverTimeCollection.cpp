@@ -220,9 +220,8 @@ void RimWellAllocationOverTimeCollection::fillWithAccumulatedFlowVolumePercentag
 /// Group small contributors in "Others" if volume value for well is below threshold at every
 /// time step.
 //--------------------------------------------------------------------------------------------------
-void RimWellAllocationOverTimeCollection::fillWithAccumulatedFlowVolumeFractionOrPercentageValues(
-    FractionOrPercentage selection,
-    double               smallContributionsThreshold )
+void RimWellAllocationOverTimeCollection::fillWithAccumulatedFlowVolumeFractionOrPercentageValues( FractionOrPercentage selection,
+                                                                                                   double smallContributionsThreshold )
 {
     const double scaling = selection == FractionOrPercentage::FRACTION ? 1.0 : 100.0;
 
@@ -324,9 +323,8 @@ void RimWellAllocationOverTimeCollection::groupAccumulatedFlowVolumes( std::map<
 /// time step. If fraction/percentage value is above threshold for one time step or more, show data for well
 /// at every time step.
 //--------------------------------------------------------------------------------------------------
-void RimWellAllocationOverTimeCollection::groupAccumulatedFlowVolumeFractionsOrPercentages(
-    std::map<QString, std::map<QDateTime, double>>& rWellValuesMap,
-    double                                          threshold )
+void RimWellAllocationOverTimeCollection::groupAccumulatedFlowVolumeFractionsOrPercentages( std::map<QString, std::map<QDateTime, double>>& rWellValuesMap,
+                                                                                            double threshold )
 {
     auto getMaxValue = []( const std::map<QDateTime, double>& valuesMap ) -> double {
         double maxValue = 0.0;

@@ -755,12 +755,12 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
         else if ( fieldNeedingOptions == &m_selectedInjectorTracersUiField )
         {
             const bool isInjector = true;
-            options = RimFlowDiagnosticsTools::calcOptionsForSelectedTracerField( m_flowSolutionUiField(), isInjector );
+            options               = RimFlowDiagnosticsTools::calcOptionsForSelectedTracerField( m_flowSolutionUiField(), isInjector );
         }
         else if ( fieldNeedingOptions == &m_selectedProducerTracersUiField )
         {
             const bool isInjector = false;
-            options = RimFlowDiagnosticsTools::calcOptionsForSelectedTracerField( m_flowSolutionUiField(), isInjector );
+            options               = RimFlowDiagnosticsTools::calcOptionsForSelectedTracerField( m_flowSolutionUiField(), isInjector );
         }
     }
     else if ( m_resultTypeUiField() == RiaDefines::ResultCatType::INJECTION_FLOODING )
@@ -2384,8 +2384,7 @@ RimEclipseResultDefinition::FlowTracerSelectionState RimEclipseResultDefinition:
     else if ( m_flowTracerSelectionMode == FLOW_TR_BY_SELECTION )
     {
         const bool isInjector = true;
-        if ( m_selectedInjectorTracers().size() ==
-             RimFlowDiagnosticsTools::setOfTracersOfType( m_flowSolutionUiField(), isInjector ).size() )
+        if ( m_selectedInjectorTracers().size() == RimFlowDiagnosticsTools::setOfTracersOfType( m_flowSolutionUiField(), isInjector ).size() )
         {
             return ALL_SELECTED;
         }
@@ -2413,8 +2412,7 @@ RimEclipseResultDefinition::FlowTracerSelectionState RimEclipseResultDefinition:
     else if ( m_flowTracerSelectionMode == FLOW_TR_BY_SELECTION )
     {
         const bool isInjector = false;
-        if ( m_selectedProducerTracers().size() ==
-             RimFlowDiagnosticsTools::setOfTracersOfType( m_flowSolutionUiField(), isInjector ).size() )
+        if ( m_selectedProducerTracers().size() == RimFlowDiagnosticsTools::setOfTracersOfType( m_flowSolutionUiField(), isInjector ).size() )
         {
             return ALL_SELECTED;
         }
@@ -2450,9 +2448,7 @@ void RimEclipseResultDefinition::syncInjectorToProducerSelection()
     if ( flowSol && m_flowTracerSelectionMode == FLOW_TR_BY_SELECTION )
     {
         std::set<QString, RimFlowDiagnosticsTools::TracerComp> newProducerSelection =
-            RimFlowDiagnosticsTools::setOfProducerTracersFromInjectors( m_flowSolutionUiField(),
-                                                                        m_selectedInjectorTracers(),
-                                                                        timeStep );
+            RimFlowDiagnosticsTools::setOfProducerTracersFromInjectors( m_flowSolutionUiField(), m_selectedInjectorTracers(), timeStep );
         // Add all currently selected producers to set
         for ( const QString& selectedProducer : m_selectedProducerTracers() )
         {
@@ -2483,9 +2479,7 @@ void RimEclipseResultDefinition::syncProducerToInjectorSelection()
     if ( flowSol && m_flowTracerSelectionMode == FLOW_TR_BY_SELECTION )
     {
         std::set<QString, RimFlowDiagnosticsTools::TracerComp> newInjectorSelection =
-            RimFlowDiagnosticsTools::setOfInjectorTracersFromProducers( m_flowSolutionUiField(),
-                                                                        m_selectedProducerTracers(),
-                                                                        timeStep );
+            RimFlowDiagnosticsTools::setOfInjectorTracersFromProducers( m_flowSolutionUiField(), m_selectedProducerTracers(), timeStep );
 
         // Add all currently selected injectors to set
         for ( const QString& selectedInjector : m_selectedInjectorTracers() )

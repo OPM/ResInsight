@@ -526,8 +526,7 @@ std::set<QDateTime> RiaQDateTimeTools::createEvenlyDistributedDates( const std::
     QDateTime maxDate = *std::max_element( inputDates.begin(), inputDates.end() );
 
     // Calculate the time step between each selected date
-    qint64 timeStep =
-        ( maxDate.toMSecsSinceEpoch() - minDate.toMSecsSinceEpoch() ) / ( static_cast<qint64>( numDates ) - 1 );
+    qint64 timeStep = ( maxDate.toMSecsSinceEpoch() - minDate.toMSecsSinceEpoch() ) / ( static_cast<qint64>( numDates ) - 1 );
 
     // Find the index of the input date that is closest to each new date
     for ( int i = 0; i < numDates; ++i )
@@ -560,9 +559,7 @@ std::vector<QDateTime> RiaQDateTimeTools::getTimeStepsWithinSelectedRange( const
                                                                            const QDateTime&              toTimeStep )
 {
     std::vector<QDateTime> selectedTimeSteps;
-    auto                   isTimeStepInSelectedRange = [&]( const QDateTime& timeStep ) -> bool {
-        return fromTimeStep <= timeStep && timeStep <= toTimeStep;
-    };
+    auto isTimeStepInSelectedRange = [&]( const QDateTime& timeStep ) -> bool { return fromTimeStep <= timeStep && timeStep <= toTimeStep; };
     std::copy_if( timeSteps.begin(), timeSteps.end(), std::back_inserter( selectedTimeSteps ), isTimeStepInSelectedRange );
 
     return selectedTimeSteps;
