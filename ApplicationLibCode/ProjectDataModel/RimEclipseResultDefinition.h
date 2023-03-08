@@ -188,11 +188,6 @@ protected:
     caf::PdmPointer<RimEclipseCase> m_eclipseCase;
 
 private:
-    struct TracerComp
-    {
-        bool operator()( const QString& lhs, const QString& rhs ) const;
-    };
-
     caf::PdmField<int>                m_timeLapseBaseTimestep;
     caf::PdmPtrField<RimEclipseCase*> m_differenceCase;
     caf::PdmField<bool>               m_divideByCellFaceArea;
@@ -202,8 +197,6 @@ private:
 
     QString flowDiagResUiText( bool shortLabel, int maxTracerStringLength = std::numeric_limits<int>::max() ) const;
 
-    QList<caf::PdmOptionItemInfo> calcOptionsForSelectedTracerField( bool injector );
-
     QString timeOfFlightString( bool shorter ) const;
     QString maxFractionTracerString( bool shorter ) const;
 
@@ -211,9 +204,6 @@ private:
 
     void               changedTracerSelectionField( bool injector );
     static QStringList getResultNamesForResultType( RiaDefines::ResultCatType resultCatType, const RigCaseCellResultsData* results );
-
-    std::vector<QString>          allTracerNames() const;
-    std::set<QString, TracerComp> setOfTracersOfType( bool injector ) const;
 
     FlowTracerSelectionState injectorSelectionState() const;
     FlowTracerSelectionState producerSelectionState() const;
