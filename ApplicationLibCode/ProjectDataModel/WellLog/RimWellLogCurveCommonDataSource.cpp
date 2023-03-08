@@ -712,10 +712,16 @@ void RimWellLogCurveCommonDataSource::applyDataSourceChanges()
 
         this->applyDataSourceChanges( curves, tracks );
 
+        // plot->loadDataAndUpdate() has been called in applyDataSourceChanges(), and this is required before the visibility of tracks and
+        // curves can be updated. However, if the visibility of curves changes, another loadDataAndUpdate() is required to calculate zoom
+        // based on visible curves.
+
         for ( auto& track : tracks )
         {
             track->updateCheckStateBasedOnCurveData();
         }
+
+        parentPlot->loadDataAndUpdate();
     }
 }
 

@@ -20,6 +20,10 @@
 
 #include "RiaGuiApplication.h"
 
+#include "Rim3dView.h"
+#include "RimCase.h"
+#include "RimProject.h"
+
 #include "RiuMainWindow.h"
 
 #include <QAction>
@@ -51,6 +55,23 @@ void RicShowMainWindowFeature::showMainWindow()
     {
         RiaGuiApplication* app = RiaGuiApplication::instance();
         app->getOrCreateAndShowMainWindow();
+
+        // When the main window is created, make sure all the views are loaded and displayed
+
+        std::vector<RimCase*> allGridModels;
+        RimProject::current()->allCases( allGridModels );
+
+        for ( RimCase* gridModel : allGridModels )
+        {
+            if ( gridModel )
+            {
+                std::vector<Rim3dView*> views = gridModel->views();
+                for ( Rim3dView* view : views )
+                {
+                    if ( view ) view->loadDataAndUpdate();
+                }
+            }
+        }
     }
 }
 

@@ -58,11 +58,7 @@ bool RicNewMultiPhaseRftSegmentPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewMultiPhaseRftSegmentPlotFeature::onActionTriggered( bool isChecked )
 {
-    auto rftCase = caf::SelectionManager::instance()->selectedItemOfType<RimRftCase>();
-    if ( !rftCase ) return;
-
-    RimSummaryCase* summaryCase = nullptr;
-    rftCase->firstAncestorOfType( summaryCase );
+    RimSummaryCase* summaryCase = RicNewRftSegmentWellLogPlotFeature::getSelectedOrFirstRftCase();
     if ( !summaryCase ) return;
 
     auto rftReader = summaryCase->rftReader();
@@ -72,7 +68,7 @@ void RicNewMultiPhaseRftSegmentPlotFeature::onActionTriggered( bool isChecked )
         return;
     }
 
-    auto plot = RicNewWellLogPlotFeatureImpl::createHorizontalWellLogPlot();
+    auto plot = RicNewWellLogPlotFeatureImpl::createRftSegmentPlot();
 
     QString wellName = "Unknown";
 
