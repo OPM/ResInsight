@@ -2433,8 +2433,6 @@ RimEclipseResultDefinition::FlowTracerSelectionState RimEclipseResultDefinition:
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::syncInjectorToProducerSelection()
 {
-    const double epsilon = 1.0e-8;
-
     int timeStep = 0;
 
     Rim3dView* rimView = nullptr;
@@ -2464,8 +2462,6 @@ void RimEclipseResultDefinition::syncInjectorToProducerSelection()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::syncProducerToInjectorSelection()
 {
-    const double epsilon = 1.0e-8;
-
     int timeStep = 0;
 
     Rim3dView* rimView = nullptr;
