@@ -18,6 +18,8 @@
 
 #include "RigAccWellFlowCalculator.h"
 
+#include "RiaWellFlowDefines.h"
+
 #include "RigActiveCellInfo.h"
 #include "RigFlowDiagResults.h"
 #include "RigMainGrid.h"
@@ -73,7 +75,7 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator( const std::vector<std::vecto
     for ( const auto& it : ( *m_tracerCellFractionValues ) )
         m_tracerNames.push_back( it.first );
 
-    m_tracerNames.push_back( RIG_RESERVOIR_TRACER_NAME );
+    m_tracerNames.push_back( RiaDefines::reservoirTracerName() );
 
     initializePipeBranchesMeasuredDepths();
     calculateFlowData();
@@ -866,12 +868,16 @@ void RigAccWellFlowCalculator::groupSmallContributions()
         for ( const auto& tracerPair : totalTracerFractions )
         {
             if ( fabs( tracerPair.second ) <= m_smallContributionsThreshold &&
-                 ( hasConsistentWellFlow || tracerPair.first != RIG_RESERVOIR_TRACER_NAME ) ) // Do not group the
-                                                                                              // Reservoir tracer if the
-                                                                                              // well flow is
-                                                                                              // inconsistent, because
-                                                                                              // cross flow is shown as
-                                                                                              // the reservoir fraction
+                 ( hasConsistentWellFlow || tracerPair.first != RiaDefines::reservoirTracerName() ) ) // Do not group
+                                                                                                      // the Reservoir
+                                                                                                      // tracer if the
+                                                                                                      // well flow is
+                                                                                                      // inconsistent,
+                                                                                                      // because cross
+                                                                                                      // flow is shown
+                                                                                                      // as the
+                                                                                                      // reservoir
+                                                                                                      // fraction
             {
                 tracersToGroup.push_back( tracerPair.first );
             }
