@@ -90,44 +90,35 @@ void RiuDepthQwtPlot::addCurve( const RimCase*             rimCase,
         return;
     }
 
-    std::vector<double> kValues;
-
-    if ( m_bShowDepth )
-    {
-        kValues = depthValues;
-        setAxisTitle( QwtAxis::YLeft, "Depth" );
-    }
-    else
-    {
-        for ( auto k : kIndexes )
-        {
-            kValues.push_back( 1.0 * k + 1.0 ); // adjust to eclipse index
-        }
-        setAxisTitle( QwtAxis::YLeft, "K" );
-    }
-
-    double yMax = *std::max_element( kValues.begin(), kValues.end() );
-    double yMin = *std::min_element( kValues.begin(), kValues.end() );
+    double yMax = *std::max_element( depthValues.begin(), depthValues.end() );
+    double yMin = *std::min_element( depthValues.begin(), depthValues.end() );
     m_maxY      = std::max( yMax, m_maxY );
     m_minY      = std::min( yMin, m_minY );
 
-    std::vector<double> tmpResultValues;
+    std::vector<double> tmpDepths;
+    const double        nan = std::nan( "" );
 
-    for ( auto val : resultValues )
+    for ( int i = 0; i < (int)kIndexes.size(); i++ )
     {
-        if ( std::isinf( val ) )
-            tmpResultValues.push_back( std::nan( "" ) );
+        double val = resultValues[i];
+
+        if ( std::isnan( val ) )
+        {
+            // the plot framework needs nan values in the Y data to detect valid intervals and keep good plot performance
+            // if we have nan in the X data, set Y to nan, too
+            tmpDepths.push_back( nan );
+        }
         else
         {
             if ( val > m_maxX ) m_maxX = val;
             if ( val < m_minX ) m_minX = val;
-            tmpResultValues.push_back( val );
+            tmpDepths.push_back( depthValues[i] );
         }
     }
 
     RiuQwtPlotCurve* plotCurve = new RiuQwtPlotCurve( nullptr );
 
-    plotCurve->setSamplesFromXValuesAndYValues( tmpResultValues, kValues, false );
+    plotCurve->setSamplesFromXValuesAndYValues( resultValues, tmpDepths, false );
     plotCurve->setTitle( curveName );
     plotCurve->setAxes( QwtAxis::XTop, QwtAxis::YLeft );
 
@@ -230,6 +221,11 @@ void RiuDepthQwtPlot::setDefaults()
     setAxisMaxMinor( QwtAxis::XTop, 2 );
     setAxisMaxMinor( QwtAxis::YLeft, 6 );
 
+    setAxisTitle( QwtAxis::YLeft, "Depth" );
+
+    setAxisAutoScale( QwtAxis::YLeft, false );
+    setAxisAutoScale( QwtAxis::XTop, false );
+
     applyFontSizes( false );
 
     QwtLegend* legend = new QwtLegend( this );
@@ -266,7 +262,7 @@ QString RiuDepthQwtPlot::asciiDataForUiSelectedCurves() const
             }
             out += "\n";
 
-            QString kString = QString::number( m_kSteps.at( caseId )[i] );
+            QString kString = QString::number( m_kSteps.at( caseId )[i] + 1 );
 
             out += kString;
 
@@ -304,6 +300,7 @@ void RiuDepthQwtPlot::slotCurrentPlotDataInTextDialog()
 void RiuDepthQwtPlot::updateAxisScaling()
 {
     double valRangeX = m_maxX - m_minX;
+    if ( valRangeX == 0.0 ) valRangeX = 1.0;
     this->setAxisScale( QwtAxis::YLeft, m_maxY + 0.1, m_minY - 0.1 );
     this->setAxisScale( QwtAxis::XTop, m_minX - 0.02 * valRangeX, m_maxX + 0.1 * valRangeX );
 }
