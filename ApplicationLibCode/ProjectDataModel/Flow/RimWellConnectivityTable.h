@@ -116,6 +116,7 @@ private:
     std::set<QDateTime>  getSelectedTimeSteps( const std::vector<QDateTime>& timeSteps ) const;
     QString              dateFormatString() const;
     std::vector<QString> getProductionWellNames() const;
+    std::vector<QString> getProductionWellNamesAtTimeSteps( const std::set<QDateTime>& timeSteps ) const;
 
     QString createTableTitle() const;
 
