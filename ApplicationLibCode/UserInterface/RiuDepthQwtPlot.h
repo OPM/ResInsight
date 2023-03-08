@@ -75,7 +75,7 @@ private:
 
     std::map<int, QString>                          m_caseNames;
     std::map<int, std::vector<int>>                 m_kSteps;
-    std::map<int, std::vector<double>>              m_depthValues;
+    std::map<int, std::vector<std::vector<double>>> m_depthValues;
     std::map<int, std::vector<std::vector<double>>> m_curveData;
     std::map<int, std::vector<QString>>             m_curveNames;
 
@@ -83,6 +83,4 @@ private:
     double m_minY;
     double m_maxX;
     double m_minX;
-
-    bool m_bShowDepth;
 };
