@@ -18,6 +18,7 @@
 
 #include "RigDepthResultAccessor.h"
 
+#include "RigActiveCellInfo.h"
 #include "RigCell.h"
 #include "RigEclipseCaseData.h"
 #include "RigGridBase.h"
@@ -37,17 +38,19 @@ std::vector<double> RigDepthResultAccessor::resultValues( RigEclipseCaseData*   
 {
     std::vector<double> values;
 
-    RigHugeValResultAccessor hugeVal;
-
     if ( cellIndex != cvf::UNDEFINED_SIZE_T )
     {
         size_t i     = 0;
         size_t j     = 0;
         size_t dummy = 0;
 
+        const double nan = std::nan( "" );
+
         auto kvals = kValues( eclipseCaseData, gridIndex );
 
         auto grid = eclipseCaseData->grid( gridIndex );
+
+        const RigActiveCellInfo* activeCellInfo = eclipseCaseData->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
 
         if ( grid->ijkFromCellIndex( cellIndex, &i, &j, &dummy ) )
         {
@@ -56,16 +59,25 @@ std::vector<double> RigDepthResultAccessor::resultValues( RigEclipseCaseData*   
 
             for ( auto k : kvals )
             {
-                int tmpCellIdx = grid->cellIndexFromIJK( i, j, k );
+                int    tmpCellIdx = grid->cellIndexFromIJK( i, j, k );
+                double tmpVal     = 0.0;
 
-                if ( resultAccessor.notNull() )
+                if ( !activeCellInfo->isActive( tmpCellIdx ) )
                 {
-                    values.push_back( resultAccessor->cellScalar( tmpCellIdx ) );
+                    tmpVal = nan;
                 }
                 else
                 {
-                    values.push_back( hugeVal.cellScalar( tmpCellIdx ) );
+                    if ( resultAccessor.notNull() )
+                    {
+                        tmpVal = resultAccessor->cellScalar( tmpCellIdx );
+                    }
+                    else
+                    {
+                        tmpVal = nan;
+                    }
                 }
+                values.push_back( tmpVal );
             }
         }
     }
