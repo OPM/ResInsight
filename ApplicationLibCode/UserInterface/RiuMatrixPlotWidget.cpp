@@ -22,9 +22,14 @@
 #include "RiaColorTools.h"
 #include "RiaPreferences.h"
 
+#include "RimRegularLegendConfig.h"
+#include "RimViewWindow.h"
+
+#include "RiuAbstractLegendFrame.h"
 #include "RiuQwtLinearScaleEngine.h"
 #include "RiuQwtPlotItem.h"
 #include "RiuQwtPlotTools.h"
+#include "RiuScalarMapperLegendFrame.h"
 
 #include "cvfColor3.h"
 
@@ -32,7 +37,7 @@
 #include "qwt_scale_draw.h"
 #include "qwt_text.h"
 
-#include <QVBoxLayout>
+#include <QHBoxLayout>
 
 #include <span>
 
@@ -72,12 +77,13 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuMatrixPlotWidget::RiuMatrixPlotWidget( RimViewWindow* ownerViewWindow, QWidget* parent )
+RiuMatrixPlotWidget::RiuMatrixPlotWidget( RimViewWindow* ownerViewWindow, RimRegularLegendConfig* legendConfig, QWidget* parent )
     : matrixCellSelected( this )
     , m_ownerViewWindow( ownerViewWindow )
+    , m_legendConfig( legendConfig )
 {
     // Configure main layout
-    QVBoxLayout* mainLayout = new QVBoxLayout();
+    QHBoxLayout* mainLayout = new QHBoxLayout();
     mainLayout->setContentsMargins( 15, 15, 15, 15 );
     this->setLayout( mainLayout );
 
@@ -92,11 +98,21 @@ RiuMatrixPlotWidget::RiuMatrixPlotWidget( RimViewWindow* ownerViewWindow, QWidge
     m_plotWidget->qwtPlot()->insertLegend( nullptr );
     mainLayout->addWidget( m_plotWidget );
 
+    // Add legend to main layout
+    if ( m_legendConfig )
+    {
+        m_legendFrame = m_legendConfig->makeLegendFrame();
+        mainLayout->addWidget( m_legendFrame );
+    }
+
     // Configure plot widget to be a matrix plot?
     m_plotWidget->enableGridLines( RiuPlotAxis::defaultTop(), false, false );
     m_plotWidget->enableGridLines( RiuPlotAxis::defaultBottom(), false, false );
     m_plotWidget->enableGridLines( RiuPlotAxis::defaultRight(), false, false );
     m_plotWidget->enableGridLines( RiuPlotAxis::defaultLeft(), false, false );
+
+    m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
+    m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultBottom(), true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -152,13 +168,9 @@ void RiuMatrixPlotWidget::setRowValues( const QString& rowLabel, const std::vect
     CAF_ASSERT( values.size() == m_columnHeaders.size() &&
                 "Number of row values must be equal number of configured matrix columns" );
 
-    m_rowHeaders.push_back( rowLabel );
-    m_rowValues.push_back( values );
-}
-
-void RiuMatrixPlotWidget::setScalarMapper( const cvf::ScalarMapper* scalarMapper )
-{
-    m_scalarMapper = scalarMapper;
+    // Insert in front to get rows from bottom to top in plot
+    m_rowHeaders.insert( m_rowHeaders.begin(), rowLabel );
+    m_rowValues.insert( m_rowValues.begin(), values );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -169,6 +181,10 @@ void RiuMatrixPlotWidget::createPlot()
     updateAxes();
     createMatrixCells();
     scheduleReplot();
+
+    auto frame = dynamic_cast<RiuScalarMapperLegendFrame*>( m_legendFrame.data() );
+    frame->updateTickValues();
+    frame->update();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -211,17 +227,64 @@ void RiuMatrixPlotWidget::setPlotTitle( const QString& title )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMatrixPlotWidget::setPlotTitleFontSize( int fontSize )
+void RiuMatrixPlotWidget::setShowValueLabel( bool showValueLabel )
 {
-    m_plotWidget->setPlotTitleFontSize( fontSize );
+    m_showValueLabel = showValueLabel;
+
+    // Due to few data points - clear plot and create matrix cells with new label flag
+    m_plotWidget->qwtPlot()->detachItems();
+    createMatrixCells();
+    m_plotWidget->scheduleReplot();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMatrixPlotWidget::setAxisTitleText( RiuPlotAxis axis, const QString& title )
+void RiuMatrixPlotWidget::setRowTitle( const QString& title )
 {
-    m_plotWidget->setAxisTitleText( axis, title );
+    m_rowTitle = title;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMatrixPlotWidget::setInvalidValueColor( const cvf::Color3ub& color )
+{
+    m_invalidValueColor = color;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMatrixPlotWidget::setUseInvalidValueColor( bool useInvalidValueColor )
+{
+    m_useInvalidValueColor = useInvalidValueColor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMatrixPlotWidget::setInvalidValueRange( double min, double max )
+{
+    CAF_ASSERT( min <= max && "Min must be less or equal to max!" );
+
+    m_invalidValueRange = std::make_pair( min, max );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMatrixPlotWidget::setColumnTitle( const QString& title )
+{
+    m_columnTitle = title;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMatrixPlotWidget::setPlotTitleFontSize( int fontSize )
+{
+    m_plotWidget->setPlotTitleFontSize( fontSize );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -267,7 +330,7 @@ void RiuMatrixPlotWidget::updateAxes()
     // Labels on y-axis
     m_plotWidget->qwtPlot()->setAxisScaleDraw( QwtAxis::YLeft, new TextScaleDraw( createIndexLabelMap( m_rowHeaders ) ) );
     m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtAxis::YLeft, new RiuQwtLinearScaleEngine );
-    m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), m_yAxisTitle );
+    m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), m_rowTitle );
     m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
     m_plotWidget->setAxisFontsAndAlignment( RiuPlotAxis::defaultLeft(),
                                             m_axisTitleFontSize,
@@ -289,7 +352,7 @@ void RiuMatrixPlotWidget::updateAxes()
     scaleDraw->setLabelRotation( 30.0 );
     m_plotWidget->qwtPlot()->setAxisScaleDraw( QwtAxis::XBottom, scaleDraw );
     m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtAxis::XBottom, new RiuQwtLinearScaleEngine );
-    m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultBottom(), m_xAxisTitle );
+    m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultBottom(), m_columnTitle );
     m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultBottom(), true );
     m_plotWidget->setAxisFontsAndAlignment( RiuPlotAxis::defaultBottom(),
                                             m_axisTitleFontSize,
@@ -314,39 +377,50 @@ void RiuMatrixPlotWidget::updateAxes()
 //--------------------------------------------------------------------------------------------------
 void RiuMatrixPlotWidget::createMatrixCells()
 {
-    CAF_ASSERT( m_scalarMapper.notNull() && "Scalar mapper must be set" );
+    CAF_ASSERT( m_legendConfig.notNull() && m_legendConfig->scalarMapper() &&
+                "Scalar mapper must be set for legend config!" );
 
     for ( size_t rowIdx = 0u; rowIdx < m_rowValues.size(); ++rowIdx )
     {
         for ( size_t colIdx = 0u; colIdx < m_rowValues[rowIdx].size(); ++colIdx )
         {
-            double value = m_rowValues[rowIdx][colIdx];
-            auto   label = QString( "%1" ).arg( value, 0, 'f', 2 );
+            const double value = m_rowValues[rowIdx][colIdx];
+            const auto   label = QString( "%1" ).arg( value, 0, 'f', 2 );
 
-            cvf::Color3ub color = m_scalarMapper->mapToColor( value );
-            QColor        qColor( color.r(), color.g(), color.b() );
-            auto          rectangle = RiuQwtPlotTools::createBoxShapeT<MatrixShapeItem>( label,
-                                                                                (double)colIdx,
-                                                                                (double)colIdx + 1.0,
-                                                                                (double)rowIdx,
-                                                                                (double)rowIdx + 1,
+            cvf::Color3ub color = m_legendConfig->scalarMapper()->mapToColor( value );
+
+            if ( m_useInvalidValueColor && m_invalidValueRange.first <= value && value <= m_invalidValueRange.second )
+            {
+                color = m_invalidValueColor;
+            }
+
+            QColor qColor( color.r(), color.g(), color.b() );
+            auto   rectangle = RiuQwtPlotTools::createBoxShapeT<MatrixShapeItem>( label,
+                                                                                static_cast<double>( colIdx ),
+                                                                                static_cast<double>( colIdx ) + 1.0,
+                                                                                static_cast<double>( rowIdx ),
+                                                                                static_cast<double>( rowIdx ) + 1,
                                                                                 qColor );
 
             rectangle->value       = value;
             rectangle->rowIndex    = rowIdx;
             rectangle->columnIndex = colIdx;
-            QwtText      textLabel( label );
-            cvf::Color3f contrastColor = RiaColorTools::contrastColor( cvf::Color3f( color ) );
-            textLabel.setColor( RiaColorTools::toQColor( contrastColor ) );
-            QFont font = textLabel.font();
-            font.setPixelSize( caf::FontTools::pointSizeToPixelSize( m_valueFontSize ) );
-            textLabel.setFont( font );
-            QwtPlotMarker* marker = new QwtPlotMarker();
-            marker->setLabel( textLabel );
-            marker->setXValue( colIdx + 0.5 );
-            marker->setYValue( rowIdx + 0.5 );
             rectangle->attach( m_plotWidget->qwtPlot() );
-            marker->attach( m_plotWidget->qwtPlot() );
+
+            if ( m_showValueLabel )
+            {
+                QwtText      textLabel( label );
+                cvf::Color3f contrastColor = RiaColorTools::contrastColor( cvf::Color3f( color ) );
+                textLabel.setColor( RiaColorTools::toQColor( contrastColor ) );
+                QFont font = textLabel.font();
+                font.setPixelSize( caf::FontTools::pointSizeToPixelSize( m_valueFontSize ) );
+                textLabel.setFont( font );
+                QwtPlotMarker* marker = new QwtPlotMarker();
+                marker->setLabel( textLabel );
+                marker->setXValue( colIdx + 0.5 );
+                marker->setYValue( rowIdx + 0.5 );
+                marker->attach( m_plotWidget->qwtPlot() );
+            }
         }
     }
 }

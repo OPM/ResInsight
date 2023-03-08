@@ -23,6 +23,7 @@
 #include "RiuQwtPlotWidget.h"
 
 #include "cafFontTools.h"
+#include "cafPdmPointer.h"
 #include "cafSignal.h"
 
 #include "cvfScalarMapper.h"
@@ -34,7 +35,10 @@
 
 #include <span>
 
-// TODO: Rename to RiuMatrixPlotWidgetWrapper?
+class RimViewWindow;
+class RimRegularLegendConfig;
+class RiuAbstractLegendFrame;
+
 class RiuMatrixPlotWidget : public QWidget, public RiuInterfaceToViewWindow, public caf::SignalEmitter
 {
     Q_OBJECT
@@ -43,7 +47,7 @@ public:
     caf::Signal<std::pair<int, int>> matrixCellSelected;
 
 public:
-    RiuMatrixPlotWidget( RimViewWindow* ownerViewWindow, QWidget* parent = nullptr );
+    RiuMatrixPlotWidget( RimViewWindow* ownerViewWindow, RimRegularLegendConfig* legendConfig, QWidget* parent = nullptr );
     ~RiuMatrixPlotWidget();
 
     QwtPlot* qwtPlot() const;
@@ -54,15 +58,22 @@ public:
     void setRowValues( const QString& rowLabel, const std::vector<double>& values );
 
     void setPlotTitle( const QString& title );
+    void setColumnTitle( const QString& title );
+    void setRowTitle( const QString& title );
+
+    void setInvalidValueColor( const cvf::Color3ub& color );
+    void setUseInvalidValueColor( bool useInvalidValueColor );
+    void setInvalidValueRange( double min, double max );
+
+    void setShowValueLabel( bool showValueLabel );
+
     void setPlotTitleFontSize( int fontSize );
     void setPlotTitleEnabled( bool enabled );
     void setLegendFontSize( int fontSize );
-    void setAxisTitleText( RiuPlotAxis axis, const QString& title );
+
     void setAxisTitleFontSize( int fontSize );
     void setAxisLabelFontSize( int fontSize );
     void setValueFontSize( int fontSize );
-
-    void setScalarMapper( const cvf::ScalarMapper* scalarMapper );
 
     void scheduleReplot();
 
@@ -77,17 +88,24 @@ private:
     std::map<size_t, QString> createIndexLabelMap( const std::vector<QString>& labels );
 
 private:
-    QPointer<RiuQwtPlotWidget>     m_plotWidget;
-    caf::PdmPointer<RimViewWindow> m_ownerViewWindow; // Only intended to be used by ownerViewWindow()
+    QPointer<RiuQwtPlotWidget>       m_plotWidget;
+    QPointer<RiuAbstractLegendFrame> m_legendFrame;
 
-    cvf::cref<cvf::ScalarMapper> m_scalarMapper;
+    caf::PdmPointer<RimViewWindow>          m_ownerViewWindow; // Only intended to be used by ownerViewWindow()
+    caf::PdmPointer<RimRegularLegendConfig> m_legendConfig;
 
     std::vector<QString>             m_columnHeaders;
     std::vector<QString>             m_rowHeaders;
     std::vector<std::vector<double>> m_rowValues;
 
-    QString m_yAxisTitle;
-    QString m_xAxisTitle;
+    cvf::Color3ub             m_invalidValueColor    = cvf::Color3ub::WHITE;
+    bool                      m_useInvalidValueColor = false;
+    std::pair<double, double> m_invalidValueRange    = { 0.0, 0.0 };
+
+    bool m_showValueLabel = true;
+
+    QString m_rowTitle;
+    QString m_columnTitle;
     int     m_axisTitleFontSize = 8;
     int     m_axisLabelFontSize = 8;
     int     m_valueFontSize     = 8;
