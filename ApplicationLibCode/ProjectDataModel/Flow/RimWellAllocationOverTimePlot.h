@@ -118,9 +118,7 @@ private:
     int axisTitleFontSize() const;
     int axisValueFontSize() const;
 
-    std::vector<QDateTime>     getTimeStepsWithinSelectedRange( const std::vector<QDateTime>& timeSteps ) const;
-    std::set<QDateTime>        getSelectedTimeSteps( const std::vector<QDateTime>& timeSteps ) const;
-    static std::set<QDateTime> createEvenlyDistributedDates( const std::vector<QDateTime>& inputDates, int numDates );
+    std::set<QDateTime> getSelectedTimeSteps( const std::vector<QDateTime>& timeSteps ) const;
 
 private:
     caf::PdmField<QString>                  m_userName;
