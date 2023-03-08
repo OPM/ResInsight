@@ -105,7 +105,7 @@ void AppEnum<RimWellConnectivityTable::TimeStepRangeFilterMode>::setUp()
 //--------------------------------------------------------------------------------------------------
 RimWellConnectivityTable::RimWellConnectivityTable()
 {
-    CAF_PDM_InitObject( "Producer/Injector Connectivity", "" );
+    CAF_PDM_InitObject( "Producer/Injector Connectivity" );
 
     CAF_PDM_InitFieldNoDefault( &m_case, "CurveCase", "Case" );
     m_case.uiCapability()->setUiTreeChildrenHidden( true );

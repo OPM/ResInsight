@@ -25,7 +25,9 @@
 #include "cafPdmField.h"
 #include "cafPdmPtrField.h"
 
+#include <QDateTime>
 #include <QPointer>
+#include <QString>
 
 class RimEclipseResultCase;
 class RimFlowDiagSolution;
