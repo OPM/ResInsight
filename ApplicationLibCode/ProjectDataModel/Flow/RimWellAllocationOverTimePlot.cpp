@@ -470,7 +470,8 @@ RimWellAllocationOverTimeCollection RimWellAllocationOverTimePlot::createWellAll
             bool                      isProducer = ( simWellData->wellProductionType( i ) == RiaDefines::WellProductionType::PRODUCER ||
                                 simWellData->wellProductionType( i ) == RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE );
             RigEclCellIndexCalculator cellIdxCalc( m_case->eclipseCaseData()->mainGrid(),
-                                                   m_case->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ) );
+                                                   m_case->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ),
+                                                   nullptr );
             const auto                calculator = RigAccWellFlowCalculator( pipeBranchesCLCoords,
                                                               pipeBranchesCellIds,
                                                               tracerFractionCellValues,

@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <cvfArray.h>
+
 #include <cstddef>
 #include <map>
 #include <vector>
@@ -33,17 +35,20 @@ class RigActiveCellInfo;
 class RigEclCellIndexCalculator
 {
 public:
-    RigEclCellIndexCalculator( const RigMainGrid* mainGrid, const RigActiveCellInfo* activeCellInfo )
+    RigEclCellIndexCalculator( const RigMainGrid* mainGrid, const RigActiveCellInfo* activeCellInfo, const cvf::UByteArray* cellVisibilities )
         : m_mainGrid( mainGrid )
         , m_activeCellInfo( activeCellInfo )
+        , m_cellVisibilities( cellVisibilities )
     {
     }
 
     size_t resultCellIndex( size_t gridIndex, size_t gridCellIndex ) const;
+    bool   isCellVisible( size_t gridIndex, size_t gridCellIndex ) const;
 
 private:
     const RigMainGrid*       m_mainGrid;
     const RigActiveCellInfo* m_activeCellInfo;
+    const cvf::UByteArray*   m_cellVisibilities;
 };
 
 //==================================================================================================
@@ -124,6 +129,9 @@ private:
     double                                               m_smallContributionsThreshold;
     bool                                                 m_isProducer;
     bool                                                 m_useTotalWellPhaseRateOnly;
+
+    cvf::UByteArray* m_cellVisibilities = nullptr;
+    RigMainGrid*     m_mainGrid         = nullptr;
 
     struct BranchFlow
     {

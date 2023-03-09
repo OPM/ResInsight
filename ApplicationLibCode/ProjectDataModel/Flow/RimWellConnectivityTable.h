@@ -30,6 +30,7 @@
 #include <QString>
 
 class RimEclipseResultCase;
+class RimEclipseView;
 class RimFlowDiagSolution;
 class RimRegularLegendConfig;
 class RimSimWellInView;
@@ -134,6 +135,7 @@ private:
     QPointer<RiuMatrixPlotWidget> m_matrixPlotWidget;
 
     caf::PdmPtrField<RimEclipseResultCase*> m_case;
+    caf::PdmPtrField<RimEclipseView*>       m_cellFilterView;
     caf::PdmPtrField<RimFlowDiagSolution*>  m_flowDiagSolution;
 
     caf::PdmField<caf::AppEnum<TimeStepSelection>>   m_timeStepSelection;

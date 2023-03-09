@@ -39,10 +39,21 @@
 //--------------------------------------------------------------------------------------------------
 size_t RigEclCellIndexCalculator::resultCellIndex( size_t gridIndex, size_t gridCellIndex ) const
 {
-    const RigGridBase* grid               = m_mainGrid->gridByIndex( gridIndex );
-    size_t             reservoirCellIndex = grid->reservoirCellIndex( gridCellIndex );
+    size_t reservoirCellIndex = m_mainGrid->reservoirCellIndexByGridAndGridLocalCellIndex( gridIndex, gridCellIndex );
 
     return m_activeCellInfo->cellResultIndex( reservoirCellIndex );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigEclCellIndexCalculator::isCellVisible( size_t gridIndex, size_t gridCellIndex ) const
+{
+    if ( !m_cellVisibilities ) return true;
+
+    size_t reservoirCellIndex = m_mainGrid->reservoirCellIndexByGridAndGridLocalCellIndex( gridIndex, gridCellIndex );
+
+    return ( *m_cellVisibilities )[reservoirCellIndex];
 }
 
 //==================================================================================================
@@ -92,7 +103,7 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator( const std::vector<std::vecto
     : m_pipeBranchesCLCoords( pipeBranchesCLCoords )
     , m_pipeBranchesWellResultPoints( pipeBranchesWellResultPoints )
     , m_tracerCellFractionValues( nullptr )
-    , m_cellIndexCalculator( RigEclCellIndexCalculator( nullptr, nullptr ) )
+    , m_cellIndexCalculator( RigEclCellIndexCalculator( nullptr, nullptr, nullptr ) )
     , m_smallContributionsThreshold( smallContribThreshold )
     , m_isProducer( true )
     , m_useTotalWellPhaseRateOnly( false )
@@ -125,7 +136,7 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator( const std::vector<cvf::Vec3d
                                                     const std::vector<double>&             pipeBranchMeasuredDepths,
                                                     bool                                   totalFlowOnly )
     : m_tracerCellFractionValues( nullptr )
-    , m_cellIndexCalculator( RigEclCellIndexCalculator( nullptr, nullptr ) )
+    , m_cellIndexCalculator( RigEclCellIndexCalculator( nullptr, nullptr, nullptr ) )
     , m_smallContributionsThreshold( 0.0 )
     , m_isProducer( true )
     , m_useTotalWellPhaseRateOnly( totalFlowOnly )
@@ -698,6 +709,8 @@ std::vector<double> RigAccWellFlowCalculator::calculateWellCellFlowPrTracer( con
                                                                              const std::vector<double>& currentAccumulatedFlowPrTracer ) const
 {
     std::vector<double> flowPrTracer( m_tracerNames.size(), 0.0 );
+
+    if ( wellCell.isCell() && !m_cellIndexCalculator.isCellVisible( wellCell.gridIndex(), wellCell.cellIndex() ) ) return flowPrTracer;
 
     if ( !isConnectionFlowConsistent( wellCell ) )
     {
