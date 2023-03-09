@@ -475,7 +475,7 @@ void RimWellConnectivityTable::onLoadDataAndUpdate()
         {
             auto itr = std::find( columnHeaders.begin(), columnHeaders.end(), injectionWell );
             if ( itr == columnHeaders.end() ) continue;
-            auto index = std::distance( columnHeaders.begin(), itr );
+            auto index = static_cast<size_t>( std::distance( columnHeaders.begin(), itr ) );
             if ( index > rowValues.size() - 1 ) continue;
 
             // Get value at last time step
