@@ -320,6 +320,6 @@ RimSummaryCase* RicNewRftSegmentWellLogPlotFeature::getSelectedOrFirstRftCase()
 //--------------------------------------------------------------------------------------------------
 void RicNewRftSegmentWellLogPlotFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Create RFT Segment Plot" );
+    actionToSetup->setText( "Create Segment Plot" );
     actionToSetup->setIcon( QIcon( ":/WellLogCurve16x16.png" ) );
 }

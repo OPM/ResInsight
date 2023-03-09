@@ -145,6 +145,6 @@ void RicNewMultiPhaseRftSegmentPlotFeature::appendTrackAndCurveForBranchType( Ri
 //--------------------------------------------------------------------------------------------------
 void RicNewMultiPhaseRftSegmentPlotFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Create RFT Multi Phase Segment Plot" );
+    actionToSetup->setText( "Create Multi Phase Segment Plot" );
     actionToSetup->setIcon( QIcon( ":/WellLogCurve16x16.png" ) );
 }
