@@ -105,6 +105,7 @@ RimWellConnectivityTable::RimWellConnectivityTable()
 
     CAF_PDM_InitFieldNoDefault( &m_case, "CurveCase", "Case" );
     m_case.uiCapability()->setUiTreeChildrenHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_cellFilterView, "VisibleCellView", "Filter by 3D View Visibility" );
     CAF_PDM_InitFieldNoDefault( &m_flowDiagSolution, "FlowDiagSolution", "Flow Diag Solution" );
     m_flowDiagSolution.uiCapability()->setUiHidden( true );
 
@@ -193,6 +194,7 @@ void RimWellConnectivityTable::setFromSimulationWell( RimSimWellInView* simWell 
     RimEclipseResultCase* eclCase;
     simWell->firstAncestorOrThisOfType( eclCase );
 
+    m_cellFilterView    = eclView;
     m_case              = eclCase;
     m_timeStepSelection = TimeStepSelection::SINGLE_TIME_STEP;
     m_selectedTimeStep  = eclCase->timeStepDates().at( eclView->currentTimeStep() );
@@ -234,10 +236,12 @@ void RimWellConnectivityTable::fieldChangedByUi( const caf::PdmFieldHandle* chan
         if ( m_case )
         {
             m_flowDiagSolution = m_case->defaultFlowDiagSolution();
+            m_cellFilterView   = !m_case->views().empty() ? dynamic_cast<RimEclipseView*>( m_case->views().front() ) : nullptr;
         }
         else
         {
             m_flowDiagSolution = nullptr;
+            m_cellFilterView   = nullptr;
         }
     }
     else if ( changedField == &m_flowDiagSolution || changedField == &m_thresholdValue )
@@ -250,6 +254,10 @@ void RimWellConnectivityTable::fieldChangedByUi( const caf::PdmFieldHandle* chan
         {
             m_matrixPlotWidget->setInvalidValueRange( 0.0, m_thresholdValue() );
         }
+        onLoadDataAndUpdate();
+    }
+    else if ( changedField == &m_cellFilterView )
+    {
         onLoadDataAndUpdate();
     }
     else if ( changedField == &m_syncSelectedInjectorsFromProducerSelection )
@@ -338,6 +346,7 @@ void RimWellConnectivityTable::defineUiOrdering( QString uiConfigName, caf::PdmU
 
     caf::PdmUiGroup& dataGroup = *uiOrdering.addNewGroup( "Plot Data" );
     dataGroup.add( &m_case );
+    dataGroup.add( &m_cellFilterView );
     dataGroup.add( &m_flowDiagSolution );
     dataGroup.add( &m_timeStepSelection );
     dataGroup.add( &m_selectProducersAndInjectorsForTimeSteps );
@@ -560,6 +569,15 @@ QList<caf::PdmOptionItemInfo> RimWellConnectivityTable::calculateValueOptions( c
         for ( RimEclipseResultCase* c : resultCases )
         {
             options.push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, false, c->uiIconProvider() ) );
+        }
+    }
+    else if ( fieldNeedingOptions == &m_cellFilterView && m_case() )
+    {
+        options.push_back( caf::PdmOptionItemInfo( "Disabled", nullptr ) );
+        for ( RimEclipseView* view : m_case()->reservoirViews.children() )
+        {
+            CVF_ASSERT( view && "Really always should have a valid view pointer in ReservoirViews" );
+            options.push_back( caf::PdmOptionItemInfo( view->name(), view, false, view->uiIconProvider() ) );
         }
     }
     else if ( m_case && fieldNeedingOptions == &m_flowDiagSolution )
@@ -1093,9 +1111,14 @@ void RimWellConnectivityTable::createAndEmplaceTimeStepAndCalculatorPairInMap( s
     {
         bool isProducer = ( simWellData->wellProductionType( timeStepIndex ) == RiaDefines::WellProductionType::PRODUCER ||
                             simWellData->wellProductionType( timeStepIndex ) == RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE );
+
+        // Retrieve cell visibilities for valid cell filter view
+        const auto*               cellVisibilities = m_cellFilterView ? m_cellFilterView->currentTotalCellVisibility().p() : nullptr;
         RigEclCellIndexCalculator cellIdxCalc( m_case->eclipseCaseData()->mainGrid(),
-                                               m_case->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ) );
-        const auto                calculator = RigAccWellFlowCalculator( pipeBranchesCLCoords,
+                                               m_case->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ),
+                                               cellVisibilities );
+
+        const auto calculator = RigAccWellFlowCalculator( pipeBranchesCLCoords,
                                                           pipeBranchesCellIds,
                                                           tracerFractionCellValues,
                                                           cellIdxCalc,
