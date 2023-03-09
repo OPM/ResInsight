@@ -1,6 +1,7 @@
 
 #include "LineEditAndPushButtons.h"
 
+#include "cafPdmUiLabelEditor.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
@@ -17,6 +18,19 @@ LineEditAndPushButtons::LineEditAndPushButtons()
 
     CAF_PDM_InitFieldNoDefault(&m_statusTextField, "StatusTextField", "Status Text", "", "", "");
     CAF_PDM_InitFieldNoDefault(&m_textField, "TextField", "Text", "", "", "");
+
+    CAF_PDM_InitFieldNoDefault(&m_labelField, "LabelField", "Medium length text in label", "", "", "");
+    m_labelField.uiCapability()->setUiEditorTypeName(caf::PdmUiLabelEditor::uiEditorTypeName());
+
+    CAF_PDM_InitFieldNoDefault(
+        &m_labelLongTextField,
+        "LongTextField",
+        "Long length text in label length text in label length text in label length text in label length text in label",
+        "",
+        "",
+        "");
+    m_labelLongTextField.uiCapability()->setUiEditorTypeName(caf::PdmUiLabelEditor::uiEditorTypeName());
+
     CAF_PDM_InitFieldNoDefault(&m_textListField, "TextListField", "Text List Field", "", "", "");
 
     CAF_PDM_InitFieldNoDefault(&m_pushButton_a, "PushButtonA", "Rotate", "", "", "");
@@ -112,6 +126,15 @@ void LineEditAndPushButtons::defineEditorAttribute(const caf::PdmFieldHandle* fi
         if (myAttr)
         {
             myAttr->notifyWhenTextIsEdited = true;
+        }
+    }
+    else if (field == &m_labelLongTextField)
+    {
+        auto myAttr = dynamic_cast<caf::PdmUiLabelEditorAttribute*>(attribute);
+        if (myAttr)
+        {
+            myAttr->m_useWordWrap                                  = true;
+            myAttr->m_useSingleWidgetInsteadOfLabelAndEditorWidget = true;
         }
     }
 

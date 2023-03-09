@@ -51,10 +51,21 @@ namespace caf
 class PdmUiCheckBoxEditorAttribute : public PdmUiEditorAttribute
 {
 public:
-    PdmUiCheckBoxEditorAttribute() { m_useNativeCheckBoxLabel = false; }
+    PdmUiCheckBoxEditorAttribute()
+        : m_useNativeCheckBoxLabel( false )
+        , m_useWordWrap( false )
+    {
+    }
 
-public:
+    void setNativeCheckBox( bool enable );
+    void setWordWrap( bool enable );
+
+    bool useNativeCheckBox() const;
+    bool useWordWrap() const;
+
+private:
     bool m_useNativeCheckBoxLabel;
+    bool m_useWordWrap;
 };
 
 //==================================================================================================
@@ -85,8 +96,8 @@ protected slots:
     virtual PdmUiCheckBoxEditorAttribute defaultAttributes() const;
 
 private:
-    QPointer<QCheckBox>       m_checkBox;
-    QPointer<QShortenedLabel> m_label;
+    QPointer<QCheckBox> m_checkBox;
+    QPointer<QLabel>    m_label;
 };
 
 //==================================================================================================

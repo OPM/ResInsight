@@ -49,6 +49,23 @@ class QGridLayout;
 namespace caf
 {
 //==================================================================================================
+///
+//==================================================================================================
+class PdmUiLabelEditorAttribute : public PdmUiEditorAttribute
+{
+public:
+    PdmUiLabelEditorAttribute()
+        : m_useWordWrap( false )
+        , m_useSingleWidgetInsteadOfLabelAndEditorWidget( false )
+    {
+    }
+
+public:
+    bool m_useWordWrap;
+    bool m_useSingleWidgetInsteadOfLabelAndEditorWidget;
+};
+
+//==================================================================================================
 /// An editor to show (and possibly edit?) formatted larger portions of text
 //==================================================================================================
 class PdmUiLabelEditor : public PdmUiFieldEditorHandle
@@ -65,8 +82,10 @@ protected:
     QWidget* createLabelWidget( QWidget* parent ) override;
     void     configureAndUpdateUi( const QString& uiConfigName ) override;
 
+    QWidget* createCombinedWidget( QWidget* parent ) override;
+
 private:
-    QPointer<QShortenedLabel> m_label;
+    QPointer<QLabel> m_label;
 };
 
 } // end namespace caf

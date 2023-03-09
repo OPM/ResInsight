@@ -26,8 +26,12 @@ private:
     void clearText();
 
 private:
-    caf::PdmField<QString>              m_textField;
-    caf::PdmField<QString>              m_statusTextField;
+    caf::PdmField<QString> m_textField;
+    caf::PdmField<QString> m_statusTextField;
+
+    caf::PdmField<QString> m_labelField;
+    caf::PdmField<QString> m_labelLongTextField;
+
     caf::PdmField<std::vector<QString>> m_textListField;
 
     caf::PdmField<bool> m_pushButton_a;

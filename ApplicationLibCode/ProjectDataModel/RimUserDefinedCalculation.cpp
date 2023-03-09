@@ -396,6 +396,14 @@ void RimUserDefinedCalculation::defineEditorAttribute( const caf::PdmFieldHandle
             attrib->m_buttonText = "Open Help Page";
         }
     }
+    else if ( field == &m_helpText )
+    {
+        auto* attrib = dynamic_cast<caf::PdmUiLabelEditorAttribute*>( attribute );
+        if ( attrib )
+        {
+            attrib->m_useWordWrap = true;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
