@@ -41,12 +41,14 @@ public:
     RimAdvancedSnapshotExportDefinition();
     ~RimAdvancedSnapshotExportDefinition() override;
 
+    void                 setSelectedEclipseResults( const QString& result );
+    std::vector<QString> selectedEclipseResults() const;
+
     caf::PdmField<bool> isActive;
 
     caf::PdmPtrField<Rim3dView*> view;
 
     caf::PdmField<caf::AppEnum<RiaDefines::ResultCatType>> eclipseResultType;
-    caf::PdmField<std::vector<QString>>                    selectedEclipseResults;
 
     caf::PdmField<int> timeStepStart;
     caf::PdmField<int> timeStepEnd;
@@ -68,4 +70,7 @@ private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     QList<caf::PdmOptionItemInfo> toOptionList( const QStringList& varList );
+
+private:
+    caf::PdmField<QString> m_selectedEclipseResult;
 };

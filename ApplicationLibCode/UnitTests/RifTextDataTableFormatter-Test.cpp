@@ -281,7 +281,7 @@ TEST( RifTextDataTableFormatter, TwoHeaderRowsWithDifferentColSpan )
 WELSPECS
    OP-01    PLATFORM  45  99  1*     OIL    0.0    STD     STOP  YES    0      SEG   0    /
    OP-02ST  PLATFORM  60  91  1*     OIL    0.0    STD     STOP  YES    0      SEG   0    /
-    /
+/
 )";
 
         EXPECT_STREQ( textForCompare.toStdString().data(), tableText.toStdString().data() );
@@ -336,7 +336,7 @@ WELSPECS
 --                                          [cm2]                                        
    OP-01    PLATFORM  45  99  1*     OIL    0.0    STD     STOP  YES    0      SEG   0    /
    OP-02ST  PLATFORM  60  91  1*     OIL    0.0    STD     STOP  YES    0      SEG   0    /
-    /
+/
 )";
 
         EXPECT_STREQ( textForCompare.toStdString().data(), tableText.toStdString().data() );

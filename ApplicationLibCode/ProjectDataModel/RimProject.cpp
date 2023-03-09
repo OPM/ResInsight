@@ -190,6 +190,9 @@ RimProject::RimProject( void )
     CAF_PDM_InitField( &m_showPlotWindow, "showPlotWindow", false, "Show Plot Window" );
     m_showPlotWindow.uiCapability()->setUiHidden( true );
 
+    CAF_PDM_InitField( &m_showPlotWindowOnTopOf3DWindow, "showPlotWindowOnTopOf3DWindow", false, "Show Plot On Top" );
+    m_showPlotWindowOnTopOf3DWindow.uiCapability()->setUiHidden( true );
+
     CAF_PDM_InitField( &m_subWindowsTiled3DWindow_OBSOLETE, "tiled3DWindow", false, "Tile 3D Window" );
     m_subWindowsTiled3DWindow_OBSOLETE.uiCapability()->setUiHidden( true );
 
@@ -368,6 +371,12 @@ void RimProject::setupBeforeSave()
         {
             m_show3DWindow   = guiApp->isMain3dWindowVisible();
             m_showPlotWindow = guiApp->isMainPlotWindowVisible();
+
+            if ( m_showPlotWindow )
+            {
+                auto plotWindow                 = RiuPlotMainWindow::instance();
+                m_showPlotWindowOnTopOf3DWindow = plotWindow->isTopLevel();
+            }
         }
     }
 
@@ -966,6 +975,14 @@ bool RimProject::show3DWindow() const
 bool RimProject::showPlotWindow() const
 {
     return m_showPlotWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimProject::showPlotWindowOnTop() const
+{
+    return m_showPlotWindowOnTopOf3DWindow();
 }
 
 //--------------------------------------------------------------------------------------------------
