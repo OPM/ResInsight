@@ -229,15 +229,6 @@ void RimWellConnectivityTable::fieldChangedByUi( const caf::PdmFieldHandle* chan
 {
     RimViewWindow::fieldChangedByUi( changedField, oldValue, newValue );
 
-    if ( m_case )
-    {
-        m_flowDiagSolution = m_case->defaultFlowDiagSolution();
-    }
-    else
-    {
-        m_flowDiagSolution = nullptr;
-    }
-
     if ( changedField == &m_case )
     {
         if ( m_case )
