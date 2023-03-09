@@ -864,9 +864,7 @@ void RimWellConnectivityTable::setSelectedProducersAndInjectorsForSingleTimeStep
 
     // No filtering if all producers/injectors are selected and assign to UI-elements
     m_selectedProducerTracersUiField = producerVec;
-    // m_selectedProducerTracersUiField().size() == producerVec.size() ? std::vector<QString>() : producerVec;
     m_selectedInjectorTracersUiField = injectorVec;
-    // m_selectedInjectorTracersUiField().size() == injectorVec.size() ? std::vector<QString>() : injectorVec;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -895,14 +893,6 @@ void RimWellConnectivityTable::setSelectedProducersAndInjectorsForTimeStepRange(
         std::copy( timeStepInjectors.begin(), timeStepInjectors.end(), std::inserter( injectorSet, injectorSet.end() ) );
     }
     injectorSet.insert( RiaDefines::reservoirTracerName() );
-
-    // No filtering if all producers/injectors are selected - convert sets to vectors
-    const std::vector<QString> producerVec = m_selectedProducerTracersUiField().size() == producerSet.size()
-                                                 ? std::vector<QString>()
-                                                 : std::vector<QString>( producerSet.begin(), producerSet.end() );
-    const std::vector<QString> injectorVec = m_selectedInjectorTracersUiField().size() == injectorSet.size()
-                                                 ? std::vector<QString>()
-                                                 : std::vector<QString>( injectorSet.begin(), injectorSet.end() );
 
     // Assign to UI-elements
     m_selectedProducerTracersUiField = std::vector<QString>( producerSet.begin(), producerSet.end() );
