@@ -36,6 +36,10 @@
 
 #include "cafPdmUiLabelEditor.h"
 
+#include "cafPdmUiFieldEditorHandle.h"
+#include "cafPdmUiFieldHandle.h"
+#include "cafPdmUiObjectHandle.h"
+
 namespace caf
 {
 CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiLabelEditor );
@@ -67,6 +71,27 @@ void PdmUiLabelEditor::configureAndUpdateUi( const QString& uiConfigName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QWidget* PdmUiLabelEditor::createCombinedWidget( QWidget* parent )
+{
+    caf::PdmUiObjectHandle* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    if ( uiObject )
+    {
+        const QString             uiConfigName;
+        PdmUiLabelEditorAttribute attributes;
+        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &attributes );
+
+        if ( attributes.m_useSingleWidgetInsteadOfLabelAndEditorWidget )
+        {
+            return createLabelWidget( parent );
+        }
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QWidget* PdmUiLabelEditor::createEditorWidget( QWidget* parent )
 {
     return createLabelWidget( parent );
@@ -79,7 +104,23 @@ QWidget* PdmUiLabelEditor::createLabelWidget( QWidget* parent )
 {
     if ( m_label.isNull() )
     {
-        m_label = new QShortenedLabel( parent );
+        PdmUiLabelEditorAttribute attributes;
+        caf::PdmUiObjectHandle*   uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+        if ( uiObject )
+        {
+            const QString uiConfigName;
+            uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &attributes );
+        }
+
+        if ( attributes.m_useWordWrap )
+        {
+            m_label = new QLabel( parent );
+            m_label->setWordWrap( true );
+        }
+        else
+        {
+            m_label = new QShortenedLabel( parent );
+        }
     }
 
     return m_label;
