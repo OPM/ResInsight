@@ -65,7 +65,7 @@ void PdmUiCheckBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &attributes );
     }
 
-    if ( attributes.m_useNativeCheckBoxLabel )
+    if ( attributes.useNativeCheckBox() )
     {
         m_checkBox->setText( uiField()->uiName( uiConfigName ) );
 
@@ -98,7 +98,24 @@ QWidget* PdmUiCheckBoxEditor::createEditorWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiCheckBoxEditor::createLabelWidget( QWidget* parent )
 {
-    m_label = new QShortenedLabel( parent );
+    PdmUiCheckBoxEditorAttribute attributes;
+    caf::PdmUiObjectHandle*      uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    if ( uiObject )
+    {
+        const QString uiConfigName;
+        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &attributes );
+    }
+
+    if ( attributes.useWordWrap() )
+    {
+        m_label = new QLabel( parent );
+        m_label->setWordWrap( true );
+    }
+    else
+    {
+        m_label = new QShortenedLabel( parent );
+    }
+
     return m_label;
 }
 
@@ -153,9 +170,45 @@ PdmUiCheckBoxEditorAttribute PdmUiNativeCheckBoxEditor::defaultAttributes() cons
 {
     PdmUiCheckBoxEditorAttribute attributes;
 
-    attributes.m_useNativeCheckBoxLabel = true;
+    attributes.setNativeCheckBox( true );
 
     return attributes;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiCheckBoxEditorAttribute::setNativeCheckBox( bool enable )
+{
+    CAF_ASSERT( enable && !m_useWordWrap && "Native checkbox is not compatible with use of word wrap" );
+
+    m_useNativeCheckBoxLabel = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiCheckBoxEditorAttribute::setWordWrap( bool enable )
+{
+    CAF_ASSERT( enable && !m_useNativeCheckBoxLabel && "Native checkbox is not compatible with use of word wrap" );
+
+    m_useWordWrap = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool PdmUiCheckBoxEditorAttribute::useNativeCheckBox() const
+{
+    return m_useNativeCheckBoxLabel;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool PdmUiCheckBoxEditorAttribute::useWordWrap() const
+{
+    return m_useWordWrap;
 }
 
 } // end namespace caf

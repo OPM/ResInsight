@@ -112,7 +112,7 @@ protected: // Virtual interface to override
 
     void setValueToField( const QVariant& value );
 
-    void             updateLabelFromField( QShortenedLabel* label, const QString& uiConfigName = "" ) const;
+    void             updateLabelFromField( QLabel* label, const QString& uiConfigName = "" ) const;
     virtual QMargins calculateLabelContentMargins() const;
     virtual bool     isMultiRowEditor() const;
 
