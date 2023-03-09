@@ -26,6 +26,7 @@
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 #include "cafPdmReferenceHelper.h"
+#include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiColorEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiFilePathEditor.h"
@@ -670,7 +671,15 @@ public:
                            "This object is a demo of the CAF framework",
                            "This object is a demo of the CAF framework");
 
-        CAF_PDM_InitField(&m_toggleField, "Toggle", false, "Toggle Field", "", "Toggle Field tooltip", " Toggle Field whatsthis");
+        CAF_PDM_InitField(&m_toggleField,
+                          "Toggle",
+                          false,
+                          "Toggle Field much text much text much much text much text muchmuch text much text muchmuch text much "
+                          "text muchmuch text much text muchmuch text much text much",
+                          "",
+                          "Toggle Field tooltip",
+                          " Toggle Field whatsthis");
+
         CAF_PDM_InitField(&m_pushButtonField, "Push", false, "Button Field", "", "", " ");
         CAF_PDM_InitField(&m_doubleField,
                           "BigNumber",
@@ -863,6 +872,14 @@ protected:
             if (attr)
             {
                 attr->showPreviousAndNextButtons = true;
+            }
+        }
+        else if (field == &m_toggleField)
+        {
+            auto* attr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>(attribute);
+            if (attr)
+            {
+                attr->setWordWrap(true);
             }
         }
     }

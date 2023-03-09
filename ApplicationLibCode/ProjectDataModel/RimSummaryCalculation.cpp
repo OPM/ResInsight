@@ -41,6 +41,7 @@
 
 #include "RiuExpressionContextMenuManager.h"
 
+#include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTextEditor.h"
@@ -191,6 +192,23 @@ bool RimSummaryCalculation::detectCyclicCalculation( int id, std::set<int>& ids 
         }
 
         return false;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCalculation::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    RimUserDefinedCalculation::defineEditorAttribute( field, uiConfigName, attribute );
+
+    if ( field == &m_distributeToOtherItems )
+    {
+        auto myAttr = dynamic_cast<caf::PdmUiCheckBoxEditorAttribute*>( attribute );
+        if ( myAttr )
+        {
+            myAttr->setWordWrap( true );
+        }
     }
 }
 
