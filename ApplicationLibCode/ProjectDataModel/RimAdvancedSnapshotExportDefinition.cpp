@@ -32,6 +32,7 @@
 #include "RimTools.h"
 
 #include "cafPdmPointer.h"
+#include "cafPdmUiComboBoxEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimAdvancedSnapshotExportDefinition, "MultiSnapshotDefinition" );
 
@@ -48,7 +49,7 @@ RimAdvancedSnapshotExportDefinition::RimAdvancedSnapshotExportDefinition()
     CAF_PDM_InitFieldNoDefault( &view, "View", "View" );
 
     CAF_PDM_InitFieldNoDefault( &eclipseResultType, "EclipseResultType", "Result Type" );
-    CAF_PDM_InitFieldNoDefault( &selectedEclipseResults, "SelectedEclipseResults", "Properties" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedEclipseResult, "SelectedEclipseResults", "Properties" );
 
     CAF_PDM_InitField( &timeStepStart, "TimeStepStart", 0, "Start Time" );
     CAF_PDM_InitField( &timeStepEnd, "TimeStepEnd", 0, "End Time" );
@@ -69,6 +70,25 @@ RimAdvancedSnapshotExportDefinition::RimAdvancedSnapshotExportDefinition()
 //--------------------------------------------------------------------------------------------------
 RimAdvancedSnapshotExportDefinition::~RimAdvancedSnapshotExportDefinition()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimAdvancedSnapshotExportDefinition::setSelectedEclipseResults( const QString& result )
+{
+    m_selectedEclipseResult = result;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RimAdvancedSnapshotExportDefinition::selectedEclipseResults() const
+{
+    // The interface here can return a vector of selected results. The user interface in the table is not working well for multi-select of
+    // strings, so we only allow one result to be selected at a time.
+
+    return { m_selectedEclipseResult() };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,9 +128,9 @@ QList<caf::PdmOptionItemInfo> RimAdvancedSnapshotExportDefinition::calculateValu
         options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::ResultCatType>( RiaDefines::ResultCatType::STATIC_NATIVE ).uiText(),
                                                    RiaDefines::ResultCatType::STATIC_NATIVE ) );
     }
-    else if ( fieldNeedingOptions == &selectedEclipseResults )
+    else if ( fieldNeedingOptions == &m_selectedEclipseResult )
     {
-        RimEclipseView* rimEclipseView = dynamic_cast<RimEclipseView*>( view() );
+        auto* rimEclipseView = dynamic_cast<RimEclipseView*>( view() );
         if ( rimEclipseView )
         {
             QStringList varList;
@@ -161,7 +181,7 @@ void RimAdvancedSnapshotExportDefinition::fieldChangedByUi( const caf::PdmFieldH
 {
     if ( changedField == &eclipseResultType )
     {
-        selectedEclipseResults.v().clear();
+        m_selectedEclipseResult.v().clear();
     }
     else if ( changedField == &sliceDirection )
     {
@@ -242,7 +262,7 @@ void RimAdvancedSnapshotExportDefinition::defineUiOrdering( QString uiConfigName
     {
         view.uiCapability()->setUiReadOnly( true );
         eclipseResultType.uiCapability()->setUiReadOnly( true );
-        selectedEclipseResults.uiCapability()->setUiReadOnly( true );
+        m_selectedEclipseResult.uiCapability()->setUiReadOnly( true );
         timeStepStart.uiCapability()->setUiReadOnly( true );
         timeStepEnd.uiCapability()->setUiReadOnly( true );
         sliceDirection.uiCapability()->setUiReadOnly( true );
@@ -257,7 +277,7 @@ void RimAdvancedSnapshotExportDefinition::defineUiOrdering( QString uiConfigName
         if ( !view() )
         {
             eclipseResultType.uiCapability()->setUiReadOnly( true );
-            selectedEclipseResults.uiCapability()->setUiReadOnly( true );
+            m_selectedEclipseResult.uiCapability()->setUiReadOnly( true );
             timeStepStart.uiCapability()->setUiReadOnly( true );
             timeStepEnd.uiCapability()->setUiReadOnly( true );
             sliceDirection.uiCapability()->setUiReadOnly( true );
@@ -268,7 +288,7 @@ void RimAdvancedSnapshotExportDefinition::defineUiOrdering( QString uiConfigName
         else
         {
             eclipseResultType.uiCapability()->setUiReadOnly( false );
-            selectedEclipseResults.uiCapability()->setUiReadOnly( false );
+            m_selectedEclipseResult.uiCapability()->setUiReadOnly( false );
             timeStepStart.uiCapability()->setUiReadOnly( false );
             timeStepEnd.uiCapability()->setUiReadOnly( false );
             sliceDirection.uiCapability()->setUiReadOnly( false );

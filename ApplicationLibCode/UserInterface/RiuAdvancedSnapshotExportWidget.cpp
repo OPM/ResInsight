@@ -142,7 +142,7 @@ void RiuAdvancedSnapshotExportWidget::addSnapshotItemFromActiveView()
         if ( eclipseView )
         {
             multiSnapshot->eclipseResultType = eclipseView->cellResult()->resultType();
-            multiSnapshot->selectedEclipseResults.v().push_back( eclipseView->cellResult()->resultVariable() );
+            multiSnapshot->setSelectedEclipseResults( eclipseView->cellResult()->resultVariable() );
         }
         multiSnapshot->timeStepStart = activeView->currentTimeStep();
         multiSnapshot->timeStepEnd   = activeView->currentTimeStep();
@@ -198,10 +198,7 @@ QString RiuAdvancedSnapshotExportWidget::exportFolder() const
 //--------------------------------------------------------------------------------------------------
 void RiuAdvancedSnapshotExportWidget::customMenuRequested( QPoint pos )
 {
-    caf::CmdFeatureManager* commandManager = caf::CmdFeatureManager::instance();
-
     QMenu menu;
-    menu.addAction( commandManager->action( "PdmListField_DeleteItem", "Delete row" ) );
 
     QAction* newRowAction = new QAction( "New row", this );
     connect( newRowAction, SIGNAL( triggered() ), SLOT( addSnapshotItem() ) );

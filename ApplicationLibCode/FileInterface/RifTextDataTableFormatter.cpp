@@ -332,8 +332,21 @@ void RifTextDataTableFormatter::tableCompleted()
 {
     outputBuffer();
 
-    // Output an "empty" line after a finished table
-    m_out << m_tableRowPrependText << m_tableRowAppendText << "\n";
+    if ( m_tableRowPrependText.trimmed().isEmpty() )
+    {
+        // When exporting to Eclipse, make sure that the '/' character is written at the start of the line with no space in front. Some
+        // applications are not able to detect the '/' if space is in front
+
+        QString line = m_tableRowPrependText + m_tableRowAppendText;
+        line         = line.trimmed();
+
+        m_out << line << "\n";
+    }
+    else
+    {
+        // Output an "empty" line after a finished table
+        m_out << m_tableRowPrependText << m_tableRowAppendText << "\n";
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

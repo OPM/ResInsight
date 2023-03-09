@@ -57,6 +57,14 @@ const QDateTime& RiaRftPltCurveDefinition::timeStep() const
 //--------------------------------------------------------------------------------------------------
 bool RiaRftPltCurveDefinition::operator<( const RiaRftPltCurveDefinition& other ) const
 {
+    if ( m_curveAddress.ensemble() != other.m_curveAddress.ensemble() )
+    {
+        // Sort by ensemble first, to make sure the ensemble curves are created and plotted before the single curves
+
+        if ( m_curveAddress.ensemble() ) return true;
+        return false;
+    }
+
     if ( m_curveAddress == other.m_curveAddress )
     {
         if ( m_wellName == other.m_wellName )

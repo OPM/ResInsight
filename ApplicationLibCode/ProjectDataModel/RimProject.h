@@ -155,6 +155,7 @@ public:
 
     bool show3DWindow() const;
     bool showPlotWindow() const;
+    bool showPlotWindowOnTop() const;
 
     RiaDefines::WindowTileMode subWindowsTileMode3DWindow() const;
     RiaDefines::WindowTileMode subWindowsTileModePlotWindow() const;
@@ -219,6 +220,7 @@ private:
 
     caf::PdmField<bool> m_show3DWindow;
     caf::PdmField<bool> m_showPlotWindow;
+    caf::PdmField<bool> m_showPlotWindowOnTopOf3DWindow;
 
     caf::PdmField<bool> m_subWindowsTiled3DWindow_OBSOLETE;
     caf::PdmField<bool> m_subWindowsTiledPlotWindow_OBSOLETE;
