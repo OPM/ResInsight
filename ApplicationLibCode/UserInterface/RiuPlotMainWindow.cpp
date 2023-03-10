@@ -55,6 +55,7 @@
 #include "RiuMessagePanel.h"
 #include "RiuMultiPlotPage.h"
 #include "RiuToolTipMenu.h"
+#include "RiuTools.h"
 #include "RiuTreeViewEventFilter.h"
 #include "RiuWellAllocationPlot.h"
 
@@ -335,9 +336,12 @@ void RiuPlotMainWindow::createMenus()
     importWellMenu->addAction( cmdFeatureMgr->action( "RicImportEnsembleWellLogsFeature" ) );
 
     importMenu->addSeparator();
-    importMenu->addAction( cmdFeatureMgr->action( "RicImportObservedDataInMenuFeature" ) );
-    importMenu->addAction( cmdFeatureMgr->action( "RicImportObservedFmuDataInMenuFeature" ) );
+    importMenu->addAction( cmdFeatureMgr->action( "RicImportObservedDataFeature" ) );
+    importMenu->addAction( cmdFeatureMgr->action( "RicImportObservedFmuDataFeature" ) );
+    importMenu->addAction( cmdFeatureMgr->action( "RicImportPressureDepthDataFeature" ) );
     importMenu->addAction( cmdFeatureMgr->action( "RicImportFormationNamesFeature" ) );
+
+    RiuTools::enableAllActionsOnShow( this, importMenu );
 
     QMenu* exportMenu = fileMenu->addMenu( "&Export" );
     exportMenu->addAction( cmdFeatureMgr->action( "RicSnapshotViewToFileFeature" ) );

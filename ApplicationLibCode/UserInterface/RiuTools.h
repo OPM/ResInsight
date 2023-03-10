@@ -20,8 +20,11 @@
 
 #include "qnamespace.h"
 
+class QMenu;
+class QObject;
+
 namespace RiuTools
 {
 Qt::WindowFlags defaultDialogFlags();
-void            applyGuiTheme();
+void            enableAllActionsOnShow( QObject* object, QMenu* menu );
 } // end namespace RiuTools
