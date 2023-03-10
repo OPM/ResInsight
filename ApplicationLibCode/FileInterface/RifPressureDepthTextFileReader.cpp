@@ -51,7 +51,8 @@ std::pair<std::vector<RigPressureDepthData>, QString> RifPressureDepthTextFileRe
         QString line = in.readLine();
         if ( isHeaderLine( line ) )
         {
-            QStringList          headerValues = RifFileParseTools::splitLineAndTrim( line, separator );
+            bool                 skipEmptyParts = true;
+            QStringList          headerValues   = RifFileParseTools::splitLineAndTrim( line, separator, skipEmptyParts );
             RigPressureDepthData data;
             data.setWellName( headerValues[1].replace( "'", "" ) );
             items.push_back( data );
@@ -125,7 +126,8 @@ bool RifPressureDepthTextFileReader::isUnitsLine( const QString& line )
 std::optional<std::pair<double, double>> RifPressureDepthTextFileReader::parseDataLine( const QString& line )
 {
     // Expect two data values separated by one space
-    QStringList values = RifFileParseTools::splitLineAndTrim( line, " " );
+    bool        skipEmptyParts = true;
+    QStringList values         = RifFileParseTools::splitLineAndTrim( line, " ", skipEmptyParts );
     if ( values.size() != 2 ) return {};
 
     // First value is pressure
@@ -146,7 +148,8 @@ std::optional<std::pair<double, double>> RifPressureDepthTextFileReader::parseDa
 std::optional<QDateTime> RifPressureDepthTextFileReader::parseDateLine( const QString& line )
 {
     // Expect two data values separated by one space
-    QStringList values = RifFileParseTools::splitLineAndTrim( line, " " );
+    bool        skipEmptyParts = true;
+    QStringList values         = RifFileParseTools::splitLineAndTrim( line, " ", skipEmptyParts );
     if ( values.size() != 2 ) return {};
 
     CAF_ASSERT( values[0] == "DATE" );
