@@ -728,7 +728,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         RimWellPath* wellPath = proj->wellPathByName( m_wellName );
 
         double rkbDiff = 0.0;
-        if ( wellPath )
+        if ( wellPath && wellPath->wellPathGeometry() )
         {
             rkbDiff = wellPath->wellPathGeometry()->rkbDiff();
         }
