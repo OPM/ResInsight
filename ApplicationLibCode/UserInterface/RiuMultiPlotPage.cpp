@@ -865,9 +865,12 @@ void RiuMultiPlotPage::updateLegendFont( RiuQwtPlotLegend* legend )
     for ( QwtLegendLabel* label : labels )
     {
         label->setFont( legendFont );
+        label->setMargin( 0 );
+        label->setSpacing( 1 );
     }
 
     legend->setFont( legendFont );
+    legend->setContentsMargins( 0, 0, 0, 0 );
 }
 
 //--------------------------------------------------------------------------------------------------
