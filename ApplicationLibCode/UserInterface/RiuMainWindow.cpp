@@ -1886,6 +1886,11 @@ void RiuMainWindow::updateScaleValue()
         m_scaleFactor->blockSignals( true );
 
         int index = m_scaleFactor->findData( QVariant( view->scaleZ() ) );
+        if ( index < 0 )
+        {
+            m_scaleFactor->addItem( QString::number( view->scaleZ() ), QVariant( view->scaleZ() ) );
+            index = m_scaleFactor->findData( QVariant( view->scaleZ() ) );
+        }
         m_scaleFactor->setCurrentIndex( index );
 
         m_scaleFactor->blockSignals( false );
