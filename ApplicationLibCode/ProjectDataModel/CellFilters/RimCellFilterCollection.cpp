@@ -38,6 +38,7 @@ CAF_PDM_SOURCE_INIT( RimCellFilterCollection, "CellFilterCollection", "RimCellFi
 ///
 //--------------------------------------------------------------------------------------------------
 RimCellFilterCollection::RimCellFilterCollection()
+    : filtersChanged( this )
 {
     CAF_PDM_InitScriptableObject( "Cell Filters", ":/CellFilter.png" );
 
@@ -316,6 +317,8 @@ void RimCellFilterCollection::setAutoName( RimCellFilter* pFilter )
 void RimCellFilterCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     onFilterUpdated( nullptr );
+
+    filtersChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -357,6 +360,8 @@ void RimCellFilterCollection::onFilterUpdated( const SignalEmitter* emitter )
     view->scheduleGeometryRegen( RANGE_FILTERED_INACTIVE );
 
     view->scheduleCreateDisplayModelAndRedraw();
+
+    filtersChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------

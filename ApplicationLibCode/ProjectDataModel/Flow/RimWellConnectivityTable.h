@@ -130,8 +130,7 @@ private:
     void syncSelectedInjectorsFromProducerSelection();
     void syncSelectedProducersFromInjectorSelection();
 
-    void onCellFilterUpdated( const SignalEmitter* emitter );
-
+    void onCellFiltersChanged( const SignalEmitter* emitter );
     void connectViewCellFiltersChangedToSlot( RimEclipseView* view );
     void disconnectViewCellFiltersChangedFromSlots( RimEclipseView* view );
 
