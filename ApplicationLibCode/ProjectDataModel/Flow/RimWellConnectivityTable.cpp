@@ -27,6 +27,8 @@
 #include "RigSimWellData.h"
 #include "RigSimulationWellCenterLineCalculator.h"
 
+#include "RimCellFilter.h"
+#include "RimCellFilterCollection.h"
 #include "RimEclipseCaseTools.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseResultCase.h"
@@ -206,6 +208,8 @@ void RimWellConnectivityTable::setFromSimulationWell( RimSimWellInView* simWell 
         m_flowDiagSolution = m_case->defaultFlowDiagSolution();
     }
 
+    connectViewCellFiltersChangedToSlot( m_cellFilterView );
+
     setSelectedProducersAndInjectorsForSingleTimeStep();
     onLoadDataAndUpdate();
 }
@@ -258,6 +262,14 @@ void RimWellConnectivityTable::fieldChangedByUi( const caf::PdmFieldHandle* chan
     }
     else if ( changedField == &m_cellFilterView )
     {
+        // Disconnect signal/slots for previous cellFilterView
+        PdmObjectHandle* prevValue          = oldValue.value<caf::PdmPointer<PdmObjectHandle>>().rawPtr();
+        auto*            prevCellFilterView = dynamic_cast<RimEclipseView*>( prevValue );
+        disconnectViewCellFiltersChangedFromSlots( prevCellFilterView );
+
+        // Connect signal/slots for current cellFilterView
+        connectViewCellFiltersChangedToSlot( m_cellFilterView );
+
         onLoadDataAndUpdate();
     }
     else if ( changedField == &m_syncSelectedInjectorsFromProducerSelection )
@@ -977,6 +989,42 @@ void RimWellConnectivityTable::syncSelectedProducersFromInjectorSelection()
     }
 
     m_selectedProducerTracersUiField = producers;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellConnectivityTable::onCellFilterUpdated( const SignalEmitter* emitter )
+{
+    onLoadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellConnectivityTable::connectViewCellFiltersChangedToSlot( RimEclipseView* view )
+{
+    if ( !view || !view->cellFilterCollection() ) return;
+
+    std::vector<RimCellFilter*> cellFilters = view->cellFilterCollection()->filters();
+    for ( const auto& filter : cellFilters )
+    {
+        filter->filterChanged.connect( this, &RimWellConnectivityTable::onCellFilterUpdated );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellConnectivityTable::disconnectViewCellFiltersChangedFromSlots( RimEclipseView* view )
+{
+    if ( !view || !view->cellFilterCollection() ) return;
+
+    std::vector<RimCellFilter*> cellFilters = view->cellFilterCollection()->filters();
+    for ( const auto& filter : cellFilters )
+    {
+        filter->filterChanged.disconnect( this );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -130,6 +130,11 @@ private:
     void syncSelectedInjectorsFromProducerSelection();
     void syncSelectedProducersFromInjectorSelection();
 
+    void onCellFilterUpdated( const SignalEmitter* emitter );
+
+    void connectViewCellFiltersChangedToSlot( RimEclipseView* view );
+    void disconnectViewCellFiltersChangedFromSlots( RimEclipseView* view );
+
 private:
     // Matrix plot for visualizing table data
     QPointer<RiuMatrixPlotWidget> m_matrixPlotWidget;
