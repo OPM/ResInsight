@@ -994,7 +994,7 @@ void RimWellConnectivityTable::syncSelectedProducersFromInjectorSelection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellConnectivityTable::onCellFilterUpdated( const SignalEmitter* emitter )
+void RimWellConnectivityTable::onCellFiltersChanged( const SignalEmitter* emitter )
 {
     onLoadDataAndUpdate();
 }
@@ -1006,11 +1006,7 @@ void RimWellConnectivityTable::connectViewCellFiltersChangedToSlot( RimEclipseVi
 {
     if ( !view || !view->cellFilterCollection() ) return;
 
-    std::vector<RimCellFilter*> cellFilters = view->cellFilterCollection()->filters();
-    for ( const auto& filter : cellFilters )
-    {
-        filter->filterChanged.connect( this, &RimWellConnectivityTable::onCellFilterUpdated );
-    }
+    view->cellFilterCollection()->filtersChanged.connect( this, &RimWellConnectivityTable::onCellFiltersChanged );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1020,11 +1016,7 @@ void RimWellConnectivityTable::disconnectViewCellFiltersChangedFromSlots( RimEcl
 {
     if ( !view || !view->cellFilterCollection() ) return;
 
-    std::vector<RimCellFilter*> cellFilters = view->cellFilterCollection()->filters();
-    for ( const auto& filter : cellFilters )
-    {
-        filter->filterChanged.disconnect( this );
-    }
+    view->cellFilterCollection()->filtersChanged.disconnect( this );
 }
 
 //--------------------------------------------------------------------------------------------------
