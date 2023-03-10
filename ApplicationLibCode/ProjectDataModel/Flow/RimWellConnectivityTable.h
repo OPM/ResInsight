@@ -123,6 +123,11 @@ private:
 
     std::pair<double, double> createLegendMinMaxValues( const double maxTableValue ) const;
 
+    void setValidTimeStepSelectionsForCase();
+    void setValidSingleTimeStepForCase();
+    void setValidTimeStepRangeForCase();
+    bool isTimeStepInCase( const QDateTime& timeStep ) const;
+
     int  getTimeStepIndex( const QDateTime timeStep, const std::vector<QDateTime> timeSteps ) const;
     void setSelectedProducersAndInjectorsForSingleTimeStep();
     void setSelectedProducersAndInjectorsForTimeStepRange();

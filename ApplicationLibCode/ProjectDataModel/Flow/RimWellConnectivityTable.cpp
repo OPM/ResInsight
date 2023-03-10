@@ -196,8 +196,13 @@ void RimWellConnectivityTable::setFromSimulationWell( RimSimWellInView* simWell 
     RimEclipseResultCase* eclCase;
     simWell->firstAncestorOrThisOfType( eclCase );
 
-    m_cellFilterView    = eclView;
-    m_case              = eclCase;
+    m_cellFilterView = eclView;
+    m_case           = eclCase;
+
+    // Set valid single time step and time step range selections based on case
+    setValidTimeStepSelectionsForCase();
+
+    // Set single time step and current selected time step from active view
     m_timeStepSelection = TimeStepSelection::SINGLE_TIME_STEP;
     m_selectedTimeStep  = eclCase->timeStepDates().at( eclView->currentTimeStep() );
 
@@ -247,6 +252,9 @@ void RimWellConnectivityTable::fieldChangedByUi( const caf::PdmFieldHandle* chan
             m_flowDiagSolution = nullptr;
             m_cellFilterView   = nullptr;
         }
+
+        setValidTimeStepSelectionsForCase();
+        onLoadDataAndUpdate();
     }
     else if ( changedField == &m_flowDiagSolution || changedField == &m_thresholdValue )
     {
@@ -853,6 +861,64 @@ std::pair<double, double> RimWellConnectivityTable::createLegendMinMaxValues( co
         return std::make_pair( 0.0, 1.0 );
     }
     return std::make_pair( 0.0, maxTableValue );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellConnectivityTable::setValidTimeStepSelectionsForCase()
+{
+    setValidSingleTimeStepForCase();
+    setValidTimeStepRangeForCase();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Update selected "Time Step" according to selected case.
+/// If selected time steps exist for case, keep as is, otherwise select first time step in case.
+//--------------------------------------------------------------------------------------------------
+void RimWellConnectivityTable::setValidSingleTimeStepForCase()
+{
+    if ( !m_case || m_case->timeStepDates().empty() )
+    {
+        return;
+    }
+    if ( m_selectedTimeStep().isValid() && isTimeStepInCase( m_selectedTimeStep() ) )
+    {
+        return;
+    }
+
+    m_selectedTimeStep = m_case->timeStepDates().front();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Update selected "From Time Step" and "To Time Step" according to selected case.
+/// If both selected time steps exist for case, keep as is, otherwise select first and last time
+/// step in case.
+//--------------------------------------------------------------------------------------------------
+void RimWellConnectivityTable::setValidTimeStepRangeForCase()
+{
+    if ( !m_case || m_case->timeStepDates().empty() )
+    {
+        return;
+    }
+    if ( m_selectedFromTimeStep().isValid() && isTimeStepInCase( m_selectedFromTimeStep() ) && m_selectedToTimeStep().isValid() &&
+         isTimeStepInCase( m_selectedToTimeStep() ) )
+    {
+        return;
+    }
+
+    m_selectedFromTimeStep = m_case->timeStepDates().front();
+    m_selectedToTimeStep   = m_case->timeStepDates().back();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellConnectivityTable::isTimeStepInCase( const QDateTime& timeStep ) const
+{
+    if ( !m_case ) return false;
+
+    return std::find( m_case->timeStepDates().cbegin(), m_case->timeStepDates().cend(), timeStep ) != m_case->timeStepDates().cend();
 }
 
 //--------------------------------------------------------------------------------------------------
