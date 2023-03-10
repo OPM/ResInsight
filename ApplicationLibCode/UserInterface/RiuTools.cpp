@@ -18,6 +18,9 @@
 
 #include "RiuTools.h"
 
+#include "QMenu"
+#include "QObject"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -26,4 +29,19 @@ Qt::WindowFlags RiuTools::defaultDialogFlags()
     Qt::WindowFlags f = Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowCloseButtonHint;
 
     return f;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// When a cafCmdFeature is used to create an action, the enable state is controlled by cafCmdFeature::isCommandEnabled(). If an action is
+/// used in menus with no selection/context available, the enable state can be forced on before the menu is displayed.
+//--------------------------------------------------------------------------------------------------
+void RiuTools::enableAllActionsOnShow( QObject* object, QMenu* menu )
+{
+    if ( object && menu )
+    {
+        object->connect( menu, &QMenu::aboutToShow, [menu]() {
+            for ( auto act : menu->actions() )
+                act->setEnabled( true );
+        } );
+    }
 }

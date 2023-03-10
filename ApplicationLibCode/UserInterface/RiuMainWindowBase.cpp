@@ -751,10 +751,11 @@ void RiuMainWindowBase::addDefaultEntriesToWindowsMenu()
         }
     }
 
-#ifdef _DEBUG
-    QAction* exportLayoutAction = m_windowMenu->addAction( "Export Layout to Clipboard" );
-    connect( exportLayoutAction, SIGNAL( triggered() ), this, SLOT( exportDockLayout() ) );
-#endif
+    if ( RiaApplication::enableDevelopmentFeatures() )
+    {
+        QAction* exportLayoutAction = m_windowMenu->addAction( "Export Layout to Clipboard" );
+        connect( exportLayoutAction, SIGNAL( triggered() ), this, SLOT( exportDockLayout() ) );
+    }
 
     m_windowMenu->addSeparator();
     QAction* cascadeWindowsAction = new QAction( "Cascade Windows", this );

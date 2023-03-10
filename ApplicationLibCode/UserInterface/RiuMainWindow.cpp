@@ -64,6 +64,7 @@
 #include "RiuResultInfoPanel.h"
 #include "RiuResultQwtPlot.h"
 #include "RiuToolTipMenu.h"
+#include "RiuTools.h"
 #include "RiuTreeViewEventFilter.h"
 #include "RiuViewer.h"
 
@@ -475,10 +476,13 @@ void RiuMainWindow::createMenus()
     importWellMenu->addAction( cmdFeatureMgr->action( "RicImportWellMeasurementsFeature" ) );
 
     importMenu->addSeparator();
-    importMenu->addAction( cmdFeatureMgr->action( "RicImportObservedDataInMenuFeature" ) );
-    importMenu->addAction( cmdFeatureMgr->action( "RicImportObservedFmuDataInMenuFeature" ) );
+    importMenu->addAction( cmdFeatureMgr->action( "RicImportObservedDataFeature" ) );
+    importMenu->addAction( cmdFeatureMgr->action( "RicImportObservedFmuDataFeature" ) );
+    importMenu->addAction( cmdFeatureMgr->action( "RicImportPressureDepthDataFeature" ) );
     importMenu->addAction( cmdFeatureMgr->action( "RicImportFormationNamesFeature" ) );
     importMenu->addAction( cmdFeatureMgr->action( "RicImportSurfacesFeature" ) );
+
+    RiuTools::enableAllActionsOnShow( this, importMenu );
 
     QMenu* exportMenu = fileMenu->addMenu( "&Export" );
     exportMenu->addAction( cmdFeatureMgr->action( "RicSnapshotViewToFileFeature" ) );
