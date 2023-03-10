@@ -103,7 +103,7 @@ public:
     // 3D view
     RiaDefines::MeshModeType       defaultMeshModeType() const;
     RiaDefines::RINavigationPolicy navigationPolicy() const;
-    int                            defaultScaleFactorZ() const;
+    double                         defaultScaleFactorZ() const;
     bool                           showLegendBackground() const;
     bool                           showInfoBox() const;
     bool                           showGridBox() const;
@@ -212,7 +212,7 @@ private:
     // 3d view
     caf::PdmField<caf::AppEnum<RiaDefines::MeshModeType>>       m_defaultMeshModeType;
     caf::PdmField<caf::AppEnum<RiaDefines::RINavigationPolicy>> m_navigationPolicy;
-    caf::PdmField<int>                                          m_defaultScaleFactorZ;
+    caf::PdmField<double>                                       m_defaultScaleFactorZ;
     caf::PdmField<bool>                                         m_showLegendBackground;
     caf::PdmField<bool>                                         m_enableFaultsByDefault;
     caf::PdmField<bool>                                         m_showInfoBox;
