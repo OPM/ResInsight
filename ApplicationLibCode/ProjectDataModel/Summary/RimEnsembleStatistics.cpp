@@ -137,7 +137,8 @@ void RimEnsembleStatistics::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     auto curveSet = m_parentCurveSet;
 
     uiOrdering.add( &m_active );
-    if ( isActive() ) uiOrdering.add( &m_showStatisticsCurveLegends );
+    m_showStatisticsCurveLegends.uiCapability()->setUiReadOnly( !m_active );
+    uiOrdering.add( &m_showStatisticsCurveLegends );
     uiOrdering.add( &m_hideEnsembleCurves );
     uiOrdering.add( &m_basedOnFilteredCases );
     uiOrdering.add( &m_includeIncompleteCurves );
