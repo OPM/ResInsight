@@ -1804,6 +1804,8 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
             curve->setSummaryAddressYAndApplyInterpolation( address );
             curve->setLeftOrRightAxisY( axisY() );
 
+            curve->setShowInLegend( m_statistics->showStatisticsCurveLegends() );
+
             curve->updateCurveVisibility();
             curve->loadDataAndUpdate( false );
             curve->updatePlotAxis();
