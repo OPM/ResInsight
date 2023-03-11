@@ -36,6 +36,7 @@ public:
 
     bool         isActive() const;
     void         setShowStatisticsCurves( bool show );
+    bool         showStatisticsCurveLegends() const { return m_showStatisticsCurveLegends; }
     bool         hideEnsembleCurves() const { return m_hideEnsembleCurves; }
     bool         basedOnFilteredCases() const { return m_basedOnFilteredCases; }
     bool         showP10Curve() const { return m_showP10Curve; }
@@ -59,6 +60,7 @@ private:
     RimEnsembleCurveSetInterface* m_parentCurveSet;
 
     caf::PdmField<bool> m_active;
+    caf::PdmField<bool> m_showStatisticsCurveLegends;
     caf::PdmField<bool> m_hideEnsembleCurves;
     caf::PdmField<bool> m_basedOnFilteredCases;
     caf::PdmField<bool> m_showP10Curve;
