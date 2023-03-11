@@ -945,6 +945,7 @@ void RimEnsembleWellLogCurveSet::updateStatisticsCurves( const std::vector<RimWe
             curve->setSymbolLabel( caf::AppEnum<RimEnsembleWellLogStatistics::StatisticsType>::uiText( statisticsType ) );
         }
         curve->setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
+        curve->setShowInLegend( m_statistics->showStatisticsCurveLegends() );
 
         plotTrack->addCurve( curve );
 

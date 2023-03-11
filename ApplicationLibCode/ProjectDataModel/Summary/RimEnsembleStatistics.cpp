@@ -35,6 +35,7 @@ RimEnsembleStatistics::RimEnsembleStatistics( RimEnsembleCurveSetInterface* pare
     m_parentCurveSet = parentCurveSet;
 
     CAF_PDM_InitField( &m_active, "Active", true, "Show Statistics Curves" );
+    CAF_PDM_InitField( &m_showStatisticsCurveLegends, "ShowStatisticsCurveLegends", false, "Show Statistics Curve Legends" );
     CAF_PDM_InitField( &m_hideEnsembleCurves, "HideEnsembleCurves", false, "Hide Ensemble Curves" );
     CAF_PDM_InitField( &m_basedOnFilteredCases, "BasedOnFilteredCases", false, "Based on Filtered Cases" );
     CAF_PDM_InitField( &m_showP10Curve, "ShowP10Curve", true, "P10" );
@@ -108,7 +109,8 @@ void RimEnsembleStatistics::fieldChangedByUi( const caf::PdmFieldHandle* changed
 {
     if ( changedField == &m_active || changedField == &m_basedOnFilteredCases || changedField == &m_showP10Curve ||
          changedField == &m_showP50Curve || changedField == &m_showP90Curve || changedField == &m_showMeanCurve ||
-         changedField == &m_showCurveLabels || changedField == &m_color || changedField == &m_includeIncompleteCurves )
+         changedField == &m_showCurveLabels || changedField == &m_color || changedField == &m_includeIncompleteCurves ||
+         changedField == &m_showStatisticsCurveLegends )
     {
         auto curveSet = m_parentCurveSet;
         if ( !curveSet ) return;
@@ -135,6 +137,7 @@ void RimEnsembleStatistics::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     auto curveSet = m_parentCurveSet;
 
     uiOrdering.add( &m_active );
+    if ( isActive() ) uiOrdering.add( &m_showStatisticsCurveLegends );
     uiOrdering.add( &m_hideEnsembleCurves );
     uiOrdering.add( &m_basedOnFilteredCases );
     uiOrdering.add( &m_includeIncompleteCurves );
