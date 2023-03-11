@@ -75,22 +75,20 @@ void RicNewMultiPhaseRftSegmentPlotFeature::onActionTriggered( bool isChecked )
     auto wellNames = rftReader->wellNames();
     if ( !wellNames.empty() ) wellName = *wellNames.begin();
 
-    appendTrackAndCurveForBranchType( plot,
-                                      "Reservoir Rates",
-                                      { "CONGRAT", "CONORAT", "CONWRAT" },
-                                      wellName,
-                                      RiaDefines::RftBranchType::RFT_ANNULUS,
-                                      summaryCase );
-
+    // Reservoir rates can be available on both annulus and device
+    for ( auto branchType : { RiaDefines::RftBranchType::RFT_ANNULUS, RiaDefines::RftBranchType::RFT_DEVICE } )
     {
-        for ( auto branchType :
-              { RiaDefines::RftBranchType::RFT_ANNULUS, RiaDefines::RftBranchType::RFT_DEVICE, RiaDefines::RftBranchType::RFT_TUBING } )
-        {
-            QString trackName = caf::AppEnum<RiaDefines::RftBranchType>::uiText( branchType );
-            trackName += " Rates";
+        QString trackName = "Reservoir Rates - " + caf::AppEnum<RiaDefines::RftBranchType>::uiText( branchType );
+        appendTrackAndCurveForBranchType( plot, trackName, { "CONGRAT", "CONORAT", "CONWRAT" }, wellName, branchType, summaryCase );
+    }
 
-            appendTrackAndCurveForBranchType( plot, trackName, { "SEGGRAT", "SEGORAT", "SEGWRAT" }, wellName, branchType, summaryCase );
-        }
+    for ( auto branchType :
+          { RiaDefines::RftBranchType::RFT_ANNULUS, RiaDefines::RftBranchType::RFT_DEVICE, RiaDefines::RftBranchType::RFT_TUBING } )
+    {
+        QString trackName = caf::AppEnum<RiaDefines::RftBranchType>::uiText( branchType );
+        trackName += " Rates";
+
+        appendTrackAndCurveForBranchType( plot, trackName, { "SEGGRAT", "SEGORAT", "SEGWRAT" }, wellName, branchType, summaryCase );
     }
 
     RicNewRftSegmentWellLogPlotFeature::appendPressureTrack( plot, wellName, summaryCase );

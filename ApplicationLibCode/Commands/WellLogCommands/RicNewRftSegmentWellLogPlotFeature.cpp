@@ -75,12 +75,16 @@ void RicNewRftSegmentWellLogPlotFeature::onActionTriggered( bool isChecked )
     auto    wellNames = rftReader->wellNames();
     if ( !wellNames.empty() ) wellName = *wellNames.begin();
 
+    // Reservoir rates can be available on both annulus and device
+    for ( auto branchType : { RiaDefines::RftBranchType::RFT_ANNULUS, RiaDefines::RftBranchType::RFT_DEVICE } )
     {
+        QString trackName = "Reservoir Rates - " + caf::AppEnum<RiaDefines::RftBranchType>::uiText( branchType );
+
         RimWellLogTrack* plotTrack = RicNewWellLogPlotFeatureImpl::createWellLogTrackWithAutoUpdate();
         plot->addPlot( plotTrack );
-        plotTrack->setDescription( "Reservoir Rates" );
+        plotTrack->setDescription( trackName );
 
-        auto curve = createAndAddCurve( plotTrack, "CONGRAT", wellName, RiaDefines::RftBranchType::RFT_ANNULUS, summaryCase );
+        auto curve = createAndAddCurve( plotTrack, "CONGRAT", wellName, branchType, summaryCase );
         curve->setScaleFactor( 1e-3 );
         curve->setFillStyle( Qt::SolidPattern );
     }
