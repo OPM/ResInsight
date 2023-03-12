@@ -217,9 +217,17 @@ void RicImportSummaryCasesFeature::addSummaryCases( const std::vector<RimSummary
     RiaApplication*               app         = RiaApplication::instance();
     RimProject*                   proj        = app->project();
     RimSummaryCaseMainCollection* sumCaseColl = proj->activeOilField() ? proj->activeOilField()->summaryCaseMainCollection() : nullptr;
+    if ( !sumCaseColl ) return;
+
+    bool expandFirstCase = sumCaseColl->allSummaryCases().empty();
     sumCaseColl->addCases( cases );
 
     sumCaseColl->updateAllRequiredEditors();
+
+    if ( expandFirstCase && !cases.empty() )
+    {
+        RiuPlotMainWindowTools::setExpanded( cases.front() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
