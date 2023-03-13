@@ -19,6 +19,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicSaveProjectNoGlobalPathsFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicShowClassNamesFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicShowPlotDataCtxFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicOpenInTextEditorFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -42,6 +43,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicSaveProjectNoGlobalPathsFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicShowClassNamesFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicShowPlotDataCtxFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicOpenInTextEditorFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
