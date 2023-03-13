@@ -75,15 +75,17 @@ void RicNewMultiPhaseRftSegmentPlotFeature::onActionTriggered( bool isChecked )
     auto wellNames = rftReader->wellNames();
     if ( !wellNames.empty() ) wellName = *wellNames.begin();
 
-    // Reservoir rates can be available on both annulus and device
-    for ( auto branchType : { RiaDefines::RftBranchType::RFT_ANNULUS, RiaDefines::RftBranchType::RFT_DEVICE } )
+    const auto allBranchTypes = { RiaDefines::RftBranchType::RFT_ANNULUS,
+                                  RiaDefines::RftBranchType::RFT_DEVICE,
+                                  RiaDefines::RftBranchType::RFT_TUBING };
+
+    for ( auto branchType : allBranchTypes )
     {
         QString trackName = "Reservoir Rates - " + caf::AppEnum<RiaDefines::RftBranchType>::uiText( branchType );
         appendTrackAndCurveForBranchType( plot, trackName, { "CONGRAT", "CONORAT", "CONWRAT" }, wellName, branchType, summaryCase );
     }
 
-    for ( auto branchType :
-          { RiaDefines::RftBranchType::RFT_ANNULUS, RiaDefines::RftBranchType::RFT_DEVICE, RiaDefines::RftBranchType::RFT_TUBING } )
+    for ( auto branchType : allBranchTypes )
     {
         QString trackName = caf::AppEnum<RiaDefines::RftBranchType>::uiText( branchType );
         trackName += " Rates";

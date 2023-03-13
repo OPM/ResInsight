@@ -75,8 +75,11 @@ void RicNewRftSegmentWellLogPlotFeature::onActionTriggered( bool isChecked )
     auto    wellNames = rftReader->wellNames();
     if ( !wellNames.empty() ) wellName = *wellNames.begin();
 
-    // Reservoir rates can be available on both annulus and device
-    for ( auto branchType : { RiaDefines::RftBranchType::RFT_ANNULUS, RiaDefines::RftBranchType::RFT_DEVICE } )
+    const auto allBranchTypes = { RiaDefines::RftBranchType::RFT_ANNULUS,
+                                  RiaDefines::RftBranchType::RFT_DEVICE,
+                                  RiaDefines::RftBranchType::RFT_TUBING };
+
+    for ( auto branchType : allBranchTypes )
     {
         QString trackName = "Reservoir Rates - " + caf::AppEnum<RiaDefines::RftBranchType>::uiText( branchType );
 
@@ -89,8 +92,7 @@ void RicNewRftSegmentWellLogPlotFeature::onActionTriggered( bool isChecked )
         curve->setFillStyle( Qt::SolidPattern );
     }
 
-    for ( auto branchType :
-          { RiaDefines::RftBranchType::RFT_ANNULUS, RiaDefines::RftBranchType::RFT_DEVICE, RiaDefines::RftBranchType::RFT_TUBING } )
+    for ( auto branchType : allBranchTypes )
     {
         QString resultName = "SEGGRAT";
         QString trackName  = caf::AppEnum<RiaDefines::RftBranchType>::uiText( branchType );

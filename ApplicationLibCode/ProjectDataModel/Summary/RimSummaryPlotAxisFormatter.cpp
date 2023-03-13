@@ -301,9 +301,14 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
 
     for ( const auto& unitIt : unitToQuantityNameMap )
     {
+        // Insert line shift if multiple quantities are present, otherwise insert space
+        bool insertLineShift = unitIt.second.size() > 1;
+
         for ( const auto& quantIt : unitIt.second )
         {
-            assembledYAxisText += QString::fromStdString( quantIt ) + " ";
+            assembledYAxisText += QString::fromStdString( quantIt );
+
+            insertLineShift ? ( assembledYAxisText += "\n" ) : ( assembledYAxisText += " " );
         }
 
         if ( m_axisProperties->showUnitText() )
