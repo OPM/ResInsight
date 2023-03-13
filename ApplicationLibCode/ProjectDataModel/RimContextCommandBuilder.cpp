@@ -105,6 +105,7 @@
 #include "RimPlotDataFilterCollection.h"
 #include "RimPlotDataFilterItem.h"
 #include "RimPltPlotCollection.h"
+#include "RimPressureDepthData.h"
 #include "RimPressureTable.h"
 #include "RimProject.h"
 #include "RimRftCase.h"
@@ -133,6 +134,7 @@
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
+#include "RimSummaryTimeAxisProperties.h"
 #include "RimSurface.h"
 #include "RimSurfaceCollection.h"
 #include "RimValveTemplate.h"
@@ -185,7 +187,6 @@
 #include <QString>
 #include <QStringList>
 
-#include "RimSummaryTimeAxisProperties.h"
 #include <vector>
 
 //--------------------------------------------------------------------------------------------------
@@ -1081,6 +1082,11 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewRftSegmentWellLogPlotFeature";
             menuBuilder.addSeparator();
             menuBuilder << "RicNewRftWellLogPlotFeature";
+        }
+        else if ( dynamic_cast<RimPressureDepthData*>( firstUiItem ) )
+        {
+            menuBuilder << "RicOpenInTextEditorFeature";
+            menuBuilder << "RicReloadPressureDepthDataFeature";
         }
 
         if ( dynamic_cast<Rim3dView*>( firstUiItem ) )

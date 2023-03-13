@@ -49,6 +49,7 @@ public:
 
 private:
     bool fileExists( const QString& fileName, QString* errorText = nullptr );
+    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
 private:
     caf::PdmChildArrayField<RimObservedSummaryData*> m_observedDataArray;

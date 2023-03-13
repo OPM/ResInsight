@@ -24,6 +24,7 @@
 
 #include "RifReaderPressureDepthData.h"
 
+#include "cafFilePath.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
@@ -35,6 +36,7 @@ class RimPressureDepthData : public RimNamedObject
 public:
     RimPressureDepthData();
 
+    QString                filePath() const;
     void                   setFilePath( const QString& path );
     void                   createRftReaderInterface();
     RifReaderRftInterface* rftReader();
@@ -45,6 +47,6 @@ public:
 private:
     cvf::ref<RifReaderPressureDepthData> m_fmuRftReader;
 
-    caf::PdmField<QString>                        m_filePath;
+    caf::PdmField<caf::FilePath>                  m_filePath;
     caf::PdmProxyValueField<std::vector<QString>> m_wells;
 };

@@ -50,20 +50,25 @@ CAF_CMD_SOURCE_INIT( RicImportPressureDepthDataFeature, "RicImportPressureDepthD
 //--------------------------------------------------------------------------------------------------
 void RicImportPressureDepthDataFeature::selectPressureDepthDataPathInDialog()
 {
-    RiaApplication* app        = RiaApplication::instance();
-    QString         defaultDir = app->lastUsedDialogDirectory( "SUMMARY_CASE_DIR" );
-    QString         filePath   = RiuFileDialogTools::getOpenFileName( nullptr, "Import Pressure/Depth Data", defaultDir );
-
+    RiaApplication*            app                    = RiaApplication::instance();
     RimProject*                proj                   = app->project();
     RimObservedDataCollection* observedDataCollection = proj->activeOilField() ? proj->activeOilField()->observedDataCollection() : nullptr;
     if ( !observedDataCollection ) return;
 
-    const RimPressureDepthData* importedData = observedDataCollection->createAndAddPressureDepthDataFromPath( filePath );
+    QString defaultDir = app->lastUsedDialogDirectory( "SUMMARY_CASE_DIR" );
+    QString filterText = QString( "Text Files (*.txt);;All Files (*.*)" );
 
-    if ( importedData != nullptr )
+    RimPressureDepthData* firstImportedObject = nullptr;
+    QStringList           filePaths = RiuFileDialogTools::getOpenFileNames( nullptr, "Import Pressure/Depth Data", defaultDir, filterText );
+    for ( const QString& filePath : filePaths )
+    {
+        RimPressureDepthData* importedData = observedDataCollection->createAndAddPressureDepthDataFromPath( filePath );
+        if ( !firstImportedObject && importedData ) firstImportedObject = importedData;
+    }
+    if ( firstImportedObject != nullptr )
     {
         RiuPlotMainWindowTools::showPlotMainWindow();
-        RiuPlotMainWindowTools::selectAsCurrentItem( importedData );
+        RiuPlotMainWindowTools::selectAsCurrentItem( firstImportedObject );
     }
 }
 
