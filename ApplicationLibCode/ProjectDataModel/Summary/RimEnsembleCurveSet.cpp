@@ -633,9 +633,12 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
 
     if ( changedField == &m_showCurves )
     {
-        loadDataAndUpdate( true );
-
         updateConnectedEditors();
+
+        // When multiple ensemble curve sets are toggled on/off, it is required to do a full RimSummaryPlot::loadDataAndUpdate() that will
+        // call RimEnsembleCurveSet::updateCurves() on all ensembles in the plot. This can be a heavy operation, but will happen only once.
+        // https://github.com/OPM/ResInsight/issues/9956
+        plot->loadDataAndUpdate();
 
         updateTextInPlot = true;
     }
