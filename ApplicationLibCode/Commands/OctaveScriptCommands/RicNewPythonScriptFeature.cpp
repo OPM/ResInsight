@@ -23,6 +23,7 @@
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 
+#include "ApplicationCommands/RicOpenInTextEditorFeature.h"
 #include "RicRefreshScriptsFeature.h"
 #include "RicScriptFeatureImpl.h"
 
@@ -125,23 +126,7 @@ void RicNewPythonScriptFeature::onActionTriggered( bool isChecked )
             Riu3DMainWindowTools::selectAsCurrentItem( calcScript );
         }
 
-        RiaApplication* app          = RiaApplication::instance();
-        QString         scriptEditor = app->scriptEditorPath();
-        if ( !scriptEditor.isEmpty() )
-        {
-            QStringList arguments;
-            arguments << fullPathFilenameNewScript;
-
-            QProcess* myProcess = new QProcess( this );
-            myProcess->start( scriptEditor, arguments );
-
-            if ( !myProcess->waitForStarted( 1000 ) )
-            {
-                RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(),
-                                               "Script editor",
-                                               "Failed to start script editor executable\n" + scriptEditor );
-            }
-        }
+        RicOpenInTextEditorFeature::openFileInTextEditor( fullPathFilenameNewScript, this );
     }
 }
 

@@ -45,6 +45,7 @@
 #include "RimEclipseResultCase.h"
 #include "RimMainPlotCollection.h"
 #include "RimObservedFmuRftData.h"
+#include "RimPressureDepthData.h"
 #include "RimProject.h"
 #include "RimRftTools.h"
 #include "RimSummaryCase.h"

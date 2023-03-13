@@ -19,6 +19,7 @@
 
 #include "RicEditScriptFeature.h"
 
+#include "ApplicationCommands/RicOpenInTextEditorFeature.h"
 #include "RicScriptFeatureImpl.h"
 
 #include "RiaApplication.h"
@@ -40,7 +41,7 @@ CAF_CMD_SOURCE_INIT( RicEditScriptFeature, "RicEditScriptFeature" );
 bool RicEditScriptFeature::isCommandEnabled()
 {
     std::vector<RimCalcScript*> selection = RicScriptFeatureImpl::selectedScripts();
-    return selection.size() > 0;
+    return !selection.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -49,28 +50,11 @@ bool RicEditScriptFeature::isCommandEnabled()
 void RicEditScriptFeature::onActionTriggered( bool isChecked )
 {
     std::vector<RimCalcScript*> selection = RicScriptFeatureImpl::selectedScripts();
-    CVF_ASSERT( selection.size() > 0 );
+    CVF_ASSERT( !selection.empty() );
 
     RimCalcScript* calcScript = selection[0];
 
-    RiaApplication* app          = RiaApplication::instance();
-    QString         scriptEditor = app->scriptEditorPath();
-    if ( !scriptEditor.isEmpty() )
-    {
-        QStringList arguments;
-        arguments << calcScript->absoluteFileName;
-
-        QProcess* myProcess = new QProcess( this );
-        myProcess->setProcessEnvironment( app->pythonProcessEnvironment() );
-        myProcess->start( scriptEditor, arguments );
-
-        if ( !myProcess->waitForStarted( 1000 ) )
-        {
-            RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(),
-                                           "Script editor",
-                                           "Failed to start script editor executable\n" + scriptEditor );
-        }
-    }
+    RicOpenInTextEditorFeature::openFileInTextEditor( calcScript->absoluteFileName, this );
 }
 
 //--------------------------------------------------------------------------------------------------

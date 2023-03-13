@@ -18,7 +18,6 @@
 
 #pragma once
 
-#include "RimPressureDepthData.h"
 #include "RimWellLogCurve.h"
 
 #include "RifEclipseRftAddress.h"

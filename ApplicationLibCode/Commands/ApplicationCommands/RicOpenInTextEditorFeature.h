@@ -1,6 +1,6 @@
-////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2022     Equinor ASA
+//  Copyright (C) 2023- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -23,9 +23,11 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RicEditPlotTemplateFeature : public caf::CmdFeature
+class RicOpenInTextEditorFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
+
+    static void openFileInTextEditor( const QString& filePath, QObject* parent );
 
 protected:
     bool isCommandEnabled() override;
