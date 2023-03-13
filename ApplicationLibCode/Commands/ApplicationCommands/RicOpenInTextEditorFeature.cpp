@@ -80,6 +80,11 @@ void RicOpenInTextEditorFeature::onActionTriggered( bool isChecked )
         {
             filePath = templateFileItem->absoluteFilePath();
         }
+
+        if ( auto pressureDepthData = dynamic_cast<RimPressureDepthData*>( uiItems.front() ) )
+        {
+            filePath = pressureDepthData->filePath();
+        }
     }
 
     if ( !filePath.isEmpty() )
