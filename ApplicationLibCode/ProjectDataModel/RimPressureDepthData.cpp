@@ -38,6 +38,16 @@ RimPressureDepthData::RimPressureDepthData()
     m_wells.xmlCapability()->disableIO();
     m_wells.uiCapability()->setUiReadOnly( true );
     m_wells.registerGetMethod( this, &RimPressureDepthData::wellNames );
+
+    setDeletable( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimPressureDepthData::filePath() const
+{
+    return m_filePath().path();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -53,7 +63,7 @@ void RimPressureDepthData::setFilePath( const QString& path )
 //--------------------------------------------------------------------------------------------------
 void RimPressureDepthData::createRftReaderInterface()
 {
-    m_fmuRftReader = new RifReaderPressureDepthData( m_filePath );
+    m_fmuRftReader = new RifReaderPressureDepthData( m_filePath().path() );
     m_fmuRftReader->load();
 }
 

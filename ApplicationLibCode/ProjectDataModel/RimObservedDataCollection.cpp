@@ -26,6 +26,7 @@
 #include "RifKeywordVectorParser.h"
 
 #include "RimCsvUserData.h"
+#include "RimMainPlotCollection.h"
 #include "RimObservedEclipseUserData.h"
 #include "RimObservedFmuRftData.h"
 #include "RimObservedSummaryData.h"
@@ -110,6 +111,14 @@ std::vector<RimObservedFmuRftData*> RimObservedDataCollection::allObservedFmuRft
 std::vector<RimPressureDepthData*> RimObservedDataCollection::allPressureDepthData() const
 {
     return m_observedPressureDepthArray.children();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimObservedDataCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    RimMainPlotCollection::current()->loadDataAndUpdateAllPlots();
 }
 
 //--------------------------------------------------------------------------------------------------
