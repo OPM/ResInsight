@@ -165,13 +165,13 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
     if ( addresses.empty() ) return;
 
     auto* fields        = getOrCreateSubfolder( CollectionContentType::FIELD );
+    auto* groups        = getOrCreateSubfolder( CollectionContentType::GROUP_FOLDER );
     auto* wells         = getOrCreateSubfolder( CollectionContentType::WELL_FOLDER );
     auto* aquifer       = getOrCreateSubfolder( CollectionContentType::AQUIFER );
     auto* network       = getOrCreateSubfolder( CollectionContentType::NETWORK );
     auto* misc          = getOrCreateSubfolder( CollectionContentType::MISC );
     auto* regions       = getOrCreateSubfolder( CollectionContentType::REGION_FOLDER );
     auto* region2region = getOrCreateSubfolder( CollectionContentType::REGION_2_REGION );
-    auto* groups        = getOrCreateSubfolder( CollectionContentType::GROUP_FOLDER );
     auto* completion    = getOrCreateSubfolder( CollectionContentType::WELL_COMPLETION );
     auto* segment       = getOrCreateSubfolder( CollectionContentType::WELL_SEGMENT );
     auto* blocks        = getOrCreateSubfolder( CollectionContentType::BLOCK );
