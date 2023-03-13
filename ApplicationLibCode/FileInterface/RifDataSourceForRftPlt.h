@@ -79,7 +79,12 @@ public:
     std::vector<RiaDefines::EclipseUnitSystem> availableUnitSystems() const;
 
     friend QTextStream& operator>>( QTextStream& str, RifDataSourceForRftPlt& addr );
-    friend bool         operator<( const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPlt& addr2 );
+
+    auto operator<=>( const RifDataSourceForRftPlt& rhs ) const -> std::strong_ordering;
+
+    // When operator<=>() is overloaded, no operator==() nor operator!=() are defined by default by the compiler
+    // https://ggulgulia.medium.com/c-20-three-way-comparison-operator-part-2-fd520fb75e00
+    bool operator==( const RifDataSourceForRftPlt& rhs ) const = default;
 
 private:
     SourceType m_sourceType;
@@ -92,7 +97,5 @@ private:
     caf::PdmPointer<RimPressureDepthData>     m_pressureDepthData;
 };
 
-bool         operator==( const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPlt& addr2 );
 QTextStream& operator<<( QTextStream& str, const RifDataSourceForRftPlt& addr );
 QTextStream& operator>>( QTextStream& str, RifDataSourceForRftPlt& addr );
-bool         operator<( const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPlt& addr2 );
