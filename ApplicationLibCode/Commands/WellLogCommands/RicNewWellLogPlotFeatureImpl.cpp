@@ -87,20 +87,7 @@ RimWellBoreStabilityPlot* RicNewWellLogPlotFeatureImpl::createWellBoreStabilityP
 //--------------------------------------------------------------------------------------------------
 RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createRftSegmentPlot()
 {
-    auto rftPlotCollection = RimMainPlotCollection::current()->rftPlotCollection();
-    CVF_ASSERT( rftPlotCollection );
-
-    // Make sure the summary plot window is created
-    RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
-
-    RimWellLogPlot* plot = new RimWellLogPlot();
-    plot->setAsPlotMdiWindow();
-
-    rftPlotCollection->addPlot( plot );
-
-    plot->nameConfig()->setCustomName( QString( "RFT Segment Plot %1" ).arg( rftPlotCollection->plotCount() ) );
-
-    rftPlotCollection->updateConnectedEditors();
+    auto plot = createWellLogPlot();
 
     plot->setDepthOrientation( RiaDefines::Orientation::HORIZONTAL );
     plot->setNamingMethod( RiaDefines::ObjectNamingMethod::TEMPLATE );
