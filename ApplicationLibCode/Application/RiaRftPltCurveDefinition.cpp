@@ -55,23 +55,26 @@ const QDateTime& RiaRftPltCurveDefinition::timeStep() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaRftPltCurveDefinition::operator<( const RiaRftPltCurveDefinition& other ) const
+auto RiaRftPltCurveDefinition::operator<=>( const RiaRftPltCurveDefinition& other ) const -> std::strong_ordering
 {
-    if ( m_curveAddress.ensemble() != other.m_curveAddress.ensemble() )
-    {
-        // Sort by ensemble first, to make sure the ensemble curves are created and plotted before the single curves
+    RimSummaryCaseCollection* thisEnsemble  = m_curveAddress.ensemble();
+    RimSummaryCaseCollection* otherEnsemble = other.m_curveAddress.ensemble();
 
-        if ( m_curveAddress.ensemble() ) return true;
-        return false;
+    if ( ( thisEnsemble && !otherEnsemble ) || ( !thisEnsemble && otherEnsemble ) )
+    {
+        // If one is an ensemble and the other is not, the ensemble should be first to make sure the ensemble curves are created and plotted
+        // before the single summary curves
+
+        return m_curveAddress.ensemble() <=> other.m_curveAddress.ensemble();
     }
 
-    if ( m_curveAddress == other.m_curveAddress )
+    if ( ( m_curveAddress <=> other.m_curveAddress ) == std::strong_ordering::equal )
     {
         if ( m_wellName == other.m_wellName )
         {
-            return m_timeStep < other.m_timeStep;
+            return m_timeStep.toTime_t() <=> other.m_timeStep.toTime_t();
         }
-        return m_wellName < other.m_wellName;
+        return m_wellName.toStdString() <=> other.m_wellName.toStdString();
     }
-    return m_curveAddress < other.m_curveAddress;
+    return m_curveAddress <=> other.m_curveAddress;
 }

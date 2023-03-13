@@ -39,7 +39,7 @@ public:
     const QString&                wellName() const;
     const QDateTime&              timeStep() const;
 
-    bool operator<( const RiaRftPltCurveDefinition& other ) const;
+    auto operator<=>( const RiaRftPltCurveDefinition& rhs ) const -> std::strong_ordering;
 
 private:
     RifDataSourceForRftPlt m_curveAddress;

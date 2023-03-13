@@ -154,6 +154,81 @@ std::vector<RiaDefines::EclipseUnitSystem> RifDataSourceForRftPlt::availableUnit
 
     return systems;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+auto RifDataSourceForRftPlt::operator<=>( const RifDataSourceForRftPlt& addr2 ) const -> std::strong_ordering
+{
+    if ( m_sourceType != addr2.m_sourceType )
+    {
+        return m_sourceType <=> addr2.m_sourceType;
+    }
+
+    if ( m_sourceType == RifDataSourceForRftPlt::SourceType::NONE ) return std::strong_ordering::less;
+
+    if ( m_sourceType == RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE )
+    {
+        if ( wellLogFile() && addr2.wellLogFile() )
+        {
+            return wellLogFile()->fileName().toStdString() <=> addr2.wellLogFile()->fileName().toStdString();
+        }
+        return wellLogFile() <=> addr2.wellLogFile();
+    }
+    else if ( m_sourceType == RifDataSourceForRftPlt::SourceType::SUMMARY_RFT )
+    {
+        if ( summaryCase() && addr2.summaryCase() )
+        {
+            if ( summaryCase()->displayCaseName() == addr2.summaryCase()->displayCaseName() )
+            {
+                if ( ensemble() && addr2.ensemble() )
+                {
+                    return ensemble()->name().toStdString() <=> addr2.ensemble()->name().toStdString();
+                }
+                return ensemble() <=> addr2.ensemble();
+            }
+            return summaryCase()->displayCaseName().toStdString() <=> addr2.summaryCase()->displayCaseName().toStdString();
+        }
+        return summaryCase() <=> addr2.summaryCase();
+    }
+    else if ( m_sourceType == RifDataSourceForRftPlt::SourceType::ENSEMBLE_RFT )
+    {
+        if ( ensemble() && addr2.ensemble() )
+        {
+            return ensemble()->name().toStdString() <=> addr2.ensemble()->name().toStdString();
+        }
+        return ensemble() <=> addr2.ensemble();
+    }
+    else if ( m_sourceType == RifDataSourceForRftPlt::SourceType::OBSERVED_FMU_RFT )
+    {
+        if ( observedFmuRftData() || addr2.observedFmuRftData() )
+        {
+            if ( observedFmuRftData() && addr2.observedFmuRftData() )
+            {
+                return observedFmuRftData()->name().toStdString() <=> addr2.observedFmuRftData()->name().toStdString();
+            }
+            return observedFmuRftData() <=> addr2.observedFmuRftData();
+        }
+        if ( pressureDepthData() || addr2.pressureDepthData() )
+        {
+            if ( pressureDepthData() && addr2.pressureDepthData() )
+            {
+                return pressureDepthData()->name().toStdString() <=> addr2.pressureDepthData()->name().toStdString();
+            }
+            return pressureDepthData() <=> addr2.pressureDepthData();
+        }
+        return std::strong_ordering::less;
+    }
+    else
+    {
+        if ( eclCase() && addr2.eclCase() )
+        {
+            return eclCase()->caseId() <=> addr2.eclCase()->caseId();
+        }
+        return eclCase() <=> addr2.eclCase();
+    }
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -251,16 +326,6 @@ QString RifDataSourceForRftPlt::sourceTypeUiText( SourceType sourceType )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool operator==( const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPlt& addr2 )
-{
-    return addr1.sourceType() == addr2.sourceType() && addr1.eclCase() == addr2.eclCase() && addr1.wellLogFile() == addr2.wellLogFile() &&
-           addr1.summaryCase() == addr2.summaryCase() && addr1.ensemble() == addr2.ensemble() &&
-           addr1.observedFmuRftData() == addr2.observedFmuRftData();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QTextStream& operator<<( QTextStream& str, const RifDataSourceForRftPlt& addr )
 {
     // Not implemented
@@ -277,79 +342,3 @@ QTextStream& operator>>( QTextStream& str, RifDataSourceForRftPlt& source )
     CVF_ASSERT( false );
     return str;
 }
-
-//--------------------------------------------------------------------------------------------------
-/// This sort order controls the plot order in PLT plot. (Layer-wise)
-/// Observed data is supposed to be the bottom layers (first)
-//--------------------------------------------------------------------------------------------------
-bool operator<( const RifDataSourceForRftPlt& addr1, const RifDataSourceForRftPlt& addr2 )
-{
-    if ( addr1.m_sourceType != addr2.m_sourceType )
-    {
-        return addr1.m_sourceType < addr2.m_sourceType;
-    }
-
-    if ( addr1.m_sourceType == RifDataSourceForRftPlt::SourceType::NONE ) return false; //
-
-    if ( addr1.m_sourceType == RifDataSourceForRftPlt::SourceType::OBSERVED_LAS_FILE )
-    {
-        if ( addr1.wellLogFile() && addr2.wellLogFile() )
-        {
-            return addr1.wellLogFile()->fileName() < addr2.wellLogFile()->fileName();
-        }
-        return addr1.wellLogFile() < addr2.wellLogFile();
-    }
-    else if ( addr1.m_sourceType == RifDataSourceForRftPlt::SourceType::SUMMARY_RFT )
-    {
-        if ( addr1.summaryCase() && addr2.summaryCase() )
-        {
-            if ( addr1.summaryCase()->displayCaseName() == addr2.summaryCase()->displayCaseName() )
-            {
-                if ( addr1.ensemble() && addr2.ensemble() )
-                {
-                    return addr1.ensemble()->name() < addr2.ensemble()->name();
-                }
-                return addr1.ensemble() < addr2.ensemble();
-            }
-            return addr1.summaryCase()->displayCaseName() < addr2.summaryCase()->displayCaseName();
-        }
-        return addr1.summaryCase() < addr2.summaryCase();
-    }
-    else if ( addr1.m_sourceType == RifDataSourceForRftPlt::SourceType::ENSEMBLE_RFT )
-    {
-        if ( addr1.ensemble() && addr2.ensemble() )
-        {
-            return addr1.ensemble()->name() < addr2.ensemble()->name();
-        }
-        return addr1.ensemble() < addr2.ensemble();
-    }
-    else if ( addr1.m_sourceType == RifDataSourceForRftPlt::SourceType::OBSERVED_FMU_RFT )
-    {
-        if ( addr1.observedFmuRftData() && addr2.observedFmuRftData() )
-        {
-            return addr1.observedFmuRftData()->name() < addr2.observedFmuRftData()->name();
-        }
-        return addr1.observedFmuRftData() < addr2.observedFmuRftData();
-    }
-    else
-    {
-        if ( addr1.eclCase() && addr2.eclCase() )
-        {
-            return addr1.eclCase()->caseId() < addr2.eclCase()->caseId();
-        }
-        return addr1.eclCase() < addr2.eclCase();
-    }
-}
-#if 0
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool operator<(const RifWellRftAddress& addr1, const RifWellRftAddress& addr2)
-{
-    return (addr1.m_sourceType < addr2.m_sourceType) ||
-        (addr1.m_sourceType == addr2.m_sourceType && 
-         addr1.eclCase() != nullptr && addr2.eclCase() != nullptr ? addr1.eclCase()->caseId() < addr2.eclCase()->caseId() :
-         addr1.wellLogFile() != nullptr && addr2.wellLogFile() != nullptr ?  addr1.wellLogFile()->fileName() < addr2.wellLogFile()->fileName() :
-         addr1.wellLogFile() < addr2.wellLogFile());
-}
-#endif
