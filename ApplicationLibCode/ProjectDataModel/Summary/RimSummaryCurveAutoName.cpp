@@ -45,8 +45,8 @@ RimSummaryCurveAutoName::RimSummaryCurveAutoName()
     // clang-format off
     CAF_PDM_InitObject("RimSummaryCurveAutoName");
 
-	CAF_PDM_InitField(   &m_longVectorName, "LongVectorName",       false,  "Long Vector Name");
-    CAF_PDM_InitField(       &m_vectorName, "VectorName",           true,   "Vector Name");
+	CAF_PDM_InitField(   &m_longVectorName, "LongVectorName",       true,  "Long Vector Name");
+    CAF_PDM_InitField(       &m_vectorName, "VectorName",           false,   "Vector Name");
     CAF_PDM_InitField(             &m_unit, "Unit",                 false,  "Unit");
     CAF_PDM_InitField(     &m_regionNumber, "RegionNumber",         true,   "Region Number");
     CAF_PDM_InitField(        &m_groupName, "WellGroupName",        true,   "Group Name");
@@ -191,7 +191,7 @@ QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress&
 {
     std::string text; // Using std::string locally to avoid a lot of conversion when building the curve name
 
-    if ( m_vectorName )
+    if ( m_vectorName || m_longVectorName )
     {
         bool skipSubString = currentNameHelper && currentNameHelper->vectorNames().size() == 1;
         if ( !skipSubString )
@@ -202,6 +202,8 @@ QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress&
                 if ( summaryAddress.isHistoryVector() ) quantityName = quantityName.substr( 0, quantityName.size() - 1 );
 
                 text = RiuSummaryQuantityNameInfoProvider::instance()->longNameFromVectorName( quantityName );
+
+                if ( m_vectorName ) text += " (" + summaryAddress.vectorName() + ")";
             }
             else
             {
