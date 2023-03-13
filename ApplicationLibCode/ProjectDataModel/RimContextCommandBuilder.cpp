@@ -1036,7 +1036,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicRenamePlotTemplateFeature";
             menuBuilder << "RicDeletePlotTemplateFeature";
-            menuBuilder << "RicEditPlotTemplateFeature";
+            menuBuilder << "RicOpenInTextEditorFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicSetAsDefaultTemplateFeature";
             menuBuilder << "Separator";
