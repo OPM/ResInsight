@@ -101,6 +101,8 @@ private:
 
     void initSliceRanges();
 
+    QPixmap getImage();
+
     caf::PdmField<QString>            m_userDescription;
     caf::PdmPtrField<RimSeismicData*> m_seismicData;
 
@@ -111,6 +113,8 @@ private:
     caf::PdmField<cvf::Color3f>                   m_lineColor;
     caf::PdmChildField<RimRegularLegendConfig*>   m_legendConfig;
     caf::PdmField<caf::AppEnum<CrossSectionEnum>> m_type;
+
+    caf::PdmField<bool> m_showImage;
 
     caf::PdmField<int> m_inlineIndex;
     caf::PdmField<int> m_xlineIndex;

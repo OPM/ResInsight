@@ -184,27 +184,20 @@ cvf::TextureImage* RivSeismicSectionPartMgr::createImageFromData( ZGYAccess::Sei
     textureImage->allocate( data->width(), data->depth() );
 
     auto legend = m_section->legendConfig();
-
-    auto colorMapper = legend->scalarMapper();
+    auto mapper = legend->scalarMapper();
 
     float*      pData = data->values();
     cvf::ubyte* pRGBA = textureImage->ptr();
 
-    // TODO - fix pixel vs. data layout order
-
-    for ( int i = 0; i < data->size(); i++, pData++ )
+    for ( int i = 0; i < data->width(); i++ )
     {
-        auto rgb = colorMapper->mapToColor( *pData );
+        for ( int j = data->depth() - 1; j >= 0; j-- )
+        {
+            auto rgb = mapper->mapToColor( *pData );
+            textureImage->setPixel( i, j, cvf::Color4ub( rgb, 255 ) );
 
-        *pRGBA = rgb.r();
-        pRGBA++;
-        *pRGBA = rgb.g();
-        pRGBA++;
-        *pRGBA = rgb.b();
-        pRGBA++;
-
-        *pRGBA = 255;
-        pRGBA++;
+            pData++;
+        }
     }
 
     return textureImage;

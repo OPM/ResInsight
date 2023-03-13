@@ -39,8 +39,16 @@
 #include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
+#include "cvfScalarMapper.h"
 #include "cvfTextureImage.h"
 #include "cvfVector3.h"
+
+#include <zgyaccess/seismicslice.h>
+
+#include <QDialog>
+#include <QImage>
+#include <QLayout>
+#include <QPixmap>
 
 namespace caf
 {
@@ -79,6 +87,10 @@ RimSeismicSection::RimSeismicSection()
     CAF_PDM_InitField( &m_enablePicking, "EnablePicking", false, "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_enablePicking );
     m_enablePicking.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::HIDDEN );
+
+    CAF_PDM_InitField( &m_showImage, "ShowImage", false, "" );
+    caf::PdmUiPushButtonEditor::configureEditorForField( &m_showImage );
+    m_showImage.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::HIDDEN );
 
     CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );
     m_targets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
@@ -174,6 +186,7 @@ void RimSeismicSection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
 
         group2->setCollapsedByDefault();
     }
+    uiOrdering.add( &m_showImage );
 
     uiOrdering.skipRemainingFields();
 }
@@ -205,6 +218,14 @@ void RimSeismicSection::defineEditorAttribute( const caf::PdmFieldHandle* field,
             {
                 pbAttribute->m_buttonText = "Stop Picking Points";
             }
+        }
+    }
+    else if ( field == &m_showImage )
+    {
+        auto* pbAttribute = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
+        if ( pbAttribute )
+        {
+            pbAttribute->m_buttonText = "Show Image";
         }
     }
     else if ( field == &m_targets )
@@ -520,6 +541,23 @@ void RimSeismicSection::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
     {
         this->updateConnectedEditors();
     }
+    else if ( changedField == &m_showImage )
+    {
+        QDialog w;
+        QLabel  l;
+
+        QHBoxLayout layout;
+        layout.addWidget( &l );
+        w.setLayout( &layout );
+
+        QPixmap i = getImage();
+
+        l.setPixmap( i );
+
+        w.exec();
+
+        m_showImage = false;
+    }
     else if ( changedField != &m_userDescription )
     {
         if ( changedField == &m_seismicData )
@@ -557,4 +595,40 @@ void RimSeismicSection::initSliceRanges()
 RimRegularLegendConfig* RimSeismicSection::legendConfig() const
 {
     return m_legendConfig();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QPixmap RimSeismicSection::getImage()
+{
+    int ilStart = m_inlineIndex();
+
+    auto data = m_seismicData->sliceData( RiaDefines::SeismicSliceDirection::INLINE, ilStart );
+
+    auto mapper = legendConfig()->scalarMapper();
+
+    // data->transpose();
+
+    float* pData = data->values();
+
+    QImage img( data->width(), data->depth(), QImage::Format_RGB888 );
+
+    for ( int i = 0; i < data->width(); i++ )
+    {
+        for ( int j = 0; j < data->depth(); j++ )
+        {
+            auto rgb = mapper->mapToColor( *pData );
+
+            QColor color;
+
+            color.setRgb( rgb.r(), rgb.g(), rgb.b() );
+
+            img.setPixel( i, j, color.rgb() );
+
+            pData++;
+        }
+    }
+
+    return QPixmap::fromImage( img );
 }
