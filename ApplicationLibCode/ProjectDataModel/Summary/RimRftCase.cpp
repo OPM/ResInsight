@@ -37,7 +37,7 @@ CAF_PDM_SOURCE_INIT( RimRftCase, "RimRftCase" );
 //--------------------------------------------------------------------------------------------------
 RimRftCase::RimRftCase()
 {
-    CAF_PDM_InitObject( "RFT Case ", ":/SummaryCases16x16.png", "", "" );
+    CAF_PDM_InitObject( "RFT Data", ":/SummaryCases16x16.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_rftFilePath, "RftFilePath", "Rft File" );
     m_rftFilePath.uiCapability()->setUiReadOnly( true );

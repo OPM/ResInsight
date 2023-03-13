@@ -463,6 +463,14 @@ RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPl
     summaryMultiPlot->updateAllRequiredEditors();
 
     RiuPlotMainWindowTools::selectAsCurrentItem( plot );
+    if ( !plot->curveSets().empty() )
+    {
+        RiuPlotMainWindowTools::setExpanded( plot->curveSets().front() );
+    }
+    else if ( !plot->summaryCurves().empty() )
+    {
+        RiuPlotMainWindowTools::setExpanded( plot->summaryCurves().front() );
+    }
 
     return summaryMultiPlot;
 }
@@ -526,7 +534,16 @@ RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( con
 
     if ( !plots.empty() )
     {
-        RiuPlotMainWindowTools::selectAsCurrentItem( plots[0] );
+        auto* plot = plots.front();
+        RiuPlotMainWindowTools::selectAsCurrentItem( plot );
+        if ( !plot->curveSets().empty() )
+        {
+            RiuPlotMainWindowTools::setExpanded( plot->curveSets().front() );
+        }
+        else if ( !plot->summaryCurves().empty() )
+        {
+            RiuPlotMainWindowTools::setExpanded( plot->summaryCurves().front() );
+        }
     }
     else
     {
@@ -541,25 +558,9 @@ RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( con
 //--------------------------------------------------------------------------------------------------
 RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( RimSummaryPlot* plot )
 {
-    auto* plotCollection = RimMainPlotCollection::current()->summaryMultiPlotCollection();
+    std::vector<RimSummaryPlot*> plots{ plot };
 
-    auto* summaryMultiPlot = new RimSummaryMultiPlot();
-    summaryMultiPlot->setColumnCount( RiaDefines::ColumnCount::COLUMNS_1 );
-    summaryMultiPlot->setRowCount( RiaDefines::RowCount::ROWS_1 );
-    summaryMultiPlot->setAsPlotMdiWindow();
-    plotCollection->addSummaryMultiPlot( summaryMultiPlot );
-
-    appendPlotsToSummaryMultiPlot( summaryMultiPlot, { plot } );
-
-    summaryMultiPlot->setDefaultRangeAggregationSteppingDimension();
-
-    plotCollection->updateAllRequiredEditors();
-    summaryMultiPlot->loadDataAndUpdate();
-    summaryMultiPlot->updateAllRequiredEditors();
-
-    RiuPlotMainWindowTools::selectAsCurrentItem( plot );
-
-    return summaryMultiPlot;
+    return createAndAppendSummaryMultiPlot( plots );
 }
 
 //--------------------------------------------------------------------------------------------------

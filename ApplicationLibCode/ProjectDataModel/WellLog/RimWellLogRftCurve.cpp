@@ -26,6 +26,7 @@
 #include "RiaResultNames.h"
 #include "RiaRftDefines.h"
 #include "RiaSimWellBranchTools.h"
+#include "RiaStatisticsTools.h"
 #include "RiaSummaryTools.h"
 #include "RiaTextStringTools.h"
 
@@ -664,7 +665,15 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         std::vector<double>  errors              = errorValues();
         std::vector<QString> perPointLabels;
 
-        if ( values.empty() || values.size() != tvDepthVector.size() )
+        auto anyValidValuesPresent = []( const std::vector<double>& values ) -> bool {
+            for ( const auto& v : values )
+            {
+                if ( RiaStatisticsTools::isValidNumber<double>( v ) ) return true;
+            }
+            return false;
+        };
+
+        if ( !anyValidValuesPresent( values ) || ( values.size() != tvDepthVector.size() ) )
         {
             clearCurveData();
             this->detach( true );
