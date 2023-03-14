@@ -361,6 +361,8 @@ QIcon RiuDockWidgetTools::dockIcon( const QString dockWidgetName )
         return QIcon( ":/window-management.svg" );
     else if ( dockWidgetName == main3DWindowName() )
         return QIcon( ":/window-management.svg" );
+    else if ( dockWidgetName == mainWindowSeismicHistogramName() )
+        return QIcon( ":/graph.svg" );
 
     return QIcon( ":/view.svg" );
 }
