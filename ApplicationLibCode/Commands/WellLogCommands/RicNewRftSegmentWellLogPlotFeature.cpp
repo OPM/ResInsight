@@ -31,6 +31,7 @@
 
 #include "RifReaderOpmRft.h"
 
+#include "RimFileSummaryCase.h"
 #include "RimRftCase.h"
 #include "RimRftTopologyCurve.h"
 #include "RimSummaryCase.h"
@@ -59,10 +60,12 @@ bool RicNewRftSegmentWellLogPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewRftSegmentWellLogPlotFeature::onActionTriggered( bool isChecked )
 {
-    RimSummaryCase* summaryCase = RicNewRftSegmentWellLogPlotFeature::getSelectedOrFirstRftCase();
-    if ( !summaryCase ) return;
+    auto fileSummaryCase = dynamic_cast<RimFileSummaryCase*>( RicNewRftSegmentWellLogPlotFeature::getSelectedOrFirstRftCase() );
+    if ( !fileSummaryCase ) return;
 
-    auto rftReader = summaryCase->rftReader();
+    fileSummaryCase->searchForWseglinkAndRecreateRftReader();
+
+    auto rftReader = fileSummaryCase->rftReader();
     if ( !rftReader )
     {
         RiaLogging::error( "Could not open RFT file or no RFT file present. " );
@@ -87,7 +90,7 @@ void RicNewRftSegmentWellLogPlotFeature::onActionTriggered( bool isChecked )
         plot->addPlot( plotTrack );
         plotTrack->setDescription( trackName );
 
-        auto curve = createAndAddCurve( plotTrack, "CONGRAT", wellName, branchType, summaryCase );
+        auto curve = createAndAddCurve( plotTrack, "CONGRAT", wellName, branchType, fileSummaryCase );
         curve->setScaleFactor( 1e-3 );
         curve->setFillStyle( Qt::SolidPattern );
     }
@@ -97,14 +100,14 @@ void RicNewRftSegmentWellLogPlotFeature::onActionTriggered( bool isChecked )
         QString resultName = "SEGGRAT";
         QString trackName  = caf::AppEnum<RiaDefines::RftBranchType>::uiText( branchType );
         trackName += " Rates";
-        auto curve = appendTrackAndCurveForBranchType( plot, trackName, resultName, wellName, branchType, summaryCase );
+        auto curve = appendTrackAndCurveForBranchType( plot, trackName, resultName, wellName, branchType, fileSummaryCase );
         curve->setScaleFactor( 1e-3 );
         curve->setFillStyle( Qt::SolidPattern );
     }
 
-    appendPressureTrack( plot, wellName, summaryCase );
-    appendConnectionFactorTrack( plot, wellName, summaryCase );
-    appendTopologyTrack( plot, wellName, summaryCase );
+    appendPressureTrack( plot, wellName, fileSummaryCase );
+    appendConnectionFactorTrack( plot, wellName, fileSummaryCase );
+    appendTopologyTrack( plot, wellName, fileSummaryCase );
 
     plot->loadDataAndUpdate();
     plot->updateTrackVisibility();

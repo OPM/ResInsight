@@ -30,6 +30,7 @@
 
 #include "RifReaderOpmRft.h"
 
+#include "RimFileSummaryCase.h"
 #include "RimRftCase.h"
 #include "RimRftTopologyCurve.h"
 #include "RimSummaryCase.h"
@@ -58,10 +59,12 @@ bool RicNewMultiPhaseRftSegmentPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewMultiPhaseRftSegmentPlotFeature::onActionTriggered( bool isChecked )
 {
-    RimSummaryCase* summaryCase = RicNewRftSegmentWellLogPlotFeature::getSelectedOrFirstRftCase();
-    if ( !summaryCase ) return;
+    auto fileSummaryCase = dynamic_cast<RimFileSummaryCase*>( RicNewRftSegmentWellLogPlotFeature::getSelectedOrFirstRftCase() );
+    if ( !fileSummaryCase ) return;
 
-    auto rftReader = summaryCase->rftReader();
+    fileSummaryCase->searchForWseglinkAndRecreateRftReader();
+
+    auto rftReader = fileSummaryCase->rftReader();
     if ( !rftReader )
     {
         RiaLogging::error( "Could not open RFT file or no RFT file present. " );
@@ -82,7 +85,7 @@ void RicNewMultiPhaseRftSegmentPlotFeature::onActionTriggered( bool isChecked )
     for ( auto branchType : allBranchTypes )
     {
         QString trackName = "Reservoir Rates - " + caf::AppEnum<RiaDefines::RftBranchType>::uiText( branchType );
-        appendTrackAndCurveForBranchType( plot, trackName, { "CONGRAT", "CONORAT", "CONWRAT" }, wellName, branchType, summaryCase );
+        appendTrackAndCurveForBranchType( plot, trackName, { "CONGRAT", "CONORAT", "CONWRAT" }, wellName, branchType, fileSummaryCase );
     }
 
     for ( auto branchType : allBranchTypes )
@@ -90,12 +93,12 @@ void RicNewMultiPhaseRftSegmentPlotFeature::onActionTriggered( bool isChecked )
         QString trackName = caf::AppEnum<RiaDefines::RftBranchType>::uiText( branchType );
         trackName += " Rates";
 
-        appendTrackAndCurveForBranchType( plot, trackName, { "SEGGRAT", "SEGORAT", "SEGWRAT" }, wellName, branchType, summaryCase );
+        appendTrackAndCurveForBranchType( plot, trackName, { "SEGGRAT", "SEGORAT", "SEGWRAT" }, wellName, branchType, fileSummaryCase );
     }
 
-    RicNewRftSegmentWellLogPlotFeature::appendPressureTrack( plot, wellName, summaryCase );
-    RicNewRftSegmentWellLogPlotFeature::appendConnectionFactorTrack( plot, wellName, summaryCase );
-    RicNewRftSegmentWellLogPlotFeature::appendTopologyTrack( plot, wellName, summaryCase );
+    RicNewRftSegmentWellLogPlotFeature::appendPressureTrack( plot, wellName, fileSummaryCase );
+    RicNewRftSegmentWellLogPlotFeature::appendConnectionFactorTrack( plot, wellName, fileSummaryCase );
+    RicNewRftSegmentWellLogPlotFeature::appendTopologyTrack( plot, wellName, fileSummaryCase );
 
     plot->loadDataAndUpdate();
     plot->updateTrackVisibility();

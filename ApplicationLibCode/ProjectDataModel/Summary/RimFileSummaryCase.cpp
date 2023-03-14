@@ -68,6 +68,8 @@ RimFileSummaryCase::RimFileSummaryCase()
 
     CAF_PDM_InitFieldNoDefault( &m_rftCase, "RftCase", "RFT Data" );
     m_rftCase = new RimRftCase;
+
+    m_hasParsedForWeseglink = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -147,36 +149,10 @@ void RimFileSummaryCase::createRftReaderInterface()
         }
     }
 
-    if ( m_rftCase->dataDeckFilePath().isEmpty() )
-    {
-        // Search for *.DATA file in same folder as summary file. If not found, search for a schedule file.
-        QString validDataDeckFileName;
-
-        QString   dataDeckFileName = folder + "/" + fileInfo.completeBaseName() + ".DATA";
-        QFileInfo fi( dataDeckFileName );
-
-        if ( fi.exists() )
-        {
-            validDataDeckFileName = dataDeckFileName;
-        }
-        else
-        {
-            QString   scheduleFileName = folder + "/" + fileInfo.completeBaseName() + ".SCH";
-            QFileInfo fi( scheduleFileName );
-
-            if ( fi.exists() )
-            {
-                validDataDeckFileName = scheduleFileName;
-            }
-        }
-
-        if ( !validDataDeckFileName.isEmpty() )
-        {
-            m_rftCase->setDataDeckFileName( dataDeckFileName );
-        }
-    }
-
-    m_summaryEclipseRftReader = RimFileSummaryCase::findRftDataAndCreateReader( rftFileName, m_rftCase->dataDeckFilePath() );
+    // Usually, the data deck file path is empty at this point. If the user has specified the path manually, we use that.
+    // The intention is to use searchForWseglinkAndRecreateRftReader() to search for the data deck file path. Here we avoid searching for
+    // the data deck file by default, as this is a time consuming operation.
+    m_summaryEclipseRftReader = RimFileSummaryCase::createOpmRftReader( rftFileName, m_rftCase->dataDeckFilePath() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -230,7 +206,7 @@ RifSummaryReaderInterface* RimFileSummaryCase::findRelatedFilesAndCreateReader( 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifReaderOpmRft* RimFileSummaryCase::findRftDataAndCreateReader( const QString& rftFileName, const QString& dataDeckFileName )
+RifReaderOpmRft* RimFileSummaryCase::createOpmRftReader( const QString& rftFileName, const QString& dataDeckFileName )
 {
     QFileInfo fi( rftFileName );
 
@@ -417,6 +393,52 @@ QString RimFileSummaryCase::createAdditionalSummaryFileName()
     auto filePath = "RI_SUMMARY_DATA_" + uuidString + ".ESMRY";
 
     return filePath;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFileSummaryCase::searchForWseglinkAndRecreateRftReader()
+{
+    if ( m_hasParsedForWeseglink ) return;
+
+    if ( m_rftCase->dataDeckFilePath().isEmpty() )
+    {
+        QFileInfo fileInfo( summaryHeaderFilename() );
+        QString   folder = fileInfo.absolutePath();
+
+        // Search for *.DATA file in same folder as summary file. If not found, search for a schedule file.
+        QString validDataDeckFileName;
+
+        QString   dataDeckFileName = folder + "/" + fileInfo.completeBaseName() + ".DATA";
+        QFileInfo fi( dataDeckFileName );
+
+        if ( fi.exists() )
+        {
+            validDataDeckFileName = dataDeckFileName;
+        }
+        else
+        {
+            QString   scheduleFileName = folder + "/" + fileInfo.completeBaseName() + ".SCH";
+            QFileInfo fi( scheduleFileName );
+
+            if ( fi.exists() )
+            {
+                validDataDeckFileName = scheduleFileName;
+            }
+        }
+
+        if ( !validDataDeckFileName.isEmpty() )
+        {
+            m_rftCase->setDataDeckFileName( dataDeckFileName );
+
+            // Create a new reader including the file path to the data deck file
+            // NB! This can be a time consuming operation
+            m_summaryEclipseRftReader = RimFileSummaryCase::createOpmRftReader( m_rftCase->rftFilePath(), m_rftCase->dataDeckFilePath() );
+        }
+    }
+
+    m_hasParsedForWeseglink = true;
 }
 
 //--------------------------------------------------------------------------------------------------
