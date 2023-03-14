@@ -26,6 +26,7 @@
 
 #include <QDebug>
 #include <QResizeEvent>
+#include <QScrollArea>
 #include <QVariant>
 
 #include <utility>
@@ -35,7 +36,6 @@
 //--------------------------------------------------------------------------------------------------
 RiuQwtPlotLegend::RiuQwtPlotLegend( QWidget* parent /*= nullptr */ )
     : QwtLegend( parent )
-
 {
     auto* legendLayout = qobject_cast<QwtDynGridLayout*>( contentsWidget()->layout() );
     if ( legendLayout )
@@ -44,6 +44,9 @@ RiuQwtPlotLegend::RiuQwtPlotLegend( QWidget* parent /*= nullptr */ )
         legendLayout->setSpacing( 1 );
     }
     setSizePolicy( QSizePolicy::Preferred, QSizePolicy::MinimumExpanding );
+
+    QScrollArea* scrollArea = findChild<QScrollArea*>( "QwtLegendView" );
+    if ( scrollArea ) scrollArea->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
 }
 
 //--------------------------------------------------------------------------------------------------
