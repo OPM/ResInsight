@@ -376,7 +376,7 @@ void RimWellRftPlot::updateEditorsFromCurves()
         {
             selectedSources.insert( RifDataSourceForRftPlt( curveDef.address().wellLogFile() ) );
         }
-        else if ( curveDef.address().sourceType() == RifDataSourceForRftPlt::SourceType::SUMMARY_RFT )
+        else if ( ( curveDef.address().sourceType() == RifDataSourceForRftPlt::SourceType::SUMMARY_RFT ) && curveDef.address().ensemble() )
         {
             selectedSources.insert( RifDataSourceForRftPlt( curveDef.address().ensemble() ) );
         }
@@ -548,9 +548,12 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
             curve->setZOrder( 1 );
             applyCurveAppearance( curve );
 
-            bool isFirstSummaryCurveInEnsemble = ensemblesWithSummaryCurves.count( curveDefToAdd.address().ensemble() ) == 0u;
-            curve->setShowInLegend( isFirstSummaryCurveInEnsemble );
-            ensemblesWithSummaryCurves.insert( curveDefToAdd.address().ensemble() );
+            if ( curveDefToAdd.address().ensemble() )
+            {
+                bool isFirstSummaryCurveInEnsemble = ensemblesWithSummaryCurves.count( curveDefToAdd.address().ensemble() ) == 0u;
+                curve->setShowInLegend( isFirstSummaryCurveInEnsemble );
+                ensemblesWithSummaryCurves.insert( curveDefToAdd.address().ensemble() );
+            }
         }
         else if ( m_showStatisticsCurves && curveDefToAdd.address().sourceType() == RifDataSourceForRftPlt::SourceType::ENSEMBLE_RFT )
         {
