@@ -43,6 +43,7 @@
 
 #include "RimDepthTrackPlot.h"
 #include "RimEclipseResultCase.h"
+#include "RimFileSummaryCase.h"
 #include "RimMainPlotCollection.h"
 #include "RimObservedFmuRftData.h"
 #include "RimPressureDepthData.h"
@@ -997,6 +998,15 @@ void RimWellLogRftCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
               changedField == &m_rftDataType || changedField == &m_segmentBranchType || m_scaleFactor )
     {
         loadData = true;
+    }
+
+    if ( changedField == &m_rftDataType )
+    {
+        if ( m_rftDataType() == RftDataType::RFT_SEGMENT_DATA )
+        {
+            auto fileSummaryCase = dynamic_cast<RimFileSummaryCase*>( m_summaryCase() );
+            if ( fileSummaryCase ) fileSummaryCase->searchForWseglinkAndRecreateRftReader();
+        }
     }
 
     if ( loadData ) this->loadDataAndUpdate( true );
