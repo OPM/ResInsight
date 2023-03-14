@@ -58,6 +58,7 @@
 #include "RimGeoMechModels.h"
 #include "RimGeoMechView.h"
 #include "RimGridCalculationCollection.h"
+#include "RimGridSummaryCase.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
 #include "RimObservedDataCollection.h"
@@ -474,6 +475,9 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
 
         return true;
     }
+
+    // Migrate all RimGridCases to RimFileSummaryCase
+    RimGridSummaryCase_obsolete::convertGridCasesToSummaryFileCases( m_project.get() );
 
     ///////
     // Load the external data, and initialize stuff that needs specific ordering
