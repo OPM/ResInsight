@@ -136,7 +136,7 @@ void RimSeismicData::setFileName( QString filename )
 {
     if ( filename != m_filename )
     {
-        m_filereader->close();
+        if ( m_filereader != nullptr ) m_filereader->close();
         m_nErrorsLogged = 0;
         m_filename      = filename;
     }

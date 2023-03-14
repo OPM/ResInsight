@@ -71,5 +71,5 @@ public:
 
 private:
     QString                               m_filename;
-    std::shared_ptr<ZGYAccess::ZGYReader> m_reader;
+    std::unique_ptr<ZGYAccess::ZGYReader> m_reader;
 };
