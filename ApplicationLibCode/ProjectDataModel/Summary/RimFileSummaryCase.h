@@ -53,6 +53,7 @@ public:
     void                       createRftReaderInterface() override;
     RifSummaryReaderInterface* summaryReader() override;
     RifReaderRftInterface*     rftReader() override;
+    void                       searchForWseglinkAndRecreateRftReader();
 
     void setIncludeRestartFiles( bool includeRestartFiles );
 
@@ -72,7 +73,7 @@ private:
     QString        additionalSummaryDataFilePath() const;
     static QString createAdditionalSummaryFileName();
 
-    static RifReaderOpmRft* findRftDataAndCreateReader( const QString& rftFileName, const QString& dataDeckFileName );
+    static RifReaderOpmRft* createOpmRftReader( const QString& rftFileName, const QString& dataDeckFileName );
 
 private:
     cvf::ref<RifSummaryReaderInterface>       m_fileSummaryReader;
@@ -85,4 +86,6 @@ private:
     cvf::ref<RifOpmCommonEclipseSummary> m_additionalSummaryFileReader;
 
     caf::PdmChildField<RimRftCase*> m_rftCase;
+
+    bool m_hasParsedForWeseglink;
 };
