@@ -50,12 +50,12 @@ bool RifSeismicZGYReader::open( QString filename )
 
     try
     {
-        m_reader = std::make_shared<ZGYAccess::ZGYReader>();
+        m_reader = std::make_unique<ZGYAccess::ZGYReader>();
         m_reader->open( filename.toStdString() );
     }
     catch ( const std::exception& err )
     {
-        m_reader = nullptr;
+        m_reader.reset();
         return false;
     }
 
@@ -67,7 +67,7 @@ bool RifSeismicZGYReader::open( QString filename )
 //--------------------------------------------------------------------------------------------------
 bool RifSeismicZGYReader::isOpen() const
 {
-    return m_reader != nullptr;
+    return m_reader.get() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -85,7 +85,7 @@ void RifSeismicZGYReader::close()
     {
     }
 
-    m_reader = nullptr;
+    m_reader.reset();
 
     return;
 }

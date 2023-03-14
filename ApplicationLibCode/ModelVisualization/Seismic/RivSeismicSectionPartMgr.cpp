@@ -186,8 +186,7 @@ cvf::TextureImage* RivSeismicSectionPartMgr::createImageFromData( ZGYAccess::Sei
     auto legend = m_section->legendConfig();
     auto mapper = legend->scalarMapper();
 
-    float*      pData = data->values();
-    cvf::ubyte* pRGBA = textureImage->ptr();
+    float* pData = data->values();
 
     for ( int i = 0; i < data->width(); i++ )
     {
