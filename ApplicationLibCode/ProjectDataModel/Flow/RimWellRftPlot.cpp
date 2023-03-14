@@ -545,7 +545,14 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
                                                                                 curveDefToAdd.timeStep(),
                                                                                 RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
             curve->setRftAddress( address );
-            curve->setZOrder( 1 );
+
+            double zValue = 1.0;
+            if ( !curveDefToAdd.address().ensemble() )
+            {
+                zValue = RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_SINGLE_CURVE_NON_OBSERVED );
+            }
+            curve->setZOrder( zValue );
+
             applyCurveAppearance( curve );
 
             if ( curveDefToAdd.address().ensemble() )
