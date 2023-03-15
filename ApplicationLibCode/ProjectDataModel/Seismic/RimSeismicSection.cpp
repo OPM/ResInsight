@@ -623,9 +623,21 @@ void RimSeismicSection::initSliceRanges()
 //--------------------------------------------------------------------------------------------------
 QPixmap RimSeismicSection::getImage()
 {
-    int ilStart = m_inlineIndex();
+    RiaDefines::SeismicSliceDirection sliceDir = RiaDefines::SeismicSliceDirection::INLINE;
+    int                               iStart   = m_inlineIndex();
 
-    auto data = m_seismicData->sliceData( RiaDefines::SeismicSliceDirection::INLINE, ilStart );
+    if ( m_type() == CrossSectionEnum::CS_XLINE )
+    {
+        sliceDir = RiaDefines::SeismicSliceDirection::XLINE;
+        iStart   = m_xlineIndex();
+    }
+    else if ( m_type() == CrossSectionEnum::CS_DEPTHSLICE )
+    {
+        sliceDir = RiaDefines::SeismicSliceDirection::DEPTH;
+        iStart   = m_depthIndex();
+    }
+
+    auto data = m_seismicData->sliceData( sliceDir, iStart );
 
     auto mapper = legendConfig()->scalarMapper();
 
