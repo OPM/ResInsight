@@ -460,9 +460,9 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection() const
 
     double zmin = m_seismicData->zMin();
     double zmax = m_seismicData->zMax();
-    double ztep = m_seismicData->zStep();
+    // double ztep = m_seismicData->zStep();
 
-    double height = static_cast<int>( ( zmax - zmin ) / ztep );
+    // double height = static_cast<int>( ( zmax - zmin ) / ztep );
 
     if ( m_type() == CrossSectionEnum::CS_POLYLINE )
     {
@@ -488,7 +488,6 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection() const
     {
         int xlStart = m_seismicData->xlineMin();
         int xlStop  = m_seismicData->xlineMax();
-        int xlStep  = m_seismicData->xlineStep();
 
         int ilStart = m_inlineIndex();
 
@@ -506,7 +505,6 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection() const
     {
         int ilStart = m_seismicData->inlineMin();
         int ilStop  = m_seismicData->inlineMax();
-        int ilStep  = m_seismicData->inlineStep();
 
         int xlStart = m_xlineIndex();
 
