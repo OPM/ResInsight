@@ -24,6 +24,7 @@
 #include "RifEclipseSummaryAddress.h"
 
 #include "RimMainPlotCollection.h"
+#include "RimObservedDataCollection.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
@@ -79,6 +80,15 @@ RimSummaryCaseMainCollection* RiaSummaryTools::summaryCaseMainCollection()
     RimSummaryCaseMainCollection* summaryCaseMainCollection = project->activeOilField()->summaryCaseMainCollection();
     CVF_ASSERT( summaryCaseMainCollection );
     return summaryCaseMainCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimObservedDataCollection* RiaSummaryTools::observedDataCollection()
+{
+    RimProject* project = RimProject::current();
+    return project->activeOilField()->observedDataCollection();
 }
 
 //--------------------------------------------------------------------------------------------------

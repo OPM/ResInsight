@@ -23,7 +23,13 @@
 #include "RifColumnBasedUserDataParser.h"
 #include "RifCsvUserData.h"
 #include "RifKeywordVectorUserData.h"
+#include "RifMultipleSummaryReaders.h"
 #include "RifSummaryReaderInterface.h"
+#include "RifSummaryReaderMultipleFiles.h"
+
+#include "RimCalculatedSummaryCurveReader.h"
+#include "RimProject.h"
+#include "RimSummaryCalculationCollection.h"
 
 #include "cafUtils.h"
 
@@ -57,7 +63,7 @@ RimCsvUserData::~RimCsvUserData()
 //--------------------------------------------------------------------------------------------------
 void RimCsvUserData::createSummaryReaderInterface()
 {
-    m_summaryReader = nullptr;
+    m_multiSummaryReader = nullptr;
 
     if ( caf::Utils::fileExists( this->summaryHeaderFilename() ) )
     {
@@ -65,11 +71,15 @@ void RimCsvUserData::createSummaryReaderInterface()
         if ( csvUserData->parse( this->summaryHeaderFilename(), m_parseOptions->parseOptions(), &m_errorText ) )
         {
             m_summaryReader = csvUserData;
+
+            m_multiSummaryReader = new RifMultipleSummaryReaders;
+            m_multiSummaryReader->addReader( m_summaryReader.p() );
+
+            RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
+            m_calculatedSummaryReader                 = new RifCalculatedSummaryCurveReader( calcColl, this );
+
+            m_multiSummaryReader->addReader( m_calculatedSummaryReader.p() );
         }
-    }
-    else
-    {
-        m_summaryReader = nullptr;
     }
 }
 
@@ -78,11 +88,11 @@ void RimCsvUserData::createSummaryReaderInterface()
 //--------------------------------------------------------------------------------------------------
 RifSummaryReaderInterface* RimCsvUserData::summaryReader()
 {
-    if ( m_summaryReader.isNull() )
+    if ( m_multiSummaryReader.isNull() )
     {
         createSummaryReaderInterface();
     }
-    return m_summaryReader.p();
+    return m_multiSummaryReader.p();
 }
 
 //--------------------------------------------------------------------------------------------------

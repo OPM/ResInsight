@@ -24,7 +24,12 @@
 #include "RifColumnBasedUserDataParser.h"
 #include "RifKeywordVectorParser.h"
 #include "RifKeywordVectorUserData.h"
+#include "RifMultipleSummaryReaders.h"
 #include "RifSummaryReaderInterface.h"
+
+#include "RimCalculatedSummaryCurveReader.h"
+#include "RimProject.h"
+#include "RimSummaryCalculationCollection.h"
 
 #include "cafUtils.h"
 
@@ -53,7 +58,8 @@ RimObservedEclipseUserData::~RimObservedEclipseUserData()
 //--------------------------------------------------------------------------------------------------
 void RimObservedEclipseUserData::createSummaryReaderInterface()
 {
-    m_summeryReader = nullptr;
+    m_multiSummaryReader = nullptr;
+    m_summaryReader      = nullptr;
 
     if ( caf::Utils::fileExists( this->summaryHeaderFilename() ) )
     {
@@ -74,7 +80,7 @@ void RimObservedEclipseUserData::createSummaryReaderInterface()
             RifKeywordVectorUserData* keywordVectorUserData = new RifKeywordVectorUserData();
             if ( keywordVectorUserData->parse( fileContents, customWellName() ) )
             {
-                m_summeryReader = keywordVectorUserData;
+                m_summaryReader = keywordVectorUserData;
             }
         }
         else
@@ -82,13 +88,20 @@ void RimObservedEclipseUserData::createSummaryReaderInterface()
             RifColumnBasedUserData* columnBaseUserData = new RifColumnBasedUserData();
             if ( columnBaseUserData->parse( fileContents, &m_errorText ) )
             {
-                m_summeryReader = columnBaseUserData;
+                m_summaryReader = columnBaseUserData;
             }
         }
-    }
-    else
-    {
-        m_summeryReader = nullptr;
+
+        if ( m_summaryReader.notNull() )
+        {
+            m_multiSummaryReader = new RifMultipleSummaryReaders;
+            m_multiSummaryReader->addReader( m_summaryReader.p() );
+
+            RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
+            m_calculatedSummaryReader                 = new RifCalculatedSummaryCurveReader( calcColl, this );
+
+            m_multiSummaryReader->addReader( m_calculatedSummaryReader.p() );
+        }
     }
 }
 
@@ -97,11 +110,11 @@ void RimObservedEclipseUserData::createSummaryReaderInterface()
 //--------------------------------------------------------------------------------------------------
 RifSummaryReaderInterface* RimObservedEclipseUserData::summaryReader()
 {
-    if ( m_summeryReader.isNull() )
+    if ( m_multiSummaryReader.isNull() )
     {
         createSummaryReaderInterface();
     }
-    return m_summeryReader.p();
+    return m_multiSummaryReader.p();
 }
 
 //--------------------------------------------------------------------------------------------------

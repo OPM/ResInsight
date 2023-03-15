@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RiaDateTimeDefines.h"
+#include "RimObservedDataCollection.h"
 
 #include <QString>
 
@@ -32,6 +33,7 @@ class RimSummaryCrossPlotCollection;
 class RimSummaryCaseMainCollection;
 class RimSummaryCase;
 class RimSummaryCaseCollection;
+class RimObservedDataCollection;
 
 class RifEclipseSummaryAddress;
 
@@ -52,6 +54,7 @@ public:
     static RimSummaryCrossPlotCollection* summaryCrossPlotCollection();
     static RimSummaryCaseMainCollection*  summaryCaseMainCollection();
     static RimSummaryMultiPlotCollection* summaryMultiPlotCollection();
+    static RimObservedDataCollection*     observedDataCollection();
 
     static std::vector<RimSummaryCase*> singleTopLevelSummaryCases();
 
