@@ -27,6 +27,8 @@
 
 #include "RifSummaryReaderInterface.h"
 #include "RimDataSourceSteppingTools.h"
+#include "RimObservedDataCollection.h"
+#include "RimObservedSummaryData.h"
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryCalculationCollection.h"
@@ -411,6 +413,15 @@ void RimSummaryCalculation::updateDependentObjects()
         summaryCase->createSummaryReaderInterface();
         summaryCase->createRftReaderInterface();
         summaryCase->refreshMetaData();
+    }
+
+    RimObservedDataCollection* observedDataCollection = RiaSummaryTools::observedDataCollection();
+    auto                       observedData           = observedDataCollection->allObservedSummaryData();
+    for ( auto obs : observedData )
+    {
+        obs->createSummaryReaderInterface();
+        obs->createRftReaderInterface();
+        obs->refreshMetaData();
     }
 
     auto summaryCaseCollections = summaryCaseCollection->summaryCaseCollections();
