@@ -21,6 +21,8 @@
 #include "RiaLogging.h"
 
 #include "RifSeismicZGYReader.h"
+
+#include "RimRegularLegendConfig.h"
 #include "RimStringParameter.h"
 
 #include "RiuMainWindow.h"
@@ -30,7 +32,7 @@
 
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTableViewEditor.h"
-
+#include "cafPdmUiTreeOrdering.h"
 #include "cvfBoundingBox.h"
 
 #include <QValidator>
@@ -57,6 +59,10 @@ RimSeismicData::RimSeismicData()
     CAF_PDM_InitFieldNoDefault( &m_filename, "SeismicFilePath", "File" );
     m_filename.uiCapability()->setUiReadOnly( true );
 
+    CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendDefinition", "Color Legend" );
+    m_legendConfig = new RimRegularLegendConfig();
+    m_legendConfig.uiCapability()->setUiTreeHidden( true );
+
     CAF_PDM_InitFieldNoDefault( &m_metadata, "Metadata", "Metadata" );
     m_metadata.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     m_metadata.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
@@ -72,6 +78,8 @@ RimSeismicData::RimSeismicData()
     setDeletable( true );
 
     m_boundingBox = std::make_shared<cvf::BoundingBox>();
+
+    initColorLegend();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -227,25 +235,36 @@ std::vector<cvf::Vec3d> RimSeismicData::worldOutline() const
 //--------------------------------------------------------------------------------------------------
 void RimSeismicData::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    if ( m_metadata.empty() ) updateMetaData();
+    if ( m_metadata.empty() )
+    {
+        updateMetaData();
+    }
 
-    uiOrdering.add( &m_userDescription );
-    uiOrdering.add( &m_filename );
+    auto genGroup = uiOrdering.addNewGroup( "General" );
+    genGroup->add( &m_userDescription );
+    genGroup->add( &m_filename );
 
-    auto dsGroup = uiOrdering.addNewGroup( "Data Scaling" );
-    dsGroup->add( &m_overrideDataRange );
-
+    auto cmGroup = uiOrdering.addNewGroup( "Color Mapping" );
+    m_legendConfig->defineUiOrderingColorOnly( cmGroup );
+    cmGroup->add( &m_overrideDataRange );
     if ( m_overrideDataRange() )
     {
-        dsGroup->add( &m_maxAbsDataValue );
+        cmGroup->add( &m_maxAbsDataValue );
     }
 
     auto metaGroup = uiOrdering.addNewGroup( "File Information" );
-
     metaGroup->add( &m_metadata );
     metaGroup->setCollapsedByDefault();
 
     uiOrdering.skipRemainingFields();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicData::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= "" */ )
+{
+    uiTreeOrdering.skipRemainingChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -413,6 +432,8 @@ void RimSeismicData::updateDataRange( bool updatePlot )
         m_activeDataRange = std::make_pair( m_fileDataRange.first, m_fileDataRange.second );
     }
 
+    m_legendConfig->setUserDefinedRange( m_activeDataRange.first, m_activeDataRange.second );
+
     if ( updatePlot ) RiuMainWindow::instance()->seismicHistogramPanel()->showHistogram( this );
 }
 
@@ -460,8 +481,9 @@ std::shared_ptr<ZGYAccess::SeismicSliceData> RimSeismicData::sliceData( RiaDefin
     double tmp                  = 0.0;
     float* pValue               = data->values();
     const auto [minVal, maxVal] = dataRangeMinMax();
+    const int nSize             = data->size();
 
-    for ( int i = 0; i < data->size(); i++, pValue++ )
+    for ( int i = 0; i < nSize; i++, pValue++ )
     {
         tmp = *pValue;
         if ( tmp < minVal )
@@ -471,4 +493,23 @@ std::shared_ptr<ZGYAccess::SeismicSliceData> RimSeismicData::sliceData( RiaDefin
     }
 
     return data;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimRegularLegendConfig* RimSeismicData::legendConfig() const
+{
+    return m_legendConfig();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicData::initColorLegend()
+{
+    m_legendConfig->setColorLegend( RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::BLUE_WHITE_RED ) );
+    m_legendConfig->setMappingMode( RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS );
+    m_legendConfig->setRangeMode( RimLegendConfig::RangeModeType::USER_DEFINED );
+    m_legendConfig->setCenterLegendAroundZero( true );
 }

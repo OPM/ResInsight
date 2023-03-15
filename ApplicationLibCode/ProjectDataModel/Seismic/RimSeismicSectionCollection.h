@@ -21,8 +21,12 @@
 
 #include "cafPdmChildArrayField.h"
 
+#include <vector>
+
+class RimRegularLegendConfig;
 class RimSeismicSection;
 class Rim3dView;
+class RiuViewer;
 
 namespace cvf
 {
@@ -59,6 +63,9 @@ public:
                              cvf::ModelBasicList*        model,
                              caf::DisplayCoordTransform* scaleTransform,
                              const cvf::BoundingBox&     boundingBox );
+
+    std::vector<RimRegularLegendConfig*> legendConfigs();
+    void updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer );
 
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;

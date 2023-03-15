@@ -130,6 +130,7 @@ public:
     void            setTickNumberFormat( RiaNumberFormat::NumberFormatType numberFormat );
     void            resetUserDefinedValues();
     void            setCenterLegendAroundZero( bool enable );
+    void            setUserDefinedRange( double minVal, double maxVal );
 
     void disableAllTimeStepsRange( bool doDisable );
 
@@ -170,6 +171,8 @@ public:
     QString valueToText( double value ) const;
 
     void setDefaultConfigForResultName( const QString& resultName, bool useDiscreteLogLevels, bool isCategoryResult );
+
+    void defineUiOrderingColorOnly( caf::PdmUiOrdering* colorGroup );
 
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
