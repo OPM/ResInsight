@@ -124,7 +124,7 @@ public:
     static RifEclipseSummaryAddress blockAddress( const std::string& vectorName, int i, int j, int k, int calculationId = -1 );
     static RifEclipseSummaryAddress
                                     blockLgrAddress( const std::string& vectorName, const std::string& lgrName, int i, int j, int k, int calculationId = -1 );
-    static RifEclipseSummaryAddress importedAddress( const std::string& vectorName );
+    static RifEclipseSummaryAddress importedAddress( const std::string& vectorName, int calculationId = -1 );
     static RifEclipseSummaryAddress ensembleStatisticsAddress( const std::string& vectorName, const std::string& datavectorName );
 
     static std::string generateStringFromAddresses( const std::vector<RifEclipseSummaryAddress>& addressVector,

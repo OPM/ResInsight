@@ -289,7 +289,7 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
                 break;
 
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_IMPORTED:
-                imported->addToSubfolder( QString::fromStdString( address.itemUiText() ), CollectionContentType::IMPORTED, address, caseId, ensembleId );
+                imported->addAddress( address, caseId, ensembleId );
                 break;
 
             default:

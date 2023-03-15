@@ -27,6 +27,8 @@
 
 #include "RifSummaryReaderInterface.h"
 #include "RimDataSourceSteppingTools.h"
+#include "RimObservedDataCollection.h"
+#include "RimObservedSummaryData.h"
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryCalculationCollection.h"
@@ -267,7 +269,8 @@ void RimSummaryCalculation::substituteVariables( std::vector<SummaryCalculationV
         newValue                 = QString::fromStdString( address.blockAsString() );
         isHandledBySteppingTools = true;
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_MISC || category == RifEclipseSummaryAddress::SUMMARY_FIELD )
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_MISC || category == RifEclipseSummaryAddress::SUMMARY_FIELD ||
+              category == RifEclipseSummaryAddress::SUMMARY_IMPORTED )
     {
         // No need to do anything for these types
         return;
@@ -410,6 +413,15 @@ void RimSummaryCalculation::updateDependentObjects()
         summaryCase->createSummaryReaderInterface();
         summaryCase->createRftReaderInterface();
         summaryCase->refreshMetaData();
+    }
+
+    RimObservedDataCollection* observedDataCollection = RiaSummaryTools::observedDataCollection();
+    auto                       observedData           = observedDataCollection->allObservedSummaryData();
+    for ( auto obs : observedData )
+    {
+        obs->createSummaryReaderInterface();
+        obs->createRftReaderInterface();
+        obs->refreshMetaData();
     }
 
     auto summaryCaseCollections = summaryCaseCollection->summaryCaseCollections();
@@ -559,6 +571,10 @@ std::vector<RimSummaryCalculationAddress>
             addresses.push_back( RimSummaryCalculationAddress( RifEclipseSummaryAddress::regionToRegionAddress( name, r1, r2, m_id ) ) );
         }
     }
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_IMPORTED )
+    {
+        addresses.push_back( RimSummaryCalculationAddress( RifEclipseSummaryAddress::importedAddress( name, m_id ) ) );
+    }
 
     return addresses;
 }
@@ -602,6 +618,10 @@ RimSummaryCalculationAddress RimSummaryCalculation::singleAddressesForCategory( 
     else if ( category == RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION )
     {
         return RifEclipseSummaryAddress::regionToRegionAddress( name, address.regionNumber(), address.regionNumber2(), m_id );
+    }
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_IMPORTED )
+    {
+        return RifEclipseSummaryAddress::importedAddress( name, m_id );
     }
 
     return RifEclipseSummaryAddress();
