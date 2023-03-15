@@ -411,11 +411,12 @@ RifEclipseSummaryAddress
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RifEclipseSummaryAddress::importedAddress( const std::string& vectorName )
+RifEclipseSummaryAddress RifEclipseSummaryAddress::importedAddress( const std::string& vectorName, int calculationId )
 {
     RifEclipseSummaryAddress addr;
     addr.m_variableCategory = SUMMARY_IMPORTED;
     addr.m_vectorName       = vectorName;
+    addr.m_id               = calculationId;
     return addr;
 }
 

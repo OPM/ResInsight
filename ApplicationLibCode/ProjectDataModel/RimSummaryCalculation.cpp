@@ -267,7 +267,8 @@ void RimSummaryCalculation::substituteVariables( std::vector<SummaryCalculationV
         newValue                 = QString::fromStdString( address.blockAsString() );
         isHandledBySteppingTools = true;
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_MISC || category == RifEclipseSummaryAddress::SUMMARY_FIELD )
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_MISC || category == RifEclipseSummaryAddress::SUMMARY_FIELD ||
+              category == RifEclipseSummaryAddress::SUMMARY_IMPORTED )
     {
         // No need to do anything for these types
         return;
@@ -559,6 +560,10 @@ std::vector<RimSummaryCalculationAddress>
             addresses.push_back( RimSummaryCalculationAddress( RifEclipseSummaryAddress::regionToRegionAddress( name, r1, r2, m_id ) ) );
         }
     }
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_IMPORTED )
+    {
+        addresses.push_back( RimSummaryCalculationAddress( RifEclipseSummaryAddress::importedAddress( name, m_id ) ) );
+    }
 
     return addresses;
 }
@@ -602,6 +607,10 @@ RimSummaryCalculationAddress RimSummaryCalculation::singleAddressesForCategory( 
     else if ( category == RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION )
     {
         return RifEclipseSummaryAddress::regionToRegionAddress( name, address.regionNumber(), address.regionNumber2(), m_id );
+    }
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_IMPORTED )
+    {
+        return RifEclipseSummaryAddress::importedAddress( name, m_id );
     }
 
     return RifEclipseSummaryAddress();
