@@ -12,18 +12,18 @@
     <title>Build Instructions :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1673509741" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1673509741" rel="stylesheet">
-    <link href="/css/hybrid.css?1673509741" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1673509741" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1673509741" rel="stylesheet">
-    <link href="/css/auto-complete.css?1673509741" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1673509741" rel="stylesheet">
-    <link href="/css/theme.css?1673509741" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1673509741" rel="stylesheet">
+    <link href="/css/nucleus.css?1678870999" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1678870999" rel="stylesheet">
+    <link href="/css/hybrid.css?1678870999" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1678870999" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1678870999" rel="stylesheet">
+    <link href="/css/auto-complete.css?1678870999" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1678870999" rel="stylesheet">
+    <link href="/css/theme.css?1678870999" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1678870999" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1673509741"></script>
+    <script src="/js/jquery-3.3.1.min.js?1678870999"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -245,9 +245,9 @@
  
   
     
-      <li data-nav-id="/getting-started/download-and-install/build-instructions-centos7/" title="Build Instructions CentOS 7" class="dd-item ">
-        <a href="/getting-started/download-and-install/build-instructions-centos7/">
-        Build Instructions CentOS 7
+      <li data-nav-id="/getting-started/download-and-install/build-instructions-ubuntu/" title="Build Instructions Ubuntu" class="dd-item ">
+        <a href="/getting-started/download-and-install/build-instructions-ubuntu/">
+        Build Instructions Ubuntu
         
         </a>
     </li>
@@ -2616,7 +2616,7 @@ if (!doNotTrack) {
 <p>On some configurations you will be asked to specify the location of Qt. Preferred method is to add Qt path to CMake variable <strong>CMAKE_PREFIX_PATH</strong></p>
 <p>Example for Windows : <code>CMAKE_PREFIX_PATH=F:/Qt/5.15.2/msvc2019_64</code></p>
 <h3 id="cmake">CMake</h3>
-<p><a href="https://cmake.org/download/">CMake</a> version 3.12 or later is supported.</p>
+<p><a href="https://cmake.org/download/">CMake</a> version 3.15 or later is supported.</p>
 <h2 id="build-instructions">Build Instructions</h2>
 <p>The ResInsight build may be configured in different ways, with optional support for Octave plugins, 
 ABAQUS ODB API, HDF5, Pyton, and OpenMP. This is configured using options in CMake.</p>
@@ -2632,25 +2632,9 @@ This makes it easier to see all of the options for ResInsight.</p>
 <li>Run the compiler using the generated makefiles or solution file/project files to build ResInsight</li>
 </ul>
 <h3 id="windows">Windows</h3>
-<p>ResInsight has been verified to build and run on Windows 10 using Microsoft Visual Studio 2017/2019. Typical usage on Windows is to follow the build instructions above, and then open the generated solution file in Visual Studio to build the application.</p>
+<p>ResInsight has been verified to build and run on Windows 10/11 using Microsoft Visual Studio 2019/2022. Typical usage on Windows is to follow the build instructions above, and then open the generated solution file in Visual Studio to build the application.</p>
 <h3 id="linux">Linux</h3>
-<p>Typical usage is to follow the build instructions above to build the makefiles. Then go to the build directory, and run:</p>
-<ul>
-<li>make</li>
-<li>make install</li>
-</ul>
-<p>To build from the command line without using the CMake GUI:</p>
-<ul>
-<li>mkdir ResInsight_build</li>
-<li>cd ResInsight_build</li>
-<li>&hellip;</li>
-<li>(set CMake options)</li>
-<li>&hellip;</li>
-<li>cmake &lt; path to ResInsight source folder &gt;</li>
-<li>make</li>
-<li>make install</li>
-</ul>
-<p>You will find the ResInsight binary under the Install directory in your build directory.</p>
+<p>For a reference build instruction for Ubuntu, see <a href="/getting-started/download-and-install/build-instructions-ubuntu/">Reference installation description for Ubuntu</a></p>
 <h3 id="cmake-options-for-resinsight">CMake Options for ResInsight</h3>
 <table>
 <thead>
@@ -2780,7 +2764,7 @@ This will not break the build or compilation of ResInsight.</p>
 <p>ResInsight has been verified to build and run with Octave versions 3.4.3, 3.8.1, and 4.0.0 on RedHat linux, and 4.0.0 on Windows.</p>
 <h5 id="octave-dependencies-for-debian-based-distributions">Octave Dependencies for Debian Based Distributions</h5>
 <p>The following command line can be used as a starting point to install required libraries
-<code>sudo apt-get install git cmake build-essential octave liboctave-dev qtbase5-dev qtscript5-dev</code></p>
+<code>sudo apt-get install git cmake build-essential octave liboctave-dev qtbase5-dev qtscript5-dev libqt5svg5-dev qtbase5-private-dev</code></p>
 <h4 id="odb-support">ODB support</h4>
 <p>ResInsight can be built with support for ABAQUS ODB files. This requires an installation of the ABAQUS ODB API 
 from Simulia on the build computer. The path to the ABAQUS ODB API folder containing header files and library 
@@ -4726,7 +4710,7 @@ ResInsight has been built and tested with ABAQUS ODB API version 6.14-3 on Windo
 			<a class="nav nav-prev" href="/getting-started/download-and-install/windows-installation/" title="Windows Installation"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/getting-started/download-and-install/build-instructions-centos7/" title="Build Instructions CentOS 7" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/getting-started/download-and-install/build-instructions-ubuntu/" title="Build Instructions Ubuntu" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -4736,19 +4720,19 @@ ResInsight has been built and tested with ABAQUS ODB API version 6.14-3 on Windo
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1673509741"></script>
-    <script src="/js/perfect-scrollbar.min.js?1673509741"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1673509741"></script>
-    <script src="/js/jquery.sticky.js?1673509741"></script>
-    <script src="/js/featherlight.min.js?1673509741"></script>
-    <script src="/js/highlight.pack.js?1673509741"></script>
+    <script src="/js/clipboard.min.js?1678870999"></script>
+    <script src="/js/perfect-scrollbar.min.js?1678870999"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1678870999"></script>
+    <script src="/js/jquery.sticky.js?1678870999"></script>
+    <script src="/js/featherlight.min.js?1678870999"></script>
+    <script src="/js/highlight.pack.js?1678870999"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1673509741"></script>
-    <script src="/js/learn.js?1673509741"></script>
-    <script src="/js/hugo-learn.js?1673509741"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1678870999"></script>
+    <script src="/js/learn.js?1678870999"></script>
+    <script src="/js/hugo-learn.js?1678870999"></script>
 
-    <link href="/mermaid/mermaid.css?1673509741" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1673509741"></script>
+    <link href="/mermaid/mermaid.css?1678870999" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1678870999"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

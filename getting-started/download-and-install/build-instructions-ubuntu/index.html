@@ -9,21 +9,21 @@
 
     <link rel="icon" href="/images/favicon.png" type="image/png">
 
-    <title>Build Instructions CentOS 7 :: ResInsight</title>
+    <title>Build Instructions Ubuntu :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1673509741" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1673509741" rel="stylesheet">
-    <link href="/css/hybrid.css?1673509741" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1673509741" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1673509741" rel="stylesheet">
-    <link href="/css/auto-complete.css?1673509741" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1673509741" rel="stylesheet">
-    <link href="/css/theme.css?1673509741" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1673509741" rel="stylesheet">
+    <link href="/css/nucleus.css?1678870999" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1678870999" rel="stylesheet">
+    <link href="/css/hybrid.css?1678870999" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1678870999" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1678870999" rel="stylesheet">
+    <link href="/css/auto-complete.css?1678870999" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1678870999" rel="stylesheet">
+    <link href="/css/theme.css?1678870999" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1678870999" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1673509741"></script>
+    <script src="/js/jquery-3.3.1.min.js?1678870999"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -62,7 +62,7 @@
 </script>
 
   </head>
-  <body class="" data-url="/getting-started/download-and-install/build-instructions-centos7/">
+  <body class="" data-url="/getting-started/download-and-install/build-instructions-ubuntu/">
     <nav id="sidebar" class="">
 
 
@@ -245,9 +245,9 @@
  
   
     
-      <li data-nav-id="/getting-started/download-and-install/build-instructions-centos7/" title="Build Instructions CentOS 7" class="dd-item active">
-        <a href="/getting-started/download-and-install/build-instructions-centos7/">
-        Build Instructions CentOS 7
+      <li data-nav-id="/getting-started/download-and-install/build-instructions-ubuntu/" title="Build Instructions Ubuntu" class="dd-item active">
+        <a href="/getting-started/download-and-install/build-instructions-ubuntu/">
+        Build Instructions Ubuntu
         
         </a>
     </li>
@@ -2537,7 +2537,7 @@ if (!doNotTrack) {
             
           
           
-            <a href='/'>ResInsight</a> > <a href='/getting-started/'>Getting Started</a> > <a href='/getting-started/download-and-install/'>Download and Install</a> > Build Instructions CentOS 7
+            <a href='/'>ResInsight</a> > <a href='/getting-started/'>Getting Started</a> > <a href='/getting-started/download-and-install/'>Download and Install</a> > Build Instructions Ubuntu
           
          
           
@@ -2558,12 +2558,9 @@ if (!doNotTrack) {
       <ul>
         <li><a href="#dependencies-and-prerequisites">Dependencies and Prerequisites</a>
           <ul>
-            <li><a href="#reference-project">Reference project</a></li>
             <li><a href="#configuration-and-build">Configuration and build</a></li>
-            <li><a href="#gcc">gcc</a></li>
-            <li><a href="#git">git</a></li>
             <li><a href="#clone-and-update-sub-modules">Clone and update sub modules</a></li>
-            <li><a href="#build-and-install-grpc-using-vcpkg">Build and install grpc using vcpkg</a></li>
+            <li><a href="#build-and-install-required-dependencies-using-vcpkg">Build and install required dependencies using vcpkg</a></li>
             <li><a href="#build-resinsight">Build ResInsight</a></li>
             <li><a href="#other-build-descriptions">Other build descriptions</a></li>
           </ul>
@@ -2587,7 +2584,7 @@ if (!doNotTrack) {
           
             <h1>
               
-              Build Instructions CentOS 7
+              Build Instructions Ubuntu
             </h1>
           
 
@@ -2596,13 +2593,6 @@ if (!doNotTrack) {
 
 
 <h2 id="dependencies-and-prerequisites">Dependencies and Prerequisites</h2>
-<p><strong>vcpkg</strong> can be used to install <strong>grpc</strong> for C++. This method is cross platform, and can be easier to use than directly installing <strong>grpc</strong> and dependencies directly from <strong>grpc</strong> source code. The source code for <strong>vcpkg</strong> is avaialable as a Git sub module in the folder &lsquo;vcpkg&rsquo;. Python3 is required.</p>
-<p>vcpkg requires relatively new versions of git and compiler.</p>
-<p><a href="https://github.com/Microsoft/vcpkg">vcpkg</a></p>
-<p><a href="https://grpc.io/docs/quickstart/cpp/">grpc quickstart</a></p>
-<h3 id="reference-project">Reference project</h3>
-<p>A workflow file is used to build using CentOS 7 on GitHub actions. A blank Centos7 Docker image is used, and the required dependencies are installed.</p>
-<p><a href="https://github.com/OPM/ResInsight/blob/dev/.github/workflows/">Link to workflows</a></p>
 <h3 id="configuration-and-build">Configuration and build</h3>
 <table>
 <thead>
@@ -2626,41 +2616,40 @@ if (!doNotTrack) {
 </tr>
 </tbody>
 </table>
-<h3 id="gcc">gcc</h3>
-<pre><code>yum install -y centos-release-scl
-yum-config-manager --enable rhel-server-rhscl-7-rpms
-yum install -y devtoolset-10
+<p>Update apt installer</p>
+<pre><code>sudo apt update
 </code></pre>
-<h3 id="git">git</h3>
-<pre><code>yum install -y https://repo.ius.io/ius-release-el7.rpm
-yum install -y git222
+<p>Install GCC and related tools</p>
+<pre><code>sudo apt install build-essential
+sudo apt install curl zip unzip tar
+</code></pre>
+<p>Install Qt</p>
+<pre><code>sudo apt install -y qtbase5-dev libqt5svg5-dev qtbase5-private-dev
 </code></pre>
 <h3 id="clone-and-update-sub-modules">Clone and update sub modules</h3>
-<p>Init of submodules is required to get the source code for vcpkg</p>
 <pre><code>git clone git://github.com/OPM/ResInsight.git ResInsight
 cd ResInsight
 git submodule update --init
 </code></pre>
-<h3 id="build-and-install-grpc-using-vcpkg">Build and install grpc using vcpkg</h3>
-<p>vcpkg is located in the folder vcpkg</p>
-<pre><code>vcpkg/bootstrap-vcpkg.sh 
-vcpkg/vcpkg install grpc
+<h3 id="build-and-install-required-dependencies-using-vcpkg">Build and install required dependencies using vcpkg</h3>
+<p>vcpkg is located in the folder ThirdParty/vcpkg</p>
+<pre><code>ThirdParty/vcpkg/bootstrap-vcpkg.sh 
+ThirdParty/vcpkg/vcpkg install grpc boost-filesystem boost-spirit eigen3
 </code></pre>
 <h3 id="build-resinsight">Build ResInsight</h3>
 <pre><code>mkdir cmakebuild
 cd cmakebuild
-cmake3 \
--DRESINSIGHT_QT5_BUNDLE_LIBRARIES=ON \
+cmake \
 -DRESINSIGHT_ENABLE_GRPC=true \
 -DVCPKG_TARGET_TRIPLET=x64-linux \
--DCMAKE_TOOLCHAIN_FILE=../vcpkg/scripts/buildsystems/vcpkg.cmake \
+-DCMAKE_TOOLCHAIN_FILE=..ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake \
 -DRESINSIGHT_GRPC_PYTHON_EXECUTABLE=python \
 ..
 
 make -j8
 </code></pre>
 <h3 id="other-build-descriptions">Other build descriptions</h3>
-<p><a href="https://github.com/OPM/ResInsight/blob/dev/GRPC_install_instructions.txt">Build description for Windows and Linux</a></p>
+<p><a href="https://github.com/OPM/ResInsight/blob/dev/.github/workflows/centos7.yml">Link to workflow for CentOS 7</a></p>
 
 
 <footer class="footline">
@@ -4607,19 +4596,19 @@ make -j8
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1673509741"></script>
-    <script src="/js/perfect-scrollbar.min.js?1673509741"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1673509741"></script>
-    <script src="/js/jquery.sticky.js?1673509741"></script>
-    <script src="/js/featherlight.min.js?1673509741"></script>
-    <script src="/js/highlight.pack.js?1673509741"></script>
+    <script src="/js/clipboard.min.js?1678870999"></script>
+    <script src="/js/perfect-scrollbar.min.js?1678870999"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1678870999"></script>
+    <script src="/js/jquery.sticky.js?1678870999"></script>
+    <script src="/js/featherlight.min.js?1678870999"></script>
+    <script src="/js/highlight.pack.js?1678870999"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1673509741"></script>
-    <script src="/js/learn.js?1673509741"></script>
-    <script src="/js/hugo-learn.js?1673509741"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1678870999"></script>
+    <script src="/js/learn.js?1678870999"></script>
+    <script src="/js/hugo-learn.js?1678870999"></script>
 
-    <link href="/mermaid/mermaid.css?1673509741" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1673509741"></script>
+    <link href="/mermaid/mermaid.css?1678870999" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1678870999"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>
