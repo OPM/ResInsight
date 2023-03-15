@@ -109,6 +109,9 @@ void RivSeismicSectionPartMgr::appendGeometryPartsToModel( cvf::ModelBasicList* 
 cvf::ref<cvf::Part> RivSeismicSectionPartMgr::createSingleTexturedQuadPart( const cvf::Vec3dArray&       cornerPoints,
                                                                             ZGYAccess::SeismicSliceData* data )
 {
+    cvf::ref<cvf::Part> part = new cvf::Part;
+    if ( data->isEmpty() ) return part;
+
     cvf::ref<cvf::DrawableGeo> geo = createXYPlaneQuadGeoWithTexCoords( cornerPoints );
 
     cvf::ref<cvf::TextureImage> image = createImageFromData( data );
@@ -127,7 +130,6 @@ cvf::ref<cvf::Part> RivSeismicSectionPartMgr::createSingleTexturedQuadPart( cons
     eff->setRenderState( textureBindings.p() );
     eff->setShaderProgram( m_textureShaderProg.p() );
 
-    cvf::ref<cvf::Part> part = new cvf::Part;
     part->setDrawable( geo.p() );
     part->setEffect( eff.p() );
 
@@ -183,10 +185,16 @@ cvf::TextureImage* RivSeismicSectionPartMgr::createImageFromData( ZGYAccess::Sei
     cvf::TextureImage* textureImage = new cvf::TextureImage();
     textureImage->allocate( data->width(), data->depth() );
 
-    auto legend = m_section->legendConfig();
-    auto mapper = legend->scalarMapper();
+    auto   legend = m_section->legendConfig();
+    float* pData  = data->values();
 
-    float* pData = data->values();
+    if ( ( legend == nullptr ) || ( pData == nullptr ) )
+    {
+        textureImage->fill( cvf::Color4ub( 0, 0, 0, 0 ) );
+        return textureImage;
+    }
+
+    auto mapper = legend->scalarMapper();
 
     for ( int i = 0; i < data->width(); i++ )
     {

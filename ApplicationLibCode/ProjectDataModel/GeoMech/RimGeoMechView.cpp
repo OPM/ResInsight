@@ -45,6 +45,7 @@
 #include "RimIntersectionResultDefinition.h"
 #include "RimIntersectionResultsDefinitionCollection.h"
 #include "RimRegularLegendConfig.h"
+#include "RimSeismicSection.h"
 #include "RimSeismicSectionCollection.h"
 #include "RimSurfaceInViewCollection.h"
 #include "RimTensorResults.h"
@@ -600,6 +601,11 @@ void RimGeoMechView::onUpdateLegends()
         {
             m_surfaceCollection->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(), isUsingOverrideViewer() );
         }
+
+        if ( m_seismicSectionCollection->isChecked() )
+        {
+            m_seismicSectionCollection->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(), isUsingOverrideViewer() );
+        }
     }
 }
 
@@ -711,6 +717,11 @@ std::vector<RimLegendConfig*> RimGeoMechView::legendConfigs() const
         {
             absLegendConfigs.push_back( legendConfig );
         }
+    }
+
+    for ( auto section : seismicSectionCollection()->seismicSections() )
+    {
+        absLegendConfigs.push_back( section->legendConfig() );
     }
 
     absLegendConfigs.erase( std::remove( absLegendConfigs.begin(), absLegendConfigs.end(), nullptr ), absLegendConfigs.end() );

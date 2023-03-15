@@ -587,6 +587,17 @@ void RimRegularLegendConfig::setTickNumberFormat( RiaNumberFormat::NumberFormatT
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimRegularLegendConfig::setUserDefinedRange( double minVal, double maxVal )
+{
+    m_userDefinedMinValue = minVal;
+    m_userDefinedMaxValue = maxVal;
+    updateLegend();
+    sendChangedSignal( &m_userDefinedMaxValue );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimRegularLegendConfig::resetUserDefinedValues()
 {
     m_resetUserDefinedValues = true;
@@ -1251,6 +1262,15 @@ void RimRegularLegendConfig::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     }
 
     updateFieldVisibility();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRegularLegendConfig::defineUiOrderingColorOnly( caf::PdmUiOrdering* colorGroup )
+{
+    colorGroup->add( &m_colorLegend, { true, 2, 1 } );
+    colorGroup->add( &m_selectColorLegendButton, { false, 1, 0 } );
 }
 
 //--------------------------------------------------------------------------------------------------

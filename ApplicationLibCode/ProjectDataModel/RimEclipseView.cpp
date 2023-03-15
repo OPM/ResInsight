@@ -71,6 +71,7 @@
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimSeismicSection.h"
 #include "RimSeismicSectionCollection.h"
 #include "RimSimWellFracture.h"
 #include "RimSimWellInView.h"
@@ -1477,6 +1478,11 @@ void RimEclipseView::onUpdateLegends()
         m_surfaceCollection->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(), isUsingOverrideViewer() );
     }
 
+    if ( m_seismicSectionCollection->isChecked() )
+    {
+        m_seismicSectionCollection->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(), isUsingOverrideViewer() );
+    }
+
     if ( m_streamlineCollection )
     {
         m_streamlineCollection->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(), isUsingOverrideViewer() );
@@ -2252,6 +2258,11 @@ std::vector<RimLegendConfig*> RimEclipseView::legendConfigs() const
         {
             absLegends.push_back( legendConfig );
         }
+    }
+
+    for ( auto section : seismicSectionCollection()->seismicSections() )
+    {
+        absLegends.push_back( section->legendConfig() );
     }
 
     absLegends.erase( std::remove( absLegends.begin(), absLegends.end(), nullptr ), absLegends.end() );

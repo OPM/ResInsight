@@ -20,6 +20,7 @@
 #include "RiaSeismicDefines.h"
 
 #include "cafPdmChildArrayField.h"
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
@@ -31,6 +32,7 @@
 #include <utility>
 
 class RimGenericParameter;
+class RimRegularLegendConfig;
 class RifSeismicZGYReader;
 
 namespace cvf
@@ -82,10 +84,13 @@ public:
 
     std::pair<double, double> dataRangeMinMax() const;
 
+    RimRegularLegendConfig* legendConfig() const;
+
 protected:
     void                 initAfterRead() override;
     caf::PdmFieldHandle* userDescriptionField() override;
     void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                 defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
@@ -95,11 +100,13 @@ private:
     void updateDataRange( bool updatePlot );
     bool openFileIfNotOpen();
     void logError( QString msg );
+    void initColorLegend();
 
 private:
     caf::PdmField<QString>                        m_filename;
     caf::PdmField<QString>                        m_userDescription;
     caf::PdmChildArrayField<RimGenericParameter*> m_metadata;
+    caf::PdmChildField<RimRegularLegendConfig*>   m_legendConfig;
 
     caf::PdmField<bool>   m_overrideDataRange;
     caf::PdmField<double> m_maxAbsDataValue;

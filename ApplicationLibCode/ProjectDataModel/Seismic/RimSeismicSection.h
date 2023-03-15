@@ -19,11 +19,11 @@
 
 #include "RimCheckableNamedObject.h"
 
+#include "RimLegendConfigChangeType.h"
 #include "RimPolylinePickerInterface.h"
 #include "RimPolylinesDataInterface.h"
 
 #include "cafPdmChildArrayField.h"
-#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfVec3d.h"
@@ -99,6 +99,8 @@ protected:
 private:
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
+    void onLegendConfigChanged( const caf::SignalEmitter* emitter, RimLegendConfigChangeType changeType );
+
     void initSliceRanges();
 
     QPixmap getImage();
@@ -111,7 +113,6 @@ private:
     caf::PdmChildArrayField<RimPolylineTarget*>   m_targets;
     caf::PdmField<int>                            m_lineThickness;
     caf::PdmField<cvf::Color3f>                   m_lineColor;
-    caf::PdmChildField<RimRegularLegendConfig*>   m_legendConfig;
     caf::PdmField<caf::AppEnum<CrossSectionEnum>> m_type;
 
     caf::PdmField<bool> m_showImage;

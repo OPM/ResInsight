@@ -18,7 +18,11 @@
 
 #include "RimSeismicSectionCollection.h"
 
+#include "RiuViewer.h"
+
 #include "Rim3dView.h"
+#include "RimRegularLegendConfig.h"
+#include "RimSeismicData.h"
 #include "RimSeismicSection.h"
 
 #include "RivSeismicSectionPartMgr.h"
@@ -165,5 +169,60 @@ void RimSeismicSectionCollection::fieldChangedByUi( const caf::PdmFieldHandle* c
         Rim3dView* view = nullptr;
         firstAncestorOrThisOfType( view );
         if ( view ) view->scheduleCreateDisplayModelAndRedraw();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimRegularLegendConfig*> RimSeismicSectionCollection::legendConfigs()
+{
+    std::vector<RimRegularLegendConfig*> retVals;
+
+    std::set<RimSeismicData*> usedSeisData;
+
+    for ( auto& section : m_seismicSections )
+    {
+        auto seisData = section->seismicData();
+
+        if ( usedSeisData.contains( seisData ) ) continue;
+
+        retVals.push_back( seisData->legendConfig() );
+        usedSeisData.insert( seisData );
+    }
+
+    return retVals;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicSectionCollection::updateLegendRangesTextAndVisibility( RiuViewer* nativeOrOverrideViewer, bool isUsingOverrideViewer )
+{
+    for ( auto& section : m_seismicSections )
+    {
+        if ( section->legendConfig() )
+        {
+            auto legendConfig = section->legendConfig();
+
+            QString subtitle;
+            if ( section->seismicData() )
+            {
+                subtitle          = section->seismicData()->userDescription();
+                const int maxChar = 20;
+                if ( subtitle.size() > maxChar )
+                {
+                    subtitle = subtitle.left( maxChar - 2 );
+                    subtitle += "..";
+                }
+            }
+
+            legendConfig->setTitle( QString( "Seismic: \n" ) + subtitle );
+
+            if ( section->isChecked() && legendConfig->showLegend() )
+            {
+                nativeOrOverrideViewer->addColorLegendToBottomLeftCorner( legendConfig->titledOverlayFrame(), isUsingOverrideViewer );
+            }
+        }
     }
 }

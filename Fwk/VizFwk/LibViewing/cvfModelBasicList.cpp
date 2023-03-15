@@ -211,7 +211,7 @@ bool ModelBasicList::partVisible(cvf::Part* part, const Camera* camera, const Cu
         if (cullSettings && camera && cullSettings->isViewFrustumCullingEnabled())
         {
             const BoundingBox& bb = part->boundingBox();
-            CVF_ASSERT(bb.isValid());
+            if (!bb.isValid()) return false;
 
             if (camera->frustum().isOutside(bb))
             {
