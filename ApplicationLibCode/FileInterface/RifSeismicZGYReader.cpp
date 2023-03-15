@@ -239,8 +239,7 @@ std::shared_ptr<ZGYAccess::SeismicSliceData> RifSeismicZGYReader::slice( RiaDefi
             case RiaDefines::SeismicSliceDirection::XLINE:
                 return m_reader->xlineSlice( sliceIndex );
             case RiaDefines::SeismicSliceDirection::DEPTH:
-                // return m_reader->zSlice( sliceIndex );
-                break;
+                return m_reader->zSlice( sliceIndex );
             default:
                 break;
         }

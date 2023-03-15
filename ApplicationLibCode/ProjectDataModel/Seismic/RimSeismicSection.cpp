@@ -257,8 +257,8 @@ void RimSeismicSection::defineEditorAttribute( const caf::PdmFieldHandle* field,
                 }
                 else if ( field == &m_depthIndex )
                 {
-                    minVal  = std::abs( m_seismicData()->zMin() );
-                    maxVal  = std::abs( m_seismicData()->zMax() );
+                    minVal  = m_seismicData()->zMin();
+                    maxVal  = m_seismicData()->zMax();
                     stepVal = m_seismicData()->zStep();
                 }
                 sliderAttrib->m_maximum = maxVal;
@@ -493,10 +493,10 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection() const
 
         cvf::Vec3dArray points;
         points.resize( 4 );
-        points[0] = m_seismicData->convertToWorldCoords( ilStart, xlStart, zmin );
-        points[1] = m_seismicData->convertToWorldCoords( ilStart, xlStop, zmin );
-        points[2] = m_seismicData->convertToWorldCoords( ilStart, xlStop, zmax );
-        points[3] = m_seismicData->convertToWorldCoords( ilStart, xlStart, zmax );
+        points[0] = m_seismicData->convertToWorldCoords( ilStart, xlStart, -zmax );
+        points[1] = m_seismicData->convertToWorldCoords( ilStart, xlStop, -zmax );
+        points[2] = m_seismicData->convertToWorldCoords( ilStart, xlStop, -zmin );
+        points[3] = m_seismicData->convertToWorldCoords( ilStart, xlStart, -zmin );
 
         auto seismic = m_seismicData->sliceData( RiaDefines::SeismicSliceDirection::INLINE, ilStart );
         tex->addSection( points, seismic );
@@ -510,16 +510,36 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection() const
 
         cvf::Vec3dArray points;
         points.resize( 4 );
-        points[0] = m_seismicData->convertToWorldCoords( ilStart, xlStart, zmin );
-        points[1] = m_seismicData->convertToWorldCoords( ilStop, xlStart, zmin );
-        points[2] = m_seismicData->convertToWorldCoords( ilStop, xlStart, zmax );
-        points[3] = m_seismicData->convertToWorldCoords( ilStart, xlStart, zmax );
+        points[0] = m_seismicData->convertToWorldCoords( ilStart, xlStart, -zmax );
+        points[1] = m_seismicData->convertToWorldCoords( ilStop, xlStart, -zmax );
+        points[2] = m_seismicData->convertToWorldCoords( ilStop, xlStart, -zmin );
+        points[3] = m_seismicData->convertToWorldCoords( ilStart, xlStart, -zmin );
 
         auto seismic = m_seismicData->sliceData( RiaDefines::SeismicSliceDirection::XLINE, xlStart );
         tex->addSection( points, seismic );
     }
     else if ( m_type() == CrossSectionEnum::CS_DEPTHSLICE )
     {
+        int ilStart = m_seismicData->inlineMin();
+        int ilStop  = m_seismicData->inlineMax();
+
+        int xlStart = m_seismicData->xlineMin();
+        int xlStop  = m_seismicData->xlineMax();
+
+        int zIndex = m_depthIndex();
+
+        cvf::Vec3dArray points;
+        points.resize( 4 );
+        points[3] = m_seismicData->convertToWorldCoords( ilStart, xlStart, zIndex );
+        points[2] = m_seismicData->convertToWorldCoords( ilStop, xlStart, zIndex );
+        points[1] = m_seismicData->convertToWorldCoords( ilStop, xlStop, zIndex );
+        points[0] = m_seismicData->convertToWorldCoords( ilStart, xlStop, zIndex );
+
+        for ( int i = 0; i < 4; i++ )
+            points[i].z() = -points[i].z();
+
+        auto seismic = m_seismicData->sliceData( RiaDefines::SeismicSliceDirection::DEPTH, zIndex );
+        tex->addSection( points, seismic );
     }
 
     return tex;

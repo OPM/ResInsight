@@ -305,7 +305,7 @@ cvf::BoundingBox* RimSeismicData::boundingBox() const
 //--------------------------------------------------------------------------------------------------
 double RimSeismicData::zMin() const
 {
-    return m_boundingBox.get()->min().z();
+    return std::abs( m_boundingBox.get()->max().z() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -313,7 +313,7 @@ double RimSeismicData::zMin() const
 //--------------------------------------------------------------------------------------------------
 double RimSeismicData::zMax() const
 {
-    return m_boundingBox.get()->max().z();
+    return std::abs( m_boundingBox.get()->min().z() );
 }
 
 //--------------------------------------------------------------------------------------------------
