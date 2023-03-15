@@ -17,11 +17,12 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimEnsembleStatistics.h"
-#include "RimEnsembleCurveSetInterface.h"
 
 #include "RiaColorTools.h"
 
 #include "RimEnsembleCurveSet.h"
+#include "RimEnsembleCurveSetInterface.h"
+#include "RimProject.h"
 
 CAF_PDM_SOURCE_INIT( RimEnsembleStatistics, "RimEnsembleStatistics" );
 
@@ -52,6 +53,12 @@ RimEnsembleStatistics::RimEnsembleStatistics( RimEnsembleCurveSetInterface* pare
     m_warningLabel.xmlCapability()->disableIO();
     m_warningLabel.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_warningLabel.uiCapability()->setUiReadOnly( true );
+
+    if ( RimProject::current() && RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2023.1.0" ) )
+    {
+        // Set to always show curves before the version this feature was introduced in
+        m_showStatisticsCurveLegends = true;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

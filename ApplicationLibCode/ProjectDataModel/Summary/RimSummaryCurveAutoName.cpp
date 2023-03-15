@@ -59,6 +59,13 @@ RimSummaryCurveAutoName::RimSummaryCurveAutoName()
     CAF_PDM_InitField(&m_caseName,          "CaseName",             true,   "Case/Ensemble Name");
 
     // clang-format on
+
+    if ( RimProject::current() && RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2023.1.0" ) )
+    {
+        // Make sure that behavior in older projects behave as before
+        m_longVectorName = false;
+        m_vectorName     = true;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
