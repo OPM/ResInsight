@@ -343,6 +343,10 @@ void RimSeismicSection::updateVisualization()
 void RimSeismicSection::initAfterRead()
 {
     resolveReferencesRecursively();
+    if ( m_seismicData != nullptr )
+    {
+        m_seismicData->legendConfig()->changed.connect( this, &RimSeismicSection::onLegendConfigChanged );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -460,9 +464,6 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection() const
 
     double zmin = m_seismicData->zMin();
     double zmax = m_seismicData->zMax();
-    // double ztep = m_seismicData->zStep();
-
-    // double height = static_cast<int>( ( zmax - zmin ) / ztep );
 
     if ( m_type() == CrossSectionEnum::CS_POLYLINE )
     {
@@ -473,15 +474,13 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection() const
 
             cvf::Vec3dArray points;
             points.resize( 4 );
-            points[0].set( p1.x(), p1.y(), zmin );
-            points[1].set( p2.x(), p2.y(), zmin );
-            points[2].set( p2.x(), p2.y(), zmax );
-            points[3].set( p1.x(), p1.y(), zmax );
+            points[0].set( p1.x(), p1.y(), -zmax );
+            points[1].set( p2.x(), p2.y(), -zmax );
+            points[2].set( p2.x(), p2.y(), -zmin );
+            points[3].set( p1.x(), p1.y(), -zmin );
 
-            // cvf::TextureImage* textureImage = new cvf::TextureImage();
-            // textureImage->allocate( 100, height );
-            // textureImage->fill( cvf::Color4ub( 255, 255, 255, 128 ) );
-            // tex->addSection( points, textureImage );
+            auto seismic = m_seismicData->sliceData( p1.x(), p1.y(), p2.x(), p2.y() );
+            tex->addSection( points, seismic );
         }
     }
     else if ( m_type() == CrossSectionEnum::CS_INLINE )

@@ -81,6 +81,7 @@ public:
     cvf::Vec3d convertToWorldCoords( int iLine, int xLine, double depth );
 
     std::shared_ptr<ZGYAccess::SeismicSliceData> sliceData( RiaDefines::SeismicSliceDirection direction, int sliceNumber );
+    std::shared_ptr<ZGYAccess::SeismicSliceData> sliceData( double worldX1, double worldY1, double worldX2, double worldY2 );
 
     std::pair<double, double> dataRangeMinMax() const;
 
@@ -101,6 +102,9 @@ private:
     bool openFileIfNotOpen();
     void logError( QString msg );
     void initColorLegend();
+
+    int toInlineIndex( int inLine ) const;
+    int toXlineIndex( int xLine ) const;
 
 private:
     caf::PdmField<QString>                        m_filename;

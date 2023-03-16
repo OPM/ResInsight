@@ -190,6 +190,16 @@ double RifSeismicZGYReader::depthStep()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RifSeismicZGYReader::depthSize()
+{
+    if ( !isOpen() ) return 0;
+
+    return m_reader->zSize();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::Vec3i RifSeismicZGYReader::inlineMinMaxStep()
 {
     if ( !isOpen() ) return { 0, 0, 0 };
@@ -228,6 +238,16 @@ cvf::Vec3d RifSeismicZGYReader::convertToWorldCoords( int iLine, int xLine, doub
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::pair<int, int> RifSeismicZGYReader::convertToInlineXline( double worldx, double worldy )
+{
+    if ( !isOpen() ) return { 0, 0 };
+
+    return m_reader->toInlineXline( worldx, worldy );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::shared_ptr<ZGYAccess::SeismicSliceData> RifSeismicZGYReader::slice( RiaDefines::SeismicSliceDirection direction, int sliceIndex )
 {
     if ( isOpen() )
@@ -244,5 +264,15 @@ std::shared_ptr<ZGYAccess::SeismicSliceData> RifSeismicZGYReader::slice( RiaDefi
                 break;
         }
     }
+    return nullptr;
+}
+
+std::shared_ptr<ZGYAccess::SeismicSliceData> RifSeismicZGYReader::trace( int inlineIndex, int xlineIndex )
+{
+    if ( isOpen() )
+    {
+        return m_reader->zTrace( inlineIndex, xlineIndex );
+    }
+
     return nullptr;
 }

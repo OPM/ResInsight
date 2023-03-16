@@ -375,6 +375,28 @@ int RimSeismicData::xlineStep() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RimSeismicData::toInlineIndex( int inLine ) const
+{
+    int iIndex = inLine - inlineMin();
+    iIndex /= inlineStep();
+
+    return iIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimSeismicData::toXlineIndex( int xLine ) const
+{
+    int xIndex = xLine - xlineMin();
+    xIndex /= xlineStep();
+
+    return xIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<double> RimSeismicData::histogramXvalues() const
 {
     return m_clippedHistogramXvalues;
@@ -512,4 +534,91 @@ void RimSeismicData::initColorLegend()
     m_legendConfig->setMappingMode( RimRegularLegendConfig::MappingType::LINEAR_CONTINUOUS );
     m_legendConfig->setRangeMode( RimLegendConfig::RangeModeType::USER_DEFINED );
     m_legendConfig->setCenterLegendAroundZero( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::shared_ptr<ZGYAccess::SeismicSliceData> RimSeismicData::sliceData( double worldX1, double worldY1, double worldX2, double worldY2 )
+{
+    if ( !openFileIfNotOpen() ) return nullptr;
+
+    auto [startInline, startXline] = m_filereader->convertToInlineXline( worldX1, worldY1 );
+    auto [stopInline, stopXline]   = m_filereader->convertToInlineXline( worldX2, worldY2 );
+
+    int startInlineIndex = toInlineIndex( startInline );
+    int startXlineIndex  = toXlineIndex( startXline );
+    int stopInlineIndex  = toInlineIndex( stopInline );
+    int stopXlineIndex   = toXlineIndex( stopXline );
+
+    int diffI = std::abs( startInlineIndex - stopInlineIndex );
+    int diffX = std::abs( startXlineIndex - stopXlineIndex );
+
+    int dirI = 1;
+    if ( startInlineIndex > stopInlineIndex ) dirI = -1;
+    int dirX = 1;
+    if ( startXlineIndex > stopXlineIndex ) dirX = -1;
+
+    const int zize = m_filereader->depthSize();
+
+    std::shared_ptr<ZGYAccess::SeismicSliceData> retdata;
+
+    if ( diffI > diffX )
+    {
+        double dstepX = 1.0 * dirX * diffX / diffI;
+
+        double xlined = 1.0 * startXlineIndex;
+
+        retdata     = std::make_shared<ZGYAccess::SeismicSliceData>( diffI, zize );
+        float* pOut = retdata->values();
+
+        for ( int iline = startInlineIndex; iline != stopInlineIndex; iline += dirI, xlined += dstepX )
+        {
+            int xline = (int)std::round( xlined );
+
+            auto trace = m_filereader->trace( iline, xline );
+
+            if ( trace->size() != zize )
+            {
+                memset( pOut, 0, zize * sizeof( float ) );
+            }
+            else
+            {
+                memcpy( pOut, trace->values(), zize * sizeof( float ) );
+            }
+
+            pOut += zize;
+        }
+    }
+    else
+    {
+        if ( diffX == 0 ) return nullptr;
+
+        double dstepI = 1.0 * dirI * diffI / diffX;
+
+        double ilined = 1.0 * startInlineIndex;
+
+        retdata     = std::make_shared<ZGYAccess::SeismicSliceData>( diffX, zize );
+        float* pOut = retdata->values();
+
+        for ( int xline = startXlineIndex; xline != stopXlineIndex; xline += dirX, ilined += dstepI )
+        {
+            int iline = (int)std::round( ilined );
+
+            auto trace = m_filereader->trace( iline, xline );
+
+            if ( trace->size() != zize )
+            {
+                memset( pOut, 0, zize * sizeof( float ) );
+            }
+            else
+            {
+                memcpy( pOut, trace->values(), zize * sizeof( float ) );
+            }
+
+            pOut += zize;
+        }
+    }
+
+    return retdata;
 }
