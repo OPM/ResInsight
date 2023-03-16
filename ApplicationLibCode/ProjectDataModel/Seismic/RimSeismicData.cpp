@@ -37,6 +37,7 @@
 
 #include <QValidator>
 
+#include <cmath>
 #include <limits>
 #include <tuple>
 
