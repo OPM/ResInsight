@@ -64,10 +64,13 @@ public:
     cvf::Vec3i crosslineMinMaxStep();
 
     double depthStep();
+    int    depthSize();
 
-    cvf::Vec3d convertToWorldCoords( int iLine, int xLine, double depth );
+    cvf::Vec3d          convertToWorldCoords( int iLine, int xLine, double depth );
+    std::pair<int, int> convertToInlineXline( double worldx, double worldy );
 
     std::shared_ptr<ZGYAccess::SeismicSliceData> slice( RiaDefines::SeismicSliceDirection direction, int sliceIndex );
+    std::shared_ptr<ZGYAccess::SeismicSliceData> trace( int inlineIndex, int xlineIndex );
 
 private:
     QString                               m_filename;
