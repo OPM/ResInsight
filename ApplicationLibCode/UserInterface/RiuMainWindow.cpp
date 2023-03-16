@@ -264,6 +264,7 @@ void RiuMainWindow::cleanupGuiCaseClose()
     if ( m_relPermPlotPanel ) m_relPermPlotPanel->clearPlot();
     if ( m_pvtPlotPanel ) m_pvtPlotPanel->clearPlot();
     if ( m_mohrsCirclePlot ) m_mohrsCirclePlot->clearPlot();
+    if ( m_seismicHistogramPanel ) m_seismicHistogramPanel->clearPlot();
 
     if ( m_pdmUiPropertyView )
     {
