@@ -12,18 +12,18 @@
     <title>Summary Plots :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1678870999" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1678870999" rel="stylesheet">
-    <link href="/css/hybrid.css?1678870999" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1678870999" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1678870999" rel="stylesheet">
-    <link href="/css/auto-complete.css?1678870999" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1678870999" rel="stylesheet">
-    <link href="/css/theme.css?1678870999" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1678870999" rel="stylesheet">
+    <link href="/css/nucleus.css?1678976587" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1678976587" rel="stylesheet">
+    <link href="/css/hybrid.css?1678976587" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1678976587" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1678976587" rel="stylesheet">
+    <link href="/css/auto-complete.css?1678976587" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1678976587" rel="stylesheet">
+    <link href="/css/theme.css?1678976587" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1678976587" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1678870999"></script>
+    <script src="/js/jquery-3.3.1.min.js?1678976587"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -264,6 +264,9 @@
   
  
 
+            
+          
+             
             
           
              
@@ -764,6 +767,25 @@
       <li data-nav-id="/3d-main-window/formations/" title=" Zonations/Formations" class="dd-item ">
         <a href="/3d-main-window/formations/">
          Zonations/Formations
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/depthplot/" title="Depth Plot" class="dd-item ">
+        <a href="/3d-main-window/depthplot/">
+        Depth Plot
         
         </a>
     </li>
@@ -1839,6 +1861,25 @@
  
   
     
+      <li data-nav-id="/import/pressuredata/" title="Pressure/Depth Data" class="dd-item ">
+        <a href="/import/pressuredata/">
+        Pressure/Depth Data
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/import/appendingadditionalproperties/" title="Appending Additional Properties" class="dd-item ">
         <a href="/import/appendingadditionalproperties/">
         Appending Additional Properties
@@ -2571,7 +2612,8 @@ if (!doNotTrack) {
         <li><a href="#editing-summary-plots">Editing Summary Plots</a>
           <ul>
             <li><a href="#editing-a-summary-curve">Editing a Summary Curve</a></li>
-            <li><a href="#time-axis-properties">Time Axis Properties</a></li>
+            <li><a href="#default-time-axis-properties">Default Time Axis Properties</a></li>
+            <li><a href="#custom-time-axis-properties">Custom Time Axis Properties</a></li>
             <li><a href="#y-axis-properties">Y-axis Properties</a></li>
             <li><a href="#changing-content-of-a-summary-plot">Changing content of a Summary Plot</a></li>
           </ul>
@@ -2729,15 +2771,13 @@ It is also possible to save the text data to a file by the right-click command <
 <li><strong>Advanced</strong> &ndash; Specification of additional options.</li>
 </ul>
 <p>Other actions are available via right-click menu for selected curve. For instance, the Y-Axis for one or more curves can be switched for using the right-click command <b>Switch Plot Axis</b>.</p>
-<h3 id="time-axis-properties">Time Axis Properties</h3>
+<h3 id="default-time-axis-properties">Default Time Axis Properties</h3>
 <p>Time axis properties are displayed by clicking the <strong>Time Axis</strong> subitem of a summary plot in <strong>Plots</strong> window.</p>
 <p><img src="/images/plot-window/SummaryTimeAxisProperties.png" alt=""></p>
-<p>The property groups are:</p>
-<ul>
-<li><strong>Axis Title</strong>: Toggle display of axis title, setting user defined name, position, and font.</li>
-<li><strong>Time Values</strong>: Show time from <em>Simulation Start</em>, or real date-times, specific or automatic date/time range, and font.</li>
-<li><strong>Date/Time Label Format</strong>: Date and time format for the time axis, c.f. <a href="/misc/preferences/">Preferences</a> for default.</li>
-</ul>
+<h3 id="custom-time-axis-properties">Custom Time Axis Properties</h3>
+<p><img src="/images/plot-window/summary-custom-tick-marks.png" alt=""></p>
+<p>The time labels are automatically defined based on the available date range. The tick marks can be controlled in details by setting <strong>Tickmark Type</strong> to <strong>Custom</strong>. Then a tickmark interval and tickmark interval step can be defined.</p>
+<p>In the screenshot above, the interval is set to three years, and the plot displays labesl with three years between each.</p>
 <h3 id="y-axis-properties">Y-axis Properties</h3>
 <p>Y-axis properties are displayed by clicking one of the left/right axis subitems of a summary plot in <strong>Plots</strong> window.</p>
 <p><img src="/images/plot-window/summary_plot_yaxis_properties.png" alt=""></p>
@@ -2986,6 +3026,11 @@ max/max range, and font size.</li>
                         
             
             
+        
+                    
+                        
+            
+            
                 
                     
                 
@@ -3065,6 +3110,19 @@ max/max range, and font size.</li>
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
                     
                         
             
@@ -3079,6 +3137,9 @@ max/max range, and font size.</li>
                     
 
                     
+            
+        
+                    
                         
             
             
@@ -4046,7 +4107,20 @@ max/max range, and font size.</li>
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
                     
+
+                    
                         
             
             
@@ -4059,6 +4133,9 @@ max/max range, and font size.</li>
                     
                     
 
+                    
+            
+        
                     
                         
             
@@ -4693,19 +4770,19 @@ max/max range, and font size.</li>
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1678870999"></script>
-    <script src="/js/perfect-scrollbar.min.js?1678870999"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1678870999"></script>
-    <script src="/js/jquery.sticky.js?1678870999"></script>
-    <script src="/js/featherlight.min.js?1678870999"></script>
-    <script src="/js/highlight.pack.js?1678870999"></script>
+    <script src="/js/clipboard.min.js?1678976587"></script>
+    <script src="/js/perfect-scrollbar.min.js?1678976587"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1678976587"></script>
+    <script src="/js/jquery.sticky.js?1678976587"></script>
+    <script src="/js/featherlight.min.js?1678976587"></script>
+    <script src="/js/highlight.pack.js?1678976587"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1678870999"></script>
-    <script src="/js/learn.js?1678870999"></script>
-    <script src="/js/hugo-learn.js?1678870999"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1678976587"></script>
+    <script src="/js/learn.js?1678976587"></script>
+    <script src="/js/hugo-learn.js?1678976587"></script>
 
-    <link href="/mermaid/mermaid.css?1678870999" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1678870999"></script>
+    <link href="/mermaid/mermaid.css?1678976587" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1678976587"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

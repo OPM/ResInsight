@@ -12,18 +12,18 @@
     <title>Curve Calculator :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1678870999" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1678870999" rel="stylesheet">
-    <link href="/css/hybrid.css?1678870999" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1678870999" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1678870999" rel="stylesheet">
-    <link href="/css/auto-complete.css?1678870999" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1678870999" rel="stylesheet">
-    <link href="/css/theme.css?1678870999" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1678870999" rel="stylesheet">
+    <link href="/css/nucleus.css?1678976586" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1678976586" rel="stylesheet">
+    <link href="/css/hybrid.css?1678976586" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1678976586" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1678976586" rel="stylesheet">
+    <link href="/css/auto-complete.css?1678976586" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1678976586" rel="stylesheet">
+    <link href="/css/theme.css?1678976586" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1678976586" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1678870999"></script>
+    <script src="/js/jquery-3.3.1.min.js?1678976586"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -264,6 +264,9 @@
   
  
 
+            
+          
+             
             
           
              
@@ -764,6 +767,25 @@
       <li data-nav-id="/3d-main-window/formations/" title=" Zonations/Formations" class="dd-item ">
         <a href="/3d-main-window/formations/">
          Zonations/Formations
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/depthplot/" title="Depth Plot" class="dd-item ">
+        <a href="/3d-main-window/depthplot/">
+        Depth Plot
         
         </a>
     </li>
@@ -1839,6 +1861,25 @@
  
   
     
+      <li data-nav-id="/import/pressuredata/" title="Pressure/Depth Data" class="dd-item ">
+        <a href="/import/pressuredata/">
+        Pressure/Depth Data
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/import/appendingadditionalproperties/" title="Appending Additional Properties" class="dd-item ">
         <a href="/import/appendingadditionalproperties/">
         Appending Additional Properties
@@ -2557,6 +2598,8 @@ if (!doNotTrack) {
         </li>
         <li><a href="#summary-address-selection">Summary Address Selection</a></li>
         <li><a href="#generating-curves">Generating Curves</a></li>
+        <li><a href="#calculation-for-ensembles">Calculation for Ensembles</a></li>
+        <li><a href="#references">References</a></li>
       </ul>
     </li>
   </ul>
@@ -2584,22 +2627,27 @@ if (!doNotTrack) {
 
 
 
-<p><img src="/images/plot-window/SummaryCurveCalculator.png" alt=""></p>
-<p>The summary curve calculator is a tool to do relative simple vector calculations on a set of curves. The created curves can be stored for later use in the project.</p>
+<p><img src="/images/calculated-data/curve-calculator-ui.png" alt=""></p>
+<p>The summary curve calculator is a tool to do calculations on a set of curves. The created curves can be stored for later use in the project.</p>
 <p>The calculator can be run by pressing the calculator icon <img src="https://resinsight.org/images/Calculator.svg" style="display:inline; vertical-align:middle; margin:0">
  in the menu bar, or by right-clicking on either a summary case or the summary plot collection.</p>
 <p>More details on mathematical operations are described in <a href="/calculated-data/calculatorexpressions/">Calculator Expressions</a></p>
 <h2 id="calculation-settings">Calculation Settings</h2>
 <p>To make a new calculated curve, click on <strong>New Calculation</strong>. This will add a new calculation to <strong>Calculated Summaries</strong>. Before choosing which curves to do calculations on, a calculation expression must be made. The default expression <em>Calculation_1 := x + y</em> will do a vector addition on the curves which <em>x</em> and <em>y</em> are placeholders for, and assign it to the calculation <em>Calculation_1</em>.</p>
 <p>To assign a summary address to a variable, select a summary vector in <strong>Data Sources</strong>, and drag/drop this vector into the address field in the <strong>Curve Calculator</strong>. Further details on variable assignment is covered in section <a href="#summary-address-selection">Summary Address Selection</a>.</p>
+<p>By default, a calculation defined for one well will be distributed to all other wells. This feature can be disabled by unticking <strong>Distribute to other items</strong></p>
 <h3 id="unit">Unit</h3>
-<p>It is possible to add a unit to the calculated curve, in the field <strong>Unit</strong> beneath the expression field. This will be used as the label on the y-axis when the curve is used in a plot.</p>
+<p>It is possible to add a unit to the calculated curve, in the field <strong>Unit</strong> beneath the expression field. This will be used as the label on the y-axis when the curve is displayed in plots.</p>
 <h2 id="summary-address-selection">Summary Address Selection</h2>
 <p>An expression consists of placeholders (variables) for curves (summary address). By clicking <strong>Parse Expression</strong>, the variables will appear in the table below the settings. To assign a summary address to a variable, select a summary vector in <strong>Data Sources</strong>, and drag/drop this vector into the address field in the <strong>Curve Calculator</strong>.</p>
 <p>It is also possible to select the address by pressing the <strong>Edit</strong> button. This action will open a <strong>Summary Address Selection</strong> dialog. Use the dialog to select a summary address and press <strong>OK</strong>.</p>
 <h2 id="generating-curves">Generating Curves</h2>
-<p>After assigning summary addresses to all variables, click <strong>Calculate</strong> to evaluate the expression. The curve is saved and can be accessed in the Plot Editor selecting the Summary Type: <strong>Calculated</strong>.</p>
-<p>The curves can also be found in an existing curve&rsquo;s <strong>Property Editor</strong>. Choose the case <strong>Calculated</strong>, and the curves will appear in <strong>Vector Selection</strong>.</p>
+<p><img src="/images/calculated-data/calculated-well-curve.png" alt=""></p>
+<p>After assigning summary addresses to all variables, click <strong>Calculate</strong> to evaluate the expression. The curve is saved and can be accessed in the Plot Editor.</p>
+<h2 id="calculation-for-ensembles">Calculation for Ensembles</h2>
+<p><img src="/images/calculated-data/calculated-well-curve-ensemble.png" alt=""></p>
+<p>All calculation expressions are available for ensemble plotting. Use the calculation objects the same way as they are used for single summary cases.</p>
+<h2 id="references">References</h2>
 <p>The similar concept is also used for <a href="/calculated-data/gridpropertycalculator/">Grid Property Calculator</a></p>
 
 
@@ -2836,6 +2884,11 @@ if (!doNotTrack) {
                         
             
             
+        
+                    
+                        
+            
+            
                 
                     
                 
@@ -2915,6 +2968,19 @@ if (!doNotTrack) {
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
                     
                         
             
@@ -2929,6 +2995,9 @@ if (!doNotTrack) {
                     
 
                     
+            
+        
+                    
                         
             
             
@@ -3891,7 +3960,20 @@ if (!doNotTrack) {
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
                     
+
+                    
                         
             
             
@@ -3904,6 +3986,9 @@ if (!doNotTrack) {
                     
                     
 
+                    
+            
+        
                     
                         
             
@@ -4546,19 +4631,19 @@ if (!doNotTrack) {
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1678870999"></script>
-    <script src="/js/perfect-scrollbar.min.js?1678870999"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1678870999"></script>
-    <script src="/js/jquery.sticky.js?1678870999"></script>
-    <script src="/js/featherlight.min.js?1678870999"></script>
-    <script src="/js/highlight.pack.js?1678870999"></script>
+    <script src="/js/clipboard.min.js?1678976586"></script>
+    <script src="/js/perfect-scrollbar.min.js?1678976586"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1678976586"></script>
+    <script src="/js/jquery.sticky.js?1678976586"></script>
+    <script src="/js/featherlight.min.js?1678976586"></script>
+    <script src="/js/highlight.pack.js?1678976586"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1678870999"></script>
-    <script src="/js/learn.js?1678870999"></script>
-    <script src="/js/hugo-learn.js?1678870999"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1678976586"></script>
+    <script src="/js/learn.js?1678976586"></script>
+    <script src="/js/hugo-learn.js?1678976586"></script>
 
-    <link href="/mermaid/mermaid.css?1678870999" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1678870999"></script>
+    <link href="/mermaid/mermaid.css?1678976586" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1678976586"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

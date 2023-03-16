@@ -12,18 +12,18 @@
     <title>Simulation Wells :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1678870999" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1678870999" rel="stylesheet">
-    <link href="/css/hybrid.css?1678870999" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1678870999" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1678870999" rel="stylesheet">
-    <link href="/css/auto-complete.css?1678870999" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1678870999" rel="stylesheet">
-    <link href="/css/theme.css?1678870999" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1678870999" rel="stylesheet">
+    <link href="/css/nucleus.css?1678976587" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1678976587" rel="stylesheet">
+    <link href="/css/hybrid.css?1678976587" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1678976587" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1678976587" rel="stylesheet">
+    <link href="/css/auto-complete.css?1678976587" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1678976587" rel="stylesheet">
+    <link href="/css/theme.css?1678976587" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1678976587" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1678870999"></script>
+    <script src="/js/jquery-3.3.1.min.js?1678976587"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -264,6 +264,9 @@
   
  
 
+            
+          
+             
             
           
              
@@ -764,6 +767,25 @@
       <li data-nav-id="/3d-main-window/formations/" title=" Zonations/Formations" class="dd-item ">
         <a href="/3d-main-window/formations/">
          Zonations/Formations
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/depthplot/" title="Depth Plot" class="dd-item ">
+        <a href="/3d-main-window/depthplot/">
+        Depth Plot
         
         </a>
     </li>
@@ -1839,6 +1861,25 @@
  
   
     
+      <li data-nav-id="/import/pressuredata/" title="Pressure/Depth Data" class="dd-item ">
+        <a href="/import/pressuredata/">
+        Pressure/Depth Data
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/import/appendingadditionalproperties/" title="Appending Additional Properties" class="dd-item ">
         <a href="/import/appendingadditionalproperties/">
         Appending Additional Properties
@@ -2566,7 +2607,6 @@ if (!doNotTrack) {
         <li><a href="#well-pipes-of-multi-segment-wells">Well Pipes of Multi Segment Wells</a>
           <ul>
             <li><a href="#geometry-approximation">Geometry Approximation</a></li>
-            <li><a href="#dummy-branches">Dummy Branches</a></li>
             <li><a href="#picking-reveals-segmentbranch-info">Picking Reveals Segment/Branch Info</a></li>
           </ul>
         </li>
@@ -2691,12 +2731,11 @@ Arrows representing communication in the opposite direction from what is expecte
 and will result in a partially checked state on the corresponding toggle in the <strong>Simulation Wells</strong> property panel. 
 The <strong>Size Scaling</strong> options, however, works relative to the scaling level set on the top level.</p>
 <h2 id="well-pipes-of-multi-segment-wells">Well Pipes of Multi Segment Wells</h2>
-<p>ResInsight reads the MSW information in the result files and uses that to create a topologically correct visualization of the Multi Segment Well. Reading this information is somewhat time consuming, and can be turned off in the <a href="/misc/preferences/"> Preferences </a>.</p>
+<p><img src="/images/getting-started/msw_with_valves.png" alt=""></p>
+<p>ResInsight reads the MSW information in the result files and uses that to create a topologically correct visualization of the Multi Segment Well. Valves are visulized on the pipe geometry.</p>
+<p>Reading this information is somewhat time consuming, and can be turned off in <a href="/misc/preferences/"> Preferences </a>.</p>
 <h3 id="geometry-approximation">Geometry Approximation</h3>
-<p>The pipe geometry generated for MSW&rsquo;s are based on the topology of the well (branch/segment structure) and the position of the cells being connected. The segment lengths are used as hints to place the branch points at sensible places. Thus the pipe geometry itself is not geometrically correct, but makes the topology of the well easier to see.</p>
-<h3 id="dummy-branches">Dummy Branches</h3>
-<p>Often MSW&rsquo;s are modeled using a long stem without connections and a multitude of small branches; one for each connection. ResInsight offsets the the pipe within the cell to clearly show how the topology of the well is defined.</p>
-<p><img src="/images/3d-main-window/MSWDummyBranchExample.png" alt=""></p>
+<p>If the import of MSW data is disabled, or MSW data is not present, the topology of the well is estimated. This feature works in most cases, but can generate invalid well geometry in some cases.</p>
 <h3 id="picking-reveals-segmentbranch-info">Picking Reveals Segment/Branch Info</h3>
 <p>Branch and segment info of a MSW-connected-Cell is shown in the <strong>Result Info</strong> window when picking a cell in the 3D View. This can be handy when relating the visualization to the input files.</p>
 
@@ -2934,6 +2973,11 @@ The <strong>Size Scaling</strong> options, however, works relative to the scalin
                         
             
             
+        
+                    
+                        
+            
+            
                 
                     
                 
@@ -3013,6 +3057,19 @@ The <strong>Size Scaling</strong> options, however, works relative to the scalin
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
                     
                         
             
@@ -3027,6 +3084,9 @@ The <strong>Size Scaling</strong> options, however, works relative to the scalin
                     
 
                     
+            
+        
+                    
                         
             
             
@@ -3994,7 +4054,20 @@ The <strong>Size Scaling</strong> options, however, works relative to the scalin
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
                     
+
+                    
                         
             
             
@@ -4007,6 +4080,9 @@ The <strong>Size Scaling</strong> options, however, works relative to the scalin
                     
                     
 
+                    
+            
+        
                     
                         
             
@@ -4641,19 +4717,19 @@ The <strong>Size Scaling</strong> options, however, works relative to the scalin
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1678870999"></script>
-    <script src="/js/perfect-scrollbar.min.js?1678870999"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1678870999"></script>
-    <script src="/js/jquery.sticky.js?1678870999"></script>
-    <script src="/js/featherlight.min.js?1678870999"></script>
-    <script src="/js/highlight.pack.js?1678870999"></script>
+    <script src="/js/clipboard.min.js?1678976587"></script>
+    <script src="/js/perfect-scrollbar.min.js?1678976587"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1678976587"></script>
+    <script src="/js/jquery.sticky.js?1678976587"></script>
+    <script src="/js/featherlight.min.js?1678976587"></script>
+    <script src="/js/highlight.pack.js?1678976587"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1678870999"></script>
-    <script src="/js/learn.js?1678870999"></script>
-    <script src="/js/hugo-learn.js?1678870999"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1678976587"></script>
+    <script src="/js/learn.js?1678976587"></script>
+    <script src="/js/hugo-learn.js?1678976587"></script>
 
-    <link href="/mermaid/mermaid.css?1678870999" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1678870999"></script>
+    <link href="/mermaid/mermaid.css?1678976587" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1678976587"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

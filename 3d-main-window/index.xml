@@ -197,6 +197,16 @@ To use this functionality you will need to :
     </item>
     
     <item>
+      <title>Depth Plot</title>
+      <link>https://resinsight.org/3d-main-window/depthplot/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/3d-main-window/depthplot/</guid>
+      <description>When clicking on cells in 3D, all values along the IJ column of the selected cells can be displayed in a depth plot. This can be combined with a Result Plot displaying the change for selected cells over time.
+Result Inspection</description>
+    </item>
+    
+    <item>
       <title>Grid Statistics Dialog</title>
       <link>https://resinsight.org/3d-main-window/gridstatisticsdialog/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

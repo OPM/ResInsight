@@ -29,7 +29,7 @@ Operators and Functions Possible operations and functions are found by right-cli
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/calculated-data/curvecalculator/</guid>
-      <description>The summary curve calculator is a tool to do relative simple vector calculations on a set of curves. The created curves can be stored for later use in the project.
+      <description>The summary curve calculator is a tool to do calculations on a set of curves. The created curves can be stored for later use in the project.
 The calculator can be run by pressing the calculator icon in the menu bar, or by right-clicking on either a summary case or the summary plot collection.
 More details on mathematical operations are described in Calculator Expressions
 Calculation Settings To make a new calculated curve, click on New Calculation.</description>

@@ -12,18 +12,18 @@
     <title> Zonations/Formations :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1678870999" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1678870999" rel="stylesheet">
-    <link href="/css/hybrid.css?1678870999" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1678870999" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1678870999" rel="stylesheet">
-    <link href="/css/auto-complete.css?1678870999" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1678870999" rel="stylesheet">
-    <link href="/css/theme.css?1678870999" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1678870999" rel="stylesheet">
+    <link href="/css/nucleus.css?1678976586" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1678976586" rel="stylesheet">
+    <link href="/css/hybrid.css?1678976586" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1678976586" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1678976586" rel="stylesheet">
+    <link href="/css/auto-complete.css?1678976586" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1678976586" rel="stylesheet">
+    <link href="/css/theme.css?1678976586" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1678976586" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1678870999"></script>
+    <script src="/js/jquery-3.3.1.min.js?1678976586"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -264,6 +264,9 @@
   
  
 
+            
+          
+             
             
           
              
@@ -764,6 +767,25 @@
       <li data-nav-id="/3d-main-window/formations/" title=" Zonations/Formations" class="dd-item active">
         <a href="/3d-main-window/formations/">
          Zonations/Formations
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/depthplot/" title="Depth Plot" class="dd-item ">
+        <a href="/3d-main-window/depthplot/">
+        Depth Plot
         
         </a>
     </li>
@@ -1839,6 +1861,25 @@
  
   
     
+      <li data-nav-id="/import/pressuredata/" title="Pressure/Depth Data" class="dd-item ">
+        <a href="/import/pressuredata/">
+        Pressure/Depth Data
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/import/appendingadditionalproperties/" title="Appending Additional Properties" class="dd-item ">
         <a href="/import/appendingadditionalproperties/">
         Appending Additional Properties
@@ -2613,15 +2654,15 @@ The imported Formation Names files are then listed in the <strong>Project Tree</
 Formation color can be given as a World Wide Web Consortium <a href="https://www.w3.org/TR/SVG11/types.html#ColorKeywords">SVG color keyword name</a>
 or a six-digit, three-byte hexadecimal number used in HTML, CSS, SVG, and other computing applications to represent the red, green and 
 blue components of the color, c.f. example below:</p>
-<pre><code>-- Any text as comment
-'My First  Formation Name'                             4 - 12   red
-'My Second Formation Name'                            15 - 17   green
-'Formation spanning 3 k-layers, i.e. 18,19 and 20'       3      blue
-'Last Formation Name'                                 21 - 21   #FFFF00
-</code></pre><h4 id="fmu-layer-zone-table-_layer_zone_tabletxt_">FMU Layer Zone Table (<em><code>layer_zone_table.txt</code></em>)</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">-- Any text as comment
+&#39;My First  Formation Name&#39;                             4 - 12   red
+&#39;My Second Formation Name&#39;                            15 - 17   green
+&#39;Formation spanning 3 k-layers, i.e. 18,19 and 20&#39;       3      blue
+&#39;Last Formation Name&#39;                                 21 - 21   #FFFF00
+</code></pre></div><h4 id="fmu-layer-zone-table-_layer_zone_tabletxt_">FMU Layer Zone Table (<em><code>layer_zone_table.txt</code></em>)</h4>
 <p>The FMU Layer Zone Table (<em><code>layer_zone_table.txt</code></em>) contains two columns to correlate each grid k-layer with a formation name. 
 Below is an example of a <em><code>layer_zone_table.txt</code></em> file:</p>
-<pre><code>1   UpperReek
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">1   UpperReek
 2   UpperReek
 3   UpperReek
 4   UpperReek
@@ -2635,7 +2676,7 @@ Below is an example of a <em><code>layer_zone_table.txt</code></em> file:</p>
 12  LowerReek
 13  LowerReek
 14  LowerReek
-</code></pre><h3 id="select-the-formation-file-in-a-case">Select the Formation File in a Case</h3>
+</code></pre></div><h3 id="select-the-formation-file-in-a-case">Select the Formation File in a Case</h3>
 <p>If only one formation file is imported, the formation will automatically be set in the active view&rsquo;s case. If more than one formation file is imported at once, or if a case must change formation file, the formation file for a case can be set later on. This option is available in the <strong>Property Editor</strong> for a case. The formation is selected in the combo box for property <strong>Formation Names File</strong>.</p>
 <p><img src="/images/3d-main-window/formations_property_editor.PNG" alt=""></p>
 <h4 id="reload-of-formation-data">Reload of formation data</h4>
@@ -2931,6 +2972,11 @@ B-2H; STRAT;     Ile Fm. 1 ;2156.197266;2158.38501
                         
             
             
+        
+                    
+                        
+            
+            
                 
                     
                 
@@ -3306,8 +3352,24 @@ B-2H; STRAT;     Ile Fm. 1 ;2156.197266;2158.38501
             
                 
                     
+                        
                         
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
                         
+            
+            
+                
                     
                 
                 
@@ -3994,7 +4056,20 @@ B-2H; STRAT;     Ile Fm. 1 ;2156.197266;2158.38501
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
                     
+
+                    
                         
             
             
@@ -4007,6 +4082,9 @@ B-2H; STRAT;     Ile Fm. 1 ;2156.197266;2158.38501
                     
                     
 
+                    
+            
+        
                     
                         
             
@@ -4631,7 +4709,7 @@ B-2H; STRAT;     Ile Fm. 1 ;2156.197266;2158.38501
 			<a class="nav nav-prev" href="/3d-main-window/faults/" title="Faults"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/3d-main-window/gridstatisticsdialog/" title="Grid Statistics Dialog" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/3d-main-window/depthplot/" title="Depth Plot" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -4641,19 +4719,19 @@ B-2H; STRAT;     Ile Fm. 1 ;2156.197266;2158.38501
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1678870999"></script>
-    <script src="/js/perfect-scrollbar.min.js?1678870999"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1678870999"></script>
-    <script src="/js/jquery.sticky.js?1678870999"></script>
-    <script src="/js/featherlight.min.js?1678870999"></script>
-    <script src="/js/highlight.pack.js?1678870999"></script>
+    <script src="/js/clipboard.min.js?1678976586"></script>
+    <script src="/js/perfect-scrollbar.min.js?1678976586"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1678976586"></script>
+    <script src="/js/jquery.sticky.js?1678976586"></script>
+    <script src="/js/featherlight.min.js?1678976586"></script>
+    <script src="/js/highlight.pack.js?1678976586"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1678870999"></script>
-    <script src="/js/learn.js?1678870999"></script>
-    <script src="/js/hugo-learn.js?1678870999"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1678976586"></script>
+    <script src="/js/learn.js?1678976586"></script>
+    <script src="/js/hugo-learn.js?1678976586"></script>
 
-    <link href="/mermaid/mermaid.css?1678870999" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1678870999"></script>
+    <link href="/mermaid/mermaid.css?1678976586" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1678976586"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

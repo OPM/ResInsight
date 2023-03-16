@@ -108,6 +108,17 @@ Import Observed Time History Data Importing observed time history data to ResIns
     </item>
     
     <item>
+      <title>Pressure/Depth Data</title>
+      <link>https://resinsight.org/import/pressuredata/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/import/pressuredata/</guid>
+      <description>Import Pressure/Depth Data Importing pressure data to ResInsight may be performed in two different ways:
+ By selecting the main menu item File -&amp;gt; Import -&amp;gt; Import Pressure Depth Data By using the right-click command Import Pressure Data on the Observed Data item in the Plot Main Window Project Tree  The imported pressure data can visualized in [RFT Plots]
+Pressure/Depth File Format --TVDMSL RFT --WELLNAME &amp;#39;OP_1&amp;#39;DATE 28-FEB-2000PRESSURE DEPTHBARSA METRES302.</description>
+    </item>
+    
+    <item>
       <title>Appending Additional Properties</title>
       <link>https://resinsight.org/import/appendingadditionalproperties/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

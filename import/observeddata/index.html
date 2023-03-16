@@ -12,18 +12,18 @@
     <title>Observed Time History Data :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1678870999" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1678870999" rel="stylesheet">
-    <link href="/css/hybrid.css?1678870999" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1678870999" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1678870999" rel="stylesheet">
-    <link href="/css/auto-complete.css?1678870999" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1678870999" rel="stylesheet">
-    <link href="/css/theme.css?1678870999" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1678870999" rel="stylesheet">
+    <link href="/css/nucleus.css?1678976586" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1678976586" rel="stylesheet">
+    <link href="/css/hybrid.css?1678976586" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1678976586" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1678976586" rel="stylesheet">
+    <link href="/css/auto-complete.css?1678976586" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1678976586" rel="stylesheet">
+    <link href="/css/theme.css?1678976586" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1678976586" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1678870999"></script>
+    <script src="/js/jquery-3.3.1.min.js?1678976586"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -264,6 +264,9 @@
   
  
 
+            
+          
+             
             
           
              
@@ -764,6 +767,25 @@
       <li data-nav-id="/3d-main-window/formations/" title=" Zonations/Formations" class="dd-item ">
         <a href="/3d-main-window/formations/">
          Zonations/Formations
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/depthplot/" title="Depth Plot" class="dd-item ">
+        <a href="/3d-main-window/depthplot/">
+        Depth Plot
         
         </a>
     </li>
@@ -1839,6 +1861,25 @@
  
   
     
+      <li data-nav-id="/import/pressuredata/" title="Pressure/Depth Data" class="dd-item ">
+        <a href="/import/pressuredata/">
+        Pressure/Depth Data
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/import/appendingadditionalproperties/" title="Appending Additional Properties" class="dd-item ">
         <a href="/import/appendingadditionalproperties/">
         Appending Additional Properties
@@ -2710,14 +2751,14 @@ Any address may have associated error data. Those type of data will have the sam
 <h4 id="example">Example</h4>
 <p>The two examples below are equvalent and result in identical data after importing to ResInsight</p>
 <p>Line based CSV:</p>
-<pre><code>DATE       ;VECTOR ;VALUE ;ERROR
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">DATE       ;VECTOR ;VALUE ;ERROR
 2018-04-16 ;FOPT   ;12.5  ;0.45
 2018-04-18 ;FOPT   ;8.6   ;0.31
-</code></pre><p>Normal CSV:</p>
-<pre><code>DATE       ;FOPT ;ERR:FOPT
+</code></pre></div><p>Normal CSV:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">DATE       ;FOPT ;ERR:FOPT
 2018-04-16 ;12.5 ;0.45
 2018-04-18 ;8.6  ;0.31
-</code></pre><h3 id="import-rsm-observed-time-history-data">Import RSM observed time history data</h3>
+</code></pre></div><h3 id="import-rsm-observed-time-history-data">Import RSM observed time history data</h3>
 <p>To import RSM files, the only action needed from the user is to select one or more RSM files. When the import is finished, one tree node for each file will appear under the <strong>Observed Data</strong> node in the project tree. RSM files can be either <em>Column based</em> or <em>Keyword based</em>.</p>
 <h4 id="column-based-file-format">Column Based File Format</h4>
 <p>If a column based file is presented, ResInsight first tries to identify if its header has fixed width or not. Further, the header is interpreted by looking for specific lines.</p>
@@ -2725,7 +2766,7 @@ Any address may have associated error data. Those type of data will have the sam
 <p>The next lines can define units, well/group names, region names, LGR names and block numbers and the local cell number. They do not have to appear in any particular order. Scale factors can also be included, but will be ignored by ResInsight. All lines starting with <em><em>&ndash;</em></em> will also be ignored.</p>
 <h5 id="column-based-with-fixed-header-width">Column Based with Fixed Header Width</h5>
 <p>When interpreting column based files with fixed header width, ResInsight looks for left aligned column entries. These type of files are interpreted as we naturally read them. More than one table can be present in each file.</p>
-<pre><code>1                                                                                                      
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">1                                                                                                      
  -------------------------------------------------------------------------
  SUMMARY
  -------------------------------------------------------------------------
@@ -2741,18 +2782,18 @@ Any address may have associated error data. Those type of data will have the sam
   9-NOV-1997         0     19.38692     0.015243     14.76847     14.78372  
  10-NOV-1997         0     24.07161     0.018914     18.33751     18.35642
  11-NOV-1997         0     28.79427     0.022613     21.93558     21.95819
-</code></pre><h5 id="column-based-with-random-header-width">Column Based with Random Header Width</h5>
+</code></pre></div><h5 id="column-based-with-random-header-width">Column Based with Random Header Width</h5>
 <p>Column Based with Random Header Width will try to be parsed in the same way as fixed width, but it might fail in situations like the one below. We can see that SM3/SM3 <em>probably</em> belongs to WGORH, but it is parsed to WWCTH, as it is the second entry on that line.</p>
-<pre><code>TIME      WWCTH      WGORH
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">TIME      WWCTH      WGORH
 DAYS               SM3/SM3          
 
           A-5HP          A-5HP
      1     0.000   0.000
      2     0.000   0.000
      3     0.000   0.000
-</code></pre><h4 id="keyword-based-file-format">Keyword Based File Format</h4>
+</code></pre></div><h4 id="keyword-based-file-format">Keyword Based File Format</h4>
 <p>If the non-comment line includes the word &ldquo;VECTOR&rdquo;, the file is interpreted as a keyword based file. In keyword based files, the content of the one-column tables is described in each header. Tables should be associated with a table containing time stamps. In the example below, <em>S-1AH-GOR</em> is associated with <em>YEARX</em>, since their origin is equal. ResInsight always interpret <em>ORIGIN</em> as well name, and look for a table with the line &ldquo;VECTOR YEARX&rdquo; to associate with it.</p>
-<pre><code>----------------------------------------------
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">----------------------------------------------
 -- GOR data 
 ----------------------------------------------
 VECTOR S-122AH-GOR
@@ -2801,7 +2842,7 @@ UNITS YEAR
 2000.2367
 2000.4033
 2000.4966
-</code></pre><p>Please seek &ldquo;User data file formats&rdquo; in <strong>Eclipse: File Formats Reference Manual</strong> for details.</p>
+</code></pre></div><p>Please seek &ldquo;User data file formats&rdquo; in <strong>Eclipse: File Formats Reference Manual</strong> for details.</p>
 <h2 id="viewing-observed-time-history-data">Viewing Observed Time History Data</h2>
 <p><img src="/images/import/observedDataCurveCreator.png" alt=""></p>
 <p>To plot Observed Time History Data, choose <strong>New Summary Plot</strong> in the right-click menu of <strong>Summary Plots</strong>, in <strong>Plot Object Project Tree</strong>. Observed time history data will appear in <strong>Sources</strong> together with summary cases. How to use the Plot Editor is covered in <a href="/plot-window/summaryploteditor/">Summary Plot Editor</a>. Observed time history data points are plotted without lines by default.</p>
@@ -3040,6 +3081,11 @@ UNITS YEAR
                         
             
             
+        
+                    
+                        
+            
+            
                 
                     
                 
@@ -3119,6 +3165,19 @@ UNITS YEAR
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
                     
                         
             
@@ -3133,6 +3192,9 @@ UNITS YEAR
                     
 
                     
+            
+        
+                    
                         
             
             
@@ -4263,8 +4325,24 @@ UNITS YEAR
             
                 
                     
+                        
                         
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
                         
+            
+            
+                
                     
                 
                 
@@ -4740,7 +4818,7 @@ UNITS YEAR
 			<a class="nav nav-prev" href="/import/elementpropertytable/" title="Element Property Table"> <i class="fa fa-chevron-left"></i></a>
 		
 		
-			<a class="nav nav-next" href="/import/appendingadditionalproperties/" title="Appending Additional Properties" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
+			<a class="nav nav-next" href="/import/pressuredata/" title="Pressure/Depth Data" style="margin-right: 0px;"><i class="fa fa-chevron-right"></i></a>
 		
 	
     </div>
@@ -4750,19 +4828,19 @@ UNITS YEAR
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1678870999"></script>
-    <script src="/js/perfect-scrollbar.min.js?1678870999"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1678870999"></script>
-    <script src="/js/jquery.sticky.js?1678870999"></script>
-    <script src="/js/featherlight.min.js?1678870999"></script>
-    <script src="/js/highlight.pack.js?1678870999"></script>
+    <script src="/js/clipboard.min.js?1678976586"></script>
+    <script src="/js/perfect-scrollbar.min.js?1678976586"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1678976586"></script>
+    <script src="/js/jquery.sticky.js?1678976586"></script>
+    <script src="/js/featherlight.min.js?1678976586"></script>
+    <script src="/js/highlight.pack.js?1678976586"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1678870999"></script>
-    <script src="/js/learn.js?1678870999"></script>
-    <script src="/js/hugo-learn.js?1678870999"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1678976586"></script>
+    <script src="/js/learn.js?1678976586"></script>
+    <script src="/js/hugo-learn.js?1678976586"></script>
 
-    <link href="/mermaid/mermaid.css?1678870999" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1678870999"></script>
+    <link href="/mermaid/mermaid.css?1678976586" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1678976586"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

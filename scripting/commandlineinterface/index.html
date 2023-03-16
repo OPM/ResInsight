@@ -12,18 +12,18 @@
     <title>Command Line Interface :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1678870999" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1678870999" rel="stylesheet">
-    <link href="/css/hybrid.css?1678870999" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1678870999" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1678870999" rel="stylesheet">
-    <link href="/css/auto-complete.css?1678870999" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1678870999" rel="stylesheet">
-    <link href="/css/theme.css?1678870999" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1678870999" rel="stylesheet">
+    <link href="/css/nucleus.css?1678976587" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1678976587" rel="stylesheet">
+    <link href="/css/hybrid.css?1678976587" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1678976587" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1678976587" rel="stylesheet">
+    <link href="/css/auto-complete.css?1678976587" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1678976587" rel="stylesheet">
+    <link href="/css/theme.css?1678976587" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1678976587" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1678870999"></script>
+    <script src="/js/jquery-3.3.1.min.js?1678976587"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -264,6 +264,9 @@
   
  
 
+            
+          
+             
             
           
              
@@ -764,6 +767,25 @@
       <li data-nav-id="/3d-main-window/formations/" title=" Zonations/Formations" class="dd-item ">
         <a href="/3d-main-window/formations/">
          Zonations/Formations
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/depthplot/" title="Depth Plot" class="dd-item ">
+        <a href="/3d-main-window/depthplot/">
+        Depth Plot
         
         </a>
     </li>
@@ -1839,6 +1861,25 @@
  
   
     
+      <li data-nav-id="/import/pressuredata/" title="Pressure/Depth Data" class="dd-item ">
+        <a href="/import/pressuredata/">
+        Pressure/Depth Data
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/import/appendingadditionalproperties/" title="Appending Additional Properties" class="dd-item ">
         <a href="/import/appendingadditionalproperties/">
         Appending Additional Properties
@@ -2722,13 +2763,13 @@ ResInsight stores data computed by statistics calculation in a cache file. When 
 
 <h3 id="summary-plotting">Summary plotting</h3>
 <p>The summary plotting command option follows the following syntax:</p>
-<pre><code>resinsight --summaryplot [&lt;plotOptions&gt;] &lt;eclipsesummaryvectorfilters&gt; &lt;eclipsedatafiles&gt;
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">resinsight --summaryplot [&lt;plotOptions&gt;] &lt;eclipsesummaryvectorfilters&gt; &lt;eclipsedatafiles&gt;
 
 where:
 &lt;plotOptions&gt;                 denote summary plot options, see table below
 &lt;eclipsesummaryvectorfilters&gt; has the syntax &lt;vectorname&gt;[:&lt;item&gt;[:&lt;subitem&gt;[:i,j,k]]]
 &lt;eclipsedatafiles&gt;            lists a set of Eclipse data files with or without extension
-</code></pre><p>The summary plotting command option creates one summary plot for each of the the summary vectors matched by<br>
+</code></pre></div><p>The summary plotting command option creates one summary plot for each of the the summary vectors matched by<br>
 <em>&lt;eclipsesummaryvectorfilters&gt;</em> using all listed Eclipse data files in each plot.</p>
 <p>Eclipse summary vector filters specify a list of vectors separated by spaces following the syntax noted above. 
 Wildcards can be used in the specification. Brief examples are:</p>
@@ -2815,40 +2856,40 @@ However, if a grid property is requested, the corresponding EGRID and restart da
 <p>Most examples are also available from the <a href="https://github.com/OPM/ResInsight/tree/master/TestModels/Case_with_10_timesteps">test section</a>.</p>
 <h3 id="create-snapshots-of-all-views-for-multiple-cases">Create snapshots of all views for multiple cases</h3>
 <p>A list of cases is defined in <strong>CaseList.txt</strong>, containing the following</p>
-<pre><code>Real0/BRUGGE_0000.EGRID
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">Real0/BRUGGE_0000.EGRID
 Real10/BRUGGE_0010.EGRID
 Real30/BRUGGE_0030.EGRID
 Real40/BRUGGE_0040.EGRID
-</code></pre><p>The command line used to run this example is shown here:</p>
-<pre><code>ResInsight --project BatchTest.rsp --multiCaseSnapshots CaseList.txt --size 500 500
-</code></pre><p>This will instruct ResInsight to read the project file <strong>BatchTest.rsp</strong>. All cases will be replaced one by one in ResInsight, and snapshots of all views will be written to file.</p>
+</code></pre></div><p>The command line used to run this example is shown here:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">ResInsight --project BatchTest.rsp --multiCaseSnapshots CaseList.txt --size 500 500
+</code></pre></div><p>This will instruct ResInsight to read the project file <strong>BatchTest.rsp</strong>. All cases will be replaced one by one in ResInsight, and snapshots of all views will be written to file.</p>
 <h3 id="replace-a-single-case-and-take-snapshots-of-all-views">Replace a single case and take snapshots of all views</h3>
 <p>The command line used to run this example is shown here:</p>
-<pre><code>ResInsight --project BatchTest.rsp --replaceCase &quot;Real10\BRUGGE_0010.EGRID&quot; --savesnapshots
-</code></pre><p>This will instruct ResInsight to read the project file <strong>BatchTest.rsp</strong>. The specified case <strong>Real10\BRUGGE_0010.EGRID</strong> will be imported into the project, and snapshots of all views will be written to file.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">ResInsight --project BatchTest.rsp --replaceCase &#34;Real10\BRUGGE_0010.EGRID&#34; --savesnapshots
+</code></pre></div><p>This will instruct ResInsight to read the project file <strong>BatchTest.rsp</strong>. The specified case <strong>Real10\BRUGGE_0010.EGRID</strong> will be imported into the project, and snapshots of all views will be written to file.</p>
 <h3 id="replace-source-cases-in-a-case-group-and-create-snapshot">Replace source cases in a case group and create snapshot</h3>
 <p>A list of cases is defined in <strong>CaseList2.txt</strong>, containing the following</p>
-<pre><code>Real0/BRUGGE_0000.EGRID
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">Real0/BRUGGE_0000.EGRID
 Real10/BRUGGE_0010.EGRID
-</code></pre><p>The command line used to run this example is shown here:</p>
-<pre><code>ResInsight --project BatchStatistics.rsp --replaceSourceCases CaseList2.txt --savesnapshots
-</code></pre><p>This will instruct ResInsight to read the project file <strong>BatchStatistics.rsp</strong>. All cases specified will be imported in the case group specified in the project file. Statistics will be computed, and snapshots for all views will be written to file.</p>
+</code></pre></div><p>The command line used to run this example is shown here:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">ResInsight --project BatchStatistics.rsp --replaceSourceCases CaseList2.txt --savesnapshots
+</code></pre></div><p>This will instruct ResInsight to read the project file <strong>BatchStatistics.rsp</strong>. All cases specified will be imported in the case group specified in the project file. Statistics will be computed, and snapshots for all views will be written to file.</p>
 <h3 id="replace-source-cases-in-multiple-case-groups-and-create-snapshots">Replace source cases in multiple case groups and create snapshots</h3>
 <p>Multiple source case groups can be updated by repeating the replaceSourceCases parameter.</p>
 <p>The command line used to run this example is shown here:</p>
-<pre><code>ResInsight --project BatchStatistics.rsp --replaceSourceCases 0 CaseList2.txt --replaceSourceCases 1 CaseList3.txt --savesnapshots
-</code></pre><p>This will instruct ResInsight to read the project file <strong>BatchStatistics.rsp</strong>. Source cases for case group 0 is given in CaseList2.txt, and source cases for case group 1 is given in CaseList3.txt. Statistics will be computed, and snapshots for all views will be written to file.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">ResInsight --project BatchStatistics.rsp --replaceSourceCases 0 CaseList2.txt --replaceSourceCases 1 CaseList3.txt --savesnapshots
+</code></pre></div><p>This will instruct ResInsight to read the project file <strong>BatchStatistics.rsp</strong>. Source cases for case group 0 is given in CaseList2.txt, and source cases for case group 1 is given in CaseList3.txt. Statistics will be computed, and snapshots for all views will be written to file.</p>
 <p>The possibility to replace multiple cases can also be applied for single case replace (parameter <em>replaceCase</em>).</p>
 <h3 id="summary-plotting-1">Summary plotting</h3>
 <p>The following command line performs a <a href="/plot-window/summaryplots/">summary plot</a> for <em>FOPT</em> based on Eclipse summary file <em>1_R001_REEK-0.SMSPEC</em>.</p>
-<pre><code>ResInsight --summaryplot FOPT 1_R001_REEK-0 
-</code></pre><p>Based on file <em>1_R001_REEK-0.SMSPEC</em>, the following command line performs a <a href="/plot-window/summaryplots/">summary plot</a> 
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">ResInsight --summaryplot FOPT 1_R001_REEK-0 
+</code></pre></div><p>Based on file <em>1_R001_REEK-0.SMSPEC</em>, the following command line performs a <a href="/plot-window/summaryplots/">summary plot</a> 
 for <em>FOPT</em> and any <em>WOPT</em>-vector for well <em>op_2</em>.
 The trailing option <em>-s</em> gathers the vectors into a single summary plot.</p>
-<pre><code>ResInsight --summaryplot -s FOPT WOPT*:op_2 1_R001_REEK-0
-</code></pre><p>Adding to previous example, the following command line also plots the 3D grid property <code>SOIL</code> for cell (20, 21, 1).</p>
-<pre><code>ResInsight --summaryplot FOPT WOPT*:op_2 SOIL:20,21,1 1_R001_REEK-0 
-</code></pre>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">ResInsight --summaryplot -s FOPT WOPT*:op_2 1_R001_REEK-0
+</code></pre></div><p>Adding to previous example, the following command line also plots the 3D grid property <code>SOIL</code> for cell (20, 21, 1).</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">ResInsight --summaryplot FOPT WOPT*:op_2 SOIL:20,21,1 1_R001_REEK-0 
+</code></pre></div>
 
 <footer class="footline">
 	
@@ -3083,6 +3124,11 @@ The trailing option <em>-s</em> gathers the vectors into a single summary plot.<
                         
             
             
+        
+                    
+                        
+            
+            
                 
                     
                 
@@ -3162,6 +3208,19 @@ The trailing option <em>-s</em> gathers the vectors into a single summary plot.<
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
                     
                         
             
@@ -3176,6 +3235,9 @@ The trailing option <em>-s</em> gathers the vectors into a single summary plot.<
                     
 
                     
+            
+        
+                    
                         
             
             
@@ -4138,7 +4200,20 @@ The trailing option <em>-s</em> gathers the vectors into a single summary plot.<
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
                     
+
+                    
                         
             
             
@@ -4151,6 +4226,9 @@ The trailing option <em>-s</em> gathers the vectors into a single summary plot.<
                     
                     
 
+                    
+            
+        
                     
                         
             
@@ -4793,19 +4871,19 @@ The trailing option <em>-s</em> gathers the vectors into a single summary plot.<
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1678870999"></script>
-    <script src="/js/perfect-scrollbar.min.js?1678870999"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1678870999"></script>
-    <script src="/js/jquery.sticky.js?1678870999"></script>
-    <script src="/js/featherlight.min.js?1678870999"></script>
-    <script src="/js/highlight.pack.js?1678870999"></script>
+    <script src="/js/clipboard.min.js?1678976587"></script>
+    <script src="/js/perfect-scrollbar.min.js?1678976587"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1678976587"></script>
+    <script src="/js/jquery.sticky.js?1678976587"></script>
+    <script src="/js/featherlight.min.js?1678976587"></script>
+    <script src="/js/highlight.pack.js?1678976587"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1678870999"></script>
-    <script src="/js/learn.js?1678870999"></script>
-    <script src="/js/hugo-learn.js?1678870999"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1678976587"></script>
+    <script src="/js/learn.js?1678976587"></script>
+    <script src="/js/hugo-learn.js?1678976587"></script>
 
-    <link href="/mermaid/mermaid.css?1678870999" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1678870999"></script>
+    <link href="/mermaid/mermaid.css?1678976587" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1678976587"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

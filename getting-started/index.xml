@@ -49,7 +49,7 @@ Grid Cross Plots ResInsight supports the creation of cross plots of two results 
       <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2019_08/</guid>
       <description>ResInsight 2019.08 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for Eclipse reservoir models. Version 2019.08 opens up a range of new and efficient workflows by adding Python script support in ResInsight.
 Python scripting Basic example on how to update views from Python
-import rips# Connect to ResInsight instanceresInsight = rips.Instance.find()# Check if connection workedif resInsight is not None:# Get a list of all casescases = resInsight.</description>
+import rips# Connect to ResInsight instance resInsight = rips.Instance.find()# Check if connection worked if resInsight is not None:# Get a list of all cases cases = resInsight.</description>
     </item>
     
     <item>
@@ -169,6 +169,18 @@ Icons are added to the docking windows to make it easy to find a window.</descri
       <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2023_01/</guid>
       <description>Summary Plotting Summary Plotting is updated with new features and improved workflows:
  Improved logarithmic legend and default ranges Visual appearance of curves is now stable when doing Source Stepping Curve name and plot name improvements  Change Data Source by Clicking in 3D The data source for multiple plots can be updated by clicking on a well path in 3D. This feature can be useful for large fields with many wells and you want to investigate a small subset of wells.</description>
+    </item>
+    
+    <item>
+      <title>What&#39;s New in 2023.03</title>
+      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2023_03/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2023_03/</guid>
+      <description>Calculator Improvements A calculated summary vector is now by default available for all wells, all cases and all ensembles.
+[Summary Calculator] [Calculator Expressions] [Grid Calculator]
+Radial Grids Import of radial grids including local grid refinement(LGR) are now supported. Using I and J range filters will filter the grid case based on angle and radius (Theta and R).
+Multi Segment Well Improvements Multi Segmented Wells - MSW is updated with new features and improved visualization</description>
     </item>
     
     <item>

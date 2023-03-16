@@ -12,18 +12,18 @@
     <title>What&#39;s New in 2019.08 :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1678870999" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1678870999" rel="stylesheet">
-    <link href="/css/hybrid.css?1678870999" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1678870999" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1678870999" rel="stylesheet">
-    <link href="/css/auto-complete.css?1678870999" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1678870999" rel="stylesheet">
-    <link href="/css/theme.css?1678870999" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1678870999" rel="stylesheet">
+    <link href="/css/nucleus.css?1678976586" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1678976586" rel="stylesheet">
+    <link href="/css/hybrid.css?1678976586" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1678976586" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1678976586" rel="stylesheet">
+    <link href="/css/auto-complete.css?1678976586" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1678976586" rel="stylesheet">
+    <link href="/css/theme.css?1678976586" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1678976586" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1678870999"></script>
+    <script src="/js/jquery-3.3.1.min.js?1678976586"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -264,6 +264,9 @@
   
  
 
+            
+          
+             
             
           
              
@@ -764,6 +767,25 @@
       <li data-nav-id="/3d-main-window/formations/" title=" Zonations/Formations" class="dd-item ">
         <a href="/3d-main-window/formations/">
          Zonations/Formations
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/depthplot/" title="Depth Plot" class="dd-item ">
+        <a href="/3d-main-window/depthplot/">
+        Depth Plot
         
         </a>
     </li>
@@ -1839,6 +1861,25 @@
  
   
     
+      <li data-nav-id="/import/pressuredata/" title="Pressure/Depth Data" class="dd-item ">
+        <a href="/import/pressuredata/">
+        Pressure/Depth Data
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/import/appendingadditionalproperties/" title="Appending Additional Properties" class="dd-item ">
         <a href="/import/appendingadditionalproperties/">
         Appending Additional Properties
@@ -2583,24 +2624,24 @@ if (!doNotTrack) {
 <p>ResInsight 2019.08 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for Eclipse reservoir models. Version 2019.08 opens up a range of new and efficient workflows by adding Python script support in ResInsight.</p>
 <h2 id="python-scripting">Python scripting</h2>
 <p>Basic example on how to update views from Python</p>
-<pre><code>import rips
-# Connect to ResInsight instance
-resInsight = rips.Instance.find()
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#f92672">import</span> rips
+<span style="color:#75715e"># Connect to ResInsight instance</span>
+resInsight <span style="color:#f92672">=</span> rips<span style="color:#f92672">.</span>Instance<span style="color:#f92672">.</span>find()
 
-# Check if connection worked
-if resInsight is not None:
-    # Get a list of all cases
-    cases = resInsight.project.cases()
-    for case in cases:
-        # Get a list of all views
-        views = case.views()
-        for view in views:
-            # Set some parameters for the view
-            view.setShowGridBox(not view.showGridBox())
-            view.setBackgroundColor(&quot;#3388AA&quot;)            
-            # Update the view in ResInsight
-            view.update()
-</code></pre><p>For more information and examples, please see the <a href="https://api.resinsight.org">ResInsight Python API</a>.</p>
+<span style="color:#75715e"># Check if connection worked</span>
+<span style="color:#66d9ef">if</span> resInsight <span style="color:#f92672">is</span> <span style="color:#f92672">not</span> None:
+    <span style="color:#75715e"># Get a list of all cases</span>
+    cases <span style="color:#f92672">=</span> resInsight<span style="color:#f92672">.</span>project<span style="color:#f92672">.</span>cases()
+    <span style="color:#66d9ef">for</span> case <span style="color:#f92672">in</span> cases:
+        <span style="color:#75715e"># Get a list of all views</span>
+        views <span style="color:#f92672">=</span> case<span style="color:#f92672">.</span>views()
+        <span style="color:#66d9ef">for</span> view <span style="color:#f92672">in</span> views:
+            <span style="color:#75715e"># Set some parameters for the view</span>
+            view<span style="color:#f92672">.</span>setShowGridBox(<span style="color:#f92672">not</span> view<span style="color:#f92672">.</span>showGridBox())
+            view<span style="color:#f92672">.</span>setBackgroundColor(<span style="color:#e6db74">&#34;#3388AA&#34;</span>)            
+            <span style="color:#75715e"># Update the view in ResInsight</span>
+            view<span style="color:#f92672">.</span>update()
+</code></pre></div><p>For more information and examples, please see the <a href="https://api.resinsight.org">ResInsight Python API</a>.</p>
 <h2 id="launch-resinsight-without-user-interface">Launch ResInsight without user interface</h2>
 <p>It is now possible to launch ResInsight as a console application with no user interface. Some workflows might include servers with no graphics card, and the console mode enables use of ResInsight in this context.</p>
 <p>See <a href="/scripting/commandlineinterface/">Command Line Interface</a></p>
@@ -2848,6 +2889,11 @@ if resInsight is not None:
                         
             
             
+        
+                    
+                        
+            
+            
                 
                     
                 
@@ -2927,6 +2973,19 @@ if resInsight is not None:
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
                     
                         
             
@@ -2941,6 +3000,9 @@ if resInsight is not None:
                     
 
                     
+            
+        
+                    
                         
             
             
@@ -3903,7 +3965,20 @@ if resInsight is not None:
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
                     
+
+                    
                         
             
             
@@ -3916,6 +3991,9 @@ if resInsight is not None:
                     
                     
 
+                    
+            
+        
                     
                         
             
@@ -4550,19 +4628,19 @@ if resInsight is not None:
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1678870999"></script>
-    <script src="/js/perfect-scrollbar.min.js?1678870999"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1678870999"></script>
-    <script src="/js/jquery.sticky.js?1678870999"></script>
-    <script src="/js/featherlight.min.js?1678870999"></script>
-    <script src="/js/highlight.pack.js?1678870999"></script>
+    <script src="/js/clipboard.min.js?1678976586"></script>
+    <script src="/js/perfect-scrollbar.min.js?1678976586"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1678976586"></script>
+    <script src="/js/jquery.sticky.js?1678976586"></script>
+    <script src="/js/featherlight.min.js?1678976586"></script>
+    <script src="/js/highlight.pack.js?1678976586"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1678870999"></script>
-    <script src="/js/learn.js?1678870999"></script>
-    <script src="/js/hugo-learn.js?1678870999"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1678976586"></script>
+    <script src="/js/learn.js?1678976586"></script>
+    <script src="/js/hugo-learn.js?1678976586"></script>
 
-    <link href="/mermaid/mermaid.css?1678870999" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1678870999"></script>
+    <link href="/mermaid/mermaid.css?1678976586" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1678976586"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

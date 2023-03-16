@@ -12,18 +12,18 @@
     <title>Ensemble RFT Plot :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1678870999" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1678870999" rel="stylesheet">
-    <link href="/css/hybrid.css?1678870999" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1678870999" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1678870999" rel="stylesheet">
-    <link href="/css/auto-complete.css?1678870999" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1678870999" rel="stylesheet">
-    <link href="/css/theme.css?1678870999" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1678870999" rel="stylesheet">
+    <link href="/css/nucleus.css?1678976586" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1678976586" rel="stylesheet">
+    <link href="/css/hybrid.css?1678976586" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1678976586" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1678976586" rel="stylesheet">
+    <link href="/css/auto-complete.css?1678976586" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1678976586" rel="stylesheet">
+    <link href="/css/theme.css?1678976586" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1678976586" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1678870999"></script>
+    <script src="/js/jquery-3.3.1.min.js?1678976586"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -264,6 +264,9 @@
   
  
 
+            
+          
+             
             
           
              
@@ -764,6 +767,25 @@
       <li data-nav-id="/3d-main-window/formations/" title=" Zonations/Formations" class="dd-item ">
         <a href="/3d-main-window/formations/">
          Zonations/Formations
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/depthplot/" title="Depth Plot" class="dd-item ">
+        <a href="/3d-main-window/depthplot/">
+        Depth Plot
         
         </a>
     </li>
@@ -1839,6 +1861,25 @@
  
   
     
+      <li data-nav-id="/import/pressuredata/" title="Pressure/Depth Data" class="dd-item ">
+        <a href="/import/pressuredata/">
+        Pressure/Depth Data
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/import/appendingadditionalproperties/" title="Appending Additional Properties" class="dd-item ">
         <a href="/import/appendingadditionalproperties/">
         Appending Additional Properties
@@ -2661,7 +2702,7 @@ Please see the <a href="/3d-main-window/formations/">full documentation</a> of t
 <p>The file <em>layer_zone_table.txt</em> can be used to correlate each grid k-layer with a formation name. 
 This file is identical for all cases in the same ensemble.</p>
 <p>Example file <em>layer_zone_table.txt</em>:</p>
-<pre><code>1   UpperReek
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">1   UpperReek
 2   UpperReek
 3   UpperReek
 4   UpperReek
@@ -2675,14 +2716,14 @@ This file is identical for all cases in the same ensemble.</p>
 12  LowerReek
 13  LowerReek
 14  LowerReek
-</code></pre><h4 id="observed-pressure-and-error">Observed pressure and error</h4>
+</code></pre></div><h4 id="observed-pressure-and-error">Observed pressure and error</h4>
 <p>For a given well name, the file <em>&lt;well_name&gt;.obs</em> is a data file containing two columns to specify observed pressure and error. 
 Column one contains observed pressure and column two contains error. The observation data is valid for one and only one layer/formation.</p>
 <p>Example file  for well <em>OP_1</em>, i.e. <em>OP_1.obs</em>:</p>
-<pre><code>303.000   3.000
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">303.000   3.000
 304.000   3.000
 305.000   3.000
-</code></pre><h4 id="reservoir-zone-name">Reservoir zone name</h4>
+</code></pre></div><h4 id="reservoir-zone-name">Reservoir zone name</h4>
 <p>For a given well name, the file <em>&lt;well_name&gt;.txt</em> is a data file containing five columns that specify its correlation with reservoir zones. 
 Each line of data must contain:</p>
 <ul>
@@ -2693,10 +2734,10 @@ Each line of data must contain:</p>
 <li>Reservoir zone name</li>
 </ul>
 <p>Example file for well <em>OP_1</em>, i.e. <em>OP_1.txt</em>:</p>
-<pre><code>461288.719   5933415.000   1816.200   1611.692   UpperReek
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">461288.719   5933415.000   1816.200   1611.692   UpperReek
 461288.685   5933415.027   1824.560   1620.052   MidReek
 461288.683   5933415.029   1840.000   1635.492   LowerReek
-</code></pre><h4 id="well-measurements">Well measurements</h4>
+</code></pre></div><h4 id="well-measurements">Well measurements</h4>
 <p>The data file <em>well_date_rft.txt</em> contains well measurements. The file contains four columns for each well measurement:</p>
 <ul>
 <li>Well Name</li>
@@ -2707,12 +2748,12 @@ Each line of data must contain:</p>
 </ul>
 <p>There can be multiple measurement for each well.</p>
 <p>Example file <em>well_date_rft.txt</em>:</p>
-<pre><code>OP_1   01 02 2000   1
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-txt" data-lang="txt">OP_1   01 02 2000   1
 OP_2   01 02 2000   1
 OP_4   01 01 2001   1
 WI_1   01 02 2000   1
 WI_3   01 03 2001   1
-</code></pre>
+</code></pre></div>
 
 <footer class="footline">
 	
@@ -2947,6 +2988,11 @@ WI_3   01 03 2001   1
                         
             
             
+        
+                    
+                        
+            
+            
                 
                     
                 
@@ -3026,6 +3072,19 @@ WI_3   01 03 2001   1
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
                     
                         
             
@@ -3040,6 +3099,9 @@ WI_3   01 03 2001   1
                     
 
                     
+            
+        
+                    
                         
             
             
@@ -4010,7 +4072,20 @@ WI_3   01 03 2001   1
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
                     
+
+                    
                         
             
             
@@ -4023,6 +4098,9 @@ WI_3   01 03 2001   1
                     
                     
 
+                    
+            
+        
                     
                         
             
@@ -4657,19 +4735,19 @@ WI_3   01 03 2001   1
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1678870999"></script>
-    <script src="/js/perfect-scrollbar.min.js?1678870999"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1678870999"></script>
-    <script src="/js/jquery.sticky.js?1678870999"></script>
-    <script src="/js/featherlight.min.js?1678870999"></script>
-    <script src="/js/highlight.pack.js?1678870999"></script>
+    <script src="/js/clipboard.min.js?1678976587"></script>
+    <script src="/js/perfect-scrollbar.min.js?1678976587"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1678976587"></script>
+    <script src="/js/jquery.sticky.js?1678976587"></script>
+    <script src="/js/featherlight.min.js?1678976587"></script>
+    <script src="/js/highlight.pack.js?1678976587"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1678870999"></script>
-    <script src="/js/learn.js?1678870999"></script>
-    <script src="/js/hugo-learn.js?1678870999"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1678976587"></script>
+    <script src="/js/learn.js?1678976587"></script>
+    <script src="/js/hugo-learn.js?1678976587"></script>
 
-    <link href="/mermaid/mermaid.css?1678870999" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1678870999"></script>
+    <link href="/mermaid/mermaid.css?1678976587" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1678976587"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

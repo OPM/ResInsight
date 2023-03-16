@@ -170,7 +170,7 @@ Grid Cross Plots ResInsight supports the creation of cross plots of two results 
       <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2019_08/</guid>
       <description>ResInsight 2019.08 is the latest version of ResInsight, the professional quality, open source 3D visualization, curve plotting and post-processing tool for Eclipse reservoir models. Version 2019.08 opens up a range of new and efficient workflows by adding Python script support in ResInsight.
 Python scripting Basic example on how to update views from Python
-import rips# Connect to ResInsight instanceresInsight = rips.Instance.find()# Check if connection workedif resInsight is not None:# Get a list of all casescases = resInsight.</description>
+import rips# Connect to ResInsight instance resInsight = rips.Instance.find()# Check if connection worked if resInsight is not None:# Get a list of all cases cases = resInsight.</description>
     </item>
     
     <item>
@@ -293,6 +293,18 @@ Icons are added to the docking windows to make it easy to find a window.</descri
     </item>
     
     <item>
+      <title>What&#39;s New in 2023.03</title>
+      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2023_03/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2023_03/</guid>
+      <description>Calculator Improvements A calculated summary vector is now by default available for all wells, all cases and all ensembles.
+[Summary Calculator] [Calculator Expressions] [Grid Calculator]
+Radial Grids Import of radial grids including local grid refinement(LGR) are now supported. Using I and J range filters will filter the grid case based on angle and radius (Theta and R).
+Multi Segment Well Improvements Multi Segmented Wells - MSW is updated with new features and improved visualization</description>
+    </item>
+    
+    <item>
       <title>Data Sources</title>
       <link>https://resinsight.org/plot-window/summaryplotdatasources/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -383,7 +395,7 @@ Command line options General    Parameter Description     --help, --?</descripti
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/calculated-data/curvecalculator/</guid>
-      <description>The summary curve calculator is a tool to do relative simple vector calculations on a set of curves. The created curves can be stored for later use in the project.
+      <description>The summary curve calculator is a tool to do calculations on a set of curves. The created curves can be stored for later use in the project.
 The calculator can be run by pressing the calculator icon in the menu bar, or by right-clicking on either a summary case or the summary plot collection.
 More details on mathematical operations are described in Calculator Expressions
 Calculation Settings To make a new calculated curve, click on New Calculation.</description>
@@ -604,6 +616,17 @@ These abbreviations are used in the tables below:
       <description>Observed Time History Data, is data measured in time. On import of observed time history data, ResInsight translates the data to make it similar to summary data. Observed time history data can be plotted along with summary data in Summary Plots.
 Import Observed Time History Data Importing observed time history data to ResInsight may be performed in two different ways:
  By selecting the main menu item File -&amp;gt; Import -&amp;gt; Import Observed Data By using the right-click command Import Observed Data on the Observed Data item in the Plot Main Window Project Tree  The following file types are supported:</description>
+    </item>
+    
+    <item>
+      <title>Pressure/Depth Data</title>
+      <link>https://resinsight.org/import/pressuredata/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/import/pressuredata/</guid>
+      <description>Import Pressure/Depth Data Importing pressure data to ResInsight may be performed in two different ways:
+ By selecting the main menu item File -&amp;gt; Import -&amp;gt; Import Pressure Depth Data By using the right-click command Import Pressure Data on the Observed Data item in the Plot Main Window Project Tree  The imported pressure data can visualized in [RFT Plots]
+Pressure/Depth File Format --TVDMSL RFT --WELLNAME &amp;#39;OP_1&amp;#39;DATE 28-FEB-2000PRESSURE DEPTHBARSA METRES302.</description>
     </item>
     
     <item>
@@ -1166,6 +1189,16 @@ Create New PLT Plot There are several ways to create new PLT Plots</description>
       <description>A Vertical Flow Performance Plot (VFP Plot) shows the relationship between bottom hole well conditions and wellhead pressure describing a well&amp;rsquo;s ability to lift fluids to the surface. ResInsight can display both production and injection VFP plots.
 Creating VFP Plots VFP Plots are created by right-clicking the VFP Plots item in Plot Project Tree.
 Production VFP Plot The production VFP Plot shows the outflow or downstream pressure based on the inlet or upstream pressure and the phases flowing through the system.</description>
+    </item>
+    
+    <item>
+      <title>Depth Plot</title>
+      <link>https://resinsight.org/3d-main-window/depthplot/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/3d-main-window/depthplot/</guid>
+      <description>When clicking on cells in 3D, all values along the IJ column of the selected cells can be displayed in a depth plot. This can be combined with a Result Plot displaying the change for selected cells over time.
+Result Inspection</description>
     </item>
     
     <item>

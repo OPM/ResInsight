@@ -12,18 +12,18 @@
     <title>Flow Diagnostics Plots :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1678870999" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1678870999" rel="stylesheet">
-    <link href="/css/hybrid.css?1678870999" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1678870999" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1678870999" rel="stylesheet">
-    <link href="/css/auto-complete.css?1678870999" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1678870999" rel="stylesheet">
-    <link href="/css/theme.css?1678870999" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1678870999" rel="stylesheet">
+    <link href="/css/nucleus.css?1678976586" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1678976586" rel="stylesheet">
+    <link href="/css/hybrid.css?1678976586" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1678976586" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1678976586" rel="stylesheet">
+    <link href="/css/auto-complete.css?1678976586" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1678976586" rel="stylesheet">
+    <link href="/css/theme.css?1678976586" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1678976586" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1678870999"></script>
+    <script src="/js/jquery-3.3.1.min.js?1678976586"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -264,6 +264,9 @@
   
  
 
+            
+          
+             
             
           
              
@@ -764,6 +767,25 @@
       <li data-nav-id="/3d-main-window/formations/" title=" Zonations/Formations" class="dd-item ">
         <a href="/3d-main-window/formations/">
          Zonations/Formations
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/3d-main-window/depthplot/" title="Depth Plot" class="dd-item ">
+        <a href="/3d-main-window/depthplot/">
+        Depth Plot
         
         </a>
     </li>
@@ -1839,6 +1861,25 @@
  
   
     
+      <li data-nav-id="/import/pressuredata/" title="Pressure/Depth Data" class="dd-item ">
+        <a href="/import/pressuredata/">
+        Pressure/Depth Data
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/import/appendingadditionalproperties/" title="Appending Additional Properties" class="dd-item ">
         <a href="/import/appendingadditionalproperties/">
         Appending Additional Properties
@@ -2559,6 +2600,7 @@ if (!doNotTrack) {
             <li><a href="#accessing-the-plot-data">Accessing the Plot Data</a></li>
           </ul>
         </li>
+        <li><a href="#well-allocation-over-time">Well Allocation Over Time</a></li>
         <li><a href="#cumulative-phase-distribution-plot">Cumulative Phase Distribution Plot</a></li>
         <li><a href="#flow-characteristics-plot">Flow Characteristics Plot</a>
           <ul>
@@ -2668,6 +2710,9 @@ The depth are calculated with <strong>Branch detection</strong> <em>On</em> and 
 <p>The command right-click command <strong>Show Plot Data</strong> will show a window containing the plot data in ascii format. The content of this window is easy to copy and paste into Excel or other tools for further processing.</p>
 <p>It is also possible to save the ascii data to a file directly by using the right-click command <strong>Export Plot Data to Text File</strong> on the <strong>Accumulated Flow</strong>/<strong>Inflow Rates</strong> item in the <strong>Project Tree</strong>.</p>
 <p>The total accumulation data can also be viewed in ascci format by the command <strong>Show Total Allocation Data</strong>.</p>
+<h2 id="well-allocation-over-time">Well Allocation Over Time</h2>
+<p><img src="/images/plot-window/WellAllocationOverTime.png" alt=""></p>
+<p>Use <strong>Well Allocation Over Time</strong> to see the allocation over multiple restart time steps.</p>
 <h2 id="cumulative-phase-distribution-plot">Cumulative Phase Distribution Plot</h2>
 <p>A Cumulative Phase Distribution Plot shows the volumetric oil, gas, and water distribution from contributing wells to a target well.
 For producer B-2H, for instance, such a plot can be created by right-clicking its entry under <strong>Simulation Wells</strong> in <strong>Project Tree</strong>.</p>
@@ -2961,6 +3006,11 @@ For producer B-2H, for instance, such a plot can be created by right-clicking it
                         
             
             
+        
+                    
+                        
+            
+            
                 
                     
                 
@@ -3040,6 +3090,19 @@ For producer B-2H, for instance, such a plot can be created by right-clicking it
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
                     
                         
             
@@ -3054,6 +3117,9 @@ For producer B-2H, for instance, such a plot can be created by right-clicking it
                     
 
                     
+            
+        
+                    
                         
             
             
@@ -4024,7 +4090,20 @@ For producer B-2H, for instance, such a plot can be created by right-clicking it
                     
             
         
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
                     
+
+                    
                         
             
             
@@ -4037,6 +4116,9 @@ For producer B-2H, for instance, such a plot can be created by right-clicking it
                     
                     
 
+                    
+            
+        
                     
                         
             
@@ -4671,19 +4753,19 @@ For producer B-2H, for instance, such a plot can be created by right-clicking it
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1678870999"></script>
-    <script src="/js/perfect-scrollbar.min.js?1678870999"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1678870999"></script>
-    <script src="/js/jquery.sticky.js?1678870999"></script>
-    <script src="/js/featherlight.min.js?1678870999"></script>
-    <script src="/js/highlight.pack.js?1678870999"></script>
+    <script src="/js/clipboard.min.js?1678976587"></script>
+    <script src="/js/perfect-scrollbar.min.js?1678976587"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1678976587"></script>
+    <script src="/js/jquery.sticky.js?1678976587"></script>
+    <script src="/js/featherlight.min.js?1678976587"></script>
+    <script src="/js/highlight.pack.js?1678976587"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1678870999"></script>
-    <script src="/js/learn.js?1678870999"></script>
-    <script src="/js/hugo-learn.js?1678870999"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1678976587"></script>
+    <script src="/js/learn.js?1678976587"></script>
+    <script src="/js/hugo-learn.js?1678976587"></script>
 
-    <link href="/mermaid/mermaid.css?1678870999" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1678870999"></script>
+    <link href="/mermaid/mermaid.css?1678976587" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1678976587"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>
