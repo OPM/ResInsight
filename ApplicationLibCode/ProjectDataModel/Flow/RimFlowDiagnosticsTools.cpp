@@ -44,7 +44,7 @@ bool RimFlowDiagnosticsTools::TracerComp::operator()( const QString& lhs, const 
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimFlowDiagnosticsTools::calcOptionsForSelectedTracerField( RimFlowDiagSolution* flowSol, bool isInjector )
 {
-    if ( !flowSol ) return QList<caf::PdmOptionItemInfo>();
+    if ( !flowSol ) return {};
 
     QList<caf::PdmOptionItemInfo> options;
     std::set<QString, TracerComp> sortedTracers = setOfTracersOfType( flowSol, isInjector );
@@ -71,7 +71,7 @@ QList<caf::PdmOptionItemInfo> RimFlowDiagnosticsTools::calcOptionsForSelectedTra
 std::set<QString, RimFlowDiagnosticsTools::TracerComp> RimFlowDiagnosticsTools::setOfTracersOfType( RimFlowDiagSolution* flowSol,
                                                                                                     bool                 isInjector )
 {
-    if ( !flowSol ) return std::set<QString, TracerComp>();
+    if ( !flowSol ) return {};
 
     std::set<QString, TracerComp> sortedTracers;
     std::vector<QString>          tracerNames = flowSol->tracerNames();
@@ -114,7 +114,7 @@ std::vector<QString> RimFlowDiagnosticsTools::tracersOfStatusInTimeStep( RimFlow
                                                                          RimFlowDiagSolution::TracerStatusType status,
                                                                          int                                   timeStepIndex )
 {
-    if ( !flowSol || timeStepIndex < 0 ) return std::vector<QString>();
+    if ( !flowSol || timeStepIndex < 0 ) return {};
 
     std::vector<QString> tracers;
     for ( const auto& tracer : flowSol->tracerNames() )
@@ -135,7 +135,7 @@ std::set<QString, RimFlowDiagnosticsTools::TracerComp>
                                                                 const std::vector<QString>& producerTracers,
                                                                 std::vector<int>            timeStepIndices )
 {
-    if ( !flowSol ) return std::set<QString, TracerComp>();
+    if ( !flowSol ) return {};
 
     const double                  epsilon    = 1.0e-8;
     const bool                    isInjector = true;
@@ -179,7 +179,7 @@ std::set<QString, RimFlowDiagnosticsTools::TracerComp>
                                                                 const std::vector<QString>& injectorTracers,
                                                                 std::vector<int>            timeStepIndices )
 {
-    if ( !flowSol ) return std::set<QString, TracerComp>();
+    if ( !flowSol ) return {};
 
     const double                  epsilon    = 1.0e-8;
     const bool                    isInjector = false;

@@ -33,8 +33,6 @@
 #include <QPointer>
 #include <QWidget>
 
-#include <span>
-
 class RimViewWindow;
 class RimRegularLegendConfig;
 class RiuAbstractLegendFrame;

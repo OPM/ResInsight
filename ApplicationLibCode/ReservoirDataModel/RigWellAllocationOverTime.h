@@ -26,11 +26,11 @@
 
 class RigAccWellFlowCalculator;
 
-class RimWellAllocationOverTimeCollection
+class RigWellAllocationOverTime
 {
 public:
-    RimWellAllocationOverTimeCollection( const std::vector<QDateTime>&                        timeStepDates,
-                                         const std::map<QDateTime, RigAccWellFlowCalculator>& timeStepAndCalculatorPairs );
+    RigWellAllocationOverTime( const std::vector<QDateTime>&                        timeStepDates,
+                               const std::map<QDateTime, RigAccWellFlowCalculator>& timeStepAndCalculatorPairs );
 
     const std::vector<QDateTime>                         timeStepDates() const { return m_timeStepDates; }
     const std::map<QString, std::map<QDateTime, double>> wellValuesMap() const { return m_wellValuesMap; }

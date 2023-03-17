@@ -26,6 +26,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigSimWellData.h"
 #include "RigSimulationWellCenterLineCalculator.h"
+#include "RigWellAllocationOverTime.h"
 
 #include "RimCellFilter.h"
 #include "RimCellFilterCollection.h"
@@ -38,7 +39,6 @@
 #include "RimRegularLegendConfig.h"
 #include "RimSimWellInView.h"
 #include "RimTools.h"
-#include "RimWellAllocationOverTimeCollection.h"
 #include "RimWellAllocationTools.h"
 #include "RimWellLogFile.h"
 #include "RimWellPlotTools.h"
@@ -191,6 +191,8 @@ RimWellConnectivityTable::~RimWellConnectivityTable()
 //--------------------------------------------------------------------------------------------------
 void RimWellConnectivityTable::setFromSimulationWell( RimSimWellInView* simWell )
 {
+    if ( !simWell ) return;
+
     RimEclipseView* eclView;
     simWell->firstAncestorOrThisOfType( eclView );
     RimEclipseResultCase* eclCase;
@@ -204,17 +206,23 @@ void RimWellConnectivityTable::setFromSimulationWell( RimSimWellInView* simWell 
 
     // Set single time step and current selected time step from active view
     m_timeStepSelection = TimeStepSelection::SINGLE_TIME_STEP;
-    m_selectedTimeStep  = eclCase->timeStepDates().at( eclView->currentTimeStep() );
+
+    if ( eclCase )
+    {
+        m_selectedTimeStep = eclCase->timeStepDates().at( eclView->currentTimeStep() );
+    }
 
     // Use the active flow diagnostics solutions, or the first one as default
-    m_flowDiagSolution = eclView->cellResult()->flowDiagSolution();
-    if ( !m_flowDiagSolution )
+    if ( eclView )
     {
-        m_flowDiagSolution = m_case->defaultFlowDiagSolution();
+        m_flowDiagSolution = eclView->cellResult()->flowDiagSolution();
+        if ( !m_flowDiagSolution )
+        {
+            m_flowDiagSolution = m_case->defaultFlowDiagSolution();
+        }
     }
 
     connectViewCellFiltersChangedToSlot( m_cellFilterView );
-
     setSelectedProducersAndInjectorsForSingleTimeStep();
     onLoadDataAndUpdate();
 }
@@ -407,7 +415,7 @@ void RimWellConnectivityTable::defineUiOrdering( QString uiConfigName, caf::PdmU
 
     caf::PdmUiGroup* tableSettingsGroup = uiOrdering.addNewGroup( "Table Settings" );
     tableSettingsGroup->add( &m_showValueLabels );
-    m_legendConfig->uiOrdering( "TableSettings", *tableSettingsGroup );
+    m_legendConfig->uiOrdering( "FlagColorsAndMappingModeOnly", *tableSettingsGroup );
 
     caf::PdmUiGroup* fontGroup = uiOrdering.addNewGroup( "Fonts" );
     fontGroup->setCollapsedByDefault();
@@ -466,12 +474,12 @@ void RimWellConnectivityTable::onLoadDataAndUpdate()
     // Create well flow diagnostics data - with selected production wells (no selection -> no filtering)
     std::set<QString> selectedProductionWells =
         std::set<QString>( m_selectedProducerTracersUiField().begin(), m_selectedProducerTracersUiField().end() );
-    const std::map<QString, RimWellAllocationOverTimeCollection> productionWellDataCollections =
-        createProductionWellAllocationOverTimeCollections( selectedProductionWells );
+    const std::map<QString, RigWellAllocationOverTime> productionWellsAllocationOverTime =
+        createProductionWellsAllocationOverTimeMap( selectedProductionWells );
 
     // Retrieve union of injection wells across selected producers
     std::set<QString> injectionWellsUnion;
-    for ( const auto& [prodWellName, prodWellData] : productionWellDataCollections )
+    for ( const auto& [prodWellName, prodWellData] : productionWellsAllocationOverTime )
     {
         for ( const auto& [injectionWell, values] : prodWellData.wellValuesMap() )
         {
@@ -487,7 +495,7 @@ void RimWellConnectivityTable::onLoadDataAndUpdate()
 
     // Store rows where minimum one injector well value is above threshold
     std::map<QString, std::vector<double>> filteredRows;
-    for ( const auto& [prodWellName, prodWellData] : productionWellDataCollections )
+    for ( const auto& [prodWellName, prodWellData] : productionWellsAllocationOverTime )
     {
         bool                hasValueAboveThreshold = false;
         std::vector<double> rowValues              = std::vector<double>( columnHeaders.size(), 0.0 );
@@ -846,17 +854,20 @@ QString RimWellConnectivityTable::createTableTitle() const
     return "";
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::pair<double, double> RimWellConnectivityTable::createLegendMinMaxValues( const double maxTableValue ) const
 {
-    if ( ( m_timeStepSelection == TimeStepSelection::SINGLE_TIME_STEP && m_timeSampleValueType == TimeSampleValueType::FLOW_RATE_PERCENTAGE ) ||
-         ( m_timeStepSelection == TimeStepSelection::TIME_STEP_RANGE &&
-           m_timeRangeValueType == TimeRangeValueType::ACCUMULATED_FLOW_VOLUME_PERCENTAGE ) )
+    using enum TimeStepSelection;
+
+    if ( ( m_timeStepSelection == SINGLE_TIME_STEP && m_timeSampleValueType == TimeSampleValueType::FLOW_RATE_PERCENTAGE ) ||
+         ( m_timeStepSelection == TIME_STEP_RANGE && m_timeRangeValueType == TimeRangeValueType::ACCUMULATED_FLOW_VOLUME_PERCENTAGE ) )
     {
         return std::make_pair( 0.0, 100.0 );
     }
-    if ( ( m_timeStepSelection == TimeStepSelection::SINGLE_TIME_STEP && m_timeSampleValueType == TimeSampleValueType::FLOW_RATE_FRACTION ) ||
-         ( m_timeStepSelection == TimeStepSelection::TIME_STEP_RANGE &&
-           m_timeRangeValueType == TimeRangeValueType::ACCUMULATED_FLOW_VOLUME_FRACTION ) )
+    if ( ( m_timeStepSelection == SINGLE_TIME_STEP && m_timeSampleValueType == TimeSampleValueType::FLOW_RATE_FRACTION ) ||
+         ( m_timeStepSelection == TIME_STEP_RANGE && m_timeRangeValueType == TimeRangeValueType::ACCUMULATED_FLOW_VOLUME_FRACTION ) )
     {
         return std::make_pair( 0.0, 1.0 );
     }
@@ -961,9 +972,9 @@ void RimWellConnectivityTable::setSelectedProducersAndInjectorsForTimeStepRange(
 {
     if ( !m_case || !m_flowDiagSolution || !m_selectedTimeStep().isValid() ) return;
 
-    const auto          allTimeSteps      = m_case->timeStepDates();
-    std::set<QDateTime> selectedTimeSteps = getSelectedTimeSteps( allTimeSteps );
-    std::set<QDateTime> excludedTimeSteps = std::set( m_excludeTimeSteps().begin(), m_excludeTimeSteps().end() );
+    const auto                allTimeSteps      = m_case->timeStepDates();
+    const std::set<QDateTime> selectedTimeSteps = getSelectedTimeSteps( allTimeSteps );
+    const std::set<QDateTime> excludedTimeSteps = std::set( m_excludeTimeSteps().begin(), m_excludeTimeSteps().end() );
 
     std::set<QString> producerSet;
     std::set<QString> injectorSet;
@@ -1004,9 +1015,9 @@ void RimWellConnectivityTable::syncSelectedInjectorsFromProducerSelection()
     }
     if ( m_timeStepSelection == TimeStepSelection::TIME_STEP_RANGE )
     {
-        const auto          allTimeSteps      = m_case->timeStepDates();
-        std::set<QDateTime> selectedTimeSteps = getSelectedTimeSteps( allTimeSteps );
-        std::vector<int>    timeStepIndices;
+        const auto                allTimeSteps      = m_case->timeStepDates();
+        const std::set<QDateTime> selectedTimeSteps = getSelectedTimeSteps( allTimeSteps );
+        std::vector<int>          timeStepIndices;
         for ( const auto& timeStep : selectedTimeSteps )
         {
             timeStepIndices.push_back( getTimeStepIndex( timeStep, allTimeSteps ) );
@@ -1088,17 +1099,17 @@ void RimWellConnectivityTable::disconnectViewCellFiltersChangedFromSlots( RimEcl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<QString, RimWellAllocationOverTimeCollection>
-    RimWellConnectivityTable::createProductionWellAllocationOverTimeCollections( const std::set<QString>& selectedProductionWells ) const
+std::map<QString, RigWellAllocationOverTime>
+    RimWellConnectivityTable::createProductionWellsAllocationOverTimeMap( const std::set<QString>& selectedProductionWells ) const
 {
     if ( !m_case || !m_flowDiagSolution )
     {
-        return std::map<QString, RimWellAllocationOverTimeCollection>();
+        return std::map<QString, RigWellAllocationOverTime>();
     }
 
-    std::map<QString, RimWellAllocationOverTimeCollection> wellAllocationOverTimeCollections;
+    std::map<QString, RigWellAllocationOverTime> wellAllocationOverTimeMap;
 
-    // Create well allocation over time collection for each production well
+    // Create well allocation over time for each production well
     std::vector<QString> prodWellNames = getProductionWellNames();
     for ( const auto& wellName : prodWellNames )
     {
@@ -1107,20 +1118,20 @@ std::map<QString, RimWellAllocationOverTimeCollection>
         const RigSimWellData* simWellData = m_case->eclipseCaseData()->findSimWellData( wellName );
         if ( !simWellData ) continue;
 
-        wellAllocationOverTimeCollections.emplace( wellName, createWellAllocationOverTimeCollection( simWellData ) );
+        wellAllocationOverTimeMap.emplace( wellName, createWellAllocationOverTime( simWellData ) );
     }
 
-    return wellAllocationOverTimeCollections;
+    return wellAllocationOverTimeMap;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellAllocationOverTimeCollection RimWellConnectivityTable::createWellAllocationOverTimeCollection( const RigSimWellData* simWellData ) const
+RigWellAllocationOverTime RimWellConnectivityTable::createWellAllocationOverTime( const RigSimWellData* simWellData ) const
 {
     if ( !m_case || !simWellData || !m_flowDiagSolution )
     {
-        return RimWellAllocationOverTimeCollection( {}, {} );
+        return RigWellAllocationOverTime( {}, {} );
     }
 
     const std::vector<QDateTime>                  allTimeSteps = m_case->timeStepDates();
@@ -1141,26 +1152,26 @@ RimWellAllocationOverTimeCollection RimWellConnectivityTable::createWellAllocati
             createAndEmplaceTimeStepAndCalculatorPairInMap( timeStepAndCalculatorPairs, timeStep, timeStepIndex, simWellData );
         }
 
-        // Create collection with map
-        const auto                          selectedTimeStepsVector = std::vector( selectedTimeSteps.begin(), selectedTimeSteps.end() );
-        RimWellAllocationOverTimeCollection collection( selectedTimeStepsVector, timeStepAndCalculatorPairs );
+        // Create well allocation over time data
+        const auto                selectedTimeStepsVector = std::vector( selectedTimeSteps.begin(), selectedTimeSteps.end() );
+        RigWellAllocationOverTime wellAllocationOverTime( selectedTimeStepsVector, timeStepAndCalculatorPairs );
 
         // NB: No threshold when generating calculators - filtering must be done after collecting data
         // for each producer!
         const double smallContributionThreshold = 0.0;
         if ( m_timeRangeValueType == TimeRangeValueType::ACCUMULATED_FLOW_VOLUME )
         {
-            collection.fillWithAccumulatedFlowVolumeValues( smallContributionThreshold );
+            wellAllocationOverTime.fillWithAccumulatedFlowVolumeValues( smallContributionThreshold );
         }
         else if ( m_timeRangeValueType == TimeRangeValueType::ACCUMULATED_FLOW_VOLUME_FRACTION )
         {
-            collection.fillWithAccumulatedFlowVolumeFractionValues( smallContributionThreshold );
+            wellAllocationOverTime.fillWithAccumulatedFlowVolumeFractionValues( smallContributionThreshold );
         }
         else if ( m_timeRangeValueType == TimeRangeValueType::ACCUMULATED_FLOW_VOLUME_PERCENTAGE )
         {
-            collection.fillWithAccumulatedFlowVolumePercentageValues( smallContributionThreshold );
+            wellAllocationOverTime.fillWithAccumulatedFlowVolumePercentageValues( smallContributionThreshold );
         }
-        return collection;
+        return wellAllocationOverTime;
     }
 
     if ( m_timeStepSelection() == TimeStepSelection::SINGLE_TIME_STEP )
@@ -1168,25 +1179,25 @@ RimWellAllocationOverTimeCollection RimWellConnectivityTable::createWellAllocati
         const auto timeStepIndex = getTimeStepIndex( m_selectedTimeStep(), allTimeSteps );
         createAndEmplaceTimeStepAndCalculatorPairInMap( timeStepAndCalculatorPairs, m_selectedTimeStep(), timeStepIndex, simWellData );
 
-        // Create collection
-        RimWellAllocationOverTimeCollection collection( { m_selectedTimeStep() }, timeStepAndCalculatorPairs );
+        // Create well allocation over time data
+        RigWellAllocationOverTime wellAllocationOverTime( { m_selectedTimeStep() }, timeStepAndCalculatorPairs );
 
         if ( m_timeSampleValueType == TimeSampleValueType::FLOW_RATE )
         {
-            collection.fillWithFlowRateValues();
+            wellAllocationOverTime.fillWithFlowRateValues();
         }
         else if ( m_timeSampleValueType == TimeSampleValueType::FLOW_RATE_FRACTION )
         {
-            collection.fillWithFlowRateFractionValues();
+            wellAllocationOverTime.fillWithFlowRateFractionValues();
         }
         else if ( m_timeSampleValueType == TimeSampleValueType::FLOW_RATE_PERCENTAGE )
         {
-            collection.fillWithFlowRatePercentageValues();
+            wellAllocationOverTime.fillWithFlowRatePercentageValues();
         }
-        return collection;
+        return wellAllocationOverTime;
     }
 
-    return RimWellAllocationOverTimeCollection( {}, {} );
+    return RigWellAllocationOverTime( {}, {} );
 }
 
 //--------------------------------------------------------------------------------------------------

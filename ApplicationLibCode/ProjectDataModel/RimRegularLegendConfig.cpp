@@ -1234,7 +1234,7 @@ void RimRegularLegendConfig::defineUiOrdering( QString uiConfigName, caf::PdmUiO
         uiOrdering.add( &m_colorLegend );
         uiOrdering.skipRemainingFields( true );
     }
-    else if ( uiConfigName == "TableSettings" ) // TODO: UPDATE NAME!
+    else if ( uiConfigName == "FlagColorsAndMappingModeOnly" )
     {
         uiOrdering.add( &m_showLegend );
         uiOrdering.add( &m_colorLegend );

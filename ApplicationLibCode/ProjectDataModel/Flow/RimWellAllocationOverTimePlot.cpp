@@ -28,6 +28,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigSimWellData.h"
 #include "RigSimulationWellCenterLineCalculator.h"
+#include "RigWellAllocationOverTime.h"
 #include "RigWellResultPoint.h"
 
 #include "RimEclipseCaseTools.h"
@@ -37,7 +38,6 @@
 #include "RimFlowDiagSolution.h"
 #include "RimSimWellInView.h"
 #include "RimStackablePlotCurve.h"
-#include "RimWellAllocationOverTimeCollection.h"
 #include "RimWellAllocationTools.h"
 #include "RimWellLogFile.h"
 #include "RimWellPlotTools.h"
@@ -186,23 +186,23 @@ RiuPlotWidget* RimWellAllocationOverTimePlot::plotWidget()
 //--------------------------------------------------------------------------------------------------
 QString RimWellAllocationOverTimePlot::asciiDataForPlotExport() const
 {
-    // Retrieve collection of allocation over time data for wells
-    RimWellAllocationOverTimeCollection allocationOverTimeCollection = createWellAllocationOverTimeCollection();
+    // Retrieve allocation over time data for wells
+    RigWellAllocationOverTime allocationOverTime = createWellAllocationOverTime();
 
     QString titleText = m_userName + "\n\n";
 
     QString dataText = "Time Step\t";
-    for ( auto& [wellName, wellValues] : allocationOverTimeCollection.wellValuesMap() )
+    for ( auto& [wellName, wellValues] : allocationOverTime.wellValuesMap() )
     {
         dataText += wellName + "\t";
     }
     dataText += "\n";
 
     const QString dateFormatStr = dateFormatString();
-    for ( const auto& timeStep : allocationOverTimeCollection.timeStepDates() )
+    for ( const auto& timeStep : allocationOverTime.timeStepDates() )
     {
         dataText += timeStep.toString( dateFormatStr ) + "\t";
-        for ( auto& [wellName, wellValues] : allocationOverTimeCollection.wellValuesMap() )
+        for ( auto& [wellName, wellValues] : allocationOverTime.wellValuesMap() )
         {
             dataText += wellValues.count( timeStep ) == 0 ? QString::number( 0.0 ) : QString::number( wellValues.at( timeStep ) );
             dataText += "\t";
@@ -350,18 +350,18 @@ void RimWellAllocationOverTimePlot::updateFromWell()
     }
     m_plotWidget->detachItems( RiuPlotWidget::PlotItemType::CURVE );
 
-    // Retrieve collection of total fraction data for wells
-    RimWellAllocationOverTimeCollection allocationOverTimeCollection = createWellAllocationOverTimeCollection();
-    std::vector<double>                 allStackedValues( allocationOverTimeCollection.timeStepDates().size(), 0.0 );
+    // Retrieve total fraction data for wells
+    RigWellAllocationOverTime allocationOverTime = createWellAllocationOverTime();
+    std::vector<double>       allStackedValues( allocationOverTime.timeStepDates().size(), 0.0 );
 
     // Negative z-position to show grid lines
     int zPos = -10000;
-    for ( auto& [wellName, wellValues] : allocationOverTimeCollection.wellValuesMap() )
+    for ( auto& [wellName, wellValues] : allocationOverTime.wellValuesMap() )
     {
         cvf::Color3f color = m_flowDiagSolution ? m_flowDiagSolution->tracerColor( wellName ) : getTracerColor( wellName );
-        for ( size_t i = 0; i < allocationOverTimeCollection.timeStepDates().size(); ++i )
+        for ( size_t i = 0; i < allocationOverTime.timeStepDates().size(); ++i )
         {
-            const auto value = wellValues.at( allocationOverTimeCollection.timeStepDates()[i] );
+            const auto value = wellValues.at( allocationOverTime.timeStepDates()[i] );
             allStackedValues[i] += value;
         }
 
@@ -375,7 +375,7 @@ void RimWellAllocationOverTimePlot::updateFromWell()
 
         RiuPlotCurve* curve = m_plotWidget->createPlotCurve( nullptr, wellName );
         curve->setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID, interpolationType, 2, qColor, fillBrush );
-        curve->setSamplesFromDatesAndYValues( allocationOverTimeCollection.timeStepDates(), allStackedValues, false );
+        curve->setSamplesFromDatesAndYValues( allocationOverTime.timeStepDates(), allStackedValues, false );
         curve->attachToPlot( m_plotWidget );
         curve->showInPlot();
         curve->setZ( zPos-- );
@@ -412,23 +412,23 @@ void RimWellAllocationOverTimePlot::updateFromWell()
 /// well data for all time steps. If well does not exist for specific time step date - value is
 /// set to 0.
 //--------------------------------------------------------------------------------------------------
-RimWellAllocationOverTimeCollection RimWellAllocationOverTimePlot::createWellAllocationOverTimeCollection() const
+RigWellAllocationOverTime RimWellAllocationOverTimePlot::createWellAllocationOverTime() const
 {
     if ( !m_case )
     {
-        return RimWellAllocationOverTimeCollection( {}, {} );
+        return RigWellAllocationOverTime( {}, {} );
     }
     if ( m_selectedFromTimeStep() > m_selectedToTimeStep() )
     {
         RiaLogging::error( QString( "Selected 'From Time Step' (%1) must be prior to selected 'To Time Step' (%2)" )
                                .arg( m_selectedFromTimeStep().toString( dateFormatString() ) )
                                .arg( m_selectedToTimeStep().toString( dateFormatString() ) ) );
-        return RimWellAllocationOverTimeCollection( {}, {} );
+        return RigWellAllocationOverTime( {}, {} );
     }
     const RigSimWellData* simWellData = m_case->eclipseCaseData()->findSimWellData( m_wellName );
     if ( !simWellData )
     {
-        return RimWellAllocationOverTimeCollection( {}, {} );
+        return RigWellAllocationOverTime( {}, {} );
     }
 
     // Note: Threshold per calculator does not work for accumulated data - use no threshold for each calculator
@@ -492,41 +492,41 @@ RimWellAllocationOverTimeCollection RimWellAllocationOverTimePlot::createWellAll
         }
     }
 
-    // Create collection
-    const auto                          selectedTimeStepsVector = std::vector( selectedTimeSteps.begin(), selectedTimeSteps.end() );
-    RimWellAllocationOverTimeCollection collection( selectedTimeStepsVector, timeStepAndCalculatorPairs );
+    // Create well allocation over time data
+    const auto                selectedTimeStepsVector = std::vector( selectedTimeSteps.begin(), selectedTimeSteps.end() );
+    RigWellAllocationOverTime wellAllocationOverTime( selectedTimeStepsVector, timeStepAndCalculatorPairs );
 
     if ( m_flowValueType == FlowValueType::FLOW_RATE_PERCENTAGE )
     {
-        collection.fillWithFlowRatePercentageValues();
+        wellAllocationOverTime.fillWithFlowRatePercentageValues();
     }
     else if ( m_flowValueType == FlowValueType::FLOW_RATE )
     {
-        collection.fillWithFlowRateValues();
+        wellAllocationOverTime.fillWithFlowRateValues();
     }
     else if ( m_flowValueType == FlowValueType::FLOW_VOLUME )
     {
-        collection.fillWithFlowVolumeValues();
+        wellAllocationOverTime.fillWithFlowVolumeValues();
     }
     else if ( m_flowValueType == FlowValueType::ACCUMULATED_FLOW_VOLUME )
     {
         // Accumulated flow volume without threshold, and filter according to threshold after accumulating volumes
         const double actualSmallContributionThreshold = m_groupSmallContributions() ? m_smallContributionsThreshold : 0.0;
-        collection.fillWithAccumulatedFlowVolumeValues( actualSmallContributionThreshold );
+        wellAllocationOverTime.fillWithAccumulatedFlowVolumeValues( actualSmallContributionThreshold );
     }
     else if ( m_flowValueType == FlowValueType::ACCUMULATED_FLOW_VOLUME_PERCENTAGE )
     {
         // Accumulate flow volume percentages without threshold, and filter according to threshold after accumulating
         // values
         const double actualSmallContributionThreshold = m_groupSmallContributions() ? m_smallContributionsThreshold : 0.0;
-        collection.fillWithAccumulatedFlowVolumePercentageValues( actualSmallContributionThreshold );
+        wellAllocationOverTime.fillWithAccumulatedFlowVolumePercentageValues( actualSmallContributionThreshold );
     }
     else
     {
         CAF_ASSERT( "Not handled FlowValue type!" );
     }
 
-    return collection;
+    return wellAllocationOverTime;
 }
 
 //--------------------------------------------------------------------------------------------------

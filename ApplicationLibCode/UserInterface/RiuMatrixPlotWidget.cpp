@@ -1,4 +1,3 @@
-#include "RiuMatrixPlotWidget.h"
 /////////////////////////////////////////////////////////////////////////////////
 //
 //  Copyright (C) 2023- Equinor ASA
@@ -38,8 +37,6 @@
 #include "qwt_text.h"
 
 #include <QHBoxLayout>
-
-#include <span>
 
 class MatrixShapeItem : public QwtPlotShapeItem
 {
@@ -135,8 +132,6 @@ QwtPlot* RiuMatrixPlotWidget::qwtPlot() const
 //--------------------------------------------------------------------------------------------------
 void RiuMatrixPlotWidget::clearPlotData()
 {
-    // TODO: Also clear axis data set in updateAxes()?
-
     m_columnHeaders = {};
     m_rowHeaders    = {};
     m_rowValues     = {};

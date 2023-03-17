@@ -508,7 +508,7 @@ std::set<QDateTime> RiaQDateTimeTools::createEvenlyDistributedDates( const std::
     std::set<QDateTime> outputDates;
     if ( inputDates.empty() || numDates <= 0 )
     {
-        return outputDates;
+        return {};
     }
     if ( static_cast<size_t>( numDates ) > inputDates.size() )
     {

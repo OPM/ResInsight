@@ -34,7 +34,7 @@ class RimEclipseView;
 class RimFlowDiagSolution;
 class RimRegularLegendConfig;
 class RimSimWellInView;
-class RimWellAllocationOverTimeCollection;
+class RigWellAllocationOverTime;
 class RiuMatrixPlotWidget;
 class RigSimWellData;
 class RigAccWellFlowCalculator;
@@ -105,9 +105,9 @@ private:
     int valueLabelFontSize() const;
 
 private:
-    std::map<QString, RimWellAllocationOverTimeCollection>
-                                        createProductionWellAllocationOverTimeCollections( const std::set<QString>& selectedProductionWells ) const;
-    RimWellAllocationOverTimeCollection createWellAllocationOverTimeCollection( const RigSimWellData* simWellData ) const;
+    std::map<QString, RigWellAllocationOverTime>
+                              createProductionWellsAllocationOverTimeMap( const std::set<QString>& selectedProductionWells ) const;
+    RigWellAllocationOverTime createWellAllocationOverTime( const RigSimWellData* simWellData ) const;
 
     void createAndEmplaceTimeStepAndCalculatorPairInMap( std::map<QDateTime, RigAccWellFlowCalculator>& rTimeStepAndCalculatorPairs,
                                                          const QDateTime                                timeStep,

@@ -317,8 +317,6 @@ void RimCellFilterCollection::setAutoName( RimCellFilter* pFilter )
 void RimCellFilterCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     onFilterUpdated( nullptr );
-
-    filtersChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------

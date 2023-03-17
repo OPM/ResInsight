@@ -33,7 +33,7 @@
 class RigAccWellFlowCalculator;
 class RimEclipseResultCase;
 class RimFlowDiagSolution;
-class RimWellAllocationOverTimeCollection;
+class RigWellAllocationOverTime;
 class RimSimWellInView;
 class RiuPlotWidget;
 class RiuQwtPlotWidget;
@@ -101,10 +101,10 @@ private:
 private:
     void doUpdateLayout() override;
 
-    void                                updateFromWell();
-    RimWellAllocationOverTimeCollection createWellAllocationOverTimeCollection() const;
-    std::set<QString>                   findSortedWellNames();
-    cvf::Color3f                        getTracerColor( const QString& tracerName );
+    void                      updateFromWell();
+    RigWellAllocationOverTime createWellAllocationOverTime() const;
+    std::set<QString>         findSortedWellNames();
+    cvf::Color3f              getTracerColor( const QString& tracerName );
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
