@@ -859,15 +859,15 @@ QString RimWellConnectivityTable::createTableTitle() const
 //--------------------------------------------------------------------------------------------------
 std::pair<double, double> RimWellConnectivityTable::createLegendMinMaxValues( const double maxTableValue ) const
 {
-    using enum TimeStepSelection;
-
-    if ( ( m_timeStepSelection == SINGLE_TIME_STEP && m_timeSampleValueType == TimeSampleValueType::FLOW_RATE_PERCENTAGE ) ||
-         ( m_timeStepSelection == TIME_STEP_RANGE && m_timeRangeValueType == TimeRangeValueType::ACCUMULATED_FLOW_VOLUME_PERCENTAGE ) )
+    const bool isSingleTimeStep = m_timeStepSelection == TimeStepSelection::SINGLE_TIME_STEP;
+    const bool isTimeStepRange  = m_timeStepSelection == TimeStepSelection::TIME_STEP_RANGE;
+    if ( ( isSingleTimeStep && m_timeSampleValueType == TimeSampleValueType::FLOW_RATE_PERCENTAGE ) ||
+         ( isTimeStepRange && m_timeRangeValueType == TimeRangeValueType::ACCUMULATED_FLOW_VOLUME_PERCENTAGE ) )
     {
         return std::make_pair( 0.0, 100.0 );
     }
-    if ( ( m_timeStepSelection == SINGLE_TIME_STEP && m_timeSampleValueType == TimeSampleValueType::FLOW_RATE_FRACTION ) ||
-         ( m_timeStepSelection == TIME_STEP_RANGE && m_timeRangeValueType == TimeRangeValueType::ACCUMULATED_FLOW_VOLUME_FRACTION ) )
+    if ( ( isSingleTimeStep && m_timeSampleValueType == TimeSampleValueType::FLOW_RATE_FRACTION ) ||
+         ( isTimeStepRange && m_timeRangeValueType == TimeRangeValueType::ACCUMULATED_FLOW_VOLUME_FRACTION ) )
     {
         return std::make_pair( 0.0, 1.0 );
     }
