@@ -249,11 +249,10 @@ void CmdFieldChangeExec::readFieldValueFromValidXmlDocument( QXmlStreamReader& x
 {
     // See PdmObject::readFields and friends to match token count for reading field values
     // The stream is supposed to be pointing at the first token of field content when calling readFieldData()
-    QXmlStreamReader::TokenType tt;
-    int                         tokenCount = 3;
+    int tokenCount = 3;
     for ( int i = 0; i < tokenCount; i++ )
     {
-        tt = xmlStream.readNext();
+        xmlStream.readNext();
     }
     xmlFieldHandle->readFieldData( xmlStream, PdmDefaultObjectFactory::instance() );
     xmlFieldHandle->resolveReferences();

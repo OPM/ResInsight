@@ -66,8 +66,8 @@ IconProvider::IconProvider( const QString& iconResourceString, const QSize& pref
 //--------------------------------------------------------------------------------------------------
 caf::IconProvider::IconProvider( const QPixmap& pixmap )
     : m_active( true )
-    , m_pixmap( new QPixmap( pixmap ) )
     , m_preferredSize( pixmap.size() )
+    , m_pixmap( new QPixmap( pixmap ) )
 {
 }
 

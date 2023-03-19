@@ -62,10 +62,9 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiTreeViewItemDelegate::PdmUiTreeViewItemDelegate( PdmUiTreeViewEditor* parent, QAbstractItemModel* model )
+PdmUiTreeViewItemDelegate::PdmUiTreeViewItemDelegate( PdmUiTreeViewEditor* parent )
     : QStyledItemDelegate( parent->treeView() )
     , m_treeView( parent )
-    , m_model( model )
 {
 }
 
