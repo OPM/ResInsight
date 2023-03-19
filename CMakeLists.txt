@@ -610,10 +610,7 @@ add_subdirectory(Fwk/AppFwk/cafVizExtensions)
 
 option(CAF_CVF_SCRIPTING "" ON)
 add_subdirectory(Fwk/AppFwk/cafPdmScripting)
-set_property(TARGET cafPdmScripting PROPERTY FOLDER "AppFwk")
-
 add_subdirectory(Fwk/AppFwk/cafCommandFeatures)
-set_property(TARGET cafCommandFeatures PROPERTY FOLDER "AppFwk")
 
 add_subdirectory(Fwk/AppFwk/cafTensor)
 add_subdirectory(Fwk/AppFwk/cafHexInterpolator)
@@ -665,6 +662,7 @@ list(
   CommonCode
   cafVizExtensions
   cafPdmScripting
+  cafCommandFeatures
 )
 
 set_property(TARGET ${APP_FWK_LIBRARIES} PROPERTY FOLDER "AppFwk")
