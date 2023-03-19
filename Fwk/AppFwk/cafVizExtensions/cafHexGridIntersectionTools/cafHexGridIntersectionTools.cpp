@@ -186,33 +186,30 @@ bool HexGridIntersectionTools::planeTriangleIntersection( const cvf::Plane& plan
         CVF_ASSERT( false );
     }
 
-    bool ok1 = false;
-    bool ok2 = false;
-
     if ( topVx == 1 )
     {
-        ok1                          = planeLineIntersect( plane, p1, p2, &( ( *newVx1 ).vx ), &( ( *newVx1 ).normDistFromEdgeVx1 ), nonDimensionalTolerance );
+        planeLineIntersect( plane, p1, p2, &( ( *newVx1 ).vx ), &( ( *newVx1 ).normDistFromEdgeVx1 ), nonDimensionalTolerance );
         ( *newVx1 ).clippedEdgeVx1Id = p1Id;
         ( *newVx1 ).clippedEdgeVx2Id = p2Id;
-        ok2                          = planeLineIntersect( plane, p1, p3, &( ( *newVx2 ).vx ), &( ( *newVx2 ).normDistFromEdgeVx1 ), nonDimensionalTolerance );
+        planeLineIntersect( plane, p1, p3, &( ( *newVx2 ).vx ), &( ( *newVx2 ).normDistFromEdgeVx1 ), nonDimensionalTolerance );
         ( *newVx2 ).clippedEdgeVx1Id = p1Id;
         ( *newVx2 ).clippedEdgeVx2Id = p3Id;
     }
     else if ( topVx == 2 )
     {
-        ok1                          = planeLineIntersect( plane, p2, p3, &( ( *newVx1 ).vx ), &( ( *newVx1 ).normDistFromEdgeVx1 ), nonDimensionalTolerance );
+        planeLineIntersect( plane, p2, p3, &( ( *newVx1 ).vx ), &( ( *newVx1 ).normDistFromEdgeVx1 ), nonDimensionalTolerance );
         ( *newVx1 ).clippedEdgeVx1Id = p2Id;
         ( *newVx1 ).clippedEdgeVx2Id = p3Id;
-        ok2                          = planeLineIntersect( plane, p2, p1, &( ( *newVx2 ).vx ), &( ( *newVx2 ).normDistFromEdgeVx1 ), nonDimensionalTolerance );
+        planeLineIntersect( plane, p2, p1, &( ( *newVx2 ).vx ), &( ( *newVx2 ).normDistFromEdgeVx1 ), nonDimensionalTolerance );
         ( *newVx2 ).clippedEdgeVx1Id = p2Id;
         ( *newVx2 ).clippedEdgeVx2Id = p1Id;
     }
     else if ( topVx == 3 )
     {
-        ok1                          = planeLineIntersect( plane, p3, p1, &( ( *newVx1 ).vx ), &( ( *newVx1 ).normDistFromEdgeVx1 ), nonDimensionalTolerance );
+        planeLineIntersect( plane, p3, p1, &( ( *newVx1 ).vx ), &( ( *newVx1 ).normDistFromEdgeVx1 ), nonDimensionalTolerance );
         ( *newVx1 ).clippedEdgeVx1Id = p3Id;
         ( *newVx1 ).clippedEdgeVx2Id = p1Id;
-        ok2                          = planeLineIntersect( plane, p3, p2, &( ( *newVx2 ).vx ), &( ( *newVx2 ).normDistFromEdgeVx1 ), nonDimensionalTolerance );
+        planeLineIntersect( plane, p3, p2, &( ( *newVx2 ).vx ), &( ( *newVx2 ).normDistFromEdgeVx1 ), nonDimensionalTolerance );
         ( *newVx2 ).clippedEdgeVx1Id = p3Id;
         ( *newVx2 ).clippedEdgeVx2Id = p2Id;
     }
@@ -220,8 +217,6 @@ bool HexGridIntersectionTools::planeTriangleIntersection( const cvf::Plane& plan
     {
         CVF_ASSERT( false );
     }
-
-    // CVF_TIGHT_ASSERT(ok1 && ok2);
 
     return true;
 }

@@ -88,9 +88,9 @@ OverlayScaleLegend::OverlayScaleLegend( Font* font )
     : TitledOverlayFrame( font, 200, 200 )
     , m_tickNumberPrecision( 4 )
     , m_numberFormat( AUTO )
-    , m_Layout( Vec2ui( 200u, 200u ) )
-    , m_font( font )
     , m_orientation( HORIZONTAL )
+    , m_layout( Vec2ui( 200u, 200u ) )
+    , m_font( font )
     , m_currentScale( 1.0 )
 {
     CVF_ASSERT( font );
@@ -138,16 +138,15 @@ void OverlayScaleLegend::renderGeneric( OpenGLContext* oglContext, const Vec2i& 
     camera.applyOpenGL();
     camera.viewport()->applyOpenGL( oglContext, Viewport::CLEAR_DEPTH );
 
-    m_Layout = LayoutInfo( size );
-    layoutInfo( &m_Layout );
+    m_layout = LayoutInfo( size );
+    layoutInfo( &m_layout );
     m_textDrawer = new TextDrawer( this->font() );
 
     // Set up text drawer
-    float maxLegendRightPos = 0;
     if ( m_orientation == HORIZONTAL )
-        setupHorizontalTextDrawer( m_textDrawer.p(), &m_Layout );
+        setupHorizontalTextDrawer( m_textDrawer.p(), &m_layout );
     else
-        setupVerticalTextDrawer( m_textDrawer.p(), &m_Layout );
+        setupVerticalTextDrawer( m_textDrawer.p(), &m_layout );
 
     Vec2f backgroundSize( size );
 
@@ -161,7 +160,7 @@ void OverlayScaleLegend::renderGeneric( OpenGLContext* oglContext, const Vec2i& 
                                                                       this->backgroundColor(),
                                                                       this->backgroundFrameColor() );
         }
-        renderLegendImmediateMode( oglContext, &m_Layout );
+        renderLegendImmediateMode( oglContext, &m_layout );
         m_textDrawer->renderSoftware( oglContext, camera );
     }
     else
@@ -175,7 +174,7 @@ void OverlayScaleLegend::renderGeneric( OpenGLContext* oglContext, const Vec2i& 
                                                                      this->backgroundColor(),
                                                                      this->backgroundFrameColor() );
         }
-        renderLegendUsingShaders( oglContext, &m_Layout, matrixState );
+        renderLegendUsingShaders( oglContext, &m_layout, matrixState );
         m_textDrawer->render( oglContext, camera );
     }
 
@@ -201,8 +200,6 @@ void OverlayScaleLegend::setupHorizontalTextDrawer( TextDrawer* textDrawer, cons
     float       lastVisibleTextX = 0.0;
 
     size_t numTicks = layout->ticks.size();
-    size_t numMajorTicks =
-        std::count_if( layout->ticks.begin(), layout->ticks.end(), []( const LayoutInfo::Tick& t ) { return t.isMajor; } );
     size_t it;
     for ( it = 0; it < numTicks; it++ )
     {
@@ -344,12 +341,6 @@ void OverlayScaleLegend::renderLegendUsingShaders( OpenGLContext* oglContext, La
     // Per vector convenience pointers
     float* v0 = &vertexArray[0];
     float* v1 = &vertexArray[3];
-    float* v2 = &vertexArray[6];
-    float* v3 = &vertexArray[9];
-    float* v4 = &vertexArray[12];
-
-    // Connects
-    static const ushort trianglesConnects[] = { 0, 1, 4, 0, 4, 3 };
 
     ref<ShaderProgram> shaderProgram = oglContext->resourceManager()->getLinkedUnlitColorShaderProgram( oglContext );
     CVF_TIGHT_ASSERT( shaderProgram.notNull() );
