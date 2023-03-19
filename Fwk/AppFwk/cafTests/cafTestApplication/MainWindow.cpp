@@ -993,8 +993,6 @@ public:
         group1->add(&m_doubleField);
         caf::PdmUiGroup* group2 = uiOrdering.addNewGroup("Name2");
         group2->add(&m_intField);
-        caf::PdmUiGroup* group3 = group2->addNewGroup("Name3");
-        // group3->add(&m_textField);
 
         uiOrdering.skipRemainingFields();
     }
@@ -1557,8 +1555,7 @@ void MainWindow::slotSimpleSelectionChanged()
 {
     std::vector<caf::PdmUiItem*> selection;
     m_pdmUiTreeView->selectedUiItems(selection);
-    caf::PdmObjectHandle*          obj       = nullptr;
-    caf::PdmChildArrayFieldHandle* listField = nullptr;
+    caf::PdmObjectHandle* obj = nullptr;
 
     if (selection.size())
     {
@@ -1576,7 +1573,6 @@ void MainWindow::slotShowTableView()
 {
     std::vector<caf::PdmUiItem*> selection;
     m_pdmUiTreeView2->selectedUiItems(selection);
-    caf::PdmObjectHandle*          obj                   = nullptr;
     caf::PdmUiFieldHandle*         uiFieldHandle         = nullptr;
     caf::PdmChildArrayFieldHandle* childArrayFieldHandle = nullptr;
 

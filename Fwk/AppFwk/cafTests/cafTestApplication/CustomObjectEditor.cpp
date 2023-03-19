@@ -156,8 +156,6 @@ void CustomObjectEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering(const P
 {
     resetCellId();
 
-    QWidget* previousTabOrderWidget = nullptr;
-
     const std::vector<PdmUiOrdering::FieldAndLayout>& topLevelUiItems = topLevelUiOrdering.uiItemsWithLayout();
 
     for (size_t i = 0; i < topLevelUiItems.size(); ++i)
