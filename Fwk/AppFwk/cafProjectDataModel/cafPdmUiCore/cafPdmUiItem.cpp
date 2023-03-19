@@ -61,6 +61,7 @@ PdmUiItemInfo::PdmUiItemInfo( const QString& uiName,
     , m_isReadOnly( false )
     , m_labelAlignment( LEFT )
     , m_isCustomContextMenuEnabled( false )
+    , m_notifyAllFieldsInMultiFieldChangedEvents( -1 )
 {
 }
 
@@ -84,6 +85,7 @@ PdmUiItemInfo::PdmUiItemInfo( const QString& uiName,
     , m_isReadOnly( false )
     , m_labelAlignment( LEFT )
     , m_isCustomContextMenuEnabled( false )
+    , m_notifyAllFieldsInMultiFieldChangedEvents( -1 )
 {
 }
 
@@ -103,7 +105,7 @@ const IconProvider& PdmUiItemInfo::iconProvider() const
     return m_iconProvider;
 }
 
-//--------------------------------------------------------------------------------------------------
+//------{}{}{}{}--------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 PdmOptionItemInfo::PdmOptionItemInfo( const QString&      anOptionUiText,

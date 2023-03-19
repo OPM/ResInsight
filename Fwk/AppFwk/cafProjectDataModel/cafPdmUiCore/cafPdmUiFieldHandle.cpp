@@ -83,7 +83,9 @@ void PdmUiFieldHandle::notifyFieldChanged( const QVariant& oldFieldValue, const 
             {
                 PdmUiEditorHandle* editorContainingThisField = editorForThisField->topMostContainingEditor();
 
-                bool editorContainingThisFieldIsNotUpdated = !uiObjHandle->hasEditor( editorContainingThisField );
+                bool editorContainingThisFieldIsNotUpdated = false;
+                if ( uiObjHandle )
+                    editorContainingThisFieldIsNotUpdated = !uiObjHandle->hasEditor( editorContainingThisField );
 
                 if ( noOwnerObject || editorContainingThisFieldIsNotUpdated )
                 {
