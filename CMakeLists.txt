@@ -685,18 +685,18 @@ if(RESINSIGHT_INCLUDE_APPFWK_TESTS)
   add_subdirectory(Fwk/AppFwk/cafTests/cafTestCvfApplication)
 
   list(
-  APPEND
-  APP_FWK_TEST_PROJECTS
-  cafProjectDataModel_UnitTests
-  cafPdmCore_UnitTests
-  cafPdmXml_UnitTests
-  cafPdmScripting_UnitTests
-  cafUserInterface_UnitTests
-  cafTestApplication
-  cafTestCvfApplication
-)
+    APPEND
+    APP_FWK_TEST_PROJECTS
+    cafProjectDataModel_UnitTests
+    cafPdmCore_UnitTests
+    cafPdmXml_UnitTests
+    cafPdmScripting_UnitTests
+    cafUserInterface_UnitTests
+    cafTestApplication
+    cafTestCvfApplication
+  )
 
-set_property(TARGET ${APP_FWK_TEST_PROJECTS} PROPERTY FOLDER "AppFwkTests")
+  set_property(TARGET ${APP_FWK_TEST_PROJECTS} PROPERTY FOLDER "AppFwkTests")
 
 endif()
 
@@ -801,11 +801,9 @@ if(MSVC AND RESINSIGHT_ENABLE_STATIC_ANALYSIS)
   )
 
   set(TARGETS_FOR_STATIC_ANALYSIS
-      ${APP_FWK_LIBRARIES} ${APP_FWK_TEST_PROJECTS} ApplicationLibCode Commands ResultStatisticsCache
-      RigGeoMechDataModel
+      ${APP_FWK_LIBRARIES} ${APP_FWK_TEST_PROJECTS} ApplicationLibCode Commands
+      ResultStatisticsCache RigGeoMechDataModel
   )
-
-
 
   foreach(TARGET_PROJECT ${TARGETS_FOR_STATIC_ANALYSIS})
     set_property(
