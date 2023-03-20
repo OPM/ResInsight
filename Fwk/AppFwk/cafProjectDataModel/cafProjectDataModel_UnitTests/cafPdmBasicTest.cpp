@@ -72,8 +72,8 @@ public:
 #if 1
         m_proxyDouble.registerSetMethod( this, &SimpleObj::setDoubleMember );
         m_proxyDouble.registerGetMethod( this, &SimpleObj::doubleMember );
-        AddUiCapabilityToField( &m_proxyDouble );
-        AddXmlCapabilityToField( &m_proxyDouble );
+        addUiCapabilityToField( &m_proxyDouble );
+        addXmlCapabilityToField( &m_proxyDouble );
         CAF_PDM_InitFieldNoDefault( &m_proxyDouble, "ProxyDouble", "ProxyDouble" );
 #endif
     }
