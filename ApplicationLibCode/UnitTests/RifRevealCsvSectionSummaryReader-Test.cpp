@@ -7,14 +7,14 @@
 #include <QFile>
 #include <QTextStream>
 
-static const QString CASE_REAL_TEST_DATA_DIRECTORY_04 = QString( "%1/RifRevealCsvSectionSummaryReader/" ).arg( TEST_DATA_DIR );
+static const QString CASE_REAL_TEST_DATA_DIRECTORY_07 = QString( "%1/RifRevealCsvSectionSummaryReader/" ).arg( TEST_DATA_DIR );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 TEST( RifRevealCsvSectionSummaryReaderTest, ExpectedText )
 {
-    QString fileName = CASE_REAL_TEST_DATA_DIRECTORY_04 + "i1.csv";
+    QString fileName = CASE_REAL_TEST_DATA_DIRECTORY_07 + "i1.csv";
 
     QFile file( fileName );
 

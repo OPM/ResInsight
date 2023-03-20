@@ -8,14 +8,14 @@
 #include <QFile>
 #include <QTextStream>
 
-static const QString CASE_REAL_TEST_DATA_DIRECTORY_05 = QString( "%1/RifStimPlanCsvSummaryReader/" ).arg( TEST_DATA_DIR );
+static const QString CASE_REAL_TEST_DATA_DIRECTORY_09 = QString( "%1/RifStimPlanCsvSummaryReader/" ).arg( TEST_DATA_DIR );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 TEST( RifStimPlanCsvSummaryReaderTest, ExpectedText )
 {
-    QString fileName = CASE_REAL_TEST_DATA_DIRECTORY_05 + "data_vs_time.csv";
+    QString fileName = CASE_REAL_TEST_DATA_DIRECTORY_09 + "data_vs_time.csv";
 
     QString                     errorMessage;
     QDateTime                   startDateTime = QDateTime::currentDateTime();
