@@ -77,10 +77,9 @@ public:
 
     cvf::ref<RigPolyLinesData> polyLinesData() const override;
 
-    cvf::ref<RigTexturedSection> texturedSection() const;
+    cvf::ref<RigTexturedSection> texturedSection();
 
     RivSeismicSectionPartMgr* partMgr();
-    void                      rebuildGeometry();
 
     RimSeismicData* seismicData() const;
 
@@ -103,6 +102,8 @@ private:
 
     void initSliceRanges();
 
+    void scheduleViewUpdate();
+
     QPixmap getImage();
 
     caf::PdmField<QString>            m_userDescription;
@@ -123,4 +124,5 @@ private:
 
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
     cvf::ref<RivSeismicSectionPartMgr>                  m_sectionPartMgr;
+    cvf::ref<RigTexturedSection>                        m_texturedSection;
 };

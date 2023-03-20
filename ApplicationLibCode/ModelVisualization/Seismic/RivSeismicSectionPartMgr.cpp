@@ -86,19 +86,26 @@ void RivSeismicSectionPartMgr::appendGeometryPartsToModel( cvf::ModelBasicList* 
 
     auto texSection = m_section->texturedSection();
 
-    auto& rects = texSection->rects();
-
-    for ( int i = 0; i < (int)rects.size(); i++ )
+    for ( int i = 0; i < (int)texSection->partsCount(); i++ )
     {
-        cvf::Vec3dArray displayPoints;
-        displayPoints.reserve( rects[i].size() );
+        auto& part = texSection->part( i );
 
-        for ( auto& vOrg : rects[i] )
+        cvf::Vec3dArray displayPoints;
+        displayPoints.reserve( part.rect.size() );
+
+        for ( auto& vOrg : part.rect )
         {
             displayPoints.add( displayCoordTransform->transformToDisplayCoord( vOrg ) );
         }
 
-        cvf::ref<cvf::Part> quadPart = createSingleTexturedQuadPart( displayPoints, texSection->slicedata( i ).get() );
+        if ( part.texture.isNull() )
+        {
+            if ( ( part.sliceData == nullptr ) || part.sliceData.get()->isEmpty() ) continue;
+
+            part.texture = createImageFromData( part.sliceData.get() );
+        }
+
+        cvf::ref<cvf::Part> quadPart = createSingleTexturedQuadPart( displayPoints, part.texture );
         model->addPart( quadPart.p() );
     }
 }
@@ -106,15 +113,12 @@ void RivSeismicSectionPartMgr::appendGeometryPartsToModel( cvf::ModelBasicList* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Part> RivSeismicSectionPartMgr::createSingleTexturedQuadPart( const cvf::Vec3dArray&       cornerPoints,
-                                                                            ZGYAccess::SeismicSliceData* data )
+cvf::ref<cvf::Part> RivSeismicSectionPartMgr::createSingleTexturedQuadPart( const cvf::Vec3dArray&      cornerPoints,
+                                                                            cvf::ref<cvf::TextureImage> image )
 {
     cvf::ref<cvf::Part> part = new cvf::Part;
-    if ( data->isEmpty() ) return part;
 
     cvf::ref<cvf::DrawableGeo> geo = createXYPlaneQuadGeoWithTexCoords( cornerPoints );
-
-    cvf::ref<cvf::TextureImage> image = createImageFromData( data );
 
     cvf::ref<cvf::Texture> texture = new cvf::Texture( image.p() );
     cvf::ref<cvf::Sampler> sampler = new cvf::Sampler;

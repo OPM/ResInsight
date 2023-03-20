@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimSeismicCollection.h"
+#include "RimSeismicDataCollection.h"
 
 #include "RiaLogging.h"
 
@@ -26,12 +26,12 @@
 #include <QFile>
 #include <QFileInfo>
 
-CAF_PDM_SOURCE_INIT( RimSeismicCollection, "SeismicCollection" );
+CAF_PDM_SOURCE_INIT( RimSeismicDataCollection, "SeismicDataCollection", "SeismicCollection" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSeismicCollection::RimSeismicCollection()
+RimSeismicDataCollection::RimSeismicDataCollection()
 {
     CAF_PDM_InitObject( "Seismic", ":/Seismic16x16.png" );
 
@@ -44,33 +44,22 @@ RimSeismicCollection::RimSeismicCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSeismicCollection::~RimSeismicCollection()
+RimSeismicDataCollection::~RimSeismicDataCollection()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSeismicCollection::addSeismicData( RimSeismicData* data )
-{
-    m_seismicData.push_back( data );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimSeismicData* RimSeismicCollection::importSeismicFromFile( const QString fileName )
+RimSeismicData* RimSeismicDataCollection::importSeismicFromFile( const QString fileName )
 {
     RimSeismicData* seisData = new RimSeismicData();
     seisData->setFileName( fileName );
 
     QFileInfo fi( fileName );
-
     seisData->setUserDescription( fi.baseName() );
-
-    addSeismicData( seisData );
-
-    this->updateConnectedEditors();
+    m_seismicData.push_back( seisData );
+    updateConnectedEditors();
 
     return seisData;
 }
@@ -78,7 +67,7 @@ RimSeismicData* RimSeismicCollection::importSeismicFromFile( const QString fileN
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSeismicData*> RimSeismicCollection::seismicData() const
+std::vector<RimSeismicData*> RimSeismicDataCollection::seismicData() const
 {
     return m_seismicData.children();
 }
@@ -86,7 +75,7 @@ std::vector<RimSeismicData*> RimSeismicCollection::seismicData() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSeismicCollection::isEmpty()
+bool RimSeismicDataCollection::isEmpty()
 {
     return !m_seismicData.hasChildren();
 }

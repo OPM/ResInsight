@@ -126,17 +126,6 @@ std::vector<RimSeismicSection*> RimSeismicSectionCollection::seismicSections() c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSeismicSectionCollection::rebuildGeometry()
-{
-    for ( auto& section : m_seismicSections.children() )
-    {
-        section->rebuildGeometry();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSeismicSectionCollection::appendPartsToModel( Rim3dView*                  view,
                                                       cvf::ModelBasicList*        model,
                                                       caf::DisplayCoordTransform* transform,

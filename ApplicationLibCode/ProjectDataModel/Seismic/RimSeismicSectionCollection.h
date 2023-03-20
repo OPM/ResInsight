@@ -58,7 +58,6 @@ public:
     QString userDescription();
     void    setUserDescription( QString description );
 
-    void rebuildGeometry();
     void appendPartsToModel( Rim3dView*                  view,
                              cvf::ModelBasicList*        model,
                              caf::DisplayCoordTransform* scaleTransform,

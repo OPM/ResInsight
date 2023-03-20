@@ -26,15 +26,13 @@
 
 class RimSeismicData;
 
-class RimSeismicCollection : public caf::PdmObject
+class RimSeismicDataCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimSeismicCollection();
-    ~RimSeismicCollection() override;
-
-    void addSeismicData( RimSeismicData* data );
+    RimSeismicDataCollection();
+    ~RimSeismicDataCollection() override;
 
     RimSeismicData* importSeismicFromFile( const QString file );
 

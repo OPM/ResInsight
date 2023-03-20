@@ -325,7 +325,6 @@ void RimGeoMechView::onCreateDisplayModel()
 
     cvf::ref<caf::DisplayCoordTransform> transform = displayCoordTransform();
     m_seismicVizModel->removeAllParts();
-    m_seismicSectionCollection->rebuildGeometry();
     m_seismicSectionCollection->appendPartsToModel( this, m_seismicVizModel.p(), transform.p(), femBBox );
     nativeOrOverrideViewer()->addStaticModelOnce( m_seismicVizModel.p(), isUsingOverrideViewer() );
 

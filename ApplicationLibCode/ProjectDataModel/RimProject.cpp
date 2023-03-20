@@ -72,7 +72,7 @@
 #include "RimRftPlotCollection.h"
 #include "RimSaturationPressurePlotCollection.h"
 #include "RimScriptCollection.h"
-#include "RimSeismicCollection.h"
+#include "RimSeismicDataCollection.h"
 #include "RimStimPlanModelPlotCollection.h"
 #include "RimSummaryCalculation.h"
 #include "RimSummaryCalculationCollection.h"

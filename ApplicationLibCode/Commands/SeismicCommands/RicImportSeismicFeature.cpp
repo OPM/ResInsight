@@ -22,8 +22,8 @@
 
 #include "RimOilField.h"
 #include "RimProject.h"
-#include "RimSeismicCollection.h"
 #include "RimSeismicData.h"
+#include "RimSeismicDataCollection.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuFileDialogTools.h"
@@ -61,16 +61,16 @@ void RicImportSeismicFeature::onActionTriggered( bool isChecked )
     // Remember the path to next time
     app->setLastUsedDialogDirectory( "SEISMIC_GRID", QFileInfo( fileName ).absolutePath() );
 
-    auto proj     = RimProject::current();
-    auto seisColl = proj->activeOilField()->seismicCollection();
+    auto  proj     = RimProject::current();
+    auto& seisColl = proj->activeOilField()->seismicCollection();
 
     if ( !seisColl ) return;
 
-    RimSeismicData* lastCreatedOrUpdated = seisColl->importSeismicFromFile( fileName );
+    RimSeismicData* newData = seisColl->importSeismicFromFile( fileName );
 
-    if ( lastCreatedOrUpdated )
+    if ( newData )
     {
-        Riu3DMainWindowTools::selectAsCurrentItem( lastCreatedOrUpdated );
+        Riu3DMainWindowTools::selectAsCurrentItem( newData );
     }
 }
 
