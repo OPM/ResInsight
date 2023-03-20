@@ -1,4 +1,4 @@
-name: clang-tidy-15
+name: clang-tidy
 
 on:
   workflow_dispatch:
@@ -94,6 +94,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "Fixes by clang-tidy"
-          title: "Fixes by clang-tidy-15"
+          title: "Fixes by clang-tidy"
           branch: clang-tidy-patches
           branch-suffix: random
