@@ -58,10 +58,13 @@ void RigTexturedSection::setWhatToUpdate( WhatToUpdateEnum updateInfo, int index
             case RigTexturedSection::WhatToUpdateEnum::UPDATE_GEOMETRY:
                 m_sectionParts[i].isRectValid = false;
                 m_sectionParts[i].rect.clear();
+                [[fallthrough]];
             case RigTexturedSection::WhatToUpdateEnum::UPDATE_DATA:
                 m_sectionParts[i].sliceData = nullptr;
+                [[fallthrough]];
             case RigTexturedSection::WhatToUpdateEnum::UPDATE_TEXTURE:
                 m_sectionParts[i].texture = nullptr;
+                [[fallthrough]];
             case RigTexturedSection::WhatToUpdateEnum::UPDATE_NONE:
             default:
                 break;
@@ -78,7 +81,7 @@ bool RigTexturedSection::isValid() const
 
     bool valid = true;
 
-    for ( int i = 0; i < m_sectionParts.size(); i++ )
+    for ( int i = 0; i < (int)m_sectionParts.size(); i++ )
     {
         valid = valid && m_sectionParts[i].allDataValid();
     }
@@ -107,7 +110,7 @@ void RigTexturedSection::resize( int size )
 //--------------------------------------------------------------------------------------------------
 RigTexturedSectionPart& RigTexturedSection::part( int index )
 {
-    CVF_ASSERT( index < m_sectionParts.size() );
+    CVF_ASSERT( index < (int)m_sectionParts.size() );
     return m_sectionParts[index];
 }
 
@@ -116,7 +119,7 @@ RigTexturedSectionPart& RigTexturedSection::part( int index )
 //--------------------------------------------------------------------------------------------------
 void RigTexturedSection::setSectionPartRect( int index, cvf::Vec3dArray rect )
 {
-    while ( index >= m_sectionParts.size() )
+    while ( index >= (int)m_sectionParts.size() )
     {
         m_sectionParts.emplace_back();
     }
@@ -132,7 +135,7 @@ void RigTexturedSection::setSectionPartRect( int index, cvf::Vec3dArray rect )
 //--------------------------------------------------------------------------------------------------
 void RigTexturedSection::setSectionPartData( int index, std::shared_ptr<ZGYAccess::SeismicSliceData> data )
 {
-    if ( index >= m_sectionParts.size() ) return;
+    if ( index >= (int)m_sectionParts.size() ) return;
     m_sectionParts[index].sliceData = data;
     m_sectionParts[index].texture   = nullptr;
 }
@@ -142,7 +145,7 @@ void RigTexturedSection::setSectionPartData( int index, std::shared_ptr<ZGYAcces
 //--------------------------------------------------------------------------------------------------
 void RigTexturedSection::setSectionPartTexture( int index, cvf::ref<cvf::TextureImage> texture )
 {
-    if ( index >= m_sectionParts.size() ) return;
+    if ( index >= (int)m_sectionParts.size() ) return;
     m_sectionParts[index].texture = texture;
 }
 
@@ -151,7 +154,7 @@ void RigTexturedSection::setSectionPartTexture( int index, cvf::ref<cvf::Texture
 //--------------------------------------------------------------------------------------------------
 bool RigTexturedSection::hasSectionPartRect( int index )
 {
-    if ( index >= m_sectionParts.size() ) return false;
+    if ( index >= (int)m_sectionParts.size() ) return false;
     return m_sectionParts[index].isRectValid;
 }
 
@@ -160,7 +163,7 @@ bool RigTexturedSection::hasSectionPartRect( int index )
 //--------------------------------------------------------------------------------------------------
 bool RigTexturedSection::hasSectionPartData( int index )
 {
-    if ( index >= m_sectionParts.size() ) return false;
+    if ( index >= (int)m_sectionParts.size() ) return false;
     return ( m_sectionParts[index].sliceData != nullptr );
 }
 
@@ -169,7 +172,7 @@ bool RigTexturedSection::hasSectionPartData( int index )
 //--------------------------------------------------------------------------------------------------
 bool RigTexturedSection::hasSectionPartTexture( int index )
 {
-    if ( index >= m_sectionParts.size() ) return false;
+    if ( index >= (int)m_sectionParts.size() ) return false;
     return m_sectionParts[index].texture.notNull();
 }
 
