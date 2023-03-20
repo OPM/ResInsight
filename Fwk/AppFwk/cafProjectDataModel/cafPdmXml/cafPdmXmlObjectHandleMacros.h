@@ -50,7 +50,7 @@ public:                                                                         
     bool ClassName::matchesClassKeyword( const QString& matchKeyword ) const                                                                   \
     {                                                                                                                                          \
         auto aliases = classKeywordAliases();                                                                                                  \
-        for ( auto alias : aliases )                                                                                                           \
+        for ( const auto& alias : aliases )                                                                                                    \
         {                                                                                                                                      \
             if ( alias == matchKeyword ) return true;                                                                                          \
         }                                                                                                                                      \
@@ -72,6 +72,6 @@ public:                                                                         
             Error_You_forgot_to_add_the_macro_CAF_PDM_XML_HEADER_INIT_and_or_CAF_PDM_XML_SOURCE_INIT_to_your_cpp_file_for_this_class(); \
         this->isInheritedFromPdmXmlSerializable();                                                                                      \
                                                                                                                                         \
-        AddXmlCapabilityToField( ( field ) );                                                                                           \
+        addXmlCapabilityToField( ( field ) );                                                                                           \
         addField( ( field ), ( keyword ) );                                                                                             \
     }

@@ -188,7 +188,7 @@ private:
 };
 
 template <typename FieldType>
-void AddXmlCapabilityToField( FieldType* field )
+void addXmlCapabilityToField( FieldType* field )
 {
     if ( field->template capability<PdmFieldXmlCap<FieldType>>() == NULL )
     {
@@ -197,7 +197,7 @@ void AddXmlCapabilityToField( FieldType* field )
 }
 
 template <typename FieldType>
-void RegisterClassWithField( const QString& classKeyword, FieldType* field )
+void registerClassWithField( const QString& classKeyword, FieldType* field )
 {
     field->setOwnerClass( classKeyword );
 }
