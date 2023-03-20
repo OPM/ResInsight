@@ -469,6 +469,8 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection()
 
     if ( m_type() == CrossSectionEnum::CS_POLYLINE )
     {
+        if ( m_targets.size() == 0 ) return m_texturedSection;
+
         bool valid = m_texturedSection->partsCount() == (int)( m_targets.size() - 1 );
         if ( !valid ) m_texturedSection->resize( m_targets.size() - 1 );
 
