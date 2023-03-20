@@ -31,6 +31,27 @@ namespace ZGYAccess
 class SeismicSliceData;
 }
 
+namespace cvf
+{
+class TextureImage;
+}
+
+class RigTexturedSectionPart
+{
+public:
+    RigTexturedSectionPart()
+        : isRectValid( false ){};
+    ~RigTexturedSectionPart(){};
+
+    bool allDataValid() const { return isRectValid && ( sliceData != nullptr ) && texture.notNull(); };
+
+public:
+    cvf::Vec3dArray                              rect;
+    bool                                         isRectValid;
+    std::shared_ptr<ZGYAccess::SeismicSliceData> sliceData;
+    cvf::ref<cvf::TextureImage>                  texture;
+};
+
 //==================================================================================================
 ///
 ///
@@ -38,17 +59,39 @@ class SeismicSliceData;
 class RigTexturedSection : public cvf::Object
 {
 public:
+    enum class WhatToUpdateEnum
+    {
+        UPDATE_NONE     = 0,
+        UPDATE_TEXTURE  = 1,
+        UPDATE_GEOMETRY = 2,
+        UPDATE_DATA     = 3,
+        UPDATE_ALL      = 4
+    };
+
+public:
     RigTexturedSection();
     ~RigTexturedSection() override;
 
-    void addSection( cvf::Vec3dArray rect, std::shared_ptr<ZGYAccess::SeismicSliceData> data );
+    void setWhatToUpdate( WhatToUpdateEnum updateInfo, int index = -1 );
+    bool isValid() const;
 
-    const std::vector<cvf::Vec3dArray>& rects() const;
+    void setSectionPartRect( int index, cvf::Vec3dArray rect );
+    void setSectionPartData( int index, std::shared_ptr<ZGYAccess::SeismicSliceData> data );
+    void setSectionPartTexture( int index, cvf::ref<cvf::TextureImage> texture );
+
+    bool hasSectionPartRect( int index );
+    bool hasSectionPartData( int index );
+    bool hasSectionPartTexture( int index );
+
+    int  partsCount() const;
+    void resize( int size );
 
     cvf::Vec3dArray                              rect( int index ) const;
     std::shared_ptr<ZGYAccess::SeismicSliceData> slicedata( int index ) const;
+    cvf::ref<cvf::TextureImage>                  texture( int index ) const;
+
+    RigTexturedSectionPart& part( int index );
 
 private:
-    std::vector<cvf::Vec3dArray>                              m_sectionRects;
-    std::vector<std::shared_ptr<ZGYAccess::SeismicSliceData>> m_slicedata;
+    std::vector<RigTexturedSectionPart> m_sectionParts;
 };

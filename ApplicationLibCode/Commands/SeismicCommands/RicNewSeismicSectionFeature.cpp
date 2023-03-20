@@ -43,7 +43,7 @@ bool RicNewSeismicSectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewSeismicSectionFeature::onActionTriggered( bool isChecked )
 {
-    // Find the selected Cell Filter Collection
+    // Find the selected seismic section collection
     std::vector<RimSeismicSectionCollection*> colls = caf::selectedObjectsByTypeStrict<RimSeismicSectionCollection*>();
     if ( colls.empty() ) return;
     RimSeismicSectionCollection* seisColl = colls[0];

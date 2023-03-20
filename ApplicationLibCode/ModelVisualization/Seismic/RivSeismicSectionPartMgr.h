@@ -65,7 +65,7 @@ public:
 
 protected:
     cvf::ref<cvf::DrawableGeo> createXYPlaneQuadGeoWithTexCoords( const cvf::Vec3dArray& cornerPoints );
-    cvf::ref<cvf::Part>        createSingleTexturedQuadPart( const cvf::Vec3dArray& cornerPoints, ZGYAccess::SeismicSliceData* data );
+    cvf::ref<cvf::Part>        createSingleTexturedQuadPart( const cvf::Vec3dArray& cornerPoints, cvf::ref<cvf::TextureImage> image );
 
     cvf::TextureImage* createImageFromData( ZGYAccess::SeismicSliceData* data );
 

@@ -182,7 +182,8 @@ void RimSeismicSection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
 
         group3->setCollapsedByDefault();
     }
-    uiOrdering.add( &m_showImage );
+
+    if ( m_type() != CrossSectionEnum::CS_POLYLINE ) uiOrdering.add( &m_showImage );
 
     uiOrdering.skipRemainingFields();
 }
@@ -332,9 +333,8 @@ void RimSeismicSection::deleteTarget( RimPolylineTarget* targetToDelete )
 //--------------------------------------------------------------------------------------------------
 void RimSeismicSection::updateVisualization()
 {
-    Rim3dView* view = nullptr;
-    firstAncestorOrThisOfType( view );
-    if ( view ) view->scheduleCreateDisplayModelAndRedraw();
+    if ( texturedSection().notNull() ) texturedSection()->setWhatToUpdate( RigTexturedSection::WhatToUpdateEnum::UPDATE_GEOMETRY );
+    scheduleViewUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -361,18 +361,28 @@ void RimSeismicSection::updateEditorsAndVisualization()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSeismicSection::scheduleViewUpdate()
+{
+    Rim3dView* view = nullptr;
+    firstAncestorOrThisOfType( view );
+    if ( view ) view->scheduleCreateDisplayModelAndRedraw();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::ref<RigPolyLinesData> RimSeismicSection::polyLinesData() const
 {
     cvf::ref<RigPolyLinesData> pld = new RigPolyLinesData;
-    if ( m_type() == CrossSectionEnum::CS_POLYLINE )
-    {
-        std::vector<cvf::Vec3d> line;
-        for ( const RimPolylineTarget* target : m_targets )
-        {
-            if ( target->isEnabled() ) line.push_back( target->targetPointXYZ() );
-        }
-        pld->setPolyLine( line );
-    }
+    // if ( m_type() == CrossSectionEnum::CS_POLYLINE )
+    //{
+    //    std::vector<cvf::Vec3d> line;
+    //    for ( const RimPolylineTarget* target : m_targets )
+    //    {
+    //        if ( target->isEnabled() ) line.push_back( target->targetPointXYZ() );
+    //    }
+    //    pld->setPolyLine( line );
+    //}
 
     if ( m_showSeismicOutline() && m_seismicData() != nullptr )
     {
@@ -430,14 +440,6 @@ RivSeismicSectionPartMgr* RimSeismicSection::partMgr()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSeismicSection::rebuildGeometry()
-{
-    m_sectionPartMgr = nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimSeismicSection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
@@ -453,11 +455,11 @@ QList<caf::PdmOptionItemInfo> RimSeismicSection::calculateValueOptions( const ca
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection() const
+cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection()
 {
-    cvf::ref<RigTexturedSection> tex = new RigTexturedSection();
+    if ( m_texturedSection.isNull() ) m_texturedSection = new RigTexturedSection();
 
-    if ( m_seismicData == nullptr ) return tex;
+    if ( m_texturedSection->isValid() || ( m_seismicData == nullptr ) ) return m_texturedSection;
 
     std::vector<cvf::Vec3dArray> rects;
     std::vector<int>             widths;
@@ -467,81 +469,130 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection() const
 
     if ( m_type() == CrossSectionEnum::CS_POLYLINE )
     {
+        bool valid = m_texturedSection->partsCount() == ( m_targets.size() - 1 );
+        if ( !valid ) m_texturedSection->resize( m_targets.size() - 1 );
+
         for ( int i = 1; i < (int)m_targets.size(); i++ )
         {
             cvf::Vec3d p1 = m_targets[i - 1]->targetPointXYZ();
             cvf::Vec3d p2 = m_targets[i]->targetPointXYZ();
 
-            cvf::Vec3dArray points;
-            points.resize( 4 );
-            points[0].set( p1.x(), p1.y(), -zmax );
-            points[1].set( p2.x(), p2.y(), -zmax );
-            points[2].set( p2.x(), p2.y(), -zmin );
-            points[3].set( p1.x(), p1.y(), -zmin );
+            if ( !m_texturedSection->part( i - 1 ).isRectValid )
+            {
+                cvf::Vec3dArray points;
+                points.resize( 4 );
+                points[0].set( p1.x(), p1.y(), -zmax );
+                points[1].set( p2.x(), p2.y(), -zmax );
+                points[2].set( p2.x(), p2.y(), -zmin );
+                points[3].set( p1.x(), p1.y(), -zmin );
 
-            auto seismic = m_seismicData->sliceData( p1.x(), p1.y(), p2.x(), p2.y() );
-            tex->addSection( points, seismic );
+                m_texturedSection->setSectionPartRect( i - 1, points );
+            }
+
+            if ( m_texturedSection->part( i - 1 ).sliceData == nullptr )
+            {
+                m_texturedSection->part( i - 1 ).sliceData = m_seismicData->sliceData( p1.x(), p1.y(), p2.x(), p2.y() );
+            }
         }
     }
     else if ( m_type() == CrossSectionEnum::CS_INLINE )
     {
-        int xlStart = m_seismicData->xlineMin();
-        int xlStop  = m_seismicData->xlineMax();
+        bool valid = m_texturedSection->partsCount() == 1;
+        if ( valid )
+            valid = m_texturedSection->part( 0 ).isRectValid;
+        else
+            m_texturedSection->resize( 1 );
 
         int ilStart = m_inlineIndex();
 
-        cvf::Vec3dArray points;
-        points.resize( 4 );
-        points[0] = m_seismicData->convertToWorldCoords( ilStart, xlStart, -zmax );
-        points[1] = m_seismicData->convertToWorldCoords( ilStart, xlStop, -zmax );
-        points[2] = m_seismicData->convertToWorldCoords( ilStart, xlStop, -zmin );
-        points[3] = m_seismicData->convertToWorldCoords( ilStart, xlStart, -zmin );
+        if ( !valid )
+        {
+            int xlStart = m_seismicData->xlineMin();
+            int xlStop  = m_seismicData->xlineMax();
 
-        auto seismic = m_seismicData->sliceData( RiaDefines::SeismicSliceDirection::INLINE, ilStart );
-        tex->addSection( points, seismic );
+            cvf::Vec3dArray points;
+            points.resize( 4 );
+            points[0] = m_seismicData->convertToWorldCoords( ilStart, xlStart, -zmax );
+            points[1] = m_seismicData->convertToWorldCoords( ilStart, xlStop, -zmax );
+            points[2] = m_seismicData->convertToWorldCoords( ilStart, xlStop, -zmin );
+            points[3] = m_seismicData->convertToWorldCoords( ilStart, xlStart, -zmin );
+
+            m_texturedSection->setSectionPartRect( 0, points );
+        }
+
+        if ( m_texturedSection->part( 0 ).sliceData == nullptr )
+        {
+            m_texturedSection->part( 0 ).sliceData = m_seismicData->sliceData( RiaDefines::SeismicSliceDirection::INLINE, ilStart );
+        }
     }
     else if ( m_type() == CrossSectionEnum::CS_XLINE )
     {
-        int ilStart = m_seismicData->inlineMin();
-        int ilStop  = m_seismicData->inlineMax();
+        bool valid = m_texturedSection->partsCount() == 1;
+        if ( valid )
+            valid = m_texturedSection->part( 0 ).isRectValid;
+        else
+            m_texturedSection->resize( 1 );
 
         int xlStart = m_xlineIndex();
 
-        cvf::Vec3dArray points;
-        points.resize( 4 );
-        points[0] = m_seismicData->convertToWorldCoords( ilStart, xlStart, -zmax );
-        points[1] = m_seismicData->convertToWorldCoords( ilStop, xlStart, -zmax );
-        points[2] = m_seismicData->convertToWorldCoords( ilStop, xlStart, -zmin );
-        points[3] = m_seismicData->convertToWorldCoords( ilStart, xlStart, -zmin );
+        if ( !valid )
+        {
+            int ilStart = m_seismicData->inlineMin();
+            int ilStop  = m_seismicData->inlineMax();
 
-        auto seismic = m_seismicData->sliceData( RiaDefines::SeismicSliceDirection::XLINE, xlStart );
-        tex->addSection( points, seismic );
+            cvf::Vec3dArray points;
+            points.resize( 4 );
+            points[0] = m_seismicData->convertToWorldCoords( ilStart, xlStart, -zmax );
+            points[1] = m_seismicData->convertToWorldCoords( ilStop, xlStart, -zmax );
+            points[2] = m_seismicData->convertToWorldCoords( ilStop, xlStart, -zmin );
+            points[3] = m_seismicData->convertToWorldCoords( ilStart, xlStart, -zmin );
+
+            m_texturedSection->setSectionPartRect( 0, points );
+        }
+
+        if ( m_texturedSection->part( 0 ).sliceData == nullptr )
+        {
+            m_texturedSection->part( 0 ).sliceData = m_seismicData->sliceData( RiaDefines::SeismicSliceDirection::XLINE, xlStart );
+        }
     }
     else if ( m_type() == CrossSectionEnum::CS_DEPTHSLICE )
     {
-        int ilStart = m_seismicData->inlineMin();
-        int ilStop  = m_seismicData->inlineMax();
-
-        int xlStart = m_seismicData->xlineMin();
-        int xlStop  = m_seismicData->xlineMax();
+        bool valid = m_texturedSection->partsCount() == 1;
+        if ( valid )
+            valid = m_texturedSection->part( 0 ).isRectValid;
+        else
+            m_texturedSection->resize( 1 );
 
         int zIndex = m_depthIndex();
 
-        cvf::Vec3dArray points;
-        points.resize( 4 );
-        points[3] = m_seismicData->convertToWorldCoords( ilStart, xlStart, zIndex );
-        points[2] = m_seismicData->convertToWorldCoords( ilStop, xlStart, zIndex );
-        points[1] = m_seismicData->convertToWorldCoords( ilStop, xlStop, zIndex );
-        points[0] = m_seismicData->convertToWorldCoords( ilStart, xlStop, zIndex );
+        if ( !valid )
+        {
+            int ilStart = m_seismicData->inlineMin();
+            int ilStop  = m_seismicData->inlineMax();
 
-        for ( int i = 0; i < 4; i++ )
-            points[i].z() = -points[i].z();
+            int xlStart = m_seismicData->xlineMin();
+            int xlStop  = m_seismicData->xlineMax();
 
-        auto seismic = m_seismicData->sliceData( RiaDefines::SeismicSliceDirection::DEPTH, zIndex );
-        tex->addSection( points, seismic );
+            cvf::Vec3dArray points;
+            points.resize( 4 );
+            points[3] = m_seismicData->convertToWorldCoords( ilStart, xlStart, zIndex );
+            points[2] = m_seismicData->convertToWorldCoords( ilStop, xlStart, zIndex );
+            points[1] = m_seismicData->convertToWorldCoords( ilStop, xlStop, zIndex );
+            points[0] = m_seismicData->convertToWorldCoords( ilStart, xlStop, zIndex );
+
+            for ( int i = 0; i < 4; i++ )
+                points[i].z() = -points[i].z();
+
+            m_texturedSection->setSectionPartRect( 0, points );
+        }
+
+        if ( m_texturedSection->part( 0 ).sliceData == nullptr )
+        {
+            m_texturedSection->part( 0 ).sliceData = m_seismicData->sliceData( RiaDefines::SeismicSliceDirection::DEPTH, zIndex );
+        }
     }
 
-    return tex;
+    return m_texturedSection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -572,6 +623,8 @@ void RimSeismicSection::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
     }
     else if ( changedField != &m_userDescription )
     {
+        RigTexturedSection::WhatToUpdateEnum updateType = RigTexturedSection::WhatToUpdateEnum::UPDATE_NONE;
+
         if ( changedField == &m_seismicData )
         {
             RiuMainWindow::instance()->seismicHistogramPanel()->showHistogram( m_seismicData() );
@@ -585,9 +638,18 @@ void RimSeismicSection::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
             }
 
             m_seismicData->legendConfig()->changed.connect( this, &RimSeismicSection::onLegendConfigChanged );
+
+            updateType = RigTexturedSection::WhatToUpdateEnum::UPDATE_ALL;
+        }
+        else if ( ( changedField == &m_type ) || ( changedField == &m_targets ) || ( changedField == &m_depthIndex ) ||
+                  ( changedField == &m_inlineIndex ) || ( changedField == &m_xlineIndex ) )
+        {
+            updateType = RigTexturedSection::WhatToUpdateEnum::UPDATE_GEOMETRY;
         }
 
-        updateVisualization();
+        texturedSection()->setWhatToUpdate( updateType );
+
+        scheduleViewUpdate();
     }
 }
 
@@ -668,5 +730,28 @@ QPixmap RimSeismicSection::getImage()
 //--------------------------------------------------------------------------------------------------
 void RimSeismicSection::onLegendConfigChanged( const caf::SignalEmitter* emitter, RimLegendConfigChangeType changeType )
 {
-    updateVisualization();
+    RigTexturedSection::WhatToUpdateEnum updateType = RigTexturedSection::WhatToUpdateEnum::UPDATE_GEOMETRY;
+
+    switch ( changeType )
+    {
+        case RimLegendConfigChangeType::COLORS:
+        case RimLegendConfigChangeType::COLOR_MODE:
+            updateType = RigTexturedSection::WhatToUpdateEnum::UPDATE_TEXTURE;
+            break;
+        case RimLegendConfigChangeType::ALL:
+        case RimLegendConfigChangeType::RANGE:
+            updateType = RigTexturedSection::WhatToUpdateEnum::UPDATE_DATA;
+            break;
+        case RimLegendConfigChangeType::LEVELS:
+        case RimLegendConfigChangeType::NUMBER_FORMAT:
+        case RimLegendConfigChangeType::VISIBILITY:
+            updateType = RigTexturedSection::WhatToUpdateEnum::UPDATE_NONE;
+            break;
+        default:
+            break;
+    }
+
+    texturedSection()->setWhatToUpdate( updateType );
+
+    scheduleViewUpdate();
 }

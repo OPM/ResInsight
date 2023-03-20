@@ -112,7 +112,7 @@
 #include "RimRftPlotCollection.h"
 #include "RimSaturationPressurePlotCollection.h"
 #include "RimScriptCollection.h"
-#include "RimSeismicCollection.h"
+#include "RimSeismicDataCollection.h"
 #include "RimSeismicSectionCollection.h"
 #include "RimSimWellFracture.h"
 #include "RimSimWellInView.h"
@@ -1038,7 +1038,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicNewSeismicSectionFeature";
         }
-        else if ( dynamic_cast<RimSeismicCollection*>( firstUiItem ) )
+        else if ( dynamic_cast<RimSeismicDataCollection*>( firstUiItem ) )
         {
             menuBuilder << "RicImportSeismicFeature";
         }
