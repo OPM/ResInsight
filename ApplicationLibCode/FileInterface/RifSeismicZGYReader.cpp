@@ -51,7 +51,11 @@ bool RifSeismicZGYReader::open( QString filename )
     try
     {
         m_reader = std::make_unique<ZGYAccess::ZGYReader>();
-        m_reader->open( filename.toStdString() );
+        if ( !m_reader->open( filename.toStdString() ) )
+        {
+            m_reader.reset();
+            return false;
+        }
     }
     catch ( const std::exception& err )
     {
