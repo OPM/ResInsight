@@ -71,9 +71,11 @@ jobs:
         if: contains( matrix.os, 'windows')
         shell: bash
         run: |
-          cmakebuild/cafProjectDataModel/cafPdmCore/cafPdmCore_UnitTests/Release/cafPdmCore_UnitTests
-          cmakebuild/cafProjectDataModel/cafPdmXml/cafPdmXml_UnitTests/Release/cafPdmXml_UnitTests
-          cmakebuild/cafProjectDataModel/cafProjectDataModel_UnitTests/Release/cafProjectDataModel_UnitTests
+          cmakebuild/cafProjectDataModel/cafPdmCore/cafPdmCore_UnitTests/cafPdmCore_UnitTests
+          cmakebuild/cafProjectDataModel/cafPdmXml/cafPdmXml_UnitTests/cafPdmXml_UnitTests
+          cmakebuild/cafProjectDataModel/cafProjectDataModel_UnitTests/cafProjectDataModel_UnitTests
+          cmakebuild/cafUserInterface/cafUserInterface_UnitTests/cafUserInterface_UnitTests
+          cmakebuild/cafPdmScripting/cafPdmScripting_UnitTests/cafPdmScripting_UnitTests
 
       - name: Run Unit Tests Linux
         if: "!contains( matrix.os, 'windows')"
