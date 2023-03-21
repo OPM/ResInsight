@@ -66,8 +66,7 @@ jobs:
             message(FATAL_ERROR "Bad exit status")
           endif()
 
-      - name: Run Unit Tests Windows
-        if: contains( matrix.os, 'windows')
+      - name: Run Unit Tests
         shell: bash
         run: |
           cmakebuild/cafProjectDataModel/cafPdmCore/cafPdmCore_UnitTests/cafPdmCore_UnitTests
@@ -75,11 +74,3 @@ jobs:
           cmakebuild/cafProjectDataModel/cafProjectDataModel_UnitTests/cafProjectDataModel_UnitTests
           cmakebuild/cafUserInterface/cafUserInterface_UnitTests/cafUserInterface_UnitTests
           cmakebuild/cafPdmScripting/cafPdmScripting_UnitTests/cafPdmScripting_UnitTests
-
-      - name: Run Unit Tests Linux
-        if: "!contains( matrix.os, 'windows')"
-        shell: bash
-        run: |
-          cmakebuild/cafProjectDataModel/cafPdmCore/cafPdmCore_UnitTests/cafPdmCore_UnitTests
-          cmakebuild/cafProjectDataModel/cafPdmXml/cafPdmXml_UnitTests/cafPdmXml_UnitTests
-          cmakebuild/cafProjectDataModel/cafProjectDataModel_UnitTests/cafProjectDataModel_UnitTests
