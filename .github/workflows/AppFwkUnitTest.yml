@@ -35,12 +35,34 @@ jobs:
           dir: "${{ github.workspace }}/Qt/"
           cache: true
 
-      - name: Configure and Build
+      - name: Use MSVC (Windows)
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Configure
+        shell: cmake -P {0}
         run: |
-          mkdir cmakebuild
-          cd cmakebuild
-          cmake ../Fwk/AppFwk
-          make -j4
+          execute_process(
+            COMMAND cmake
+              -S Fwk/AppFwk
+              -B cmakebuild
+              -G Ninja
+            RESULT_VARIABLE result
+          )
+          if (NOT result EQUAL 0)
+            message(FATAL_ERROR "Bad exit status")
+          endif()
+      
+      - name: Build
+        shell: cmake -P {0}
+        run: |
+          set(ENV{NINJA_STATUS} "[%f/%t %o/sec] ")
+          execute_process(
+            COMMAND cmake --build cmakebuild
+            RESULT_VARIABLE result
+          )
+          if (NOT result EQUAL 0)
+            message(FATAL_ERROR "Bad exit status")
+          endif()
 
       - name: Run Unit Tests Windows
         if: contains( matrix.os, 'windows')
