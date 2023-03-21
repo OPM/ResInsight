@@ -24,6 +24,8 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
 
+class RimSummaryCase;
+
 //==================================================================================================
 ///
 ///
@@ -46,7 +48,10 @@ public:
     void                          insertTable( RimSummaryTable* table, size_t index );
     void                          removeTable( RimSummaryTable* table );
 
-    RimSummaryTable* createSummaryTable();
+    RimSummaryTable* createDefaultSummaryTable();
+    RimSummaryTable* createSummaryTableFromCategoryAndVectorName( RimSummaryCase*                              summaryCase,
+                                                                  RifEclipseSummaryAddress::SummaryVarCategory category,
+                                                                  const QString&                               vectorName );
 
     void updateSummaryNameHasChanged();
 

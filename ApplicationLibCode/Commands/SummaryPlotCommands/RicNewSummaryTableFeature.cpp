@@ -20,14 +20,10 @@
 
 #include "RiaSummaryTools.h"
 
-//#include "RicEditSummaryPlotFeature.h"
-//#include "RicSummaryPlotEditorDialog.h"
-//#include "RicSummaryPlotEditorUi.h"
+#include "RifEclipseSummaryAddress.h"
 
 #include "RimMainPlotCollection.h"
-//#include "RimSummaryCase.h"
-//#include "RimSummaryCaseCollection.h"
-//#include "RimSummaryCrossPlotCollection.h"
+#include "RimSummaryAddress.h"
 #include "RimSummaryTable.h"
 #include "RimSummaryTableCollection.h"
 
@@ -48,26 +44,22 @@ bool RicNewSummaryTableFeature::isCommandEnabled()
 {
     RimSummaryTableCollection* tableColl = nullptr;
 
+    // Summary table collection selection
     caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
     if ( selObj )
     {
         tableColl = RiaSummaryTools::parentSummaryTableCollection( selObj );
     }
-
     if ( tableColl ) return true;
 
-    // Multiple case selections
-    /*std::vector<caf::PdmUiItem*> selectedItems = caf::selectedObjectsByTypeStrict<caf::PdmUiItem*>();
-
-    for ( auto item : selectedItems )
+    // Summary Address selection - only for enabled categories
+    RimSummaryAddress* selectedSummaryAddress = nullptr;
+    if ( selObj )
     {
-        RimSummaryCase*           sumCase  = dynamic_cast<RimSummaryCase*>( item );
-        RimSummaryCaseCollection* sumGroup = dynamic_cast<RimSummaryCaseCollection*>( item );
-
-        if ( sumGroup && sumGroup->isEnsemble() ) sumGroup = nullptr;
-        if ( !sumCase && !sumGroup ) return false;
+        selObj->firstAncestorOrThisOfType( selectedSummaryAddress );
     }
-    return true;*/
+    if ( selectedSummaryAddress && m_enabledCategories.contains( selectedSummaryAddress->address().category() ) ) return true;
+
     return false;
 }
 
@@ -79,7 +71,32 @@ void RicNewSummaryTableFeature::onActionTriggered( bool isChecked )
     RimSummaryTableCollection* summaryTableColl = RimMainPlotCollection::current()->summaryTableCollection();
     if ( !summaryTableColl ) return;
 
-    RimSummaryTable* summaryTable = summaryTableColl->createSummaryTable();
+    caf::PdmObject*    selObj                 = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
+    RimSummaryAddress* selectedSummaryAddress = nullptr;
+    if ( selObj )
+    {
+        selObj->firstAncestorOrThisOfType( selectedSummaryAddress );
+    }
+
+    RimSummaryTable* summaryTable = nullptr;
+    if ( selectedSummaryAddress )
+    {
+        const auto adrObj = selectedSummaryAddress->address();
+        if ( !m_enabledCategories.contains( adrObj.category() ) ) return;
+
+        RimSummaryCase* summaryCase = RiaSummaryTools::summaryCaseById( selectedSummaryAddress->caseId() );
+        if ( !summaryCase ) return;
+
+        summaryTable = summaryTableColl->createSummaryTableFromCategoryAndVectorName( summaryCase,
+                                                                                      adrObj.category(),
+                                                                                      QString::fromStdString( adrObj.vectorName() ) );
+    }
+    else
+    {
+        summaryTable = summaryTableColl->createDefaultSummaryTable();
+    }
+
+    // Add summary table to collection
     if ( summaryTable )
     {
         summaryTableColl->addTable( summaryTable );

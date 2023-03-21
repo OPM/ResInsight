@@ -19,6 +19,7 @@
 #include "RimSummaryTableCollection.h"
 
 #include "RimProject.h"
+#include "RimSummaryCase.h"
 #include "RimSummaryCrossPlot.h"
 #include "RimSummaryPlot.h"
 
@@ -127,11 +128,26 @@ void RimSummaryTableCollection::removeTable( RimSummaryTable* table )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryTable* RimSummaryTableCollection::createSummaryTable()
+RimSummaryTable* RimSummaryTableCollection::createDefaultSummaryTable()
 {
     RimSummaryTable* table = new RimSummaryTable();
     table->setAsPlotMdiWindow();
     table->setDescription( QString( "Summary Table %1" ).arg( m_summaryTables.size() ) );
+
+    return table;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryTable* RimSummaryTableCollection::createSummaryTableFromCategoryAndVectorName( RimSummaryCase* summaryCase,
+                                                                                         RifEclipseSummaryAddress::SummaryVarCategory category,
+                                                                                         const QString& vectorName )
+{
+    RimSummaryTable* table = new RimSummaryTable();
+    table->setFromCaseAndCategoryAndVectorName( summaryCase, category, vectorName );
+    table->setAsPlotMdiWindow();
+    table->setDescription( QString( "Summary Table - %1" ).arg( vectorName ) );
 
     return table;
 }

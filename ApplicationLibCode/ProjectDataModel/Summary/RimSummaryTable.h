@@ -47,7 +47,9 @@ public:
     RimSummaryTable();
     ~RimSummaryTable() override;
 
-    void setFromVector();
+    void setFromCaseAndCategoryAndVectorName( RimSummaryCase*                              summaryCase,
+                                              RifEclipseSummaryAddress::SummaryVarCategory category,
+                                              const QString&                               vectorName );
     void setDescription( const QString& description );
 
 private:
@@ -91,7 +93,7 @@ private:
     // Matrix plot for visualizing table data
     QPointer<RiuMatrixPlotWidget> m_matrixPlotWidget;
 
-    caf::PdmPtrField<RimSummaryCase*> m_case; // TODO: Use RimFileSummaryCase?
+    caf::PdmPtrField<RimSummaryCase*> m_case;
 
     caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>> m_categories;
     caf::PdmField<QString>                                                    m_vector;

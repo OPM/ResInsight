@@ -87,8 +87,7 @@ RimSummaryTable::RimSummaryTable()
 
     setLegendsVisible( true );
     setAsPlotMdiWindow();
-    setShowWindow( false );
-
+    setShowWindow( true );
     setDeletable( true );
 }
 
@@ -105,33 +104,13 @@ RimSummaryTable::~RimSummaryTable()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryTable::setFromVector()
+void RimSummaryTable::setFromCaseAndCategoryAndVectorName( RimSummaryCase*                              summaryCase,
+                                                           RifEclipseSummaryAddress::SummaryVarCategory category,
+                                                           const QString&                               vectorName )
 {
-    // RimEclipseView* eclView;
-    // simWell->firstAncestorOrThisOfType( eclView );
-    // RimEclipseResultCase* eclCase;
-    // simWell->firstAncestorOrThisOfType( eclCase );
-
-    // m_cellFilterView = eclView;
-    // m_case           = eclCase;
-
-    //// Set valid single time step and time step range selections based on case
-    // setValidTimeStepSelectionsForCase();
-
-    //// Set single time step and current selected time step from active view
-    // m_timeStepSelection = TimeStepSelection::SINGLE_TIME_STEP;
-    // m_selectedTimeStep  = eclCase->timeStepDates().at( eclView->currentTimeStep() );
-
-    //// Use the active flow diagnostics solutions, or the first one as default
-    // m_flowDiagSolution = eclView->cellResult()->flowDiagSolution();
-    // if ( !m_flowDiagSolution )
-    //{
-    //    m_flowDiagSolution = m_case->defaultFlowDiagSolution();
-    //}
-
-    // connectViewCellFiltersChangedToSlot( m_cellFilterView );
-
-    // setSelectedProducersAndInjectorsForSingleTimeStep();
+    m_case       = summaryCase;
+    m_categories = category;
+    m_vector     = vectorName;
     onLoadDataAndUpdate();
 }
 

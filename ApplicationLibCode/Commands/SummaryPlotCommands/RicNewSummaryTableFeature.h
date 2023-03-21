@@ -31,4 +31,9 @@ private:
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
+
+private:
+    const std::set<RifEclipseSummaryAddress::SummaryVarCategory> m_enabledCategories = { RifEclipseSummaryAddress::SUMMARY_WELL,
+                                                                                         RifEclipseSummaryAddress::SUMMARY_REGION,
+                                                                                         RifEclipseSummaryAddress::SUMMARY_GROUP };
 };
