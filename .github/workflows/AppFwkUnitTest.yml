@@ -35,6 +35,9 @@ jobs:
           dir: "${{ github.workspace }}/Qt/"
           cache: true
 
+      - name: Use CMake and Ninja
+        uses: lukka/get-cmake@latest
+
       - name: Use MSVC (Windows)
         uses: ilammy/msvc-dev-cmd@v1
 
