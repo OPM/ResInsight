@@ -424,7 +424,7 @@ RicSummaryCaseRestartDialogResult RicSummaryCaseRestartDialog::openDialog( const
             for ( const auto& ofi : originFileInfos )
             {
                 QString gridFile = RifEclipseSummaryTools::findGridCaseFileFromSummaryHeaderFile( ofi.fileName );
-                if ( handleGridFile ) dialogResult.gridFiles.push_back( gridFile );
+                dialogResult.gridFiles.push_back( gridFile );
             }
         }
     }
