@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimWellAllocationOverTimeCollection.h"
+#include "RigWellAllocationOverTime.h"
 
 #include "cafAssert.h"
 
@@ -29,8 +29,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellAllocationOverTimeCollection::RimWellAllocationOverTimeCollection( const std::vector<QDateTime>& timeStepDates,
-                                                                          const std::map<QDateTime, RigAccWellFlowCalculator>& timeStepAndCalculatorPairs )
+RigWellAllocationOverTime::RigWellAllocationOverTime( const std::vector<QDateTime>&                        timeStepDates,
+                                                      const std::map<QDateTime, RigAccWellFlowCalculator>& timeStepAndCalculatorPairs )
     : m_timeStepDates( timeStepDates )
 {
     for ( const auto& [date, calculator] : timeStepAndCalculatorPairs )
@@ -84,7 +84,23 @@ RimWellAllocationOverTimeCollection::RimWellAllocationOverTimeCollection( const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellAllocationOverTimeCollection::fillWithFlowRatePercentageValues()
+void RigWellAllocationOverTime::fillWithFlowRateFractionValues()
+{
+    m_wellValuesMap = m_defaultWellValuesMap;
+    for ( auto& [timeStep, calculator] : m_timeStepAndCalculatorPairs )
+    {
+        const auto totalTracerFractions = calculator.totalTracerFractions();
+        for ( const auto& [wellName, value] : totalTracerFractions )
+        {
+            m_wellValuesMap[wellName][timeStep] = value;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigWellAllocationOverTime::fillWithFlowRatePercentageValues()
 {
     m_wellValuesMap = m_defaultWellValuesMap;
     for ( auto& [timeStep, calculator] : m_timeStepAndCalculatorPairs )
@@ -101,7 +117,7 @@ void RimWellAllocationOverTimeCollection::fillWithFlowRatePercentageValues()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellAllocationOverTimeCollection::fillWithFlowRateValues()
+void RigWellAllocationOverTime::fillWithFlowRateValues()
 {
     m_wellValuesMap        = m_defaultWellValuesMap;
     const size_t branchIdx = 0;
@@ -121,7 +137,7 @@ void RimWellAllocationOverTimeCollection::fillWithFlowRateValues()
 ///
 /// Create volume by multiplying with number of days since last time step.
 //--------------------------------------------------------------------------------------------------
-void RimWellAllocationOverTimeCollection::fillWithFlowVolumeValues()
+void RigWellAllocationOverTime::fillWithFlowVolumeValues()
 {
     fillWithFlowRateValues();
 
@@ -150,7 +166,7 @@ void RimWellAllocationOverTimeCollection::fillWithFlowVolumeValues()
 /// Group small contributors in "Others" if accumulated volume value at last time step is below
 /// threshold value.
 //--------------------------------------------------------------------------------------------------
-void RimWellAllocationOverTimeCollection::fillWithAccumulatedFlowVolumeValues( double smallContributionsThreshold )
+void RigWellAllocationOverTime::fillWithAccumulatedFlowVolumeValues( double smallContributionsThreshold )
 {
     fillWithFlowRateValues();
 
@@ -181,15 +197,34 @@ void RimWellAllocationOverTimeCollection::fillWithAccumulatedFlowVolumeValues( d
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Fill with accumulated well flow volumes in percent of total accumulated flow volume at each
-/// time step.
+///
+//--------------------------------------------------------------------------------------------------
+void RigWellAllocationOverTime::fillWithAccumulatedFlowVolumeFractionValues( double smallContributionsThreshold )
+{
+    fillWithAccumulatedFlowVolumeFractionOrPercentageValues( FractionOrPercentage::FRACTION, smallContributionsThreshold );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigWellAllocationOverTime::fillWithAccumulatedFlowVolumePercentageValues( double smallContributionsThreshold )
+{
+    fillWithAccumulatedFlowVolumeFractionOrPercentageValues( FractionOrPercentage::PERCENTAGE, smallContributionsThreshold );
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Fill with accumulated well flow volumes in fraction/percent of total accumulated flow volume
+/// at each time step.
 ///
 ///
-/// Group small contributors in "Others" if percentage value for well is below threshold at every
+/// Group small contributors in "Others" if volume value for well is below threshold at every
 /// time step.
 //--------------------------------------------------------------------------------------------------
-void RimWellAllocationOverTimeCollection::fillWithAccumulatedFlowVolumePercentageValues( double smallContributionsThreshold )
+void RigWellAllocationOverTime::fillWithAccumulatedFlowVolumeFractionOrPercentageValues( FractionOrPercentage selection,
+                                                                                         double               smallContributionsThreshold )
 {
+    const double scaling = selection == FractionOrPercentage::FRACTION ? 1.0 : 100.0;
+
     // Handle threshold filtering afterwards
     const double nonFilteringThreshold = 0.0;
     fillWithAccumulatedFlowVolumeValues( nonFilteringThreshold );
@@ -213,14 +248,14 @@ void RimWellAllocationOverTimeCollection::fillWithAccumulatedFlowVolumePercentag
         // Create percentage value
         for ( auto& [well, value] : timeStepWellValues )
         {
-            m_wellValuesMap[well][timeStep] = 100.0 * value / totalAccumulatedVolume;
+            m_wellValuesMap[well][timeStep] = scaling * value / totalAccumulatedVolume;
         }
     }
 
     if ( smallContributionsThreshold > 0.0 )
     {
-        const auto percentageThreshold = 100.0 * smallContributionsThreshold;
-        groupAccumulatedFlowVolumePercentages( m_wellValuesMap, percentageThreshold );
+        const auto threshold = scaling * smallContributionsThreshold;
+        groupAccumulatedFlowVolumeFractionsOrPercentages( m_wellValuesMap, threshold );
     }
 }
 
@@ -229,8 +264,7 @@ void RimWellAllocationOverTimeCollection::fillWithAccumulatedFlowVolumePercentag
 /// Group small contributors in "Others" if accumulated volume value at last time step is below
 /// threshold value.
 //--------------------------------------------------------------------------------------------------
-void RimWellAllocationOverTimeCollection::groupAccumulatedFlowVolumes( std::map<QString, std::map<QDateTime, double>>& rWellValuesMap,
-                                                                       double                                          threshold )
+void RigWellAllocationOverTime::groupAccumulatedFlowVolumes( std::map<QString, std::map<QDateTime, double>>& rWellValuesMap, double threshold )
 {
     if ( m_timeStepDates.empty() ) return;
 
@@ -283,13 +317,13 @@ void RimWellAllocationOverTimeCollection::groupAccumulatedFlowVolumes( std::map<
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Handle grouping of small contributors in accumulated volume percentage based on threshold.
-/// Group small contributors in "Others" if percentage value for well is below threshold at every
-/// time step. If percentage value is above threshold for one time step or more, show data for well
+/// Handle grouping of small contributors in accumulated volume fraction/percentage based on threshold.
+/// Group small contributors in "Others" if fraction/percentage value for well is below threshold at every
+/// time step. If fraction/percentage value is above threshold for one time step or more, show data for well
 /// at every time step.
 //--------------------------------------------------------------------------------------------------
-void RimWellAllocationOverTimeCollection::groupAccumulatedFlowVolumePercentages( std::map<QString, std::map<QDateTime, double>>& rWellValuesMap,
-                                                                                 double thresholdPercent )
+void RigWellAllocationOverTime::groupAccumulatedFlowVolumeFractionsOrPercentages( std::map<QString, std::map<QDateTime, double>>& rWellValuesMap,
+                                                                                  double threshold )
 {
     auto getMaxValue = []( const std::map<QDateTime, double>& valuesMap ) -> double {
         double maxValue = 0.0;
@@ -305,7 +339,7 @@ void RimWellAllocationOverTimeCollection::groupAccumulatedFlowVolumePercentages(
     for ( const auto& [well, values] : rWellValuesMap )
     {
         const double maxValue = getMaxValue( values );
-        if ( maxValue > thresholdPercent )
+        if ( maxValue > threshold )
         {
             contributingWells.push_back( well );
         }

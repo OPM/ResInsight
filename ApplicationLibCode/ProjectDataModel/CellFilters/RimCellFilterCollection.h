@@ -21,6 +21,7 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafSignal.h"
 
 class RimCellFilter;
 class RimCellRangeFilter;
@@ -44,6 +45,8 @@ class RimCellFilterCollection : public caf::PdmObject
 public:
     RimCellFilterCollection();
     ~RimCellFilterCollection() override;
+
+    caf::Signal<> filtersChanged;
 
     RimPolygonFilter*     addNewPolygonFilter( RimCase* srcCase );
     RimUserDefinedFilter* addNewUserDefinedFilter( RimCase* srcCase );

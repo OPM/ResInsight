@@ -103,6 +103,7 @@ void RimRegularLegendConfig::ColorRangeEnum::setUp()
     addItem( RimRegularLegendConfig::ColorRangesType::GREEN_RED, "GREEN_RED", "Green to Red" );
     addItem( RimRegularLegendConfig::ColorRangesType::BLUE_MAGENTA, "BLUE_MAGENTA", "Blue to Magenta" );
     addItem( RimRegularLegendConfig::ColorRangesType::CORRELATION, "CORRELATION", "Correlation colors" );
+    addItem( RimRegularLegendConfig::ColorRangesType::HEAT_MAP, "HEAT_MAP", "Heat map colors" );
     addItem( RimRegularLegendConfig::ColorRangesType::UNDEFINED, "UNDEFINED", "Undefined" );
     setDefault( RimRegularLegendConfig::ColorRangesType::UNDEFINED );
 }
@@ -392,6 +393,7 @@ void RimRegularLegendConfig::updateLegend()
 {
     m_significantDigitsInData = m_precision;
 
+    updateTickCountAndUserDefinedRange();
     if ( m_resetUserDefinedValues && m_globalAutoMax != cvf::UNDEFINED_DOUBLE )
     {
         updateTickCountAndUserDefinedRange();
@@ -1112,6 +1114,9 @@ cvf::Color3ubArray RimRegularLegendConfig::colorArrayFromColorType( ColorRangesT
         case RimRegularLegendConfig::ColorRangesType::CORRELATION:
             return RiaColorTables::correlationPaletteColors().color3ubArray();
             break;
+        case RimRegularLegendConfig::ColorRangesType::HEAT_MAP:
+            return RiaColorTables::heatMapPaletteColors().color3ubArray();
+            break;
         default:
             if ( ColorManager::isEnsembleColorRange( colorType ) ) return ColorManager::EnsembleColorRanges().at( colorType );
             break;
@@ -1227,6 +1232,13 @@ void RimRegularLegendConfig::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     else if ( uiConfigName == "ColorsOnly" )
     {
         uiOrdering.add( &m_colorLegend );
+        uiOrdering.skipRemainingFields( true );
+    }
+    else if ( uiConfigName == "FlagColorsAndMappingModeOnly" )
+    {
+        uiOrdering.add( &m_showLegend );
+        uiOrdering.add( &m_colorLegend );
+        uiOrdering.add( &m_mappingMode );
         uiOrdering.skipRemainingFields( true );
     }
     else

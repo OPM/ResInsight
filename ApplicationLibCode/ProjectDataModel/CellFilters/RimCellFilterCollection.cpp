@@ -38,6 +38,7 @@ CAF_PDM_SOURCE_INIT( RimCellFilterCollection, "CellFilterCollection", "RimCellFi
 ///
 //--------------------------------------------------------------------------------------------------
 RimCellFilterCollection::RimCellFilterCollection()
+    : filtersChanged( this )
 {
     CAF_PDM_InitScriptableObject( "Cell Filters", ":/CellFilter.png" );
 
@@ -357,6 +358,8 @@ void RimCellFilterCollection::onFilterUpdated( const SignalEmitter* emitter )
     view->scheduleGeometryRegen( RANGE_FILTERED_INACTIVE );
 
     view->scheduleCreateDisplayModelAndRedraw();
+
+    filtersChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------

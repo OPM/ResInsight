@@ -24,6 +24,7 @@
 
 #include <QString>
 
+#include <set>
 #include <string>
 #include <vector>
 
@@ -92,6 +93,10 @@ public:
                           RiaDefines::TimeFormatComponents timeComponents = RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND );
 
     static QList<caf::PdmOptionItemInfo> createOptionItems( const std::vector<time_t>& timeSteps );
+
+    static std::set<QDateTime> createEvenlyDistributedDates( const std::vector<QDateTime>& inputDates, int numDates );
+    static std::vector<QDateTime>
+        getTimeStepsWithinSelectedRange( const std::vector<QDateTime>& timeSteps, const QDateTime& fromTimeStep, const QDateTime& toTimeStep );
 
 private:
     static const DateTimeSpan TIMESPAN_DAY;

@@ -33,7 +33,7 @@
 class RigAccWellFlowCalculator;
 class RimEclipseResultCase;
 class RimFlowDiagSolution;
-class RimWellAllocationOverTimeCollection;
+class RigWellAllocationOverTime;
 class RimSimWellInView;
 class RiuPlotWidget;
 class RiuQwtPlotWidget;
@@ -101,10 +101,10 @@ private:
 private:
     void doUpdateLayout() override;
 
-    void                                updateFromWell();
-    RimWellAllocationOverTimeCollection createWellAllocationOverTimeCollection() const;
-    std::set<QString>                   findSortedWellNames();
-    cvf::Color3f                        getTracerColor( const QString& tracerName );
+    void                      updateFromWell();
+    RigWellAllocationOverTime createWellAllocationOverTime() const;
+    std::set<QString>         findSortedWellNames();
+    cvf::Color3f              getTracerColor( const QString& tracerName );
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
@@ -118,9 +118,7 @@ private:
     int axisTitleFontSize() const;
     int axisValueFontSize() const;
 
-    std::vector<QDateTime>     getTimeStepsWithinSelectedRange( const std::vector<QDateTime>& timeSteps ) const;
-    std::set<QDateTime>        getSelectedTimeSteps( const std::vector<QDateTime>& timeSteps ) const;
-    static std::set<QDateTime> createEvenlyDistributedDates( const std::vector<QDateTime>& inputDates, int numDates );
+    std::set<QDateTime> getSelectedTimeSteps( const std::vector<QDateTime>& timeSteps ) const;
 
 private:
     caf::PdmField<QString>                  m_userName;

@@ -20,16 +20,30 @@
 
 #include "RiaDefines.h"
 
-#include "RigFlowDiagResultAddress.h"
 #include "RigFlowDiagResults.h"
 #include "RigSimWellData.h"
 
 #include "RimFlowDiagSolution.h"
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::map<QString, const std::vector<double>*>
     RimWellAllocationTools::findOrCreateRelevantTracerCellFractions( const RigSimWellData* simWellData,
                                                                      RimFlowDiagSolution*  flowDiagSolution,
                                                                      int                   timeStepIndex )
+{
+    return findOrCreateRelevantTracerCellFractions( simWellData, flowDiagSolution, RigFlowDiagResultAddress::PHASE_ALL, timeStepIndex );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<QString, const std::vector<double>*>
+    RimWellAllocationTools::findOrCreateRelevantTracerCellFractions( const RigSimWellData*                    simWellData,
+                                                                     RimFlowDiagSolution*                     flowDiagSolution,
+                                                                     RigFlowDiagResultAddress::PhaseSelection phaseSelection,
+                                                                     int                                      timeStepIndex )
 {
     std::map<QString, const std::vector<double>*> tracerCellFractionValues = {};
     if ( flowDiagSolution && simWellData->hasWellResult( timeStepIndex ) )
@@ -51,7 +65,7 @@ std::map<QString, const std::vector<double>*>
         {
             if ( flowDiagSolution->tracerStatusInTimeStep( tracerName, timeStepIndex ) == requestedTracerType )
             {
-                RigFlowDiagResultAddress resAddr( RIG_FLD_CELL_FRACTION_RESNAME, RigFlowDiagResultAddress::PHASE_ALL, tracerName.toStdString() );
+                RigFlowDiagResultAddress   resAddr( RIG_FLD_CELL_FRACTION_RESNAME, phaseSelection, tracerName.toStdString() );
                 const std::vector<double>* tracerCellFractions = flowDiagSolution->flowDiagResults()->resultValues( resAddr, timeStepIndex );
                 if ( tracerCellFractions )
                 {

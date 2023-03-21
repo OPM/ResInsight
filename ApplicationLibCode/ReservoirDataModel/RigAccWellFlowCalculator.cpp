@@ -18,6 +18,8 @@
 
 #include "RigAccWellFlowCalculator.h"
 
+#include "RiaWellFlowDefines.h"
+
 #include "RigActiveCellInfo.h"
 #include "RigFlowDiagResults.h"
 #include "RigMainGrid.h"
@@ -37,10 +39,21 @@
 //--------------------------------------------------------------------------------------------------
 size_t RigEclCellIndexCalculator::resultCellIndex( size_t gridIndex, size_t gridCellIndex ) const
 {
-    const RigGridBase* grid               = m_mainGrid->gridByIndex( gridIndex );
-    size_t             reservoirCellIndex = grid->reservoirCellIndex( gridCellIndex );
+    size_t reservoirCellIndex = m_mainGrid->reservoirCellIndexByGridAndGridLocalCellIndex( gridIndex, gridCellIndex );
 
     return m_activeCellInfo->cellResultIndex( reservoirCellIndex );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigEclCellIndexCalculator::isCellVisible( size_t gridIndex, size_t gridCellIndex ) const
+{
+    if ( !m_cellVisibilities ) return true;
+
+    size_t reservoirCellIndex = m_mainGrid->reservoirCellIndexByGridAndGridLocalCellIndex( gridIndex, gridCellIndex );
+
+    return ( *m_cellVisibilities )[reservoirCellIndex];
 }
 
 //==================================================================================================
@@ -73,7 +86,7 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator( const std::vector<std::vecto
     for ( const auto& it : ( *m_tracerCellFractionValues ) )
         m_tracerNames.push_back( it.first );
 
-    m_tracerNames.push_back( RIG_RESERVOIR_TRACER_NAME );
+    m_tracerNames.push_back( RiaDefines::reservoirTracerName() );
 
     initializePipeBranchesMeasuredDepths();
     calculateFlowData();
@@ -90,7 +103,7 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator( const std::vector<std::vecto
     : m_pipeBranchesCLCoords( pipeBranchesCLCoords )
     , m_pipeBranchesWellResultPoints( pipeBranchesWellResultPoints )
     , m_tracerCellFractionValues( nullptr )
-    , m_cellIndexCalculator( RigEclCellIndexCalculator( nullptr, nullptr ) )
+    , m_cellIndexCalculator( RigEclCellIndexCalculator( nullptr, nullptr, nullptr ) )
     , m_smallContributionsThreshold( smallContribThreshold )
     , m_isProducer( true )
     , m_useTotalWellPhaseRateOnly( false )
@@ -123,7 +136,7 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator( const std::vector<cvf::Vec3d
                                                     const std::vector<double>&             pipeBranchMeasuredDepths,
                                                     bool                                   totalFlowOnly )
     : m_tracerCellFractionValues( nullptr )
-    , m_cellIndexCalculator( RigEclCellIndexCalculator( nullptr, nullptr ) )
+    , m_cellIndexCalculator( RigEclCellIndexCalculator( nullptr, nullptr, nullptr ) )
     , m_smallContributionsThreshold( 0.0 )
     , m_isProducer( true )
     , m_useTotalWellPhaseRateOnly( totalFlowOnly )
@@ -697,6 +710,8 @@ std::vector<double> RigAccWellFlowCalculator::calculateWellCellFlowPrTracer( con
 {
     std::vector<double> flowPrTracer( m_tracerNames.size(), 0.0 );
 
+    if ( wellCell.isCell() && !m_cellIndexCalculator.isCellVisible( wellCell.gridIndex(), wellCell.cellIndex() ) ) return flowPrTracer;
+
     if ( !isConnectionFlowConsistent( wellCell ) )
     {
         double flowRate = wellCell.flowRate();
@@ -866,12 +881,16 @@ void RigAccWellFlowCalculator::groupSmallContributions()
         for ( const auto& tracerPair : totalTracerFractions )
         {
             if ( fabs( tracerPair.second ) <= m_smallContributionsThreshold &&
-                 ( hasConsistentWellFlow || tracerPair.first != RIG_RESERVOIR_TRACER_NAME ) ) // Do not group the
-                                                                                              // Reservoir tracer if the
-                                                                                              // well flow is
-                                                                                              // inconsistent, because
-                                                                                              // cross flow is shown as
-                                                                                              // the reservoir fraction
+                 ( hasConsistentWellFlow || tracerPair.first != RiaDefines::reservoirTracerName() ) ) // Do not group
+                                                                                                      // the Reservoir
+                                                                                                      // tracer if the
+                                                                                                      // well flow is
+                                                                                                      // inconsistent,
+                                                                                                      // because cross
+                                                                                                      // flow is shown
+                                                                                                      // as the
+                                                                                                      // reservoir
+                                                                                                      // fraction
             {
                 tracersToGroup.push_back( tracerPair.first );
             }

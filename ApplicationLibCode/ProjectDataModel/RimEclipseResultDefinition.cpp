@@ -54,6 +54,7 @@
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 #include "RimFlowDiagSolution.h"
+#include "RimFlowDiagnosticsTools.h"
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotDataSet.h"
 #include "RimGridTimeHistoryCurve.h"
@@ -753,11 +754,13 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
         }
         else if ( fieldNeedingOptions == &m_selectedInjectorTracersUiField )
         {
-            options = calcOptionsForSelectedTracerField( true );
+            const bool isInjector = true;
+            options               = RimFlowDiagnosticsTools::calcOptionsForSelectedTracerField( m_flowSolutionUiField(), isInjector );
         }
         else if ( fieldNeedingOptions == &m_selectedProducerTracersUiField )
         {
-            options = calcOptionsForSelectedTracerField( false );
+            const bool isInjector = false;
+            options               = RimFlowDiagnosticsTools::calcOptionsForSelectedTracerField( m_flowSolutionUiField(), isInjector );
         }
     }
     else if ( m_resultTypeUiField() == RiaDefines::ResultCatType::INJECTION_FLOODING )
@@ -1647,25 +1650,6 @@ void RimEclipseResultDefinition::defineEditorAttribute( const caf::PdmFieldHandl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimEclipseResultDefinition::TracerComp::operator()( const QString& lhs, const QString& rhs ) const
-{
-    if ( !lhs.endsWith( "-XF" ) && rhs.endsWith( "-XF" ) )
-    {
-        return true;
-    }
-    else if ( lhs.endsWith( "-XF" ) && !rhs.endsWith( "-XF" ) )
-    {
-        return false;
-    }
-    else
-    {
-        return lhs < rhs;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::assignFlowSolutionFromCase()
 {
     RimFlowDiagSolution* defaultFlowDiagSolution = nullptr;
@@ -2246,36 +2230,6 @@ void RimEclipseResultDefinition::updateLegendTitle( RimRegularLegendConfig* lege
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calcOptionsForSelectedTracerField( bool injector )
-{
-    QList<caf::PdmOptionItemInfo> options;
-
-    RimFlowDiagSolution* flowSol = m_flowSolutionUiField();
-    if ( flowSol )
-    {
-        std::set<QString, TracerComp> sortedTracers = setOfTracersOfType( injector );
-
-        for ( const QString& tracerName : sortedTracers )
-        {
-            QString                               postfix;
-            RimFlowDiagSolution::TracerStatusType status = flowSol->tracerStatusOverall( tracerName );
-            if ( status == RimFlowDiagSolution::TracerStatusType::VARYING )
-            {
-                postfix = " [I/P]";
-            }
-            else if ( status == RimFlowDiagSolution::TracerStatusType::UNDEFINED )
-            {
-                postfix = " [U]";
-            }
-            options.push_back( caf::PdmOptionItemInfo( tracerName + postfix, tracerName ) );
-        }
-    }
-    return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QString RimEclipseResultDefinition::timeOfFlightString( bool shorter ) const
 {
     QString tofString;
@@ -2421,50 +2375,6 @@ QStringList RimEclipseResultDefinition::getResultNamesForResultType( RiaDefines:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> RimEclipseResultDefinition::allTracerNames() const
-{
-    std::vector<QString> tracerNames;
-
-    RimFlowDiagSolution* flowSol = m_flowSolutionUiField();
-    if ( flowSol )
-    {
-        tracerNames = flowSol->tracerNames();
-    }
-
-    return tracerNames;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::set<QString, RimEclipseResultDefinition::TracerComp> RimEclipseResultDefinition::setOfTracersOfType( bool injector ) const
-{
-    std::set<QString, TracerComp> sortedTracers;
-
-    RimFlowDiagSolution* flowSol = m_flowSolutionUiField();
-    if ( flowSol )
-    {
-        std::vector<QString> tracerNames = allTracerNames();
-        for ( const QString& tracerName : tracerNames )
-        {
-            RimFlowDiagSolution::TracerStatusType status        = flowSol->tracerStatusOverall( tracerName );
-            bool                                  includeTracer = status == RimFlowDiagSolution::TracerStatusType::VARYING ||
-                                 status == RimFlowDiagSolution::TracerStatusType::UNDEFINED;
-            includeTracer |= injector && status == RimFlowDiagSolution::TracerStatusType::INJECTOR;
-            includeTracer |= !injector && status == RimFlowDiagSolution::TracerStatusType::PRODUCER;
-
-            if ( includeTracer )
-            {
-                sortedTracers.insert( tracerName );
-            }
-        }
-    }
-    return sortedTracers;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimEclipseResultDefinition::FlowTracerSelectionState RimEclipseResultDefinition::injectorSelectionState() const
 {
     if ( m_flowTracerSelectionMode == FLOW_TR_INJECTORS || m_flowTracerSelectionMode == FLOW_TR_INJ_AND_PROD )
@@ -2473,7 +2383,8 @@ RimEclipseResultDefinition::FlowTracerSelectionState RimEclipseResultDefinition:
     }
     else if ( m_flowTracerSelectionMode == FLOW_TR_BY_SELECTION )
     {
-        if ( m_selectedInjectorTracers().size() == setOfTracersOfType( true ).size() )
+        const bool isInjector = true;
+        if ( m_selectedInjectorTracers().size() == RimFlowDiagnosticsTools::setOfTracersOfType( m_flowSolutionUiField(), isInjector ).size() )
         {
             return ALL_SELECTED;
         }
@@ -2500,7 +2411,8 @@ RimEclipseResultDefinition::FlowTracerSelectionState RimEclipseResultDefinition:
     }
     else if ( m_flowTracerSelectionMode == FLOW_TR_BY_SELECTION )
     {
-        if ( m_selectedProducerTracers().size() == setOfTracersOfType( false ).size() )
+        const bool isInjector = false;
+        if ( m_selectedProducerTracers().size() == RimFlowDiagnosticsTools::setOfTracersOfType( m_flowSolutionUiField(), isInjector ).size() )
         {
             return ALL_SELECTED;
         }
@@ -2521,8 +2433,6 @@ RimEclipseResultDefinition::FlowTracerSelectionState RimEclipseResultDefinition:
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::syncInjectorToProducerSelection()
 {
-    const double epsilon = 1.0e-8;
-
     int timeStep = 0;
 
     Rim3dView* rimView = nullptr;
@@ -2535,21 +2445,8 @@ void RimEclipseResultDefinition::syncInjectorToProducerSelection()
     RimFlowDiagSolution* flowSol = m_flowSolution();
     if ( flowSol && m_flowTracerSelectionMode == FLOW_TR_BY_SELECTION )
     {
-        std::set<QString, TracerComp> producers = setOfTracersOfType( false );
-
-        std::set<QString, TracerComp> newProducerSelection;
-        for ( const QString& selectedInjector : m_selectedInjectorTracers() )
-        {
-            for ( const QString& producer : producers )
-            {
-                std::pair<double, double> commFluxes =
-                    flowSol->flowDiagResults()->injectorProducerPairFluxes( selectedInjector.toStdString(), producer.toStdString(), timeStep );
-                if ( std::abs( commFluxes.first ) > epsilon || std::abs( commFluxes.second ) > epsilon )
-                {
-                    newProducerSelection.insert( producer );
-                }
-            }
-        }
+        std::set<QString, RimFlowDiagnosticsTools::TracerComp> newProducerSelection =
+            RimFlowDiagnosticsTools::setOfProducerTracersFromInjectors( m_flowSolutionUiField(), m_selectedInjectorTracers(), timeStep );
         // Add all currently selected producers to set
         for ( const QString& selectedProducer : m_selectedProducerTracers() )
         {
@@ -2565,8 +2462,6 @@ void RimEclipseResultDefinition::syncInjectorToProducerSelection()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::syncProducerToInjectorSelection()
 {
-    const double epsilon = 1.0e-8;
-
     int timeStep = 0;
 
     Rim3dView* rimView = nullptr;
@@ -2579,21 +2474,9 @@ void RimEclipseResultDefinition::syncProducerToInjectorSelection()
     RimFlowDiagSolution* flowSol = m_flowSolution();
     if ( flowSol && m_flowTracerSelectionMode == FLOW_TR_BY_SELECTION )
     {
-        std::set<QString, TracerComp> injectors = setOfTracersOfType( true );
+        std::set<QString, RimFlowDiagnosticsTools::TracerComp> newInjectorSelection =
+            RimFlowDiagnosticsTools::setOfInjectorTracersFromProducers( m_flowSolutionUiField(), m_selectedProducerTracers(), timeStep );
 
-        std::set<QString, TracerComp> newInjectorSelection;
-        for ( const QString& selectedProducer : m_selectedProducerTracers() )
-        {
-            for ( const QString& injector : injectors )
-            {
-                std::pair<double, double> commFluxes =
-                    flowSol->flowDiagResults()->injectorProducerPairFluxes( injector.toStdString(), selectedProducer.toStdString(), timeStep );
-                if ( std::abs( commFluxes.first ) > epsilon || std::abs( commFluxes.second ) > epsilon )
-                {
-                    newInjectorSelection.insert( injector );
-                }
-            }
-        }
         // Add all currently selected injectors to set
         for ( const QString& selectedInjector : m_selectedInjectorTracers() )
         {

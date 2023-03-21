@@ -97,6 +97,8 @@ public:
 
         CORRELATION,
 
+        HEAT_MAP,
+
         UNDEFINED
     };
 
