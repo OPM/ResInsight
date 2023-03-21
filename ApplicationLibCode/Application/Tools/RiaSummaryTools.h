@@ -33,6 +33,8 @@ class RimSummaryCrossPlotCollection;
 class RimSummaryCaseMainCollection;
 class RimSummaryCase;
 class RimSummaryCaseCollection;
+class RimSummaryTable;
+class RimSummaryTableCollection;
 class RimObservedDataCollection;
 
 class RifEclipseSummaryAddress;
@@ -68,6 +70,9 @@ public:
     static RimSummaryCrossPlotCollection* parentCrossPlotCollection( caf::PdmObject* object );
     static bool                           isSummaryCrossPlot( const RimSummaryPlot* plot );
 
+    static RimSummaryTable*           parentSummaryTable( caf::PdmObject* object );
+    static RimSummaryTableCollection* parentSummaryTableCollection( caf::PdmObject* object );
+
     static bool hasAccumulatedData( const RifEclipseSummaryAddress& address );
     static void getSummaryCasesAndAddressesForCalculation( int                                    id,
                                                            std::vector<RimSummaryCase*>&          cases,
@@ -75,7 +80,7 @@ public:
 
     static std::pair<std::vector<time_t>, std::vector<double>> resampledValuesForPeriod( const RifEclipseSummaryAddress& address,
                                                                                          const std::vector<time_t>&      timeSteps,
-                                                                                         std::vector<double>&            values,
+                                                                                         const std::vector<double>&      values,
                                                                                          RiaDefines::DateTimePeriod      period );
 
     static RimSummaryCase*           summaryCaseById( int caseId );

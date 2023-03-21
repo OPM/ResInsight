@@ -34,6 +34,7 @@ class RimGridCrossPlotCollection;
 class RimMultiPlotCollection;
 class RimSummaryMultiPlotCollection;
 class RimSummaryCrossPlotCollection;
+class RimSummaryTableCollection;
 class RimSummaryPlot;
 class RimSummaryPlotCollection;
 class RifReaderEclipseSummary;
@@ -68,6 +69,7 @@ public:
     RimPltPlotCollection*                pltPlotCollection() const;
     RimSummaryMultiPlotCollection*       summaryMultiPlotCollection() const;
     RimSummaryCrossPlotCollection*       summaryCrossPlotCollection() const;
+    RimSummaryTableCollection*           summaryTableCollection() const;
     RimAnalysisPlotCollection*           analysisPlotCollection() const;
     RimCorrelationPlotCollection*        correlationPlotCollection() const;
     RimFlowPlotCollection*               flowPlotCollection() const;
@@ -111,6 +113,7 @@ private:
     caf::PdmChildField<RimPltPlotCollection*>                m_pltPlotCollection;
     caf::PdmChildField<RimSummaryMultiPlotCollection*>       m_summaryMultiPlotCollection;
     caf::PdmChildField<RimSummaryCrossPlotCollection*>       m_summaryCrossPlotCollection;
+    caf::PdmChildField<RimSummaryTableCollection*>           m_summaryTableCollection;
     caf::PdmChildField<RimAnalysisPlotCollection*>           m_analysisPlotCollection;
     caf::PdmChildField<RimCorrelationPlotCollection*>        m_correlationPlotCollection;
     caf::PdmChildField<RimFlowPlotCollection*>               m_flowPlotCollection;

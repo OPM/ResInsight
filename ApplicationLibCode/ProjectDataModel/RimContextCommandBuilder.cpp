@@ -134,6 +134,7 @@
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
+#include "RimSummaryTableCollection.h"
 #include "RimSummaryTimeAxisProperties.h"
 #include "RimSurface.h"
 #include "RimSurfaceCollection.h"
@@ -608,6 +609,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicPasteSummaryCrossPlotFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicNewSummaryCrossPlotFeature";
+        }
+        else if ( dynamic_cast<RimSummaryTableCollection*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewSummaryTableFeature";
         }
         else if ( dynamic_cast<RimWellLogPlot*>( firstUiItem ) && !dynamic_cast<RimWellPltPlot*>( firstUiItem ) )
         {

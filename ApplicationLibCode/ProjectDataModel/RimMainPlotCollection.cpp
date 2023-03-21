@@ -45,6 +45,7 @@
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlotCollection.h"
+#include "RimSummaryTableCollection.h"
 #include "RimVfpPlotCollection.h"
 #include "RimViewWindow.h"
 #include "RimWellLogPlot.h"
@@ -97,6 +98,9 @@ RimMainPlotCollection::RimMainPlotCollection()
     CAF_PDM_InitFieldNoDefault( &m_summaryCrossPlotCollection, "SummaryCrossPlotCollection", "Summary Cross Plots" );
     m_summaryCrossPlotCollection.uiCapability()->setUiTreeHidden( true );
 
+    CAF_PDM_InitFieldNoDefault( &m_summaryTableCollection, "SummaryTableCollection", "Summary Tables" );
+    m_summaryTableCollection.uiCapability()->setUiTreeHidden( true );
+
     CAF_PDM_InitFieldNoDefault( &m_flowPlotCollection, "FlowPlotCollection", "Flow Diagnostics Plots" );
     m_flowPlotCollection.uiCapability()->setUiTreeHidden( true );
 
@@ -127,6 +131,7 @@ RimMainPlotCollection::RimMainPlotCollection()
     m_pltPlotCollection                = new RimPltPlotCollection();
     m_summaryMultiPlotCollection       = new RimSummaryMultiPlotCollection();
     m_summaryCrossPlotCollection       = new RimSummaryCrossPlotCollection();
+    m_summaryTableCollection           = new RimSummaryTableCollection();
     m_flowPlotCollection               = new RimFlowPlotCollection();
     m_gridCrossPlotCollection          = new RimGridCrossPlotCollection;
     m_saturationPressurePlotCollection = new RimSaturationPressurePlotCollection;
@@ -235,6 +240,14 @@ RimSummaryMultiPlotCollection* RimMainPlotCollection::summaryMultiPlotCollection
 RimSummaryCrossPlotCollection* RimMainPlotCollection::summaryCrossPlotCollection() const
 {
     return m_summaryCrossPlotCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryTableCollection* RimMainPlotCollection::summaryTableCollection() const
+{
+    return m_summaryTableCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -443,6 +456,7 @@ std::vector<RimPlotCollection*> RimMainPlotCollection::allPlotCollections() cons
     plotCollections.push_back( wellLogPlotCollection() );
     plotCollections.push_back( summaryMultiPlotCollection() );
     plotCollections.push_back( summaryCrossPlotCollection() );
+    plotCollections.push_back( summaryTableCollection() );
     plotCollections.push_back( gridCrossPlotCollection() );
     plotCollections.push_back( analysisPlotCollection() );
     plotCollections.push_back( vfpPlotCollection() );

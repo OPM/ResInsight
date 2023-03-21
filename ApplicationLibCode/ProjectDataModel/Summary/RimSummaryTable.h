@@ -1,0 +1,111 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2023- Equinor ASA
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+#pragma once
+
+#include "RimPlotWindow.h"
+
+#include "RiaDateTimeDefines.h"
+
+#include "RifEclipseSummaryAddress.h"
+
+#include "cafPdmField.h"
+#include "cafPdmPtrField.h"
+
+#include <QDateTime>
+#include <QPointer>
+#include <QString>
+
+class RifSummaryReaderInterface;
+class RimSummaryCase;
+class RimRegularLegendConfig;
+class RiuMatrixPlotWidget;
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimSummaryTable : public RimPlotWindow
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimSummaryTable();
+    ~RimSummaryTable() override;
+
+    void setFromVector();
+    void setDescription( const QString& description );
+
+private:
+    void cleanupBeforeClose();
+
+    void onLoadDataAndUpdate() override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+
+    // Inherited via RimPlotWindow
+    virtual QString description() const override;
+    virtual void    doRenderWindowContent( QPaintDevice* paintDevice ) override;
+
+    // Inherited via RimViewWindow
+    virtual QWidget* viewWidget() override;
+    virtual QImage   snapshotWindowContent() override;
+    virtual void     zoomAll() override;
+    virtual QWidget* createViewWidget( QWidget* mainWindowParent ) override;
+    virtual void     deleteViewWidget() override;
+
+    int axisTitleFontSize() const;
+    int axisLabelFontSize() const;
+    int valueLabelFontSize() const;
+
+private:
+    QString                   createTableTitle() const;
+    std::pair<double, double> createLegendMinMaxValues( const double maxTableValue ) const;
+    QString                   dateFormatString() const;
+
+    std::set<RifEclipseSummaryAddress> getSummaryAddressesFromReader( const RifSummaryReaderInterface*             summaryReader,
+                                                                      RifEclipseSummaryAddress::SummaryVarCategory category,
+                                                                      const QString&                               vector ) const;
+    std::set<QString>                  getCategoryVectorsFromSummaryReader( const RifSummaryReaderInterface*             summaryReader,
+                                                                            RifEclipseSummaryAddress::SummaryVarCategory category ) const;
+    QString                            getCategoryNameFromAddress( const RifEclipseSummaryAddress& address ) const;
+
+private:
+    // Matrix plot for visualizing table data
+    QPointer<RiuMatrixPlotWidget> m_matrixPlotWidget;
+
+    caf::PdmPtrField<RimSummaryCase*> m_case; // TODO: Use RimFileSummaryCase?
+
+    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>> m_categories;
+    caf::PdmField<QString>                                                    m_vector;
+    caf::PdmField<caf::AppEnum<RiaDefines::DateTimePeriod>>                   m_resamplingSelection;
+    caf::PdmField<double>                                                     m_thresholdValue;
+
+    caf::PdmField<QString> m_description;
+
+    caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
+
+    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisTitleFontSize;
+    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisLabelFontSize;
+    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_valueLabelFontSize;
+    caf::PdmField<bool>                             m_showValueLabels;
+
+    const int m_initialNumberOfTimeSteps = 10;
+};
