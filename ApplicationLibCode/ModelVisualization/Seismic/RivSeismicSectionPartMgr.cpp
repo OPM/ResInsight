@@ -20,11 +20,13 @@
 
 #include "RiaGuiApplication.h"
 
+#include "RivPartPriority.h"
 #include "RivPolylinePartMgr.h"
 
 #include "Rim3dView.h"
 #include "RimGridView.h"
 #include "RimRegularLegendConfig.h"
+#include "RimSeismicAlphaMapper.h"
 #include "RimSeismicSection.h"
 #include "RimSeismicSectionCollection.h"
 
@@ -57,8 +59,7 @@ RivSeismicSectionPartMgr::RivSeismicSectionPartMgr( RimSeismicSection* section )
     cvf::ShaderProgramGenerator gen( "Texturing", cvf::ShaderSourceProvider::instance() );
     gen.addVertexCode( cvf::ShaderSourceRepository::vs_Standard );
     gen.addFragmentCode( cvf::ShaderSourceRepository::src_Texture );
-    gen.addFragmentCode( cvf::ShaderSourceRepository::light_SimpleHeadlight );
-    gen.addFragmentCode( cvf::ShaderSourceRepository::fs_Standard );
+    gen.addFragmentCode( cvf::ShaderSourceRepository::fs_Unlit );
     m_textureShaderProg = gen.generate();
 }
 
@@ -134,6 +135,14 @@ cvf::ref<cvf::Part> RivSeismicSectionPartMgr::createSingleTexturedQuadPart( cons
     eff->setRenderState( textureBindings.p() );
     eff->setShaderProgram( m_textureShaderProg.p() );
 
+    if ( m_section->isTransparent() )
+    {
+        part->setPriority( RivPartPriority::PartType::TransparentSeismic );
+        cvf::ref<cvf::RenderStateBlending> blending = new cvf::RenderStateBlending;
+        blending->configureTransparencyBlending();
+        eff->setRenderState( blending.p() );
+    }
+
     part->setDrawable( geo.p() );
     part->setEffect( eff.p() );
 
@@ -198,6 +207,10 @@ cvf::TextureImage* RivSeismicSectionPartMgr::createImageFromData( ZGYAccess::Sei
         return textureImage;
     }
 
+    const bool isTransparent = m_section->isTransparent();
+
+    auto alphaMapper = m_section->alphaValueMapper();
+
     auto mapper = legend->scalarMapper();
 
     for ( int i = 0; i < data->width(); i++ )
@@ -205,7 +218,12 @@ cvf::TextureImage* RivSeismicSectionPartMgr::createImageFromData( ZGYAccess::Sei
         for ( int j = data->depth() - 1; j >= 0; j-- )
         {
             auto rgb = mapper->mapToColor( *pData );
-            textureImage->setPixel( i, j, cvf::Color4ub( rgb, 255 ) );
+
+            cvf::ubyte uAlpha = 255;
+
+            if ( isTransparent ) uAlpha = alphaMapper->alphaValue( *pData );
+
+            textureImage->setPixel( i, j, cvf::Color4ub( rgb, uAlpha ) );
 
             pData++;
         }
