@@ -339,14 +339,17 @@ void RimSummaryTable::onLoadDataAndUpdate()
         std::vector<double> values;
         time_t              firstTimeStep;
         time_t              lastTimeStep;
+        bool                hasValueAboveThreshold;
     };
+
+    // Create time step value for vectors with no values above threshold
+    const time_t invalidTimeStep = 0;
 
     // Get all summary addresses for selected category (group, region, well)
     std::vector<VectorData> vectorDataCollection;
     std::set<time_t>        timeStepsUnion;
     const auto              summaryAddresses = getSummaryAddressesFromReader( summaryReader, m_categories(), m_vector() );
     QString                 unitName;
-
     for ( const auto& adr : summaryAddresses )
     {
         std::vector<double> values;
@@ -360,33 +363,34 @@ void RimSummaryTable::onLoadDataAndUpdate()
         const auto [resampledTimeSteps, resampledValues] =
             RiaSummaryTools::resampledValuesForPeriod( adr, timeSteps, values, m_resamplingSelection() );
 
-        // Create time step value for vectors with no values above threshold - for sorting
-        const time_t outOfBoundTimeStep = resampledTimeSteps.back() + 100;
-
-        // First and last time step with value above threshold
+        // First and last time step with value above threshold and set flag (first and last should be valid/invalid simultaneously)
         const auto firstItr =
             std::find_if( resampledValues.begin(), resampledValues.end(), [&]( double value ) { return value > m_thresholdValue; } );
         const auto lastItr =
             std::find_if( resampledValues.rbegin(), resampledValues.rend(), [&]( double value ) { return value > m_thresholdValue; } );
-        const auto firstIdx      = static_cast<size_t>( std::distance( resampledValues.begin(), firstItr ) );
-        const auto lastIdx       = resampledValues.size() - static_cast<size_t>( std::distance( resampledValues.rbegin(), lastItr ) ) - 1;
-        const auto firstTimeStep = firstIdx < resampledTimeSteps.size() ? resampledTimeSteps[firstIdx] : outOfBoundTimeStep;
-        const auto lastTimeStep  = lastIdx < resampledTimeSteps.size() ? resampledTimeSteps[lastIdx] : outOfBoundTimeStep;
+        const auto firstIdx = static_cast<size_t>( std::distance( resampledValues.begin(), firstItr ) );
+        const auto lastIdx  = resampledValues.size() - static_cast<size_t>( std::distance( resampledValues.rbegin(), lastItr ) ) - 1;
+        const bool hasValueAboveThreshold = firstIdx < resampledTimeSteps.size() && lastIdx < resampledTimeSteps.size();
+        const auto firstTimeStep          = hasValueAboveThreshold ? resampledTimeSteps[firstIdx] : invalidTimeStep;
+        const auto lastTimeStep           = hasValueAboveThreshold ? resampledTimeSteps[lastIdx] : invalidTimeStep;
 
         // Add to vector of VectorData
-        VectorData vectorData{ .category      = categoryName,
-                               .name          = vectorName,
-                               .values        = resampledValues,
-                               .firstTimeStep = firstTimeStep,
-                               .lastTimeStep  = lastTimeStep };
+        VectorData vectorData{ .category               = categoryName,
+                               .name                   = vectorName,
+                               .values                 = resampledValues,
+                               .firstTimeStep          = firstTimeStep,
+                               .lastTimeStep           = lastTimeStep,
+                               .hasValueAboveThreshold = hasValueAboveThreshold };
         vectorDataCollection.push_back( vectorData );
 
         // Build union of resampled time steps
         timeStepsUnion.insert( resampledTimeSteps.begin(), resampledTimeSteps.end() );
     }
 
-    // Sort vector data on date:
+    // Sort vector data on date (vectors with no values above threshold placed last):
     std::sort( vectorDataCollection.begin(), vectorDataCollection.end(), []( const VectorData& v1, const VectorData& v2 ) {
+        if ( !v1.hasValueAboveThreshold ) return false;
+        if ( v1.hasValueAboveThreshold && !v2.hasValueAboveThreshold ) return true;
         if ( v1.firstTimeStep < v2.firstTimeStep ) return true;
         if ( v1.firstTimeStep == v2.firstTimeStep && v1.lastTimeStep < v2.lastTimeStep ) return true;
         return false;
