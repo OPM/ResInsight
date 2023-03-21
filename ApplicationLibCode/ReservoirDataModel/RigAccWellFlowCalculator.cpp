@@ -80,6 +80,8 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator( const std::vector<std::vecto
     , m_isProducer( isProducer )
     , m_useTotalWellPhaseRateOnly( false )
 {
+    CVF_ASSERT( !pipeBranchesWellResultPoints.empty() );
+
     m_connectionFlowPrBranch.resize( m_pipeBranchesWellResultPoints.size() );
     m_pseudoLengthFlowPrBranch.resize( m_pipeBranchesWellResultPoints.size() );
 
@@ -108,6 +110,8 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator( const std::vector<std::vecto
     , m_isProducer( true )
     , m_useTotalWellPhaseRateOnly( false )
 {
+    CVF_ASSERT( !pipeBranchesWellResultPoints.empty() );
+
     m_connectionFlowPrBranch.resize( m_pipeBranchesWellResultPoints.size() );
     m_pseudoLengthFlowPrBranch.resize( m_pipeBranchesWellResultPoints.size() );
 
@@ -141,6 +145,8 @@ RigAccWellFlowCalculator::RigAccWellFlowCalculator( const std::vector<cvf::Vec3d
     , m_isProducer( true )
     , m_useTotalWellPhaseRateOnly( totalFlowOnly )
 {
+    CVF_ASSERT( !pipeBranchesWellResultPoints.empty() );
+
     m_pipeBranchesCLCoords.push_back( pipeBranchCLCoords );
     m_pipeBranchesWellResultPoints.push_back( pipeBranchesWellResultPoints );
     m_pipeBranchesMeasuredDepths.push_back( pipeBranchMeasuredDepths );

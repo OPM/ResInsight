@@ -1224,7 +1224,8 @@ void RimWellConnectivityTable::createAndEmplaceTimeStepAndCalculatorPairInMap( s
 
     std::map<QString, const std::vector<double>*> tracerFractionCellValues =
         RimWellAllocationTools::findOrCreateRelevantTracerCellFractions( simWellData, m_flowDiagSolution, timeStepIndex );
-    if ( !tracerFractionCellValues.empty() )
+
+    if ( !tracerFractionCellValues.empty() && !pipeBranchesCLCoords.empty() )
     {
         bool isProducer = ( simWellData->wellProductionType( timeStepIndex ) == RiaDefines::WellProductionType::PRODUCER ||
                             simWellData->wellProductionType( timeStepIndex ) == RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE );
