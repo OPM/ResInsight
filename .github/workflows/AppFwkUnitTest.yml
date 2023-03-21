@@ -35,14 +35,12 @@ jobs:
           dir: "${{ github.workspace }}/Qt/"
           cache: true
 
-      - name: Build AppFwk with Unit Tests
-        uses: lukka/run-cmake@v3
-        with:
-          cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
-          cmakeListsTxtPath: "${{ github.workspace }}/Fwk/AppFwk/CMakeLists.txt"
-          buildDirectory: ${{ github.workspace }}/cmakebuild
-          buildWithCMakeArgs: "--config Release"
-          useVcpkgToolchainFile: false
+      - name: Configure and Build
+        run: |
+          mkdir cmakebuild
+          cd cmakebuild
+          cmake ../Fwk/AppFwk
+          make -j4
 
       - name: Run Unit Tests Windows
         if: contains( matrix.os, 'windows')
