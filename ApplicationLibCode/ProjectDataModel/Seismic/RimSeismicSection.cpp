@@ -23,6 +23,7 @@
 
 #include "Rim3dView.h"
 #include "RimRegularLegendConfig.h"
+#include "RimSeismicAlphaMapper.h"
 #include "RimSeismicData.h"
 #include "RimTools.h"
 
@@ -104,6 +105,8 @@ RimSeismicSection::RimSeismicSection()
     CAF_PDM_InitField( &m_lineColor, "LineColor", cvf::Color3f( cvf::Color3f::WHITE ), "Line Color" );
     CAF_PDM_InitField( &m_showSeismicOutline, "ShowSeismicOutline", false, "Show Seismic Data Outline" );
 
+    CAF_PDM_InitField( &m_transparent, "TransperentSection", false, "Transparent (Use on only one section at a time!)" );
+
     this->setUi3dEditorTypeName( RicPolyline3dEditor::uiEditorTypeName() );
 
     setDeletable( true );
@@ -174,6 +177,9 @@ void RimSeismicSection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
         {
             group0->add( &m_depthIndex );
         }
+
+        auto group2 = uiOrdering.addNewGroup( "Experimental" );
+        group2->add( &m_transparent );
 
         auto group3 = uiOrdering.addNewGroup( "Outline" );
         group3->add( &m_lineThickness );
@@ -648,6 +654,10 @@ void RimSeismicSection::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
         {
             updateType = RigTexturedSection::WhatToUpdateEnum::UPDATE_GEOMETRY;
         }
+        else if ( changedField == m_transparent )
+        {
+            updateType = RigTexturedSection::WhatToUpdateEnum::UPDATE_TEXTURE;
+        }
 
         texturedSection()->setWhatToUpdate( updateType );
 
@@ -663,11 +673,30 @@ RimSeismicData* RimSeismicSection::seismicData() const
     return m_seismicData();
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimRegularLegendConfig* RimSeismicSection::legendConfig() const
 {
     if ( seismicData() != nullptr ) return seismicData()->legendConfig();
-
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSeismicAlphaMapper* RimSeismicSection::alphaValueMapper() const
+{
+    if ( seismicData() != nullptr ) return seismicData()->alphaValueMapper();
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSeismicSection::isTransparent() const
+{
+    return m_transparent;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -755,5 +784,5 @@ void RimSeismicSection::onLegendConfigChanged( const caf::SignalEmitter* emitter
 
     texturedSection()->setWhatToUpdate( updateType );
 
-    scheduleViewUpdate();
+    if ( m_isChecked() ) scheduleViewUpdate();
 }

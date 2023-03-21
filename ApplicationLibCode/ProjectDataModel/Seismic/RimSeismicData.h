@@ -32,13 +32,14 @@
 #include <utility>
 
 class RimGenericParameter;
+class RimSeismicAlphaMapper;
 class RimRegularLegendConfig;
 class RifSeismicZGYReader;
 
 namespace cvf
 {
 class BoundingBox;
-}
+} // namespace cvf
 
 namespace ZGYAccess
 {
@@ -75,6 +76,7 @@ public:
 
     std::vector<double> histogramXvalues() const;
     std::vector<double> histogramYvalues() const;
+    std::vector<double> alphaValues() const;
 
     std::vector<cvf::Vec3d> worldOutline() const;
 
@@ -86,6 +88,7 @@ public:
     std::pair<double, double> dataRangeMinMax() const;
 
     RimRegularLegendConfig* legendConfig() const;
+    RimSeismicAlphaMapper*  alphaValueMapper() const;
 
 protected:
     void                 initAfterRead() override;
@@ -123,9 +126,12 @@ private:
     std::vector<double>               m_histogramYvalues;
     std::vector<double>               m_clippedHistogramXvalues;
     std::vector<double>               m_clippedHistogramYvalues;
+    std::vector<double>               m_clippedAlphaValues;
     std::vector<cvf::Vec3d>           m_worldOutline;
     std::pair<double, double>         m_activeDataRange;
     std::pair<double, double>         m_fileDataRange;
+
+    std::shared_ptr<RimSeismicAlphaMapper> m_alphaValueMapper;
 
     std::shared_ptr<RifSeismicZGYReader> m_filereader;
     int                                  m_nErrorsLogged;

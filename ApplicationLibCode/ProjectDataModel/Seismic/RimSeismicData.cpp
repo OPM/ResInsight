@@ -23,6 +23,7 @@
 #include "RifSeismicZGYReader.h"
 
 #include "RimRegularLegendConfig.h"
+#include "RimSeismicAlphaMapper.h"
 #include "RimStringParameter.h"
 
 #include "RiuMainWindow.h"
@@ -37,6 +38,7 @@
 
 #include <QValidator>
 
+#include <algorithm>
 #include <cmath>
 #include <limits>
 #include <tuple>
@@ -78,7 +80,8 @@ RimSeismicData::RimSeismicData()
 
     setDeletable( true );
 
-    m_boundingBox = std::make_shared<cvf::BoundingBox>();
+    m_boundingBox      = std::make_shared<cvf::BoundingBox>();
+    m_alphaValueMapper = std::make_shared<RimSeismicAlphaMapper>();
 
     initColorLegend();
 }
@@ -414,6 +417,14 @@ std::vector<double> RimSeismicData::histogramYvalues() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<double> RimSeismicData::alphaValues() const
+{
+    return m_clippedAlphaValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSeismicData::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( ( changedField == &m_overrideDataRange ) || ( changedField == &m_maxAbsDataValue ) )
@@ -429,6 +440,7 @@ void RimSeismicData::updateDataRange( bool updatePlot )
 {
     m_clippedHistogramXvalues.clear();
     m_clippedHistogramYvalues.clear();
+    m_clippedAlphaValues.clear();
 
     if ( m_overrideDataRange() )
     {
@@ -455,6 +467,13 @@ void RimSeismicData::updateDataRange( bool updatePlot )
         m_activeDataRange = std::make_pair( m_fileDataRange.first, m_fileDataRange.second );
     }
 
+    double maxRawValue = *std::max_element( m_clippedHistogramYvalues.begin(), m_clippedHistogramYvalues.end() );
+    for ( auto val : m_clippedHistogramYvalues )
+    {
+        m_clippedAlphaValues.push_back( 1.0 - std::clamp( val / maxRawValue, 0.0, 1.0 ) );
+    }
+
+    m_alphaValueMapper->setDataRangeAndAlphas( m_activeDataRange.first, m_activeDataRange.second, m_clippedAlphaValues );
     m_legendConfig->setUserDefinedRange( m_activeDataRange.first, m_activeDataRange.second );
 
     if ( updatePlot ) RiuMainWindow::instance()->seismicHistogramPanel()->showHistogram( this );
@@ -524,6 +543,14 @@ std::shared_ptr<ZGYAccess::SeismicSliceData> RimSeismicData::sliceData( RiaDefin
 RimRegularLegendConfig* RimSeismicData::legendConfig() const
 {
     return m_legendConfig();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSeismicAlphaMapper* RimSeismicData::alphaValueMapper() const
+{
+    return m_alphaValueMapper.get();
 }
 
 //--------------------------------------------------------------------------------------------------

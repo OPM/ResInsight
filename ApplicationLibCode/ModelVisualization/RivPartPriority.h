@@ -43,6 +43,7 @@ public:
         TransparentFault,
         TransparentNnc,
         TransparentMeshLines,
+        TransparentSeismic,
         Highlight,
         Text
     };

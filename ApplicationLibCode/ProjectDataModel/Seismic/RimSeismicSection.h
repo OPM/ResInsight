@@ -44,6 +44,7 @@ class RivSeismicSectionPartMgr;
 class Rim3dView;
 class RimSeismicData;
 class RimRegularLegendConfig;
+class RimSeismicAlphaMapper;
 
 class RimSeismicSection : public RimCheckableNamedObject, public RimPolylinePickerInterface, public RimPolylinesDataInterface
 {
@@ -84,6 +85,9 @@ public:
     RimSeismicData* seismicData() const;
 
     RimRegularLegendConfig* legendConfig() const;
+    RimSeismicAlphaMapper*  alphaValueMapper() const;
+
+    bool isTransparent() const;
 
 protected:
     void                 initAfterRead() override;
@@ -115,6 +119,7 @@ private:
     caf::PdmField<int>                            m_lineThickness;
     caf::PdmField<cvf::Color3f>                   m_lineColor;
     caf::PdmField<caf::AppEnum<CrossSectionEnum>> m_type;
+    caf::PdmField<bool>                           m_transparent;
 
     caf::PdmField<bool> m_showImage;
 
