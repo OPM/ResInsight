@@ -35,6 +35,7 @@
 
 #include "RivSeismicSectionPartMgr.h"
 
+#include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiSliderEditor.h"
 #include "cafPdmUiTableViewEditor.h"
@@ -107,6 +108,12 @@ RimSeismicSection::RimSeismicSection()
 
     CAF_PDM_InitField( &m_transparent, "TransperentSection", false, "Transparent (Use on only one section at a time!)" );
 
+    CAF_PDM_InitFieldNoDefault( &m_zFilterType, "DepthFilter", "Depth Filter" );
+    CAF_PDM_InitField( &m_zUpperThreshold, "UpperThreshold", 0.0, "Upper Threshold" );
+    m_zUpperThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    CAF_PDM_InitField( &m_zLowerThreshold, "LowerThreshold", 300000.0, "Lower Threshold" );
+    m_zLowerThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+
     this->setUi3dEditorTypeName( RicPolyline3dEditor::uiEditorTypeName() );
 
     setDeletable( true );
@@ -176,6 +183,34 @@ void RimSeismicSection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
         else if ( m_type() == CrossSectionEnum::CS_DEPTHSLICE )
         {
             group0->add( &m_depthIndex );
+        }
+
+        auto filterGroup = uiOrdering.addNewGroup( "Depth Filter" );
+        filterGroup->add( &m_zFilterType );
+        filterGroup->setCollapsedByDefault();
+
+        switch ( zFilterType() )
+        {
+            case RimIntersectionFilterEnum::INTERSECT_FILTER_BELOW:
+                m_zUpperThreshold.uiCapability()->setUiName( "Depth" );
+                filterGroup->add( &m_zUpperThreshold );
+                break;
+
+            case RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN:
+                m_zUpperThreshold.uiCapability()->setUiName( "Upper Depth" );
+                filterGroup->add( &m_zUpperThreshold );
+                m_zLowerThreshold.uiCapability()->setUiName( "Lower Depth" );
+                filterGroup->add( &m_zLowerThreshold );
+                break;
+
+            case RimIntersectionFilterEnum::INTERSECT_FILTER_ABOVE:
+                m_zLowerThreshold.uiCapability()->setUiName( "Depth" );
+                filterGroup->add( &m_zLowerThreshold );
+                break;
+
+            case RimIntersectionFilterEnum::INTERSECT_FILTER_NONE:
+            default:
+                break;
         }
 
         auto group2 = uiOrdering.addNewGroup( "Experimental" );
@@ -785,4 +820,48 @@ void RimSeismicSection::onLegendConfigChanged( const caf::SignalEmitter* emitter
     texturedSection()->setWhatToUpdate( updateType );
 
     if ( m_isChecked() ) scheduleViewUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimIntersectionFilterEnum RimSeismicSection::zFilterType() const
+{
+    return m_zFilterType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimSeismicSection::upperFilterZ( double upperGridLimit ) const
+{
+    switch ( zFilterType() )
+    {
+        case RimIntersectionFilterEnum::INTERSECT_FILTER_BELOW:
+        case RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN:
+            return -m_zUpperThreshold;
+
+        case RimIntersectionFilterEnum::INTERSECT_FILTER_ABOVE:
+        case RimIntersectionFilterEnum::INTERSECT_FILTER_NONE:
+        default:
+            return upperGridLimit;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimSeismicSection::lowerFilterZ( double lowerGridLimit ) const
+{
+    switch ( zFilterType() )
+    {
+        case RimIntersectionFilterEnum::INTERSECT_FILTER_ABOVE:
+        case RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN:
+            return -m_zLowerThreshold;
+
+        case RimIntersectionFilterEnum::INTERSECT_FILTER_BELOW:
+        case RimIntersectionFilterEnum::INTERSECT_FILTER_NONE:
+        default:
+            return lowerGridLimit;
+    }
 }

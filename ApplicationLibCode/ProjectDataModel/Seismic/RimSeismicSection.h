@@ -19,6 +19,7 @@
 
 #include "RimCheckableNamedObject.h"
 
+#include "RimIntersectionEnums.h"
 #include "RimLegendConfigChangeType.h"
 #include "RimPolylinePickerInterface.h"
 #include "RimPolylinesDataInterface.h"
@@ -89,6 +90,10 @@ public:
 
     bool isTransparent() const;
 
+    double                    upperFilterZ( double upperGridLimit ) const;
+    double                    lowerFilterZ( double lowerGridLimit ) const;
+    RimIntersectionFilterEnum zFilterType() const;
+
 protected:
     void                 initAfterRead() override;
     caf::PdmFieldHandle* userDescriptionField() override;
@@ -126,6 +131,10 @@ private:
     caf::PdmField<int> m_inlineIndex;
     caf::PdmField<int> m_xlineIndex;
     caf::PdmField<int> m_depthIndex;
+
+    caf::PdmField<caf::AppEnum<RimIntersectionFilterEnum>> m_zFilterType;
+    caf::PdmField<double>                                  m_zUpperThreshold;
+    caf::PdmField<double>                                  m_zLowerThreshold;
 
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
     cvf::ref<RivSeismicSectionPartMgr>                  m_sectionPartMgr;
