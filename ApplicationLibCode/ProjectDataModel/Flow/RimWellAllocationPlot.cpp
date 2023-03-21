@@ -261,7 +261,7 @@ void RimWellAllocationPlot::updateFromWell()
     double smallContributionThreshold = 0.0;
     if ( m_groupSmallContributions() ) smallContributionThreshold = m_smallContributionsThreshold;
 
-    if ( tracerFractionCellValues.size() )
+    if ( !tracerFractionCellValues.empty() && !pipeBranchesCLCoords.empty() )
     {
         bool isProducer = ( simWellData->wellProductionType( m_timeStep ) == RiaDefines::WellProductionType::PRODUCER ||
                             simWellData->wellProductionType( m_timeStep ) == RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE );
@@ -277,7 +277,7 @@ void RimWellAllocationPlot::updateFromWell()
     }
     else
     {
-        if ( pipeBranchesCLCoords.size() > 0 )
+        if ( !pipeBranchesCLCoords.empty() )
         {
             wfCalculator.reset( new RigAccWellFlowCalculator( pipeBranchesCLCoords, pipeBranchesCellIds, smallContributionThreshold ) );
         }

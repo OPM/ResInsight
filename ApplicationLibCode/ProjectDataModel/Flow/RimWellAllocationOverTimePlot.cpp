@@ -465,7 +465,7 @@ RigWellAllocationOverTime RimWellAllocationOverTimePlot::createWellAllocationOve
 
         const auto& [pipeBranchesCLCoords, pipeBranchesCellIds] = RigSimulationWellCenterLineCalculator::extractBranchData( simWellBranches );
 
-        if ( tracerFractionCellValues.size() )
+        if ( !tracerFractionCellValues.empty() && !pipeBranchesCLCoords.empty() )
         {
             bool                      isProducer = ( simWellData->wellProductionType( i ) == RiaDefines::WellProductionType::PRODUCER ||
                                 simWellData->wellProductionType( i ) == RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE );
@@ -480,12 +480,12 @@ RigWellAllocationOverTime RimWellAllocationOverTimePlot::createWellAllocationOve
                                                               isProducer );
             timeStepAndCalculatorPairs.emplace( allTimeSteps[i], calculator );
         }
-        else if ( pipeBranchesCLCoords.size() > 0 )
+        else if ( !pipeBranchesCLCoords.empty() )
         {
             const auto calculator = RigAccWellFlowCalculator( pipeBranchesCLCoords, pipeBranchesCellIds, smallContributionThreshold );
             // NOTE: Would like to prevent this check. Is added due to calculator.tracerNames() gives
             // "oil", "water" and "gas" as return value when calculator.totalTracerFractions().size() = 0
-            if ( calculator.totalTracerFractions().size() > 0 )
+            if ( !calculator.totalTracerFractions().empty() )
             {
                 timeStepAndCalculatorPairs.emplace( allTimeSteps[i], calculator );
             }
