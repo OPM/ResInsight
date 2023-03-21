@@ -35,27 +35,48 @@ jobs:
           dir: "${{ github.workspace }}/Qt/"
           cache: true
 
-      - name: Build AppFwk with Unit Tests
-        uses: lukka/run-cmake@v3
-        with:
-          cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
-          cmakeListsTxtPath: "${{ github.workspace }}/Fwk/AppFwk/CMakeLists.txt"
-          buildDirectory: ${{ github.workspace }}/cmakebuild
-          buildWithCMakeArgs: "--config Release"
-          useVcpkgToolchainFile: false
+      - name: Get CMake and Ninja
+        uses: lukka/get-cmake@latest
 
-      - name: Run Unit Tests Windows
-        if: contains( matrix.os, 'windows')
-        shell: bash
+      - name: Use MSVC (Windows)
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Configure
+        shell: cmake -P {0}
         run: |
-          cmakebuild/cafProjectDataModel/cafPdmCore/cafPdmCore_UnitTests/Release/cafPdmCore_UnitTests
-          cmakebuild/cafProjectDataModel/cafPdmXml/cafPdmXml_UnitTests/Release/cafPdmXml_UnitTests
-          cmakebuild/cafProjectDataModel/cafProjectDataModel_UnitTests/Release/cafProjectDataModel_UnitTests
+          execute_process(
+            COMMAND cmake
+              -S Fwk/AppFwk
+              -B cmakebuild
+              -G Ninja
+            RESULT_VARIABLE result
+          )
+          if (NOT result EQUAL 0)
+            message(FATAL_ERROR "Bad exit status")
+          endif()
+      
+      - name: Build
+        shell: cmake -P {0}
+        run: |
+          set(ENV{NINJA_STATUS} "[%f/%t %o/sec] ")
+          execute_process(
+            COMMAND cmake --build cmakebuild
+            RESULT_VARIABLE result
+          )
+          if (NOT result EQUAL 0)
+            message(FATAL_ERROR "Bad exit status")
+          endif()
 
-      - name: Run Unit Tests Linux
-        if: "!contains( matrix.os, 'windows')"
+      - name: Run Unit Tests
         shell: bash
         run: |
           cmakebuild/cafProjectDataModel/cafPdmCore/cafPdmCore_UnitTests/cafPdmCore_UnitTests
           cmakebuild/cafProjectDataModel/cafPdmXml/cafPdmXml_UnitTests/cafPdmXml_UnitTests
           cmakebuild/cafProjectDataModel/cafProjectDataModel_UnitTests/cafProjectDataModel_UnitTests
+          cmakebuild/cafPdmScripting/cafPdmScripting_UnitTests/cafPdmScripting_UnitTests
+
+      - name: Run Unit Tests Windows (does not work on Linux)
+        if: contains( matrix.os, 'windows')
+        shell: bash
+        run: |
+          cmakebuild/cafUserInterface/cafUserInterface_UnitTests/cafUserInterface_UnitTests
