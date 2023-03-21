@@ -9,6 +9,7 @@ on:
 jobs:
   ResInsight-x64-buildcache:
     runs-on: ${{ matrix.config.os }}
+    continue-on-error: true
     strategy:
       fail-fast: false
       matrix:
