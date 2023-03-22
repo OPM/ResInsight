@@ -20,8 +20,6 @@
 
 #include "RiaSummaryTools.h"
 
-#include "RifEclipseSummaryAddress.h"
-
 #include "RimMainPlotCollection.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryTable.h"
