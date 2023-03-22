@@ -90,15 +90,15 @@ private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     // Inherited via RimPlotWindow
-    virtual QString description() const override;
-    virtual void    doRenderWindowContent( QPaintDevice* paintDevice ) override;
+    QString description() const override;
+    void    doRenderWindowContent( QPaintDevice* paintDevice ) override;
 
     // Inherited via RimViewWindow
-    virtual QWidget* viewWidget() override;
-    virtual QImage   snapshotWindowContent() override;
-    virtual void     zoomAll() override;
-    virtual QWidget* createViewWidget( QWidget* mainWindowParent ) override;
-    virtual void     deleteViewWidget() override;
+    QWidget* viewWidget() override;
+    QImage   snapshotWindowContent() override;
+    void     zoomAll() override;
+    QWidget* createViewWidget( QWidget* mainWindowParent ) override;
+    void     deleteViewWidget() override;
 
     int axisTitleFontSize() const;
     int axisLabelFontSize() const;

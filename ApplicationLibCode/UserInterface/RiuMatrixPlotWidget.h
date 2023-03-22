@@ -46,7 +46,7 @@ public:
 
 public:
     RiuMatrixPlotWidget( RimViewWindow* ownerViewWindow, RimRegularLegendConfig* legendConfig, QWidget* parent = nullptr );
-    ~RiuMatrixPlotWidget();
+    ~RiuMatrixPlotWidget() override;
 
     QwtPlot* qwtPlot() const;
 
@@ -75,7 +75,7 @@ public:
 
     void scheduleReplot();
 
-    virtual RimViewWindow* ownerViewWindow() const override;
+    RimViewWindow* ownerViewWindow() const override;
 
 private slots:
     void onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotItem, bool toggle, int sampleIndex );
