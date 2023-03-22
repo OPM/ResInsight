@@ -47,10 +47,11 @@ public:
     RimSummaryTable();
     ~RimSummaryTable() override;
 
-    void setFromCaseAndCategoryAndVectorName( RimSummaryCase*                              summaryCase,
-                                              RifEclipseSummaryAddress::SummaryVarCategory category,
-                                              const QString&                               vectorName );
-    void setDescription( const QString& description );
+    void            setFromCaseAndCategoryAndVectorName( RimSummaryCase*                              summaryCase,
+                                                         RifEclipseSummaryAddress::SummaryVarCategory category,
+                                                         const QString&                               vectorName );
+    void            setDescription( const QString& description );
+    virtual QString description() const override;
 
 private:
     void cleanupBeforeClose();
@@ -63,8 +64,7 @@ private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     // Inherited via RimPlotWindow
-    virtual QString description() const override;
-    virtual void    doRenderWindowContent( QPaintDevice* paintDevice ) override;
+    virtual void doRenderWindowContent( QPaintDevice* paintDevice ) override;
 
     // Inherited via RimViewWindow
     virtual QWidget* viewWidget() override;
@@ -72,6 +72,9 @@ private:
     virtual void     zoomAll() override;
     virtual QWidget* createViewWidget( QWidget* mainWindowParent ) override;
     virtual void     deleteViewWidget() override;
+
+    // PDM methods
+    caf::PdmFieldHandle* userDescriptionField() override;
 
     int axisTitleFontSize() const;
     int axisLabelFontSize() const;
@@ -93,14 +96,13 @@ private:
     // Matrix plot for visualizing table data
     QPointer<RiuMatrixPlotWidget> m_matrixPlotWidget;
 
+    caf::PdmField<QString>            m_tableName;
     caf::PdmPtrField<RimSummaryCase*> m_case;
 
     caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>> m_categories;
     caf::PdmField<QString>                                                    m_vector;
     caf::PdmField<caf::AppEnum<RiaDefines::DateTimePeriod>>                   m_resamplingSelection;
     caf::PdmField<double>                                                     m_thresholdValue;
-
-    caf::PdmField<QString> m_description;
 
     caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
 

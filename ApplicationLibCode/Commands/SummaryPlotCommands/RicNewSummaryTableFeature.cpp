@@ -114,5 +114,5 @@ void RicNewSummaryTableFeature::onActionTriggered( bool isChecked )
 void RicNewSummaryTableFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "New Summary Table" );
-    actionToSetup->setIcon( QIcon( ":/MultiPlot16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/CorrelationMatrixPlot16x16.png" ) );
 }

@@ -50,6 +50,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicToggleXAxisLinkingFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicOpenSummaryPlotEditorFromMdiAreaFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewSummaryTableFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicDuplicateSummaryTableFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -104,6 +105,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicToggleXAxisLinkingFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicOpenSummaryPlotEditorFromMdiAreaFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewSummaryTableFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicDuplicateSummaryTableFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

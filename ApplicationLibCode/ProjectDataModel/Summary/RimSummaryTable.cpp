@@ -56,6 +56,8 @@ RimSummaryTable::RimSummaryTable()
     CAF_PDM_InitObject( "Summary Table", ":/CorrelationMatrixPlot16x16.png" );
     uiCapability()->setUiTreeChildrenHidden( true );
 
+    CAF_PDM_InitField( &m_tableName, "TableName", QString( "Summary Table" ), "Name" );
+    m_tableName.uiCapability()->setUiReadOnly( true );
     CAF_PDM_InitFieldNoDefault( &m_case, "SummaryCase", "Case" );
     m_case.uiCapability()->setUiTreeChildrenHidden( true );
     CAF_PDM_InitFieldNoDefault( &m_vector, "Vectors", "Vector" );
@@ -120,8 +122,7 @@ void RimSummaryTable::setFromCaseAndCategoryAndVectorName( RimSummaryCase*      
 //--------------------------------------------------------------------------------------------------
 void RimSummaryTable::setDescription( const QString& description )
 {
-    return;
-    // m_description.setValue( description );
+    m_tableName = description;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -221,6 +222,7 @@ void RimSummaryTable::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     RimViewWindow::defineUiOrdering( uiConfigName, uiOrdering );
 
     caf::PdmUiGroup& dataGroup = *uiOrdering.addNewGroup( "Plot Data" );
+    dataGroup.add( &m_tableName );
     dataGroup.add( &m_case );
     dataGroup.add( &m_categories );
     dataGroup.add( &m_vector );
@@ -473,7 +475,7 @@ void RimSummaryTable::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryTable::description() const
 {
-    return m_description;
+    return m_tableName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -482,6 +484,11 @@ QString RimSummaryTable::description() const
 void RimSummaryTable::doRenderWindowContent( QPaintDevice* paintDevice )
 {
     return;
+}
+
+caf::PdmFieldHandle* RimSummaryTable::userDescriptionField()
+{
+    return &m_tableName;
 }
 
 //--------------------------------------------------------------------------------------------------
