@@ -44,8 +44,6 @@
 
 #include <QObject>
 
-#pragma optimize( "", off )
-
 CAF_PDM_SOURCE_INIT( RimSummaryTable, "RimSummaryTable" );
 
 //--------------------------------------------------------------------------------------------------
