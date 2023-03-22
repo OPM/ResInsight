@@ -18,6 +18,8 @@
 
 #include "RicDuplicateSummaryTableFeature.h"
 
+#include "RiaSummaryTools.h"
+
 #include "RimMainPlotCollection.h"
 #include "RimSummaryTable.h"
 #include "RimSummaryTableCollection.h"
@@ -46,11 +48,7 @@ bool RicDuplicateSummaryTableFeature::isCommandEnabled()
 void RicDuplicateSummaryTableFeature::onActionTriggered( bool isChecked )
 {
     caf::PdmObject*  selObj       = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
-    RimSummaryTable* summaryTable = nullptr;
-    if ( selObj )
-    {
-        selObj->firstAncestorOrThisOfType( summaryTable );
-    }
+    RimSummaryTable* summaryTable = RiaSummaryTools::parentSummaryTable( selObj );
     if ( !summaryTable ) return;
 
     copyTableAndAddToCollection( summaryTable );
