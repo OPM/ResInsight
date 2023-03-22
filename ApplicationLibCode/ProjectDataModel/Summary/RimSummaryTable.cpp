@@ -391,7 +391,7 @@ void RimSummaryTable::onLoadDataAndUpdate()
     {
         const auto maxRowValue = *std::max_element( vectorData.values.begin(), vectorData.values.end() );
         const auto minRowValue = *std::min_element( vectorData.values.begin(), vectorData.values.end() );
-        if ( std::abs( maxRowValue < m_thresholdValue() ) ) continue;
+        if ( maxRowValue < m_thresholdValue() ) continue;
         maxValue = std::max( maxValue, maxRowValue );
         minValue = std::min( minValue, minRowValue );
         m_matrixPlotWidget->setRowValues( vectorData.category, vectorData.values );
