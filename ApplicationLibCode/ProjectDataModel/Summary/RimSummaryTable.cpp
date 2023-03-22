@@ -57,7 +57,6 @@ RimSummaryTable::RimSummaryTable()
     uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitField( &m_tableName, "TableName", QString( "Summary Table" ), "Name" );
-    m_tableName.uiCapability()->setUiReadOnly( true );
     CAF_PDM_InitFieldNoDefault( &m_case, "SummaryCase", "Case" );
     m_case.uiCapability()->setUiTreeChildrenHidden( true );
     CAF_PDM_InitFieldNoDefault( &m_vector, "Vectors", "Vector" );
