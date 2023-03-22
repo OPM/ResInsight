@@ -69,8 +69,9 @@ public:
     cvf::Vec3d          convertToWorldCoords( int iLine, int xLine, double depth );
     std::pair<int, int> convertToInlineXline( double worldx, double worldy );
 
-    std::shared_ptr<ZGYAccess::SeismicSliceData> slice( RiaDefines::SeismicSliceDirection direction, int sliceIndex );
-    std::shared_ptr<ZGYAccess::SeismicSliceData> trace( int inlineIndex, int xlineIndex );
+    std::shared_ptr<ZGYAccess::SeismicSliceData>
+                                                 slice( RiaDefines::SeismicSliceDirection direction, int sliceIndex, int zStartIndex = -1, int zSize = 0 );
+    std::shared_ptr<ZGYAccess::SeismicSliceData> trace( int inlineIndex, int xlineIndex, int zStartIndex = -1, int zSize = 0 );
 
 private:
     QString                               m_filename;

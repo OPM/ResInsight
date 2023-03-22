@@ -82,13 +82,17 @@ public:
 
     cvf::Vec3d convertToWorldCoords( int iLine, int xLine, double depth );
 
-    std::shared_ptr<ZGYAccess::SeismicSliceData> sliceData( RiaDefines::SeismicSliceDirection direction, int sliceNumber );
-    std::shared_ptr<ZGYAccess::SeismicSliceData> sliceData( double worldX1, double worldY1, double worldX2, double worldY2 );
+    std::shared_ptr<ZGYAccess::SeismicSliceData>
+        sliceData( RiaDefines::SeismicSliceDirection direction, int sliceNumber, double zMin, double zMax );
+    std::shared_ptr<ZGYAccess::SeismicSliceData>
+        sliceData( double worldX1, double worldY1, double worldX2, double worldY2, double zMin, double zMax );
 
     std::pair<double, double> dataRangeMinMax() const;
 
     RimRegularLegendConfig* legendConfig() const;
     RimSeismicAlphaMapper*  alphaValueMapper() const;
+
+    cvf::BoundingBox* boundingBox() const;
 
 protected:
     void                 initAfterRead() override;
@@ -98,8 +102,6 @@ protected:
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
-    cvf::BoundingBox* boundingBox() const;
-
 private:
     void updateDataRange( bool updatePlot );
     bool openFileIfNotOpen();
@@ -108,6 +110,7 @@ private:
 
     int toInlineIndex( int inLine ) const;
     int toXlineIndex( int xLine ) const;
+    int toZIndex( double z ) const;
 
 private:
     caf::PdmField<QString>                        m_filename;

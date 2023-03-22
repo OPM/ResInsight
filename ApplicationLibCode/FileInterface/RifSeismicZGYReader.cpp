@@ -252,16 +252,19 @@ std::pair<int, int> RifSeismicZGYReader::convertToInlineXline( double worldx, do
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::shared_ptr<ZGYAccess::SeismicSliceData> RifSeismicZGYReader::slice( RiaDefines::SeismicSliceDirection direction, int sliceIndex )
+std::shared_ptr<ZGYAccess::SeismicSliceData>
+    RifSeismicZGYReader::slice( RiaDefines::SeismicSliceDirection direction, int sliceIndex, int zStartIndex, int zSize )
 {
     if ( isOpen() )
     {
         switch ( direction )
         {
             case RiaDefines::SeismicSliceDirection::INLINE:
-                return m_reader->inlineSlice( sliceIndex );
+                if ( zStartIndex < 0 ) return m_reader->inlineSlice( sliceIndex );
+                return m_reader->inlineSlice( sliceIndex, zStartIndex, zSize );
             case RiaDefines::SeismicSliceDirection::XLINE:
-                return m_reader->xlineSlice( sliceIndex );
+                if ( zStartIndex < 0 ) return m_reader->xlineSlice( sliceIndex );
+                return m_reader->xlineSlice( sliceIndex, zStartIndex, zSize );
             case RiaDefines::SeismicSliceDirection::DEPTH:
                 return m_reader->zSlice( sliceIndex );
             default:
@@ -271,11 +274,15 @@ std::shared_ptr<ZGYAccess::SeismicSliceData> RifSeismicZGYReader::slice( RiaDefi
     return nullptr;
 }
 
-std::shared_ptr<ZGYAccess::SeismicSliceData> RifSeismicZGYReader::trace( int inlineIndex, int xlineIndex )
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::shared_ptr<ZGYAccess::SeismicSliceData> RifSeismicZGYReader::trace( int inlineIndex, int xlineIndex, int zStartIndex, int zSize )
 {
     if ( isOpen() )
     {
-        return m_reader->zTrace( inlineIndex, xlineIndex );
+        if ( zStartIndex < 0 ) return m_reader->zTrace( inlineIndex, xlineIndex );
+        return m_reader->zTrace( inlineIndex, xlineIndex, zStartIndex, zSize );
     }
 
     return nullptr;

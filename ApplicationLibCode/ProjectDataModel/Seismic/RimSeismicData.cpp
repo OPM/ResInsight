@@ -401,6 +401,15 @@ int RimSeismicData::toXlineIndex( int xLine ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RimSeismicData::toZIndex( double z ) const
+{
+    int zIndex = (int)( ( z - zMin() ) / zStep() );
+    return zIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<double> RimSeismicData::histogramXvalues() const
 {
     return m_clippedHistogramXvalues;
@@ -497,11 +506,14 @@ std::pair<double, double> RimSeismicData::dataRangeMinMax() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::shared_ptr<ZGYAccess::SeismicSliceData> RimSeismicData::sliceData( RiaDefines::SeismicSliceDirection direction, int sliceNumber )
+std::shared_ptr<ZGYAccess::SeismicSliceData>
+    RimSeismicData::sliceData( RiaDefines::SeismicSliceDirection direction, int sliceNumber, double zMin, double zMax )
 {
     if ( !openFileIfNotOpen() ) return nullptr;
 
     int sliceIndex = 0;
+    int zMinIndex  = toZIndex( zMin );
+    int zMaxIndex  = toZIndex( zMax );
 
     switch ( direction )
     {
@@ -512,13 +524,13 @@ std::shared_ptr<ZGYAccess::SeismicSliceData> RimSeismicData::sliceData( RiaDefin
             sliceIndex = ( sliceNumber - m_xlineInfo[0] ) / m_xlineInfo[2];
             break;
         case RiaDefines::SeismicSliceDirection::DEPTH:
-            sliceIndex = (int)( 1.0 * ( sliceNumber - zMin() ) / m_zStep );
+            sliceIndex = (int)( 1.0 * ( sliceNumber - this->zMin() ) / m_zStep );
             break;
         default:
             return nullptr;
     }
 
-    auto data = m_filereader->slice( direction, sliceIndex );
+    auto data = m_filereader->slice( direction, sliceIndex, zMinIndex, zMaxIndex - zMinIndex );
 
     double tmp                  = 0.0;
     float* pValue               = data->values();
@@ -567,7 +579,8 @@ void RimSeismicData::initColorLegend()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::shared_ptr<ZGYAccess::SeismicSliceData> RimSeismicData::sliceData( double worldX1, double worldY1, double worldX2, double worldY2 )
+std::shared_ptr<ZGYAccess::SeismicSliceData>
+    RimSeismicData::sliceData( double worldX1, double worldY1, double worldX2, double worldY2, double zMin, double zMax )
 {
     if ( !openFileIfNotOpen() ) return nullptr;
 
@@ -578,6 +591,8 @@ std::shared_ptr<ZGYAccess::SeismicSliceData> RimSeismicData::sliceData( double w
     int startXlineIndex  = toXlineIndex( startXline );
     int stopInlineIndex  = toInlineIndex( stopInline );
     int stopXlineIndex   = toXlineIndex( stopXline );
+    int zMinIndex        = toZIndex( zMin );
+    int zMaxIndex        = toZIndex( zMax );
 
     int diffI = std::abs( startInlineIndex - stopInlineIndex );
     int diffX = std::abs( startXlineIndex - stopXlineIndex );
@@ -587,7 +602,7 @@ std::shared_ptr<ZGYAccess::SeismicSliceData> RimSeismicData::sliceData( double w
     int dirX = 1;
     if ( startXlineIndex > stopXlineIndex ) dirX = -1;
 
-    const int zize = m_filereader->depthSize();
+    const int zize = zMaxIndex - zMinIndex;
 
     std::shared_ptr<ZGYAccess::SeismicSliceData> retdata;
 
@@ -604,7 +619,7 @@ std::shared_ptr<ZGYAccess::SeismicSliceData> RimSeismicData::sliceData( double w
         {
             int xline = (int)std::round( xlined );
 
-            auto trace = m_filereader->trace( iline, xline );
+            auto trace = m_filereader->trace( iline, xline, zMinIndex, zize );
 
             if ( trace->size() != zize )
             {
@@ -633,7 +648,7 @@ std::shared_ptr<ZGYAccess::SeismicSliceData> RimSeismicData::sliceData( double w
         {
             int iline = (int)std::round( ilined );
 
-            auto trace = m_filereader->trace( iline, xline );
+            auto trace = m_filereader->trace( iline, xline, zMinIndex, zize );
 
             if ( trace->size() != zize )
             {

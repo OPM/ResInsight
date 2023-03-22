@@ -155,9 +155,7 @@ void RimSeismicSectionCollection::fieldChangedByUi( const caf::PdmFieldHandle* c
 {
     if ( changedField == objectToggleField() )
     {
-        Rim3dView* view = nullptr;
-        firstAncestorOrThisOfType( view );
-        if ( view ) view->scheduleCreateDisplayModelAndRedraw();
+        updateViews();
     }
 }
 
@@ -214,4 +212,23 @@ void RimSeismicSectionCollection::updateLegendRangesTextAndVisibility( RiuViewer
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicSectionCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                                  std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    updateViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicSectionCollection::updateViews()
+{
+    Rim3dView* view = nullptr;
+    firstAncestorOrThisOfType( view );
+    if ( view ) view->scheduleCreateDisplayModelAndRedraw();
 }

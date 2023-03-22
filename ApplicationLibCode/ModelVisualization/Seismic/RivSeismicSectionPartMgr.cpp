@@ -195,8 +195,11 @@ cvf::ref<cvf::DrawableGeo> RivSeismicSectionPartMgr::createXYPlaneQuadGeoWithTex
 //--------------------------------------------------------------------------------------------------
 cvf::TextureImage* RivSeismicSectionPartMgr::createImageFromData( ZGYAccess::SeismicSliceData* data )
 {
+    const int width = data->width();
+    const int depth = data->depth();
+
     cvf::TextureImage* textureImage = new cvf::TextureImage();
-    textureImage->allocate( data->width(), data->depth() );
+    textureImage->allocate( width, depth );
 
     auto   legend = m_section->legendConfig();
     float* pData  = data->values();
@@ -210,17 +213,15 @@ cvf::TextureImage* RivSeismicSectionPartMgr::createImageFromData( ZGYAccess::Sei
     const bool isTransparent = m_section->isTransparent();
 
     auto alphaMapper = m_section->alphaValueMapper();
+    auto colorMapper = legend->scalarMapper();
 
-    auto mapper = legend->scalarMapper();
-
-    for ( int i = 0; i < data->width(); i++ )
+    for ( int i = 0; i < width; i++ )
     {
-        for ( int j = data->depth() - 1; j >= 0; j-- )
+        for ( int j = depth - 1; j >= 0; j-- )
         {
-            auto rgb = mapper->mapToColor( *pData );
+            auto rgb = colorMapper->mapToColor( *pData );
 
             cvf::ubyte uAlpha = 255;
-
             if ( isTransparent ) uAlpha = alphaMapper->alphaValue( *pData );
 
             textureImage->setPixel( i, j, cvf::Color4ub( rgb, uAlpha ) );
