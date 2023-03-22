@@ -515,14 +515,6 @@ int RimSummaryTable::valueLabelFontSize() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryTable::createTableTitle() const
-{
-    return "";
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::pair<double, double> RimSummaryTable::createLegendMinMaxValues( const double maxTableValue ) const
 {
     return std::make_pair( 0.0, maxTableValue );

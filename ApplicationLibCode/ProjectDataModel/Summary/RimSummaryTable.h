@@ -81,7 +81,6 @@ private:
     int valueLabelFontSize() const;
 
 private:
-    QString                   createTableTitle() const;
     std::pair<double, double> createLegendMinMaxValues( const double maxTableValue ) const;
     QString                   dateFormatString() const;
 

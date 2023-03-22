@@ -99,18 +99,6 @@ void RimSummaryTableCollection::addTable( RimSummaryTable* table )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryTableCollection::updateSummaryNameHasChanged()
-{
-    // TODO: UPDATE??
-    for ( RimSummaryTable* table : m_summaryTables )
-    {
-        // plot->updateCaseNameHasChanged();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryTableCollection::insertTable( RimSummaryTable* table, size_t index )
 {
     m_summaryTables.insert( index, table );

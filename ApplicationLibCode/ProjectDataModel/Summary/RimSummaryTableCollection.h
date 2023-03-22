@@ -53,8 +53,6 @@ public:
                                                                   RifEclipseSummaryAddress::SummaryVarCategory category,
                                                                   const QString&                               vectorName );
 
-    void updateSummaryNameHasChanged();
-
 private:
     caf::PdmChildArrayField<RimSummaryTable*> m_summaryTables;
 };
