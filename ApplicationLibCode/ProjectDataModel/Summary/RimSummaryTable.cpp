@@ -53,7 +53,7 @@ CAF_PDM_SOURCE_INIT( RimSummaryTable, "RimSummaryTable" );
 //--------------------------------------------------------------------------------------------------
 RimSummaryTable::RimSummaryTable()
 {
-    CAF_PDM_InitObject( "Summary Table" );
+    CAF_PDM_InitObject( "Summary Table", ":/CorrelationMatrixPlot16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_case, "SummaryCase", "Case" );
     m_case.uiCapability()->setUiTreeChildrenHidden( true );
