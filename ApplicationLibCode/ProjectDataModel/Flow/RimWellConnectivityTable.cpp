@@ -446,6 +446,8 @@ void RimWellConnectivityTable::defineEditorAttribute( const caf::PdmFieldHandle*
         auto* attrib = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
         if ( attrib )
         {
+            attrib->nextIcon                   = QIcon( ":/ComboBoxDown.svg" );
+            attrib->previousIcon               = QIcon( ":/ComboBoxUp.svg" );
             attrib->showPreviousAndNextButtons = true;
         }
     }
