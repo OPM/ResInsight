@@ -72,6 +72,10 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
+    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+
+    void updateViews();
+
 private:
     caf::PdmField<QString>                      m_userDescription;
     caf::PdmChildArrayField<RimSeismicSection*> m_seismicSections;

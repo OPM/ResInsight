@@ -41,6 +41,7 @@
 #include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
+#include "cvfBoundingBox.h"
 #include "cvfScalarMapper.h"
 #include "cvfTextureImage.h"
 #include "cvfVector3.h"
@@ -109,9 +110,9 @@ RimSeismicSection::RimSeismicSection()
     CAF_PDM_InitField( &m_transparent, "TransperentSection", false, "Transparent (Use on only one section at a time!)" );
 
     CAF_PDM_InitFieldNoDefault( &m_zFilterType, "DepthFilter", "Depth Filter" );
-    CAF_PDM_InitField( &m_zUpperThreshold, "UpperThreshold", 0.0, "Upper Threshold" );
+    CAF_PDM_InitField( &m_zUpperThreshold, "UpperThreshold", -1.0, "Upper Threshold" );
     m_zUpperThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
-    CAF_PDM_InitField( &m_zLowerThreshold, "LowerThreshold", 300000.0, "Lower Threshold" );
+    CAF_PDM_InitField( &m_zLowerThreshold, "LowerThreshold", -1.0, "Lower Threshold" );
     m_zLowerThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     this->setUi3dEditorTypeName( RicPolyline3dEditor::uiEditorTypeName() );
@@ -307,6 +308,17 @@ void RimSeismicSection::defineEditorAttribute( const caf::PdmFieldHandle* field,
                 sliderAttrib->m_minimum = minVal;
                 sliderAttrib->m_step    = stepVal;
             }
+        }
+    }
+    else if ( ( field == &m_zUpperThreshold ) || ( field == &m_zLowerThreshold ) )
+    {
+        auto* doubleSliderAttrib = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
+        if ( ( doubleSliderAttrib ) && ( m_seismicData() != nullptr ) )
+        {
+            auto bb = m_seismicData()->boundingBox();
+
+            doubleSliderAttrib->m_minimum = -1.0 * bb->max().z();
+            doubleSliderAttrib->m_maximum = -1.0 * bb->min().z();
         }
     }
 }
@@ -505,8 +517,8 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection()
     std::vector<cvf::Vec3dArray> rects;
     std::vector<int>             widths;
 
-    double zmin = m_seismicData->zMin();
-    double zmax = m_seismicData->zMax();
+    double zmin = upperFilterZ( m_seismicData->zMin() );
+    double zmax = lowerFilterZ( m_seismicData->zMax() );
 
     if ( m_type() == CrossSectionEnum::CS_POLYLINE )
     {
@@ -534,7 +546,7 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection()
 
             if ( m_texturedSection->part( i - 1 ).sliceData == nullptr )
             {
-                m_texturedSection->part( i - 1 ).sliceData = m_seismicData->sliceData( p1.x(), p1.y(), p2.x(), p2.y() );
+                m_texturedSection->part( i - 1 ).sliceData = m_seismicData->sliceData( p1.x(), p1.y(), p2.x(), p2.y(), zmin, zmax );
             }
         }
     }
@@ -565,7 +577,7 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection()
 
         if ( m_texturedSection->part( 0 ).sliceData == nullptr )
         {
-            m_texturedSection->part( 0 ).sliceData = m_seismicData->sliceData( RiaDefines::SeismicSliceDirection::INLINE, ilStart );
+            m_texturedSection->part( 0 ).sliceData = m_seismicData->sliceData( RiaDefines::SeismicSliceDirection::INLINE, ilStart, zmin, zmax );
         }
     }
     else if ( m_type() == CrossSectionEnum::CS_XLINE )
@@ -595,7 +607,7 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection()
 
         if ( m_texturedSection->part( 0 ).sliceData == nullptr )
         {
-            m_texturedSection->part( 0 ).sliceData = m_seismicData->sliceData( RiaDefines::SeismicSliceDirection::XLINE, xlStart );
+            m_texturedSection->part( 0 ).sliceData = m_seismicData->sliceData( RiaDefines::SeismicSliceDirection::XLINE, xlStart, zmin, zmax );
         }
     }
     else if ( m_type() == CrossSectionEnum::CS_DEPTHSLICE )
@@ -631,7 +643,7 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection()
 
         if ( m_texturedSection->part( 0 ).sliceData == nullptr )
         {
-            m_texturedSection->part( 0 ).sliceData = m_seismicData->sliceData( RiaDefines::SeismicSliceDirection::DEPTH, zIndex );
+            m_texturedSection->part( 0 ).sliceData = m_seismicData->sliceData( RiaDefines::SeismicSliceDirection::DEPTH, zIndex, zmin, zmax );
         }
     }
 
@@ -685,11 +697,12 @@ void RimSeismicSection::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
             updateType = RigTexturedSection::WhatToUpdateEnum::UPDATE_ALL;
         }
         else if ( ( changedField == &m_type ) || ( changedField == &m_targets ) || ( changedField == &m_depthIndex ) ||
-                  ( changedField == &m_inlineIndex ) || ( changedField == &m_xlineIndex ) )
+                  ( changedField == &m_inlineIndex ) || ( changedField == &m_xlineIndex ) || changedField == &m_zFilterType ||
+                  changedField == &m_zLowerThreshold || changedField == &m_zUpperThreshold )
         {
             updateType = RigTexturedSection::WhatToUpdateEnum::UPDATE_GEOMETRY;
         }
-        else if ( changedField == m_transparent )
+        else if ( changedField == &m_transparent )
         {
             updateType = RigTexturedSection::WhatToUpdateEnum::UPDATE_TEXTURE;
         }
@@ -743,6 +756,8 @@ void RimSeismicSection::initSliceRanges()
     if ( m_inlineIndex < 0 ) m_inlineIndex = m_seismicData->inlineMin();
     if ( m_xlineIndex < 0 ) m_xlineIndex = m_seismicData->xlineMin();
     if ( m_depthIndex < 0 ) m_depthIndex = m_seismicData->zMin();
+    if ( m_zLowerThreshold < 0 ) m_zLowerThreshold = m_seismicData->zMax();
+    if ( m_zUpperThreshold < 0 ) m_zUpperThreshold = m_seismicData->zMin();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -764,7 +779,10 @@ QPixmap RimSeismicSection::getImage()
         iStart   = m_depthIndex();
     }
 
-    auto data = m_seismicData->sliceData( sliceDir, iStart );
+    double zmin = upperFilterZ( m_seismicData->zMin() );
+    double zmax = lowerFilterZ( m_seismicData->zMax() );
+
+    auto data = m_seismicData->sliceData( sliceDir, iStart, zmin, zmax );
 
     auto mapper = legendConfig()->scalarMapper();
 
@@ -778,10 +796,7 @@ QPixmap RimSeismicSection::getImage()
         {
             auto rgb = mapper->mapToColor( *pData );
 
-            QColor color;
-
-            color.setRgb( rgb.r(), rgb.g(), rgb.b() );
-
+            QColor color( rgb.r(), rgb.g(), rgb.b() );
             img.setPixel( i, j, color.rgb() );
 
             pData++;
@@ -839,7 +854,7 @@ double RimSeismicSection::upperFilterZ( double upperGridLimit ) const
     {
         case RimIntersectionFilterEnum::INTERSECT_FILTER_BELOW:
         case RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN:
-            return -m_zUpperThreshold;
+            return m_zUpperThreshold;
 
         case RimIntersectionFilterEnum::INTERSECT_FILTER_ABOVE:
         case RimIntersectionFilterEnum::INTERSECT_FILTER_NONE:
@@ -857,7 +872,7 @@ double RimSeismicSection::lowerFilterZ( double lowerGridLimit ) const
     {
         case RimIntersectionFilterEnum::INTERSECT_FILTER_ABOVE:
         case RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN:
-            return -m_zLowerThreshold;
+            return m_zLowerThreshold;
 
         case RimIntersectionFilterEnum::INTERSECT_FILTER_BELOW:
         case RimIntersectionFilterEnum::INTERSECT_FILTER_NONE:
