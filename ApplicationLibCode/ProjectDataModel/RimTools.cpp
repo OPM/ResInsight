@@ -376,7 +376,7 @@ void RimTools::geoMechCaseOptionItems( QList<caf::PdmOptionItemInfo>* options )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimTools::seismicDataOptionItems( QList<caf::PdmOptionItemInfo>* options )
+void RimTools::seismicDataOptionItems( QList<caf::PdmOptionItemInfo>* options, cvf::BoundingBox worldBBox )
 {
     if ( !options ) return;
 
@@ -387,7 +387,8 @@ void RimTools::seismicDataOptionItems( QList<caf::PdmOptionItemInfo>* options )
 
         for ( auto* c : coll->seismicData() )
         {
-            options->push_back( caf::PdmOptionItemInfo( c->userDescription(), c, false, c->uiIconProvider() ) );
+            if ( c->boundingBox()->intersects( worldBBox ) )
+                options->push_back( caf::PdmOptionItemInfo( c->userDescription(), c, false, c->uiIconProvider() ) );
         }
     }
 }

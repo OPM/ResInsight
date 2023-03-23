@@ -504,7 +504,10 @@ QList<caf::PdmOptionItemInfo> RimSeismicSection::calculateValueOptions( const ca
 
     if ( fieldNeedingOptions == &m_seismicData )
     {
-        RimTools::seismicDataOptionItems( &options );
+        Rim3dView* view = nullptr;
+        firstAncestorOrThisOfType( view );
+
+        if ( view != nullptr ) RimTools::seismicDataOptionItems( &options, view->domainBoundingBox() );
     }
 
     return options;

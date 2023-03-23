@@ -1145,14 +1145,15 @@ bool Rim3dView::isMasterView() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Rim3dView::updateGridBoxData()
+cvf::BoundingBox Rim3dView::domainBoundingBox()
 {
+    cvf::BoundingBox combinedDomainBBox;
+
     if ( viewer() && ownerCase() )
     {
-        using BBox = cvf::BoundingBox;
-
-        BBox masterDomainBBox   = isShowingActiveCellsOnly() ? ownerCase()->activeCellsBoundingBox() : ownerCase()->allCellsBoundingBox();
-        BBox combinedDomainBBox = masterDomainBBox;
+        cvf::BoundingBox masterDomainBBox = isShowingActiveCellsOnly() ? ownerCase()->activeCellsBoundingBox()
+                                                                       : ownerCase()->allCellsBoundingBox();
+        combinedDomainBBox.add( masterDomainBBox );
 
         if ( Rim3dView* depView = activeComparisonView() )
         {
@@ -1162,17 +1163,25 @@ void Rim3dView::updateGridBoxData()
 
             if ( destinationOwnerCase )
             {
-                BBox depDomainBBox = depView->isShowingActiveCellsOnly() ? destinationOwnerCase->activeCellsBoundingBox()
-                                                                         : destinationOwnerCase->allCellsBoundingBox();
-                if ( depDomainBBox.isValid() )
-                {
-                    combinedDomainBBox.add( depDomainBBox.min() );
-                    combinedDomainBBox.add( depDomainBBox.max() );
-                }
+                cvf::BoundingBox depDomainBBox = depView->isShowingActiveCellsOnly() ? destinationOwnerCase->activeCellsBoundingBox()
+                                                                                     : destinationOwnerCase->allCellsBoundingBox();
+
+                combinedDomainBBox.add( depDomainBBox );
             }
         }
+    }
 
-        viewer()->updateGridBoxData( m_scaleZ(), ownerCase()->displayModelOffset(), backgroundColor(), combinedDomainBBox, fontSize() );
+    return combinedDomainBBox;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::updateGridBoxData()
+{
+    if ( viewer() && ownerCase() )
+    {
+        viewer()->updateGridBoxData( m_scaleZ(), ownerCase()->displayModelOffset(), backgroundColor(), domainBoundingBox(), fontSize() );
     }
 }
 

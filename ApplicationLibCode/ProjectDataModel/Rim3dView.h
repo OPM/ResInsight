@@ -165,6 +165,7 @@ public:
     void updateDisplayModelForCurrentTimeStepAndRedraw();
     void createHighlightAndGridBoxDisplayModelAndRedraw();
     void createMeasurementDisplayModelAndRedraw();
+    cvf::BoundingBox domainBoundingBox();
     void updateGridBoxData();
     void updateAnnotationItems();
     void resetLegends();
