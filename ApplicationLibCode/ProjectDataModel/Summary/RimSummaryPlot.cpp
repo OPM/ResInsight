@@ -2025,6 +2025,7 @@ RimPlotAxisProperties* RimSummaryPlot::addNewAxisProperties( RiaDefines::PlotAxi
 RimPlotAxisProperties* RimSummaryPlot::addNewAxisProperties( RiuPlotAxis plotAxis, const QString& name )
 {
     auto* axisProperties = new RimPlotAxisProperties;
+    axisProperties->enableAutoValueForAllFields( true );
     axisProperties->setNameAndAxis( name, name, plotAxis.axis(), plotAxis.index() );
     m_axisPropertiesArray.push_back( axisProperties );
     connectAxisSignals( axisProperties );

@@ -73,7 +73,6 @@ RimPlotAxisProperties::RimPlotAxisProperties()
     CAF_PDM_InitField( &isAutoTitle, "AutoTitle", true, "Auto Title" );
 
     CAF_PDM_InitField( &m_displayLongName, "DisplayLongName", true, "   Names" );
-    m_displayLongName.uiCapability()->enableAutoValueSupport( true );
 
     CAF_PDM_InitField( &m_displayShortName, "DisplayShortName", false, "   Acronyms" );
     CAF_PDM_InitField( &m_displayUnitText, "DisplayUnitText", true, "   Units" );
@@ -81,14 +80,11 @@ RimPlotAxisProperties::RimPlotAxisProperties()
     CAF_PDM_InitFieldNoDefault( &m_customTitle, "CustomTitle", "Title" );
 
     CAF_PDM_InitField( &m_visibleRangeMax, "VisibleRangeMax", RiaDefines::maximumDefaultValuePlot(), "Max" );
-    m_visibleRangeMax.uiCapability()->enableAutoValueSupport( true );
     CAF_PDM_InitField( &m_visibleRangeMin, "VisibleRangeMin", RiaDefines::minimumDefaultValuePlot(), "Min" );
-    m_visibleRangeMin.uiCapability()->enableAutoValueSupport( true );
 
     CAF_PDM_InitFieldNoDefault( &m_numberFormat, "NumberFormat", "Number Format" );
     CAF_PDM_InitField( &m_numberOfDecimals, "Decimals", 2, "Number of Decimals" );
     CAF_PDM_InitField( &m_scaleFactor, "ScaleFactor", 1.0, "Scale Factor" );
-    m_scaleFactor.uiCapability()->enableAutoValueSupport( true );
 
     CAF_PDM_InitField( &m_isAutoZoom, "AutoZoom", true, "Set Range Automatically" );
     CAF_PDM_InitField( &m_isLogarithmicScaleEnabled, "LogarithmicScale", false, "Logarithmic Scale" );
@@ -108,7 +104,6 @@ RimPlotAxisProperties::RimPlotAxisProperties()
     m_annotations.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_majorTickmarkCount, "MajorTickmarkCount", "Major Tickmark Count" );
-    m_majorTickmarkCount.uiCapability()->enableAutoValueSupport( true );
 
     updateOptionSensitivity();
 }
@@ -666,6 +661,18 @@ void RimPlotAxisProperties::setAutoValueForMajorTickmarkCount( LegendTickmarkCou
 void RimPlotAxisProperties::enableAutoValueForMajorTickmarkCount( bool enable )
 {
     m_majorTickmarkCount.uiCapability()->enableAutoValue( enable );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotAxisProperties::enableAutoValueForAllFields( bool enable )
+{
+    enableAutoValueForMajorTickmarkCount( enable );
+    enableAutoValueForScaleFactor( enable );
+    enableAutoValueMinMax( enable );
+
+    m_displayLongName.uiCapability()->enableAutoValueSupport( enable );
 }
 
 //--------------------------------------------------------------------------------------------------
