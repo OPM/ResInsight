@@ -107,6 +107,7 @@ RimWellPathGeometryDef::RimWellPathGeometryDef()
     CAF_PDM_InitScriptableField( &m_showSpheres, "ShowSpheres", true, "Spheres" );
     CAF_PDM_InitField( &m_sphereColor, "SphereColor", cvf::Color3f( cvf::Color3f::CEETRON ), "Sphere Color" );
     CAF_PDM_InitField( &m_sphereRadiusFactor, "SphereRadiusFactor", 0.15, "Sphere Radius Factor" );
+    CAF_PDM_InitField( &m_wellTargetHandleScalingFactor, "WellTargetHandleScalingFactor", 2.0, "Well Target Scaling Factor" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -351,6 +352,14 @@ bool RimWellPathGeometryDef::showAbsoluteCoordinates() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RimWellPathGeometryDef::wellTargetScalingFactor() const
+{
+    return m_wellTargetHandleScalingFactor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::pair<RimWellPathTarget*, RimWellPathTarget*>
     RimWellPathGeometryDef::findActiveTargetsAroundInsertionPoint( const RimWellPathTarget* targetToInsertBefore )
 {
@@ -568,6 +577,7 @@ void RimWellPathGeometryDef::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     group->add( &m_showSpheres );
     group->add( &m_sphereColor );
     group->add( &m_sphereRadiusFactor );
+    group->add( &m_wellTargetHandleScalingFactor );
 
     uiOrdering.add( &m_showAbsolutePosForWellTargets );
     uiOrdering.add( &m_wellTargets );
