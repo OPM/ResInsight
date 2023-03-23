@@ -121,6 +121,7 @@ private:
     caf::PdmField<bool>                           m_showSeismicOutline;
     caf::PdmField<bool>                           m_enablePicking;
     caf::PdmChildArrayField<RimPolylineTarget*>   m_targets;
+    caf::PdmField<bool>                           m_showSectionLine;
     caf::PdmField<int>                            m_lineThickness;
     caf::PdmField<cvf::Color3f>                   m_lineColor;
     caf::PdmField<caf::AppEnum<CrossSectionEnum>> m_type;

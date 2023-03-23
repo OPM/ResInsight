@@ -53,6 +53,8 @@
 #include <QLayout>
 #include <QPixmap>
 
+#include <algorithm>
+
 namespace caf
 {
 template <>
@@ -106,6 +108,7 @@ RimSeismicSection::RimSeismicSection()
     CAF_PDM_InitField( &m_lineThickness, "LineThickness", 1, "Line Thickness" );
     CAF_PDM_InitField( &m_lineColor, "LineColor", cvf::Color3f( cvf::Color3f::WHITE ), "Line Color" );
     CAF_PDM_InitField( &m_showSeismicOutline, "ShowSeismicOutline", false, "Show Seismic Data Outline" );
+    CAF_PDM_InitField( &m_showSectionLine, "ShowSectionLine", false, "Show Section Polyline" );
 
     CAF_PDM_InitField( &m_transparent, "TransperentSection", false, "Transparent (Use on only one section at a time!)" );
 
@@ -221,6 +224,7 @@ void RimSeismicSection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
         group3->add( &m_lineThickness );
         group3->add( &m_lineColor );
         group3->add( &m_showSeismicOutline );
+        if ( m_type() == CrossSectionEnum::CS_POLYLINE ) group3->add( &m_showSectionLine );
 
         group3->setCollapsedByDefault();
     }
@@ -428,15 +432,15 @@ void RimSeismicSection::scheduleViewUpdate()
 cvf::ref<RigPolyLinesData> RimSeismicSection::polyLinesData() const
 {
     cvf::ref<RigPolyLinesData> pld = new RigPolyLinesData;
-    // if ( m_type() == CrossSectionEnum::CS_POLYLINE )
-    //{
-    //    std::vector<cvf::Vec3d> line;
-    //    for ( const RimPolylineTarget* target : m_targets )
-    //    {
-    //        if ( target->isEnabled() ) line.push_back( target->targetPointXYZ() );
-    //    }
-    //    pld->setPolyLine( line );
-    //}
+    if ( ( m_type() == CrossSectionEnum::CS_POLYLINE ) && m_showSectionLine() )
+    {
+        std::vector<cvf::Vec3d> line;
+        for ( const RimPolylineTarget* target : m_targets )
+        {
+            line.push_back( target->targetPointXYZ() );
+        }
+        pld->setPolyLine( line );
+    }
 
     if ( m_showSeismicOutline() && m_seismicData() != nullptr )
     {
@@ -754,11 +758,12 @@ bool RimSeismicSection::isTransparent() const
 void RimSeismicSection::initSliceRanges()
 {
     if ( m_seismicData() == nullptr ) return;
-    if ( m_inlineIndex < 0 ) m_inlineIndex = m_seismicData->inlineMin();
-    if ( m_xlineIndex < 0 ) m_xlineIndex = m_seismicData->xlineMin();
-    if ( m_depthIndex < 0 ) m_depthIndex = m_seismicData->zMin();
-    if ( m_zLowerThreshold < 0 ) m_zLowerThreshold = m_seismicData->zMax();
-    if ( m_zUpperThreshold < 0 ) m_zUpperThreshold = m_seismicData->zMin();
+
+    m_inlineIndex     = std::clamp( m_inlineIndex(), m_seismicData->inlineMin(), m_seismicData->inlineMax() );
+    m_xlineIndex      = std::clamp( m_xlineIndex(), m_seismicData->xlineMin(), m_seismicData->xlineMax() );
+    m_depthIndex      = std::clamp( m_depthIndex(), (int)m_seismicData->zMin(), (int)m_seismicData->zMax() );
+    m_zLowerThreshold = std::clamp( m_zLowerThreshold(), (int)m_seismicData->zMin(), (int)m_seismicData->zMax() );
+    m_zUpperThreshold = std::clamp( m_zUpperThreshold(), (int)m_seismicData->zMin(), (int)m_seismicData->zMax() );
 }
 
 //--------------------------------------------------------------------------------------------------
