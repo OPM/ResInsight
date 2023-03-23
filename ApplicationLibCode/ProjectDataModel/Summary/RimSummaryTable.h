@@ -47,6 +47,7 @@ public:
     RimSummaryTable();
     ~RimSummaryTable() override;
 
+    void            setDefaultCaseAndCategoryAndVectorName();
     void            setFromCaseAndCategoryAndVectorName( RimSummaryCase*                              summaryCase,
                                                          RifEclipseSummaryAddress::SummaryVarCategory category,
                                                          const QString&                               vectorName );
@@ -80,6 +81,8 @@ private:
     int axisLabelFontSize() const;
     int valueLabelFontSize() const;
 
+    QString createTableName() const;
+
 private:
     std::pair<double, double> createLegendMinMaxValues( const double maxTableValue ) const;
     QString                   dateFormatString() const;
@@ -91,11 +94,14 @@ private:
                                                                             RifEclipseSummaryAddress::SummaryVarCategory category ) const;
     QString                            getCategoryNameFromAddress( const RifEclipseSummaryAddress& address ) const;
 
+    std::vector<RimSummaryCase*> getToplevelSummaryCases() const;
+
 private:
     // Matrix plot for visualizing table data
     QPointer<RiuMatrixPlotWidget> m_matrixPlotWidget;
 
     caf::PdmField<QString>            m_tableName;
+    caf::PdmField<bool>               m_isAutomaticName;
     caf::PdmPtrField<RimSummaryCase*> m_case;
 
     caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>> m_categories;

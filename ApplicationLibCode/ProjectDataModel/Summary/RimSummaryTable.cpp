@@ -52,6 +52,8 @@ RimSummaryTable::RimSummaryTable()
     uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitField( &m_tableName, "TableName", QString( "Summary Table" ), "Name" );
+    CAF_PDM_InitField( &m_isAutomaticName, "AutomaticTableName", true, "Automatic Name" );
+
     CAF_PDM_InitFieldNoDefault( &m_case, "SummaryCase", "Case" );
     m_case.uiCapability()->setUiTreeChildrenHidden( true );
     CAF_PDM_InitFieldNoDefault( &m_vector, "Vectors", "Vector" );
@@ -101,6 +103,31 @@ RimSummaryTable::~RimSummaryTable()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryTable::setDefaultCaseAndCategoryAndVectorName()
+{
+    const auto summaryCases = getToplevelSummaryCases();
+    m_case                  = nullptr;
+    m_categories            = RifEclipseSummaryAddress::SUMMARY_WELL;
+    m_vector                = "";
+    m_tableName             = createTableName();
+    if ( summaryCases.empty() ) return;
+
+    m_case = summaryCases.front();
+
+    const auto summaryReader = m_case->summaryReader();
+    if ( !summaryReader ) return;
+
+    const auto categoryVectors = getCategoryVectorsFromSummaryReader( summaryReader, m_categories() );
+    if ( !categoryVectors.empty() )
+    {
+        m_vector = *categoryVectors.begin();
+    }
+    m_tableName = createTableName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryTable::setFromCaseAndCategoryAndVectorName( RimSummaryCase*                              summaryCase,
                                                            RifEclipseSummaryAddress::SummaryVarCategory category,
                                                            const QString&                               vectorName )
@@ -108,6 +135,7 @@ void RimSummaryTable::setFromCaseAndCategoryAndVectorName( RimSummaryCase*      
     m_case       = summaryCase;
     m_categories = category;
     m_vector     = vectorName;
+    m_tableName  = createTableName();
     onLoadDataAndUpdate();
 }
 
@@ -155,6 +183,10 @@ void RimSummaryTable::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                 m_vector = QString( "" );
             }
         }
+        if ( m_isAutomaticName )
+        {
+            m_tableName = createTableName();
+        }
         onLoadDataAndUpdate();
     }
     else if ( changedField == &m_categories )
@@ -176,11 +208,23 @@ void RimSummaryTable::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         {
             m_vector = QString( " " );
         }
+        if ( m_isAutomaticName )
+        {
+            m_tableName = createTableName();
+        }
         onLoadDataAndUpdate();
     }
     else if ( changedField == &m_vector || changedField == &m_resamplingSelection || changedField == &m_thresholdValue )
     {
+        if ( m_isAutomaticName )
+        {
+            m_tableName = createTableName();
+        }
         onLoadDataAndUpdate();
+    }
+    else if ( changedField == &m_isAutomaticName && m_isAutomaticName )
+    {
+        m_tableName = createTableName();
     }
     else if ( m_matrixPlotWidget && changedField == &m_showValueLabels )
     {
@@ -217,6 +261,7 @@ void RimSummaryTable::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
 
     caf::PdmUiGroup& dataGroup = *uiOrdering.addNewGroup( "Plot Data" );
     dataGroup.add( &m_tableName );
+    dataGroup.add( &m_isAutomaticName );
     dataGroup.add( &m_case );
     dataGroup.add( &m_categories );
     dataGroup.add( &m_vector );
@@ -249,9 +294,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryTable::calculateValueOptions( const caf:
     }
     else if ( fieldNeedingOptions == &m_case )
     {
-        RimSummaryCaseMainCollection* summaryCaseMainCollection = RiaSummaryTools::summaryCaseMainCollection();
-        if ( !summaryCaseMainCollection ) return options;
-        std::vector<RimSummaryCase*> summaryCases = summaryCaseMainCollection->topLevelSummaryCases();
+        std::vector<RimSummaryCase*> summaryCases = getToplevelSummaryCases();
         for ( auto* summaryCase : summaryCases )
         {
             options.push_back( caf::PdmOptionItemInfo( summaryCase->displayCaseName(), summaryCase, false, summaryCase->uiIconProvider() ) );
@@ -452,7 +495,6 @@ QWidget* RimSummaryTable::createViewWidget( QWidget* mainWindowParent )
     m_matrixPlotWidget = new RiuMatrixPlotWidget( this, m_legendConfig, mainWindowParent );
     m_matrixPlotWidget->setShowValueLabel( m_showValueLabels );
     m_matrixPlotWidget->setUseInvalidValueColor( true );
-
     return m_matrixPlotWidget;
 }
 
@@ -507,6 +549,14 @@ int RimSummaryTable::axisLabelFontSize() const
 int RimSummaryTable::valueLabelFontSize() const
 {
     return caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), m_valueLabelFontSize() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryTable::createTableName() const
+{
+    return QString( "Summary Table - %1" ).arg( m_vector() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -589,4 +639,14 @@ QString RimSummaryTable::getCategoryNameFromAddress( const RifEclipseSummaryAddr
         return QString( "Region %1" ).arg( address.regionNumber() );
     }
     return QString();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCase*> RimSummaryTable::getToplevelSummaryCases() const
+{
+    RimSummaryCaseMainCollection* summaryCaseMainCollection = RiaSummaryTools::summaryCaseMainCollection();
+    if ( !summaryCaseMainCollection ) return {};
+    return summaryCaseMainCollection->topLevelSummaryCases();
 }

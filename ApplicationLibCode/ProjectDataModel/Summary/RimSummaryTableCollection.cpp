@@ -119,8 +119,8 @@ void RimSummaryTableCollection::removeTable( RimSummaryTable* table )
 RimSummaryTable* RimSummaryTableCollection::createDefaultSummaryTable()
 {
     RimSummaryTable* table = new RimSummaryTable();
+    table->setDefaultCaseAndCategoryAndVectorName();
     table->setAsPlotMdiWindow();
-    table->setDescription( QString( "Summary Table %1" ).arg( m_summaryTables.size() ) );
 
     return table;
 }
@@ -135,7 +135,6 @@ RimSummaryTable* RimSummaryTableCollection::createSummaryTableFromCategoryAndVec
     RimSummaryTable* table = new RimSummaryTable();
     table->setFromCaseAndCategoryAndVectorName( summaryCase, category, vectorName );
     table->setAsPlotMdiWindow();
-    table->setDescription( QString( "Summary Table - %1" ).arg( vectorName ) );
 
     return table;
 }
