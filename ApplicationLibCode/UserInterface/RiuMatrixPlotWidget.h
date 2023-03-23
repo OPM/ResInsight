@@ -77,6 +77,9 @@ public:
 
     RimViewWindow* ownerViewWindow() const override;
 
+protected:
+    void contextMenuEvent( QContextMenuEvent* ) override;
+
 private slots:
     void onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotItem, bool toggle, int sampleIndex );
 
