@@ -90,8 +90,8 @@ public:
 
     bool isTransparent() const;
 
-    double                    upperFilterZ( double upperGridLimit ) const;
-    double                    lowerFilterZ( double lowerGridLimit ) const;
+    int                       upperFilterZ( int upperGridLimit ) const;
+    int                       lowerFilterZ( int lowerGridLimit ) const;
     RimIntersectionFilterEnum zFilterType() const;
 
 protected:
@@ -133,8 +133,8 @@ private:
     caf::PdmField<int> m_depthIndex;
 
     caf::PdmField<caf::AppEnum<RimIntersectionFilterEnum>> m_zFilterType;
-    caf::PdmField<double>                                  m_zUpperThreshold;
-    caf::PdmField<double>                                  m_zLowerThreshold;
+    caf::PdmField<int>                                     m_zUpperThreshold;
+    caf::PdmField<int>                                     m_zLowerThreshold;
 
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
     cvf::ref<RivSeismicSectionPartMgr>                  m_sectionPartMgr;
