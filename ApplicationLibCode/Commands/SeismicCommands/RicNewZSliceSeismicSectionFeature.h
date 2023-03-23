@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2022     Equinor ASA
+//  Copyright (C) 2023     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,35 +15,20 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 
-#include "cafPdmField.h"
+#include "cafCmdFeature.h"
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmObject.h"
-
-#include <QString>
-
-class RimSeismicData;
-
-class RimSeismicDataCollection : public caf::PdmObject
+//==================================================================================================
+///
+//==================================================================================================
+class RicNewZSliceSeismicSectionFeature : public caf::CmdFeature
 {
-    CAF_PDM_HEADER_INIT;
-
-public:
-    RimSeismicDataCollection();
-    ~RimSeismicDataCollection() override;
-
-    RimSeismicData* importSeismicFromFile( const QString file );
-
-    bool isEmpty();
-
-    std::vector<RimSeismicData*> seismicData() const;
+    CAF_CMD_HEADER_INIT;
 
 protected:
-    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
-    void updateViews();
-
-private:
-    caf::PdmChildArrayField<RimSeismicData*> m_seismicData;
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };

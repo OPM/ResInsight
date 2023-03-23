@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2022     Equinor ASA
+//  Copyright (C) 2023 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,35 +15,20 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-#pragma once
 
-#include "cafPdmField.h"
+#include "RiaSeismicDefines.h"
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmObject.h"
+#include "cafAppEnum.h"
 
-#include <QString>
-
-class RimSeismicData;
-
-class RimSeismicDataCollection : public caf::PdmObject
+namespace caf
 {
-    CAF_PDM_HEADER_INIT;
-
-public:
-    RimSeismicDataCollection();
-    ~RimSeismicDataCollection() override;
-
-    RimSeismicData* importSeismicFromFile( const QString file );
-
-    bool isEmpty();
-
-    std::vector<RimSeismicData*> seismicData() const;
-
-protected:
-    void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
-    void updateViews();
-
-private:
-    caf::PdmChildArrayField<RimSeismicData*> m_seismicData;
-};
+template <>
+void caf::AppEnum<RiaDefines::SeismicSectionType>::setUp()
+{
+    addItem( RiaDefines::SeismicSectionType::CS_INLINE, "CS_INLINE", "Inline" );
+    addItem( RiaDefines::SeismicSectionType::CS_XLINE, "CS_XLINE", "Crossline" );
+    addItem( RiaDefines::SeismicSectionType::CS_DEPTHSLICE, "CS_DEPTHSLICE", "Depth Slice" );
+    addItem( RiaDefines::SeismicSectionType::CS_POLYLINE, "CS_POLYLINE", "Polyline" );
+    setDefault( RiaDefines::SeismicSectionType::CS_INLINE );
+}
+} // namespace caf

@@ -16,7 +16,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewSeismicSectionFeature.h"
+#include "RicNewInlineSeismicSectionFeature.h"
+#include "RicSeismicSectionFeatureImpl.h"
 
 #include "RimGridView.h"
 #include "RimSeismicSection.h"
@@ -28,12 +29,12 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT( RicNewSeismicSectionFeature, "RicNewSeismicSectionFeature" );
+CAF_CMD_SOURCE_INIT( RicNewInlineSeismicSectionFeature, "RicNewInlineSeismicSectionFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewSeismicSectionFeature::isCommandEnabled()
+bool RicNewInlineSeismicSectionFeature::isCommandEnabled()
 {
     return true;
 }
@@ -41,25 +42,16 @@ bool RicNewSeismicSectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewSeismicSectionFeature::onActionTriggered( bool isChecked )
+void RicNewInlineSeismicSectionFeature::onActionTriggered( bool isChecked )
 {
-    // Find the selected seismic section collection
-    std::vector<RimSeismicSectionCollection*> colls = caf::selectedObjectsByTypeStrict<RimSeismicSectionCollection*>();
-    if ( colls.empty() ) return;
-    RimSeismicSectionCollection* seisColl = colls[0];
-
-    RimSeismicSection* newSection = seisColl->addNewSection();
-    if ( newSection )
-    {
-        Riu3DMainWindowTools::selectAsCurrentItem( newSection );
-    }
+    RicSeismicSectionFeatureImpl::createSeismicSection( "Inline", RiaDefines::SeismicSectionType::CS_INLINE );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewSeismicSectionFeature::setupActionLook( QAction* actionToSetup )
+void RicNewInlineSeismicSectionFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/Seismic16x16.png" ) );
-    actionToSetup->setText( "New Seismic Section" );
+    actionToSetup->setText( "New Inline Section" );
 }

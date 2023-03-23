@@ -17,8 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RimCheckableNamedObject.h"
+#include "RiaSeismicDefines.h"
 
+#include "RimCheckableNamedObject.h"
 #include "RimIntersectionEnums.h"
 #include "RimLegendConfigChangeType.h"
 #include "RimPolylinePickerInterface.h"
@@ -52,15 +53,6 @@ class RimSeismicSection : public RimCheckableNamedObject, public RimPolylinePick
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum class CrossSectionEnum
-    {
-        CS_INLINE,
-        CS_XLINE,
-        CS_DEPTHSLICE,
-        CS_POLYLINE
-    };
-
-public:
     RimSeismicSection();
     ~RimSeismicSection() override;
 
@@ -73,6 +65,8 @@ public:
     void deleteTarget( RimPolylineTarget* targetToDelete ) override;
     void enablePicking( bool enable );
 
+    void setSectionType( RiaDefines::SeismicSectionType sectionType );
+
     std::vector<RimPolylineTarget*> activeTargets() const override;
     bool                            pickingEnabled() const override;
     caf::PickEventHandler*          pickEventHandler() const override;
@@ -84,6 +78,7 @@ public:
     RivSeismicSectionPartMgr* partMgr();
 
     RimSeismicData* seismicData() const;
+    void            setSeismicData( RimSeismicData* seisData );
 
     RimRegularLegendConfig* legendConfig() const;
     RimSeismicAlphaMapper*  alphaValueMapper() const;
@@ -118,20 +113,19 @@ private:
     caf::PdmField<QString>            m_userDescription;
     caf::PdmPtrField<RimSeismicData*> m_seismicData;
 
-    caf::PdmField<bool>                           m_showSeismicOutline;
-    caf::PdmField<bool>                           m_enablePicking;
-    caf::PdmChildArrayField<RimPolylineTarget*>   m_targets;
-    caf::PdmField<bool>                           m_showSectionLine;
-    caf::PdmField<int>                            m_lineThickness;
-    caf::PdmField<cvf::Color3f>                   m_lineColor;
-    caf::PdmField<caf::AppEnum<CrossSectionEnum>> m_type;
-    caf::PdmField<bool>                           m_transparent;
+    caf::PdmField<caf::AppEnum<RiaDefines::SeismicSectionType>> m_type;
+    caf::PdmChildArrayField<RimPolylineTarget*>                 m_targets;
 
-    caf::PdmField<bool> m_showImage;
-
-    caf::PdmField<int> m_inlineIndex;
-    caf::PdmField<int> m_xlineIndex;
-    caf::PdmField<int> m_depthIndex;
+    caf::PdmField<bool>         m_showSeismicOutline;
+    caf::PdmField<bool>         m_enablePicking;
+    caf::PdmField<bool>         m_showSectionLine;
+    caf::PdmField<int>          m_lineThickness;
+    caf::PdmField<cvf::Color3f> m_lineColor;
+    caf::PdmField<bool>         m_transparent;
+    caf::PdmField<bool>         m_showImage;
+    caf::PdmField<int>          m_inlineIndex;
+    caf::PdmField<int>          m_xlineIndex;
+    caf::PdmField<int>          m_depthIndex;
 
     caf::PdmField<caf::AppEnum<RimIntersectionFilterEnum>> m_zFilterType;
     caf::PdmField<int>                                     m_zUpperThreshold;

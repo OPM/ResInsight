@@ -21,8 +21,11 @@
 #include "RiuViewer.h"
 
 #include "Rim3dView.h"
+#include "RimOilField.h"
+#include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSeismicData.h"
+#include "RimSeismicDataCollection.h"
 #include "RimSeismicSection.h"
 
 #include "RivSeismicSectionPartMgr.h"
@@ -59,11 +62,34 @@ RimSeismicSectionCollection::~RimSeismicSectionCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSeismicSection* RimSeismicSectionCollection::addNewSection()
+RimSeismicSection* RimSeismicSectionCollection::addNewSection( RiaDefines::SeismicSectionType sectionType )
 {
+    Rim3dView* view = nullptr;
+    firstAncestorOrThisOfType( view );
+    if ( view == nullptr ) return nullptr;
+
+    RimSeismicData* defaultSeis = nullptr;
+
+    RimProject* proj = RimProject::current();
+    if ( proj )
+    {
+        const auto& coll = proj->activeOilField()->seismicCollection().p();
+        for ( auto* c : coll->seismicData() )
+        {
+            if ( c->boundingBox()->intersects( view->domainBoundingBox() ) )
+            {
+                defaultSeis = c;
+                break;
+            }
+        }
+    }
+
     RimSeismicSection* newSection = new RimSeismicSection();
+    if ( defaultSeis != nullptr ) newSection->setSeismicData( defaultSeis );
+    newSection->setSectionType( sectionType );
     m_seismicSections.push_back( newSection );
     updateConnectedEditors();
+    updateViews();
     return newSection;
 }
 

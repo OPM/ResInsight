@@ -21,6 +21,8 @@
 #include "RiaLogging.h"
 
 #include "Rim3dView.h"
+#include "RimGridView.h"
+#include "RimProject.h"
 #include "RimSeismicData.h"
 
 #include <QFile>
@@ -78,4 +80,27 @@ std::vector<RimSeismicData*> RimSeismicDataCollection::seismicData() const
 bool RimSeismicDataCollection::isEmpty()
 {
     return !m_seismicData.hasChildren();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicDataCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    updateViews();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicDataCollection::updateViews()
+{
+    RimProject*               proj = RimProject::current();
+    std::vector<RimGridView*> views;
+    proj->allVisibleGridViews( views );
+
+    for ( auto view : views )
+    {
+        view->scheduleCreateDisplayModelAndRedraw();
+    }
 }

@@ -55,19 +55,6 @@
 
 #include <algorithm>
 
-namespace caf
-{
-template <>
-void caf::AppEnum<RimSeismicSection::CrossSectionEnum>::setUp()
-{
-    addItem( RimSeismicSection::CrossSectionEnum::CS_INLINE, "CS_INLINE", "Inline" );
-    addItem( RimSeismicSection::CrossSectionEnum::CS_XLINE, "CS_XLINE", "Crossline" );
-    addItem( RimSeismicSection::CrossSectionEnum::CS_DEPTHSLICE, "CS_DEPTHSLICE", "Depth Slice" );
-    addItem( RimSeismicSection::CrossSectionEnum::CS_POLYLINE, "CS_POLYLINE", "Polyline" );
-    setDefault( RimSeismicSection::CrossSectionEnum::CS_INLINE );
-}
-} // namespace caf
-
 CAF_PDM_SOURCE_INIT( RimSeismicSection, "SeismicSection" );
 
 //--------------------------------------------------------------------------------------------------
@@ -170,21 +157,21 @@ void RimSeismicSection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     {
         group0->add( &m_type );
 
-        if ( m_type() == CrossSectionEnum::CS_POLYLINE )
+        if ( m_type() == RiaDefines::SeismicSectionType::CS_POLYLINE )
         {
             auto group1 = uiOrdering.addNewGroup( "Polyline Definition" );
             group1->add( &m_targets );
             group1->add( &m_enablePicking );
         }
-        else if ( m_type() == CrossSectionEnum::CS_INLINE )
+        else if ( m_type() == RiaDefines::SeismicSectionType::CS_INLINE )
         {
             group0->add( &m_inlineIndex );
         }
-        else if ( m_type() == CrossSectionEnum::CS_XLINE )
+        else if ( m_type() == RiaDefines::SeismicSectionType::CS_XLINE )
         {
             group0->add( &m_xlineIndex );
         }
-        else if ( m_type() == CrossSectionEnum::CS_DEPTHSLICE )
+        else if ( m_type() == RiaDefines::SeismicSectionType::CS_DEPTHSLICE )
         {
             group0->add( &m_depthIndex );
         }
@@ -224,12 +211,12 @@ void RimSeismicSection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
         group3->add( &m_lineThickness );
         group3->add( &m_lineColor );
         group3->add( &m_showSeismicOutline );
-        if ( m_type() == CrossSectionEnum::CS_POLYLINE ) group3->add( &m_showSectionLine );
+        if ( m_type() == RiaDefines::SeismicSectionType::CS_POLYLINE ) group3->add( &m_showSectionLine );
 
         group3->setCollapsedByDefault();
     }
 
-    if ( m_type() != CrossSectionEnum::CS_POLYLINE ) uiOrdering.add( &m_showImage );
+    if ( m_type() != RiaDefines::SeismicSectionType::CS_POLYLINE ) uiOrdering.add( &m_showImage );
 
     uiOrdering.skipRemainingFields();
 }
@@ -326,6 +313,14 @@ void RimSeismicSection::defineEditorAttribute( const caf::PdmFieldHandle* field,
             sliderAttrib->m_step    = (int)m_seismicData->zStep();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicSection::setSectionType( RiaDefines::SeismicSectionType sectionType )
+{
+    m_type = sectionType;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -432,7 +427,7 @@ void RimSeismicSection::scheduleViewUpdate()
 cvf::ref<RigPolyLinesData> RimSeismicSection::polyLinesData() const
 {
     cvf::ref<RigPolyLinesData> pld = new RigPolyLinesData;
-    if ( ( m_type() == CrossSectionEnum::CS_POLYLINE ) && m_showSectionLine() )
+    if ( ( m_type() == RiaDefines::SeismicSectionType::CS_POLYLINE ) && m_showSectionLine() )
     {
         std::vector<cvf::Vec3d> line;
         for ( const RimPolylineTarget* target : m_targets )
@@ -528,7 +523,7 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection()
     double zmin = upperFilterZ( m_seismicData->zMin() );
     double zmax = lowerFilterZ( m_seismicData->zMax() );
 
-    if ( m_type() == CrossSectionEnum::CS_POLYLINE )
+    if ( m_type() == RiaDefines::SeismicSectionType::CS_POLYLINE )
     {
         if ( m_targets.size() == 0 ) return m_texturedSection;
 
@@ -558,7 +553,7 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection()
             }
         }
     }
-    else if ( m_type() == CrossSectionEnum::CS_INLINE )
+    else if ( m_type() == RiaDefines::SeismicSectionType::CS_INLINE )
     {
         bool valid = m_texturedSection->partsCount() == 1;
         if ( valid )
@@ -588,7 +583,7 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection()
             m_texturedSection->part( 0 ).sliceData = m_seismicData->sliceData( RiaDefines::SeismicSliceDirection::INLINE, ilStart, zmin, zmax );
         }
     }
-    else if ( m_type() == CrossSectionEnum::CS_XLINE )
+    else if ( m_type() == RiaDefines::SeismicSectionType::CS_XLINE )
     {
         bool valid = m_texturedSection->partsCount() == 1;
         if ( valid )
@@ -618,7 +613,7 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection()
             m_texturedSection->part( 0 ).sliceData = m_seismicData->sliceData( RiaDefines::SeismicSliceDirection::XLINE, xlStart, zmin, zmax );
         }
     }
-    else if ( m_type() == CrossSectionEnum::CS_DEPTHSLICE )
+    else if ( m_type() == RiaDefines::SeismicSectionType::CS_DEPTHSLICE )
     {
         bool valid = m_texturedSection->partsCount() == 1;
         if ( valid )
@@ -732,6 +727,14 @@ RimSeismicData* RimSeismicSection::seismicData() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSeismicSection::setSeismicData( RimSeismicData* seisData )
+{
+    m_seismicData = seisData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimRegularLegendConfig* RimSeismicSection::legendConfig() const
 {
     if ( seismicData() != nullptr ) return seismicData()->legendConfig();
@@ -777,12 +780,12 @@ QPixmap RimSeismicSection::getImage()
     RiaDefines::SeismicSliceDirection sliceDir = RiaDefines::SeismicSliceDirection::INLINE;
     int                               iStart   = m_inlineIndex();
 
-    if ( m_type() == CrossSectionEnum::CS_XLINE )
+    if ( m_type() == RiaDefines::SeismicSectionType::CS_XLINE )
     {
         sliceDir = RiaDefines::SeismicSliceDirection::XLINE;
         iStart   = m_xlineIndex();
     }
-    else if ( m_type() == CrossSectionEnum::CS_DEPTHSLICE )
+    else if ( m_type() == RiaDefines::SeismicSectionType::CS_DEPTHSLICE )
     {
         sliceDir = RiaDefines::SeismicSliceDirection::DEPTH;
         iStart   = m_depthIndex();

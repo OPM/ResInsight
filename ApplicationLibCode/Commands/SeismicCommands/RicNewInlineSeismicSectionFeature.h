@@ -23,7 +23,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RicNewSeismicSectionFeature : public caf::CmdFeature
+class RicNewInlineSeismicSectionFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 

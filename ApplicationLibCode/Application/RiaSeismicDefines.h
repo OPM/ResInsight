@@ -27,4 +27,12 @@ enum class SeismicSliceDirection
     DEPTH
 };
 
+enum class SeismicSectionType
+{
+    CS_INLINE,
+    CS_XLINE,
+    CS_DEPTHSLICE,
+    CS_POLYLINE
+};
+
 }; // namespace RiaDefines

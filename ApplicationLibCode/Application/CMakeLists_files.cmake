@@ -69,6 +69,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaPlotCollectionScheduler.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaScheduler.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryDefines.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaSeismicDefines.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaLasDefines.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaWellFlowDefines.cpp
 )

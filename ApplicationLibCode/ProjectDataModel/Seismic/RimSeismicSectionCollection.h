@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RiaSeismicDefines.h"
+
 #include "RimCheckableNamedObject.h"
 
 #include "cafPdmChildArrayField.h"
@@ -48,7 +50,7 @@ public:
     RimSeismicSectionCollection();
     ~RimSeismicSectionCollection() override;
 
-    RimSeismicSection* addNewSection();
+    RimSeismicSection* addNewSection( RiaDefines::SeismicSectionType sectionType = RiaDefines::SeismicSectionType::CS_INLINE );
 
     std::vector<RimSeismicSection*> seismicSections() const;
 

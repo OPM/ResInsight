@@ -1036,7 +1036,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimSeismicSectionCollection*>( firstUiItem ) )
         {
-            menuBuilder << "RicNewSeismicSectionFeature";
+            menuBuilder << "RicNewInlineSeismicSectionFeature";
+            menuBuilder << "RicNewXlineSeismicSectionFeature";
+            menuBuilder << "RicNewZSliceSeismicSectionFeature";
+            menuBuilder << "RicNewPolylineSeismicSectionFeature";
         }
         else if ( dynamic_cast<RimSeismicDataCollection*>( firstUiItem ) )
         {
