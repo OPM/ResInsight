@@ -18,7 +18,6 @@
 
 #include "RimSummaryTable.h"
 
-//#include "RiaDateTimeDefines.h"
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaSummaryTools.h"
@@ -41,8 +40,6 @@
 #include "cafPdmUiTreeSelectionEditor.h"
 
 #include "cvfScalarMapper.h"
-
-#include <QObject>
 
 CAF_PDM_SOURCE_INIT( RimSummaryTable, "RimSummaryTable" );
 
