@@ -482,11 +482,6 @@ void RimProject::setProjectFileNameAndUpdateDependencies( const QString& project
         std::vector<QString> searchedPaths;
 
         QString filePathCandidate = filePath->path();
-        if ( filePathCandidate.startsWith( '.' ) )
-        {
-            filePathCandidate = filePathCandidate.right( filePathCandidate.size() - 1 );
-            filePathCandidate = newProjectPath + filePathCandidate;
-        }
 
         QString newFilePath = RimTools::relocateFile( filePathCandidate, newProjectPath, oldProjectPath, &foundFile, &searchedPaths );
         filePath->setPath( newFilePath );
