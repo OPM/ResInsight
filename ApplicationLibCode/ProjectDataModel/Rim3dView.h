@@ -161,14 +161,14 @@ public:
     void         scheduleCreateDisplayModelAndRedraw();
     virtual void scheduleGeometryRegen( RivCellSetEnum geometryType ) = 0;
 
-    void createDisplayModelAndRedraw();
-    void updateDisplayModelForCurrentTimeStepAndRedraw();
-    void createHighlightAndGridBoxDisplayModelAndRedraw();
-    void createMeasurementDisplayModelAndRedraw();
+    void             createDisplayModelAndRedraw();
+    void             updateDisplayModelForCurrentTimeStepAndRedraw();
+    void             createHighlightAndGridBoxDisplayModelAndRedraw();
+    void             createMeasurementDisplayModelAndRedraw();
     cvf::BoundingBox domainBoundingBox();
-    void updateGridBoxData();
-    void updateAnnotationItems();
-    void resetLegends();
+    void             updateGridBoxData();
+    void             updateAnnotationItems();
+    void             resetLegends();
 
     void   setScaleZ( double scaleZ );
     void   setScaleZAndUpdate( double scaleZ );
