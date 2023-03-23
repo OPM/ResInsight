@@ -110,10 +110,10 @@ RimSeismicSection::RimSeismicSection()
     CAF_PDM_InitField( &m_transparent, "TransperentSection", false, "Transparent (Use on only one section at a time!)" );
 
     CAF_PDM_InitFieldNoDefault( &m_zFilterType, "DepthFilter", "Depth Filter" );
-    CAF_PDM_InitField( &m_zUpperThreshold, "UpperThreshold", -1.0, "Upper Threshold" );
-    m_zUpperThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
-    CAF_PDM_InitField( &m_zLowerThreshold, "LowerThreshold", -1.0, "Lower Threshold" );
-    m_zLowerThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    CAF_PDM_InitField( &m_zUpperThreshold, "UpperThreshold", -1, "Upper Threshold" );
+    m_zUpperThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
+    CAF_PDM_InitField( &m_zLowerThreshold, "LowerThreshold", -1, "Lower Threshold" );
+    m_zLowerThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
     this->setUi3dEditorTypeName( RicPolyline3dEditor::uiEditorTypeName() );
 
@@ -188,7 +188,6 @@ void RimSeismicSection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
 
         auto filterGroup = uiOrdering.addNewGroup( "Depth Filter" );
         filterGroup->add( &m_zFilterType );
-        filterGroup->setCollapsedByDefault();
 
         switch ( zFilterType() )
         {
@@ -215,6 +214,7 @@ void RimSeismicSection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
         }
 
         auto group2 = uiOrdering.addNewGroup( "Experimental" );
+        group2->setCollapsedByDefault();
         group2->add( &m_transparent );
 
         auto group3 = uiOrdering.addNewGroup( "Outline" );
@@ -312,13 +312,14 @@ void RimSeismicSection::defineEditorAttribute( const caf::PdmFieldHandle* field,
     }
     else if ( ( field == &m_zUpperThreshold ) || ( field == &m_zLowerThreshold ) )
     {
-        auto* doubleSliderAttrib = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
-        if ( ( doubleSliderAttrib ) && ( m_seismicData() != nullptr ) )
+        auto* sliderAttrib = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute );
+        if ( ( sliderAttrib ) && ( m_seismicData() != nullptr ) )
         {
             auto bb = m_seismicData()->boundingBox();
 
-            doubleSliderAttrib->m_minimum = -1.0 * bb->max().z();
-            doubleSliderAttrib->m_maximum = -1.0 * bb->min().z();
+            sliderAttrib->m_minimum = -1 * bb->max().z();
+            sliderAttrib->m_maximum = -1 * bb->min().z();
+            sliderAttrib->m_step    = (int)m_seismicData->zStep();
         }
     }
 }
@@ -848,7 +849,7 @@ RimIntersectionFilterEnum RimSeismicSection::zFilterType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimSeismicSection::upperFilterZ( double upperGridLimit ) const
+int RimSeismicSection::upperFilterZ( int upperGridLimit ) const
 {
     switch ( zFilterType() )
     {
@@ -866,7 +867,7 @@ double RimSeismicSection::upperFilterZ( double upperGridLimit ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimSeismicSection::lowerFilterZ( double lowerGridLimit ) const
+int RimSeismicSection::lowerFilterZ( int lowerGridLimit ) const
 {
     switch ( zFilterType() )
     {
