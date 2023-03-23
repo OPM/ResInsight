@@ -76,7 +76,7 @@ RimSeismicData::RimSeismicData()
     m_metadata.xmlCapability()->disableIO();
 
     CAF_PDM_InitField( &m_overrideDataRange, "overrideDataRange", false, "Override Data Range" );
-    CAF_PDM_InitFieldNoDefault( &m_maxAbsDataValue, "maxAbsDataValue", "Clip Value" );
+    CAF_PDM_InitField( &m_userClipValue, "userClipValue", 0.0, "Clip Value" );
 
     setDeletable( true );
 
@@ -212,7 +212,11 @@ void RimSeismicData::updateMetaData()
     m_zStep = m_filereader->depthStep();
 
     auto [minDataValue, maxDataValue] = m_filereader->dataRange();
-    m_maxAbsDataValue                 = std::max( std::abs( minDataValue ), std::abs( maxDataValue ) );
+    double maxAbsDataValue            = std::max( std::abs( minDataValue ), std::abs( maxDataValue ) );
+
+    if ( m_userClipValue <= 0.0 ) m_userClipValue = maxAbsDataValue;
+
+    m_userClipValue = std::clamp( m_userClipValue(), 0.0, maxAbsDataValue );
 
     m_filereader->histogramData( m_histogramXvalues, m_histogramYvalues );
 
@@ -253,7 +257,7 @@ void RimSeismicData::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     cmGroup->add( &m_overrideDataRange );
     if ( m_overrideDataRange() )
     {
-        cmGroup->add( &m_maxAbsDataValue );
+        cmGroup->add( &m_userClipValue );
     }
 
     auto metaGroup = uiOrdering.addNewGroup( "File Information" );
@@ -286,12 +290,12 @@ void RimSeismicData::defineEditorAttribute( const caf::PdmFieldHandle* field, QS
             tvAttribute->minimumHeight             = 400;
         }
     }
-    else if ( field == &m_maxAbsDataValue )
+    else if ( field == &m_userClipValue )
     {
         auto myAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
         if ( myAttr )
         {
-            myAttr->validator = new QDoubleValidator( 0.00001, std::numeric_limits<double>::infinity(), 100 );
+            myAttr->validator = new QDoubleValidator( 0.00001, std::numeric_limits<double>::infinity(), 10 );
         }
     }
 }
@@ -436,7 +440,7 @@ std::vector<double> RimSeismicData::alphaValues() const
 //--------------------------------------------------------------------------------------------------
 void RimSeismicData::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( ( changedField == &m_overrideDataRange ) || ( changedField == &m_maxAbsDataValue ) )
+    if ( ( changedField == &m_overrideDataRange ) || ( changedField == &m_userClipValue ) )
     {
         updateDataRange( true );
     }
@@ -451,29 +455,26 @@ void RimSeismicData::updateDataRange( bool updatePlot )
     m_clippedHistogramYvalues.clear();
     m_clippedAlphaValues.clear();
 
+    double clipValue = m_userClipValue;
+
     if ( m_overrideDataRange() )
     {
-        m_activeDataRange = std::make_pair( -m_maxAbsDataValue, m_maxAbsDataValue );
-
-        const int nVals = (int)m_histogramXvalues.size();
-
-        for ( int i = 0; i < nVals; i++ )
-        {
-            double tmp = std::abs( m_histogramXvalues[i] );
-            if ( tmp > m_maxAbsDataValue ) continue;
-            m_clippedHistogramXvalues.push_back( m_histogramXvalues[i] );
-            m_clippedHistogramYvalues.push_back( m_histogramYvalues[i] );
-        }
+        m_activeDataRange = std::make_pair( -m_userClipValue, m_userClipValue );
     }
     else
     {
-        for ( auto val : m_histogramXvalues )
-            m_clippedHistogramXvalues.push_back( val );
-
-        for ( auto val : m_histogramYvalues )
-            m_clippedHistogramYvalues.push_back( val );
-
         m_activeDataRange = std::make_pair( m_fileDataRange.first, m_fileDataRange.second );
+        clipValue         = m_fileDataRange.second;
+    }
+
+    const int nVals = (int)m_histogramXvalues.size();
+
+    for ( int i = 0; i < nVals; i++ )
+    {
+        double tmp = std::abs( m_histogramXvalues[i] );
+        if ( tmp > clipValue ) continue;
+        m_clippedHistogramXvalues.push_back( m_histogramXvalues[i] );
+        m_clippedHistogramYvalues.push_back( m_histogramYvalues[i] );
     }
 
     double maxRawValue = *std::max_element( m_clippedHistogramYvalues.begin(), m_clippedHistogramYvalues.end() );

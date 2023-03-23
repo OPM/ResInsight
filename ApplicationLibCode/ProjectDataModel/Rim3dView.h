@@ -165,10 +165,11 @@ public:
     void updateDisplayModelForCurrentTimeStepAndRedraw();
     void createHighlightAndGridBoxDisplayModelAndRedraw();
     void createMeasurementDisplayModelAndRedraw();
-    cvf::BoundingBox domainBoundingBox();
     void updateGridBoxData();
     void updateAnnotationItems();
     void resetLegends();
+
+    cvf::BoundingBox domainBoundingBox();
 
     void   setScaleZ( double scaleZ );
     void   setScaleZAndUpdate( double scaleZ );

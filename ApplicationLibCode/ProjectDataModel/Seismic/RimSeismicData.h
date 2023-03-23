@@ -119,7 +119,7 @@ private:
     caf::PdmChildField<RimRegularLegendConfig*>   m_legendConfig;
 
     caf::PdmField<bool>   m_overrideDataRange;
-    caf::PdmField<double> m_maxAbsDataValue;
+    caf::PdmField<double> m_userClipValue;
 
     double                            m_zStep;
     cvf::Vec3i                        m_inlineInfo;
