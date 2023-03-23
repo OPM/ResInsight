@@ -115,18 +115,18 @@ public:
 
     void enableGridLines( RiuPlotAxis axis, bool majorGridLines, bool minorGridLines ) override;
 
-    virtual void setMajorTicksList( RiuPlotAxis axis, const QList<double>& majorTicks, double minValue, double maxValue ) override;
-    void         setMajorAndMinorTickIntervals( RiuPlotAxis axis, double majorTickInterval, double minorTickInterval, double minValue, double maxValue ) override;
-    void         setMajorAndMinorTickIntervalsAndRange( RiuPlotAxis axis,
-                                                        double      majorTickInterval,
-                                                        double      minorTickInterval,
-                                                        double      minTickValue,
-                                                        double      maxTickValue,
-                                                        double      rangeMin,
-                                                        double      rangeMax ) override;
-    void         setAutoTickIntervalCounts( RiuPlotAxis axis, int maxMajorTickIntervalCount, int maxMinorTickIntervalCount ) override;
-    double       majorTickInterval( RiuPlotAxis axis ) const override;
-    double       minorTickInterval( RiuPlotAxis axis ) const override;
+    void   setMajorTicksList( RiuPlotAxis axis, const QList<double>& majorTicks, double minValue, double maxValue ) override;
+    void   setMajorAndMinorTickIntervals( RiuPlotAxis axis, double majorTickInterval, double minorTickInterval, double minValue, double maxValue ) override;
+    void   setMajorAndMinorTickIntervalsAndRange( RiuPlotAxis axis,
+                                                  double      majorTickInterval,
+                                                  double      minorTickInterval,
+                                                  double      minTickValue,
+                                                  double      maxTickValue,
+                                                  double      rangeMin,
+                                                  double      rangeMax ) override;
+    void   setAutoTickIntervalCounts( RiuPlotAxis axis, int maxMajorTickIntervalCount, int maxMinorTickIntervalCount ) override;
+    double majorTickInterval( RiuPlotAxis axis ) const override;
+    double minorTickInterval( RiuPlotAxis axis ) const override;
 
     int axisExtent( RiuPlotAxis axis ) const override;
 
