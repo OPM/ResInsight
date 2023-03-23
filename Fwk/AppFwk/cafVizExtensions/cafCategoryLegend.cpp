@@ -41,8 +41,8 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 CategoryLegend::CategoryLegend( Font* font, const CategoryMapper* categoryMapper )
     : TitledOverlayFrame( font, 200, 200 )
+    , m_layout( Vec2ui( 200u, 200u ) )
     , m_categoryMapper( categoryMapper )
-    , m_Layout( Vec2ui( 200u, 200u ) )
 {
     CVF_ASSERT( font );
     CVF_ASSERT( !font->isEmpty() );
@@ -129,13 +129,12 @@ void CategoryLegend::renderGeneric( OpenGLContext* oglContext, const Vec2i& posi
     camera.applyOpenGL();
     camera.viewport()->applyOpenGL( oglContext, Viewport::CLEAR_DEPTH );
 
-    m_Layout = OverlayColorLegendLayoutInfo( size );
-    layoutInfo( &m_Layout );
+    m_layout = OverlayColorLegendLayoutInfo( size );
+    layoutInfo( &m_layout );
     m_textDrawer = new TextDrawer( this->font() );
 
     // Set up text drawer
-    float maxLegendRightPos = 0;
-    setupTextDrawer( m_textDrawer.p(), &m_Layout );
+    setupTextDrawer( m_textDrawer.p(), &m_layout );
 
     Vec2f backgroundSize( size );
 
@@ -147,7 +146,7 @@ void CategoryLegend::renderGeneric( OpenGLContext* oglContext, const Vec2i& posi
                                                                       backgroundSize,
                                                                       this->backgroundColor(),
                                                                       this->backgroundFrameColor() );
-        renderLegendImmediateMode( oglContext, &m_Layout );
+        renderLegendImmediateMode( oglContext, &m_layout );
         m_textDrawer->renderSoftware( oglContext, camera );
     }
     else
@@ -159,7 +158,7 @@ void CategoryLegend::renderGeneric( OpenGLContext* oglContext, const Vec2i& posi
                                                                      backgroundSize,
                                                                      this->backgroundColor(),
                                                                      this->backgroundFrameColor() );
-        renderLegendUsingShaders( oglContext, &m_Layout, matrixState );
+        renderLegendUsingShaders( oglContext, &m_layout, matrixState );
         m_textDrawer->render( oglContext, camera );
     }
 

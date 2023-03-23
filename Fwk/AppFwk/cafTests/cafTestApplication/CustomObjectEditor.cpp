@@ -66,8 +66,9 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 CustomObjectEditor::CustomObjectEditor()
 {
-    m_columnCount = 3;
-    m_rowCount    = 2;
+    m_columnCount   = 3;
+    m_rowCount      = 2;
+    m_currentCellId = -1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -154,8 +155,6 @@ void CustomObjectEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering(const P
                                                                          const QString&       uiConfigName)
 {
     resetCellId();
-
-    QWidget* previousTabOrderWidget = nullptr;
 
     const std::vector<PdmUiOrdering::FieldAndLayout>& topLevelUiItems = topLevelUiOrdering.uiItemsWithLayout();
 

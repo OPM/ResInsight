@@ -167,7 +167,7 @@ protected:
     NumberFormat      m_numberFormat;
 
     Orientation          m_orientation;
-    LayoutInfo           m_Layout;
+    LayoutInfo           m_layout;
     cvf::ref<TextDrawer> m_textDrawer;
 
     cvf::ref<Font> m_font;

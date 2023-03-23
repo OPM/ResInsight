@@ -48,14 +48,14 @@ namespace caf
 ///
 //--------------------------------------------------------------------------------------------------
 TitledOverlayFrame::TitledOverlayFrame( Font* font, unsigned int width, unsigned int height )
-    : m_font( font )
-    , m_renderSize( width, height )
+    : m_renderSize( width, height )
     , m_textColor( Color3::BLACK )
     , m_lineColor( Color3::BLACK )
     , m_lineWidth( 1 )
     , m_isBackgroundEnabled( true )
     , m_backgroundColor( 1.0f, 1.0f, 1.0f, 0.8f )
     , m_backgroundFrameColor( 0.0f, 0.0f, 0.0f, 0.5f )
+    , m_font( font )
 {
 }
 

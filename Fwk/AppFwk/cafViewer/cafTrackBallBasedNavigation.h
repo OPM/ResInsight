@@ -53,10 +53,10 @@ class RotationSensitivityCalculator
 {
 public:
     RotationSensitivityCalculator()
-        : m_lastPosX( 0 )
+        : m_isEnabled( false )
+        , m_lastPosX( 0 )
         , m_lastPosY( 0 )
         , m_lastMouseVelocityLenght( 200 )
-        , m_isEnabled( false )
         , m_fixedSensitivity( std::numeric_limits<double>::infinity() )
     {
     }
@@ -80,7 +80,7 @@ private:
     bool          m_isEnabled;
     int           m_lastPosX; /// Previous mouse position
     int           m_lastPosY;
-    unsigned long m_lastTime;
+    unsigned long m_lastTime{};
     double        m_lastMouseVelocityLenght;
     double        m_fixedSensitivity;
 };

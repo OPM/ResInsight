@@ -47,6 +47,7 @@ namespace caf
 ///
 //--------------------------------------------------------------------------------------------------
 PdmUi3dObjectEditorHandle::PdmUi3dObjectEditorHandle()
+    : m_isInComparisonView( false )
 {
 }
 

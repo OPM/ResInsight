@@ -204,7 +204,7 @@ QWidget* PdmUiTreeViewEditor::createWidget( QWidget* parent )
     m_treeView->setModel( m_filterModel );
     m_treeView->installEventFilter( this );
 
-    m_delegate = new PdmUiTreeViewItemDelegate( this, m_filterModel );
+    m_delegate = new PdmUiTreeViewItemDelegate( this );
 
     m_treeView->setItemDelegate( m_delegate );
 

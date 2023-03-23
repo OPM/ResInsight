@@ -610,10 +610,7 @@ add_subdirectory(Fwk/AppFwk/cafVizExtensions)
 
 option(CAF_CVF_SCRIPTING "" ON)
 add_subdirectory(Fwk/AppFwk/cafPdmScripting)
-set_property(TARGET cafPdmScripting PROPERTY FOLDER "AppFwk")
-
 add_subdirectory(Fwk/AppFwk/cafCommandFeatures)
-set_property(TARGET cafCommandFeatures PROPERTY FOLDER "AppFwk")
 
 add_subdirectory(Fwk/AppFwk/cafTensor)
 add_subdirectory(Fwk/AppFwk/cafHexInterpolator)
@@ -665,6 +662,7 @@ list(
   CommonCode
   cafVizExtensions
   cafPdmScripting
+  cafCommandFeatures
 )
 
 set_property(TARGET ${APP_FWK_LIBRARIES} PROPERTY FOLDER "AppFwk")
@@ -675,30 +673,31 @@ mark_as_advanced(FORCE RESINSIGHT_INCLUDE_APPFWK_TESTS)
 if(RESINSIGHT_INCLUDE_APPFWK_TESTS)
   # Unit Tests
   add_subdirectory(Fwk/AppFwk/cafProjectDataModel/cafProjectDataModel_UnitTests)
-  set_property(
-    TARGET cafProjectDataModel_UnitTests PROPERTY FOLDER "AppFwkTests"
-  )
-
   add_subdirectory(
     Fwk/AppFwk/cafProjectDataModel/cafPdmCore/cafPdmCore_UnitTests
   )
-  set_property(TARGET cafPdmCore_UnitTests PROPERTY FOLDER "AppFwkTests")
-
   add_subdirectory(Fwk/AppFwk/cafProjectDataModel/cafPdmXml/cafPdmXml_UnitTests)
-  set_property(TARGET cafPdmXml_UnitTests PROPERTY FOLDER "AppFwkTests")
-
   add_subdirectory(Fwk/AppFwk/cafPdmScripting/cafPdmScripting_UnitTests)
-  set_property(TARGET cafPdmScripting_UnitTests PROPERTY FOLDER "AppFwkTests")
-
   add_subdirectory(Fwk/AppFwk/cafUserInterface/cafUserInterface_UnitTests)
-  set_property(TARGET cafUserInterface_UnitTests PROPERTY FOLDER "AppFwkTests")
 
   # Executables
   add_subdirectory(Fwk/AppFwk/cafTests/cafTestApplication)
-  set_property(TARGET cafTestApplication PROPERTY FOLDER "AppFwkTests")
-
   add_subdirectory(Fwk/AppFwk/cafTests/cafTestCvfApplication)
-  set_property(TARGET cafTestCvfApplication PROPERTY FOLDER "AppFwkTests")
+
+  list(
+    APPEND
+    APP_FWK_TEST_PROJECTS
+    cafProjectDataModel_UnitTests
+    cafPdmCore_UnitTests
+    cafPdmXml_UnitTests
+    cafPdmScripting_UnitTests
+    cafUserInterface_UnitTests
+    cafTestApplication
+    cafTestCvfApplication
+  )
+
+  set_property(TARGET ${APP_FWK_TEST_PROJECTS} PROPERTY FOLDER "AppFwkTests")
+
 endif()
 
 # ##############################################################################
@@ -802,8 +801,8 @@ if(MSVC AND RESINSIGHT_ENABLE_STATIC_ANALYSIS)
   )
 
   set(TARGETS_FOR_STATIC_ANALYSIS
-      ${APP_FWK_LIBRARIES} ApplicationLibCode Commands ResultStatisticsCache
-      RigGeoMechDataModel
+      ${APP_FWK_LIBRARIES} ${APP_FWK_TEST_PROJECTS} ApplicationLibCode Commands
+      ResultStatisticsCache RigGeoMechDataModel
   )
 
   foreach(TARGET_PROJECT ${TARGETS_FOR_STATIC_ANALYSIS})

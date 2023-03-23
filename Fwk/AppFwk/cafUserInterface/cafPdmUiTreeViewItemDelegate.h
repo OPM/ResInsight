@@ -57,7 +57,7 @@ class PdmUiTreeViewEditor;
 class PdmUiTreeViewItemDelegate : public QStyledItemDelegate
 {
 public:
-    PdmUiTreeViewItemDelegate( PdmUiTreeViewEditor* parent, QAbstractItemModel* model );
+    PdmUiTreeViewItemDelegate( PdmUiTreeViewEditor* parent );
     void clearTags( QModelIndex index );
     void clearAllTags();
     void addTag( QModelIndex index, std::unique_ptr<PdmUiTreeViewItemAttribute::Tag> tag );
@@ -77,7 +77,6 @@ protected:
 
 private:
     PdmUiTreeViewEditor* m_treeView;
-    QAbstractItemModel*  m_model;
 
     std::map<QModelIndex, std::vector<std::unique_ptr<PdmUiTreeViewItemAttribute::Tag>>> m_tags;
 };
