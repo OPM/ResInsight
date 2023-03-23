@@ -40,6 +40,8 @@
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
+#include "RimSummaryTable.h"
+#include "RimSummaryTableCollection.h"
 
 #include "cafPdmObject.h"
 
@@ -206,6 +208,36 @@ bool RiaSummaryTools::isSummaryCrossPlot( const RimSummaryPlot* plot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimSummaryTable* RiaSummaryTools::parentSummaryTable( caf::PdmObject* object )
+{
+    RimSummaryTable* summaryTable = nullptr;
+
+    if ( object )
+    {
+        object->firstAncestorOrThisOfType( summaryTable );
+    }
+
+    return summaryTable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryTableCollection* RiaSummaryTools::parentSummaryTableCollection( caf::PdmObject* object )
+{
+    RimSummaryTableCollection* summaryTableColl = nullptr;
+
+    if ( object )
+    {
+        object->firstAncestorOrThisOfType( summaryTableColl );
+    }
+
+    return summaryTableColl;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RiaSummaryTools::hasAccumulatedData( const RifEclipseSummaryAddress& address )
 {
     if ( address.isCalculated() )
@@ -260,7 +292,7 @@ void RiaSummaryTools::getSummaryCasesAndAddressesForCalculation( int            
 //--------------------------------------------------------------------------------------------------
 std::pair<std::vector<time_t>, std::vector<double>> RiaSummaryTools::resampledValuesForPeriod( const RifEclipseSummaryAddress& address,
                                                                                                const std::vector<time_t>&      timeSteps,
-                                                                                               std::vector<double>&            values,
+                                                                                               const std::vector<double>&      values,
                                                                                                RiaDefines::DateTimePeriod      period )
 {
     RiaTimeHistoryCurveResampler resampler;

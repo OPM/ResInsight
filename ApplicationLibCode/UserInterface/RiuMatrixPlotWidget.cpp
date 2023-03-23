@@ -197,6 +197,16 @@ RimViewWindow* RiuMatrixPlotWidget::ownerViewWindow() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuMatrixPlotWidget::contextMenuEvent( QContextMenuEvent* )
+{
+    // Added empty override to preventing menu for Mdi Area
+    // I.e.: RiuContextMenuLauncher for RiuPlotMainWindow (mdi area)
+    return;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuMatrixPlotWidget::setPlotTitleEnabled( bool enabled )
 {
     m_plotWidget->setPlotTitleEnabled( enabled );

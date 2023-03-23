@@ -134,6 +134,8 @@
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
+#include "RimSummaryTable.h"
+#include "RimSummaryTableCollection.h"
 #include "RimSummaryTimeAxisProperties.h"
 #include "RimSurface.h"
 #include "RimSurfaceCollection.h"
@@ -608,6 +610,14 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicPasteSummaryCrossPlotFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicNewSummaryCrossPlotFeature";
+        }
+        else if ( dynamic_cast<RimSummaryTableCollection*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewSummaryTableFeature";
+        }
+        else if ( dynamic_cast<RimSummaryTable*>( firstUiItem ) )
+        {
+            menuBuilder << "RicDuplicateSummaryTableFeature";
         }
         else if ( dynamic_cast<RimWellLogPlot*>( firstUiItem ) && !dynamic_cast<RimWellPltPlot*>( firstUiItem ) )
         {
@@ -1244,6 +1254,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewSummaryMultiPlotFromDataVectorFeature";
             menuBuilder << "RicAppendSummaryCurvesForSummaryAddressesFeature";
             menuBuilder << "RicAppendSummaryPlotsForSummaryAddressesFeature";
+            menuBuilder << "Separator";
+            menuBuilder << "RicNewSummaryTableFeature";
         }
 #ifdef USE_ODB_API
         else if ( dynamic_cast<RimWellIASettings*>( firstUiItem ) )

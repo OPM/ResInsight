@@ -79,6 +79,7 @@
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryMultiPlotCollection.h"
+#include "RimSummaryTableCollection.h"
 #include "RimSurfaceCollection.h"
 #include "RimTools.h"
 #include "RimUserDefinedPolylinesAnnotation.h"
@@ -1410,6 +1411,11 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
             if ( m_mainPlotCollection->summaryCrossPlotCollection() )
             {
                 uiTreeOrdering.add( m_mainPlotCollection->summaryCrossPlotCollection() );
+            }
+
+            if ( m_mainPlotCollection->summaryTableCollection() )
+            {
+                uiTreeOrdering.add( m_mainPlotCollection->summaryTableCollection() );
             }
 
             if ( m_mainPlotCollection->wellLogPlotCollection() )
