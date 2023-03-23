@@ -523,6 +523,8 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection()
     double zmin = upperFilterZ( m_seismicData->zMin() );
     double zmax = lowerFilterZ( m_seismicData->zMax() );
 
+    if ( zmax <= zmin ) return m_texturedSection;
+
     if ( m_type() == RiaDefines::SeismicSectionType::SS_POLYLINE )
     {
         if ( m_targets.size() == 0 ) return m_texturedSection;
@@ -761,6 +763,9 @@ bool RimSeismicSection::isTransparent() const
 void RimSeismicSection::initSliceRanges()
 {
     if ( m_seismicData() == nullptr ) return;
+
+    if ( m_zLowerThreshold < 0 ) m_zLowerThreshold = m_seismicData->zMax();
+    if ( m_zUpperThreshold < 0 ) m_zUpperThreshold = m_seismicData->zMin();
 
     m_inlineIndex     = std::clamp( m_inlineIndex(), m_seismicData->inlineMin(), m_seismicData->inlineMax() );
     m_xlineIndex      = std::clamp( m_xlineIndex(), m_seismicData->xlineMin(), m_seismicData->xlineMax() );
