@@ -24,7 +24,6 @@
 #include "RivPolylinePartMgr.h"
 
 #include "Rim3dView.h"
-#include "RimGridView.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSeismicAlphaMapper.h"
 #include "RimSeismicSection.h"

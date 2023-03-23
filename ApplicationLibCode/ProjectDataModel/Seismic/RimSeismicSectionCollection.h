@@ -50,7 +50,7 @@ public:
     RimSeismicSectionCollection();
     ~RimSeismicSectionCollection() override;
 
-    RimSeismicSection* addNewSection( RiaDefines::SeismicSectionType sectionType = RiaDefines::SeismicSectionType::CS_INLINE );
+    RimSeismicSection* addNewSection( RiaDefines::SeismicSectionType sectionType = RiaDefines::SeismicSectionType::SS_INLINE );
 
     std::vector<RimSeismicSection*> seismicSections() const;
 
@@ -76,7 +76,7 @@ protected:
 
     void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
-    void updateViews();
+    void updateView();
 
 private:
     caf::PdmField<QString>                      m_userDescription;

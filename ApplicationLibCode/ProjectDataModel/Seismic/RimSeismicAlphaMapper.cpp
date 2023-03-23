@@ -48,7 +48,10 @@ void RimSeismicAlphaMapper::setDataRangeAndAlphas( double minVal, double maxVal,
     m_dataRange   = maxVal - minVal;
     m_alphavalues = alphas;
 
-    m_scaleFactor = 1.0 * alphas.size() / m_dataRange;
+    if ( m_dataRange != 0.0 )
+        m_scaleFactor = 1.0 * alphas.size() / m_dataRange;
+    else
+        m_scaleFactor = 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------

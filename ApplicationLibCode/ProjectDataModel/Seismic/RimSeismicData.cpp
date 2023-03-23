@@ -69,7 +69,6 @@ RimSeismicData::RimSeismicData()
     CAF_PDM_InitFieldNoDefault( &m_metadata, "Metadata", "Metadata" );
     m_metadata.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     m_metadata.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
-    m_metadata.uiCapability()->setCustomContextMenuEnabled( true );
     m_metadata.uiCapability()->setUiTreeChildrenHidden( true );
     m_metadata.uiCapability()->setUiTreeHidden( true );
     m_metadata.uiCapability()->setUiReadOnly( true );
@@ -129,7 +128,7 @@ bool RimSeismicData::openFileIfNotOpen()
 //--------------------------------------------------------------------------------------------------
 void RimSeismicData::logError( QString msg )
 {
-    if ( m_nErrorsLogged < 1 ) RiaLogging::error( msg );
+    if ( m_nErrorsLogged < 4 ) RiaLogging::error( msg );
     m_nErrorsLogged++;
 }
 
@@ -209,7 +208,7 @@ void RimSeismicData::updateMetaData()
 
     m_boundingBox->add( m_filereader->boundingBox() );
 
-    m_zStep = m_filereader->depthStep();
+    m_zStep = m_filereader->zStep();
 
     auto [minDataValue, maxDataValue] = m_filereader->dataRange();
     double maxAbsDataValue            = std::max( std::abs( minDataValue ), std::abs( maxDataValue ) );
@@ -226,7 +225,7 @@ void RimSeismicData::updateMetaData()
     }
 
     m_inlineInfo = m_filereader->inlineMinMaxStep();
-    m_xlineInfo  = m_filereader->crosslineMinMaxStep();
+    m_xlineInfo  = m_filereader->xMinMaxStep();
 
     m_fileDataRange = m_filereader->dataRange();
 

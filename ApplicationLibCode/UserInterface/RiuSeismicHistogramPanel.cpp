@@ -107,9 +107,6 @@ void RiuSeismicHistogramPanel::setPlotData( QString title, std::vector<double> x
     plotTitle.setFont( titleFont );
     m_qwtPlot->setTitle( plotTitle );
 
-    // m_qwtPlot->setAxisTitle( QwtAxis::XBottom, "" );
-    // m_qwtPlot->setAxisTitle( QwtAxis::YLeft, "" );
-
     m_qwtPlot->replot();
 }
 

@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2022     Equinor ASA
+//  Copyright (C) 2023     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -148,32 +148,32 @@ void RimSeismicSection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
 {
     initSliceRanges();
 
-    auto group0 = uiOrdering.addNewGroup( "General" );
+    auto genGrp = uiOrdering.addNewGroup( "General" );
 
-    group0->add( &m_userDescription );
-    group0->add( &m_seismicData );
+    genGrp->add( &m_userDescription );
+    genGrp->add( &m_seismicData );
 
     if ( m_seismicData() != nullptr )
     {
-        group0->add( &m_type );
+        genGrp->add( &m_type );
 
-        if ( m_type() == RiaDefines::SeismicSectionType::CS_POLYLINE )
+        if ( m_type() == RiaDefines::SeismicSectionType::SS_POLYLINE )
         {
-            auto group1 = uiOrdering.addNewGroup( "Polyline Definition" );
-            group1->add( &m_targets );
-            group1->add( &m_enablePicking );
+            auto polyGrp = uiOrdering.addNewGroup( "Polyline Definition" );
+            polyGrp->add( &m_targets );
+            polyGrp->add( &m_enablePicking );
         }
-        else if ( m_type() == RiaDefines::SeismicSectionType::CS_INLINE )
+        else if ( m_type() == RiaDefines::SeismicSectionType::SS_INLINE )
         {
-            group0->add( &m_inlineIndex );
+            genGrp->add( &m_inlineIndex );
         }
-        else if ( m_type() == RiaDefines::SeismicSectionType::CS_XLINE )
+        else if ( m_type() == RiaDefines::SeismicSectionType::SS_XLINE )
         {
-            group0->add( &m_xlineIndex );
+            genGrp->add( &m_xlineIndex );
         }
-        else if ( m_type() == RiaDefines::SeismicSectionType::CS_DEPTHSLICE )
+        else if ( m_type() == RiaDefines::SeismicSectionType::SS_DEPTHSLICE )
         {
-            group0->add( &m_depthIndex );
+            genGrp->add( &m_depthIndex );
         }
 
         auto filterGroup = uiOrdering.addNewGroup( "Depth Filter" );
@@ -203,20 +203,20 @@ void RimSeismicSection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
                 break;
         }
 
-        auto group2 = uiOrdering.addNewGroup( "Experimental" );
-        group2->setCollapsedByDefault();
-        group2->add( &m_transparent );
+        auto expGrp = uiOrdering.addNewGroup( "Experimental" );
+        expGrp->setCollapsedByDefault();
+        expGrp->add( &m_transparent );
 
-        auto group3 = uiOrdering.addNewGroup( "Outline" );
-        group3->add( &m_lineThickness );
-        group3->add( &m_lineColor );
-        group3->add( &m_showSeismicOutline );
-        if ( m_type() == RiaDefines::SeismicSectionType::CS_POLYLINE ) group3->add( &m_showSectionLine );
+        auto outlGrp = uiOrdering.addNewGroup( "Outline" );
+        outlGrp->add( &m_lineThickness );
+        outlGrp->add( &m_lineColor );
+        outlGrp->add( &m_showSeismicOutline );
+        if ( m_type() == RiaDefines::SeismicSectionType::SS_POLYLINE ) outlGrp->add( &m_showSectionLine );
 
-        group3->setCollapsedByDefault();
+        outlGrp->setCollapsedByDefault();
     }
 
-    if ( m_type() != RiaDefines::SeismicSectionType::CS_POLYLINE ) uiOrdering.add( &m_showImage );
+    if ( m_type() != RiaDefines::SeismicSectionType::SS_POLYLINE ) uiOrdering.add( &m_showImage );
 
     uiOrdering.skipRemainingFields();
 }
@@ -427,7 +427,7 @@ void RimSeismicSection::scheduleViewUpdate()
 cvf::ref<RigPolyLinesData> RimSeismicSection::polyLinesData() const
 {
     cvf::ref<RigPolyLinesData> pld = new RigPolyLinesData;
-    if ( ( m_type() == RiaDefines::SeismicSectionType::CS_POLYLINE ) && m_showSectionLine() )
+    if ( ( m_type() == RiaDefines::SeismicSectionType::SS_POLYLINE ) && m_showSectionLine() )
     {
         std::vector<cvf::Vec3d> line;
         for ( const RimPolylineTarget* target : m_targets )
@@ -523,7 +523,7 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection()
     double zmin = upperFilterZ( m_seismicData->zMin() );
     double zmax = lowerFilterZ( m_seismicData->zMax() );
 
-    if ( m_type() == RiaDefines::SeismicSectionType::CS_POLYLINE )
+    if ( m_type() == RiaDefines::SeismicSectionType::SS_POLYLINE )
     {
         if ( m_targets.size() == 0 ) return m_texturedSection;
 
@@ -549,11 +549,11 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection()
 
             if ( m_texturedSection->part( i - 1 ).sliceData == nullptr )
             {
-                m_texturedSection->part( i - 1 ).sliceData = m_seismicData->sliceData( p1.x(), p1.y(), p2.x(), p2.y(), zmin, zmax );
+                m_texturedSection->setSectionPartData( i - 1, m_seismicData->sliceData( p1.x(), p1.y(), p2.x(), p2.y(), zmin, zmax ) );
             }
         }
     }
-    else if ( m_type() == RiaDefines::SeismicSectionType::CS_INLINE )
+    else if ( m_type() == RiaDefines::SeismicSectionType::SS_INLINE )
     {
         bool valid = m_texturedSection->partsCount() == 1;
         if ( valid )
@@ -580,10 +580,10 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection()
 
         if ( m_texturedSection->part( 0 ).sliceData == nullptr )
         {
-            m_texturedSection->part( 0 ).sliceData = m_seismicData->sliceData( RiaDefines::SeismicSliceDirection::INLINE, ilStart, zmin, zmax );
+            m_texturedSection->setSectionPartData( 0, m_seismicData->sliceData( RiaDefines::SeismicSliceDirection::INLINE, ilStart, zmin, zmax ) );
         }
     }
-    else if ( m_type() == RiaDefines::SeismicSectionType::CS_XLINE )
+    else if ( m_type() == RiaDefines::SeismicSectionType::SS_XLINE )
     {
         bool valid = m_texturedSection->partsCount() == 1;
         if ( valid )
@@ -610,10 +610,10 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection()
 
         if ( m_texturedSection->part( 0 ).sliceData == nullptr )
         {
-            m_texturedSection->part( 0 ).sliceData = m_seismicData->sliceData( RiaDefines::SeismicSliceDirection::XLINE, xlStart, zmin, zmax );
+            m_texturedSection->setSectionPartData( 0, m_seismicData->sliceData( RiaDefines::SeismicSliceDirection::XLINE, xlStart, zmin, zmax ) );
         }
     }
-    else if ( m_type() == RiaDefines::SeismicSectionType::CS_DEPTHSLICE )
+    else if ( m_type() == RiaDefines::SeismicSectionType::SS_DEPTHSLICE )
     {
         bool valid = m_texturedSection->partsCount() == 1;
         if ( valid )
@@ -646,7 +646,7 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection()
 
         if ( m_texturedSection->part( 0 ).sliceData == nullptr )
         {
-            m_texturedSection->part( 0 ).sliceData = m_seismicData->sliceData( RiaDefines::SeismicSliceDirection::DEPTH, zIndex, zmin, zmax );
+            m_texturedSection->setSectionPartData( 0, m_seismicData->sliceData( RiaDefines::SeismicSliceDirection::DEPTH, zIndex, zmin, zmax ) );
         }
     }
 
@@ -664,15 +664,12 @@ void RimSeismicSection::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
     }
     else if ( changedField == &m_showImage )
     {
-        QDialog w;
-        QLabel  l;
-
+        QDialog     w;
+        QLabel      l;
         QHBoxLayout layout;
         layout.addWidget( &l );
         w.setLayout( &layout );
-
         QPixmap i = getImage();
-
         l.setPixmap( i );
 
         w.exec();
@@ -780,12 +777,12 @@ QPixmap RimSeismicSection::getImage()
     RiaDefines::SeismicSliceDirection sliceDir = RiaDefines::SeismicSliceDirection::INLINE;
     int                               iStart   = m_inlineIndex();
 
-    if ( m_type() == RiaDefines::SeismicSectionType::CS_XLINE )
+    if ( m_type() == RiaDefines::SeismicSectionType::SS_XLINE )
     {
         sliceDir = RiaDefines::SeismicSliceDirection::XLINE;
         iStart   = m_xlineIndex();
     }
-    else if ( m_type() == RiaDefines::SeismicSectionType::CS_DEPTHSLICE )
+    else if ( m_type() == RiaDefines::SeismicSectionType::SS_DEPTHSLICE )
     {
         sliceDir = RiaDefines::SeismicSliceDirection::DEPTH;
         iStart   = m_depthIndex();

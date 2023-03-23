@@ -18,7 +18,6 @@
 
 #include "RicSeismicSectionFeatureImpl.h"
 
-#include "RimGridView.h"
 #include "RimSeismicSection.h"
 #include "RimSeismicSectionCollection.h"
 #include "Riu3DMainWindowTools.h"
@@ -42,6 +41,6 @@ void RicSeismicSectionFeatureImpl::createSeismicSection( const QString& name, Ri
         newSection->setSectionType( sectionType );
         newSection->setUserDescription( name );
         Riu3DMainWindowTools::selectAsCurrentItem( newSection );
-        if ( sectionType == RiaDefines::SeismicSectionType::CS_POLYLINE ) newSection->enablePicking( true );
+        if ( sectionType == RiaDefines::SeismicSectionType::SS_POLYLINE ) newSection->enablePicking( true );
     }
 }

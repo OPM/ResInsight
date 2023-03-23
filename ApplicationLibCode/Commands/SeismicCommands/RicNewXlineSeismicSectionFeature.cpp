@@ -36,7 +36,7 @@ bool RicNewXlineSeismicSectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewXlineSeismicSectionFeature::onActionTriggered( bool isChecked )
 {
-    RicSeismicSectionFeatureImpl::createSeismicSection( "Xline", RiaDefines::SeismicSectionType::CS_XLINE );
+    RicSeismicSectionFeatureImpl::createSeismicSection( "Xline", RiaDefines::SeismicSectionType::SS_XLINE );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2022     Equinor ASA
+//  Copyright (C) 2023     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -119,9 +119,9 @@ RigTexturedSectionPart& RigTexturedSection::part( int index )
 //--------------------------------------------------------------------------------------------------
 void RigTexturedSection::setSectionPartRect( int index, cvf::Vec3dArray rect )
 {
-    while ( index >= (int)m_sectionParts.size() )
+    if ( index >= (int)m_sectionParts.size() )
     {
-        m_sectionParts.emplace_back();
+        resize( index + 1 );
     }
 
     m_sectionParts[index].rect        = rect;
@@ -138,70 +138,4 @@ void RigTexturedSection::setSectionPartData( int index, std::shared_ptr<ZGYAcces
     if ( index >= (int)m_sectionParts.size() ) return;
     m_sectionParts[index].sliceData = data;
     m_sectionParts[index].texture   = nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RigTexturedSection::setSectionPartTexture( int index, cvf::ref<cvf::TextureImage> texture )
-{
-    if ( index >= (int)m_sectionParts.size() ) return;
-    m_sectionParts[index].texture = texture;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RigTexturedSection::hasSectionPartRect( int index )
-{
-    if ( index >= (int)m_sectionParts.size() ) return false;
-    return m_sectionParts[index].isRectValid;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RigTexturedSection::hasSectionPartData( int index )
-{
-    if ( index >= (int)m_sectionParts.size() ) return false;
-    return ( m_sectionParts[index].sliceData != nullptr );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RigTexturedSection::hasSectionPartTexture( int index )
-{
-    if ( index >= (int)m_sectionParts.size() ) return false;
-    return m_sectionParts[index].texture.notNull();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::Vec3dArray RigTexturedSection::rect( int index ) const
-{
-    if ( index >= (int)m_sectionParts.size() ) return {};
-    if ( index < 0 ) return {};
-    return m_sectionParts[index].rect;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::shared_ptr<ZGYAccess::SeismicSliceData> RigTexturedSection::slicedata( int index ) const
-{
-    if ( index >= (int)m_sectionParts.size() ) return nullptr;
-    if ( index < 0 ) return nullptr;
-    return m_sectionParts[index].sliceData;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::TextureImage> RigTexturedSection::texture( int index ) const
-{
-    if ( index >= (int)m_sectionParts.size() ) return nullptr;
-    if ( index < 0 ) return nullptr;
-    return m_sectionParts[index].texture;
 }

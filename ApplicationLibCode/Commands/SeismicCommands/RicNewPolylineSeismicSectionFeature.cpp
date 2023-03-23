@@ -44,7 +44,7 @@ bool RicNewPolylineSeismicSectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewPolylineSeismicSectionFeature::onActionTriggered( bool isChecked )
 {
-    RicSeismicSectionFeatureImpl::createSeismicSection( "Polyline Section", RiaDefines::SeismicSectionType::CS_POLYLINE );
+    RicSeismicSectionFeatureImpl::createSeismicSection( "Polyline Section", RiaDefines::SeismicSectionType::SS_POLYLINE );
 }
 
 //--------------------------------------------------------------------------------------------------

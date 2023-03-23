@@ -89,7 +89,7 @@ RimSeismicSection* RimSeismicSectionCollection::addNewSection( RiaDefines::Seism
     newSection->setSectionType( sectionType );
     m_seismicSections.push_back( newSection );
     updateConnectedEditors();
-    updateViews();
+    updateView();
     return newSection;
 }
 
@@ -181,7 +181,7 @@ void RimSeismicSectionCollection::fieldChangedByUi( const caf::PdmFieldHandle* c
 {
     if ( changedField == objectToggleField() )
     {
-        updateViews();
+        updateView();
     }
 }
 
@@ -246,13 +246,13 @@ void RimSeismicSectionCollection::updateLegendRangesTextAndVisibility( RiuViewer
 void RimSeismicSectionCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                                                   std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
-    updateViews();
+    updateView();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSeismicSectionCollection::updateViews()
+void RimSeismicSectionCollection::updateView()
 {
     Rim3dView* view = nullptr;
     firstAncestorOrThisOfType( view );

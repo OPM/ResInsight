@@ -61,10 +61,10 @@ public:
     std::vector<cvf::Vec3d> worldCorners();
 
     cvf::Vec3i inlineMinMaxStep();
-    cvf::Vec3i crosslineMinMaxStep();
+    cvf::Vec3i xMinMaxStep();
 
-    double depthStep();
-    int    depthSize();
+    double zStep();
+    int    zSize();
 
     cvf::Vec3d          convertToWorldCoords( int iLine, int xLine, double depth );
     std::pair<int, int> convertToInlineXline( double worldx, double worldy );

@@ -25,10 +25,10 @@ namespace caf
 template <>
 void caf::AppEnum<RiaDefines::SeismicSectionType>::setUp()
 {
-    addItem( RiaDefines::SeismicSectionType::CS_INLINE, "CS_INLINE", "Inline" );
-    addItem( RiaDefines::SeismicSectionType::CS_XLINE, "CS_XLINE", "Crossline" );
-    addItem( RiaDefines::SeismicSectionType::CS_DEPTHSLICE, "CS_DEPTHSLICE", "Depth Slice" );
-    addItem( RiaDefines::SeismicSectionType::CS_POLYLINE, "CS_POLYLINE", "Polyline" );
-    setDefault( RiaDefines::SeismicSectionType::CS_INLINE );
+    addItem( RiaDefines::SeismicSectionType::SS_INLINE, "SS_INLINE", "Inline" );
+    addItem( RiaDefines::SeismicSectionType::SS_XLINE, "SS_XLINE", "Crossline" );
+    addItem( RiaDefines::SeismicSectionType::SS_DEPTHSLICE, "SS_DEPTHSLICE", "Depth Slice" );
+    addItem( RiaDefines::SeismicSectionType::SS_POLYLINE, "SS_POLYLINE", "Polyline" );
+    setDefault( RiaDefines::SeismicSectionType::SS_INLINE );
 }
 } // namespace caf

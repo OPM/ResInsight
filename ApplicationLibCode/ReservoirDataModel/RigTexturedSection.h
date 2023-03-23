@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2022 Equinor ASA
+//  Copyright (C) 2023 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -77,18 +77,9 @@ public:
 
     void setSectionPartRect( int index, cvf::Vec3dArray rect );
     void setSectionPartData( int index, std::shared_ptr<ZGYAccess::SeismicSliceData> data );
-    void setSectionPartTexture( int index, cvf::ref<cvf::TextureImage> texture );
-
-    bool hasSectionPartRect( int index );
-    bool hasSectionPartData( int index );
-    bool hasSectionPartTexture( int index );
 
     int  partsCount() const;
     void resize( int size );
-
-    cvf::Vec3dArray                              rect( int index ) const;
-    std::shared_ptr<ZGYAccess::SeismicSliceData> slicedata( int index ) const;
-    cvf::ref<cvf::TextureImage>                  texture( int index ) const;
 
     RigTexturedSectionPart& part( int index );
 

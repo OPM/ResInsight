@@ -184,7 +184,7 @@ std::vector<cvf::Vec3d> RifSeismicZGYReader::worldCorners()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RifSeismicZGYReader::depthStep()
+double RifSeismicZGYReader::zStep()
 {
     if ( !isOpen() ) return 0.0;
 
@@ -194,7 +194,7 @@ double RifSeismicZGYReader::depthStep()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RifSeismicZGYReader::depthSize()
+int RifSeismicZGYReader::zSize()
 {
     if ( !isOpen() ) return 0;
 
@@ -217,7 +217,7 @@ cvf::Vec3i RifSeismicZGYReader::inlineMinMaxStep()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Vec3i RifSeismicZGYReader::crosslineMinMaxStep()
+cvf::Vec3i RifSeismicZGYReader::xMinMaxStep()
 {
     if ( !isOpen() ) return { 0, 0, 0 };
 
