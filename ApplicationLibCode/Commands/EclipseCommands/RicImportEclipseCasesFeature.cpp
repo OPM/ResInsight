@@ -52,13 +52,14 @@ void RicImportEclipseCasesFeature::onActionTriggered( bool isChecked )
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( "BINARY_GRID" );
 
-    RicRecursiveFileSearchDialogResult result = RicRecursiveFileSearchDialog::runRecursiveSearchDialog( nullptr,
-                                                                                                        "Import Eclipse Cases",
-                                                                                                        defaultDir,
-                                                                                                        m_pathFilter,
-                                                                                                        m_fileNameFilter,
-                                                                                                        QStringList() << ".EGRID"
-                                                                                                                      << ".GRID" );
+    RicRecursiveFileSearchDialogResult result =
+        RicRecursiveFileSearchDialog::runRecursiveSearchDialog( nullptr,
+                                                                "Import Eclipse Cases",
+                                                                defaultDir,
+                                                                m_pathFilter,
+                                                                m_fileNameFilter,
+                                                                { RicRecursiveFileSearchDialog::FileType::EGRID,
+                                                                  RicRecursiveFileSearchDialog::FileType::GRID } );
 
     // Remember filters
     m_pathFilter     = result.pathFilter;

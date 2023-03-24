@@ -44,7 +44,7 @@ class RicRecursiveFileSearchDialogResult;
 class RicRecursiveFileSearchDialog : public QDialog
 {
     Q_OBJECT
-
+public:
     enum Status
     {
         SEARCHING_FOR_DIRS,
@@ -52,16 +52,31 @@ class RicRecursiveFileSearchDialog : public QDialog
         NO_FILES_FOUND
     };
 
-public:
-    static RicRecursiveFileSearchDialogResult runRecursiveSearchDialog( QWidget*           parent         = nullptr,
-                                                                        const QString&     caption        = QString(),
-                                                                        const QString&     dir            = QString(),
-                                                                        const QString&     pathFilter     = QString(),
-                                                                        const QString&     fileNameFilter = QString(),
-                                                                        const QStringList& fileExtensions = QStringList() );
+    enum class FileType
+    {
+        GRDECL,
+        EGRID,
+        GRID,
+        SMSPEC,
+        STIMPLAN_FRACTURE,
+        LAS,
+        SURFACE,
+        STIMPLAN_SUMMARY,
+        REVEAL_SUMMARY
+    };
+
+    static RicRecursiveFileSearchDialogResult runRecursiveSearchDialog( QWidget*                     parent         = nullptr,
+                                                                        const QString&               caption        = QString(),
+                                                                        const QString&               dir            = QString(),
+                                                                        const QString&               pathFilter     = QString(),
+                                                                        const QString&               fileNameFilter = QString(),
+                                                                        const std::vector<FileType>& fileTypes      = {} );
+
+    static QString fileNameForType( FileType fileType );
+    static QString fileExtensionForType( FileType fileType );
 
 private:
-    RicRecursiveFileSearchDialog( QWidget* parent, const QStringList& fileExtensions );
+    RicRecursiveFileSearchDialog( QWidget* parent, const std::vector<FileType>& fileTypes );
     ~RicRecursiveFileSearchDialog() override;
 
     QString cleanTextFromPathFilterField() const;
@@ -93,10 +108,13 @@ private:
 
     static void populateComboBoxHistoryFromRegistry( QComboBox* comboBox, const QString& registryKey );
 
+    static QStringList fileTypeToExtensionStrings( const std::vector<RicRecursiveFileSearchDialog::FileType>& fileTypes );
+
 private slots:
     void slotPathFilterChanged( const QString& text );
     void slotFileFilterChanged( const QString& text );
-    void slotFileExtensionsChanged();
+    void slotFileExtensionChanged( const QString& text );
+    void slotFileTypeChanged( int );
     void slotBrowseButtonClicked();
     void slotUseRealizationStarClicked();
     void slotFindOrCancelButtonClicked();
@@ -119,8 +137,11 @@ private:
     QLabel*    m_fileFilterLabel;
     QComboBox* m_fileFilterField;
 
-    QLabel*    m_fileExtensionsLabel;
-    QLineEdit* m_fileExtensionsField;
+    QLabel*    m_fileTypeLabel;
+    QComboBox* m_fileTypeField;
+
+    QLabel*    m_fileExtensionLabel;
+    QLineEdit* m_fileExtensionField;
 
     QLabel*      m_effectiveFilterLabel;
     QLabel*      m_effectiveFilterContentLabel;
@@ -135,9 +156,9 @@ private:
 
     QDialogButtonBox* m_buttons;
 
-    QStringList       m_foundFiles;
-    const QStringList m_incomingFileExtensions;
-    QStringList       m_fileExtensions;
+    QStringList           m_foundFiles;
+    std::vector<FileType> m_incomingFileTypes;
+    QStringList           m_fileExtensions;
 
     bool m_isCancelPressed;
 

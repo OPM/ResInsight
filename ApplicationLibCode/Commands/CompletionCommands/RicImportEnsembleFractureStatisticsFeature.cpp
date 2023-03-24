@@ -131,12 +131,15 @@ std::pair<QStringList, RiaEnsembleNameTools::EnsembleGroupingMode>
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( pathCacheName );
 
-    RicRecursiveFileSearchDialogResult result = RicRecursiveFileSearchDialog::runRecursiveSearchDialog( nullptr,
-                                                                                                        dialogTitle,
-                                                                                                        defaultDir,
-                                                                                                        m_pathFilter,
-                                                                                                        m_fileNameFilter,
-                                                                                                        QStringList( ".xml" ) );
+    RicRecursiveFileSearchDialogResult result =
+        RicRecursiveFileSearchDialog::runRecursiveSearchDialog( nullptr,
+                                                                dialogTitle,
+                                                                defaultDir,
+                                                                m_pathFilter,
+                                                                m_fileNameFilter,
+                                                                {
+                                                                    RicRecursiveFileSearchDialog::FileType::STIMPLAN_FRACTURE,
+                                                                } );
 
     // Remember filters
     m_pathFilter     = result.pathFilter;
