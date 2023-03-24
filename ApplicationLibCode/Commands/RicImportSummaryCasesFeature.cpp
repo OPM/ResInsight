@@ -264,12 +264,12 @@ std::pair<QStringList, RiaEnsembleNameTools::EnsembleGroupingMode>
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( pathCacheName );
 
-    RicRecursiveFileSearchDialogResult result = RicRecursiveFileSearchDialog::runRecursiveSearchDialog( nullptr,
-                                                                                                        dialogTitle,
-                                                                                                        defaultDir,
-                                                                                                        m_pathFilter,
-                                                                                                        m_fileNameFilter,
-                                                                                                        QStringList( ".SMSPEC" ) );
+    auto fileTypes = { RicRecursiveFileSearchDialog::FileType::SMSPEC,
+                       RicRecursiveFileSearchDialog::FileType::REVEAL_SUMMARY,
+                       RicRecursiveFileSearchDialog::FileType::STIMPLAN_SUMMARY };
+
+    RicRecursiveFileSearchDialogResult result =
+        RicRecursiveFileSearchDialog::runRecursiveSearchDialog( nullptr, dialogTitle, defaultDir, m_pathFilter, m_fileNameFilter, fileTypes );
 
     // Remember filters
     m_pathFilter     = result.pathFilter;
