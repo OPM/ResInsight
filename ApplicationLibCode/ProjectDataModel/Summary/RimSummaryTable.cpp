@@ -166,7 +166,7 @@ void RimSummaryTable::cleanupBeforeClose()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryTable::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    RimViewWindow::fieldChangedByUi( changedField, oldValue, newValue );
+    RimPlotWindow::fieldChangedByUi( changedField, oldValue, newValue );
 
     if ( changedField == &m_case )
     {
