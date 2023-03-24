@@ -448,6 +448,6 @@ void RiuMatrixPlotWidget::onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotI
     MatrixShapeItem* matrixItem = dynamic_cast<MatrixShapeItem*>( qwtPlotItem->qwtPlotItem() );
     if ( matrixItem )
     {
-        matrixCellSelected.send( std::make_pair( matrixItem->rowIndex, matrixItem->columnIndex ) );
+        matrixCellSelected.send( std::make_pair( static_cast<int>( matrixItem->rowIndex ), static_cast<int>( matrixItem->columnIndex ) ) );
     }
 }
