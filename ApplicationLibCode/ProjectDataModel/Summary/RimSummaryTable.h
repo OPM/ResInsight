@@ -47,11 +47,11 @@ public:
     RimSummaryTable();
     ~RimSummaryTable() override;
 
-    void            setDefaultCaseAndCategoryAndVectorName();
-    void            setFromCaseAndCategoryAndVectorName( RimSummaryCase*                              summaryCase,
-                                                         RifEclipseSummaryAddress::SummaryVarCategory category,
-                                                         const QString&                               vectorName );
-    void            setDescription( const QString& description );
+    void    setDefaultCaseAndCategoryAndVectorName();
+    void    setFromCaseAndCategoryAndVectorName( RimSummaryCase*                              summaryCase,
+                                                 RifEclipseSummaryAddress::SummaryVarCategory category,
+                                                 const QString&                               vectorName );
+    void    setDescription( const QString& description );
     QString description() const override;
 
 private:
