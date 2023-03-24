@@ -29,6 +29,7 @@
 #include "RimGeoMechModels.h"
 #include "RimMeasurement.h"
 #include "RimObservedDataCollection.h"
+#include "RimSeismicDataCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSurfaceCollection.h"
 #include "RimWellPathCollection.h"
@@ -63,6 +64,9 @@ RimOilField::RimOilField( void )
     CAF_PDM_InitFieldNoDefault( &surfaceCollection, "SurfaceCollection", "Surfaces" );
     surfaceCollection = new RimSurfaceCollection();
     surfaceCollection->setAsTopmostFolder();
+
+    CAF_PDM_InitFieldNoDefault( &seismicCollection, "SeismicCollection", "Seismic Data" );
+    seismicCollection = new RimSeismicDataCollection();
 
     completionTemplateCollection = new RimCompletionTemplateCollection;
     analysisModels               = new RimEclipseCaseCollection();

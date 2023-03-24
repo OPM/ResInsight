@@ -274,6 +274,7 @@
         <file>DataVector.svg</file>
         <file>DataVectorCalculated.svg</file>
         <file>open-text-editor.svg</file>
+        <file>Seismic16x16.png</file>
     </qresource>
     <qresource prefix="/Shader">
         <file>fs_CellFace.glsl</file>

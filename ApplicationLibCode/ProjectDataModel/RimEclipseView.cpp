@@ -71,6 +71,8 @@
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimSeismicSection.h"
+#include "RimSeismicSectionCollection.h"
 #include "RimSimWellFracture.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
@@ -590,6 +592,13 @@ void RimEclipseView::onCreateDisplayModel()
     m_intersectionCollection->rebuildGeometry();
     m_intersectionCollection->appendPartsToModel( *this, m_intersectionVizModel.p(), m_reservoirGridPartManager->scaleTransform() );
     nativeOrOverrideViewer()->addStaticModelOnce( m_intersectionVizModel.p(), isUsingOverrideViewer() );
+
+    // Seismic sections
+
+    cvf::ref<caf::DisplayCoordTransform> transform = displayCoordTransform();
+    m_seismicVizModel->removeAllParts();
+    m_seismicSectionCollection->appendPartsToModel( this, m_seismicVizModel.p(), transform.p(), ownerCase()->allCellsBoundingBox() );
+    nativeOrOverrideViewer()->addStaticModelOnce( m_seismicVizModel.p(), isUsingOverrideViewer() );
 
     // Surfaces
 
@@ -1468,6 +1477,11 @@ void RimEclipseView::onUpdateLegends()
         m_surfaceCollection->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(), isUsingOverrideViewer() );
     }
 
+    if ( m_seismicSectionCollection->isChecked() )
+    {
+        m_seismicSectionCollection->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(), isUsingOverrideViewer() );
+    }
+
     if ( m_streamlineCollection )
     {
         m_streamlineCollection->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(), isUsingOverrideViewer() );
@@ -1918,6 +1932,8 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 
     if ( surfaceInViewCollection() ) uiTreeOrdering.add( surfaceInViewCollection() );
 
+    uiTreeOrdering.add( seismicSectionCollection() );
+
     uiTreeOrdering.skipRemainingChildren( true );
 }
 
@@ -2241,6 +2257,11 @@ std::vector<RimLegendConfig*> RimEclipseView::legendConfigs() const
         {
             absLegends.push_back( legendConfig );
         }
+    }
+
+    for ( auto section : seismicSectionCollection()->seismicSections() )
+    {
+        absLegends.push_back( section->legendConfig() );
     }
 
     absLegends.erase( std::remove( absLegends.begin(), absLegends.end(), nullptr ), absLegends.end() );

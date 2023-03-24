@@ -45,6 +45,8 @@
 #include "RimIntersectionResultDefinition.h"
 #include "RimIntersectionResultsDefinitionCollection.h"
 #include "RimRegularLegendConfig.h"
+#include "RimSeismicSection.h"
+#include "RimSeismicSectionCollection.h"
 #include "RimSurfaceInViewCollection.h"
 #include "RimTensorResults.h"
 #include "RimTernaryLegendConfig.h"
@@ -319,6 +321,13 @@ void RimGeoMechView::onCreateDisplayModel()
     m_intersectionCollection->appendPartsToModel( *this, m_intersectionVizModel.p(), scaleTransform() );
     nativeOrOverrideViewer()->addStaticModelOnce( m_intersectionVizModel.p(), isUsingOverrideViewer() );
 
+    // Seismic sections
+
+    cvf::ref<caf::DisplayCoordTransform> transform = displayCoordTransform();
+    m_seismicVizModel->removeAllParts();
+    m_seismicSectionCollection->appendPartsToModel( this, m_seismicVizModel.p(), transform.p(), femBBox );
+    nativeOrOverrideViewer()->addStaticModelOnce( m_seismicVizModel.p(), isUsingOverrideViewer() );
+
     // Surfaces
 
     m_surfaceVizModel->removeAllParts();
@@ -591,6 +600,11 @@ void RimGeoMechView::onUpdateLegends()
         {
             m_surfaceCollection->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(), isUsingOverrideViewer() );
         }
+
+        if ( m_seismicSectionCollection->isChecked() )
+        {
+            m_seismicSectionCollection->updateLegendRangesTextAndVisibility( nativeOrOverrideViewer(), isUsingOverrideViewer() );
+        }
     }
 }
 
@@ -702,6 +716,11 @@ std::vector<RimLegendConfig*> RimGeoMechView::legendConfigs() const
         {
             absLegendConfigs.push_back( legendConfig );
         }
+    }
+
+    for ( auto section : seismicSectionCollection()->seismicSections() )
+    {
+        absLegendConfigs.push_back( section->legendConfig() );
     }
 
     absLegendConfigs.erase( std::remove( absLegendConfigs.begin(), absLegendConfigs.end(), nullptr ), absLegendConfigs.end() );
@@ -1037,6 +1056,7 @@ void RimGeoMechView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 
     uiTreeOrdering.add( m_intersectionCollection() );
     if ( surfaceInViewCollection() ) uiTreeOrdering.add( surfaceInViewCollection() );
+    uiTreeOrdering.add( seismicSectionCollection() );
 
     uiTreeOrdering.skipRemainingChildren( true );
 }

@@ -63,6 +63,7 @@
 #include "RiuRelativePermeabilityPlotPanel.h"
 #include "RiuResultInfoPanel.h"
 #include "RiuResultQwtPlot.h"
+#include "RiuSeismicHistogramPanel.h"
 #include "RiuToolTipMenu.h"
 #include "RiuTools.h"
 #include "RiuTreeViewEventFilter.h"
@@ -128,6 +129,7 @@ RiuMainWindow::RiuMainWindow()
     , m_pvtPlotPanel( nullptr )
     , m_mohrsCirclePlot( nullptr )
     , m_holoLensToolBar( nullptr )
+    , m_seismicHistogramPanel( nullptr )
 {
     setAttribute( Qt::WA_DeleteOnClose );
 
@@ -262,6 +264,7 @@ void RiuMainWindow::cleanupGuiCaseClose()
     if ( m_relPermPlotPanel ) m_relPermPlotPanel->clearPlot();
     if ( m_pvtPlotPanel ) m_pvtPlotPanel->clearPlot();
     if ( m_mohrsCirclePlot ) m_mohrsCirclePlot->clearPlot();
+    if ( m_seismicHistogramPanel ) m_seismicHistogramPanel->clearPlot();
 
     if ( m_pdmUiPropertyView )
     {
@@ -481,6 +484,7 @@ void RiuMainWindow::createMenus()
     importMenu->addAction( cmdFeatureMgr->action( "RicImportPressureDepthDataFeature" ) );
     importMenu->addAction( cmdFeatureMgr->action( "RicImportFormationNamesFeature" ) );
     importMenu->addAction( cmdFeatureMgr->action( "RicImportSurfacesFeature" ) );
+    importMenu->addAction( cmdFeatureMgr->action( "RicImportSeismicFeature" ) );
 
     RiuTools::enableAllActionsOnShow( this, importMenu );
 
@@ -871,6 +875,15 @@ void RiuMainWindow::createDockPanels()
         dockManager()->addDockWidgetTabToArea( dockWidget, bottomArea );
     }
 
+    {
+        auto dockWidget =
+            RiuDockWidgetTools::createDockWidget( "Seismic Histogram", RiuDockWidgetTools::mainWindowSeismicHistogramName(), dockManager() );
+
+        m_seismicHistogramPanel = new RiuSeismicHistogramPanel( dockWidget );
+        dockWidget->setWidget( m_seismicHistogramPanel );
+        dockManager()->addDockWidgetTabToArea( dockWidget, bottomArea );
+    }
+
     // result info
     {
         auto dockWidget = RiuDockWidgetTools::createDockWidget( "Result Info", RiuDockWidgetTools::mainWindowResultInfoName(), dockManager() );
@@ -1198,6 +1211,14 @@ RiuMohrsCirclePlot* RiuMainWindow::mohrsCirclePlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiuSeismicHistogramPanel* RiuMainWindow::seismicHistogramPanel()
+{
+    return m_seismicHistogramPanel;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiuMessagePanel* RiuMainWindow::messagePanel()
 {
     return m_messagePanel;
@@ -1485,6 +1506,8 @@ void RiuMainWindow::selectedObjectsChanged()
     updateUiFieldsFromActiveResult( firstSelectedObject );
 
     m_pdmUiPropertyView->showProperties( firstSelectedObject );
+
+    m_seismicHistogramPanel->showHistogram( firstSelectedObject );
 
     if ( uiItems.size() == 1 && m_allowActiveViewChangeFromSelection )
     {
@@ -1857,6 +1880,10 @@ void RiuMainWindow::applyFontSizesToDockedPlots()
     if ( m_pvtPlotPanel )
     {
         m_pvtPlotPanel->applyFontSizes( true );
+    }
+    if ( m_seismicHistogramPanel )
+    {
+        m_seismicHistogramPanel->applyFontSizes( true );
     }
 }
 

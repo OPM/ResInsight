@@ -27,6 +27,8 @@
 #include "RimGeoMechCase.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimSeismicData.h"
+#include "RimSeismicDataCollection.h"
 #include "RimWellLogFile.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
@@ -367,6 +369,26 @@ void RimTools::geoMechCaseOptionItems( QList<caf::PdmOptionItemInfo>* options )
             {
                 options->push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, false, c->uiIconProvider() ) );
             }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimTools::seismicDataOptionItems( QList<caf::PdmOptionItemInfo>* options, cvf::BoundingBox worldBBox )
+{
+    if ( !options ) return;
+
+    RimProject* proj = RimProject::current();
+    if ( proj )
+    {
+        const auto& coll = proj->activeOilField()->seismicCollection().p();
+
+        for ( auto* c : coll->seismicData() )
+        {
+            if ( c->boundingBox()->intersects( worldBBox ) )
+                options->push_back( caf::PdmOptionItemInfo( c->userDescription(), c, false, c->uiIconProvider() ) );
         }
     }
 }

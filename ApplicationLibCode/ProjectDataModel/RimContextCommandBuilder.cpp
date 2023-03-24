@@ -112,6 +112,8 @@
 #include "RimRftPlotCollection.h"
 #include "RimSaturationPressurePlotCollection.h"
 #include "RimScriptCollection.h"
+#include "RimSeismicDataCollection.h"
+#include "RimSeismicSectionCollection.h"
 #include "RimSimWellFracture.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
@@ -1031,6 +1033,17 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewRangeFilterSliceJFeature";
             menuBuilder << "RicNewRangeFilterSliceKFeature";
             menuBuilder.subMenuEnd();
+        }
+        else if ( dynamic_cast<RimSeismicSectionCollection*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewInlineSeismicSectionFeature";
+            menuBuilder << "RicNewXlineSeismicSectionFeature";
+            menuBuilder << "RicNewZSliceSeismicSectionFeature";
+            menuBuilder << "RicNewPolylineSeismicSectionFeature";
+        }
+        else if ( dynamic_cast<RimSeismicDataCollection*>( firstUiItem ) )
+        {
+            menuBuilder << "RicImportSeismicFeature";
         }
         else if ( dynamic_cast<RimAnnotationCollection*>( firstUiItem ) || dynamic_cast<RimAnnotationGroupCollection*>( firstUiItem ) )
         {

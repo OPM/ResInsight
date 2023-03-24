@@ -87,6 +87,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization
   ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/GridBox
   ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/Intersections
+  ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/Seismic
   ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/Streamlines
   ${CMAKE_CURRENT_SOURCE_DIR}/ModelVisualization/Surfaces
   ${CMAKE_CURRENT_SOURCE_DIR}/UserInterface
@@ -109,6 +110,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Surfaces
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Intersections
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Streamlines
+  ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/Seismic
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/CellFilters
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/ProcessControl
   ${CMAKE_CURRENT_SOURCE_DIR}/ProjectDataModel/WellLog
@@ -183,6 +185,7 @@ list(
   ProjectDataModel/PlotTemplates/CMakeLists_files.cmake
   ProjectDataModel/StimPlanModel/CMakeLists_files.cmake
   ProjectDataModel/Streamlines/CMakeLists_files.cmake
+  ProjectDataModel/Seismic/CMakeLists_files.cmake
   ProjectDataModel/Surfaces/CMakeLists_files.cmake
   ProjectDataModel/Intersections/CMakeLists_files.cmake
   ProjectDataModel/CellFilters/CMakeLists_files.cmake
@@ -197,6 +200,7 @@ list(
   ModelVisualization/CMakeLists_files.cmake
   ModelVisualization/GridBox/CMakeLists_files.cmake
   ModelVisualization/Intersections/CMakeLists_files.cmake
+  ModelVisualization/Seismic/CMakeLists_files.cmake
   ModelVisualization/Streamlines/CMakeLists_files.cmake
   ModelVisualization/Surfaces/CMakeLists_files.cmake
   ModelVisualization/WindowEdgeAxesOverlayItem/CMakeLists_files.cmake
