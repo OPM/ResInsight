@@ -52,7 +52,7 @@ public:
                                                          RifEclipseSummaryAddress::SummaryVarCategory category,
                                                          const QString&                               vectorName );
     void            setDescription( const QString& description );
-    virtual QString description() const override;
+    QString description() const override;
 
 private:
     void cleanupBeforeClose();
@@ -65,14 +65,14 @@ private:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     // Inherited via RimPlotWindow
-    virtual void doRenderWindowContent( QPaintDevice* paintDevice ) override;
+    void doRenderWindowContent( QPaintDevice* paintDevice ) override;
 
     // Inherited via RimViewWindow
-    virtual QWidget* viewWidget() override;
-    virtual QImage   snapshotWindowContent() override;
-    virtual void     zoomAll() override;
-    virtual QWidget* createViewWidget( QWidget* mainWindowParent ) override;
-    virtual void     deleteViewWidget() override;
+    QWidget* viewWidget() override;
+    QImage   snapshotWindowContent() override;
+    void     zoomAll() override;
+    QWidget* createViewWidget( QWidget* mainWindowParent ) override;
+    void     deleteViewWidget() override;
 
     // PDM methods
     caf::PdmFieldHandle* userDescriptionField() override;
