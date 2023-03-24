@@ -79,7 +79,7 @@ bool RifSeismicZGYReader::isOpen() const
 //--------------------------------------------------------------------------------------------------
 bool RifSeismicZGYReader::isValid()
 {
-    if ( !isOpen ) return false;
+    if ( !isOpen() ) return false;
 
     bool valid = ( zStep() > 0.0 ) && ( inlineMinMaxStep()[2] > 0 ) && ( xlineMinMaxStep()[2] > 0 );
     return valid;
