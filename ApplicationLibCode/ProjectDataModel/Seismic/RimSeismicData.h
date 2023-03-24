@@ -19,6 +19,7 @@
 
 #include "RiaSeismicDefines.h"
 
+#include "cafFilePath.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
@@ -113,7 +114,7 @@ private:
     int toZIndex( double z ) const;
 
 private:
-    caf::PdmField<QString>                        m_filename;
+    caf::PdmField<caf::FilePath>                  m_filename;
     caf::PdmField<QString>                        m_userDescription;
     caf::PdmChildArrayField<RimGenericParameter*> m_metadata;
     caf::PdmChildField<RimRegularLegendConfig*>   m_legendConfig;

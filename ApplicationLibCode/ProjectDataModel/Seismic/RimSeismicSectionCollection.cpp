@@ -88,7 +88,7 @@ RimSeismicSection* RimSeismicSectionCollection::addNewSection( RiaDefines::Seism
     if ( defaultSeis != nullptr ) newSection->setSeismicData( defaultSeis );
     newSection->setSectionType( sectionType );
     m_seismicSections.push_back( newSection );
-    updateConnectedEditors();
+    updateAllRequiredEditors();
     updateView();
     return newSection;
 }

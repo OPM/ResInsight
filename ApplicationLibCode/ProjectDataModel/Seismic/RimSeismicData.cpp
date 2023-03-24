@@ -105,19 +105,21 @@ bool RimSeismicData::openFileIfNotOpen()
 
     if ( m_filereader->isOpen() ) return true;
 
-    if ( m_filename().isEmpty() ) return false;
+    QString filename = m_filename().path();
 
-    if ( QFile::exists( m_filename ) )
+    if ( filename.isEmpty() ) return false;
+
+    if ( QFile::exists( filename ) )
     {
-        if ( !m_filereader->open( m_filename ) )
+        if ( !m_filereader->open( filename ) )
         {
-            logError( "Unable to open seismic file : " + m_filename );
+            logError( "Unable to open seismic file : " + filename );
             return false;
         }
     }
     else
     {
-        logError( "Seismic file not found: " + m_filename );
+        logError( "Seismic file not found: " + filename );
         return false;
     }
     return true;
@@ -145,7 +147,7 @@ void RimSeismicData::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimSeismicData::setFileName( QString filename )
 {
-    if ( filename != m_filename )
+    if ( filename != m_filename().path() )
     {
         if ( m_filereader != nullptr ) m_filereader->close();
         m_nErrorsLogged = 0;
@@ -158,7 +160,7 @@ void RimSeismicData::setFileName( QString filename )
 //--------------------------------------------------------------------------------------------------
 QString RimSeismicData::fileName() const
 {
-    return m_filename;
+    return m_filename().path();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -294,7 +296,7 @@ void RimSeismicData::defineEditorAttribute( const caf::PdmFieldHandle* field, QS
         auto myAttr = dynamic_cast<caf::PdmUiLineEditorAttribute*>( attribute );
         if ( myAttr )
         {
-            myAttr->validator = new QDoubleValidator( 0.00001, std::numeric_limits<double>::infinity(), 10 );
+            myAttr->validator = new QDoubleValidator( 0.00001, std::numeric_limits<double>::infinity(), 6 );
         }
     }
 }

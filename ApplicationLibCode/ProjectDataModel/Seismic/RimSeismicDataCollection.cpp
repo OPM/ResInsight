@@ -61,7 +61,7 @@ RimSeismicData* RimSeismicDataCollection::importSeismicFromFile( const QString f
     QFileInfo fi( fileName );
     seisData->setUserDescription( fi.baseName() );
     m_seismicData.push_back( seisData );
-    updateConnectedEditors();
+    updateAllRequiredEditors();
 
     return seisData;
 }
