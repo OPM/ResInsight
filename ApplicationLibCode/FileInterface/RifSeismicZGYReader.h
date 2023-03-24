@@ -48,6 +48,8 @@ public:
     bool open( QString filename );
     void close();
 
+    bool isValid();
+
     bool isOpen() const;
 
     std::vector<std::pair<QString, QString>> metaData();
@@ -61,7 +63,7 @@ public:
     std::vector<cvf::Vec3d> worldCorners();
 
     cvf::Vec3i inlineMinMaxStep();
-    cvf::Vec3i xMinMaxStep();
+    cvf::Vec3i xlineMinMaxStep();
 
     double zStep();
     int    zSize();

@@ -114,6 +114,14 @@ bool RimSeismicData::openFileIfNotOpen()
         if ( !m_filereader->open( filename ) )
         {
             logError( "Unable to open seismic file : " + filename );
+            m_filereader.reset();
+            return false;
+        }
+        if ( !m_filereader->isValid() )
+        {
+            logError( "Seismic file has invalid header values. Cannot import file: " + filename );
+            m_filereader->close();
+            m_filereader.reset();
             return false;
         }
     }
@@ -227,13 +235,16 @@ void RimSeismicData::updateMetaData()
     }
 
     m_inlineInfo = m_filereader->inlineMinMaxStep();
-    m_xlineInfo  = m_filereader->xMinMaxStep();
+    m_xlineInfo  = m_filereader->xlineMinMaxStep();
 
     m_fileDataRange = m_filereader->dataRange();
 
     updateDataRange( false );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3d> RimSeismicData::worldOutline() const
 {
     return m_worldOutline;
@@ -314,7 +325,7 @@ cvf::BoundingBox* RimSeismicData::boundingBox() const
 //--------------------------------------------------------------------------------------------------
 double RimSeismicData::zMin() const
 {
-    return std::abs( m_boundingBox.get()->max().z() );
+    return std::abs( m_boundingBox->max().z() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -322,7 +333,7 @@ double RimSeismicData::zMin() const
 //--------------------------------------------------------------------------------------------------
 double RimSeismicData::zMax() const
 {
-    return std::abs( m_boundingBox.get()->min().z() );
+    return std::abs( m_boundingBox->min().z() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -500,6 +511,9 @@ cvf::Vec3d RimSeismicData::convertToWorldCoords( int iLine, int xLine, double de
     return m_filereader->convertToWorldCoords( iLine, xLine, depth );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::pair<double, double> RimSeismicData::dataRangeMinMax() const
 {
     return m_activeDataRange;
@@ -604,7 +618,7 @@ std::shared_ptr<ZGYAccess::SeismicSliceData>
     int dirX = 1;
     if ( startXlineIndex > stopXlineIndex ) dirX = -1;
 
-    const int zize = zMaxIndex - zMinIndex;
+    const int zSize = zMaxIndex - zMinIndex;
 
     std::shared_ptr<ZGYAccess::SeismicSliceData> retdata;
 
@@ -614,25 +628,25 @@ std::shared_ptr<ZGYAccess::SeismicSliceData>
 
         double xlined = 1.0 * startXlineIndex;
 
-        retdata     = std::make_shared<ZGYAccess::SeismicSliceData>( diffI, zize );
+        retdata     = std::make_shared<ZGYAccess::SeismicSliceData>( diffI, zSize );
         float* pOut = retdata->values();
 
         for ( int iline = startInlineIndex; iline != stopInlineIndex; iline += dirI, xlined += dstepX )
         {
             int xline = (int)std::round( xlined );
 
-            auto trace = m_filereader->trace( iline, xline, zMinIndex, zize );
+            auto trace = m_filereader->trace( iline, xline, zMinIndex, zSize );
 
-            if ( trace->size() != zize )
+            if ( trace->size() != zSize )
             {
-                memset( pOut, 0, zize * sizeof( float ) );
+                memset( pOut, 0, zSize * sizeof( float ) );
             }
             else
             {
-                memcpy( pOut, trace->values(), zize * sizeof( float ) );
+                memcpy( pOut, trace->values(), zSize * sizeof( float ) );
             }
 
-            pOut += zize;
+            pOut += zSize;
         }
     }
     else
@@ -643,25 +657,25 @@ std::shared_ptr<ZGYAccess::SeismicSliceData>
 
         double ilined = 1.0 * startInlineIndex;
 
-        retdata     = std::make_shared<ZGYAccess::SeismicSliceData>( diffX, zize );
+        retdata     = std::make_shared<ZGYAccess::SeismicSliceData>( diffX, zSize );
         float* pOut = retdata->values();
 
         for ( int xline = startXlineIndex; xline != stopXlineIndex; xline += dirX, ilined += dstepI )
         {
             int iline = (int)std::round( ilined );
 
-            auto trace = m_filereader->trace( iline, xline, zMinIndex, zize );
+            auto trace = m_filereader->trace( iline, xline, zMinIndex, zSize );
 
-            if ( trace->size() != zize )
+            if ( trace->size() != zSize )
             {
-                memset( pOut, 0, zize * sizeof( float ) );
+                memset( pOut, 0, zSize * sizeof( float ) );
             }
             else
             {
-                memcpy( pOut, trace->values(), zize * sizeof( float ) );
+                memcpy( pOut, trace->values(), zSize * sizeof( float ) );
             }
 
-            pOut += zize;
+            pOut += zSize;
         }
     }
 

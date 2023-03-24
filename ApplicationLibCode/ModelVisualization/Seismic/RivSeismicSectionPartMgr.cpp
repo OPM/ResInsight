@@ -156,7 +156,7 @@ cvf::ref<cvf::DrawableGeo> RivSeismicSectionPartMgr::createXYPlaneQuadGeoWithTex
     cvf::ref<cvf::Vec3fArray> vertices = new cvf::Vec3fArray;
     vertices->reserve( 4 );
 
-    for ( auto& v : cornerPoints )
+    for ( const auto& v : cornerPoints )
     {
         vertices->add( cvf::Vec3f( v ) );
     }
