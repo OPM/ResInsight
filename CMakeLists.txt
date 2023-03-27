@@ -411,6 +411,9 @@ add_definitions(-DOPENZGY_STATIC)
 add_subdirectory(ThirdParty/openzgy)
 
 list(APPEND THIRD_PARTY_LIBRARIES openzgy)
+set_property(TARGET openzgy-tests zfp PROPERTY FOLDER "Thirdparty")
+
+
 
 # ##############################################################################
 # Qt
