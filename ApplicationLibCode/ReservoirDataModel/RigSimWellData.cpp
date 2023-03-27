@@ -327,7 +327,7 @@ RiaDefines::WellProductionType RigSimWellData::wellProductionType( size_t result
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RigWellResultFrame* RigSimWellData::staticWellCells() const
+const RigWellResultFrame* RigSimWellData::staticWellResultFrame() const
 {
     // Make sure we have computed the static representation of the well
     if ( m_staticWellCells->m_wellResultBranches.size() == 0 )

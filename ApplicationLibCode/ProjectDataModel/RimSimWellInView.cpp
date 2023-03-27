@@ -219,7 +219,7 @@ void RimSimWellInView::wellHeadTopBottomPosition( int frameIndex, cvf::Vec3d* to
     }
     else
     {
-        wellResultFramePtr = this->simWellData()->staticWellCells();
+        wellResultFramePtr = this->simWellData()->staticWellResultFrame();
         whCellPtr          = &( rigReservoir->cellFromWellResultCell( wellResultFramePtr->wellHeadOrStartCell() ) );
     }
 
@@ -389,7 +389,7 @@ bool RimSimWellInView::intersectsStaticWellCellsFilteredCells() const
     if ( this->simWellData() == nullptr ) return false;
 
     // NOTE: Read out static well cells, union of well cells across all time steps
-    const RigWellResultFrame* wrsf = this->simWellData()->staticWellCells();
+    const RigWellResultFrame* wrsf = this->simWellData()->staticWellResultFrame();
 
     // NOTE: Use first time step for visibility evaluation
     size_t frameIndex = 0;
