@@ -38,6 +38,7 @@ public:
     static RimSummaryCase*              summaryCaseForWell( RimSimWellInView* well );
     static std::vector<RimSummaryCase*> summaryCases();
     static bool                         isInjector( RimSimWellInView* well );
+    static bool                         isProducer( RimSimWellInView* well );
 
     static double extractValueForTimeStep( RifSummaryReaderInterface* summaryReader,
                                            const QString&             wellName,

@@ -109,6 +109,33 @@ bool RimSimWellInViewTools::isInjector( RimSimWellInView* well )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimSimWellInViewTools::isProducer( RimSimWellInView* well )
+{
+    RigSimWellData* wRes = well->simWellData();
+    if ( wRes )
+    {
+        Rim3dView* rimView = nullptr;
+        well->firstAncestorOrThisOfTypeAsserted( rimView );
+
+        int currentTimeStep = rimView->currentTimeStep();
+
+        if ( wRes->hasWellResult( currentTimeStep ) )
+        {
+            const RigWellResultFrame* wrf = wRes->wellResultFrame( currentTimeStep );
+
+            if ( RiaDefines::WellProductionType::PRODUCER == wrf->m_productionType )
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RimSimWellInViewTools::extractValueForTimeStep( RifSummaryReaderInterface* summaryReader,
                                                        const QString&             wellName,
                                                        const std::string&         vectorName,

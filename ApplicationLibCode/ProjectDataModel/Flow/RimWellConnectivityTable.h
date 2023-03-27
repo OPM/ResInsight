@@ -47,6 +47,13 @@ class RimWellConnectivityTable : public RimPlotWindow
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class ViewFilterType
+    {
+        CALCULATE_BY_VISIBLE_CELLS,
+        FILTER_BY_VISIBLE_PRODUCERS,
+        FILTER_BY_VISIBLE_INJECTORS,
+    };
+
     enum class TimeStepSelection
     {
         SINGLE_TIME_STEP,
@@ -132,8 +139,12 @@ private:
     void setSelectedProducersAndInjectorsForSingleTimeStep();
     void setSelectedProducersAndInjectorsForTimeStepRange();
 
-    void syncSelectedInjectorsFromProducerSelection();
-    void syncSelectedProducersFromInjectorSelection();
+    void                 syncSelectedInjectorsFromProducerSelection();
+    void                 syncSelectedProducersFromInjectorSelection();
+    void                 setProducerSelectionFromViewFilterAndSynchInjectors();
+    void                 setInjectorSelectionFromViewFilterAndSynchProducers();
+    void                 setWellSelectionFromViewFilter();
+    std::vector<QString> getViewFilteredWellNamesFromFilterType( ViewFilterType filterType ) const;
 
     void onCellFiltersChanged( const SignalEmitter* emitter );
     void connectViewCellFiltersChangedToSlot( RimEclipseView* view );
@@ -143,9 +154,10 @@ private:
     // Matrix plot for visualizing table data
     QPointer<RiuMatrixPlotWidget> m_matrixPlotWidget;
 
-    caf::PdmPtrField<RimEclipseResultCase*> m_case;
-    caf::PdmPtrField<RimEclipseView*>       m_cellFilterView;
-    caf::PdmPtrField<RimFlowDiagSolution*>  m_flowDiagSolution;
+    caf::PdmPtrField<RimEclipseResultCase*>     m_case;
+    caf::PdmPtrField<RimEclipseView*>           m_cellFilterView;
+    caf::PdmField<caf::AppEnum<ViewFilterType>> m_viewFilterType;
+    caf::PdmPtrField<RimFlowDiagSolution*>      m_flowDiagSolution;
 
     caf::PdmField<caf::AppEnum<TimeStepSelection>>   m_timeStepSelection;
     caf::PdmField<caf::AppEnum<TimeSampleValueType>> m_timeSampleValueType;
