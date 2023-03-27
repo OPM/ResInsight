@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RiaSummaryDefines.h"
+
 #include "RicSummaryCaseRestartDialog.h"
 
 #include <QString>
@@ -56,8 +58,9 @@ private:
     void determineFilesToImportByAskingUser( const std::vector<RifSummaryCaseFileImportInfo>& initialFiles, bool enableApplyToAllField );
     void determineFilesToImportUsingPrefs( const std::vector<RifSummaryCaseFileImportInfo>& initialFiles );
 
-    bool m_showDialog;
-    bool m_ensembleOrGroupMode;
+    bool                 m_showDialog;
+    bool                 m_ensembleOrGroupMode;
+    RiaDefines::FileType m_fileType;
 
     std::vector<RifSummaryCaseFileResultInfo> m_summaryFileInfos;
     QStringList                               m_gridFiles;
@@ -70,17 +73,21 @@ private:
 class RifSummaryCaseFileImportInfo
 {
 public:
-    RifSummaryCaseFileImportInfo( const QString& summaryFileName, const QString& gridFileName );
+    RifSummaryCaseFileImportInfo( const QString&       summaryFileName,
+                                  const QString&       gridFileName,
+                                  RiaDefines::FileType fileType = RiaDefines::FileType::SMSPEC );
 
-    const QString& summaryFileName() const;
-    const QString& gridFileName() const;
-    bool           failOnSummaryFileError() const;
-    void           setFailOnSummaryFileError( bool failOnSummaryFileImportError );
+    const QString&       summaryFileName() const;
+    const QString&       gridFileName() const;
+    bool                 failOnSummaryFileError() const;
+    void                 setFailOnSummaryFileError( bool failOnSummaryFileImportError );
+    RiaDefines::FileType fileType() const;
 
 private:
-    QString m_summaryFileName;
-    QString m_gridFileName;
-    bool    m_failOnSummaryFileImportError;
+    QString              m_summaryFileName;
+    QString              m_gridFileName;
+    bool                 m_failOnSummaryFileImportError;
+    RiaDefines::FileType m_fileType;
 };
 
 //==================================================================================================
@@ -89,15 +96,19 @@ private:
 class RifSummaryCaseFileResultInfo
 {
 public:
-    RifSummaryCaseFileResultInfo( const QString& summaryFileName, bool includeRestartFiles );
+    RifSummaryCaseFileResultInfo( const QString&       summaryFileName,
+                                  bool                 includeRestartFiles,
+                                  RiaDefines::FileType fileType = RiaDefines::FileType::SMSPEC );
 
-    const QString& summaryFileName() const;
-    bool           includeRestartFiles() const;
+    const QString&       summaryFileName() const;
+    bool                 includeRestartFiles() const;
+    RiaDefines::FileType fileType() const;
 
     bool operator<( const RifSummaryCaseFileResultInfo& other ) const;
     bool operator==( const RifSummaryCaseFileResultInfo& other ) const;
 
 private:
-    QString m_summaryFileName;
-    bool    m_includeRestartFiles;
+    QString              m_summaryFileName;
+    bool                 m_includeRestartFiles;
+    RiaDefines::FileType m_fileType;
 };

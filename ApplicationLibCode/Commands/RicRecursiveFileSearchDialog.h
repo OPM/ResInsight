@@ -23,6 +23,8 @@
 #include "cafPdmPointer.h"
 
 #include "RiaEnsembleNameTools.h"
+#include "RiaSummaryDefines.h"
+
 #include <QDialog>
 
 class QLabel;
@@ -75,14 +77,17 @@ public:
     static QString fileNameForType( FileType fileType );
     static QString fileExtensionForType( FileType fileType );
 
+    static RiaDefines::FileType mapSummaryFileType( RicRecursiveFileSearchDialog::FileType fileType );
+
 private:
     RicRecursiveFileSearchDialog( QWidget* parent, const std::vector<FileType>& fileTypes );
     ~RicRecursiveFileSearchDialog() override;
 
-    QString cleanTextFromPathFilterField() const;
-    QString rootDirWithEndSeparator() const;
-    QString pathFilterWithoutStartSeparator() const;
-    QString fileNameFilter() const;
+    QString  cleanTextFromPathFilterField() const;
+    QString  rootDirWithEndSeparator() const;
+    QString  pathFilterWithoutStartSeparator() const;
+    QString  fileNameFilter() const;
+    FileType fileType() const;
 
     QStringList fileExtensions() const;
     QString     extensionFromFileNameFilter() const;
@@ -159,6 +164,7 @@ private:
     QStringList           m_foundFiles;
     std::vector<FileType> m_incomingFileTypes;
     QStringList           m_fileExtensions;
+    FileType              m_fileType;
 
     bool m_isCancelPressed;
 
@@ -178,21 +184,24 @@ public:
                                         const QString&                             rootDir,
                                         const QString&                             pathFilter,
                                         const QString&                             fileNameFilter,
+                                        RicRecursiveFileSearchDialog::FileType     fileType,
                                         RiaEnsembleNameTools::EnsembleGroupingMode groupingMode )
         : ok( ok )
         , files( files )
         , rootDir( rootDir )
         , pathFilter( pathFilter )
         , fileNameFilter( fileNameFilter )
+        , fileType( fileType )
         , groupingMode( groupingMode )
     {
     }
 
-    bool        ok;
-    QStringList files;
-    QString     rootDir;
-    QString     pathFilter;
-    QString     fileNameFilter;
+    bool                                   ok;
+    QStringList                            files;
+    QString                                rootDir;
+    QString                                pathFilter;
+    QString                                fileNameFilter;
+    RicRecursiveFileSearchDialog::FileType fileType;
 
     RiaEnsembleNameTools::EnsembleGroupingMode groupingMode;
 };

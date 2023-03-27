@@ -22,6 +22,13 @@
 
 namespace RiaDefines
 {
+enum class FileType
+{
+    SMSPEC,
+    REVEAL_SUMMARY,
+    STIMPLAN_SUMMARY
+};
+
 QString summaryField();
 QString summaryAquifer();
 QString summaryNetwork();
