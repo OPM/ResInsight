@@ -19,7 +19,9 @@
 #pragma once
 
 #include "RiaEnsembleNameTools.h"
+#include "RiaSummaryDefines.h"
 
+#include "RicRecursiveFileSearchDialog.h"
 #include "cafCmdFeature.h"
 
 #include <QString>
@@ -43,15 +45,17 @@ public:
                                                    std::vector<RimSummaryCase*>* newCases = nullptr );
     static bool createSummaryCasesFromFiles( const QStringList&            fileName,
                                              std::vector<RimSummaryCase*>* newCases,
+                                             RiaDefines::FileType          fileType,
                                              bool                          ensembleOrGroup = false,
                                              bool                          allowDialogs    = true );
     static void addSummaryCases( const std::vector<RimSummaryCase*>& cases );
     static void addCasesToGroupIfRelevant( const std::vector<RimSummaryCase*>& cases );
 
-    static QStringList runRecursiveSummaryCaseFileSearchDialog( const QString& dialogTitle, const QString& pathCacheName );
+    static RicRecursiveFileSearchDialogResult runRecursiveSummaryCaseFileSearchDialog( const QString& dialogTitle,
+                                                                                       const QString& pathCacheName );
 
-    static std::pair<QStringList, RiaEnsembleNameTools::EnsembleGroupingMode>
-        runRecursiveSummaryCaseFileSearchDialogWithGrouping( const QString& dialogTitle, const QString& pathCacheName );
+    static RicRecursiveFileSearchDialogResult runRecursiveSummaryCaseFileSearchDialogWithGrouping( const QString& dialogTitle,
+                                                                                                   const QString& pathCacheName );
 
 protected:
     bool isCommandEnabled() override;

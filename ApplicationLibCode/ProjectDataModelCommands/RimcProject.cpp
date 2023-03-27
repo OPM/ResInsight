@@ -67,7 +67,11 @@ caf::PdmObjectHandle* RimProject_importSummaryCase::execute()
     bool                         ensembleOrGroup = false;
     bool                         allowDialogs    = false;
 
-    if ( RicImportSummaryCasesFeature::createSummaryCasesFromFiles( summaryFileNames, &newCases, ensembleOrGroup, allowDialogs ) )
+    if ( RicImportSummaryCasesFeature::createSummaryCasesFromFiles( summaryFileNames,
+                                                                    &newCases,
+                                                                    RiaDefines::FileType::SMSPEC,
+                                                                    ensembleOrGroup,
+                                                                    allowDialogs ) )
     {
         RicImportSummaryCasesFeature::addSummaryCases( newCases );
 

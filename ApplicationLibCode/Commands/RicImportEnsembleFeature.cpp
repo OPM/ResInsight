@@ -70,15 +70,17 @@ bool RicImportEnsembleFeature::isCommandEnabled()
 void RicImportEnsembleFeature::onActionTriggered( bool isChecked )
 {
     QString pathCacheName = "ENSEMBLE_FILES";
-    auto [fileNames, ensembleGroupingMode] =
-        RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialogWithGrouping( "Import Ensemble", pathCacheName );
+    auto    result = RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialogWithGrouping( "Import Ensemble", pathCacheName );
+    QStringList                                fileNames            = result.files;
+    RiaEnsembleNameTools::EnsembleGroupingMode ensembleGroupingMode = result.groupingMode;
+    RiaDefines::FileType                       fileType             = RicRecursiveFileSearchDialog::mapSummaryFileType( result.fileType );
 
     if ( fileNames.isEmpty() ) return;
 
     if ( ensembleGroupingMode == RiaEnsembleNameTools::EnsembleGroupingMode::NONE )
     {
         bool useEnsembleNameDialog = true;
-        importSingleEnsemble( fileNames, useEnsembleNameDialog, ensembleGroupingMode );
+        importSingleEnsemble( fileNames, useEnsembleNameDialog, ensembleGroupingMode, fileType );
     }
     else
     {
@@ -86,7 +88,7 @@ void RicImportEnsembleFeature::onActionTriggered( bool isChecked )
         for ( const QStringList& groupedFileNames : groupedByEnsemble )
         {
             bool useEnsembleNameDialog = false;
-            importSingleEnsemble( groupedFileNames, useEnsembleNameDialog, ensembleGroupingMode );
+            importSingleEnsemble( groupedFileNames, useEnsembleNameDialog, ensembleGroupingMode, fileType );
         }
     }
 }
@@ -96,7 +98,8 @@ void RicImportEnsembleFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicImportEnsembleFeature::importSingleEnsemble( const QStringList&                         fileNames,
                                                      bool                                       useEnsembleNameDialog,
-                                                     RiaEnsembleNameTools::EnsembleGroupingMode groupingMode )
+                                                     RiaEnsembleNameTools::EnsembleGroupingMode groupingMode,
+                                                     RiaDefines::FileType                       fileType )
 {
     QString ensembleName = RiaEnsembleNameTools::findSuitableEnsembleName( fileNames, groupingMode );
 
@@ -105,7 +108,7 @@ void RicImportEnsembleFeature::importSingleEnsemble( const QStringList&         
     if ( ensembleName.isEmpty() ) return;
 
     std::vector<RimSummaryCase*> cases;
-    RicImportSummaryCasesFeature::createSummaryCasesFromFiles( fileNames, &cases, true );
+    RicImportSummaryCasesFeature::createSummaryCasesFromFiles( fileNames, &cases, fileType, true );
 
     if ( cases.empty() ) return;
 

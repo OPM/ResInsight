@@ -18,6 +18,7 @@
 
 #include "RicImportSummaryCasesFeature.h"
 
+#include "RiaSummaryDefines.h"
 #include "SummaryPlotCommands/RicNewSummaryCurveFeature.h"
 
 #include "RiaGuiApplication.h"
@@ -73,12 +74,14 @@ bool RicImportSummaryCasesFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicImportSummaryCasesFeature::onActionTriggered( bool isChecked )
 {
-    RiaGuiApplication* app           = RiaGuiApplication::instance();
-    QString            pathCacheName = "INPUT_FILES";
-    QStringList        fileNames     = runRecursiveSummaryCaseFileSearchDialog( "Import Summary Cases", pathCacheName );
+    RiaGuiApplication*   app           = RiaGuiApplication::instance();
+    QString              pathCacheName = "INPUT_FILES";
+    auto                 result        = runRecursiveSummaryCaseFileSearchDialog( "Import Summary Cases", pathCacheName );
+    QStringList          fileNames     = result.files;
+    RiaDefines::FileType fileType      = RicRecursiveFileSearchDialog::mapSummaryFileType( result.fileType );
 
     std::vector<RimSummaryCase*> cases;
-    if ( !fileNames.isEmpty() ) createSummaryCasesFromFiles( fileNames, &cases );
+    if ( !fileNames.isEmpty() ) createSummaryCasesFromFiles( fileNames, &cases, fileType );
 
     addSummaryCases( cases );
     if ( !cases.empty() )
@@ -129,7 +132,7 @@ bool RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles( const QStr
 
     std::vector<RimSummaryCase*>  temp;
     std::vector<RimSummaryCase*>* cases = newCases ? newCases : &temp;
-    if ( createSummaryCasesFromFiles( fileNames, cases ) )
+    if ( createSummaryCasesFromFiles( fileNames, cases, RiaDefines::FileType::SMSPEC ) )
     {
         addSummaryCases( *cases );
         if ( !cases->empty() && doCreateDefaultPlot )
@@ -171,6 +174,7 @@ bool RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles( const QStr
 //--------------------------------------------------------------------------------------------------
 bool RicImportSummaryCasesFeature::createSummaryCasesFromFiles( const QStringList&            fileNames,
                                                                 std::vector<RimSummaryCase*>* newCases,
+                                                                RiaDefines::FileType          fileType,
                                                                 bool                          ensembleOrGroup,
                                                                 bool                          allowDialogs )
 {
@@ -182,28 +186,40 @@ bool RicImportSummaryCasesFeature::createSummaryCasesFromFiles( const QStringLis
     if ( newCases ) newCases->clear();
     if ( !sumCaseColl ) return false;
 
-    RifSummaryCaseRestartSelector fileSelector;
-
-    if ( !RiaGuiApplication::isRunning() || !allowDialogs )
+    std::vector<RifSummaryCaseFileResultInfo> importFileInfos;
+    if ( fileType == RiaDefines::FileType::SMSPEC )
     {
-        fileSelector.showDialog( false );
+        RifSummaryCaseRestartSelector fileSelector;
+
+        if ( !RiaGuiApplication::isRunning() || !allowDialogs )
+        {
+            fileSelector.showDialog( false );
+        }
+
+        fileSelector.setEnsembleOrGroupMode( ensembleOrGroup );
+        fileSelector.determineFilesToImportFromSummaryFiles( fileNames );
+
+        importFileInfos = fileSelector.summaryFileInfos();
+
+        if ( fileSelector.foundErrors() )
+        {
+            QString errorMessage = fileSelector.createCombinedErrorMessage();
+            RiaLogging::error( errorMessage );
+        }
     }
-
-    fileSelector.setEnsembleOrGroupMode( ensembleOrGroup );
-    fileSelector.determineFilesToImportFromSummaryFiles( fileNames );
-
-    std::vector<RifSummaryCaseFileResultInfo> importFileInfos = fileSelector.summaryFileInfos();
+    else
+    {
+        // No restart files for these file types: just copy to result info
+        for ( auto f : fileNames )
+        {
+            importFileInfos.push_back( RifSummaryCaseFileResultInfo( f, false, fileType ) );
+        }
+    }
 
     if ( !importFileInfos.empty() )
     {
         std::vector<RimSummaryCase*> sumCases = sumCaseColl->createSummaryCasesFromFileInfos( importFileInfos, true );
         if ( newCases ) newCases->insert( newCases->end(), sumCases.begin(), sumCases.end() );
-    }
-
-    if ( fileSelector.foundErrors() )
-    {
-        QString errorMessage = fileSelector.createCombinedErrorMessage();
-        RiaLogging::error( errorMessage );
     }
 
     return true;
@@ -258,7 +274,7 @@ void RicImportSummaryCasesFeature::addCasesToGroupIfRelevant( const std::vector<
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<QStringList, RiaEnsembleNameTools::EnsembleGroupingMode>
+RicRecursiveFileSearchDialogResult
     RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialogWithGrouping( const QString& dialogTitle, const QString& pathCacheName )
 {
     RiaApplication* app        = RiaApplication::instance();
@@ -275,19 +291,19 @@ std::pair<QStringList, RiaEnsembleNameTools::EnsembleGroupingMode>
     m_pathFilter     = result.pathFilter;
     m_fileNameFilter = result.fileNameFilter;
 
-    if ( !result.ok ) return std::make_pair( QStringList(), RiaEnsembleNameTools::EnsembleGroupingMode::NONE );
+    if ( !result.ok ) return result;
 
     // Remember the path to next time
     app->setLastUsedDialogDirectory( pathCacheName, QFileInfo( result.rootDir ).absoluteFilePath() );
 
-    return std::make_pair( result.files, result.groupingMode );
+    return result;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialog( const QString& dialogTitle, const QString& pathCacheName )
+RicRecursiveFileSearchDialogResult RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialog( const QString& dialogTitle,
+                                                                                                          const QString& pathCacheName )
 {
-    auto result = runRecursiveSummaryCaseFileSearchDialogWithGrouping( dialogTitle, pathCacheName );
-    return result.first;
+    return runRecursiveSummaryCaseFileSearchDialogWithGrouping( dialogTitle, pathCacheName );
 }

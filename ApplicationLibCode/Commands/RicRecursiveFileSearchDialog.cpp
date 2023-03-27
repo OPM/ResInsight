@@ -114,6 +114,7 @@ RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSea
         if ( !fileTypes.empty() )
         {
             dialog.m_fileExtensions = QStringList( fileExtensionForType( fileTypes.front() ) );
+            dialog.m_fileType       = fileTypes.front();
         }
 
         for ( const auto& s : caf::AppEnum<RiaEnsembleNameTools::EnsembleGroupingMode>::uiTexts() )
@@ -151,6 +152,7 @@ RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSea
                                                dialog.rootDirWithEndSeparator(),
                                                dialog.pathFilterWithoutStartSeparator(),
                                                dialog.fileNameFilter(),
+                                               dialog.fileType(),
                                                dialog.ensembleGroupingMode() );
 }
 
@@ -397,6 +399,14 @@ QStringList RicRecursiveFileSearchDialog::fileExtensions() const
     QStringList exts = m_fileExtensions;
     sortStringsByLength( exts );
     return exts;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RicRecursiveFileSearchDialog::FileType RicRecursiveFileSearchDialog::fileType() const
+{
+    return m_fileType;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -738,9 +748,9 @@ void RicRecursiveFileSearchDialog::slotFileFilterChanged( const QString& text )
 //--------------------------------------------------------------------------------------------------
 void RicRecursiveFileSearchDialog::slotFileTypeChanged( int index )
 {
-    FileType fileType = static_cast<FileType>( m_fileTypeField->itemData( index ).toInt() );
+    m_fileType = static_cast<FileType>( m_fileTypeField->itemData( index ).toInt() );
 
-    QString extension = fileExtensionForType( fileType );
+    QString extension = fileExtensionForType( m_fileType );
     m_fileExtensions  = QStringList( extension );
 
     m_fileExtensionField->setText( extension );
@@ -1142,4 +1152,25 @@ QString RicRecursiveFileSearchDialog::fileNameForType( FileType fileType )
         default:
             return "*";
     }
-};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::FileType RicRecursiveFileSearchDialog::mapSummaryFileType( RicRecursiveFileSearchDialog::FileType fileType )
+{
+    switch ( fileType )
+    {
+        case RicRecursiveFileSearchDialog::FileType::SMSPEC:
+            return RiaDefines::FileType::SMSPEC;
+        case RicRecursiveFileSearchDialog::FileType::REVEAL_SUMMARY:
+            return RiaDefines::FileType::REVEAL_SUMMARY;
+        case RicRecursiveFileSearchDialog::FileType::STIMPLAN_SUMMARY:
+            return RiaDefines::FileType::STIMPLAN_SUMMARY;
+        default:
+        {
+            CAF_ASSERT( false && "Unsupported file type" );
+            return RiaDefines::FileType::SMSPEC;
+        }
+    }
+}
