@@ -28,8 +28,6 @@
 #include "RigSimulationWellCenterLineCalculator.h"
 #include "RigWellAllocationOverTime.h"
 
-#include "RimCellFilter.h"
-#include "RimCellFilterCollection.h"
 #include "RimEclipseCaseTools.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseResultCase.h"
@@ -64,9 +62,9 @@ namespace caf
 template <>
 void AppEnum<RimWellConnectivityTable::ViewFilterType>::setUp()
 {
-    addItem( RimWellConnectivityTable::ViewFilterType::CALCULATE_BY_VISIBLE_CELLS, "CALCULATE_BY_VISIBLE_CELLS", "Calculate By Visible Cells" );
     addItem( RimWellConnectivityTable::ViewFilterType::FILTER_BY_VISIBLE_PRODUCERS, "FILTER_BY_VISIBLE_PRODUCERS", "Filter Producers" );
     addItem( RimWellConnectivityTable::ViewFilterType::FILTER_BY_VISIBLE_INJECTORS, "FILTER_BY_VISIBLE_INJECTORS", "Filter Injectors" );
+    addItem( RimWellConnectivityTable::ViewFilterType::CALCULATE_BY_VISIBLE_CELLS, "CALCULATE_BY_VISIBLE_CELLS", "Calculate By Visible Cells" );
     setDefault( RimWellConnectivityTable::ViewFilterType::FILTER_BY_VISIBLE_PRODUCERS );
 }
 template <>
@@ -234,7 +232,7 @@ void RimWellConnectivityTable::setFromSimulationWell( RimSimWellInView* simWell 
         }
     }
 
-    connectViewCellFiltersChangedToSlot( m_cellFilterView );
+    connectViewCellVisibilityChangedToSlot( m_cellFilterView );
     setSelectedProducersAndInjectorsForSingleTimeStep();
     onLoadDataAndUpdate();
 }
@@ -294,10 +292,10 @@ void RimWellConnectivityTable::fieldChangedByUi( const caf::PdmFieldHandle* chan
         // Disconnect signal/slots for previous cellFilterView
         PdmObjectHandle* prevValue          = oldValue.value<caf::PdmPointer<PdmObjectHandle>>().rawPtr();
         auto*            prevCellFilterView = dynamic_cast<RimEclipseView*>( prevValue );
-        disconnectViewCellFiltersChangedFromSlots( prevCellFilterView );
+        disconnectViewCellVisibilityChangedFromSlots( prevCellFilterView );
 
         // Connect signal/slots for current cellFilterView
-        connectViewCellFiltersChangedToSlot( m_cellFilterView );
+        connectViewCellVisibilityChangedToSlot( m_cellFilterView );
 
         // Update well selections using current view filter type for the active cell filter view
         setWellSelectionFromViewFilter();
@@ -1197,7 +1195,7 @@ std::vector<QString> RimWellConnectivityTable::getViewFilteredWellNamesFromFilte
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellConnectivityTable::onCellFiltersChanged( const SignalEmitter* emitter )
+void RimWellConnectivityTable::onCellVisibilityChanged( const SignalEmitter* emitter )
 {
     if ( m_cellFilterView && m_viewFilterType == ViewFilterType::FILTER_BY_VISIBLE_PRODUCERS )
     {
@@ -1214,21 +1212,21 @@ void RimWellConnectivityTable::onCellFiltersChanged( const SignalEmitter* emitte
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellConnectivityTable::connectViewCellFiltersChangedToSlot( RimEclipseView* view )
+void RimWellConnectivityTable::connectViewCellVisibilityChangedToSlot( RimEclipseView* view )
 {
-    if ( !view || !view->cellFilterCollection() ) return;
+    if ( !view ) return;
 
-    view->cellFilterCollection()->filtersChanged.connect( this, &RimWellConnectivityTable::onCellFiltersChanged );
+    view->cellVisibilityChanged.connect( this, &RimWellConnectivityTable::onCellVisibilityChanged );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellConnectivityTable::disconnectViewCellFiltersChangedFromSlots( RimEclipseView* view )
+void RimWellConnectivityTable::disconnectViewCellVisibilityChangedFromSlots( RimEclipseView* view )
 {
-    if ( !view || !view->cellFilterCollection() ) return;
+    if ( !view ) return;
 
-    view->cellFilterCollection()->filtersChanged.disconnect( this );
+    view->cellVisibilityChanged.disconnect( this );
 }
 
 //--------------------------------------------------------------------------------------------------

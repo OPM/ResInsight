@@ -41,6 +41,8 @@ class RimGridView : public Rim3dView
 public:
     RimGridView();
 
+    caf::Signal<> cellVisibilityChanged;
+
     void showGridCells( bool enableGridCells );
 
     Rim3dOverlayInfoConfig* overlayInfoConfig() const;

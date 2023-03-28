@@ -146,9 +146,9 @@ private:
     void                 setWellSelectionFromViewFilter();
     std::vector<QString> getViewFilteredWellNamesFromFilterType( ViewFilterType filterType ) const;
 
-    void onCellFiltersChanged( const SignalEmitter* emitter );
-    void connectViewCellFiltersChangedToSlot( RimEclipseView* view );
-    void disconnectViewCellFiltersChangedFromSlots( RimEclipseView* view );
+    void onCellVisibilityChanged( const SignalEmitter* emitter );
+    void connectViewCellVisibilityChangedToSlot( RimEclipseView* view );
+    void disconnectViewCellVisibilityChangedFromSlots( RimEclipseView* view );
 
 private:
     // Matrix plot for visualizing table data
