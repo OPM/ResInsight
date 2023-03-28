@@ -232,7 +232,7 @@ Vec3d BoundingBox::center() const
 //--------------------------------------------------------------------------------------------------
 Vec3d BoundingBox::extent() const
 {
-    CVF_TIGHT_ASSERT(isValid());
+    if (!isValid()) return { 0,0,0 };
 
     return (m_max - m_min);
 }
@@ -243,7 +243,7 @@ Vec3d BoundingBox::extent() const
 //--------------------------------------------------------------------------------------------------
 double BoundingBox::radius() const
 {
-    CVF_TIGHT_ASSERT(isValid());
+    if (!isValid()) return 0.0;
 
     return extent().length() / 2.0;
 }
@@ -278,7 +278,7 @@ const Vec3d& BoundingBox::max() const
 //--------------------------------------------------------------------------------------------------
 bool BoundingBox::contains(const Vec3d& point) const
 {
-    CVF_TIGHT_ASSERT(isValid());
+    if (!isValid()) return false;
 
     if (point.x() >= m_min.x() && point.x() <= m_max.x() &&
         point.y() >= m_min.y() && point.y() <= m_max.y() &&
@@ -298,8 +298,7 @@ bool BoundingBox::contains(const Vec3d& point) const
 //--------------------------------------------------------------------------------------------------
 bool BoundingBox::intersects(const BoundingBox& box) const
 {
-    CVF_TIGHT_ASSERT(isValid());
-    CVF_TIGHT_ASSERT(box.isValid());
+    if (!isValid() || !box.isValid()) return false;
 
     if (m_max.x() < box.m_min.x() || m_min.x() > box.m_max.x())  return false;
     if (m_max.y() < box.m_min.y() || m_min.y() > box.m_max.y())  return false;
