@@ -871,7 +871,7 @@ QString RimWellConnectivityTable::createTableTitle() const
     }
     if ( m_timeStepSelection() == TimeStepSelection::TIME_STEP_RANGE )
     {
-        return QString( "%1 (%2)<br>Date range: %3 - %4, Number of time steps: %5</br>" )
+        return QString( "%1 (%2)<br>Date range: [%3, %4], Number of time steps: %5</br>" )
             .arg( timeRangeValueTypeText() )
             .arg( m_case->caseUserDescription() )
             .arg( m_selectedFromTimeStep().toString( dateFormatString() ) )
@@ -980,8 +980,9 @@ void RimWellConnectivityTable::setSelectedProducersAndInjectorsForSingleTimeStep
     const int timeStepIndex = getTimeStepIndex( m_selectedTimeStep, m_case->timeStepDates() );
     if ( timeStepIndex == -1 )
     {
-        m_selectedProducerTracersUiField = std::vector<QString>();
-        m_selectedInjectorTracersUiField = std::vector<QString>();
+        m_selectedProducerTracersUiField.setValueWithFieldChanged( {} );
+        m_selectedInjectorTracersUiField.setValueWithFieldChanged( {} );
+        return;
     }
 
     const std::vector<QString> producerVec = RimFlowDiagnosticsTools::producerTracersInTimeStep( m_flowDiagSolution, timeStepIndex );
@@ -989,8 +990,8 @@ void RimWellConnectivityTable::setSelectedProducersAndInjectorsForSingleTimeStep
     injectorVec.push_back( RiaDefines::reservoirTracerName() );
 
     // No filtering if all producers/injectors are selected and assign to UI-elements
-    m_selectedProducerTracersUiField = producerVec;
-    m_selectedInjectorTracersUiField = injectorVec;
+    m_selectedProducerTracersUiField.setValueWithFieldChanged( producerVec );
+    m_selectedInjectorTracersUiField.setValueWithFieldChanged( injectorVec );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1021,8 +1022,8 @@ void RimWellConnectivityTable::setSelectedProducersAndInjectorsForTimeStepRange(
     injectorSet.insert( RiaDefines::reservoirTracerName() );
 
     // Assign to UI-elements
-    m_selectedProducerTracersUiField = std::vector<QString>( producerSet.begin(), producerSet.end() );
-    m_selectedInjectorTracersUiField = std::vector<QString>( injectorSet.begin(), injectorSet.end() );
+    m_selectedProducerTracersUiField.setValueWithFieldChanged( std::vector<QString>( producerSet.begin(), producerSet.end() ) );
+    m_selectedInjectorTracersUiField.setValueWithFieldChanged( std::vector<QString>( injectorSet.begin(), injectorSet.end() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1058,7 +1059,7 @@ void RimWellConnectivityTable::syncSelectedInjectorsFromProducerSelection()
         injectors.push_back( RiaDefines::reservoirTracerName() );
     }
 
-    m_selectedInjectorTracersUiField = injectors;
+    m_selectedInjectorTracersUiField.setValueWithFieldChanged( injectors );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1093,7 +1094,7 @@ void RimWellConnectivityTable::syncSelectedProducersFromInjectorSelection()
         producers.push_back( RiaDefines::reservoirTracerName() );
     }
 
-    m_selectedProducerTracersUiField = producers;
+    m_selectedProducerTracersUiField.setValueWithFieldChanged( producers );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1103,7 +1104,8 @@ void RimWellConnectivityTable::setProducerSelectionFromViewFilterAndSynchInjecto
 {
     if ( !m_cellFilterView || !m_case || !m_case->eclipseCaseData() ) return;
 
-    m_selectedProducerTracersUiField = getViewFilteredWellNamesFromFilterType( ViewFilterType::FILTER_BY_VISIBLE_PRODUCERS );
+    m_selectedProducerTracersUiField.setValueWithFieldChanged(
+        getViewFilteredWellNamesFromFilterType( ViewFilterType::FILTER_BY_VISIBLE_PRODUCERS ) );
 
     syncSelectedInjectorsFromProducerSelection();
 }
@@ -1115,7 +1117,8 @@ void RimWellConnectivityTable::setInjectorSelectionFromViewFilterAndSynchProduce
 {
     if ( !m_cellFilterView || !m_case || !m_case->eclipseCaseData() ) return;
 
-    m_selectedInjectorTracersUiField = getViewFilteredWellNamesFromFilterType( ViewFilterType::FILTER_BY_VISIBLE_INJECTORS );
+    m_selectedInjectorTracersUiField.setValueWithFieldChanged(
+        getViewFilteredWellNamesFromFilterType( ViewFilterType::FILTER_BY_VISIBLE_INJECTORS ) );
 
     syncSelectedProducersFromInjectorSelection();
 }
@@ -1127,8 +1130,8 @@ void RimWellConnectivityTable::setWellSelectionFromViewFilter()
 {
     if ( !m_cellFilterView || m_viewFilterType == ViewFilterType::CALCULATE_BY_VISIBLE_CELLS )
     {
-        m_selectedProducerTracersUiField = std::vector<QString>();
-        m_selectedInjectorTracersUiField = std::vector<QString>();
+        m_selectedProducerTracersUiField.setValueWithFieldChanged( {} );
+        m_selectedInjectorTracersUiField.setValueWithFieldChanged( {} );
         return;
     }
 
