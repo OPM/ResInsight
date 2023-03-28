@@ -514,6 +514,16 @@ cvf::Vec3d RimSeismicData::convertToWorldCoords( int iLine, int xLine, double de
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::pair<int, int> RimSeismicData::convertToInlineXline( cvf::Vec3d worldCoords )
+{
+    if ( !openFileIfNotOpen() ) return { 0, 0 };
+
+    return m_filereader->convertToInlineXline( worldCoords[0], worldCoords[1] );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::pair<double, double> RimSeismicData::dataRangeMinMax() const
 {
     return m_activeDataRange;
@@ -680,4 +690,25 @@ std::shared_ptr<ZGYAccess::SeismicSliceData>
     }
 
     return retdata;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+float RimSeismicData::valueAt( cvf::Vec3d worldCoord )
+{
+    if ( openFileIfNotOpen() )
+    {
+        auto [iline, xline] = convertToInlineXline( worldCoord );
+
+        int iIndex = toInlineIndex( iline );
+        int xIndex = toXlineIndex( xline );
+        int zIndex = toZIndex( std::abs( worldCoord[2] ) );
+
+        auto slice = m_filereader->trace( iIndex, xIndex, zIndex, 1 );
+
+        if ( slice->size() == 1 ) return slice->values()[0];
+    }
+
+    return std::nanf( "" );
 }

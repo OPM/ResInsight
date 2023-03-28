@@ -22,6 +22,7 @@
 
 #include "RivPartPriority.h"
 #include "RivPolylinePartMgr.h"
+#include "RivSeismicSectionSourceInfo.h"
 
 #include "Rim3dView.h"
 #include "RimRegularLegendConfig.h"
@@ -106,6 +107,10 @@ void RivSeismicSectionPartMgr::appendGeometryPartsToModel( cvf::ModelBasicList* 
         }
 
         cvf::ref<cvf::Part> quadPart = createSingleTexturedQuadPart( displayPoints, part.texture );
+
+        cvf::ref<RivSeismicSectionSourceInfo> si = new RivSeismicSectionSourceInfo( m_section, i );
+        quadPart->setSourceInfo( si.p() );
+
         model->addPart( quadPart.p() );
     }
 }

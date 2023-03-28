@@ -60,6 +60,7 @@
 #include "RimLegendConfig.h"
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
+#include "RimSeismicSection.h"
 #include "RimSimWellInView.h"
 #include "RimStimPlanFractureTemplate.h"
 #include "RimSurfaceInView.h"
@@ -82,6 +83,7 @@
 #include "RivObjectSourceInfo.h"
 #include "RivPartPriority.h"
 #include "RivReservoirSurfaceIntersectionSourceInfo.h"
+#include "RivSeismicSectionSourceInfo.h"
 #include "RivSimWellConnectionSourceInfo.h"
 #include "RivSimWellPipeSourceInfo.h"
 #include "RivSourceInfo.h"
@@ -713,9 +715,10 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
         if ( firstHitPart && firstHitPart->sourceInfo() )
         {
             // clang-format off
-            const RivObjectSourceInfo* rivObjectSourceInfo = dynamic_cast<const RivObjectSourceInfo*>( firstHitPart->sourceInfo() );
+            const RivObjectSourceInfo* rivObjectSourceInfo                = dynamic_cast<const RivObjectSourceInfo*>( firstHitPart->sourceInfo() );
             const RivSimWellPipeSourceInfo* eclipseWellSourceInfo         = dynamic_cast<const RivSimWellPipeSourceInfo*>( firstHitPart->sourceInfo() );
             const RivWellConnectionSourceInfo* wellConnectionSourceInfo   = dynamic_cast<const RivWellConnectionSourceInfo*>( firstHitPart->sourceInfo() );
+            const RivSeismicSectionSourceInfo* seismicSourceInfo          = dynamic_cast<const RivSeismicSectionSourceInfo*>(firstHitPart->sourceInfo());
             // clang-format on
 
             if ( rivObjectSourceInfo )
@@ -948,6 +951,30 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
                     }
                 }
                 RiuMainWindow::instance()->selectAsCurrentItem( simWellConnectionSourceInfo->simWellInView(), allowActiveViewChange );
+            }
+            else if ( seismicSourceInfo != nullptr )
+            {
+                auto section = seismicSourceInfo->section();
+
+                RiuMainWindow::instance()->selectAsCurrentItem( section );
+
+                cvf::ref<caf::DisplayCoordTransform> transForm   = mainOrComparisonView->displayCoordTransform();
+                cvf::Vec3d                           domainCoord = transForm->transformToDomainCoord( globalIntersectionPoint );
+
+                // Set surface resultInfo text
+                QString resultInfoText = "Seismic Section: \"" + section->userDescription() + "\"\n\n";
+
+                resultInfoText += section->resultInfoText( domainCoord, seismicSourceInfo->partIndex() );
+
+                // Set intersection point result text
+                QString pointText = QString( "Global point : [E: %1, N: %2, Depth: %3]" )
+                                        .arg( domainCoord.x(), 5, 'f', 2 )
+                                        .arg( domainCoord.y(), 5, 'f', 2 )
+                                        .arg( -domainCoord.z(), 5, 'f', 2 );
+                resultInfoText.append( pointText );
+
+                // Display result info text
+                RiuMainWindow::instance()->setResultInfo( resultInfoText );
             }
         }
     }
