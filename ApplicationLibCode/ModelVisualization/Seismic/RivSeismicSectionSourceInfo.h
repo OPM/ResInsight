@@ -20,10 +20,7 @@
 
 #include "cafPdmPointer.h"
 
-#include "cvfArray.h"
 #include "cvfObject.h"
-
-#include <array>
 
 class RimSeismicSection;
 
