@@ -99,6 +99,7 @@ public:
         getTimeStepsWithinSelectedRange( const std::vector<QDateTime>& timeSteps, const QDateTime& fromTimeStep, const QDateTime& toTimeStep );
 
 private:
+    static const DateTimeSpan TIMESPAN_MINUTE;
     static const DateTimeSpan TIMESPAN_HOUR;
     static const DateTimeSpan TIMESPAN_DAY;
     static const DateTimeSpan TIMESPAN_WEEK;
@@ -111,6 +112,7 @@ private:
     static quint64 secondsInDay();
     static quint64 secondsInYear();
     static quint64 secondsInHour();
+    static quint64 secondsInMinute();
 };
 
 //==================================================================================================
@@ -124,13 +126,15 @@ public:
         , m_months( 0 )
         , m_days( 0 )
         , m_hours( 0 )
+        , m_minutes( 0 )
     {
     }
-    DateTimeSpan( int years, int months, int days, int hours = 0 )
+    DateTimeSpan( int years, int months, int days, int hours = 0, int minutes = 0 )
         : m_years( years )
         , m_months( months )
         , m_days( days )
         , m_hours( hours )
+        , m_minutes( minutes )
     {
     }
 
@@ -138,12 +142,14 @@ public:
     int months() const { return m_months; }
     int days() const { return m_days; }
     int hours() const { return m_hours; }
+    int minutes() const { return m_minutes; }
 
-    bool isEmpty() { return m_years == 0 && m_months == 0 && m_days == 0 && m_hours == 0; }
+    bool isEmpty() { return m_years == 0 && m_months == 0 && m_days == 0 && m_hours == 0 && m_minutes == 0; }
 
 private:
     int m_years;
     int m_months;
     int m_days;
     int m_hours;
+    int m_minutes;
 };
