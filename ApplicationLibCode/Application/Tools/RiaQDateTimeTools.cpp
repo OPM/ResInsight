@@ -33,6 +33,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const DateTimeSpan RiaQDateTimeTools::TIMESPAN_MINUTE   = DateTimeSpan( 0, 0, 0, 0, 1 );
 const DateTimeSpan RiaQDateTimeTools::TIMESPAN_HOUR     = DateTimeSpan( 0, 0, 0, 1 );
 const DateTimeSpan RiaQDateTimeTools::TIMESPAN_DAY      = DateTimeSpan( 0, 0, 1 );
 const DateTimeSpan RiaQDateTimeTools::TIMESPAN_WEEK     = DateTimeSpan( 0, 0, 7 );
@@ -48,6 +49,14 @@ const DateTimeSpan RiaQDateTimeTools::TIMESPAN_DECADE   = DateTimeSpan( 10, 0, 0
 Qt::TimeSpec RiaQDateTimeTools::currentTimeSpec()
 {
     return Qt::UTC;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+quint64 RiaQDateTimeTools::secondsInMinute()
+{
+    return 60;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -156,7 +165,8 @@ QDateTime RiaQDateTimeTools::addSpan( const QDateTime& dt, DateTimeSpan span )
         .addYears( span.years() )
         .addMonths( span.months() )
         .addDays( span.days() )
-        .addSecs( span.hours() * RiaQDateTimeTools::secondsInHour() );
+        .addSecs( span.hours() * RiaQDateTimeTools::secondsInHour() )
+        .addSecs( span.minutes() * RiaQDateTimeTools::secondsInMinute() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -168,7 +178,8 @@ QDateTime RiaQDateTimeTools::subtractSpan( const QDateTime& dt, DateTimeSpan spa
         .addYears( -span.years() )
         .addMonths( -span.months() )
         .addDays( -span.days() )
-        .addSecs( -span.hours() * RiaQDateTimeTools::secondsInHour() );
+        .addSecs( -span.hours() * RiaQDateTimeTools::secondsInHour() )
+        .addSecs( -span.minutes() * RiaQDateTimeTools::secondsInMinute() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -268,6 +279,8 @@ const DateTimeSpan RiaQDateTimeTools::timeSpan( RiaDefines::DateTimePeriod perio
 {
     switch ( period )
     {
+        case RiaDefines::DateTimePeriod::MINUTE:
+            return TIMESPAN_MINUTE;
         case RiaDefines::DateTimePeriod::HOUR:
             return TIMESPAN_HOUR;
         case RiaDefines::DateTimePeriod::DAY:
@@ -294,14 +307,17 @@ const DateTimeSpan RiaQDateTimeTools::timeSpan( RiaDefines::DateTimePeriod perio
 //--------------------------------------------------------------------------------------------------
 QDateTime RiaQDateTimeTools::truncateTime( const QDateTime& dt, RiaDefines::DateTimePeriod period )
 {
-    int y   = dt.date().year();
-    int m   = dt.date().month();
-    int d   = dt.date().day();
-    int dow = dt.date().dayOfWeek();
-    int h   = dt.time().hour();
+    int y      = dt.date().year();
+    int m      = dt.date().month();
+    int d      = dt.date().day();
+    int dow    = dt.date().dayOfWeek();
+    int h      = dt.time().hour();
+    int minute = dt.time().minute();
 
     switch ( period )
     {
+        case RiaDefines::DateTimePeriod::MINUTE:
+            return createUtcDateTime( QDate( y, m, d ), QTime( h, minute, 0 ) );
         case RiaDefines::DateTimePeriod::HOUR:
             return createUtcDateTime( QDate( y, m, d ), QTime( h, 0, 0 ) );
         case RiaDefines::DateTimePeriod::DAY:
