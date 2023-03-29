@@ -21,6 +21,7 @@
 #include "RifEnsembleStatisticsReader.h"
 
 #include "RiaSummaryTools.h"
+#include "RiaTimeHistoryCurveResampler.h"
 
 #include "RigStatisticsMath.h"
 
@@ -146,6 +147,10 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
 
     if ( !inputAddress.isValid() ) return;
 
+    auto [minTimeStep, maxTimeStep] = findMinMaxTimeStep( sumCases, inputAddress );
+
+    RiaDefines::DateTimePeriod period = findBestResamplingPeriod( minTimeStep, maxTimeStep );
+
     caseAndTimeStepValues.reserve( sumCases.size() );
     for ( const auto& sumCase : sumCases )
     {
@@ -160,8 +165,7 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*>& s
 
             if ( !includeIncompleteCurves && timeSteps.size() != values.size() ) continue;
 
-            auto [resampledTimeSteps, resampledValues] =
-                RiaSummaryTools::resampledValuesForPeriod( inputAddress, timeSteps, values, RiaDefines::DateTimePeriod::DAY );
+            auto [resampledTimeSteps, resampledValues] = RiaSummaryTools::resampledValuesForPeriod( inputAddress, timeSteps, values, period );
 
             if ( allTimeSteps.empty() ) allTimeSteps = resampledTimeSteps;
             caseAndTimeStepValues.push_back( resampledValues );
