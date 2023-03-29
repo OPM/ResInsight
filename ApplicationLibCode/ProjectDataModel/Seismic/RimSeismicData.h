@@ -81,12 +81,15 @@ public:
 
     std::vector<cvf::Vec3d> worldOutline() const;
 
-    cvf::Vec3d convertToWorldCoords( int iLine, int xLine, double depth );
+    cvf::Vec3d          convertToWorldCoords( int iLine, int xLine, double depth );
+    std::pair<int, int> convertToInlineXline( cvf::Vec3d worldCoords );
 
     std::shared_ptr<ZGYAccess::SeismicSliceData>
         sliceData( RiaDefines::SeismicSliceDirection direction, int sliceNumber, double zMin, double zMax );
     std::shared_ptr<ZGYAccess::SeismicSliceData>
         sliceData( double worldX1, double worldY1, double worldX2, double worldY2, double zMin, double zMax );
+
+    float valueAt( cvf::Vec3d worldCoord );
 
     std::pair<double, double> dataRangeMinMax() const;
 

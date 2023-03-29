@@ -54,6 +54,7 @@
 #include <QPixmap>
 
 #include <algorithm>
+#include <cmath>
 
 CAF_PDM_SOURCE_INIT( RimSeismicSection, "SeismicSection" );
 
@@ -897,4 +898,33 @@ int RimSeismicSection::lowerFilterZ( int lowerGridLimit ) const
         default:
             return lowerGridLimit;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSeismicSection::resultInfoText( cvf::Vec3d worldCoord, int partIndex )
+{
+    if ( ( seismicData() == nullptr ) || ( m_texturedSection.isNull() ) || ( partIndex >= m_texturedSection->partsCount() ) )
+    {
+        return "";
+    }
+
+    auto [iline, xline] = m_seismicData->convertToInlineXline( worldCoord );
+
+    QString retVal = QString( "Inline: %1\nCrossline: %2\nDepth: %3\n\n" ).arg( iline ).arg( xline ).arg( std::abs( (int)worldCoord[2] ) );
+
+    if ( m_texturedSection->partsCount() > 1 )
+    {
+        retVal += QString( "Section part: %1\n\n" ).arg( partIndex + 1 );
+    }
+
+    float val = m_seismicData->valueAt( worldCoord );
+
+    if ( !std::isnan( val ) )
+    {
+        retVal += QString( "Value: %1\n\n" ).arg( val );
+    }
+
+    return retVal;
 }

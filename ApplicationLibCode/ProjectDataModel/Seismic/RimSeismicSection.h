@@ -89,6 +89,8 @@ public:
     int                       lowerFilterZ( int lowerGridLimit ) const;
     RimIntersectionFilterEnum zFilterType() const;
 
+    QString resultInfoText( cvf::Vec3d worldCoord, int partIndex );
+
 protected:
     void                 initAfterRead() override;
     caf::PdmFieldHandle* userDescriptionField() override;

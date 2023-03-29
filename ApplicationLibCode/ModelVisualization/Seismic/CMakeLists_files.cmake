@@ -1,9 +1,11 @@
 set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RivSeismicSectionPartMgr.h
+    ${CMAKE_CURRENT_LIST_DIR}/RivSeismicSectionSourceInfo.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RivSeismicSectionPartMgr.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RivSeismicSectionSourceInfo.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
