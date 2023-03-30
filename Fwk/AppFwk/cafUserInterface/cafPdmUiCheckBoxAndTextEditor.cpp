@@ -64,20 +64,32 @@ void PdmUiCheckBoxAndTextEditor::configureAndUpdateUi( const QString& uiConfigNa
 
     m_lineEdit->setToolTip( uiField()->uiToolTip( uiConfigName ) );
 
-    std::pair<bool, double> pairValue;
-    pairValue = uiField()->uiValue().value<std::pair<bool, double>>();
+    bool    isChecked = false;
+    QString textString;
+
+    // A pair is converted into a list of QVariant in PdmValueFieldSpecialization<std::pair<T, U>>
+    auto variantValue = uiField()->uiValue();
+    if ( variantValue.canConvert<QList<QVariant>>() )
+    {
+        QList<QVariant> lst = variantValue.toList();
+        if ( lst.size() == 2 )
+        {
+            isChecked  = lst[0].toBool();
+            textString = lst[1].toString();
+        }
+    }
 
     m_lineEdit->blockSignals( true );
     m_checkBox->blockSignals( true );
 
-    m_lineEdit->setText( QString( "%1" ).arg( pairValue.second ) );
-    m_checkBox->setChecked( pairValue.first );
+    m_lineEdit->setText( QString( "%1" ).arg( textString ) );
+    m_checkBox->setChecked( isChecked );
 
     m_lineEdit->blockSignals( false );
     m_checkBox->blockSignals( false );
 
     bool isReadOnly = uiField()->isUiReadOnly( uiConfigName );
-    if ( !pairValue.first ) isReadOnly = true;
+    if ( !isChecked ) isReadOnly = true;
     m_lineEdit->setDisabled( isReadOnly );
 }
 
@@ -124,12 +136,10 @@ void PdmUiCheckBoxAndTextEditor::slotSetValueToField()
 {
     bool isChecked = m_checkBox->checkState() == Qt::CheckState::Checked;
 
-    auto myObj = sender();
-    auto txt   = myObj->objectName();
+    auto text      = m_lineEdit->text();
+    auto pairValue = std::make_pair( isChecked, text );
 
-    double   value     = m_lineEdit->text().toDouble();
-    auto     pairValue = std::make_pair( isChecked, value );
-    QVariant v         = QVariant::fromValue( pairValue );
+    QVariant v = caf::PdmValueFieldSpecialization<std::pair<bool, QString>>::convert( pairValue );
 
     this->setValueToField( v );
 }

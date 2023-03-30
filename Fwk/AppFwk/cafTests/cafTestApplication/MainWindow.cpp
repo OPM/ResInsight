@@ -130,7 +130,9 @@ public:
                           "Text tooltip",
                           "This is a place you can enter a small integer value if you want");
 
-        CAF_PDM_InitFieldNoDefault(&m_booleanAndDoubleField, "BooleanAndDoubleField", "Boolean and text");
+        CAF_PDM_InitFieldNoDefault(&m_booleanAndDoubleField, "BooleanAndDoubleField", "Checkable double");
+        CAF_PDM_InitFieldNoDefault(&m_booleanAndTextField, "BooleanAndTextField", "Checkable text");
+        m_booleanAndTextField.uiCapability()->setUiEditorTypeName(caf::PdmUiCheckBoxAndTextEditor::uiEditorTypeName());
 
         m_proxyDoubleField.registerSetMethod(this, &SmallDemoPdmObject::setDoubleMember);
         m_proxyDoubleField.registerGetMethod(this, &SmallDemoPdmObject::doubleMember);
@@ -167,7 +169,8 @@ public:
     caf::PdmField<int>     m_intField;
     caf::PdmField<QString> m_textField;
 
-    caf::PdmField<std::pair<bool, double>> m_booleanAndDoubleField;
+    caf::PdmField<std::pair<bool, double>>  m_booleanAndDoubleField;
+    caf::PdmField<std::pair<bool, QString>> m_booleanAndTextField;
 
     caf::PdmChildArrayField<ColorTriplet*> m_colorTriplets;
 
@@ -285,6 +288,8 @@ protected:
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override
     {
         uiOrdering.add(&m_booleanAndDoubleField);
+        uiOrdering.add(&m_booleanAndTextField);
+
         uiOrdering.add(&m_doubleField);
         uiOrdering.add(&m_intField);
         QString dynamicGroupName = QString("Dynamic Group Text (%1)").arg(m_intField);

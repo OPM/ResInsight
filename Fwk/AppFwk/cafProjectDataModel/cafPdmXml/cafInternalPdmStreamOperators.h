@@ -81,10 +81,27 @@ template <typename T, typename U>
 QTextStream& operator>>( QTextStream& str, std::pair<T, U>& sobj )
 {
     T first;
-    U second;
 
     str >> first;
-    str >> second;
+
+    QString restOfString;
+    while ( str.status() == QTextStream::Ok )
+    {
+        // Using the >> operator will parse a string word by word. Multiple spaces between words will be replaced by a
+        // single space.
+
+        QString tmp;
+        str >> tmp;
+
+        if ( !tmp.isEmpty() )
+        {
+            if ( !restOfString.isEmpty() ) restOfString += " ";
+            restOfString += tmp;
+        }
+    }
+
+    QVariant v      = restOfString;
+    U        second = v.value<U>();
 
     sobj = std::make_pair( first, second );
 
