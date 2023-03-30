@@ -80,8 +80,8 @@ QTextStream& operator<<( QTextStream& str, const std::pair<U, T>& sobj )
 template <typename T, typename U>
 QTextStream& operator>>( QTextStream& str, std::pair<U, T>& sobj )
 {
-    U first( U() );
-    T second( T() );
+    U first;
+    T second;
 
     str >> first;
     str >> second;
