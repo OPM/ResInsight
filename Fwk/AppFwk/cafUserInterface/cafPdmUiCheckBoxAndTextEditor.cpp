@@ -68,11 +68,11 @@ void PdmUiCheckBoxAndTextEditor::configureAndUpdateUi( const QString& uiConfigNa
 
     connect( m_textEdit, SIGNAL( editingFinished() ), this, SLOT( slotSetValueToField() ) );
 
-    std::pair<bool, QString> pairValue;
-    pairValue = uiField()->uiValue().value<std::pair<bool, QString>>();
+    std::pair<bool, double> pairValue;
+    pairValue = uiField()->uiValue().value<std::pair<bool, double>>();
 
     m_textEdit->blockSignals( true );
-    m_textEdit->setText( pairValue.second );
+    m_textEdit->setText( QString( "%1" ).arg( pairValue.second ) );
     m_textEdit->blockSignals( false );
 
     m_checkBox->blockSignals( true );
@@ -120,7 +120,8 @@ void PdmUiCheckBoxAndTextEditor::slotSetValueToField()
 {
     bool isChecked = m_checkBox->checkState() == Qt::CheckState::Checked;
 
-    auto     pairValue = std::make_pair( isChecked, m_textEdit->text() );
+    double   value     = m_textEdit->text().toDouble();
+    auto     pairValue = std::make_pair( isChecked, value );
     QVariant v         = QVariant::fromValue( pairValue );
 
     this->setValueToField( v );

@@ -62,3 +62,31 @@ QTextStream& operator>>( QTextStream& str, std::vector<T>& sobj )
     }
     return str;
 }
+
+//==================================================================================================
+/// QTextStream Stream operator overloading for std::pair<bool, T>
+//==================================================================================================
+
+template <typename T, typename U>
+QTextStream& operator<<( QTextStream& str, const std::pair<U, T>& sobj )
+{
+    str << sobj.first;
+    str << " ";
+    str << sobj.second;
+
+    return str;
+}
+
+template <typename T, typename U>
+QTextStream& operator>>( QTextStream& str, std::pair<U, T>& sobj )
+{
+    U first( U() );
+    T second( T() );
+
+    str >> first;
+    str >> second;
+
+    sobj = std::make_pair( first, second );
+
+    return str;
+}

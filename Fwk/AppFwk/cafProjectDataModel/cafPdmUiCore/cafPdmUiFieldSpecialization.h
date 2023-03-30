@@ -27,11 +27,17 @@ template <typename T>
 class PdmUiFieldSpecialization
 {
 public:
-    /// Convert the field value into a QVariant
-    static QVariant convert( const T& value ) { return QVariant::fromValue( value ); }
+    static QVariant convert( const T& value )
+    {
+        /// Convert the field value into a QVariant
+        return QVariant::fromValue( value );
+    }
 
-    /// Set the field value from a QVariant
-    static void setFromVariant( const QVariant& variantValue, T& value ) { value = variantValue.value<T>(); }
+    static void setFromVariant( const QVariant& variantValue, T& value )
+    {
+        /// Set the field value from a QVariant
+        value = variantValue.value<T>();
+    }
 
     /// Check equality between QVariants that carries a Field Value.
     /// The == operator will normally work, but does not support custom types in the QVariant
