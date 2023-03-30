@@ -40,13 +40,13 @@
 #include "cafPdmObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiFieldEditorHandle.h"
+#include "cafPdmUiLineEditor.h"
 #include "cafPdmUiOrdering.h"
 #include "cafQShortenedLabel.h"
 
-#include <QIntValidator>
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QTextEdit>
-#include <QVBoxLayout>
 
 namespace caf
 {
@@ -57,26 +57,26 @@ CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiCheckBoxAndTextEditor );
 //--------------------------------------------------------------------------------------------------
 void PdmUiCheckBoxAndTextEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
-    CAF_ASSERT( !m_textEdit.isNull() );
+    CAF_ASSERT( !m_lineEdit.isNull() );
     CAF_ASSERT( !m_label.isNull() );
 
     PdmUiFieldEditorHandle::updateLabelFromField( m_label, uiConfigName );
 
-    m_textEdit->setReadOnly( uiField()->isUiReadOnly( uiConfigName ) );
-    // m_textEdit->setEnabled(!field()->isUiReadOnly(uiConfigName)); // Neccesary ?
-    m_textEdit->setToolTip( uiField()->uiToolTip( uiConfigName ) );
+    m_lineEdit->setReadOnly( uiField()->isUiReadOnly( uiConfigName ) );
+    m_lineEdit->setToolTip( uiField()->uiToolTip( uiConfigName ) );
 
-    connect( m_textEdit, SIGNAL( editingFinished() ), this, SLOT( slotSetValueToField() ) );
+    connect( m_lineEdit, SIGNAL( editingFinished() ), this, SLOT( slotSetValueToField() ) );
 
     std::pair<bool, double> pairValue;
     pairValue = uiField()->uiValue().value<std::pair<bool, double>>();
 
-    m_textEdit->blockSignals( true );
-    m_textEdit->setText( QString( "%1" ).arg( pairValue.second ) );
-    m_textEdit->blockSignals( false );
-
+    m_lineEdit->blockSignals( true );
     m_checkBox->blockSignals( true );
+
+    m_lineEdit->setText( QString( "%1" ).arg( pairValue.second ) );
     m_checkBox->setChecked( pairValue.first );
+
+    m_lineEdit->blockSignals( false );
     m_checkBox->blockSignals( false );
 }
 
@@ -85,18 +85,18 @@ void PdmUiCheckBoxAndTextEditor::configureAndUpdateUi( const QString& uiConfigNa
 //--------------------------------------------------------------------------------------------------
 QWidget* PdmUiCheckBoxAndTextEditor::createEditorWidget( QWidget* parent )
 {
-    QWidget* containerWidget = new QWidget( parent );
+    auto* containerWidget = new QWidget( parent );
 
-    m_textEdit = new QLineEdit( containerWidget );
-    connect( m_textEdit, SIGNAL( editingFinished() ), this, SLOT( slotSetValueToField() ) );
+    m_lineEdit = new PdmUiLineEdit( containerWidget );
+    connect( m_lineEdit, SIGNAL( editingFinished() ), this, SLOT( slotSetValueToField() ) );
 
     m_checkBox = new QCheckBox( "", containerWidget );
     connect( m_checkBox, SIGNAL( clicked() ), this, SLOT( slotSetValueToField() ) );
 
-    QHBoxLayout* layout = new QHBoxLayout;
+    auto* layout = new QHBoxLayout;
 
     layout->addWidget( m_checkBox );
-    layout->addWidget( m_textEdit );
+    layout->addWidget( m_lineEdit );
     layout->setMargin( 0 );
 
     containerWidget->setLayout( layout );
@@ -120,7 +120,7 @@ void PdmUiCheckBoxAndTextEditor::slotSetValueToField()
 {
     bool isChecked = m_checkBox->checkState() == Qt::CheckState::Checked;
 
-    double   value     = m_textEdit->text().toDouble();
+    double   value     = m_lineEdit->text().toDouble();
     auto     pairValue = std::make_pair( isChecked, value );
     QVariant v         = QVariant::fromValue( pairValue );
 

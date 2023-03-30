@@ -64,11 +64,11 @@ QTextStream& operator>>( QTextStream& str, std::vector<T>& sobj )
 }
 
 //==================================================================================================
-/// QTextStream Stream operator overloading for std::pair<bool, T>
+/// QTextStream Stream operator overloading for std::pair<T, U>
 //==================================================================================================
 
 template <typename T, typename U>
-QTextStream& operator<<( QTextStream& str, const std::pair<U, T>& sobj )
+QTextStream& operator<<( QTextStream& str, const std::pair<T, U>& sobj )
 {
     str << sobj.first;
     str << " ";
@@ -78,10 +78,10 @@ QTextStream& operator<<( QTextStream& str, const std::pair<U, T>& sobj )
 }
 
 template <typename T, typename U>
-QTextStream& operator>>( QTextStream& str, std::pair<U, T>& sobj )
+QTextStream& operator>>( QTextStream& str, std::pair<T, U>& sobj )
 {
-    U first;
-    T second;
+    T first;
+    U second;
 
     str >> first;
     str >> second;

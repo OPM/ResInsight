@@ -35,15 +35,15 @@
 //##################################################################################################
 
 #pragma once
+
 #include "cafPdmUiFieldEditorHandle.h"
+
 #include <QCheckBox>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPointer>
 #include <QString>
 #include <QWidget>
-
-class QGridLayout;
 
 namespace caf
 {
@@ -68,7 +68,7 @@ protected slots:
     void slotSetValueToField();
 
 private:
-    QPointer<QLineEdit>       m_textEdit;
+    QPointer<QLineEdit>       m_lineEdit;
     QPointer<QCheckBox>       m_checkBox;
     QPointer<QShortenedLabel> m_label;
 };
