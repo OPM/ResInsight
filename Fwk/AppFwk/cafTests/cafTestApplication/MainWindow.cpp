@@ -131,7 +131,6 @@ public:
                           "This is a place you can enter a small integer value if you want");
 
         CAF_PDM_InitFieldNoDefault(&m_booleanAndDoubleField, "BooleanAndDoubleField", "Boolean and text");
-        m_booleanAndDoubleField.uiCapability()->setUiEditorTypeName(caf::PdmUiCheckBoxAndTextEditor::uiEditorTypeName());
 
         m_proxyDoubleField.registerSetMethod(this, &SmallDemoPdmObject::setDoubleMember);
         m_proxyDoubleField.registerGetMethod(this, &SmallDemoPdmObject::doubleMember);
