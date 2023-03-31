@@ -33,7 +33,7 @@ jobs:
               vcpkg-triplet: x64-windows,
               build-python-module: true,
               execute-unit-tests: true,
-              unity-build:true,
+              unity-build: true,
             }
           - {
               name: "Ubuntu Latest gcc",
@@ -44,7 +44,7 @@ jobs:
               vcpkg-triplet: x64-linux,
               build-python-module: true,
               execute-unit-tests: true,
-              unity-build:false,
+              unity-build: false,
             }
           - {
               name: "Ubuntu Latest clang",
@@ -55,7 +55,7 @@ jobs:
               vcpkg-triplet: x64-linux,
               build-python-module: true,
               execute-unit-tests: true,
-              unity-build:false,
+              unity-build: false,
             }
     steps:
       - name: Checkout
