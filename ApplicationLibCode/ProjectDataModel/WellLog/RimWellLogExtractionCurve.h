@@ -105,7 +105,9 @@ protected:
     void    connectCaseSignals( RimCase* rimCase );
 
     virtual void performDataExtraction( bool* isUsingPseudoLength );
-    void         extractData( bool* isUsingPseudoLength, bool performDataSmoothing = false, double smoothingThreshold = -1.0 );
+    void         extractData( bool*                        isUsingPseudoLength,
+                              const std::optional<double>& smoothingThreshold,
+                              const std::optional<double>& maxDistanceBetweenCurvePoints );
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -154,16 +156,17 @@ private:
 
 private:
     WellLogExtractionCurveData extractEclipseData( RimEclipseCase* eclipseCase, bool* isUsingPseudoLength );
-    WellLogExtractionCurveData extractGeomData( RimGeoMechCase* geomCase,
-                                                bool*           isUsingPseudoLength,
-                                                bool            performDataSmoothing = false,
-                                                double          smoothingThreshold   = -1.0 );
-    void                       mapPropertyValuesFromReferenceWell( std::vector<double>&       rMeasuredDepthValues,
-                                                                   std::vector<double>&       rTvDepthValues,
-                                                                   std::vector<double>&       rPropertyValues,
-                                                                   const std::vector<double>& indexKValues,
-                                                                   const std::vector<double>& refWellMeasuredDepthValues,
-                                                                   const std::vector<double>& refWellTvDepthValues,
-                                                                   const std::vector<double>& refWellPropertyValues,
-                                                                   const std::vector<double>& refWellIndexKValues );
+    WellLogExtractionCurveData extractGeomData( RimGeoMechCase*              geoMechCase,
+                                                bool*                        isUsingPseudoLength,
+                                                const std::optional<double>& smoothingThreshold,
+                                                const std::optional<double>& maxDistanceBetweenCurvePoints );
+
+    void mapPropertyValuesFromReferenceWell( std::vector<double>&       rMeasuredDepthValues,
+                                             std::vector<double>&       rTvDepthValues,
+                                             std::vector<double>&       rPropertyValues,
+                                             const std::vector<double>& indexKValues,
+                                             const std::vector<double>& refWellMeasuredDepthValues,
+                                             const std::vector<double>& refWellTvDepthValues,
+                                             const std::vector<double>& refWellPropertyValues,
+                                             const std::vector<double>& refWellIndexKValues );
 };

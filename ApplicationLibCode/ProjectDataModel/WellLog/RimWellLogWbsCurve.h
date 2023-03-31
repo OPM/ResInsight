@@ -20,6 +20,23 @@
 #include "RimWellLogExtractionCurve.h"
 
 //==================================================================================================
+/// Helpers for creating optional values, move to stdOptionalTools when used in more places
+//==================================================================================================
+template <typename T>
+std::optional<T> createOptional( bool enable, const T& value )
+{
+    if ( !enable ) return {};
+
+    return std::optional<T>( value );
+}
+
+template <typename T>
+std::optional<T> createOptional( const std::pair<bool, T>& value )
+{
+    return createOptional( value.first, value.second );
+}
+
+//==================================================================================================
 ///
 ///
 //==================================================================================================
@@ -36,12 +53,17 @@ public:
     void setSmoothCurve( bool smooth );
     void setSmoothingThreshold( double threshold );
 
+    void enableMaximumCurvePointInterval( bool enable );
+    void setMaximumCurvePointInterval( double interval );
+
 protected:
     void performDataExtraction( bool* isUsingPseudoLength ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 protected:
+    caf::PdmField<std::pair<bool, double>> m_maximumCurvePointInterval;
+
     caf::PdmField<bool>   m_smoothCurve;
     caf::PdmField<double> m_smoothingThreshold;
 };

@@ -125,8 +125,10 @@ private:
     caf::PdmField<int>                m_branchIndex;
     caf::PdmField<caf::Tristate>      m_branchDetection;
     caf::PdmField<int>                m_timeStep;
-    caf::PdmField<caf::Tristate>      m_wbsSmoothing;
-    caf::PdmField<double>             m_wbsSmoothingThreshold;
+
+    caf::PdmField<caf::Tristate>           m_wbsSmoothing;
+    caf::PdmField<double>                  m_wbsSmoothingThreshold;
+    caf::PdmField<std::pair<bool, double>> m_maximumCurvePointInterval;
 
     caf::PdmField<QDateTime>                               m_rftTimeStep;
     caf::PdmField<QString>                                 m_rftWellName;

@@ -18,8 +18,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RigWellLogExtractor.h"
+
 #include "RiaLogging.h"
 #include "RigWellPath.h"
+
 #include "cvfTrace.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -86,11 +88,95 @@ std::vector<WellPathCellIntersectionInfo> RigWellLogExtractor::cellIntersectionI
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Insert additional intersections if the distance between two intersections is larger than maxDistanceBetweenIntersections
+//--------------------------------------------------------------------------------------------------
+void RigWellLogExtractor::resampleIntersections( double maxDistanceBetweenIntersections )
+{
+    if ( maxDistanceBetweenIntersections <= 0.0 ) return;
+
+    std::vector<cvf::Vec3d>                         resampledIntersections;
+    std::vector<size_t>                             resampledIntersectedCellsGlobIdx;
+    std::vector<cvf::StructGridInterface::FaceType> resampledIntersectedCellFaces;
+    std::vector<double>                             resampledIntersectionMeasuredDepths;
+    std::vector<double>                             resampledIntersectionTVDs;
+
+    if ( m_intersections.size() > 1 )
+    {
+        resampledIntersections.push_back( m_intersections[0] );
+        resampledIntersectedCellsGlobIdx.push_back( m_intersectedCellsGlobIdx[0] );
+        resampledIntersectedCellFaces.push_back( m_intersectedCellFaces[0] );
+        resampledIntersectionMeasuredDepths.push_back( m_intersectionMeasuredDepths[0] );
+        resampledIntersectionTVDs.push_back( m_intersectionTVDs[0] );
+
+        for ( size_t i = 1; i < m_intersections.size(); i++ )
+        {
+            const cvf::Vec3d p1       = m_intersections[i - 1];
+            const cvf::Vec3d p2       = m_intersections[i];
+            const double     distance = ( p2 - p1 ).length();
+            if ( distance > maxDistanceBetweenIntersections )
+            {
+                size_t numberOfPoints = static_cast<size_t>( distance / maxDistanceBetweenIntersections ) + 1;
+                for ( size_t j = 1; j < numberOfPoints; j++ )
+                {
+                    // Insert data twice, as the curve visualization algorithm is based on pairs of intersections
+
+                    resampledIntersectedCellsGlobIdx.push_back( m_intersectedCellsGlobIdx[i] );
+                    resampledIntersectedCellsGlobIdx.push_back( m_intersectedCellsGlobIdx[i] );
+                    resampledIntersectedCellFaces.push_back( m_intersectedCellFaces[i] );
+                    resampledIntersectedCellFaces.push_back( m_intersectedCellFaces[i] );
+
+                    const double     t = static_cast<double>( j ) / static_cast<double>( numberOfPoints );
+                    const cvf::Vec3d p = p1 + ( p2 - p1 ) * t;
+                    resampledIntersections.push_back( p );
+                    resampledIntersections.push_back( p );
+
+                    const double md = m_intersectionMeasuredDepths[i - 1] +
+                                      ( m_intersectionMeasuredDepths[i] - m_intersectionMeasuredDepths[i - 1] ) * t;
+                    resampledIntersectionMeasuredDepths.push_back( md );
+                    resampledIntersectionMeasuredDepths.push_back( md );
+
+                    const double tvd = m_intersectionTVDs[i - 1] + ( m_intersectionTVDs[i] - m_intersectionTVDs[i - 1] ) * t;
+                    resampledIntersectionTVDs.push_back( tvd );
+                    resampledIntersectionTVDs.push_back( tvd );
+                }
+            }
+            resampledIntersections.push_back( p2 );
+            resampledIntersectedCellsGlobIdx.push_back( m_intersectedCellsGlobIdx[i] );
+            resampledIntersectedCellFaces.push_back( m_intersectedCellFaces[i] );
+            resampledIntersectionMeasuredDepths.push_back( m_intersectionMeasuredDepths[i] );
+            resampledIntersectionTVDs.push_back( m_intersectionTVDs[i] );
+        }
+    }
+
+    m_intersectionMeasuredDepths = resampledIntersectionMeasuredDepths;
+    m_intersectionTVDs           = resampledIntersectionTVDs;
+    m_intersections              = resampledIntersections;
+    m_intersectedCellsGlobIdx    = resampledIntersectedCellsGlobIdx;
+    m_intersectedCellFaces       = resampledIntersectedCellFaces;
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 const std::vector<size_t>& RigWellLogExtractor::intersectedCellsGlobIdx() const
 {
     return m_intersectedCellsGlobIdx;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<cvf::Vec3d>& RigWellLogExtractor::intersections() const
+{
+    return m_intersections;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const std::vector<cvf::StructGridInterface::FaceType>& RigWellLogExtractor::intersectedCellFaces() const
+{
+    return m_intersectedCellFaces;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -319,6 +405,9 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigWellLogExtractor::appendIntersectionToArrays( double                      measuredDepth,
                                                       const HexIntersectionInfo&  intersection,
                                                       gsl::not_null<QStringList*> errorMessages )
