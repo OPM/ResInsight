@@ -36,6 +36,7 @@
 class RimViewWindow;
 class RimRegularLegendConfig;
 class RiuAbstractLegendFrame;
+class RiuQwtPlotZoomer;
 
 class RiuMatrixPlotWidget : public QWidget, public RiuInterfaceToViewWindow, public caf::SignalEmitter
 {
@@ -79,6 +80,7 @@ public:
 
 protected:
     void contextMenuEvent( QContextMenuEvent* ) override;
+    bool eventFilter( QObject* watched, QEvent* event ) override;
 
 private slots:
     void onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotItem, bool toggle, int sampleIndex );
@@ -91,6 +93,9 @@ private:
 private:
     QPointer<RiuQwtPlotWidget>       m_plotWidget;
     QPointer<RiuAbstractLegendFrame> m_legendFrame;
+
+    QPointer<RiuQwtPlotZoomer> m_zoomerLeft;
+    QPointer<RiuQwtPlotZoomer> m_zoomerRight;
 
     caf::PdmPointer<RimViewWindow>          m_ownerViewWindow; // Only intended to be used by ownerViewWindow()
     caf::PdmPointer<RimRegularLegendConfig> m_legendConfig;

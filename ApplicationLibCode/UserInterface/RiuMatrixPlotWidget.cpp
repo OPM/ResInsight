@@ -28,11 +28,14 @@
 #include "RiuQwtLinearScaleEngine.h"
 #include "RiuQwtPlotItem.h"
 #include "RiuQwtPlotTools.h"
+#include "RiuQwtPlotWheelZoomer.h"
+#include "RiuQwtPlotZoomer.h"
 #include "RiuScalarMapperLegendFrame.h"
 
 #include "cvfColor3.h"
 
 #include "qwt_plot_marker.h"
+#include "qwt_plot_panner.h"
 #include "qwt_scale_draw.h"
 #include "qwt_text.h"
 
@@ -102,6 +105,10 @@ RiuMatrixPlotWidget::RiuMatrixPlotWidget( RimViewWindow* ownerViewWindow, RimReg
         mainLayout->addWidget( m_legendFrame );
     }
 
+    // Add event filter
+    m_plotWidget->qwtPlot()->installEventFilter( this );
+    m_plotWidget->qwtPlot()->canvas()->installEventFilter( this );
+
     // Configure plot widget to be a matrix plot?
     m_plotWidget->enableGridLines( RiuPlotAxis::defaultTop(), false, false );
     m_plotWidget->enableGridLines( RiuPlotAxis::defaultBottom(), false, false );
@@ -110,6 +117,24 @@ RiuMatrixPlotWidget::RiuMatrixPlotWidget( RimViewWindow* ownerViewWindow, RimReg
 
     m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
     m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultBottom(), true );
+
+    // LeftButton for the zooming
+    m_zoomerLeft = new RiuQwtPlotZoomer( qwtPlot()->canvas() );
+    m_zoomerLeft->setTrackerMode( QwtPicker::AlwaysOff );
+    m_zoomerLeft->initMousePattern( 1 );
+
+    // Attach a zoomer for the right axis
+    m_zoomerRight = new RiuQwtPlotZoomer( qwtPlot()->canvas() );
+    m_zoomerRight->setAxes( QwtAxis::XTop, QwtAxis::YRight );
+    m_zoomerRight->setTrackerMode( QwtPicker::AlwaysOff );
+    m_zoomerRight->initMousePattern( 1 );
+
+    // MidButton for the panning
+    QwtPlotPanner* panner = new QwtPlotPanner( qwtPlot()->canvas() );
+    panner->setMouseButton( Qt::MiddleButton );
+
+    // Wheel zoomer
+    auto wheelZoomer = new RiuQwtPlotWheelZoomer( qwtPlot() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -202,6 +227,25 @@ void RiuMatrixPlotWidget::contextMenuEvent( QContextMenuEvent* )
     // Added empty override to preventing menu for Mdi Area
     // I.e.: RiuContextMenuLauncher for RiuPlotMainWindow (mdi area)
     return;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiuMatrixPlotWidget::eventFilter( QObject* watched, QEvent* event )
+{
+    // My code
+    auto* mouseEvent = dynamic_cast<QMouseEvent*>( event );
+    if ( mouseEvent )
+    {
+        if ( mouseEvent->type() == QMouseEvent::MouseButtonDblClick )
+        {
+            // TODO: ADD CODE FOR DOUBLE CLICK ACTION: ZOOM ALL
+            return true;
+        }
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
