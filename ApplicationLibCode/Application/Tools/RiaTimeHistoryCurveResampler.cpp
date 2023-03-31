@@ -21,6 +21,7 @@
 
 #include "RiaQDateTimeTools.h"
 #include "RiaTimeHistoryCurveResampler.h"
+#include "RiaWeightedMeanCalculator.h"
 
 #include <limits>
 
@@ -125,8 +126,6 @@ std::vector<time_t> RiaTimeHistoryCurveResampler::timeStepsFromTimeRange( RiaDef
 //--------------------------------------------------------------------------------------------------
 void RiaTimeHistoryCurveResampler::computeWeightedMeanValues( RiaDefines::DateTimePeriod period )
 {
-    size_t      origDataSize  = m_originalValues.second.size();
-    size_t      oi            = 0;
     const auto& origTimeSteps = m_originalValues.second;
     const auto& origValues    = m_originalValues.first;
 
@@ -138,14 +137,18 @@ void RiaTimeHistoryCurveResampler::computeWeightedMeanValues( RiaDefines::DateTi
     computeResampledTimeSteps( period );
 
     m_values.reserve( m_timeSteps.size() );
+
+    size_t origDataSize = origValues.size();
+    size_t oi           = 0;
     for ( size_t i = 0; i < m_timeSteps.size(); i++ )
     {
-        double wMean = 0.0;
         time_t periodStart =
             i > 0 ? m_timeSteps[i - 1]
                   : RiaQDateTimeTools::subtractPeriod( RiaQDateTimeTools::fromTime_t( m_timeSteps[0] ), period ).toSecsSinceEpoch();
         time_t periodEnd    = m_timeSteps[i];
         time_t periodLength = periodEnd - periodStart;
+
+        RiaWeightedMeanCalculator<double> calc;
 
         while ( true )
         {
@@ -169,7 +172,7 @@ void RiaTimeHistoryCurveResampler::computeWeightedMeanValues( RiaDefines::DateTi
             {
                 if ( origTimeStep == m_timeSteps[i] )
                 {
-                    wMean += origValue;
+                    calc.addValueAndWeight( origValue, periodLength );
                     oi++;
                     break;
                 }
@@ -179,7 +182,7 @@ void RiaTimeHistoryCurveResampler::computeWeightedMeanValues( RiaDefines::DateTi
             time_t startTime = oi > 0 ? std::max( origTimeSteps[oi - 1], periodStart ) : periodStart;
             time_t endTime   = std::min( origTimeStep, periodEnd );
 
-            wMean += origValue * ( endTime - startTime ) / periodLength;
+            calc.addValueAndWeight( origValue, endTime - startTime );
 
             if ( origTimeStep > m_timeSteps[i] ) break;
             if ( origTimeStep == m_timeSteps[i] )
@@ -190,7 +193,7 @@ void RiaTimeHistoryCurveResampler::computeWeightedMeanValues( RiaDefines::DateTi
             oi++;
         }
 
-        m_values.push_back( wMean );
+        m_values.push_back( calc.weightedMean() );
     }
 }
 
