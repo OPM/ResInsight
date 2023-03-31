@@ -33,6 +33,7 @@ jobs:
               vcpkg-triplet: x64-windows,
               build-python-module: true,
               execute-unit-tests: true,
+              unity-build: true,
             }
           - {
               name: "Ubuntu Latest gcc",
@@ -43,6 +44,7 @@ jobs:
               vcpkg-triplet: x64-linux,
               build-python-module: true,
               execute-unit-tests: true,
+              unity-build: false,
             }
           - {
               name: "Ubuntu Latest clang",
@@ -53,6 +55,7 @@ jobs:
               vcpkg-triplet: x64-linux,
               build-python-module: true,
               execute-unit-tests: true,
+              unity-build: false,
             }
     steps:
       - name: Checkout
@@ -191,6 +194,7 @@ jobs:
               -D RESINSIGHT_BUNDLE_OPENSSL=true
               -D RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true
               -D RESINSIGHT_TREAT_WARNINGS_AS_ERRORS=true
+              -D RESINSIGHT_ENABLE_UNITY_BUILD=${{ matrix.config.unity-build }}
               -D RESINSIGHT_ENABLE_GRPC=${{ matrix.config.build-python-module }}
               -D RESINSIGHT_GRPC_PYTHON_EXECUTABLE=${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
               -D RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE=true
