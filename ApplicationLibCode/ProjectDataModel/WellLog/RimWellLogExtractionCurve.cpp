@@ -421,13 +421,15 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::performDataExtraction( bool* isUsingPseudoLength )
 {
-    extractData( isUsingPseudoLength );
+    extractData( isUsingPseudoLength, {}, {} );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogExtractionCurve::extractData( bool* isUsingPseudoLength, bool performDataSmoothing /*= false*/, double smoothingThreshold /*= -1.0 */ )
+void RimWellLogExtractionCurve::extractData( bool*                        isUsingPseudoLength,
+                                             const std::optional<double>& smoothingThreshold,
+                                             const std::optional<double>& maxDistanceBetweenCurvePoints )
 {
     CAF_ASSERT( isUsingPseudoLength );
 
@@ -447,12 +449,14 @@ void RimWellLogExtractionCurve::extractData( bool* isUsingPseudoLength, bool per
     }
     else if ( geomCase && geomCase->geoMechData() )
     {
-        curveData = extractGeomData( geomCase, isUsingPseudoLength, performDataSmoothing, smoothingThreshold );
+        curveData = extractGeomData( geomCase, isUsingPseudoLength, smoothingThreshold, maxDistanceBetweenCurvePoints );
     }
 
     if ( !curveData.values.empty() && !curveData.measuredDepthValues.empty() )
     {
         bool useLogarithmicScale = false;
+
+        bool performDataSmoothing = smoothingThreshold.has_value();
 
         RimWellLogTrack* track = nullptr;
         firstAncestorOfType( track );
@@ -592,17 +596,37 @@ RimWellLogExtractionCurve::WellLogExtractionCurveData RimWellLogExtractionCurve:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogExtractionCurve::WellLogExtractionCurveData RimWellLogExtractionCurve::extractGeomData( RimGeoMechCase* geomCase,
-                                                                                                  bool*           isUsingPseudoLength,
-                                                                                                  bool            performDataSmoothing,
-                                                                                                  double          smoothingThreshold )
+RimWellLogExtractionCurve::WellLogExtractionCurveData
+    RimWellLogExtractionCurve::extractGeomData( RimGeoMechCase*              geoMechCase,
+                                                bool*                        isUsingPseudoLength,
+                                                const std::optional<double>& smoothingThreshold,
+                                                const std::optional<double>& maxDistanceBetweenCurvePoints )
 {
-    WellLogExtractionCurveData           curveData;
-    RimWellLogPlotCollection*            wellLogCollection = RimMainPlotCollection::current()->wellLogPlotCollection();
-    cvf::ref<RigGeoMechWellLogExtractor> wellExtractor     = wellLogCollection->findOrCreateExtractor( m_wellPath, geomCase );
-    cvf::ref<RigGeoMechWellLogExtractor> refWellExtractor  = wellLogCollection->findOrCreateExtractor( m_refWellPath, geomCase );
+    WellLogExtractionCurveData curveData;
+    RimWellLogPlotCollection*  wellLogCollection = RimMainPlotCollection::current()->wellLogPlotCollection();
 
-    auto [timeStepIdx, frameIdx] = geomCase->geoMechData()->femPartResults()->stepListIndexToTimeStepAndDataFrameIndex( m_timeStep );
+    cvf::ref<RigGeoMechWellLogExtractor> wellExtractor;
+    if ( maxDistanceBetweenCurvePoints.has_value() && maxDistanceBetweenCurvePoints.value() > 0.0 )
+    {
+        RigGeoMechCaseData* caseData         = geoMechCase->geoMechData();
+        auto                wellPathGeometry = m_wellPath->wellPathGeometry();
+        if ( caseData && wellPathGeometry )
+        {
+            std::string errorIdName = ( m_wellPath->name() + " " + geoMechCase->caseUserDescription() ).toStdString();
+            wellExtractor           = new RigGeoMechWellLogExtractor( caseData, wellPathGeometry, errorIdName );
+
+            // make sure the resampling of the well path is done before the extraction of the curve data
+            wellExtractor->resampleIntersections( maxDistanceBetweenCurvePoints.value() );
+        }
+    }
+    else
+    {
+        wellExtractor = wellLogCollection->findOrCreateExtractor( m_wellPath, geoMechCase );
+    }
+
+    cvf::ref<RigGeoMechWellLogExtractor> refWellExtractor = wellLogCollection->findOrCreateExtractor( m_refWellPath, geoMechCase );
+
+    auto [timeStepIdx, frameIdx] = geoMechCase->geoMechData()->femPartResults()->stepListIndexToTimeStepAndDataFrameIndex( m_timeStep );
 
     if ( wellExtractor.notNull() )
     {
@@ -659,26 +683,26 @@ RimWellLogExtractionCurve::WellLogExtractionCurveData RimWellLogExtractionCurve:
                                                 refWellPropertyValues,
                                                 refWellIndexKValues );
         }
-        if ( performDataSmoothing )
+        if ( smoothingThreshold.has_value() )
         {
             refWellExtractor->performCurveDataSmoothing( timeStepIdx,
                                                          frameIdx,
                                                          &curveData.measuredDepthValues,
                                                          &curveData.tvDepthValues,
                                                          &curveData.values,
-                                                         smoothingThreshold );
+                                                         smoothingThreshold.value() );
         }
         return curveData;
     }
 
-    if ( wellExtractor.notNull() && performDataSmoothing )
+    if ( wellExtractor.notNull() && smoothingThreshold.has_value() )
     {
         wellExtractor->performCurveDataSmoothing( timeStepIdx,
                                                   frameIdx,
                                                   &curveData.measuredDepthValues,
                                                   &curveData.tvDepthValues,
                                                   &curveData.values,
-                                                  smoothingThreshold );
+                                                  smoothingThreshold.value() );
     }
     return curveData;
 }

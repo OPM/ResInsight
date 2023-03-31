@@ -106,6 +106,8 @@ RimWellLogCurveCommonDataSource::RimWellLogCurveCommonDataSource()
 
     CAF_PDM_InitField( &m_wbsSmoothingThreshold, "WBSSmoothingThreshold", -1.0, "Smoothing Threshold" );
 
+    CAF_PDM_InitField( &m_maximumCurvePointInterval, "MaximumCurvePointInterval", std::make_pair( true, 10.0 ), "Maximum Curve Point Interval" );
+
     CAF_PDM_InitFieldNoDefault( &m_rftTimeStep, "RftTimeStep", "RFT Time Step" );
     CAF_PDM_InitFieldNoDefault( &m_rftWellName, "RftWellName", "RFT Well Name" );
     CAF_PDM_InitFieldNoDefault( &m_rftSegmentBranchIndex, "SegmentBranchIndex", "RFT Branch" );
@@ -590,15 +592,20 @@ void RimWellLogCurveCommonDataSource::applyDataSourceChanges( const std::vector<
                 if ( !wbsSmoothingToApply().isPartiallyTrue() )
                 {
                     wbsCurve->setSmoothCurve( wbsSmoothingToApply().isTrue() );
-                    updatedSomething = true;
                 }
 
                 if ( wbsSmoothingThreshold() != 1.0 )
                 {
                     wbsCurve->setSmoothingThreshold( wbsSmoothingThreshold() );
-                    updatedSomething = true;
                 }
+
+                wbsCurve->enableMaximumCurvePointInterval( m_maximumCurvePointInterval().first );
+                wbsCurve->setMaximumCurvePointInterval( m_maximumCurvePointInterval().second );
+
+                // Always do an update for wbs plots
+                updatedSomething = true;
             }
+
             if ( updatedSomething )
             {
                 RimWellLogPlot* parentPlot = nullptr;
@@ -1058,6 +1065,7 @@ void RimWellLogCurveCommonDataSource::defineUiOrdering( QString uiConfigName, ca
     {
         group->add( &m_wbsSmoothing );
         group->add( &m_wbsSmoothingThreshold );
+        group->add( &m_maximumCurvePointInterval );
     }
 
     if ( !m_uniqueRftTimeSteps.empty() ) group->add( &m_rftTimeStep );
@@ -1110,7 +1118,7 @@ void RimWellLogCurveCommonDataSource::defineEditorAttribute( const caf::PdmField
         }
     }
     auto* uiDisplayStringAttr = dynamic_cast<caf::PdmUiLineEditorAttributeUiDisplayString*>( attribute );
-    if ( uiDisplayStringAttr && wbsSmoothingThreshold() == -1.0 )
+    if ( uiDisplayStringAttr && ( wbsSmoothingThreshold() == -1.0 ) && ( field == &m_wbsSmoothingThreshold ) )
     {
         QString displayString = "Mixed";
 
