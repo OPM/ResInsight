@@ -8,7 +8,7 @@ find_package(
   COMPONENTS
   REQUIRED Core Xml Gui
 )
-set(QT_LIBRARIES Qt5::Core Qt5::Xml Qt5::Gui)
+set(QT_LIBRARIES Qt5::Core Qt5::Xml Qt5::Gui Qt5::Widgets)
 
 if(MSVC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11))
   # VS 2017 : Disable warnings from from gtest code, using deprecated code
@@ -20,7 +20,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR} # required for gtest-all.cpp
 )
 
 set(PROJECT_FILES cafPdmBasicTest.cpp cafProjectDataModel_UnitTests.cpp
-                  Child.cpp Parent.cpp TestObj.cpp
+                  Child.cpp Parent.cpp TestObj.cpp AggregatedTypesInField.cpp
 )
 
 # add the executable
