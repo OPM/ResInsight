@@ -36,8 +36,6 @@
 #include "RimFlowDiagnosticsTools.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSimWellInView.h"
-#include "RimSimWellInViewCollection.h"
-#include "RimSimWellInViewTools.h"
 #include "RimTools.h"
 #include "RimWellAllocationTools.h"
 #include "RimWellLogFile.h"
