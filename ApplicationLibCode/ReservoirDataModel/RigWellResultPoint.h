@@ -120,8 +120,9 @@ public:
     {
     }
 
-    const RigWellResultPoint* findResultCellWellHeadIncluded( size_t gridIndex, size_t gridCellIndex ) const;
-    const RigWellResultPoint* findResultCellWellHeadExcluded( size_t gridIndex, size_t gridCellIndex ) const;
+    const RigWellResultPoint*       findResultCellWellHeadIncluded( size_t gridIndex, size_t gridCellIndex ) const;
+    const RigWellResultPoint*       findResultCellWellHeadExcluded( size_t gridIndex, size_t gridCellIndex ) const;
+    std::vector<RigWellResultPoint> allResultPoints() const;
 
     RigWellResultPoint             wellHeadOrStartCell() const;
     RiaDefines::WellProductionType m_productionType;

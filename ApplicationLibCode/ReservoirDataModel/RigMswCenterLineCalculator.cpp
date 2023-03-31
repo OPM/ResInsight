@@ -73,7 +73,7 @@ std::vector<SimulationWellCellBranch>
 
     if ( timeStepIndex < 0 )
     {
-        wellFramePtr = wellResults->staticWellCells();
+        wellFramePtr = wellResults->staticWellResultFrame();
     }
     else
     {

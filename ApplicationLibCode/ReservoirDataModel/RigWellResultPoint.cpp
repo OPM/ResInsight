@@ -301,3 +301,19 @@ cvf::Vec3d RigWellResultPoint::bottomPosition() const
 {
     return m_bottomPosition;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RigWellResultPoint> RigWellResultFrame::allResultPoints() const
+{
+    std::vector<RigWellResultPoint> allPoints;
+    for ( const auto& resultBranch : m_wellResultBranches )
+    {
+        for ( const auto& resultPoint : resultBranch.m_branchResultPoints )
+        {
+            allPoints.push_back( resultPoint );
+        }
+    }
+    return allPoints;
+}

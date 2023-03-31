@@ -214,7 +214,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineForTimeSt
 
     if ( timeStepIndex < 0 )
     {
-        wellFramePtr = wellResults->staticWellCells();
+        wellFramePtr = wellResults->staticWellResultFrame();
     }
     else
     {

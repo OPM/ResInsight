@@ -28,8 +28,6 @@
 #include "RigSimulationWellCenterLineCalculator.h"
 #include "RigWellAllocationOverTime.h"
 
-#include "RimCellFilter.h"
-#include "RimCellFilterCollection.h"
 #include "RimEclipseCaseTools.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseResultCase.h"
@@ -52,8 +50,6 @@
 
 #include "cvfScalarMapper.h"
 
-#include <QObject>
-
 CAF_PDM_SOURCE_INIT( RimWellConnectivityTable, "RimWellConnectivityTable" );
 
 //--------------------------------------------------------------------------------------------------
@@ -61,6 +57,14 @@ CAF_PDM_SOURCE_INIT( RimWellConnectivityTable, "RimWellConnectivityTable" );
 //--------------------------------------------------------------------------------------------------
 namespace caf
 {
+template <>
+void AppEnum<RimWellConnectivityTable::ViewFilterType>::setUp()
+{
+    addItem( RimWellConnectivityTable::ViewFilterType::FILTER_BY_VISIBLE_PRODUCERS, "FILTER_BY_VISIBLE_PRODUCERS", "Filter Producers" );
+    addItem( RimWellConnectivityTable::ViewFilterType::FILTER_BY_VISIBLE_INJECTORS, "FILTER_BY_VISIBLE_INJECTORS", "Filter Injectors" );
+    addItem( RimWellConnectivityTable::ViewFilterType::CALCULATE_BY_VISIBLE_CELLS, "CALCULATE_BY_VISIBLE_CELLS", "Calculate By Visible Cells" );
+    setDefault( RimWellConnectivityTable::ViewFilterType::FILTER_BY_VISIBLE_PRODUCERS );
+}
 template <>
 void AppEnum<RimWellConnectivityTable::TimeStepSelection>::setUp()
 {
@@ -108,7 +112,10 @@ RimWellConnectivityTable::RimWellConnectivityTable()
 
     CAF_PDM_InitFieldNoDefault( &m_case, "CurveCase", "Case" );
     m_case.uiCapability()->setUiTreeChildrenHidden( true );
-    CAF_PDM_InitFieldNoDefault( &m_cellFilterView, "VisibleCellView", "Filter by 3D View Visibility" );
+
+    CAF_PDM_InitFieldNoDefault( &m_cellFilterView, "VisibleCellView", "Filter by 3D View" );
+    CAF_PDM_InitFieldNoDefault( &m_viewFilterType, "ViewFilterType", "Filter type" );
+
     CAF_PDM_InitFieldNoDefault( &m_flowDiagSolution, "FlowDiagSolution", "Flow Diag Solution" );
     m_flowDiagSolution.uiCapability()->setUiHidden( true );
 
@@ -223,7 +230,7 @@ void RimWellConnectivityTable::setFromSimulationWell( RimSimWellInView* simWell 
         }
     }
 
-    connectViewCellFiltersChangedToSlot( m_cellFilterView );
+    connectViewCellVisibilityChangedToSlot( m_cellFilterView );
     setSelectedProducersAndInjectorsForSingleTimeStep();
     onLoadDataAndUpdate();
 }
@@ -262,6 +269,7 @@ void RimWellConnectivityTable::fieldChangedByUi( const caf::PdmFieldHandle* chan
             m_cellFilterView   = nullptr;
         }
 
+        setWellSelectionFromViewFilter();
         setValidTimeStepSelectionsForCase();
         onLoadDataAndUpdate();
     }
@@ -282,11 +290,19 @@ void RimWellConnectivityTable::fieldChangedByUi( const caf::PdmFieldHandle* chan
         // Disconnect signal/slots for previous cellFilterView
         PdmObjectHandle* prevValue          = oldValue.value<caf::PdmPointer<PdmObjectHandle>>().rawPtr();
         auto*            prevCellFilterView = dynamic_cast<RimEclipseView*>( prevValue );
-        disconnectViewCellFiltersChangedFromSlots( prevCellFilterView );
+        disconnectViewCellVisibilityChangedFromSlots( prevCellFilterView );
 
         // Connect signal/slots for current cellFilterView
-        connectViewCellFiltersChangedToSlot( m_cellFilterView );
+        connectViewCellVisibilityChangedToSlot( m_cellFilterView );
 
+        // Update well selections using current view filter type for the active cell filter view
+        setWellSelectionFromViewFilter();
+
+        onLoadDataAndUpdate();
+    }
+    else if ( changedField == &m_viewFilterType )
+    {
+        setWellSelectionFromViewFilter();
         onLoadDataAndUpdate();
     }
     else if ( changedField == &m_syncSelectedInjectorsFromProducerSelection )
@@ -317,8 +333,8 @@ void RimWellConnectivityTable::fieldChangedByUi( const caf::PdmFieldHandle* chan
     else if ( changedField == &m_selectedTimeStep || changedField == &m_timeSampleValueType ||
               ( changedField == &m_timeStepSelection && m_timeStepSelection() == TimeStepSelection::SINGLE_TIME_STEP ) )
     {
-        // Update selected prod/injectors based on selected time step
-        if ( m_selectProducersAndInjectorsForTimeSteps )
+        // Update selected prod/injectors based on selected time step if no view filter is active
+        if ( !m_cellFilterView && m_selectProducersAndInjectorsForTimeSteps )
         {
             setSelectedProducersAndInjectorsForSingleTimeStep();
         }
@@ -329,8 +345,8 @@ void RimWellConnectivityTable::fieldChangedByUi( const caf::PdmFieldHandle* chan
     else if ( changedField == &m_selectedFromTimeStep || changedField == &m_selectedToTimeStep ||
               ( changedField == &m_timeStepSelection && m_timeStepSelection() == TimeStepSelection::TIME_STEP_RANGE ) )
     {
-        // Update selected prod/injectors based on time step range
-        if ( m_selectProducersAndInjectorsForTimeSteps )
+        // Update selected prod/injectors based on time step range if no view filter is active
+        if ( !m_cellFilterView && m_selectProducersAndInjectorsForTimeSteps )
         {
             setSelectedProducersAndInjectorsForTimeStepRange();
         }
@@ -376,9 +392,16 @@ void RimWellConnectivityTable::defineUiOrdering( QString uiConfigName, caf::PdmU
     caf::PdmUiGroup& dataGroup = *uiOrdering.addNewGroup( "Plot Data" );
     dataGroup.add( &m_case );
     dataGroup.add( &m_cellFilterView );
+    if ( m_cellFilterView )
+    {
+        dataGroup.add( &m_viewFilterType );
+    }
     dataGroup.add( &m_flowDiagSolution );
     dataGroup.add( &m_timeStepSelection );
-    dataGroup.add( &m_selectProducersAndInjectorsForTimeSteps );
+    if ( !m_cellFilterView )
+    {
+        dataGroup.add( &m_selectProducersAndInjectorsForTimeSteps );
+    }
     dataGroup.add( &m_thresholdValue );
 
     caf::PdmUiGroup& flowDiagConfigGroup = *uiOrdering.addNewGroup( "Flow Diagnostics Configuration" );
@@ -846,7 +869,7 @@ QString RimWellConnectivityTable::createTableTitle() const
     }
     if ( m_timeStepSelection() == TimeStepSelection::TIME_STEP_RANGE )
     {
-        return QString( "%1 (%2)<br>Date range: %3 - %4, Number of time steps: %5</br>" )
+        return QString( "%1 (%2)<br>Date range: [%3, %4], Number of time steps: %5</br>" )
             .arg( timeRangeValueTypeText() )
             .arg( m_case->caseUserDescription() )
             .arg( m_selectedFromTimeStep().toString( dateFormatString() ) )
@@ -955,8 +978,9 @@ void RimWellConnectivityTable::setSelectedProducersAndInjectorsForSingleTimeStep
     const int timeStepIndex = getTimeStepIndex( m_selectedTimeStep, m_case->timeStepDates() );
     if ( timeStepIndex == -1 )
     {
-        m_selectedProducerTracersUiField = std::vector<QString>();
-        m_selectedInjectorTracersUiField = std::vector<QString>();
+        m_selectedProducerTracersUiField.setValueWithFieldChanged( {} );
+        m_selectedInjectorTracersUiField.setValueWithFieldChanged( {} );
+        return;
     }
 
     const std::vector<QString> producerVec = RimFlowDiagnosticsTools::producerTracersInTimeStep( m_flowDiagSolution, timeStepIndex );
@@ -964,8 +988,8 @@ void RimWellConnectivityTable::setSelectedProducersAndInjectorsForSingleTimeStep
     injectorVec.push_back( RiaDefines::reservoirTracerName() );
 
     // No filtering if all producers/injectors are selected and assign to UI-elements
-    m_selectedProducerTracersUiField = producerVec;
-    m_selectedInjectorTracersUiField = injectorVec;
+    m_selectedProducerTracersUiField.setValueWithFieldChanged( producerVec );
+    m_selectedInjectorTracersUiField.setValueWithFieldChanged( injectorVec );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -996,8 +1020,8 @@ void RimWellConnectivityTable::setSelectedProducersAndInjectorsForTimeStepRange(
     injectorSet.insert( RiaDefines::reservoirTracerName() );
 
     // Assign to UI-elements
-    m_selectedProducerTracersUiField = std::vector<QString>( producerSet.begin(), producerSet.end() );
-    m_selectedInjectorTracersUiField = std::vector<QString>( injectorSet.begin(), injectorSet.end() );
+    m_selectedProducerTracersUiField.setValueWithFieldChanged( std::vector<QString>( producerSet.begin(), producerSet.end() ) );
+    m_selectedInjectorTracersUiField.setValueWithFieldChanged( std::vector<QString>( injectorSet.begin(), injectorSet.end() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1033,7 +1057,7 @@ void RimWellConnectivityTable::syncSelectedInjectorsFromProducerSelection()
         injectors.push_back( RiaDefines::reservoirTracerName() );
     }
 
-    m_selectedInjectorTracersUiField = injectors;
+    m_selectedInjectorTracersUiField.setValueWithFieldChanged( injectors );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1068,35 +1092,142 @@ void RimWellConnectivityTable::syncSelectedProducersFromInjectorSelection()
         producers.push_back( RiaDefines::reservoirTracerName() );
     }
 
-    m_selectedProducerTracersUiField = producers;
+    m_selectedProducerTracersUiField.setValueWithFieldChanged( producers );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellConnectivityTable::onCellFiltersChanged( const SignalEmitter* emitter )
+void RimWellConnectivityTable::setProducerSelectionFromViewFilterAndSynchInjectors()
 {
+    if ( !m_cellFilterView || !m_case || !m_case->eclipseCaseData() ) return;
+
+    m_selectedProducerTracersUiField.setValueWithFieldChanged(
+        getViewFilteredWellNamesFromFilterType( ViewFilterType::FILTER_BY_VISIBLE_PRODUCERS ) );
+
+    syncSelectedInjectorsFromProducerSelection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellConnectivityTable::setInjectorSelectionFromViewFilterAndSynchProducers()
+{
+    if ( !m_cellFilterView || !m_case || !m_case->eclipseCaseData() ) return;
+
+    m_selectedInjectorTracersUiField.setValueWithFieldChanged(
+        getViewFilteredWellNamesFromFilterType( ViewFilterType::FILTER_BY_VISIBLE_INJECTORS ) );
+
+    syncSelectedProducersFromInjectorSelection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellConnectivityTable::setWellSelectionFromViewFilter()
+{
+    if ( !m_cellFilterView || m_viewFilterType == ViewFilterType::CALCULATE_BY_VISIBLE_CELLS )
+    {
+        m_selectedProducerTracersUiField.setValueWithFieldChanged( {} );
+        m_selectedInjectorTracersUiField.setValueWithFieldChanged( {} );
+        return;
+    }
+
+    if ( m_viewFilterType == ViewFilterType::FILTER_BY_VISIBLE_PRODUCERS )
+    {
+        setProducerSelectionFromViewFilterAndSynchInjectors();
+    }
+    else if ( m_viewFilterType == ViewFilterType::FILTER_BY_VISIBLE_INJECTORS )
+    {
+        setInjectorSelectionFromViewFilterAndSynchProducers();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RimWellConnectivityTable::getViewFilteredWellNamesFromFilterType( ViewFilterType filterType ) const
+{
+    if ( !m_cellFilterView || !m_case || !m_case->eclipseCaseData() ) return {};
+
+    auto isProductionTypeOfFilterType = [&]( RiaDefines::WellProductionType productionType ) -> bool {
+        if ( filterType == ViewFilterType::FILTER_BY_VISIBLE_PRODUCERS )
+        {
+            return productionType == RiaDefines::WellProductionType::PRODUCER ||
+                   productionType == RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE;
+        }
+        if ( filterType == ViewFilterType::FILTER_BY_VISIBLE_INJECTORS )
+        {
+            return RiaDefines::isInjector( productionType );
+        }
+        return false;
+    };
+
+    // Retrieve cell visibilities and time step for cell filter view
+    const auto                timeStepIndex    = m_cellFilterView->currentTimeStep();
+    const auto*               cellVisibilities = m_cellFilterView->currentTotalCellVisibility().p();
+    RigEclCellIndexCalculator cellIdxCalc( m_case->eclipseCaseData()->mainGrid(),
+                                           m_case->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ),
+                                           cellVisibilities );
+
+    std::vector<QString> productionWells;
+    const auto&          wellResults = m_case->eclipseCaseData()->wellResults();
+    for ( const auto& wellResult : wellResults )
+    {
+        const auto productionType = wellResult->wellProductionType( timeStepIndex );
+        if ( !isProductionTypeOfFilterType( productionType ) )
+        {
+            continue;
+        }
+
+        const auto productionWellResultFrame = wellResult->staticWellResultFrame();
+        for ( const auto& resultPoint : productionWellResultFrame->allResultPoints() )
+        {
+            if ( cellIdxCalc.isCellVisible( resultPoint.gridIndex(), resultPoint.cellIndex() ) )
+            {
+                productionWells.push_back( wellResult->m_wellName );
+                break;
+            }
+        }
+    }
+    return productionWells;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellConnectivityTable::onCellVisibilityChanged( const SignalEmitter* emitter )
+{
+    if ( m_cellFilterView && m_viewFilterType == ViewFilterType::FILTER_BY_VISIBLE_PRODUCERS )
+    {
+        setProducerSelectionFromViewFilterAndSynchInjectors();
+    }
+    else if ( m_cellFilterView && m_viewFilterType == ViewFilterType::FILTER_BY_VISIBLE_INJECTORS )
+    {
+        setInjectorSelectionFromViewFilterAndSynchProducers();
+    }
+
     onLoadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellConnectivityTable::connectViewCellFiltersChangedToSlot( RimEclipseView* view )
+void RimWellConnectivityTable::connectViewCellVisibilityChangedToSlot( RimEclipseView* view )
 {
-    if ( !view || !view->cellFilterCollection() ) return;
+    if ( !view ) return;
 
-    view->cellFilterCollection()->filtersChanged.connect( this, &RimWellConnectivityTable::onCellFiltersChanged );
+    view->cellVisibilityChanged.connect( this, &RimWellConnectivityTable::onCellVisibilityChanged );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellConnectivityTable::disconnectViewCellFiltersChangedFromSlots( RimEclipseView* view )
+void RimWellConnectivityTable::disconnectViewCellVisibilityChangedFromSlots( RimEclipseView* view )
 {
-    if ( !view || !view->cellFilterCollection() ) return;
+    if ( !view ) return;
 
-    view->cellFilterCollection()->filtersChanged.disconnect( this );
+    view->cellVisibilityChanged.disconnect( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1234,7 +1365,9 @@ void RimWellConnectivityTable::createAndEmplaceTimeStepAndCalculatorPairInMap( s
                             simWellData->wellProductionType( timeStepIndex ) == RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE );
 
         // Retrieve cell visibilities for valid cell filter view
-        const auto*               cellVisibilities = m_cellFilterView ? m_cellFilterView->currentTotalCellVisibility().p() : nullptr;
+        const auto* cellVisibilities = m_cellFilterView && m_viewFilterType == ViewFilterType::CALCULATE_BY_VISIBLE_CELLS
+                                           ? m_cellFilterView->currentTotalCellVisibility().p()
+                                           : nullptr;
         RigEclCellIndexCalculator cellIdxCalc( m_case->eclipseCaseData()->mainGrid(),
                                                m_case->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ),
                                                cellVisibilities );

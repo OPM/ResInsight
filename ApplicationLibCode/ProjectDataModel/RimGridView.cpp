@@ -64,6 +64,7 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimGridView, "GenericGridView" ); // Do not us
 ///
 //--------------------------------------------------------------------------------------------------
 RimGridView::RimGridView()
+    : cellVisibilityChanged( this )
 {
     CAF_PDM_InitFieldNoDefault( &m_overrideCellFilterCollection, "CellFiltersControlled", "Cell Filters (controlled)" );
     m_overrideCellFilterCollection.uiCapability()->setUiTreeHidden( true );
@@ -138,6 +139,7 @@ cvf::ref<cvf::UByteArray> RimGridView::currentTotalCellVisibility()
     {
         m_currentReservoirCellVisibility = new cvf::UByteArray;
         this->calculateCurrentTotalCellVisibility( m_currentReservoirCellVisibility.p(), m_currentTimeStep() );
+        this->cellVisibilityChanged.send();
     }
 
     return m_currentReservoirCellVisibility;
