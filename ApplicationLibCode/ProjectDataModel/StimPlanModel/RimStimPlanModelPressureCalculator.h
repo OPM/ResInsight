@@ -84,9 +84,9 @@ protected:
                                           const std::vector<double>& faciesValues,
                                           std::vector<double>&       values ) const;
 
-    typedef std::pair<double, double>           DepthValuePair;
-    typedef std::vector<DepthValuePair>         DepthValuePairVector;
-    typedef std::map<int, DepthValuePairVector> EqlNumToDepthValuePairMap;
+    using DepthValuePair            = std::pair<double, double>;
+    using DepthValuePairVector      = std::vector<DepthValuePair>;
+    using EqlNumToDepthValuePairMap = std::map<int, DepthValuePairVector>;
 
     static void sortAndRemoveDuplicates( DepthValuePairVector& depthValuePairs );
     static bool buildPressureTablesPerEqlNum( const RimStimPlanModel*    stimPlanModel,

@@ -71,7 +71,7 @@ public:
         CUSTOM_PROPERTIES
     };
 
-    typedef caf::AppEnum<RimCellEdgeColors::EdgeFaceType> EdgeFaceEnum;
+    using EdgeFaceEnum = caf::AppEnum<RimCellEdgeColors::EdgeFaceType>;
 
     void setReservoirView( RimEclipseView* ownerReservoirView );
 

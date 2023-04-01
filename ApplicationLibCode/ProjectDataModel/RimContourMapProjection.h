@@ -45,7 +45,7 @@ class RimContourMapProjection : public RimCheckableNamedObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    typedef std::pair<size_t, double> CellIndexAndResult;
+    using CellIndexAndResult = std::pair<size_t, double>;
 
     struct ContourPolygon
     {
@@ -69,8 +69,8 @@ public:
         RESULTS_GAS_COLUMN,
         RESULTS_HC_COLUMN
     };
-    typedef caf::AppEnum<ResultAggregationEnum> ResultAggregation;
-    typedef std::vector<ContourPolygon>         ContourPolygons;
+    using ResultAggregation = caf::AppEnum<ResultAggregationEnum>;
+    using ContourPolygons   = std::vector<ContourPolygon>;
 
     RimContourMapProjection();
     ~RimContourMapProjection() override;

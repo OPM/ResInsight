@@ -36,7 +36,7 @@ class RimWellPathAttribute : public caf::PdmObject, public RimWellPathComponentI
 public:
     static double                                           MAX_DIAMETER_IN_INCHES;
     static double                                           MIN_DIAMETER_IN_INCHES;
-    typedef caf::AppEnum<RiaDefines::WellPathComponentType> CompletionTypeEnum;
+    using CompletionTypeEnum = caf::AppEnum<RiaDefines::WellPathComponentType>;
 
     RimWellPathAttribute();
     ~RimWellPathAttribute() override;

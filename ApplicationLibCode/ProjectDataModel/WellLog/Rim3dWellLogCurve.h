@@ -50,7 +50,7 @@ public:
         HORIZONTAL_CENTER,
         HORIZONTAL_RIGHT
     };
-    typedef caf::AppEnum<DrawPlane> DrawPlaneEnum;
+    using DrawPlaneEnum = caf::AppEnum<DrawPlane>;
 
 public:
     Rim3dWellLogCurve();
