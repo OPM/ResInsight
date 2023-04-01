@@ -60,7 +60,7 @@ public:
     double sampleSpacing() const override;
 
 protected:
-    typedef RimContourMapProjection::CellIndexAndResult CellIndexAndResult;
+    using CellIndexAndResult = RimContourMapProjection::CellIndexAndResult;
 
     void                updateGridInformation() override;
     std::vector<double> retrieveParameterWeights() override;

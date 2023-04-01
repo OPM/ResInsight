@@ -32,7 +32,7 @@
 
 #include <vector>
 
-typedef struct ecl_file_struct ecl_file_type;
+using ecl_file_type = struct ecl_file_struct;
 
 class RifEclipseRestartDataAccess;
 class QByteArray;

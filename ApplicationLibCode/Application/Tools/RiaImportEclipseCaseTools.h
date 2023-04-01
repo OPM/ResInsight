@@ -33,7 +33,7 @@ class RifReaderSettings;
 class RiaImportEclipseCaseTools
 {
 public:
-    typedef std::map<QString, int> FileCaseIdMap;
+    using FileCaseIdMap = std::map<QString, int>;
 
     static bool openEclipseCasesFromFile( const QStringList&                 fileNames,
                                           bool                               createView,

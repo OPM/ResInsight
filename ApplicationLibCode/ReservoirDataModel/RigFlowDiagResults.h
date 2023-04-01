@@ -49,7 +49,7 @@ public:
         CELLS_DRAINED,
     };
 
-    typedef caf::AppEnum<CellFilter> CellFilterEnum;
+    using CellFilterEnum = caf::AppEnum<CellFilter>;
 
 public:
     RigFlowDiagResults( RimFlowDiagSolution* flowSolution, size_t timeStepCount );

@@ -47,7 +47,7 @@ public:
         PHASE_WAT = 0b100,
     };
 
-    typedef caf::AppEnum<PhaseSelection> PhaseSelectionEnum;
+    using PhaseSelectionEnum = caf::AppEnum<PhaseSelection>;
 
     RigFlowDiagResultAddress( const std::string& aVariableName, PhaseSelection phaseSelection, const std::set<std::string>& someSelectedTracerNames )
         : variableName( aVariableName )

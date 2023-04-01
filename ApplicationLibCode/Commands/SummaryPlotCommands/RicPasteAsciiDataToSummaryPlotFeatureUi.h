@@ -91,7 +91,7 @@ public:
         DECIMAL_DOT,
     };
 
-    typedef caf::AppEnum<DecimalSeparator> DecimalSeparatorEnum;
+    using DecimalSeparatorEnum = caf::AppEnum<DecimalSeparator>;
 
     enum DateFormat
     {
@@ -105,7 +105,7 @@ public:
         DATE_MMDDYY_SLASH_SEPARATED
     };
 
-    typedef caf::AppEnum<DateFormat> DateFormatEnum;
+    using DateFormatEnum = caf::AppEnum<DateFormat>;
 
     enum TimeFormat
     {
@@ -115,7 +115,7 @@ public:
         TIME_HHMMSSZZZ,
     };
 
-    typedef caf::AppEnum<TimeFormat> TimeFormatEnum;
+    using TimeFormatEnum = caf::AppEnum<TimeFormat>;
 
     enum CellSeparator
     {
@@ -124,7 +124,7 @@ public:
         CELL_SEMICOLON
     };
 
-    typedef caf::AppEnum<CellSeparator> CellSeparatorEnum;
+    using CellSeparatorEnum = caf::AppEnum<CellSeparator>;
 
 public:
     RicPasteAsciiDataToSummaryPlotFeatureUi();

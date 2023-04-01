@@ -40,11 +40,11 @@ public:
     caf::Signal<> fillColorChanged;
 
 public:
-    typedef caf::AppEnum<RiuQwtPlotCurveDefines::CurveInterpolationEnum> CurveInterpolation;
-    typedef caf::AppEnum<RiuQwtPlotCurveDefines::LineStyleEnum>          LineStyle;
-    typedef caf::AppEnum<RiuPlotCurveSymbol::PointSymbolEnum>            PointSymbol;
-    typedef caf::AppEnum<RiuPlotCurveSymbol::LabelPosition>              LabelPosition;
-    typedef caf::AppEnum<Qt::BrushStyle>                                 FillStyle;
+    using CurveInterpolation = caf::AppEnum<RiuQwtPlotCurveDefines::CurveInterpolationEnum>;
+    using LineStyle = caf::AppEnum<RiuQwtPlotCurveDefines::LineStyleEnum>;
+    using PointSymbol = caf::AppEnum<RiuPlotCurveSymbol::PointSymbolEnum>;
+    using LabelPosition = caf::AppEnum<RiuPlotCurveSymbol::LabelPosition>;
+    using FillStyle = caf::AppEnum<Qt::BrushStyle>;
 
 public:
     RimPlotCurveAppearance();
