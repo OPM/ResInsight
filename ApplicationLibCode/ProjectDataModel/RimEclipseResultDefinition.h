@@ -61,7 +61,7 @@ public:
         FLOW_TR_INJECTORS,
         FLOW_TR_BY_SELECTION
     };
-    typedef caf::AppEnum<RimEclipseResultDefinition::FlowTracerSelectionType> FlowTracerSelectionEnum;
+    using FlowTracerSelectionEnum = caf::AppEnum<RimEclipseResultDefinition::FlowTracerSelectionType>;
 
     enum FlowTracerSelectionState
     {

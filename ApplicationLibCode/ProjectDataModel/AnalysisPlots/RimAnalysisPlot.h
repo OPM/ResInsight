@@ -67,7 +67,7 @@ public:
         ABS_OTHER_VALUE,
         TIME_STEP,
     };
-    typedef caf::AppEnum<SortGroupType> SortGroupAppEnum;
+    using SortGroupAppEnum = caf::AppEnum<SortGroupType>;
 
     using TimeStepFilterEnum = caf::AppEnum<RimTimeStepFilter::TimeStepFilterTypeEnum>;
 

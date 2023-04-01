@@ -149,8 +149,8 @@ private:
     caf::PdmField<double>                   m_obg0Fixed;
     caf::PdmField<QString>                  m_obg0Address;
 
-    typedef std::tuple<caf::PdmField<caf::AppEnum<SourceType>>*, caf::PdmField<double>*, caf::PdmField<QString>*> ParameterPdmFields;
-    std::map<ParameterType, ParameterPdmFields>                                                                   m_parameterFields;
+    using ParameterPdmFields = std::tuple<caf::PdmField<caf::AppEnum<SourceType>>*, caf::PdmField<double>*, caf::PdmField<QString>*>;
+    std::map<ParameterType, ParameterPdmFields> m_parameterFields;
 
     caf::PdmField<double> m_airGap;
     caf::PdmField<double> m_shMultiplier;

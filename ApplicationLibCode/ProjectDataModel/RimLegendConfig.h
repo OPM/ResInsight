@@ -46,7 +46,7 @@ public:
         USER_DEFINED
     };
 
-    typedef caf::AppEnum<RangeModeType> RangeModeEnum;
+    using RangeModeEnum = caf::AppEnum<RangeModeType>;
 
     virtual const caf::TitledOverlayFrame* titledOverlayFrame() const = 0;
     virtual caf::TitledOverlayFrame*       titledOverlayFrame()       = 0;

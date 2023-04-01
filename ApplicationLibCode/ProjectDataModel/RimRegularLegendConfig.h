@@ -102,7 +102,7 @@ public:
         UNDEFINED
     };
 
-    typedef caf::AppEnum<ColorRangesType> ColorRangeEnum;
+    using ColorRangeEnum = caf::AppEnum<ColorRangesType>;
 
     enum class MappingType
     {
@@ -112,14 +112,14 @@ public:
         LOG10_DISCRETE,
         CATEGORY_INTEGER
     };
-    typedef caf::AppEnum<MappingType> MappingEnum;
+    using MappingEnum = caf::AppEnum<MappingType>;
 
     enum class CategoryColorModeType
     {
         INTERPOLATE,
         EXCLUSIVELY_COLORS
     };
-    typedef caf::AppEnum<CategoryColorModeType> CategoryColorModeEnum;
+    using CategoryColorModeEnum = caf::AppEnum<CategoryColorModeType>;
 
     void onRecreateLegend() override;
 
