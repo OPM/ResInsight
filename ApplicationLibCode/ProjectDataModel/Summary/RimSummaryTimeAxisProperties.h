@@ -74,8 +74,8 @@ public:
     };
     using TickmarkIntervalEnum = caf::AppEnum<TickmarkInterval>;
 
-    typedef caf::AppEnum<RiaDefines::DateFormatComponents> DateFormatEnum;
-    typedef caf::AppEnum<RiaDefines::TimeFormatComponents> TimeFormatEnum;
+    using DateFormatEnum = caf::AppEnum<RiaDefines::DateFormatComponents>;
+    using TimeFormatEnum = caf::AppEnum<RiaDefines::TimeFormatComponents>;
 
     caf::Signal<> requestLoadDataAndUpdate;
 

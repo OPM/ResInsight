@@ -79,7 +79,7 @@ public:
         ALL_ON,
         FORCE_ALL_ON
     };
-    typedef caf::AppEnum<RimWellPathCollection::WellVisibilityType> WellVisibilityEnum;
+    using WellVisibilityEnum = caf::AppEnum<RimWellPathCollection::WellVisibilityType>;
 
     caf::PdmField<bool> isActive;
 

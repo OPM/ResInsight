@@ -123,7 +123,7 @@ private:
     RimStimPlanModel*                                                m_stimPlanModel;
     std::vector<std::unique_ptr<RimStimPlanModelPropertyCalculator>> m_resultCalculators;
 
-    typedef std::pair<RiaDefines::CurveProperty, int>                                         ResultKey;
-    typedef std::tuple<std::vector<double>, std::vector<double>, std::vector<double>, double> ResultData;
-    mutable std::map<ResultKey, ResultData>                                                   m_resultCache;
+    using ResultKey  = std::pair<RiaDefines::CurveProperty, int>;
+    using ResultData = std::tuple<std::vector<double>, std::vector<double>, std::vector<double>, double>;
+    mutable std::map<ResultKey, ResultData> m_resultCache;
 };

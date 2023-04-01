@@ -38,7 +38,7 @@ template <typename XValueType>
 class RiaCurveMerger
 {
 public:
-    typedef XValueComparator<XValueType> XComparator;
+    using XComparator = XValueComparator<XValueType>;
     RiaCurveMerger();
 
     void   addCurveData( const std::vector<XValueType>& xValues, const std::vector<double>& yValues );
@@ -78,7 +78,7 @@ private:
     std::vector<std::vector<double>> m_interpolatedValuesForAllCurves;
 };
 
-typedef RiaCurveMerger<time_t> RiaTimeHistoryCurveMerger;
+using RiaTimeHistoryCurveMerger = RiaCurveMerger<time_t>;
 
 template <>
 bool XValueComparator<double>::equals( const double& lhs, const double& rhs );

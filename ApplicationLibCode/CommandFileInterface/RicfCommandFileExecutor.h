@@ -45,7 +45,7 @@ public:
         LGRS
     };
 
-    typedef caf::AppEnum<ExportType> ExportTypeEnum;
+    using ExportTypeEnum = caf::AppEnum<ExportType>;
 
 public:
     RicfCommandFileExecutor();
