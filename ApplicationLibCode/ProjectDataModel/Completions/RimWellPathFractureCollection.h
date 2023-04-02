@@ -38,8 +38,8 @@ class RimWellPathFractureCollection : public RimCheckableNamedObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimWellPathFractureCollection( void );
-    ~RimWellPathFractureCollection( void ) override;
+    RimWellPathFractureCollection( );
+    ~RimWellPathFractureCollection( ) override;
 
     bool hasFractures() const;
     void addFracture( RimWellPathFracture* fracture );

@@ -30,7 +30,7 @@ CAF_PDM_SOURCE_INIT( RimStimPlanModelCollection, "StimPlanModelCollection" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimStimPlanModelCollection::RimStimPlanModelCollection( void )
+RimStimPlanModelCollection::RimStimPlanModelCollection( )
 {
     CAF_PDM_InitScriptableObject( "StimPlan Models" );
 

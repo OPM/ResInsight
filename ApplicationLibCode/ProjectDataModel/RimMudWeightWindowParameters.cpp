@@ -98,7 +98,7 @@ void caf::AppEnum<RimMudWeightWindowParameters::NonReservoirPorePressureType>::s
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimMudWeightWindowParameters::RimMudWeightWindowParameters( void )
+RimMudWeightWindowParameters::RimMudWeightWindowParameters( )
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "Mud Weight Window Parameters",
                                                     "",

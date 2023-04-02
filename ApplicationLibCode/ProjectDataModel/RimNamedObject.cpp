@@ -26,7 +26,7 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimNamedObject, "NamedObject" ); // Do not use
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimNamedObject::RimNamedObject( void )
+RimNamedObject::RimNamedObject( )
 {
     CAF_PDM_InitScriptableObject( "Named object" );
     CAF_PDM_InitScriptableField( &m_name, "Name", QString(), "Name" );
@@ -35,7 +35,7 @@ RimNamedObject::RimNamedObject( void )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimNamedObject::~RimNamedObject( void )
+RimNamedObject::~RimNamedObject( )
 {
 }
 
