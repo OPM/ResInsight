@@ -631,7 +631,7 @@ RiaRftPltCurveDefinition RimWellPlotTools::curveDefFromCurve( const RimWellLogCu
             rftSummaryCase->firstAncestorOrThisOfType( parentEnsemble );
             return RiaRftPltCurveDefinition( RifDataSourceForRftPlt( rftSummaryCase, parentEnsemble ), wellName, timeStep );
         }
-        else if ( rftEnsemble != nullptr )
+        if ( rftEnsemble != nullptr )
         {
             return RiaRftPltCurveDefinition( RifDataSourceForRftPlt( rftEnsemble ), wellName, timeStep );
         }

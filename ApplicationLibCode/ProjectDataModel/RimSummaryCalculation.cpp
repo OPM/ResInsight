@@ -590,7 +590,7 @@ RimSummaryCalculationAddress RimSummaryCalculation::singleAddressesForCategory( 
     {
         return RifEclipseSummaryAddress::aquiferAddress( name, address.aquiferNumber(), m_id );
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_MISC )
+    if ( category == RifEclipseSummaryAddress::SUMMARY_MISC )
     {
         return RifEclipseSummaryAddress::miscAddress( name, m_id );
     }

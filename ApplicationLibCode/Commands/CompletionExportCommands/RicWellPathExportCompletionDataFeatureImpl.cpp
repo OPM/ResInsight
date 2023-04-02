@@ -1304,10 +1304,9 @@ RigCompletionData::CellDirection RicWellPathExportCompletionDataFeatureImpl::cal
     {
         return RigCompletionData::CellDirection::DIR_J;
     }
-    else
-    {
-        return RigCompletionData::CellDirection::DIR_K;
-    }
+    
+            return RigCompletionData::CellDirection::DIR_K;
+   
 }
 
 //--------------------------------------------------------------------------------------------------

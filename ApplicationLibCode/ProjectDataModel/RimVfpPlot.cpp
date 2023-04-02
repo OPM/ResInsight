@@ -683,7 +683,7 @@ QString RimVfpPlot::getDisplayUnit( RimVfpDefines::ProductionVariableType variab
     if ( variableType == RimVfpDefines::ProductionVariableType::THP ) return "Bar";
     if ( variableType == RimVfpDefines::ProductionVariableType::LIQUID_FLOW_RATE )
         return "m3/day";
-    else if ( variableType == RimVfpDefines::ProductionVariableType::WATER_CUT ||
+    if ( variableType == RimVfpDefines::ProductionVariableType::WATER_CUT ||
               variableType == RimVfpDefines::ProductionVariableType::GAS_LIQUID_RATIO )
         return "";
     return "";
@@ -732,9 +732,8 @@ size_t RimVfpPlot::getVariableIndex( const Opm::VFPProdTable&              table
     if ( targetVariable == primaryVariable ) return primaryValue;
     if ( targetVariable == familyVariable )
         return familyValue;
-    else
-    {
-        if ( targetVariable == RimVfpDefines::ProductionVariableType::WATER_CUT )
+    
+            if ( targetVariable == RimVfpDefines::ProductionVariableType::WATER_CUT )
         {
             return m_waterCutIdx;
         }
@@ -756,7 +755,7 @@ size_t RimVfpPlot::getVariableIndex( const Opm::VFPProdTable&              table
         }
 
         return getProductionTableData( table, targetVariable ).size() - 1;
-    }
+   
 }
 
 //--------------------------------------------------------------------------------------------------

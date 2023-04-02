@@ -1034,8 +1034,7 @@ RiuMainWindowBase* RiaGuiApplication::mainWindowByID( int mainWindowID )
     if ( mainWindowID == 0 ) return m_mainWindow;
     if ( mainWindowID == 1 )
         return m_mainPlotWindow.get();
-    else
-        return nullptr;
+            return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

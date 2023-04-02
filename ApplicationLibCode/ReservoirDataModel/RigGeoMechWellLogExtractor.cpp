@@ -798,7 +798,7 @@ QString RigGeoMechWellLogExtractor::parameterInputUnits( const RigWbsParameter& 
     {
         return RiaWellLogUnitTools<double>::noUnitString();
     }
-    else if ( parameter == RigWbsParameter::waterDensity() )
+    if ( parameter == RigWbsParameter::waterDensity() )
     {
         return RiaWellLogUnitTools<double>::gPerCm3UnitString();
     }
@@ -1146,13 +1146,12 @@ double RigGeoMechWellLogExtractor::getWellLogIntersectionValue( size_t          
             {
                 return wellLogValues[i + 1].second;
             }
-            else
-            {
-                RiaWeightedMeanCalculator<double> averageCalc;
+            
+                            RiaWeightedMeanCalculator<double> averageCalc;
                 averageCalc.addValueAndWeight( wellLogValues[i].second, 1.0 / dist_i );
                 averageCalc.addValueAndWeight( wellLogValues[i + 1].second, 1.0 / dist_ip1 );
                 return averageCalc.weightedMean();
-            }
+           
         }
     }
 

@@ -634,7 +634,7 @@ QString RimSummaryTable::getCategoryNameFromAddress( const RifEclipseSummaryAddr
     {
         return QString::fromStdString( address.groupName() );
     }
-    else if ( address.category() == RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_REGION )
+    if ( address.category() == RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_REGION )
     {
         return QString( "Region %1" ).arg( address.regionNumber() );
     }

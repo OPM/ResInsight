@@ -206,7 +206,7 @@ std::vector<double>* RigFlowDiagResults::calculateDerivedResult( const RigFlowDi
     {
         return calculateSumOfFractionsResult( resVarAddr, timeStepIndex );
     }
-    else if ( resVarAddr.variableName == RIG_FLD_COMMUNICATION_RESNAME )
+    if ( resVarAddr.variableName == RIG_FLD_COMMUNICATION_RESNAME )
     {
         return calculateCommunicationResult( resVarAddr, timeStepIndex );
     }

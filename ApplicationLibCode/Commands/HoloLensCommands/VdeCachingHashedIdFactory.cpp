@@ -63,7 +63,7 @@ bool VdeCachingHashedIdFactory::Key::operator<( const Key& other ) const
     {
         return role < other.role;
     }
-    else if ( elementType != other.elementType )
+    if ( elementType != other.elementType )
     {
         return elementType < other.elementType;
     }

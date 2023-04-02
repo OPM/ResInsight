@@ -60,7 +60,7 @@ double RimFishbonesPipeProperties::holeDiameter( RiaDefines::EclipseUnitSystem u
 
         return m_lateralHoleDiameter() / 1000;
     }
-    else if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
+    if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
         if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
         {

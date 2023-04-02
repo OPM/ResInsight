@@ -225,7 +225,7 @@ double RimFishbones::tubingDiameter( RiaDefines::EclipseUnitSystem unitSystem ) 
 
         return m_lateralTubingDiameter() / 1000;
     }
-    else if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
+    if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
         if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
         {

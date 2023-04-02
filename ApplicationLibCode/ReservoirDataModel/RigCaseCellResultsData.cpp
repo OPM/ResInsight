@@ -3281,16 +3281,15 @@ size_t RigCaseCellResultsData::findScalarResultIndexFromAddress( const RigEclips
 
         return scalarResultIndex;
     }
-    else
-    {
-        auto index = m_addressToResultIndexMap.find( resVarAddr );
+    
+            auto index = m_addressToResultIndexMap.find( resVarAddr );
         if ( index != m_addressToResultIndexMap.end() )
         {
             return index->second;
         }
 
         return cvf::UNDEFINED_SIZE_T;
-    }
+   
 }
 
 #include "RimEclipseResultCase.h"

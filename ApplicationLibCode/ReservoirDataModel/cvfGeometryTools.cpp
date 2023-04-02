@@ -386,10 +386,9 @@ GeometryTools::IntersectionStatus inPlaneLineIntersect( double  x1,
         if ( fabs( 1 - mub ) < l2NormalizedTolerance ) *fractionAlongLine2 = 1;
         return GeometryTools::LINES_TOUCH;
     }
-    else
-    {
-        return GeometryTools::LINES_CROSSES;
-    }
+    
+            return GeometryTools::LINES_CROSSES;
+   
 }
 //----------------------------------------------------------------------------------------------------------
 /// Supposed to find the intersection point if lines intersect
