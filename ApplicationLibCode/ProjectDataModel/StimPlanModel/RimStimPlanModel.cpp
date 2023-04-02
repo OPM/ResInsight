@@ -1010,10 +1010,9 @@ double RimStimPlanModel::getDefaultForMissingValue( RiaDefines::CurveProperty cu
     {
         return 1.0;
     }
-    else
-    {
-        return std::numeric_limits<double>::infinity();
-    }
+    
+            return std::numeric_limits<double>::infinity();
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1048,7 +1047,7 @@ double RimStimPlanModel::getDefaultForMissingOverburdenValue( RiaDefines::CurveP
         if ( !faciesColorLegend ) return std::numeric_limits<double>::infinity();
         return findFaciesValue( *faciesColorLegend, overburdenFacies() );
     }
-    else if ( curveProperty == RiaDefines::CurveProperty::NET_TO_GROSS )
+    if ( curveProperty == RiaDefines::CurveProperty::NET_TO_GROSS )
     {
         return 1.0;
     }
@@ -1077,7 +1076,7 @@ double RimStimPlanModel::getDefaultForMissingUnderburdenValue( RiaDefines::Curve
         if ( !faciesColorLegend ) return std::numeric_limits<double>::infinity();
         return findFaciesValue( *faciesColorLegend, underburdenFacies() );
     }
-    else if ( curveProperty == RiaDefines::CurveProperty::NET_TO_GROSS )
+    if ( curveProperty == RiaDefines::CurveProperty::NET_TO_GROSS )
     {
         return 1.0;
     }
@@ -1641,10 +1640,9 @@ RiaDefines::ResultCatType RimStimPlanModel::eclipseResultCategory( RiaDefines::C
 
         return resultDef->resultType();
     }
-    else
-    {
-        return RiaDefines::ResultCatType::STATIC_NATIVE;
-    }
+    
+            return RiaDefines::ResultCatType::STATIC_NATIVE;
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1658,7 +1656,7 @@ QString RimStimPlanModel::eclipseResultVariable( RiaDefines::CurveProperty curve
         return "EQLNUM";
     if ( curveProperty == RiaDefines::CurveProperty::PERMEABILITY_X )
         return "PERMX";
-    else if ( curveProperty == RiaDefines::CurveProperty::PERMEABILITY_Z )
+    if ( curveProperty == RiaDefines::CurveProperty::PERMEABILITY_Z )
         return "PERMZ";
     else if ( curveProperty == RiaDefines::CurveProperty::POROSITY || curveProperty == RiaDefines::CurveProperty::POROSITY_UNSCALED )
         return "PORO";

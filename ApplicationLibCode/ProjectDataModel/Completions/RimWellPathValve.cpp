@@ -355,7 +355,7 @@ QString RimWellPathValve::componentLabel() const
                     return "AICD";
        
     }
-    else if ( componentType() == RiaDefines::WellPathComponentType::ICV )
+    if ( componentType() == RiaDefines::WellPathComponentType::ICV )
     {
         return "ICV";
     }

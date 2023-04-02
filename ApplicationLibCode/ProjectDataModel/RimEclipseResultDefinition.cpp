@@ -1228,7 +1228,7 @@ bool RimEclipseResultDefinition::hasDynamicResult() const
         {
             return true;
         }
-        else if ( m_resultType() == RiaDefines::ResultCatType::INJECTION_FLOODING )
+        if ( m_resultType() == RiaDefines::ResultCatType::INJECTION_FLOODING )
         {
             return true;
         }
@@ -2392,7 +2392,7 @@ RimEclipseResultDefinition::FlowTracerSelectionState RimEclipseResultDefinition:
         {
             return ONE_SELECTED;
         }
-        else if ( m_selectedInjectorTracers().size() > (size_t)1 )
+        if ( m_selectedInjectorTracers().size() > (size_t)1 )
         {
             return MULTIPLE_SELECTED;
         }
@@ -2420,7 +2420,7 @@ RimEclipseResultDefinition::FlowTracerSelectionState RimEclipseResultDefinition:
         {
             return ONE_SELECTED;
         }
-        else if ( m_selectedProducerTracers().size() > (size_t)1 )
+        if ( m_selectedProducerTracers().size() > (size_t)1 )
         {
             return MULTIPLE_SELECTED;
         }

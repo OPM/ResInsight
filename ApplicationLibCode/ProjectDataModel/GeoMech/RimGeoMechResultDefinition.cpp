@@ -818,7 +818,7 @@ QString RimGeoMechResultDefinition::currentResultUnits() const
     {
         return "1/GPa";
     }
-    else if ( this->resultFieldName() == "PORO-PERM" && this->resultComponentName() == "PERM" )
+    if ( this->resultFieldName() == "PORO-PERM" && this->resultComponentName() == "PERM" )
     {
         return "mD";
     }

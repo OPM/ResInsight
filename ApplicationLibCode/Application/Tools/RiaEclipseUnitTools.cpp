@@ -146,18 +146,17 @@ double RiaEclipseUnitTools::convertToFeet( double sourceValue, const QString& so
         double meter = sourceValue / 100.0;
         return RiaEclipseUnitTools::meterToFeet( meter );
     }
-    else if ( timmed.compare( "mm", Qt::CaseInsensitive ) == 0 )
+    if ( timmed.compare( "mm", Qt::CaseInsensitive ) == 0 )
     {
         double meter = sourceValue / 1000.0;
         return RiaEclipseUnitTools::meterToFeet( meter );
     }
-    else if ( timmed.compare( "m", Qt::CaseInsensitive ) == 0 || timmed.compare( "md-m", Qt::CaseInsensitive ) == 0 )
+    if ( timmed.compare( "m", Qt::CaseInsensitive ) == 0 || timmed.compare( "md-m", Qt::CaseInsensitive ) == 0 )
     {
         return RiaEclipseUnitTools::meterToFeet( sourceValue );
     }
 
-    if ( replaceUnmatched )
-        return HUGE_VAL;
-    else
-        return sourceValue;
+    if ( replaceUnmatched ) return HUGE_VAL;
+
+    return sourceValue;
 }
