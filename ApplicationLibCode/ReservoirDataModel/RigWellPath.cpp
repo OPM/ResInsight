@@ -682,9 +682,8 @@ std::pair<size_t, size_t> RigWellPath::closestIndices( const cvf::Vec3d& positio
         {
             return { closestIndex - 1, closestIndex };
         }
-        
-                    return { closestIndex, closestIndex + 1 };
-       
+
+        return { closestIndex, closestIndex + 1 };
     }
 
     return { cvf::UNDEFINED_SIZE_T, cvf::UNDEFINED_SIZE_T };

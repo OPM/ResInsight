@@ -1013,9 +1013,8 @@ caf::TitledOverlayFrame* RimRegularLegendConfig::titledOverlayFrame()
     {
         return m_categoryLegend.p();
     }
-    
-            return m_scalarMapperLegend.p();
-   
+
+    return m_scalarMapperLegend.p();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1027,9 +1026,8 @@ const caf::TitledOverlayFrame* RimRegularLegendConfig::titledOverlayFrame() cons
     {
         return m_categoryLegend.p();
     }
-    
-            return m_scalarMapperLegend.p();
-   
+
+    return m_scalarMapperLegend.p();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1041,12 +1039,11 @@ RiuAbstractLegendFrame* RimRegularLegendConfig::makeLegendFrame()
     {
         return new RiuCategoryLegendFrame( nullptr, m_title, m_categoryMapper.p() );
     }
-    
-            auto legend = new RiuScalarMapperLegendFrame( nullptr, m_title, m_currentScalarMapper.p() );
-        legend->setTickFormat( m_tickNumberFormat() );
-        legend->setTickPrecision( m_significantDigitsInData );
-        return legend;
-   
+
+    auto legend = new RiuScalarMapperLegendFrame( nullptr, m_title, m_currentScalarMapper.p() );
+    legend->setTickFormat( m_tickNumberFormat() );
+    legend->setTickPrecision( m_significantDigitsInData );
+    return legend;
 }
 
 //--------------------------------------------------------------------------------------------------

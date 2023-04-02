@@ -481,9 +481,8 @@ std::vector<float> RigFemPartResultCalculatorMudWeightWindow::loadDataForFrame(
         std::vector<float>        dataForFrame = frame->frameData( stepIndex, frameIndex );
         return dataForFrame;
     }
-    
-            return std::vector<float>();
-   
+
+    return std::vector<float>();
 }
 
 //--------------------------------------------------------------------------------------------------

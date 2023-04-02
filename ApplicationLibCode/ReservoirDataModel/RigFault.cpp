@@ -106,9 +106,8 @@ bool RigFault::ordering( CellAndFace first, CellAndFace second )
             {
                 return k1 < k2;
             }
-            
-                            return f1 < f2;
-           
+
+            return f1 < f2;
         }
         else
         {

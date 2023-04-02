@@ -110,7 +110,7 @@ public:
     void calculateCondensedTransmissibilities();
 
 protected:
-    using ConnectionTransmissibility = std::pair<CellAddress, std::map<CellAddress, double>>;
+    using ConnectionTransmissibility   = std::pair<CellAddress, std::map<CellAddress, double>>;
     using ConnectionTransmissibilities = std::map<CellAddress, std::map<CellAddress, double>>;
 
     ConnectionTransmissibilities m_neighborTransmissibilities;

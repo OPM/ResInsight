@@ -178,9 +178,8 @@ bool RimIntersectionResultDefinition::hasResult()
     {
         return m_eclipseResultDefinition->hasResult() || m_eclipseResultDefinition->isTernarySaturationSelected();
     }
-    
-            return m_geomResultDefinition->hasResult();
-   
+
+    return m_geomResultDefinition->hasResult();
 }
 
 //--------------------------------------------------------------------------------------------------

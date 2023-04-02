@@ -610,27 +610,26 @@ RigFemResultAddress RimGeoMechResultDefinition::resultAddress() const
                                     m_timeLapseBaseTimestep(),
                                     RigFemResultAddress::noCompactionValue() );
     }
-    
-            RigFemResultAddress address( resultPositionType(),
-                                     resultFieldName().toStdString(),
-                                     resultComponentName().toStdString(),
-                                     m_timeLapseBaseTimestep(),
-                                     resultFieldName().toStdString() == RigFemPartResultsCollection::FIELD_NAME_COMPACTION
-                                         ? m_compactionRefLayer()
-                                         : RigFemResultAddress::noCompactionValue(),
-                                     m_normalizeByHydrostaticPressure );
-        if ( !RigFemPartResultsCollection::isNormalizableResult( address ) )
-        {
-            address.normalizedByHydrostaticPressure = false;
-        }
 
-        if ( RigFemPartResultsCollection::isReferenceCaseDependentResult( address ) )
-        {
-            address.timeLapseBaseStepIdx = RigFemResultAddress::noTimeLapseValue();
-        }
+    RigFemResultAddress address( resultPositionType(),
+                                 resultFieldName().toStdString(),
+                                 resultComponentName().toStdString(),
+                                 m_timeLapseBaseTimestep(),
+                                 resultFieldName().toStdString() == RigFemPartResultsCollection::FIELD_NAME_COMPACTION
+                                     ? m_compactionRefLayer()
+                                     : RigFemResultAddress::noCompactionValue(),
+                                 m_normalizeByHydrostaticPressure );
+    if ( !RigFemPartResultsCollection::isNormalizableResult( address ) )
+    {
+        address.normalizedByHydrostaticPressure = false;
+    }
 
-        return address;
-   
+    if ( RigFemPartResultsCollection::isReferenceCaseDependentResult( address ) )
+    {
+        address.timeLapseBaseStepIdx = RigFemResultAddress::noTimeLapseValue();
+    }
+
+    return address;
 }
 
 //--------------------------------------------------------------------------------------------------

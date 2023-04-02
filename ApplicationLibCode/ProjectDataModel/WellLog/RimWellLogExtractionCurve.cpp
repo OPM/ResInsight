@@ -1258,9 +1258,8 @@ QString RimWellLogExtractionCurve::wellName() const
         {
             return m_wellPath->name();
         }
-        
-                    return QString();
-       
+
+        return QString();
     }
     else
     {

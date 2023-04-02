@@ -107,9 +107,8 @@ float RigFemPartCollection::characteristicElementSize() const
     {
         return part( 0 )->characteristicElementSize();
     }
-    
-            return 0;
-   
+
+    return 0;
 }
 
 //--------------------------------------------------------------------------------------------------

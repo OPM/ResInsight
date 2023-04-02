@@ -436,7 +436,6 @@ std::vector<RigEnsembleFractureStatisticsCalculator::PropertyType> RigEnsembleFr
 //--------------------------------------------------------------------------------------------------
 std::pair<RiaNumberFormat::NumberFormatType, int> RigEnsembleFractureStatisticsCalculator::numberFormatForProperty( PropertyType propertyType )
 {
-    if ( propertyType == PropertyType::WIDTH )
-        return std::make_pair( RiaNumberFormat::NumberFormatType::FIXED, 4 );
-            return std::make_pair( RiaNumberFormat::NumberFormatType::FIXED, 1 );
+    if ( propertyType == PropertyType::WIDTH ) return std::make_pair( RiaNumberFormat::NumberFormatType::FIXED, 4 );
+    return std::make_pair( RiaNumberFormat::NumberFormatType::FIXED, 1 );
 }

@@ -1026,9 +1026,8 @@ private:
         {
             return posKNeighbor;
         }
-        
-                    return firstUnused;
-       
+
+        return firstUnused;
     }
 
     //--------------------------------------------------------------------------------------------------

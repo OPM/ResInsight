@@ -201,9 +201,8 @@ void RimViewWindow::setMdiWindowGeometry( const RimMdiWindowGeometry& windowGeom
 //--------------------------------------------------------------------------------------------------
 RimMdiWindowGeometry RimViewWindow::mdiWindowGeometry()
 {
-    if ( m_windowController() )
-        return m_windowController()->mdiWindowGeometry();
-            return RimMdiWindowGeometry();
+    if ( m_windowController() ) return m_windowController()->mdiWindowGeometry();
+    return RimMdiWindowGeometry();
 }
 
 //--------------------------------------------------------------------------------------------------

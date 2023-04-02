@@ -187,11 +187,10 @@ double RimFishbones::rotationAngle( size_t index ) const
     {
         return m_fixedInstallationRotationAngle;
     }
-    
-            CVF_ASSERT( index < m_installationRotationAngles().size() );
 
-        return m_installationRotationAngles()[index];
-   
+    CVF_ASSERT( index < m_installationRotationAngles().size() );
+
+    return m_installationRotationAngles()[index];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -223,9 +222,8 @@ double RimFishbones::tubingDiameter( RiaDefines::EclipseUnitSystem unitSystem ) 
         {
             return RiaEclipseUnitTools::inchToMeter( m_lateralTubingDiameter() );
         }
-        
-                    return m_lateralTubingDiameter() / 1000;
-       
+
+        return m_lateralTubingDiameter() / 1000;
     }
     else if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
@@ -233,9 +231,8 @@ double RimFishbones::tubingDiameter( RiaDefines::EclipseUnitSystem unitSystem ) 
         {
             return RiaEclipseUnitTools::meterToFeet( m_lateralTubingDiameter() / 1000 );
         }
-        
-                    return RiaEclipseUnitTools::inchToFeet( m_lateralTubingDiameter() );
-       
+
+        return RiaEclipseUnitTools::inchToFeet( m_lateralTubingDiameter() );
     }
     CVF_ASSERT( false );
     return 0.0;

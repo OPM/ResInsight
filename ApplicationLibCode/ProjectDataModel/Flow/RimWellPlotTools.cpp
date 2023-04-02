@@ -709,9 +709,8 @@ bool RimWellPlotTools::tryMatchChannelName( const std::set<QString>& channelName
             std::regex pattern( channelName.toStdString() );
             return std::regex_match( channelNameToMatch.toStdString(), pattern );
         }
-        
-                    return (bool)channelName.contains( channelNameToMatch, Qt::CaseInsensitive );
-       
+
+        return (bool)channelName.contains( channelNameToMatch, Qt::CaseInsensitive );
     } );
     return itr != channelNames.end();
 }

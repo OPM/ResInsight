@@ -1069,19 +1069,18 @@ cvf::Vec3d RigGeoMechWellLogExtractor::calculateWellPathTangent( int64_t interse
         m_wellPathGeometry->twoClosestPoints( intersections()[intersectionIdx], &segmentStart, &segmentEnd );
         return ( segmentEnd - segmentStart ).getNormalized();
     }
-    
-            cvf::Vec3d wellPathTangent;
-        if ( intersectionIdx % 2 == 0 )
-        {
-            wellPathTangent = intersections()[intersectionIdx + 1] - intersections()[intersectionIdx];
-        }
-        else
-        {
-            wellPathTangent = intersections()[intersectionIdx] - intersections()[intersectionIdx - 1];
-        }
-        CVF_ASSERT( wellPathTangent.length() > 1.0e-7 );
-        return wellPathTangent.getNormalized();
-   
+
+    cvf::Vec3d wellPathTangent;
+    if ( intersectionIdx % 2 == 0 )
+    {
+        wellPathTangent = intersections()[intersectionIdx + 1] - intersections()[intersectionIdx];
+    }
+    else
+    {
+        wellPathTangent = intersections()[intersectionIdx] - intersections()[intersectionIdx - 1];
+    }
+    CVF_ASSERT( wellPathTangent.length() > 1.0e-7 );
+    return wellPathTangent.getNormalized();
 }
 
 //--------------------------------------------------------------------------------------------------

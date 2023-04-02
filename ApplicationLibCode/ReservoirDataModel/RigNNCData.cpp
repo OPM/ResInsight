@@ -316,9 +316,8 @@ const std::vector<double>* RigNNCData::staticConnectionScalarResult( const RigEc
         CVF_ASSERT( it->second.size() == 1 );
         return &( it->second[0] );
     }
-    
-            return nullptr;
-   
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -333,9 +332,8 @@ const std::vector<double>* RigNNCData::staticConnectionScalarResultByName( const
         CVF_ASSERT( it->second.size() == 1 );
         return &( it->second[0] );
     }
-    
-            return nullptr;
-   
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -362,9 +360,8 @@ const std::vector<std::vector<double>>* RigNNCData::dynamicConnectionScalarResul
     {
         return &( it->second );
     }
-    
-            return nullptr;
-   
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -440,9 +437,8 @@ const std::vector<std::vector<double>>* RigNNCData::generatedConnectionScalarRes
     {
         return &( it->second );
     }
-    
-            return nullptr;
-   
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -479,9 +475,8 @@ std::vector<std::vector<double>>* RigNNCData::generatedConnectionScalarResult( c
     {
         return &( it->second );
     }
-    
-            return nullptr;
-   
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -685,7 +680,7 @@ const QString RigNNCData::getNNCDataTypeFromScalarResultIndex( const RigEclipseR
 bool RigNNCData::isNative( QString nncDataType ) const
 {
     return nncDataType == RiaDefines::propertyNameCombTrans() || nncDataType == RiaDefines::propertyNameFluxGas() ||
-         nncDataType == RiaDefines::propertyNameFluxOil() || nncDataType == RiaDefines::propertyNameFluxWat() ||
-         nncDataType == RiaDefines::propertyNameRiCombMult() || nncDataType == RiaDefines::propertyNameRiCombTrans() ||
-         nncDataType == RiaDefines::propertyNameRiCombTransByArea();
+           nncDataType == RiaDefines::propertyNameFluxOil() || nncDataType == RiaDefines::propertyNameFluxWat() ||
+           nncDataType == RiaDefines::propertyNameRiCombMult() || nncDataType == RiaDefines::propertyNameRiCombTrans() ||
+           nncDataType == RiaDefines::propertyNameRiCombTransByArea();
 }

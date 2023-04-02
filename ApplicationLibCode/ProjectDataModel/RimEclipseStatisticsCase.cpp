@@ -670,26 +670,26 @@ void RimEclipseStatisticsCase::updateSelectionListVisibilities()
                     // !caseGroup()->mainCase()->reservoirData()->results(RiaDefines::FRACTURE_MODEL)->resultCount()
 
     m_selectedDynamicProperties.uiCapability()->setUiHidden( isLocked || m_porosityModel() != RiaDefines::PorosityModelType::MATRIX_MODEL ||
-                                                                            m_resultType() != RiaDefines::ResultCatType::DYNAMIC_NATIVE );
+                                                             m_resultType() != RiaDefines::ResultCatType::DYNAMIC_NATIVE );
     m_selectedStaticProperties.uiCapability()->setUiHidden( isLocked || m_porosityModel() != RiaDefines::PorosityModelType::MATRIX_MODEL ||
-                                                                           m_resultType() != RiaDefines::ResultCatType::STATIC_NATIVE );
+                                                            m_resultType() != RiaDefines::ResultCatType::STATIC_NATIVE );
     m_selectedGeneratedProperties.uiCapability()->setUiHidden( isLocked || m_porosityModel() != RiaDefines::PorosityModelType::MATRIX_MODEL ||
-                                                                              m_resultType() != RiaDefines::ResultCatType::GENERATED );
+                                                               m_resultType() != RiaDefines::ResultCatType::GENERATED );
     m_selectedInputProperties.uiCapability()->setUiHidden( isLocked || m_porosityModel() != RiaDefines::PorosityModelType::MATRIX_MODEL ||
-                                                                          m_resultType() != RiaDefines::ResultCatType::INPUT_PROPERTY );
+                                                           m_resultType() != RiaDefines::ResultCatType::INPUT_PROPERTY );
 
     m_selectedFractureDynamicProperties.uiCapability()->setUiHidden( isLocked ||
                                                                      m_porosityModel() != RiaDefines::PorosityModelType::FRACTURE_MODEL ||
-                                                                        m_resultType() != RiaDefines::ResultCatType::DYNAMIC_NATIVE );
+                                                                     m_resultType() != RiaDefines::ResultCatType::DYNAMIC_NATIVE );
     m_selectedFractureStaticProperties.uiCapability()->setUiHidden( isLocked ||
                                                                     m_porosityModel() != RiaDefines::PorosityModelType::FRACTURE_MODEL ||
-                                                                       m_resultType() != RiaDefines::ResultCatType::STATIC_NATIVE );
-    m_selectedFractureGeneratedProperties.uiCapability()->setUiHidden(
-        isLocked ||
-        m_porosityModel() != RiaDefines::PorosityModelType::FRACTURE_MODEL || m_resultType() != RiaDefines::ResultCatType::GENERATED );
+                                                                    m_resultType() != RiaDefines::ResultCatType::STATIC_NATIVE );
+    m_selectedFractureGeneratedProperties.uiCapability()->setUiHidden( isLocked ||
+                                                                       m_porosityModel() != RiaDefines::PorosityModelType::FRACTURE_MODEL ||
+                                                                       m_resultType() != RiaDefines::ResultCatType::GENERATED );
     m_selectedFractureInputProperties.uiCapability()->setUiHidden( isLocked ||
                                                                    m_porosityModel() != RiaDefines::PorosityModelType::FRACTURE_MODEL ||
-                                                                      m_resultType() != RiaDefines::ResultCatType::INPUT_PROPERTY );
+                                                                   m_resultType() != RiaDefines::ResultCatType::INPUT_PROPERTY );
 }
 
 //--------------------------------------------------------------------------------------------------

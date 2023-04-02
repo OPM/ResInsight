@@ -62,9 +62,8 @@ double RigWellDiskData::total() const
     {
         return singlePropertyValue();
     }
-    
-            return oil() + gas() + water();
-   
+
+    return oil() + gas() + water();
 }
 
 //--------------------------------------------------------------------------------------------------

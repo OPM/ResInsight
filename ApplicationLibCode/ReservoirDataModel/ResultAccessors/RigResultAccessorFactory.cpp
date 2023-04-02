@@ -62,13 +62,12 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultDefinition
 
         return object;
     }
-    
-            return RigResultAccessorFactory::createFromResultAddress( eclipseCase,
-                                                                  gridIndex,
-                                                                  resultDefinition->porosityModel(),
-                                                                  timeStepIndex,
-                                                                  resultDefinition->eclipseResultAddress() );
-   
+
+    return RigResultAccessorFactory::createFromResultAddress( eclipseCase,
+                                                              gridIndex,
+                                                              resultDefinition->porosityModel(),
+                                                              timeStepIndex,
+                                                              resultDefinition->eclipseResultAddress() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -371,8 +370,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createNativeFromResultAddr
             new RigActiveCellsResultAccessor( grid, resultValues, eclipseCase->activeCellInfo( porosityModel ) );
         return object;
     }
-    
-            cvf::ref<RigResultAccessor> object = new RigAllGridCellsResultAccessor( grid, resultValues );
-        return object;
-   
+
+    cvf::ref<RigResultAccessor> object = new RigAllGridCellsResultAccessor( grid, resultValues );
+    return object;
 }

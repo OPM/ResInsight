@@ -513,9 +513,8 @@ std::vector<QDateTime> RigCaseCellResultsData::allTimeStepDatesFromEclipseReader
     {
         return rifReaderOutput->allTimeSteps();
     }
-    
-            return std::vector<QDateTime>();
-   
+
+    return std::vector<QDateTime>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -527,7 +526,7 @@ std::vector<QDateTime> RigCaseCellResultsData::timeStepDates( const RigEclipseRe
     {
         return m_resultInfos[findScalarResultIndexFromAddress( resVarAddr )].dates();
     }
-            return std::vector<QDateTime>();
+    return std::vector<QDateTime>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -561,9 +560,8 @@ std::vector<double> RigCaseCellResultsData::daysSinceSimulationStart( const RigE
     {
         return m_resultInfos[findScalarResultIndexFromAddress( resVarAddr )].daysSinceSimulationStarts();
     }
-    
-            return std::vector<double>();
-   
+
+    return std::vector<double>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -574,7 +572,7 @@ int RigCaseCellResultsData::reportStepNumber( const RigEclipseResultAddress& res
     if ( findScalarResultIndexFromAddress( resVarAddr ) < m_resultInfos.size() &&
          m_resultInfos[findScalarResultIndexFromAddress( resVarAddr )].timeStepInfos().size() > timeStepIndex )
         return m_resultInfos[findScalarResultIndexFromAddress( resVarAddr )].timeStepInfos()[timeStepIndex].m_reportNumber;
-            return -1;
+    return -1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -584,7 +582,7 @@ std::vector<RigEclipseTimeStepInfo> RigCaseCellResultsData::timeStepInfos( const
 {
     if ( findScalarResultIndexFromAddress( resVarAddr ) < m_resultInfos.size() )
         return m_resultInfos[findScalarResultIndexFromAddress( resVarAddr )].timeStepInfos();
-            return std::vector<RigEclipseTimeStepInfo>();
+    return std::vector<RigEclipseTimeStepInfo>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -785,9 +783,8 @@ const std::vector<double>* RigCaseCellResultsData::getResultIndexableStaticResul
         }
         return &activeCellsResultsTempContainer;
     }
-    
-            return porvResults;
-   
+
+    return porvResults;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1044,8 +1041,8 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
 bool RigCaseCellResultsData::hasCompleteTransmissibilityResults() const
 {
     return hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANX" ) ) &&
-         hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANY" ) ) &&
-         hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANZ" ) );
+           hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANY" ) ) &&
+           hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANZ" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2060,7 +2057,7 @@ double newtran( double cdarchy, double mult, double halfCellTrans, double neighb
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-using ResultIndexFunction = size_t (*)(const RigActiveCellInfo *, size_t);
+using ResultIndexFunction = size_t ( * )( const RigActiveCellInfo*, size_t );
 
 //--------------------------------------------------------------------------------------------------
 ///

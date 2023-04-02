@@ -79,9 +79,8 @@ std::string RimWellDiskConfig::getOilProperty( bool isInjector ) const
     {
         return m_oilPropertyInjector;
     }
-    
-            return m_oilProperty;
-   
+
+    return m_oilProperty;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -103,9 +102,8 @@ std::string RimWellDiskConfig::getGasProperty( bool isInjector ) const
     {
         return m_gasPropertyInjector;
     }
-    
-            return m_gasProperty;
-   
+
+    return m_gasProperty;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -127,9 +125,8 @@ std::string RimWellDiskConfig::getWaterProperty( bool isInjector ) const
     {
         return m_waterPropertyInjector;
     }
-    
-            return m_waterProperty;
-   
+
+    return m_waterProperty;
 }
 
 //--------------------------------------------------------------------------------------------------
