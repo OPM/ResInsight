@@ -961,9 +961,8 @@ RimGeoMechPropertyFilterCollection* RimGeoMechView::geoMechPropertyFilterCollect
     {
         return m_overridePropertyFilterCollection;
     }
-    
-            return m_propertyFilterCollection;
-   
+
+    return m_propertyFilterCollection;
 }
 //--------------------------------------------------------------------------------------------------
 ///
@@ -974,9 +973,8 @@ const RimGeoMechPropertyFilterCollection* RimGeoMechView::geoMechPropertyFilterC
     {
         return m_overridePropertyFilterCollection;
     }
-    
-            return m_propertyFilterCollection;
-   
+
+    return m_propertyFilterCollection;
 }
 
 //--------------------------------------------------------------------------------------------------

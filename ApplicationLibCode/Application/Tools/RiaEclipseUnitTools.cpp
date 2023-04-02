@@ -119,9 +119,8 @@ double RiaEclipseUnitTools::convertToMeter( double sourceValue, const QString& s
         return RiaEclipseUnitTools::feetToMeter( sourceValue );
     }
 
-    if ( replaceUnmatched )
-        return HUGE_VAL;
-            return sourceValue;
+    if ( replaceUnmatched ) return HUGE_VAL;
+    return sourceValue;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -92,13 +92,12 @@ const RigFractureCell& RigFractureGrid::cellFromIndex( size_t index ) const
         const RigFractureCell& cell = m_fractureCells[index];
         return cell;
     }
-    
-            // TODO: Better error handling?
-        RiaLogging::error( QString( "Requesting non-existent StimPlanCell" ) );
-        RiaLogging::error( QString( "Returning cell 0, results will be invalid" ) );
-        const RigFractureCell& cell = m_fractureCells[0];
-        return cell;
-   
+
+    // TODO: Better error handling?
+    RiaLogging::error( QString( "Requesting non-existent StimPlanCell" ) );
+    RiaLogging::error( QString( "Returning cell 0, results will be invalid" ) );
+    const RigFractureCell& cell = m_fractureCells[0];
+    return cell;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -169,8 +168,7 @@ const RigFractureCell* RigFractureGrid::getCellFromPosition( const cvf::Vec3d& p
         // Hit: should only one cell since they have no overlap
         return &m_fractureCells[indexes[0]];
     }
-    
-            // No hit
-        return nullptr;
-   
+
+    // No hit
+    return nullptr;
 }

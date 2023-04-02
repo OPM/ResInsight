@@ -201,11 +201,10 @@ const std::vector<double>& RigAccWellFlowCalculator::accumulatedTracerFlowPrConn
     {
         return flowPrTracerIt->second;
     }
-    
-            CVF_ASSERT( false );
-        static std::vector<double> dummy;
-        return dummy;
-   
+
+    CVF_ASSERT( false );
+    static std::vector<double> dummy;
+    return dummy;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -218,11 +217,10 @@ const std::vector<double>& RigAccWellFlowCalculator::tracerFlowPrConnection( con
     {
         return flowPrTracerIt->second;
     }
-    
-            CVF_ASSERT( false );
-        static std::vector<double> dummy;
-        return dummy;
-   
+
+    CVF_ASSERT( false );
+    static std::vector<double> dummy;
+    return dummy;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -251,11 +249,10 @@ const std::vector<double>& RigAccWellFlowCalculator::accumulatedTracerFlowPrPseu
     {
         return flowPrTracerIt->second;
     }
-    
-            CVF_ASSERT( false );
-        static std::vector<double> dummy;
-        return dummy;
-   
+
+    CVF_ASSERT( false );
+    static std::vector<double> dummy;
+    return dummy;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -268,11 +265,10 @@ const std::vector<double>& RigAccWellFlowCalculator::tracerFlowPrPseudoLength( c
     {
         return flowPrTracerIt->second;
     }
-    
-            CVF_ASSERT( false );
-        static std::vector<double> dummy;
-        return dummy;
-   
+
+    CVF_ASSERT( false );
+    static std::vector<double> dummy;
+    return dummy;
 }
 
 //--------------------------------------------------------------------------------------------------

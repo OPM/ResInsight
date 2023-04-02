@@ -182,8 +182,7 @@ std::vector<double> RigWellLogCurveData::depths( RiaDefines::DepthTypeEnum depth
         }
         return tvds;
     }
-    if ( depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH &&
-              m_depths.count( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB ) )
+    if ( depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH && m_depths.count( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB ) )
     {
         std::vector<double> tvds = depths( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB );
         for ( double& tvdValue : tvds )

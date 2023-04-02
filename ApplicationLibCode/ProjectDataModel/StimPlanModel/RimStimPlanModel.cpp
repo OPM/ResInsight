@@ -1094,11 +1094,10 @@ double RimStimPlanModel::getOverburdenGradient( RiaDefines::CurveProperty curveP
         }
         return m_stimPlanModelTemplate()->overburdenFluidDensity() * 9.81 * 1000.0 / 1.0e5;
     }
-    
-            RiaLogging::error(
-            QString( "Missing overburden gradient for %1." ).arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
-        return std::numeric_limits<double>::infinity();
-   
+
+    RiaLogging::error(
+        QString( "Missing overburden gradient for %1." ).arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
+    return std::numeric_limits<double>::infinity();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1115,11 +1114,10 @@ double RimStimPlanModel::getUnderburdenGradient( RiaDefines::CurveProperty curve
 
         return m_stimPlanModelTemplate()->underburdenFluidDensity() * 9.81 * 1000.0 / 1.0e5;
     }
-    
-            RiaLogging::error(
-            QString( "Missing underburden gradient for %1." ).arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
-        return std::numeric_limits<double>::infinity();
-   
+
+    RiaLogging::error(
+        QString( "Missing underburden gradient for %1." ).arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
+    return std::numeric_limits<double>::infinity();
 }
 
 //--------------------------------------------------------------------------------------------------

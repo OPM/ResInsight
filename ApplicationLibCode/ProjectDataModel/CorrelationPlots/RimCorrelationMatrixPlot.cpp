@@ -455,9 +455,8 @@ void sortEntries( std::vector<CorrelationMatrixRowOrColumn<KeyType, ValueType>>&
                matrix.end(),
                [&sortByAbsoluteValues]( const CorrelationMatrixRowOrColumn<KeyType, ValueType>& lhs,
                                         const CorrelationMatrixRowOrColumn<KeyType, ValueType>& rhs ) -> bool {
-                   if ( sortByAbsoluteValues )
-                       return lhs.m_correlationAbsSum > rhs.m_correlationAbsSum;
-                                          return lhs.m_correlationSum > rhs.m_correlationSum;
+                   if ( sortByAbsoluteValues ) return lhs.m_correlationAbsSum > rhs.m_correlationAbsSum;
+                   return lhs.m_correlationSum > rhs.m_correlationSum;
                } );
 }
 

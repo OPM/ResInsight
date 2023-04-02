@@ -128,27 +128,26 @@ void RigWellPathStimplanIntersector::calculate( const cvf::Mat4d&               
                     continue; // Outside
                 }
                 // In and out
-                                    {
-                        double wellRadiusDistFromPlane = thisZ > 0 ? wellRadius : -wellRadius;
+                {
+                    double wellRadiusDistFromPlane = thisZ > 0 ? wellRadius : -wellRadius;
 
-                        double fraction = ( wellRadiusDistFromPlane - thisZ ) / ( nextZ - thisZ );
+                    double fraction = ( wellRadiusDistFromPlane - thisZ ) / ( nextZ - thisZ );
 
-                        cvf::Vec3d intersectPoint = part[vxIdx] + fraction * ( part[vxIdx + 1] - part[vxIdx] );
-                        currentIntersectingWpPart.push_back( intersectPoint );
-                    }
-                    {
-                        double wellRadiusDistFromPlane = nextZ > 0 ? wellRadius : -wellRadius;
+                    cvf::Vec3d intersectPoint = part[vxIdx] + fraction * ( part[vxIdx + 1] - part[vxIdx] );
+                    currentIntersectingWpPart.push_back( intersectPoint );
+                }
+                {
+                    double wellRadiusDistFromPlane = nextZ > 0 ? wellRadius : -wellRadius;
 
-                        double fraction = ( wellRadiusDistFromPlane - thisZ ) / ( nextZ - thisZ );
+                    double fraction = ( wellRadiusDistFromPlane - thisZ ) / ( nextZ - thisZ );
 
-                        cvf::Vec3d intersectPoint = part[vxIdx] + fraction * ( part[vxIdx + 1] - part[vxIdx] );
-                        currentIntersectingWpPart.push_back( intersectPoint );
+                    cvf::Vec3d intersectPoint = part[vxIdx] + fraction * ( part[vxIdx + 1] - part[vxIdx] );
+                    currentIntersectingWpPart.push_back( intersectPoint );
 
-                        intersectingWellPathParts.push_back( currentIntersectingWpPart );
-                        currentIntersectingWpPart.clear();
-                    }
-                    continue;
-               
+                    intersectingWellPathParts.push_back( currentIntersectingWpPart );
+                    currentIntersectingWpPart.clear();
+                }
+                continue;
             }
             if ( thisAbsZ < wellRadius && nextAbsZ < wellRadius ) // Inside
             {

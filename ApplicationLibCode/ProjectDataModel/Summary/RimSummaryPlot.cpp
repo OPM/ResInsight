@@ -2442,12 +2442,11 @@ void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandl
                 }
                 continue;
             }
-            
-                            auto [curveCount, curvesCreated] = handleAddressCollectionDrop( addressCollection );
-                accumulatedCurveCount += curveCount;
-                curvesToUpdate.insert( curvesToUpdate.end(), curvesCreated.begin(), curvesCreated.end() );
-                continue;
-           
+
+            auto [curveCount, curvesCreated] = handleAddressCollectionDrop( addressCollection );
+            accumulatedCurveCount += curveCount;
+            curvesToUpdate.insert( curvesToUpdate.end(), curvesCreated.begin(), curvesCreated.end() );
+            continue;
         }
     }
 

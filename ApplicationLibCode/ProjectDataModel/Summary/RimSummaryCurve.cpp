@@ -441,9 +441,8 @@ void RimSummaryCurve::setLeftOrRightAxisY( RiuPlotAxis plotAxis )
 //--------------------------------------------------------------------------------------------------
 RiuPlotAxis RimSummaryCurve::axisY() const
 {
-    if ( m_plotAxisProperties )
-        return m_plotAxisProperties->plotAxisType();
-            return RiuPlotAxis::defaultLeft();
+    if ( m_plotAxisProperties ) return m_plotAxisProperties->plotAxisType();
+    return RiuPlotAxis::defaultLeft();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -974,9 +973,8 @@ QString RimSummaryCurve::curveExportDescription( const RifEclipseSummaryAddress&
     {
         return QString( "%1.%2.%3" ).arg( QString::fromStdString( addressUiText ) ).arg( m_yValuesSummaryCase->nativeCaseName() ).arg( group->name() );
     }
-    
-            return QString( "%1.%2" ).arg( QString::fromStdString( addressUiText ) ).arg( m_yValuesSummaryCase->nativeCaseName() );
-   
+
+    return QString( "%1.%2" ).arg( QString::fromStdString( addressUiText ) ).arg( m_yValuesSummaryCase->nativeCaseName() );
 }
 
 //--------------------------------------------------------------------------------------------------

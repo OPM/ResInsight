@@ -846,7 +846,7 @@ bool RicWellPathExportMswCompletionsImpl::generatePerforationsMswExportInfo( Rim
             {
                 if ( otherValve != valve )
                 {
-                    bool hasIntersection = ( valve->endMD() >= otherValve->startMD() ) && ( otherValve->endMD() >= valve->startMD() ) ;
+                    bool hasIntersection = ( valve->endMD() >= otherValve->startMD() ) && ( otherValve->endMD() >= valve->startMD() );
 
                     if ( hasIntersection )
                     {

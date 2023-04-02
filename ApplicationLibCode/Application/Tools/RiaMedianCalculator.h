@@ -56,8 +56,7 @@ double RiaMedianCalculator<T>::median() const
     CAF_ASSERT( valid() && "You must ensure the result is valid before calling this" );
 
     auto count = m_values.size();
-    if ( count == 1u )
-        return m_values.front();
+    if ( count == 1u ) return m_values.front();
     if ( count % 2 == 0 )
     {
         return ( m_values[count / 2 - 1] + m_values[count / 2] ) * 0.5;

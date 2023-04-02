@@ -163,9 +163,8 @@ std::vector<RimEclipseCase*> openEclipseCasesForCellPlotting( QStringList gridFi
 
             continue;
         }
-        
-                    openedCases.push_back( rimResultReservoir );
-       
+
+        openedCases.push_back( rimResultReservoir );
     }
 
     analysisModels->updateConnectedEditors();

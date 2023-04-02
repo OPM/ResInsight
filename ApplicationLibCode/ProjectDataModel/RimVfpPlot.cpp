@@ -670,9 +670,8 @@ void RimVfpPlot::convertToDisplayUnit( std::vector<double>& values, RimVfpDefine
 QString RimVfpPlot::getDisplayUnitWithBracket( RimVfpDefines::ProductionVariableType variableType )
 {
     QString unit = getDisplayUnit( variableType );
-    if ( !unit.isEmpty() )
-        return QString( "[%1]" ).arg( unit );
-            return unit;
+    if ( !unit.isEmpty() ) return QString( "[%1]" ).arg( unit );
+    return unit;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -681,8 +680,7 @@ QString RimVfpPlot::getDisplayUnitWithBracket( RimVfpDefines::ProductionVariable
 QString RimVfpPlot::getDisplayUnit( RimVfpDefines::ProductionVariableType variableType )
 
 {
-    if ( variableType == RimVfpDefines::ProductionVariableType::THP )
-        return "Bar";
+    if ( variableType == RimVfpDefines::ProductionVariableType::THP ) return "Bar";
     if ( variableType == RimVfpDefines::ProductionVariableType::LIQUID_FLOW_RATE )
         return "m3/day";
     else if ( variableType == RimVfpDefines::ProductionVariableType::WATER_CUT ||
@@ -731,8 +729,7 @@ size_t RimVfpPlot::getVariableIndex( const Opm::VFPProdTable&              table
                                      RimVfpDefines::ProductionVariableType familyVariable,
                                      size_t                                familyValue ) const
 {
-    if ( targetVariable == primaryVariable )
-        return primaryValue;
+    if ( targetVariable == primaryVariable ) return primaryValue;
     if ( targetVariable == familyVariable )
         return familyValue;
     else

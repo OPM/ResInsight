@@ -210,9 +210,8 @@ RimCellFilterCollection* RimGridView::cellFilterCollection()
     {
         return m_overrideCellFilterCollection;
     }
-    
-            return m_cellFilterCollection;
-   
+
+    return m_cellFilterCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -224,9 +223,8 @@ const RimCellFilterCollection* RimGridView::cellFilterCollection() const
     {
         return m_overrideCellFilterCollection;
     }
-    
-            return m_cellFilterCollection;
-   
+
+    return m_cellFilterCollection;
 }
 
 //--------------------------------------------------------------------------------------------------

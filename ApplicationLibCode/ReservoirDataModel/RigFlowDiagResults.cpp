@@ -690,9 +690,8 @@ std::pair<double, double>
     {
         return commPair->second;
     }
-    
-            return std::make_pair( 0.0, 0.0 );
-   
+
+    return std::make_pair( 0.0, 0.0 );
 }
 
 //--------------------------------------------------------------------------------------------------

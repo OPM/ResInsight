@@ -446,9 +446,8 @@ RigActiveCellInfo* RimIdenticalGridCaseGroup::unionOfActiveCells( RiaDefines::Po
     {
         return m_unionOfMatrixActiveCells.p();
     }
-    
-            return m_unionOfFractureActiveCells.p();
-   
+
+    return m_unionOfFractureActiveCells.p();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -477,7 +476,6 @@ RimEclipseCase* RimIdenticalGridCaseGroup::mainCase()
     {
         return caseCollection()->reservoirs()[0];
     }
-    
-            return nullptr;
-   
+
+    return nullptr;
 }

@@ -44,9 +44,8 @@ bool RivGeoMechPartMgrCache::isNeedingRegeneration( const Key& key ) const
     {
         return ceIt->second.needsRegen;
     }
-    
-            return true;
-   
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

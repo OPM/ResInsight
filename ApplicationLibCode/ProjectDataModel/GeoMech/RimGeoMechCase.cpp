@@ -549,9 +549,8 @@ cvf::BoundingBox RimGeoMechCase::allCellsBoundingBox() const
     {
         return m_geoMechCaseData->femParts()->boundingBox();
     }
-    
-            return cvf::BoundingBox();
-   
+
+    return cvf::BoundingBox();
 }
 
 //--------------------------------------------------------------------------------------------------

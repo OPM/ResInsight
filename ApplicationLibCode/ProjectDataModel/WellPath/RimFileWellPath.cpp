@@ -67,9 +67,8 @@ QString RimFileWellPath::filePath() const
     {
         return m_filePathInCache();
     }
-    
-            return m_filePath().path();
-   
+
+    return m_filePath().path();
 }
 
 //--------------------------------------------------------------------------------------------------

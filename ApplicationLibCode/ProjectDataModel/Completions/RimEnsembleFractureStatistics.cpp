@@ -1003,9 +1003,8 @@ void RimEnsembleFractureStatistics::sampleAllGrids( const std::vector<cvf::cref<
                                                     std::shared_ptr<RigSlice2D>                    distanceGrid )
 {
     auto computeCellSideLength = []( const std::vector<double>& values, size_t idx ) {
-        if ( idx < values.size() - 1 )
-            return values[idx + 1] - values[idx];
-                    return values[1] - values[0];
+        if ( idx < values.size() - 1 ) return values[idx + 1] - values[idx];
+        return values[1] - values[0];
     };
 
     const int ny = static_cast<int>( samplesY.size() );

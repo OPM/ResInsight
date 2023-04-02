@@ -1467,10 +1467,9 @@ double RimContourMapProjection::interpolateValue( const cvf::Vec2d& gridPos2d ) 
         {
             return std::numeric_limits<double>::infinity();
         }
-        
-                    vertexValues[i] = vertexValue;
-            validBarycentricCoordsSum += baryCentricCoords[i];
-       
+
+        vertexValues[i] = vertexValue;
+        validBarycentricCoordsSum += baryCentricCoords[i];
     }
 
     if ( validBarycentricCoordsSum < 1.0e-8 )

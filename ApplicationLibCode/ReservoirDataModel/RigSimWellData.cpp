@@ -55,8 +55,6 @@ void RigSimWellData::computeMappingFromResultTimeIndicesToWellTimeIndices( const
 
     m_resultTimeStepIndexToWellTimeStepIndex.resize( simulationTimeSteps.size(), cvf::UNDEFINED_SIZE_T );
 
-    
-
     size_t wellTimeStepIndex = 0;
     for ( size_t resultTimeStepIndex = 0; resultTimeStepIndex < simulationTimeSteps.size(); resultTimeStepIndex++ )
     {
@@ -305,9 +303,8 @@ RiaDefines::WellProductionType RigSimWellData::wellProductionType( size_t result
         const RigWellResultFrame* wResFrame = wellResultFrame( resultTimeStepIndex );
         return wResFrame->m_productionType;
     }
-    
-            return RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE;
-   
+
+    return RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -334,9 +331,8 @@ bool RigSimWellData::isOpen( size_t resultTimeStepIndex ) const
         const RigWellResultFrame* wResFrame = wellResultFrame( resultTimeStepIndex );
         return wResFrame->m_isOpen;
     }
-    
-            return false;
-   
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

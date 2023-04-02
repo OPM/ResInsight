@@ -475,10 +475,9 @@ std::vector<RimSummaryCalculationAddress> RimSummaryCalculation::allAddressesFor
             auto allResultAddresses = summaryCase->summaryReader()->allResultAddresses();
             return allAddressesForCategory( firstVariable.summaryAddress.category(), allResultAddresses );
         }
-        
-                    // Generate the result only for the first variable
-            return { RimSummaryCalculationAddress( singleAddressesForCategory( firstVariable.summaryAddress ) ) };
-       
+
+        // Generate the result only for the first variable
+        return { RimSummaryCalculationAddress( singleAddressesForCategory( firstVariable.summaryAddress ) ) };
     }
 
     return {};
