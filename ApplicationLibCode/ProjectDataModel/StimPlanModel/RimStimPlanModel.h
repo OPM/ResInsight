@@ -84,8 +84,8 @@ public:
         GRADIENT
     };
 
-    RimStimPlanModel( void );
-    ~RimStimPlanModel( void ) override;
+    RimStimPlanModel( );
+    ~RimStimPlanModel( ) override;
 
     void setMD( double md );
 

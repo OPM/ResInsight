@@ -35,8 +35,8 @@ class RimGeoMechModels : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimGeoMechModels( void );
-    ~RimGeoMechModels( void ) override;
+    RimGeoMechModels( );
+    ~RimGeoMechModels( ) override;
 
     RimGeoMechCase* copyCase( RimGeoMechCase* thecase, const QString& newInputFileName );
     void            removeCase( RimGeoMechCase* thecase );

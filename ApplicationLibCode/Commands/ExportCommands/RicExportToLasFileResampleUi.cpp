@@ -41,7 +41,7 @@ CAF_PDM_SOURCE_INIT( RicExportToLasFileObj, "RicExportToLasFileObj" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicExportToLasFileObj::RicExportToLasFileObj( void )
+RicExportToLasFileObj::RicExportToLasFileObj( )
 {
     CAF_PDM_InitObject( "RicExportToLasFileObj" );
 
@@ -53,7 +53,7 @@ CAF_PDM_SOURCE_INIT( RicExportToLasFileResampleUi, "RicExportToLasFileResampleUi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicExportToLasFileResampleUi::RicExportToLasFileResampleUi( void )
+RicExportToLasFileResampleUi::RicExportToLasFileResampleUi( )
     : m_enableCurveUnitConversion( false )
 {
     CAF_PDM_InitObject( "Resample LAS curves for export" );

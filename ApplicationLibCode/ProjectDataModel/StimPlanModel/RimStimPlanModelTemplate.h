@@ -49,8 +49,8 @@ class RimStimPlanModelTemplate : public RimNamedObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimStimPlanModelTemplate( void );
-    ~RimStimPlanModelTemplate( void ) override;
+    RimStimPlanModelTemplate( );
+    ~RimStimPlanModelTemplate( ) override;
 
     caf::Signal<> changed;
 
