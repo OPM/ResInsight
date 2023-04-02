@@ -1114,9 +1114,8 @@ void RimPlotCurve::updateCurveVisibility()
 //--------------------------------------------------------------------------------------------------
 int RimPlotCurve::dataSize() const
 {
-    if ( m_plotCurve )
-        return m_plotCurve->numSamples();
-            return 0;
+    if ( m_plotCurve ) return m_plotCurve->numSamples();
+    return 0;
 }
 
 //--------------------------------------------------------------------------------------------------

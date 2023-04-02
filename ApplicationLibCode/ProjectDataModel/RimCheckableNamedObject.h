@@ -29,8 +29,8 @@ class RimCheckableNamedObject : public RimNamedObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimCheckableNamedObject( );
-    ~RimCheckableNamedObject( ) override;
+    RimCheckableNamedObject();
+    ~RimCheckableNamedObject() override;
 
     bool isChecked() const;
     void setCheckState( bool checkState );

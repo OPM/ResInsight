@@ -242,9 +242,8 @@ cvf::Color3f RimEclipseCase::defaultWellColor( const QString& wellName )
     {
         return nmColor->second;
     }
-    
-            return cvf::Color3f::LIGHT_GRAY;
-   
+
+    return cvf::Color3f::LIGHT_GRAY;
 }
 
 //--------------------------------------------------------------------------------------------------

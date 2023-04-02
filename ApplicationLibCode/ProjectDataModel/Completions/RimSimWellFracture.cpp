@@ -39,7 +39,7 @@ CAF_PDM_SOURCE_INIT( RimSimWellFracture, "SimWellFracture" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSimWellFracture::RimSimWellFracture( )
+RimSimWellFracture::RimSimWellFracture()
 {
     CAF_PDM_InitObject( "SimWellFracture", ":/FractureSymbol16x16.png" );
 
@@ -317,9 +317,8 @@ RigMainGrid* RimSimWellFracture::ownerCaseMainGrid() const
     RimEclipseView* ownerEclView;
     this->firstAncestorOrThisOfType( ownerEclView );
 
-    if ( ownerEclView )
-        return ownerEclView->mainGrid();
-            return nullptr;
+    if ( ownerEclView ) return ownerEclView->mainGrid();
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -359,9 +359,8 @@ void RiaSCurveCalculator::initializeByFinding_q1q2( cvf::Vec3d p1, double azi1, 
 
                 continue;
             }
-            
-                            backstepLevel = 0;
-           
+
+            backstepLevel = 0;
         }
 
 #ifdef DEBUG_OUTPUT_ON

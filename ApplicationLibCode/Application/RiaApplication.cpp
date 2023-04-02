@@ -741,9 +741,8 @@ bool RiaApplication::saveProject( gsl::not_null<QString*> errorMessage )
         *errorMessage = "Project hasn't already been saved and no file name has been provided";
         return false;
     }
-    
-            return saveProjectAs( m_project->fileName(), errorMessage );
-   
+
+    return saveProjectAs( m_project->fileName(), errorMessage );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1139,9 +1138,8 @@ bool RiaApplication::launchProcess( const QString& program, const QStringList& a
 
         return true;
     }
-    
-            return false;
-   
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

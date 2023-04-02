@@ -691,9 +691,8 @@ cvf::Color3f RiaColorTables::phaseColor( RiaDefines::PhaseType phase )
     {
         return RiaColorTools::fromQColorTo3f( themeCol );
     }
-    
-            return cvf::Color3f( col );
-   
+
+    return cvf::Color3f( col );
 }
 
 //--------------------------------------------------------------------------------------------------

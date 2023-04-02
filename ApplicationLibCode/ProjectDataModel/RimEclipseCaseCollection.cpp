@@ -39,7 +39,7 @@ CAF_PDM_SOURCE_INIT( RimEclipseCaseCollection, "ResInsightAnalysisModels" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseCaseCollection::RimEclipseCaseCollection( )
+RimEclipseCaseCollection::RimEclipseCaseCollection()
 {
     CAF_PDM_InitObject( "Grid Models", ":/Cases16x16.png" );
 
@@ -55,7 +55,7 @@ RimEclipseCaseCollection::RimEclipseCaseCollection( )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseCaseCollection::~RimEclipseCaseCollection( )
+RimEclipseCaseCollection::~RimEclipseCaseCollection()
 {
     close();
 }

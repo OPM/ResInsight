@@ -80,9 +80,8 @@ QString RiaFilePathTools::relativePath( const QString& rootDir, const QString& d
         if ( relPath.startsWith( separator() ) ) relPath.remove( 0, 1 );
         return appendSeparatorIfNo( relPath );
     }
-    
-            return dir;
-   
+
+    return dir;
 }
 
 //--------------------------------------------------------------------------------------------------

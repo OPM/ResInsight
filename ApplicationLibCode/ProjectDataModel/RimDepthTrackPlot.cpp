@@ -319,9 +319,8 @@ std::vector<RimWellLogTrack*> RimDepthTrackPlot::visiblePlots() const
 //--------------------------------------------------------------------------------------------------
 int RimDepthTrackPlot::columnCount() const
 {
-    if ( depthOrientation() == RiaDefines::Orientation::VERTICAL )
-        return RimPlotWindow::columnCount();
-            return 1;
+    if ( depthOrientation() == RiaDefines::Orientation::VERTICAL ) return RimPlotWindow::columnCount();
+    return 1;
 }
 
 //--------------------------------------------------------------------------------------------------

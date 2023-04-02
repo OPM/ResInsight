@@ -636,7 +636,7 @@ bool RimContourMapProjection::geometryNeedsUpdating() const
 bool RimContourMapProjection::resultRangeIsValid() const
 {
     return !m_minResultAllTimeSteps == std::numeric_limits<double>::infinity() ||
-         m_maxResultAllTimeSteps == -std::numeric_limits<double>::infinity();
+           m_maxResultAllTimeSteps == -std::numeric_limits<double>::infinity();
 }
 
 //--------------------------------------------------------------------------------------------------

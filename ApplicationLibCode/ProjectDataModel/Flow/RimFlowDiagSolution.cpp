@@ -51,9 +51,8 @@ QString RimFlowDiagSolution::removeCrossFlowEnding( const QString& tracerName )
     {
         return tracerName.left( tracerName.size() - 3 );
     }
-    
-            return tracerName;
-   
+
+    return tracerName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -67,7 +66,7 @@ QString RimFlowDiagSolution::addCrossFlowEnding( const QString& wellName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFlowDiagSolution::RimFlowDiagSolution( )
+RimFlowDiagSolution::RimFlowDiagSolution()
 {
     CAF_PDM_InitObject( "Flow Diagnostics Solution" );
     CAF_PDM_InitField( &m_userDescription, "UserDescription", QString( "All Wells" ), "Description" );
@@ -76,7 +75,7 @@ RimFlowDiagSolution::RimFlowDiagSolution( )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFlowDiagSolution::~RimFlowDiagSolution( )
+RimFlowDiagSolution::~RimFlowDiagSolution()
 {
 }
 
@@ -300,15 +299,14 @@ RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatusInTimeSte
                 return TracerStatusType::INJECTOR;
             }
             if ( wellResFrame->m_productionType == RiaDefines::WellProductionType::PRODUCER ||
-                      wellResFrame->m_productionType == RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE )
+                 wellResFrame->m_productionType == RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE )
             {
                 if ( hasCrossFlowEnding( tracerName ) ) return TracerStatusType::INJECTOR;
 
                 return TracerStatusType::PRODUCER;
             }
-            
-                            CVF_ASSERT( false );
-           
+
+            CVF_ASSERT( false );
         }
     }
 

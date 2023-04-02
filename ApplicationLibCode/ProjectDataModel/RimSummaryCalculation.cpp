@@ -173,27 +173,25 @@ bool RimSummaryCalculation::checkVariables() const
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryCalculation::detectCyclicCalculation( int id, std::set<int>& ids ) const
 {
-    if ( ids.count( id ) > 0 )
-        return true;
-    
-            ids.insert( id );
+    if ( ids.count( id ) > 0 ) return true;
 
-        // Get calculation for the referenced id
-        RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
-        auto                             calc     = dynamic_cast<RimSummaryCalculation*>( calcColl->findCalculationById( id ) );
+    ids.insert( id );
 
-        // Check if any of the variables references already seen calculations
-        auto vars = calc->variables();
-        for ( size_t i = 0; i < vars->size(); i++ )
-        {
-            auto variable = dynamic_cast<RimSummaryCalculationVariable*>( vars->at( i ) );
-            auto addr     = variable->summaryAddress()->address();
+    // Get calculation for the referenced id
+    RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
+    auto                             calc     = dynamic_cast<RimSummaryCalculation*>( calcColl->findCalculationById( id ) );
 
-            if ( addr.id() != -1 && detectCyclicCalculation( addr.id(), ids ) ) return true;
-        }
+    // Check if any of the variables references already seen calculations
+    auto vars = calc->variables();
+    for ( size_t i = 0; i < vars->size(); i++ )
+    {
+        auto variable = dynamic_cast<RimSummaryCalculationVariable*>( vars->at( i ) );
+        auto addr     = variable->summaryAddress()->address();
 
-        return false;
-   
+        if ( addr.id() != -1 && detectCyclicCalculation( addr.id(), ids ) ) return true;
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

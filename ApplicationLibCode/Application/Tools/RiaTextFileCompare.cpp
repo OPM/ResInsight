@@ -104,16 +104,15 @@ bool RiaTextFileCompare::runComparison( const QString& baseFolder, const QString
 
         return false;
     }
-    
-            stdErr = stdErr.simplified();
 
-        // Report non-severe error
-        m_lastError    = ErrorType::IC_ERROR;
-        m_errorMsg     = "Error running 'diff' tool process";
-        m_errorDetails = stdErr;
+    stdErr = stdErr.simplified();
 
-        return false;
-   
+    // Report non-severe error
+    m_lastError    = ErrorType::IC_ERROR;
+    m_errorMsg     = "Error running 'diff' tool process";
+    m_errorDetails = stdErr;
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

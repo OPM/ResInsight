@@ -73,9 +73,8 @@ public:
         {
             return "No Resampling";
         }
-        
-                    return QString( "Plot Data, %1" ).arg( RiaQDateTimeTools::dateTimePeriodName( timePeriod ) );
-       
+
+        return QString( "Plot Data, %1" ).arg( RiaQDateTimeTools::dateTimePeriodName( timePeriod ) );
     }
 
     QString tabText( int tabIndex ) const override

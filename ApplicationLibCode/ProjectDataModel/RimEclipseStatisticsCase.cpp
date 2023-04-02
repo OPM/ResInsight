@@ -710,9 +710,9 @@ void RimEclipseStatisticsCase::updatePercentileUiVisibility()
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseStatisticsCase::hasComputedStatistics() const
 {
-    return static_cast<bool>(eclipseCaseData() && ( eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->existingResults().size() ||
-                                eclipseCaseData()->results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->existingResults().size() ));
-   
+    return static_cast<bool>( eclipseCaseData() &&
+                              ( eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->existingResults().size() ||
+                                eclipseCaseData()->results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->existingResults().size() ) );
 }
 
 //--------------------------------------------------------------------------------------------------

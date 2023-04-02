@@ -223,7 +223,7 @@ double RimSummaryTimeAxisProperties::visibleRangeMin() const
     {
         return QwtDate::toDouble( visibleDateTimeMin() );
     }
-            return m_visibleTimeSinceStartRangeMin();
+    return m_visibleTimeSinceStartRangeMin();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -235,7 +235,7 @@ double RimSummaryTimeAxisProperties::visibleRangeMax() const
     {
         return QwtDate::toDouble( visibleDateTimeMax() );
     }
-            return m_visibleTimeSinceStartRangeMax();
+    return m_visibleTimeSinceStartRangeMax();
 }
 
 //--------------------------------------------------------------------------------------------------

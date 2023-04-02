@@ -67,10 +67,8 @@ double RiaInterpolationTools::linear( const std::vector<double>& x, const std::v
     if ( !found )
     {
         // Check if we are just outside the boundaries
-        if ( almostEqual( value, x[0] ) )
-            return y[0];
-        if ( almostEqual( value, x[x.size() - 1] ) )
-            return y[x.size() - 1];
+        if ( almostEqual( value, x[0] ) ) return y[0];
+        if ( almostEqual( value, x[x.size() - 1] ) ) return y[x.size() - 1];
 
         if ( extrapolationMode == ExtrapolationMode::CLOSEST )
         {
@@ -111,9 +109,8 @@ double RiaInterpolationTools::extrapolate( const std::vector<double>& x, const s
 //--------------------------------------------------------------------------------------------------
 double RiaInterpolationTools::extrapolateClosestValue( const std::vector<double>& x, const std::vector<double>& y, double value )
 {
-    if ( value <= x[0] )
-        return y[0];
-            return y[x.size() - 1];
+    if ( value <= x[0] ) return y[0];
+    return y[x.size() - 1];
 }
 
 //--------------------------------------------------------------------------------------------------

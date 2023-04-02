@@ -26,7 +26,7 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimCheckableNamedObject, "CheckableNamedObject
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimCheckableNamedObject::RimCheckableNamedObject( )
+RimCheckableNamedObject::RimCheckableNamedObject()
 {
     CAF_PDM_InitScriptableObject( "Checkable object" );
     CAF_PDM_InitScriptableField( &m_isChecked, "IsChecked", true, "Active" );
@@ -36,7 +36,7 @@ RimCheckableNamedObject::RimCheckableNamedObject( )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimCheckableNamedObject::~RimCheckableNamedObject( )
+RimCheckableNamedObject::~RimCheckableNamedObject()
 {
 }
 

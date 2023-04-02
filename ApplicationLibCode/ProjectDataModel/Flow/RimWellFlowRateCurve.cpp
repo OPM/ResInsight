@@ -271,7 +271,7 @@ bool RimWellFlowRateCurve::isUsingConnectionNumberDepthType() const
 {
     RimWellLogPlot* wellLogPlot;
     firstAncestorOrThisOfType( wellLogPlot );
-    return static_cast<bool>(wellLogPlot && wellLogPlot->depthType() == RiaDefines::DepthTypeEnum::CONNECTION_NUMBER);
+    return static_cast<bool>( wellLogPlot && wellLogPlot->depthType() == RiaDefines::DepthTypeEnum::CONNECTION_NUMBER );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -135,9 +135,8 @@ bool RimEclipseInputCase::openDataFileSet( const QStringList& fileNames )
 
                 break;
             }
-            
-                            allErrorMessages.push_back( errorMessages );
-           
+
+            allErrorMessages.push_back( errorMessages );
         }
     }
 

@@ -144,11 +144,10 @@ RimEclipseView* RicSaveEclipseInputVisibleCellsFeature::selectedView() const
         Rim3dView* activeView = RiaApplication::instance()->activeMainOrComparisonGridView();
         return dynamic_cast<RimEclipseView*>( activeView );
     }
-    
-            // Command triggered from project tree or file menu
-        RimEclipseView* view = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimEclipseView>();
-        return view;
-   
+
+    // Command triggered from project tree or file menu
+    RimEclipseView* view = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimEclipseView>();
+    return view;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -189,9 +188,8 @@ RimEclipseView* RicSaveEclipseInputActiveVisibleCellsFeature::selectedView()
         Rim3dView* activeView = RiaApplication::instance()->activeMainOrComparisonGridView();
         return dynamic_cast<RimEclipseView*>( activeView );
     }
-    
-            // Command triggered from project tree or file menu
-        RimEclipseView* view = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimEclipseView>();
-        return view;
-   
+
+    // Command triggered from project tree or file menu
+    RimEclipseView* view = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimEclipseView>();
+    return view;
 }

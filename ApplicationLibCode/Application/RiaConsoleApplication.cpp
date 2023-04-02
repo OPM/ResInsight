@@ -163,10 +163,9 @@ RiaApplication::ApplicationStatus RiaConsoleApplication::handleArguments( gsl::n
         {
             return RiaApplication::ApplicationStatus::EXIT_COMPLETED;
         }
-        
-                    RiaLogging::error( "Error running unit tests" );
-            return RiaApplication::ApplicationStatus::EXIT_WITH_ERROR;
-       
+
+        RiaLogging::error( "Error running unit tests" );
+        return RiaApplication::ApplicationStatus::EXIT_WITH_ERROR;
     }
 
     if ( cvf::Option o = progOpt->option( "startdir" ) )

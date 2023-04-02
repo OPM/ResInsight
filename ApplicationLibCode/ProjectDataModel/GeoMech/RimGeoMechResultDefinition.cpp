@@ -74,7 +74,7 @@ CAF_PDM_SOURCE_INIT( RimGeoMechResultDefinition, "GeoMechResultDefinition" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechResultDefinition::RimGeoMechResultDefinition( )
+RimGeoMechResultDefinition::RimGeoMechResultDefinition()
 {
     CAF_PDM_InitObject( "Color Result", ":/CellResult.png" );
 
@@ -124,7 +124,7 @@ RimGeoMechResultDefinition::RimGeoMechResultDefinition( )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechResultDefinition::~RimGeoMechResultDefinition( )
+RimGeoMechResultDefinition::~RimGeoMechResultDefinition()
 {
 }
 
@@ -526,9 +526,8 @@ void RimGeoMechResultDefinition::getUiAndResultVariableStringList( QStringList* 
 //--------------------------------------------------------------------------------------------------
 QString RimGeoMechResultDefinition::composeFieldCompString( const QString& resultFieldName, const QString& resultComponentName )
 {
-    if ( resultComponentName.isEmpty() )
-        return resultFieldName;
-            return resultFieldName + " " + resultComponentName;
+    if ( resultComponentName.isEmpty() ) return resultFieldName;
+    return resultFieldName + " " + resultComponentName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -814,7 +813,7 @@ QString RimGeoMechResultDefinition::currentResultUnits() const
         return "GPa";
     }
     if ( this->resultFieldName() == "COMPRESSIBILITY" &&
-              ( this->resultComponentName() == "PORE" || this->resultComponentName() == "VERTICAL" ) )
+         ( this->resultComponentName() == "PORE" || this->resultComponentName() == "VERTICAL" ) )
     {
         return "1/GPa";
     }
@@ -822,15 +821,14 @@ QString RimGeoMechResultDefinition::currentResultUnits() const
     {
         return "mD";
     }
-    
-            for ( auto resultName : RiaResultNames::wbsDerivedResultNames() )
+
+    for ( auto resultName : RiaResultNames::wbsDerivedResultNames() )
+    {
+        if ( resultName == this->resultFieldName() )
         {
-            if ( resultName == this->resultFieldName() )
-            {
-                return RiaWellLogUnitTools<double>::sg_emwUnitString();
-            }
+            return RiaWellLogUnitTools<double>::sg_emwUnitString();
         }
-   
+    }
 
     return RiaWellLogUnitTools<double>::noUnitString();
 }

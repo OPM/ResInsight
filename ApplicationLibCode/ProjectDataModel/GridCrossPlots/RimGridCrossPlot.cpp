@@ -705,9 +705,8 @@ QString RimGridCrossPlot::asciiDataForGridCrossPlotExport( int dataSetIndex ) co
         formatter.tableCompleted();
         return asciiData;
     }
-    
-            return "Data invalid and may have been deleted.";
-   
+
+    return "Data invalid and may have been deleted.";
 }
 
 //--------------------------------------------------------------------------------------------------

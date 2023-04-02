@@ -212,12 +212,9 @@ SelectionComposition selectionComposition()
         }
         else
         {
-            if ( !selIntersections.empty() && !selIntersectionBoxes.empty() )
-                return SEL_BOTH_INTERSECTION_TYPES;
-            if ( !selIntersections.empty() )
-                return SEL_INTERSECTIONS;
-            if ( !selIntersectionBoxes.empty() )
-                return SEL_INTERSECTION_BOXES;
+            if ( !selIntersections.empty() && !selIntersectionBoxes.empty() ) return SEL_BOTH_INTERSECTION_TYPES;
+            if ( !selIntersections.empty() ) return SEL_INTERSECTIONS;
+            if ( !selIntersectionBoxes.empty() ) return SEL_INTERSECTION_BOXES;
         }
     }
     return SEL_INVALID;

@@ -119,7 +119,6 @@ RimEclipseStatisticsCase* RicNewStatisticsCaseFeature::addStatisticalCalculation
         caseGroup->updateConnectedEditors();
         return createdObject;
     }
-    
-            return nullptr;
-   
+
+    return nullptr;
 }

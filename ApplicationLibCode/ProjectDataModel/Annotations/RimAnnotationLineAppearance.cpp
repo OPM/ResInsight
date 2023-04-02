@@ -36,9 +36,8 @@ public:
         if ( input.isEmpty() ) return State::Intermediate;
 
         int val = RiaStdStringTools::toInt( input.toStdString() );
-        if ( val > 0 && val < 8 )
-            return State::Acceptable;
-                    return State::Invalid;
+        if ( val > 0 && val < 8 ) return State::Acceptable;
+        return State::Invalid;
     }
 };
 
