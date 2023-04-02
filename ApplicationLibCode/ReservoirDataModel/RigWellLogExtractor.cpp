@@ -379,15 +379,14 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
                     it1 = it21; // Discard 8 by Jumping to 10
                     continue;
                 }
-                else
-                {
-                    errorMessages += QString( "Well Log Extraction : " ) + QString::fromStdString( m_wellCaseErrorMsgName ) +
+                
+                                    errorMessages += QString( "Well Log Extraction : " ) + QString::fromStdString( m_wellCaseErrorMsgName ) +
                                      ( " Discards a point at MD:  " ) + QString::number( (double)( it1->first.measuredDepth ) );
 
                     // Found that 10 to 11 is not connected, and not 10 to 12 either
                     ++it1; // Discard 10 and jump to 11 and hope that recovers us
                     continue;
-                }
+               
             }
         }
     }

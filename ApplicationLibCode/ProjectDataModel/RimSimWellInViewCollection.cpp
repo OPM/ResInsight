@@ -835,10 +835,7 @@ void RimSimWellInViewCollection::calculateWellGeometryVisibility( size_t frameIn
 bool lessEclipseWell( const caf::PdmPointer<RimSimWellInView>& w1, const caf::PdmPointer<RimSimWellInView>& w2 )
 {
     if ( w1.notNull() && w2.notNull() ) return ( w1->name() < w2->name() );
-    if ( w1.notNull() )
-        return true;
-    else
-        return false;
+    return w1.notNull();
 }
 
 //--------------------------------------------------------------------------------------------------

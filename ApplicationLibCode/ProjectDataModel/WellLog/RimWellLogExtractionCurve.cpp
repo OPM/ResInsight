@@ -1261,10 +1261,9 @@ QString RimWellLogExtractionCurve::wellName() const
 
         return QString();
     }
-    else
-    {
-        return m_simWellName;
-    }
+    
+            return m_simWellName;
+   
 }
 
 //--------------------------------------------------------------------------------------------------

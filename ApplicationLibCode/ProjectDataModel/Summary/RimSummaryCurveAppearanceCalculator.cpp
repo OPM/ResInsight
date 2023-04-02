@@ -215,9 +215,8 @@ std::map<std::string, size_t> RimSummaryCurveAppearanceCalculator::mapNameToAppe
                 // Check to see if the summary case exists at this index.
                 break;
             }
-            else
-            {
-                // Simply increment index to check if the next bucket is available.
+            
+                            // Simply increment index to check if the next bucket is available.
                 index = ( index + 1 ) % numOptions;
                 if ( index == nameHash )
                 {
@@ -225,7 +224,7 @@ std::map<std::string, size_t> RimSummaryCurveAppearanceCalculator::mapNameToAppe
                     matches.insert( name );
                     break;
                 }
-            }
+           
         }
     }
 

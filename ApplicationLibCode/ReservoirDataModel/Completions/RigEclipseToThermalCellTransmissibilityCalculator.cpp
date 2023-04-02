@@ -66,9 +66,8 @@ double RigEclipseToThermalCellTransmissibilityCalculator::calculateTransmissibil
         return ( fractureMatrixTransimissibility * filterCakeTransmissibility ) /
                ( fractureMatrixTransimissibility + filterCakeTransmissibility );
     }
-    else
-    {
-        CAF_ASSERT( m_filterCakePressureDrop == RimThermalFractureTemplate::FilterCakePressureDrop::NONE );
+    
+            CAF_ASSERT( m_filterCakePressureDrop == RimThermalFractureTemplate::FilterCakePressureDrop::NONE );
         return fractureMatrixTransimissibility;
-    }
+   
 }

@@ -177,7 +177,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createCombinedResultAccess
 
         return cellFaceAccessObject;
     }
-    else if ( resVarAddr.resultName() == RiaResultNames::combinedRiTranResultName() )
+    if ( resVarAddr.resultName() == RiaResultNames::combinedRiTranResultName() )
     {
         CVF_ASSERT( timeStepIndex == 0 ); // Static result, only data for first time step
 
