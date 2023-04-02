@@ -822,16 +822,15 @@ QString RimGeoMechResultDefinition::currentResultUnits() const
     {
         return "mD";
     }
-    else
-    {
-        for ( auto resultName : RiaResultNames::wbsDerivedResultNames() )
+    
+            for ( auto resultName : RiaResultNames::wbsDerivedResultNames() )
         {
             if ( resultName == this->resultFieldName() )
             {
                 return RiaWellLogUnitTools<double>::sg_emwUnitString();
             }
         }
-    }
+   
 
     return RiaWellLogUnitTools<double>::noUnitString();
 }
