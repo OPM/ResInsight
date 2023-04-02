@@ -84,7 +84,7 @@ CAF_PDM_SOURCE_INIT( RimGeoMechView, "GeoMechView" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechView::RimGeoMechView( void )
+RimGeoMechView::RimGeoMechView( )
     : m_currentInternalTimeStep( 0 )
     , m_currentDataFrameIndex( -1 )
 {
@@ -125,7 +125,7 @@ RimGeoMechView::RimGeoMechView( void )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechView::~RimGeoMechView( void )
+RimGeoMechView::~RimGeoMechView( )
 {
     m_geomechCase = nullptr;
 

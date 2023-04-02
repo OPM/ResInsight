@@ -56,8 +56,8 @@ class RimViewWindow : public caf::PdmObject, public caf::FontHolderInterface
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimViewWindow( void );
-    ~RimViewWindow( void ) override;
+    RimViewWindow( );
+    ~RimViewWindow( ) override;
 
     virtual int id() const = 0;
 
