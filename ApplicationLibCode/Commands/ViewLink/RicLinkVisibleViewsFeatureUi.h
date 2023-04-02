@@ -35,7 +35,7 @@ class RicLinkVisibleViewsFeatureUi : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    RicLinkVisibleViewsFeatureUi( void );
+    RicLinkVisibleViewsFeatureUi( );
 
     void       setViews( const std::vector<Rim3dView*>& allViews );
     Rim3dView* masterView();

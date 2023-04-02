@@ -33,8 +33,8 @@ class RimSimWellFractureCollection : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimSimWellFractureCollection( void );
-    ~RimSimWellFractureCollection( void ) override;
+    RimSimWellFractureCollection( );
+    ~RimSimWellFractureCollection( ) override;
 
     caf::PdmChildArrayField<RimSimWellFracture*> simwellFractures;
 

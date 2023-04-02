@@ -74,7 +74,7 @@ CAF_PDM_SOURCE_INIT( RimGeoMechResultDefinition, "GeoMechResultDefinition" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechResultDefinition::RimGeoMechResultDefinition( void )
+RimGeoMechResultDefinition::RimGeoMechResultDefinition( )
 {
     CAF_PDM_InitObject( "Color Result", ":/CellResult.png" );
 
@@ -124,7 +124,7 @@ RimGeoMechResultDefinition::RimGeoMechResultDefinition( void )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechResultDefinition::~RimGeoMechResultDefinition( void )
+RimGeoMechResultDefinition::~RimGeoMechResultDefinition( )
 {
 }
 
