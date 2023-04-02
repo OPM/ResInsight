@@ -487,10 +487,9 @@ bool RimSimWellInView::isWellCellsVisible() const
     {
         return intersectsStaticWellCellsFilteredCells();
     }
-    else
-    {
-        return true;
-    }
+    
+            return true;
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -528,10 +527,9 @@ bool RimSimWellInView::isWellPipeVisible( size_t frameIndex ) const
     {
         return intersectsDynamicWellCellsFilteredCells( frameIndex );
     }
-    else
-    {
-        return true;
-    }
+    
+            return true;
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -568,10 +566,9 @@ bool RimSimWellInView::isWellSpheresVisible( size_t frameIndex ) const
     {
         return intersectsDynamicWellCellsFilteredCells( frameIndex );
     }
-    else
-    {
-        return true;
-    }
+    
+            return true;
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -836,10 +833,9 @@ double RimSimWellInView::diskScale() const
     {
         return m_diskScale;
     }
-    else
-    {
-        return 1.0;
-    }
+    
+            return 1.0;
+   
 }
 
 //--------------------------------------------------------------------------------------------------

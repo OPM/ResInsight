@@ -1199,10 +1199,9 @@ QString RimGeoMechCase::findFileNameForElementProperty( const std::string&      
         QFileInfo fileInfo( it->second );
         return fileInfo.fileName();
     }
-    else
-    {
-        return QString( "Unknown file" );
-    }
+    
+            return QString( "Unknown file" );
+   
 }
 
 //--------------------------------------------------------------------------------------------------

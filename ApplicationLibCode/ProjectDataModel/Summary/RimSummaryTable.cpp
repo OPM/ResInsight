@@ -292,7 +292,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryTable::calculateValueOptions( const caf:
     {
         return options;
     }
-    else if ( fieldNeedingOptions == &m_case )
+    if ( fieldNeedingOptions == &m_case )
     {
         std::vector<RimSummaryCase*> summaryCases = getToplevelSummaryCases();
         for ( auto* summaryCase : summaryCases )

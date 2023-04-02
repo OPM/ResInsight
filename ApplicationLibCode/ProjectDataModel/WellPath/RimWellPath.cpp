@@ -953,11 +953,10 @@ bool RimWellPath::readWellPathFormationsFile( QString* errorMessage, RifWellPath
         }
         return true;
     }
-    else
-    {
-        if ( errorMessage ) ( *errorMessage ) = "Could not find the well pick file: " + m_wellPathFormationFilePath().path();
+    
+            if ( errorMessage ) ( *errorMessage ) = "Could not find the well pick file: " + m_wellPathFormationFilePath().path();
         return false;
-    }
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -976,11 +975,10 @@ bool RimWellPath::reloadWellPathFormationsFile( QString* errorMessage, RifWellPa
             wellPathFormationsImporter->reloadWellPathFormations( m_wellPathFormationFilePath().path(), m_formationKeyInFile() );
         return true;
     }
-    else
-    {
-        if ( errorMessage ) ( *errorMessage ) = "Could not find the well pick file: " + m_wellPathFormationFilePath().path();
+    
+            if ( errorMessage ) ( *errorMessage ) = "Could not find the well pick file: " + m_wellPathFormationFilePath().path();
         return false;
-    }
+   
 }
 
 //--------------------------------------------------------------------------------------------------

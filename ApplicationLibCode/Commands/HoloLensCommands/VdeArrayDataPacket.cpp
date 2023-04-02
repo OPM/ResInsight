@@ -74,10 +74,9 @@ bool VdeArrayDataPacket::isValid() const
     {
         return true;
     }
-    else
-    {
-        return false;
-    }
+    
+            return false;
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -142,10 +141,9 @@ const char* VdeArrayDataPacket::arrayData() const
         const char* ptr = m_packetBytes.data();
         return ptr + VDE_HEADER_SIZE;
     }
-    else
-    {
-        return nullptr;
-    }
+    
+            return nullptr;
+   
 }
 
 //--------------------------------------------------------------------------------------------------

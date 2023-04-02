@@ -321,8 +321,7 @@ int RimDepthTrackPlot::columnCount() const
 {
     if ( depthOrientation() == RiaDefines::Orientation::VERTICAL )
         return RimPlotWindow::columnCount();
-    else
-        return 1;
+            return 1;
 }
 
 //--------------------------------------------------------------------------------------------------

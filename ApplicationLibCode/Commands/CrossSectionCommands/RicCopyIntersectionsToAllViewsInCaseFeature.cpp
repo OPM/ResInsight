@@ -214,7 +214,7 @@ SelectionComposition selectionComposition()
         {
             if ( !selIntersections.empty() && !selIntersectionBoxes.empty() )
                 return SEL_BOTH_INTERSECTION_TYPES;
-            else if ( !selIntersections.empty() )
+            if ( !selIntersections.empty() )
                 return SEL_INTERSECTIONS;
             else if ( !selIntersectionBoxes.empty() )
                 return SEL_INTERSECTION_BOXES;

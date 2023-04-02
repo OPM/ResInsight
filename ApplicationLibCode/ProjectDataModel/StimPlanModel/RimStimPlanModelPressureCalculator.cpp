@@ -80,11 +80,10 @@ size_t findFirstIndex( double depth, const std::vector<double>& depths )
                 {
                     return i - 1;
                 }
-                else
-                {
-                    // Not found
+                
+                                    // Not found
                     return depths.size();
-                }
+               
             }
     }
 

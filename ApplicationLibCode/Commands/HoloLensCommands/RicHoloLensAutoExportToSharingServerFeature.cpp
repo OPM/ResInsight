@@ -141,8 +141,7 @@ bool RicHoloLensAutoExportToSharingServerFeature::isSessionValid() const
     {
         return true;
     }
-    else
-    {
-        return false;
-    }
+    
+            return false;
+   
 }

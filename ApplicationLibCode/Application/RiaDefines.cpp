@@ -263,7 +263,7 @@ RiaDefines::ImportFileType RiaDefines::obtainFileTypeFromFileName( const QString
     {
         return ImportFileType::ECLIPSE_EGRID_FILE;
     }
-    else if ( fileName.endsWith( "GRID", Qt::CaseInsensitive ) )
+    if ( fileName.endsWith( "GRID", Qt::CaseInsensitive ) )
     {
         return ImportFileType::ECLIPSE_GRID_FILE;
     }

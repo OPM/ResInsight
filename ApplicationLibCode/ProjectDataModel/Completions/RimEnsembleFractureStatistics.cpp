@@ -952,7 +952,7 @@ int RimEnsembleFractureStatistics::getTargetNumberOfLayers( const std::vector<cv
 
     if ( m_adaptiveNumLayersType() == AdaptiveNumLayersType::MAXIMUM )
         return maxNy;
-    else if ( m_adaptiveNumLayersType() == AdaptiveNumLayersType::MINIMUM )
+    if ( m_adaptiveNumLayersType() == AdaptiveNumLayersType::MINIMUM )
         return minNy;
     else
     {
@@ -990,12 +990,11 @@ double RimEnsembleFractureStatistics::computeDepthOfWellPathAtFracture( cvf::ref
     {
         return ( firstTvd + lastTvd ) / 2;
     }
-    else
-    {
-        firstTvd = stimPlanFractureDefinitionData->minDepth();
+    
+            firstTvd = stimPlanFractureDefinitionData->minDepth();
         lastTvd  = stimPlanFractureDefinitionData->maxDepth();
         return ( firstTvd + lastTvd ) / 2;
-    }
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1213,7 +1212,7 @@ std::shared_ptr<RigSlice2D> RimEnsembleFractureStatistics::setCellsToFillTargetA
         {
             if ( occurrence > p.occurrence )
                 return true;
-            else if ( occurrence == p.occurrence && distance < p.distance )
+            if ( occurrence == p.occurrence && distance < p.distance )
                 return true;
             else if ( occurrence == p.occurrence && distance == p.distance && area < p.area )
                 return true;
@@ -1291,8 +1290,7 @@ QString RimEnsembleFractureStatistics::generateStatisticsTable(
     auto emptyTextOnInf = []( double value, RiaNumberFormat::NumberFormatType numberFormat, int precision ) {
         if ( std::isinf( value ) )
             return QString( "" );
-        else
-            return RiaNumberFormat::valueToText( value, numberFormat, precision );
+                    return RiaNumberFormat::valueToText( value, numberFormat, precision );
     };
 
     for ( auto propertyType : propertyTypes )

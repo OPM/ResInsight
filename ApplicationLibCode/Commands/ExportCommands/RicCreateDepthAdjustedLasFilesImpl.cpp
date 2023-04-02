@@ -294,7 +294,7 @@ std::map<int, RicCreateDepthAdjustedLasFilesImpl::IndexKDepthData>
         }
         return result;
     }
-    else if ( geomCase != nullptr )
+    if ( geomCase != nullptr )
     {
         cvf::ref<RigGeoMechWellLogExtractor> wellExtractor = wellLogCollection->findOrCreateExtractor( wellPath, geomCase );
         if ( wellExtractor.isNull() )

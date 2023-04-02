@@ -93,9 +93,8 @@ bool RimStimPlanModelCalculator::extractCurveData( RiaDefines::CurveProperty cur
         rkbDiff             = cachedRkbDiff;
         return true;
     }
-    else
-    {
-        // Cache miss: try to calculate the request data
+    
+            // Cache miss: try to calculate the request data
         for ( const auto& calculator : m_resultCalculators )
         {
             if ( calculator->isMatching( curveProperty ) )
@@ -112,7 +111,7 @@ bool RimStimPlanModelCalculator::extractCurveData( RiaDefines::CurveProperty cur
                 return isOk;
             }
         }
-    }
+   
 
     return false;
 }

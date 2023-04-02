@@ -136,7 +136,7 @@ bool RicExportCompletionsWellSegmentsFeature::isCommandEnabled()
     {
         return true;
     }
-    else if ( caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPathFractureCollection>() )
+    if ( caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPathFractureCollection>() )
     {
         return true;
     }

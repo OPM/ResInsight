@@ -32,7 +32,7 @@ caf::FixedAtlasFont::FontSize mapToAtlasFontSize( int pointSize )
 {
     if ( pointSize >= 6 && pointSize < 8 )
         return caf::FixedAtlasFont::POINT_SIZE_6;
-    else if ( pointSize >= 8 && pointSize < 10 )
+    if ( pointSize >= 8 && pointSize < 10 )
         return caf::FixedAtlasFont::POINT_SIZE_8;
     else if ( pointSize >= 10 && pointSize < 12 )
         return caf::FixedAtlasFont::POINT_SIZE_10;

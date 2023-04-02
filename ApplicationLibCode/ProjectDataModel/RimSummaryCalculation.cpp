@@ -175,9 +175,8 @@ bool RimSummaryCalculation::detectCyclicCalculation( int id, std::set<int>& ids 
 {
     if ( ids.count( id ) > 0 )
         return true;
-    else
-    {
-        ids.insert( id );
+    
+            ids.insert( id );
 
         // Get calculation for the referenced id
         RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
@@ -194,7 +193,7 @@ bool RimSummaryCalculation::detectCyclicCalculation( int id, std::set<int>& ids 
         }
 
         return false;
-    }
+   
 }
 
 //--------------------------------------------------------------------------------------------------

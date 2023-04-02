@@ -186,7 +186,7 @@ bool RiaDateStringParser::tryParseYearFirstNoSeparators( const std::string& s, i
         auto sDay   = s.substr( 6, 2 );
         return tryParseYear( sYear, year ) && tryParseMonth( sMonth, month ) && tryParseDay( sDay, day );
     }
-    else if ( s.length() == 6 )
+    if ( s.length() == 6 )
     {
         // Two digit year
         auto sYear  = s.substr( 0, 2 );
@@ -212,7 +212,7 @@ bool RiaDateStringParser::tryParseDayFirstNoSeparators( const std::string& s, in
 
         return tryParseYear( sYear, year ) && tryParseMonth( sMonth, month ) && tryParseDay( sDay, day );
     }
-    else if ( s.length() == 6 )
+    if ( s.length() == 6 )
     {
         // Two digit year
         auto sDay   = s.substr( 0, 2 );
@@ -238,7 +238,7 @@ bool RiaDateStringParser::tryParseMonthFirstNoSeparators( const std::string& s, 
 
         return tryParseYear( sYear, year ) && tryParseMonth( sMonth, month ) && tryParseDay( sDay, day );
     }
-    else if ( s.length() == 6 )
+    if ( s.length() == 6 )
     {
         // Two digit year
         auto sMonth = s.substr( 0, 2 );

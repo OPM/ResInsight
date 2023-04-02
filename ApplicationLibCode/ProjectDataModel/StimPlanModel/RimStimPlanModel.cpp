@@ -1002,7 +1002,7 @@ double RimStimPlanModel::getDefaultForMissingValue( RiaDefines::CurveProperty cu
     {
         return defaultPorosity();
     }
-    else if ( curveProperty == RiaDefines::CurveProperty::PERMEABILITY_X || curveProperty == RiaDefines::CurveProperty::PERMEABILITY_Z )
+    if ( curveProperty == RiaDefines::CurveProperty::PERMEABILITY_X || curveProperty == RiaDefines::CurveProperty::PERMEABILITY_Z )
     {
         return defaultPermeability();
     }
@@ -1038,7 +1038,7 @@ double RimStimPlanModel::getDefaultForMissingOverburdenValue( RiaDefines::CurveP
     {
         return defaultOverburdenPorosity();
     }
-    else if ( curveProperty == RiaDefines::CurveProperty::PERMEABILITY_X || curveProperty == RiaDefines::CurveProperty::PERMEABILITY_Z )
+    if ( curveProperty == RiaDefines::CurveProperty::PERMEABILITY_X || curveProperty == RiaDefines::CurveProperty::PERMEABILITY_Z )
     {
         return defaultOverburdenPermeability();
     }
@@ -1067,7 +1067,7 @@ double RimStimPlanModel::getDefaultForMissingUnderburdenValue( RiaDefines::Curve
     {
         return defaultUnderburdenPorosity();
     }
-    else if ( curveProperty == RiaDefines::CurveProperty::PERMEABILITY_X || curveProperty == RiaDefines::CurveProperty::PERMEABILITY_Z )
+    if ( curveProperty == RiaDefines::CurveProperty::PERMEABILITY_X || curveProperty == RiaDefines::CurveProperty::PERMEABILITY_Z )
     {
         return defaultUnderburdenPermeability();
     }
@@ -1161,7 +1161,7 @@ std::deque<RimStimPlanModel::MissingValueStrategy> RimStimPlanModel::missingValu
 {
     if ( curveProperty == RiaDefines::CurveProperty::PRESSURE )
         return { RimStimPlanModel::MissingValueStrategy::OTHER_CURVE_PROPERTY };
-    else if ( curveProperty == RiaDefines::CurveProperty::EQLNUM )
+    if ( curveProperty == RiaDefines::CurveProperty::EQLNUM )
         return { RimStimPlanModel::MissingValueStrategy::DEFAULT_VALUE,
                  RimStimPlanModel::MissingValueStrategy::CELLS_ABOVE,
                  RimStimPlanModel::MissingValueStrategy::CELLS_BELOW,
@@ -1618,7 +1618,7 @@ RiaDefines::ResultCatType RimStimPlanModel::eclipseResultCategory( RiaDefines::C
     {
         return RiaDefines::ResultCatType::DYNAMIC_NATIVE;
     }
-    else if ( curveProperty == RiaDefines::CurveProperty::FACIES )
+    if ( curveProperty == RiaDefines::CurveProperty::FACIES )
     {
         if ( !m_stimPlanModelTemplate ) return RiaDefines::ResultCatType::STATIC_NATIVE;
 
@@ -1655,7 +1655,7 @@ QString RimStimPlanModel::eclipseResultVariable( RiaDefines::CurveProperty curve
 {
     if ( curveProperty == RiaDefines::CurveProperty::PRESSURE || curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
         return "PRESSURE";
-    else if ( curveProperty == RiaDefines::CurveProperty::EQLNUM )
+    if ( curveProperty == RiaDefines::CurveProperty::EQLNUM )
         return "EQLNUM";
     else if ( curveProperty == RiaDefines::CurveProperty::PERMEABILITY_X )
         return "PERMX";
@@ -1794,7 +1794,7 @@ std::deque<RimExtractionConfiguration> RimStimPlanModel::extractionConfiguration
 
         };
     }
-    else if ( curveProperty == RiaDefines::CurveProperty::POROSITY || curveProperty == RiaDefines::CurveProperty::POROSITY_UNSCALED ||
+    if ( curveProperty == RiaDefines::CurveProperty::POROSITY || curveProperty == RiaDefines::CurveProperty::POROSITY_UNSCALED ||
               curveProperty == RiaDefines::CurveProperty::PERMEABILITY_X || curveProperty == RiaDefines::CurveProperty::PERMEABILITY_Z )
     {
         QString resultName = eclipseResultVariable( curveProperty );
@@ -1848,6 +1848,5 @@ QString RimStimPlanModel::unitForProperty( RiaDefines::CurveProperty curveProper
     auto hit = propertyToUnitMapping.find( curveProperty );
     if ( hit != propertyToUnitMapping.end() )
         return hit->second;
-    else
-        return " ";
+            return " ";
 }

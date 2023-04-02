@@ -528,8 +528,7 @@ QString RimGeoMechResultDefinition::composeFieldCompString( const QString& resul
 {
     if ( resultComponentName.isEmpty() )
         return resultFieldName;
-    else
-        return resultFieldName + " " + resultComponentName;
+            return resultFieldName + " " + resultComponentName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -810,7 +809,7 @@ QString RimGeoMechResultDefinition::currentResultUnits() const
 
         return "Bar";
     }
-    else if ( this->resultFieldName() == "MODULUS" )
+    if ( this->resultFieldName() == "MODULUS" )
     {
         return "GPa";
     }

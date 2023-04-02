@@ -138,7 +138,7 @@ bool RimPlotDataFilterItem::isValid() const
     {
         return false;
     }
-    else if ( ( m_filterTarget() == SUMMARY_CASE || m_filterTarget() == SUMMARY_ITEM ) && !summaryAddress().isValid() )
+    if ( ( m_filterTarget() == SUMMARY_CASE || m_filterTarget() == SUMMARY_ITEM ) && !summaryAddress().isValid() )
     {
         return false;
     }

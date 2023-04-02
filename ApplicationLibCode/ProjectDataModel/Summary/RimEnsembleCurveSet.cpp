@@ -1877,10 +1877,9 @@ std::vector<RigEnsembleParameter> RimEnsembleCurveSet::variationSortedEnsemblePa
     {
         return ensemble->variationSortedEnsembleParameters();
     }
-    else
-    {
-        return std::vector<RigEnsembleParameter>();
-    }
+    
+            return std::vector<RigEnsembleParameter>();
+   
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -337,7 +337,7 @@ QString RimGridCrossPlotDataSet::groupParameter() const
     {
         return QString( "Time Steps" );
     }
-    else if ( m_grouping() == GROUP_BY_FORMATION )
+    if ( m_grouping() == GROUP_BY_FORMATION )
     {
         return QString( "Formations" );
     }
@@ -732,9 +732,8 @@ QString RimGridCrossPlotDataSet::createGroupName( size_t groupIndex ) const
     {
         return legendConfig()->categoryNameFromCategoryValue( groupIndex );
     }
-    else
-    {
-        std::vector<double> tickValues;
+    
+            std::vector<double> tickValues;
         legendConfig()->scalarMapper()->majorTickValues( &tickValues );
 
         double lowerLimit = std::numeric_limits<double>::infinity();
@@ -744,7 +743,7 @@ QString RimGridCrossPlotDataSet::createGroupName( size_t groupIndex ) const
         if ( groupIndex + 1u < tickValues.size() ) upperLimit = tickValues[groupIndex + 1u];
 
         return QString( "%1 [%2, %3]" ).arg( groupParameter() ).arg( lowerLimit ).arg( upperLimit );
-    }
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1094,7 +1093,7 @@ bool RimGridCrossPlotDataSet::groupingByCategoryResult() const
     {
         return true;
     }
-    else if ( m_grouping == GROUP_BY_RESULT )
+    if ( m_grouping == GROUP_BY_RESULT )
     {
         return m_groupingProperty->hasCategoryResult();
     }

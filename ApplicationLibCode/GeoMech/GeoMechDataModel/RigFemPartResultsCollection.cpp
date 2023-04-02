@@ -458,10 +458,9 @@ RigFemScalarResultFrames* RigFemPartResultsCollection::findOrLoadScalarResult( i
         {
             return frames;
         }
-        else
-        {
-            return m_femPartResults[partIndex]->createScalarResult( resVarAddr );
-        }
+        
+                    return m_femPartResults[partIndex]->createScalarResult( resVarAddr );
+       
     }
 
     // We need to read the data as bulk fields, and populate the correct scalar caches
@@ -1718,11 +1717,10 @@ double RigFemPartResultsCollection::getCalculationParameterValue( RimMudWeightWi
     auto it = parameterValues.find( parameterType );
     if ( it != parameterValues.end() )
         return it->second;
-    else
-    {
-        // TODO: log error maybe?
+    
+            // TODO: log error maybe?
         return 1.0;
-    }
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1733,11 +1731,10 @@ QString RigFemPartResultsCollection::getCalculationParameterAddress( RimMudWeigh
     auto it = parameterAddresses.find( parameterType );
     if ( it != parameterAddresses.end() )
         return it->second;
-    else
-    {
-        // TODO: log error maybe?
+    
+            // TODO: log error maybe?
         return QString();
-    }
+   
 }
 
 //--------------------------------------------------------------------------------------------------

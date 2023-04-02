@@ -165,8 +165,7 @@ bool RiaStdStringTools::endsWith( const std::string& mainStr, const std::string&
 {
     if ( mainStr.size() >= toMatch.size() && mainStr.compare( mainStr.size() - toMatch.size(), toMatch.size(), toMatch ) == 0 )
         return true;
-    else
-        return false;
+            return false;
 }
 
 //--------------------------------------------------------------------------------------------------

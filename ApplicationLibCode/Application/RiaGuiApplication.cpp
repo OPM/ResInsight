@@ -258,7 +258,7 @@ bool RiaGuiApplication::askUserToSaveModifiedProject()
         {
             return false;
         }
-        else if ( ret == QMessageBox::Yes )
+        if ( ret == QMessageBox::Yes )
         {
             if ( !saveProject() )
             {
@@ -484,11 +484,10 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
         {
             return RiaApplication::ApplicationStatus::EXIT_COMPLETED;
         }
-        else
-        {
-            RiaLogging::error( "Error running unit tests" );
+        
+                    RiaLogging::error( "Error running unit tests" );
             return RiaApplication::ApplicationStatus::EXIT_WITH_ERROR;
-        }
+       
     }
 
     if ( cvf::Option o = progOpt->option( "regressiontest" ) )

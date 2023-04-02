@@ -86,7 +86,7 @@ QString RicSnapshotFilenameGenerator::resultName( Rim3dView* rimView )
 
         return caf::Utils::makeValidFileBasename( eclView->cellResult()->resultVariableUiShortName() );
     }
-    else if ( dynamic_cast<RimGeoMechView*>( rimView ) )
+    if ( dynamic_cast<RimGeoMechView*>( rimView ) )
     {
         RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>( rimView );
 

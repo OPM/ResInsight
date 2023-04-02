@@ -356,7 +356,7 @@ QString RiaQDateTimeTools::createTimeFormatStringFromDates( const std::vector<QD
             hasHoursAndMinutesInTimesteps = true;
             break;
         }
-        else if ( dates[i].time().second() != 0.0 )
+        if ( dates[i].time().second() != 0.0 )
         {
             hasHoursAndMinutesInTimesteps = true;
             hasSecondsInTimesteps         = true;

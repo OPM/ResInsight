@@ -342,7 +342,7 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat RicPasteAsciiDataToSummaryPl
             {
                 return DATE_YYYYMMDD_SLASH_SEPARATED;
             }
-            else if ( values[2] > 31 )
+            if ( values[2] > 31 )
             {
                 if ( values[0] > 12 )
                 {

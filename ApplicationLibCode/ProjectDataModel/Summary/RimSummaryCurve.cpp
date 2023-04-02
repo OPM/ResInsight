@@ -369,7 +369,7 @@ double RimSummaryCurve::yValueAtTimeT( time_t time ) const
         {
             return values[i];
         }
-        else if ( i < timeSteps.size() - 1u && timeSteps[i] < time && time < timeSteps[i + 1] )
+        if ( i < timeSteps.size() - 1u && timeSteps[i] < time && time < timeSteps[i + 1] )
         {
             if ( m_curveAppearance->interpolation() == RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT )
             {

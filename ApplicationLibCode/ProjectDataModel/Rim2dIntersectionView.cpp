@@ -196,12 +196,11 @@ bool Rim2dIntersectionView::isTimeStepDependentDataVisible() const
             return sepInterResultDef->isEclipseResultDefinition() ? sepInterResultDef->eclipseResultDefinition()->hasDynamicResult()
                                                                   : sepInterResultDef->geoMechResultDefinition()->hasResult();
         }
-        else
-        {
-            RimGridView* gridView = nullptr;
+        
+                    RimGridView* gridView = nullptr;
             m_intersection->firstAncestorOrThisOfTypeAsserted( gridView );
             return gridView->isTimeStepDependentDataVisibleInThisOrComparisonView();
-        }
+       
     }
 
     return false;
@@ -446,11 +445,10 @@ bool Rim2dIntersectionView::hasResults()
             RimEclipseResultDefinition* eclResDef = sepInterResultDef->eclipseResultDefinition();
             return eclResDef->hasResult() || eclResDef->isTernarySaturationSelected();
         }
-        else
-        {
-            RimGeoMechResultDefinition* geomResDef = sepInterResultDef->geoMechResultDefinition();
+        
+                    RimGeoMechResultDefinition* geomResDef = sepInterResultDef->geoMechResultDefinition();
             return geomResDef->hasResult();
-        }
+       
     }
 
     RimEclipseView* eclView = nullptr;

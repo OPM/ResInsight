@@ -102,7 +102,7 @@ QColor RimTimeAxisAnnotation::color() const
     {
         return RiuGuiTheme::getColorByVariableName( "secondaryColor" ); // QColor(255, 0, 0);
     }
-    else if ( annotationType() == RimPlotAxisAnnotation::AnnotationType::RANGE )
+    if ( annotationType() == RimPlotAxisAnnotation::AnnotationType::RANGE )
     {
         return RiuGuiTheme::getColorByVariableName( "primaryColor" ); // QColor( 0, 0, 255 );
     }

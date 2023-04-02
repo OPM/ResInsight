@@ -209,10 +209,9 @@ bool RimIntersectionResultDefinition::isEclipseResultDefinition()
     {
         return true;
     }
-    else
-    {
-        return false;
-    }
+    
+            return false;
+   
 }
 
 //--------------------------------------------------------------------------------------------------

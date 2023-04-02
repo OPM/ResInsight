@@ -668,7 +668,7 @@ bool RimSummaryMultiPlot::handleGlobalKeyEvent( QKeyEvent* keyEvent )
                 m_viewer->goToPrevPage();
                 return true;
             }
-            else if ( keyEvent->key() == Qt::Key_PageDown )
+            if ( keyEvent->key() == Qt::Key_PageDown )
             {
                 m_viewer->goToNextPage();
                 return true;

@@ -142,7 +142,7 @@ std::vector<FloatType> RiaWellLogUnitTools<FloatType>::convertDepths( const std:
     {
         return multiply( depthsIn, RiaEclipseUnitTools::meterPerFeet() );
     }
-    else if ( unitsOut == RiaDefines::DepthUnitType::UNIT_FEET && unitsIn == RiaDefines::DepthUnitType::UNIT_METER )
+    if ( unitsOut == RiaDefines::DepthUnitType::UNIT_FEET && unitsIn == RiaDefines::DepthUnitType::UNIT_METER )
     {
         return multiply( depthsIn, RiaEclipseUnitTools::feetPerMeter() );
     }

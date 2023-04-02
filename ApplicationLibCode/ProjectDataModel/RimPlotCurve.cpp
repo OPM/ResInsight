@@ -1118,8 +1118,7 @@ int RimPlotCurve::dataSize() const
 {
     if ( m_plotCurve )
         return m_plotCurve->numSamples();
-    else
-        return 0;
+            return 0;
 }
 
 //--------------------------------------------------------------------------------------------------

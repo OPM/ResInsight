@@ -715,10 +715,9 @@ bool RimEclipseStatisticsCase::hasComputedStatistics() const
     {
         return true;
     }
-    else
-    {
-        return false;
-    }
+    
+            return false;
+   
 }
 
 //--------------------------------------------------------------------------------------------------

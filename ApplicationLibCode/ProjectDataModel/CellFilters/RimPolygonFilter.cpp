@@ -90,8 +90,7 @@ public:
         int val = RiaStdStringTools::toInt( input.toStdString() );
         if ( val > 0 && val < 8 )
             return State::Acceptable;
-        else
-            return State::Invalid;
+                    return State::Invalid;
     }
 };
 
@@ -108,8 +107,7 @@ public:
         double val = RiaStdStringTools::toDouble( input.toStdString() );
         if ( val > 0.001 && val <= 2.0 )
             return State::Acceptable;
-        else
-            return State::Invalid;
+                    return State::Invalid;
     }
 };
 

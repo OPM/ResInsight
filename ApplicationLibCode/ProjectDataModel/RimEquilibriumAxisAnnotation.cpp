@@ -83,7 +83,7 @@ double RimEquilibriumAxisAnnotation::value() const
     {
         return selectedItem().waterOilContactDepth();
     }
-    else if ( m_annotationType() == PlotAxisAnnotationType::PL_EQUIL_GAS_OIL_CONTACT )
+    if ( m_annotationType() == PlotAxisAnnotationType::PL_EQUIL_GAS_OIL_CONTACT )
     {
         return selectedItem().gasOilContactDepth();
     }
@@ -100,7 +100,7 @@ QColor RimEquilibriumAxisAnnotation::color() const
     {
         return QColor( 0, 0, 0 );
     }
-    else if ( m_annotationType() == PlotAxisAnnotationType::PL_EQUIL_GAS_OIL_CONTACT )
+    if ( m_annotationType() == PlotAxisAnnotationType::PL_EQUIL_GAS_OIL_CONTACT )
     {
         return QColor( 220, 0, 0 );
     }

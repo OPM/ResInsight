@@ -319,8 +319,7 @@ RigMainGrid* RimSimWellFracture::ownerCaseMainGrid() const
 
     if ( ownerEclView )
         return ownerEclView->mainGrid();
-    else
-        return nullptr;
+            return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

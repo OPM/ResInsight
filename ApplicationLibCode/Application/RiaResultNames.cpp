@@ -31,7 +31,7 @@ bool RiaResultNames::isPerCellFaceResult( const QString& resultName )
     {
         return true;
     }
-    else if ( resultName.compare( RiaResultNames::combinedMultResultName(), Qt::CaseInsensitive ) == 0 )
+    if ( resultName.compare( RiaResultNames::combinedMultResultName(), Qt::CaseInsensitive ) == 0 )
     {
         return true;
     }

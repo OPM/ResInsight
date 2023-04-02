@@ -58,7 +58,7 @@ RimCalcScript::ScriptType RimCalcScript::scriptType( const QString& absoluteFile
     {
         return PYTHON;
     }
-    else if ( fileInfo.suffix() == "m" )
+    if ( fileInfo.suffix() == "m" )
     {
         return OCTAVE;
     }

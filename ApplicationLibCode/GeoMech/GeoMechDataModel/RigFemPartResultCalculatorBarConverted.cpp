@@ -58,10 +58,9 @@ bool RigFemPartResultCalculatorBarConverted::isMatching( const RigFemResultAddre
         return ( ( resVarAddr.fieldName == "POR-Bar" ) && ( resVarAddr.resultPosType == RIG_NODAL ) &&
                  !( resVarAddr.componentName == "X" || resVarAddr.componentName == "Y" || resVarAddr.componentName == "Z" ) );
     }
-    else
-    {
-        return ( resVarAddr.fieldName == "S-Bar" );
-    }
+    
+            return ( resVarAddr.fieldName == "S-Bar" );
+   
 }
 
 //--------------------------------------------------------------------------------------------------

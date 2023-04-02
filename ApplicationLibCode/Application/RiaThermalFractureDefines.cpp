@@ -112,8 +112,7 @@ QString getExpectedThermalFractureUnit( const QString& name, RiaDefines::Eclipse
     {
         if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
             return res->second.first;
-        else
-            return res->second.second;
+                    return res->second.second;
     }
 
     return "";

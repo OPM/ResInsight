@@ -270,10 +270,9 @@ bool RimSimWellInViewCollection::showWellCells()
     {
         return false;
     }
-    else
-    {
-        return true;
-    }
+    
+            return true;
+   
 }
 
 //--------------------------------------------------------------------------------------------------

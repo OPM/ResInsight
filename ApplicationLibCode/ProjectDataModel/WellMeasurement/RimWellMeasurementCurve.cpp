@@ -372,8 +372,7 @@ RiuPlotCurveSymbol::PointSymbolEnum RimWellMeasurementCurve::getSymbolForMeasure
     auto it = symbolTable.find( measurementKind );
     if ( it != symbolTable.end() )
         return it->second;
-    else
-        return RiuPlotCurveSymbol::SYMBOL_CROSS;
+            return RiuPlotCurveSymbol::SYMBOL_CROSS;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -62,10 +62,9 @@ public:
         {
             return false;
         }
-        else
-        {
-            return true;
-        }
+        
+                    return true;
+       
     }
 
     // Delta Time Step

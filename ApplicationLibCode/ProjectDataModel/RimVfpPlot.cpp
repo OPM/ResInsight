@@ -646,7 +646,7 @@ double RimVfpPlot::convertToDisplayUnit( double value, RimVfpDefines::Production
     {
         return RiaEclipseUnitTools::pascalToBar( value );
     }
-    else if ( variableType == RimVfpDefines::ProductionVariableType::LIQUID_FLOW_RATE )
+    if ( variableType == RimVfpDefines::ProductionVariableType::LIQUID_FLOW_RATE )
     {
         // Convert to m3/sec to m3/day
         return value * static_cast<double>( 24 * 60 * 60 );

@@ -43,8 +43,7 @@ Rim3dView* Ric3dObjectEditorHandle::mainOrComparisonView()
         }
         return nullptr;
     }
-    else
-    {
-        return dynamic_cast<Rim3dView*>( viewer->ownerReservoirView() );
-    }
+    
+            return dynamic_cast<Rim3dView*>( viewer->ownerReservoirView() );
+   
 }

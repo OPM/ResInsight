@@ -512,9 +512,8 @@ float RigFemPartResultCalculatorMudWeightWindow::getValueForElement(
     {
         return value->second;
     }
-    else
-    {
-        // No value found (should not happen)
+    
+            // No value found (should not happen)
         return std::numeric_limits<float>::infinity();
-    }
+   
 }

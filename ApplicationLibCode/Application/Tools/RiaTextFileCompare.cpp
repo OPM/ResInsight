@@ -97,7 +97,7 @@ bool RiaTextFileCompare::runComparison( const QString& baseFolder, const QString
     {
         return true;
     }
-    else if ( procExitCode == 1 )
+    if ( procExitCode == 1 )
     {
         QByteArray stdOut = proc.readAllStandardOutput();
         m_diffOutput      = stdOut;

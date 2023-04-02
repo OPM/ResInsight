@@ -51,10 +51,9 @@ QString RimFlowDiagSolution::removeCrossFlowEnding( const QString& tracerName )
     {
         return tracerName.left( tracerName.size() - 3 );
     }
-    else
-    {
-        return tracerName;
-    }
+    
+            return tracerName;
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -300,7 +299,7 @@ RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatusInTimeSte
 
                 return TracerStatusType::INJECTOR;
             }
-            else if ( wellResFrame->m_productionType == RiaDefines::WellProductionType::PRODUCER ||
+            if ( wellResFrame->m_productionType == RiaDefines::WellProductionType::PRODUCER ||
                       wellResFrame->m_productionType == RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE )
             {
                 if ( hasCrossFlowEnding( tracerName ) ) return TracerStatusType::INJECTOR;

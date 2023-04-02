@@ -493,7 +493,7 @@ std::vector<RigEclipseResultAddress> RimHistogramCalculator::sourcesForMultiProp
     {
         return resNameResultAddrsPairIt->second;
     }
-    else if ( resultName.endsWith( "IJK" ) )
+    if ( resultName.endsWith( "IJK" ) )
     {
         std::vector<RigEclipseResultAddress> resultAddrs;
 

@@ -1183,10 +1183,10 @@ bool RimEclipseResultDefinition::hasStaticResult() const
     {
         return true;
     }
-    else
-    {
+    
+    
         return false;
-    }
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1220,7 +1220,7 @@ bool RimEclipseResultDefinition::hasDynamicResult() const
         {
             return true;
         }
-        else if ( m_resultType() == RiaDefines::ResultCatType::SOURSIMRL )
+        if ( m_resultType() == RiaDefines::ResultCatType::SOURSIMRL )
         {
             return true;
         }
@@ -1333,7 +1333,7 @@ RiaDefines::PhaseType RimEclipseResultDefinition::resultPhaseType() const
     {
         return RiaDefines::PhaseType::OIL_PHASE;
     }
-    else if ( QRegularExpression( "GAS" ).match( m_resultVariable() ).hasMatch() )
+    if ( QRegularExpression( "GAS" ).match( m_resultVariable() ).hasMatch() )
     {
         return RiaDefines::PhaseType::GAS_PHASE;
     }
@@ -2361,15 +2361,15 @@ QStringList RimEclipseResultDefinition::getResultNamesForResultType( RiaDefines:
 
         return results->resultNames( resultCatType );
     }
-    else
-    {
+    
+    
         QStringList flowVars;
         flowVars.push_back( RIG_FLD_TOF_RESNAME );
         flowVars.push_back( RIG_FLD_CELL_FRACTION_RESNAME );
         flowVars.push_back( RIG_FLD_MAX_FRACTION_TRACER_RESNAME );
         flowVars.push_back( RIG_FLD_COMMUNICATION_RESNAME );
         return flowVars;
-    }
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2381,7 +2381,7 @@ RimEclipseResultDefinition::FlowTracerSelectionState RimEclipseResultDefinition:
     {
         return ALL_SELECTED;
     }
-    else if ( m_flowTracerSelectionMode == FLOW_TR_BY_SELECTION )
+    if ( m_flowTracerSelectionMode == FLOW_TR_BY_SELECTION )
     {
         const bool isInjector = true;
         if ( m_selectedInjectorTracers().size() == RimFlowDiagnosticsTools::setOfTracersOfType( m_flowSolutionUiField(), isInjector ).size() )
@@ -2409,7 +2409,7 @@ RimEclipseResultDefinition::FlowTracerSelectionState RimEclipseResultDefinition:
     {
         return ALL_SELECTED;
     }
-    else if ( m_flowTracerSelectionMode == FLOW_TR_BY_SELECTION )
+    if ( m_flowTracerSelectionMode == FLOW_TR_BY_SELECTION )
     {
         const bool isInjector = false;
         if ( m_selectedProducerTracers().size() == RimFlowDiagnosticsTools::setOfTracersOfType( m_flowSolutionUiField(), isInjector ).size() )

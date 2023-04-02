@@ -741,9 +741,8 @@ uint64_t Hash64(const char *s, size_t len) {
   if (len <= 32) {
     if (len <= 16) {
       return farmhashna::HashLen0to16(s, len);
-    } else {
-      return farmhashna::HashLen17to32(s, len);
-    }
+    }       return farmhashna::HashLen17to32(s, len);
+   
   } else if (len <= 64) {
     return HashLen33to64(s, len);
   } else if (len <= 96) {
@@ -1681,7 +1680,7 @@ uint32_t Hash32(const char *s, size_t len) {
 uint32_t Hash32WithSeed(const char *s, size_t len, uint32_t seed) {
   if (len <= 24) {
     if (len >= 13) return farmhashmk::Hash32Len13to24(s, len, seed * c1);
-    else if (len >= 5) return farmhashmk::Hash32Len5to12(s, len, seed);
+    if (len >= 5) return farmhashmk::Hash32Len5to12(s, len, seed);
     else return farmhashmk::Hash32Len0to4(s, len, seed);
   }
   uint32_t h = farmhashmk::Hash32Len13to24(s, 24, seed ^ len);

@@ -402,7 +402,7 @@ bool Rim3dWellLogExtractionCurve::showInView( const Rim3dView* gridView ) const
         {
             return dynamic_cast<const RimEclipseView*>( gridView ) != nullptr;
         }
-        else if ( dynamic_cast<const RimGeoMechCase*>( m_case() ) )
+        if ( dynamic_cast<const RimGeoMechCase*>( m_case() ) )
         {
             return dynamic_cast<const RimGeoMechView*>( gridView ) != nullptr;
         }

@@ -169,7 +169,7 @@ RiaDefines::PhaseType RimSummaryAddress::addressPhaseType() const
     {
         return RiaDefines::PhaseType::OIL_PHASE;
     }
-    else if ( QRegularExpression( "^.GP" ).match( m_vectorName ).hasMatch() )
+    if ( QRegularExpression( "^.GP" ).match( m_vectorName ).hasMatch() )
     {
         return RiaDefines::PhaseType::GAS_PHASE;
     }

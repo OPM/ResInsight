@@ -1193,8 +1193,7 @@ QString RimEnsembleWellLogCurveSet::createAutoName() const
 
     if ( !nameParts.isEmpty() )
         return nameParts.join( " - " );
-    else
-        return "Ensemble Well Log Curve Set";
+            return "Ensemble Well Log Curve Set";
 }
 
 //--------------------------------------------------------------------------------------------------

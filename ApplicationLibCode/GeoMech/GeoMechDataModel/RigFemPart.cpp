@@ -396,7 +396,7 @@ cvf::Vec3f RigFemPart::faceNormal( int elmIdx, int faceIdx ) const
         cvf::Vec3f normal = ( *( quadVxs[2] ) - *( quadVxs[0] ) ) ^ ( *( quadVxs[3] ) - *( quadVxs[1] ) );
         return normal;
     }
-    else if ( faceNodeCount != 4 )
+    if ( faceNodeCount != 4 )
     {
         CVF_ASSERT( false );
     }
@@ -556,7 +556,7 @@ size_t RigFemPart::resultValueIdxFromResultPosType( RigFemResultPosEnum resultPo
     {
         return elementNodeResultIdx;
     }
-    else if ( resultPosType == RIG_NODAL )
+    if ( resultPosType == RIG_NODAL )
     {
         size_t nodeIdx = nodeIdxFromElementNodeResultIdx( elementNodeResultIdx );
         CVF_ASSERT( nodeIdx < m_nodes.nodeIds.size() );

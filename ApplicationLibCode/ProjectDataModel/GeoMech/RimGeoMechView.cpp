@@ -163,7 +163,7 @@ void RimGeoMechView::onLoadDataAndUpdate()
             m_geomechCase = nullptr;
             return;
         }
-        else if ( status == RimGeoMechCase::CASE_OPEN_ERROR )
+        if ( status == RimGeoMechCase::CASE_OPEN_ERROR )
         {
             if ( !RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
             {

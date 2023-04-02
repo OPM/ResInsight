@@ -66,7 +66,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorTimeLapse::calculate( int pa
     {
         return calculateGammaTimeLapse( partIndex, resVarAddr );
     }
-    else if ( anisotropyCalculator.isMatching( resVarAddr ) )
+    if ( anisotropyCalculator.isMatching( resVarAddr ) )
     {
         return anisotropyCalculator.calculateTimeLapse( partIndex, resVarAddr );
     }

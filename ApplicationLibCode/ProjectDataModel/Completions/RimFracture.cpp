@@ -392,10 +392,9 @@ double RimFracture::startMD() const
     {
         return fractureMD() - 0.5 * perforationLength();
     }
-    else
-    {
-        return fractureMD();
-    }
+    
+            return fractureMD();
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -407,10 +406,9 @@ double RimFracture::endMD() const
     {
         return startMD() + perforationLength();
     }
-    else
-    {
-        return startMD() + fractureTemplate()->computeFractureWidth( this );
-    }
+    
+            return startMD() + fractureTemplate()->computeFractureWidth( this );
+   
 }
 
 //--------------------------------------------------------------------------------------------------

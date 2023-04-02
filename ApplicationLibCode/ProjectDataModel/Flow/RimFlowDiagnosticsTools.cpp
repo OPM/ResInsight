@@ -29,7 +29,7 @@ bool RimFlowDiagnosticsTools::TracerComp::operator()( const QString& lhs, const 
     {
         return true;
     }
-    else if ( lhs.endsWith( "-XF" ) && !rhs.endsWith( "-XF" ) )
+    if ( lhs.endsWith( "-XF" ) && !rhs.endsWith( "-XF" ) )
     {
         return false;
     }

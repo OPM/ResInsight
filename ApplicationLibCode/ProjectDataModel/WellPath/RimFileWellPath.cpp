@@ -186,11 +186,10 @@ bool RimFileWellPath::readWellPathFile( QString* errorMessage, RifWellPathImport
 
         return true;
     }
-    else
-    {
-        if ( errorMessage ) ( *errorMessage ) = "Could not find the well path file: " + this->filePath();
+    
+            if ( errorMessage ) ( *errorMessage ) = "Could not find the well path file: " + this->filePath();
         return false;
-    }
+   
 }
 
 //--------------------------------------------------------------------------------------------------
