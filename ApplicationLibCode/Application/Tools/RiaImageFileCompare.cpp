@@ -113,14 +113,13 @@ bool RiaImageFileCompare::runComparison( const QString& imgFileName, const QStri
 
         return true;
     }
-    
-            // Report non-severe error
-        m_lastError    = ErrorType::IC_ERROR;
-        m_errorMsg     = "Error running compare tool process";
-        m_errorDetails = stdErr;
 
-        return false;
-   
+    // Report non-severe error
+    m_lastError    = ErrorType::IC_ERROR;
+    m_errorMsg     = "Error running compare tool process";
+    m_errorDetails = stdErr;
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

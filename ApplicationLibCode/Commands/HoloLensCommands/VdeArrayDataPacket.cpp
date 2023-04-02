@@ -71,7 +71,6 @@ VdeArrayDataPacket::VdeArrayDataPacket()
 bool VdeArrayDataPacket::isValid() const
 {
     return m_elementType != Unknown && m_packetBytes.size() >= VDE_HEADER_SIZE && m_arrayId >= 0;
-   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -136,9 +135,8 @@ const char* VdeArrayDataPacket::arrayData() const
         const char* ptr = m_packetBytes.data();
         return ptr + VDE_HEADER_SIZE;
     }
-    
-            return nullptr;
-   
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

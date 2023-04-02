@@ -44,7 +44,6 @@ CAF_CMD_SOURCE_INIT( RicFlyToObjectFeature, "RicFlyToObjectFeature" );
 bool RicFlyToObjectFeature::isCommandEnabled()
 {
     return RicFlyToObjectFeature::boundingBoxForSelectedObjects().isValid();
-   
 }
 
 //--------------------------------------------------------------------------------------------------

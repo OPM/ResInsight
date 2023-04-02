@@ -63,8 +63,8 @@ class RimGeoMechView : public RimGridView
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimGeoMechView( );
-    ~RimGeoMechView( ) override;
+    RimGeoMechView();
+    ~RimGeoMechView() override;
 
     RiaDefines::View3dContent viewContent() const override;
 

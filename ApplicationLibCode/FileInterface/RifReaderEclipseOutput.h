@@ -39,9 +39,9 @@ class QDateTime;
 
 struct RigWellResultPoint;
 
-using ecl_grid_type = struct ecl_grid_struct;
-using ecl_file_type = struct ecl_file_struct;
-using well_conn_type = struct well_conn_struct;
+using ecl_grid_type     = struct ecl_grid_struct;
+using ecl_file_type     = struct ecl_file_struct;
+using well_conn_type    = struct well_conn_struct;
 using well_segment_type = struct well_segment_struct;
 
 //==================================================================================================

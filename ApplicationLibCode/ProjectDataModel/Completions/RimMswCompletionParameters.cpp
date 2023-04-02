@@ -165,9 +165,8 @@ double RimMswCompletionParameters::defaultLinerDiameter( RiaDefines::EclipseUnit
     {
         return 0.152;
     }
-    
-            return 0.5;
-   
+
+    return 0.5;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -205,9 +204,8 @@ double RimMswCompletionParameters::defaultRoughnessFactor( RiaDefines::EclipseUn
     {
         return 1.0e-5;
     }
-    
-            return 3.28e-5;
-   
+
+    return 3.28e-5;
 }
 
 //--------------------------------------------------------------------------------------------------

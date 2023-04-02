@@ -238,9 +238,8 @@ double RimWellPathValve::convertOrificeDiameter( double                        o
         {
             return RiaEclipseUnitTools::inchToMeter( orificeDiameterWellPathUnits );
         }
-        
-                    return RiaEclipseUnitTools::mmToMeter( orificeDiameterWellPathUnits );
-       
+
+        return RiaEclipseUnitTools::mmToMeter( orificeDiameterWellPathUnits );
     }
     if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
@@ -248,9 +247,8 @@ double RimWellPathValve::convertOrificeDiameter( double                        o
         {
             return RiaEclipseUnitTools::meterToFeet( RiaEclipseUnitTools::mmToMeter( orificeDiameterWellPathUnits ) );
         }
-        
-                    return RiaEclipseUnitTools::inchToFeet( orificeDiameterWellPathUnits );
-       
+
+        return RiaEclipseUnitTools::inchToFeet( orificeDiameterWellPathUnits );
     }
     CVF_ASSERT( false );
     return 0.0;
@@ -341,9 +339,8 @@ QString RimWellPathValve::componentLabel() const
         {
             return "ICDs";
         }
-        
-                    return "ICD";
-       
+
+        return "ICD";
     }
     if ( componentType() == RiaDefines::WellPathComponentType::AICD )
     {
@@ -351,9 +348,8 @@ QString RimWellPathValve::componentLabel() const
         {
             return "AICDs";
         }
-        
-                    return "AICD";
-       
+
+        return "AICD";
     }
     if ( componentType() == RiaDefines::WellPathComponentType::ICV )
     {

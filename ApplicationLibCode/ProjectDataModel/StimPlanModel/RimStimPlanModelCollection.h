@@ -35,8 +35,8 @@ class RimStimPlanModelCollection : public RimCheckableNamedObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimStimPlanModelCollection( );
-    ~RimStimPlanModelCollection( ) override;
+    RimStimPlanModelCollection();
+    ~RimStimPlanModelCollection() override;
 
     bool hasStimPlanModels() const;
     void addStimPlanModel( RimStimPlanModel* fracture );

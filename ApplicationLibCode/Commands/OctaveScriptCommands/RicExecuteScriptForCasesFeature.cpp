@@ -43,7 +43,6 @@ bool RicExecuteScriptForCasesFeature::isCommandEnabled()
     caf::SelectionManager::instance()->objectsByType( &selection );
 
     return selection.size() > 0;
-   
 }
 
 //--------------------------------------------------------------------------------------------------

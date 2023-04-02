@@ -93,25 +93,23 @@ bool RimStimPlanModelCalculator::extractCurveData( RiaDefines::CurveProperty cur
         rkbDiff             = cachedRkbDiff;
         return true;
     }
-    
-            // Cache miss: try to calculate the request data
-        for ( const auto& calculator : m_resultCalculators )
+
+    // Cache miss: try to calculate the request data
+    for ( const auto& calculator : m_resultCalculators )
+    {
+        if ( calculator->isMatching( curveProperty ) )
         {
-            if ( calculator->isMatching( curveProperty ) )
+            bool isOk = calculator->calculate( curveProperty, m_stimPlanModel, timeStep, values, measuredDepthValues, tvDepthValues, rkbDiff );
+
+            if ( isOk )
             {
-                bool isOk =
-                    calculator->calculate( curveProperty, m_stimPlanModel, timeStep, values, measuredDepthValues, tvDepthValues, rkbDiff );
-
-                if ( isOk )
-                {
-                    // Populate cache when calculation succeeds
-                    m_resultCache[key] = std::make_tuple( values, measuredDepthValues, tvDepthValues, rkbDiff );
-                }
-
-                return isOk;
+                // Populate cache when calculation succeeds
+                m_resultCache[key] = std::make_tuple( values, measuredDepthValues, tvDepthValues, rkbDiff );
             }
+
+            return isOk;
         }
-   
+    }
 
     return false;
 }

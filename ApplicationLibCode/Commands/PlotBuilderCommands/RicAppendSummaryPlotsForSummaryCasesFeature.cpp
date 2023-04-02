@@ -41,7 +41,7 @@ bool RicAppendSummaryPlotsForSummaryCasesFeature::isCommandEnabled()
     auto cases     = selectedCases();
     auto ensembles = selectedEnsembles();
 
-    return !static_cast<bool>(cases.empty() && ensembles.empty());
+    return !static_cast<bool>( cases.empty() && ensembles.empty() );
 }
 
 //--------------------------------------------------------------------------------------------------

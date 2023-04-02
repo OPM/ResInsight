@@ -36,8 +36,8 @@ class RimWellPathFracture : public RimFracture
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimWellPathFracture( );
-    ~RimWellPathFracture( ) override;
+    RimWellPathFracture();
+    ~RimWellPathFracture() override;
 
     double fractureMD() const override;
     void   setMeasuredDepth( double mdValue );

@@ -1180,7 +1180,6 @@ bool RimEclipseResultDefinition::hasStaticResult() const
     RigEclipseResultAddress       gridScalarResultIndex = this->eclipseResultAddress();
 
     return hasResult() && gridCellResults->timeStepCount( gridScalarResultIndex ) == 1;
-   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1490,8 +1489,8 @@ bool RimEclipseResultDefinition::hasCategoryResult() const
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseResultDefinition::isFlowDiagOrInjectionFlooding() const
 {
-    return static_cast<bool>(this->m_resultType() == RiaDefines::ResultCatType::FLOW_DIAGNOSTICS ||
-         this->m_resultType() == RiaDefines::ResultCatType::INJECTION_FLOODING);
+    return static_cast<bool>( this->m_resultType() == RiaDefines::ResultCatType::FLOW_DIAGNOSTICS ||
+                              this->m_resultType() == RiaDefines::ResultCatType::INJECTION_FLOODING );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2350,15 +2349,13 @@ QStringList RimEclipseResultDefinition::getResultNamesForResultType( RiaDefines:
 
         return results->resultNames( resultCatType );
     }
-    
-    
-        QStringList flowVars;
-        flowVars.push_back( RIG_FLD_TOF_RESNAME );
-        flowVars.push_back( RIG_FLD_CELL_FRACTION_RESNAME );
-        flowVars.push_back( RIG_FLD_MAX_FRACTION_TRACER_RESNAME );
-        flowVars.push_back( RIG_FLD_COMMUNICATION_RESNAME );
-        return flowVars;
-   
+
+    QStringList flowVars;
+    flowVars.push_back( RIG_FLD_TOF_RESNAME );
+    flowVars.push_back( RIG_FLD_CELL_FRACTION_RESNAME );
+    flowVars.push_back( RIG_FLD_MAX_FRACTION_TRACER_RESNAME );
+    flowVars.push_back( RIG_FLD_COMMUNICATION_RESNAME );
+    return flowVars;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2588,7 +2585,7 @@ bool RimEclipseResultDefinition::addPerCellFaceOptionsForVariableUiField() const
     RimCellEdgeColors* cellEdge = nullptr;
     this->firstAncestorOrThisOfType( cellEdge );
 
-    return !(propFilter || curve || cellEdge);
+    return !( propFilter || curve || cellEdge );
 }
 
 //--------------------------------------------------------------------------------------------------

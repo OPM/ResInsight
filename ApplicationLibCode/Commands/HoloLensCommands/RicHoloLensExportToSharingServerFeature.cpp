@@ -36,7 +36,6 @@ bool RicHoloLensExportToSharingServerFeature::isCommandEnabled()
 {
     RicHoloLensSession* session = RicHoloLensSessionManager::instance()->session();
     return session && session->isSessionValid();
-   
 }
 
 //--------------------------------------------------------------------------------------------------

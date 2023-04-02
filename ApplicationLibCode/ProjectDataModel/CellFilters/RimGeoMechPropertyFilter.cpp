@@ -216,7 +216,7 @@ void RimGeoMechPropertyFilter::updateActiveState()
 //--------------------------------------------------------------------------------------------------
 bool RimGeoMechPropertyFilter::isActiveAndHasResult()
 {
-    return static_cast<bool>(this->isActive() && this->resultDefinition->hasResult());
+    return static_cast<bool>( this->isActive() && this->resultDefinition->hasResult() );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -206,7 +206,6 @@ RimTernaryLegendConfig* RimIntersectionResultDefinition::ternaryLegendConfig() c
 bool RimIntersectionResultDefinition::isEclipseResultDefinition()
 {
     return dynamic_cast<RimEclipseCase*>( m_case() );
-   
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -375,14 +375,13 @@ double RimSummaryCurve::yValueAtTimeT( time_t time ) const
             {
                 return values[i + 1];
             }
-            
-                            double slope = 0.0;
-                if ( timeSteps[i + 1] != timeSteps[i] )
-                {
-                    slope = ( values[i + 1] - values[i] ) / (double)( timeSteps[i + 1] - timeSteps[i] );
-                }
-                return slope * ( time - timeSteps[i] ) + values[i];
-           
+
+            double slope = 0.0;
+            if ( timeSteps[i + 1] != timeSteps[i] )
+            {
+                slope = ( values[i + 1] - values[i] ) / (double)( timeSteps[i + 1] - timeSteps[i] );
+            }
+            return slope * ( time - timeSteps[i] ) + values[i];
         }
     }
     return std::numeric_limits<double>::infinity();

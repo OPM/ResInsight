@@ -370,9 +370,8 @@ RiuPlotCurveSymbol::PointSymbolEnum RimWellMeasurementCurve::getSymbolForMeasure
     symbolTable["PPG"]  = RiuPlotCurveSymbol::SYMBOL_RECT;
 
     auto it = symbolTable.find( measurementKind );
-    if ( it != symbolTable.end() )
-        return it->second;
-            return RiuPlotCurveSymbol::SYMBOL_CROSS;
+    if ( it != symbolTable.end() ) return it->second;
+    return RiuPlotCurveSymbol::SYMBOL_CROSS;
 }
 
 //--------------------------------------------------------------------------------------------------

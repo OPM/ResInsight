@@ -591,9 +591,8 @@ double RiaPreferences::defaultMarginSize( QPageSize::PageSizeId pageSizeId )
     {
         return 1.0;
     }
-    
-            return 20.0;
-   
+
+    return 20.0;
 }
 //--------------------------------------------------------------------------------------------------
 ///

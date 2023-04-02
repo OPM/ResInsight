@@ -2898,8 +2898,8 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
         if ( m_formationWellPathForSourceWellPath == nullptr ) return;
 
         if ( plot->depthType() != RiaDefines::DepthTypeEnum::MEASURED_DEPTH &&
-                plot->depthType() != RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH &&
-                plot->depthType() != RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB )
+             plot->depthType() != RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH &&
+             plot->depthType() != RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB )
         {
             return;
         }

@@ -43,8 +43,8 @@ class RimEclipseCaseCollection : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimEclipseCaseCollection( );
-    ~RimEclipseCaseCollection( ) override;
+    RimEclipseCaseCollection();
+    ~RimEclipseCaseCollection() override;
 
     caf::PdmChildArrayField<RimEclipseCase*>            cases;
     caf::PdmChildArrayField<RimIdenticalGridCaseGroup*> caseGroups;

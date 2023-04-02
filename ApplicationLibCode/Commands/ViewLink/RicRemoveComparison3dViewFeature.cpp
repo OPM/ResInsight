@@ -37,8 +37,7 @@ public:
     {
         m_activeView = RiaApplication::instance()->activeReservoirView();
         return m_activeView && m_activeView->viewer() && m_activeView->viewer()->viewerCommands() &&
-             m_activeView->viewer()->viewerCommands()->isCurrentPickInComparisonView();
-       
+               m_activeView->viewer()->viewerCommands()->isCurrentPickInComparisonView();
     }
 
     void execute()
