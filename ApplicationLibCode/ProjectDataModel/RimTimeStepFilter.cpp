@@ -196,11 +196,15 @@ bool RimTimeStepFilter::updateFilteredTimeStepsFromUi()
 {
     std::vector<int> timeSteps = m_filteredTimeStepsUi;
     std::sort( timeSteps.begin(), timeSteps.end() );
+
+    // NOLINTBEGIN(readability-simplify-boolean-expr)
     if ( m_filteredTimeSteps() == timeSteps )
     {
         return false;
     }
     m_filteredTimeSteps = timeSteps;
+    // NOLINTBEGIN(readability-simplify-boolean-expr)
+
     return true;
 }
 

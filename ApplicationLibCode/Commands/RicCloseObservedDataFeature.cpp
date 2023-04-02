@@ -107,6 +107,7 @@ bool RicCloseObservedDataFeature::isCommandEnabled()
     std::vector<RimObservedFmuRftData*> fmuRftSelection;
     caf::SelectionManager::instance()->objectsByType( &fmuRftSelection );
 
+    // NOLINTBEGIN(readability-simplify-boolean-expr)
     if ( summarySelection.size() == 0 && fmuRftSelection.size() == 0 )
     {
         return false;
@@ -118,6 +119,7 @@ bool RicCloseObservedDataFeature::isCommandEnabled()
             return false;
         }
     }
+    // NOLINTEND(readability-simplify-boolean-expr)
 
     return true;
 }

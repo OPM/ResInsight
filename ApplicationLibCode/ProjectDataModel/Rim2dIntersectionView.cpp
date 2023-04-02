@@ -62,7 +62,7 @@ const cvf::Mat4d Rim2dIntersectionView::sm_defaultViewMatrix = cvf::Mat4d( 1, 0,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Rim2dIntersectionView::Rim2dIntersectionView( )
+Rim2dIntersectionView::Rim2dIntersectionView()
 {
     CAF_PDM_InitObject( "Intersection View", ":/CrossSection16x16.png" );
 
@@ -107,7 +107,7 @@ Rim2dIntersectionView::Rim2dIntersectionView( )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Rim2dIntersectionView::~Rim2dIntersectionView( )
+Rim2dIntersectionView::~Rim2dIntersectionView()
 {
 }
 
@@ -196,11 +196,10 @@ bool Rim2dIntersectionView::isTimeStepDependentDataVisible() const
             return sepInterResultDef->isEclipseResultDefinition() ? sepInterResultDef->eclipseResultDefinition()->hasDynamicResult()
                                                                   : sepInterResultDef->geoMechResultDefinition()->hasResult();
         }
-        
-                    RimGridView* gridView = nullptr;
-            m_intersection->firstAncestorOrThisOfTypeAsserted( gridView );
-            return gridView->isTimeStepDependentDataVisibleInThisOrComparisonView();
-       
+
+        RimGridView* gridView = nullptr;
+        m_intersection->firstAncestorOrThisOfTypeAsserted( gridView );
+        return gridView->isTimeStepDependentDataVisibleInThisOrComparisonView();
     }
 
     return false;
@@ -424,11 +423,9 @@ bool Rim2dIntersectionView::handleOverlayItemPicked( const cvf::OverlayItem* pic
     if ( m_legendObjectToSelect )
     {
         if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->selectAsCurrentItem( m_legendObjectToSelect );
-
-        return true;
     }
 
-    return false;
+    return m_legendObjectToSelect != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -445,10 +442,9 @@ bool Rim2dIntersectionView::hasResults()
             RimEclipseResultDefinition* eclResDef = sepInterResultDef->eclipseResultDefinition();
             return eclResDef->hasResult() || eclResDef->isTernarySaturationSelected();
         }
-        
-                    RimGeoMechResultDefinition* geomResDef = sepInterResultDef->geoMechResultDefinition();
-            return geomResDef->hasResult();
-       
+
+        RimGeoMechResultDefinition* geomResDef = sepInterResultDef->geoMechResultDefinition();
+        return geomResDef->hasResult();
     }
 
     RimEclipseView* eclView = nullptr;

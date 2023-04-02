@@ -732,18 +732,17 @@ QString RimGridCrossPlotDataSet::createGroupName( size_t groupIndex ) const
     {
         return legendConfig()->categoryNameFromCategoryValue( groupIndex );
     }
-    
-            std::vector<double> tickValues;
-        legendConfig()->scalarMapper()->majorTickValues( &tickValues );
 
-        double lowerLimit = std::numeric_limits<double>::infinity();
-        if ( groupIndex < tickValues.size() ) lowerLimit = tickValues[groupIndex];
+    std::vector<double> tickValues;
+    legendConfig()->scalarMapper()->majorTickValues( &tickValues );
 
-        double upperLimit = std::numeric_limits<double>::infinity();
-        if ( groupIndex + 1u < tickValues.size() ) upperLimit = tickValues[groupIndex + 1u];
+    double lowerLimit = std::numeric_limits<double>::infinity();
+    if ( groupIndex < tickValues.size() ) lowerLimit = tickValues[groupIndex];
 
-        return QString( "%1 [%2, %3]" ).arg( groupParameter() ).arg( lowerLimit ).arg( upperLimit );
-   
+    double upperLimit = std::numeric_limits<double>::infinity();
+    if ( groupIndex + 1u < tickValues.size() ) upperLimit = tickValues[groupIndex + 1u];
+
+    return QString( "%1 [%2, %3]" ).arg( groupParameter() ).arg( lowerLimit ).arg( upperLimit );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1107,11 +1106,7 @@ bool RimGridCrossPlotDataSet::groupingEnabled() const
 {
     if ( m_grouping != NO_GROUPING )
     {
-        if ( m_grouping == GROUP_BY_RESULT && !m_groupingProperty->eclipseResultAddress().isValid() )
-        {
-            return false;
-        }
-        return true;
+        return !( m_grouping == GROUP_BY_RESULT && !m_groupingProperty->eclipseResultAddress().isValid() );
     }
     return false;
 }

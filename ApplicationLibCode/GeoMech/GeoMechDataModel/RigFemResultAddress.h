@@ -139,13 +139,8 @@ public:
 
     bool operator==( const RigFemResultAddress& other ) const
     {
-        if ( resultPosType != other.resultPosType || fieldName != other.fieldName || componentName != other.componentName ||
-             timeLapseBaseStepIdx != other.timeLapseBaseStepIdx || normalizedByHydrostaticPressure != other.normalizedByHydrostaticPressure )
-        {
-            return false;
-        }
-
-        return true;
+        return resultPosType == other.resultPosType || fieldName == other.fieldName || componentName == other.componentName ||
+               timeLapseBaseStepIdx == other.timeLapseBaseStepIdx || normalizedByHydrostaticPressure == other.normalizedByHydrostaticPressure;
     }
 
 private:

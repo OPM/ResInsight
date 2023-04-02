@@ -317,6 +317,8 @@ bool RicImportGeneralDataFeature::openEclipseCaseFromFileNames( const QStringLis
 {
     bool                                     noDialog = false;
     RiaImportEclipseCaseTools::FileCaseIdMap newCaseFiles;
+
+    // NOLINTBEGIN(readability-simplify-boolean-expr)
     if ( RiaImportEclipseCaseTools::openEclipseCasesFromFile( fileNames, createDefaultView, &newCaseFiles, noDialog, readerSettings ) )
     {
         for ( const auto& newCaseFileAndId : newCaseFiles )
@@ -325,6 +327,8 @@ bool RicImportGeneralDataFeature::openEclipseCaseFromFileNames( const QStringLis
         }
         return true;
     }
+    // NOLINTEND(readability-simplify-boolean-expr)
+
     return false;
 }
 
@@ -351,6 +355,8 @@ bool RicImportGeneralDataFeature::openInputEclipseCaseFromFileNames( const QStri
 bool RicImportGeneralDataFeature::openSummaryCaseFromFileNames( const QStringList& fileNames, bool doCreateDefaultPlot )
 {
     std::vector<RimSummaryCase*> newCases;
+
+    // NOLINTBEGIN(readability-simplify-boolean-expr)
     if ( RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles( fileNames, doCreateDefaultPlot, &newCases ) )
     {
         RicImportSummaryCasesFeature::addCasesToGroupIfRelevant( newCases );
@@ -360,6 +366,8 @@ bool RicImportGeneralDataFeature::openSummaryCaseFromFileNames( const QStringLis
         }
         return true;
     }
+    // NOLINTEND(readability-simplify-boolean-expr)
+
     return false;
 }
 

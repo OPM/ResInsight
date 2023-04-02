@@ -1329,9 +1329,12 @@ void RimWellLogTrack::updateAxesVisibility( RiaDefines::Orientation orientation,
         if ( !plot ) return false;
 
         bool isCurrentlyEnabled = plot->isAxisVisible( axis );
+
+        // NOLINTBEGIN(readability-simplify-boolean-expr)
         if ( enable == isCurrentlyEnabled ) return false;
 
         m_plotWidget->setAxisEnabled( axis, enable );
+        // NOLINTEND(readability-simplify-boolean-expr)
         return true;
     };
 
@@ -2894,9 +2897,9 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
     {
         if ( m_formationWellPathForSourceWellPath == nullptr ) return;
 
-        if ( !( plot->depthType() == RiaDefines::DepthTypeEnum::MEASURED_DEPTH ||
-                plot->depthType() == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH ||
-                plot->depthType() == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB ) )
+        if ( plot->depthType() != RiaDefines::DepthTypeEnum::MEASURED_DEPTH &&
+                plot->depthType() != RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH &&
+                plot->depthType() != RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB )
         {
             return;
         }

@@ -40,6 +40,7 @@ bool RicDeleteItemFeature::isCommandEnabled()
     std::vector<caf::PdmUiItem*> items;
     caf::SelectionManager::instance()->selectedItems( items );
 
+    // NOLINTBEGIN(readability-simplify-boolean-expr)
     if ( items.empty() ) return false;
 
     for ( caf::PdmUiItem* item : items )
@@ -52,6 +53,7 @@ bool RicDeleteItemFeature::isCommandEnabled()
         auto* childArrayFieldHandle = dynamic_cast<caf::PdmChildArrayFieldHandle*>( currentPdmObject->parentField() );
         if ( !childArrayFieldHandle ) return false;
     }
+    // NOLINTEND(readability-simplify-boolean-expr)
 
     return true;
 }

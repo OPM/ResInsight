@@ -113,6 +113,7 @@ bool RimWellIASettings::initSettings( QString& outErrmsg )
 {
     initCsvParameters();
 
+    // NOLINTBEGIN(readability-simplify-boolean-expr)
     RifParameterXmlReader basicreader( RiaPreferencesGeoMech::current()->geomechWIADefaultXML() );
     if ( !basicreader.parseFile( outErrmsg ) ) return false;
 
@@ -121,6 +122,7 @@ bool RimWellIASettings::initSettings( QString& outErrmsg )
     {
         m_parameters.push_back( group );
     }
+    // NOLINTEND(readability-simplify-boolean-expr)
 
     return true;
 }

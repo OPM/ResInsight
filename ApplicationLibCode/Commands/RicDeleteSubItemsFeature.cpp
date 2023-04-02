@@ -49,12 +49,14 @@ bool RicDeleteSubItemsFeature::canCommandBeEnabled()
     std::vector<caf::PdmUiItem*> items;
     caf::SelectionManager::instance()->selectedItems( items );
 
+    // NOLINTBEGIN(readability-simplify-boolean-expr)
     if ( items.empty() ) return false;
 
     for ( auto* item : items )
     {
         if ( !RicDeleteSubItemsFeature::hasDeletableSubItems( item ) ) return false;
     }
+    // NOLINTEND(readability-simplify-boolean-expr)
 
     return true;
 }
