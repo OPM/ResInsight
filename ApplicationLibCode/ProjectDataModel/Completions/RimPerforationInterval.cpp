@@ -142,7 +142,7 @@ double RimPerforationInterval::diameter( RiaDefines::EclipseUnitSystem unitSyste
     {
         return RiaEclipseUnitTools::feetToMeter( m_diameter() );
     }
-    else if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD && wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
+    if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD && wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
         return RiaEclipseUnitTools::meterToFeet( m_diameter() );
     }

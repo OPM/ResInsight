@@ -203,8 +203,7 @@ RimMdiWindowGeometry RimViewWindow::mdiWindowGeometry()
 {
     if ( m_windowController() )
         return m_windowController()->mdiWindowGeometry();
-    else
-        return RimMdiWindowGeometry();
+            return RimMdiWindowGeometry();
 }
 
 //--------------------------------------------------------------------------------------------------

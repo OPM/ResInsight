@@ -855,7 +855,7 @@ void RimWellLogExtractionCurve::findAndLoadWbsParametersFromLasFiles( const RimW
             RimWellLogFile::findMdAndChannelValuesForWellPath( wellPath, lasAddress, &lasUnits );
         if ( !lasFileValues.empty() )
         {
-            QString extractorUnits = geomExtractor->parameterInputUnits( parameter );
+            QString extractorUnits = RigGeoMechWellLogExtractor::parameterInputUnits( parameter );
 
             if ( RiaWellLogUnitTools<double>::convertValues( &lasFileValues, lasUnits, extractorUnits, wellPath->wellPathGeometry() ) )
             {
@@ -1258,10 +1258,9 @@ QString RimWellLogExtractionCurve::wellName() const
         {
             return m_wellPath->name();
         }
-        else
-        {
-            return QString();
-        }
+        
+                    return QString();
+       
     }
     else
     {
@@ -1299,12 +1298,7 @@ bool RimWellLogExtractionCurve::branchDetection() const
 bool RimWellLogExtractionCurve::isEclipseCurve() const
 {
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case.value() );
-    if ( eclipseCase )
-    {
-        return true;
-    }
-
-    return false;
+    return eclipseCase != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

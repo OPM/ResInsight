@@ -146,11 +146,10 @@ std::pair<bool, QStringList> RimcCommandRouter_extractSurfaces::extractSurfaces(
                 RiaLogging::error( "Failed to export surface data to " + surfaceFilename );
                 return std::make_pair( false, surfaceFileNames );
             }
-            else
-            {
-                surfaceFileNames << surfaceFilename;
+            
+                            surfaceFileNames << surfaceFilename;
                 RiaLogging::info( "Successfully exported surface data to " + surfaceFilename );
-            }
+           
         }
 
         return std::make_pair( true, surfaceFileNames );

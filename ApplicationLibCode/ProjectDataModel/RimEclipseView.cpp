@@ -2154,10 +2154,9 @@ RimEclipsePropertyFilterCollection* RimEclipseView::eclipsePropertyFilterCollect
     {
         return m_overridePropertyFilterCollection;
     }
-    else
-    {
-        return m_propertyFilterCollection;
-    }
+    
+            return m_propertyFilterCollection;
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2169,10 +2168,9 @@ const RimEclipsePropertyFilterCollection* RimEclipseView::eclipsePropertyFilterC
     {
         return m_overridePropertyFilterCollection;
     }
-    else
-    {
-        return m_propertyFilterCollection;
-    }
+    
+            return m_propertyFilterCollection;
+   
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -507,8 +507,7 @@ std::vector<RigEclipseResultAddress> RimHistogramCalculator::sourcesForMultiProp
 
         return resultAddrs;
     }
-    else
-    {
-        return std::vector<RigEclipseResultAddress>();
-    }
+    
+            return std::vector<RigEclipseResultAddress>();
+   
 }

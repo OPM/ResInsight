@@ -175,10 +175,9 @@ double RigWellResultPoint::flowRate() const
     {
         return m_flowRate;
     }
-    else
-    {
-        return 0.0;
-    }
+    
+            return 0.0;
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -190,10 +189,9 @@ double RigWellResultPoint::oilRate() const
     {
         return m_oilRate;
     }
-    else
-    {
-        return 0.0;
-    }
+    
+            return 0.0;
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -205,10 +203,9 @@ double RigWellResultPoint::gasRate() const
     {
         return m_gasRate;
     }
-    else
-    {
-        return 0.0;
-    }
+    
+            return 0.0;
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -220,10 +217,9 @@ double RigWellResultPoint::waterRate() const
     {
         return m_waterRate;
     }
-    else
-    {
-        return 0.0;
-    }
+    
+            return 0.0;
+   
 }
 
 //--------------------------------------------------------------------------------------------------

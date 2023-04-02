@@ -121,7 +121,7 @@ RigFemPartResultsCollection::RigFemPartResultsCollection( RifGeoMechReaderInterf
             {
                 auto stepNameComplete = stepName;
 
-                if ( !( RiaRegressionTestRunner::instance()->isRunningRegressionTests() && m_readerInterface->frameTimes( stepIdx ).size() == 1 ) )
+                if ( !RiaRegressionTestRunner::instance()->isRunningRegressionTests() || m_readerInterface->frameTimes( stepIdx ).size() != 1 )
                 {
                     // Do not add postfix for time steps with a single frame to ensure identical generated snapshot
                     // name used by regression tests

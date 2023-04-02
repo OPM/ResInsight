@@ -291,10 +291,9 @@ std::vector<std::vector<double>>
         }
         return xyData;
     }
-    else
-    {
-        return fileXYData;
-    }
+    
+            return fileXYData;
+   
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -62,12 +62,7 @@ bool RicExportCompletionsForVisibleWellPathsFeature::isCommandEnabled()
 
     std::vector<RimWellPath*> wellPaths = visibleWellPaths();
 
-    if ( wellPaths.empty() )
-    {
-        return false;
-    }
-
-    return true;
+    return !wellPaths.empty();
 }
 
 //--------------------------------------------------------------------------------------------------

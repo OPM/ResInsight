@@ -160,7 +160,7 @@ RigHistogramData Rim3dOverlayInfoConfig::histogramData()
 
     if ( eclipseContourMap )
         return m_histogramCalculator->histogramData( eclipseContourMap );
-    else if ( geoMechContourMap )
+    if ( geoMechContourMap )
         return m_histogramCalculator->histogramData( geoMechContourMap );
     else if ( eclipseView )
         return m_histogramCalculator->histogramData( eclipseView, m_statisticsCellRange(), m_statisticsTimeRange() );

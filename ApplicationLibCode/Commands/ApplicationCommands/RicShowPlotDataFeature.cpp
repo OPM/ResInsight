@@ -89,10 +89,9 @@ public:
 
             return m_summaryPlot->asciiDataForSummaryPlotExport( timePeriod, prefs->showSummaryTimeAsLongString() );
         }
-        else
-        {
-            return m_summaryPlot->asciiDataForSummaryPlotExport( RiaDefines::DateTimePeriod::NONE, true );
-        }
+        
+                    return m_summaryPlot->asciiDataForSummaryPlotExport( RiaDefines::DateTimePeriod::NONE, true );
+       
     }
 
     int tabCount() const override { return (int)tabs().size(); }

@@ -1094,12 +1094,11 @@ double RimStimPlanModel::getOverburdenGradient( RiaDefines::CurveProperty curveP
         }
         return m_stimPlanModelTemplate()->overburdenFluidDensity() * 9.81 * 1000.0 / 1.0e5;
     }
-    else
-    {
-        RiaLogging::error(
+    
+            RiaLogging::error(
             QString( "Missing overburden gradient for %1." ).arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
         return std::numeric_limits<double>::infinity();
-    }
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1116,12 +1115,11 @@ double RimStimPlanModel::getUnderburdenGradient( RiaDefines::CurveProperty curve
 
         return m_stimPlanModelTemplate()->underburdenFluidDensity() * 9.81 * 1000.0 / 1.0e5;
     }
-    else
-    {
-        RiaLogging::error(
+    
+            RiaLogging::error(
             QString( "Missing underburden gradient for %1." ).arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
         return std::numeric_limits<double>::infinity();
-    }
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1133,7 +1131,7 @@ double RimStimPlanModel::getDefaultValueForProperty( RiaDefines::CurveProperty c
     {
         return m_relativePermeabilityFactorDefault;
     }
-    else if ( curveProperty == RiaDefines::CurveProperty::PORO_ELASTIC_CONSTANT )
+    if ( curveProperty == RiaDefines::CurveProperty::PORO_ELASTIC_CONSTANT )
     {
         return m_poroElasticConstantDefault;
     }
@@ -1398,7 +1396,7 @@ RimEclipseCase* RimStimPlanModel::eclipseCaseForProperty( RiaDefines::CurvePrope
     {
         return m_initialPressureEclipseCase;
     }
-    else if ( m_staticEclipseCase && useStaticEclipseCase( curveProperty ) )
+    if ( m_staticEclipseCase && useStaticEclipseCase( curveProperty ) )
     {
         return m_staticEclipseCase;
     }
@@ -1738,7 +1736,7 @@ QString RimStimPlanModel::pressureDate() const
 
     if ( m_stimPlanModelTemplate->usePressureTableForProperty( RiaDefines::CurveProperty::PRESSURE ) )
         return m_stimPlanModelTemplate->pressureTable()->pressureDate();
-    else if ( m_eclipseCase && m_timeStep >= 0 && m_timeStep < m_eclipseCase->timeStepStrings().size() )
+    if ( m_eclipseCase && m_timeStep >= 0 && m_timeStep < m_eclipseCase->timeStepStrings().size() )
         return m_eclipseCase->timeStepStrings()[m_timeStep];
     else
         return QString();

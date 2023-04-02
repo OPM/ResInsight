@@ -395,7 +395,7 @@ double RimWellPathValve::startMD() const
     {
         return m_measuredDepth;
     }
-    else if ( m_multipleValveLocations()->valveLocations().size() < 2 )
+    if ( m_multipleValveLocations()->valveLocations().size() < 2 )
     {
         return m_multipleValveLocations->rangeStart();
     }
@@ -414,7 +414,7 @@ double RimWellPathValve::endMD() const
     {
         return m_measuredDepth + 0.5;
     }
-    else if ( m_multipleValveLocations()->valveLocations().size() < 2 )
+    if ( m_multipleValveLocations()->valveLocations().size() < 2 )
     {
         return m_multipleValveLocations->rangeEnd();
     }

@@ -244,7 +244,7 @@ double RimFishbonesCollection::mainBoreDiameter( RiaDefines::EclipseUnitSystem u
     {
         return RiaEclipseUnitTools::feetToMeter( m_mainBoreDiameter() );
     }
-    else if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC && unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
+    if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC && unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
         return RiaEclipseUnitTools::meterToFeet( m_mainBoreDiameter() );
     }

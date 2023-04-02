@@ -202,7 +202,7 @@ std::vector<double>* RigFlowDiagResults::calculateDerivedResult( const RigFlowDi
     {
         return calculateAverageTOFResult( resVarAddr, timeStepIndex );
     }
-    else if ( resVarAddr.variableName == RIG_FLD_CELL_FRACTION_RESNAME )
+    if ( resVarAddr.variableName == RIG_FLD_CELL_FRACTION_RESNAME )
     {
         return calculateSumOfFractionsResult( resVarAddr, timeStepIndex );
     }
@@ -690,10 +690,9 @@ std::pair<double, double>
     {
         return commPair->second;
     }
-    else
-    {
-        return std::make_pair( 0.0, 0.0 );
-    }
+    
+            return std::make_pair( 0.0, 0.0 );
+   
 }
 
 //--------------------------------------------------------------------------------------------------

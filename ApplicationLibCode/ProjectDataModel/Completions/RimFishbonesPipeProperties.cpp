@@ -57,10 +57,9 @@ double RimFishbonesPipeProperties::holeDiameter( RiaDefines::EclipseUnitSystem u
         {
             return RiaEclipseUnitTools::inchToMeter( m_lateralHoleDiameter() );
         }
-        else
-        {
-            return m_lateralHoleDiameter() / 1000;
-        }
+        
+                    return m_lateralHoleDiameter() / 1000;
+       
     }
     else if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
@@ -68,10 +67,9 @@ double RimFishbonesPipeProperties::holeDiameter( RiaDefines::EclipseUnitSystem u
         {
             return RiaEclipseUnitTools::meterToFeet( m_lateralHoleDiameter() / 1000 );
         }
-        else
-        {
-            return RiaEclipseUnitTools::inchToFeet( m_lateralHoleDiameter() );
-        }
+        
+                    return RiaEclipseUnitTools::inchToFeet( m_lateralHoleDiameter() );
+       
     }
     CVF_ASSERT( false );
     return 0.0;

@@ -98,15 +98,8 @@ std::array<cvf::Vec3d, 4> RigCell::faceCorners( cvf::StructGridInterface::FaceTy
 //--------------------------------------------------------------------------------------------------
 bool isNear( const cvf::Vec3d& p1, const cvf::Vec3d& p2, double tolerance )
 {
-    if ( cvf::Math::abs( p1[0] - p2[0] ) < tolerance && cvf::Math::abs( p1[1] - p2[1] ) < tolerance &&
-         cvf::Math::abs( p1[2] - p2[2] ) < tolerance )
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return cvf::Math::abs( p1[0] - p2[0] ) < tolerance && cvf::Math::abs( p1[1] - p2[1] ) < tolerance &&
+         cvf::Math::abs( p1[2] - p2[2] ) < tolerance;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -222,7 +215,7 @@ bool RigCell::isLongPyramidCell( double maxHeightFactor, double nodeNearToleranc
         // Check the ratio of the length of opposite edges.
         // both ratios have to be above threshold to detect a pyramid-ish cell
         // Only test this if we have all nonzero edge lengths.
-        else if ( zeroLengthEdgeCount == 0 ) // If the four first faces are ok, the two last must be as well
+        if ( zeroLengthEdgeCount == 0 ) // If the four first faces are ok, the two last must be as well
         {
             double e0SquareLength = ( c1 - c0 ).lengthSquared();
             double e2SquareLength = ( c3 - c2 ).lengthSquared();

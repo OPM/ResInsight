@@ -244,7 +244,7 @@ QString RigWellLogFile::wellLogChannelUnitString( const QString& wellLogChannelN
             {
                 return "M";
             }
-            else if ( displayDepthUnit == RiaDefines::DepthUnitType::UNIT_FEET )
+            if ( displayDepthUnit == RiaDefines::DepthUnitType::UNIT_FEET )
             {
                 return "FT";
             }

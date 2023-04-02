@@ -75,10 +75,9 @@ double RigCombTransResultAccessor::neighborCellTran( size_t                     
             {
                 return 0.0;
             }
-            else
-            {
-                return neighborCellValue;
-            }
+            
+                            return neighborCellValue;
+           
         }
         else
         {

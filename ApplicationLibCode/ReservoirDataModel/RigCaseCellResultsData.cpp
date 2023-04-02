@@ -486,9 +486,7 @@ bool RigCaseCellResultsData::isUsingGlobalActiveIndex( const RigEclipseResultAdd
     if ( !m_cellScalarResults[scalarResultIndex].size() ) return true;
 
     size_t firstTimeStepResultValueCount = m_cellScalarResults[scalarResultIndex][0].size();
-    if ( firstTimeStepResultValueCount == m_ownerMainGrid->globalCellArray().size() ) return false;
-
-    return true;
+    return firstTimeStepResultValueCount != m_ownerMainGrid->globalCellArray().size();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -515,10 +513,9 @@ std::vector<QDateTime> RigCaseCellResultsData::allTimeStepDatesFromEclipseReader
     {
         return rifReaderOutput->allTimeSteps();
     }
-    else
-    {
-        return std::vector<QDateTime>();
-    }
+    
+            return std::vector<QDateTime>();
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -530,8 +527,7 @@ std::vector<QDateTime> RigCaseCellResultsData::timeStepDates( const RigEclipseRe
     {
         return m_resultInfos[findScalarResultIndexFromAddress( resVarAddr )].dates();
     }
-    else
-        return std::vector<QDateTime>();
+            return std::vector<QDateTime>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -565,10 +561,9 @@ std::vector<double> RigCaseCellResultsData::daysSinceSimulationStart( const RigE
     {
         return m_resultInfos[findScalarResultIndexFromAddress( resVarAddr )].daysSinceSimulationStarts();
     }
-    else
-    {
-        return std::vector<double>();
-    }
+    
+            return std::vector<double>();
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -579,8 +574,7 @@ int RigCaseCellResultsData::reportStepNumber( const RigEclipseResultAddress& res
     if ( findScalarResultIndexFromAddress( resVarAddr ) < m_resultInfos.size() &&
          m_resultInfos[findScalarResultIndexFromAddress( resVarAddr )].timeStepInfos().size() > timeStepIndex )
         return m_resultInfos[findScalarResultIndexFromAddress( resVarAddr )].timeStepInfos()[timeStepIndex].m_reportNumber;
-    else
-        return -1;
+            return -1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -590,8 +584,7 @@ std::vector<RigEclipseTimeStepInfo> RigCaseCellResultsData::timeStepInfos( const
 {
     if ( findScalarResultIndexFromAddress( resVarAddr ) < m_resultInfos.size() )
         return m_resultInfos[findScalarResultIndexFromAddress( resVarAddr )].timeStepInfos();
-    else
-        return std::vector<RigEclipseTimeStepInfo>();
+            return std::vector<RigEclipseTimeStepInfo>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -792,10 +785,9 @@ const std::vector<double>* RigCaseCellResultsData::getResultIndexableStaticResul
         }
         return &activeCellsResultsTempContainer;
     }
-    else
-    {
-        return porvResults;
-    }
+    
+            return porvResults;
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1051,14 +1043,9 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
 //--------------------------------------------------------------------------------------------------
 bool RigCaseCellResultsData::hasCompleteTransmissibilityResults() const
 {
-    if ( hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANX" ) ) &&
+    return hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANX" ) ) &&
          hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANY" ) ) &&
-         hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANZ" ) ) )
-    {
-        return true;
-    }
-
-    return false;
+         hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "TRANZ" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1139,7 +1126,7 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
     {
         return cvf::UNDEFINED_SIZE_T;
     }
-    else if ( resVarAddr.resultCatType() == RiaDefines::ResultCatType::UNDEFINED )
+    if ( resVarAddr.resultCatType() == RiaDefines::ResultCatType::UNDEFINED )
     {
         std::vector<RiaDefines::ResultCatType> searchOrder = { RiaDefines::ResultCatType::STATIC_NATIVE,
                                                                RiaDefines::ResultCatType::DYNAMIC_NATIVE,
@@ -2073,7 +2060,7 @@ double newtran( double cdarchy, double mult, double halfCellTrans, double neighb
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-typedef size_t ( *ResultIndexFunction )( const RigActiveCellInfo* activeCellinfo, size_t reservoirCellIndex );
+using ResultIndexFunction = size_t (*)(const RigActiveCellInfo *, size_t);
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -2750,7 +2737,7 @@ void RigCaseCellResultsData::computeCompletionTypeForTimeStep( size_t timeStep )
             auto gridCalculation = dynamic_cast<RimGridCalculation*>( userCalculation );
             if ( gridCalculation && gridCalculation->outputEclipseCase() != eclipseCase ) continue;
 
-            QString generatedPropertyName = userCalculation->findLeftHandSide( userCalculation->expression() );
+            QString generatedPropertyName = RimUserDefinedCalculation::findLeftHandSide( userCalculation->expression() );
             if ( generatedPropertyName == propertyName )
             {
                 userCalculation->calculate();
@@ -3257,7 +3244,7 @@ size_t RigCaseCellResultsData::findScalarResultIndexFromAddress( const RigEclips
     {
         return cvf::UNDEFINED_SIZE_T;
     }
-    else if ( resVarAddr.resultCatType() == RiaDefines::ResultCatType::UNDEFINED )
+    if ( resVarAddr.resultCatType() == RiaDefines::ResultCatType::UNDEFINED )
     {
         RigEclipseResultAddress resVarAddressWithType = resVarAddr;
 

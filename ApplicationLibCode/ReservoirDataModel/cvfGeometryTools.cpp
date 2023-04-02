@@ -67,10 +67,9 @@ cvf::Mat3f GeometryTools::computePlaneHorizontalRotationMx( const cvf::Vec3f& in
     {
         return cvf::Mat3f( -Ex[0], -Ex[1], -Ex[2], -Ey[0], -Ey[1], -Ey[2], Ez[0], Ez[1], Ez[2] );
     }
-    else
-    {
-        return cvf::Mat3f( Ex[0], Ex[1], Ex[2], Ey[0], Ey[1], Ey[2], Ez[0], Ez[1], Ez[2] );
-    }
+    
+            return cvf::Mat3f( Ex[0], Ex[1], Ex[2], Ey[0], Ey[1], Ey[2], Ez[0], Ez[1], Ez[2] );
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -379,7 +378,7 @@ GeometryTools::IntersectionStatus inPlaneLineIntersect( double  x1,
     {
         return GeometryTools::LINES_INTERSECT_OUTSIDE;
     }
-    else if ( fabs( mua ) < l1NormalizedTolerance || fabs( 1 - mua ) < l1NormalizedTolerance || fabs( mub ) < l2NormalizedTolerance ||
+    if ( fabs( mua ) < l1NormalizedTolerance || fabs( 1 - mua ) < l1NormalizedTolerance || fabs( mub ) < l2NormalizedTolerance ||
               fabs( 1 - mub ) < l2NormalizedTolerance )
     {
         if ( fabs( mua ) < l1NormalizedTolerance ) *fractionAlongLine1 = 0;
@@ -543,8 +542,7 @@ int GeometryTools::intersectLineSegmentTriangle( const cvf::Vec3d& p0,
     { // ray is parallel to triangle plane
         if ( a == 0 ) // ray lies in triangle plane
             return 2;
-        else
-            return 0; // ray disjoint from plane
+                    return 0; // ray disjoint from plane
     }
 
     // get intersect point of ray with triangle plane
@@ -1021,7 +1019,7 @@ EarClipTesselator::TriangleStatus EarClipTesselator::calculateTriangleStatus( st
         // Definite negative triangle
         return INVALID_TRIANGLE;
     }
-    else if ( fabs( mainAxisProjectedArea ) < m_areaTolerance )
+    if ( fabs( mainAxisProjectedArea ) < m_areaTolerance )
     {
         return NEAR_ZERO_AREA_TRIANGLE;
     }

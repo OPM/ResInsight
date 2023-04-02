@@ -411,7 +411,7 @@ QList<caf::PdmOptionItemInfo> RicExportEclipseSectorModelUi::calculateValueOptio
         QList<caf::PdmOptionItemInfo> allOptions =
             RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard( RiaDefines::ResultCatType::STATIC_NATIVE, resultData );
 
-        std::set<QString> mainKeywords = this->mainKeywords();
+        std::set<QString> mainKeywords = RicExportEclipseSectorModelUi::mainKeywords();
         for ( const caf::PdmOptionItemInfo& option : allOptions )
         {
             if ( mainKeywords.count( option.optionUiText() ) )

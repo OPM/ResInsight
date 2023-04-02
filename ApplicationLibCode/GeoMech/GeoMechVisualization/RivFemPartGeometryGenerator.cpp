@@ -81,7 +81,7 @@ ref<DrawableGeo> RivFemPartGeometryGenerator::generateSurface( const std::vector
 //--------------------------------------------------------------------------------------------------
 ref<DrawableGeo> RivFemPartGeometryGenerator::createMeshDrawable()
 {
-    if ( !( m_quadVertices.notNull() && m_quadVertices->size() != 0 ) ) return nullptr;
+    if ( !m_quadVertices.notNull() || m_quadVertices->size() == 0 ) return nullptr;
 
     ref<DrawableGeo> geo = new DrawableGeo;
     geo->setVertexArray( m_quadVertices.p() );
@@ -100,7 +100,7 @@ ref<DrawableGeo> RivFemPartGeometryGenerator::createMeshDrawable()
 //--------------------------------------------------------------------------------------------------
 ref<DrawableGeo> RivFemPartGeometryGenerator::createOutlineMeshDrawable( double creaseAngle )
 {
-    if ( !( m_quadVertices.notNull() && m_quadVertices->size() != 0 ) ) return nullptr;
+    if ( !m_quadVertices.notNull() || m_quadVertices->size() == 0 ) return nullptr;
 
     cvf::OutlineEdgeExtractor ee( creaseAngle, *m_quadVertices );
 
@@ -289,7 +289,7 @@ cvf::ref<cvf::DrawableGeo> RivFemPartGeometryGenerator::createMeshDrawableFromSi
         quadVertices->assign( vertices );
     }
 
-    if ( !( quadVertices.notNull() && quadVertices->size() != 0 ) ) return nullptr;
+    if ( !quadVertices.notNull() || quadVertices->size() == 0 ) return nullptr;
 
     ref<DrawableGeo> geo = new DrawableGeo;
     geo->setVertexArray( quadVertices.p() );

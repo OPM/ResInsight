@@ -210,7 +210,7 @@ std::pair<std::vector<time_t>, std::vector<double>> RimDerivedSummaryCase::calcu
 
         return ResultPair( reader1->timeSteps( address ), summaryValues );
     }
-    else if ( !reader1->hasAddress( address ) && reader2->hasAddress( address ) )
+    if ( !reader1->hasAddress( address ) && reader2->hasAddress( address ) )
     {
         std::vector<double> summaryValues;
         reader2->values( address, &summaryValues );

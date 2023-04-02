@@ -224,10 +224,9 @@ void RigCellGeometryTools::createPolygonFromLineSegments( std::list<std::pair<cv
         {
             continue;
         }
-        else
-        {
-            startNewPolygon = true;
-        }
+        
+                    startNewPolygon = true;
+       
     }
 }
 

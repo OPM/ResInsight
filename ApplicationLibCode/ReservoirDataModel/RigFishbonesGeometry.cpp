@@ -192,7 +192,7 @@ cvf::Vec3d RigFisbonesGeometry::closestMainAxis( const cvf::Vec3d& vec )
     {
         return cvf::Vec3d::X_AXIS;
     }
-    else if ( maxComponent == 1 )
+    if ( maxComponent == 1 )
     {
         return cvf::Vec3d::Y_AXIS;
     }

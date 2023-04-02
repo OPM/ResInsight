@@ -74,12 +74,7 @@ public:
             }
         }
 
-        if ( !m_viewsToLink.empty() )
-        {
-            return true;
-        }
-
-        return false;
+        return !m_viewsToLink.empty();
     }
 
     void execute() { RicLinkVisibleViewsFeature::linkViews( m_viewsToLink ); }

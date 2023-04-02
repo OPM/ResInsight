@@ -836,7 +836,7 @@ bool lessEclipseWell( const caf::PdmPointer<RimSimWellInView>& w1, const caf::Pd
 {
     if ( w1.notNull() && w2.notNull() )
         return ( w1->name() < w2->name() );
-    else if ( w1.notNull() )
+    if ( w1.notNull() )
         return true;
     else
         return false;

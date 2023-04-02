@@ -440,7 +440,7 @@ RimSummaryPlotSourceStepping* RimSummaryCurveCollection::sourceSteppingObject( R
     {
         return m_xSourceStepping();
     }
-    else if ( sourceSteppingType == RimSummaryDataSourceStepping::Axis::Y_AXIS )
+    if ( sourceSteppingType == RimSummaryDataSourceStepping::Axis::Y_AXIS )
     {
         return m_ySourceStepping();
     }

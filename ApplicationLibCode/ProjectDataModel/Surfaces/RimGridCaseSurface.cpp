@@ -378,13 +378,13 @@ void RimGridCaseSurface::addGeometryForFaultFaces( const RigMainGrid*           
 
             auto startIndex = static_cast<unsigned>( vertices.size() );
             {
-                auto edgeVertexIndices = grid->edgeVertexIndices( extractionFace, faultFace );
+                auto edgeVertexIndices = RigMainGrid::edgeVertexIndices( extractionFace, faultFace );
                 vertices.push_back( currentCornerVerts[edgeVertexIndices.first] );
                 vertices.push_back( currentCornerVerts[edgeVertexIndices.second] );
             }
             {
                 auto oppositeFaultFace = cvf::StructGridInterface::oppositeFace( faultFace );
-                auto edgeVertexIndices = grid->edgeVertexIndices( extractionFace, oppositeFaultFace );
+                auto edgeVertexIndices = RigMainGrid::edgeVertexIndices( extractionFace, oppositeFaultFace );
                 vertices.push_back( nextCellCornerVerts[edgeVertexIndices.first] );
                 vertices.push_back( nextCellCornerVerts[edgeVertexIndices.second] );
             }

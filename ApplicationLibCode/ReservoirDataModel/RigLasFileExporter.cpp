@@ -457,12 +457,7 @@ void RigLasFileExporter::appendLasFileDescriptions( const std::vector<RimWellLog
 
         bool isEqual( RimWellLogCurve* curve, const QString& caseName )
         {
-            if ( m_wellName == curve->wellName() && m_caseName == caseName && m_date == curve->wellDate() )
-            {
-                return true;
-            }
-
-            return false;
+            return m_wellName == curve->wellName() && m_caseName == caseName && m_date == curve->wellDate();
         }
 
         QString m_wellName;

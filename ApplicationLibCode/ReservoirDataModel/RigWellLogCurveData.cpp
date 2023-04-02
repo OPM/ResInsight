@@ -182,7 +182,7 @@ std::vector<double> RigWellLogCurveData::depths( RiaDefines::DepthTypeEnum depth
         }
         return tvds;
     }
-    else if ( depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH &&
+    if ( depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH &&
               m_depths.count( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB ) )
     {
         std::vector<double> tvds = depths( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB );
@@ -437,7 +437,7 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( 
                 foundPoint            = true;
                 break;
             }
-            else if ( segmentStartIdx < depthIt->second.size() - 1 )
+            if ( segmentStartIdx < depthIt->second.size() - 1 )
             {
                 double minDepthSegment = std::min( depthIt->second[segmentStartIdx], depthIt->second[segmentStartIdx + 1] );
                 double maxDepthSegment = std::max( depthIt->second[segmentStartIdx], depthIt->second[segmentStartIdx + 1] );

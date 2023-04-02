@@ -877,10 +877,10 @@ RigEclipseResultAddress RimEclipseResultDefinition::eclipseResultAddress() const
 
         return RigEclipseResultAddress( m_resultType(), m_resultVariable(), timelapseTimeStep, diffCaseId, isDivideByCellFaceAreaActive() );
     }
-    else
-    {
+    
+    
         return RigEclipseResultAddress();
-    }
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -994,15 +994,15 @@ RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
 
         return RigFlowDiagResultAddress( m_resultVariable().toStdString(), m_phaseSelection(), selTracerNames );
     }
-    else
-    {
+    
+    
         std::set<std::string> selTracerNames;
         for ( const QString& selectedTracerName : m_selectedSouringTracers() )
         {
             selTracerNames.insert( selectedTracerName.toUtf8().constData() );
         }
         return RigFlowDiagResultAddress( m_resultVariable().toStdString(), RigFlowDiagResultAddress::PHASE_ALL, selTracerNames );
-    }
+   
 }
 
 //--------------------------------------------------------------------------------------------------

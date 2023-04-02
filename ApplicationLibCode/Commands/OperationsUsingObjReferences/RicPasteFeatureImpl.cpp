@@ -89,7 +89,7 @@ RimIdenticalGridCaseGroup* RicPasteFeatureImpl::findGridCaseGroup( caf::PdmObjec
     {
         return dynamic_cast<RimIdenticalGridCaseGroup*>( objectHandle );
     }
-    else if ( dynamic_cast<RimCaseCollection*>( objectHandle ) || dynamic_cast<RimEclipseCase*>( objectHandle ) )
+    if ( dynamic_cast<RimCaseCollection*>( objectHandle ) || dynamic_cast<RimEclipseCase*>( objectHandle ) )
     {
         RimIdenticalGridCaseGroup* gridCaseGroup = nullptr;
         objectHandle->firstAncestorOrThisOfType( gridCaseGroup );
@@ -109,7 +109,7 @@ RimEclipseCase* RicPasteFeatureImpl::findEclipseCase( caf::PdmObjectHandle* obje
     {
         return dynamic_cast<RimEclipseCase*>( objectHandle );
     }
-    else if ( dynamic_cast<RimEclipseView*>( objectHandle ) )
+    if ( dynamic_cast<RimEclipseView*>( objectHandle ) )
     {
         RimEclipseView* reservoirView = dynamic_cast<RimEclipseView*>( objectHandle );
 

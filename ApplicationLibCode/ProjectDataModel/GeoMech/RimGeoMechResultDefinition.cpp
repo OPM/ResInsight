@@ -610,9 +610,8 @@ RigFemResultAddress RimGeoMechResultDefinition::resultAddress() const
                                     m_timeLapseBaseTimestep(),
                                     RigFemResultAddress::noCompactionValue() );
     }
-    else
-    {
-        RigFemResultAddress address( resultPositionType(),
+    
+            RigFemResultAddress address( resultPositionType(),
                                      resultFieldName().toStdString(),
                                      resultComponentName().toStdString(),
                                      m_timeLapseBaseTimestep(),
@@ -631,7 +630,7 @@ RigFemResultAddress RimGeoMechResultDefinition::resultAddress() const
         }
 
         return address;
-    }
+   
 }
 
 //--------------------------------------------------------------------------------------------------

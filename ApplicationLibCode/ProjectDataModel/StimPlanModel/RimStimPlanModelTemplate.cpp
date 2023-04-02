@@ -828,7 +828,7 @@ bool RimStimPlanModelTemplate::usePressureTableForProperty( RiaDefines::CurvePro
 
     if ( curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
         return m_useTableForInitialPressure();
-    else if ( curveProperty == RiaDefines::CurveProperty::PRESSURE )
+    if ( curveProperty == RiaDefines::CurveProperty::PRESSURE )
         return m_useTableForPressure();
     else
         return false;

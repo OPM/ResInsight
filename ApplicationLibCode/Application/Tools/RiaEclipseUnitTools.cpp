@@ -121,8 +121,7 @@ double RiaEclipseUnitTools::convertToMeter( double sourceValue, const QString& s
 
     if ( replaceUnmatched )
         return HUGE_VAL;
-    else
-        return sourceValue;
+            return sourceValue;
 }
 
 //--------------------------------------------------------------------------------------------------
