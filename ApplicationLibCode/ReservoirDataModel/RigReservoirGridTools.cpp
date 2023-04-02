@@ -43,7 +43,7 @@ int RigReservoirGridTools::gridCount( RimCase* rimCase )
     {
         return static_cast<int>( eclipseMainGrid->gridCount() );
     }
-    else if ( geoMechPartCollection )
+    if ( geoMechPartCollection )
     {
         return geoMechPartCollection->partCount();
     }
@@ -71,7 +71,7 @@ const cvf::StructGridInterface* RigReservoirGridTools::gridByIndex( RimCase* rim
     {
         return eclipseMainGrid->gridByIndex( gridIndex );
     }
-    else if ( geoMechPartCollection )
+    if ( geoMechPartCollection )
     {
         return geoMechPartCollection->part( gridIndex )->getOrCreateStructGrid();
     }
@@ -91,7 +91,7 @@ QString RigReservoirGridTools::gridName( RimCase* rimCase, int gridIndex )
     {
         return eclipseMainGrid->gridByIndex( gridIndex )->gridName().c_str();
     }
-    else if ( geoMechPartCollection )
+    if ( geoMechPartCollection )
     {
         return QString::number( gridIndex );
     }

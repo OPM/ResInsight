@@ -138,10 +138,9 @@ double RigTransmissibilityEquations::permeability( const double conductivity, co
 
         return perm;
     }
-    else
-    {
-        return 0.0;
-    }
+    
+            return 0.0;
+   
 }
 
 //--------------------------------------------------------------------------------------------------

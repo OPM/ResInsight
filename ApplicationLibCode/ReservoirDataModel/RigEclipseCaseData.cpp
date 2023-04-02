@@ -377,7 +377,7 @@ bool RigEclipseCaseData::findSharedSourceFace( cvf::StructGridInterface::FaceTyp
         cvf::StructGridInterface::FaceType sourceFace = static_cast<cvf::StructGridInterface::FaceType>( faceIdx );
 
         size_t ni, nj, nk;
-        grid->neighborIJKAtCellFace( i, j, k, sourceFace, &ni, &nj, &nk );
+        RigGridBase::neighborIJKAtCellFace( i, j, k, sourceFace, &ni, &nj, &nk );
 
         if ( grid->isCellValid( ni, nj, nk ) )
         {
@@ -623,13 +623,8 @@ void RigEclipseCaseData::setActiveCellInfo( RiaDefines::PorosityModelType porosi
 //--------------------------------------------------------------------------------------------------
 bool RigEclipseCaseData::hasFractureResults() const
 {
-    if ( activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL ) &&
-         activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL )->reservoirActiveCellCount() > 0 )
-    {
-        return true;
-    }
-
-    return false;
+    return activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL ) &&
+         activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL )->reservoirActiveCellCount() > 0;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -210,7 +210,7 @@ std::map<std::string, size_t> RimSummaryCurveAppearanceCalculator::mapNameToAppe
                 matches.insert( name );
                 break;
             }
-            else if ( matches.find( name ) != matches.end() )
+            if ( matches.find( name ) != matches.end() )
             {
                 // Check to see if the summary case exists at this index.
                 break;

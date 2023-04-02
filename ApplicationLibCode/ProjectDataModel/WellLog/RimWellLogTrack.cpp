@@ -2378,7 +2378,7 @@ std::vector<std::pair<double, double>> RimWellLogTrack::waterAndRockRegions( Ria
         double rockEndMD  = extractor->cellIntersectionMDs().back();
         return { { waterStartMD, waterEndMD }, { waterEndMD, rockEndMD } };
     }
-    else if ( depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH )
+    if ( depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH )
     {
         double waterStartTVD = 0.0;
         double rockEndTVD    = extractor->cellIntersectionTVDs().back();

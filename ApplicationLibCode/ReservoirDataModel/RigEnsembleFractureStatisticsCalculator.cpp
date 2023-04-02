@@ -383,7 +383,7 @@ double RigEnsembleFractureStatisticsCalculator::convertUnit( double value, RiaDe
     {
         return RiaEclipseUnitTools::convertToMeter( value, unitName );
     }
-    else if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
+    if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
         return RiaEclipseUnitTools::convertToFeet( value, unitName );
     }
@@ -438,6 +438,5 @@ std::pair<RiaNumberFormat::NumberFormatType, int> RigEnsembleFractureStatisticsC
 {
     if ( propertyType == PropertyType::WIDTH )
         return std::make_pair( RiaNumberFormat::NumberFormatType::FIXED, 4 );
-    else
-        return std::make_pair( RiaNumberFormat::NumberFormatType::FIXED, 1 );
+            return std::make_pair( RiaNumberFormat::NumberFormatType::FIXED, 1 );
 }

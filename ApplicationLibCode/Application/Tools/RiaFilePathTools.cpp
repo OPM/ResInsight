@@ -115,10 +115,9 @@ std::pair<QString, QString> RiaFilePathTools::toFolderAndFileName( const QString
     {
         return std::make_pair( absFN.left( lastSep ), absFN.mid( lastSep + 1 ) );
     }
-    else
-    {
-        return std::make_pair( "", absFN );
-    }
+    
+            return std::make_pair( "", absFN );
+   
 }
 
 //--------------------------------------------------------------------------------------------------

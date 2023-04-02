@@ -189,10 +189,9 @@ RimPolylinesFromFileAnnotation* RimAnnotationCollection::importOrUpdatePolylines
     {
         return polylinesFromFileAnnotations().back();
     }
-    else
-    {
-        return nullptr;
-    }
+    
+            return nullptr;
+   
 }
 
 //--------------------------------------------------------------------------------------------------

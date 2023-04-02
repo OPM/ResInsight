@@ -529,7 +529,7 @@ bool RigFlowDiagSolverInterface::ensureStaticDataObjectInstanceCreated()
         }
     }
 
-    return m_opmFlowDiagStaticData.notNull() ? true : false;
+    return m_opmFlowDiagStaticData.notNull();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -707,7 +707,7 @@ std::vector<RigFlowDiagSolverInterface::RelPermCurve> RigFlowDiagSolverInterface
         const std::array<RelPermCurve::EpsMode, 2> epsModeArr = { { RelPermCurve::EPS_ON, RelPermCurve::EPS_OFF } };
         for ( RelPermCurve::EpsMode epsMode : epsModeArr )
         {
-            const bool useEps = epsMode == RelPermCurve::EPS_ON ? true : false;
+            const bool useEps = epsMode == RelPermCurve::EPS_ON;
 
             Opm::ECLSaturationFunc::SatFuncScaling scaling;
             if ( !useEps )

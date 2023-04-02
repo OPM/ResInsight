@@ -819,10 +819,9 @@ cvf::BoundingBox RimEclipseCase::activeCellsBoundingBox() const
     {
         return m_rigEclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL )->geometryBoundingBox();
     }
-    else
-    {
-        return cvf::BoundingBox();
-    }
+    
+            return cvf::BoundingBox();
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -834,10 +833,9 @@ cvf::BoundingBox RimEclipseCase::allCellsBoundingBox() const
     {
         return m_rigEclipseCase->mainGrid()->boundingBox();
     }
-    else
-    {
-        return cvf::BoundingBox();
-    }
+    
+            return cvf::BoundingBox();
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -849,10 +847,9 @@ cvf::Vec3d RimEclipseCase::displayModelOffset() const
     {
         return m_rigEclipseCase->mainGrid()->displayModelOffset();
     }
-    else
-    {
-        return cvf::Vec3d::ZERO;
-    }
+    
+            return cvf::Vec3d::ZERO;
+   
 }
 
 //--------------------------------------------------------------------------------------------------

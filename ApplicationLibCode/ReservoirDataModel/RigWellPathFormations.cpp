@@ -293,7 +293,7 @@ void RigWellPathFormations::depthAndFormationNamesUpToLevel( FormationLevel     
     {
         return;
     }
-    else if ( level == RigWellPathFormations::ALL )
+    if ( level == RigWellPathFormations::ALL )
     {
         depthAndFormationNamesWithoutDuplicatesOnDepth( names, depths, depthType );
     }
@@ -348,11 +348,7 @@ bool RigWellPathFormations::isFluid( QString formationName )
 {
     formationName = formationName.trimmed();
 
-    if ( formationName == "OIL" || formationName == "GAS" || formationName == "WATER" )
-    {
-        return true;
-    }
-    return false;
+    return formationName == "OIL" || formationName == "GAS" || formationName == "WATER";
 }
 
 //--------------------------------------------------------------------------------------------------

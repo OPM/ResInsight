@@ -188,7 +188,5 @@ bool RimFileSurface::loadDataFromFile()
     m_vertices       = surface.first;
     m_tringleIndices = surface.second;
 
-    if ( m_vertices.empty() || m_tringleIndices.empty() ) return false;
-
-    return true;
+    return !(m_vertices.empty() || m_tringleIndices.empty());
 }

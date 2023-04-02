@@ -92,11 +92,10 @@ const int* RigCaseToCaseCellMapper::masterCaseCellIndices( int dependentCaseRese
         ( *masterCaseCellIndexCount ) = static_cast<int>( m_masterCellIndexSeries[-seriesIndex].size() );
         return &( m_masterCellIndexSeries[-seriesIndex][0] );
     }
-    else
-    {
-        ( *masterCaseCellIndexCount ) = 1;
+    
+            ( *masterCaseCellIndexCount ) = 1;
         return &( m_masterCellOrIntervalIndex[dependentCaseReservoirCellIndex] );
-    }
+   
 }
 
 //--------------------------------------------------------------------------------------------------

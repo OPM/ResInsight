@@ -316,10 +316,9 @@ const std::vector<double>* RigNNCData::staticConnectionScalarResult( const RigEc
         CVF_ASSERT( it->second.size() == 1 );
         return &( it->second[0] );
     }
-    else
-    {
-        return nullptr;
-    }
+    
+            return nullptr;
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -334,10 +333,9 @@ const std::vector<double>* RigNNCData::staticConnectionScalarResultByName( const
         CVF_ASSERT( it->second.size() == 1 );
         return &( it->second[0] );
     }
-    else
-    {
-        return nullptr;
-    }
+    
+            return nullptr;
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -364,10 +362,9 @@ const std::vector<std::vector<double>>* RigNNCData::dynamicConnectionScalarResul
     {
         return &( it->second );
     }
-    else
-    {
-        return nullptr;
-    }
+    
+            return nullptr;
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -443,10 +440,9 @@ const std::vector<std::vector<double>>* RigNNCData::generatedConnectionScalarRes
     {
         return &( it->second );
     }
-    else
-    {
-        return nullptr;
-    }
+    
+            return nullptr;
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -483,10 +479,9 @@ std::vector<std::vector<double>>* RigNNCData::generatedConnectionScalarResult( c
     {
         return &( it->second );
     }
-    else
-    {
-        return nullptr;
-    }
+    
+            return nullptr;
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -689,12 +684,8 @@ const QString RigNNCData::getNNCDataTypeFromScalarResultIndex( const RigEclipseR
 //--------------------------------------------------------------------------------------------------
 bool RigNNCData::isNative( QString nncDataType ) const
 {
-    if ( nncDataType == RiaDefines::propertyNameCombTrans() || nncDataType == RiaDefines::propertyNameFluxGas() ||
+    return nncDataType == RiaDefines::propertyNameCombTrans() || nncDataType == RiaDefines::propertyNameFluxGas() ||
          nncDataType == RiaDefines::propertyNameFluxOil() || nncDataType == RiaDefines::propertyNameFluxWat() ||
          nncDataType == RiaDefines::propertyNameRiCombMult() || nncDataType == RiaDefines::propertyNameRiCombTrans() ||
-         nncDataType == RiaDefines::propertyNameRiCombTransByArea() )
-    {
-        return true;
-    }
-    return false;
+         nncDataType == RiaDefines::propertyNameRiCombTransByArea();
 }

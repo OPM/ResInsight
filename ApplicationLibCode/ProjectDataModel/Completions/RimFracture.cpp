@@ -479,7 +479,7 @@ double RimFracture::wellRadius() const
     {
         return m_wellDiameter / 2.0;
     }
-    else if ( m_fractureUnit == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
+    if ( m_fractureUnit == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
         return RiaEclipseUnitTools::inchToFeet( m_wellDiameter / 2.0 );
     }

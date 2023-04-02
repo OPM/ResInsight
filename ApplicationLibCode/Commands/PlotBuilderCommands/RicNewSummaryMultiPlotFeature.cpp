@@ -48,9 +48,7 @@ bool RicNewSummaryMultiPlotFeature::isCommandEnabled()
 
     std::vector<RimSummaryCase*>           selectedIndividualSummaryCases;
     std::vector<RimSummaryCaseCollection*> selectedEnsembles;
-    if ( selectedCases( &selectedIndividualSummaryCases, &selectedEnsembles ) ) return true;
-
-    return false;
+    return selectedCases( &selectedIndividualSummaryCases, &selectedEnsembles );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -124,10 +122,5 @@ bool RicNewSummaryMultiPlotFeature::selectedCases( std::vector<RimSummaryCase*>*
     }
     // Second try selected summary cases
     caf::SelectionManager::instance()->objectsByTypeStrict( selectedIndividualSummaryCases );
-    if ( !selectedIndividualSummaryCases->empty() )
-    {
-        return true;
-    }
-
-    return false;
+    return !selectedIndividualSummaryCases->empty();
 }

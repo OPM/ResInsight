@@ -221,7 +221,7 @@ bool RiaWellLogUnitTools<FloatType>::convertValues( const std::vector<FloatType>
         *valuesOut = convertGpcm3ToBar( tvdRKBs, valuesIn );
         return true;
     }
-    else if ( stringsMatch( unitsOut, barUnitString() ) && stringsMatch( unitsOut, gPerCm3UnitString() ) )
+    if ( stringsMatch( unitsOut, barUnitString() ) && stringsMatch( unitsOut, gPerCm3UnitString() ) )
     {
         *valuesOut = convertBarToGpcm3( tvdRKBs, valuesIn );
         return true;

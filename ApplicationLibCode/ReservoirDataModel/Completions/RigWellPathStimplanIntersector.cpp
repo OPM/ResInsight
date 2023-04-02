@@ -127,9 +127,8 @@ void RigWellPathStimplanIntersector::calculate( const cvf::Mat4d&               
                 {
                     continue; // Outside
                 }
-                else // In and out
-                {
-                    {
+                // In and out
+                                    {
                         double wellRadiusDistFromPlane = thisZ > 0 ? wellRadius : -wellRadius;
 
                         double fraction = ( wellRadiusDistFromPlane - thisZ ) / ( nextZ - thisZ );
@@ -149,7 +148,7 @@ void RigWellPathStimplanIntersector::calculate( const cvf::Mat4d&               
                         currentIntersectingWpPart.clear();
                     }
                     continue;
-                }
+               
             }
             if ( thisAbsZ < wellRadius && nextAbsZ < wellRadius ) // Inside
             {

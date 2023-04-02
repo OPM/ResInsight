@@ -62,14 +62,13 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createFromResultDefinition
 
         return object;
     }
-    else
-    {
-        return RigResultAccessorFactory::createFromResultAddress( eclipseCase,
+    
+            return RigResultAccessorFactory::createFromResultAddress( eclipseCase,
                                                                   gridIndex,
                                                                   resultDefinition->porosityModel(),
                                                                   timeStepIndex,
                                                                   resultDefinition->eclipseResultAddress() );
-    }
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -150,7 +149,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createCombinedResultAccess
 
         return cellFaceAccessObject;
     }
-    else if ( resVarAddr.resultName() == RiaResultNames::combinedMultResultName() )
+    if ( resVarAddr.resultName() == RiaResultNames::combinedMultResultName() )
     {
         CVF_ASSERT( timeStepIndex == 0 ); // Static result, only data for first time step
 
@@ -372,9 +371,8 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createNativeFromResultAddr
             new RigActiveCellsResultAccessor( grid, resultValues, eclipseCase->activeCellInfo( porosityModel ) );
         return object;
     }
-    else
-    {
-        cvf::ref<RigResultAccessor> object = new RigAllGridCellsResultAccessor( grid, resultValues );
+    
+            cvf::ref<RigResultAccessor> object = new RigAllGridCellsResultAccessor( grid, resultValues );
         return object;
-    }
+   
 }

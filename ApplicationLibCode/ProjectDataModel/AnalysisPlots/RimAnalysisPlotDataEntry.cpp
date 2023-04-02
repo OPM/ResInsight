@@ -81,11 +81,10 @@ RiaSummaryCurveDefinition RimAnalysisPlotDataEntry::curveDefinition() const
     {
         return RiaSummaryCurveDefinition( m_summaryCase(), m_summaryAddress->address(), m_isEnsembleCurve );
     }
-    else
-    {
-        CAF_ASSERT( m_ensemble() );
+    
+            CAF_ASSERT( m_ensemble() );
         return RiaSummaryCurveDefinition( m_ensemble(), m_summaryAddress->address() );
-    }
+   
 }
 
 //--------------------------------------------------------------------------------------------------

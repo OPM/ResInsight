@@ -704,7 +704,7 @@ void RimRegularLegendConfig::defineEditorAttribute( const caf::PdmFieldHandle* f
 //--------------------------------------------------------------------------------------------------
 void RimRegularLegendConfig::updateFieldVisibility()
 {
-    bool showRangeItems = m_mappingMode == MappingType::CATEGORY_INTEGER ? false : true;
+    bool showRangeItems = m_mappingMode != MappingType::CATEGORY_INTEGER;
 
     m_numLevels.uiCapability()->setUiHidden( !showRangeItems );
     m_precision.uiCapability()->setUiHidden( !showRangeItems );
@@ -1013,10 +1013,9 @@ caf::TitledOverlayFrame* RimRegularLegendConfig::titledOverlayFrame()
     {
         return m_categoryLegend.p();
     }
-    else
-    {
-        return m_scalarMapperLegend.p();
-    }
+    
+            return m_scalarMapperLegend.p();
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1028,10 +1027,9 @@ const caf::TitledOverlayFrame* RimRegularLegendConfig::titledOverlayFrame() cons
     {
         return m_categoryLegend.p();
     }
-    else
-    {
-        return m_scalarMapperLegend.p();
-    }
+    
+            return m_scalarMapperLegend.p();
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1043,13 +1041,12 @@ RiuAbstractLegendFrame* RimRegularLegendConfig::makeLegendFrame()
     {
         return new RiuCategoryLegendFrame( nullptr, m_title, m_categoryMapper.p() );
     }
-    else
-    {
-        auto legend = new RiuScalarMapperLegendFrame( nullptr, m_title, m_currentScalarMapper.p() );
+    
+            auto legend = new RiuScalarMapperLegendFrame( nullptr, m_title, m_currentScalarMapper.p() );
         legend->setTickFormat( m_tickNumberFormat() );
         legend->setTickPrecision( m_significantDigitsInData );
         return legend;
-    }
+   
 }
 
 //--------------------------------------------------------------------------------------------------

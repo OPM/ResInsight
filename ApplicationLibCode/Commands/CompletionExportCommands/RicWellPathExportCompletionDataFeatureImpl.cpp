@@ -1099,7 +1099,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWpimultTableUsingFormatte
 
     for ( auto& completion : completionData )
     {
-        if ( completion.wpimult() == 0.0 || completion.isDefaultValue( completion.wpimult() ) )
+        if ( completion.wpimult() == 0.0 || RigCompletionData::isDefaultValue( completion.wpimult() ) )
         {
             continue;
         }
@@ -1300,7 +1300,7 @@ RigCompletionData::CellDirection RicWellPathExportCompletionDataFeatureImpl::cal
     {
         return RigCompletionData::CellDirection::DIR_I;
     }
-    else if ( yLengthFraction > xLengthFraction && yLengthFraction > zLengthFraction )
+    if ( yLengthFraction > xLengthFraction && yLengthFraction > zLengthFraction )
     {
         return RigCompletionData::CellDirection::DIR_J;
     }

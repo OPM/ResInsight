@@ -672,8 +672,7 @@ QString RimVfpPlot::getDisplayUnitWithBracket( RimVfpDefines::ProductionVariable
     QString unit = getDisplayUnit( variableType );
     if ( !unit.isEmpty() )
         return QString( "[%1]" ).arg( unit );
-    else
-        return unit;
+            return unit;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -684,7 +683,7 @@ QString RimVfpPlot::getDisplayUnit( RimVfpDefines::ProductionVariableType variab
 {
     if ( variableType == RimVfpDefines::ProductionVariableType::THP )
         return "Bar";
-    else if ( variableType == RimVfpDefines::ProductionVariableType::LIQUID_FLOW_RATE )
+    if ( variableType == RimVfpDefines::ProductionVariableType::LIQUID_FLOW_RATE )
         return "m3/day";
     else if ( variableType == RimVfpDefines::ProductionVariableType::WATER_CUT ||
               variableType == RimVfpDefines::ProductionVariableType::GAS_LIQUID_RATIO )
@@ -734,7 +733,7 @@ size_t RimVfpPlot::getVariableIndex( const Opm::VFPProdTable&              table
 {
     if ( targetVariable == primaryVariable )
         return primaryValue;
-    else if ( targetVariable == familyVariable )
+    if ( targetVariable == familyVariable )
         return familyValue;
     else
     {

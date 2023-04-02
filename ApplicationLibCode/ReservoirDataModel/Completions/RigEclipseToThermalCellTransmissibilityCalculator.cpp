@@ -58,7 +58,7 @@ double RigEclipseToThermalCellTransmissibilityCalculator::calculateTransmissibil
     {
         return m_injectivityFactor * fractureMatrixTransimissibility;
     }
-    else if ( m_filterCakePressureDrop == RimThermalFractureTemplate::FilterCakePressureDrop::ABSOLUTE )
+    if ( m_filterCakePressureDrop == RimThermalFractureTemplate::FilterCakePressureDrop::ABSOLUTE )
     {
         double filterCakeTransmissibility = ( m_viscosity / m_relativePermeability ) * fractureArea * m_filterCakeMobility;
 

@@ -441,7 +441,7 @@ std::vector<MultipleFracturesOption> fractureOptions( const RigEclipseCaseData* 
             doCreateNewOption = true;
             continue;
         }
-        else if ( options.empty() || options.back().uiOption != uiOption )
+        if ( options.empty() || options.back().uiOption != uiOption )
         {
             doCreateNewOption = true;
         }

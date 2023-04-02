@@ -181,10 +181,9 @@ RimSurface* RimSurfaceCollection::importSurfacesFromFiles( const QStringList& fi
     {
         return m_surfaces[m_surfaces.size() - 1];
     }
-    else
-    {
-        return nullptr;
-    }
+    
+            return nullptr;
+   
 }
 
 //--------------------------------------------------------------------------------------------------

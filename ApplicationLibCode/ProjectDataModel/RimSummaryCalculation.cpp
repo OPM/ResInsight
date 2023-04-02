@@ -475,11 +475,10 @@ std::vector<RimSummaryCalculationAddress> RimSummaryCalculation::allAddressesFor
             auto allResultAddresses = summaryCase->summaryReader()->allResultAddresses();
             return allAddressesForCategory( firstVariable.summaryAddress.category(), allResultAddresses );
         }
-        else
-        {
-            // Generate the result only for the first variable
+        
+                    // Generate the result only for the first variable
             return { RimSummaryCalculationAddress( singleAddressesForCategory( firstVariable.summaryAddress ) ) };
-        }
+       
     }
 
     return {};
@@ -588,7 +587,7 @@ RimSummaryCalculationAddress RimSummaryCalculation::singleAddressesForCategory( 
     {
         return RifEclipseSummaryAddress::fieldAddress( name, m_id );
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_AQUIFER )
+    if ( category == RifEclipseSummaryAddress::SUMMARY_AQUIFER )
     {
         return RifEclipseSummaryAddress::aquiferAddress( name, address.aquiferNumber(), m_id );
     }

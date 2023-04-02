@@ -190,7 +190,7 @@ QString RigGeoMechWellLogExtractor::curveData( const RigFemResultAddress& resAdd
                         }
                         return RiaWellLogUnitTools<double>::barX100UnitString();
                     }
-                    else if ( param == RigWbsParameter::DF() || param == RigWbsParameter::poissonRatio() )
+                    if ( param == RigWbsParameter::DF() || param == RigWbsParameter::poissonRatio() )
                     {
                         return RiaWellLogUnitTools<double>::noUnitString();
                     }
@@ -199,7 +199,7 @@ QString RigGeoMechWellLogExtractor::curveData( const RigFemResultAddress& resAdd
         }
         return RiaWellLogUnitTools<double>::sg_emwUnitString();
     }
-    else if ( resAddr.isValid() )
+    if ( resAddr.isValid() )
     {
         RigFemResultAddress convResAddr = resAddr;
 
@@ -794,7 +794,7 @@ QString RigGeoMechWellLogExtractor::parameterInputUnits( const RigWbsParameter& 
     {
         return RiaWellLogUnitTools<double>::barUnitString();
     }
-    else if ( parameter == RigWbsParameter::poissonRatio() || parameter == RigWbsParameter::DF() )
+    if ( parameter == RigWbsParameter::poissonRatio() || parameter == RigWbsParameter::DF() )
     {
         return RiaWellLogUnitTools<double>::noUnitString();
     }
@@ -873,7 +873,7 @@ T RigGeoMechWellLogExtractor::interpolateGridResultValue( RigFemResultPosEnum   
     size_t         elmIdx  = intersectedCellsGlobIdx()[intersectionIdx];
     RigElementType elmType = femPart->elementType( elmIdx );
 
-    if ( !( elmType == HEX8 || elmType == HEX8P ) ) return T();
+    if ( elmType != HEX8 && elmType != HEX8P ) return T();
 
     if ( resultPosType == RIG_FORMATION_NAMES )
     {
@@ -987,7 +987,7 @@ void RigGeoMechWellLogExtractor::calculateIntersection()
         for ( size_t ccIdx = 0; ccIdx < closeCells.size(); ++ccIdx )
         {
             RigElementType elmType = femPart->elementType( closeCells[ccIdx] );
-            if ( !( elmType == HEX8 || elmType == HEX8P ) ) continue;
+            if ( elmType != HEX8 && elmType != HEX8P ) continue;
 
             const int* cornerIndices = femPart->connectivities( closeCells[ccIdx] );
 
@@ -1069,9 +1069,8 @@ cvf::Vec3d RigGeoMechWellLogExtractor::calculateWellPathTangent( int64_t interse
         m_wellPathGeometry->twoClosestPoints( intersections()[intersectionIdx], &segmentStart, &segmentEnd );
         return ( segmentEnd - segmentStart ).getNormalized();
     }
-    else
-    {
-        cvf::Vec3d wellPathTangent;
+    
+            cvf::Vec3d wellPathTangent;
         if ( intersectionIdx % 2 == 0 )
         {
             wellPathTangent = intersections()[intersectionIdx + 1] - intersections()[intersectionIdx];
@@ -1082,7 +1081,7 @@ cvf::Vec3d RigGeoMechWellLogExtractor::calculateWellPathTangent( int64_t interse
         }
         CVF_ASSERT( wellPathTangent.length() > 1.0e-7 );
         return wellPathTangent.getNormalized();
-    }
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1144,7 +1143,7 @@ double RigGeoMechWellLogExtractor::getWellLogIntersectionValue( size_t          
             {
                 return wellLogValues[i].second;
             }
-            else if ( dist_ip1 < eps )
+            if ( dist_ip1 < eps )
             {
                 return wellLogValues[i + 1].second;
             }
@@ -1166,7 +1165,7 @@ double RigGeoMechWellLogExtractor::getWellLogIntersectionValue( size_t          
         {
             return wellLogValues.front().second;
         }
-        else if ( std::abs( wellLogValues.back().first - intersection_md ) < relativeEps )
+        if ( std::abs( wellLogValues.back().first - intersection_md ) < relativeEps )
         {
             return wellLogValues.back().second;
         }
@@ -1250,7 +1249,7 @@ std::vector<T> RigGeoMechWellLogExtractor::interpolateInterfaceValues( RigFemRes
     {
         size_t         elmIdx  = intersectedCellsGlobIdx()[intersectionIdx];
         RigElementType elmType = femPart->elementType( elmIdx );
-        if ( !( elmType == HEX8 || elmType == HEX8P ) ) continue;
+        if ( elmType != HEX8 && elmType != HEX8P ) continue;
 
         interpolatedInterfaceValues[intersectionIdx] =
             interpolateGridResultValue<T>( nativeAddr.resultPosType, unscaledResultValues, intersectionIdx );

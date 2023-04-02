@@ -448,9 +448,8 @@ std::vector<RigEnsembleParameter> RimSummaryCaseCollection::variationSortedEnsem
     {
         return m_cachedSortedEnsembleParameters;
     }
-    else
-    {
-        const double                      epsilon = 1e-9;
+    
+            const double                      epsilon = 1e-9;
         std::vector<RigEnsembleParameter> parametersWithVariation;
         for ( const auto& p : m_cachedSortedEnsembleParameters )
         {
@@ -460,7 +459,7 @@ std::vector<RigEnsembleParameter> RimSummaryCaseCollection::variationSortedEnsem
             }
         }
         return parametersWithVariation;
-    }
+   
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -384,7 +384,7 @@ bool Rim3dWellLogExtractionCurve::isShowingTimeDependentResult() const
     {
         return m_eclipseResultDefinition->hasDynamicResult();
     }
-    else if ( dynamic_cast<const RimGeoMechCase*>( m_case() ) )
+    if ( dynamic_cast<const RimGeoMechCase*>( m_case() ) )
     {
         return m_geomResultDefinition->hasResult();
     }

@@ -630,7 +630,7 @@ QString RimSummaryTable::getCategoryNameFromAddress( const RifEclipseSummaryAddr
     {
         return QString::fromStdString( address.wellName() );
     }
-    else if ( address.category() == RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_GROUP )
+    if ( address.category() == RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_GROUP )
     {
         return QString::fromStdString( address.groupName() );
     }

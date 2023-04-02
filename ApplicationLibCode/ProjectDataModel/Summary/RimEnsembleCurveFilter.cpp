@@ -656,8 +656,8 @@ void RimEnsembleCurveFilter::updateMaxMinAndDefaultValues( bool forceDefault )
             if ( RiaCurveDataTools::isValidValue( eParam.minValue, false ) ) m_lowerLimit = eParam.minValue;
             if ( RiaCurveDataTools::isValidValue( eParam.maxValue, false ) ) m_upperLimit = eParam.maxValue;
 
-            if ( forceDefault || !( m_minValue >= m_lowerLimit && m_minValue <= m_upperLimit ) ) m_minValue = m_lowerLimit;
-            if ( forceDefault || !( m_maxValue >= m_lowerLimit && m_maxValue <= m_upperLimit ) ) m_maxValue = m_upperLimit;
+            if ( forceDefault || m_minValue < m_lowerLimit || m_minValue > m_upperLimit ) m_minValue = m_lowerLimit;
+            if ( forceDefault || m_maxValue < m_lowerLimit || m_maxValue > m_upperLimit ) m_maxValue = m_upperLimit;
 
             m_minValue.uiCapability()->setUiName( QString( "Min (%1)" ).arg( m_lowerLimit ) );
             m_maxValue.uiCapability()->setUiName( QString( "Max (%1)" ).arg( m_upperLimit ) );
@@ -680,8 +680,8 @@ void RimEnsembleCurveFilter::updateMaxMinAndDefaultValues( bool forceDefault )
             m_lowerLimit = minObjValue;
             m_upperLimit = maxObjValue;
 
-            if ( forceDefault || !( m_minValue >= m_lowerLimit && m_minValue <= m_upperLimit ) ) m_minValue = m_lowerLimit;
-            if ( forceDefault || !( m_maxValue >= m_lowerLimit && m_maxValue <= m_upperLimit ) ) m_maxValue = m_upperLimit;
+            if ( forceDefault || m_minValue < m_lowerLimit || m_minValue > m_upperLimit ) m_minValue = m_lowerLimit;
+            if ( forceDefault || m_maxValue < m_lowerLimit || m_maxValue > m_upperLimit ) m_maxValue = m_upperLimit;
 
             m_minValue.uiCapability()->setUiName( QString( "Min (%1)" ).arg( m_lowerLimit ) );
             m_maxValue.uiCapability()->setUiName( QString( "Max (%1)" ).arg( m_upperLimit ) );
@@ -696,8 +696,8 @@ void RimEnsembleCurveFilter::updateMaxMinAndDefaultValues( bool forceDefault )
             m_lowerLimit = minMaxValues.first;
             m_upperLimit = minMaxValues.second;
 
-            if ( forceDefault || !( m_minValue >= m_lowerLimit && m_minValue <= m_upperLimit ) ) m_minValue = m_lowerLimit;
-            if ( forceDefault || !( m_maxValue >= m_lowerLimit && m_maxValue <= m_upperLimit ) ) m_maxValue = m_upperLimit;
+            if ( forceDefault || m_minValue < m_lowerLimit || m_minValue > m_upperLimit ) m_minValue = m_lowerLimit;
+            if ( forceDefault || m_maxValue < m_lowerLimit || m_maxValue > m_upperLimit ) m_maxValue = m_upperLimit;
 
             m_minValue.uiCapability()->setUiName( QString( "Min (%1)" ).arg( m_lowerLimit ) );
             m_maxValue.uiCapability()->setUiName( QString( "Max (%1)" ).arg( m_upperLimit ) );
