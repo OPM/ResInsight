@@ -78,9 +78,8 @@ double RigCombTransResultAccessor::neighborCellTran( size_t                     
 
             return neighborCellValue;
         }
-        
-                    return 0.0;
-       
+
+        return 0.0;
     }
     return HUGE_VAL;
 }

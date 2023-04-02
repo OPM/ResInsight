@@ -1146,12 +1146,11 @@ double RigGeoMechWellLogExtractor::getWellLogIntersectionValue( size_t          
             {
                 return wellLogValues[i + 1].second;
             }
-            
-                            RiaWeightedMeanCalculator<double> averageCalc;
-                averageCalc.addValueAndWeight( wellLogValues[i].second, 1.0 / dist_i );
-                averageCalc.addValueAndWeight( wellLogValues[i + 1].second, 1.0 / dist_ip1 );
-                return averageCalc.weightedMean();
-           
+
+            RiaWeightedMeanCalculator<double> averageCalc;
+            averageCalc.addValueAndWeight( wellLogValues[i].second, 1.0 / dist_i );
+            averageCalc.addValueAndWeight( wellLogValues[i + 1].second, 1.0 / dist_ip1 );
+            return averageCalc.weightedMean();
         }
     }
 

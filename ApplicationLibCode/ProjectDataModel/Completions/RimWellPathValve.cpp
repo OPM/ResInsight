@@ -399,9 +399,8 @@ double RimWellPathValve::startMD() const
     {
         return m_multipleValveLocations->rangeStart();
     }
-    
-            return m_multipleValveLocations()->valveLocations().front();
-   
+
+    return m_multipleValveLocations()->valveLocations().front();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -417,9 +416,8 @@ double RimWellPathValve::endMD() const
     {
         return m_multipleValveLocations->rangeEnd();
     }
-    
-            return m_multipleValveLocations()->valveLocations().back();
-   
+
+    return m_multipleValveLocations()->valveLocations().back();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -61,9 +61,8 @@ double RiaMedianCalculator<T>::median() const
     {
         return ( m_values[count / 2 - 1] + m_values[count / 2] ) * 0.5;
     }
-    
-            return m_values[count / 2];
-   
+
+    return m_values[count / 2];
 }
 //--------------------------------------------------------------------------------------------------
 ///

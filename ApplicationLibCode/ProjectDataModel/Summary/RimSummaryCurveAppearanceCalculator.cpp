@@ -215,16 +215,15 @@ std::map<std::string, size_t> RimSummaryCurveAppearanceCalculator::mapNameToAppe
                 // Check to see if the summary case exists at this index.
                 break;
             }
-            
-                            // Simply increment index to check if the next bucket is available.
-                index = ( index + 1 ) % numOptions;
-                if ( index == nameHash )
-                {
-                    // If we've reached `caseHash` again, no other slot was available, so add it here.
-                    matches.insert( name );
-                    break;
-                }
-           
+
+            // Simply increment index to check if the next bucket is available.
+            index = ( index + 1 ) % numOptions;
+            if ( index == nameHash )
+            {
+                // If we've reached `caseHash` again, no other slot was available, so add it here.
+                matches.insert( name );
+                break;
+            }
         }
     }
 

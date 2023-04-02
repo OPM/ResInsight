@@ -681,10 +681,9 @@ QString RimVfpPlot::getDisplayUnit( RimVfpDefines::ProductionVariableType variab
 
 {
     if ( variableType == RimVfpDefines::ProductionVariableType::THP ) return "Bar";
-    if ( variableType == RimVfpDefines::ProductionVariableType::LIQUID_FLOW_RATE )
-        return "m3/day";
+    if ( variableType == RimVfpDefines::ProductionVariableType::LIQUID_FLOW_RATE ) return "m3/day";
     if ( variableType == RimVfpDefines::ProductionVariableType::WATER_CUT ||
-              variableType == RimVfpDefines::ProductionVariableType::GAS_LIQUID_RATIO )
+         variableType == RimVfpDefines::ProductionVariableType::GAS_LIQUID_RATIO )
         return "";
     return "";
 }
@@ -730,32 +729,30 @@ size_t RimVfpPlot::getVariableIndex( const Opm::VFPProdTable&              table
                                      size_t                                familyValue ) const
 {
     if ( targetVariable == primaryVariable ) return primaryValue;
-    if ( targetVariable == familyVariable )
-        return familyValue;
-    
-            if ( targetVariable == RimVfpDefines::ProductionVariableType::WATER_CUT )
-        {
-            return m_waterCutIdx;
-        }
-        else if ( targetVariable == RimVfpDefines::ProductionVariableType::GAS_LIQUID_RATIO )
-        {
-            return m_gasLiquidRatioIdx;
-        }
-        else if ( targetVariable == RimVfpDefines::ProductionVariableType::ARTIFICIAL_LIFT_QUANTITY )
-        {
-            return m_articifialLiftQuantityIdx;
-        }
-        else if ( targetVariable == RimVfpDefines::ProductionVariableType::LIQUID_FLOW_RATE )
-        {
-            return m_liquidFlowRateIdx;
-        }
-        else if ( targetVariable == RimVfpDefines::ProductionVariableType::THP )
-        {
-            return m_thpIdx;
-        }
+    if ( targetVariable == familyVariable ) return familyValue;
 
-        return getProductionTableData( table, targetVariable ).size() - 1;
-   
+    if ( targetVariable == RimVfpDefines::ProductionVariableType::WATER_CUT )
+    {
+        return m_waterCutIdx;
+    }
+    else if ( targetVariable == RimVfpDefines::ProductionVariableType::GAS_LIQUID_RATIO )
+    {
+        return m_gasLiquidRatioIdx;
+    }
+    else if ( targetVariable == RimVfpDefines::ProductionVariableType::ARTIFICIAL_LIFT_QUANTITY )
+    {
+        return m_articifialLiftQuantityIdx;
+    }
+    else if ( targetVariable == RimVfpDefines::ProductionVariableType::LIQUID_FLOW_RATE )
+    {
+        return m_liquidFlowRateIdx;
+    }
+    else if ( targetVariable == RimVfpDefines::ProductionVariableType::THP )
+    {
+        return m_thpIdx;
+    }
+
+    return getProductionTableData( table, targetVariable ).size() - 1;
 }
 
 //--------------------------------------------------------------------------------------------------

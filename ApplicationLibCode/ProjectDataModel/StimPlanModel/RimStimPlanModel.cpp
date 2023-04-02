@@ -1398,9 +1398,8 @@ RimEclipseCase* RimStimPlanModel::eclipseCaseForProperty( RiaDefines::CurvePrope
     {
         return m_staticEclipseCase;
     }
-    
-            return m_eclipseCase;
-   
+
+    return m_eclipseCase;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1735,7 +1734,7 @@ QString RimStimPlanModel::pressureDate() const
         return m_stimPlanModelTemplate->pressureTable()->pressureDate();
     if ( m_eclipseCase && m_timeStep >= 0 && m_timeStep < m_eclipseCase->timeStepStrings().size() )
         return m_eclipseCase->timeStepStrings()[m_timeStep];
-            return QString();
+    return QString();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -196,7 +196,6 @@ cvf::Vec3d RigFisbonesGeometry::closestMainAxis( const cvf::Vec3d& vec )
     {
         return cvf::Vec3d::Y_AXIS;
     }
-    
-            return cvf::Vec3d::Z_AXIS;
-   
+
+    return cvf::Vec3d::Z_AXIS;
 }
