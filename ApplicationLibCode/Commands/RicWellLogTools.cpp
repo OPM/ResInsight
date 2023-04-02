@@ -132,9 +132,7 @@ bool RicWellLogTools::isWellPathOrSimWellSelectedInView()
     if ( simWellSelectionItem ) return true;
 
     RiuWellPathSelectionItem* wellPathSelectionItem = dynamic_cast<RiuWellPathSelectionItem*>( selItem );
-    if ( wellPathSelectionItem ) return true;
-
-    return false;
+    return wellPathSelectionItem != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

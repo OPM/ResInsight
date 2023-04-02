@@ -97,7 +97,7 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells( Rim
     CVF_ASSERT( flowDiagSolution );
 
     RimFlowDiagSolution::TracerStatusType tracerStatus = flowDiagSolution->tracerStatusInTimeStep( selectedWell->name(), timeStep );
-    if ( !( tracerStatus == RimFlowDiagSolution::TracerStatusType::INJECTOR || tracerStatus == RimFlowDiagSolution::TracerStatusType::PRODUCER ) )
+    if ( tracerStatus != RimFlowDiagSolution::TracerStatusType::INJECTOR && tracerStatus != RimFlowDiagSolution::TracerStatusType::PRODUCER )
     {
         return;
     }

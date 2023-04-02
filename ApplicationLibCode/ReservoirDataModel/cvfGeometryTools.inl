@@ -238,9 +238,7 @@ bool GeometryTools::isPointTouchingIndexedPolygon( const cvf::Vec3d&            
     }
 
     // test if crossings is odd. If we care about its winding number > 0, then just: inside_flag = crossings > 0;
-    if ( crossings & 0x01 ) return true;
-
-    return false;
+    return (crossings & 0x01) != 0;
 }
 
 //--------------------------------------------------------------------------------------------------

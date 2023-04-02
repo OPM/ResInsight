@@ -54,12 +54,7 @@ bool RicPasteIntersectionsFeature::isCommandEnabled()
 
     caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
 
-    if ( findIntersectionCollection( destinationObject ) )
-    {
-        return true;
-    }
-
-    return false;
+    return findIntersectionCollection( destinationObject ) != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

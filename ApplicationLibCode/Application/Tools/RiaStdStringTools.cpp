@@ -163,9 +163,7 @@ std::string RiaStdStringTools::toUpper( const std::string& s )
 //--------------------------------------------------------------------------------------------------
 bool RiaStdStringTools::endsWith( const std::string& mainStr, const std::string& toMatch )
 {
-    if ( mainStr.size() >= toMatch.size() && mainStr.compare( mainStr.size() - toMatch.size(), toMatch.size(), toMatch ) == 0 )
-        return true;
-            return false;
+    return static_cast<bool>(mainStr.size() >= toMatch.size() && mainStr.compare( mainStr.size() - toMatch.size(), toMatch.size(), toMatch ) == 0);
 }
 
 //--------------------------------------------------------------------------------------------------

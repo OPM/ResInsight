@@ -608,7 +608,5 @@ bool RicNewStimPlanModelPlotFeature::useMinMaxTicksOnly( RiaDefines::CurveProper
                                                                       RiaDefines::CurveProperty::PRESSURE,
                                                                       RiaDefines::CurveProperty::INITIAL_PRESSURE };
 
-    if ( useMajorAndMinorTickmarks.count( property ) ) return false;
-
-    return true;
+    return !useMajorAndMinorTickmarks.count( property );
 }

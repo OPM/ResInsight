@@ -1145,10 +1145,5 @@ bool RimViewController::askUserToRestoreOriginalCellFilterCollection( const QStr
     msgBox.setStandardButtons( QMessageBox::Yes | QMessageBox::No );
 
     int ret = msgBox.exec();
-    if ( ret == QMessageBox::Yes )
-    {
-        return false;
-    }
-
-    return true;
+    return ret != QMessageBox::Yes;
 }

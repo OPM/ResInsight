@@ -146,9 +146,5 @@ bool RiaArgumentParser::parseArguments( cvf::ProgramOptions* progOpt )
 
     // If positional parameter functionality is to be supported, the test for existence of positionalParameters must be
     // removed This is based on a pull request by @andlaus https://github.com/OPM/ResInsight/pull/162
-    if ( !parseOk || !progOpt->positionalParameters().empty() )
-    {
-        return false;
-    }
-    return true;
+    return !static_cast<bool>(!parseOk || !progOpt->positionalParameters().empty());
 }

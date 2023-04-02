@@ -200,12 +200,7 @@ void calculateNewStepsFromJacobi( double  dR1_dq1,
 //--------------------------------------------------------------------------------------------------
 bool isZeroCrossing( double newError, double oldError, double maxError )
 {
-    if ( ( newError < -maxError && maxError < oldError ) || ( newError > maxError && -maxError > oldError ) )
-    {
-        return true;
-    }
-
-    return false;
+    return ( newError < -maxError && maxError < oldError ) || ( newError > maxError && -maxError > oldError );
 }
 
 //--------------------------------------------------------------------------------------------------

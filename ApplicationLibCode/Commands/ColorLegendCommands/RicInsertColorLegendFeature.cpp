@@ -35,9 +35,7 @@ CAF_CMD_SOURCE_INIT( RicInsertColorLegendFeature, "RicInsertColorLegendFeature" 
 //--------------------------------------------------------------------------------------------------
 bool RicInsertColorLegendFeature::isCommandEnabled()
 {
-    if ( selectedColorLegendCollection() ) return true;
-
-    return false;
+    return selectedColorLegendCollection() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

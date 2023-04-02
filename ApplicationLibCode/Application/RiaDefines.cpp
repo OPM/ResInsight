@@ -335,12 +335,9 @@ QString RiaDefines::defaultDirectoryLabel( RiaDefines::ImportFileType fileType )
 //--------------------------------------------------------------------------------------------------
 bool RiaDefines::isInjector( WellProductionType wellProductionType )
 {
-    if ( wellProductionType == RiaDefines::WellProductionType::GAS_INJECTOR ||
+    return wellProductionType == RiaDefines::WellProductionType::GAS_INJECTOR ||
          wellProductionType == RiaDefines::WellProductionType::OIL_INJECTOR ||
-         wellProductionType == RiaDefines::WellProductionType::WATER_INJECTOR )
-        return true;
-
-    return false;
+         wellProductionType == RiaDefines::WellProductionType::WATER_INJECTOR;
 }
 
 //--------------------------------------------------------------------------------------------------

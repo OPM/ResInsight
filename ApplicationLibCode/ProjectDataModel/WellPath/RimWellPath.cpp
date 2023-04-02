@@ -986,12 +986,7 @@ bool RimWellPath::reloadWellPathFormationsFile( QString* errorMessage, RifWellPa
 //--------------------------------------------------------------------------------------------------
 bool RimWellPath::hasFormations() const
 {
-    if ( m_wellPathFormations.isNull() )
-    {
-        return false;
-    }
-
-    return true;
+    return !m_wellPathFormations.isNull();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1060,12 +1055,7 @@ bool RimWellPath::tryAssociateWithSimulationWell()
 
     QString matchedSimWell = RiaWellNameComparer::tryFindMatchingSimWellName( m_name );
 
-    if ( !matchedSimWell.isEmpty() )
-    {
-        m_simWellName = matchedSimWell;
-        return true;
-    }
-    return false;
+    return !matchedSimWell.isEmpty();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -58,12 +58,7 @@ public:
 
     bool isValid() const
     {
-        if ( m_resultName.isEmpty() || m_resultName == RiaResultNames::undefinedResultName() )
-        {
-            return false;
-        }
-        
-                    return true;
+        return !(m_resultName.isEmpty() || m_resultName == RiaResultNames::undefinedResultName());
        
     }
 
@@ -113,14 +108,9 @@ public:
 
     bool operator==( const RigEclipseResultAddress& other ) const
     {
-        if ( m_resultCatType != other.m_resultCatType || m_resultName != other.m_resultName ||
+        return !(m_resultCatType != other.m_resultCatType || m_resultName != other.m_resultName ||
              m_timeLapseBaseFrameIdx != other.m_timeLapseBaseFrameIdx || m_differenceCaseId != other.m_differenceCaseId ||
-             m_divideByCellFaceArea != other.m_divideByCellFaceArea )
-        {
-            return false;
-        }
-
-        return true;
+             m_divideByCellFaceArea != other.m_divideByCellFaceArea);
     }
 
     const QString& resultName() const { return m_resultName; }

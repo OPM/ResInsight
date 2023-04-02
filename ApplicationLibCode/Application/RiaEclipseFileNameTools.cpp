@@ -107,10 +107,5 @@ bool RiaEclipseFileNameTools::hasMatchingSuffix( const QString& fileName, Eclips
 
     QString suffix = fi.completeSuffix();
 
-    if ( suffix.compare( caf::AppEnum<EclipseFileType>::text( fileType ), Qt::CaseInsensitive ) == 0 )
-    {
-        return true;
-    }
-
-    return false;
+    return suffix.compare( caf::AppEnum<EclipseFileType>::text( fileType ), Qt::CaseInsensitive ) == 0;
 }

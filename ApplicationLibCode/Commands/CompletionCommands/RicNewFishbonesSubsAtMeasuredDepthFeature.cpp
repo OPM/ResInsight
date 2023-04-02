@@ -77,10 +77,5 @@ void RicNewFishbonesSubsAtMeasuredDepthFeature::setupActionLook( QAction* action
 //--------------------------------------------------------------------------------------------------
 bool RicNewFishbonesSubsAtMeasuredDepthFeature::isCommandEnabled()
 {
-    if ( RiuWellPathSelectionItem::wellPathSelectionItem() )
-    {
-        return true;
-    }
-
-    return false;
+    return RiuWellPathSelectionItem::wellPathSelectionItem() != nullptr;
 }

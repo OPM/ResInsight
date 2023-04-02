@@ -38,9 +38,7 @@ bool RicNewPlotDataFilterFeature::isCommandEnabled()
 {
     RimAnalysisPlot* analysisPlot = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimAnalysisPlot>();
 
-    if ( analysisPlot ) return true;
-
-    return false;
+    return analysisPlot != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

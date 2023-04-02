@@ -120,12 +120,7 @@ void RimEclipsePropertyFilter::rangeValues( double* lower, double* upper ) const
 //--------------------------------------------------------------------------------------------------
 bool RimEclipsePropertyFilter::isCategorySelectionActive() const
 {
-    if ( m_resultDefinition->hasCategoryResult() && m_useCategorySelection )
-    {
-        return true;
-    }
-
-    return false;
+    return m_resultDefinition->hasCategoryResult() && m_useCategorySelection;
 }
 
 //--------------------------------------------------------------------------------------------------

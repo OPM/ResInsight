@@ -91,12 +91,7 @@ bool VdeFileExporter::exportViewContents( const RimGridView& view )
     VdePacketDirectory packetDirectory;
     extractor.extractViewContents( &modelMetaJsonStr, &allReferencedArrayIds, &packetDirectory );
 
-    if ( !exportToFile( modelMetaJsonStr, packetDirectory, allReferencedArrayIds ) )
-    {
-        return false;
-    }
-
-    return true;
+    return !!exportToFile( modelMetaJsonStr, packetDirectory, allReferencedArrayIds );
 }
 
 //--------------------------------------------------------------------------------------------------

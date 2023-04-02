@@ -65,12 +65,7 @@ bool RicShowWellAllocationPlotFeature::isCommandEnabled()
 
     RimSimWellInView* simWellFromWellPath = eclView->wellCollection()->findWell( wellPathCollection[0]->associatedSimulationWellName() );
 
-    if ( simWellFromWellPath )
-    {
-        return true;
-    }
-
-    return false;
+    return simWellFromWellPath != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -378,11 +378,7 @@ void RimWbsParameters::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 //--------------------------------------------------------------------------------------------------
 bool RimWbsParameters::hasLasFileWithChannel( const QString& channel ) const
 {
-    if ( m_wellPath && !RimWellLogFile::findMdAndChannelValuesForWellPath( m_wellPath, channel ).empty() )
-    {
-        return true;
-    }
-    return false;
+    return m_wellPath && !RimWellLogFile::findMdAndChannelValuesForWellPath( m_wellPath, channel ).empty();
 }
 
 //--------------------------------------------------------------------------------------------------

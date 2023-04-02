@@ -54,9 +54,7 @@ bool RicPasteGeoMechViewsFeature::isCommandEnabled()
     caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
 
     RimGeoMechCase* geoMechCase = RicPasteFeatureImpl::findGeoMechCase( destinationObject );
-    if ( geoMechCase ) return true;
-
-    return false;
+    return geoMechCase != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

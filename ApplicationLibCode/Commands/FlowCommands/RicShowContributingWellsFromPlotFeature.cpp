@@ -37,9 +37,7 @@ bool RicShowContributingWellsFromPlotFeature::isCommandEnabled()
 {
     RimWellAllocationPlot* wellAllocationPlot = dynamic_cast<RimWellAllocationPlot*>( RiaGuiApplication::instance()->activePlotWindow() );
 
-    if ( wellAllocationPlot ) return true;
-
-    return false;
+    return wellAllocationPlot != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

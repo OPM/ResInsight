@@ -94,11 +94,7 @@ bool RigGeoMechCaseData::open( std::string* errorMessage )
     m_readerInterface = new RifOdbReader;
 #endif
 
-    if ( m_readerInterface.notNull() && m_readerInterface->openFile( m_geoMechCaseFileName, errorMessage ) )
-    {
-        return true;
-    }
-    return false;
+    return m_readerInterface.notNull() && m_readerInterface->openFile( m_geoMechCaseFileName, errorMessage );
 }
 
 //--------------------------------------------------------------------------------------------------

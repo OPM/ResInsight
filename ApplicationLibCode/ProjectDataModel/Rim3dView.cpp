@@ -1134,12 +1134,7 @@ void Rim3dView::addMeasurementToModel( cvf::ModelBasicList* measureModel )
 bool Rim3dView::isMasterView() const
 {
     RimViewLinker* viewLinker = this->assosiatedViewLinker();
-    if ( viewLinker && this == viewLinker->masterView() )
-    {
-        return true;
-    }
-
-    return false;
+    return viewLinker && this == viewLinker->masterView();
 }
 
 //--------------------------------------------------------------------------------------------------

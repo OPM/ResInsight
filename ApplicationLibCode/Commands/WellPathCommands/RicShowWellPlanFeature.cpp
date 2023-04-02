@@ -40,12 +40,7 @@ CAF_CMD_SOURCE_INIT( RicShowWellPlanFeature, "RicShowWellPlanFeature" );
 bool RicShowWellPlanFeature::isCommandEnabled()
 {
     auto selectedWellPaths = caf::selectedObjectsByType<RimModeledWellPath*>();
-    if ( selectedWellPaths.size() > 0 )
-    {
-        return true;
-    }
-
-    return false;
+    return static_cast<bool>(selectedWellPaths.size() > 0);
 }
 
 //--------------------------------------------------------------------------------------------------

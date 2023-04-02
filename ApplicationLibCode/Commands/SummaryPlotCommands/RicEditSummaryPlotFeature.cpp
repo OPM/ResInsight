@@ -104,9 +104,7 @@ void RicEditSummaryPlotFeature::editSummaryPlot( RimSummaryPlot* plot )
 //--------------------------------------------------------------------------------------------------
 bool RicEditSummaryPlotFeature::isCommandEnabled()
 {
-    if ( selectedSummaryPlot() ) return true;
-
-    return false;
+    return selectedSummaryPlot() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

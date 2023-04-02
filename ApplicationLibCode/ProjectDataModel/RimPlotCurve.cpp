@@ -583,9 +583,7 @@ bool RimPlotCurve::isCrossPlotCurve() const
 {
     RimSummaryCrossPlot* crossPlot = nullptr;
     this->firstAncestorOrThisOfType( crossPlot );
-    if ( crossPlot ) return true;
-
-    return false;
+    return crossPlot != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

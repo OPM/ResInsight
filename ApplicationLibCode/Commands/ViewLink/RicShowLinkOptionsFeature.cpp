@@ -43,12 +43,7 @@ bool RicShowLinkOptionsFeature::isCommandEnabled()
 
     RimViewController* viewController = activeView->viewController();
 
-    if ( viewController )
-    {
-        return true;
-    }
-
-    return false;
+    return viewController != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

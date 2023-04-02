@@ -87,11 +87,7 @@ bool RicToggleItemsFeatureImpl::isToggleCommandsForSubItems()
 {
     std::vector<caf::PdmUiItem*> selectedItems;
     caf::SelectionManager::instance()->selectedItems( selectedItems );
-    if ( isToggleCommandsAvailable() && selectedItems.size() == 1 )
-    {
-        return true;
-    }
-    return false;
+    return isToggleCommandsAvailable() && selectedItems.size() == 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,7 +104,7 @@ void RicToggleItemsFeatureImpl::setObjectToggleStateForSelection( SelectionToggl
         // contain a field with the target state value. When setting a value to a field with the same value, nothing happens and the UI will
         // get an inconsistent state (some curves toggled off are still visible in a plot).
 
-        const bool targetState = ( state == TOGGLE_ON ) ? true : false;
+        const bool targetState = state == TOGGLE_ON;
 
         for ( const auto& field : selectedFields )
         {

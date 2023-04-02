@@ -185,12 +185,7 @@ void RimViewWindow::revokeMdiWindowStatus()
 //--------------------------------------------------------------------------------------------------
 bool RimViewWindow::isMdiWindow() const
 {
-    if ( m_windowController() )
-    {
-        return true;
-    }
-
-    return false;
+    return m_windowController();
 }
 
 //--------------------------------------------------------------------------------------------------

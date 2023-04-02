@@ -70,12 +70,7 @@ VdeArrayDataPacket::VdeArrayDataPacket()
 //--------------------------------------------------------------------------------------------------
 bool VdeArrayDataPacket::isValid() const
 {
-    if ( m_elementType != Unknown && m_packetBytes.size() >= VDE_HEADER_SIZE && m_arrayId >= 0 )
-    {
-        return true;
-    }
-    
-            return false;
+    return m_elementType != Unknown && m_packetBytes.size() >= VDE_HEADER_SIZE && m_arrayId >= 0;
    
 }
 

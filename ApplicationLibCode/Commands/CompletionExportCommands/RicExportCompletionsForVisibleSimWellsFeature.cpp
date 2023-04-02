@@ -36,12 +36,7 @@ bool RicExportCompletionsForVisibleSimWellsFeature::isCommandEnabled()
 {
     std::vector<RimSimWellInView*> simWells = visibleSimWells();
 
-    if ( simWells.empty() )
-    {
-        return false;
-    }
-
-    return true;
+    return !simWells.empty();
 }
 
 //--------------------------------------------------------------------------------------------------

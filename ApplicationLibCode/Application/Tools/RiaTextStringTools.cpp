@@ -32,12 +32,7 @@ bool RiaTextStringTools::compare( const QString& expected, const QString& actual
     // 2. report line numbers for all changes
     // 3. add support for compare with content of a text file on disk
 
-    if ( expected.compare( actual ) == 0 )
-    {
-        return true;
-    }
-
-    return false;
+    return expected.compare( actual ) == 0;
 }
 
 //--------------------------------------------------------------------------------------------------
