@@ -234,7 +234,7 @@ void RiuWellImportWizard::httpFinished()
             {
                 // Write out the content without leading/trailing []
                 file.close();
-                file.remove( singleWellPathFilePath );
+                QFile::remove( singleWellPathFilePath );
 
                 if ( file.open( QFile::WriteOnly ) )
                 {
