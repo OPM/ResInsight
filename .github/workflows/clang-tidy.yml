@@ -1,6 +1,9 @@
 name: clang-tidy
 
 on:
+  push:
+    paths:
+      - '**.clang-tidy'
   workflow_dispatch:
   schedule:
     # Once every night
