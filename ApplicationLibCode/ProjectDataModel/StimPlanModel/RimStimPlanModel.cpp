@@ -1006,7 +1006,7 @@ double RimStimPlanModel::getDefaultForMissingValue( RiaDefines::CurveProperty cu
     {
         return defaultPermeability();
     }
-    else if ( curveProperty == RiaDefines::CurveProperty::NET_TO_GROSS )
+    if ( curveProperty == RiaDefines::CurveProperty::NET_TO_GROSS )
     {
         return 1.0;
     }
@@ -1042,7 +1042,7 @@ double RimStimPlanModel::getDefaultForMissingOverburdenValue( RiaDefines::CurveP
     {
         return defaultOverburdenPermeability();
     }
-    else if ( curveProperty == RiaDefines::CurveProperty::FACIES )
+    if ( curveProperty == RiaDefines::CurveProperty::FACIES )
     {
         RimColorLegend* faciesColorLegend = getFaciesColorLegend();
         if ( !faciesColorLegend ) return std::numeric_limits<double>::infinity();
@@ -1071,7 +1071,7 @@ double RimStimPlanModel::getDefaultForMissingUnderburdenValue( RiaDefines::Curve
     {
         return defaultUnderburdenPermeability();
     }
-    else if ( curveProperty == RiaDefines::CurveProperty::FACIES )
+    if ( curveProperty == RiaDefines::CurveProperty::FACIES )
     {
         RimColorLegend* faciesColorLegend = getFaciesColorLegend();
         if ( !faciesColorLegend ) return std::numeric_limits<double>::infinity();
@@ -1166,8 +1166,7 @@ std::deque<RimStimPlanModel::MissingValueStrategy> RimStimPlanModel::missingValu
                  RimStimPlanModel::MissingValueStrategy::CELLS_ABOVE,
                  RimStimPlanModel::MissingValueStrategy::CELLS_BELOW,
                  RimStimPlanModel::MissingValueStrategy::LINEAR_INTERPOLATION };
-    else
-        return { RimStimPlanModel::MissingValueStrategy::DEFAULT_VALUE };
+            return { RimStimPlanModel::MissingValueStrategy::DEFAULT_VALUE };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1630,7 +1629,7 @@ RiaDefines::ResultCatType RimStimPlanModel::eclipseResultCategory( RiaDefines::C
 
         return faciesDefinition->resultType();
     }
-    else if ( curveProperty == RiaDefines::CurveProperty::NET_TO_GROSS )
+    if ( curveProperty == RiaDefines::CurveProperty::NET_TO_GROSS )
     {
         if ( !m_stimPlanModelTemplate ) return RiaDefines::ResultCatType::STATIC_NATIVE;
 
@@ -1657,7 +1656,7 @@ QString RimStimPlanModel::eclipseResultVariable( RiaDefines::CurveProperty curve
         return "PRESSURE";
     if ( curveProperty == RiaDefines::CurveProperty::EQLNUM )
         return "EQLNUM";
-    else if ( curveProperty == RiaDefines::CurveProperty::PERMEABILITY_X )
+    if ( curveProperty == RiaDefines::CurveProperty::PERMEABILITY_X )
         return "PERMX";
     else if ( curveProperty == RiaDefines::CurveProperty::PERMEABILITY_Z )
         return "PERMZ";

@@ -341,7 +341,7 @@ QString RimGridCrossPlotDataSet::groupParameter() const
     {
         return QString( "Formations" );
     }
-    else if ( m_grouping() == GROUP_BY_RESULT && m_groupingProperty->hasResult() )
+    if ( m_grouping() == GROUP_BY_RESULT && m_groupingProperty->hasResult() )
     {
         return QString( "%1" ).arg( m_groupingProperty->resultVariableUiShortName() );
     }

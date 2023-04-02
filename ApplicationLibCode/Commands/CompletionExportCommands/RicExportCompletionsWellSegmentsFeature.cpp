@@ -140,7 +140,7 @@ bool RicExportCompletionsWellSegmentsFeature::isCommandEnabled()
     {
         return true;
     }
-    else if ( caf::SelectionManager::instance()->selectedItemAncestorOfType<RimPerforationCollection>() )
+    if ( caf::SelectionManager::instance()->selectedItemAncestorOfType<RimPerforationCollection>() )
     {
         return true;
     }

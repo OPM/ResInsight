@@ -267,30 +267,31 @@ RiaDefines::ImportFileType RiaDefines::obtainFileTypeFromFileName( const QString
     {
         return ImportFileType::ECLIPSE_GRID_FILE;
     }
-    else if ( fileName.endsWith( "GRDECL", Qt::CaseInsensitive ) )
+    if ( fileName.endsWith( "GRDECL", Qt::CaseInsensitive ) )
     {
         return ImportFileType::ECLIPSE_INPUT_FILE;
     }
-    else if ( fileName.endsWith( "ROFF", Qt::CaseInsensitive ) || fileName.endsWith( "ROFFASC", Qt::CaseInsensitive ) )
+    if ( fileName.endsWith( "ROFF", Qt::CaseInsensitive ) || fileName.endsWith( "ROFFASC", Qt::CaseInsensitive ) )
     {
         return ImportFileType::ROFF_FILE;
     }
-    else if ( fileName.endsWith( "SMSPEC", Qt::CaseInsensitive ) )
+    if ( fileName.endsWith( "SMSPEC", Qt::CaseInsensitive ) )
     {
         return ImportFileType::ECLIPSE_SUMMARY_FILE;
     }
-    else if ( fileName.endsWith( "ESMRY", Qt::CaseInsensitive ) )
+    if ( fileName.endsWith( "ESMRY", Qt::CaseInsensitive ) )
     {
         return ImportFileType::ECLIPSE_SUMMARY_FILE;
     }
-    else if ( fileName.endsWith( "ODB", Qt::CaseInsensitive ) )
+    if ( fileName.endsWith( "ODB", Qt::CaseInsensitive ) )
     {
         return ImportFileType::GEOMECH_ODB_FILE;
     }
-    else if ( fileName.endsWith( ".rsp", Qt::CaseInsensitive ) || fileName.endsWith( ".rip", Qt::CaseInsensitive ) )
+    if ( fileName.endsWith( ".rsp", Qt::CaseInsensitive ) || fileName.endsWith( ".rip", Qt::CaseInsensitive ) )
     {
         return ImportFileType::RESINSIGHT_PROJECT_FILE;
     }
+
     return ImportFileType::NOT_A_VALID_IMPORT_FILE;
 }
 

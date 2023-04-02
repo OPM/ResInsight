@@ -105,16 +105,16 @@ double RiaEclipseUnitTools::convertToMeter( double sourceValue, const QString& s
     {
         return sourceValue / 100.0;
     }
-    else if ( timmed.compare( "mm", Qt::CaseInsensitive ) == 0 )
+    if ( timmed.compare( "mm", Qt::CaseInsensitive ) == 0 )
     {
         return sourceValue / 1000.0;
     }
-    else if ( timmed.compare( "in", Qt::CaseInsensitive ) == 0 || timmed.compare( "inches", Qt::CaseInsensitive ) == 0 )
+    if ( timmed.compare( "in", Qt::CaseInsensitive ) == 0 || timmed.compare( "inches", Qt::CaseInsensitive ) == 0 )
     {
         return RiaEclipseUnitTools::inchToMeter( sourceValue );
     }
-    else if ( timmed.compare( "ft", Qt::CaseInsensitive ) == 0 || timmed.compare( "feet", Qt::CaseInsensitive ) == 0 ||
-              timmed.compare( "md-ft", Qt::CaseInsensitive ) == 0 )
+    if ( timmed.compare( "ft", Qt::CaseInsensitive ) == 0 || timmed.compare( "feet", Qt::CaseInsensitive ) == 0 ||
+         timmed.compare( "md-ft", Qt::CaseInsensitive ) == 0 )
     {
         return RiaEclipseUnitTools::feetToMeter( sourceValue );
     }
@@ -141,7 +141,7 @@ double RiaEclipseUnitTools::convertToFeet( double sourceValue, const QString& so
     {
         return RiaEclipseUnitTools::inchToFeet( sourceValue );
     }
-    else if ( timmed.compare( "cm", Qt::CaseInsensitive ) == 0 )
+    if ( timmed.compare( "cm", Qt::CaseInsensitive ) == 0 )
     {
         double meter = sourceValue / 100.0;
         return RiaEclipseUnitTools::meterToFeet( meter );

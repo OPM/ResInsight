@@ -104,9 +104,8 @@ bool RiaTextFileCompare::runComparison( const QString& baseFolder, const QString
 
         return false;
     }
-    else
-    {
-        stdErr = stdErr.simplified();
+    
+            stdErr = stdErr.simplified();
 
         // Report non-severe error
         m_lastError    = ErrorType::IC_ERROR;
@@ -114,7 +113,7 @@ bool RiaTextFileCompare::runComparison( const QString& baseFolder, const QString
         m_errorDetails = stdErr;
 
         return false;
-    }
+   
 }
 
 //--------------------------------------------------------------------------------------------------

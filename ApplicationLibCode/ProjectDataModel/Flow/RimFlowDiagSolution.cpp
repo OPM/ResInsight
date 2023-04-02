@@ -306,10 +306,9 @@ RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatusInTimeSte
 
                 return TracerStatusType::PRODUCER;
             }
-            else
-            {
-                CVF_ASSERT( false );
-            }
+            
+                            CVF_ASSERT( false );
+           
         }
     }
 

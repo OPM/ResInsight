@@ -242,7 +242,7 @@ double RimWellPathValve::convertOrificeDiameter( double                        o
                     return RiaEclipseUnitTools::mmToMeter( orificeDiameterWellPathUnits );
        
     }
-    else if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
+    if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
         if ( wellPathUnits == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
         {
@@ -345,7 +345,7 @@ QString RimWellPathValve::componentLabel() const
                     return "ICD";
        
     }
-    else if ( componentType() == RiaDefines::WellPathComponentType::AICD )
+    if ( componentType() == RiaDefines::WellPathComponentType::AICD )
     {
         if ( m_multipleValveLocations->valveLocations().size() > 1 )
         {
@@ -375,7 +375,7 @@ QString RimWellPathValve::componentTypeLabel() const
     {
         return "AICD";
     }
-    else if ( componentType() == RiaDefines::WellPathComponentType::ICV )
+    if ( componentType() == RiaDefines::WellPathComponentType::ICV )
     {
         return "ICV";
     }

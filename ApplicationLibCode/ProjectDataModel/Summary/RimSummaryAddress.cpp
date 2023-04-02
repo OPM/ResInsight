@@ -173,7 +173,7 @@ RiaDefines::PhaseType RimSummaryAddress::addressPhaseType() const
     {
         return RiaDefines::PhaseType::GAS_PHASE;
     }
-    else if ( QRegularExpression( "^.WP" ).match( m_vectorName ).hasMatch() )
+    if ( QRegularExpression( "^.WP" ).match( m_vectorName ).hasMatch() )
     {
         return RiaDefines::PhaseType::WATER_PHASE;
     }

@@ -30,20 +30,13 @@
 //--------------------------------------------------------------------------------------------------
 caf::FixedAtlasFont::FontSize mapToAtlasFontSize( int pointSize )
 {
-    if ( pointSize >= 6 && pointSize < 8 )
-        return caf::FixedAtlasFont::POINT_SIZE_6;
-    if ( pointSize >= 8 && pointSize < 10 )
-        return caf::FixedAtlasFont::POINT_SIZE_8;
-    else if ( pointSize >= 10 && pointSize < 12 )
-        return caf::FixedAtlasFont::POINT_SIZE_10;
-    else if ( pointSize >= 12 && pointSize < 14 )
-        return caf::FixedAtlasFont::POINT_SIZE_12;
-    else if ( pointSize >= 14 && pointSize < 16 )
-        return caf::FixedAtlasFont::POINT_SIZE_14;
-    else if ( pointSize >= 16 && pointSize < 20 )
-        return caf::FixedAtlasFont::POINT_SIZE_16;
-    else if ( pointSize >= 20 && pointSize < 28 )
-        return caf::FixedAtlasFont::POINT_SIZE_24;
+    if ( pointSize >= 6 && pointSize < 8 ) return caf::FixedAtlasFont::POINT_SIZE_6;
+    if ( pointSize >= 8 && pointSize < 10 ) return caf::FixedAtlasFont::POINT_SIZE_8;
+    if ( pointSize >= 10 && pointSize < 12 ) return caf::FixedAtlasFont::POINT_SIZE_10;
+    if ( pointSize >= 12 && pointSize < 14 ) return caf::FixedAtlasFont::POINT_SIZE_12;
+    if ( pointSize >= 14 && pointSize < 16 ) return caf::FixedAtlasFont::POINT_SIZE_14;
+    if ( pointSize >= 16 && pointSize < 20 ) return caf::FixedAtlasFont::POINT_SIZE_16;
+    if ( pointSize >= 20 && pointSize < 28 ) return caf::FixedAtlasFont::POINT_SIZE_24;
 
     return caf::FixedAtlasFont::POINT_SIZE_32;
 }

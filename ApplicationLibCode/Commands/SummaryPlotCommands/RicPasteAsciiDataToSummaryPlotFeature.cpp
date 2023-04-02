@@ -236,7 +236,7 @@ RicPasteAsciiDataToSummaryPlotFeature::CurveType RicPasteAsciiDataToSummaryPlotF
     {
         return CURVE_OIL;
     }
-    else if ( curveName.contains( "gas", Qt::CaseInsensitive ) )
+    if ( curveName.contains( "gas", Qt::CaseInsensitive ) )
     {
         return CURVE_GAS;
     }

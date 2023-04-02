@@ -1224,7 +1224,7 @@ bool RimEclipseResultDefinition::hasDynamicResult() const
         {
             return true;
         }
-        else if ( m_resultType() == RiaDefines::ResultCatType::FLOW_DIAGNOSTICS )
+        if ( m_resultType() == RiaDefines::ResultCatType::FLOW_DIAGNOSTICS )
         {
             return true;
         }
@@ -1337,7 +1337,7 @@ RiaDefines::PhaseType RimEclipseResultDefinition::resultPhaseType() const
     {
         return RiaDefines::PhaseType::GAS_PHASE;
     }
-    else if ( QRegularExpression( "WAT" ).match( m_resultVariable() ).hasMatch() )
+    if ( QRegularExpression( "WAT" ).match( m_resultVariable() ).hasMatch() )
     {
         return RiaDefines::PhaseType::WATER_PHASE;
     }
@@ -2388,7 +2388,7 @@ RimEclipseResultDefinition::FlowTracerSelectionState RimEclipseResultDefinition:
         {
             return ALL_SELECTED;
         }
-        else if ( m_selectedInjectorTracers().size() == (size_t)1 )
+        if ( m_selectedInjectorTracers().size() == (size_t)1 )
         {
             return ONE_SELECTED;
         }
@@ -2416,7 +2416,7 @@ RimEclipseResultDefinition::FlowTracerSelectionState RimEclipseResultDefinition:
         {
             return ALL_SELECTED;
         }
-        else if ( m_selectedProducerTracers().size() == (size_t)1 )
+        if ( m_selectedProducerTracers().size() == (size_t)1 )
         {
             return ONE_SELECTED;
         }

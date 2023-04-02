@@ -954,11 +954,10 @@ int RimEnsembleFractureStatistics::getTargetNumberOfLayers( const std::vector<cv
         return maxNy;
     if ( m_adaptiveNumLayersType() == AdaptiveNumLayersType::MINIMUM )
         return minNy;
-    else
-    {
-        CAF_ASSERT( m_adaptiveNumLayersType() == AdaptiveNumLayersType::AVERAGE );
+    
+            CAF_ASSERT( m_adaptiveNumLayersType() == AdaptiveNumLayersType::AVERAGE );
         return static_cast<int>( std::ceil( static_cast<double>( sum ) / stimPlanFractureDefinitions.size() ) );
-    }
+   
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1214,7 +1213,7 @@ std::shared_ptr<RigSlice2D> RimEnsembleFractureStatistics::setCellsToFillTargetA
                 return true;
             if ( occurrence == p.occurrence && distance < p.distance )
                 return true;
-            else if ( occurrence == p.occurrence && distance == p.distance && area < p.area )
+            if ( occurrence == p.occurrence && distance == p.distance && area < p.area )
                 return true;
             else if ( occurrence == p.occurrence && distance == p.distance && area == p.area && x < p.x )
                 return true;

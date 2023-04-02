@@ -75,7 +75,7 @@ bool RicIntersectionPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& e
                 // Further Ui processing is stopped when true is returned
                 return true;
             }
-            else if ( intersection->inputTwoAzimuthPointsFromViewerEnabled() )
+            if ( intersection->inputTwoAzimuthPointsFromViewerEnabled() )
             {
                 intersection->appendPointToAzimuthLine( domainCoord );
 

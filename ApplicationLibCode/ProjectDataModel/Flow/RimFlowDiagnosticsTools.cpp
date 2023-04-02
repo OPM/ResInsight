@@ -33,10 +33,9 @@ bool RimFlowDiagnosticsTools::TracerComp::operator()( const QString& lhs, const 
     {
         return false;
     }
-    else
-    {
-        return lhs < rhs;
-    }
+    
+            return lhs < rhs;
+   
 }
 
 //--------------------------------------------------------------------------------------------------

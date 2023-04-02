@@ -216,7 +216,7 @@ SelectionComposition selectionComposition()
                 return SEL_BOTH_INTERSECTION_TYPES;
             if ( !selIntersections.empty() )
                 return SEL_INTERSECTIONS;
-            else if ( !selIntersectionBoxes.empty() )
+            if ( !selIntersectionBoxes.empty() )
                 return SEL_INTERSECTION_BOXES;
         }
     }
