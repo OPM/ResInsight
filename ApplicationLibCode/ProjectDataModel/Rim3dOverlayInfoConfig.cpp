@@ -162,7 +162,7 @@ RigHistogramData Rim3dOverlayInfoConfig::histogramData()
     if ( geoMechContourMap ) return m_histogramCalculator->histogramData( geoMechContourMap );
     if ( eclipseView )
         return m_histogramCalculator->histogramData( eclipseView, m_statisticsCellRange(), m_statisticsTimeRange() );
-    else if ( geoMechView )
+    if ( geoMechView )
         return m_histogramCalculator->histogramData( geoMechView, m_statisticsCellRange(), m_statisticsTimeRange() );
     return RigHistogramData();
 }

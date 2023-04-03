@@ -735,7 +735,7 @@ size_t RimVfpPlot::getVariableIndex( const Opm::VFPProdTable&              table
     {
         return m_waterCutIdx;
     }
-    else if ( targetVariable == RimVfpDefines::ProductionVariableType::GAS_LIQUID_RATIO )
+    if ( targetVariable == RimVfpDefines::ProductionVariableType::GAS_LIQUID_RATIO )
     {
         return m_gasLiquidRatioIdx;
     }

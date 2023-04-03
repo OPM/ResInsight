@@ -594,7 +594,7 @@ RimSummaryCalculationAddress RimSummaryCalculation::singleAddressesForCategory( 
     {
         return RifEclipseSummaryAddress::miscAddress( name, m_id );
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_NETWORK )
+    if ( category == RifEclipseSummaryAddress::SUMMARY_NETWORK )
     {
         return RifEclipseSummaryAddress::networkAddress( name, m_id );
     }

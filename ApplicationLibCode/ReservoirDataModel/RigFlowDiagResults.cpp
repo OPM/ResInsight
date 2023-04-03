@@ -210,7 +210,7 @@ std::vector<double>* RigFlowDiagResults::calculateDerivedResult( const RigFlowDi
     {
         return calculateCommunicationResult( resVarAddr, timeStepIndex );
     }
-    else if ( resVarAddr.variableName == RIG_FLD_MAX_FRACTION_TRACER_RESNAME )
+    if ( resVarAddr.variableName == RIG_FLD_MAX_FRACTION_TRACER_RESNAME )
     {
         return calculateTracerWithMaxFractionResult( resVarAddr, timeStepIndex );
     }
