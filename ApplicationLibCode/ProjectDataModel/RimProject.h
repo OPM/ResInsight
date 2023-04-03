@@ -196,7 +196,7 @@ public:
     std::vector<caf::FilePath*> allFilePaths() const;
 
 protected:
-    // Overridden methods
+    void beforeInitAfterRead() override;
     void initAfterRead() override;
     void setupBeforeSave() override;
 

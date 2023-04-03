@@ -303,7 +303,7 @@ void RimProject::close()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimProject::initAfterRead()
+void RimProject::beforeInitAfterRead()
 {
     this->distributePathsFromGlobalPathList();
 
@@ -358,6 +358,14 @@ void RimProject::initAfterRead()
 
     if ( m_subWindowsTiled3DWindow_OBSOLETE ) m_subWindowsTileMode3DWindow = RiaDefines::WindowTileMode::DEFAULT;
     if ( m_subWindowsTiledPlotWindow_OBSOLETE ) m_subWindowsTileModePlotWindow = RiaDefines::WindowTileMode::DEFAULT;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimProject::initAfterRead()
+{
+    // Function moved to beforeInitAfterRead() to make sure that file path objects are replaced before other initAfterRead() is called
 }
 
 //--------------------------------------------------------------------------------------------------
