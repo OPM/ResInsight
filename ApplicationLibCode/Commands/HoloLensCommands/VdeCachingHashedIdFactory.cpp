@@ -67,9 +67,8 @@ bool VdeCachingHashedIdFactory::Key::operator<( const Key& other ) const
     {
         return elementType < other.elementType;
     }
-    
-            return elementCount < other.elementCount;
-   
+
+    return elementCount < other.elementCount;
 }
 
 //--------------------------------------------------------------------------------------------------
