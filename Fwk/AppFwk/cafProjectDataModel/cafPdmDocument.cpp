@@ -87,6 +87,7 @@ void PdmDocument::readFile( QIODevice* xmlFile )
     // after everything is read from file
 
     resolveReferencesRecursively();
+    beforeInitAfterRead();
     initAfterReadRecursively();
 }
 
@@ -151,6 +152,13 @@ void PdmDocument::updateUiIconStateRecursively( PdmObjectHandle* object )
     {
         uiObjectHandle->updateUiIconFromToggleField();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmDocument::beforeInitAfterRead()
+{
 }
 
 } // End of namespace caf
