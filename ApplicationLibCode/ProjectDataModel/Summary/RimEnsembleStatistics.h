@@ -34,17 +34,21 @@ class RimEnsembleStatistics : public caf::PdmObject
 public:
     RimEnsembleStatistics( RimEnsembleCurveSetInterface* parentCurveSet = nullptr );
 
-    bool         isActive() const;
-    void         setShowStatisticsCurves( bool show );
-    bool         showStatisticsCurveLegends() const { return m_showStatisticsCurveLegends; }
-    bool         hideEnsembleCurves() const { return m_hideEnsembleCurves; }
-    bool         basedOnFilteredCases() const { return m_basedOnFilteredCases; }
-    bool         showP10Curve() const { return m_showP10Curve; }
-    bool         showP50Curve() const { return m_showP50Curve; }
-    bool         showP90Curve() const { return m_showP90Curve; }
-    bool         showMeanCurve() const { return m_showMeanCurve; }
-    bool         showCurveLabels() const { return m_showCurveLabels; }
+    bool isActive() const;
+    void setShowStatisticsCurves( bool show );
+    bool showStatisticsCurveLegends() const { return m_showStatisticsCurveLegends; }
+    bool hideEnsembleCurves() const { return m_hideEnsembleCurves; }
+    bool basedOnFilteredCases() const { return m_basedOnFilteredCases; }
+    bool showP10Curve() const { return m_showP10Curve; }
+    bool showP50Curve() const { return m_showP50Curve; }
+    bool showP90Curve() const { return m_showP90Curve; }
+    bool showMeanCurve() const { return m_showMeanCurve; }
+
+    bool showCurveLabels() const { return m_showCurveLabels; }
+    void enableCurveLabels( bool enable ) { m_showCurveLabels = enable; }
+
     cvf::Color3f color() const { return m_color; }
+    void         setColor( const cvf::Color3f& color ) { m_color = color; }
 
     bool includeIncompleteCurves() const { return m_includeIncompleteCurves; }
 

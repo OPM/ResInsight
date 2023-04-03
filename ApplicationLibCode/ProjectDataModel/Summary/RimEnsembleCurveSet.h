@@ -97,6 +97,8 @@ public:
 
     bool isCurvesVisible();
     void setColor( cvf::Color3f color );
+    void setStatisticsColor( const cvf::Color3f& color );
+    void enableStatisticsLables( bool enable );
 
     void loadDataAndUpdate( bool updateParentPlot );
     void setParentPlotNoReplot( RiuPlotWidget* plot );

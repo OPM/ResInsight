@@ -286,6 +286,22 @@ void RimEnsembleCurveSet::setColor( cvf::Color3f color )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::setStatisticsColor( const cvf::Color3f& color )
+{
+    m_statistics->setColor( color );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::enableStatisticsLables( bool enable )
+{
+    m_statistics->enableCurveLabels( enable );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::loadDataAndUpdate( bool updateParentPlot )
 {
     m_yValuesSummaryAddressUiField = m_yValuesSummaryAddress->address();
