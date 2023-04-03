@@ -138,6 +138,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     CAF_PDM_InitField( &m_colorMode, "ColorMode", caf::AppEnum<ColorMode>( ColorMode::SINGLE_COLOR ), "Coloring Mode" );
 
     CAF_PDM_InitField( &m_color, "Color", RiaColorTools::textColor3f(), "Color" );
+    CAF_PDM_InitField( &m_linkStatisticsColor, "LinkStatisticsColor", false, "Link Statistics Color" );
 
     CAF_PDM_InitField( &m_ensembleParameter, "EnsembleParameter", QString( "" ), "Parameter" );
     m_ensembleParameter.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
@@ -281,6 +282,8 @@ bool RimEnsembleCurveSet::isCurvesVisible()
 void RimEnsembleCurveSet::setColor( cvf::Color3f color )
 {
     m_color = color;
+
+    ensureStatisticsColorIsUpdated();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -671,8 +674,10 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     {
         updateAllCurves();
     }
-    else if ( changedField == &m_color )
+    else if ( changedField == &m_color || changedField == &m_linkStatisticsColor )
     {
+        ensureStatisticsColorIsUpdated();
+
         updateCurveColors();
 
         updateTextInPlot = true;
@@ -951,6 +956,26 @@ void RimEnsembleCurveSet::onCustomObjectiveFunctionChanged( const caf::SignalEmi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::ensureStatisticsColorIsUpdated()
+{
+    if ( m_linkStatisticsColor )
+    {
+        auto sourceColor = RiaColorTools::toQColor( m_color );
+        auto saturation  = 1.0;
+        auto value       = 1.0;
+        auto hue         = sourceColor.hueF();
+
+        auto statisticsColor = QColor::fromHsvF( hue, saturation, value );
+
+        setStatisticsColor( RiaColorTools::fromQColorTo3f( statisticsColor ) );
+
+        updateStatisticsCurves();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::onObjectiveFunctionChanged( const caf::SignalEmitter* emitter )
 {
     updateCurveColors();
@@ -971,6 +996,7 @@ void RimEnsembleCurveSet::appendColorGroup( caf::PdmUiOrdering& uiOrdering )
     if ( m_colorMode == ColorMode::SINGLE_COLOR )
     {
         colorsGroup->add( &m_color );
+        colorsGroup->add( &m_linkStatisticsColor );
     }
     else if ( m_colorMode == ColorMode::BY_ENSEMBLE_PARAM )
     {

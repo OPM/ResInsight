@@ -1023,6 +1023,13 @@ void RiuQwtPlotWidget::highlightPlotCurves( const std::set<const QwtPlotItem*>& 
             double zValue = plotCurve->z();
             if ( closestItems.count( plotCurve ) > 0 )
             {
+                auto saturation = 1.0;
+                auto value      = 1.0;
+                auto hue        = curveColor.hueF();
+
+                auto highlightColor = QColor::fromHsvF( hue, saturation, value );
+
+                existingPen.setColor( highlightColor );
                 existingPen.setWidth( penWidth + highlightItemWidthAdjustment() );
                 plotCurve->setPen( existingPen );
                 plotCurve->setZ( zValue + 100.0 );
@@ -1030,9 +1037,10 @@ void RiuQwtPlotWidget::highlightPlotCurves( const std::set<const QwtPlotItem*>& 
             }
             else
             {
-                QColor blendedColor           = RiaColorTools::blendQColors( bgColor, curveColor, 3, 1 );
-                QColor blendedSymbolColor     = RiaColorTools::blendQColors( bgColor, symbolColor, 3, 1 );
-                QColor blendedSymbolLineColor = RiaColorTools::blendQColors( bgColor, symbolLineColor, 3, 1 );
+                int    backgroundWeight       = 2;
+                QColor blendedColor           = RiaColorTools::blendQColors( bgColor, curveColor, backgroundWeight, 1 );
+                QColor blendedSymbolColor     = RiaColorTools::blendQColors( bgColor, symbolColor, backgroundWeight, 1 );
+                QColor blendedSymbolLineColor = RiaColorTools::blendQColors( bgColor, symbolLineColor, backgroundWeight, 1 );
 
                 plotCurve->setPen( blendedColor, existingPen.width(), existingPen.style() );
                 if ( symbol )

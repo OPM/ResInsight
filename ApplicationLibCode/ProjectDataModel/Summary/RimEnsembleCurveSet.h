@@ -213,6 +213,8 @@ private:
     void onObjectiveFunctionChanged( const caf::SignalEmitter* emitter );
     void onCustomObjectiveFunctionChanged( const caf::SignalEmitter* emitter );
 
+    void ensureStatisticsColorIsUpdated();
+
 private:
     caf::PdmField<bool>                       m_showCurves;
     caf::PdmChildArrayField<RimSummaryCurve*> m_curves;
@@ -226,6 +228,7 @@ private:
     caf::PdmField<RiaDefines::DateTimePeriodEnum> m_resampling;
 
     caf::PdmField<ColorModeEnum>                                       m_colorMode;
+    caf::PdmField<bool>                                                m_linkStatisticsColor;
     caf::PdmField<cvf::Color3f>                                        m_color;
     caf::PdmField<QString>                                             m_ensembleParameter;
     caf::PdmField<caf::AppEnum<RimEnsembleCurveSet::ParameterSorting>> m_ensembleParameterSorting;
