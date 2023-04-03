@@ -221,8 +221,6 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     m_summaryAddressNameTools = new RimSummaryCurveAutoName;
 
-    m_plotCurveForLegendText = nullptr;
-
     m_ensembleStatCase.reset( new RimEnsembleStatisticsCase( this ) );
     m_ensembleStatCase->createSummaryReaderInterface();
     m_ensembleStatCase->createRftReaderInterface();
@@ -265,8 +263,6 @@ RimEnsembleCurveSet::~RimEnsembleCurveSet()
         m_objectiveFunctionOverlayFrame->setParent( nullptr );
         delete m_objectiveFunctionOverlayFrame;
     }
-
-    delete m_plotCurveForLegendText;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -335,7 +331,6 @@ void RimEnsembleCurveSet::deletePlotCurves()
     if ( m_plotCurveForLegendText )
     {
         m_plotCurveForLegendText->detach();
-        delete m_plotCurveForLegendText;
         m_plotCurveForLegendText = nullptr;
     }
 }
@@ -1728,7 +1723,7 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
 
             if ( !m_plotCurveForLegendText )
             {
-                m_plotCurveForLegendText = plot->plotWidget()->createPlotCurve( nullptr, "" );
+                m_plotCurveForLegendText.reset( plot->plotWidget()->createPlotCurve( nullptr, "" ) );
             }
             m_plotCurveForLegendText->attachToPlot( plot->plotWidget() );
             updateEnsembleLegendItem();
