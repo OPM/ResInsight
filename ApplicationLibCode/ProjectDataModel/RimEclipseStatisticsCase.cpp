@@ -455,7 +455,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseStatisticsCase::calculateValueOptions( c
             caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->resultNames( RiaDefines::ResultCatType::GENERATED );
         return toOptionList( varList );
     }
-    else if ( &m_selectedInputProperties == fieldNeedingOptions )
+    if ( &m_selectedInputProperties == fieldNeedingOptions )
     {
         QStringList varList =
             caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->resultNames( RiaDefines::ResultCatType::INPUT_PROPERTY );

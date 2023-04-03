@@ -1137,11 +1137,10 @@ double RimStimPlanModel::getDefaultValueForProperty( RiaDefines::CurveProperty c
     {
         return m_thermalExpansionCoeffientDefault;
     }
-    else
-    {
-        RiaLogging::error( QString( "Missing default for %1." ).arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
+    
+            RiaLogging::error( QString( "Missing default for %1." ).arg( caf::AppEnum<RiaDefines::CurveProperty>( curveProperty ).uiText() ) );
         return std::numeric_limits<double>::infinity();
-    }
+   
 }
 
 //--------------------------------------------------------------------------------------------------
