@@ -303,10 +303,12 @@ private:
     bool updateStackedCurveDataForAxis( RiuPlotAxis plotAxis );
     bool updateStackedCurveDataForRelevantAxes();
 
-    std::pair<int, std::vector<RimSummaryCurve*>>     handleSummaryCaseDrop( RimSummaryCase* summaryCase );
-    std::pair<int, std::vector<RimEnsembleCurveSet*>> handleEnsembleDrop( RimSummaryCaseCollection* ensemble );
-    std::pair<int, std::vector<RimSummaryCurve*>>     handleAddressCollectionDrop( RimSummaryAddressCollection* addrColl );
-    std::pair<int, std::vector<RimSummaryCurve*>>     handleSummaryAddressDrop( RimSummaryAddress* summaryAddr );
+    struct CurveInfo;
+
+    CurveInfo handleSummaryCaseDrop( RimSummaryCase* summaryCase );
+    CurveInfo handleEnsembleDrop( RimSummaryCaseCollection* ensemble );
+    CurveInfo handleAddressCollectionDrop( RimSummaryAddressCollection* addrColl );
+    CurveInfo handleSummaryAddressDrop( RimSummaryAddress* summaryAddr );
 
     bool isOnlyWaterCutCurvesVisible( RiuPlotAxis plotAxis );
 

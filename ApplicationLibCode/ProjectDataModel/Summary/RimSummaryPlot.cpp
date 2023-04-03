@@ -101,6 +101,20 @@
 
 CAF_PDM_SOURCE_INIT( RimSummaryPlot, "SummaryPlot" );
 
+struct RimSummaryPlot::CurveInfo
+{
+    int                               curveCount{};
+    std::vector<RimSummaryCurve*>     curves;
+    std::vector<RimEnsembleCurveSet*> curveSets;
+
+    void appendCurveInfo( const CurveInfo& other )
+    {
+        curveCount += other.curveCount;
+        curves.insert( curves.end(), other.curves.begin(), other.curves.end() );
+        curveSets.insert( curveSets.end(), other.curveSets.begin(), other.curveSets.end() );
+    };
+};
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -2153,7 +2167,7 @@ bool RimSummaryPlot::autoPlotTitle() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<int, std::vector<RimSummaryCurve*>> RimSummaryPlot::handleSummaryCaseDrop( RimSummaryCase* summaryCase )
+RimSummaryPlot::CurveInfo RimSummaryPlot::handleSummaryCaseDrop( RimSummaryCase* summaryCase )
 {
     int                           newCurves = 0;
     std::vector<RimSummaryCurve*> curves;
@@ -2174,13 +2188,13 @@ std::pair<int, std::vector<RimSummaryCurve*>> RimSummaryPlot::handleSummaryCaseD
         newCurves++;
     }
 
-    return { newCurves, curves };
+    return { newCurves, curves, {} };
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<int, std::vector<RimEnsembleCurveSet*>> RimSummaryPlot::handleEnsembleDrop( RimSummaryCaseCollection* ensemble )
+RimSummaryPlot::CurveInfo RimSummaryPlot::handleEnsembleDrop( RimSummaryCaseCollection* ensemble )
 {
     int                               newCurves = 0;
     std::vector<RimEnsembleCurveSet*> curveSetsToUpdate;
@@ -2202,16 +2216,17 @@ std::pair<int, std::vector<RimEnsembleCurveSet*>> RimSummaryPlot::handleEnsemble
         newCurves++;
     }
 
-    return { newCurves, curveSetsToUpdate };
+    return { newCurves, {}, curveSetsToUpdate };
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<int, std::vector<RimSummaryCurve*>> RimSummaryPlot::handleAddressCollectionDrop( RimSummaryAddressCollection* addressCollection )
+RimSummaryPlot::CurveInfo RimSummaryPlot::handleAddressCollectionDrop( RimSummaryAddressCollection* addressCollection )
 {
-    int                           newCurves = 0;
-    std::vector<RimSummaryCurve*> curves;
+    int                               newCurves = 0;
+    std::vector<RimSummaryCurve*>     curves;
+    std::vector<RimEnsembleCurveSet*> curveSetsToUpdate;
 
     auto droppedName = addressCollection->name().toStdString();
 
@@ -2294,7 +2309,7 @@ std::pair<int, std::vector<RimSummaryCurve*>> RimSummaryPlot::handleAddressColle
             auto addresses = curveDef.ensemble()->ensembleSummaryAddresses();
             if ( addresses.find( curveDef.summaryAddress() ) != addresses.end() )
             {
-                addNewEnsembleCurveY( curveDef.summaryAddress(), curveDef.ensemble() );
+                curveSetsToUpdate.push_back( addNewEnsembleCurveY( curveDef.summaryAddress(), curveDef.ensemble() ) );
                 newCurves++;
             }
         }
@@ -2308,16 +2323,17 @@ std::pair<int, std::vector<RimSummaryCurve*>> RimSummaryPlot::handleAddressColle
         }
     }
 
-    return { newCurves, curves };
+    return { newCurves, curves, curveSetsToUpdate };
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<int, std::vector<RimSummaryCurve*>> RimSummaryPlot::handleSummaryAddressDrop( RimSummaryAddress* summaryAddr )
+RimSummaryPlot::CurveInfo RimSummaryPlot::handleSummaryAddressDrop( RimSummaryAddress* summaryAddr )
 {
-    int                           newCurves = 0;
-    std::vector<RimSummaryCurve*> curves;
+    int                               newCurves = 0;
+    std::vector<RimSummaryCurve*>     curves;
+    std::vector<RimEnsembleCurveSet*> curveSetsToUpdate;
 
     std::vector<RifEclipseSummaryAddress> newCurveAddresses;
     newCurveAddresses.push_back( summaryAddr->address() );
@@ -2354,7 +2370,7 @@ std::pair<int, std::vector<RimSummaryCurve*>> RimSummaryPlot::handleSummaryAddre
 
                 if ( !skipAddress )
                 {
-                    addNewEnsembleCurveY( droppedAddress, ensemble );
+                    curveSetsToUpdate.push_back( addNewEnsembleCurveY( droppedAddress, ensemble ) );
                     newCurves++;
                 }
             }
@@ -2392,7 +2408,7 @@ std::pair<int, std::vector<RimSummaryCurve*>> RimSummaryPlot::handleSummaryAddre
             }
         }
     }
-    return { newCurves, curves };
+    return { newCurves, curves, curveSetsToUpdate };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2400,65 +2416,43 @@ std::pair<int, std::vector<RimSummaryCurve*>> RimSummaryPlot::handleSummaryAddre
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects )
 {
-    int                               accumulatedCurveCount = 0;
-    std::vector<RimSummaryCurve*>     curvesToUpdate;
-    std::vector<RimEnsembleCurveSet*> curveSetsToUpdate;
-
+    CurveInfo curveInfo;
     for ( auto obj : objects )
     {
-        auto summaryCase = dynamic_cast<RimSummaryCase*>( obj );
-        if ( summaryCase )
+        if ( auto summaryCase = dynamic_cast<RimSummaryCase*>( obj ) )
         {
-            auto [curveCount, curvesCreated] = handleSummaryCaseDrop( summaryCase );
-            accumulatedCurveCount += curveCount;
-            curvesToUpdate.insert( curvesToUpdate.end(), curvesCreated.begin(), curvesCreated.end() );
-            continue;
+            curveInfo.appendCurveInfo( handleSummaryCaseDrop( summaryCase ) );
         }
-        auto ensemble = dynamic_cast<RimSummaryCaseCollection*>( obj );
-        if ( ensemble )
+        else if ( auto ensemble = dynamic_cast<RimSummaryCaseCollection*>( obj ) )
         {
-            auto [curveCount, curvesCreated] = handleEnsembleDrop( ensemble );
-            accumulatedCurveCount += curveCount;
-            curveSetsToUpdate.insert( curveSetsToUpdate.end(), curvesCreated.begin(), curvesCreated.end() );
-            continue;
+            curveInfo.appendCurveInfo( handleEnsembleDrop( ensemble ) );
+        }
+        else if ( auto summaryAddr = dynamic_cast<RimSummaryAddress*>( obj ) )
+        {
+            curveInfo.appendCurveInfo( handleSummaryAddressDrop( summaryAddr ) );
         }
 
-        auto summaryAddr = dynamic_cast<RimSummaryAddress*>( obj );
-        if ( summaryAddr )
-        {
-            auto [curveCount, curvesCreated] = handleSummaryAddressDrop( summaryAddr );
-            accumulatedCurveCount += curveCount;
-            curvesToUpdate.insert( curvesToUpdate.end(), curvesCreated.begin(), curvesCreated.end() );
-            continue;
-        }
-
-        auto addressCollection = dynamic_cast<RimSummaryAddressCollection*>( obj );
-        if ( addressCollection )
+        else if ( auto addressCollection = dynamic_cast<RimSummaryAddressCollection*>( obj ) )
         {
             if ( addressCollection->isFolder() )
             {
                 for ( auto coll : addressCollection->subFolders() )
                 {
-                    auto [curveCount, curvesCreated] = handleAddressCollectionDrop( coll );
-                    accumulatedCurveCount += curveCount;
-                    curvesToUpdate.insert( curvesToUpdate.end(), curvesCreated.begin(), curvesCreated.end() );
+                    auto localInfo = handleAddressCollectionDrop( coll );
+                    curveInfo.appendCurveInfo( localInfo );
                 }
-                continue;
             }
             else
             {
-                auto [curveCount, curvesCreated] = handleAddressCollectionDrop( addressCollection );
-                accumulatedCurveCount += curveCount;
-                curvesToUpdate.insert( curvesToUpdate.end(), curvesCreated.begin(), curvesCreated.end() );
-                continue;
+                curveInfo.appendCurveInfo( handleAddressCollectionDrop( addressCollection ) );
             }
         }
     }
 
-    if ( accumulatedCurveCount > 0 )
+    if ( curveInfo.curveCount > 0 )
     {
-        applyDefaultCurveAppearances( curvesToUpdate );
-        applyDefaultCurveAppearances( curveSetsToUpdate );
+        applyDefaultCurveAppearances( curveInfo.curves );
+        applyDefaultCurveAppearances( curveInfo.curveSets );
 
         loadDataAndUpdate();
 
