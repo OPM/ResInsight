@@ -996,6 +996,12 @@ void RiuQwtPlotWidget::highlightPlotCurves( const std::set<const QwtPlotItem*>& 
     auto plotItemList = m_plot->itemList();
     for ( QwtPlotItem* plotItem : plotItemList )
     {
+        auto* riuPlotCurve = dynamic_cast<RiuPlotCurve*>( plotItem );
+        auto  pdmObject    = m_plotDefinition->findPdmObjectFromPlotCurve( riuPlotCurve );
+
+        // Do not modify curve objects with no associated Rim object, as the Rim object is used to restore color after highlight manipulation
+        if ( !pdmObject ) continue;
+
         auto* plotCurve = dynamic_cast<QwtPlotCurve*>( plotItem );
         if ( plotCurve )
         {
