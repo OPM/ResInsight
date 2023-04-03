@@ -427,12 +427,10 @@ QList<caf::PdmOptionItemInfo> toOptionList( const QStringList& varList )
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimEclipseStatisticsCase::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
-    QList<caf::PdmOptionItemInfo> options;
-
     RimIdenticalGridCaseGroup* idgcg = caseGroup();
     if ( !( caseGroup() && caseGroup()->mainCase() && caseGroup()->mainCase()->eclipseCaseData() ) )
     {
-        return options;
+        return {};
     }
 
     RigEclipseCaseData* caseData = idgcg->mainCase()->eclipseCaseData();
@@ -461,32 +459,31 @@ QList<caf::PdmOptionItemInfo> RimEclipseStatisticsCase::calculateValueOptions( c
             caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->resultNames( RiaDefines::ResultCatType::INPUT_PROPERTY );
         return toOptionList( varList );
     }
-    else if ( &m_selectedFractureDynamicProperties == fieldNeedingOptions )
+    if ( &m_selectedFractureDynamicProperties == fieldNeedingOptions )
     {
         QStringList varList =
             caseData->results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->resultNames( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
         return toOptionList( varList );
     }
-    else if ( &m_selectedFractureStaticProperties == fieldNeedingOptions )
+    if ( &m_selectedFractureStaticProperties == fieldNeedingOptions )
     {
         QStringList varList =
             caseData->results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->resultNames( RiaDefines::ResultCatType::STATIC_NATIVE );
         return toOptionList( varList );
     }
-    else if ( &m_selectedFractureGeneratedProperties == fieldNeedingOptions )
+    if ( &m_selectedFractureGeneratedProperties == fieldNeedingOptions )
     {
         QStringList varList =
             caseData->results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->resultNames( RiaDefines::ResultCatType::GENERATED );
         return toOptionList( varList );
     }
-    else if ( &m_selectedFractureInputProperties == fieldNeedingOptions )
+    if ( &m_selectedFractureInputProperties == fieldNeedingOptions )
     {
         QStringList varList =
             caseData->results( RiaDefines::PorosityModelType::FRACTURE_MODEL )->resultNames( RiaDefines::ResultCatType::INPUT_PROPERTY );
         return toOptionList( varList );
     }
-
-    else if ( &m_wellDataSourceCase == fieldNeedingOptions )
+    if ( &m_wellDataSourceCase == fieldNeedingOptions )
     {
         QStringList sourceCaseNames;
         sourceCaseNames += RiaResultNames::undefinedResultName();
@@ -499,9 +496,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseStatisticsCase::calculateValueOptions( c
         return toOptionList( sourceCaseNames );
     }
 
-    if ( !options.size() ) options = RimEclipseCase::calculateValueOptions( fieldNeedingOptions );
-
-    return options;
+    return RimEclipseCase::calculateValueOptions( fieldNeedingOptions );
 }
 
 //--------------------------------------------------------------------------------------------------

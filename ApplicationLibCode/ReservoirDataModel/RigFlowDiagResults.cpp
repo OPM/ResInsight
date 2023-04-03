@@ -214,7 +214,7 @@ std::vector<double>* RigFlowDiagResults::calculateDerivedResult( const RigFlowDi
     {
         return calculateTracerWithMaxFractionResult( resVarAddr, timeStepIndex );
     }
-    else if ( resVarAddr.variableName == RIG_NUM_FLOODED_PV )
+    if ( resVarAddr.variableName == RIG_NUM_FLOODED_PV )
     {
         calculateNumFloodedPV( resVarAddr );
         return findScalarResultFrame( resVarAddr, timeStepIndex );

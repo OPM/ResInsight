@@ -739,15 +739,15 @@ size_t RimVfpPlot::getVariableIndex( const Opm::VFPProdTable&              table
     {
         return m_gasLiquidRatioIdx;
     }
-    else if ( targetVariable == RimVfpDefines::ProductionVariableType::ARTIFICIAL_LIFT_QUANTITY )
+    if ( targetVariable == RimVfpDefines::ProductionVariableType::ARTIFICIAL_LIFT_QUANTITY )
     {
         return m_articifialLiftQuantityIdx;
     }
-    else if ( targetVariable == RimVfpDefines::ProductionVariableType::LIQUID_FLOW_RATE )
+    if ( targetVariable == RimVfpDefines::ProductionVariableType::LIQUID_FLOW_RATE )
     {
         return m_liquidFlowRateIdx;
     }
-    else if ( targetVariable == RimVfpDefines::ProductionVariableType::THP )
+    if ( targetVariable == RimVfpDefines::ProductionVariableType::THP )
     {
         return m_thpIdx;
     }

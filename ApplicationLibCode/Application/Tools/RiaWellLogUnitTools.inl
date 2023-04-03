@@ -215,7 +215,6 @@ bool RiaWellLogUnitTools<FloatType>::convertValues( const std::vector<FloatType>
         *valuesOut = valuesIn;
         return true;
     }
-
     if ( stringsMatch( unitsIn, gPerCm3UnitString() ) && stringsMatch( unitsOut, barUnitString() ) )
     {
         *valuesOut = convertGpcm3ToBar( tvdRKBs, valuesIn );
@@ -234,58 +233,58 @@ bool RiaWellLogUnitTools<FloatType>::convertValues( const std::vector<FloatType>
         return true;
     }
     if ( stringsMatch( unitsIn, gPerCm3UnitString() ) &&
-              ( stringsMatch( unitsOut, noUnitString() ) || stringsMatch( unitsOut, sg_emwUnitString() ) ) )
+         ( stringsMatch( unitsOut, noUnitString() ) || stringsMatch( unitsOut, sg_emwUnitString() ) ) )
     {
         *valuesOut = convertGpcm3ToBar( tvdRKBs, valuesIn );
         *valuesOut = convertBarToNormalizedByPP( tvdRKBs, *valuesOut );
         return true;
     }
-    else if ( stringsMatch( unitsIn, MPaUnitString() ) && stringsMatch( unitsOut, barUnitString() ) )
+    if ( stringsMatch( unitsIn, MPaUnitString() ) && stringsMatch( unitsOut, barUnitString() ) )
     {
         *valuesOut = multiply( valuesIn, 1.0 / MPaPerBar() );
         return true;
     }
-    else if ( stringsMatch( unitsIn, barX100UnitString() ) && stringsMatch( unitsOut, MPaUnitString() ) )
+    if ( stringsMatch( unitsIn, barX100UnitString() ) && stringsMatch( unitsOut, MPaUnitString() ) )
     {
         *valuesOut = multiply( valuesIn, (FloatType)100.0 );
         *valuesOut = multiply( *valuesOut, MPaPerBar() );
         return true;
     }
-    else if ( stringsMatch( unitsIn, barX100UnitString() ) && stringsMatch( unitsOut, barUnitString() ) )
+    if ( stringsMatch( unitsIn, barX100UnitString() ) && stringsMatch( unitsOut, barUnitString() ) )
     {
         *valuesOut = multiply( valuesIn, (FloatType)100 );
         return true;
     }
-    else if ( stringsMatch( unitsIn, barUnitString() ) && stringsMatch( unitsOut, MPaUnitString() ) )
+    if ( stringsMatch( unitsIn, barUnitString() ) && stringsMatch( unitsOut, MPaUnitString() ) )
     {
         *valuesOut = multiply( valuesIn, MPaPerBar() );
         return true;
     }
-    else if ( stringsMatch( unitsIn, barUnitString() ) && stringsMatch( unitsOut, barX100UnitString() ) )
+    if ( stringsMatch( unitsIn, barUnitString() ) && stringsMatch( unitsOut, barX100UnitString() ) )
     {
         *valuesOut = multiply( valuesIn, (FloatType)0.01 );
         return true;
     }
-    else if ( ( stringsMatch( unitsIn, noUnitString() ) || stringsMatch( unitsIn, sg_emwUnitString() ) ) &&
-              stringsMatch( unitsOut, barUnitString() ) )
+    if ( ( stringsMatch( unitsIn, noUnitString() ) || stringsMatch( unitsIn, sg_emwUnitString() ) ) &&
+         stringsMatch( unitsOut, barUnitString() ) )
     {
         *valuesOut = convertNormalizedByPPToBar( tvdRKBs, valuesIn );
         return true;
     }
-    else if ( stringsMatch( unitsIn, barUnitString() ) &&
-              ( stringsMatch( unitsOut, noUnitString() ) || stringsMatch( unitsOut, sg_emwUnitString() ) ) )
+    if ( stringsMatch( unitsIn, barUnitString() ) &&
+         ( stringsMatch( unitsOut, noUnitString() ) || stringsMatch( unitsOut, sg_emwUnitString() ) ) )
     {
         *valuesOut = convertBarToNormalizedByPP( tvdRKBs, valuesIn );
         return true;
     }
-    else if ( ( stringsMatch( unitsIn, pascalUnitString() ) ||
-                stringsMatch( unitsIn, pascalUnitString() ) && stringsMatch( unitsOut, barUnitString() ) ) )
+    if ( ( stringsMatch( unitsIn, pascalUnitString() ) ||
+           stringsMatch( unitsIn, pascalUnitString() ) && stringsMatch( unitsOut, barUnitString() ) ) )
     {
         *valuesOut = multiply( valuesIn, 1.0 / pascalPerBar() );
         return true;
     }
-    else if ( stringsMatch( unitsIn, barUnitString() ) &&
-              ( stringsMatch( unitsIn, pascalUnitString() ) || stringsMatch( unitsIn, pascalUnitString() ) ) )
+    if ( stringsMatch( unitsIn, barUnitString() ) &&
+         ( stringsMatch( unitsIn, pascalUnitString() ) || stringsMatch( unitsIn, pascalUnitString() ) ) )
     {
         *valuesOut = multiply( valuesIn, pascalPerBar() );
         return true;

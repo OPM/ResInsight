@@ -598,23 +598,23 @@ RimSummaryCalculationAddress RimSummaryCalculation::singleAddressesForCategory( 
     {
         return RifEclipseSummaryAddress::networkAddress( name, m_id );
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_WELL )
+    if ( category == RifEclipseSummaryAddress::SUMMARY_WELL )
     {
         return RifEclipseSummaryAddress::wellAddress( name, address.wellName(), m_id );
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_GROUP )
+    if ( category == RifEclipseSummaryAddress::SUMMARY_GROUP )
     {
         return RifEclipseSummaryAddress::groupAddress( name, address.groupName(), m_id );
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_REGION )
+    if ( category == RifEclipseSummaryAddress::SUMMARY_REGION )
     {
         return RifEclipseSummaryAddress::regionAddress( name, address.regionNumber(), m_id );
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION )
+    if ( category == RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION )
     {
         return RifEclipseSummaryAddress::regionToRegionAddress( name, address.regionNumber(), address.regionNumber2(), m_id );
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_IMPORTED )
+    if ( category == RifEclipseSummaryAddress::SUMMARY_IMPORTED )
     {
         return RifEclipseSummaryAddress::importedAddress( name, m_id );
     }
