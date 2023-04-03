@@ -748,9 +748,8 @@ uint64_t Hash64(const char *s, size_t len) {
     return HashLen65to96(s, len);
   } if (len <= 256) {
     return farmhashna::Hash64(s, len);
-  } else {
-    return farmhashuo::Hash64(s, len);
-  }
+  }     return farmhashuo::Hash64(s, len);
+ 
 }
 
 uint64_t Hash64WithSeeds(const char *s, size_t len, uint64_t seed0, uint64_t seed1) {

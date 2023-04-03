@@ -148,6 +148,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createCombinedResultAccess
 
         return cellFaceAccessObject;
     }
+
     if ( resVarAddr.resultName() == RiaResultNames::combinedMultResultName() )
     {
         CVF_ASSERT( timeStepIndex == 0 ); // Static result, only data for first time step
@@ -177,6 +178,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createCombinedResultAccess
 
         return cellFaceAccessObject;
     }
+
     if ( resVarAddr.resultName() == RiaResultNames::combinedRiTranResultName() )
     {
         CVF_ASSERT( timeStepIndex == 0 ); // Static result, only data for first time step
@@ -197,7 +199,8 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createCombinedResultAccess
 
         return cellFaceAccessObject;
     }
-    else if ( resVarAddr.resultName() == RiaResultNames::combinedRiMultResultName() )
+
+    if ( resVarAddr.resultName() == RiaResultNames::combinedRiMultResultName() )
     {
         CVF_ASSERT( timeStepIndex == 0 ); // Static result, only data for first time step
 
@@ -217,7 +220,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createCombinedResultAccess
         return cellFaceAccessObject;
     }
 
-    else if ( resVarAddr.resultName() == RiaResultNames::combinedRiAreaNormTranResultName() )
+    if ( resVarAddr.resultName() == RiaResultNames::combinedRiAreaNormTranResultName() )
     {
         CVF_ASSERT( timeStepIndex == 0 ); // Static result, only data for first time step
 
@@ -238,7 +241,7 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createCombinedResultAccess
         return cellFaceAccessObject;
     }
 
-    else if ( resVarAddr.resultName() == RiaResultNames::combinedWaterFluxResultName() )
+    if ( resVarAddr.resultName() == RiaResultNames::combinedWaterFluxResultName() )
     {
         cvf::ref<RigCombTransResultAccessor> cellFaceAccessObject = new RigCombTransResultAccessor( grid );
 
@@ -256,7 +259,8 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createCombinedResultAccess
 
         return cellFaceAccessObject;
     }
-    else if ( resVarAddr.resultName() == RiaResultNames::combinedOilFluxResultName() )
+
+    if ( resVarAddr.resultName() == RiaResultNames::combinedOilFluxResultName() )
     {
         cvf::ref<RigCombTransResultAccessor> cellFaceAccessObject = new RigCombTransResultAccessor( grid );
 
@@ -274,7 +278,8 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createCombinedResultAccess
 
         return cellFaceAccessObject;
     }
-    else if ( resVarAddr.resultName() == RiaResultNames::combinedGasFluxResultName() )
+
+    if ( resVarAddr.resultName() == RiaResultNames::combinedGasFluxResultName() )
     {
         cvf::ref<RigCombTransResultAccessor> cellFaceAccessObject = new RigCombTransResultAccessor( grid );
 
@@ -292,7 +297,8 @@ cvf::ref<RigResultAccessor> RigResultAccessorFactory::createCombinedResultAccess
 
         return cellFaceAccessObject;
     }
-    else if ( resVarAddr.resultName().endsWith( "IJK" ) )
+
+    if ( resVarAddr.resultName().endsWith( "IJK" ) )
     {
         cvf::ref<RigCombTransResultAccessor> cellFaceAccessObject = new RigCombTransResultAccessor( grid );
         QString                              baseName             = resVarAddr.resultName().left( resVarAddr.resultName().size() - 3 );
