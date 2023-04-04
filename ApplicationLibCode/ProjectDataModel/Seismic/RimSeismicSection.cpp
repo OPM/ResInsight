@@ -26,12 +26,14 @@
 #include "RimSeismicAlphaMapper.h"
 #include "RimSeismicData.h"
 #include "RimTools.h"
+#include "RimWellPath.h"
 
 #include "WellPathCommands/PointTangentManipulator/RicPolyline3dEditor.h"
 #include "WellPathCommands/RicPolylineTargetsPickEventHandler.h"
 
 #include "RigPolyLinesData.h"
 #include "RigTexturedSection.h"
+#include "RigWellPath.h"
 
 #include "RivSeismicSectionPartMgr.h"
 
@@ -71,6 +73,7 @@ RimSeismicSection::RimSeismicSection()
     CAF_PDM_InitFieldNoDefault( &m_type, "Type", "Type" );
 
     CAF_PDM_InitFieldNoDefault( &m_seismicData, "SeismicData", "Seismic Data" );
+    CAF_PDM_InitFieldNoDefault( &m_wellPath, "WellPath", "Well Path" );
 
     CAF_PDM_InitField( &m_enablePicking, "EnablePicking", false, "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_enablePicking );
@@ -176,32 +179,39 @@ void RimSeismicSection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
         {
             genGrp->add( &m_depthIndex );
         }
-
-        auto filterGroup = uiOrdering.addNewGroup( "Depth Filter" );
-        filterGroup->add( &m_zFilterType );
-
-        switch ( zFilterType() )
+        else if ( m_type() == RiaDefines::SeismicSectionType::SS_WELLPATH )
         {
-            case RimIntersectionFilterEnum::INTERSECT_FILTER_BELOW:
-                m_zUpperThreshold.uiCapability()->setUiName( "Depth" );
-                filterGroup->add( &m_zUpperThreshold );
-                break;
+            genGrp->add( &m_wellPath );
+        }
 
-            case RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN:
-                m_zUpperThreshold.uiCapability()->setUiName( "Upper Depth" );
-                filterGroup->add( &m_zUpperThreshold );
-                m_zLowerThreshold.uiCapability()->setUiName( "Lower Depth" );
-                filterGroup->add( &m_zLowerThreshold );
-                break;
+        if ( m_type() != RiaDefines::SeismicSectionType::SS_DEPTHSLICE )
+        {
+            auto filterGroup = uiOrdering.addNewGroup( "Depth Filter" );
+            filterGroup->add( &m_zFilterType );
 
-            case RimIntersectionFilterEnum::INTERSECT_FILTER_ABOVE:
-                m_zLowerThreshold.uiCapability()->setUiName( "Depth" );
-                filterGroup->add( &m_zLowerThreshold );
-                break;
+            switch ( zFilterType() )
+            {
+                case RimIntersectionFilterEnum::INTERSECT_FILTER_BELOW:
+                    m_zUpperThreshold.uiCapability()->setUiName( "Depth" );
+                    filterGroup->add( &m_zUpperThreshold );
+                    break;
 
-            case RimIntersectionFilterEnum::INTERSECT_FILTER_NONE:
-            default:
-                break;
+                case RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN:
+                    m_zUpperThreshold.uiCapability()->setUiName( "Upper Depth" );
+                    filterGroup->add( &m_zUpperThreshold );
+                    m_zLowerThreshold.uiCapability()->setUiName( "Lower Depth" );
+                    filterGroup->add( &m_zLowerThreshold );
+                    break;
+
+                case RimIntersectionFilterEnum::INTERSECT_FILTER_ABOVE:
+                    m_zLowerThreshold.uiCapability()->setUiName( "Depth" );
+                    filterGroup->add( &m_zLowerThreshold );
+                    break;
+
+                case RimIntersectionFilterEnum::INTERSECT_FILTER_NONE:
+                default:
+                    break;
+            }
         }
 
         auto expGrp = uiOrdering.addNewGroup( "Experimental" );
@@ -217,7 +227,10 @@ void RimSeismicSection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
         outlGrp->setCollapsedByDefault();
     }
 
-    if ( m_type() != RiaDefines::SeismicSectionType::SS_POLYLINE ) uiOrdering.add( &m_showImage );
+    if ( ( m_type() != RiaDefines::SeismicSectionType::SS_POLYLINE ) && ( m_type() != RiaDefines::SeismicSectionType::SS_WELLPATH ) )
+    {
+        uiOrdering.add( &m_showImage );
+    }
 
     uiOrdering.skipRemainingFields();
 }
@@ -274,7 +287,7 @@ void RimSeismicSection::defineEditorAttribute( const caf::PdmFieldHandle* field,
     }
     else if ( ( field == &m_depthIndex ) || ( field == &m_inlineIndex ) || ( field == &m_xlineIndex ) )
     {
-        if ( m_seismicData() != nullptr )
+        if ( ( m_seismicData() != nullptr ) && m_seismicData->boundingBox()->isValid() )
         {
             auto* sliderAttrib = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute );
             if ( sliderAttrib != nullptr )
@@ -308,10 +321,12 @@ void RimSeismicSection::defineEditorAttribute( const caf::PdmFieldHandle* field,
         if ( ( sliderAttrib ) && ( m_seismicData() != nullptr ) )
         {
             auto bb = m_seismicData()->boundingBox();
-
-            sliderAttrib->m_minimum = -1 * bb->max().z();
-            sliderAttrib->m_maximum = -1 * bb->min().z();
-            sliderAttrib->m_step    = (int)m_seismicData->zStep();
+            if ( bb->isValid() )
+            {
+                sliderAttrib->m_minimum = -1 * bb->max().z();
+                sliderAttrib->m_maximum = -1 * bb->min().z();
+                sliderAttrib->m_step    = (int)m_seismicData->zStep();
+            }
         }
     }
 }
@@ -354,6 +369,8 @@ caf::PickEventHandler* RimSeismicSection::pickEventHandler() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPolylineTarget*> RimSeismicSection::activeTargets() const
 {
+    if ( m_type() != RiaDefines::SeismicSectionType::SS_POLYLINE ) return {};
+
     return m_targets.children();
 }
 
@@ -505,8 +522,51 @@ QList<caf::PdmOptionItemInfo> RimSeismicSection::calculateValueOptions( const ca
 
         if ( view != nullptr ) RimTools::seismicDataOptionItems( &options, view->domainBoundingBox() );
     }
+    else if ( fieldNeedingOptions == &m_wellPath )
+    {
+        RimTools::wellPathOptionItems( &options );
+    }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicSection::updateTextureSectionFromPoints( std::vector<cvf::Vec3d> points, double zmin, double zmax )
+{
+    const int pointCount = (int)points.size();
+    if ( pointCount < 2 )
+    {
+        m_texturedSection->resize( 0 );
+        return;
+    }
+
+    bool valid = m_texturedSection->partsCount() == ( pointCount - 1 );
+    if ( !valid ) m_texturedSection->resize( pointCount - 1 );
+
+    for ( int i = 1, j = 0; i < pointCount; i++, j++ )
+    {
+        cvf::Vec3d p1 = points[j];
+        cvf::Vec3d p2 = points[i];
+
+        if ( !m_texturedSection->part( j ).isRectValid )
+        {
+            cvf::Vec3dArray rect;
+            rect.resize( 4 );
+            rect[0].set( p1.x(), p1.y(), -zmax );
+            rect[1].set( p2.x(), p2.y(), -zmax );
+            rect[2].set( p2.x(), p2.y(), -zmin );
+            rect[3].set( p1.x(), p1.y(), -zmin );
+
+            m_texturedSection->setSectionPartRect( j, rect );
+        }
+
+        if ( m_texturedSection->part( j ).sliceData == nullptr )
+        {
+            m_texturedSection->setSectionPartData( j, m_seismicData->sliceData( p1.x(), p1.y(), p2.x(), p2.y(), zmin, zmax ) );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -516,7 +576,8 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection()
 {
     if ( m_texturedSection.isNull() ) m_texturedSection = new RigTexturedSection();
 
-    if ( m_texturedSection->isValid() || ( m_seismicData == nullptr ) ) return m_texturedSection;
+    if ( m_texturedSection->isValid() || ( m_seismicData == nullptr ) || ( !m_seismicData->boundingBox()->isValid() ) )
+        return m_texturedSection;
 
     std::vector<cvf::Vec3dArray> rects;
     std::vector<int>             widths;
@@ -530,31 +591,23 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection()
     {
         if ( m_targets.size() == 0 ) return m_texturedSection;
 
-        bool valid = m_texturedSection->partsCount() == (int)( m_targets.size() - 1 );
-        if ( !valid ) m_texturedSection->resize( m_targets.size() - 1 );
+        std::vector<cvf::Vec3d> points;
 
-        for ( int i = 1; i < (int)m_targets.size(); i++ )
+        for ( int i = 0; i < (int)m_targets.size(); i++ )
         {
-            cvf::Vec3d p1 = m_targets[i - 1]->targetPointXYZ();
-            cvf::Vec3d p2 = m_targets[i]->targetPointXYZ();
-
-            if ( !m_texturedSection->part( i - 1 ).isRectValid )
-            {
-                cvf::Vec3dArray points;
-                points.resize( 4 );
-                points[0].set( p1.x(), p1.y(), -zmax );
-                points[1].set( p2.x(), p2.y(), -zmax );
-                points[2].set( p2.x(), p2.y(), -zmin );
-                points[3].set( p1.x(), p1.y(), -zmin );
-
-                m_texturedSection->setSectionPartRect( i - 1, points );
-            }
-
-            if ( m_texturedSection->part( i - 1 ).sliceData == nullptr )
-            {
-                m_texturedSection->setSectionPartData( i - 1, m_seismicData->sliceData( p1.x(), p1.y(), p2.x(), p2.y(), zmin, zmax ) );
-            }
+            if ( m_targets[i]->isEnabled() ) points.push_back( m_targets[i]->targetPointXYZ() );
         }
+        updateTextureSectionFromPoints( points, zmin, zmax );
+    }
+    else if ( m_type() == RiaDefines::SeismicSectionType::SS_WELLPATH )
+    {
+        if ( m_wellPath() == nullptr ) return m_texturedSection;
+
+        std::vector<cvf::Vec3d> points = wellPathToSectionPoints( m_wellPath()->wellPathGeometry(), zmin, zmax );
+
+        if ( points.empty() ) return m_texturedSection;
+
+        updateTextureSectionFromPoints( points, zmin, zmax );
     }
     else if ( m_type() == RiaDefines::SeismicSectionType::SS_INLINE )
     {
@@ -624,7 +677,7 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection()
         else
             m_texturedSection->resize( 1 );
 
-        int zIndex = m_depthIndex();
+        int z = m_depthIndex();
 
         if ( !valid )
         {
@@ -636,20 +689,17 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection()
 
             cvf::Vec3dArray points;
             points.resize( 4 );
-            points[3] = m_seismicData->convertToWorldCoords( ilStart, xlStart, zIndex );
-            points[2] = m_seismicData->convertToWorldCoords( ilStop, xlStart, zIndex );
-            points[1] = m_seismicData->convertToWorldCoords( ilStop, xlStop, zIndex );
-            points[0] = m_seismicData->convertToWorldCoords( ilStart, xlStop, zIndex );
-
-            for ( int i = 0; i < 4; i++ )
-                points[i].z() = -points[i].z();
+            points[3] = m_seismicData->convertToWorldCoords( ilStart, xlStart, -z );
+            points[2] = m_seismicData->convertToWorldCoords( ilStop, xlStart, -z );
+            points[1] = m_seismicData->convertToWorldCoords( ilStop, xlStop, -z );
+            points[0] = m_seismicData->convertToWorldCoords( ilStart, xlStop, -z );
 
             m_texturedSection->setSectionPartRect( 0, points );
         }
 
         if ( m_texturedSection->part( 0 ).sliceData == nullptr )
         {
-            m_texturedSection->setSectionPartData( 0, m_seismicData->sliceData( RiaDefines::SeismicSliceDirection::DEPTH, zIndex, zmin, zmax ) );
+            m_texturedSection->setSectionPartData( 0, m_seismicData->sliceData( RiaDefines::SeismicSliceDirection::DEPTH, z, zmin, zmax ) );
         }
     }
 
@@ -701,7 +751,7 @@ void RimSeismicSection::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
         }
         else if ( ( changedField == &m_type ) || ( changedField == &m_targets ) || ( changedField == &m_depthIndex ) ||
                   ( changedField == &m_inlineIndex ) || ( changedField == &m_xlineIndex ) || changedField == &m_zFilterType ||
-                  changedField == &m_zLowerThreshold || changedField == &m_zUpperThreshold )
+                  changedField == &m_zLowerThreshold || changedField == &m_zUpperThreshold || changedField == &m_wellPath )
         {
             updateType = RigTexturedSection::WhatToUpdateEnum::UPDATE_GEOMETRY;
         }
@@ -767,7 +817,7 @@ bool RimSeismicSection::isTransparent() const
 //--------------------------------------------------------------------------------------------------
 void RimSeismicSection::initSliceRanges()
 {
-    if ( m_seismicData() == nullptr ) return;
+    if ( ( m_seismicData() == nullptr ) || ( !m_seismicData->boundingBox()->isValid() ) ) return;
 
     if ( m_zLowerThreshold < 0 ) m_zLowerThreshold = m_seismicData->zMax();
     if ( m_zUpperThreshold < 0 ) m_zUpperThreshold = m_seismicData->zMin();
@@ -927,4 +977,100 @@ QString RimSeismicSection::resultInfoText( cvf::Vec3d worldCoord, int partIndex 
     }
 
     return retVal;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3d> RimSeismicSection::wellPathToSectionPoints( RigWellPath* wellpath, double zmin, double zmax )
+{
+    std::vector<cvf::Vec3d> points;
+
+    enum class PointSearchState
+    {
+        NEW_SECTION_START,
+        SEARCH_NEXT_POINT,
+        SEARCH_SAME_INLINE,
+        SEARCH_SAME_XLINE
+    };
+
+    PointSearchState state = PointSearchState::NEW_SECTION_START;
+
+    int currentInline = 0;
+    int currentXline  = 0;
+
+    cvf::Vec3d sectionEndPoint;
+
+    for ( auto& p : wellpath->wellPathPoints() )
+    {
+        auto [iline, xline] = m_seismicData->convertToInlineXline( p );
+
+        switch ( state )
+        {
+            case PointSearchState::NEW_SECTION_START:
+                sectionEndPoint = p;
+                currentInline   = iline;
+                currentXline    = xline;
+                if ( std::abs( p.z() ) > zmin )
+                {
+                    if ( points.size() == 0 ) points.push_back( p );
+                    state = PointSearchState::SEARCH_NEXT_POINT;
+                }
+                continue;
+
+            case PointSearchState::SEARCH_NEXT_POINT:
+                if ( ( iline == currentInline ) && ( xline == currentXline ) )
+                {
+                    // same inline and xline, keep looking
+                    sectionEndPoint = p;
+                    continue;
+                }
+                else if ( ( iline == currentInline ) && ( xline != currentXline ) )
+                {
+                    // look for more traces with same inline number
+                    sectionEndPoint = p;
+                    state           = PointSearchState::SEARCH_SAME_INLINE;
+                    continue;
+                }
+                else if ( ( iline != currentInline ) && ( xline == currentXline ) )
+                {
+                    // look for more traces with same xline number
+                    sectionEndPoint = p;
+                    state           = PointSearchState::SEARCH_SAME_XLINE;
+                    continue;
+                }
+                else
+                {
+                    // done with this section part, start a new
+                    state = PointSearchState::NEW_SECTION_START;
+                }
+                break;
+
+            case PointSearchState::SEARCH_SAME_INLINE:
+                if ( iline == currentInline )
+                {
+                    sectionEndPoint = p;
+                    continue;
+                }
+                // inline has changed, new section starts
+                state = PointSearchState::NEW_SECTION_START;
+                break;
+
+            case PointSearchState::SEARCH_SAME_XLINE:
+                if ( xline == currentXline )
+                {
+                    sectionEndPoint = p;
+                    continue;
+                }
+                // xline has changed, new section starts
+                state = PointSearchState::NEW_SECTION_START;
+                break;
+
+            default:
+                break;
+        }
+        points.push_back( sectionEndPoint );
+    }
+
+    return points;
 }

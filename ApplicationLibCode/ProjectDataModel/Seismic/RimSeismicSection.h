@@ -38,15 +38,19 @@
 #include <QList>
 #include <QString>
 
+#include <vector>
+
 class RicPolylineTargetsPickEventHandler;
 class RimPolylineTarget;
 class RigPolylinesData;
+class RigWellPath;
 class RigTexturedSection;
 class RivSeismicSectionPartMgr;
 class Rim3dView;
 class RimSeismicData;
 class RimRegularLegendConfig;
 class RimSeismicAlphaMapper;
+class RimWellPath;
 
 class RimSeismicSection : public RimCheckableNamedObject, public RimPolylinePickerInterface, public RimPolylinesDataInterface
 {
@@ -112,8 +116,12 @@ private:
 
     QPixmap getImage();
 
+    void                    updateTextureSectionFromPoints( std::vector<cvf::Vec3d> points, double zmin, double zmax );
+    std::vector<cvf::Vec3d> wellPathToSectionPoints( RigWellPath* wellpath, double zmin, double zmax );
+
     caf::PdmField<QString>            m_userDescription;
     caf::PdmPtrField<RimSeismicData*> m_seismicData;
+    caf::PdmPtrField<RimWellPath*>    m_wellPath;
 
     caf::PdmField<caf::AppEnum<RiaDefines::SeismicSectionType>> m_type;
     caf::PdmChildArrayField<RimPolylineTarget*>                 m_targets;
@@ -136,4 +144,6 @@ private:
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
     cvf::ref<RivSeismicSectionPartMgr>                  m_sectionPartMgr;
     cvf::ref<RigTexturedSection>                        m_texturedSection;
+
+    std::vector<cvf::Vec3d> m_wellPathPoints;
 };
