@@ -603,11 +603,14 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection()
     {
         if ( m_wellPath() == nullptr ) return m_texturedSection;
 
-        std::vector<cvf::Vec3d> points = wellPathToSectionPoints( m_wellPath()->wellPathGeometry(), zmin, zmax );
+        if ( m_wellPathPoints.empty() )
+        {
+            m_wellPathPoints = wellPathToSectionPoints( m_wellPath()->wellPathGeometry(), zmin, zmax );
+        }
 
-        if ( points.empty() ) return m_texturedSection;
+        if ( m_wellPathPoints.empty() ) return m_texturedSection;
 
-        updateTextureSectionFromPoints( points, zmin, zmax );
+        updateTextureSectionFromPoints( m_wellPathPoints, zmin, zmax );
     }
     else if ( m_type() == RiaDefines::SeismicSectionType::SS_INLINE )
     {
@@ -751,9 +754,14 @@ void RimSeismicSection::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
         }
         else if ( ( changedField == &m_type ) || ( changedField == &m_targets ) || ( changedField == &m_depthIndex ) ||
                   ( changedField == &m_inlineIndex ) || ( changedField == &m_xlineIndex ) || changedField == &m_zFilterType ||
-                  changedField == &m_zLowerThreshold || changedField == &m_zUpperThreshold || changedField == &m_wellPath )
+                  changedField == &m_zLowerThreshold || changedField == &m_zUpperThreshold )
         {
             updateType = RigTexturedSection::WhatToUpdateEnum::UPDATE_GEOMETRY;
+        }
+        else if ( changedField == &m_wellPath )
+        {
+            updateType = RigTexturedSection::WhatToUpdateEnum::UPDATE_GEOMETRY;
+            m_wellPathPoints.clear();
         }
         else if ( changedField == &m_transparent )
         {
@@ -999,21 +1007,23 @@ std::vector<cvf::Vec3d> RimSeismicSection::wellPathToSectionPoints( RigWellPath*
     int currentInline = 0;
     int currentXline  = 0;
 
-    cvf::Vec3d sectionEndPoint;
+    cvf::Vec3d partEndPoint;
 
-    for ( auto& p : wellpath->wellPathPoints() )
+    auto& wellpoints = wellpath->wellPathPoints();
+
+    for ( auto& p : wellpoints )
     {
         auto [iline, xline] = m_seismicData->convertToInlineXline( p );
 
         switch ( state )
         {
             case PointSearchState::NEW_SECTION_START:
-                sectionEndPoint = p;
-                currentInline   = iline;
-                currentXline    = xline;
+                partEndPoint  = p;
+                currentInline = iline;
+                currentXline  = xline;
                 if ( std::abs( p.z() ) > zmin )
                 {
-                    if ( points.size() == 0 ) points.push_back( p );
+                    points.push_back( p );
                     state = PointSearchState::SEARCH_NEXT_POINT;
                 }
                 continue;
@@ -1021,55 +1031,59 @@ std::vector<cvf::Vec3d> RimSeismicSection::wellPathToSectionPoints( RigWellPath*
             case PointSearchState::SEARCH_NEXT_POINT:
                 if ( ( iline == currentInline ) && ( xline == currentXline ) )
                 {
-                    // same inline and xline, keep looking
-                    sectionEndPoint = p;
+                    // same inline and xline, keep looking for next step
+                    partEndPoint = p;
                     continue;
                 }
                 else if ( ( iline == currentInline ) && ( xline != currentXline ) )
                 {
                     // look for more traces with same inline number
-                    sectionEndPoint = p;
-                    state           = PointSearchState::SEARCH_SAME_INLINE;
+                    partEndPoint = p;
+                    state        = PointSearchState::SEARCH_SAME_INLINE;
                     continue;
                 }
                 else if ( ( iline != currentInline ) && ( xline == currentXline ) )
                 {
                     // look for more traces with same xline number
-                    sectionEndPoint = p;
-                    state           = PointSearchState::SEARCH_SAME_XLINE;
+                    partEndPoint = p;
+                    state        = PointSearchState::SEARCH_SAME_XLINE;
                     continue;
                 }
-                else
-                {
-                    // done with this section part, start a new
-                    state = PointSearchState::NEW_SECTION_START;
-                }
+                // both inline and xline changed, new section part starts here
                 break;
 
             case PointSearchState::SEARCH_SAME_INLINE:
                 if ( iline == currentInline )
                 {
-                    sectionEndPoint = p;
+                    partEndPoint = p;
                     continue;
                 }
-                // inline has changed, new section starts
-                state = PointSearchState::NEW_SECTION_START;
+                // inline has changed, new section starts here
+                state = PointSearchState::SEARCH_NEXT_POINT;
                 break;
 
             case PointSearchState::SEARCH_SAME_XLINE:
                 if ( xline == currentXline )
                 {
-                    sectionEndPoint = p;
+                    partEndPoint = p;
                     continue;
                 }
-                // xline has changed, new section starts
-                state = PointSearchState::NEW_SECTION_START;
+                // xline has changed, new section part starts here
+                state = PointSearchState::SEARCH_NEXT_POINT;
                 break;
 
             default:
                 break;
         }
-        points.push_back( sectionEndPoint );
+        currentInline = iline;
+        currentXline  = xline;
+        if ( partEndPoint != points.back() ) points.push_back( partEndPoint );
+        state = PointSearchState::SEARCH_NEXT_POINT;
+    }
+
+    if ( ( points.size() > 0 ) && ( wellpoints.size() > 0 ) )
+    {
+        if ( wellpoints.back() != points.back() ) points.push_back( wellpoints.back() );
     }
 
     return points;
