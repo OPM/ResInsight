@@ -28,6 +28,8 @@
 #include "cafPdmChildField.h"
 #include "cafPdmPtrField.h"
 
+#include <optional>
+
 class RigFemResultAddress;
 class RigGeoMechWellLogExtractor;
 class RigWellPath;
