@@ -44,7 +44,7 @@ bool RicNewZSliceSeismicSectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewZSliceSeismicSectionFeature::onActionTriggered( bool isChecked )
 {
-    RicSeismicSectionFeatureImpl::createSeismicSection( "Depth Slice", RiaDefines::SeismicSectionType::SS_DEPTHSLICE );
+    RicSeismicSectionFeatureImpl::createSeismicSection( RiaDefines::SeismicSectionType::SS_DEPTHSLICE );
 }
 
 //--------------------------------------------------------------------------------------------------

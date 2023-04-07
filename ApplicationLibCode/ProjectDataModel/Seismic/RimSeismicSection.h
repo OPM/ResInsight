@@ -29,6 +29,7 @@
 #include "cafPdmField.h"
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfVec3d.h"
+#include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 
 #include "cvfArray.h"
@@ -62,6 +63,7 @@ public:
 
     QString userDescription();
     void    setUserDescription( QString description );
+    QString fullName() const;
 
     void updateVisualization() override;
     void updateEditorsAndVisualization() override;
@@ -122,6 +124,7 @@ private:
     caf::PdmField<QString>            m_userDescription;
     caf::PdmPtrField<RimSeismicData*> m_seismicData;
     caf::PdmPtrField<RimWellPath*>    m_wellPath;
+    caf::PdmProxyValueField<QString>  m_nameProxy;
 
     caf::PdmField<caf::AppEnum<RiaDefines::SeismicSectionType>> m_type;
     caf::PdmChildArrayField<RimPolylineTarget*>                 m_targets;

@@ -25,5 +25,5 @@ class QString;
 class RicSeismicSectionFeatureImpl
 {
 public:
-    static void createSeismicSection( const QString& name, RiaDefines::SeismicSectionType sectionType );
+    static void createSeismicSection( RiaDefines::SeismicSectionType sectionType );
 };

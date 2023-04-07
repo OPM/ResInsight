@@ -44,7 +44,7 @@ bool RicNewInlineSeismicSectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewInlineSeismicSectionFeature::onActionTriggered( bool isChecked )
 {
-    RicSeismicSectionFeatureImpl::createSeismicSection( "Inline", RiaDefines::SeismicSectionType::SS_INLINE );
+    RicSeismicSectionFeatureImpl::createSeismicSection( RiaDefines::SeismicSectionType::SS_INLINE );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -28,7 +28,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSeismicSectionFeatureImpl::createSeismicSection( const QString& name, RiaDefines::SeismicSectionType sectionType )
+void RicSeismicSectionFeatureImpl::createSeismicSection( RiaDefines::SeismicSectionType sectionType )
 {
     // Find the selected seismic section collection
     std::vector<RimSeismicSectionCollection*> colls = caf::selectedObjectsByTypeStrict<RimSeismicSectionCollection*>();
@@ -39,7 +39,6 @@ void RicSeismicSectionFeatureImpl::createSeismicSection( const QString& name, Ri
     if ( newSection )
     {
         newSection->setSectionType( sectionType );
-        newSection->setUserDescription( name );
         Riu3DMainWindowTools::selectAsCurrentItem( newSection );
         if ( sectionType == RiaDefines::SeismicSectionType::SS_POLYLINE ) newSection->enablePicking( true );
     }

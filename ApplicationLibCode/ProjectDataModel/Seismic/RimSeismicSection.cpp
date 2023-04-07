@@ -68,7 +68,13 @@ RimSeismicSection::RimSeismicSection()
 {
     CAF_PDM_InitObject( "Seismic Section", ":/Seismic16x16.png" );
 
-    CAF_PDM_InitField( &m_userDescription, "UserDecription", QString( "Seismic Section" ), "Name" );
+    CAF_PDM_InitFieldNoDefault( &m_userDescription, "UserDecription", "Description" );
+
+    CAF_PDM_InitFieldNoDefault( &m_nameProxy, "NameProxy", "Name Proxy" );
+    m_nameProxy.registerGetMethod( this, &RimSeismicSection::fullName );
+    m_nameProxy.uiCapability()->setUiReadOnly( true );
+    m_nameProxy.uiCapability()->setUiHidden( true );
+    m_nameProxy.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_type, "Type", "Type" );
 
@@ -142,7 +148,7 @@ void RimSeismicSection::setUserDescription( QString description )
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimSeismicSection::userDescriptionField()
 {
-    return &m_userDescription;
+    return &m_nameProxy;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -992,7 +998,7 @@ QString RimSeismicSection::resultInfoText( cvf::Vec3d worldCoord, int partIndex 
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::Vec3d> RimSeismicSection::wellPathToSectionPoints( RigWellPath* wellpath, double zmin, double zmax )
 {
-    std::vector<cvf::Vec3d> points;
+    if ( wellpath == nullptr ) return {};
 
     enum class PointSearchState
     {
@@ -1009,7 +1015,8 @@ std::vector<cvf::Vec3d> RimSeismicSection::wellPathToSectionPoints( RigWellPath*
 
     cvf::Vec3d partEndPoint;
 
-    auto& wellpoints = wellpath->wellPathPoints();
+    auto&                   wellpoints = wellpath->wellPathPoints();
+    std::vector<cvf::Vec3d> points;
 
     for ( auto& p : wellpoints )
     {
@@ -1087,4 +1094,38 @@ std::vector<cvf::Vec3d> RimSeismicSection::wellPathToSectionPoints( RigWellPath*
     }
 
     return points;
+}
+
+QString RimSeismicSection::fullName() const
+{
+    QString name = m_userDescription();
+    QString prefix;
+
+    if ( m_type() == RiaDefines::SeismicSectionType::SS_WELLPATH )
+    {
+        if ( m_wellPath() != nullptr )
+            prefix = m_wellPath->name();
+        else
+            prefix = "Well Path";
+    }
+    else if ( m_type() == RiaDefines::SeismicSectionType::SS_POLYLINE )
+    {
+        prefix = "Polyline";
+    }
+    else if ( m_type() == RiaDefines::SeismicSectionType::SS_INLINE )
+    {
+        prefix = QString( "Inline [%1]" ).arg( m_inlineIndex );
+    }
+    else if ( m_type() == RiaDefines::SeismicSectionType::SS_XLINE )
+    {
+        prefix = QString( "Xline [%1]" ).arg( m_xlineIndex );
+    }
+    else if ( m_type() == RiaDefines::SeismicSectionType::SS_DEPTHSLICE )
+    {
+        prefix = QString( "Depth Slice [%1]" ).arg( m_depthIndex );
+    }
+
+    if ( !name.isEmpty() ) return QString( "%1 - %2" ).arg( prefix ).arg( name );
+
+    return prefix;
 }
