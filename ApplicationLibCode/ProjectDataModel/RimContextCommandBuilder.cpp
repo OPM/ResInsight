@@ -1039,7 +1039,9 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewInlineSeismicSectionFeature";
             menuBuilder << "RicNewXlineSeismicSectionFeature";
             menuBuilder << "RicNewZSliceSeismicSectionFeature";
+            menuBuilder.addSeparator();
             menuBuilder << "RicNewPolylineSeismicSectionFeature";
+            menuBuilder << "RicNewWellpathSeismicSectionFeature";
         }
         else if ( dynamic_cast<RimSeismicDataCollection*>( firstUiItem ) )
         {

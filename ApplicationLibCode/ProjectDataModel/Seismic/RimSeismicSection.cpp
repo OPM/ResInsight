@@ -97,7 +97,7 @@ RimSeismicSection::RimSeismicSection()
 
     CAF_PDM_InitField( &m_inlineIndex, "InlineIndex", -1, "Inline" );
     m_inlineIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
-    CAF_PDM_InitField( &m_xlineIndex, "CrosslineIndex", -1, "Crossline" );
+    CAF_PDM_InitField( &m_xlineIndex, "CrosslineIndex", -1, "Xline" );
     m_xlineIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_depthIndex, "DepthIndex", -1, "Depth Slice" );
     m_depthIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
@@ -343,6 +343,11 @@ void RimSeismicSection::defineEditorAttribute( const caf::PdmFieldHandle* field,
 void RimSeismicSection::setSectionType( RiaDefines::SeismicSectionType sectionType )
 {
     m_type = sectionType;
+    if ( sectionType == RiaDefines::SeismicSectionType::SS_WELLPATH )
+    {
+        auto wellpath = RimTools::firstWellPath();
+        if ( wellpath != nullptr ) m_wellPath = wellpath;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

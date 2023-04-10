@@ -1,4 +1,4 @@
-/////////////////////////////////////////////////////////////////////////////////
+
 //
 //  Copyright (C) 2011-     Statoil ASA
 //  Copyright (C) 2013-     Ceetron Solutions AS
@@ -420,6 +420,19 @@ RimWellPathCollection* RimTools::wellPathCollection()
     {
         return proj->activeOilField()->wellPathCollection();
     }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellPath* RimTools::firstWellPath()
+{
+    auto wellpathcoll = wellPathCollection();
+    auto wellpaths    = wellpathcoll->allWellPaths();
+
+    if ( wellpaths.size() > 0 ) return wellpaths[0];
 
     return nullptr;
 }

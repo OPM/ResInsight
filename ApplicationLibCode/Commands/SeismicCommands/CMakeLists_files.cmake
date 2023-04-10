@@ -5,6 +5,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewZSliceSeismicSectionFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicSeismicSectionFeatureImpl.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewPolylineSeismicSectionFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewWellpathSeismicSectionFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -14,6 +15,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewZSliceSeismicSectionFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicSeismicSectionFeatureImpl.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewPolylineSeismicSectionFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewWellpathSeismicSectionFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

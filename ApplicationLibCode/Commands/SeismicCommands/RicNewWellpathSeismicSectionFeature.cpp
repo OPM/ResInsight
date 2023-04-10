@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewZSliceSeismicSectionFeature.h"
+#include "RicNewWellpathSeismicSectionFeature.h"
 #include "RicSeismicSectionFeatureImpl.h"
 
 #include "RimGridView.h"
@@ -29,12 +29,12 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT( RicNewZSliceSeismicSectionFeature, "RicNewZSliceSeismicSectionFeature" );
+CAF_CMD_SOURCE_INIT( RicNewWellpathSeismicSectionFeature, "RicNewWellpathSeismicSectionFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewZSliceSeismicSectionFeature::isCommandEnabled()
+bool RicNewWellpathSeismicSectionFeature::isCommandEnabled()
 {
     return true;
 }
@@ -42,16 +42,16 @@ bool RicNewZSliceSeismicSectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewZSliceSeismicSectionFeature::onActionTriggered( bool isChecked )
+void RicNewWellpathSeismicSectionFeature::onActionTriggered( bool isChecked )
 {
-    RicSeismicSectionFeatureImpl::createSeismicSection( RiaDefines::SeismicSectionType::SS_DEPTHSLICE );
+    RicSeismicSectionFeatureImpl::createSeismicSection( RiaDefines::SeismicSectionType::SS_WELLPATH );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewZSliceSeismicSectionFeature::setupActionLook( QAction* actionToSetup )
+void RicNewWellpathSeismicSectionFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/Seismic16x16.png" ) );
-    actionToSetup->setText( "New Depth Slice" );
+    actionToSetup->setText( "New Well Path Section" );
 }
