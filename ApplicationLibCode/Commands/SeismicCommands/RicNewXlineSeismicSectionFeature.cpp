@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicNewXlineSeismicSectionFeature.h"
+
 #include "RicSeismicSectionFeatureImpl.h"
 
 #include <QAction>

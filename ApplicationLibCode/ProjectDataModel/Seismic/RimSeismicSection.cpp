@@ -107,7 +107,7 @@ RimSeismicSection::RimSeismicSection()
     CAF_PDM_InitField( &m_showSeismicOutline, "ShowSeismicOutline", false, "Show Seismic Data Outline" );
     CAF_PDM_InitField( &m_showSectionLine, "ShowSectionLine", false, "Show Section Polyline" );
 
-    CAF_PDM_InitField( &m_transparent, "TransperentSection", false, "Transparent (Use on only one section at a time!)" );
+    CAF_PDM_InitField( &m_transparent, "TransparentSection", false, "Transparent (Use on only one section at a time!)" );
 
     CAF_PDM_InitFieldNoDefault( &m_zFilterType, "DepthFilter", "Depth Filter" );
     CAF_PDM_InitField( &m_zUpperThreshold, "UpperThreshold", -1, "Upper Threshold" );
@@ -397,6 +397,14 @@ void RimSeismicSection::insertTarget( const RimPolylineTarget* targetToInsertBef
         m_targets.push_back( targetToInsert );
 
     updateVisualization();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicSection::addTargetNoUpdate( RimPolylineTarget* target )
+{
+    m_targets.push_back( target );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1101,6 +1109,9 @@ std::vector<cvf::Vec3d> RimSeismicSection::wellPathToSectionPoints( RigWellPath*
     return points;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimSeismicSection::fullName() const
 {
     QString name = m_userDescription();
@@ -1133,4 +1144,12 @@ QString RimSeismicSection::fullName() const
     if ( !name.isEmpty() ) return QString( "%1 - %2" ).arg( prefix ).arg( name );
 
     return prefix;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicSection::setWellPath( RimWellPath* wellPath )
+{
+    m_wellPath = wellPath;
 }

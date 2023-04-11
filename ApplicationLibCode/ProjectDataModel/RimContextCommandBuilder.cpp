@@ -845,6 +845,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicAppendIntersectionFeature";
             menuBuilder << "RicAppendIntersectionBoxFeature";
             menuBuilder.addSeparator();
+            menuBuilder << "RicSeismicSectionFromIntersectionFeature";
+            menuBuilder.addSeparator();
             menuBuilder << "RicNewIntersectionViewFeature";
             menuBuilder.addSeparator();
             menuBuilder << "RicCopyIntersectionsToAllViewsInCaseFeature";

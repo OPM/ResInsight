@@ -67,6 +67,7 @@ public:
 
     void updateVisualization() override;
     void updateEditorsAndVisualization() override;
+    void addTargetNoUpdate( RimPolylineTarget* target );
     void insertTarget( const RimPolylineTarget* targetToInsertBefore, RimPolylineTarget* targetToInsert ) override;
     void deleteTarget( RimPolylineTarget* targetToDelete ) override;
     void enablePicking( bool enable );
@@ -96,6 +97,8 @@ public:
     RimIntersectionFilterEnum zFilterType() const;
 
     QString resultInfoText( cvf::Vec3d worldCoord, int partIndex );
+
+    void setWellPath( RimWellPath* wellPath );
 
 protected:
     void                 initAfterRead() override;

@@ -17,15 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicNewZSliceSeismicSectionFeature.h"
+
 #include "RicSeismicSectionFeatureImpl.h"
-
-#include "RimGridView.h"
-#include "RimSeismicSection.h"
-#include "RimSeismicSectionCollection.h"
-#include "Riu3DMainWindowTools.h"
-
-#include "cafSelectionManagerTools.h"
-#include "cafUtils.h"
 
 #include <QAction>
 
