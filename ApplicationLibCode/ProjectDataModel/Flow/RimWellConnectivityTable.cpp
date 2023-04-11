@@ -27,6 +27,7 @@
 #include "RigSimWellData.h"
 #include "RigSimulationWellCenterLineCalculator.h"
 #include "RigWellAllocationOverTime.h"
+#include "RigWellResultFrame.h"
 
 #include "RimEclipseCaseTools.h"
 #include "RimEclipseCellColors.h"

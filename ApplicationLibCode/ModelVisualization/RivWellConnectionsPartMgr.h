@@ -35,7 +35,6 @@ class DrawableGeo;
 class Part;
 } // namespace cvf
 
-class RigWellResultFrame;
 class RimEclipseView;
 class RimSimWellInView;
 class RivPipeGeometryGenerator;

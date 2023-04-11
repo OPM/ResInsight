@@ -30,6 +30,7 @@
 #include "RigVirtualPerforationTransmissibilities.h"
 #include "RigWellLogExtractor.h"
 #include "RigWellPath.h"
+#include "RigWellResultFrame.h"
 #include "RigWellResultPoint.h"
 
 #include "Rim3dView.h"

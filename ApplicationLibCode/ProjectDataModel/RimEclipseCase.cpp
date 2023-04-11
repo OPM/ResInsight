@@ -42,7 +42,7 @@
 #include "RigNNCData.h"
 #include "RigSimWellData.h"
 #include "RigVirtualPerforationTransmissibilities.h"
-#include "RigWellResultPoint.h"
+#include "RigWellResultFrame.h"
 
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimCaseCollection.h"

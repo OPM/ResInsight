@@ -106,31 +106,4 @@ struct RigWellResultBranch
     std::vector<RigWellResultPoint> m_branchResultPoints;
 };
 
-//==================================================================================================
-/// This class contains the well information for one timestep.
-/// The main content is the vector of RigWellResultBranch which contains all the simple pipe
-/// sections that make up the well
-//==================================================================================================
-class RigWellResultFrame
-{
-public:
-    RigWellResultFrame()
-        : m_productionType( RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE )
-        , m_isOpen( false )
-    {
-    }
-
-    const RigWellResultPoint*       findResultCellWellHeadIncluded( size_t gridIndex, size_t gridCellIndex ) const;
-    const RigWellResultPoint*       findResultCellWellHeadExcluded( size_t gridIndex, size_t gridCellIndex ) const;
-    std::vector<RigWellResultPoint> allResultPoints() const;
-
-    RigWellResultPoint             wellHeadOrStartCell() const;
-    RiaDefines::WellProductionType m_productionType;
-    bool                           m_isOpen;
-    RigWellResultPoint             m_wellHead;
-    QDateTime                      m_timestamp;
-
-    std::vector<RigWellResultBranch> m_wellResultBranches;
-};
-
 using SimulationWellCellBranch = std::pair<std::vector<cvf::Vec3d>, std::vector<RigWellResultPoint>>;

@@ -44,6 +44,7 @@
 #include "RigMainGrid.h"
 #include "RigNNCData.h"
 #include "RigSimWellData.h"
+#include "RigWellResultFrame.h"
 #include "RigWellResultPoint.h"
 
 #include "cafProgressInfo.h"

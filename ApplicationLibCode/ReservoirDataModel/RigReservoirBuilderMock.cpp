@@ -26,9 +26,10 @@
 #include "RigMainGrid.h"
 #include "RigNNCData.h"
 #include "RigSimWellData.h"
+#include "RigWellResultFrame.h"
+#include "RigWellResultPoint.h"
 
 /* rand example: guess the number */
-#include "RigWellResultPoint.h"
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>

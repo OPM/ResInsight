@@ -29,8 +29,6 @@
 class RigEclipseCaseData;
 class RimSimWellInView;
 class RigSimWellData;
-struct RigWellResultPoint;
-struct RigWellResultBranch;
 class RigWellResultFrame;
 
 //--------------------------------------------------------------------------------------------------
@@ -62,14 +60,6 @@ private:
                                                         bool                                          useAllCellCenters,
                                                         std::vector<std::vector<cvf::Vec3d>>&         pipeBranchesCLCoords,
                                                         std::vector<std::vector<RigWellResultPoint>>& pipeBranchesCellIds );
-
-    static std::vector<SimulationWellCellBranch> calculateMswWellPipeGeometryForTimeStep( const RigEclipseCaseData* eclipseCaseData,
-                                                                                          const RigSimWellData*     simWellData,
-                                                                                          int                       timeStepIndex );
-
-    static SimulationWellCellBranch addSegmentsToCellFaces( const std::vector<cvf::Vec3d>          branchCoords,
-                                                            const std::vector<RigWellResultPoint>& resultPoints,
-                                                            const RigEclipseCaseData*              eclipseCaseData );
 
     static bool hasAnyValidDataCells( const RigWellResultBranch& branch );
     static void finishPipeCenterLine( std::vector<std::vector<cvf::Vec3d>>& pipeBranchesCLCoords, const cvf::Vec3d& lastCellCenter );

@@ -38,7 +38,6 @@
 
 class RigSimWellData;
 class RigWellResultFrame;
-struct RigWellResultPoint;
 
 class RimSimWellFractureCollection;
 class RigWellPath;

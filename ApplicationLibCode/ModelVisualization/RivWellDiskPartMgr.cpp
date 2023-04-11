@@ -24,7 +24,7 @@
 #include "RigActiveCellInfo.h"
 #include "RigCell.h"
 #include "RigSimWellData.h"
-#include "RigWellResultPoint.h"
+#include "RigWellResultFrame.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"

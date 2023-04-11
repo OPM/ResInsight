@@ -34,6 +34,7 @@
 #include "RigSimWellData.h"
 #include "RigWellLogExtractor.h"
 #include "RigWellPath.h"
+#include "RigWellResultFrame.h"
 #include "RigWellResultPoint.h"
 
 #include "RimDataSourceForRftPlt.h"
