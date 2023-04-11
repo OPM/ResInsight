@@ -393,7 +393,6 @@ void RimRegularLegendConfig::updateLegend()
 {
     m_significantDigitsInData = m_precision;
 
-    updateTickCountAndUserDefinedRange();
     if ( m_resetUserDefinedValues && m_globalAutoMax != cvf::UNDEFINED_DOUBLE )
     {
         updateTickCountAndUserDefinedRange();
