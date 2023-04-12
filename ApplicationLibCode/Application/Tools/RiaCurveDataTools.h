@@ -34,7 +34,7 @@ class QDateTime;
 class RiaCurveDataTools
 {
 public:
-    typedef std::vector<std::pair<size_t, size_t>> CurveIntervals;
+    using CurveIntervals = std::vector<std::pair<size_t, size_t>>;
 
     enum class ErrorAxis
     {
