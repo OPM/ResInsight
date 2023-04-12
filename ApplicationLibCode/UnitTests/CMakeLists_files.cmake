@@ -89,6 +89,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifRevealCsvSectionSummaryReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifRevealCsvSummaryReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanCsvSummaryReader-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaEnsembleNameTools-Test.cpp
 )
 
 if(RESINSIGHT_ENABLE_GRPC)

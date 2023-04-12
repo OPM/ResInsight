@@ -22,6 +22,7 @@
 #include "RiaEnsembleNameTools.h"
 #include "RiaFilePathTools.h"
 #include "RiaPreferences.h"
+#include "RiaSummaryDefines.h"
 #include "RiaSummaryTools.h"
 #include "RiaTextStringTools.h"
 
@@ -84,11 +85,23 @@ void RicImportEnsembleFeature::onActionTriggered( bool isChecked )
     }
     else
     {
-        std::vector<QStringList> groupedByEnsemble = RiaEnsembleNameTools::groupFilesByEnsemble( fileNames, ensembleGroupingMode );
-        for ( const QStringList& groupedFileNames : groupedByEnsemble )
+        if ( fileType == RiaDefines::FileType::STIMPLAN_SUMMARY )
         {
-            bool useEnsembleNameDialog = false;
-            importSingleEnsemble( groupedFileNames, useEnsembleNameDialog, ensembleGroupingMode, fileType );
+            std::map<QString, QStringList> groupedByEnsemble = RiaEnsembleNameTools::groupFilesByStimPlanEnsemble( fileNames );
+            for ( const auto& [ensembleName, groupedFileNames] : groupedByEnsemble )
+            {
+                bool useEnsembleNameDialog = false;
+                importSingleEnsemble( groupedFileNames, useEnsembleNameDialog, ensembleGroupingMode, fileType, ensembleName );
+            }
+        }
+        else
+        {
+            std::vector<QStringList> groupedByEnsemble = RiaEnsembleNameTools::groupFilesByEnsemble( fileNames, ensembleGroupingMode );
+            for ( const QStringList& groupedFileNames : groupedByEnsemble )
+            {
+                bool useEnsembleNameDialog = false;
+                importSingleEnsemble( groupedFileNames, useEnsembleNameDialog, ensembleGroupingMode, fileType );
+            }
         }
     }
 }
@@ -99,9 +112,11 @@ void RicImportEnsembleFeature::onActionTriggered( bool isChecked )
 void RicImportEnsembleFeature::importSingleEnsemble( const QStringList&                         fileNames,
                                                      bool                                       useEnsembleNameDialog,
                                                      RiaEnsembleNameTools::EnsembleGroupingMode groupingMode,
-                                                     RiaDefines::FileType                       fileType )
+                                                     RiaDefines::FileType                       fileType,
+                                                     const QString&                             defaultEnsembleName )
 {
-    QString ensembleName = RiaEnsembleNameTools::findSuitableEnsembleName( fileNames, groupingMode );
+    QString ensembleName = !defaultEnsembleName.isEmpty() ? defaultEnsembleName
+                                                          : RiaEnsembleNameTools::findSuitableEnsembleName( fileNames, groupingMode );
 
     if ( useEnsembleNameDialog ) ensembleName = askForEnsembleName( ensembleName );
 

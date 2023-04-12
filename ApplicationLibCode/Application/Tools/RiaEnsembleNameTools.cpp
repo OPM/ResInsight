@@ -136,6 +136,106 @@ std::vector<QStringList> RiaEnsembleNameTools::groupFilesByEnsemble( const QStri
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::map<QString, QStringList> RiaEnsembleNameTools::groupFilesByStimPlanEnsemble( const QStringList& fileNames )
+{
+    std::vector<QStringList> componentsForAllFilePaths;
+    for ( const auto& filePath : fileNames )
+    {
+        QStringList components = RiaFilePathTools::splitPathIntoComponents( filePath );
+        componentsForAllFilePaths.push_back( components );
+    }
+
+    auto mapping = findUniqueStimPlanEnsembleNames( fileNames, componentsForAllFilePaths );
+
+    std::set<QString> iterations;
+    for ( const auto& [name, iterFileNamePair] : mapping )
+    {
+        iterations.insert( iterFileNamePair.first );
+    }
+
+    std::map<QString, QStringList> groupedByIteration;
+
+    for ( const QString& groupIteration : iterations )
+    {
+        QStringList fileNamesFromIteration;
+
+        for ( const auto& [name, iterFileNamePair] : mapping )
+        {
+            QString iteration = iterFileNamePair.first;
+            QString fileName  = iterFileNamePair.second;
+
+            if ( groupIteration == iteration )
+            {
+                fileNamesFromIteration << fileName;
+            }
+        }
+        groupedByIteration[groupIteration] = fileNamesFromIteration;
+    }
+
+    return groupedByIteration;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<QString, std::pair<QString, QString>>
+    RiaEnsembleNameTools::findUniqueStimPlanEnsembleNames( const QStringList& fileNames, const std::vector<QStringList>& fileNameComponents )
+{
+    CAF_ASSERT( fileNames.size() == static_cast<int>( fileNameComponents.size() ) );
+
+    struct StimPlanComponents
+    {
+        QString realization;
+        QString iteration;
+        QString well;
+        QString fracture;
+        QString job;
+        QString fileName;
+    };
+
+    std::vector<StimPlanComponents> comps;
+
+    int i = 0;
+    for ( const auto& fileComponents : fileNameComponents )
+    {
+        int numComponents = fileComponents.size();
+
+        if ( numComponents >= 7 )
+        {
+            StimPlanComponents c;
+            c.fileName    = fileNames[i];
+            c.fracture    = fileComponents[numComponents - 2];
+            c.iteration   = fileComponents[numComponents - 6];
+            c.realization = fileComponents[numComponents - 7];
+
+            QString     wellJobComponent = fileComponents[numComponents - 3];
+            QStringList parts            = wellJobComponent.split( "_" );
+
+            if ( parts.size() == 4 )
+            {
+                c.well = parts[0];
+                c.job  = parts[3];
+            }
+
+            comps.push_back( c );
+        }
+        i++;
+    }
+
+    std::map<QString, std::pair<QString, QString>> mapping;
+    for ( const StimPlanComponents& c : comps )
+    {
+        QString key       = QString( "%1, %2, %3, %4, %5" ).arg( c.iteration, c.realization, c.well, c.fracture, c.job );
+        QString iteration = QString( "%1, %2, %3, %4" ).arg( c.iteration, c.well, c.fracture, c.job );
+        mapping[key]      = std::make_pair( iteration, c.fileName );
+    }
+
+    return mapping;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RiaEnsembleNameTools::uniqueShortNameForEnsembleCase( RimSummaryCase* summaryCase )
 {
     CAF_ASSERT( summaryCase && summaryCase->ensemble() );

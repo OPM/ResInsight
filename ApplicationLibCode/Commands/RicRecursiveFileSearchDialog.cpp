@@ -433,12 +433,24 @@ void RicRecursiveFileSearchDialog::updateFileListWidget()
 
     if ( ensembleGroupingMode() != RiaEnsembleNameTools::EnsembleGroupingMode::NONE )
     {
-        std::vector<QStringList> groupedByEnsemble = RiaEnsembleNameTools::groupFilesByEnsemble( m_foundFiles, ensembleGroupingMode() );
-        for ( const QStringList& groupedFileNames : groupedByEnsemble )
+        if ( m_fileType == RicRecursiveFileSearchDialog::FileType::STIMPLAN_SUMMARY )
         {
-            QString ensembleName = RiaEnsembleNameTools::findSuitableEnsembleName( groupedFileNames, ensembleGroupingMode() );
-            new QListWidgetItem( QDir::toNativeSeparators( ensembleName ), m_fileListWidget );
-            addToFileListWidget( groupedFileNames );
+            std::map<QString, QStringList> groupedByEnsemble = RiaEnsembleNameTools::groupFilesByStimPlanEnsemble( m_foundFiles );
+            for ( auto [ensembleName, groupedFileNames] : groupedByEnsemble )
+            {
+                new QListWidgetItem( QDir::toNativeSeparators( ensembleName ), m_fileListWidget );
+                addToFileListWidget( groupedFileNames );
+            }
+        }
+        else
+        {
+            std::vector<QStringList> groupedByEnsemble = RiaEnsembleNameTools::groupFilesByEnsemble( m_foundFiles, ensembleGroupingMode() );
+            for ( const QStringList& groupedFileNames : groupedByEnsemble )
+            {
+                QString ensembleName = RiaEnsembleNameTools::findSuitableEnsembleName( groupedFileNames, ensembleGroupingMode() );
+                new QListWidgetItem( QDir::toNativeSeparators( ensembleName ), m_fileListWidget );
+                addToFileListWidget( groupedFileNames );
+            }
         }
     }
     else
