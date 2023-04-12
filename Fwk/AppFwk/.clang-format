@@ -72,7 +72,7 @@ SpacesInAngles:  false
 SpacesInContainerLiterals: false
 SpacesInCStyleCastParentheses: false
 SpacesInLineCommentPrefix:
-  Minimum: 0
+  Minimum: -1
   Maximum: -1
 SpacesInParentheses: true
 SpacesInSquareBrackets: false
