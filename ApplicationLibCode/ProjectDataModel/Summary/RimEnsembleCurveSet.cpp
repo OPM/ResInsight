@@ -135,10 +135,9 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     CAF_PDM_InitFieldNoDefault( &m_resampling, "Resampling", "Resampling" );
 
-    CAF_PDM_InitField( &m_colorMode, "ColorMode", caf::AppEnum<ColorMode>( ColorMode::SINGLE_COLOR ), "Coloring Mode" );
+    CAF_PDM_InitField( &m_colorMode, "ColorMode", caf::AppEnum<ColorMode>( ColorMode::SINGLE_COLOR_WITH_ALPHA ), "Coloring Mode" );
 
     CAF_PDM_InitField( &m_color, "Color", RiaColorTools::textColor3f(), "Color" );
-    CAF_PDM_InitField( &m_linkStatisticsColor, "LinkStatisticsColor", false, "Link Statistics Color" );
 
     CAF_PDM_InitField( &m_ensembleParameter, "EnsembleParameter", QString( "" ), "Parameter" );
     m_ensembleParameter.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
@@ -674,7 +673,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     {
         updateAllCurves();
     }
-    else if ( changedField == &m_color || changedField == &m_linkStatisticsColor )
+    else if ( changedField == &m_color )
     {
         ensureStatisticsColorIsUpdated();
 
@@ -910,7 +909,10 @@ void RimEnsembleCurveSet::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
         }
     }
 
-    caf::PdmUiGroup* statGroup = uiOrdering.addNewGroup( "Statistics" );
+    caf::PdmUiGroup* statGroup           = uiOrdering.addNewGroup( "Statistics" );
+    bool             showStatisticsColor = m_colorMode() == RimEnsembleCurveSetColorManager::ColorMode::SINGLE_COLOR;
+    m_statistics->showColorField( showStatisticsColor );
+
     m_statistics->defineUiOrdering( uiConfigName, *statGroup );
 
     uiOrdering.skipRemainingFields( true );
@@ -958,7 +960,7 @@ void RimEnsembleCurveSet::onCustomObjectiveFunctionChanged( const caf::SignalEmi
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::ensureStatisticsColorIsUpdated()
 {
-    if ( m_linkStatisticsColor )
+    if ( m_colorMode() == RimEnsembleCurveSet::ColorMode::SINGLE_COLOR_WITH_ALPHA )
     {
         auto sourceColor = RiaColorTools::toQColor( m_color );
         auto saturation  = 1.0;
@@ -993,10 +995,9 @@ void RimEnsembleCurveSet::appendColorGroup( caf::PdmUiOrdering& uiOrdering )
     m_colorMode.uiCapability()->setUiReadOnly( !m_yValuesSummaryCaseCollection() );
     colorsGroup->add( &m_colorMode );
 
-    if ( m_colorMode == ColorMode::SINGLE_COLOR )
+    if ( RimEnsembleCurveSetColorManager::hasSameColorForAllCurves( m_colorMode() ) )
     {
         colorsGroup->add( &m_color );
-        colorsGroup->add( &m_linkStatisticsColor );
     }
     else if ( m_colorMode == ColorMode::BY_ENSEMBLE_PARAM )
     {
@@ -1150,12 +1151,14 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions( const 
     }
     else if ( fieldNeedingOptions == &m_colorMode )
     {
-        auto singleColorOption     = ColorModeEnum( ColorMode::SINGLE_COLOR );
-        auto byEnsParamOption      = ColorModeEnum( ColorMode::BY_ENSEMBLE_PARAM );
-        auto byObjFuncOption       = ColorModeEnum( ColorMode::BY_OBJECTIVE_FUNCTION );
-        auto byCustomObjFuncOption = ColorModeEnum( ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION );
+        auto singleColorOption          = ColorModeEnum( ColorMode::SINGLE_COLOR );
+        auto singleColorWithAlphaOption = ColorModeEnum( ColorMode::SINGLE_COLOR_WITH_ALPHA );
+        auto byEnsParamOption           = ColorModeEnum( ColorMode::BY_ENSEMBLE_PARAM );
+        auto byObjFuncOption            = ColorModeEnum( ColorMode::BY_OBJECTIVE_FUNCTION );
+        auto byCustomObjFuncOption      = ColorModeEnum( ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION );
 
         options.push_back( caf::PdmOptionItemInfo( singleColorOption.uiText(), ColorMode::SINGLE_COLOR ) );
+        options.push_back( caf::PdmOptionItemInfo( singleColorWithAlphaOption.uiText(), ColorMode::SINGLE_COLOR_WITH_ALPHA ) );
 
         RimSummaryCaseCollection* group = m_yValuesSummaryCaseCollection();
         if ( group && group->hasEnsembleParameters() )
@@ -1530,7 +1533,7 @@ std::vector<cvf::Color3f> RimEnsembleCurveSet::generateColorsForCases( const std
             }
         }
     }
-    else if ( m_colorMode == ColorMode::SINGLE_COLOR )
+    else if ( RimEnsembleCurveSetColorManager::hasSameColorForAllCurves( m_colorMode() ) )
     {
         caseColors.resize( summaryCases.size(), m_color );
     }
@@ -1619,7 +1622,8 @@ void RimEnsembleCurveSet::updateCurveColors()
     firstAncestorOrThisOfType( plot );
     if ( plot && plot->plotWidget() )
     {
-        if ( m_yValuesSummaryCaseCollection() && isCurvesVisible() && m_colorMode != ColorMode::SINGLE_COLOR && m_legendConfig->showLegend() )
+        if ( m_yValuesSummaryCaseCollection() && isCurvesVisible() &&
+             !RimEnsembleCurveSetColorManager::hasSameColorForAllCurves( m_colorMode() ) && m_legendConfig->showLegend() )
         {
             if ( !m_legendOverlayFrame )
             {
@@ -2021,7 +2025,7 @@ void RimEnsembleCurveSet::updateEnsembleLegendItem()
     {
         RiuPlotCurveSymbol* symbol = m_plotCurveForLegendText->createSymbol( RiuPlotCurveSymbol::SYMBOL_CROSS );
 
-        if ( m_colorMode == ColorMode::SINGLE_COLOR )
+        if ( RimEnsembleCurveSetColorManager::hasSameColorForAllCurves( m_colorMode() ) )
         {
             QColor curveColor = RiaColorTools::toQColor( m_color );
             QPen   curvePen( curveColor );

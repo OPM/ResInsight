@@ -57,6 +57,8 @@ public:
     void disableP90Curve( bool disable );
     void disableMeanCurve( bool disable );
 
+    void showColorField( bool show );
+
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
@@ -76,5 +78,6 @@ private:
 
     caf::PdmField<QString> m_warningLabel;
 
+    bool                        m_showColorField;
     caf::PdmField<cvf::Color3f> m_color;
 };

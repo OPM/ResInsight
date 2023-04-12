@@ -228,7 +228,6 @@ private:
     caf::PdmField<RiaDefines::DateTimePeriodEnum> m_resampling;
 
     caf::PdmField<ColorModeEnum>                                       m_colorMode;
-    caf::PdmField<bool>                                                m_linkStatisticsColor;
     caf::PdmField<cvf::Color3f>                                        m_color;
     caf::PdmField<QString>                                             m_ensembleParameter;
     caf::PdmField<caf::AppEnum<RimEnsembleCurveSet::ParameterSorting>> m_ensembleParameterSorting;

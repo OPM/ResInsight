@@ -59,6 +59,8 @@ RimEnsembleStatistics::RimEnsembleStatistics( RimEnsembleCurveSetInterface* pare
         // Set to always show curves before the version this feature was introduced in
         m_showStatisticsCurveLegends = true;
     }
+
+    m_showColorField = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -112,6 +114,14 @@ void RimEnsembleStatistics::disableMeanCurve( bool disable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleStatistics::showColorField( bool show )
+{
+    m_showColorField = show;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleStatistics::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( changedField == &m_active || changedField == &m_basedOnFilteredCases || changedField == &m_showP10Curve ||
@@ -150,7 +160,8 @@ void RimEnsembleStatistics::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     uiOrdering.add( &m_basedOnFilteredCases );
     uiOrdering.add( &m_includeIncompleteCurves );
     uiOrdering.add( &m_showCurveLabels );
-    uiOrdering.add( &m_color );
+
+    if ( m_showColorField ) uiOrdering.add( &m_color );
 
     auto group = uiOrdering.addNewGroup( "Curves" );
     if ( !curveSet->hasMeanData() ) group->add( &m_warningLabel );
