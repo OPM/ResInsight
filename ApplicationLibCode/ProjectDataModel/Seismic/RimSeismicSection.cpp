@@ -37,6 +37,7 @@
 
 #include "RivSeismicSectionPartMgr.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiSliderEditor.h"
@@ -53,6 +54,7 @@
 #include <QDialog>
 #include <QImage>
 #include <QLayout>
+#include <QMenu>
 #include <QPixmap>
 
 #include <algorithm>
@@ -1101,4 +1103,16 @@ QString RimSeismicSection::fullName() const
 void RimSeismicSection::setWellPath( RimWellPath* wellPath )
 {
     m_wellPath = wellPath;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicSection::defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget )
+{
+    caf::CmdFeatureMenuBuilder menuBuilder;
+
+    menuBuilder << "RicDeletePolylineTargetFeature";
+
+    menuBuilder.appendToMenu( menu );
 }
