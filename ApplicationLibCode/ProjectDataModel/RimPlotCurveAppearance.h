@@ -41,10 +41,10 @@ public:
 
 public:
     using CurveInterpolation = caf::AppEnum<RiuQwtPlotCurveDefines::CurveInterpolationEnum>;
-    using LineStyle = caf::AppEnum<RiuQwtPlotCurveDefines::LineStyleEnum>;
-    using PointSymbol = caf::AppEnum<RiuPlotCurveSymbol::PointSymbolEnum>;
-    using LabelPosition = caf::AppEnum<RiuPlotCurveSymbol::LabelPosition>;
-    using FillStyle = caf::AppEnum<Qt::BrushStyle>;
+    using LineStyle          = caf::AppEnum<RiuQwtPlotCurveDefines::LineStyleEnum>;
+    using PointSymbol        = caf::AppEnum<RiuPlotCurveSymbol::PointSymbolEnum>;
+    using LabelPosition      = caf::AppEnum<RiuPlotCurveSymbol::LabelPosition>;
+    using FillStyle          = caf::AppEnum<Qt::BrushStyle>;
 
 public:
     RimPlotCurveAppearance();

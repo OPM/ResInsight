@@ -33,7 +33,7 @@ CAF_PDM_SOURCE_INIT( RimWellPathFracture, "WellPathFracture" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellPathFracture::RimWellPathFracture( )
+RimWellPathFracture::RimWellPathFracture()
 {
     CAF_PDM_InitObject( "Fracture", ":/FractureSymbol16x16.png" );
 

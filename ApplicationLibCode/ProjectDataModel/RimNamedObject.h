@@ -30,8 +30,8 @@ class RimNamedObject : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimNamedObject( );
-    ~RimNamedObject( ) override;
+    RimNamedObject();
+    ~RimNamedObject() override;
 
     virtual QString name() const;
     void            setName( const QString& name );

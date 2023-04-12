@@ -76,7 +76,7 @@ public:
         PER_ELEMENT
     };
 
-    RimMudWeightWindowParameters( );
+    RimMudWeightWindowParameters();
 
     SourceType wellDeviationType() const;
     double     wellDeviation() const;

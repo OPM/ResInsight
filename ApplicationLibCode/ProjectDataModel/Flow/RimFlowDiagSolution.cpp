@@ -68,7 +68,7 @@ QString RimFlowDiagSolution::addCrossFlowEnding( const QString& wellName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFlowDiagSolution::RimFlowDiagSolution( )
+RimFlowDiagSolution::RimFlowDiagSolution()
 {
     CAF_PDM_InitObject( "Flow Diagnostics Solution" );
     CAF_PDM_InitField( &m_userDescription, "UserDescription", QString( "All Wells" ), "Description" );
@@ -77,7 +77,7 @@ RimFlowDiagSolution::RimFlowDiagSolution( )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFlowDiagSolution::~RimFlowDiagSolution( )
+RimFlowDiagSolution::~RimFlowDiagSolution()
 {
 }
 
