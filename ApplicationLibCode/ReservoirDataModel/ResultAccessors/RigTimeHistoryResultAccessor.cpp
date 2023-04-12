@@ -24,7 +24,7 @@
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
 
-//#include <cmath> // Needed for HUGE_VAL on Linux
+// #include <cmath> // Needed for HUGE_VAL on Linux
 
 //--------------------------------------------------------------------------------------------------
 ///

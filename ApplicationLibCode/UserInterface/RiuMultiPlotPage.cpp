@@ -168,9 +168,8 @@ void RiuMultiPlotPage::insertPlot( RiuPlotWidget* plotWidget, size_t index )
     m_subTitles.insert( static_cast<int>( index ), subTitle );
 
     // Remove legend overlays already attached to the plot widget
-    auto matcher = []( RiuDraggableOverlayFrame* p ) {
-        return dynamic_cast<RiuQwtLegendOverlayContentFrame*>( p->contentFrame() ) != nullptr;
-    };
+    auto matcher = []( RiuDraggableOverlayFrame* p )
+    { return dynamic_cast<RiuQwtLegendOverlayContentFrame*>( p->contentFrame() ) != nullptr; };
     plotWidget->clearOverlayFrames( matcher );
 
     RiuQwtPlotWidget* qwtPlotWidget = dynamic_cast<RiuQwtPlotWidget*>( plotWidget );
@@ -1158,7 +1157,8 @@ void RiuMultiPlotPage::alignAxes()
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotPage::alignAxis( QwtAxisId axis, int targetRowOrColumn, std::function<bool( int, int, int )> matchPosition )
 {
-    auto rowAndColumnFromIdx = [this]( int idx ) {
+    auto rowAndColumnFromIdx = [this]( int idx )
+    {
         auto hit = m_visibleIndexToPositionMapping.find( idx );
         CAF_ASSERT( hit != m_visibleIndexToPositionMapping.end() );
         return hit->second;

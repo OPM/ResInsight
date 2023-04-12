@@ -115,7 +115,7 @@ void RicCreateDepthAdjustedLasFilesFeature::createDepthAdjustedWellLogFileFromEc
                                                                                            RimWellPath*                    sourceWell,
                                                                                            const std::vector<RimWellPath*> destinationWells,
                                                                                            const std::vector<QString>& selectedResultProperties,
-                                                                                           const QString&              exportFolder )
+                                                                                           const QString& exportFolder )
 {
     if ( sourceWell->wellLogFiles().empty() ) return;
 
@@ -142,7 +142,7 @@ void RicCreateDepthAdjustedLasFilesFeature::createDepthAdjustedWellLogFileFromGe
                                                                                            RimWellPath*                    sourceWell,
                                                                                            const std::vector<RimWellPath*> destinationWells,
                                                                                            const std::vector<QString>& selectedResultProperties,
-                                                                                           const QString&              exportFolder )
+                                                                                           const QString& exportFolder )
 {
     if ( sourceWell->wellLogFiles().empty() ) return;
 

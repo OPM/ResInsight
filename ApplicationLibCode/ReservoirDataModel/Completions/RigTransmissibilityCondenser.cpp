@@ -145,8 +145,8 @@ double RigTransmissibilityCondenser::condensedTransmissibility( CellAddress exte
 std::map<size_t, double> RigTransmissibilityCondenser::scaleMatrixToFracTransByMatrixWellDP( const RigActiveCellInfo* actCellInfo,
                                                                                              double                   currentWellPressure,
                                                                                              const std::vector<double>& currentMatrixPressures,
-                                                                                             double*                    minPressureDrop,
-                                                                                             double*                    maxPressureDrop )
+                                                                                             double* minPressureDrop,
+                                                                                             double* maxPressureDrop )
 {
     std::map<size_t, double> originalLumpedMatrixToFractureTrans; // Sum(T_mf)
 

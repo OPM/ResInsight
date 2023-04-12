@@ -558,9 +558,10 @@ std::vector<RimSummaryCurve*> RimSummaryPlot::visibleStackedSummaryCurvesForAxis
 
     std::vector<RimSummaryCurve*> visibleStackedCurves;
 
-    std::copy_if( visibleCurves.begin(), visibleCurves.end(), std::back_inserter( visibleStackedCurves ), []( RimSummaryCurve* curve ) {
-        return curve->isStacked();
-    } );
+    std::copy_if( visibleCurves.begin(),
+                  visibleCurves.end(),
+                  std::back_inserter( visibleStackedCurves ),
+                  []( RimSummaryCurve* curve ) { return curve->isStacked(); } );
 
     return visibleStackedCurves;
 }
@@ -761,9 +762,10 @@ void RimSummaryPlot::updatePlotInfoLabel()
 bool RimSummaryPlot::containsResamplableCurves() const
 {
     std::vector<RimSummaryCurve*> summaryCurves = summaryAndEnsembleCurves();
-    size_t resamplableSummaryCurveCount         = std::count_if( summaryCurves.begin(), summaryCurves.end(), []( RimSummaryCurve* curve ) {
-        return curve->summaryCaseY() ? !curve->summaryCaseY()->isObservedData() : false;
-    } );
+    size_t                        resamplableSummaryCurveCount =
+        std::count_if( summaryCurves.begin(),
+                       summaryCurves.end(),
+                       []( RimSummaryCurve* curve ) { return curve->summaryCaseY() ? !curve->summaryCaseY()->isObservedData() : false; } );
 
     return !m_gridTimeHistoryCurves.empty() || resamplableSummaryCurveCount > 0;
 }
@@ -774,9 +776,10 @@ bool RimSummaryPlot::containsResamplableCurves() const
 size_t RimSummaryPlot::singleColorCurveCount() const
 {
     auto   allCurveSets = ensembleCurveSetCollection()->curveSets();
-    size_t colorIndex   = std::count_if( allCurveSets.begin(), allCurveSets.end(), []( RimEnsembleCurveSet* curveSet ) {
-        return curveSet->colorMode() == RimEnsembleCurveSet::ColorMode::SINGLE_COLOR;
-    } );
+    size_t colorIndex   = std::count_if( allCurveSets.begin(),
+                                       allCurveSets.end(),
+                                       []( RimEnsembleCurveSet* curveSet )
+                                       { return curveSet->colorMode() == RimEnsembleCurveSet::ColorMode::SINGLE_COLOR; } );
 
     colorIndex += curveCount();
 
@@ -2658,7 +2661,8 @@ void RimSummaryPlot::initAfterRead()
 
     if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2021.10.2" ) )
     {
-        auto copyAxis = [this]( RiuPlotAxis axis, auto sourceObject ) {
+        auto copyAxis = [this]( RiuPlotAxis axis, auto sourceObject )
+        {
             auto axisProperties = axisPropertiesForPlotAxis( axis );
             if ( axisProperties )
             {
@@ -3004,7 +3008,8 @@ void RimSummaryPlot::assignPlotAxis( RimSummaryCurve* destinationCurve )
     auto destinationUnit = RiaStdStringTools::toUpper( destinationCurve->unitNameY() );
     if ( destinationUnit.empty() ) strategy = AxisAssignmentStrategy::USE_MATCHING_VECTOR;
 
-    auto anyCurveWithUnitText = [this, destinationCurve] {
+    auto anyCurveWithUnitText = [this, destinationCurve]
+    {
         for ( auto c : summaryCurves() )
         {
             if ( c == destinationCurve ) continue;

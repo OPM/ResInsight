@@ -1450,7 +1450,8 @@ void RiuQwtPlotWidget::onMouseMoveEvent( QMouseEvent* event )
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::moveAxis( RiuPlotAxis oldAxis, RiuPlotAxis newAxis )
 {
-    auto countAxis = [this]( RiaDefines::PlotAxis axis ) {
+    auto countAxis = [this]( RiaDefines::PlotAxis axis )
+    {
         int count = 0;
         for ( auto [plotAxis, qwtMapping] : m_axisMapping )
         {
@@ -1459,12 +1460,14 @@ void RiuQwtPlotWidget::moveAxis( RiuPlotAxis oldAxis, RiuPlotAxis newAxis )
         return count;
     };
 
-    auto isLastItem = [this]( RiuPlotAxis plotAxis, int count ) {
+    auto isLastItem = [this]( RiuPlotAxis plotAxis, int count )
+    {
         auto qwtAxis = toQwtPlotAxis( plotAxis );
         return qwtAxis.id == ( count - 1 );
     };
 
-    auto removeAxis = [this, countAxis, isLastItem]( RiuPlotAxis plotAxis ) {
+    auto removeAxis = [this, countAxis, isLastItem]( RiuPlotAxis plotAxis )
+    {
         auto qwtAxisPos = RiuQwtPlotTools::toQwtPlotAxisEnum( plotAxis.axis() );
 
         int count = countAxis( plotAxis.axis() );

@@ -37,7 +37,7 @@ public:
     void    readObjectFromXmlString( const QString& xmlString, PdmObjectFactory* objectFactory );
     QString writeObjectToXmlString() const;
     static PdmObjectHandle*
-                     readUnknownObjectFromXmlString( const QString& xmlString, PdmObjectFactory* objectFactory, bool isCopyOperation );
+        readUnknownObjectFromXmlString( const QString& xmlString, PdmObjectFactory* objectFactory, bool isCopyOperation );
     PdmObjectHandle* copyByXmlSerialization( PdmObjectFactory* objectFactory );
     PdmObjectHandle* copyAndCastByXmlSerialization( const QString&    destinationClassKeyword,
                                                     const QString&    sourceClassKeyword,

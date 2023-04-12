@@ -70,9 +70,8 @@ bool RicDeleteSummaryCaseCollectionFeature::isCommandEnabled()
 
     selection.erase( std::remove_if( selection.begin(),
                                      selection.end(),
-                                     []( RimSummaryCaseCollection* coll ) {
-                                         return dynamic_cast<RimDerivedEnsembleCaseCollection*>( coll ) != nullptr;
-                                     } ),
+                                     []( RimSummaryCaseCollection* coll )
+                                     { return dynamic_cast<RimDerivedEnsembleCaseCollection*>( coll ) != nullptr; } ),
                      selection.end() );
     return ( selection.size() > 0 );
 }

@@ -167,10 +167,8 @@ void RiuSummaryPlot::showContextMenu( QPoint pos )
                                 ensemble->parameterCorrelations( clickedEnsembleCurveSet->summaryAddress(), timeStep );
                             std::sort( ensembleParameters.begin(),
                                        ensembleParameters.end(),
-                                       []( const std::pair<RigEnsembleParameter, double>& lhs,
-                                           const std::pair<RigEnsembleParameter, double>& rhs ) {
-                                           return std::fabs( lhs.second ) > std::fabs( rhs.second );
-                                       } );
+                                       []( const std::pair<RigEnsembleParameter, double>& lhs, const std::pair<RigEnsembleParameter, double>& rhs )
+                                       { return std::fabs( lhs.second ) > std::fabs( rhs.second ); } );
 
                             for ( const auto& param : ensembleParameters )
                             {

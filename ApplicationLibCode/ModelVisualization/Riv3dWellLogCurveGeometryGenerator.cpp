@@ -266,8 +266,8 @@ bool Riv3dWellLogCurveGeometryGenerator::findClosestPointOnCurve( const cvf::Vec
             double     distance                        = ( projectionOfGlobalIntersection - globalIntersection ).length();
             if ( distance < closestDistance )
             {
-                *closestPoint         = cvf::Vec3d( projectionOfGlobalIntersection );
-                closestDistance       = distance;
+                *closestPoint   = cvf::Vec3d( projectionOfGlobalIntersection );
+                closestDistance = distance;
                 *measuredDepthAtPoint = m_curveMeasuredDepths[i - 1] * ( 1.0 - clampedDistance ) + m_curveMeasuredDepths[i] * clampedDistance;
                 *valueAtClosestPoint = m_curveValues[i - 1] * ( 1.0 - clampedDistance ) + m_curveValues[i] * clampedDistance;
             }

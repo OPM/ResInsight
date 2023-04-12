@@ -1118,7 +1118,7 @@ void Rim3dView::addMeasurementToModel( cvf::ModelBasicList* measureModel )
     {
         cvf::ref<caf::DisplayCoordTransform> transForm = displayCoordTransform();
         cvf::Camera* mainOrComparisonCamera            = isUsingOverrideViewer() ? nativeOrOverrideViewer()->comparisonMainCamera()
-                                                                      : nativeOrOverrideViewer()->mainCamera();
+                                                                                 : nativeOrOverrideViewer()->mainCamera();
         m_measurementPartManager->appendGeometryPartsToModel( mainOrComparisonCamera,
                                                               measureModel,
                                                               transForm.p(),

@@ -188,14 +188,15 @@ std::vector<std::pair<QString, RiaDefines::ResultCatType>>
                                             const RigEclipseCaseData*                     caseData )
 {
     auto findResultCategory =
-        []( const QString& keyword, const std::vector<RiaDefines::ResultCatType>& categories, const RigEclipseCaseData* caseData ) {
-            // Find the result category for a given keyword
-            auto resultData = caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
-            for ( auto category : categories )
-                if ( resultData->hasResultEntry( RigEclipseResultAddress( category, keyword ) ) ) return category;
+        []( const QString& keyword, const std::vector<RiaDefines::ResultCatType>& categories, const RigEclipseCaseData* caseData )
+    {
+        // Find the result category for a given keyword
+        auto resultData = caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+        for ( auto category : categories )
+            if ( resultData->hasResultEntry( RigEclipseResultAddress( category, keyword ) ) ) return category;
 
-            return RiaDefines::ResultCatType::UNDEFINED;
-        };
+        return RiaDefines::ResultCatType::UNDEFINED;
+    };
 
     std::vector<std::pair<QString, RiaDefines::ResultCatType>> props;
     for ( auto keyword : resultNames )

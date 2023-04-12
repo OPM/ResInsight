@@ -68,9 +68,9 @@ protected:
     std::vector<double>       retrieveParameterWeights() override;
     std::vector<double>       generateResults( int viewerStepIndex ) override;
     std::vector<double>
-                        generateResultsFromAddress( RigFemResultAddress resultAddress, const std::vector<bool>& mapCellVisibility, int viewerStepIndex );
-    bool                resultVariableChanged() const override;
-    void                clearResultVariable() override;
+         generateResultsFromAddress( RigFemResultAddress resultAddress, const std::vector<bool>& mapCellVisibility, int viewerStepIndex );
+    bool resultVariableChanged() const override;
+    void clearResultVariable() override;
     RimGridView*        baseView() const override;
     std::vector<size_t> findIntersectingCells( const cvf::BoundingBox& bbox ) const override;
     size_t              kLayer( size_t globalCellIdx ) const override;
