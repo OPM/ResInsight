@@ -18,7 +18,6 @@ jobs:
       - name: Install clang-format 15.0
         run: |
           sudo apt-get update
-          sudo apt-get upgrade
           sudo apt-get install --option="APT::Acquire::Retries=3" clang-format-15
           clang-format-15 --version
       - uses: actions/checkout@v3
