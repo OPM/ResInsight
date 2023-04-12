@@ -59,8 +59,7 @@
 //--------------------------------------------------------------------------------------------------
 /// Internal functions
 //--------------------------------------------------------------------------------------------------
-static QStringList trimLeftStrings( const QStringList& strings, const QString& trimText );
-static void        sortStringsByLength( QStringList& strings, bool ascending = true );
+static void sortStringsByLength( QStringList& strings, bool ascending = true );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -999,24 +998,6 @@ QStringList RicRecursiveFileSearchDialog::fileTypeToExtensionStrings( const std:
 //--------------------------------------------------------------------------------------------------
 /// Internal functions
 //--------------------------------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QStringList trimLeftStrings( const QStringList& strings, const QString& trimText )
-{
-    QStringList trimmedStrings;
-    for ( const auto& string : strings )
-    {
-        QString trimmedString = string;
-        if ( string.startsWith( trimText ) )
-        {
-            trimmedString = string.right( string.size() - trimText.size() );
-        }
-        trimmedStrings.append( trimmedString );
-    }
-    return trimmedStrings;
-}
 
 //--------------------------------------------------------------------------------------------------
 ///
