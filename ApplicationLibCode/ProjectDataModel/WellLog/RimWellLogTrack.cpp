@@ -842,7 +842,8 @@ void RimWellLogTrack::updatePropertyValueAxisAndGridTickIntervals()
 
         if ( m_propertyAxisMinAndMaxTicksOnly )
         {
-            auto roundToDigits = []( double value, int numberOfDigits, bool useFloor ) {
+            auto roundToDigits = []( double value, int numberOfDigits, bool useFloor )
+            {
                 if ( value == 0.0 ) return 0.0;
 
                 double factor = std::pow( 10.0, numberOfDigits - std::ceil( std::log10( std::fabs( value ) ) ) );
@@ -1324,7 +1325,8 @@ void RimWellLogTrack::updateAxesVisibility( RiaDefines::Orientation orientation,
 {
     if ( !m_plotWidget ) return;
 
-    auto setAxisVisible = [this]( QwtAxis::Position axis, bool enable ) {
+    auto setAxisVisible = [this]( QwtAxis::Position axis, bool enable )
+    {
         auto plot = m_plotWidget->qwtPlot();
         if ( !plot ) return false;
 
@@ -3345,16 +3347,15 @@ void RimWellLogTrack::updateWellPathAttributesOnPlot()
 
         std::stable_sort( allWellPathComponents.begin(),
                           allWellPathComponents.end(),
-                          [&sortIndices]( const RimWellPathComponentInterface* lhs, const RimWellPathComponentInterface* rhs ) {
-                              return sortIndices.at( lhs->componentType() ) < sortIndices.at( rhs->componentType() );
-                          } );
+                          [&sortIndices]( const RimWellPathComponentInterface* lhs, const RimWellPathComponentInterface* rhs )
+                          { return sortIndices.at( lhs->componentType() ) < sortIndices.at( rhs->componentType() ); } );
 
         std::set<QString> completionsAssignedToLegend;
         for ( const RimWellPathComponentInterface* component : allWellPathComponents )
         {
             std::unique_ptr<RiuWellPathComponentPlotItem> plotItem( new RiuWellPathComponentPlotItem( wellPathAttributeSource(), component ) );
-            QString                                       legendTitle = plotItem->legendTitle();
-            bool contributeToLegend = m_wellPathCompletionsInLegend() && !completionsAssignedToLegend.count( legendTitle );
+            QString legendTitle        = plotItem->legendTitle();
+            bool    contributeToLegend = m_wellPathCompletionsInLegend() && !completionsAssignedToLegend.count( legendTitle );
             plotItem->setContributeToLegend( contributeToLegend );
             m_wellPathAttributePlotObjects.push_back( std::move( plotItem ) );
             completionsAssignedToLegend.insert( legendTitle );

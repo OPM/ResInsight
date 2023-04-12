@@ -411,13 +411,15 @@ bool RimGridCaseSurface::findValidCellIndex( const RigMainGrid*                 
                                              const size_t                             layer,
                                              size_t&                                  cellFaceIndex )
 {
-    auto getCellFromRowColumnLayer = [grid, faceType]( size_t row, size_t column, size_t layer ) -> size_t {
+    auto getCellFromRowColumnLayer = [grid, faceType]( size_t row, size_t column, size_t layer ) -> size_t
+    {
         if ( faceType == cvf::StructGridInterface::NEG_I ) return grid->cellIndexFromIJK( layer, column, row );
         if ( faceType == cvf::StructGridInterface::NEG_J ) return grid->cellIndexFromIJK( column, layer, row );
         return grid->cellIndexFromIJK( column, row, layer );
     };
 
-    auto isCellValid = [grid, faceType]( size_t row, size_t column, size_t layer ) -> bool {
+    auto isCellValid = [grid, faceType]( size_t row, size_t column, size_t layer ) -> bool
+    {
         if ( faceType == cvf::StructGridInterface::NEG_I )
         {
             return column < grid->cellCountJ() && row < grid->cellCountK() &&

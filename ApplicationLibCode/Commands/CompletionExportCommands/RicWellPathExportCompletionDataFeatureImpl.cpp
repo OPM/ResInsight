@@ -412,7 +412,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportCompletions( const std::v
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::computeStaticCompletionsForWellPath( RimWellPath*    wellPath,
+std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::computeStaticCompletionsForWellPath( RimWellPath* wellPath,
                                                                                                                 RimEclipseCase* eclipseCase )
 {
     std::vector<RigCompletionData> completionsPerEclipseCell;
@@ -448,7 +448,7 @@ std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::compu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::computeDynamicCompletionsForWellPath( RimWellPath*    wellPath,
+std::vector<RigCompletionData> RicWellPathExportCompletionDataFeatureImpl::computeDynamicCompletionsForWellPath( RimWellPath* wellPath,
                                                                                                                  RimEclipseCase* eclipseCase,
                                                                                                                  size_t timeStepIndex )
 {
@@ -761,8 +761,8 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspecsToFile( RimEclips
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicWellPathExportCompletionDataFeatureImpl::exportWelspeclToFile( RimEclipseCase*                                          gridCase,
-                                                                       QFilePtr                                                 exportFile,
+void RicWellPathExportCompletionDataFeatureImpl::exportWelspeclToFile( RimEclipseCase* gridCase,
+                                                                       QFilePtr        exportFile,
                                                                        const std::map<QString, std::vector<RigCompletionData>>& completions )
 {
     QTextStream stream( exportFile.get() );

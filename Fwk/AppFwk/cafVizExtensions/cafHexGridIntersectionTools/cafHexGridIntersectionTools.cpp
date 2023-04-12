@@ -1438,7 +1438,8 @@ cvf::uint HexGridIntersectionTools::planeMcTetIntersection( const cvf::Plane&   
     if ( cornerDistToPlane[tetCell[2]] < 0 ) triindex |= 4;
     if ( cornerDistToPlane[tetCell[3]] < 0 ) triindex |= 8;
 
-    auto clipEdgeFunc = [&]( int hexCornerIdx0, int hexCornerIdx1 ) {
+    auto clipEdgeFunc = [&]( int hexCornerIdx0, int hexCornerIdx1 )
+    {
         ClipVx cvx;
         cvx.vx =
             planeLineIntersectionForMC( plane, hexCell[hexCornerIdx0], hexCell[hexCornerIdx1], &cvx.normDistFromEdgeVx1 );
@@ -1447,7 +1448,8 @@ cvf::uint HexGridIntersectionTools::planeMcTetIntersection( const cvf::Plane&   
         return cvx;
     };
 
-    auto addCellFaceStatusForTriangleEdges = [&]( int e11, int e12, int e21, int e22, int e31, int e32 ) {
+    auto addCellFaceStatusForTriangleEdges = [&]( int e11, int e12, int e21, int e22, int e31, int e32 )
+    {
         int cutEdge1 = cellCornerCellCornerToEdge[e11][e12];
         int cutEdge2 = cellCornerCellCornerToEdge[e21][e22];
         int cutEdge3 = cellCornerCellCornerToEdge[e31][e32];

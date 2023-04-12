@@ -52,7 +52,7 @@ public:
 private:
     static void readElasticProperties( std::vector<RifElasticProperties>& elasticProperties, const QString& filePath, const QString& separator );
     static RifElasticProperties parseElasticProperties( const QString& line, int lineNumber, const QString& filePath, const QString& separator );
-    static QStringList          tokenize( const QString& line, const QString& separator );
+    static QStringList tokenize( const QString& line, const QString& separator );
     static void
         verifyNonEmptyTokens( const QStringList& tokens, const QStringList& nameOfNonEmptyTokens, int lineNumber, const QString& filePath );
 

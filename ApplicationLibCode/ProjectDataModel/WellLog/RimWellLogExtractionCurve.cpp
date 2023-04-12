@@ -752,7 +752,8 @@ void RimWellLogExtractionCurve::mapPropertyValuesFromReferenceWell( std::vector<
     }
 
     // Only allow asymptotically increasing k-layers - break at first decreasing k-layer value
-    auto createKLayerAndIndexMap = []( const std::vector<double>& indexKValues, int minLayerK, int maxLayerK ) {
+    auto createKLayerAndIndexMap = []( const std::vector<double>& indexKValues, int minLayerK, int maxLayerK )
+    {
         int                                prevKLayer          = -1;
         std::map<int, std::vector<size_t>> kLayerAndIndexesMap = {};
         for ( size_t i = 0; i < indexKValues.size(); ++i )

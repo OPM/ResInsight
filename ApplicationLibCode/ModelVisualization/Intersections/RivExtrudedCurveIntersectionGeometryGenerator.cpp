@@ -67,7 +67,7 @@ RivExtrudedCurveIntersectionGeometryGenerator::RivExtrudedCurveIntersectionGeome
                                                                                               std::vector<std::vector<cvf::Vec3d>>& polylines,
                                                                                               const cvf::Vec3d& extrusionDirection,
                                                                                               const RivIntersectionHexGridInterface* grid,
-                                                                                              bool              isFlattened,
+                                                                                              bool isFlattened,
                                                                                               const cvf::Vec3d& flattenedPolylineStartPoint )
     : m_intersection( crossSection )
     , m_polylines( polylines )

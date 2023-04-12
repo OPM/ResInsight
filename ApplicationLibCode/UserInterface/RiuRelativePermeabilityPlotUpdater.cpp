@@ -34,7 +34,7 @@
 #include "RimEclipseView.h"
 #include "RimExtrudedCurveIntersection.h"
 
-//#include "cvfTrace.h"
+// #include "cvfTrace.h"
 
 #include <cmath>
 

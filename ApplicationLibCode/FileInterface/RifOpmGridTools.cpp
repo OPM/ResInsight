@@ -348,7 +348,8 @@ std::vector<std::vector<cvf::Vec3d>>
 
     std::sort( zDistanceAlongPillar.begin(), zDistanceAlongPillar.end() );
 
-    auto normalize = []( const std::vector<double>& values ) -> std::vector<double> {
+    auto normalize = []( const std::vector<double>& values ) -> std::vector<double>
+    {
         if ( values.size() < 2 ) return {};
 
         std::vector<double> normalizedValues;

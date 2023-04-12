@@ -369,8 +369,8 @@ void RimWellAllocationOverTimePlot::updateFromWell()
         const QBrush fillBrush( fillColor, Qt::BrushStyle::SolidPattern );
         auto         interpolationType = m_flowValueType == FlowValueType::ACCUMULATED_FLOW_VOLUME ||
                                          m_flowValueType == FlowValueType::ACCUMULATED_FLOW_VOLUME_PERCENTAGE
-                                     ? RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT
-                                     : RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT;
+                                             ? RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT
+                                             : RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT;
 
         RiuPlotCurve* curve = m_plotWidget->createPlotCurve( nullptr, wellName );
         curve->setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID, interpolationType, 2, qColor, fillBrush );
@@ -792,9 +792,8 @@ void RimWellAllocationOverTimePlot::setValidTimeStepRangeForCase()
         return;
     }
 
-    auto isTimeStepInCase = [&]( const QDateTime timeStep ) -> bool {
-        return std::find( m_case->timeStepDates().cbegin(), m_case->timeStepDates().cend(), timeStep ) != m_case->timeStepDates().cend();
-    };
+    auto isTimeStepInCase = [&]( const QDateTime timeStep ) -> bool
+    { return std::find( m_case->timeStepDates().cbegin(), m_case->timeStepDates().cend(), timeStep ) != m_case->timeStepDates().cend(); };
     if ( m_selectedFromTimeStep().isValid() && isTimeStepInCase( m_selectedFromTimeStep() ) && m_selectedToTimeStep().isValid() &&
          isTimeStepInCase( m_selectedToTimeStep() ) )
     {

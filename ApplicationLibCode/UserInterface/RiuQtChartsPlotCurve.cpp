@@ -502,7 +502,8 @@ void RiuQtChartsPlotCurve::setVisibleInLegend( bool isVisibleInLegend )
     bool showScatterMarker = isVisibleInLegend && m_symbol;
     bool showLineMarker    = isVisibleInLegend && !m_symbol;
 
-    auto setLegendVisibility = [this]( auto series, bool isVisible ) {
+    auto setLegendVisibility = [this]( auto series, bool isVisible )
+    {
         if ( series )
         {
             auto markers = m_plotWidget->qtChart()->legend()->markers( series );

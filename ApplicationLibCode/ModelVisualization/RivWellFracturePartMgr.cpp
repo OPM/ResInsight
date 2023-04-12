@@ -597,7 +597,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanElementColorSurfacePar
         return nullptr;
     }
 
-    cvf::Mat4d              fractureXf        = m_rimFracture->transformMatrix();
+    cvf::Mat4d fractureXf = m_rimFracture->transformMatrix();
     std::vector<cvf::Vec3f> nodeDisplayCoords = transformToFractureDisplayCoords( stimPlanMeshVertices, fractureXf, *displayCoordTransform );
 
     std::vector<cvf::uint> triIndicesToInclude;

@@ -63,9 +63,8 @@ bool RicCloseSummaryCaseInCollectionFeature::isCommandEnabled()
 
     summaryCaseCollections.erase( std::remove_if( summaryCaseCollections.begin(),
                                                   summaryCaseCollections.end(),
-                                                  []( RimSummaryCaseCollection* coll ) {
-                                                      return dynamic_cast<RimDerivedEnsembleCaseCollection*>( coll ) != nullptr;
-                                                  } ),
+                                                  []( RimSummaryCaseCollection* coll )
+                                                  { return dynamic_cast<RimDerivedEnsembleCaseCollection*>( coll ) != nullptr; } ),
                                   summaryCaseCollections.end() );
 
     return ( summaryCaseMainCollections.size() > 0 || summaryCaseCollections.size() > 0 );

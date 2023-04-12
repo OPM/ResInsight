@@ -897,7 +897,8 @@ int RimPolygonFilter::findEclipseKLayer( const std::vector<cvf::Vec3d>& points, 
         }
     }
 
-    auto findKLayerBelowPoint = []( const cvf::Vec3d& point, RigMainGrid* mainGrid ) {
+    auto findKLayerBelowPoint = []( const cvf::Vec3d& point, RigMainGrid* mainGrid )
+    {
         // Create a bounding box (ie a ray) from the point down to minimum of grid
         cvf::Vec3d lowestPoint( point.x(), point.y(), mainGrid->boundingBox().min().z() );
 

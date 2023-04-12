@@ -167,7 +167,8 @@ void RivSimWellPipesPartMgr::buildWellPipeParts( const caf::DisplayCoordTransfor
     m_wellBranches.clear();
     m_flattenedBranchWellHeadOffsets.clear();
 
-    auto createSimWells = []( RimSimWellInView* simWellInView ) -> std::vector<SimulationWellCellBranch> {
+    auto createSimWells = []( RimSimWellInView* simWellInView ) -> std::vector<SimulationWellCellBranch>
+    {
         std::vector<SimulationWellCellBranch> simWellBranches;
         const RigSimWellData*                 simWellData = simWellInView->simWellData();
         if ( simWellData && simWellData->isMultiSegmentWell() )
@@ -449,7 +450,8 @@ void RivSimWellPipesPartMgr::appendValvesGeo( const RimEclipseView*             
 
             RivPipeGeometryGenerator::tubeWithCenterLinePartsAndVariableWidth( &pbd.m_valveParts, displayCoords, radii, valveColor );
 
-            auto computeRotationAxisAndAngle = []( const cvf::Vec3f& direction ) {
+            auto computeRotationAxisAndAngle = []( const cvf::Vec3f& direction )
+            {
                 // Compute upwards normal based on direction
                 // Compute the rotation axis and angle between up vector and Z_AXIS
 

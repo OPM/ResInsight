@@ -223,8 +223,8 @@ void RiaSCurveCalculator::initializeByFinding_q1q2( cvf::Vec3d p1, double azi1, 
     const double maxStepSize        = 1.0e9;
     const double maxLengthToQ       = 1.0e10;
     bool         enableBackstepping = false;
-    //#define USE_JACOBI_UPDATE
-    //#define DEBUG_OUTPUT_ON
+    // #define USE_JACOBI_UPDATE
+    // #define DEBUG_OUTPUT_ON
 
     // Needs the initial partial derivatives to see the direction of change
     // dR1/dq1, dR1/dq2, dR2/dq1, dR2/dq2

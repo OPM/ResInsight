@@ -107,14 +107,14 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorMudWeightWindow::calculate( 
     // Stress (ST.S3)
     RigFemScalarResultFrames* stressDataFrames = nullptr;
     {
-        auto task        = stepCountProgress.task( "Loading ST.S3", m_resultCollection->timeStepCount() );
+        auto task = stepCountProgress.task( "Loading ST.S3", m_resultCollection->timeStepCount() );
         stressDataFrames = m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "ST", "S3" ) );
     }
 
     // Initial overburden gradient (ST.S33)
     RigFemScalarResultFrames* obg0DataFrames = nullptr;
     {
-        auto task      = stepCountProgress.task( "Loading ST.S33", m_resultCollection->timeStepCount() );
+        auto task = stepCountProgress.task( "Loading ST.S33", m_resultCollection->timeStepCount() );
         obg0DataFrames = m_resultCollection->findOrLoadScalarResult( partIndex, RigFemResultAddress( resVarAddr.resultPosType, "ST", "S33" ) );
     }
 
