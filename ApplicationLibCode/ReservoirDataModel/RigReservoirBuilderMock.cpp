@@ -394,11 +394,13 @@ void RigReservoirBuilderMock::addWellData( RigEclipseCaseData* eclipseCase, RigG
         {
             RigWellResultFrame& wellCells = wellCellsTimeHistory->m_wellCellsTimeSteps[timeIdx];
 
-            wellCells.m_productionType = RiaDefines::WellProductionType::PRODUCER;
-            wellCells.m_isOpen         = true;
+            wellCells.setProductionType( RiaDefines::WellProductionType::PRODUCER );
+            wellCells.setIsOpen( true );
 
-            wellCells.m_wellHead.setGridIndex( 0 );
-            wellCells.m_wellHead.setGridCellIndex( grid->cellIndexFromIJK( 1, 0, 0 ) );
+            auto wellHead = wellCells.wellHead();
+            wellHead.setGridIndex( 0 );
+            wellHead.setGridCellIndex( grid->cellIndexFromIJK( 1, 0, 0 ) );
+            wellCells.setWellHead( wellHead );
 
             // Connections
             //            int connectionCount = std::min(dim.x(), std::min(dim.y(), dim.z())) - 2;

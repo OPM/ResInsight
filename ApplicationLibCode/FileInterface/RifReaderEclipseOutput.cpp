@@ -1554,6 +1554,7 @@ private:
     std::set<size_t>   m_gridCellsWithSubCellWellConnections;
     const RigMainGrid* m_mainGrid;
 };
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -1617,8 +1618,8 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
                 {
                     if ( reportNumbers[i] == reportNr )
                     {
-                        wellResFrame.m_timestamp = timeSteps[i];
-                        haveFoundTimeStamp       = true;
+                        wellResFrame.setTimestamp( timeSteps[i] );
+                        haveFoundTimeStamp = true;
                     }
                 }
             }
@@ -1628,34 +1629,34 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
                 // This fallback will not work for timesteps before 1970.
 
                 // Also see RifEclipseOutputFileAccess::timeStepsText for accessing time_t structures
-                time_t stepTime          = well_state_get_sim_time( ert_well_state );
-                wellResFrame.m_timestamp = QDateTime::fromSecsSinceEpoch( stepTime );
+                time_t stepTime = well_state_get_sim_time( ert_well_state );
+                wellResFrame.setTimestamp( QDateTime::fromSecsSinceEpoch( stepTime ) );
             }
 
             // Production type
             well_type_enum ert_well_type = well_state_get_type( ert_well_state );
             if ( ert_well_type == ECL_WELL_PRODUCER )
             {
-                wellResFrame.m_productionType = RiaDefines::WellProductionType::PRODUCER;
+                wellResFrame.setProductionType( RiaDefines::WellProductionType::PRODUCER );
             }
             else if ( ert_well_type == ECL_WELL_WATER_INJECTOR )
             {
-                wellResFrame.m_productionType = RiaDefines::WellProductionType::WATER_INJECTOR;
+                wellResFrame.setProductionType( RiaDefines::WellProductionType::WATER_INJECTOR );
             }
             else if ( ert_well_type == ECL_WELL_GAS_INJECTOR )
             {
-                wellResFrame.m_productionType = RiaDefines::WellProductionType::GAS_INJECTOR;
+                wellResFrame.setProductionType( RiaDefines::WellProductionType::GAS_INJECTOR );
             }
             else if ( ert_well_type == ECL_WELL_OIL_INJECTOR )
             {
-                wellResFrame.m_productionType = RiaDefines::WellProductionType::OIL_INJECTOR;
+                wellResFrame.setProductionType( RiaDefines::WellProductionType::OIL_INJECTOR );
             }
             else
             {
-                wellResFrame.m_productionType = RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE;
+                wellResFrame.setProductionType( RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE );
             }
 
-            wellResFrame.m_isOpen = well_state_is_open( ert_well_state );
+            wellResFrame.setIsOpen( well_state_is_open( ert_well_state ) );
 
             if ( importCompleteMswData && well_state_is_MSW( ert_well_state ) )
             {
@@ -1679,11 +1680,12 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
                     const well_conn_type* ert_wellhead = well_state_iget_wellhead( ert_well_state, static_cast<int>( gridNr ) );
                     if ( ert_wellhead )
                     {
-                        wellResFrame.m_wellHead = createWellResultPoint( grids[gridNr], ert_wellhead, wellName );
+                        auto wellHead = createWellResultPoint( grids[gridNr], ert_wellhead, wellName );
 
                         // HACK: Ert returns open as "this is equally wrong as closed for well heads".
                         // Well heads are not open jfr mail communication with HHGS and JH Statoil 07.01.2016
-                        wellResFrame.m_wellHead.setIsOpen( false );
+                        wellHead.setIsOpen( false );
+                        wellResFrame.setWellHead( wellHead );
                         break;
                     }
                 }
@@ -1962,7 +1964,7 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
                                 RigWellResultPoint prevResPoint;
                                 if ( bIdx == 0 && rpIdx == 0 )
                                 {
-                                    prevResPoint = wellResFrame.m_wellHead;
+                                    prevResPoint = wellResFrame.wellHead();
                                 }
                                 else
                                 {
@@ -2038,7 +2040,7 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
                         // Well heads are not open jfr mail communication with HHGS and JH Statoil 07.01.2016
                         wellHeadRp.setIsOpen( false );
 
-                        if ( !subCellConnCalc.hasSubCellConnection( wellHeadRp ) ) wellResFrame.m_wellHead = wellHeadRp;
+                        if ( !subCellConnCalc.hasSubCellConnection( wellHeadRp ) ) wellResFrame.setWellHead( wellHeadRp );
                     }
 
                     const well_conn_collection_type* connections =

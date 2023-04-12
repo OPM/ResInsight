@@ -112,7 +112,7 @@ void RivWellSpheresPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicLi
 
     if ( !centerColorPairs.empty() )
     {
-        cvf::ref<cvf::Part> part = createPart( centerColorPairs, wellResultFrame->m_isOpen );
+        cvf::ref<cvf::Part> part = createPart( centerColorPairs, wellResultFrame->isOpen() );
         model->addPart( part.p() );
     }
 }
@@ -210,7 +210,7 @@ cvf::Color3f RivWellSpheresPartMgr::wellCellColor( const RigWellResultFrame* wel
     {
         if ( wellResultPoint.isOpen() )
         {
-            switch ( wellResultFrame->m_productionType )
+            switch ( wellResultFrame->productionType() )
             {
                 case RiaDefines::WellProductionType::PRODUCER:
                     cellColor = cvf::Color3f::GREEN;

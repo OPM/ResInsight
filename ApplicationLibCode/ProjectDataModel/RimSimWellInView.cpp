@@ -332,8 +332,8 @@ bool RimSimWellInView::intersectsWellCellsFilteredCells( const RigWellResultFram
 
         // First check the wellhead:
 
-        size_t gridIndex     = wrsf->m_wellHead.gridIndex();
-        size_t gridCellIndex = wrsf->m_wellHead.cellIndex();
+        size_t gridIndex     = wrsf->wellHead().gridIndex();
+        size_t gridCellIndex = wrsf->wellHead().cellIndex();
 
         if ( gridIndex != cvf::UNDEFINED_SIZE_T && gridCellIndex != cvf::UNDEFINED_SIZE_T )
         {

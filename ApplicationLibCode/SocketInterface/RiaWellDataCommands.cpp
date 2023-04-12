@@ -174,7 +174,7 @@ public:
             qint32  wellStatus = 0;
             if ( currentWellResult->hasWellResult( tsIdx ) )
             {
-                switch ( currentWellResult->wellResultFrame( tsIdx )->m_productionType )
+                switch ( currentWellResult->wellResultFrame( tsIdx )->productionType() )
                 {
                     case RiaDefines::WellProductionType::PRODUCER:
                         wellType = "Producer";
@@ -190,7 +190,7 @@ public:
                         break;
                 }
 
-                wellStatus = currentWellResult->wellResultFrame( tsIdx )->m_isOpen ? 1 : 0;
+                wellStatus = currentWellResult->wellResultFrame( tsIdx )->isOpen() ? 1 : 0;
             }
 
             wellTypes.push_back( wellType );

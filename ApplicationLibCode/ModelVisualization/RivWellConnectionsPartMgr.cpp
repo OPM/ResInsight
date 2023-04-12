@@ -65,11 +65,11 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBas
     if ( !m_rimReservoirView->eclipseCase() ) return;
     if ( !m_rimWell->showWell() ) return;
     if ( !m_rimWell->simWellData()->hasWellResult( frameIndex ) ) return;
-    if ( !m_rimWell->simWellData()->wellResultFrame( frameIndex )->m_isOpen ) return;
-    if ( m_rimWell->simWellData()->wellResultFrame( frameIndex )->m_productionType == RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE )
+    if ( !m_rimWell->simWellData()->wellResultFrame( frameIndex )->isOpen() ) return;
+    if ( m_rimWell->simWellData()->wellResultFrame( frameIndex )->productionType() == RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE )
         return;
 
-    bool isProducer = ( m_rimWell->simWellData()->wellResultFrame( frameIndex )->m_productionType == RiaDefines::WellProductionType::PRODUCER );
+    bool isProducer = ( m_rimWell->simWellData()->wellResultFrame( frameIndex )->productionType() == RiaDefines::WellProductionType::PRODUCER );
     double pipeRadius = m_rimWell->pipeRadius();
 
     cvf::Vec3d                           wellHeadTop;
@@ -132,13 +132,13 @@ void RivWellConnectionsPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBas
     {
         if ( otherWell == m_rimWell ) continue;
         if ( !otherWell->simWellData()->hasWellResult( frameIndex ) ) continue;
-        if ( !otherWell->simWellData()->wellResultFrame( frameIndex )->m_isOpen ) continue;
-        if ( otherWell->simWellData()->wellResultFrame( frameIndex )->m_productionType ==
+        if ( !otherWell->simWellData()->wellResultFrame( frameIndex )->isOpen() ) continue;
+        if ( otherWell->simWellData()->wellResultFrame( frameIndex )->productionType() ==
              RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE )
             continue;
 
         bool isOtherProducer =
-            ( otherWell->simWellData()->wellResultFrame( frameIndex )->m_productionType == RiaDefines::WellProductionType::PRODUCER );
+            ( otherWell->simWellData()->wellResultFrame( frameIndex )->productionType() == RiaDefines::WellProductionType::PRODUCER );
 
         {
             std::string otherWellName   = otherWell->name().toStdString();

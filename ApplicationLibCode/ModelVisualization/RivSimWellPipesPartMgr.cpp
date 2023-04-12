@@ -604,7 +604,7 @@ void RivSimWellPipesPartMgr::updatePipeResultColor( size_t frameIndex )
 
                     if ( wResCell->isOpen() )
                     {
-                        switch ( wResFrame->m_productionType )
+                        switch ( wResFrame->productionType() )
                         {
                             case RiaDefines::WellProductionType::PRODUCER:
                                 cellState = producerState;
@@ -648,7 +648,7 @@ void RivSimWellPipesPartMgr::updatePipeResultColor( size_t frameIndex )
             wellBranch.m_surfaceDrawable->setTextureCoordArray( surfTexCoords.p() );
             wellBranch.m_largeSurfaceDrawable->setTextureCoordArray( surfTexCoords.p() );
 
-            if ( wResFrame->m_isOpen )
+            if ( wResFrame->isOpen() )
             {
                 // Use slightly larger geometry for open wells to avoid z-fighting when two wells are located at the
                 // same position

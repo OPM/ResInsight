@@ -100,7 +100,7 @@ std::vector<SimulationWellCellBranch>
                 if ( firstResultPoint.branchId() == resultBranch.m_ertBranchId )
                 {
                     // The first result point is on the same branch, use well head as outlet
-                    RigWellResultPoint outletResultPoint = wellFrame.m_wellHead;
+                    RigWellResultPoint outletResultPoint = wellFrame.wellHead();
 
                     auto gridAndCellIndex = std::make_pair( outletResultPoint.gridIndex(), outletResultPoint.cellIndex() );
                     wellBranch.m_segmentsWithGridCells[outletResultPoint.segmentId()].push_back( gridAndCellIndex );

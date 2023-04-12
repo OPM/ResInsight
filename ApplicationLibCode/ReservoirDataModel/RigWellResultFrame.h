@@ -40,11 +40,23 @@ public:
     const RigWellResultPoint*       findResultCellWellHeadExcluded( size_t gridIndex, size_t gridCellIndex ) const;
     std::vector<RigWellResultPoint> allResultPoints() const;
 
-    RigWellResultPoint             wellHeadOrStartCell() const;
-    RiaDefines::WellProductionType m_productionType;
-    bool                           m_isOpen;
-    RigWellResultPoint             m_wellHead;
-    QDateTime                      m_timestamp;
+    void setIsOpen( bool isOpen );
+    void setProductionType( RiaDefines::WellProductionType productionType );
+    void setTimestamp( const QDateTime& timestampe );
+    void setWellHead( RigWellResultPoint wellHead );
 
+    bool                           isOpen() const;
+    RiaDefines::WellProductionType productionType() const;
+    QDateTime                      timestamp() const;
+    RigWellResultPoint             wellHead() const;
+    RigWellResultPoint             wellHeadOrStartCell() const;
+
+    // TODO: Make private member and create interface - large job due to usage of ref in code
     std::vector<RigWellResultBranch> m_wellResultBranches;
+
+private:
+    bool                           m_isOpen;
+    RiaDefines::WellProductionType m_productionType;
+    QDateTime                      m_timestamp;
+    RigWellResultPoint             m_wellHead;
 };
