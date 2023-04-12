@@ -284,29 +284,25 @@ public:
         std::vector<RigGridBase*> grids;
         rimCase->eclipseCaseData()->allGrids( &grids );
 
-        for ( size_t bIdx = 0; bIdx < wellResFrame->m_wellResultBranches.size(); ++bIdx )
+        for ( const auto& wellResultBranch : wellResFrame->wellResultBranches() )
         {
-            const std::vector<RigWellResultPoint>& branchResPoints = wellResFrame->m_wellResultBranches[bIdx].m_branchResultPoints;
-            for ( size_t rpIdx = 0; rpIdx < branchResPoints.size(); ++rpIdx )
+            for ( const auto& branchResultPoint : wellResultBranch.branchResultPoints() )
             {
-                const RigWellResultPoint& resPoint = branchResPoints[rpIdx];
-
-                if ( resPoint.isCell() )
+                if ( branchResultPoint.isCell() )
                 {
                     size_t i;
                     size_t j;
                     size_t k;
-                    size_t gridIdx = resPoint.gridIndex();
-                    grids[gridIdx]->ijkFromCellIndex( resPoint.cellIndex(), &i, &j, &k );
-                    bool isOpen    = resPoint.isOpen();
-                    int  branchId  = resPoint.branchId();
-                    int  segmentId = resPoint.segmentId();
-
+                    size_t gridIdx = branchResultPoint.gridIndex();
+                    grids[gridIdx]->ijkFromCellIndex( branchResultPoint.cellIndex(), &i, &j, &k );
+                    bool isOpen    = branchResultPoint.isOpen();
+                    int  branchId  = branchResultPoint.branchId();
+                    int  segmentId = branchResultPoint.segmentId();
                     cellIs.push_back( static_cast<qint32>( i + 1 ) ); // NB: 1-based index in Octave
                     cellJs.push_back( static_cast<qint32>( j + 1 ) ); // NB: 1-based index in Octave
                     cellKs.push_back( static_cast<qint32>( k + 1 ) ); // NB: 1-based index in Octave
                     gridIndices.push_back( static_cast<qint32>( gridIdx ) );
-                    cellStatuses.push_back( static_cast<qint32>( isOpen ) );
+                    cellStatuses.push_back( isOpen ? static_cast<qint32>( 1 ) : static_cast<qint32>( 0 ) );
                     branchIds.push_back( branchId );
                     segmentIds.push_back( segmentId );
                 }

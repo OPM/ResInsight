@@ -85,9 +85,9 @@ void RivWellSpheresPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicLi
 
     std::vector<std::pair<cvf::Vec3f, cvf::Color3f>> centerColorPairs;
 
-    for ( const RigWellResultBranch& wellResultBranch : wellResultFrame->m_wellResultBranches )
+    for ( const RigWellResultBranch& wellResultBranch : wellResultFrame->wellResultBranches() )
     {
-        for ( const RigWellResultPoint& wellResultPoint : wellResultBranch.m_branchResultPoints )
+        for ( const RigWellResultPoint& wellResultPoint : wellResultBranch.branchResultPoints() )
         {
             size_t gridIndex = wellResultPoint.gridIndex();
 

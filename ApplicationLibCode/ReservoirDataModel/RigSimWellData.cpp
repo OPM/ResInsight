@@ -123,13 +123,12 @@ bool RigSimWellData::hasAnyValidCells( size_t resultTimeStepIndex ) const
 
     if ( wellResultFrame( resultTimeStepIndex )->wellHead().isCell() ) return true;
 
-    const std::vector<RigWellResultBranch>& resBranches = wellResultFrame( resultTimeStepIndex )->m_wellResultBranches;
-
-    for ( size_t i = 0; i < resBranches.size(); ++i )
+    const std::vector<RigWellResultBranch>& resBranches = wellResultFrame( resultTimeStepIndex )->wellResultBranches();
+    for ( const auto& branch : resBranches )
     {
-        for ( size_t cIdx = 0; cIdx < resBranches[i].m_branchResultPoints.size(); ++cIdx )
+        for ( const auto& branchResPoint : branch.branchResultPoints() )
         {
-            if ( resBranches[i].m_branchResultPoints[cIdx].isCell() ) return true;
+            if ( branchResPoint.isCell() ) return true;
         }
     }
 
@@ -157,11 +156,10 @@ void RigSimWellData::computeStaticWellCellPath() const
     std::map<int, std::list<RigWellResultPoint>> staticWellBranches;
 
     // Add ResultCell data from the first timestep to the final result.
-
-    for ( size_t bIdx = 0; bIdx < m_wellCellsTimeSteps[0].m_wellResultBranches.size(); ++bIdx )
+    for ( const auto& wellResultBranch : m_wellCellsTimeSteps[0].wellResultBranches() )
     {
-        int                                    branchErtId = m_wellCellsTimeSteps[0].m_wellResultBranches[bIdx].m_ertBranchId;
-        const std::vector<RigWellResultPoint>& frameCells  = m_wellCellsTimeSteps[0].m_wellResultBranches[bIdx].m_branchResultPoints;
+        const int                              branchErtId = wellResultBranch.ertBranchId();
+        const std::vector<RigWellResultPoint>& frameCells  = wellResultBranch.branchResultPoints();
 
         std::list<RigWellResultPoint>& branch = staticWellBranches[branchErtId];
 
@@ -171,14 +169,20 @@ void RigSimWellData::computeStaticWellCellPath() const
         }
     }
 
-    for ( size_t tIdx = 1; tIdx < m_wellCellsTimeSteps.size(); ++tIdx )
+    bool doSkipTimeStep = true;
+    for ( const auto& wellCellsTimeStep : m_wellCellsTimeSteps )
     {
-        // Merge well branches separately
-
-        for ( size_t bIdx = 0; bIdx < m_wellCellsTimeSteps[tIdx].m_wellResultBranches.size(); ++bIdx )
+        if ( doSkipTimeStep ) // Skip first
         {
-            int                                    branchId  = m_wellCellsTimeSteps[tIdx].m_wellResultBranches[bIdx].m_ertBranchId;
-            const std::vector<RigWellResultPoint>& resBranch = m_wellCellsTimeSteps[tIdx].m_wellResultBranches[bIdx].m_branchResultPoints;
+            doSkipTimeStep = false;
+            continue;
+        }
+
+        // Merge well branches separately
+        for ( const auto& wellResultBranch : wellCellsTimeStep.wellResultBranches() )
+        {
+            const int                              branchId  = wellResultBranch.ertBranchId();
+            const std::vector<RigWellResultPoint>& resBranch = wellResultBranch.branchResultPoints();
 
             std::list<RigWellResultPoint>&          stBranch = staticWellBranches[branchId];
             std::list<RigWellResultPoint>::iterator sEndIt;
@@ -273,23 +277,21 @@ void RigSimWellData::computeStaticWellCellPath() const
 
     std::map<int, std::list<RigWellResultPoint>>::iterator bIt;
 
-    m_staticWellCells->m_wellResultBranches.clear();
+    m_staticWellCells->clearWellResultBranches();
     m_staticWellCells->setWellHead( m_wellCellsTimeSteps[0].wellHead() );
 
-    for ( bIt = staticWellBranches.begin(); bIt != staticWellBranches.end(); ++bIt )
+    for ( const auto& [ertBranchId, resultPoints] : staticWellBranches )
     {
         // Copy from first time step
         RigWellResultBranch rigBranch;
-        rigBranch.m_ertBranchId = bIt->first;
+        rigBranch.setErtBranchId( ertBranchId );
 
-        std::list<RigWellResultPoint>&          branch = bIt->second;
-        std::list<RigWellResultPoint>::iterator cIt;
-        for ( cIt = branch.begin(); cIt != branch.end(); ++cIt )
+        for ( const auto& resultPoint : resultPoints )
         {
-            rigBranch.m_branchResultPoints.push_back( *cIt );
+            rigBranch.addBranchResultPoint( resultPoint );
         }
 
-        m_staticWellCells->m_wellResultBranches.push_back( rigBranch );
+        m_staticWellCells->addWellResultBranch( rigBranch );
     }
 }
 
@@ -331,7 +333,7 @@ RiaDefines::WellProductionType RigSimWellData::wellProductionType( size_t result
 const RigWellResultFrame* RigSimWellData::staticWellResultFrame() const
 {
     // Make sure we have computed the static representation of the well
-    if ( m_staticWellCells->m_wellResultBranches.size() == 0 )
+    if ( m_staticWellCells->wellResultBranches().empty() )
     {
         computeStaticWellCellPath();
     }

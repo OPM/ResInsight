@@ -336,15 +336,15 @@ void RivSimWellPipesPartMgr::appendVirtualConnectionFactorGeo( const RimEclipseV
 
                     for ( const auto& intersectionInfo : wellPathCellIntersections )
                     {
-                        size_t                    globalCellIndex = intersectionInfo.globCellIndex;
-                        const RigWellResultPoint* wResCell        = wResFrame->findResultCellWellHeadIncluded( 0, globalCellIndex );
+                        size_t                   globalCellIndex = intersectionInfo.globCellIndex;
+                        const RigWellResultPoint wResCell        = wResFrame->findResultCellWellHeadIncluded( 0, globalCellIndex );
 
-                        if ( !wResCell || !wResCell->isValid() )
+                        if ( !wResCell.isValid() )
                         {
                             continue;
                         }
 
-                        if ( !virtualPerforationResult->showConnectionFactorsOnClosedConnections() && !wResCell->isOpen() )
+                        if ( !virtualPerforationResult->showConnectionFactorsOnClosedConnections() && !wResCell.isOpen() )
                         {
                             continue;
                         }
@@ -364,7 +364,7 @@ void RivSimWellPipesPartMgr::appendVirtualConnectionFactorGeo( const RimEclipseV
 
                         cvf::Vec3d anchor = displayXf->transformToDisplayCoord( domainCoord );
                         {
-                            CompletionVizData data( anchor, direction, wResCell->connectionFactor(), globalCellIndex );
+                            CompletionVizData data( anchor, direction, wResCell.connectionFactor(), globalCellIndex );
 
                             completionVizDataItems.push_back( data );
                         }
@@ -591,18 +591,18 @@ void RivSimWellPipesPartMgr::updatePipeResultColor( size_t frameIndex )
             for ( size_t wcIdx = 0; wcIdx < cellIds.size(); ++wcIdx )
             {
                 // we need a faster lookup, I guess
-                const RigWellResultPoint* wResCell = nullptr;
+                RigWellResultPoint wResCell;
 
                 if ( cellIds[wcIdx].isCell() )
                 {
                     wResCell = wResFrame->findResultCellWellHeadExcluded( cellIds[wcIdx].gridIndex(), cellIds[wcIdx].cellIndex() );
                 }
 
-                if ( wResCell )
+                if ( wResCell.isValid() )
                 {
                     double cellState = defaultState;
 
-                    if ( wResCell->isOpen() )
+                    if ( wResCell.isOpen() )
                     {
                         switch ( wResFrame->productionType() )
                         {

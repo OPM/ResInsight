@@ -81,7 +81,7 @@ std::vector<SimulationWellCellBranch>
     }
 
     const RigWellResultFrame&               wellFrame      = *wellFramePtr;
-    const std::vector<RigWellResultBranch>& resultBranches = wellFrame.m_wellResultBranches;
+    const std::vector<RigWellResultBranch>& resultBranches = wellFrame.wellResultBranches();
 
     std::vector<WellBranch> wellBranches = mergeShortBranchesIntoLongBranches( resultBranches );
 
@@ -89,15 +89,15 @@ std::vector<SimulationWellCellBranch>
 
     for ( const auto& resultBranch : resultBranches )
     {
-        if ( resultBranch.m_branchResultPoints.empty() ) continue;
+        if ( resultBranch.branchResultPoints().empty() ) continue;
 
-        const auto firstResultPoint = resultBranch.m_branchResultPoints.front();
+        const auto& firstResultPoint = resultBranch.branchResultPoints().front();
 
         for ( auto& wellBranch : wellBranches )
         {
-            if ( wellBranch.m_branchId == resultBranch.m_ertBranchId )
+            if ( wellBranch.m_branchId == resultBranch.ertBranchId() )
             {
-                if ( firstResultPoint.branchId() == resultBranch.m_ertBranchId )
+                if ( firstResultPoint.branchId() == resultBranch.ertBranchId() )
                 {
                     // The first result point is on the same branch, use well head as outlet
                     RigWellResultPoint outletResultPoint = wellFrame.wellHead();
@@ -157,7 +157,7 @@ std::vector<SimulationWellCellBranch>
                     RigWellResultPoint resPoint;
                     for ( const auto& resBranch : resultBranches )
                     {
-                        for ( const auto& respoint : resBranch.m_branchResultPoints )
+                        for ( const auto& respoint : resBranch.branchResultPoints() )
                         {
                             if ( respoint.segmentId() == firstSegment )
                             {
@@ -301,9 +301,9 @@ std::vector<RigMswCenterLineCalculator::WellBranch>
     for ( const auto& resultBranch : resBranches )
     {
         WellBranch branch;
-        branch.m_branchId = resultBranch.m_ertBranchId;
+        branch.m_branchId = resultBranch.ertBranchId();
 
-        for ( const auto& resPoint : resultBranch.m_branchResultPoints )
+        for ( const auto& resPoint : resultBranch.branchResultPoints() )
         {
             size_t gridIndex     = resPoint.gridIndex();
             size_t gridCellIndex = resPoint.cellIndex();
@@ -318,7 +318,7 @@ std::vector<RigMswCenterLineCalculator::WellBranch>
         }
 
         const int resultPointThreshold = 3;
-        if ( resultBranch.m_branchResultPoints.size() > resultPointThreshold )
+        if ( resultBranch.branchResultPoints().size() > resultPointThreshold )
         {
             longWellBranches.push_back( branch );
         }

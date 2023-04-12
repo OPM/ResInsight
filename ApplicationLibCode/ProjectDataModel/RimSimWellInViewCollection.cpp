@@ -308,9 +308,9 @@ bool RimSimWellInViewCollection::hasVisibleWellCells()
             for ( size_t tIdx = 0; !hasCells && tIdx < well->simWellData()->m_wellCellsTimeSteps.size(); ++tIdx )
             {
                 const RigWellResultFrame& wellResultFrame = well->simWellData()->m_wellCellsTimeSteps[tIdx];
-                for ( size_t wsIdx = 0; !hasCells && wsIdx < wellResultFrame.m_wellResultBranches.size(); ++wsIdx )
+                for ( size_t wsIdx = 0; !hasCells && wsIdx < wellResultFrame.wellResultBranches().size(); ++wsIdx )
                 {
-                    if ( wellResultFrame.m_wellResultBranches[wsIdx].m_branchResultPoints.size() > 0 ) hasCells = true;
+                    if ( !wellResultFrame.branchResultPointsFromBranchIndex( wsIdx ).empty() ) hasCells = true;
                 }
             }
         }

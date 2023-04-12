@@ -405,9 +405,9 @@ void RimStreamlineInViewCollection::findStartCells( int                         
 
         auto frame = swdata->wellResultFrame( timeIdx );
 
-        for ( auto& branch : frame->m_wellResultBranches )
+        for ( const auto& branch : frame->wellResultBranches() )
         {
-            for ( const auto& point : branch.m_branchResultPoints )
+            for ( const auto& point : branch.branchResultPoints() )
             {
                 if ( point.isValid() && point.isOpen() )
                 {

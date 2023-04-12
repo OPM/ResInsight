@@ -188,9 +188,9 @@ std::map<std::string, std::vector<int>> RimFlowDiagSolution::allTracerActiveCell
             std::vector<int>& tracerCells          = tracersWithCells[wellName];
             std::vector<int>& tracerCellsCrossFlow = tracersWithCells[wellNameXf];
 
-            for ( const RigWellResultBranch& wBr : wellResFrame->m_wellResultBranches )
+            for ( const RigWellResultBranch& wBr : wellResFrame->wellResultBranches() )
             {
-                for ( const RigWellResultPoint& wrp : wBr.m_branchResultPoints )
+                for ( const RigWellResultPoint& wrp : wBr.branchResultPoints() )
                 {
                     if ( wrp.isValid() && wrp.isOpen() &&
                          ( ( useInjectors && wrp.flowRate() < 0.0 ) || ( !useInjectors && wrp.flowRate() > 0.0 ) ) )

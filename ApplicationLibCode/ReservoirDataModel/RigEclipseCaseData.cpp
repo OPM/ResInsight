@@ -242,22 +242,17 @@ void RigEclipseCaseData::computeWellCellsPrGrid()
             RigWellResultFrame& wellCells = m_simWellData[wIdx]->m_wellCellsTimeSteps[tIdx];
 
             // Well result branches
-            for ( size_t sIdx = 0; sIdx < wellCells.m_wellResultBranches.size(); ++sIdx )
+            for ( const auto& wellSegment : wellCells.wellResultBranches() )
             {
-                RigWellResultBranch& wellSegment = wellCells.m_wellResultBranches[sIdx];
-
-                size_t cdIdx;
-                for ( cdIdx = 0; cdIdx < wellSegment.m_branchResultPoints.size(); ++cdIdx )
+                for ( const auto& resultPoint : wellSegment.branchResultPoints() )
                 {
-                    size_t gridIndex     = wellSegment.m_branchResultPoints[cdIdx].gridIndex();
-                    size_t gridCellIndex = wellSegment.m_branchResultPoints[cdIdx].cellIndex();
-
+                    size_t gridIndex     = resultPoint.gridIndex();
+                    size_t gridCellIndex = resultPoint.cellIndex();
                     if ( gridIndex < m_wellCellsInGrid.size() && gridCellIndex < m_wellCellsInGrid[gridIndex]->size() )
                     {
                         // NOTE : We do not check if the grid cell is active as we do for well head.
-                        // If we add test for active cell, thorough testing and verification of the new behaviour must
-                        // be adressed
-
+                        // If we add test for active cell, thorough testing and verification of the new behavior must
+                        // be addressed
                         m_wellCellsInGrid[gridIndex]->set( gridCellIndex, true );
                         m_gridCellToResultWellIndex[gridIndex]->set( gridCellIndex, static_cast<cvf::uint>( wIdx ) );
                     }

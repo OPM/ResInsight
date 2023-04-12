@@ -30,10 +30,10 @@ RigWellResultFrame::RigWellResultFrame()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RigWellResultPoint* RigWellResultFrame::findResultCellWellHeadIncluded( size_t gridIndex, size_t gridCellIndex ) const
+RigWellResultPoint RigWellResultFrame::findResultCellWellHeadIncluded( size_t gridIndex, size_t gridCellIndex ) const
 {
-    const RigWellResultPoint* wellResultPoint = findResultCellWellHeadExcluded( gridIndex, gridCellIndex );
-    if ( wellResultPoint ) return wellResultPoint;
+    const RigWellResultPoint wellResultPoint = findResultCellWellHeadExcluded( gridIndex, gridCellIndex );
+    if ( wellResultPoint.isValid() ) return wellResultPoint;
 
     // If we could not find the cell among the real connections, we try the wellhead.
     // The wellhead does however not have a real connection state, and is rendering using pipe color
@@ -44,32 +44,30 @@ const RigWellResultPoint* RigWellResultFrame::findResultCellWellHeadIncluded( si
 
     if ( m_wellHead.cellIndex() == gridCellIndex && m_wellHead.gridIndex() == gridIndex )
     {
-        return &m_wellHead;
+        return m_wellHead;
     }
 
-    return nullptr;
+    return RigWellResultPoint();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const RigWellResultPoint* RigWellResultFrame::findResultCellWellHeadExcluded( size_t gridIndex, size_t gridCellIndex ) const
+RigWellResultPoint RigWellResultFrame::findResultCellWellHeadExcluded( size_t gridIndex, size_t gridCellIndex ) const
 {
     CVF_ASSERT( gridIndex != cvf::UNDEFINED_SIZE_T && gridCellIndex != cvf::UNDEFINED_SIZE_T );
 
-    for ( size_t wb = 0; wb < m_wellResultBranches.size(); ++wb )
+    for ( const auto& wellResultBranch : m_wellResultBranches )
     {
-        for ( size_t wc = 0; wc < m_wellResultBranches[wb].m_branchResultPoints.size(); ++wc )
+        for ( const auto& branchResultPoint : wellResultBranch.branchResultPoints() )
         {
-            if ( m_wellResultBranches[wb].m_branchResultPoints[wc].cellIndex() == gridCellIndex &&
-                 m_wellResultBranches[wb].m_branchResultPoints[wc].gridIndex() == gridIndex )
+            if ( branchResultPoint.cellIndex() == gridCellIndex && branchResultPoint.gridIndex() == gridIndex )
             {
-                return &( m_wellResultBranches[wb].m_branchResultPoints[wc] );
+                return branchResultPoint;
             }
         }
     }
-
-    return nullptr;
+    return RigWellResultPoint();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -97,7 +95,7 @@ RigWellResultPoint RigWellResultFrame::wellHeadOrStartCell() const
 
     for ( const RigWellResultBranch& resBranch : m_wellResultBranches )
     {
-        for ( const RigWellResultPoint& wrp : resBranch.m_branchResultPoints )
+        for ( const RigWellResultPoint& wrp : resBranch.branchResultPoints() )
         {
             if ( wrp.isCell() ) return wrp;
         }
@@ -114,7 +112,7 @@ std::vector<RigWellResultPoint> RigWellResultFrame::allResultPoints() const
     std::vector<RigWellResultPoint> allPoints;
     for ( const auto& resultBranch : m_wellResultBranches )
     {
-        for ( const auto& resultPoint : resultBranch.m_branchResultPoints )
+        for ( const auto& resultPoint : resultBranch.branchResultPoints() )
         {
             allPoints.push_back( resultPoint );
         }
@@ -168,4 +166,45 @@ void RigWellResultFrame::setTimestamp( const QDateTime& timeStamp )
 QDateTime RigWellResultFrame::timestamp() const
 {
     return m_timestamp;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RigWellResultBranch> RigWellResultFrame::wellResultBranches() const
+{
+    return m_wellResultBranches;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigWellResultFrame::clearWellResultBranches()
+{
+    m_wellResultBranches.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigWellResultFrame::addWellResultBranch( const RigWellResultBranch& wellResultBranch )
+{
+    m_wellResultBranches.push_back( wellResultBranch );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigWellResultFrame::setWellResultBranches( const std::vector<RigWellResultBranch>& wellResultBranches )
+{
+    m_wellResultBranches = wellResultBranches;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RigWellResultPoint> RigWellResultFrame::branchResultPointsFromBranchIndex( size_t index ) const
+{
+    CVF_ASSERT( index < m_wellResultBranches.size() );
+    return m_wellResultBranches[index].branchResultPoints();
 }

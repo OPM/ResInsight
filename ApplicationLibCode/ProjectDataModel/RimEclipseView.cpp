@@ -1690,24 +1690,24 @@ void RimEclipseView::calculateVisibleWellCellsIncFence( cvf::UByteArray* visible
             if ( !simWellData ) continue;
 
             const std::vector<RigWellResultFrame>& wellResFrames = simWellData->m_wellCellsTimeSteps;
-            for ( size_t wfIdx = 0; wfIdx < wellResFrames.size(); ++wfIdx )
+            for ( const auto& frame : wellResFrames )
             {
                 // Add all the cells from the branches
 
-                const std::vector<RigWellResultBranch>& wellResSegments = wellResFrames[wfIdx].m_wellResultBranches;
-                for ( size_t wsIdx = 0; wsIdx < wellResSegments.size(); ++wsIdx )
+                const std::vector<RigWellResultBranch>& wellResSegments = frame.wellResultBranches();
+                for ( const auto& segment : wellResSegments )
                 {
-                    const std::vector<RigWellResultPoint>& wsResCells = wellResSegments[wsIdx].m_branchResultPoints;
-                    for ( size_t cIdx = 0; cIdx < wsResCells.size(); ++cIdx )
+                    const std::vector<RigWellResultPoint>& wsResCells = segment.branchResultPoints();
+                    for ( const auto& cell : wsResCells )
                     {
-                        if ( wsResCells[cIdx].gridIndex() == grid->gridIndex() )
+                        if ( cell.gridIndex() == grid->gridIndex() )
                         {
-                            if ( !wsResCells[cIdx].isCell() )
+                            if ( !cell.isCell() )
                             {
                                 continue;
                             }
 
-                            size_t gridCellIndex             = wsResCells[cIdx].cellIndex();
+                            size_t gridCellIndex             = cell.cellIndex();
                             ( *visibleCells )[gridCellIndex] = true;
 
                             // Calculate well fence cells
