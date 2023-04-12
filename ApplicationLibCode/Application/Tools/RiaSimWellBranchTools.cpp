@@ -33,10 +33,13 @@ std::vector<const RigWellPath*> RiaSimWellBranchTools::simulationWellBranches( c
 {
     std::vector<RimEclipseCase*> simCases = RimEclipseCaseTools::eclipseCases();
 
-    auto                caseItr     = std::find_if( simCases.begin(), simCases.end(), [&simWellName]( const RimEclipseCase* eclCase ) {
-        const auto& eclData = eclCase->eclipseCaseData();
-        return eclData != nullptr && eclData->hasSimulationWell( simWellName );
-    } );
+    auto                caseItr     = std::find_if( simCases.begin(),
+                                 simCases.end(),
+                                 [&simWellName]( const RimEclipseCase* eclCase )
+                                 {
+                                     const auto& eclData = eclCase->eclipseCaseData();
+                                     return eclData != nullptr && eclData->hasSimulationWell( simWellName );
+                                 } );
     RimEclipseCase*     eclipseCase = caseItr != simCases.end() ? *caseItr : nullptr;
     RigEclipseCaseData* eclCaseData = eclipseCase != nullptr ? eclipseCase->eclipseCaseData() : nullptr;
     return eclCaseData != nullptr ? eclCaseData->simulationWellBranches( simWellName, false, useAutoDetectionOfBranches )

@@ -72,7 +72,8 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
         return false;
     }
 
-    auto getInt = []( auto values, const std::string& name ) {
+    auto getInt = []( auto values, const std::string& name )
+    {
         auto v = std::find_if( values.begin(), values.end(), [&name]( const auto& arg ) { return arg.first == name; } );
         if ( v != values.end() )
             return std::get<int>( v->second );
@@ -80,7 +81,8 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
             throw std::runtime_error( "Missing parameter (integer): " + name );
     };
 
-    auto getFloat = []( auto values, const std::string& name ) {
+    auto getFloat = []( auto values, const std::string& name )
+    {
         auto v = std::find_if( values.begin(), values.end(), [&name]( const auto& arg ) { return arg.first == name; } );
         if ( v != values.end() )
             return std::get<float>( v->second );

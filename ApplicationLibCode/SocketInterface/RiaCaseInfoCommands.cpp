@@ -138,7 +138,7 @@ public:
 
         // then the byte-size of the size of one column
         size_t  timestepResultCount = activeCellInfo[0].size();
-        quint64 timestepByteCount   = ( quint64 )( timestepResultCount * sizeof( qint32 ) );
+        quint64 timestepByteCount   = (quint64)( timestepResultCount * sizeof( qint32 ) );
         socketStream << timestepByteCount;
 
         for ( size_t tIdx = 0; tIdx < columnCount; ++tIdx )
@@ -576,7 +576,7 @@ public:
         socketStream << columnCount;
 
         // then the byte-size of the size of one column
-        quint64 columnByteCount = ( quint64 )( selectedCellInfo[0].size() * sizeof( qint32 ) );
+        quint64 columnByteCount = (quint64)( selectedCellInfo[0].size() * sizeof( qint32 ) );
         socketStream << columnByteCount;
 
         // Write back table data

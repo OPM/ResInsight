@@ -72,11 +72,11 @@ private:
 class RigWellPathStimplanIntersectorTester
 {
 public:
-    static void testCalculate( const cvf::Mat4d&                                                       fractureXf,
-                               const std::vector<cvf::Vec3d>&                                          wellPathPoints,
-                               double                                                                  wellRadius,
-                               double                                                                  perforationLength,
-                               const std::vector<std::vector<cvf::Vec3d>>&                             stpCellPolygons,
+    static void testCalculate( const cvf::Mat4d&                           fractureXf,
+                               const std::vector<cvf::Vec3d>&              wellPathPoints,
+                               double                                      wellRadius,
+                               double                                      perforationLength,
+                               const std::vector<std::vector<cvf::Vec3d>>& stpCellPolygons,
                                std::map<size_t, RigWellPathStimplanIntersector::WellCellIntersection>& stimPlanCellIdxToIntersectionInfoMap )
     {
         RigWellPathStimplanIntersector::calculate( fractureXf,

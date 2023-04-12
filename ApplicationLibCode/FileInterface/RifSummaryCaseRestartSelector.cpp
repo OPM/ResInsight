@@ -55,11 +55,10 @@ bool vectorContains( const std::vector<T>& vector, T item )
 //--------------------------------------------------------------------------------------------------
 RicSummaryCaseRestartDialog::ImportOptions mapReadOption( RiaPreferencesSummary::SummaryRestartFilesImportMode mode )
 {
-    return mode == RiaPreferencesSummary::SummaryRestartFilesImportMode::NOT_IMPORT
-               ? RicSummaryCaseRestartDialog::ImportOptions::NOT_IMPORT
-               : mode == RiaPreferencesSummary::SummaryRestartFilesImportMode::SEPARATE_CASES
-                     ? RicSummaryCaseRestartDialog::ImportOptions::SEPARATE_CASES
-                     : RicSummaryCaseRestartDialog::ImportOptions::IMPORT_ALL;
+    return mode == RiaPreferencesSummary::SummaryRestartFilesImportMode::NOT_IMPORT ? RicSummaryCaseRestartDialog::ImportOptions::NOT_IMPORT
+           : mode == RiaPreferencesSummary::SummaryRestartFilesImportMode::SEPARATE_CASES
+               ? RicSummaryCaseRestartDialog::ImportOptions::SEPARATE_CASES
+               : RicSummaryCaseRestartDialog::ImportOptions::IMPORT_ALL;
 }
 
 //--------------------------------------------------------------------------------------------------

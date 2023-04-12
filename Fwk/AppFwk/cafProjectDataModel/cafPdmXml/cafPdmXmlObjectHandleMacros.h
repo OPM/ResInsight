@@ -40,8 +40,14 @@ public:                                                                         
         return false;                                                                                                                          \
     }                                                                                                                                          \
                                                                                                                                                \
-    QString              ClassName::classKeyword() const { return classKeywordStatic(); }                                                      \
-    QString              ClassName::classKeywordStatic() { return classKeywordAliases().front(); }                                             \
+    QString ClassName::classKeyword() const                                                                                                    \
+    {                                                                                                                                          \
+        return classKeywordStatic();                                                                                                           \
+    }                                                                                                                                          \
+    QString ClassName::classKeywordStatic()                                                                                                    \
+    {                                                                                                                                          \
+        return classKeywordAliases().front();                                                                                                  \
+    }                                                                                                                                          \
     std::vector<QString> ClassName::classKeywordAliases()                                                                                      \
     {                                                                                                                                          \
         CAF_PDM_VERIFY_XML_KEYWORD( keyword )                                                                                                  \

@@ -152,7 +152,7 @@ size_t PdmChildArrayField<DataType*>::indexOf( const PdmObjectHandle* obj ) cons
         }
     }
 
-    return ( size_t )( -1 ); // Undefined size_t > m_pointers.size();
+    return (size_t)( -1 ); // Undefined size_t > m_pointers.size();
 }
 
 //--------------------------------------------------------------------------------------------------

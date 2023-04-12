@@ -929,7 +929,8 @@ void RimSummaryMultiPlot::syncTimeAxisRanges( RimSummaryPlot* sourceSummaryPlot 
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::computeAggregatedAxisRange()
 {
-    auto readValues = []( RimSummaryCase* summaryCase, RifEclipseSummaryAddress addr ) {
+    auto readValues = []( RimSummaryCase* summaryCase, RifEclipseSummaryAddress addr )
+    {
         std::vector<double> values;
         if ( summaryCase && summaryCase->summaryReader() )
         {
@@ -940,7 +941,8 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
         return values;
     };
 
-    auto findMinMaxForSummaryCase = [readValues]( RimSummaryCase* summaryCase, RifEclipseSummaryAddress addr, bool onlyPositiveValues ) {
+    auto findMinMaxForSummaryCase = [readValues]( RimSummaryCase* summaryCase, RifEclipseSummaryAddress addr, bool onlyPositiveValues )
+    {
         auto values = readValues( summaryCase, addr );
         if ( onlyPositiveValues )
         {
@@ -962,7 +964,8 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
         return std::make_pair( caseMinimum, caseMaximum );
     };
 
-    auto summaryCasesForCurve = []( RimSummaryCurve* curve, AxisRangeAggregation axisRangeAggregation ) {
+    auto summaryCasesForCurve = []( RimSummaryCurve* curve, AxisRangeAggregation axisRangeAggregation )
+    {
         std::vector<RimSummaryCase*> summaryCases;
 
         if ( axisRangeAggregation == AxisRangeAggregation::REALIZATIONS )
@@ -989,7 +992,8 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
         return summaryCases;
     };
 
-    auto addressesForCurve = []( RimSummaryCurve* curve, AxisRangeAggregation axisRangeAggregation ) {
+    auto addressesForCurve = []( RimSummaryCurve* curve, AxisRangeAggregation axisRangeAggregation )
+    {
         std::vector<RifEclipseSummaryAddress> addresses;
 
         auto addr = curve->summaryAddressY();
@@ -1041,7 +1045,8 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
 
     auto findMinMaxForAddressesInSummaryCases = [findMinMaxForSummaryCase]( const std::vector<RifEclipseSummaryAddress>& addresses,
                                                                             const std::vector<RimSummaryCase*>&          summaryCases,
-                                                                            bool onlyPositiveValues ) {
+                                                                            bool onlyPositiveValues )
+    {
         double minimum = HUGE_VAL;
         double maximum = -HUGE_VAL;
         for ( auto summaryCase : summaryCases )
@@ -1081,7 +1086,7 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
                     }
                     else
                     {
-                        auto& [currentMin, currentMax]   = axisRanges[axis->plotAxisType()];
+                        auto& [currentMin, currentMax] = axisRanges[axis->plotAxisType()];
                         axisRanges[axis->plotAxisType()] = std::make_pair( std::min( currentMin, minimum ), std::max( currentMax, maximum ) );
                     }
                 }
@@ -1120,7 +1125,7 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
                     }
                     else
                     {
-                        auto& [currentMin, currentMax]   = axisRanges[axis->plotAxisType()];
+                        auto& [currentMin, currentMax] = axisRanges[axis->plotAxisType()];
                         axisRanges[axis->plotAxisType()] = std::make_pair( std::min( currentMin, minimum ), std::max( currentMax, maximum ) );
                     }
                 }
@@ -1153,7 +1158,8 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::updatePlotVisibility()
 {
-    auto hasValuesAboveLimit = []( RimSummaryPlot* plot, double limit ) {
+    auto hasValuesAboveLimit = []( RimSummaryPlot* plot, double limit )
+    {
         for ( auto curve : plot->summaryAndEnsembleCurves() )
         {
             auto address  = curve->valuesY();

@@ -704,7 +704,8 @@ std::vector<cvf::Vec3d> RicExportFractureCompletionsImpl::computeWellPointsInFra
     RiaLogging::info( QString( "Angle: %1 degrees." ).arg( cvf::Math::toDegrees( angle ) ) );
     auto rotMat = cvf::GeometryTools::rotationMatrixBetweenVectors( directionToStartPos, directionToStartPosInFracturePlane );
 
-    auto rotatePoint = []( const cvf::Vec3d& point, const cvf::Vec3d& offset, auto rotMat ) {
+    auto rotatePoint = []( const cvf::Vec3d& point, const cvf::Vec3d& offset, auto rotMat )
+    {
         cvf::Vec3d p = point - offset;
         p.transformPoint( rotMat );
         p += offset;

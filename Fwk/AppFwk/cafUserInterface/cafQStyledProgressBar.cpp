@@ -60,7 +60,7 @@ void QStyledProgressBar::setTextBackgroundAndProgressColor( QColor textColor,
                                  "{"
                                  "background-color: %2;"
                                  "}";
-    QString progressColString = colorStringWithAlpha( progressColor );
+    QString progressColString  = colorStringWithAlpha( progressColor );
 
     QString fullStyleSheet =
         StyleSheetTools::createFrameStyleSheet( "QProgressBar", objectName(), textColor, backgroundColor, backgroundFrameColor );

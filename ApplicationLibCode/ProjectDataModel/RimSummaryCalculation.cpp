@@ -505,9 +505,9 @@ std::vector<RimSummaryCalculationAddress>
     else if ( category == RifEclipseSummaryAddress::SUMMARY_AQUIFER )
     {
         std::set<int> uniqueNumbers;
-        std::for_each( allResultAddresses.begin(), allResultAddresses.end(), [&]( const auto& addr ) {
-            uniqueNumbers.insert( addr.aquiferNumber() );
-        } );
+        std::for_each( allResultAddresses.begin(),
+                       allResultAddresses.end(),
+                       [&]( const auto& addr ) { uniqueNumbers.insert( addr.aquiferNumber() ); } );
 
         for ( auto num : uniqueNumbers )
         {
@@ -525,9 +525,9 @@ std::vector<RimSummaryCalculationAddress>
     else if ( category == RifEclipseSummaryAddress::SUMMARY_WELL )
     {
         std::set<std::string> uniqueWellNames;
-        std::for_each( allResultAddresses.begin(), allResultAddresses.end(), [&]( const auto& addr ) {
-            uniqueWellNames.insert( addr.wellName() );
-        } );
+        std::for_each( allResultAddresses.begin(),
+                       allResultAddresses.end(),
+                       [&]( const auto& addr ) { uniqueWellNames.insert( addr.wellName() ); } );
 
         for ( auto wellName : uniqueWellNames )
         {
@@ -537,9 +537,9 @@ std::vector<RimSummaryCalculationAddress>
     else if ( category == RifEclipseSummaryAddress::SUMMARY_GROUP )
     {
         std::set<std::string> uniqueGroupNames;
-        std::for_each( allResultAddresses.begin(), allResultAddresses.end(), [&]( const auto& addr ) {
-            uniqueGroupNames.insert( addr.groupName() );
-        } );
+        std::for_each( allResultAddresses.begin(),
+                       allResultAddresses.end(),
+                       [&]( const auto& addr ) { uniqueGroupNames.insert( addr.groupName() ); } );
 
         for ( auto groupName : uniqueGroupNames )
         {
@@ -549,9 +549,9 @@ std::vector<RimSummaryCalculationAddress>
     else if ( category == RifEclipseSummaryAddress::SUMMARY_REGION )
     {
         std::set<int> uniqueRegionNumbers;
-        std::for_each( allResultAddresses.begin(), allResultAddresses.end(), [&]( const auto& addr ) {
-            uniqueRegionNumbers.insert( addr.regionNumber() );
-        } );
+        std::for_each( allResultAddresses.begin(),
+                       allResultAddresses.end(),
+                       [&]( const auto& addr ) { uniqueRegionNumbers.insert( addr.regionNumber() ); } );
 
         for ( auto regionNumber : uniqueRegionNumbers )
         {
@@ -561,9 +561,9 @@ std::vector<RimSummaryCalculationAddress>
     else if ( category == RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION )
     {
         std::set<std::pair<int, int>> uniqueRegionNumbers;
-        std::for_each( allResultAddresses.begin(), allResultAddresses.end(), [&]( const auto& addr ) {
-            uniqueRegionNumbers.insert( std::make_pair( addr.regionNumber(), addr.regionNumber2() ) );
-        } );
+        std::for_each( allResultAddresses.begin(),
+                       allResultAddresses.end(),
+                       [&]( const auto& addr ) { uniqueRegionNumbers.insert( std::make_pair( addr.regionNumber(), addr.regionNumber2() ) ); } );
 
         for ( auto regionNumber : uniqueRegionNumbers )
         {

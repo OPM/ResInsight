@@ -47,19 +47,19 @@
 ///
 //--------------------------------------------------------------------------------------------------
 MenuItemProducer::MenuItemProducer()
-    : m_textPosition(0)
+    : m_textPosition( 0 )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void MenuItemProducer::attachTextEdit(QTextEdit* textEdit)
+void MenuItemProducer::attachTextEdit( QTextEdit* textEdit )
 {
-    if (m_textEdit != textEdit)
+    if ( m_textEdit != textEdit )
     {
-        textEdit->setContextMenuPolicy(Qt::CustomContextMenu);
-        QObject::connect(textEdit, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(slotMenuItems(QPoint)));
+        textEdit->setContextMenuPolicy( Qt::CustomContextMenu );
+        QObject::connect( textEdit, SIGNAL( customContextMenuRequested( QPoint ) ), this, SLOT( slotMenuItems( QPoint ) ) );
     }
 
     m_textEdit = textEdit;
@@ -68,23 +68,23 @@ void MenuItemProducer::attachTextEdit(QTextEdit* textEdit)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void MenuItemProducer::slotMenuItems(QPoint point)
+void MenuItemProducer::slotMenuItems( QPoint point )
 {
     QMenu   menu;
-    QAction act("Testing", this);
-    connect(&act, SIGNAL(triggered()), SLOT(slotShowText()));
+    QAction act( "Testing", this );
+    connect( &act, SIGNAL( triggered() ), SLOT( slotShowText() ) );
 
-    menu.addAction(&act);
+    menu.addAction( &act );
 
     QPoint globalPoint = point;
-    if (m_textEdit)
+    if ( m_textEdit )
     {
-        globalPoint = m_textEdit->mapToGlobal(point);
+        globalPoint = m_textEdit->mapToGlobal( point );
 
         m_textPosition = m_textEdit->textCursor().position();
     }
 
-    menu.exec(globalPoint);
+    menu.exec( globalPoint );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -92,16 +92,16 @@ void MenuItemProducer::slotMenuItems(QPoint point)
 //--------------------------------------------------------------------------------------------------
 void MenuItemProducer::slotShowText()
 {
-    if (m_textEdit)
+    if ( m_textEdit )
     {
-        QAction* action = qobject_cast<QAction*>(sender());
-        if (action)
+        QAction* action = qobject_cast<QAction*>( sender() );
+        if ( action )
         {
             QTextCursor cursor = m_textEdit->textCursor();
-            cursor.setPosition(m_textPosition);
+            cursor.setPosition( m_textPosition );
 
-            m_textEdit->setTextCursor(cursor);
-            m_textEdit->insertPlainText(action->text());
+            m_textEdit->setTextCursor( cursor );
+            m_textEdit->insertPlainText( action->text() );
         }
     }
 }

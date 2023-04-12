@@ -265,9 +265,9 @@ std::string RicCreateDepthAdjustedLasFilesImpl::createDepthUnitText( RiaDefines:
 //--------------------------------------------------------------------------------------------------
 std::string RicCreateDepthAdjustedLasFilesImpl::createDepthUnitComment( RiaDefines::DepthUnitType depthUnitType )
 {
-    return depthUnitType == RiaDefines::DepthUnitType::UNIT_METER
-               ? "in meters"
-               : depthUnitType == RiaDefines::DepthUnitType::UNIT_FEET ? "in feet" : "in Connection number";
+    return depthUnitType == RiaDefines::DepthUnitType::UNIT_METER  ? "in meters"
+           : depthUnitType == RiaDefines::DepthUnitType::UNIT_FEET ? "in feet"
+                                                                   : "in Connection number";
 }
 
 //--------------------------------------------------------------------------------------------------

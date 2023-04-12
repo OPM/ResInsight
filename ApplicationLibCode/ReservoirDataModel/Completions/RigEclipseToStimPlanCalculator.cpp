@@ -70,7 +70,8 @@ void RigEclipseToStimPlanCalculator::computeValues()
 {
     auto reservoirCellIndicesOpenForFlow = RimFractureContainmentTools::reservoirCellIndicesOpenForFlow( m_case, m_fracture );
 
-    auto resultValueAtIJ = []( const std::vector<std::vector<double>>& values, const RigFractureGrid& fractureGrid, size_t i, size_t j ) {
+    auto resultValueAtIJ = []( const std::vector<std::vector<double>>& values, const RigFractureGrid& fractureGrid, size_t i, size_t j )
+    {
         if ( values.empty() ) return HUGE_VAL;
 
         size_t adjustedI = i + 1;

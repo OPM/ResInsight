@@ -96,9 +96,10 @@ void RimSummaryCaseCollection::sortByBinnedVariation( std::vector<RigEnsemblePar
 
     // Sort by variation bin (highest first) but keep name as sorting parameter when parameters have the same variation
     // index
-    std::stable_sort( parameterVector.begin(), parameterVector.end(), [&bins]( const RigEnsembleParameter& lhs, const RigEnsembleParameter& rhs ) {
-        return lhs.variationBin > rhs.variationBin;
-    } );
+    std::stable_sort( parameterVector.begin(),
+                      parameterVector.end(),
+                      [&bins]( const RigEnsembleParameter& lhs, const RigEnsembleParameter& rhs )
+                      { return lhs.variationBin > rhs.variationBin; } );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -472,9 +473,8 @@ std::vector<std::pair<RigEnsembleParameter, double>>
     auto parameters = parameterCorrelationsAllTimeSteps( address );
     std::sort( parameters.begin(),
                parameters.end(),
-               []( const std::pair<RigEnsembleParameter, double>& lhs, const std::pair<RigEnsembleParameter, double>& rhs ) {
-                   return std::abs( lhs.second ) > std::abs( rhs.second );
-               } );
+               []( const std::pair<RigEnsembleParameter, double>& lhs, const std::pair<RigEnsembleParameter, double>& rhs )
+               { return std::abs( lhs.second ) > std::abs( rhs.second ); } );
     return parameters;
 }
 
@@ -487,9 +487,8 @@ std::vector<std::pair<RigEnsembleParameter, double>>
     auto parameters = parameterCorrelations( address, selectedTimeStep );
     std::sort( parameters.begin(),
                parameters.end(),
-               []( const std::pair<RigEnsembleParameter, double>& lhs, const std::pair<RigEnsembleParameter, double>& rhs ) {
-                   return std::abs( lhs.second ) > std::abs( rhs.second );
-               } );
+               []( const std::pair<RigEnsembleParameter, double>& lhs, const std::pair<RigEnsembleParameter, double>& rhs )
+               { return std::abs( lhs.second ) > std::abs( rhs.second ); } );
     return parameters;
 }
 

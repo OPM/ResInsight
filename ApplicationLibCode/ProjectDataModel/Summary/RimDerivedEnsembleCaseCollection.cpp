@@ -406,9 +406,10 @@ void RimDerivedEnsembleCaseCollection::deleteCasesNoInUse()
 {
     std::vector<RimDerivedSummaryCase*> inactiveCases;
     auto                                allCases = allDerivedCases( false );
-    std::copy_if( allCases.begin(), allCases.end(), std::back_inserter( inactiveCases ), []( RimDerivedSummaryCase* derCase ) {
-        return !derCase->isInUse();
-    } );
+    std::copy_if( allCases.begin(),
+                  allCases.end(),
+                  std::back_inserter( inactiveCases ),
+                  []( RimDerivedSummaryCase* derCase ) { return !derCase->isInUse(); } );
 
     for ( auto derCase : inactiveCases )
     {

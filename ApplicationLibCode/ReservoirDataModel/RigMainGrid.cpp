@@ -668,7 +668,8 @@ bool RigMainGrid::isFaceNormalsOutwards() const
 void RigMainGrid::computeFaceNormalsDirection( const std::vector<size_t>& reservoirCellIndices ) const
 {
     auto isValidAndFaceNormalDir =
-        []( const double ijSize, const double kSize, const RigCell& cell, cvf::StructGridInterface::FaceType face ) -> std::pair<bool, bool> {
+        []( const double ijSize, const double kSize, const RigCell& cell, cvf::StructGridInterface::FaceType face ) -> std::pair<bool, bool>
+    {
         const cvf::Vec3d cellCenter = cell.center();
         const cvf::Vec3d faceCenter = cell.faceCenter( face );
         const cvf::Vec3d faceNormal = cell.faceNormalWithAreaLength( face );

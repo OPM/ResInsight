@@ -152,10 +152,10 @@ void RiuWellPathComponentPlotItem::calculateColumnOffsets( const RimWellPathComp
         const RimWellPathAttribute* myAttribute = dynamic_cast<const RimWellPathAttribute*>( component );
         if ( myAttribute && myAttribute->componentType() == RiaDefines::WellPathComponentType::CASING )
         {
-            int nNarrowerCasings =
-                std::count_if( uniqueCasingDiameters.begin(), uniqueCasingDiameters.end(), [myAttribute]( double otherCasingDiameter ) {
-                    return otherCasingDiameter < myAttribute->diameterInInches();
-                } );
+            int nNarrowerCasings = std::count_if( uniqueCasingDiameters.begin(),
+                                                  uniqueCasingDiameters.end(),
+                                                  [myAttribute]( double otherCasingDiameter )
+                                                  { return otherCasingDiameter < myAttribute->diameterInInches(); } );
 
             m_columnOffset = nNarrowerCasings * 0.25;
         }

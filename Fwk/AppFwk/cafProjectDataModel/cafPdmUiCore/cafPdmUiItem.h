@@ -247,7 +247,7 @@ public:
     PdmUiItem();
     virtual ~PdmUiItem();
 
-    PdmUiItem( const PdmUiItem& ) = delete;
+    PdmUiItem( const PdmUiItem& )            = delete;
     PdmUiItem& operator=( const PdmUiItem& ) = delete;
 
     const QString  uiName( const QString& uiConfigName = "" ) const;

@@ -51,7 +51,7 @@ private:
 
     static std::vector<float> loadDataForFrame( RimMudWeightWindowParameters::ParameterType parameterType,
                                                 std::map<RimMudWeightWindowParameters::ParameterType, RigFemScalarResultFrames*>& parameterFrames,
-                                                int                                                                               stepIndex,
+                                                int stepIndex,
                                                 int frameIndex );
 
     static float getValueForElement( RimMudWeightWindowParameters::ParameterType                                      parameterType,

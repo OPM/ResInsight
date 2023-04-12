@@ -164,7 +164,8 @@ void RimThermalFractureTemplate::loadDataAndUpdate()
     m_fractureDefinitionData = fractureDefinitionData;
     if ( m_fractureDefinitionData )
     {
-        auto addInjectivityFactor = []( std::shared_ptr<RigThermalFractureDefinition> def ) {
+        auto addInjectivityFactor = []( std::shared_ptr<RigThermalFractureDefinition> def )
+        {
             int     leakoffPressureDropIndex  = def->getPropertyIndex( RiaDefines::leakoffPressureDropResultName() );
             int     filtratePressureDropIndex = def->getPropertyIndex( RiaDefines::filtratePressureDropResultName() );
             QString injectivityValueTag       = RiaDefines::injectivityFactorResultName();
@@ -185,7 +186,8 @@ void RimThermalFractureTemplate::loadDataAndUpdate()
             }
         };
 
-        auto addFilterCakeMobility = []( std::shared_ptr<RigThermalFractureDefinition> def ) {
+        auto addFilterCakeMobility = []( std::shared_ptr<RigThermalFractureDefinition> def )
+        {
             int     leakoffPressureDropIndex   = def->getPropertyIndex( RiaDefines::leakoffPressureDropResultName() );
             int     filtratePressureDropIndex  = def->getPropertyIndex( RiaDefines::filtratePressureDropResultName() );
             int     leakoffMobilityIndex       = def->getPropertyIndex( RiaDefines::leakoffMobilityResultName() );
