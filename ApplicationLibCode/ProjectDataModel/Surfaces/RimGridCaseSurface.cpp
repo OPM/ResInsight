@@ -241,7 +241,7 @@ void RimGridCaseSurface::extractStructuredSurfaceFromGridData()
                         grid->cellCornerVertices( cellIndex, cornerVerts );
 
                         cvf::ubyte faceConn[4];
-                        grid->cellFaceVertexIndices( faceType, faceConn );
+                        RigMainGrid::cellFaceVertexIndices( faceType, faceConn );
 
                         structGridVertexIndices.emplace_back( static_cast<cvf::uint>( column + 1 ), static_cast<cvf::uint>( row + 1 ) );
 
@@ -312,7 +312,7 @@ void RimGridCaseSurface::extractGridDataUsingFourVerticesPerCell()
                 {
                     cvf::ubyte currentFaceConn[4];
                     grid->cellCornerVertices( currentCellIndex, currentCornerVerts );
-                    grid->cellFaceVertexIndices( extractionFace, currentFaceConn );
+                    RigMainGrid::cellFaceVertexIndices( extractionFace, currentFaceConn );
 
                     auto currentCellStartIndex = static_cast<unsigned>( vertices.size() );
 

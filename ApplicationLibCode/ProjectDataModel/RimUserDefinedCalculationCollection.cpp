@@ -73,7 +73,7 @@ RimUserDefinedCalculation* RimUserDefinedCalculationCollection::addCalculationCo
     }
 
     QString expression  = calcCopy->expression();
-    QString currVarName = calcCopy->findLeftHandSide( expression );
+    QString currVarName = RimUserDefinedCalculation::findLeftHandSide( expression );
 
     QString newVarName = currVarName;
     while ( calcNames.count( newVarName ) > 0 )

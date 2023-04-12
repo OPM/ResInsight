@@ -833,7 +833,7 @@ void RimEclipseView::updateVisibleGeometries()
             cvf::Scene* frameScene = nativeOrOverrideViewer()->frame( m_currentTimeStep, isUsingOverrideViewer() );
             if ( frameScene )
             {
-                this->removeModelByName( frameScene, frameParts->name() );
+                RimEclipseView::removeModelByName( frameScene, frameParts->name() );
                 frameScene->addModel( frameParts.p() );
                 frameParts->updateBoundingBoxesRecursive();
             }
@@ -920,7 +920,7 @@ void RimEclipseView::appendWellsAndFracturesToModel()
             // Simulation Wells
             {
                 cvf::String name = "SimWellPipeMod";
-                this->removeModelByName( frameScene, name );
+                RimEclipseView::removeModelByName( frameScene, name );
 
                 cvf::ref<cvf::ModelBasicList> simWellModelBasicList = new cvf::ModelBasicList;
                 simWellModelBasicList->setName( name );
@@ -937,7 +937,7 @@ void RimEclipseView::appendWellsAndFracturesToModel()
             // Well Paths
             {
                 cvf::String name = "WellPathMod";
-                this->removeModelByName( frameScene, name );
+                RimEclipseView::removeModelByName( frameScene, name );
 
                 cvf::ref<cvf::ModelBasicList> wellPathModelBasicList = new cvf::ModelBasicList;
                 wellPathModelBasicList->setName( name );
@@ -950,7 +950,7 @@ void RimEclipseView::appendWellsAndFracturesToModel()
             // Sim Well Fractures
             {
                 cvf::String name = "SimWellFracturesModel";
-                this->removeModelByName( frameScene, name );
+                RimEclipseView::removeModelByName( frameScene, name );
 
                 cvf::ref<cvf::ModelBasicList> simWellFracturesModelBasicList = new cvf::ModelBasicList;
                 simWellFracturesModelBasicList->setName( name );
@@ -995,7 +995,7 @@ void RimEclipseView::appendElementVectorResultToModel()
         {
             // Element Vector Results
             cvf::String name = "ElementVectorModelMod";
-            this->removeModelByName( frameScene, name );
+            RimEclipseView::removeModelByName( frameScene, name );
 
             cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
             frameParts->setName( name );
@@ -1025,7 +1025,7 @@ void RimEclipseView::appendStreamlinesToModel()
         if ( frameScene )
         {
             cvf::String name = "StreamlinesModel";
-            this->removeModelByName( frameScene, name );
+            RimEclipseView::removeModelByName( frameScene, name );
 
             cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
             frameParts->setName( name );
