@@ -1442,7 +1442,7 @@ std::pair<double, double> RimSummaryMultiPlot::adjustedMinMax( const RimPlotAxis
 {
     if ( !axis->isLogarithmicScaleEnabled() )
     {
-        int                  maxMajorTickIntervalCount = axis->tickmarkCountFromEnum( axis->majorTickmarkCount() );
+        int                  maxMajorTickIntervalCount = RimPlotAxisProperties::tickmarkCountFromEnum( axis->majorTickmarkCount() );
         double               stepSize                  = 0.0;
         QwtLinearScaleEngine scaleEngine;
 

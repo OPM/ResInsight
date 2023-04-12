@@ -321,7 +321,7 @@ void RimEclipseContourMapView::appendContourMapProjectionToModel()
         if ( frameScene )
         {
             cvf::String name = "ContourMapProjection";
-            this->removeModelByName( frameScene, name );
+            RimEclipseContourMapView::removeModelByName( frameScene, name );
 
             cvf::ref<cvf::ModelBasicList> contourMapProjectionModelBasicList = new cvf::ModelBasicList;
             contourMapProjectionModelBasicList->setName( name );
@@ -346,7 +346,7 @@ void RimEclipseContourMapView::appendContourLinesToModel()
         if ( frameScene )
         {
             cvf::String name = "ContourMapLines";
-            this->removeModelByName( frameScene, name );
+            RimEclipseContourMapView::removeModelByName( frameScene, name );
 
             cvf::ref<cvf::ModelBasicList> contourMapLabelModelBasicList = new cvf::ModelBasicList;
             contourMapLabelModelBasicList->setName( name );
@@ -371,7 +371,7 @@ void RimEclipseContourMapView::appendPickPointVisToModel()
         if ( frameScene )
         {
             cvf::String name = "ContourMapPickPoint";
-            this->removeModelByName( frameScene, name );
+            RimEclipseContourMapView::removeModelByName( frameScene, name );
 
             cvf::ref<cvf::ModelBasicList> contourMapProjectionModelBasicList = new cvf::ModelBasicList;
             contourMapProjectionModelBasicList->setName( name );
