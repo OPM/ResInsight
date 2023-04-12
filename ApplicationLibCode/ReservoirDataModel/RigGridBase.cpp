@@ -45,7 +45,7 @@ RigGridBase::RigGridBase( RigMainGrid* mainGrid )
     }
 }
 
-RigGridBase::~RigGridBase( void )
+RigGridBase::~RigGridBase( )
 {
 }
 
