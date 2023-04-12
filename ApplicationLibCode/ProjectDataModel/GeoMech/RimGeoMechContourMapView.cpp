@@ -301,7 +301,7 @@ void RimGeoMechContourMapView::appendContourMapProjectionToModel()
         if ( frameScene )
         {
             cvf::String name = "ContourMapProjection";
-            this->removeModelByName( frameScene, name );
+            RimGeoMechContourMapView::removeModelByName( frameScene, name );
 
             cvf::ref<cvf::ModelBasicList> contourMapProjectionModelBasicList = new cvf::ModelBasicList;
             contourMapProjectionModelBasicList->setName( name );
@@ -326,7 +326,7 @@ void RimGeoMechContourMapView::appendContourLinesToModel()
         if ( frameScene )
         {
             cvf::String name = "ContourMapLines";
-            this->removeModelByName( frameScene, name );
+            RimGeoMechContourMapView::removeModelByName( frameScene, name );
 
             cvf::ref<cvf::ModelBasicList> contourMapLabelModelBasicList = new cvf::ModelBasicList;
             contourMapLabelModelBasicList->setName( name );
@@ -351,7 +351,7 @@ void RimGeoMechContourMapView::appendPickPointVisToModel()
         if ( frameScene )
         {
             cvf::String name = "ContourMapPickPoint";
-            this->removeModelByName( frameScene, name );
+            RimGeoMechContourMapView::removeModelByName( frameScene, name );
 
             cvf::ref<cvf::ModelBasicList> contourMapProjectionModelBasicList = new cvf::ModelBasicList;
             contourMapProjectionModelBasicList->setName( name );
