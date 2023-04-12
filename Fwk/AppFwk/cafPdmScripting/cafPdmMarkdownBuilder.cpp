@@ -68,7 +68,8 @@ QString caf::PdmMarkdownBuilder::generateDocDataModelObjects( std::vector<std::s
     // Sort to make sure super classes get created before sub classes
     std::sort( dataModelObjects.begin(),
                dataModelObjects.end(),
-               []( std::shared_ptr<const PdmObject> lhs, std::shared_ptr<const PdmObject> rhs ) {
+               []( std::shared_ptr<const PdmObject> lhs, std::shared_ptr<const PdmObject> rhs )
+               {
                    auto lhsStack = lhs->classInheritanceStack();
                    auto rhsStack = rhs->classInheritanceStack();
 

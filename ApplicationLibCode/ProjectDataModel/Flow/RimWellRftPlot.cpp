@@ -1346,9 +1346,9 @@ void RimWellRftPlot::defineCurveColorsAndSymbols( const std::set<RiaRftPltCurveD
     for ( RimWellRftEnsembleCurveSet* curveSet : m_ensembleCurveSets() )
     {
         CAF_ASSERT( curveSet );
-        auto ensemble_it = std::find_if( ensembles.begin(), ensembles.end(), [&curveSet]( const RimSummaryCaseCollection* ensemble ) {
-            return curveSet->ensemble() == ensemble;
-        } );
+        auto ensemble_it = std::find_if( ensembles.begin(),
+                                         ensembles.end(),
+                                         [&curveSet]( const RimSummaryCaseCollection* ensemble ) { return curveSet->ensemble() == ensemble; } );
         if ( ensemble_it != ensembles.end() )
         {
             curveSet->initializeLegend();

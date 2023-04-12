@@ -175,7 +175,7 @@ cvf::Color3f RimEnsembleCurveSetColorManager::caseColor( const RimRegularLegendC
         QString tValue = summaryCase->hasCaseRealizationParameters()
                              ? summaryCase->caseRealizationParameters()->parameterValue( ensembleParam.name ).textValue()
                              : "";
-        double nValue = legendConfig->categoryValueFromCategoryName( tValue );
+        double  nValue = legendConfig->categoryValueFromCategoryName( tValue );
         if ( nValue != std::numeric_limits<double>::infinity() )
         {
             int iValue = static_cast<int>( nValue );

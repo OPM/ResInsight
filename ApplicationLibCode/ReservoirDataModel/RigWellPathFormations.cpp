@@ -146,8 +146,8 @@ void RigWellPathFormations::depthAndFormationNamesWithoutDuplicatesOnDepth( std:
 ///
 //--------------------------------------------------------------------------------------------------
 void RigWellPathFormations::evaluateFormationsForOnePosition( const std::vector<std::pair<RigWellPathFormation, FormationLevel>>& formations,
-                                                              const FormationLevel&                                               maxLevel,
-                                                              const PickPosition&                                                 position,
+                                                              const FormationLevel&                      maxLevel,
+                                                              const PickPosition&                        position,
                                                               std::map<double, LevelAndName, DepthComp>* uniqueListMaker,
                                                               RimWellLogPlot::DepthTypeEnum              depthType ) const
 {

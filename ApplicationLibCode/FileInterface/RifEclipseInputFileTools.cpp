@@ -1037,13 +1037,13 @@ QString RifEclipseInputFileTools::faultFaceText( cvf::StructGridInterface::FaceT
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifEclipseInputFileTools::readFaultsAndParseIncludeStatementsRecursively( QFile&                                          file,
-                                                                               qint64                                          startPos,
+bool RifEclipseInputFileTools::readFaultsAndParseIncludeStatementsRecursively( QFile& file,
+                                                                               qint64 startPos,
                                                                                const std::vector<std::pair<QString, QString>>& pathAliasDefinitions,
-                                                                               cvf::Collection<RigFault>*                      faults,
-                                                                               std::vector<QString>* filenamesWithFaults,
-                                                                               bool*                 isEditKeywordDetected,
-                                                                               const QString&        faultIncludeFileAbsolutePathPrefix )
+                                                                               cvf::Collection<RigFault>* faults,
+                                                                               std::vector<QString>*      filenamesWithFaults,
+                                                                               bool*                      isEditKeywordDetected,
+                                                                               const QString& faultIncludeFileAbsolutePathPrefix )
 {
     QString line;
 

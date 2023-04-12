@@ -65,7 +65,7 @@ public:
 
     ~PdmUiTreeOrdering();
 
-    PdmUiTreeOrdering( const PdmUiTreeOrdering& ) = delete;
+    PdmUiTreeOrdering( const PdmUiTreeOrdering& )            = delete;
     PdmUiTreeOrdering& operator=( const PdmUiTreeOrdering& ) = delete;
 
     void               add( PdmFieldHandle* field, QString uiConfigName = "" );

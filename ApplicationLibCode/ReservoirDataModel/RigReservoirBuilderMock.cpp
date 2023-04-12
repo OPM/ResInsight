@@ -411,7 +411,7 @@ void RigReservoirBuilderMock::addWellData( RigEclipseCaseData* eclipseCase, RigG
                 size_t connIdx;
                 for ( connIdx = 0; connIdx < connectionCount; connIdx++ )
                 {
-                    if ( connIdx == ( size_t )( connectionCount / 4 ) ) continue;
+                    if ( connIdx == (size_t)( connectionCount / 4 ) ) continue;
 
                     RigWellResultPoint data;
                     data.setGridIndex( 0 );

@@ -879,9 +879,10 @@ double RimWellPath::datumElevation() const
 void RimWellPath::addWellLogFile( RimWellLogFile* logFileInfo )
 {
     // Prevent the same file from being loaded more than once
-    auto itr = std::find_if( m_wellLogFiles.begin(), m_wellLogFiles.end(), [&]( const RimWellLogFile* file ) {
-        return QString::compare( file->fileName(), logFileInfo->fileName(), Qt::CaseInsensitive ) == 0;
-    } );
+    auto itr = std::find_if( m_wellLogFiles.begin(),
+                             m_wellLogFiles.end(),
+                             [&]( const RimWellLogFile* file )
+                             { return QString::compare( file->fileName(), logFileInfo->fileName(), Qt::CaseInsensitive ) == 0; } );
 
     // Todo: Verify well name to ensure all well log files having the same well name
 

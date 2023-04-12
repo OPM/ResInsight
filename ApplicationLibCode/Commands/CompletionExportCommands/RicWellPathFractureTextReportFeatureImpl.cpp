@@ -628,7 +628,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureCompletionSummar
         RifTextDataTableColumn( "" ), // Fracture
         RifTextDataTableColumn( "" ), // Template
         floatNumberColumn( "" ), // Tr
-        floatNumberColumn( "" ), //#con
+        floatNumberColumn( "" ), // #con
         floatNumberColumn( "" ), // Fcd
         RifTextDataTableColumn( "", RifTextDataTableDoubleFormatting( RIF_FLOAT, 1 ), RIGHT ), // Area
         RifTextDataTableColumn( meanText, RifTextDataTableDoubleFormatting( RIF_FLOAT, 1 ), RIGHT ), // KfWf

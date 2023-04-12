@@ -828,7 +828,8 @@ QString RimWellConnectivityTable::createTableTitle() const
     RiaDefines::EclipseUnitSystem     unitSet   = m_case->eclipseCaseData()->unitsType();
     RimWellLogFile::WellFlowCondition condition = RimWellLogFile::WELL_FLOW_COND_RESERVOIR;
 
-    auto timeSampleValueTypeText = [&]() -> QString {
+    auto timeSampleValueTypeText = [&]() -> QString
+    {
         if ( m_timeSampleValueType == TimeSampleValueType::FLOW_RATE_PERCENTAGE )
         {
             return QString( "Percentage of Total Reservoir Flow Rate [%]" );
@@ -844,7 +845,8 @@ QString RimWellConnectivityTable::createTableTitle() const
         return QString();
     };
 
-    auto timeRangeValueTypeText = [&]() -> QString {
+    auto timeRangeValueTypeText = [&]() -> QString
+    {
         if ( m_timeRangeValueType() == TimeRangeValueType::ACCUMULATED_FLOW_VOLUME )
         {
             return "Accumulated Total " + RimWellPlotTools::flowVolumePlotAxisTitle( condition, unitSet );
@@ -1150,7 +1152,8 @@ std::vector<QString> RimWellConnectivityTable::getViewFilteredWellNamesFromFilte
 {
     if ( !m_cellFilterView || !m_case || !m_case->eclipseCaseData() ) return {};
 
-    auto isProductionTypeOfFilterType = [&]( RiaDefines::WellProductionType productionType ) -> bool {
+    auto isProductionTypeOfFilterType = [&]( RiaDefines::WellProductionType productionType ) -> bool
+    {
         if ( filterType == ViewFilterType::FILTER_BY_VISIBLE_PRODUCERS )
         {
             return productionType == RiaDefines::WellProductionType::PRODUCER ||
@@ -1338,8 +1341,8 @@ RigWellAllocationOverTime RimWellConnectivityTable::createWellAllocationOverTime
 ///
 //--------------------------------------------------------------------------------------------------
 void RimWellConnectivityTable::createAndEmplaceTimeStepAndCalculatorPairInMap( std::map<QDateTime, RigAccWellFlowCalculator>& rTimeStepAndCalculatorPairs,
-                                                                               const QDateTime                                timeStep,
-                                                                               int                                            timeStepIndex,
+                                                                               const QDateTime       timeStep,
+                                                                               int                   timeStepIndex,
                                                                                const RigSimWellData* simWellData ) const
 {
     if ( timeStepIndex < 0 ) return;
@@ -1365,9 +1368,9 @@ void RimWellConnectivityTable::createAndEmplaceTimeStepAndCalculatorPairInMap( s
                             simWellData->wellProductionType( timeStepIndex ) == RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE );
 
         // Retrieve cell visibilities for valid cell filter view
-        const auto* cellVisibilities = m_cellFilterView && m_viewFilterType == ViewFilterType::CALCULATE_BY_VISIBLE_CELLS
-                                           ? m_cellFilterView->currentTotalCellVisibility().p()
-                                           : nullptr;
+        const auto*               cellVisibilities = m_cellFilterView && m_viewFilterType == ViewFilterType::CALCULATE_BY_VISIBLE_CELLS
+                                                         ? m_cellFilterView->currentTotalCellVisibility().p()
+                                                         : nullptr;
         RigEclCellIndexCalculator cellIdxCalc( m_case->eclipseCaseData()->mainGrid(),
                                                m_case->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ),
                                                cellVisibilities );

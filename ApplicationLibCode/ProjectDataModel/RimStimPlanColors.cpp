@@ -395,7 +395,8 @@ void RimStimPlanColors::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     colorGroup->add( &m_resultNameAndUnit );
     colorGroup->add( &m_defaultColor );
 
-    auto hasMeshTemplate = []() {
+    auto hasMeshTemplate = []()
+    {
         std::vector<RimFractureTemplate*> fracTemplates = RimProject::current()->allFractureTemplates();
         for ( auto fractemplate : fracTemplates )
         {

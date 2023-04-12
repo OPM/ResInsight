@@ -49,9 +49,9 @@
 class WidgetCellIds
 {
 public:
-    WidgetCellIds(QWidget* w, const std::vector<int>& occupiedCellIds)
-        : m_customWidget(w)
-        , m_customWidgetCellIds(occupiedCellIds)
+    WidgetCellIds( QWidget* w, const std::vector<int>& occupiedCellIds )
+        : m_customWidget( w )
+        , m_customWidgetCellIds( occupiedCellIds )
     {
     }
 
@@ -74,12 +74,14 @@ CustomObjectEditor::CustomObjectEditor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-CustomObjectEditor::~CustomObjectEditor() {}
+CustomObjectEditor::~CustomObjectEditor()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void CustomObjectEditor::defineGridLayout(int rowCount, int columnCount)
+void CustomObjectEditor::defineGridLayout( int rowCount, int columnCount )
 {
     m_rowCount    = rowCount;
     m_columnCount = columnCount;
@@ -88,62 +90,58 @@ void CustomObjectEditor::defineGridLayout(int rowCount, int columnCount)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void CustomObjectEditor::addWidget(QWidget*      widget,
-                                   int           row,
-                                   int           column,
-                                   int           rowSpan,
-                                   int           columnSpan,
-                                   Qt::Alignment alignment /*= 0*/)
+void CustomObjectEditor::addWidget( QWidget* widget, int row, int column, int rowSpan, int columnSpan, Qt::Alignment alignment /*= 0*/ )
 {
-    CAF_ASSERT(isAreaAvailable(row, column, rowSpan, columnSpan));
+    CAF_ASSERT( isAreaAvailable( row, column, rowSpan, columnSpan ) );
 
-    m_customWidgetAreas.push_back(WidgetCellIds(widget, CustomObjectEditor::cellIds(row, column, rowSpan, columnSpan)));
+    m_customWidgetAreas.push_back(
+        WidgetCellIds( widget, CustomObjectEditor::cellIds( row, column, rowSpan, columnSpan ) ) );
 
     // The ownership of item is transferred to the layout, and it's the layout's responsibility to delete it.
-    m_layout->addWidget(widget, row, column, rowSpan, columnSpan, alignment);
+    m_layout->addWidget( widget, row, column, rowSpan, columnSpan, alignment );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void CustomObjectEditor::removeWidget(QWidget* widget)
+void CustomObjectEditor::removeWidget( QWidget* widget )
 {
-    size_t indexToRemove = size_t(-1);
-    for (size_t i = 0; i < m_customWidgetAreas.size(); i++)
+    size_t indexToRemove = size_t( -1 );
+    for ( size_t i = 0; i < m_customWidgetAreas.size(); i++ )
     {
-        if (widget == m_customWidgetAreas[i].m_customWidget)
+        if ( widget == m_customWidgetAreas[i].m_customWidget )
         {
             indexToRemove = i;
             break;
         }
     }
 
-    if (indexToRemove != size_t(-1))
+    if ( indexToRemove != size_t( -1 ) )
     {
-        m_layout->removeWidget(widget);
+        m_layout->removeWidget( widget );
 
-        m_customWidgetAreas.erase(m_customWidgetAreas.begin() + indexToRemove);
+        m_customWidgetAreas.erase( m_customWidgetAreas.begin() + indexToRemove );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void CustomObjectEditor::addBlankCell(int row, int column)
+void CustomObjectEditor::addBlankCell( int row, int column )
 {
-    m_customWidgetAreas.push_back(WidgetCellIds(nullptr, CustomObjectEditor::cellIds(row, column, 1, 1)));
+    m_customWidgetAreas.push_back( WidgetCellIds( nullptr, CustomObjectEditor::cellIds( row, column, 1, 1 ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* CustomObjectEditor::createWidget(QWidget* parent)
+QWidget* CustomObjectEditor::createWidget( QWidget* parent )
 {
-    QWidget* widget = new QWidget(parent);
+    QWidget* widget = new QWidget( parent );
 
     m_layout = new QGridLayout();
-    m_layout->setContentsMargins(0, 0, 0, 0);
-    widget->setLayout(m_layout);
+    m_layout->setContentsMargins( 0, 0, 0, 0 );
+    widget->setLayout( m_layout );
 
     return widget;
 }
@@ -151,28 +149,28 @@ QWidget* CustomObjectEditor::createWidget(QWidget* parent)
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void CustomObjectEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering(const PdmUiOrdering& topLevelUiOrdering,
-                                                                         const QString&       uiConfigName)
+void CustomObjectEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering( const PdmUiOrdering& topLevelUiOrdering,
+                                                                          const QString&       uiConfigName )
 {
     resetCellId();
 
     const std::vector<PdmUiOrdering::FieldAndLayout>& topLevelUiItems = topLevelUiOrdering.uiItemsWithLayout();
 
-    for (size_t i = 0; i < topLevelUiItems.size(); ++i)
+    for ( size_t i = 0; i < topLevelUiItems.size(); ++i )
     {
-        if (topLevelUiItems[i].first->isUiHidden(uiConfigName)) continue;
+        if ( topLevelUiItems[i].first->isUiHidden( uiConfigName ) ) continue;
 
-        if (topLevelUiItems[i].first->isUiGroup())
+        if ( topLevelUiItems[i].first->isUiGroup() )
         {
-            PdmUiGroup*     group    = static_cast<PdmUiGroup*>(topLevelUiItems[i].first);
-            QMinimizePanel* groupBox = findOrCreateGroupBox(this->widget(), group, uiConfigName);
+            PdmUiGroup*     group    = static_cast<PdmUiGroup*>( topLevelUiItems[i].first );
+            QMinimizePanel* groupBox = findOrCreateGroupBox( this->widget(), group, uiConfigName );
 
             /// Insert the group box at the correct position of the parent layout
             int                 nextCellId = getNextAvailableCellId();
-            std::pair<int, int> rowCol     = rowAndColumn(nextCellId);
-            m_layout->addWidget(groupBox, rowCol.first, rowCol.second, 1, 1);
+            std::pair<int, int> rowCol     = rowAndColumn( nextCellId );
+            m_layout->addWidget( groupBox, rowCol.first, rowCol.second, 1, 1 );
 
-            recursivelyConfigureAndUpdateUiOrderingInNewGridLayout(*group, groupBox->contentFrame(), uiConfigName);
+            recursivelyConfigureAndUpdateUiOrderingInNewGridLayout( *group, groupBox->contentFrame(), uiConfigName );
         }
 
         // NB! Only groups at top level are handled, fields at top level are not added to layout
@@ -182,19 +180,19 @@ void CustomObjectEditor::recursivelyConfigureAndUpdateTopLevelUiOrdering(const P
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool CustomObjectEditor::isAreaAvailable(int row, int column, int rowSpan, int columnSpan) const
+bool CustomObjectEditor::isAreaAvailable( int row, int column, int rowSpan, int columnSpan ) const
 {
-    auto candidateCells = CustomObjectEditor::cellIds(row, column, rowSpan, columnSpan);
-    for (auto candidateCell : candidateCells)
+    auto candidateCells = CustomObjectEditor::cellIds( row, column, rowSpan, columnSpan );
+    for ( auto candidateCell : candidateCells )
     {
-        if (!isCellIdAvailable(candidateCell))
+        if ( !isCellIdAvailable( candidateCell ) )
         {
             return false;
         }
     }
 
-    if (row + rowSpan > m_rowCount) return false;
-    if (column + columnSpan > m_columnCount) return false;
+    if ( row + rowSpan > m_rowCount ) return false;
+    if ( column + columnSpan > m_columnCount ) return false;
 
     return true;
 }
@@ -202,13 +200,13 @@ bool CustomObjectEditor::isAreaAvailable(int row, int column, int rowSpan, int c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool CustomObjectEditor::isCellIdAvailable(int cellId) const
+bool CustomObjectEditor::isCellIdAvailable( int cellId ) const
 {
-    for (auto customArea : m_customWidgetAreas)
+    for ( auto customArea : m_customWidgetAreas )
     {
-        for (auto occupiedCell : customArea.m_customWidgetCellIds)
+        for ( auto occupiedCell : customArea.m_customWidgetCellIds )
         {
-            if (cellId == occupiedCell)
+            if ( cellId == occupiedCell )
             {
                 return false;
             }
@@ -229,18 +227,18 @@ void CustomObjectEditor::resetCellId()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<int, int> CustomObjectEditor::rowAndColumn(int cellId) const
+std::pair<int, int> CustomObjectEditor::rowAndColumn( int cellId ) const
 {
     int column = cellId % m_columnCount;
     int row    = cellId / m_columnCount;
 
-    return std::make_pair(row, column);
+    return std::make_pair( row, column );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int CustomObjectEditor::cellId(int row, int column) const
+int CustomObjectEditor::cellId( int row, int column ) const
 {
     return row * m_columnCount + column;
 }
@@ -250,12 +248,12 @@ int CustomObjectEditor::cellId(int row, int column) const
 //--------------------------------------------------------------------------------------------------
 int CustomObjectEditor::getNextAvailableCellId()
 {
-    while (!isCellIdAvailable(m_currentCellId) && m_currentCellId < (m_rowCount * m_columnCount))
+    while ( !isCellIdAvailable( m_currentCellId ) && m_currentCellId < ( m_rowCount * m_columnCount ) )
     {
         m_currentCellId++;
     }
 
-    if (!isCellIdAvailable(m_currentCellId))
+    if ( !isCellIdAvailable( m_currentCellId ) )
     {
         return -1;
     }
@@ -268,15 +266,15 @@ int CustomObjectEditor::getNextAvailableCellId()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<int> CustomObjectEditor::cellIds(int row, int column, int rowSpan, int columnSpan) const
+std::vector<int> CustomObjectEditor::cellIds( int row, int column, int rowSpan, int columnSpan ) const
 {
     std::vector<int> cells;
 
-    for (auto r = row; r < row + rowSpan; r++)
+    for ( auto r = row; r < row + rowSpan; r++ )
     {
-        for (auto c = column; c < column + columnSpan; c++)
+        for ( auto c = column; c < column + columnSpan; c++ )
         {
-            cells.push_back(cellId(r, c));
+            cells.push_back( cellId( r, c ) );
         }
     }
 

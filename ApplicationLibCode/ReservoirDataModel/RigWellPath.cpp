@@ -424,13 +424,16 @@ cvf::ref<RigWellPath> RigWellPath::commonGeometry( const std::vector<const RigWe
     {
         const cvf::Vec3d& firstGeometryVertex = firstGeometry->wellPathPoints()[vIndex];
 
-        bool allMatches = std::all_of( allGeometries.begin() + 1, allGeometries.end(), [=]( const RigWellPath* geometry ) {
-            if ( geometry->wellPathPoints().size() > vIndex )
-            {
-                return ( firstGeometryVertex - geometry->wellPathPoints()[vIndex] ).length() < eps;
-            }
-            return false;
-        } );
+        bool allMatches = std::all_of( allGeometries.begin() + 1,
+                                       allGeometries.end(),
+                                       [=]( const RigWellPath* geometry )
+                                       {
+                                           if ( geometry->wellPathPoints().size() > vIndex )
+                                           {
+                                               return ( firstGeometryVertex - geometry->wellPathPoints()[vIndex] ).length() < eps;
+                                           }
+                                           return false;
+                                       } );
 
         if ( allMatches )
         {

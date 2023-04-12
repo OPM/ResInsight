@@ -667,7 +667,8 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         std::vector<double>  errors              = errorValues();
         std::vector<QString> perPointLabels;
 
-        auto anyValidValuesPresent = []( const std::vector<double>& values ) -> bool {
+        auto anyValidValuesPresent = []( const std::vector<double>& values ) -> bool
+        {
             for ( const auto& v : values )
             {
                 if ( RiaStatisticsTools::isValidNumber<double>( v ) ) return true;

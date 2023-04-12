@@ -116,7 +116,8 @@ std::vector<T*> RicMeshFractureTemplateHelper<T>::createNewTemplatesFromFiles( c
     RimFractureTemplateCollection* fracDefColl = oilfield->fractureDefinitionCollection();
     if ( !fracDefColl ) return std::vector<T*>();
 
-    auto findTemplateByName = []( RimFractureTemplateCollection* coll, const QString& name ) -> T* {
+    auto findTemplateByName = []( RimFractureTemplateCollection* coll, const QString& name ) -> T*
+    {
         for ( auto t : coll->fractureTemplates() )
             if ( t->name() == name ) return dynamic_cast<T*>( t );
 

@@ -72,7 +72,7 @@ public:
     std::pair<int, int> convertToInlineXline( double worldx, double worldy );
 
     std::shared_ptr<ZGYAccess::SeismicSliceData>
-                                                 slice( RiaDefines::SeismicSliceDirection direction, int sliceIndex, int zStartIndex = -1, int zSize = 0 );
+        slice( RiaDefines::SeismicSliceDirection direction, int sliceIndex, int zStartIndex = -1, int zSize = 0 );
     std::shared_ptr<ZGYAccess::SeismicSliceData> trace( int inlineIndex, int xlineIndex, int zStartIndex = -1, int zSize = 0 );
 
 private:

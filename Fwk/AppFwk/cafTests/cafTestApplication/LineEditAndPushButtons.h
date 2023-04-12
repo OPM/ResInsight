@@ -11,14 +11,14 @@ class LineEditAndPushButtons : public caf::PdmObject
 public:
     LineEditAndPushButtons();
 
-    void fieldChangedByUi(const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
-    void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
-    void defineEditorAttribute(const caf::PdmFieldHandle* field,
-                               QString                    uiConfigName,
-                               caf::PdmUiEditorAttribute* attribute) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
 
     void rotateContent();
     void appendText();
