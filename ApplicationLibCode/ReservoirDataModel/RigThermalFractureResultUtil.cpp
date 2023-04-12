@@ -176,9 +176,9 @@ void RigThermalFractureResultUtil::createFractureTriangleGeometry( std::shared_p
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RigThermalFractureResultUtil::fractureGridResults( std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
-                                                                       const QString&                                      resultName,
-                                                                       const QString&                                      unitName,
-                                                                       size_t                                              timeStepIndex )
+                                                                       const QString& resultName,
+                                                                       const QString& unitName,
+                                                                       size_t         timeStepIndex )
 {
     std::vector<double>                     fractureGridResults;
     const std::vector<std::vector<double>>& resultValuesAtTimeStep =
@@ -475,7 +475,8 @@ std::vector<cvf::Vec3d>
         r.z() = 0.0;
     }
 
-    auto findPointsWithMostSimilarDepth = []( const std::vector<cvf::Vec3d>& points, const std::vector<double>& depths ) {
+    auto findPointsWithMostSimilarDepth = []( const std::vector<cvf::Vec3d>& points, const std::vector<double>& depths )
+    {
         double minDiff = std::numeric_limits<double>::max();
 
         cvf::Vec3d e1 = cvf::Vec3d::UNDEFINED;
@@ -598,7 +599,8 @@ double RigThermalFractureResultUtil::interpolateProperty( const cvf::Vec3d&     
 std::pair<double, double> RigThermalFractureResultUtil::minMaxDepth( std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
                                                                      int activeTimeStepIndex )
 {
-    auto getBoundingBox = []( const std::vector<cvf::Vec3d>& coords ) {
+    auto getBoundingBox = []( const std::vector<cvf::Vec3d>& coords )
+    {
         cvf::BoundingBox bb;
         for ( auto c : coords )
             bb.add( c );

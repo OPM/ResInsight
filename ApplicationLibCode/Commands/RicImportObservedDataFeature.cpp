@@ -80,8 +80,8 @@ void RicImportObservedDataFeature::selectObservedDataFileInDialog()
             }
             else
             {
-                errorText = "Not able to import file. Make sure '*.rsm' is used as extension if data is in RMS format "
-                            "or '*.txt' or '*.csv' if data is in CSV format.";
+                errorText   = "Not able to import file. Make sure '*.rsm' is used as extension if data is in RMS format "
+                              "or '*.txt' or '*.csv' if data is in CSV format.";
                 retryImport = false;
             }
 

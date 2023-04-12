@@ -1446,10 +1446,10 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences*              
             reply                   = QMessageBox::question( activeMainWindow(),
                                            QString( "Apply %1 to Existing Views or Plots?" ).arg( listString ),
                                            QString( "You have changed default %1 and have existing views or plots with "
-                                                    "different settings.\n" )
+                                                                      "different settings.\n" )
                                                    .arg( listString ) +
                                                QString( "Do you want to apply the new default settings to all existing "
-                                                        "views?" ),
+                                                                          "views?" ),
                                            QMessageBox::Ok | QMessageBox::Cancel );
             applySettingsToAllViews = ( reply == QMessageBox::Ok );
         }
@@ -1674,7 +1674,7 @@ bool RiaGuiApplication::notify( QObject* receiver, QEvent* event )
         memoryExhaustedBox   = new QMessageBox( QMessageBox::Critical,
                                               "ResInsight Exhausted Memory",
                                               "Memory is Exhausted!\n ResInsight could not allocate the memory needed, and is now "
-                                              "unstable and will probably crash soon." );
+                                                "unstable and will probably crash soon." );
     }
 
     bool done = false;

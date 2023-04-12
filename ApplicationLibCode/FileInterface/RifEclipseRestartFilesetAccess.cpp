@@ -276,7 +276,7 @@ void RifEclipseRestartFilesetAccess::openTimeStep( size_t timeStep )
 
     if ( m_ecl_files[timeStep] == nullptr )
     {
-        int            index    = static_cast<int>( timeStep );
+        int index = static_cast<int>( timeStep );
         ecl_file_type* ecl_file = ecl_file_open( RiaStringEncodingTools::toNativeEncoded( m_fileNames[index] ).data(), ECL_FILE_CLOSE_STREAM );
 
         m_ecl_files[timeStep] = ecl_file;

@@ -873,7 +873,7 @@ void RimContourMapProjection::generateTrianglesWithVertexValues()
             bool                    anyValidVertex = false;
             for ( size_t n = 0; n < 3; ++n )
             {
-                uint vn      = ( *faceList )[i + n];
+                uint vn = ( *faceList )[i + n];
                 double value = vn < m_aggregatedVertexResults.size() ? m_aggregatedVertexResults[vn] : std::numeric_limits<double>::infinity();
                 triangle[n]           = vertices[vn];
                 triangleWithValues[n] = cvf::Vec4d( vertices[vn], value );

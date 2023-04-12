@@ -1899,9 +1899,9 @@ std::vector<std::pair<RigEnsembleParameter, double>> RimEnsembleCurveSet::ensemb
         if ( sortingMode == ParameterSorting::ALPHABETICALLY )
         {
             auto parameters = ensemble->parameterCorrelationsAllTimeSteps( summaryAddress() );
-            std::sort( parameters.begin(), parameters.end(), []( const auto& lhs, const auto& rhs ) {
-                return lhs.first.name < rhs.first.name;
-            } );
+            std::sort( parameters.begin(),
+                       parameters.end(),
+                       []( const auto& lhs, const auto& rhs ) { return lhs.first.name < rhs.first.name; } );
 
             return parameters;
         }

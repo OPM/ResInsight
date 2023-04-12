@@ -196,9 +196,8 @@ bool RimStimPlanModelPressureCalculator::extractValuesForProperty( RiaDefines::C
     bool useEqlnumForPressureInterpolation = stimPlanModel->stimPlanModelTemplate()->useEqlnumForPressureInterpolation();
     if ( curveProperty == RiaDefines::CurveProperty::INITIAL_PRESSURE )
     {
-        auto hasMissingValues = []( const std::vector<double>& vec ) {
-            return std::find( vec.begin(), vec.end(), std::numeric_limits<double>::infinity() ) != vec.end();
-        };
+        auto hasMissingValues = []( const std::vector<double>& vec )
+        { return std::find( vec.begin(), vec.end(), std::numeric_limits<double>::infinity() ) != vec.end(); };
 
         if ( hasMissingValues( values ) )
         {
@@ -649,7 +648,7 @@ bool RimStimPlanModelPressureCalculator::interpolatePressureDifferenceByEquilibr
                                                                                              const std::vector<double>& measuredDepthValues,
                                                                                              const std::vector<double>& tvDepthValues,
                                                                                              const std::vector<double>& initialPressureValues,
-                                                                                             std::vector<double>&       values ) const
+                                                                                             std::vector<double>& values ) const
 {
     std::vector<double> eqlNumValues;
     std::vector<double> eqlNumMeasuredDepthsValues;

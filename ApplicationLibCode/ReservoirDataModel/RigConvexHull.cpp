@@ -75,9 +75,8 @@ void RigConvexHull::removePointsWithoutConvexAngle( std::vector<cvf::Vec3d>& poi
     // 2D cross product of (a, b) and (a, c) vectors, i.e. z-component of their 3D cross product.
     // Returns a positive value, if c->(a,b) makes a counter-clockwise turn,
     // negative for clockwise turn, and zero if the points are collinear.
-    auto counterClockWise = []( const cvf::Vec3d& a, const cvf::Vec3d& b, const cvf::Vec3d& c ) {
-        return ( b.x() - a.x() ) * ( c.y() - a.y() ) - ( b.y() - a.y() ) * ( c.x() - a.x() );
-    };
+    auto counterClockWise = []( const cvf::Vec3d& a, const cvf::Vec3d& b, const cvf::Vec3d& c )
+    { return ( b.x() - a.x() ) * ( c.y() - a.y() ) - ( b.y() - a.y() ) * ( c.x() - a.x() ); };
 
     // Remove all points that is not a counter-clockwise turn from current point
     while ( points.size() >= 2 && counterClockWise( *( points.rbegin() + 1 ), *( points.rbegin() ), current ) >= 0 )

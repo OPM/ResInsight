@@ -85,7 +85,8 @@ cvf::ref<RigSurface> RigSurfaceStatisticsCalculator::computeStatistics( const st
         RigStatisticsMath::calculateStatisticsCurves( samples, &p10, &p50, &p90, &mean, RigStatisticsMath::PercentileStyle::SWITCHED );
 
         // TODO: improve handling of these cases
-        auto makeValid = []( double val ) {
+        auto makeValid = []( double val )
+        {
             if ( std::isinf( val ) || std::isnan( val ) ) return 0.0;
             return val;
         };

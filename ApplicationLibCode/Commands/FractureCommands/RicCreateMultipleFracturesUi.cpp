@@ -70,7 +70,7 @@ public:
 std::vector<MultipleFracturesOption>    fractureOptions( const RigEclipseCaseData*                                   caseData,
                                                          const RimWellPath*                                          wellPath,
                                                          const std::vector<RicCreateMultipleFracturesOptionItemUi*>& allUiOptions );
-RicCreateMultipleFracturesOptionItemUi* firstUiOptionContainingK( size_t                                                      k,
+RicCreateMultipleFracturesOptionItemUi* firstUiOptionContainingK( size_t k,
                                                                   const std::vector<RicCreateMultipleFracturesOptionItemUi*>& allUiOptions );
 
 //--------------------------------------------------------------------------------------------------

@@ -325,7 +325,8 @@ void RigWellAllocationOverTime::groupAccumulatedFlowVolumes( std::map<QString, s
 void RigWellAllocationOverTime::groupAccumulatedFlowVolumeFractionsOrPercentages( std::map<QString, std::map<QDateTime, double>>& rWellValuesMap,
                                                                                   double threshold )
 {
-    auto getMaxValue = []( const std::map<QDateTime, double>& valuesMap ) -> double {
+    auto getMaxValue = []( const std::map<QDateTime, double>& valuesMap ) -> double
+    {
         double maxValue = 0.0;
         for ( const auto& [timeStep, value] : valuesMap )
         {

@@ -487,7 +487,7 @@ std::vector<std::vector<cvf::Vec3d>> RigCellGeometryTools::intersectionWithPolyg
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::vector<cvf::Vec3d>> RigCellGeometryTools::subtractPolygons( const std::vector<cvf::Vec3d>&              sourcePolygon,
+std::vector<std::vector<cvf::Vec3d>> RigCellGeometryTools::subtractPolygons( const std::vector<cvf::Vec3d>& sourcePolygon,
                                                                              const std::vector<std::vector<cvf::Vec3d>>& polygonsToSubtract )
 {
     ClipperLib::Clipper clpr;

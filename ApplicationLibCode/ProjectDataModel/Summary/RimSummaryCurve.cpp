@@ -473,7 +473,8 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions( const caf:
     QList<caf::PdmOptionItemInfo> options = this->RimPlotCurve::calculateValueOptions( fieldNeedingOptions );
     if ( !options.isEmpty() ) return options;
 
-    auto createOptionsForSummaryCase = []( RimSummaryCase* summaryCase, QList<caf::PdmOptionItemInfo>& options ) {
+    auto createOptionsForSummaryCase = []( RimSummaryCase* summaryCase, QList<caf::PdmOptionItemInfo>& options )
+    {
         RimProject*                  proj  = RimProject::current();
         std::vector<RimSummaryCase*> cases = proj->allSummaryCases();
 

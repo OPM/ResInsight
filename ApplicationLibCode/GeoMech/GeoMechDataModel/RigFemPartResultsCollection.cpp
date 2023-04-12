@@ -1812,7 +1812,7 @@ void RigFemPartResultsCollection::setMudWeightWindowParameters( double          
                                                                 RimMudWeightWindowParameters::LowerLimitType lowerLimit,
                                                                 int                                          referenceLayer,
                                                                 RimMudWeightWindowParameters::FractureGradientCalculationType fgCalculationType,
-                                                                double                                                        shMultiplier,
+                                                                double shMultiplier,
                                                                 RimMudWeightWindowParameters::NonReservoirPorePressureType nonReservoirPorePressureType,
                                                                 double         hydrostaticMultiplierPPNonRes,
                                                                 const QString& nonReservoirPorePressureAddress )

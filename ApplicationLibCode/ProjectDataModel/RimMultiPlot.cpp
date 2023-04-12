@@ -390,11 +390,14 @@ void RimMultiPlot::doRenderWindowContent( QPaintDevice* paintDevice )
 //--------------------------------------------------------------------------------------------------
 void RimMultiPlot::updatePlotOrderFromGridWidget()
 {
-    std::sort( m_plots.begin(), m_plots.end(), [this]( RimPlot* lhs, RimPlot* rhs ) {
-        auto indexLhs = m_viewer->indexOfPlotWidget( lhs->plotWidget() );
-        auto indexRhs = m_viewer->indexOfPlotWidget( rhs->plotWidget() );
-        return indexLhs < indexRhs;
-    } );
+    std::sort( m_plots.begin(),
+               m_plots.end(),
+               [this]( RimPlot* lhs, RimPlot* rhs )
+               {
+                   auto indexLhs = m_viewer->indexOfPlotWidget( lhs->plotWidget() );
+                   auto indexRhs = m_viewer->indexOfPlotWidget( rhs->plotWidget() );
+                   return indexLhs < indexRhs;
+               } );
     updateSubPlotNames();
     updateConnectedEditors();
 }

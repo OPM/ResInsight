@@ -78,7 +78,7 @@ private:
     void addFaults( RigEclipseCaseData* eclipseCase );
 
     static void
-                addNnc( RigMainGrid* grid, size_t i1, size_t j1, size_t k1, size_t i2, size_t j2, size_t k2, RigConnectionContainer& nncConnections );
+        addNnc( RigMainGrid* grid, size_t i1, size_t j1, size_t k1, size_t i2, size_t j2, size_t k2, RigConnectionContainer& nncConnections );
     void        addWellData( RigEclipseCaseData* eclipseCase, RigGridBase* grid );
     static void appendCells( size_t nodeStartIndex, size_t cellCount, RigGridBase* hostGrid, std::vector<RigCell>& cells );
 

@@ -98,9 +98,8 @@ std::vector<time_t> RifHdf5SummaryReader::timeSteps() const
         // Add custom method to convert from time_point to time_t. The usual implementation of
         // chrono::system_clock::to_time_t() uses nanoseconds which will overflow on data with
         // long time spans.
-        auto convertTimePointToTimeT = []( const TP& value ) {
-            return std::chrono::duration_cast<std::chrono::seconds>( value.time_since_epoch() ).count();
-        };
+        auto convertTimePointToTimeT = []( const TP& value )
+        { return std::chrono::duration_cast<std::chrono::seconds>( value.time_since_epoch() ).count(); };
 
         auto startDat = std::chrono::system_clock::from_time_t( startDate() );
 

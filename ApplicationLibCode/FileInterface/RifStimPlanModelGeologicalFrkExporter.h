@@ -40,7 +40,7 @@ public:
 
 private:
     static bool
-                writeToFrkFile( const QString& filepath, const std::vector<QString>& labels, const std::map<QString, std::vector<double>>& values );
+        writeToFrkFile( const QString& filepath, const std::vector<QString>& labels, const std::map<QString, std::vector<double>>& values );
     static bool writeToCsvFile( const QString&                                filepath,
                                 const std::vector<QString>&                   labels,
                                 const std::map<QString, std::vector<double>>& values,

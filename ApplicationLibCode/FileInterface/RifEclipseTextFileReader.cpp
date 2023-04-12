@@ -89,7 +89,8 @@ std::pair<std::string, std::vector<float>>
 {
     std::vector<float> values;
 
-    auto isKeywordWithoutData = []( const std::string& keyword ) {
+    auto isKeywordWithoutData = []( const std::string& keyword )
+    {
         std::vector<std::string> keywords = { "ECHO", "NOECHO" };
         return std::find( keywords.begin(), keywords.end(), keyword ) != keywords.end();
     };

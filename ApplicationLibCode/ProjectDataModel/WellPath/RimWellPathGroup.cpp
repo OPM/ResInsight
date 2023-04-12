@@ -364,7 +364,8 @@ void RimWellPathGroup::makeMoreLevelsIfNecessary()
 
     auto wellPathPoints = this->wellPathGeometry()->wellPathPoints();
 
-    auto comp = []( const cvf::Vec3d& lhs, const cvf::Vec3d& rhs ) {
+    auto comp = []( const cvf::Vec3d& lhs, const cvf::Vec3d& rhs )
+    {
         auto diff = rhs - lhs;
         if ( diff.length() < 1.0e-8 ) return false;
 

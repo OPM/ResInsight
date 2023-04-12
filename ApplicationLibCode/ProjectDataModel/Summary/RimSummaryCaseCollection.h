@@ -81,7 +81,7 @@ public:
     int                    ensembleId() const;
     bool                   hasEnsembleParameters() const;
 
-    std::vector<RigEnsembleParameter>                    variationSortedEnsembleParameters( bool excludeNoVariation = false ) const;
+    std::vector<RigEnsembleParameter> variationSortedEnsembleParameters( bool excludeNoVariation = false ) const;
     std::vector<std::pair<RigEnsembleParameter, double>> correlationSortedEnsembleParameters( const RifEclipseSummaryAddress& address ) const;
     std::vector<std::pair<RigEnsembleParameter, double>> correlationSortedEnsembleParameters( const RifEclipseSummaryAddress& address,
                                                                                               time_t selectedTimeStep ) const;

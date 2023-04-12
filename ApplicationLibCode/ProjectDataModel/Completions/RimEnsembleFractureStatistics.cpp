@@ -580,9 +580,9 @@ std::set<std::pair<QString, QString>>
 //--------------------------------------------------------------------------------------------------
 std::vector<cvf::cref<RigFractureGrid>>
     RimEnsembleFractureStatistics::createFractureGrids( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
-                                                        RiaDefines::EclipseUnitSystem                               unitSystem,
-                                                        const QString&                                              resultNameOnFile,
-                                                        MeshAlignmentType                                           meshAlignmentType )
+                                                        RiaDefines::EclipseUnitSystem unitSystem,
+                                                        const QString&                resultNameOnFile,
+                                                        MeshAlignmentType             meshAlignmentType )
 {
     // Defaults to avoid scaling
     double halfLengthScaleFactor = 1.0;
@@ -620,8 +620,8 @@ std::vector<cvf::cref<RigFractureGrid>>
 //--------------------------------------------------------------------------------------------------
 std::tuple<double, double, double, double>
     RimEnsembleFractureStatistics::findSamplingIntervals( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
-                                                          std::vector<double>&                                        gridXs,
-                                                          std::vector<double>&                                        gridYs ) const
+                                                          std::vector<double>& gridXs,
+                                                          std::vector<double>& gridYs ) const
 {
     // Find min and max extent of all the grids
     auto [minX, maxX, minY, maxY] = findMaxGridExtents( stimPlanFractureDefinitions, m_meshAlignmentType() );
@@ -647,7 +647,7 @@ std::tuple<double, double, double, double>
 //--------------------------------------------------------------------------------------------------
 std::tuple<double, double, double, double>
     RimEnsembleFractureStatistics::findMaxGridExtents( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
-                                                       MeshAlignmentType                                           meshAlignmentType )
+                                                       MeshAlignmentType meshAlignmentType )
 {
     double minX = std::numeric_limits<double>::max();
     double maxX = -std::numeric_limits<double>::max();
@@ -698,13 +698,13 @@ void RimEnsembleFractureStatistics::generateUniformMesh( double               mi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleFractureStatistics::generateNaiveMesh( double                                                      minX,
-                                                       double                                                      maxX,
-                                                       double                                                      minY,
-                                                       double                                                      maxY,
+void RimEnsembleFractureStatistics::generateNaiveMesh( double minX,
+                                                       double maxX,
+                                                       double minY,
+                                                       double maxY,
                                                        const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
-                                                       std::vector<double>&                                        gridXs,
-                                                       std::vector<double>&                                        gridYs ) const
+                                                       std::vector<double>& gridXs,
+                                                       std::vector<double>& gridYs ) const
 {
     // Find max number of cells in x direction
     int maxNx = 0;
@@ -735,13 +735,13 @@ void RimEnsembleFractureStatistics::generateNaiveMesh( double                   
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleFractureStatistics::generateAdaptiveMesh( double                                                      minX,
-                                                          double                                                      maxX,
-                                                          double                                                      minY,
-                                                          double                                                      maxY,
+void RimEnsembleFractureStatistics::generateAdaptiveMesh( double minX,
+                                                          double maxX,
+                                                          double minY,
+                                                          double maxY,
                                                           const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
-                                                          std::vector<double>&                                        gridXs,
-                                                          std::vector<double>&                                        gridYs ) const
+                                                          std::vector<double>& gridXs,
+                                                          std::vector<double>& gridYs ) const
 {
     // Find max number of cells in x direction
     int maxNx = 0;
@@ -792,7 +792,8 @@ void RimEnsembleFractureStatistics::generateAdaptiveMesh( double                
     }
 
     // Find the index of the last item where value is smaller
-    auto findSmallerIndex = []( double value, const std::vector<double>& vec ) {
+    auto findSmallerIndex = []( double value, const std::vector<double>& vec )
+    {
         for ( size_t i = 0; i < vec.size(); i++ )
             if ( vec[i] > value ) return i - 1;
         return vec.size();
@@ -900,8 +901,8 @@ void RimEnsembleFractureStatistics::computeMeanThicknessPerLayer( const std::vec
 ///
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleFractureStatistics::generateAllLayers( const std::vector<cvf::ref<RigStimPlanFractureDefinition>>& stimPlanFractureDefinitions,
-                                                       std::vector<Layer>&                                         layers,
-                                                       MeshAlignmentType                                           meshAlignmentType )
+                                                       std::vector<Layer>& layers,
+                                                       MeshAlignmentType   meshAlignmentType )
 {
     for ( auto def : stimPlanFractureDefinitions )
     {
@@ -1008,7 +1009,8 @@ void RimEnsembleFractureStatistics::sampleAllGrids( const std::vector<cvf::cref<
                                                     std::shared_ptr<RigSlice2D>                    areaGrid,
                                                     std::shared_ptr<RigSlice2D>                    distanceGrid )
 {
-    auto computeCellSideLength = []( const std::vector<double>& values, size_t idx ) {
+    auto computeCellSideLength = []( const std::vector<double>& values, size_t idx )
+    {
         if ( idx < values.size() - 1 )
             return values[idx + 1] - values[idx];
         else
@@ -1116,13 +1118,15 @@ void RimEnsembleFractureStatistics::generateStatisticsGrids(
     std::shared_ptr<RigSlice2D>                                                           areaGrid,
     std::shared_ptr<RigSlice2D>                                                           distanceGrid )
 {
-    auto setValueNoInf = []( RigSlice2D& grid, size_t x, size_t y, double value ) {
+    auto setValueNoInf = []( RigSlice2D& grid, size_t x, size_t y, double value )
+    {
         // Guard against inf (happens in the regions not covered by any mesh)
         if ( std::isinf( value ) ) value = 0.0;
         grid.setValue( x, y, value );
     };
 
-    auto removeNonPositiveValues = []( const std::vector<double>& values ) {
+    auto removeNonPositiveValues = []( const std::vector<double>& values )
+    {
         std::vector<double> nonZeroValues;
         for ( double value : values )
             if ( value > 0.0 ) nonZeroValues.push_back( value );
@@ -1288,7 +1292,8 @@ QString RimEnsembleFractureStatistics::generateStatisticsTable(
     text += "</thead>";
     text += "<tbody>";
 
-    auto emptyTextOnInf = []( double value, RiaNumberFormat::NumberFormatType numberFormat, int precision ) {
+    auto emptyTextOnInf = []( double value, RiaNumberFormat::NumberFormatType numberFormat, int precision )
+    {
         if ( std::isinf( value ) )
             return QString( "" );
         else

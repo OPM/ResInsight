@@ -479,13 +479,13 @@ void RivWellPathPartMgr::appendPerforationValvesToModel( cvf::ModelBasicList*   
         {
             measuredDepthsRelativeToStartMD = { 0.0, 1.0, 1.5, 4.0, 5.0, 5.5, 8.0, 9.0 };
             radii                           = { wellPathRadius,
-                      wellPathRadius * 1.8,
-                      wellPathRadius * 2.0,
-                      wellPathRadius * 2.0,
-                      wellPathRadius * 1.8,
-                      wellPathRadius * 1.7,
-                      wellPathRadius * 1.7,
-                      wellPathRadius };
+                                                wellPathRadius * 1.8,
+                                                wellPathRadius * 2.0,
+                                                wellPathRadius * 2.0,
+                                                wellPathRadius * 1.8,
+                                                wellPathRadius * 1.7,
+                                                wellPathRadius * 1.7,
+                                                wellPathRadius };
 
             double                  startMD = valve->startMD();
             std::vector<cvf::Vec3d> displayCoords;
