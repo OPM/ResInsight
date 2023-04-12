@@ -39,7 +39,7 @@ CAF_PDM_SOURCE_INIT( RimSimWellFracture, "SimWellFracture" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSimWellFracture::RimSimWellFracture( )
+RimSimWellFracture::RimSimWellFracture()
 {
     CAF_PDM_InitObject( "SimWellFracture", ":/FractureSymbol16x16.png" );
 
