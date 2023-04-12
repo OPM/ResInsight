@@ -32,6 +32,8 @@
 #include "cafSelectionManagerTools.h"
 #include "cafUtils.h"
 
+#include "cvfBoundingBox.h"
+
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicSeismicSectionFromIntersectionFeature, "RicSeismicSectionFromIntersectionFeature" );
@@ -62,6 +64,8 @@ void RicSeismicSectionFromIntersectionFeature::onActionTriggered( bool isChecked
     RimGridView* activeView = RiaApplication::instance()->activeGridView();
     if ( activeView == nullptr ) return;
 
+    auto bbox = activeView->domainBoundingBox();
+
     RimSeismicSectionCollection* seisColl   = activeView->seismicSectionCollection();
     RimSeismicSection*           newSection = seisColl->addNewSection();
     if ( !newSection ) return;
@@ -81,13 +85,24 @@ void RicSeismicSectionFromIntersectionFeature::onActionTriggered( bool isChecked
                 newSection->addTargetNoUpdate( target );
             }
         }
-
-        newSection->updateVisualization();
     }
     else if ( ( intersection->type() == RimExtrudedCurveIntersection::CrossSectionEnum::CS_WELL_PATH ) )
     {
         newSection->setSectionType( RiaDefines::SeismicSectionType::SS_WELLPATH );
         newSection->setWellPath( intersection->wellPath() );
+    }
+
+    if ( intersection->depthFilterType() == RimIntersectionFilterEnum::INTERSECT_FILTER_NONE )
+    {
+        newSection->setDepthFilter( RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN,
+                                    (int)( -1 * bbox.max().z() ),
+                                    (int)( -1 * bbox.min().z() ) );
+    }
+    else
+    {
+        newSection->setDepthFilter( intersection->depthFilterType(),
+                                    (int)-1 * intersection->upperFilterDepth( bbox.max().z() ),
+                                    (int)-1 * intersection->lowerFilterDepth( ( bbox.min().z() ) ) );
     }
 
     Riu3DMainWindowTools::selectAsCurrentItem( newSection );

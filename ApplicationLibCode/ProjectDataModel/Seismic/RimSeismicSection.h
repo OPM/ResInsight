@@ -96,6 +96,8 @@ public:
     int                       lowerFilterZ( int lowerGridLimit ) const;
     RimIntersectionFilterEnum zFilterType() const;
 
+    void setDepthFilter( RimIntersectionFilterEnum filterType, int upperValue, int lowerValue );
+
     QString resultInfoText( cvf::Vec3d worldCoord, int partIndex );
 
     void setWellPath( RimWellPath* wellPath );

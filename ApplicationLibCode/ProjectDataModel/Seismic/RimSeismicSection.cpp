@@ -944,6 +944,16 @@ RimIntersectionFilterEnum RimSeismicSection::zFilterType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSeismicSection::setDepthFilter( RimIntersectionFilterEnum filterType, int upperValue, int lowerValue )
+{
+    m_zFilterType     = filterType;
+    m_zUpperThreshold = upperValue;
+    m_zLowerThreshold = lowerValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 int RimSeismicSection::upperFilterZ( int upperGridLimit ) const
 {
     switch ( zFilterType() )
