@@ -124,7 +124,7 @@ private:
     QPixmap getImage();
 
     void                    updateTextureSectionFromPoints( std::vector<cvf::Vec3d> points, double zmin, double zmax );
-    std::vector<cvf::Vec3d> wellPathToSectionPoints( RigWellPath* wellpath, double zmin, double zmax );
+    std::vector<cvf::Vec3d> wellPathToSectionPoints( RigWellPath* wellpath, double zmin );
 
     caf::PdmField<QString>            m_userDescription;
     caf::PdmPtrField<RimSeismicData*> m_seismicData;

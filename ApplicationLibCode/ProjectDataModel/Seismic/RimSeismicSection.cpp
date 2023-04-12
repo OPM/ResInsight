@@ -624,7 +624,7 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection()
 
         if ( m_wellPathPoints.empty() )
         {
-            m_wellPathPoints = wellPathToSectionPoints( m_wellPath()->wellPathGeometry(), zmin, zmax );
+            m_wellPathPoints = wellPathToSectionPoints( m_wellPath()->wellPathGeometry(), zmin );
         }
 
         if ( m_wellPathPoints.empty() ) return m_texturedSection;
@@ -1019,24 +1019,12 @@ QString RimSeismicSection::resultInfoText( cvf::Vec3d worldCoord, int partIndex 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<cvf::Vec3d> RimSeismicSection::wellPathToSectionPoints( RigWellPath* wellpath, double zmin, double zmax )
+std::vector<cvf::Vec3d> RimSeismicSection::wellPathToSectionPoints( RigWellPath* wellpath, double zmin )
 {
     if ( wellpath == nullptr ) return {};
 
-    enum class PointSearchState
-    {
-        NEW_SECTION_START,
-        SEARCH_NEXT_POINT,
-        SEARCH_SAME_INLINE,
-        SEARCH_SAME_XLINE
-    };
-
-    PointSearchState state = PointSearchState::NEW_SECTION_START;
-
     int currentInline = 0;
     int currentXline  = 0;
-
-    cvf::Vec3d partEndPoint;
 
     auto&                   wellpoints = wellpath->wellPathPoints();
     std::vector<cvf::Vec3d> points;
@@ -1045,76 +1033,27 @@ std::vector<cvf::Vec3d> RimSeismicSection::wellPathToSectionPoints( RigWellPath*
     {
         auto [iline, xline] = m_seismicData->convertToInlineXline( p );
 
-        switch ( state )
+        if ( std::abs( p.z() ) < zmin ) continue;
+
+        // first point?
+        if ( points.empty() )
         {
-            case PointSearchState::NEW_SECTION_START:
-                partEndPoint  = p;
-                currentInline = iline;
-                currentXline  = xline;
-                if ( std::abs( p.z() ) > zmin )
-                {
-                    points.push_back( p );
-                    state = PointSearchState::SEARCH_NEXT_POINT;
-                }
-                continue;
-
-            case PointSearchState::SEARCH_NEXT_POINT:
-                if ( ( iline == currentInline ) && ( xline == currentXline ) )
-                {
-                    // same inline and xline, keep looking for next step
-                    partEndPoint = p;
-                    continue;
-                }
-                else if ( ( iline == currentInline ) && ( xline != currentXline ) )
-                {
-                    // look for more traces with same inline number
-                    partEndPoint = p;
-                    state        = PointSearchState::SEARCH_SAME_INLINE;
-                    continue;
-                }
-                else if ( ( iline != currentInline ) && ( xline == currentXline ) )
-                {
-                    // look for more traces with same xline number
-                    partEndPoint = p;
-                    state        = PointSearchState::SEARCH_SAME_XLINE;
-                    continue;
-                }
-                // both inline and xline changed, new section part starts here
-                break;
-
-            case PointSearchState::SEARCH_SAME_INLINE:
-                if ( iline == currentInline )
-                {
-                    partEndPoint = p;
-                    continue;
-                }
-                // inline has changed, new section starts here
-                state = PointSearchState::SEARCH_NEXT_POINT;
-                break;
-
-            case PointSearchState::SEARCH_SAME_XLINE:
-                if ( xline == currentXline )
-                {
-                    partEndPoint = p;
-                    continue;
-                }
-                // xline has changed, new section part starts here
-                state = PointSearchState::SEARCH_NEXT_POINT;
-                break;
-
-            default:
-                break;
+            points.push_back( p );
+            currentInline = iline;
+            currentXline  = xline;
+            continue;
         }
+
+        // skip points that give same seismic index
+        if ( ( currentInline == iline ) && ( currentXline == xline ) ) continue;
+
+        points.push_back( p );
         currentInline = iline;
         currentXline  = xline;
-        if ( partEndPoint != points.back() ) points.push_back( partEndPoint );
-        state = PointSearchState::SEARCH_NEXT_POINT;
     }
 
-    if ( ( points.size() > 0 ) && ( wellpoints.size() > 0 ) )
-    {
-        if ( wellpoints.back() != points.back() ) points.push_back( wellpoints.back() );
-    }
+    // make sure we include the last point
+    if ( points.back() != wellpoints.back() ) points.push_back( wellpoints.back() );
 
     return points;
 }
