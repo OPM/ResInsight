@@ -36,7 +36,7 @@ public:
     double solveStassiDalia( double* thetaOut = nullptr );
 
 private:
-    using MemberFunc = double (RigGeoMechBoreHoleStressCalculator::*)(double, double *) const;
+    using MemberFunc = double ( RigGeoMechBoreHoleStressCalculator::* )( double, double* ) const;
     double     solveBisection( double minPw, double maxPw, MemberFunc fn, double* thetaOut );
     double     solveSecant( MemberFunc fn, double* thetaOut );
     double     sigmaTMinOfMin( double wellPressure, double* thetaAtMin ) const;

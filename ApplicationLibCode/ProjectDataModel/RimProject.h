@@ -90,8 +90,8 @@ class RimProject : public caf::PdmDocument
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimProject( );
-    ~RimProject( ) override;
+    RimProject();
+    ~RimProject() override;
     static RimProject* current();
 
     caf::PdmChildArrayField<RimOilField*>                oilFields;

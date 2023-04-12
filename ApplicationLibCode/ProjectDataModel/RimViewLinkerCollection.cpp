@@ -29,7 +29,7 @@ CAF_PDM_SOURCE_INIT( RimViewLinkerCollection, "RimViewLinkerCollection" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimViewLinkerCollection::RimViewLinkerCollection( )
+RimViewLinkerCollection::RimViewLinkerCollection()
 {
     CAF_PDM_InitObject( "Linked Views", ":/LinkView.svg" );
 
@@ -43,7 +43,7 @@ RimViewLinkerCollection::RimViewLinkerCollection( )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimViewLinkerCollection::~RimViewLinkerCollection( )
+RimViewLinkerCollection::~RimViewLinkerCollection()
 {
     if ( viewLinker() ) delete viewLinker();
 }

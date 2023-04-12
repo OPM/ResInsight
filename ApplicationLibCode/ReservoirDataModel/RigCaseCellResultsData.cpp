@@ -2073,7 +2073,7 @@ double newtran( double cdarchy, double mult, double halfCellTrans, double neighb
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-using ResultIndexFunction = size_t (*)(const RigActiveCellInfo *, size_t);
+using ResultIndexFunction = size_t ( * )( const RigActiveCellInfo*, size_t );
 
 //--------------------------------------------------------------------------------------------------
 ///
