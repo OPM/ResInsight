@@ -2073,7 +2073,7 @@ double newtran( double cdarchy, double mult, double halfCellTrans, double neighb
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-typedef size_t ( *ResultIndexFunction )( const RigActiveCellInfo* activeCellinfo, size_t reservoirCellIndex );
+using ResultIndexFunction = size_t (*)(const RigActiveCellInfo *, size_t);
 
 //--------------------------------------------------------------------------------------------------
 ///
