@@ -48,7 +48,7 @@ public:
 
     static double polygonLengthInLocalXdirWeightedByArea( const std::vector<cvf::Vec3d>& polygon2d );
 
-    static std::vector<std::vector<cvf::Vec3d>> intersectionWithPolygons( const std::vector<cvf::Vec3d>&              polygon1,
+    static std::vector<std::vector<cvf::Vec3d>> intersectionWithPolygons( const std::vector<cvf::Vec3d>& polygon1,
                                                                           const std::vector<std::vector<cvf::Vec3d>>& polygonToIntersectWith );
 
     static std::vector<std::vector<cvf::Vec3d>> intersectionWithPolygon( const std::vector<cvf::Vec3d>& polygon1,

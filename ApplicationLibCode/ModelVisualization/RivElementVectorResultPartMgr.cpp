@@ -155,7 +155,8 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
     auto getFaceCenterAndNormal = [activeCellInfo, cells, arrowScaling, displayCordXf]( size_t                             globalCellIdx,
                                                                                         cvf::StructGridInterface::FaceType faceType,
                                                                                         cvf::Vec3d&                        faceCenter,
-                                                                                        cvf::Vec3d&                        faceNormal ) {
+                                                                                        cvf::Vec3d&                        faceNormal )
+    {
         faceCenter            = displayCordXf->transformToDisplayCoord( cells[globalCellIdx].faceCenter( faceType ) );
         cvf::Vec3d cellCenter = displayCordXf->transformToDisplayCoord( cells[globalCellIdx].center() );
         faceNormal            = ( faceCenter - cellCenter ).getNormalized() * arrowScaling;
@@ -320,7 +321,7 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Part> RivElementVectorResultPartMgr::createPart( const RimElementVectorResult&                        result,
+cvf::ref<cvf::Part> RivElementVectorResultPartMgr::createPart( const RimElementVectorResult& result,
                                                                const std::vector<ElementVectorResultVisualization>& tensorVisualizations ) const
 {
     std::vector<uint> shaftIndices;
@@ -411,9 +412,9 @@ cvf::ref<cvf::Part> RivElementVectorResultPartMgr::createPart( const RimElementV
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivElementVectorResultPartMgr::createResultColorTextureCoords( cvf::Vec2fArray*                                     textureCoords,
+void RivElementVectorResultPartMgr::createResultColorTextureCoords( cvf::Vec2fArray* textureCoords,
                                                                     const std::vector<ElementVectorResultVisualization>& elementVectorResultVisualizations,
-                                                                    const cvf::ScalarMapper*                             mapper )
+                                                                    const cvf::ScalarMapper* mapper )
 {
     CVF_ASSERT( textureCoords );
     CVF_ASSERT( mapper );

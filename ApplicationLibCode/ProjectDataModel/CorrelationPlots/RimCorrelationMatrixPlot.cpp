@@ -441,7 +441,8 @@ void eraseInvalidEntries( std::vector<CorrelationMatrixRowOrColumn<KeyType, Valu
 {
     matrix.erase( std::remove_if( matrix.begin(),
                                   matrix.end(),
-                                  [=]( const CorrelationMatrixRowOrColumn<KeyType, ValueType>& entry ) {
+                                  [=]( const CorrelationMatrixRowOrColumn<KeyType, ValueType>& entry )
+                                  {
                                       bool isValid = RiaCurveDataTools::isValidValue( entry.m_correlationSum, false );
                                       return !isValid;
                                   } ),
@@ -454,7 +455,8 @@ void sortEntries( std::vector<CorrelationMatrixRowOrColumn<KeyType, ValueType>>&
     std::sort( matrix.begin(),
                matrix.end(),
                [&sortByAbsoluteValues]( const CorrelationMatrixRowOrColumn<KeyType, ValueType>& lhs,
-                                        const CorrelationMatrixRowOrColumn<KeyType, ValueType>& rhs ) -> bool {
+                                        const CorrelationMatrixRowOrColumn<KeyType, ValueType>& rhs ) -> bool
+               {
                    if ( sortByAbsoluteValues )
                        return lhs.m_correlationAbsSum > rhs.m_correlationAbsSum;
                    else

@@ -92,7 +92,7 @@ private:
 
     static cvf::ref<cvf::DrawableGeo> createTriangelDrawableGeo( cvf::Vec3fArray* triangleVertexArray );
     static cvf::ref<cvf::DrawableGeo> createIndexedTriangelDrawableGeo( cvf::Vec3fArray* triangleVertexArray, cvf::UIntArray* triangleIndices );
-    static cvf::ref<cvf::Part>        createPart( cvf::DrawableGeo* geo, const cvf::Color4f& color, const cvf::String& partName );
+    static cvf::ref<cvf::Part> createPart( cvf::DrawableGeo* geo, const cvf::Color4f& color, const cvf::String& partName );
 
 private:
     std::map<HandleType, cvf::ref<cvf::Part>> m_handleParts; // These arrays have the same length

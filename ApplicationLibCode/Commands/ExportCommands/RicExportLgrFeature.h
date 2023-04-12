@@ -114,9 +114,10 @@ public:
 
     int priority() const
     {
-        return type == RigCompletionData::CompletionType::FRACTURE
-                   ? 1
-                   : type == RigCompletionData::CompletionType::FISHBONES ? 2 : type == RigCompletionData::CompletionType::PERFORATION ? 3 : 4;
+        return type == RigCompletionData::CompletionType::FRACTURE      ? 1
+               : type == RigCompletionData::CompletionType::FISHBONES   ? 2
+               : type == RigCompletionData::CompletionType::PERFORATION ? 3
+                                                                        : 4;
     }
 
     // Sort by priority, then name, then number
@@ -190,8 +191,8 @@ private:
                                                       const std::vector<RigCompletionDataGridCell>& intersectingCells,
                                                       const caf::VecIjk&                            lgrSizes,
                                                       LgrNameFactory&                               lgrNameFactory );
-    static std::vector<LgrInfo> buildLgrsPerCompletion( int                                                                     firstLgrId,
-                                                        RimEclipseCase*                                                         eclipseCase,
+    static std::vector<LgrInfo> buildLgrsPerCompletion( int             firstLgrId,
+                                                        RimEclipseCase* eclipseCase,
                                                         const std::map<CompletionInfo, std::vector<RigCompletionDataGridCell>>& completionInfo,
                                                         const caf::VecIjk& lgrSizesPerMainGridCell,
                                                         LgrNameFactory&    lgrNameFactory );

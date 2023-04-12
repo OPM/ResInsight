@@ -62,7 +62,8 @@ template <typename PdmObjectType>
 void AsyncPdmObjectVectorDeleter<PdmObjectType>::start()
 {
     std::thread thread(
-        []( std::vector<PdmObjectHandle*>&& pointerVector ) {
+        []( std::vector<PdmObjectHandle*>&& pointerVector )
+        {
             for ( PdmObjectHandle* pointerToDelete : pointerVector )
             {
                 delete pointerToDelete;

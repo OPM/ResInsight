@@ -419,7 +419,7 @@ void RivIntersectionResultsColoringTools::calculateElementBasedGeoMechTextureCoo
 void RivIntersectionResultsColoringTools::calculateGeoMechTensorXfTextureCoords( cvf::Vec2fArray*       textureCoords,
                                                                                  const cvf::Vec3fArray* triangelVertices,
                                                                                  const std::vector<RivIntersectionVertexWeights>& vertexWeights,
-                                                                                 RigGeoMechCaseData*                              caseData,
+                                                                                 RigGeoMechCaseData*        caseData,
                                                                                  const RigFemResultAddress& resVarAddress,
                                                                                  int                        partIdx,
                                                                                  int                        timeStepIdx,
@@ -486,9 +486,9 @@ void RivIntersectionResultsColoringTools::calculatePlaneAngleTextureCoords( cvf:
                                                                                                                                // as plane
                                                                                                                                // normal
 
-        float      angle    = cvf::Math::toDegrees( operation( sphCoord ) );
-        cvf::Vec2f texCoord = ( angle != std::numeric_limits<float>::infinity() ) ? mapper->mapToTextureCoord( angle )
-                                                                                  : cvf::Vec2f( 0.0f, 1.0f );
+        float      angle               = cvf::Math::toDegrees( operation( sphCoord ) );
+        cvf::Vec2f texCoord            = ( angle != std::numeric_limits<float>::infinity() ) ? mapper->mapToTextureCoord( angle )
+                                                                                             : cvf::Vec2f( 0.0f, 1.0f );
         rawPtr[triangleVxStartIdx + 0] = texCoord;
         rawPtr[triangleVxStartIdx + 1] = texCoord;
         rawPtr[triangleVxStartIdx + 2] = texCoord;

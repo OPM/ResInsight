@@ -54,10 +54,10 @@ class Utils
 public:
     static double editToDouble( QLineEdit* lineEdit, double defaultVal );
 
-    static QString     absoluteFileName( const QString& fileName );
+    static QString absoluteFileName( const QString& fileName );
     static QStringList getFilesInDirectory( const QString& dirPath, const QString& nameFilter, bool getAbsoluteFileNames );
     static QStringList
-                   getFilesInDirectory( const QString& dirPath, const QStringList& nameFilters, bool getAbsoluteFileNames );
+        getFilesInDirectory( const QString& dirPath, const QStringList& nameFilters, bool getAbsoluteFileNames );
     static QString constructFullFileName( const QString& folder, const QString& baseFileName, const QString& extension );
     static QString makeValidFileBasename( const QString& fileBasenameCandidate );
 

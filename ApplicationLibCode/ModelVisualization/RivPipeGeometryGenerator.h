@@ -85,7 +85,7 @@ private:
 
     static cvf::ref<cvf::DrawableGeo> generateLine( const cvf::Vec3dArray* coords );
     static cvf::ref<cvf::DrawableGeo>
-                                      generateExtrudedCylinder( double radius, size_t crossSectionNodeCount, const cvf::Vec3dArray* cylinderCenterCoords );
+        generateExtrudedCylinder( double radius, size_t crossSectionNodeCount, const cvf::Vec3dArray* cylinderCenterCoords );
     static cvf::ref<cvf::DrawableGeo> generateVariableRadiusTube( size_t                     crossSectionNodeCount,
                                                                   const cvf::Vec3dArray*     cylinderCenterCoords,
                                                                   const std::vector<double>& radii );

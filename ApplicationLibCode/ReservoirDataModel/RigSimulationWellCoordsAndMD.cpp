@@ -70,7 +70,7 @@ cvf::Vec3d RigSimulationWellCoordsAndMD::interpolatedPointAlongWellPath( double 
         {
             // Do interpolation
             double stepsize = ( measuredDepth - m_measuredDepths.at( i - 1 ) ) / ( m_measuredDepths.at( i ) - m_measuredDepths.at( i - 1 ) );
-            wellPathPoint   = m_wellPathPoints.at( i - 1 ) + stepsize * ( m_wellPathPoints.at( i ) - m_wellPathPoints.at( i - 1 ) );
+            wellPathPoint = m_wellPathPoints.at( i - 1 ) + stepsize * ( m_wellPathPoints.at( i ) - m_wellPathPoints.at( i - 1 ) );
         }
     }
     else

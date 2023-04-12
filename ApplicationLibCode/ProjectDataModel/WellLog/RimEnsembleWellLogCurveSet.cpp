@@ -914,7 +914,8 @@ void RimEnsembleWellLogCurveSet::updateStatisticsCurves( const std::vector<RimWe
             statisticsTypes.push_back( RimEnsembleWellLogStatistics::StatisticsType::MEAN );
     }
 
-    auto statisticsCurveSymbolFromStatistics = []( RimEnsembleWellLogStatistics::StatisticsType statisticsType ) {
+    auto statisticsCurveSymbolFromStatistics = []( RimEnsembleWellLogStatistics::StatisticsType statisticsType )
+    {
         if ( statisticsType == RimEnsembleWellLogStatistics::StatisticsType::P10 ) return RiuPlotCurveSymbol::SYMBOL_TRIANGLE;
         if ( statisticsType == RimEnsembleWellLogStatistics::StatisticsType::P90 ) return RiuPlotCurveSymbol::SYMBOL_DOWN_TRIANGLE;
         if ( statisticsType == RimEnsembleWellLogStatistics::StatisticsType::P50 ) return RiuPlotCurveSymbol::SYMBOL_DIAMOND;

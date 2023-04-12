@@ -412,7 +412,8 @@ QList<double> RimSummaryTimeAxisProperties::createTickmarkList( const QDateTime&
     if ( tickmarkStep < 1 ) return {};
 
     // Convert from list of QDateTime items to double values for Qwt
-    auto toDoubleList = []( const QList<QDateTime>& dateTimeList ) {
+    auto toDoubleList = []( const QList<QDateTime>& dateTimeList )
+    {
         QList<double> output;
         for ( const auto& elm : dateTimeList )
         {
