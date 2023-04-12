@@ -43,5 +43,6 @@ protected:
     static void    importSingleEnsemble( const QStringList&                         fileNames,
                                          bool                                       useEnsembleNameDialog,
                                          RiaEnsembleNameTools::EnsembleGroupingMode groupingMode,
-                                         RiaDefines::FileType                       fileType );
+                                         RiaDefines::FileType                       fileType,
+                                         const QString&                             defaultEnsembleName = QString() );
 };

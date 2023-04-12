@@ -49,7 +49,11 @@ public:
                                                   const std::map<QString, QStringList>& keyFileComponentsForAllFiles,
                                                   const QString&                        ensembleCaseName );
 
-    static std::vector<QStringList> groupFilesByEnsemble( const QStringList& fileNames, EnsembleGroupingMode groupingMode );
+    static std::vector<QStringList>       groupFilesByEnsemble( const QStringList& fileNames, EnsembleGroupingMode groupingMode );
+    static std::map<QString, QStringList> groupFilesByStimPlanEnsemble( const QStringList& fileNames );
+
+    static std::map<QString, std::pair<QString, QString>>
+        findUniqueStimPlanEnsembleNames( const QStringList& fileNames, const std::vector<QStringList>& fileNameComponents );
 
     static QString uniqueShortNameForEnsembleCase( RimSummaryCase* summaryCase );
     static QString uniqueShortNameForSummaryCase( RimSummaryCase* summaryCase );
