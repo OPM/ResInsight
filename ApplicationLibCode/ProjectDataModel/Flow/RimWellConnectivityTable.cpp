@@ -212,9 +212,6 @@ void RimWellConnectivityTable::setFromSimulationWell( RimSimWellInView* simWell 
     // Set valid single time step and time step range selections based on case
     setValidTimeStepSelectionsForCase();
 
-    // Set single time step and current selected time step from active view
-    m_timeStepSelection = TimeStepSelection::SINGLE_TIME_STEP;
-
     if ( eclCase )
     {
         m_selectedTimeStep = eclCase->timeStepDates().at( eclView->currentTimeStep() );
@@ -231,7 +228,19 @@ void RimWellConnectivityTable::setFromSimulationWell( RimSimWellInView* simWell 
     }
 
     connectViewCellVisibilityChangedToSlot( m_cellFilterView );
-    setSelectedProducersAndInjectorsForSingleTimeStep();
+
+    // Set single time step and current selected time step from active view
+    m_timeStepSelection = TimeStepSelection::SINGLE_TIME_STEP;
+
+    if ( m_cellFilterView )
+    {
+        setWellSelectionFromViewFilter();
+    }
+    else
+    {
+        setSelectedProducersAndInjectorsForSingleTimeStep();
+    }
+
     onLoadDataAndUpdate();
 }
 
@@ -292,11 +301,30 @@ void RimWellConnectivityTable::fieldChangedByUi( const caf::PdmFieldHandle* chan
         auto*            prevCellFilterView = dynamic_cast<RimEclipseView*>( prevValue );
         disconnectViewCellVisibilityChangedFromSlots( prevCellFilterView );
 
-        // Connect signal/slots for current cellFilterView
-        connectViewCellVisibilityChangedToSlot( m_cellFilterView );
+        if ( m_cellFilterView )
+        {
+            // Connect signal/slots for current cellFilterView
+            connectViewCellVisibilityChangedToSlot( m_cellFilterView );
 
-        // Update well selections using current view filter type for the active cell filter view
-        setWellSelectionFromViewFilter();
+            // Update well selections using current view filter type for the active cell filter view
+            setWellSelectionFromViewFilter();
+        }
+        if ( !m_cellFilterView && m_selectProducersAndInjectorsForTimeSteps )
+        {
+            if ( m_timeStepSelection() == TimeStepSelection::SINGLE_TIME_STEP )
+            {
+                setSelectedProducersAndInjectorsForSingleTimeStep();
+            }
+            if ( m_timeStepSelection() == TimeStepSelection::TIME_STEP_RANGE )
+            {
+                setSelectedProducersAndInjectorsForTimeStepRange();
+            }
+        }
+        else
+        {
+            m_selectedProducerTracersUiField.setValueWithFieldChanged( {} );
+            m_selectedInjectorTracersUiField.setValueWithFieldChanged( {} );
+        }
 
         onLoadDataAndUpdate();
     }
@@ -338,6 +366,10 @@ void RimWellConnectivityTable::fieldChangedByUi( const caf::PdmFieldHandle* chan
         {
             setSelectedProducersAndInjectorsForSingleTimeStep();
         }
+        if ( m_cellFilterView )
+        {
+            setWellSelectionFromViewFilter();
+        }
 
         // For singe time step - no apply buttons due to low computation time
         onLoadDataAndUpdate();
@@ -349,6 +381,10 @@ void RimWellConnectivityTable::fieldChangedByUi( const caf::PdmFieldHandle* chan
         if ( !m_cellFilterView && m_selectProducersAndInjectorsForTimeSteps )
         {
             setSelectedProducersAndInjectorsForTimeStepRange();
+        }
+        if ( m_cellFilterView )
+        {
+            setWellSelectionFromViewFilter();
         }
     }
     else if ( changedField == &m_applyTimeStepSelections || changedField == &m_applySelectedInectorProducerTracers )
@@ -1156,8 +1192,7 @@ std::vector<QString> RimWellConnectivityTable::getViewFilteredWellNamesFromFilte
     {
         if ( filterType == ViewFilterType::FILTER_BY_VISIBLE_PRODUCERS )
         {
-            return productionType == RiaDefines::WellProductionType::PRODUCER ||
-                   productionType == RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE;
+            return productionType == RiaDefines::WellProductionType::PRODUCER;
         }
         if ( filterType == ViewFilterType::FILTER_BY_VISIBLE_INJECTORS )
         {
