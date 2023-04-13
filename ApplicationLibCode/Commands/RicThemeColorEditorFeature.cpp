@@ -65,9 +65,9 @@ void RicThemeColorEditorFeature::onActionTriggered( bool isChecked )
 
     QComboBox*                          themeSelector = new QComboBox();
     caf::AppEnum<RiaDefines::ThemeEnum> themes;
-    for ( size_t index = 0; index < themes.size(); index++ )
+    for ( size_t index = 0; index < caf::AppEnum<RiaDefines::ThemeEnum>::size(); index++ )
     {
-        themeSelector->addItem( themes.uiTextFromIndex( index ), QVariant::fromValue( index ) );
+        themeSelector->addItem( caf::AppEnum<RiaDefines::ThemeEnum>::uiTextFromIndex( index ), QVariant::fromValue( index ) );
         if ( static_cast<RiaDefines::ThemeEnum>( index ) == theme )
         {
             themeSelector->setCurrentIndex( static_cast<int>( index ) );

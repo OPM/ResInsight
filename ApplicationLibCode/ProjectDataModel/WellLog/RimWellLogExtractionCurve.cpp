@@ -856,7 +856,7 @@ void RimWellLogExtractionCurve::findAndLoadWbsParametersFromLasFiles( const RimW
             RimWellLogFile::findMdAndChannelValuesForWellPath( wellPath, lasAddress, &lasUnits );
         if ( !lasFileValues.empty() )
         {
-            QString extractorUnits = geomExtractor->parameterInputUnits( parameter );
+            QString extractorUnits = RigGeoMechWellLogExtractor::parameterInputUnits( parameter );
 
             if ( RiaWellLogUnitTools<double>::convertValues( &lasFileValues, lasUnits, extractorUnits, wellPath->wellPathGeometry() ) )
             {
