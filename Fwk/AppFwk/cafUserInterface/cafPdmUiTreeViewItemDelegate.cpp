@@ -101,6 +101,19 @@ QRect PdmUiTreeViewItemDelegate::tagRect( const QRect& itemRect, QModelIndex ind
     auto it = m_tags.find( index );
     if ( it == m_tags.end() ) return QRect();
 
+    if ( it->second.size() == 1 )
+    {
+        const PdmUiTreeViewItemAttribute::Tag* tag = it->second[0].get();
+        if ( !tag->icon.valid() && tag->position == PdmUiTreeViewItemAttribute::Tag::Position::AT_END )
+        {
+            // Special case for single tag at end, which is not an icon
+
+            QPoint bottomRight = itemRect.bottomRight();
+            QPoint topLeft     = itemRect.topRight() - QPoint( itemRect.height() * 1.5, 0 );
+            return QRect( topLeft, bottomRight );
+        }
+    }
+
     QSize fullSize = itemRect.size();
 
     QPoint offset( 0, 0 );
@@ -283,14 +296,14 @@ bool PdmUiTreeViewItemDelegate::editorEvent( QEvent*                     event,
                     PdmObjectHandle* pdmObject = uiObjectHandle->objectHandle();
                     if ( pdmObject )
                     {
-                        PdmFieldReorderCapability* reorderability =
-                            PdmFieldReorderCapability::reorderCapabilityOfParentContainer( pdmObject );
+                        size_t indexInParent = 0;
 
-                        if ( reorderability )
+                        if ( PdmFieldReorderCapability* reorderability =
+                                 PdmFieldReorderCapability::reorderCapabilityOfParentContainer( pdmObject ) )
                         {
-                            size_t indexInParent = reorderability->indexOf( pdmObject );
-                            tag->clicked.send( indexInParent );
+                            indexInParent = reorderability->indexOf( pdmObject );
                         }
+                        tag->clicked.send( indexInParent );
                     }
                 }
 

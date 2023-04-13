@@ -76,6 +76,8 @@ public:
     PdmUiColorEditor();
     ~PdmUiColorEditor() override {}
 
+    static QColor getColor( const QColor& sourceColor );
+
 protected:
     QWidget* createEditorWidget( QWidget* parent ) override;
     QWidget* createLabelWidget( QWidget* parent ) override;

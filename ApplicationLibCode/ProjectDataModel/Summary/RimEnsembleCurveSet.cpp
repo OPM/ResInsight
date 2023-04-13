@@ -65,6 +65,7 @@
 #include "RiuTextContentFrame.h"
 
 #include "cafPdmObject.h"
+#include "cafPdmUiColorEditor.h"
 #include "cafPdmUiDateEditor.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiItem.h"
@@ -1022,7 +1023,28 @@ QColor RimEnsembleCurveSet::colorForLegend() const
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::onColorTagClicked( const SignalEmitter* emitter, size_t index )
 {
-    qDebug() << "here";
+    caf::PdmField<cvf::Color3f>* colorToModify = nullptr;
+    if ( m_colorMode() == RimEnsembleCurveSetColorManager::ColorMode::SINGLE_COLOR )
+    {
+        colorToModify = &m_color;
+    }
+    else
+    {
+        colorToModify = &m_baseColorForTransparentCurves;
+    }
+
+    if ( colorToModify )
+    {
+        QColor sourceColor = RiaColorTools::toQColor( *colorToModify );
+        QColor newColor    = caf::PdmUiColorEditor::getColor( sourceColor );
+
+        if ( newColor.isValid() && newColor != sourceColor )
+        {
+            auto myColor = RiaColorTools::fromQColorTo3f( newColor );
+
+            colorToModify->setValueWithFieldChanged( myColor );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
