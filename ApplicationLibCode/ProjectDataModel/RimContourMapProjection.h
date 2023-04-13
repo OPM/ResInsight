@@ -170,8 +170,8 @@ protected:
     std::vector<cvf::Vec3d> generateVertices() const;
     void                    generateContourPolygons();
     ContourPolygons createContourPolygonsFromLineSegments( caf::ContourLines::ListOfLineSegments& unorderedLineSegments, double contourValue );
-    void            smoothContourPolygons( ContourPolygons* contourPolygons, bool favourExpansion );
-    void            clipContourPolygons( ContourPolygons* contourPolygons, const ContourPolygons* clipBy );
+    void          smoothContourPolygons( ContourPolygons* contourPolygons, bool favourExpansion );
+    void          clipContourPolygons( ContourPolygons* contourPolygons, const ContourPolygons* clipBy );
     static double sumPolygonArea( const ContourPolygons& contourPolygons );
     static double sumTriangleAreas( const std::vector<cvf::Vec4d>& triangles );
 
