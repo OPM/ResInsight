@@ -118,7 +118,7 @@ void RicCreateTemporaryLgrFeature::updateViews( RimEclipseCase* eclipseCase )
         guiApp = RiaGuiApplication::instance();
     }
 
-    if ( guiApp ) guiApp->clearAllSelections();
+    if ( guiApp ) RiaGuiApplication::clearAllSelections();
 
     deleteAllCachedData( eclipseCase );
     RimMainPlotCollection::current()->deleteAllCachedData();

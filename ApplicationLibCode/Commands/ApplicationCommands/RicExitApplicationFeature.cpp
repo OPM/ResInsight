@@ -56,7 +56,7 @@ void RicExitApplicationFeature::onActionTriggered( bool isChecked )
     }
 
     // Hide all windows first to make sure they get closed properly
-    for ( QWidget* topLevelWidget : app->topLevelWidgets() )
+    for ( QWidget* topLevelWidget : RiaGuiApplication::topLevelWidgets() )
     {
         topLevelWidget->hide();
     }

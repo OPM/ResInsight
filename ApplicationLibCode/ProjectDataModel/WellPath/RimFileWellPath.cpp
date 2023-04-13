@@ -148,7 +148,7 @@ bool RimFileWellPath::readWellPathFile( QString* errorMessage, RifWellPathImport
     {
         RifWellPathImporter::WellData wellData = wellPathImporter->readWellData( this->filePath(), m_wellPathIndexInFile() );
 
-        RifWellPathImporter::WellMetaData wellMetaData = wellPathImporter->readWellMetaData( this->filePath(), m_wellPathIndexInFile() );
+        RifWellPathImporter::WellMetaData wellMetaData = RifWellPathImporter::readWellMetaData( this->filePath(), m_wellPathIndexInFile() );
         // General well info
 
         if ( setWellNameForExport )
