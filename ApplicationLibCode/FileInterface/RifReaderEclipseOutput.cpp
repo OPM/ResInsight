@@ -1821,7 +1821,7 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
                             if ( well_segment_has_grid_connections( outletSegment, gridName.data() ) )
                             {
                                 const well_conn_collection_type* connections = well_segment_get_connections( outletSegment, gridName.data() );
-                                int                              connectionCount = well_conn_collection_get_size( connections );
+                                int connectionCount = well_conn_collection_get_size( connections );
 
                                 // Select the deepest connection
                                 well_conn_type* ert_connection = well_conn_collection_iget( connections, connectionCount - 1 );
