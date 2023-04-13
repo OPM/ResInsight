@@ -32,7 +32,8 @@ enum class SeismicSectionType
     SS_INLINE,
     SS_XLINE,
     SS_DEPTHSLICE,
-    SS_POLYLINE
+    SS_POLYLINE,
+    SS_WELLPATH
 };
 
 }; // namespace RiaDefines

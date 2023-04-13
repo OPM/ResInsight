@@ -26,15 +26,18 @@
 #include "RimSeismicAlphaMapper.h"
 #include "RimSeismicData.h"
 #include "RimTools.h"
+#include "RimWellPath.h"
 
 #include "WellPathCommands/PointTangentManipulator/RicPolyline3dEditor.h"
 #include "WellPathCommands/RicPolylineTargetsPickEventHandler.h"
 
 #include "RigPolyLinesData.h"
 #include "RigTexturedSection.h"
+#include "RigWellPath.h"
 
 #include "RivSeismicSectionPartMgr.h"
 
+#include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiSliderEditor.h"
@@ -51,6 +54,7 @@
 #include <QDialog>
 #include <QImage>
 #include <QLayout>
+#include <QMenu>
 #include <QPixmap>
 
 #include <algorithm>
@@ -66,11 +70,18 @@ RimSeismicSection::RimSeismicSection()
 {
     CAF_PDM_InitObject( "Seismic Section", ":/Seismic16x16.png" );
 
-    CAF_PDM_InitField( &m_userDescription, "UserDecription", QString( "Seismic Section" ), "Name" );
+    CAF_PDM_InitFieldNoDefault( &m_userDescription, "UserDecription", "Description" );
+
+    CAF_PDM_InitFieldNoDefault( &m_nameProxy, "NameProxy", "Name Proxy" );
+    m_nameProxy.registerGetMethod( this, &RimSeismicSection::fullName );
+    m_nameProxy.uiCapability()->setUiReadOnly( true );
+    m_nameProxy.uiCapability()->setUiHidden( true );
+    m_nameProxy.xmlCapability()->disableIO();
 
     CAF_PDM_InitFieldNoDefault( &m_type, "Type", "Type" );
 
     CAF_PDM_InitFieldNoDefault( &m_seismicData, "SeismicData", "Seismic Data" );
+    CAF_PDM_InitFieldNoDefault( &m_wellPath, "WellPath", "Well Path" );
 
     CAF_PDM_InitField( &m_enablePicking, "EnablePicking", false, "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_enablePicking );
@@ -88,7 +99,7 @@ RimSeismicSection::RimSeismicSection()
 
     CAF_PDM_InitField( &m_inlineIndex, "InlineIndex", -1, "Inline" );
     m_inlineIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
-    CAF_PDM_InitField( &m_xlineIndex, "CrosslineIndex", -1, "Crossline" );
+    CAF_PDM_InitField( &m_xlineIndex, "CrosslineIndex", -1, "Xline" );
     m_xlineIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_depthIndex, "DepthIndex", -1, "Depth Slice" );
     m_depthIndex.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
@@ -98,7 +109,7 @@ RimSeismicSection::RimSeismicSection()
     CAF_PDM_InitField( &m_showSeismicOutline, "ShowSeismicOutline", false, "Show Seismic Data Outline" );
     CAF_PDM_InitField( &m_showSectionLine, "ShowSectionLine", false, "Show Section Polyline" );
 
-    CAF_PDM_InitField( &m_transparent, "TransperentSection", false, "Transparent (Use on only one section at a time!)" );
+    CAF_PDM_InitField( &m_transparent, "TransparentSection", false, "Transparent (Use on only one section at a time!)" );
 
     CAF_PDM_InitFieldNoDefault( &m_zFilterType, "DepthFilter", "Depth Filter" );
     CAF_PDM_InitField( &m_zUpperThreshold, "UpperThreshold", -1, "Upper Threshold" );
@@ -139,7 +150,7 @@ void RimSeismicSection::setUserDescription( QString description )
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimSeismicSection::userDescriptionField()
 {
-    return &m_userDescription;
+    return &m_nameProxy;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -176,32 +187,39 @@ void RimSeismicSection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
         {
             genGrp->add( &m_depthIndex );
         }
-
-        auto filterGroup = uiOrdering.addNewGroup( "Depth Filter" );
-        filterGroup->add( &m_zFilterType );
-
-        switch ( zFilterType() )
+        else if ( m_type() == RiaDefines::SeismicSectionType::SS_WELLPATH )
         {
-            case RimIntersectionFilterEnum::INTERSECT_FILTER_BELOW:
-                m_zUpperThreshold.uiCapability()->setUiName( "Depth" );
-                filterGroup->add( &m_zUpperThreshold );
-                break;
+            genGrp->add( &m_wellPath );
+        }
 
-            case RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN:
-                m_zUpperThreshold.uiCapability()->setUiName( "Upper Depth" );
-                filterGroup->add( &m_zUpperThreshold );
-                m_zLowerThreshold.uiCapability()->setUiName( "Lower Depth" );
-                filterGroup->add( &m_zLowerThreshold );
-                break;
+        if ( m_type() != RiaDefines::SeismicSectionType::SS_DEPTHSLICE )
+        {
+            auto filterGroup = uiOrdering.addNewGroup( "Depth Filter" );
+            filterGroup->add( &m_zFilterType );
 
-            case RimIntersectionFilterEnum::INTERSECT_FILTER_ABOVE:
-                m_zLowerThreshold.uiCapability()->setUiName( "Depth" );
-                filterGroup->add( &m_zLowerThreshold );
-                break;
+            switch ( zFilterType() )
+            {
+                case RimIntersectionFilterEnum::INTERSECT_FILTER_BELOW:
+                    m_zUpperThreshold.uiCapability()->setUiName( "Depth" );
+                    filterGroup->add( &m_zUpperThreshold );
+                    break;
 
-            case RimIntersectionFilterEnum::INTERSECT_FILTER_NONE:
-            default:
-                break;
+                case RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN:
+                    m_zUpperThreshold.uiCapability()->setUiName( "Upper Depth" );
+                    filterGroup->add( &m_zUpperThreshold );
+                    m_zLowerThreshold.uiCapability()->setUiName( "Lower Depth" );
+                    filterGroup->add( &m_zLowerThreshold );
+                    break;
+
+                case RimIntersectionFilterEnum::INTERSECT_FILTER_ABOVE:
+                    m_zLowerThreshold.uiCapability()->setUiName( "Depth" );
+                    filterGroup->add( &m_zLowerThreshold );
+                    break;
+
+                case RimIntersectionFilterEnum::INTERSECT_FILTER_NONE:
+                default:
+                    break;
+            }
         }
 
         auto expGrp = uiOrdering.addNewGroup( "Experimental" );
@@ -217,7 +235,10 @@ void RimSeismicSection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
         outlGrp->setCollapsedByDefault();
     }
 
-    if ( m_type() != RiaDefines::SeismicSectionType::SS_POLYLINE ) uiOrdering.add( &m_showImage );
+    if ( ( m_type() != RiaDefines::SeismicSectionType::SS_POLYLINE ) && ( m_type() != RiaDefines::SeismicSectionType::SS_WELLPATH ) )
+    {
+        uiOrdering.add( &m_showImage );
+    }
 
     uiOrdering.skipRemainingFields();
 }
@@ -274,7 +295,7 @@ void RimSeismicSection::defineEditorAttribute( const caf::PdmFieldHandle* field,
     }
     else if ( ( field == &m_depthIndex ) || ( field == &m_inlineIndex ) || ( field == &m_xlineIndex ) )
     {
-        if ( m_seismicData() != nullptr )
+        if ( ( m_seismicData() != nullptr ) && m_seismicData->boundingBox()->isValid() )
         {
             auto* sliderAttrib = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute );
             if ( sliderAttrib != nullptr )
@@ -308,10 +329,12 @@ void RimSeismicSection::defineEditorAttribute( const caf::PdmFieldHandle* field,
         if ( ( sliderAttrib ) && ( m_seismicData() != nullptr ) )
         {
             auto bb = m_seismicData()->boundingBox();
-
-            sliderAttrib->m_minimum = -1 * bb->max().z();
-            sliderAttrib->m_maximum = -1 * bb->min().z();
-            sliderAttrib->m_step    = (int)m_seismicData->zStep();
+            if ( bb->isValid() )
+            {
+                sliderAttrib->m_minimum = -1 * bb->max().z();
+                sliderAttrib->m_maximum = -1 * bb->min().z();
+                sliderAttrib->m_step    = (int)m_seismicData->zStep();
+            }
         }
     }
 }
@@ -322,6 +345,11 @@ void RimSeismicSection::defineEditorAttribute( const caf::PdmFieldHandle* field,
 void RimSeismicSection::setSectionType( RiaDefines::SeismicSectionType sectionType )
 {
     m_type = sectionType;
+    if ( sectionType == RiaDefines::SeismicSectionType::SS_WELLPATH )
+    {
+        auto wellpath = RimTools::firstWellPath();
+        if ( wellpath != nullptr ) m_wellPath = wellpath;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -354,6 +382,8 @@ caf::PickEventHandler* RimSeismicSection::pickEventHandler() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPolylineTarget*> RimSeismicSection::activeTargets() const
 {
+    if ( m_type() != RiaDefines::SeismicSectionType::SS_POLYLINE ) return {};
+
     return m_targets.children();
 }
 
@@ -369,6 +399,14 @@ void RimSeismicSection::insertTarget( const RimPolylineTarget* targetToInsertBef
         m_targets.push_back( targetToInsert );
 
     updateVisualization();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicSection::addTargetNoUpdate( RimPolylineTarget* target )
+{
+    m_targets.push_back( target );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -505,8 +543,51 @@ QList<caf::PdmOptionItemInfo> RimSeismicSection::calculateValueOptions( const ca
 
         if ( view != nullptr ) RimTools::seismicDataOptionItems( &options, view->domainBoundingBox() );
     }
+    else if ( fieldNeedingOptions == &m_wellPath )
+    {
+        RimTools::wellPathOptionItems( &options );
+    }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicSection::updateTextureSectionFromPoints( std::vector<cvf::Vec3d> points, double zmin, double zmax )
+{
+    const int pointCount = (int)points.size();
+    if ( pointCount < 2 )
+    {
+        m_texturedSection->resize( 0 );
+        return;
+    }
+
+    bool valid = m_texturedSection->partsCount() == ( pointCount - 1 );
+    if ( !valid ) m_texturedSection->resize( pointCount - 1 );
+
+    for ( int i = 1, j = 0; i < pointCount; i++, j++ )
+    {
+        cvf::Vec3d p1 = points[j];
+        cvf::Vec3d p2 = points[i];
+
+        if ( !m_texturedSection->part( j ).isRectValid )
+        {
+            cvf::Vec3dArray rect;
+            rect.resize( 4 );
+            rect[0].set( p1.x(), p1.y(), -zmax );
+            rect[1].set( p2.x(), p2.y(), -zmax );
+            rect[2].set( p2.x(), p2.y(), -zmin );
+            rect[3].set( p1.x(), p1.y(), -zmin );
+
+            m_texturedSection->setSectionPartRect( j, rect );
+        }
+
+        if ( m_texturedSection->part( j ).sliceData == nullptr )
+        {
+            m_texturedSection->setSectionPartData( j, m_seismicData->sliceData( p1.x(), p1.y(), p2.x(), p2.y(), zmin, zmax ) );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -516,7 +597,8 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection()
 {
     if ( m_texturedSection.isNull() ) m_texturedSection = new RigTexturedSection();
 
-    if ( m_texturedSection->isValid() || ( m_seismicData == nullptr ) ) return m_texturedSection;
+    if ( m_texturedSection->isValid() || ( m_seismicData == nullptr ) || ( !m_seismicData->boundingBox()->isValid() ) )
+        return m_texturedSection;
 
     std::vector<cvf::Vec3dArray> rects;
     std::vector<int>             widths;
@@ -530,31 +612,26 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection()
     {
         if ( m_targets.size() == 0 ) return m_texturedSection;
 
-        bool valid = m_texturedSection->partsCount() == (int)( m_targets.size() - 1 );
-        if ( !valid ) m_texturedSection->resize( m_targets.size() - 1 );
+        std::vector<cvf::Vec3d> points;
 
-        for ( int i = 1; i < (int)m_targets.size(); i++ )
+        for ( int i = 0; i < (int)m_targets.size(); i++ )
         {
-            cvf::Vec3d p1 = m_targets[i - 1]->targetPointXYZ();
-            cvf::Vec3d p2 = m_targets[i]->targetPointXYZ();
-
-            if ( !m_texturedSection->part( i - 1 ).isRectValid )
-            {
-                cvf::Vec3dArray points;
-                points.resize( 4 );
-                points[0].set( p1.x(), p1.y(), -zmax );
-                points[1].set( p2.x(), p2.y(), -zmax );
-                points[2].set( p2.x(), p2.y(), -zmin );
-                points[3].set( p1.x(), p1.y(), -zmin );
-
-                m_texturedSection->setSectionPartRect( i - 1, points );
-            }
-
-            if ( m_texturedSection->part( i - 1 ).sliceData == nullptr )
-            {
-                m_texturedSection->setSectionPartData( i - 1, m_seismicData->sliceData( p1.x(), p1.y(), p2.x(), p2.y(), zmin, zmax ) );
-            }
+            if ( m_targets[i]->isEnabled() ) points.push_back( m_targets[i]->targetPointXYZ() );
         }
+        updateTextureSectionFromPoints( points, zmin, zmax );
+    }
+    else if ( m_type() == RiaDefines::SeismicSectionType::SS_WELLPATH )
+    {
+        if ( m_wellPath() == nullptr ) return m_texturedSection;
+
+        if ( m_wellPathPoints.empty() )
+        {
+            m_wellPathPoints = wellPathToSectionPoints( m_wellPath()->wellPathGeometry(), zmin );
+        }
+
+        if ( m_wellPathPoints.empty() ) return m_texturedSection;
+
+        updateTextureSectionFromPoints( m_wellPathPoints, zmin, zmax );
     }
     else if ( m_type() == RiaDefines::SeismicSectionType::SS_INLINE )
     {
@@ -624,7 +701,7 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection()
         else
             m_texturedSection->resize( 1 );
 
-        int zIndex = m_depthIndex();
+        int z = m_depthIndex();
 
         if ( !valid )
         {
@@ -636,20 +713,17 @@ cvf::ref<RigTexturedSection> RimSeismicSection::texturedSection()
 
             cvf::Vec3dArray points;
             points.resize( 4 );
-            points[3] = m_seismicData->convertToWorldCoords( ilStart, xlStart, zIndex );
-            points[2] = m_seismicData->convertToWorldCoords( ilStop, xlStart, zIndex );
-            points[1] = m_seismicData->convertToWorldCoords( ilStop, xlStop, zIndex );
-            points[0] = m_seismicData->convertToWorldCoords( ilStart, xlStop, zIndex );
-
-            for ( int i = 0; i < 4; i++ )
-                points[i].z() = -points[i].z();
+            points[3] = m_seismicData->convertToWorldCoords( ilStart, xlStart, -z );
+            points[2] = m_seismicData->convertToWorldCoords( ilStop, xlStart, -z );
+            points[1] = m_seismicData->convertToWorldCoords( ilStop, xlStop, -z );
+            points[0] = m_seismicData->convertToWorldCoords( ilStart, xlStop, -z );
 
             m_texturedSection->setSectionPartRect( 0, points );
         }
 
         if ( m_texturedSection->part( 0 ).sliceData == nullptr )
         {
-            m_texturedSection->setSectionPartData( 0, m_seismicData->sliceData( RiaDefines::SeismicSliceDirection::DEPTH, zIndex, zmin, zmax ) );
+            m_texturedSection->setSectionPartData( 0, m_seismicData->sliceData( RiaDefines::SeismicSliceDirection::DEPTH, z, zmin, zmax ) );
         }
     }
 
@@ -704,6 +778,11 @@ void RimSeismicSection::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
                   changedField == &m_zLowerThreshold || changedField == &m_zUpperThreshold )
         {
             updateType = RigTexturedSection::WhatToUpdateEnum::UPDATE_GEOMETRY;
+        }
+        else if ( changedField == &m_wellPath )
+        {
+            updateType = RigTexturedSection::WhatToUpdateEnum::UPDATE_GEOMETRY;
+            m_wellPathPoints.clear();
         }
         else if ( changedField == &m_transparent )
         {
@@ -767,7 +846,7 @@ bool RimSeismicSection::isTransparent() const
 //--------------------------------------------------------------------------------------------------
 void RimSeismicSection::initSliceRanges()
 {
-    if ( m_seismicData() == nullptr ) return;
+    if ( ( m_seismicData() == nullptr ) || ( !m_seismicData->boundingBox()->isValid() ) ) return;
 
     if ( m_zLowerThreshold < 0 ) m_zLowerThreshold = m_seismicData->zMax();
     if ( m_zUpperThreshold < 0 ) m_zUpperThreshold = m_seismicData->zMin();
@@ -867,6 +946,16 @@ RimIntersectionFilterEnum RimSeismicSection::zFilterType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSeismicSection::setDepthFilter( RimIntersectionFilterEnum filterType, int upperValue, int lowerValue )
+{
+    m_zFilterType     = filterType;
+    m_zUpperThreshold = upperValue;
+    m_zLowerThreshold = lowerValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 int RimSeismicSection::upperFilterZ( int upperGridLimit ) const
 {
     switch ( zFilterType() )
@@ -927,4 +1016,103 @@ QString RimSeismicSection::resultInfoText( cvf::Vec3d worldCoord, int partIndex 
     }
 
     return retVal;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3d> RimSeismicSection::wellPathToSectionPoints( RigWellPath* wellpath, double zmin )
+{
+    if ( wellpath == nullptr ) return {};
+
+    int currentInline = 0;
+    int currentXline  = 0;
+
+    auto&                   wellpoints = wellpath->wellPathPoints();
+    std::vector<cvf::Vec3d> points;
+
+    for ( auto& p : wellpoints )
+    {
+        auto [iline, xline] = m_seismicData->convertToInlineXline( p );
+
+        if ( std::abs( p.z() ) < zmin ) continue;
+
+        // first point?
+        if ( points.empty() )
+        {
+            points.push_back( p );
+            currentInline = iline;
+            currentXline  = xline;
+            continue;
+        }
+
+        // skip points that give same seismic index
+        if ( ( currentInline == iline ) && ( currentXline == xline ) ) continue;
+
+        points.push_back( p );
+        currentInline = iline;
+        currentXline  = xline;
+    }
+
+    // make sure we include the last point
+    if ( points.back() != wellpoints.back() ) points.push_back( wellpoints.back() );
+
+    return points;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSeismicSection::fullName() const
+{
+    QString name = m_userDescription();
+    QString prefix;
+
+    if ( m_type() == RiaDefines::SeismicSectionType::SS_WELLPATH )
+    {
+        if ( m_wellPath() != nullptr )
+            prefix = m_wellPath->name();
+        else
+            prefix = "Well Path";
+    }
+    else if ( m_type() == RiaDefines::SeismicSectionType::SS_POLYLINE )
+    {
+        prefix = "Polyline";
+    }
+    else if ( m_type() == RiaDefines::SeismicSectionType::SS_INLINE )
+    {
+        prefix = QString( "Inline [%1]" ).arg( m_inlineIndex );
+    }
+    else if ( m_type() == RiaDefines::SeismicSectionType::SS_XLINE )
+    {
+        prefix = QString( "Xline [%1]" ).arg( m_xlineIndex );
+    }
+    else if ( m_type() == RiaDefines::SeismicSectionType::SS_DEPTHSLICE )
+    {
+        prefix = QString( "Depth Slice [%1]" ).arg( m_depthIndex );
+    }
+
+    if ( !name.isEmpty() ) return QString( "%1 - %2" ).arg( prefix ).arg( name );
+
+    return prefix;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicSection::setWellPath( RimWellPath* wellPath )
+{
+    m_wellPath = wellPath;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicSection::defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget )
+{
+    caf::CmdFeatureMenuBuilder menuBuilder;
+
+    menuBuilder << "RicDeletePolylineTargetFeature";
+
+    menuBuilder.appendToMenu( menu );
 }

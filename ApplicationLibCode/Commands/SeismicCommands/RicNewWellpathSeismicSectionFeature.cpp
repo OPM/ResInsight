@@ -16,18 +16,18 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewXlineSeismicSectionFeature.h"
+#include "RicNewWellpathSeismicSectionFeature.h"
 
 #include "RicSeismicSectionFeatureImpl.h"
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT( RicNewXlineSeismicSectionFeature, "RicNewXlineSeismicSectionFeature" );
+CAF_CMD_SOURCE_INIT( RicNewWellpathSeismicSectionFeature, "RicNewWellpathSeismicSectionFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewXlineSeismicSectionFeature::isCommandEnabled()
+bool RicNewWellpathSeismicSectionFeature::isCommandEnabled()
 {
     return true;
 }
@@ -35,16 +35,16 @@ bool RicNewXlineSeismicSectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewXlineSeismicSectionFeature::onActionTriggered( bool isChecked )
+void RicNewWellpathSeismicSectionFeature::onActionTriggered( bool isChecked )
 {
-    RicSeismicSectionFeatureImpl::createSeismicSection( RiaDefines::SeismicSectionType::SS_XLINE );
+    RicSeismicSectionFeatureImpl::createSeismicSection( RiaDefines::SeismicSectionType::SS_WELLPATH );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewXlineSeismicSectionFeature::setupActionLook( QAction* actionToSetup )
+void RicNewWellpathSeismicSectionFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/Seismic16x16.png" ) );
-    actionToSetup->setText( "New Xline Section" );
+    actionToSetup->setText( "New Well Path Section" );
 }

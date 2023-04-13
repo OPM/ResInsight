@@ -63,6 +63,7 @@ public:
     static void seismicDataOptionItems( QList<caf::PdmOptionItemInfo>* options, cvf::BoundingBox worldBBox );
 
     static RimWellPathCollection* wellPathCollection();
+    static RimWellPath*           firstWellPath();
 
     static void timeStepsForCase( RimCase* gridCase, QList<caf::PdmOptionItemInfo>* options );
 

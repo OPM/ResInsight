@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2020-     Equinor ASA
+//  Copyright (C) 2023     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,15 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RicNewPolylineSeismicSectionFeature.h"
+
 #include "RicSeismicSectionFeatureImpl.h"
-
-#include "RimGridView.h"
-#include "RimSeismicSection.h"
-#include "RimSeismicSectionCollection.h"
-#include "Riu3DMainWindowTools.h"
-
-#include "cafSelectionManagerTools.h"
-#include "cafUtils.h"
 
 #include <QAction>
 
@@ -44,7 +37,7 @@ bool RicNewPolylineSeismicSectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewPolylineSeismicSectionFeature::onActionTriggered( bool isChecked )
 {
-    RicSeismicSectionFeatureImpl::createSeismicSection( "Polyline Section", RiaDefines::SeismicSectionType::SS_POLYLINE );
+    RicSeismicSectionFeatureImpl::createSeismicSection( RiaDefines::SeismicSectionType::SS_POLYLINE );
 }
 
 //--------------------------------------------------------------------------------------------------

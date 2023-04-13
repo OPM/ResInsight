@@ -29,6 +29,7 @@
 #include "cafPdmField.h"
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfVec3d.h"
+#include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 
 #include "cvfArray.h"
@@ -38,15 +39,21 @@
 #include <QList>
 #include <QString>
 
+#include <vector>
+
 class RicPolylineTargetsPickEventHandler;
 class RimPolylineTarget;
 class RigPolylinesData;
+class RigWellPath;
 class RigTexturedSection;
 class RivSeismicSectionPartMgr;
 class Rim3dView;
 class RimSeismicData;
 class RimRegularLegendConfig;
 class RimSeismicAlphaMapper;
+class RimWellPath;
+class QMenu;
+class QWidget;
 
 class RimSeismicSection : public RimCheckableNamedObject, public RimPolylinePickerInterface, public RimPolylinesDataInterface
 {
@@ -58,9 +65,11 @@ public:
 
     QString userDescription();
     void    setUserDescription( QString description );
+    QString fullName() const;
 
     void updateVisualization() override;
     void updateEditorsAndVisualization() override;
+    void addTargetNoUpdate( RimPolylineTarget* target );
     void insertTarget( const RimPolylineTarget* targetToInsertBefore, RimPolylineTarget* targetToInsert ) override;
     void deleteTarget( RimPolylineTarget* targetToDelete ) override;
     void enablePicking( bool enable );
@@ -89,7 +98,11 @@ public:
     int                       lowerFilterZ( int lowerGridLimit ) const;
     RimIntersectionFilterEnum zFilterType() const;
 
+    void setDepthFilter( RimIntersectionFilterEnum filterType, int upperValue, int lowerValue );
+
     QString resultInfoText( cvf::Vec3d worldCoord, int partIndex );
+
+    void setWellPath( RimWellPath* wellPath );
 
 protected:
     void                 initAfterRead() override;
@@ -102,6 +115,7 @@ protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
+    void defineCustomContextMenu( const caf::PdmFieldHandle* fieldNeedingMenu, QMenu* menu, QWidget* fieldEditorWidget ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     void onLegendConfigChanged( const caf::SignalEmitter* emitter, RimLegendConfigChangeType changeType );
@@ -112,8 +126,13 @@ private:
 
     QPixmap getImage();
 
+    void                    updateTextureSectionFromPoints( std::vector<cvf::Vec3d> points, double zmin, double zmax );
+    std::vector<cvf::Vec3d> wellPathToSectionPoints( RigWellPath* wellpath, double zmin );
+
     caf::PdmField<QString>            m_userDescription;
     caf::PdmPtrField<RimSeismicData*> m_seismicData;
+    caf::PdmPtrField<RimWellPath*>    m_wellPath;
+    caf::PdmProxyValueField<QString>  m_nameProxy;
 
     caf::PdmField<caf::AppEnum<RiaDefines::SeismicSectionType>> m_type;
     caf::PdmChildArrayField<RimPolylineTarget*>                 m_targets;
@@ -136,4 +155,6 @@ private:
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
     cvf::ref<RivSeismicSectionPartMgr>                  m_sectionPartMgr;
     cvf::ref<RigTexturedSection>                        m_texturedSection;
+
+    std::vector<cvf::Vec3d> m_wellPathPoints;
 };

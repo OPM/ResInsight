@@ -845,6 +845,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicAppendIntersectionFeature";
             menuBuilder << "RicAppendIntersectionBoxFeature";
             menuBuilder.addSeparator();
+            menuBuilder << "RicSeismicSectionFromIntersectionFeature";
+            menuBuilder.addSeparator();
             menuBuilder << "RicNewIntersectionViewFeature";
             menuBuilder.addSeparator();
             menuBuilder << "RicCopyIntersectionsToAllViewsInCaseFeature";
@@ -1039,7 +1041,9 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewInlineSeismicSectionFeature";
             menuBuilder << "RicNewXlineSeismicSectionFeature";
             menuBuilder << "RicNewZSliceSeismicSectionFeature";
+            menuBuilder.addSeparator();
             menuBuilder << "RicNewPolylineSeismicSectionFeature";
+            menuBuilder << "RicNewWellpathSeismicSectionFeature";
         }
         else if ( dynamic_cast<RimSeismicDataCollection*>( firstUiItem ) )
         {
