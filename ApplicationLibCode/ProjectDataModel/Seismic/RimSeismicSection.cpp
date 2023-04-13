@@ -962,7 +962,6 @@ int RimSeismicSection::alignZValue( int z ) const
     if ( m_seismicData == nullptr ) return z;
 
     const int zMin  = (int)m_seismicData->zMin();
-    const int zMax  = (int)m_seismicData->zMax();
     const int zStep = (int)m_seismicData->zStep();
 
     int alignedZ = ( ( z - zMin ) / zStep );
