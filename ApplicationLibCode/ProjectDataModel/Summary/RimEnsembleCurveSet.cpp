@@ -900,6 +900,9 @@ void RimEnsembleCurveSet::defineObjectEditorAttribute( QString uiConfigName, caf
         tag->bgColor = RiaColorTools::toQColor( m_color );
         tag->fgColor = RiaColorTools::toQColor( m_statistics->color() );
         tag->text    = "---";
+
+        tag->clicked.connect( this, &RimEnsembleCurveSet::onColorTagClicked );
+
         treeItemAttribute->tags.push_back( std::move( tag ) );
     }
 }
@@ -1012,6 +1015,14 @@ QColor RimEnsembleCurveSet::colorForLegend() const
     }
 
     return RiaColorTools::toQColor( m_color );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::onColorTagClicked( const SignalEmitter* emitter, size_t index )
+{
+    qDebug() << "here";
 }
 
 //--------------------------------------------------------------------------------------------------

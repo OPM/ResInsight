@@ -216,6 +216,7 @@ private:
 
     void   setTransparentCurveColor();
     QColor colorForLegend() const;
+    void   onColorTagClicked( const SignalEmitter* emitter, size_t index );
 
 private:
     caf::PdmField<bool>                       m_showCurves;
