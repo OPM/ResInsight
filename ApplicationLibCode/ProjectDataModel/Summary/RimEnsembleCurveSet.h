@@ -197,6 +197,7 @@ private:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
     void updatePlotAxis();
 
@@ -213,7 +214,7 @@ private:
     void onObjectiveFunctionChanged( const caf::SignalEmitter* emitter );
     void onCustomObjectiveFunctionChanged( const caf::SignalEmitter* emitter );
 
-    void   computeDerivedCurveColors();
+    void   setTransparentCurveColor();
     QColor colorForLegend() const;
 
 private:
@@ -229,7 +230,7 @@ private:
     caf::PdmField<RiaDefines::DateTimePeriodEnum> m_resampling;
 
     caf::PdmField<ColorModeEnum>                                       m_colorMode;
-    caf::PdmField<cvf::Color3f>                                        m_baseColor;
+    caf::PdmField<cvf::Color3f>                                        m_baseColorForTransparentCurves;
     caf::PdmField<cvf::Color3f>                                        m_color;
     caf::PdmField<double>                                              m_colorTransparencey;
     caf::PdmField<QString>                                             m_ensembleParameter;

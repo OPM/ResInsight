@@ -72,6 +72,7 @@
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiSliderEditor.h"
+#include "cafPdmUiTreeAttributes.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 #include "cafTitledOverlayFrame.h"
@@ -141,7 +142,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     CAF_PDM_InitField( &m_colorMode, "ColorMode", caf::AppEnum<ColorMode>( ColorMode::SINGLE_COLOR_WITH_ALPHA ), "Coloring Mode" );
 
     CAF_PDM_InitField( &m_color, "Color", RiaColorTools::textColor3f(), "Color" );
-    CAF_PDM_InitField( &m_baseColor, "BaseColor", RiaColorTools::textColor3f(), "BaseColor" );
+    CAF_PDM_InitField( &m_baseColorForTransparentCurves, "BaseColorForTransparentCurves", RiaColorTools::textColor3f(), "Color" );
     CAF_PDM_InitField( &m_colorTransparencey, "ColorTransparencey", 0.3, "Transparency" );
     m_colorTransparencey.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
@@ -286,9 +287,9 @@ bool RimEnsembleCurveSet::isCurvesVisible()
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::setColor( cvf::Color3f color )
 {
-    m_baseColor = color;
+    m_baseColorForTransparentCurves = color;
 
-    computeDerivedCurveColors();
+    setTransparentCurveColor();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -679,9 +680,9 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     {
         updateAllCurves();
     }
-    else if ( changedField == &m_color || changedField == &m_baseColor || changedField == &m_colorTransparencey )
+    else if ( changedField == &m_color || changedField == &m_baseColorForTransparentCurves || changedField == &m_colorTransparencey )
     {
-        computeDerivedCurveColors();
+        setTransparentCurveColor();
 
         updateCurveColors();
 
@@ -737,7 +738,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
             }
         }
 
-        computeDerivedCurveColors();
+        setTransparentCurveColor();
         updateCurveColors();
         updateTimeAnnotations();
         updateObjectiveFunctionLegend();
@@ -888,6 +889,21 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    if ( auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute ) )
+    {
+        treeItemAttribute->tags.clear();
+        auto tag     = caf::PdmUiTreeViewItemAttribute::Tag::create();
+        tag->bgColor = colorForLegend();
+        tag->text    = " ";
+        treeItemAttribute->tags.push_back( std::move( tag ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     {
@@ -965,20 +981,19 @@ void RimEnsembleCurveSet::onCustomObjectiveFunctionChanged( const caf::SignalEmi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSet::computeDerivedCurveColors()
+void RimEnsembleCurveSet::setTransparentCurveColor()
 {
     if ( m_colorMode() == RimEnsembleCurveSet::ColorMode::SINGLE_COLOR_WITH_ALPHA )
     {
         auto backgroundColor = RiuGuiTheme::getColorByVariableName( "backgroundColor1" );
 
-        auto sourceColor      = RiaColorTools::toQColor( m_baseColor );
-        auto sourceWeigth     = 100;
-        int  backgroundWeigth = sourceWeigth * 10 * m_colorTransparencey;
-        backgroundWeigth      = std::max( 1, backgroundWeigth );
-        auto transparentColor = RiaColorTools::blendQColors( backgroundColor, sourceColor, backgroundWeigth, sourceWeigth );
+        auto sourceColor      = RiaColorTools::toQColor( m_baseColorForTransparentCurves );
+        auto sourceWeight     = 100;
+        int  backgroundWeight = std::max( 1, static_cast<int>( sourceWeight * 10 * m_colorTransparencey ) );
+        auto blendedColor     = RiaColorTools::blendQColors( backgroundColor, sourceColor, backgroundWeight, sourceWeight );
 
-        m_color = RiaColorTools::fromQColorTo3f( transparentColor );
-        setStatisticsColor( m_baseColor );
+        m_color = RiaColorTools::fromQColorTo3f( blendedColor );
+        setStatisticsColor( m_baseColorForTransparentCurves );
         updateStatisticsCurves();
     }
 }
@@ -990,7 +1005,7 @@ QColor RimEnsembleCurveSet::colorForLegend() const
 {
     if ( m_colorMode() == RimEnsembleCurveSetColorManager::ColorMode::SINGLE_COLOR_WITH_ALPHA )
     {
-        return RiaColorTools::toQColor( m_baseColor );
+        return RiaColorTools::toQColor( m_baseColorForTransparentCurves );
     }
 
     return RiaColorTools::toQColor( m_color );
@@ -1022,7 +1037,7 @@ void RimEnsembleCurveSet::appendColorGroup( caf::PdmUiOrdering& uiOrdering )
     }
     else if ( m_colorMode() == RimEnsembleCurveSetColorManager::ColorMode::SINGLE_COLOR_WITH_ALPHA )
     {
-        colorsGroup->add( &m_baseColor );
+        colorsGroup->add( &m_baseColorForTransparentCurves );
         colorsGroup->add( &m_colorTransparencey );
     }
     else if ( m_colorMode == ColorMode::BY_ENSEMBLE_PARAM )
