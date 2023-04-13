@@ -91,7 +91,7 @@ std::vector<SimulationWellCellBranch>
     {
         if ( resultBranch.branchResultPoints().empty() ) continue;
 
-        const auto& firstResultPoint = resultBranch.branchResultPoints().front();
+        const RigWellResultPoint firstResultPoint = resultBranch.branchResultPoints().front();
 
         for ( auto& wellBranch : wellBranches )
         {
