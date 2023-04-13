@@ -426,6 +426,7 @@ void RimSeismicSection::deleteTarget( RimPolylineTarget* targetToDelete )
 void RimSeismicSection::updateVisualization()
 {
     if ( texturedSection().notNull() ) texturedSection()->setWhatToUpdate( RigTexturedSection::WhatToUpdateEnum::UPDATE_GEOMETRY );
+    m_wellPathPoints.clear();
     scheduleViewUpdate();
 }
 
@@ -956,19 +957,42 @@ void RimSeismicSection::setDepthFilter( RimIntersectionFilterEnum filterType, in
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RimSeismicSection::alignZValue( int z ) const
+{
+    if ( m_seismicData == nullptr ) return z;
+
+    const int zMin  = (int)m_seismicData->zMin();
+    const int zMax  = (int)m_seismicData->zMax();
+    const int zStep = (int)m_seismicData->zStep();
+
+    int alignedZ = ( ( z - zMin ) / zStep );
+    alignedZ *= zStep;
+    alignedZ += zMin;
+
+    return alignedZ;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 int RimSeismicSection::upperFilterZ( int upperGridLimit ) const
 {
+    int retVal;
     switch ( zFilterType() )
     {
         case RimIntersectionFilterEnum::INTERSECT_FILTER_BELOW:
         case RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN:
-            return m_zUpperThreshold;
+            retVal = m_zUpperThreshold;
+            break;
 
         case RimIntersectionFilterEnum::INTERSECT_FILTER_ABOVE:
         case RimIntersectionFilterEnum::INTERSECT_FILTER_NONE:
         default:
-            return upperGridLimit;
+            retVal = upperGridLimit;
+            break;
     }
+
+    return alignZValue( retVal );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -976,17 +1000,20 @@ int RimSeismicSection::upperFilterZ( int upperGridLimit ) const
 //--------------------------------------------------------------------------------------------------
 int RimSeismicSection::lowerFilterZ( int lowerGridLimit ) const
 {
+    int retVal;
     switch ( zFilterType() )
     {
         case RimIntersectionFilterEnum::INTERSECT_FILTER_ABOVE:
         case RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN:
-            return m_zLowerThreshold;
+            retVal = m_zLowerThreshold;
 
         case RimIntersectionFilterEnum::INTERSECT_FILTER_BELOW:
         case RimIntersectionFilterEnum::INTERSECT_FILTER_NONE:
         default:
-            return lowerGridLimit;
+            retVal = lowerGridLimit;
     }
+
+    return alignZValue( retVal );
 }
 
 //--------------------------------------------------------------------------------------------------
