@@ -320,7 +320,7 @@ bool RifOdbReader::readFemParts( RigFemPartCollection* femParts )
     odb_InstanceRepository   instanceRepository = m_odb->rootAssembly().instances();
     odb_InstanceRepositoryIT iter( instanceRepository );
 
-    caf::ProgressInfo modelProgress( instanceRepository.size() * ( size_t )( 2 + 4 ), "Reading Odb Parts" );
+    caf::ProgressInfo modelProgress( instanceRepository.size() * (size_t)( 2 + 4 ), "Reading Odb Parts" );
 
     int instanceCount = 0;
     for ( iter.first(); !iter.isDone(); iter.next(), instanceCount++ )

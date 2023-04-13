@@ -122,10 +122,10 @@ private:
                                                                           gsl::not_null<const RigWellPath*>                wellPathGeometry,
                                                                           gsl::not_null<const RimEclipseCase*>             eclipseCase );
 
-    static std::pair<double, double> calculateOverlapWithActiveCells( double                                           startMD,
-                                                                      double                                           endMD,
+    static std::pair<double, double> calculateOverlapWithActiveCells( double startMD,
+                                                                      double endMD,
                                                                       const std::vector<WellPathCellIntersectionInfo>& wellPathIntersections,
-                                                                      const RigActiveCellInfo*                         activeCellInfo );
+                                                                      const RigActiveCellInfo* activeCellInfo );
 
     static void createWellPathSegments( gsl::not_null<RicMswBranch*>                      branch,
                                         const std::vector<WellPathCellIntersectionInfo>&  cellSegmentIntersections,
@@ -167,10 +167,10 @@ private:
                                                         gsl::not_null<RicMswSegment*>         segment,
                                                         bool*                                 foundSubGridIntersections );
 
-    static std::vector<RigCompletionData> generatePerforationIntersections( gsl::not_null<const RimWellPath*>            wellPath,
+    static std::vector<RigCompletionData> generatePerforationIntersections( gsl::not_null<const RimWellPath*> wellPath,
                                                                             gsl::not_null<const RimPerforationInterval*> perforationInterval,
-                                                                            int                                          timeStep,
-                                                                            gsl::not_null<const RimEclipseCase*>         eclipseCase );
+                                                                            int                                  timeStep,
+                                                                            gsl::not_null<const RimEclipseCase*> eclipseCase );
 
     static void assignPerforationIntersections( const std::vector<RigCompletionData>& completionData,
                                                 gsl::not_null<RicMswCompletion*>      perforationCompletion,

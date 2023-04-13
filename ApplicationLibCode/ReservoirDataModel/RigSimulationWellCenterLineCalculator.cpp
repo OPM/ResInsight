@@ -631,38 +631,40 @@ public:
         /// Creating useful lambda functions
 
         auto buildResBranchToBranchLineEndsDistMap =
-            [&unusedBranchLineIterators, &resBranchIdxToBranchLineEndPointsDists, this]( const cvf::Vec3d& fromPoint, int resultBranchIndex ) {
-                for ( auto it : unusedBranchLineIterators )
+            [&unusedBranchLineIterators, &resBranchIdxToBranchLineEndPointsDists, this]( const cvf::Vec3d& fromPoint, int resultBranchIndex )
+        {
+            for ( auto it : unusedBranchLineIterators )
+            {
                 {
-                    {
-                        double dist = calculateFrontToPointDistance( it->second, fromPoint );
-                        resBranchIdxToBranchLineEndPointsDists[resultBranchIndex].insert( DistToEndPoint( dist, it, true ) );
-                    }
-
-                    {
-                        double dist = calculateEndToPointDistance( it->second, fromPoint );
-                        resBranchIdxToBranchLineEndPointsDists[resultBranchIndex].insert( DistToEndPoint( dist, it, false ) );
-                    }
+                    double dist = calculateFrontToPointDistance( it->second, fromPoint );
+                    resBranchIdxToBranchLineEndPointsDists[resultBranchIndex].insert( DistToEndPoint( dist, it, true ) );
                 }
-            };
+
+                {
+                    double dist = calculateEndToPointDistance( it->second, fromPoint );
+                    resBranchIdxToBranchLineEndPointsDists[resultBranchIndex].insert( DistToEndPoint( dist, it, false ) );
+                }
+            }
+        };
 
         auto removeBranchLineFromDistanceMap =
-            [&resBranchIdxToBranchLineEndPointsDists]( std::list<std::pair<bool, std::deque<size_t>>>::iterator branchLineToMergeIt ) {
-                for ( auto& brIdx_DistToEndPointSet : resBranchIdxToBranchLineEndPointsDists )
+            [&resBranchIdxToBranchLineEndPointsDists]( std::list<std::pair<bool, std::deque<size_t>>>::iterator branchLineToMergeIt )
+        {
+            for ( auto& brIdx_DistToEndPointSet : resBranchIdxToBranchLineEndPointsDists )
+            {
+                std::vector<std::multiset<DistToEndPoint>::iterator> iteratorsToErase;
+                for ( auto it = brIdx_DistToEndPointSet.second.begin(); it != brIdx_DistToEndPointSet.second.end(); ++it )
                 {
-                    std::vector<std::multiset<DistToEndPoint>::iterator> iteratorsToErase;
-                    for ( auto it = brIdx_DistToEndPointSet.second.begin(); it != brIdx_DistToEndPointSet.second.end(); ++it )
+                    if ( it->branchLineIt == branchLineToMergeIt )
                     {
-                        if ( it->branchLineIt == branchLineToMergeIt )
-                        {
-                            iteratorsToErase.push_back( it );
-                        }
+                        iteratorsToErase.push_back( it );
                     }
-
-                    for ( auto itToErase : iteratorsToErase )
-                        brIdx_DistToEndPointSet.second.erase( itToErase );
                 }
-            };
+
+                for ( auto itToErase : iteratorsToErase )
+                    brIdx_DistToEndPointSet.second.erase( itToErase );
+            }
+        };
 
         // Make the result container ready
 

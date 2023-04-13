@@ -154,7 +154,7 @@ size_t PdmPtrArrayField<DataType*>::indexOf( const PdmObjectHandle* obj ) const
         }
     }
 
-    return ( size_t )( -1 ); // Undefined size_t > m_pointers.size();
+    return (size_t)( -1 ); // Undefined size_t > m_pointers.size();
 }
 
 //--------------------------------------------------------------------------------------------------

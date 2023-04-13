@@ -377,7 +377,8 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceImporter::re
     // of axesVectorCandidates. Also increases the number of occurrences of vector candidates.
     auto maybeInsertAxisVectorCandidate = [epsilon]( const cvf::Vec2d                              vector,
                                                      std::map<cvf::Vec2d, double, vec2dCompare>&   axesVectorCandidates,
-                                                     std::map<cvf::Vec2d, unsigned, vec2dCompare>& axesVectorCandidatesNum ) -> bool {
+                                                     std::map<cvf::Vec2d, unsigned, vec2dCompare>& axesVectorCandidatesNum ) -> bool
+    {
         double     length           = vector.length();
         cvf::Vec2d normalizedVector = vector.getNormalized();
         for ( std::map<cvf::Vec2d, double, vec2dCompare>::iterator iter = axesVectorCandidates.begin(); iter != axesVectorCandidates.end();
@@ -471,9 +472,9 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceImporter::re
         pairs.push_back( *itr );
     }
 
-    sort( pairs.begin(), pairs.end(), [=]( std::pair<cvf::Vec2d, unsigned>& a, std::pair<cvf::Vec2d, unsigned>& b ) {
-        return a.second > b.second;
-    } );
+    sort( pairs.begin(),
+          pairs.end(),
+          [=]( std::pair<cvf::Vec2d, unsigned>& a, std::pair<cvf::Vec2d, unsigned>& b ) { return a.second > b.second; } );
 
     cvf::Vec2d primaryAxisVector = pairs[0].first * axesVectorCandidates[pairs[0].first];
 
@@ -488,7 +489,8 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceImporter::re
 
     auto distanceOnLine = [to3d, to2d, surfacePoints, primaryAxisVector, epsilon]( const cvf::Vec2d linePoint1,
                                                                                    const cvf::Vec2d linePoint2,
-                                                                                   const cvf::Vec2d point ) -> int {
+                                                                                   const cvf::Vec2d point ) -> int
+    {
         double     normalizedIntersection = 0.0;
         cvf::Vec2d projectedPoint =
             to2d( cvf::GeometryTools::projectPointOnLine( to3d( linePoint1 ), to3d( linePoint2 ), to3d( point ), &normalizedIntersection ) );
@@ -632,7 +634,8 @@ bool RifSurfaceImporter::generateTriangleIndices( const std::vector<std::vector<
 //--------------------------------------------------------------------------------------------------
 bool RifSurfaceImporter::vectorFuzzyCompare( const cvf::Vec2d& vector1, const cvf::Vec2d& vector2, double epsilon )
 {
-    auto AlmostEqualRelativeAndAbs = [=]( double A, double B, double maxRelDiff ) -> bool {
+    auto AlmostEqualRelativeAndAbs = [=]( double A, double B, double maxRelDiff ) -> bool
+    {
         // Check if the numbers are really close -- needed
         // when comparing numbers near zero.
         double diff = fabs( A - B );

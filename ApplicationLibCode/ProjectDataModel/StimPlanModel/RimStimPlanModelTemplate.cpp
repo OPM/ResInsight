@@ -385,10 +385,10 @@ void RimStimPlanModelTemplate::setFaciesProperties( RimFaciesProperties* faciesP
         {
             for ( RimColorLegendItem* item : faciesColors->colorLegendItems() )
             {
-                bool exists =
-                    std::find_if( m_faciesInitialPressureConfigs.begin(), m_faciesInitialPressureConfigs.end(), [item]( const auto& c ) {
-                        return c->faciesValue() == item->categoryValue();
-                    } ) != m_faciesInitialPressureConfigs.end();
+                bool exists = std::find_if( m_faciesInitialPressureConfigs.begin(),
+                                            m_faciesInitialPressureConfigs.end(),
+                                            [item]( const auto& c )
+                                            { return c->faciesValue() == item->categoryValue(); } ) != m_faciesInitialPressureConfigs.end();
                 if ( !exists )
                 {
                     RimFaciesInitialPressureConfig* fipConfig                   = new RimFaciesInitialPressureConfig;

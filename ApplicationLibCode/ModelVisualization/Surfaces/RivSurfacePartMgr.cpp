@@ -242,7 +242,7 @@ QString RivSurfacePartMgr::resultInfoText( Rim3dView* view, uint hitPart, cvf::V
         const auto& ind  = m_usedSurfaceData->triangleIndices();
         const auto& vert = m_usedSurfaceData->vertices();
 
-        size_t indIndex = ( size_t )( hitPart * 3 );
+        size_t indIndex = (size_t)( hitPart * 3 );
 
         // find closest triangle corner point to hit point and show that value
         if ( ind.size() > ( indIndex + 2 ) )

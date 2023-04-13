@@ -60,12 +60,12 @@ public:
     void setIOWriteable( bool writeable );
 
     virtual void
-                 readFromField( QTextStream& outputStream, bool quoteStrings = true, bool quoteNonBuiltins = false ) const = 0;
+        readFromField( QTextStream& outputStream, bool quoteStrings = true, bool quoteNonBuiltins = false ) const = 0;
     virtual void writeToField( QTextStream&              inputStream,
                                caf::PdmObjectFactory*    objectFactory,
                                caf::PdmScriptIOMessages* errorMessageContainer,
                                bool                      stringsAreQuoted    = true,
-                               caf::PdmObjectHandle*     existingObjectsRoot = nullptr ) = 0;
+                               caf::PdmObjectHandle*     existingObjectsRoot = nullptr )                              = 0;
 
     static QString helpString( const QString& existingTooltip, const QString& keyword );
 

@@ -407,13 +407,16 @@ void RimSummaryTable::onLoadDataAndUpdate()
     }
 
     // Sort vector data on date (vectors with no values above threshold placed last):
-    std::sort( vectorDataCollection.begin(), vectorDataCollection.end(), []( const VectorData& v1, const VectorData& v2 ) {
-        if ( !v1.hasValueAboveThreshold ) return false;
-        if ( v1.hasValueAboveThreshold && !v2.hasValueAboveThreshold ) return true;
-        if ( v1.firstTimeStep < v2.firstTimeStep ) return true;
-        if ( v1.firstTimeStep == v2.firstTimeStep && v1.lastTimeStep < v2.lastTimeStep ) return true;
-        return false;
-    } );
+    std::sort( vectorDataCollection.begin(),
+               vectorDataCollection.end(),
+               []( const VectorData& v1, const VectorData& v2 )
+               {
+                   if ( !v1.hasValueAboveThreshold ) return false;
+                   if ( v1.hasValueAboveThreshold && !v2.hasValueAboveThreshold ) return true;
+                   if ( v1.firstTimeStep < v2.firstTimeStep ) return true;
+                   if ( v1.firstTimeStep == v2.firstTimeStep && v1.lastTimeStep < v2.lastTimeStep ) return true;
+                   return false;
+               } );
 
     // Convert to strings
     std::vector<QString> timeStepStrings;

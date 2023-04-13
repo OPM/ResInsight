@@ -81,13 +81,16 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
     }
 
     // Sort to make sure super classes get created before sub classes
-    std::sort( dummyObjects.begin(), dummyObjects.end(), []( std::shared_ptr<PdmObject> lhs, std::shared_ptr<PdmObject> rhs ) {
-        if ( lhs->inheritsClassWithKeyword( rhs->classKeyword() ) )
-        {
-            return false;
-        }
-        return lhs->classKeyword() < rhs->classKeyword();
-    } );
+    std::sort( dummyObjects.begin(),
+               dummyObjects.end(),
+               []( std::shared_ptr<PdmObject> lhs, std::shared_ptr<PdmObject> rhs )
+               {
+                   if ( lhs->inheritsClassWithKeyword( rhs->classKeyword() ) )
+                   {
+                       return false;
+                   }
+                   return lhs->classKeyword() < rhs->classKeyword();
+               } );
 
     std::map<QString, std::map<QString, std::pair<QString, QString>>> classAttributesGenerated;
     std::map<QString, std::map<QString, QString>>                     classMethodsGenerated;
