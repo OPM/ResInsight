@@ -213,7 +213,8 @@ private:
     void onObjectiveFunctionChanged( const caf::SignalEmitter* emitter );
     void onCustomObjectiveFunctionChanged( const caf::SignalEmitter* emitter );
 
-    void ensureStatisticsColorIsUpdated();
+    void   computeDerivedCurveColors();
+    QColor colorForLegend() const;
 
 private:
     caf::PdmField<bool>                       m_showCurves;
@@ -228,7 +229,9 @@ private:
     caf::PdmField<RiaDefines::DateTimePeriodEnum> m_resampling;
 
     caf::PdmField<ColorModeEnum>                                       m_colorMode;
+    caf::PdmField<cvf::Color3f>                                        m_baseColor;
     caf::PdmField<cvf::Color3f>                                        m_color;
+    caf::PdmField<double>                                              m_colorTransparencey;
     caf::PdmField<QString>                                             m_ensembleParameter;
     caf::PdmField<caf::AppEnum<RimEnsembleCurveSet::ParameterSorting>> m_ensembleParameterSorting;
 
