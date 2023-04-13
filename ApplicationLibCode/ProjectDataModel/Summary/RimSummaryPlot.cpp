@@ -789,12 +789,12 @@ bool RimSummaryPlot::containsResamplableCurves() const
 //--------------------------------------------------------------------------------------------------
 size_t RimSummaryPlot::singleColorCurveCount() const
 {
-    auto   allCurveSets = ensembleCurveSetCollection()->curveSets();
-        
-    size_t colorIndex   = std::count_if( allCurveSets.begin(),
+    auto allCurveSets = ensembleCurveSetCollection()->curveSets();
+
+    size_t colorIndex = std::count_if( allCurveSets.begin(),
                                        allCurveSets.end(),
                                        []( RimEnsembleCurveSet* curveSet )
-                                       { return RimEnsembleCurveSetColorManager::hasSameColorForAllCurves( curveSet->colorMode() ); );
+                                       { return RimEnsembleCurveSetColorManager::hasSameColorForAllCurves( curveSet->colorMode() ); } );
 
     colorIndex += curveCount();
 
