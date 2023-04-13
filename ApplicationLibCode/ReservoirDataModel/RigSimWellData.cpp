@@ -123,7 +123,7 @@ bool RigSimWellData::hasAnyValidCells( size_t resultTimeStepIndex ) const
 
     if ( wellResultFrame( resultTimeStepIndex )->wellHead().isCell() ) return true;
 
-    const std::vector<RigWellResultBranch>& resBranches = wellResultFrame( resultTimeStepIndex )->wellResultBranches();
+    const std::vector<RigWellResultBranch> resBranches = wellResultFrame( resultTimeStepIndex )->wellResultBranches();
     for ( const auto& branch : resBranches )
     {
         for ( const auto& branchResPoint : branch.branchResultPoints() )
@@ -158,14 +158,12 @@ void RigSimWellData::computeStaticWellCellPath() const
     // Add ResultCell data from the first timestep to the final result.
     for ( const auto& wellResultBranch : m_wellCellsTimeSteps[0].wellResultBranches() )
     {
-        const int                              branchErtId = wellResultBranch.ertBranchId();
-        const std::vector<RigWellResultPoint>& frameCells  = wellResultBranch.branchResultPoints();
+        const int                      branchErtId = wellResultBranch.ertBranchId();
+        std::list<RigWellResultPoint>& branch      = staticWellBranches[branchErtId];
 
-        std::list<RigWellResultPoint>& branch = staticWellBranches[branchErtId];
-
-        for ( size_t cIdx = 0; cIdx < frameCells.size(); ++cIdx )
+        for ( const auto& frameCell : wellResultBranch.branchResultPoints() )
         {
-            branch.push_back( frameCells[cIdx] );
+            branch.push_back( frameCell );
         }
     }
 
@@ -181,8 +179,8 @@ void RigSimWellData::computeStaticWellCellPath() const
         // Merge well branches separately
         for ( const auto& wellResultBranch : wellCellsTimeStep.wellResultBranches() )
         {
-            const int                              branchId  = wellResultBranch.ertBranchId();
-            const std::vector<RigWellResultPoint>& resBranch = wellResultBranch.branchResultPoints();
+            const int                             branchId  = wellResultBranch.ertBranchId();
+            const std::vector<RigWellResultPoint> resBranch = wellResultBranch.branchResultPoints();
 
             std::list<RigWellResultPoint>&          stBranch = staticWellBranches[branchId];
             std::list<RigWellResultPoint>::iterator sEndIt;

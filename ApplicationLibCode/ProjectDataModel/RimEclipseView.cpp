@@ -1693,12 +1693,9 @@ void RimEclipseView::calculateVisibleWellCellsIncFence( cvf::UByteArray* visible
             for ( const auto& frame : wellResFrames )
             {
                 // Add all the cells from the branches
-
-                const std::vector<RigWellResultBranch>& wellResSegments = frame.wellResultBranches();
-                for ( const auto& segment : wellResSegments )
+                for ( const auto& segment : frame.wellResultBranches() )
                 {
-                    const std::vector<RigWellResultPoint>& wsResCells = segment.branchResultPoints();
-                    for ( const auto& cell : wsResCells )
+                    for ( const auto& cell : segment.branchResultPoints() )
                     {
                         if ( cell.gridIndex() == grid->gridIndex() )
                         {

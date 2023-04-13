@@ -346,11 +346,10 @@ bool RimSimWellInView::intersectsWellCellsFilteredCells( const RigWellResultFram
 
         // Then check the rest of the well, with all the branches
 
-        const std::vector<RigWellResultBranch>& wellResSegments = wrsf->wellResultBranches();
+        const std::vector<RigWellResultBranch> wellResSegments = wrsf->wellResultBranches();
         for ( const RigWellResultBranch& branchSegment : wellResSegments )
         {
-            const std::vector<RigWellResultPoint>& wsResCells = branchSegment.branchResultPoints();
-            for ( const RigWellResultPoint& wellResultPoint : wsResCells )
+            for ( const RigWellResultPoint& wellResultPoint : branchSegment.branchResultPoints() )
             {
                 if ( wellResultPoint.isCell() )
                 {

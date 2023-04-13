@@ -80,8 +80,8 @@ std::vector<SimulationWellCellBranch>
         wellFramePtr = wellResults->wellResultFrame( timeStepIndex );
     }
 
-    const RigWellResultFrame&               wellFrame      = *wellFramePtr;
-    const std::vector<RigWellResultBranch>& resultBranches = wellFrame.wellResultBranches();
+    const RigWellResultFrame&              wellFrame      = *wellFramePtr;
+    const std::vector<RigWellResultBranch> resultBranches = wellFrame.wellResultBranches();
 
     std::vector<WellBranch> wellBranches = mergeShortBranchesIntoLongBranches( resultBranches );
 
