@@ -20,7 +20,7 @@
 
 #include "RiaDefines.h"
 
-#include "RigWellResultPoint.h"
+#include "RigWellResultBranch.h"
 
 #include <QDateTime>
 

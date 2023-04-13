@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "RigWellResultPoint.h"
+#include "RigWellResultBranch.h"
 
 #include "cvfVector3.h"
 
