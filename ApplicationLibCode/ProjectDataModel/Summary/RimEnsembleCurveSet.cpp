@@ -686,6 +686,8 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
 
         updateCurveColors();
 
+        updateConnectedEditors();
+
         updateTextInPlot = true;
     }
     else if ( changedField == &m_ensembleParameter )
@@ -895,8 +897,9 @@ void RimEnsembleCurveSet::defineObjectEditorAttribute( QString uiConfigName, caf
     {
         treeItemAttribute->tags.clear();
         auto tag     = caf::PdmUiTreeViewItemAttribute::Tag::create();
-        tag->bgColor = colorForLegend();
-        tag->text    = " ";
+        tag->bgColor = RiaColorTools::toQColor( m_color );
+        tag->fgColor = RiaColorTools::toQColor( m_statistics->color() );
+        tag->text    = "---";
         treeItemAttribute->tags.push_back( std::move( tag ) );
     }
 }

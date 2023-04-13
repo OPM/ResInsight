@@ -134,7 +134,8 @@ void RimEnsembleStatistics::fieldChangedByUi( const caf::PdmFieldHandle* changed
 
         curveSet->updateStatisticsCurves();
 
-        if ( changedField == &m_active || changedField == &m_basedOnFilteredCases ) curveSet->updateEditors();
+        // Trigger update of tree view editor for ensemble curve set as they depend on these fields
+        if ( changedField == &m_active || changedField == &m_basedOnFilteredCases || changedField == &m_color ) curveSet->updateEditors();
     }
 
     if ( changedField == &m_hideEnsembleCurves )
