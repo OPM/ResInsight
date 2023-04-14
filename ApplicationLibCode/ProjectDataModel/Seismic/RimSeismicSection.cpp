@@ -1005,11 +1005,13 @@ int RimSeismicSection::lowerFilterZ( int lowerGridLimit ) const
         case RimIntersectionFilterEnum::INTERSECT_FILTER_ABOVE:
         case RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN:
             retVal = m_zLowerThreshold;
+            break;
 
         case RimIntersectionFilterEnum::INTERSECT_FILTER_BELOW:
         case RimIntersectionFilterEnum::INTERSECT_FILTER_NONE:
         default:
             retVal = lowerGridLimit;
+            break;
     }
 
     return alignZValue( retVal );
