@@ -81,7 +81,9 @@ void RicImportSummaryCasesFeature::onActionTriggered( bool isChecked )
     RiaDefines::FileType fileType      = RicRecursiveFileSearchDialog::mapSummaryFileType( result.fileType );
 
     std::vector<RimSummaryCase*> cases;
-    if ( !fileNames.isEmpty() ) createSummaryCasesFromFiles( fileNames, &cases, fileType );
+    bool                         ensembleOrGroup = false;
+    bool                         allowDialogs    = true;
+    if ( !fileNames.isEmpty() ) createSummaryCasesFromFiles( fileNames, &cases, fileType, ensembleOrGroup, allowDialogs );
 
     addSummaryCases( cases );
     if ( !cases.empty() )
@@ -131,8 +133,10 @@ bool RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles( const QStr
     RiaGuiApplication* app = RiaGuiApplication::instance();
 
     std::vector<RimSummaryCase*>  temp;
-    std::vector<RimSummaryCase*>* cases = newCases ? newCases : &temp;
-    if ( createSummaryCasesFromFiles( fileNames, cases, RiaDefines::FileType::SMSPEC ) )
+    std::vector<RimSummaryCase*>* cases           = newCases ? newCases : &temp;
+    bool                          ensembleOrGroup = false;
+    bool                          allowDialogs    = true;
+    if ( createSummaryCasesFromFiles( fileNames, cases, RiaDefines::FileType::SMSPEC, ensembleOrGroup, allowDialogs ) )
     {
         addSummaryCases( *cases );
         if ( !cases->empty() && doCreateDefaultPlot )

@@ -123,7 +123,9 @@ void RicImportEnsembleFeature::importSingleEnsemble( const QStringList&         
     if ( ensembleName.isEmpty() ) return;
 
     std::vector<RimSummaryCase*> cases;
-    RicImportSummaryCasesFeature::createSummaryCasesFromFiles( fileNames, &cases, fileType, true );
+    bool                         ensembleOrGroup = true;
+    bool                         allowDialogs    = true;
+    RicImportSummaryCasesFeature::createSummaryCasesFromFiles( fileNames, &cases, fileType, ensembleOrGroup, allowDialogs );
 
     if ( cases.empty() ) return;
 
@@ -162,11 +164,12 @@ void RicImportEnsembleFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 QString RicImportEnsembleFeature::askForEnsembleName( const QString& suggestion )
 {
-    RimProject*                            project = RimProject::current();
-    std::vector<RimSummaryCaseCollection*> groups  = project->summaryGroups();
-    int ensemblesStartingWithRoot = std::count_if( groups.begin(), groups.end(), [suggestion]( RimSummaryCaseCollection* group ) {
-        return group->isEnsemble() && group->name().startsWith( suggestion );
-    } );
+    RimProject*                            project                   = RimProject::current();
+    std::vector<RimSummaryCaseCollection*> groups                    = project->summaryGroups();
+    int                                    ensemblesStartingWithRoot = std::count_if( groups.begin(),
+                                                   groups.end(),
+                                                   [suggestion]( RimSummaryCaseCollection* group )
+                                                   { return group->isEnsemble() && group->name().startsWith( suggestion ); } );
 
     QInputDialog dialog;
     dialog.setInputMode( QInputDialog::TextInput );

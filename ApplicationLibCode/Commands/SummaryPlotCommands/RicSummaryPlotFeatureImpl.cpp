@@ -283,10 +283,12 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
 
     if ( summaryFileNames.size() )
     {
+        bool allowDialogs = true;
         RicImportSummaryCasesFeature::createSummaryCasesFromFiles( summaryFileNames,
                                                                    &summaryCasesToUse,
                                                                    RiaDefines::FileType::SMSPEC,
-                                                                   isEnsembleMode );
+                                                                   isEnsembleMode,
+                                                                   allowDialogs );
         RicImportSummaryCasesFeature::addSummaryCases( summaryCasesToUse );
 
         RiaApplication::instance()->setLastUsedDialogDirectory( RiaDefines::defaultDirectoryLabel(

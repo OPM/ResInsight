@@ -46,8 +46,9 @@ public:
     static bool createSummaryCasesFromFiles( const QStringList&            fileName,
                                              std::vector<RimSummaryCase*>* newCases,
                                              RiaDefines::FileType          fileType,
-                                             bool                          ensembleOrGroup = false,
-                                             bool                          allowDialogs    = true );
+                                             bool                          ensembleOrGroup,
+                                             bool                          allowDialogs );
+
     static void addSummaryCases( const std::vector<RimSummaryCase*>& cases );
     static void addCasesToGroupIfRelevant( const std::vector<RimSummaryCase*>& cases );
 
