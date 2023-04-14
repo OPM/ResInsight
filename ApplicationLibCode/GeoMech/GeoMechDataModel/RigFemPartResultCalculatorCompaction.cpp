@@ -194,7 +194,7 @@ void findReferenceElementForNode( const RigFemPart& part, size_t nodeIdx, size_t
                 if ( nodeToIntersectionDistance < refElement->intersectionPointToCurrentNodeDistance )
                 {
                     cvf::ubyte faceNodes[4];
-                    grid->cellFaceVertexIndices( intersection.m_face, faceNodes );
+                    RigFemPartGrid::cellFaceVertexIndices( intersection.m_face, faceNodes );
                     std::vector<size_t> topFaceCoords(
                         { nodeIndices[faceNodes[0]], nodeIndices[faceNodes[1]], nodeIndices[faceNodes[2]], nodeIndices[faceNodes[3]] } );
 

@@ -31,7 +31,7 @@
 
 class RimElasticPropertyScalingCollection;
 
-typedef std::tuple<QString, QString, QString> FaciesKey;
+using FaciesKey = std::tuple<QString, QString, QString>;
 
 //==================================================================================================
 ///

@@ -39,10 +39,12 @@ class QDateTime;
 
 struct RigWellResultPoint;
 
+// NOLINTBEGIN(modernize-use-using)
 typedef struct ecl_grid_struct     ecl_grid_type;
 typedef struct ecl_file_struct     ecl_file_type;
 typedef struct well_conn_struct    well_conn_type;
 typedef struct well_segment_struct well_segment_type;
+// NOLINTEND(modernize-use-using)
 
 //==================================================================================================
 //

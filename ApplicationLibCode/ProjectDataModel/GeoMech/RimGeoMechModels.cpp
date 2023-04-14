@@ -32,7 +32,7 @@ CAF_PDM_SOURCE_INIT( RimGeoMechModels, "ResInsightGeoMechModels" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechModels::RimGeoMechModels( void )
+RimGeoMechModels::RimGeoMechModels()
 {
     CAF_PDM_InitObject( "Geomechanical Models", ":/GeoMechCases48x48.png" );
 
@@ -43,7 +43,7 @@ RimGeoMechModels::RimGeoMechModels( void )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechModels::~RimGeoMechModels( void )
+RimGeoMechModels::~RimGeoMechModels()
 {
 }
 

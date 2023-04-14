@@ -46,8 +46,8 @@ class RimGeoMechResultDefinition : public RimFemResultObserver, public RimChecka
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimGeoMechResultDefinition( void );
-    ~RimGeoMechResultDefinition( void ) override;
+    RimGeoMechResultDefinition();
+    ~RimGeoMechResultDefinition() override;
 
     void            setGeoMechCase( RimGeoMechCase* geomCase );
     RimGeoMechCase* geoMechCase() const;

@@ -84,7 +84,7 @@ CAF_PDM_SOURCE_INIT( RimGeoMechView, "GeoMechView" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechView::RimGeoMechView( void )
+RimGeoMechView::RimGeoMechView()
     : m_currentInternalTimeStep( 0 )
     , m_currentDataFrameIndex( -1 )
 {
@@ -125,7 +125,7 @@ RimGeoMechView::RimGeoMechView( void )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechView::~RimGeoMechView( void )
+RimGeoMechView::~RimGeoMechView()
 {
     m_geomechCase = nullptr;
 
@@ -423,7 +423,7 @@ void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
                 {
                     // Grid model
                     cvf::String name = "GridModel";
-                    this->removeModelByName( frameScene, name );
+                    RimGeoMechView::removeModelByName( frameScene, name );
 
                     cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
                     frameParts->setName( name );
@@ -436,7 +436,7 @@ void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
                 // Well Paths
                 {
                     cvf::String name = "WellPathMod";
-                    this->removeModelByName( frameScene, name );
+                    RimGeoMechView::removeModelByName( frameScene, name );
 
                     cvf::ref<cvf::ModelBasicList> wellPathModelBasicList = new cvf::ModelBasicList;
                     wellPathModelBasicList->setName( name );
@@ -450,7 +450,7 @@ void RimGeoMechView::onUpdateDisplayModelForCurrentTimeStep()
                 {
                     // Tensors
                     cvf::String name = "Tensor";
-                    this->removeModelByName( frameScene, name );
+                    RimGeoMechView::removeModelByName( frameScene, name );
 
                     cvf::ref<cvf::ModelBasicList> frameParts = new cvf::ModelBasicList;
                     frameParts->setName( name );

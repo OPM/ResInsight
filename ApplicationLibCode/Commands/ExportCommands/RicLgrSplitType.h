@@ -32,5 +32,5 @@ enum SplitType
     LGR_PER_WELL
 };
 
-typedef caf::AppEnum<SplitType> SplitTypeEnum;
+using SplitTypeEnum = caf::AppEnum<SplitType>;
 } // namespace Lgr

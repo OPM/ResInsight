@@ -31,7 +31,7 @@ class RicExportToLasFileObj : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    RicExportToLasFileObj( void );
+    RicExportToLasFileObj();
 
     caf::PdmField<QString> tvdrkbOffset;
 };
@@ -52,7 +52,7 @@ public:
     using CurveUnitConversionEnum = caf::AppEnum<CurveUnitConversion>;
 
 public:
-    RicExportToLasFileResampleUi( void );
+    RicExportToLasFileResampleUi();
     ~RicExportToLasFileResampleUi() override;
 
     caf::PdmField<QString> exportFolder;

@@ -52,7 +52,7 @@ class SubSegmentIntersectionInfo;
 //==================================================================================================
 ///
 //==================================================================================================
-typedef std::shared_ptr<QFile> QFilePtr;
+using QFilePtr = std::shared_ptr<QFile>;
 
 class TransmissibilityData
 {

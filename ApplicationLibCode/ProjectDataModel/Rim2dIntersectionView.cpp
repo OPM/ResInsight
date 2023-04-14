@@ -62,7 +62,7 @@ const cvf::Mat4d Rim2dIntersectionView::sm_defaultViewMatrix = cvf::Mat4d( 1, 0,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Rim2dIntersectionView::Rim2dIntersectionView( void )
+Rim2dIntersectionView::Rim2dIntersectionView()
 {
     CAF_PDM_InitObject( "Intersection View", ":/CrossSection16x16.png" );
 
@@ -107,7 +107,7 @@ Rim2dIntersectionView::Rim2dIntersectionView( void )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Rim2dIntersectionView::~Rim2dIntersectionView( void )
+Rim2dIntersectionView::~Rim2dIntersectionView()
 {
 }
 

@@ -76,8 +76,8 @@ class RimFracture : public RimCheckableNamedObject, public Rim3dPropertiesInterf
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimFracture( void );
-    ~RimFracture( void ) override;
+    RimFracture();
+    ~RimFracture() override;
 
     double perforationLength() const;
     double perforationEfficiency() const;

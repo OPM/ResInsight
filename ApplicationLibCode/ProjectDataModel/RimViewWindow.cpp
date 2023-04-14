@@ -40,7 +40,7 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimViewWindow, "ViewWindow" ); // Do not use. 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimViewWindow::RimViewWindow( void )
+RimViewWindow::RimViewWindow()
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "View window", "", "", "", "ViewWindow", "The Base Class for all Views and Plots in ResInsight" );
 
@@ -59,7 +59,7 @@ RimViewWindow::RimViewWindow( void )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimViewWindow::~RimViewWindow( void )
+RimViewWindow::~RimViewWindow()
 {
     if ( m_windowController() ) delete m_windowController();
 }

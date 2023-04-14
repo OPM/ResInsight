@@ -50,8 +50,8 @@ class RimOilField : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimOilField( void );
-    ~RimOilField( void ) override;
+    RimOilField();
+    ~RimOilField() override;
 
     RimFractureTemplateCollection*       fractureDefinitionCollection();
     const RimFractureTemplateCollection* fractureDefinitionCollection() const;

@@ -38,8 +38,8 @@ class RimWellRftEnsembleCurveSet : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    typedef RimEnsembleCurveSetColorManager::ColorMode     ColorMode;
-    typedef RimEnsembleCurveSetColorManager::ColorModeEnum ColorModeEnum;
+    using ColorMode     = RimEnsembleCurveSetColorManager::ColorMode;
+    using ColorModeEnum = RimEnsembleCurveSetColorManager::ColorModeEnum;
 
 public:
     RimWellRftEnsembleCurveSet();

@@ -32,8 +32,8 @@ class RimSimWellFracture : public RimFracture
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimSimWellFracture( void );
-    ~RimSimWellFracture( void ) override;
+    RimSimWellFracture();
+    ~RimSimWellFracture() override;
 
     void setClosestWellCoord( cvf::Vec3d& position, size_t branchIndex );
 

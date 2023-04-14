@@ -58,7 +58,7 @@ public:
     double sampleSpacing() const override;
 
 protected:
-    typedef RimContourMapProjection::CellIndexAndResult CellIndexAndResult;
+    using CellIndexAndResult = RimContourMapProjection::CellIndexAndResult;
 
     // GeoMech implementation specific data generation methods
     cvf::ref<cvf::UByteArray> getCellVisibility() const override;

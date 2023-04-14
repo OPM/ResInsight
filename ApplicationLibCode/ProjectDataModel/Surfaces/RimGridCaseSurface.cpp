@@ -241,7 +241,7 @@ void RimGridCaseSurface::extractStructuredSurfaceFromGridData()
                         grid->cellCornerVertices( cellIndex, cornerVerts );
 
                         cvf::ubyte faceConn[4];
-                        grid->cellFaceVertexIndices( faceType, faceConn );
+                        RigMainGrid::cellFaceVertexIndices( faceType, faceConn );
 
                         structGridVertexIndices.emplace_back( static_cast<cvf::uint>( column + 1 ), static_cast<cvf::uint>( row + 1 ) );
 
@@ -312,7 +312,7 @@ void RimGridCaseSurface::extractGridDataUsingFourVerticesPerCell()
                 {
                     cvf::ubyte currentFaceConn[4];
                     grid->cellCornerVertices( currentCellIndex, currentCornerVerts );
-                    grid->cellFaceVertexIndices( extractionFace, currentFaceConn );
+                    RigMainGrid::cellFaceVertexIndices( extractionFace, currentFaceConn );
 
                     auto currentCellStartIndex = static_cast<unsigned>( vertices.size() );
 
@@ -378,13 +378,13 @@ void RimGridCaseSurface::addGeometryForFaultFaces( const RigMainGrid*           
 
             auto startIndex = static_cast<unsigned>( vertices.size() );
             {
-                auto edgeVertexIndices = grid->edgeVertexIndices( extractionFace, faultFace );
+                auto edgeVertexIndices = RigMainGrid::edgeVertexIndices( extractionFace, faultFace );
                 vertices.push_back( currentCornerVerts[edgeVertexIndices.first] );
                 vertices.push_back( currentCornerVerts[edgeVertexIndices.second] );
             }
             {
                 auto oppositeFaultFace = cvf::StructGridInterface::oppositeFace( faultFace );
-                auto edgeVertexIndices = grid->edgeVertexIndices( extractionFace, oppositeFaultFace );
+                auto edgeVertexIndices = RigMainGrid::edgeVertexIndices( extractionFace, oppositeFaultFace );
                 vertices.push_back( nextCellCornerVerts[edgeVertexIndices.first] );
                 vertices.push_back( nextCellCornerVerts[edgeVertexIndices.second] );
             }

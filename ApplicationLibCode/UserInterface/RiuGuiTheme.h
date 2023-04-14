@@ -38,7 +38,7 @@ class QwtPlotCurve;
 class QwtPicker;
 class QwtText;
 
-typedef std::function<void( QRegularExpressionMatch& )> CustomStyleSheetApplicator;
+using CustomStyleSheetApplicator = std::function<void( QRegularExpressionMatch& )>;
 
 class RiuGuiTheme
 {

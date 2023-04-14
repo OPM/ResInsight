@@ -55,7 +55,7 @@ public:
         PIPES_OPEN_IN_VISIBLE_CELLS,
         PIPES_FORCE_ALL_ON
     };
-    typedef caf::AppEnum<RimSimWellInViewCollection::WellVisibilityType> WellVisibilityEnum;
+    using WellVisibilityEnum = caf::AppEnum<RimSimWellInViewCollection::WellVisibilityType>;
 
     enum WellCellsRangeFilterType
     {
@@ -63,7 +63,7 @@ public:
         RANGE_ADD_INDIVIDUAL,
         RANGE_ADD_NONE
     };
-    typedef caf::AppEnum<RimSimWellInViewCollection::WellCellsRangeFilterType> WellCellsRangeFilterEnum;
+    using WellCellsRangeFilterEnum = caf::AppEnum<RimSimWellInViewCollection::WellCellsRangeFilterType>;
 
     enum WellFenceType
     {
@@ -71,14 +71,14 @@ public:
         J_DIRECTION,
         I_DIRECTION
     };
-    typedef caf::AppEnum<RimSimWellInViewCollection::WellFenceType> WellFenceEnum;
+    using WellFenceEnum = caf::AppEnum<RimSimWellInViewCollection::WellFenceType>;
 
     enum WellHeadPositionType
     {
         WELLHEAD_POS_ACTIVE_CELLS_BB,
         WELLHEAD_POS_TOP_COLUMN
     };
-    typedef caf::AppEnum<RimSimWellInViewCollection::WellHeadPositionType> WellHeadPositionEnum;
+    using WellHeadPositionEnum = caf::AppEnum<RimSimWellInViewCollection::WellHeadPositionType>;
 
     enum WellPipeCoordType
     {
@@ -86,7 +86,7 @@ public:
         WELLPIPE_INTERPOLATED
     };
 
-    typedef caf::AppEnum<RimSimWellInViewCollection::WellPipeCoordType> WellPipeCoordEnum;
+    using WellPipeCoordEnum = caf::AppEnum<RimSimWellInViewCollection::WellPipeCoordType>;
 
     enum WellPipeColors
     {
@@ -110,7 +110,7 @@ public:
         CUMULATIVE_PRODUCTION_INJECTION_RATES
     };
 
-    typedef caf::AppEnum<RimSimWellInViewCollection::WellPipeColors> WellPipeColorsEnum;
+    using WellPipeColorsEnum = caf::AppEnum<RimSimWellInViewCollection::WellPipeColors>;
 
     caf::PdmField<bool> isActive;
     caf::PdmField<bool> showWellsIntersectingVisibleCells;

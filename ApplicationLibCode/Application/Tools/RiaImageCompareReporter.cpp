@@ -21,14 +21,14 @@
 #include <fstream>
 #include <iostream>
 
-RiaImageCompareReporter::RiaImageCompareReporter( void )
+RiaImageCompareReporter::RiaImageCompareReporter()
 {
     m_showOriginal        = true;
     m_showGenerated       = true;
     m_showInteractiveDiff = false;
 }
 
-RiaImageCompareReporter::~RiaImageCompareReporter( void )
+RiaImageCompareReporter::~RiaImageCompareReporter()
 {
 }
 

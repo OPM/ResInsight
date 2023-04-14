@@ -23,7 +23,7 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimCheckableObject, "RimCheckableObject" ); //
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimCheckableObject::RimCheckableObject( void )
+RimCheckableObject::RimCheckableObject()
 {
     CAF_PDM_InitField( &m_isChecked, "IsChecked", true, "Active" );
     m_isChecked.uiCapability()->setUiHidden( true );
@@ -32,7 +32,7 @@ RimCheckableObject::RimCheckableObject( void )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimCheckableObject::~RimCheckableObject( void )
+RimCheckableObject::~RimCheckableObject()
 {
 }
 

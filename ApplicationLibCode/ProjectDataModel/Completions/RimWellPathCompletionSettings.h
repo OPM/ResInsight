@@ -36,7 +36,7 @@ public:
         WATER,
         LIQUID
     };
-    typedef caf::AppEnum<WellType> WellTypeEnum;
+    using WellTypeEnum = caf::AppEnum<WellType>;
 
     enum GasInflowEquation
     {
@@ -45,21 +45,21 @@ public:
         DRY_GAS_PSEUDO_PRESSURE,
         GENERALIZED_PSEUDO_PRESSURE
     };
-    typedef caf::AppEnum<GasInflowEquation> GasInflowEnum;
+    using GasInflowEnum = caf::AppEnum<GasInflowEquation>;
 
     enum AutomaticWellShutIn
     {
         ISOLATE_FROM_FORMATION,
         STOP_ABOVE_FORMATION
     };
-    typedef caf::AppEnum<AutomaticWellShutIn> AutomaticWellShutInEnum;
+    using AutomaticWellShutInEnum = caf::AppEnum<AutomaticWellShutIn>;
 
     enum HydrostaticDensity
     {
         SEGMENTED,
         AVERAGED
     };
-    typedef caf::AppEnum<HydrostaticDensity> HydrostaticDensityEnum;
+    using HydrostaticDensityEnum = caf::AppEnum<HydrostaticDensity>;
 
 public:
     RimWellPathCompletionSettings();

@@ -1,6 +1,9 @@
 name: clang-tidy
 
 on:
+  push:
+    paths:
+      - '**.clang-tidy'
   workflow_dispatch:
   schedule:
     # Once every night
@@ -34,6 +37,7 @@ jobs:
         run: |
           sudo apt-get update --option="APT::Acquire::Retries=3"
           sudo apt-get install --option="APT::Acquire::Retries=3" libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev libhdf5-dev
+          sudo apt-get install clang-tidy-15 clang-format-15
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
@@ -56,29 +60,16 @@ jobs:
           mkdir build
           cd build
           cmake -DCMAKE_TOOLCHAIN_FILE=${{ matrix.config.cmake-toolchain }} -DRESINSIGHT_USE_OPENMP=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
-          sudo apt-get install clang-tidy-15
           mv compile_commands.json compile_commands_original.json
           python ../scripts/fix_json_database.py compile_commands_original.json >> compile_commands.json
-      - name: clang-tidy on ApplicationLibCode/Application
+      - name: Run clang-tidy and apply fixes, clang-format after fixes
         run: |
           cd build
-          run-clang-tidy-15 -fix files ApplicationLibCode/Application
-      - name: clang-tidy on ApplicationLibCode/ProjectDataModel
+          run-clang-tidy-15 -fix files ApplicationLibCode/Application ApplicationLibCode/ProjectDataModel ApplicationLibCode/ReservoirDataModel ApplicationLibCode/Commands ApplicationLibCode/GeoMech
+      - name: Run clang-format after clang-tidy
         run: |
-          cd build
-          run-clang-tidy-15 -fix files ApplicationLibCode/ProjectDataModel
-      - name: clang-tidy on ApplicationLibCode/ReservoirDataModel
-        run: |
-          cd build
-          run-clang-tidy-15 -fix files ApplicationLibCode/ReservoirDataModel
-      - name: clang-tidy on ApplicationLibCode/Commands
-        run: |
-          cd build
-          run-clang-tidy-15 -fix files ApplicationLibCode/Commands
-      - name: clang-tidy on ApplicationLibCode/GeoMech
-        run: |
-          cd build
-          run-clang-tidy-15 -fix files ApplicationLibCode/GeoMech
+          cd build/ApplicationLibCode
+          find -name '*.h' -o -name '*.cpp' -o -name '*.inl' | xargs clang-format-15 -i
       - name: Remove Qt before creating PR
         run: |
           rm -rf Qt
