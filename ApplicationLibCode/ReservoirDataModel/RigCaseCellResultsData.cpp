@@ -1976,7 +1976,7 @@ void RigCaseCellResultsData::computeIndexResults()
 
     const std::vector<RigCell>& globalCellArray = m_ownerMainGrid->globalCellArray();
     long long                   numCells        = static_cast<long long>( globalCellArray.size() );
-#pragma omp for
+#pragma omp parallel for
     for ( long long cellIdx = 0; cellIdx < numCells; cellIdx++ )
     {
         const RigCell& cell = globalCellArray[cellIdx];
