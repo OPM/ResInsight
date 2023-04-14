@@ -415,9 +415,8 @@ QString VdeVizDataExtractor::createModelMetaJsonString( const std::vector<std::u
     jsonModelMeta["meshArr"]   = jsonMeshMetaList;
     jsonModelMeta["labelsArr"] = jsonLabelList;
 
-    ResInsightInternalJson::Json jsonCodec;
-    const bool                   prettifyJson = true;
-    QString                      jsonStr      = ResInsightInternalJson::Json::encode( jsonModelMeta, prettifyJson );
+    const bool prettifyJson = true;
+    QString    jsonStr      = ResInsightInternalJson::Json::encode( jsonModelMeta, prettifyJson );
     return jsonStr;
 }
 

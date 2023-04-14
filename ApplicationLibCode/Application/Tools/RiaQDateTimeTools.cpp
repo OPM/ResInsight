@@ -539,7 +539,7 @@ std::set<QDateTime> RiaQDateTimeTools::createEvenlyDistributedDates( const std::
             qint64 timeDiff = std::abs( inputDates[j].toMSecsSinceEpoch() - targetTime );
             if ( timeDiff < closestTimeDiff )
             {
-                closestIndex    = j;
+                closestIndex    = static_cast<int>( j );
                 closestTimeDiff = timeDiff;
             }
         }

@@ -115,7 +115,7 @@ bool RifOpmCommonEclipseSummary::open( const QString& fileName, bool includeRest
 
                 RifOpmCommonEclipseSummary::increaseEsmryFileCount();
             }
-            catch ( std::exception& e )
+            catch ( std::exception& )
             {
                 if ( threadSafeLogger )
                 {

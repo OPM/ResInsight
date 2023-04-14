@@ -384,7 +384,7 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
             if ( intersectionHit )
                 selItem = new RiuGeoMechSelectionItem( associatedGridView,
                                                        geomResDef,
-                                                       timestepIndex,
+                                                       static_cast<int>( timestepIndex ),
                                                        dataFrameIndex,
                                                        gridIndex,
                                                        gridLocalCellIndex,
@@ -395,7 +395,7 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
             else
                 selItem = new RiuGeoMechSelectionItem( associatedGridView,
                                                        geomResDef,
-                                                       timestepIndex,
+                                                       static_cast<int>( timestepIndex ),
                                                        dataFrameIndex,
                                                        gridIndex,
                                                        gridLocalCellIndex,
