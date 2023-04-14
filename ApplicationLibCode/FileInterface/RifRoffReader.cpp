@@ -21,121 +21,48 @@
 #include <QFile>
 #include <QTextStream>
 
-const QString codeValuesString = QString( "array int codeValues" );
-const QString codeNamesString  = QString( "array char codeNames" );
-const QString headerString     = QString( "roff-asc" );
+#include "roffcpp/src/Reader.hpp"
 
-bool RifRoffReader::isCodeValuesDefinition( const QString& line )
+#include <fstream>
+
+void RifRoffReader::readCodeNames( const QString& filename, const QString& parameterTagName, std::map<int, QString>& codeNames )
 {
-    return line.startsWith( codeValuesString );
-}
+    codeNames.clear();
 
-bool RifRoffReader::isCodeNamesDefinition( const QString& line )
-{
-    return line.startsWith( codeNamesString );
-}
-
-bool RifRoffReader::isCorrectHeader( const QString& line )
-{
-    return line.startsWith( headerString );
-}
-
-int RifRoffReader::extractNumberAfterString( const QString& line, const QString& prefix )
-{
-    QString copiedLine( line );
-
-    bool ok;
-    int  num = copiedLine.remove( prefix ).toInt( &ok );
-    if ( !ok )
-    {
-        throw RifRoffReaderException( "Unexpected value: not an integer." );
-    }
-    return num;
-}
-
-int RifRoffReader::extractCodeValuesCount( const QString& line )
-{
-    return extractNumberAfterString( line, codeValuesString );
-}
-
-int RifRoffReader::extractCodeNamesCount( const QString& line )
-{
-    return extractNumberAfterString( line, codeNamesString );
-}
-
-void RifRoffReader::readCodeNames( const QString& filename, std::map<int, QString>& codeNames )
-{
-    QFile file( filename );
-    if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
+    std::ifstream stream( filename.toStdString(), std::ios::binary );
+    if ( !stream.good() )
     {
         throw RifRoffReaderException( "Unable to open roff file." );
     }
 
-    bool isFirstLine   = true;
-    int  numCodeValues = -1;
-    int  numCodeNames  = -1;
+    roff::Reader reader( stream );
+    reader.parse();
 
-    std::vector<int>     readCodeValues;
-    std::vector<QString> readCodeNames;
+    std::vector<std::pair<std::string, roff::Token::Kind>> arrayTypes = reader.getNamedArrayTypes();
 
-    QTextStream in( &file );
-    while ( !in.atEnd() )
-    {
-        QString line = in.readLine();
+    // Find array types by keywords
+    const std::string codeNamesKeyword  = parameterTagName.toStdString() + ".codeNames";
+    const std::string codeValuesKeyword = parameterTagName.toStdString() + ".codeValues";
+    auto              codeNamesItr      = std::find_if( arrayTypes.begin(),
+                                      arrayTypes.end(),
+                                      [&codeNamesKeyword]( const auto& arrayType ) { return arrayType.first == codeNamesKeyword; } );
+    auto              codeValuesItr     = std::find_if( arrayTypes.begin(),
+                                       arrayTypes.end(),
+                                       [&codeValuesKeyword]( const auto& arrayType ) { return arrayType.first == codeValuesKeyword; } );
 
-        // Check that the first line has the roff-asc header
-        if ( isFirstLine )
-        {
-            if ( !isCorrectHeader( line ) )
-            {
-                throw RifRoffReaderException( "Unexpected file type: roff-asc header missing." );
-            }
-            isFirstLine = false;
-        }
-        else if ( isCodeValuesDefinition( line ) )
-        {
-            // Expected line:
-            // array int codeValues 99
-            numCodeValues = extractCodeValuesCount( line );
-            for ( int i = 0; i < numCodeValues; i++ )
-            {
-                // The code values comes next, can be multiple per line.
-                int codeValue;
-                in >> codeValue;
-                readCodeValues.push_back( codeValue );
-            }
-        }
-        else if ( isCodeNamesDefinition( line ) )
-        {
-            // Expected line:
-            // array char codeNames 99
-            numCodeNames = extractCodeNamesCount( line );
-            for ( int i = 0; i < numCodeNames; i++ )
-            {
-                // Read code names. Assumes one name per line.
-                QString codeName = in.readLine();
-                readCodeNames.push_back( codeName.trimmed().remove( "\"" ) );
-            }
-        }
-    }
+    if ( codeNamesItr == arrayTypes.end() ) throw RifRoffReaderException( "Code names not found." );
+    if ( codeValuesItr == arrayTypes.end() ) throw RifRoffReaderException( "Code values not found." );
 
-    if ( numCodeValues == -1 )
-    {
-        throw RifRoffReaderException( "Code values not found." );
-    }
+    const auto readCodeNames  = reader.getStringArray( codeNamesKeyword );
+    const auto readCodeValues = reader.getIntArray( codeValuesKeyword );
 
-    if ( numCodeNames == -1 )
-    {
-        throw RifRoffReaderException( "Code names not found." );
-    }
-
-    if ( numCodeNames != numCodeValues )
+    if ( readCodeNames.size() != readCodeValues.size() )
     {
         throw RifRoffReaderException( "Inconsistent code names and values: must be equal length." );
     }
 
-    for ( int i = 0; i < numCodeNames; i++ )
+    for ( size_t i = 0; i < readCodeNames.size(); ++i )
     {
-        codeNames[readCodeValues[i]] = readCodeNames[i];
+        codeNames[readCodeValues[i]] = QString::fromStdString( readCodeNames[i] );
     }
 }
