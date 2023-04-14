@@ -70,6 +70,8 @@ QString indexIResultName();
 QString indexJResultName();
 QString indexKResultName();
 
+QString faultDistanceName();
+
 QString soil();
 QString sgas();
 QString swat();

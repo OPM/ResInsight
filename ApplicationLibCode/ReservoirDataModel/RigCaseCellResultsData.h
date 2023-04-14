@@ -187,6 +187,7 @@ private:
     void computeMobilePV();
 
     void computeIndexResults();
+    void computeFaultDistance();
 
     bool isDataPresent( size_t scalarResultIndex ) const;
 

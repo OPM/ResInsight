@@ -1038,10 +1038,15 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
     {
         findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::indexIResultName() ),
                                        false );
-
         findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::indexJResultName() ),
                                        false );
         findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::indexKResultName() ),
+                                       false );
+    }
+
+    // Fault distance
+    {
+        findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::faultDistanceName() ),
                                        false );
     }
 }
@@ -1254,6 +1259,10 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
         {
             computeIndexResults();
         }
+        else if ( resultName == RiaResultNames::faultDistanceName() )
+        {
+            computeFaultDistance();
+        }
     }
     else if ( type == RiaDefines::ResultCatType::DYNAMIC_NATIVE )
     {
@@ -1431,7 +1440,7 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RigCaseCellResultsData::findOrLoadKnownScalarResultByResultTypeOrder( const RigEclipseResultAddress& resVarAddr,
+size_t RigCaseCellResultsData::findOrLoadKnownScalarResultByResultTypeOrder( const RigEclipseResultAddress&                resVarAddr,
                                                                              const std::vector<RiaDefines::ResultCatType>& resultCategorySearchOrder )
 {
     std::set<RiaDefines::ResultCatType> otherResultTypesToSearch = { RiaDefines::ResultCatType::STATIC_NATIVE,
@@ -1999,6 +2008,72 @@ void RigCaseCellResultsData::computeIndexResults()
                 indexK[0][resultIndex] = k + 1;
             }
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::computeFaultDistance()
+{
+    size_t reservoirCellCount = activeCellInfo()->reservoirCellCount();
+    if ( reservoirCellCount == 0 ) return;
+
+    size_t resultIndex = findScalarResultIndexFromAddress(
+        RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::faultDistanceName() ) );
+
+    if ( resultIndex == cvf::UNDEFINED_SIZE_T ) return;
+
+    std::vector<std::vector<double>>& result = m_cellScalarResults[resultIndex];
+
+    if ( result.empty() ) result.resize( 1 );
+
+    bool shouldCompute = false;
+    if ( result[0].size() < reservoirCellCount )
+    {
+        result[0].resize( reservoirCellCount, std::numeric_limits<double>::infinity() );
+        shouldCompute = true;
+    }
+
+    if ( !shouldCompute ) return;
+
+    const std::vector<RigCell>& globalCellArray = m_ownerMainGrid->globalCellArray();
+
+    long long numCells = static_cast<long long>( globalCellArray.size() );
+
+    std::vector<cvf::StructGridInterface::FaceType> faceTypes = cvf::StructGridInterface::validFaceTypes();
+
+    // Preprocessing: create vector of all fault face centers.
+    std::vector<cvf::Vec3d> faultFaceCenters;
+    for ( long long cellIdx = 0; cellIdx < numCells; cellIdx++ )
+    {
+        if ( activeCellInfo()->isActive( cellIdx ) )
+        {
+            const RigCell& cell = globalCellArray[cellIdx];
+            for ( auto faceType : faceTypes )
+            {
+                if ( m_ownerMainGrid->findFaultFromCellIndexAndCellFace( cellIdx, faceType ) )
+                    faultFaceCenters.push_back( cell.faceCenter( faceType ) );
+            }
+        }
+    }
+
+#pragma omp parallel for
+    for ( long long cellIdx = 0; cellIdx < numCells; cellIdx++ )
+    {
+        const RigCell& cell = globalCellArray[cellIdx];
+
+        size_t resultIndex = cellIdx;
+        if ( resultIndex == cvf::UNDEFINED_SIZE_T || !activeCellInfo()->isActive( cellIdx ) ) continue;
+
+        // Find closest fault face
+        double shortestDistance = std::numeric_limits<double>::infinity();
+        for ( const cvf::Vec3d& faultFaceCenter : faultFaceCenters )
+        {
+            shortestDistance = std::min( cell.center().pointDistance( faultFaceCenter ), shortestDistance );
+        }
+
+        result[0][resultIndex] = shortestDistance;
     }
 }
 
