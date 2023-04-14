@@ -1440,7 +1440,7 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RigCaseCellResultsData::findOrLoadKnownScalarResultByResultTypeOrder( const RigEclipseResultAddress&                resVarAddr,
+size_t RigCaseCellResultsData::findOrLoadKnownScalarResultByResultTypeOrder( const RigEclipseResultAddress& resVarAddr,
                                                                              const std::vector<RiaDefines::ResultCatType>& resultCategorySearchOrder )
 {
     std::set<RiaDefines::ResultCatType> otherResultTypesToSearch = { RiaDefines::ResultCatType::STATIC_NATIVE,
