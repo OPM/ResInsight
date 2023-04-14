@@ -31,10 +31,10 @@
 
 struct RigWellPathFormation
 {
-    double  mdTop;
-    double  mdBase;
-    double  tvdTop;
-    double  tvdBase;
+    double  mdTop{ 0.0 };
+    double  mdBase{ 0.0 };
+    double  tvdTop{ 0.0 };
+    double  tvdBase{ 0.0 };
     QString formationName;
 };
 

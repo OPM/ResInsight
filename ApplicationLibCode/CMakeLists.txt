@@ -340,8 +340,7 @@ endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   target_compile_options(
-    ApplicationLibCode PRIVATE -Wall -Wno-unused-parameter -Wno-reorder
-                               -Wno-parentheses -Wno-switch
+    ApplicationLibCode PRIVATE -Wall -Wno-reorder -Wno-parentheses -Wno-switch
   )
 endif()
 
