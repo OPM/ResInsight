@@ -67,12 +67,12 @@ public:
         REVEAL_SUMMARY
     };
 
-    static RicRecursiveFileSearchDialogResult runRecursiveSearchDialog( QWidget*                     parent         = nullptr,
-                                                                        const QString&               caption        = QString(),
-                                                                        const QString&               dir            = QString(),
-                                                                        const QString&               pathFilter     = QString(),
-                                                                        const QString&               fileNameFilter = QString(),
-                                                                        const std::vector<FileType>& fileTypes      = {} );
+    static RicRecursiveFileSearchDialogResult runRecursiveSearchDialog( QWidget*                     parent,
+                                                                        const QString&               caption,
+                                                                        const QString&               dir,
+                                                                        const QString&               pathFilter,
+                                                                        const QString&               fileNameFilter,
+                                                                        const std::vector<FileType>& fileTypes );
 
     static QString fileNameForType( FileType fileType );
     static QString fileExtensionForType( FileType fileType );
