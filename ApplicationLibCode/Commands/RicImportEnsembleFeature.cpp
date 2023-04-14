@@ -164,12 +164,11 @@ void RicImportEnsembleFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 QString RicImportEnsembleFeature::askForEnsembleName( const QString& suggestion )
 {
-    RimProject*                            project                   = RimProject::current();
-    std::vector<RimSummaryCaseCollection*> groups                    = project->summaryGroups();
-    int                                    ensemblesStartingWithRoot = std::count_if( groups.begin(),
-                                                   groups.end(),
-                                                   [suggestion]( RimSummaryCaseCollection* group )
-                                                   { return group->isEnsemble() && group->name().startsWith( suggestion ); } );
+    RimProject*                            project = RimProject::current();
+    std::vector<RimSummaryCaseCollection*> groups  = project->summaryGroups();
+    int ensemblesStartingWithRoot = std::count_if( groups.begin(), groups.end(), [suggestion]( RimSummaryCaseCollection* group ) {
+        return group->isEnsemble() && group->name().startsWith( suggestion );
+    } );
 
     QInputDialog dialog;
     dialog.setInputMode( QInputDialog::TextInput );
