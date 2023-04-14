@@ -125,7 +125,7 @@ public:
 
     static std::pair<ubyte, ubyte> edgeVertexIndices( cvf::StructGridInterface::FaceType face1,
                                                       cvf::StructGridInterface::FaceType face2 );
-    static std::vector<FaceType> validFaceTypes();
+    static std::vector<FaceType>   validFaceTypes();
 
 private:
     mutable double m_characteristicCellSizeI;
