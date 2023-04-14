@@ -273,8 +273,6 @@ void RigSimWellData::computeStaticWellCellPath() const
 
     // Populate the static well info
 
-    std::map<int, std::list<RigWellResultPoint>>::iterator bIt;
-
     m_staticWellCells->clearWellResultBranches();
     m_staticWellCells->setWellHead( m_wellCellsTimeSteps[0].wellHead() );
 

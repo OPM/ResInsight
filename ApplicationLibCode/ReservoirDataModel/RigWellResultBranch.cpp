@@ -53,14 +53,6 @@ std::vector<RigWellResultPoint> RigWellResultBranch::branchResultPoints() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigWellResultBranch::clearBranchResultPoints()
-{
-    m_branchResultPoints.clear();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RigWellResultBranch::addBranchResultPoint( const RigWellResultPoint& point )
 {
     m_branchResultPoints.push_back( point );

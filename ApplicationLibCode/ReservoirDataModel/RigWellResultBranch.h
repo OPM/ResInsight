@@ -38,7 +38,6 @@ struct RigWellResultBranch
     void setErtBranchId( int id );
 
     std::vector<RigWellResultPoint> branchResultPoints() const;
-    void                            clearBranchResultPoints();
     void                            addBranchResultPoint( const RigWellResultPoint& point );
     void                            setBranchResultPoints( const std::vector<RigWellResultPoint>& points );
 
