@@ -151,7 +151,7 @@ void RifOpmGridTools::transferCoordinates( Opm::EclIO::EGrid& opmMainGrid, Opm::
 
     std::vector<cvf::Vec3d> snapToCoordinatesFromMainGrid;
 
-    for ( int opmCellIndex = 0; opmCellIndex < cellCount; opmCellIndex++ )
+    for ( int opmCellIndex = 0; opmCellIndex < static_cast<int>( cellCount ); opmCellIndex++ )
     {
         opmGrid.getCellCorners( opmCellIndex, opmX, opmY, opmZ );
 
@@ -348,8 +348,7 @@ std::vector<std::vector<cvf::Vec3d>>
 
     std::sort( zDistanceAlongPillar.begin(), zDistanceAlongPillar.end() );
 
-    auto normalize = []( const std::vector<double>& values ) -> std::vector<double>
-    {
+    auto normalize = []( const std::vector<double>& values ) -> std::vector<double> {
         if ( values.size() < 2 ) return {};
 
         std::vector<double> normalizedValues;
