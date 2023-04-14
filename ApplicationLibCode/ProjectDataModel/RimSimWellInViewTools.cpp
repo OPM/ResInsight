@@ -25,7 +25,7 @@
 #include "RifSummaryReaderInterface.h"
 
 #include "RigSimWellData.h"
-#include "RigWellResultPoint.h"
+#include "RigWellResultFrame.h"
 
 #include "Rim3dView.h"
 #include "RimEclipseResultCase.h"
@@ -96,7 +96,7 @@ bool RimSimWellInViewTools::isInjector( RimSimWellInView* well )
         {
             const RigWellResultFrame* wrf = wRes->wellResultFrame( currentTimeStep );
 
-            if ( RiaDefines::isInjector( wrf->m_productionType ) )
+            if ( RiaDefines::isInjector( wrf->productionType() ) )
             {
                 return true;
             }
@@ -123,7 +123,7 @@ bool RimSimWellInViewTools::isProducer( RimSimWellInView* well )
         {
             const RigWellResultFrame* wrf = wRes->wellResultFrame( currentTimeStep );
 
-            if ( RiaDefines::WellProductionType::PRODUCER == wrf->m_productionType )
+            if ( RiaDefines::WellProductionType::PRODUCER == wrf->productionType() )
             {
                 return true;
             }

@@ -44,6 +44,7 @@
 #include "RigMainGrid.h"
 #include "RigNNCData.h"
 #include "RigSimWellData.h"
+#include "RigWellResultFrame.h"
 #include "RigWellResultPoint.h"
 
 #include "cafProgressInfo.h"
@@ -1553,6 +1554,7 @@ private:
     std::set<size_t>   m_gridCellsWithSubCellWellConnections;
     const RigMainGrid* m_mainGrid;
 };
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -1616,8 +1618,8 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
                 {
                     if ( reportNumbers[i] == reportNr )
                     {
-                        wellResFrame.m_timestamp = timeSteps[i];
-                        haveFoundTimeStamp       = true;
+                        wellResFrame.setTimestamp( timeSteps[i] );
+                        haveFoundTimeStamp = true;
                     }
                 }
             }
@@ -1627,34 +1629,34 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
                 // This fallback will not work for timesteps before 1970.
 
                 // Also see RifEclipseOutputFileAccess::timeStepsText for accessing time_t structures
-                time_t stepTime          = well_state_get_sim_time( ert_well_state );
-                wellResFrame.m_timestamp = QDateTime::fromSecsSinceEpoch( stepTime );
+                time_t stepTime = well_state_get_sim_time( ert_well_state );
+                wellResFrame.setTimestamp( QDateTime::fromSecsSinceEpoch( stepTime ) );
             }
 
             // Production type
             well_type_enum ert_well_type = well_state_get_type( ert_well_state );
             if ( ert_well_type == ECL_WELL_PRODUCER )
             {
-                wellResFrame.m_productionType = RiaDefines::WellProductionType::PRODUCER;
+                wellResFrame.setProductionType( RiaDefines::WellProductionType::PRODUCER );
             }
             else if ( ert_well_type == ECL_WELL_WATER_INJECTOR )
             {
-                wellResFrame.m_productionType = RiaDefines::WellProductionType::WATER_INJECTOR;
+                wellResFrame.setProductionType( RiaDefines::WellProductionType::WATER_INJECTOR );
             }
             else if ( ert_well_type == ECL_WELL_GAS_INJECTOR )
             {
-                wellResFrame.m_productionType = RiaDefines::WellProductionType::GAS_INJECTOR;
+                wellResFrame.setProductionType( RiaDefines::WellProductionType::GAS_INJECTOR );
             }
             else if ( ert_well_type == ECL_WELL_OIL_INJECTOR )
             {
-                wellResFrame.m_productionType = RiaDefines::WellProductionType::OIL_INJECTOR;
+                wellResFrame.setProductionType( RiaDefines::WellProductionType::OIL_INJECTOR );
             }
             else
             {
-                wellResFrame.m_productionType = RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE;
+                wellResFrame.setProductionType( RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE );
             }
 
-            wellResFrame.m_isOpen = well_state_is_open( ert_well_state );
+            wellResFrame.setIsOpen( well_state_is_open( ert_well_state ) );
 
             if ( importCompleteMswData && well_state_is_MSW( ert_well_state ) )
             {
@@ -1678,20 +1680,24 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
                     const well_conn_type* ert_wellhead = well_state_iget_wellhead( ert_well_state, static_cast<int>( gridNr ) );
                     if ( ert_wellhead )
                     {
-                        wellResFrame.m_wellHead = createWellResultPoint( grids[gridNr], ert_wellhead, wellName );
+                        auto wellHead = createWellResultPoint( grids[gridNr], ert_wellhead, wellName );
 
                         // HACK: Ert returns open as "this is equally wrong as closed for well heads".
                         // Well heads are not open jfr mail communication with HHGS and JH Statoil 07.01.2016
-                        wellResFrame.m_wellHead.setIsOpen( false );
+                        wellHead.setIsOpen( false );
+                        wellResFrame.setWellHead( wellHead );
                         break;
                     }
                 }
 
-                well_branch_collection_type* branches    = well_state_get_branches( ert_well_state );
-                int                          branchCount = well_branch_collection_get_size( branches );
-                wellResFrame.m_wellResultBranches.resize( branchCount );
+                well_branch_collection_type*                            branches    = well_state_get_branches( ert_well_state );
+                int                                                     branchCount = well_branch_collection_get_size( branches );
                 std::map<int, std::vector<SegmentPositionContribution>> segmentIdToPositionContrib;
                 std::vector<int>                                        upperSegmentIdsOfUnpositionedSegementGroup;
+
+                // Create copy of well result branches for modification
+                std::vector<RigWellResultBranch> wellResultBranches = wellResFrame.wellResultBranches();
+                wellResultBranches.resize( branchCount );
 
                 // For each branch, go from bottom segment upwards and transfer their connections to WellResultpoints.
                 // If they have no connections, create a resultpoint representing their bottom position, which will
@@ -1700,12 +1706,12 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
 
                 for ( int bIdx = 0; bIdx < well_branch_collection_get_size( branches ); bIdx++ )
                 {
-                    RigWellResultBranch& wellResultBranch = wellResFrame.m_wellResultBranches[bIdx];
+                    RigWellResultBranch& wellResultBranch = wellResultBranches[bIdx];
 
                     const well_segment_type* segment = well_branch_collection_iget_start_segment( branches, bIdx );
 
-                    int branchId                   = well_segment_get_branch_id( segment );
-                    wellResultBranch.m_ertBranchId = branchId;
+                    int branchId = well_segment_get_branch_id( segment );
+                    wellResultBranch.setErtBranchId( branchId );
 
                     // Data for segment position calculation
                     int        lastConnectionSegmentId     = -1;
@@ -1737,7 +1743,7 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
                                 for ( int connIdx = connectionCount - 1; connIdx >= 0; connIdx-- )
                                 {
                                     well_conn_type* ert_connection = well_conn_collection_iget( connections, connIdx );
-                                    wellResultBranch.m_branchResultPoints.push_back(
+                                    wellResultBranch.addBranchResultPoint(
                                         createWellResultPoint( grids[gridNr], ert_connection, segment, wellName ) );
                                 }
 
@@ -1769,7 +1775,7 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
                             RigWellResultPoint data;
                             data.setSegmentData( branchId, well_segment_get_id( segment ) );
 
-                            wellResultBranch.m_branchResultPoints.push_back( data );
+                            wellResultBranch.addBranchResultPoint( data );
 
                             // Store data for segment position calculation
                             bool isAnInsolationContribution = accLengthFromLastConnection < lastConnectionCellSize;
@@ -1825,7 +1831,7 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
                                 // Clear all flow in this result point
                                 resultPoint.clearAllFlow();
 
-                                wellResultBranch.m_branchResultPoints.push_back( resultPoint );
+                                wellResultBranch.addBranchResultPoint( resultPoint );
 
                                 outletSegmentHasConnections = true;
                                 break; // Stop looping over grids
@@ -1838,7 +1844,7 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
 
                             RigWellResultPoint data;
                             data.setSegmentData( well_segment_get_branch_id( outletSegment ), well_segment_get_id( outletSegment ) );
-                            wellResultBranch.m_branchResultPoints.push_back( data );
+                            wellResultBranch.addBranchResultPoint( data );
 
                             // Store data for segment position calculation,
                             // and propagate it upwards until we meet a segment with connections
@@ -1929,27 +1935,30 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
                         // The centerline calculations would be a bit simpler, I think.
                     }
 
-                    // Reverse the order of the resultpoints in this branch, making the deepest come last
-
-                    std::reverse( wellResultBranch.m_branchResultPoints.begin(), wellResultBranch.m_branchResultPoints.end() );
+                    // Reverse the order of the result points in this branch, making the deepest come last
+                    auto branchResultPoints = wellResultBranch.branchResultPoints();
+                    std::reverse( branchResultPoints.begin(), branchResultPoints.end() );
+                    wellResultBranch.setBranchResultPoints( branchResultPoints );
                 } // End of the branch loop
+
+                // Set modified copy back to frame
+                wellResFrame.setWellResultBranches( wellResultBranches );
 
                 // Propagate position contributions from connections above unpositioned segments downwards
 
                 well_segment_collection_type* allErtSegments = well_state_get_segments( ert_well_state );
 
-                for ( size_t bIdx = 0; bIdx < wellResFrame.m_wellResultBranches.size(); ++bIdx )
+                bool isWellHead = true;
+                for ( const auto& wellResultBranch : wellResFrame.wellResultBranches() )
                 {
-                    RigWellResultBranch& wellResultBranch           = wellResFrame.m_wellResultBranches[bIdx];
-                    bool                 previousResultPointWasCell = false;
-                    if ( bIdx == 0 ) previousResultPointWasCell = true; // Wellhead
+                    bool previousResultPointWasCell = isWellHead ? true : false;
 
-                    // Go downwards until we find a none-cell resultpoint just after a cell-resultpoint
+                    // Go downwards until we find a none-cell result point just after a cell result point
                     // When we do, start propagating
 
-                    for ( size_t rpIdx = 0; rpIdx < wellResultBranch.m_branchResultPoints.size(); ++rpIdx )
+                    for ( size_t rpIdx = 0; rpIdx < wellResultBranch.branchResultPoints().size(); ++rpIdx )
                     {
-                        RigWellResultPoint resPoint = wellResultBranch.m_branchResultPoints[rpIdx];
+                        const RigWellResultPoint resPoint = wellResultBranch.branchResultPoints()[rpIdx];
                         if ( resPoint.isCell() )
                         {
                             previousResultPointWasCell = true;
@@ -1959,13 +1968,13 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
                             if ( previousResultPointWasCell )
                             {
                                 RigWellResultPoint prevResPoint;
-                                if ( bIdx == 0 && rpIdx == 0 )
+                                if ( isWellHead && rpIdx == 0 )
                                 {
-                                    prevResPoint = wellResFrame.m_wellHead;
+                                    prevResPoint = wellResFrame.wellHead();
                                 }
                                 else
                                 {
-                                    prevResPoint = wellResultBranch.m_branchResultPoints[rpIdx - 1];
+                                    prevResPoint = wellResultBranch.branchResultPoints()[rpIdx - 1];
                                 }
 
                                 cvf::Vec3d lastConnectionPos = grids[prevResPoint.gridIndex()]->cell( prevResPoint.cellIndex() ).center();
@@ -1992,6 +2001,8 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
                             previousResultPointWasCell = false;
                         }
                     }
+
+                    isWellHead = false;
                 }
 
                 // Calculate the bottom position of all the unpositioned segments
@@ -2005,21 +2016,22 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
                     ++posContribIt;
                 }
 
-                // Distribute the positions to the resultpoints stored in the wellResultBranch.m_branchResultPoints
+                // Copy content and distribute the positions to the result points stored in the wellResultBranch.branchResultPoints()
+                // set updated copy back to frame
 
-                for ( size_t bIdx = 0; bIdx < wellResFrame.m_wellResultBranches.size(); ++bIdx )
+                std::vector<RigWellResultBranch> newWellResultBranches = wellResFrame.wellResultBranches();
+                for ( auto& wellResultBranch : newWellResultBranches )
                 {
-                    RigWellResultBranch& wellResultBranch = wellResFrame.m_wellResultBranches[bIdx];
-                    for ( size_t rpIdx = 0; rpIdx < wellResultBranch.m_branchResultPoints.size(); ++rpIdx )
+                    RigWellResultBranch& newWellResultBranch = wellResultBranch;
+                    for ( auto& resultPoint : newWellResultBranch.branchResultPoints() )
                     {
-                        RigWellResultPoint& resPoint = wellResultBranch.m_branchResultPoints[rpIdx];
-                        if ( !resPoint.isCell() )
+                        if ( !resultPoint.isCell() )
                         {
-                            resPoint.setBottomPosition( bottomPositions[resPoint.segmentId()] );
+                            resultPoint.setBottomPosition( bottomPositions[resultPoint.segmentId()] );
                         }
                     }
                 }
-
+                wellResFrame.setWellResultBranches( newWellResultBranches );
             } // End of the MSW section
             else
             {
@@ -2037,7 +2049,7 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
                         // Well heads are not open jfr mail communication with HHGS and JH Statoil 07.01.2016
                         wellHeadRp.setIsOpen( false );
 
-                        if ( !subCellConnCalc.hasSubCellConnection( wellHeadRp ) ) wellResFrame.m_wellHead = wellHeadRp;
+                        if ( !subCellConnCalc.hasSubCellConnection( wellHeadRp ) ) wellResFrame.setWellHead( wellHeadRp );
                     }
 
                     const well_conn_collection_type* connections =
@@ -2049,13 +2061,12 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
                         int connectionCount = well_conn_collection_get_size( connections );
                         if ( connectionCount )
                         {
-                            wellResFrame.m_wellResultBranches.push_back( RigWellResultBranch() );
-                            RigWellResultBranch& wellResultBranch = wellResFrame.m_wellResultBranches.back();
+                            RigWellResultBranch wellResultBranch;
+                            wellResultBranch.setErtBranchId( 0 ); // Normal wells have only one branch
 
-                            wellResultBranch.m_ertBranchId = 0; // Normal wells have only one branch
-
-                            size_t existingCellCount = wellResultBranch.m_branchResultPoints.size();
-                            wellResultBranch.m_branchResultPoints.resize( existingCellCount + connectionCount );
+                            std::vector<RigWellResultPoint> branchResultPoints = wellResultBranch.branchResultPoints();
+                            const size_t                    existingCellCount  = branchResultPoints.size();
+                            branchResultPoints.resize( existingCellCount + connectionCount );
 
                             for ( int connIdx = 0; connIdx < connectionCount; connIdx++ )
                             {
@@ -2064,9 +2075,11 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
 
                                 if ( !subCellConnCalc.hasSubCellConnection( wellRp ) )
                                 {
-                                    wellResultBranch.m_branchResultPoints[existingCellCount + connIdx] = wellRp;
+                                    branchResultPoints[existingCellCount + connIdx] = wellRp;
                                 }
                             }
+                            wellResultBranch.setBranchResultPoints( branchResultPoints );
+                            wellResFrame.addWellResultBranch( wellResultBranch );
                         }
                     }
                 }

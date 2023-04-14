@@ -26,9 +26,10 @@
 #include "RigMainGrid.h"
 #include "RigNNCData.h"
 #include "RigSimWellData.h"
+#include "RigWellResultFrame.h"
+#include "RigWellResultPoint.h"
 
 /* rand example: guess the number */
-#include "RigWellResultPoint.h"
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
@@ -393,11 +394,13 @@ void RigReservoirBuilderMock::addWellData( RigEclipseCaseData* eclipseCase, RigG
         {
             RigWellResultFrame& wellCells = wellCellsTimeHistory->m_wellCellsTimeSteps[timeIdx];
 
-            wellCells.m_productionType = RiaDefines::WellProductionType::PRODUCER;
-            wellCells.m_isOpen         = true;
+            wellCells.setProductionType( RiaDefines::WellProductionType::PRODUCER );
+            wellCells.setIsOpen( true );
 
-            wellCells.m_wellHead.setGridIndex( 0 );
-            wellCells.m_wellHead.setGridCellIndex( grid->cellIndexFromIJK( 1, 0, 0 ) );
+            auto wellHead = wellCells.wellHead();
+            wellHead.setGridIndex( 0 );
+            wellHead.setGridCellIndex( grid->cellIndexFromIJK( 1, 0, 0 ) );
+            wellCells.setWellHead( wellHead );
 
             // Connections
             //            int connectionCount = std::min(dim.x(), std::min(dim.y(), dim.z())) - 2;
@@ -405,8 +408,9 @@ void RigReservoirBuilderMock::addWellData( RigEclipseCaseData* eclipseCase, RigG
             if ( connectionCount > 0 )
             {
                 // Only main grid supported by now. Must be taken care of when LGRs are supported
-                wellCells.m_wellResultBranches.resize( 1 );
-                RigWellResultBranch& wellSegment = wellCells.m_wellResultBranches[0];
+                auto newWellResultBranches = wellCells.wellResultBranches();
+                newWellResultBranches.resize( 1 );
+                RigWellResultBranch& wellSegment = newWellResultBranches[0];
 
                 size_t connIdx;
                 for ( connIdx = 0; connIdx < connectionCount; connIdx++ )
@@ -430,10 +434,9 @@ void RigReservoirBuilderMock::addWellData( RigEclipseCaseData* eclipseCase, RigG
                         data.setIsOpen( false );
                     }
 
-                    if ( wellSegment.m_branchResultPoints.size() == 0 ||
-                         wellSegment.m_branchResultPoints.back().cellIndex() != data.cellIndex() )
+                    if ( wellSegment.branchResultPoints().empty() || wellSegment.branchResultPoints().back().cellIndex() != data.cellIndex() )
                     {
-                        wellSegment.m_branchResultPoints.push_back( data );
+                        wellSegment.addBranchResultPoint( data );
 
                         if ( connIdx == connectionCount / 2 )
                         {
@@ -445,13 +448,13 @@ void RigReservoirBuilderMock::addWellData( RigEclipseCaseData* eclipseCase, RigG
                             deadEndData1.setGridCellIndex( data.cellIndex() + 2 );
                             deadEndData1.setIsOpen( false );
 
-                            wellSegment.m_branchResultPoints.push_back( deadEndData );
-                            wellSegment.m_branchResultPoints.push_back( deadEndData1 );
+                            wellSegment.addBranchResultPoint( deadEndData );
+                            wellSegment.addBranchResultPoint( deadEndData1 );
 
-                            wellSegment.m_branchResultPoints.push_back( deadEndData );
+                            wellSegment.addBranchResultPoint( deadEndData );
 
                             data.setIsOpen( true );
-                            wellSegment.m_branchResultPoints.push_back( data );
+                            wellSegment.addBranchResultPoint( data );
                         }
                     }
 
@@ -459,13 +462,14 @@ void RigReservoirBuilderMock::addWellData( RigEclipseCaseData* eclipseCase, RigG
                     {
                         data.setGridCellIndex( grid->cellIndexFromIJK( 1, 1 + connIdx, 2 + connIdx ) );
 
-                        if ( wellSegment.m_branchResultPoints.size() == 0 ||
-                             wellSegment.m_branchResultPoints.back().cellIndex() != data.cellIndex() )
+                        if ( wellSegment.branchResultPoints().empty() ||
+                             wellSegment.branchResultPoints().back().cellIndex() != data.cellIndex() )
                         {
-                            wellSegment.m_branchResultPoints.push_back( data );
+                            wellSegment.addBranchResultPoint( data );
                         }
                     }
                 }
+                wellCells.setWellResultBranches( newWellResultBranches );
             }
         }
 

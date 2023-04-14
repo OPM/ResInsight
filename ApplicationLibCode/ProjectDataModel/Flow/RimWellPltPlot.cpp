@@ -34,6 +34,7 @@
 #include "RigSimWellData.h"
 #include "RigWellLogExtractor.h"
 #include "RigWellPath.h"
+#include "RigWellResultFrame.h"
 #include "RigWellResultPoint.h"
 
 #include "RimDataSourceForRftPlt.h"
@@ -409,9 +410,9 @@ public:
 
         const RigMainGrid* mainGrid = eclCase->eclipseCaseData()->mainGrid();
 
-        for ( size_t brIdx = 0; brIdx < resFrame->m_wellResultBranches.size(); ++brIdx )
+        for ( size_t brIdx = 0; brIdx < resFrame->wellResultBranches().size(); ++brIdx )
         {
-            const std::vector<RigWellResultPoint>& branchResPoints = resFrame->m_wellResultBranches[brIdx].m_branchResultPoints;
+            const std::vector<RigWellResultPoint> branchResPoints = resFrame->branchResultPointsFromBranchIndex( brIdx );
             for ( size_t wrpIdx = 0; wrpIdx < branchResPoints.size(); wrpIdx++ )
             {
                 const RigGridBase* grid            = mainGrid->gridByIndex( branchResPoints[wrpIdx].gridIndex() );
@@ -447,9 +448,9 @@ public:
             m_pipeBranchCLCoords.push_back( intersections[wpExIdx].endPoint );
             m_pipeBranchMeasuredDepths.push_back( intersections[wpExIdx].endMD );
 
-            const RigWellResultPoint& resPoint = resFrame->m_wellResultBranches[it->second.first].m_branchResultPoints[it->second.second];
-
+            const RigWellResultPoint resPoint = resFrame->branchResultPointsFromBranchIndex( it->second.first )[it->second.second];
             m_pipeBranchWellResultPoints.push_back( resPoint );
+
             if ( wpExIdx < intersections.size() - 1 )
             {
                 m_pipeBranchWellResultPoints.push_back( RigWellResultPoint() ); // Invalid res point describing the

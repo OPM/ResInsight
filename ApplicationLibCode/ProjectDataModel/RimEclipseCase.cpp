@@ -42,7 +42,7 @@
 #include "RigNNCData.h"
 #include "RigSimWellData.h"
 #include "RigVirtualPerforationTransmissibilities.h"
-#include "RigWellResultPoint.h"
+#include "RigWellResultFrame.h"
 
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimCaseCollection.h"
@@ -426,9 +426,9 @@ const RigVirtualPerforationTransmissibilities* RimEclipseCase::computeAndGetVirt
 
                 if ( wellRes->hasWellResult( i ) )
                 {
-                    for ( const auto& wellResultBranch : wellRes->wellResultFrame( i )->m_wellResultBranches )
+                    for ( const auto& wellResultBranch : wellRes->wellResultFrame( i )->wellResultBranches() )
                     {
-                        for ( const auto& r : wellResultBranch.m_branchResultPoints )
+                        for ( const auto& r : wellResultBranch.branchResultPoints() )
                         {
                             if ( r.isCell() )
                             {

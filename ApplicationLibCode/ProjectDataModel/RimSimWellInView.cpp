@@ -28,6 +28,7 @@
 #include "RigMainGrid.h"
 #include "RigSimWellData.h"
 #include "RigSimulationWellCenterLineCalculator.h"
+#include "RigWellResultFrame.h"
 #include "RigWellResultPoint.h"
 
 #include "Rim2dIntersectionView.h"
@@ -331,8 +332,8 @@ bool RimSimWellInView::intersectsWellCellsFilteredCells( const RigWellResultFram
 
         // First check the wellhead:
 
-        size_t gridIndex     = wrsf->m_wellHead.gridIndex();
-        size_t gridCellIndex = wrsf->m_wellHead.cellIndex();
+        size_t gridIndex     = wrsf->wellHead().gridIndex();
+        size_t gridCellIndex = wrsf->wellHead().cellIndex();
 
         if ( gridIndex != cvf::UNDEFINED_SIZE_T && gridCellIndex != cvf::UNDEFINED_SIZE_T )
         {
@@ -345,11 +346,10 @@ bool RimSimWellInView::intersectsWellCellsFilteredCells( const RigWellResultFram
 
         // Then check the rest of the well, with all the branches
 
-        const std::vector<RigWellResultBranch>& wellResSegments = wrsf->m_wellResultBranches;
+        const std::vector<RigWellResultBranch> wellResSegments = wrsf->wellResultBranches();
         for ( const RigWellResultBranch& branchSegment : wellResSegments )
         {
-            const std::vector<RigWellResultPoint>& wsResCells = branchSegment.m_branchResultPoints;
-            for ( const RigWellResultPoint& wellResultPoint : wsResCells )
+            for ( const RigWellResultPoint& wellResultPoint : branchSegment.branchResultPoints() )
             {
                 if ( wellResultPoint.isCell() )
                 {

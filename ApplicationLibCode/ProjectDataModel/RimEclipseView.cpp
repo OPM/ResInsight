@@ -38,6 +38,7 @@
 #include "RigResultAccessorFactory.h"
 #include "RigSimWellData.h"
 #include "RigVirtualPerforationTransmissibilities.h"
+#include "RigWellResultFrame.h"
 #include "RigWellResultPoint.h"
 
 #include "Rim2dIntersectionView.h"
@@ -1689,24 +1690,21 @@ void RimEclipseView::calculateVisibleWellCellsIncFence( cvf::UByteArray* visible
             if ( !simWellData ) continue;
 
             const std::vector<RigWellResultFrame>& wellResFrames = simWellData->m_wellCellsTimeSteps;
-            for ( size_t wfIdx = 0; wfIdx < wellResFrames.size(); ++wfIdx )
+            for ( const auto& frame : wellResFrames )
             {
                 // Add all the cells from the branches
-
-                const std::vector<RigWellResultBranch>& wellResSegments = wellResFrames[wfIdx].m_wellResultBranches;
-                for ( size_t wsIdx = 0; wsIdx < wellResSegments.size(); ++wsIdx )
+                for ( const auto& segment : frame.wellResultBranches() )
                 {
-                    const std::vector<RigWellResultPoint>& wsResCells = wellResSegments[wsIdx].m_branchResultPoints;
-                    for ( size_t cIdx = 0; cIdx < wsResCells.size(); ++cIdx )
+                    for ( const auto& cell : segment.branchResultPoints() )
                     {
-                        if ( wsResCells[cIdx].gridIndex() == grid->gridIndex() )
+                        if ( cell.gridIndex() == grid->gridIndex() )
                         {
-                            if ( !wsResCells[cIdx].isCell() )
+                            if ( !cell.isCell() )
                             {
                                 continue;
                             }
 
-                            size_t gridCellIndex             = wsResCells[cIdx].cellIndex();
+                            size_t gridCellIndex             = cell.cellIndex();
                             ( *visibleCells )[gridCellIndex] = true;
 
                             // Calculate well fence cells

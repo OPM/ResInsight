@@ -22,6 +22,7 @@
 
 #include "RigMainGrid.h"
 #include "RigSimWellData.h"
+#include "RigWellResultFrame.h"
 #include "RigWellResultPoint.h"
 
 #include "RimEclipseCase.h"
@@ -84,9 +85,9 @@ void RivWellSpheresPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicLi
 
     std::vector<std::pair<cvf::Vec3f, cvf::Color3f>> centerColorPairs;
 
-    for ( const RigWellResultBranch& wellResultBranch : wellResultFrame->m_wellResultBranches )
+    for ( const RigWellResultBranch& wellResultBranch : wellResultFrame->wellResultBranches() )
     {
-        for ( const RigWellResultPoint& wellResultPoint : wellResultBranch.m_branchResultPoints )
+        for ( const RigWellResultPoint& wellResultPoint : wellResultBranch.branchResultPoints() )
         {
             size_t gridIndex = wellResultPoint.gridIndex();
 
@@ -111,7 +112,7 @@ void RivWellSpheresPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicLi
 
     if ( !centerColorPairs.empty() )
     {
-        cvf::ref<cvf::Part> part = createPart( centerColorPairs, wellResultFrame->m_isOpen );
+        cvf::ref<cvf::Part> part = createPart( centerColorPairs, wellResultFrame->isOpen() );
         model->addPart( part.p() );
     }
 }
@@ -209,7 +210,7 @@ cvf::Color3f RivWellSpheresPartMgr::wellCellColor( const RigWellResultFrame* wel
     {
         if ( wellResultPoint.isOpen() )
         {
-            switch ( wellResultFrame->m_productionType )
+            switch ( wellResultFrame->productionType() )
             {
                 case RiaDefines::WellProductionType::PRODUCER:
                     cellColor = cvf::Color3f::GREEN;

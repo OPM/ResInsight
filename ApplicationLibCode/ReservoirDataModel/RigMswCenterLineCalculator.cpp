@@ -25,6 +25,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 #include "RigSimWellData.h"
+#include "RigWellResultFrame.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
@@ -80,8 +81,8 @@ std::vector<SimulationWellCellBranch>
         wellFramePtr = wellResults->wellResultFrame( timeStepIndex );
     }
 
-    const RigWellResultFrame&               wellFrame      = *wellFramePtr;
-    const std::vector<RigWellResultBranch>& resultBranches = wellFrame.m_wellResultBranches;
+    const RigWellResultFrame&              wellFrame      = *wellFramePtr;
+    const std::vector<RigWellResultBranch> resultBranches = wellFrame.wellResultBranches();
 
     std::vector<WellBranch> wellBranches = mergeShortBranchesIntoLongBranches( resultBranches );
 
@@ -89,18 +90,18 @@ std::vector<SimulationWellCellBranch>
 
     for ( const auto& resultBranch : resultBranches )
     {
-        if ( resultBranch.m_branchResultPoints.empty() ) continue;
+        if ( resultBranch.branchResultPoints().empty() ) continue;
 
-        const auto firstResultPoint = resultBranch.m_branchResultPoints.front();
+        const RigWellResultPoint firstResultPoint = resultBranch.branchResultPoints().front();
 
         for ( auto& wellBranch : wellBranches )
         {
-            if ( wellBranch.m_branchId == resultBranch.m_ertBranchId )
+            if ( wellBranch.m_branchId == resultBranch.ertBranchId() )
             {
-                if ( firstResultPoint.branchId() == resultBranch.m_ertBranchId )
+                if ( firstResultPoint.branchId() == resultBranch.ertBranchId() )
                 {
                     // The first result point is on the same branch, use well head as outlet
-                    RigWellResultPoint outletResultPoint = wellFrame.m_wellHead;
+                    RigWellResultPoint outletResultPoint = wellFrame.wellHead();
 
                     auto gridAndCellIndex = std::make_pair( outletResultPoint.gridIndex(), outletResultPoint.cellIndex() );
                     wellBranch.m_segmentsWithGridCells[outletResultPoint.segmentId()].push_back( gridAndCellIndex );
@@ -157,7 +158,7 @@ std::vector<SimulationWellCellBranch>
                     RigWellResultPoint resPoint;
                     for ( const auto& resBranch : resultBranches )
                     {
-                        for ( const auto& respoint : resBranch.m_branchResultPoints )
+                        for ( const auto& respoint : resBranch.branchResultPoints() )
                         {
                             if ( respoint.segmentId() == firstSegment )
                             {
@@ -301,9 +302,9 @@ std::vector<RigMswCenterLineCalculator::WellBranch>
     for ( const auto& resultBranch : resBranches )
     {
         WellBranch branch;
-        branch.m_branchId = resultBranch.m_ertBranchId;
+        branch.m_branchId = resultBranch.ertBranchId();
 
-        for ( const auto& resPoint : resultBranch.m_branchResultPoints )
+        for ( const auto& resPoint : resultBranch.branchResultPoints() )
         {
             size_t gridIndex     = resPoint.gridIndex();
             size_t gridCellIndex = resPoint.cellIndex();
@@ -318,7 +319,7 @@ std::vector<RigMswCenterLineCalculator::WellBranch>
         }
 
         const int resultPointThreshold = 3;
-        if ( resultBranch.m_branchResultPoints.size() > resultPointThreshold )
+        if ( resultBranch.branchResultPoints().size() > resultPointThreshold )
         {
             longWellBranches.push_back( branch );
         }

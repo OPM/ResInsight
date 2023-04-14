@@ -28,7 +28,7 @@
 #include "RigResultAccessorFactory.h"
 #include "RigSimWellData.h"
 #include "RigTracerPoint.h"
-#include "RigWellResultPoint.h"
+#include "RigWellResultFrame.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseInputCase.h"
@@ -405,18 +405,18 @@ void RimStreamlineInViewCollection::findStartCells( int                         
 
         auto frame = swdata->wellResultFrame( timeIdx );
 
-        for ( auto& branch : frame->m_wellResultBranches )
+        for ( const auto& branch : frame->wellResultBranches() )
         {
-            for ( const auto& point : branch.m_branchResultPoints )
+            for ( const auto& point : branch.branchResultPoints() )
             {
                 if ( point.isValid() && point.isOpen() )
                 {
                     RigCell cell = grids[point.gridIndex()]->cell( point.cellIndex() );
-                    if ( frame->m_productionType == RiaDefines::WellProductionType::PRODUCER )
+                    if ( frame->productionType() == RiaDefines::WellProductionType::PRODUCER )
                     {
                         outProducerCells.push_back( std::pair<QString, RigCell>( swdata->m_wellName, cell ) );
                     }
-                    else if ( frame->m_productionType != RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE )
+                    else if ( frame->productionType() != RiaDefines::WellProductionType::UNDEFINED_PRODUCTION_TYPE )
                     {
                         outInjectorCells.push_back( std::pair<QString, RigCell>( swdata->m_wellName, cell ) );
                     }
