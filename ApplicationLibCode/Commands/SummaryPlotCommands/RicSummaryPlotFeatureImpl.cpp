@@ -140,7 +140,6 @@ std::vector<RimEclipseCase*> openEclipseCasesForCellPlotting( QStringList gridFi
 {
     std::vector<RimEclipseCase*> openedCases;
 
-    RiaApplication*           app            = RiaApplication::instance();
     RimEclipseCaseCollection* analysisModels = RimProject::current()->activeOilField()->analysisModels();
     for ( const QString& fileName : gridFileNames )
     {

@@ -349,7 +349,6 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   target_compile_options(
     ApplicationLibCode
     PRIVATE -Wall
-            -Wno-unused-parameter
             -Wno-reorder
             -Wno-switch
             -Wno-delete-abstract-non-virtual-dtor

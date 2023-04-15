@@ -152,7 +152,6 @@ void RicCreateMultipleWellPathLaterals::slotAppendFractures()
     RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
     if ( wellPathCollection )
     {
-        int index = 0;
         for ( auto measuredDepth : m_ui->locationConfig()->locations() )
         {
             RimModeledWellPath* newModeledWellPath = dynamic_cast<RimModeledWellPath*>(

@@ -62,7 +62,6 @@ bool RicImportEnsembleSurfaceFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicImportEnsembleSurfaceFeature::onActionTriggered( bool isChecked )
 {
-    RiaApplication* app               = RiaApplication::instance();
     QString         pathCacheName     = "ENSEMBLE_SURFACE_FILES";
     auto [fileNames, groupByEnsemble] = runRecursiveFileSearchDialog( "Import Ensemble Surface", pathCacheName );
 
