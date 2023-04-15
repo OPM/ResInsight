@@ -351,11 +351,8 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     PRIVATE -Wall
             -Wno-unused-parameter
             -Wno-reorder
-            -Wno-parentheses
             -Wno-switch
             -Wno-delete-abstract-non-virtual-dtor
-            -Wno-invalid-source-encoding
-            -Wno-enum-compare
             -Wno-call-to-pure-virtual-from-ctor-dtor
             -Wno-unused-private-field
             -Wno-delete-non-abstract-non-virtual-dtor

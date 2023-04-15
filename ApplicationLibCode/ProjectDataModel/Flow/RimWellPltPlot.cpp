@@ -568,9 +568,9 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
                                      : tracerName == RIG_FLOW_WATER_NAME ? cvf::Color3f::BLUE
                                                                          : cvf::Color3f::DARK_GRAY;
 
-                        if ( tracerName == RIG_FLOW_OIL_NAME && selectedPhases.count( FLOW_PHASE_OIL ) ||
-                             tracerName == RIG_FLOW_GAS_NAME && selectedPhases.count( FLOW_PHASE_GAS ) ||
-                             tracerName == RIG_FLOW_WATER_NAME && selectedPhases.count( FLOW_PHASE_WATER ) )
+                        if ( (tracerName == RIG_FLOW_OIL_NAME && selectedPhases.count( FLOW_PHASE_OIL )) ||
+                             (tracerName == RIG_FLOW_GAS_NAME && selectedPhases.count( FLOW_PHASE_GAS )) ||
+                             (tracerName == RIG_FLOW_WATER_NAME && selectedPhases.count( FLOW_PHASE_WATER )) )
                         {
                             FlowPhase flowPhase = FLOW_PHASE_NONE;
                             if ( tracerName == RIG_FLOW_OIL_NAME )

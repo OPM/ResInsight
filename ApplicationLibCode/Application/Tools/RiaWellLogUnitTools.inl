@@ -279,7 +279,7 @@ bool RiaWellLogUnitTools<FloatType>::convertValues( const std::vector<FloatType>
         return true;
     }
     else if ( ( stringsMatch( unitsIn, pascalUnitString() ) ||
-                stringsMatch( unitsIn, pascalUnitString() ) && stringsMatch( unitsOut, barUnitString() ) ) )
+                (stringsMatch( unitsIn, pascalUnitString() ) && stringsMatch( unitsOut, barUnitString() ) ) ) )
     {
         *valuesOut = multiply( valuesIn, 1.0 / pascalPerBar() );
         return true;
