@@ -111,9 +111,7 @@ if(MSVC)
   # set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W3 /wd4190
   # /wd4100 /wd4127")
 
-  set(BUILD_FLAGS_FOR_MSVC
-      "/W3 /wd4190 /wd4100 /wd4127 /wd4245 /wd4005 /wd4573"
-  )
+  set(BUILD_FLAGS_FOR_MSVC "/W3 /wd4190 /wd4100 /wd4127")
 
   if(CMAKE_CXX_COMPILER_VERSION LESS_EQUAL 19.14)
     # The following warning is generated over 800 times from a qwt header only

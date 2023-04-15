@@ -22,9 +22,9 @@
 #include "RifRevealCsvSectionSummaryReader.h"
 
 #include "RiaTextStringTools.h"
+
 #include <QFile>
 #include <QTextStream>
-#include <Qt>
 
 //--------------------------------------------------------------------------------------------------
 ///
