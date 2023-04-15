@@ -35,7 +35,7 @@
 #include <QFileInfo>
 
 CAF_CMD_SOURCE_INIT( RicImportEnsembleFractureStatisticsFeature, "RicImportEnsembleFractureStatisticsFeature" );
-    
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -55,7 +55,7 @@ bool RicImportEnsembleFractureStatisticsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicImportEnsembleFractureStatisticsFeature::onActionTriggered( bool isChecked )
 {
-    QString            pathCacheName  = "INPUT_FILES";
+    QString pathCacheName             = "INPUT_FILES";
     auto [fileNames, groupByEnsemble] = runRecursiveFileSearchDialog( "Import StimPlan Fractures", pathCacheName );
 
     if ( groupByEnsemble == RiaEnsembleNameTools::EnsembleGroupingMode::NONE )
