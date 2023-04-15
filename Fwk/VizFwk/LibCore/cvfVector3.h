@@ -157,6 +157,13 @@ typedef Vector3<int>    Vec3i;  ///< A vector with int components
 typedef Vector3<uint>   Vec3ui;  ///< A vector with uint components
 typedef Vector3<size_t> Vec3st;  ///< A vector with size_t components
 
+// Required by c++20
+template <> const Vector3<float> Vector3<float>::UNDEFINED;
+template <> const Vector3<double> Vector3<double>::UNDEFINED;
+template <> const Vector3<int> Vector3<int>::UNDEFINED;
+template <> const Vector3<uint> Vector3<uint>::UNDEFINED;
+template <> const Vector3<size_t> Vector3<size_t>::UNDEFINED;
+
 }
 
 #include "cvfVector3.inl"

@@ -124,6 +124,11 @@ typedef Vector4<float>  Vec4f;  ///< A vector with float components
 typedef Vector4<double> Vec4d;  ///< A vector with double components
 typedef Vector4<int>    Vec4i;  ///< A vector with int components
 
+// Required by c++20 
+template <> const Vector4<float> Vector4<float>::UNDEFINED;
+template <> const Vector4<double> Vector4<double>::UNDEFINED;
+template <> const Vector4<int> Vector4<int>::UNDEFINED;
+
 }
 
 #include "cvfVector4.inl"

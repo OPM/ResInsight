@@ -131,6 +131,13 @@ typedef Vector2<int>    Vec2i;  ///< A vector with int components
 typedef Vector2<uint>   Vec2ui;  ///< A vector with uint components
 typedef Vector2<ushort> Vec2us;  ///< A vector with ushort components
 
+// Required by c++20
+template <> const Vector2<float> Vector2<float>::UNDEFINED;
+template <> const Vector2<double> Vector2<double>::UNDEFINED;
+template <> const Vector2<int> Vector2<int>::UNDEFINED;
+template <> const Vector2<uint> Vector2<uint>::UNDEFINED;
+template <> const Vector2<ushort> Vector2<ushort>::UNDEFINED;
+
 }
 
 #include "cvfVector2.inl"
