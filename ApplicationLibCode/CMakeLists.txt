@@ -357,11 +357,8 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
             -Wno-invalid-source-encoding
             -Wno-enum-compare
             -Wno-call-to-pure-virtual-from-ctor-dtor
-            -Wno-unused-variable
             -Wno-unused-private-field
-            -Wno-unused-lambda-capture
             -Wno-delete-non-abstract-non-virtual-dtor
-            -Wbraced-scalar-init
             -Wno-ambiguous-reversed-operator
   )
 endif()

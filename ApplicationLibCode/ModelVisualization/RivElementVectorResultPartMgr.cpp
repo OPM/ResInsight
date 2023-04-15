@@ -152,7 +152,7 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
 
     const std::vector<RigCell>& cells = eclipseCase->mainGrid()->globalCellArray();
 
-    auto getFaceCenterAndNormal = [activeCellInfo, cells, arrowScaling, displayCordXf]( size_t                             globalCellIdx,
+    auto getFaceCenterAndNormal = [cells, arrowScaling, displayCordXf]( size_t                             globalCellIdx,
                                                                                         cvf::StructGridInterface::FaceType faceType,
                                                                                         cvf::Vec3d&                        faceCenter,
                                                                                         cvf::Vec3d&                        faceNormal )

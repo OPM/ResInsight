@@ -375,7 +375,7 @@ std::pair<std::vector<cvf::Vec3d>, std::vector<unsigned>> RifSurfaceImporter::re
 
     // Checks if the given vector is a possible new candidate for an axis vector and adds it to the given list
     // of axesVectorCandidates. Also increases the number of occurrences of vector candidates.
-    auto maybeInsertAxisVectorCandidate = [epsilon]( const cvf::Vec2d                              vector,
+    auto maybeInsertAxisVectorCandidate = []( const cvf::Vec2d                              vector,
                                                      std::map<cvf::Vec2d, double, vec2dCompare>&   axesVectorCandidates,
                                                      std::map<cvf::Vec2d, unsigned, vec2dCompare>& axesVectorCandidatesNum ) -> bool
     {

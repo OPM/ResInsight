@@ -98,7 +98,7 @@ void RimSummaryCaseCollection::sortByBinnedVariation( std::vector<RigEnsemblePar
     // index
     std::stable_sort( parameterVector.begin(),
                       parameterVector.end(),
-                      [&bins]( const RigEnsembleParameter& lhs, const RigEnsembleParameter& rhs )
+                      []( const RigEnsembleParameter& lhs, const RigEnsembleParameter& rhs )
                       { return lhs.variationBin > rhs.variationBin; } );
 }
 
