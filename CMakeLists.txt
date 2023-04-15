@@ -437,7 +437,7 @@ endif()
 add_subdirectory(ThirdParty/qwt)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-  target_compile_options(qwt PRIVATE -Wno-deprecated-copy)
+  target_compile_options(qwt PRIVATE -Wno-deprecated-copy -Wno-deprecated-enum-float-conversion -Wno-deprecated-enum-enum-conversion)
 elseif(MSVC)
   target_compile_options(qwt PRIVATE /wd4996 /wd4005)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
