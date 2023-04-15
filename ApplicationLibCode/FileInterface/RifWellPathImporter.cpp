@@ -239,7 +239,7 @@ void RifWellPathImporter::readAllAsciiWellData( const QString& filePath )
 
             std::string line;
             std::getline( stream, line, '\n' );
-            // Skip possible comment lines (-- is used in eclipse, so Haakon Høgstøl considered it smart to skip these
+            // Skip possible comment lines (-- is used in eclipse, so Haakon Hï¿½gstï¿½l considered it smart to skip these
             // here as well) The first "-" is eaten by the stream >> x above
             if ( line.find( "-" ) == 0 || line.find( "#" ) == 0 )
             {
@@ -248,8 +248,8 @@ void RifWellPathImporter::readAllAsciiWellData( const QString& filePath )
             else
             {
                 // Find the first and the last position of any quotes (and do not care to match quotes)
-                size_t quoteStartIdx = line.find_first_of( "'`´’‘" );
-                size_t quoteEndIdx   = line.find_last_of( "'`´’‘" );
+                size_t quoteStartIdx = line.find_first_of( "'`" );
+                size_t quoteEndIdx   = line.find_last_of( "'`" );
 
                 std::string wellName;
                 bool        haveAPossibleWellStart = false;
