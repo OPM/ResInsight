@@ -161,7 +161,7 @@ QString RimTools::relocateFile( const QString&        originalFileName,
         }
     }
 
-    if ( (!pathEndsDiffer && firstDiffIdx < fileNamePathElements.size()) || firstDiffIdx < oldProjPathElements.size() )
+    if ( ( !pathEndsDiffer && firstDiffIdx < fileNamePathElements.size() ) || firstDiffIdx < oldProjPathElements.size() )
     {
         pathEndsDiffer = true;
     }

@@ -80,5 +80,4 @@ private:
     cvf::Collection<RivGridPartMgr>         m_allGrids; // Main grid and all LGR's
     cvf::ref<RivElementVectorResultPartMgr> m_elementVectorResultMgr;
     cvf::ref<RivReservoirFaultsPartMgr>     m_faultsPartMgr;
-
 };

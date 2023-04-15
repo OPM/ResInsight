@@ -271,7 +271,7 @@ private:
     double m_rkbDiff;
     bool   m_exportTvdrkb;
 
-    std::vector<double>       m_depthValues;
+    std::vector<double> m_depthValues;
 
     std::vector<SingleChannelData> m_logCurveData;
     double                         m_minimumCurveValue;

@@ -115,5 +115,4 @@ private:
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisLabelFontSize;
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_valueLabelFontSize;
     caf::PdmField<bool>                             m_showValueLabels;
-
 };

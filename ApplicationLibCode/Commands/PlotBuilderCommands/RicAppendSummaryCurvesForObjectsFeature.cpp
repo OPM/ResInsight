@@ -55,7 +55,7 @@ void RicAppendSummaryCurvesForObjectsFeature::onActionTriggered( bool isChecked 
 
     RicAppendSummaryPlotsForObjectsFeature::isSelectionCompatibleWithPlot( sumAddressCollections, summaryMultiPlot );
 
-    auto sourcePlots   = summaryMultiPlot->summaryPlots();
+    auto sourcePlots = summaryMultiPlot->summaryPlots();
 
     std::vector<caf::PdmObjectHandle*> pdmObjects;
     for ( auto summaryAdrCollection : sumAddressCollections )

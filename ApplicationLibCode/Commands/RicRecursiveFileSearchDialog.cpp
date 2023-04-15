@@ -410,7 +410,7 @@ void RicRecursiveFileSearchDialog::updateFileListWidget()
         std::vector<QStringList> groupedByEnsemble = RiaEnsembleNameTools::groupFilesByEnsemble( m_foundFiles, ensembleGroupingMode() );
         for ( const QStringList& groupedFileNames : groupedByEnsemble )
         {
-            QString          ensembleName = RiaEnsembleNameTools::findSuitableEnsembleName( groupedFileNames, ensembleGroupingMode() );
+            QString ensembleName = RiaEnsembleNameTools::findSuitableEnsembleName( groupedFileNames, ensembleGroupingMode() );
             new QListWidgetItem( QDir::toNativeSeparators( ensembleName ), m_fileListWidget );
             addToFileListWidget( groupedFileNames );
         }
