@@ -16,6 +16,8 @@ if(MSVC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11))
   add_definitions(-D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING)
 endif()
 
+
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} # required for gtest-all.cpp
 )
 
@@ -25,6 +27,14 @@ set(PROJECT_FILES cafPdmBasicTest.cpp cafProjectDataModel_UnitTests.cpp
 
 # add the executable
 add_executable(${PROJECT_NAME} ${PROJECT_FILES} gtest/gtest-all.cpp)
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+target_compile_options(
+    cafProjectDataModel_UnitTests
+    PRIVATE -Wno-ambiguous-reversed-operator -Wno-invalid-source-encoding
+  )
+endif()
+
 
 target_link_libraries(
   ${PROJECT_NAME} cafProjectDataModel ${QT_LIBRARIES} ${THREAD_LIBRARY}

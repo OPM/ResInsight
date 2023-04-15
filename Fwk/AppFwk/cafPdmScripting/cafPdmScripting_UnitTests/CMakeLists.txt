@@ -22,6 +22,13 @@ add_executable(
                   cafPdmScriptingBasicTest.cpp
 )
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  target_compile_options(
+    cafPdmScripting_UnitTests
+    PRIVATE -Wno-delete-abstract-non-virtual-dtor
+  )
+endif()
+
 target_link_libraries(
   ${PROJECT_NAME} cafPdmScripting ${QT_LIBRARIES} ${THREAD_LIBRARY}
 )
