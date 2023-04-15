@@ -40,8 +40,8 @@ add_executable(${PROJECT_NAME} ${PROJECT_FILES})
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 
   target_compile_options(
-    cafPdmCore_UnitTests
-    PRIVATE -Wno-ambiguous-reversed-operator -Wno-invalid-source-encoding
+    cafPdmCore_UnitTests PRIVATE -Wno-ambiguous-reversed-operator
+                                 -Wno-invalid-source-encoding
   )
 endif()
 
