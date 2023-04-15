@@ -361,8 +361,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
             -Wno-unused-private-field
             -Wno-unused-lambda-capture
             -Wno-delete-non-abstract-non-virtual-dtor
-            -Wno-braced-scalar-init
-            -Wno-tautological-constant-out-of-range-compare
+            -Wbraced-scalar-init
             -Wno-ambiguous-reversed-operator
   )
 endif()
