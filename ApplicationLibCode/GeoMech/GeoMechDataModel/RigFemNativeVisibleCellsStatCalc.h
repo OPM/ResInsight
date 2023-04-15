@@ -61,7 +61,6 @@ private:
         {
             RigFemPart* part     = m_caseData->femParts()->part( pIdx );
             int         elmCount = part->elementCount();
-            auto        frames   = m_resultsData->findOrLoadScalarResult( pIdx, m_resVarAddr );
 
             auto [stepIdx, frameIdx] = m_resultsData->stepListIndexToTimeStepAndDataFrameIndex( timeStepIndex );
 

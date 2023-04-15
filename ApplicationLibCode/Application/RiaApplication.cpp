@@ -124,6 +124,9 @@
 #include "gtest/gtest.h"
 #endif // USE_UNIT_TESTS
 
+// Required to ignore warning of usused variable when defining caf::PdmMarkdownGenerator
+#pragma clang diagnostic ignored "-Wunused-variable"
+
 RiaApplication* RiaApplication::s_riaApplication = nullptr;
 
 //--------------------------------------------------------------------------------------------------
