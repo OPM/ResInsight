@@ -81,5 +81,4 @@ private:
     cvf::ref<RivElementVectorResultPartMgr> m_elementVectorResultMgr;
     cvf::ref<RivReservoirFaultsPartMgr>     m_faultsPartMgr;
 
-    RivCellSetEnum m_cellSetType;
 };

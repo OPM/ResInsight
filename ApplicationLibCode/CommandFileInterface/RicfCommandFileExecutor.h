@@ -66,5 +66,4 @@ private:
 
     std::map<ExportType, QString> m_exportPaths;
     QString                       m_lastProjectPath;
-    bool                          m_exportDataSourceAsComment;
 };

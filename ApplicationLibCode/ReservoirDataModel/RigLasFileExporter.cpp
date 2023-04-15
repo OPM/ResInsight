@@ -271,7 +271,6 @@ private:
     double m_rkbDiff;
     bool   m_exportTvdrkb;
 
-    RiaDefines::DepthUnitType m_depthUnit;
     std::vector<double>       m_depthValues;
 
     std::vector<SingleChannelData> m_logCurveData;

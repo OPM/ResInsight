@@ -116,5 +116,4 @@ private:
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_valueLabelFontSize;
     caf::PdmField<bool>                             m_showValueLabels;
 
-    const int m_initialNumberOfTimeSteps = 10;
 };

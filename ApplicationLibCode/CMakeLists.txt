@@ -354,7 +354,6 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
             -Wno-switch
             -Wno-delete-abstract-non-virtual-dtor
             -Wno-call-to-pure-virtual-from-ctor-dtor
-            -Wno-unused-private-field
             -Wno-delete-non-abstract-non-virtual-dtor
             -Wno-ambiguous-reversed-operator
   )
