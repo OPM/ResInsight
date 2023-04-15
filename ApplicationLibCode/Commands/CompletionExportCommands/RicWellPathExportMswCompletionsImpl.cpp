@@ -775,7 +775,7 @@ bool RicWellPathExportMswCompletionsImpl::generateFracturesMswExportInfo( RimEcl
                                                                           gsl::not_null<RicMswExportInfo*> exportInfo,
                                                                           gsl::not_null<RicMswBranch*>     branch )
 {
-    auto fractures     = wellPath->fractureCollection()->activeFractures();
+    auto fractures = wellPath->fractureCollection()->activeFractures();
 
     std::vector<WellPathCellIntersectionInfo> filteredIntersections =
         filterIntersections( cellIntersections, initialMD, wellPath->wellPathGeometry(), eclipseCase );
@@ -919,7 +919,6 @@ bool RicWellPathExportMswCompletionsImpl::generatePerforationsMswExportInfo( Rim
 std::vector<WellPathCellIntersectionInfo> RicWellPathExportMswCompletionsImpl::generateCellSegments( const RimEclipseCase* eclipseCase,
                                                                                                      const RimWellPath*    wellPath )
 {
-
     auto wellPathGeometry = wellPath->wellPathGeometry();
     CVF_ASSERT( wellPathGeometry );
 
@@ -1181,7 +1180,6 @@ void RicWellPathExportMswCompletionsImpl::createValveCompletions( gsl::not_null<
 
                     double exportStartTVD = RicMswTableFormatterTools::tvdFromMeasuredDepth( wellPath, exportStartMD );
                     double exportEndTVD   = RicMswTableFormatterTools::tvdFromMeasuredDepth( wellPath, exportEndMD );
-
 
                     if ( segment->startMD() <= valveMD && valveMD < segment->endMD() )
                     {
