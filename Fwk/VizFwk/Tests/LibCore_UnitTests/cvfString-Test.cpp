@@ -606,18 +606,10 @@ TEST(StringTest, Number)
     EXPECT_STREQ("1.234", s1.toAscii().ptr());
     EXPECT_STREQ("-123000", s2.toAscii().ptr());
 
-#ifdef WIN32
-    EXPECT_STREQ("5.4e+013", s3.toAscii().ptr());
-#else
     EXPECT_STREQ("5.4e+13", s3.toAscii().ptr());
-#endif
 
     String s4 = String::number(-1.2375e5f, 'e', 2);
-#ifdef WIN32
-    EXPECT_STREQ("-1.24e+005", s4.toAscii().ptr());
-#else
     EXPECT_STREQ("-1.24e+05", s4.toAscii().ptr());
-#endif
 
     String s5 = String::number(-1.2375e5f, 'f', 2);
     EXPECT_STREQ("-123750.00", s5.toAscii().ptr());
@@ -633,19 +625,11 @@ TEST(StringTest, Number)
     EXPECT_STREQ("1.234", s11.toAscii().ptr());
     EXPECT_STREQ("-123000", s12.toAscii().ptr());
 
-#ifdef WIN32
-    EXPECT_STREQ("5.4e+013", s13.toAscii().ptr());
-#else
     EXPECT_STREQ("5.4e+13", s13.toAscii().ptr());
-#endif
 
 
     String s14 = String::number(-1.2375e5, 'e', 2);
-#ifdef WIN32
-    EXPECT_STREQ("-1.24e+005", s14.toAscii().ptr());
-#else
     EXPECT_STREQ("-1.24e+05", s14.toAscii().ptr());
-#endif
 
     String s15 = String::number(-1.2375e5, 'f', 2);
     EXPECT_STREQ("-123750.00", s15.toAscii().ptr());
@@ -975,11 +959,7 @@ TEST(StringTest, StringBuilding)
     s11 += String(dfps);
     s11 += " (fps)";
 
-#ifdef WIN32
-    EXPECT_STREQ("Framerate: 1.23457e+014 (fps)", s11.toAscii().ptr());
-#else
     EXPECT_STREQ("Framerate: 1.23457e+14 (fps)", s11.toAscii().ptr());
-#endif
 
     String s13 = "Framerate: " + String::number(dfps, 'f', 1) + " (fps)";
     EXPECT_STREQ("Framerate: 123456789012345.6 (fps)", s13.toAscii().ptr());
