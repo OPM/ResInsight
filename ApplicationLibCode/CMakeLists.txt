@@ -351,6 +351,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     PRIVATE -Wall
             -Wno-reorder
             -Wno-switch
+            -Wno-undefined-var-template
             -Wno-delete-abstract-non-virtual-dtor
             -Wno-call-to-pure-virtual-from-ctor-dtor
             -Wno-delete-non-abstract-non-virtual-dtor
