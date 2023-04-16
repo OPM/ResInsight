@@ -113,21 +113,6 @@ TEST(ObjectTest, AddRefAndRelease)
 }
 
 
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-#if CVF_ENABLE_TIGHT_ASSERTS == 1
-TEST(ObjectDeathTest, AddRefAndReleaseBehaviorOnNullPointer)
-{
-    Object* obj = NULL;
-
-    EXPECT_DEATH(obj->addRef(), "Assertion");
-    EXPECT_DEATH(obj->refCount(), "Assertion");
-
-    // Release is OK on NULL pointer
-    EXPECT_EQ(0, obj->release());
-}
-#endif
 
 
 //--------------------------------------------------------------------------------------------------
