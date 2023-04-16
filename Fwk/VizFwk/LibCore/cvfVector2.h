@@ -132,11 +132,9 @@ typedef Vector2<uint>   Vec2ui;  ///< A vector with uint components
 typedef Vector2<ushort> Vec2us;  ///< A vector with ushort components
 
 // Required by c++20
-template <> const Vector2<float> Vector2<float>::UNDEFINED;
-template <> const Vector2<double> Vector2<double>::UNDEFINED;
-template <> const Vector2<int> Vector2<int>::UNDEFINED;
-template <> const Vector2<uint> Vector2<uint>::UNDEFINED;
-template <> const Vector2<ushort> Vector2<ushort>::UNDEFINED;
+template<> Vector2<double> const Vector2<double>::UNDEFINED(UNDEFINED_DOUBLE, UNDEFINED_DOUBLE);
+template<> Vector2<float>  const Vector2<float>::UNDEFINED(UNDEFINED_FLOAT, UNDEFINED_FLOAT);
+template<> Vector2<int>    const Vector2<int>::UNDEFINED(UNDEFINED_INT, UNDEFINED_INT);
 
 }
 

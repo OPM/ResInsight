@@ -158,11 +158,10 @@ typedef Vector3<uint>   Vec3ui;  ///< A vector with uint components
 typedef Vector3<size_t> Vec3st;  ///< A vector with size_t components
 
 // Required by c++20
-template <> const Vector3<float> Vector3<float>::UNDEFINED;
-template <> const Vector3<double> Vector3<double>::UNDEFINED;
-template <> const Vector3<int> Vector3<int>::UNDEFINED;
-template <> const Vector3<uint> Vector3<uint>::UNDEFINED;
-template <> const Vector3<size_t> Vector3<size_t>::UNDEFINED;
+template<> Vector3<double> const Vector3<double>::UNDEFINED(UNDEFINED_DOUBLE, UNDEFINED_DOUBLE, UNDEFINED_DOUBLE);
+template<> Vector3<float>  const Vector3<float>::UNDEFINED(UNDEFINED_FLOAT, UNDEFINED_FLOAT, UNDEFINED_FLOAT);
+template<> Vector3<int>    const Vector3<int>::UNDEFINED(UNDEFINED_INT, UNDEFINED_INT, UNDEFINED_INT);
+template<> Vector3<size_t> const Vector3<size_t>::UNDEFINED(UNDEFINED_SIZE_T, UNDEFINED_SIZE_T, UNDEFINED_SIZE_T);
 
 }
 
