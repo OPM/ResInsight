@@ -51,6 +51,8 @@
 
 #include "cvfScalarMapper.h"
 
+#include <QPainter>
+
 CAF_PDM_SOURCE_INIT( RimWellConnectivityTable, "RimWellConnectivityTable" );
 
 //--------------------------------------------------------------------------------------------------
@@ -784,7 +786,12 @@ QString RimWellConnectivityTable::description() const
 //--------------------------------------------------------------------------------------------------
 void RimWellConnectivityTable::doRenderWindowContent( QPaintDevice* paintDevice )
 {
-    return;
+    // Note: Not tested yet!
+    if ( m_matrixPlotWidget )
+    {
+        QPainter painter( paintDevice );
+        m_matrixPlotWidget->render( &painter );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
