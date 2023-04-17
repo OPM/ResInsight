@@ -154,6 +154,7 @@ private:
     // All other data access assumes all time steps are loaded at the same time
     friend class RimEclipseStatisticsCaseEvaluator;
     friend class RigSoilResultCalculator;
+    friend class RigFaultDistanceResultCalculator;
     size_t findOrLoadKnownScalarResultForTimeStep( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex );
 
     size_t findOrCreateScalarResultIndex( const RigEclipseResultAddress& resVarAddr, bool needsToBeStored );
