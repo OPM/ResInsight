@@ -35,6 +35,7 @@
 #include "RigEclipseResultInfo.h"
 #include "RigFormationNames.h"
 #include "RigMainGrid.h"
+#include "RigSoilResultCalculator.h"
 #include "RigStatisticsDataCache.h"
 #include "RigStatisticsMath.h"
 
@@ -801,7 +802,7 @@ const std::vector<double>* RigCaseCellResultsData::getResultIndexableStaticResul
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const std::vector<RigEclipseResultInfo>& RigCaseCellResultsData::infoForEachResultIndex()
+const std::vector<RigEclipseResultInfo>& RigCaseCellResultsData::infoForEachResultIndex() const
 {
     return m_resultInfos;
 }
@@ -1440,7 +1441,7 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RigCaseCellResultsData::findOrLoadKnownScalarResultByResultTypeOrder( const RigEclipseResultAddress& resVarAddr,
+size_t RigCaseCellResultsData::findOrLoadKnownScalarResultByResultTypeOrder( const RigEclipseResultAddress&                resVarAddr,
                                                                              const std::vector<RiaDefines::ResultCatType>& resultCategorySearchOrder )
 {
     std::set<RiaDefines::ResultCatType> otherResultTypesToSearch = { RiaDefines::ResultCatType::STATIC_NATIVE,
@@ -1585,120 +1586,9 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResultForTimeStep( const Rig
 //--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::computeSOILForTimeStep( size_t timeStepIndex )
 {
-    // Compute SGAS based on SWAT if the simulation contains no oil
-    testAndComputeSgasForTimeStep( timeStepIndex );
-
-    RigEclipseResultAddress SWATAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::swat() );
-    RigEclipseResultAddress SGASAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() );
-    RigEclipseResultAddress SSOLAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SSOL" );
-
-    size_t scalarIndexSWAT =
-        findOrLoadKnownScalarResultForTimeStep( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::swat() ),
-                                                timeStepIndex );
-    size_t scalarIndexSGAS =
-        findOrLoadKnownScalarResultForTimeStep( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() ),
-                                                timeStepIndex );
-    size_t scalarIndexSSOL =
-        findOrLoadKnownScalarResultForTimeStep( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SSOL" ), timeStepIndex );
-
-    // Early exit if none of SWAT or SGAS is present
-    if ( scalarIndexSWAT == cvf::UNDEFINED_SIZE_T && scalarIndexSGAS == cvf::UNDEFINED_SIZE_T )
-    {
-        return;
-    }
-
-    size_t soilResultValueCount = 0;
-    size_t soilTimeStepCount    = 0;
-
-    if ( scalarIndexSWAT != cvf::UNDEFINED_SIZE_T )
-    {
-        const std::vector<double>& swatForTimeStep = this->cellScalarResults( SWATAddr, timeStepIndex );
-        if ( swatForTimeStep.size() > 0 )
-        {
-            soilResultValueCount = swatForTimeStep.size();
-            soilTimeStepCount    = this->infoForEachResultIndex()[scalarIndexSWAT].timeStepInfos().size();
-        }
-    }
-
-    if ( scalarIndexSGAS != cvf::UNDEFINED_SIZE_T )
-    {
-        const std::vector<double>& sgasForTimeStep = this->cellScalarResults( SGASAddr, timeStepIndex );
-        if ( sgasForTimeStep.size() > 0 )
-        {
-            soilResultValueCount = qMax( soilResultValueCount, sgasForTimeStep.size() );
-
-            size_t sgasTimeStepCount = this->infoForEachResultIndex()[scalarIndexSGAS].timeStepInfos().size();
-            soilTimeStepCount        = qMax( soilTimeStepCount, sgasTimeStepCount );
-        }
-    }
-
-    // Make sure memory is allocated for the new SOIL results
     RigEclipseResultAddress SOILAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() );
-    size_t                  soilResultScalarIndex = this->findScalarResultIndexFromAddress( SOILAddr );
-    m_cellScalarResults[soilResultScalarIndex].resize( soilTimeStepCount );
-
-    if ( this->cellScalarResults( SOILAddr, timeStepIndex ).size() > 0 )
-    {
-        // Data is computed and allocated, nothing more to do
-        return;
-    }
-
-    m_cellScalarResults[soilResultScalarIndex][timeStepIndex].resize( soilResultValueCount );
-
-    const std::vector<double>* swatForTimeStep = nullptr;
-    const std::vector<double>* sgasForTimeStep = nullptr;
-    const std::vector<double>* ssolForTimeStep = nullptr;
-
-    if ( scalarIndexSWAT != cvf::UNDEFINED_SIZE_T )
-    {
-        swatForTimeStep = &( this->cellScalarResults( SWATAddr, timeStepIndex ) );
-        if ( swatForTimeStep->size() == 0 )
-        {
-            swatForTimeStep = nullptr;
-        }
-    }
-
-    if ( scalarIndexSGAS != cvf::UNDEFINED_SIZE_T )
-    {
-        sgasForTimeStep = &( this->cellScalarResults( SGASAddr, timeStepIndex ) );
-        if ( sgasForTimeStep->size() == 0 )
-        {
-            sgasForTimeStep = nullptr;
-        }
-    }
-
-    if ( scalarIndexSSOL != cvf::UNDEFINED_SIZE_T )
-    {
-        ssolForTimeStep = &( this->cellScalarResults( SSOLAddr, timeStepIndex ) );
-        if ( ssolForTimeStep->size() == 0 )
-        {
-            ssolForTimeStep = nullptr;
-        }
-    }
-
-    std::vector<double>* soilForTimeStep = this->modifiableCellScalarResult( SOILAddr, timeStepIndex );
-
-#pragma omp parallel for
-    for ( int idx = 0; idx < static_cast<int>( soilResultValueCount ); idx++ )
-    {
-        double soilValue = 1.0;
-        if ( sgasForTimeStep )
-        {
-            soilValue -= sgasForTimeStep->at( idx );
-        }
-
-        if ( swatForTimeStep )
-        {
-            soilValue -= swatForTimeStep->at( idx );
-        }
-
-        if ( ssolForTimeStep )
-        {
-            soilValue -= ssolForTimeStep->at( idx );
-        }
-
-        soilForTimeStep->at( idx ) = soilValue;
-    }
+    RigSoilResultCalculator calculator( *this );
+    calculator.calculate( SOILAddr, timeStepIndex );
 }
 
 //--------------------------------------------------------------------------------------------------
