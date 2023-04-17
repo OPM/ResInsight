@@ -147,6 +147,7 @@ std::set<QString, RimFlowDiagnosticsTools::TracerComp>
         {
             for ( const auto& timeStepIndex : timeStepIndices )
             {
+                if ( timeStepIndex < 0 ) continue;
                 std::pair<double, double> commFluxes =
                     flowSol->flowDiagResults()->injectorProducerPairFluxes( injector.toStdString(), producer.toStdString(), timeStepIndex );
                 if ( std::abs( commFluxes.first ) > epsilon || std::abs( commFluxes.second ) > epsilon )
@@ -167,6 +168,8 @@ std::set<QString, RimFlowDiagnosticsTools::TracerComp>
                                                                 const std::vector<QString>& producerTracers,
                                                                 int                         timeStepIndex )
 {
+    if ( timeStepIndex < 0 ) return {};
+
     const auto timeStepIndices = std::vector<int>( { timeStepIndex } );
     return setOfInjectorTracersFromProducers( flowSol, producerTracers, timeStepIndices );
 }
@@ -191,6 +194,7 @@ std::set<QString, RimFlowDiagnosticsTools::TracerComp>
         {
             for ( const auto& timeStepIndex : timeStepIndices )
             {
+                if ( timeStepIndex < 0 ) continue;
                 std::pair<double, double> commFluxes =
                     flowSol->flowDiagResults()->injectorProducerPairFluxes( injector.toStdString(), producer.toStdString(), timeStepIndex );
                 if ( std::abs( commFluxes.first ) > epsilon || std::abs( commFluxes.second ) > epsilon )
@@ -211,6 +215,8 @@ std::set<QString, RimFlowDiagnosticsTools::TracerComp>
                                                                 const std::vector<QString>& injectorTracers,
                                                                 int                         timeStepIndex )
 {
+    if ( timeStepIndex < 0 ) return {};
+
     const auto timeStepIndices = std::vector<int>( { timeStepIndex } );
     return setOfProducerTracersFromInjectors( flowSol, injectorTracers, timeStepIndices );
 }

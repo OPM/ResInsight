@@ -822,7 +822,8 @@ std::vector<QString> RimWellConnectivityTable::getProductionWellNames() const
     if ( m_timeStepSelection == TimeStepSelection::SINGLE_TIME_STEP )
     {
         const auto timeStepIndex = getTimeStepIndex( m_selectedTimeStep, m_case->timeStepDates() );
-        productionWellNames      = RimFlowDiagnosticsTools::producerTracersInTimeStep( m_flowDiagSolution(), timeStepIndex );
+        productionWellNames      = timeStepIndex < 0 ? std::vector<QString>()
+                                                     : RimFlowDiagnosticsTools::producerTracersInTimeStep( m_flowDiagSolution(), timeStepIndex );
     }
     else if ( m_timeStepSelection == TimeStepSelection::TIME_STEP_RANGE )
     {
@@ -844,7 +845,6 @@ std::vector<QString> RimWellConnectivityTable::getProductionWellNamesAtTimeSteps
     for ( const auto& timeStep : timeSteps )
     {
         const auto timeStepIndex = getTimeStepIndex( timeStep, allTimeSteps );
-
         if ( timeStepIndex < 0 ) continue;
 
         const auto producers = RimFlowDiagnosticsTools::producerTracersInTimeStep( m_flowDiagSolution(), timeStepIndex );
@@ -1015,7 +1015,7 @@ void RimWellConnectivityTable::setSelectedProducersAndInjectorsForSingleTimeStep
     if ( !m_case || !m_flowDiagSolution || !m_selectedTimeStep().isValid() ) return;
 
     const int timeStepIndex = getTimeStepIndex( m_selectedTimeStep, m_case->timeStepDates() );
-    if ( timeStepIndex == -1 )
+    if ( timeStepIndex < 0 )
     {
         m_selectedProducerTracersUiField.setValueWithFieldChanged( {} );
         m_selectedInjectorTracersUiField.setValueWithFieldChanged( {} );
@@ -1048,7 +1048,9 @@ void RimWellConnectivityTable::setSelectedProducersAndInjectorsForTimeStepRange(
     {
         if ( excludedTimeSteps.contains( timeStep ) ) continue;
 
-        const auto timeStepIndex     = getTimeStepIndex( timeStep, allTimeSteps );
+        const auto timeStepIndex = getTimeStepIndex( timeStep, allTimeSteps );
+        if ( timeStepIndex < 0 ) continue;
+
         const auto timeStepProducers = RimFlowDiagnosticsTools::producerTracersInTimeStep( m_flowDiagSolution, timeStepIndex );
         const auto timeStepInjectors = RimFlowDiagnosticsTools::injectorTracersInTimeStep( m_flowDiagSolution, timeStepIndex );
 
@@ -1072,9 +1074,11 @@ void RimWellConnectivityTable::syncSelectedInjectorsFromProducerSelection()
     if ( m_timeStepSelection == TimeStepSelection::SINGLE_TIME_STEP )
     {
         const auto timeStepIndex = getTimeStepIndex( m_selectedTimeStep, m_case->timeStepDates() );
-        const auto newInjectors  = RimFlowDiagnosticsTools::setOfInjectorTracersFromProducers( m_flowDiagSolution(),
-                                                                                              m_selectedProducerTracersUiField(),
-                                                                                              timeStepIndex );
+        const auto newInjectors  = timeStepIndex < 0
+                                       ? std::set<QString, RimFlowDiagnosticsTools::TracerComp>()
+                                       : RimFlowDiagnosticsTools::setOfInjectorTracersFromProducers( m_flowDiagSolution(),
+                                                                                                    m_selectedProducerTracersUiField(),
+                                                                                                    timeStepIndex );
 
         injectors = std::vector<QString>( newInjectors.begin(), newInjectors.end() );
         injectors.push_back( RiaDefines::reservoirTracerName() );
@@ -1086,7 +1090,10 @@ void RimWellConnectivityTable::syncSelectedInjectorsFromProducerSelection()
         std::vector<int>          timeStepIndices;
         for ( const auto& timeStep : selectedTimeSteps )
         {
-            timeStepIndices.push_back( getTimeStepIndex( timeStep, allTimeSteps ) );
+            const auto timeStepIndex = getTimeStepIndex( timeStep, allTimeSteps );
+            if ( timeStepIndex < 0 ) continue;
+
+            timeStepIndices.push_back( timeStepIndex );
         }
         const auto newInjectors = RimFlowDiagnosticsTools::setOfInjectorTracersFromProducers( m_flowDiagSolution(),
                                                                                               m_selectedProducerTracersUiField(),
@@ -1108,9 +1115,11 @@ void RimWellConnectivityTable::syncSelectedProducersFromInjectorSelection()
     if ( m_timeStepSelection == TimeStepSelection::SINGLE_TIME_STEP )
     {
         const auto timeStepIndex = getTimeStepIndex( m_selectedTimeStep, m_case->timeStepDates() );
-        const auto newProducers  = RimFlowDiagnosticsTools::setOfProducerTracersFromInjectors( m_flowDiagSolution(),
-                                                                                              m_selectedInjectorTracersUiField(),
-                                                                                              timeStepIndex );
+        const auto newProducers  = timeStepIndex < 0
+                                       ? std::set<QString, RimFlowDiagnosticsTools::TracerComp>()
+                                       : RimFlowDiagnosticsTools::setOfProducerTracersFromInjectors( m_flowDiagSolution(),
+                                                                                                    m_selectedInjectorTracersUiField(),
+                                                                                                    timeStepIndex );
 
         producers = std::vector<QString>( newProducers.begin(), newProducers.end() );
     }
@@ -1121,7 +1130,10 @@ void RimWellConnectivityTable::syncSelectedProducersFromInjectorSelection()
         std::vector<int>    timeStepIndices;
         for ( const auto& timeStep : selectedTimeSteps )
         {
-            timeStepIndices.push_back( getTimeStepIndex( timeStep, allTimeSteps ) );
+            const auto timeStepIndex = getTimeStepIndex( timeStep, allTimeSteps );
+            if ( timeStepIndex < 0 ) continue;
+
+            timeStepIndices.push_back( timeStepIndex );
         }
         const auto newProducers = RimFlowDiagnosticsTools::setOfProducerTracersFromInjectors( m_flowDiagSolution(),
                                                                                               m_selectedInjectorTracersUiField(),
@@ -1322,6 +1334,8 @@ RigWellAllocationOverTime RimWellConnectivityTable::createWellAllocationOverTime
             }
 
             const auto timeStepIndex = getTimeStepIndex( timeStep, allTimeSteps );
+            if ( timeStepIndex < 0 ) continue;
+
             createAndEmplaceTimeStepAndCalculatorPairInMap( timeStepAndCalculatorPairs, timeStep, timeStepIndex, simWellData );
         }
 
@@ -1350,6 +1364,8 @@ RigWellAllocationOverTime RimWellConnectivityTable::createWellAllocationOverTime
     if ( m_timeStepSelection() == TimeStepSelection::SINGLE_TIME_STEP )
     {
         const auto timeStepIndex = getTimeStepIndex( m_selectedTimeStep(), allTimeSteps );
+        if ( timeStepIndex < 0 ) return RigWellAllocationOverTime( {}, {} );
+
         createAndEmplaceTimeStepAndCalculatorPairInMap( timeStepAndCalculatorPairs, m_selectedTimeStep(), timeStepIndex, simWellData );
 
         // Create well allocation over time data
