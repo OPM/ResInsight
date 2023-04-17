@@ -131,6 +131,14 @@ size_t RigEclipseResultInfo::gridScalarResultIndex() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const RigEclipseResultAddress& RigEclipseResultInfo::eclipseResultAddress() const
+{
+    return m_resultAddress;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 const std::vector<RigEclipseTimeStepInfo>& RigEclipseResultInfo::timeStepInfos() const
 {
     return m_timeStepInfos;
