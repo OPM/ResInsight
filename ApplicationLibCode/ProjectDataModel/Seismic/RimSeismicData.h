@@ -35,7 +35,7 @@
 class RimGenericParameter;
 class RimSeismicAlphaMapper;
 class RimRegularLegendConfig;
-class RifSeismicZGYReader;
+class RifSeismicReader;
 
 namespace cvf
 {
@@ -140,6 +140,6 @@ private:
 
     std::shared_ptr<RimSeismicAlphaMapper> m_alphaValueMapper;
 
-    std::shared_ptr<RifSeismicZGYReader> m_filereader;
-    int                                  m_nErrorsLogged;
+    std::shared_ptr<RifSeismicReader> m_filereader;
+    int                               m_nErrorsLogged;
 };

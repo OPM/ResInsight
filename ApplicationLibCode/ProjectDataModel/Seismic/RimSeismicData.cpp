@@ -22,6 +22,10 @@
 
 #include "RifSeismicZGYReader.h"
 
+#ifdef USE_OPENVDS
+#include "RifOpenVDSReader.h"
+#endif
+
 #include "RimRegularLegendConfig.h"
 #include "RimSeismicAlphaMapper.h"
 #include "RimStringParameter.h"
@@ -37,6 +41,8 @@
 
 #include "cvfBoundingBox.h"
 
+#include <QFile>
+#include <QFileInfo>
 #include <QValidator>
 
 #include <algorithm>
@@ -99,19 +105,32 @@ RimSeismicData::~RimSeismicData()
 //--------------------------------------------------------------------------------------------------
 bool RimSeismicData::openFileIfNotOpen()
 {
-    if ( m_filereader == nullptr )
-    {
-        m_filereader = std::make_shared<RifSeismicZGYReader>();
-    }
-
-    if ( m_filereader->isOpen() ) return true;
+    if ( ( m_filereader != nullptr ) && m_filereader->isOpen() ) return true;
 
     QString filename = m_filename().path();
-
     if ( filename.isEmpty() ) return false;
 
     if ( QFile::exists( filename ) )
     {
+        QFileInfo fi( filename );
+
+        if ( fi.suffix().toLower() == "zgy" )
+        {
+            m_filereader = std::make_shared<RifSeismicZGYReader>();
+        }
+#ifdef USE_OPENVDS
+        else if ( fi.suffix().toLower() == "vds" )
+        {
+            m_filereader = std::make_shared<RifOpenVDSReader>();
+        }
+#endif
+        else
+        {
+            m_filereader.reset();
+            logError( "Unknown seismic file type: " + filename );
+            return false;
+        }
+
         if ( !m_filereader->open( filename ) )
         {
             logError( "Unable to open seismic file : " + filename );
