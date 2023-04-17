@@ -153,6 +153,7 @@ private:
     // Add a friend class, as this way of loading data requires careful management of state
     // All other data access assumes all time steps are loaded at the same time
     friend class RimEclipseStatisticsCaseEvaluator;
+    friend class RigSoilResultCalculator;
     size_t findOrLoadKnownScalarResultForTimeStep( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex );
 
     size_t findOrCreateScalarResultIndex( const RigEclipseResultAddress& resVarAddr, bool needsToBeStored );
@@ -161,7 +162,7 @@ private:
 
     size_t addStaticScalarResult( RiaDefines::ResultCatType type, const QString& resultName, bool needsToBeStored, size_t resultValueCount );
 
-    const std::vector<RigEclipseResultInfo>& infoForEachResultIndex();
+    const std::vector<RigEclipseResultInfo>& infoForEachResultIndex() const;
     size_t                                   resultCount() const;
 
     bool mustBeCalculated( size_t scalarResultIndex ) const;
