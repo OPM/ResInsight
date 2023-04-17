@@ -329,13 +329,15 @@ if(NOT ${RESINSIGHT_OPENVDS_API_DIR} EQUAL "")
   set(RESINSIGHT_USE_OPENVDS_API 1)
   message(STATUS "Using OpenVDS api from : ${RESINSIGHT_OPENVDS_API_DIR}")
 
-  if (MSVC)
-    list(APPEND EXTERNAL_LINK_LIBRARIES ${RESINSIGHT_OPENVDS_API_DIR}/lib/segyutils.lib
-         ${RESINSIGHT_OPENVDS_API_DIR}/lib/openvds.lib 
+  if(MSVC)
+    list(APPEND EXTERNAL_LINK_LIBRARIES
+         ${RESINSIGHT_OPENVDS_API_DIR}/lib/segyutils.lib
+         ${RESINSIGHT_OPENVDS_API_DIR}/lib/openvds.lib
     )
   else()
-    list(APPEND EXTERNAL_LINK_LIBRARIES ${RESINSIGHT_OPENVDS_API_DIR}/lib/libsegyutils.so
-         ${RESINSIGHT_OPENVDS_API_DIR}/lib/libopenvds.so 
+    list(APPEND EXTERNAL_LINK_LIBRARIES
+         ${RESINSIGHT_OPENVDS_API_DIR}/lib/libsegyutils.so
+         ${RESINSIGHT_OPENVDS_API_DIR}/lib/libopenvds.so
     )
   endif()
 endif()

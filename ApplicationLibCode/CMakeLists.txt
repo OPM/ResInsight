@@ -257,11 +257,10 @@ list(APPEND RI_LIBRARIES RigGeoMechDataModel)
 
 #
 # OpenVDS
-# 
-if (RESINSIGHT_USE_OPENVDS_API)
-  set(OPENVDS_FILES
-      FileInterface/RifOpenVDSReader.h
-      FileInterface/RifOpenVDSReader.cpp
+#
+if(RESINSIGHT_USE_OPENVDS_API)
+  set(OPENVDS_FILES FileInterface/RifOpenVDSReader.h
+                    FileInterface/RifOpenVDSReader.cpp
   )
 
   list(APPEND CPP_SOURCES ${OPENVDS_FILES})
