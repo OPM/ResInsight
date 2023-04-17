@@ -47,7 +47,7 @@ void RigTexturedSection::setWhatToUpdate( WhatToUpdateEnum updateInfo, int index
     if ( index < 0 )
     {
         start = 0;
-        stop  = m_sectionParts.size();
+        stop  = static_cast<int>( m_sectionParts.size() );
     }
 
     for ( int i = start; i < stop; i++ )
@@ -94,7 +94,7 @@ bool RigTexturedSection::isValid() const
 //--------------------------------------------------------------------------------------------------
 int RigTexturedSection::partsCount() const
 {
-    return m_sectionParts.size();
+    return static_cast<int>( m_sectionParts.size() );
 }
 
 //--------------------------------------------------------------------------------------------------

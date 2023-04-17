@@ -57,7 +57,7 @@ bool RifSeismicZGYReader::open( QString filename )
             return false;
         }
     }
-    catch ( const std::exception& err )
+    catch ( const std::exception& )
     {
         m_reader.reset();
         return false;

@@ -151,7 +151,7 @@ void RifOpmGridTools::transferCoordinates( Opm::EclIO::EGrid& opmMainGrid, Opm::
 
     std::vector<cvf::Vec3d> snapToCoordinatesFromMainGrid;
 
-    for ( size_t opmCellIndex = 0; opmCellIndex < cellCount; opmCellIndex++ )
+    for ( int opmCellIndex = 0; opmCellIndex < static_cast<int>( cellCount ); opmCellIndex++ )
     {
         opmGrid.getCellCorners( opmCellIndex, opmX, opmY, opmZ );
 
@@ -223,7 +223,7 @@ void RifOpmGridTools::transferCoordinates( Opm::EclIO::EGrid& opmMainGrid, Opm::
                     {
                         const auto& pillarCordinates = candidates[closestPillarIndex];
 
-                        int layerCount               = pillarCordinates.size() / 2;
+                        int layerCount               = static_cast<int>( pillarCordinates.size() / 2 );
                         int layerIndexInMainGridCell = ijkCell[2] % layerCount;
                         int localNodeIndex           = opmNodeIndex % 8;
 
@@ -282,7 +282,7 @@ std::map<int, std::pair<double, double>>
             auto mainGridCellIndex = hostCellGlobalIndices[cIdx];
             opmMainGrid.getCellCorners( mainGridCellIndex, opmX, opmY, opmZ );
 
-            auto ijkLocalGrid = opmGrid.ijk_from_global_index( cIdx );
+            auto ijkLocalGrid = opmGrid.ijk_from_global_index( static_cast<int>( cIdx ) );
             auto layer        = ijkLocalGrid[2];
 
             // Four corners for top

@@ -74,7 +74,6 @@ void RicCreateDepthAdjustedLasFilesFeature::onActionTriggered( bool isChecked )
         {
             RimCase*                  selectedCase             = featureUi.selectedCase();
             RimWellPath*              sourceWell               = featureUi.sourceWell();
-            RimWellLogFile*           sourceWellLogFile        = featureUi.wellLogFile();
             std::vector<RimWellPath*> destinationWells         = featureUi.destinationWells().ptrReferencedObjects();
             std::vector<QString>      selectedResultProperties = featureUi.selectedResultProperties();
             QString                   exportFolder             = featureUi.exportFolder();
@@ -146,7 +145,6 @@ void RicCreateDepthAdjustedLasFilesFeature::createDepthAdjustedWellLogFileFromGe
 {
     if ( sourceWell->wellLogFiles().empty() ) return;
 
-    auto*                                wellLogFileData     = sourceWell->wellLogFiles()[0]->wellLogFileData();
     RimWellLogPlotCollection*            wellLogCollection   = RimMainPlotCollection::current()->wellLogPlotCollection();
     cvf::ref<RigGeoMechWellLogExtractor> sourceWellExtractor = wellLogCollection->findOrCreateExtractor( sourceWell, geoMechCase );
     if ( sourceWellExtractor.isNull() )

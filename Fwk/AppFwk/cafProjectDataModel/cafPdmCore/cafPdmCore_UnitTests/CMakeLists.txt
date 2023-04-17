@@ -37,6 +37,14 @@ set(PROJECT_FILES
 # add the executable
 add_executable(${PROJECT_NAME} ${PROJECT_FILES})
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+
+  target_compile_options(
+    cafPdmCore_UnitTests PRIVATE -Wno-ambiguous-reversed-operator
+                                 -Wno-invalid-source-encoding
+  )
+endif()
+
 source_group("" FILES ${PROJECT_FILES})
 
 if(Qt5Core_FOUND)

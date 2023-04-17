@@ -59,7 +59,7 @@ std::vector<double> RigDepthResultAccessor::resultValues( RigEclipseCaseData*   
 
             for ( auto k : kvals )
             {
-                int    tmpCellIdx = grid->cellIndexFromIJK( i, j, k );
+                size_t tmpCellIdx = grid->cellIndexFromIJK( i, j, k );
                 double tmpVal     = 0.0;
 
                 if ( !activeCellInfo->isActive( tmpCellIdx ) )
@@ -91,7 +91,7 @@ std::vector<double> RigDepthResultAccessor::resultValues( RigEclipseCaseData*   
 std::vector<int> RigDepthResultAccessor::kValues( RigEclipseCaseData* eclipseCaseData, int gridIndex )
 {
     std::vector<int> kvals;
-    int              maxK = eclipseCaseData->grid( gridIndex )->cellCountK();
+    int              maxK = static_cast<int>( eclipseCaseData->grid( gridIndex )->cellCountK() );
 
     for ( int i = 0; i < maxK; i++ )
     {
@@ -115,7 +115,7 @@ std::vector<double> RigDepthResultAccessor::depthValues( RigEclipseCaseData* ecl
 
     if ( grid->ijkFromCellIndex( startCellIndex, &i, &j, &dummy ) )
     {
-        int maxK = grid->cellCountK();
+        int maxK = static_cast<int>( grid->cellCountK() );
 
         for ( int k = 0; k < maxK; k++ )
         {

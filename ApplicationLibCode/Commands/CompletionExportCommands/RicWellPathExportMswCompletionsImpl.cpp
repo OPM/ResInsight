@@ -761,8 +761,6 @@ void RicWellPathExportMswCompletionsImpl::generateFishbonesMswExportInfoForWell(
     auto   cellIntersections = generateCellSegments( eclipseCase, wellPath );
     double initialMD         = computeIntitialMeasuredDepth( eclipseCase, wellPath, mswParameters, cellIntersections );
 
-    RiaDefines::EclipseUnitSystem unitSystem = eclipseCase->eclipseCaseData()->unitsType();
-
     bool enableSegmentSplitting = false;
     generateFishbonesMswExportInfo( eclipseCase, wellPath, initialMD, cellIntersections, enableSegmentSplitting, exportInfo, branch );
 }
@@ -777,8 +775,7 @@ bool RicWellPathExportMswCompletionsImpl::generateFracturesMswExportInfo( RimEcl
                                                                           gsl::not_null<RicMswExportInfo*> exportInfo,
                                                                           gsl::not_null<RicMswBranch*>     branch )
 {
-    auto mswParameters = wellPath->mswCompletionParameters();
-    auto fractures     = wellPath->fractureCollection()->activeFractures();
+    auto fractures = wellPath->fractureCollection()->activeFractures();
 
     std::vector<WellPathCellIntersectionInfo> filteredIntersections =
         filterIntersections( cellIntersections, initialMD, wellPath->wellPathGeometry(), eclipseCase );
@@ -922,8 +919,6 @@ bool RicWellPathExportMswCompletionsImpl::generatePerforationsMswExportInfo( Rim
 std::vector<WellPathCellIntersectionInfo> RicWellPathExportMswCompletionsImpl::generateCellSegments( const RimEclipseCase* eclipseCase,
                                                                                                      const RimWellPath*    wellPath )
 {
-    const RigActiveCellInfo* activeCellInfo = eclipseCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-
     auto wellPathGeometry = wellPath->wellPathGeometry();
     CVF_ASSERT( wellPathGeometry );
 
@@ -1185,9 +1180,6 @@ void RicWellPathExportMswCompletionsImpl::createValveCompletions( gsl::not_null<
 
                     double exportStartTVD = RicMswTableFormatterTools::tvdFromMeasuredDepth( wellPath, exportStartMD );
                     double exportEndTVD   = RicMswTableFormatterTools::tvdFromMeasuredDepth( wellPath, exportEndMD );
-
-                    double overlapStartTVD = RicMswTableFormatterTools::tvdFromMeasuredDepth( wellPath, overlapStart );
-                    double overlapEndTVD   = RicMswTableFormatterTools::tvdFromMeasuredDepth( wellPath, overlapEnd );
 
                     if ( segment->startMD() <= valveMD && valveMD < segment->endMD() )
                     {

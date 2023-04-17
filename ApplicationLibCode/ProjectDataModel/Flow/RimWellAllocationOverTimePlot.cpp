@@ -454,11 +454,11 @@ RigWellAllocationOverTime RimWellAllocationOverTimePlot::createWellAllocationOve
         }
 
         std::map<QString, const std::vector<double>*> tracerFractionCellValues =
-            RimWellAllocationTools::findOrCreateRelevantTracerCellFractions( simWellData, m_flowDiagSolution, i );
+            RimWellAllocationTools::findOrCreateRelevantTracerCellFractions( simWellData, m_flowDiagSolution, static_cast<int>( i ) );
 
         auto simWellBranches = RigSimulationWellCenterLineCalculator::calculateWellPipeCenterlineForTimeStep( m_case->eclipseCaseData(),
                                                                                                               simWellData,
-                                                                                                              i,
+                                                                                                              static_cast<int>( i ),
                                                                                                               branchDetection,
                                                                                                               true );
 

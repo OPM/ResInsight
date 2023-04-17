@@ -58,8 +58,7 @@ bool RicImportEnsembleWellLogsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicImportEnsembleWellLogsFeature::onActionTriggered( bool isChecked )
 {
-    RiaApplication* app               = RiaApplication::instance();
-    QString         pathCacheName     = "ENSEMBLE_WELL_LOGS_FILES";
+    QString pathCacheName             = "ENSEMBLE_WELL_LOGS_FILES";
     auto [fileNames, groupByEnsemble] = runRecursiveFileSearchDialog( "Import Ensemble Well Logs", pathCacheName );
     if ( fileNames.isEmpty() ) return;
 

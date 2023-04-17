@@ -86,7 +86,6 @@ private:
     };
 
     std::multiset<BarEntry>   m_sortedBarEntries;
-    Qt::Orientation           m_orientation;
     std::map<QString, QColor> m_legendColors;
     bool                      m_isSortingByMaxValueInGroups;
     int                       m_labelPointSize;

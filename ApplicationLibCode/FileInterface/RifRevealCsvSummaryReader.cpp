@@ -21,9 +21,10 @@
 #include "RifCsvUserDataParser.h"
 #include "RifRevealCsvSectionSummaryReader.h"
 
+#include "RiaTextStringTools.h"
+
 #include <QFile>
 #include <QTextStream>
-#include <Qt>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -55,7 +56,7 @@ std::pair<bool, QString> RifRevealCsvSummaryReader::parse( const QString& fileNa
 
     // Split files on strange header line (starts with ",Date").
     QString     fileContents = in.readAll();
-    QStringList parts        = fileContents.split( ",Date", QString::SkipEmptyParts );
+    QStringList parts        = RiaTextStringTools::splitSkipEmptyParts( fileContents, ",Date" );
 
     // Parse each section separately
     bool isFirst = true;

@@ -51,8 +51,8 @@ void RicNewCustomObjectiveFunctionFeature::onActionTriggered( bool isChecked )
 
     if ( coll.size() == 1 )
     {
-        RimCustomObjectiveFunction*       newFunc   = coll[0]->addObjectiveFunction();
-        RimCustomObjectiveFunctionWeight* newWeight = RimObjectiveFunctionTools::addWeight( newFunc );
+        RimCustomObjectiveFunction* newFunc = coll[0]->addObjectiveFunction();
+        RimObjectiveFunctionTools::addWeight( newFunc );
         coll[0]->updateConnectedEditors();
         RiuPlotMainWindowTools::selectAsCurrentItem( newFunc );
         RiuPlotMainWindowTools::setExpanded( coll.front() );

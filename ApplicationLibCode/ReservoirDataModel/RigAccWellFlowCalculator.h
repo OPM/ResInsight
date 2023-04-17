@@ -130,9 +130,6 @@ private:
     bool                                                 m_isProducer;
     bool                                                 m_useTotalWellPhaseRateOnly;
 
-    cvf::UByteArray* m_cellVisibilities = nullptr;
-    RigMainGrid*     m_mainGrid         = nullptr;
-
     struct BranchFlow
     {
         std::vector<double>                    depthValuesFromTop;

@@ -72,7 +72,7 @@ std::list<QMdiSubWindow*> RiuMdiArea::subWindowListSortedByPosition()
     // Sort of list so we first sort by window position but retain activation order
     // for windows with the same position
     windowList.sort(
-        [this]( QMdiSubWindow* lhs, QMdiSubWindow* rhs )
+        []( QMdiSubWindow* lhs, QMdiSubWindow* rhs )
         {
             if ( lhs->frameGeometry().topLeft().rx() == rhs->frameGeometry().topLeft().rx() )
             {
@@ -95,7 +95,7 @@ std::list<QMdiSubWindow*> RiuMdiArea::subWindowListSortedByVerticalPosition()
     }
 
     windowList.sort(
-        [this]( QMdiSubWindow* lhs, QMdiSubWindow* rhs )
+        []( QMdiSubWindow* lhs, QMdiSubWindow* rhs )
         {
             if ( lhs->frameGeometry().topLeft().ry() == rhs->frameGeometry().topLeft().ry() )
             {

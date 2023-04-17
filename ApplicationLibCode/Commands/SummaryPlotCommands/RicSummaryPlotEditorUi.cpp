@@ -852,8 +852,6 @@ void RicSummaryPlotEditorUi::updateAppearanceEditor()
 //--------------------------------------------------------------------------------------------------
 void RicSummaryPlotEditorUi::createNewPlot()
 {
-    RimProject* proj = RimProject::current();
-
     RimSummaryPlot* newSummaryPlot = nullptr;
 
     if ( !m_plotContainer )

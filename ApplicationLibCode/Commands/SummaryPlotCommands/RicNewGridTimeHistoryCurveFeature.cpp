@@ -87,8 +87,6 @@ RimSummaryPlot* RicNewGridTimeHistoryCurveFeature::userSelectedSummaryPlot()
 
     const QString lastUsedSummaryPlotKey( "lastUsedSummaryPlotKey" );
 
-    RimSummaryMultiPlotCollection* summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
-
     RimSummaryPlot* defaultSelectedPlot = nullptr;
     {
         QString         lastUsedPlotRef = app->cacheDataObject( lastUsedSummaryPlotKey ).toString();

@@ -89,11 +89,8 @@ RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSea
         dialog.m_fileFilterField->addItem( fileNameFilter );
         dialog.m_pathFilterField->addItem( QDir::toNativeSeparators( pathFilterText ) );
 
-        for ( const auto& s : fileExtensions )
-        {
-            QString joined = fileExtensions.join( '|' );
-            dialog.m_fileExtensionsField->setText( joined );
-        }
+        QString joined = fileExtensions.join( '|' );
+        dialog.m_fileExtensionsField->setText( joined );
 
         dialog.m_fileFilterField->addItem( fileNameFilter );
 
@@ -413,8 +410,8 @@ void RicRecursiveFileSearchDialog::updateFileListWidget()
         std::vector<QStringList> groupedByEnsemble = RiaEnsembleNameTools::groupFilesByEnsemble( m_foundFiles, ensembleGroupingMode() );
         for ( const QStringList& groupedFileNames : groupedByEnsemble )
         {
-            QString          ensembleName = RiaEnsembleNameTools::findSuitableEnsembleName( groupedFileNames, ensembleGroupingMode() );
-            QListWidgetItem* item         = new QListWidgetItem( QDir::toNativeSeparators( ensembleName ), m_fileListWidget );
+            QString ensembleName = RiaEnsembleNameTools::findSuitableEnsembleName( groupedFileNames, ensembleGroupingMode() );
+            new QListWidgetItem( QDir::toNativeSeparators( ensembleName ), m_fileListWidget );
             addToFileListWidget( groupedFileNames );
         }
     }

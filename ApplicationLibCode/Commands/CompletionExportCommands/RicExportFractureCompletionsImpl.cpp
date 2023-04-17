@@ -680,8 +680,6 @@ std::vector<cvf::Vec3d> RicExportFractureCompletionsImpl::computeWellPointsInFra
     cvf::Vec3d startPos       = wellPathCoords.front();
     cvf::Vec3d endPos         = wellPathCoords.back();
 
-    cvf::Vec3d wellPathTangent = endPos - startPos;
-
     cvf::Plane fracturePlane;
     auto       fractureTransform = fracture->transformMatrix();
     fracturePlane.setFromPointAndNormal( fractureTransform.translation(), static_cast<cvf::Vec3d>( fractureTransform.col( 2 ) ) );
