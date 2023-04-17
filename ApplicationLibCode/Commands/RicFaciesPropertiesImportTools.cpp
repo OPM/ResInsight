@@ -48,7 +48,8 @@ void RicFaciesPropertiesImportTools::importFaciesPropertiesFromFile( const QStri
     std::map<int, QString> codeNames;
     try
     {
-        RifRoffReader::readCodeNames( filePath, codeNames );
+        const QString parameterTagName = "composite";
+        RifRoffReader::readCodeNames( filePath, parameterTagName, codeNames );
     }
     catch ( RifRoffReaderException& ex )
     {

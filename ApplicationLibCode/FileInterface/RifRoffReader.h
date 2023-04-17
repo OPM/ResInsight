@@ -45,14 +45,5 @@ class RifRoffReader
 {
 public:
     // Throws RifRoffReaderException on error
-    static void readCodeNames( const QString& filename, std::map<int, QString>& codeNames );
-
-private:
-    static bool isCorrectHeader( const QString& line );
-    static bool isCodeNamesDefinition( const QString& line );
-    static bool isCodeValuesDefinition( const QString& line );
-
-    static int extractNumberAfterString( const QString& line, const QString& prefix );
-    static int extractCodeNamesCount( const QString& line );
-    static int extractCodeValuesCount( const QString& line );
+    static void readCodeNames( const QString& filename, const QString& parameterTagName, std::map<int, QString>& codeNames );
 };
