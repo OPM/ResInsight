@@ -113,12 +113,12 @@ std::vector<std::pair<QString, QString>> RifOpenVDSReader::metaData()
 
     if ( !isOpen() ) return retValues;
 
-    //auto stats = m_reader->metaData();
+    // auto stats = m_reader->metaData();
 
-    //for ( auto& [name, val] : stats )
+    // for ( auto& [name, val] : stats )
     //{
-    //    retValues.push_back( std::make_pair( QString::fromStdString( name ), QString::fromStdString( val ) ) );
-    //}
+    //     retValues.push_back( std::make_pair( QString::fromStdString( name ), QString::fromStdString( val ) ) );
+    // }
 
     return retValues;
 }
@@ -132,16 +132,16 @@ cvf::BoundingBox RifOpenVDSReader::boundingBox()
 
     if ( isOpen() )
     {
-        //auto [zmin, zmax] = m_reader->zRange();
+        // auto [zmin, zmax] = m_reader->zRange();
 
-        //auto outline = m_reader->seismicWorldOutline();
+        // auto outline = m_reader->seismicWorldOutline();
 
-        //auto corners = outline.points();
-        //for ( auto p : corners )
+        // auto corners = outline.points();
+        // for ( auto p : corners )
         //{
-        //    retBox.add( cvf::Vec3d( p.x(), p.y(), -zmin ) );
-        //    retBox.add( cvf::Vec3d( p.x(), p.y(), -zmax ) );
-        //}
+        //     retBox.add( cvf::Vec3d( p.x(), p.y(), -zmin ) );
+        //     retBox.add( cvf::Vec3d( p.x(), p.y(), -zmax ) );
+        // }
     }
 
     return retBox;
@@ -172,16 +172,16 @@ std::vector<cvf::Vec3d> RifOpenVDSReader::worldCorners()
 {
     if ( !isOpen() ) return {};
 
-    //auto [zmin, zmax] = m_reader->zRange();
-    //auto outline      = m_reader->seismicWorldOutline();
+    // auto [zmin, zmax] = m_reader->zRange();
+    // auto outline      = m_reader->seismicWorldOutline();
 
     std::vector<cvf::Vec3d> retval;
 
-    //for ( auto p : outline.points() )
+    // for ( auto p : outline.points() )
     //{
-    //    retval.push_back( cvf::Vec3d( p.x(), p.y(), -zmin ) );
-    //    retval.push_back( cvf::Vec3d( p.x(), p.y(), -zmax ) );
-    //}
+    //     retval.push_back( cvf::Vec3d( p.x(), p.y(), -zmin ) );
+    //     retval.push_back( cvf::Vec3d( p.x(), p.y(), -zmax ) );
+    // }
 
     return retval;
 }
@@ -275,8 +275,8 @@ std::shared_ptr<ZGYAccess::SeismicSliceData> RifOpenVDSReader::trace( int inline
 {
     if ( isOpen() )
     {
-        //if ( zStartIndex < 0 ) return m_reader->zTrace( inlineIndex, xlineIndex );
-        //return m_reader->zTrace( inlineIndex, xlineIndex, zStartIndex, zSize );
+        // if ( zStartIndex < 0 ) return m_reader->zTrace( inlineIndex, xlineIndex );
+        // return m_reader->zTrace( inlineIndex, xlineIndex, zStartIndex, zSize );
     }
 
     return nullptr;
