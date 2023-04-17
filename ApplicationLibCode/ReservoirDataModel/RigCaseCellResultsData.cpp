@@ -36,6 +36,7 @@
 #include "RigFaultDistanceResultCalculator.h"
 #include "RigFormationNames.h"
 #include "RigMainGrid.h"
+#include "RigMobilePoreVolumeResultCalculator.h"
 #include "RigSoilResultCalculator.h"
 #include "RigStatisticsDataCache.h"
 #include "RigStatisticsMath.h"
@@ -2762,58 +2763,9 @@ void RigCaseCellResultsData::computeOilVolumes()
 //--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::computeMobilePV()
 {
-    std::vector<double> porvDataTemp;
-    std::vector<double> swcrDataTemp;
-    std::vector<double> multpvDataTemp;
-
-    const std::vector<double>* porvResults   = nullptr;
-    const std::vector<double>* swcrResults   = nullptr;
-    const std::vector<double>* multpvResults = nullptr;
-
-    porvResults = RigCaseCellResultsData::getResultIndexableStaticResult( this->activeCellInfo(), this, "PORV", porvDataTemp );
-    if ( !porvResults || porvResults->empty() )
-    {
-        RiaLogging::error( "Assumed PORV, but not data was found." );
-        return;
-    }
-
-    swcrResults   = RigCaseCellResultsData::getResultIndexableStaticResult( this->activeCellInfo(), this, "SWCR", swcrDataTemp );
-    multpvResults = RigCaseCellResultsData::getResultIndexableStaticResult( this->activeCellInfo(), this, "MULTPV", multpvDataTemp );
-
-    size_t mobPVIdx = this->findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                                                    RiaResultNames::mobilePoreVolumeName() ),
-                                                           false );
-
-    std::vector<double>& mobPVResults = m_cellScalarResults[mobPVIdx][0];
-
-    // Set up output container to correct number of results
-    mobPVResults.resize( porvResults->size() );
-
-    if ( multpvResults && swcrResults )
-    {
-        for ( size_t vIdx = 0; vIdx < porvResults->size(); ++vIdx )
-        {
-            mobPVResults[vIdx] = ( *multpvResults )[vIdx] * ( *porvResults )[vIdx] * ( 1.0 - ( *swcrResults )[vIdx] );
-        }
-    }
-    else if ( !multpvResults && swcrResults )
-    {
-        for ( size_t vIdx = 0; vIdx < porvResults->size(); ++vIdx )
-        {
-            mobPVResults[vIdx] = ( *porvResults )[vIdx] * ( 1.0 - ( *swcrResults )[vIdx] );
-        }
-    }
-    else if ( !swcrResults && multpvResults )
-    {
-        for ( size_t vIdx = 0; vIdx < porvResults->size(); ++vIdx )
-        {
-            mobPVResults[vIdx] = ( *multpvResults )[vIdx] * ( *porvResults )[vIdx];
-        }
-    }
-    else
-    {
-        mobPVResults.assign( porvResults->begin(), porvResults->end() );
-    }
+    RigEclipseResultAddress             addr( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::mobilePoreVolumeName() );
+    RigMobilePoreVolumeResultCalculator calculator( *this );
+    calculator.calculate( addr, 0 );
 }
 
 //--------------------------------------------------------------------------------------------------
