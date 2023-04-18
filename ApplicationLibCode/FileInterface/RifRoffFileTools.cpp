@@ -523,6 +523,37 @@ std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputPropert
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RifRoffFileTools::hasGridData( const QString& filename )
+{
+    // Check if arrayTypes contains grid info
+    // - Alt 1. Look for tag "cornerLines" and its data with keyword "cornerLines.data" - actual representation of grid data
+    // - Alt 2. Look for tag "filedata" and its filetype with keyword "filedata.filetype" - should be equal "grid" (not as robust, rather
+    // look for "cornerLines" which is grid representation)
+
+    std::ifstream stream( filename.toStdString(), std::ios::binary );
+    if ( !stream.good() )
+    {
+        RiaLogging::error( "Unable to open roff file" );
+        return false;
+    }
+
+    roff::Reader reader( stream );
+    reader.parse();
+
+    const std::vector<std::pair<std::string, roff::Token::Kind>> arrayTypes = reader.getNamedArrayTypes();
+
+    const std::string cornerLinesDataKeyword = "cornderLines.data";
+    auto              cornerLinesDataItr     = std::find_if( arrayTypes.begin(),
+                                            arrayTypes.end(),
+                                            [&cornerLinesDataKeyword]( const auto& arrayType )
+                                            { return arrayType.first == cornerLinesDataKeyword; } );
+
+    return cornerLinesDataItr != arrayTypes.end();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<double>
     RifRoffFileTools::readAndConvertToDouble( int nx, int ny, int nz, const std::string& keyword, roff::Token::Kind kind, roff::Reader& reader )
 {

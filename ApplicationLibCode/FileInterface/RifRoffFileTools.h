@@ -53,6 +53,8 @@ public:
 
     static std::pair<bool, std::map<QString, QString>> createInputProperties( const QString& fileName, RigEclipseCaseData* eclipseCase );
 
+    static bool hasGridData( const QString& filename );
+
 private:
     static void interpretSplitenzData( int                       nz,
                                        float                     zoffset,
@@ -85,7 +87,7 @@ private:
     template <typename IN, typename OUT>
     static void convertToReservoirIndexOrder( int nx, int ny, int nz, const std::vector<IN>& in, std::vector<OUT>& out )
     {
-        CAF_ASSERT( static_cast<size_t>( nx ) * ny * nz == in.size() );
+        CAF_ASSERT( static_cast<size_t>( nx * ny * nz ) == in.size() );
 
         out.resize( in.size(), -1 );
 
