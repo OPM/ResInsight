@@ -832,26 +832,55 @@ void RimSummaryPlot::applyDefaultCurveAppearances( std::vector<RimEnsembleCurveS
 {
     auto allCurveSets = ensembleCurveSetCollection()->curveSets();
 
+    std::vector<QColor> existingColors;
+
+    for ( auto c : allCurveSets )
+    {
+        if ( std::find( ensembleCurvesToUpdate.begin(), ensembleCurvesToUpdate.end(), c ) == ensembleCurvesToUpdate.end() )
+        {
+            existingColors.push_back( c->colorForLegend() );
+        }
+    }
+
     for ( auto curveSet : ensembleCurvesToUpdate )
     {
-        if ( RimEnsembleCurveSetColorManager::hasSameColorForAllCurves( curveSet->colorMode() ) )
+        cvf::Color3f curveColor = cvf::Color3f::ORANGE;
+
+        auto adr = curveSet->summaryAddress();
+        if ( adr.isHistoryVector() )
         {
-            size_t colorIndex = 0;
-
-            auto it = std::find( allCurveSets.begin(), allCurveSets.end(), curveSet );
-            if ( it != allCurveSets.end() )
-            {
-                colorIndex = std::distance( allCurveSets.begin(), it );
-            }
-
-            cvf::Color3f curveColor = RimSummaryCurveAppearanceCalculator::computeTintedCurveColorForAddress( curveSet->summaryAddress(),
-                                                                                                              static_cast<int>( colorIndex ) );
-
-            auto adr = curveSet->summaryAddress();
-            if ( adr.isHistoryVector() ) curveColor = RiaPreferencesSummary::current()->historyCurveContrastColor();
-
-            curveSet->setColor( curveColor );
+            curveColor = RiaPreferencesSummary::current()->historyCurveContrastColor();
         }
+        else
+        {
+            if ( RimEnsembleCurveSetColorManager::hasSameColorForAllCurves( curveSet->colorMode() ) )
+            {
+                std::vector<QColor> candidateColors;
+                if ( RiaPreferencesSummary::current()->colorCurvesByPhase() )
+                {
+                    candidateColors.push_back( RiaColorTools::toQColor( RimSummaryCurveAppearanceCalculator::assignColorByPhase( adr ) ) );
+                }
+
+                auto summaryColors = RiaColorTables::summaryCurveDefaultPaletteColors();
+                for ( int i = 0; i < summaryColors.size(); i++ )
+                {
+                    candidateColors.push_back( summaryColors.cycledQColor( i ) );
+                }
+
+                for ( const auto& candidateCol : candidateColors )
+                {
+                    auto v = std::find( existingColors.begin(), existingColors.end(), candidateCol );
+                    if ( v == existingColors.end() )
+                    {
+                        curveColor = RiaColorTools::fromQColorTo3f( candidateCol );
+                        existingColors.push_back( candidateCol );
+                        break;
+                    }
+                }
+            }
+        }
+
+        curveSet->setColor( curveColor );
     }
 }
 

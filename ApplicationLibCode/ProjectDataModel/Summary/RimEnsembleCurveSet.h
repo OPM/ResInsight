@@ -95,10 +95,11 @@ public:
 
     QString name() const;
 
-    bool isCurvesVisible();
-    void setColor( cvf::Color3f color );
-    void setStatisticsColor( const cvf::Color3f& color );
-    void enableStatisticsLables( bool enable );
+    bool   isCurvesVisible();
+    void   setColor( cvf::Color3f color );
+    void   setStatisticsColor( const cvf::Color3f& color );
+    void   enableStatisticsLables( bool enable );
+    QColor colorForLegend() const;
 
     void loadDataAndUpdate( bool updateParentPlot );
     void setParentPlotNoReplot( RiuPlotWidget* plot );
@@ -136,9 +137,8 @@ public:
 
     void                      updateEnsembleLegendItem();
     RiuDraggableOverlayFrame* legendFrame() const;
-
-    void                setTimeSteps( const std::vector<size_t>& timeStepIndices );
-    std::vector<time_t> selectedTimeSteps() const;
+    void                      setTimeSteps( const std::vector<size_t>& timeStepIndices );
+    std::vector<time_t>       selectedTimeSteps() const;
 
     RimEnsembleCurveSet* clone() const;
     void                 showCurves( bool show );
@@ -214,9 +214,8 @@ private:
     void onObjectiveFunctionChanged( const caf::SignalEmitter* emitter );
     void onCustomObjectiveFunctionChanged( const caf::SignalEmitter* emitter );
 
-    void   setTransparentCurveColor();
-    QColor colorForLegend() const;
-    void   onColorTagClicked( const SignalEmitter* emitter, size_t index );
+    void setTransparentCurveColor();
+    void onColorTagClicked( const SignalEmitter* emitter, size_t index );
 
 private:
     caf::PdmField<bool>                       m_showCurves;
