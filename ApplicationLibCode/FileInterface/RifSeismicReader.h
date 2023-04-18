@@ -41,8 +41,10 @@ class BoundingBox;
 class RifSeismicReader
 {
 public:
-    RifSeismicReader(){};
-    virtual ~RifSeismicReader(){};
+    RifSeismicReader();
+    virtual ~RifSeismicReader();
+
+    cvf::BoundingBox boundingBox();
 
     virtual bool open( QString filename ) = 0;
     virtual void close()                  = 0;
@@ -52,8 +54,6 @@ public:
     virtual bool isOpen() const = 0;
 
     virtual std::vector<std::pair<QString, QString>> metaData() = 0;
-
-    virtual cvf::BoundingBox boundingBox() = 0;
 
     virtual void histogramData( std::vector<double>& xvals, std::vector<double>& yvals ) = 0;
 

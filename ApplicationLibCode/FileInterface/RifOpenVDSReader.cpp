@@ -1,7 +1,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2022  Equinor ASA
+//  Copyright (C) 2023  Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -19,15 +19,30 @@
 
 #include "RifOpenVDSReader.h"
 
+#include <openzgy/open-zgy/native/src/impl/histogrambuilder.h>
 #include <zgyaccess/seismicslice.h>
 
+// TODO - extract histogram functionality into separate, reusable unit
+#include <zgyaccess/zgyreader.h>
+
+#include <OpenVDS/IJKCoordinateTransformer.h>
+#include <OpenVDS/OpenVDS.h>
+#include <OpenVDS/VolumeDataAccess.h>
+#include <OpenVDS/VolumeDataLayout.h>
+
 #include "cvfBoundingBox.h"
+
+constexpr int VDS_INLINE_DIM = 2;
+constexpr int VDS_XLINE_DIM  = 1;
+constexpr int VDS_Z_DIM      = 0;
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RifOpenVDSReader::RifOpenVDSReader()
     : m_filename( "" )
+    , m_handle( nullptr )
+    , m_dataChannelToUse( 0 )
 {
 }
 
@@ -49,16 +64,26 @@ bool RifOpenVDSReader::open( QString filename )
 
     try
     {
-        // m_reader = std::make_unique<ZGYAccess::ZGYReader>();
-        // if ( !m_reader->open( filename.toStdString() ) )
-        //{
-        //     m_reader.reset();
-        //     return false;
-        // }
+        OpenVDS::Error error;
+        m_handle = OpenVDS::Open( filename.toStdString(), "", error );
+
+        if ( error.code != 0 )
+        {
+            m_handle = nullptr;
+            return false;
+        }
+
+        auto accessManager = OpenVDS::GetAccessManager( m_handle );
+
+        OpenVDS::VolumeDataLayout const* layout = accessManager.GetVolumeDataLayout();
+        if ( layout != nullptr )
+        {
+            m_coordinateTransform = std::make_unique<OpenVDS::IJKCoordinateTransformer>( layout );
+        }
     }
-    catch ( const std::exception& err )
+    catch ( const std::exception& )
     {
-        // m_reader.reset();
+        m_handle = nullptr;
         return false;
     }
 
@@ -70,7 +95,7 @@ bool RifOpenVDSReader::open( QString filename )
 //--------------------------------------------------------------------------------------------------
 bool RifOpenVDSReader::isOpen() const
 {
-    return false;
+    return ( m_handle != nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,10 +103,7 @@ bool RifOpenVDSReader::isOpen() const
 //--------------------------------------------------------------------------------------------------
 bool RifOpenVDSReader::isValid()
 {
-    if ( !isOpen() ) return false;
-
-    bool valid = ( zStep() > 0.0 ) && ( inlineMinMaxStep()[2] > 0 ) && ( xlineMinMaxStep()[2] > 0 );
-    return valid;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -93,15 +115,52 @@ void RifOpenVDSReader::close()
 
     try
     {
-        // m_reader->close();
+        OpenVDS::Close( m_handle );
     }
     catch ( const std::exception& )
     {
     }
 
-    // m_reader.reset();
+    m_handle = nullptr;
 
     return;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString openvds_dataFormatToString( OpenVDS::VolumeDataFormat format )
+{
+    switch ( format )
+    {
+        case OpenVDS::VolumeDataFormat::Format_1Bit:
+            return "1-bit";
+        case OpenVDS::VolumeDataFormat::Format_U8:
+            return "Unsigned 8-bit";
+        case OpenVDS::VolumeDataFormat::Format_U16:
+            return "Unsigned 16-bit";
+        case OpenVDS::VolumeDataFormat::Format_R32:
+            return "Float (32-bit)";
+        case OpenVDS::VolumeDataFormat::Format_U32:
+            return "Unsigned 32-bit";
+        case OpenVDS::VolumeDataFormat::Format_R64:
+            return "Double (64-bit)";
+        case OpenVDS::VolumeDataFormat::Format_U64:
+            return "Unsigned 64-bit";
+        case OpenVDS::VolumeDataFormat::Format_Any:
+        default:
+            break;
+    }
+
+    return "Unknown";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString openvds_axisToString( OpenVDS::VolumeDataAxisDescriptor axis )
+{
+    return QString( "%1 - %2, step %3" ).arg( axis.GetCoordinateMin() ).arg( axis.GetCoordinateMax() ).arg( axis.GetCoordinateStep() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -113,38 +172,44 @@ std::vector<std::pair<QString, QString>> RifOpenVDSReader::metaData()
 
     if ( !isOpen() ) return retValues;
 
-    //auto stats = m_reader->metaData();
+    QString version( OpenVDS::GetOpenVDSVersion() );
+    retValues.push_back( std::make_pair( QString( "Open VDS version" ), QString( OpenVDS::GetOpenVDSVersion() ) ) );
 
-    //for ( auto& [name, val] : stats )
-    //{
-    //    retValues.push_back( std::make_pair( QString::fromStdString( name ), QString::fromStdString( val ) ) );
-    //}
+    QString compressed( "No" );
+    if ( OpenVDS::GetCompressionMethod( m_handle ) != OpenVDS::CompressionMethod::None ) compressed = "Yes";
+    retValues.push_back( std::make_pair( QString( "Compression" ), compressed ) );
 
-    return retValues;
-}
+    auto accessManager = OpenVDS::GetAccessManager( m_handle );
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::BoundingBox RifOpenVDSReader::boundingBox()
-{
-    cvf::BoundingBox retBox;
+    OpenVDS::VolumeDataLayout const* layout = accessManager.GetVolumeDataLayout();
+    if ( layout == nullptr ) return retValues;
 
-    if ( isOpen() )
+    const int dimensions = layout->GetDimensionality();
+    retValues.push_back( std::make_pair( QString( "Dimensions" ), QString::number( dimensions ) ) );
+
+    const int channels = layout->GetChannelCount();
+    retValues.push_back( std::make_pair( QString( "Data Channels" ), QString::number( channels ) ) );
+
+    for ( int i = 0; i < channels; i++ )
     {
-        //auto [zmin, zmax] = m_reader->zRange();
+        QString prefix = QString( "Data Channel %1 " ).arg( i );
 
-        //auto outline = m_reader->seismicWorldOutline();
+        auto chanDesc = layout->GetChannelDescriptor( i );
 
-        //auto corners = outline.points();
-        //for ( auto p : corners )
-        //{
-        //    retBox.add( cvf::Vec3d( p.x(), p.y(), -zmin ) );
-        //    retBox.add( cvf::Vec3d( p.x(), p.y(), -zmax ) );
-        //}
+        QString chanName( chanDesc.GetName() );
+        retValues.push_back( std::make_pair( prefix + "Name", chanName ) );
+        retValues.push_back( std::make_pair( prefix + "Format", openvds_dataFormatToString( chanDesc.GetFormat() ) ) );
+        QString range = QString( "%1 - %2" ).arg( chanDesc.GetValueRangeMin() ).arg( chanDesc.GetValueRangeMax() );
+        retValues.push_back( std::make_pair( prefix + "Range", range ) );
+
+        if ( chanName.toLower() == "amplitude" ) m_dataChannelToUse = i;
     }
 
-    return retBox;
+    retValues.push_back( std::make_pair( QString( "Inline" ), openvds_axisToString( layout->GetAxisDescriptor( VDS_INLINE_DIM ) ) ) );
+    retValues.push_back( std::make_pair( QString( "Xline" ), openvds_axisToString( layout->GetAxisDescriptor( VDS_XLINE_DIM ) ) ) );
+    retValues.push_back( std::make_pair( QString( "Z" ), openvds_axisToString( layout->GetAxisDescriptor( VDS_Z_DIM ) ) ) );
+
+    return retValues;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -153,6 +218,8 @@ cvf::BoundingBox RifOpenVDSReader::boundingBox()
 void RifOpenVDSReader::histogramData( std::vector<double>& xvals, std::vector<double>& yvals )
 {
     if ( !isOpen() ) return;
+
+    ZGYAccess::HistogramData histo;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -160,9 +227,15 @@ void RifOpenVDSReader::histogramData( std::vector<double>& xvals, std::vector<do
 //--------------------------------------------------------------------------------------------------
 std::pair<double, double> RifOpenVDSReader::dataRange()
 {
-    if ( !isOpen() ) return std::make_pair( 0.0, 0.0 );
+    if ( !isOpen() ) return { 0.0, 0.0 };
 
-    return std::make_pair( 0.0, 0.0 );
+    auto accessManager = OpenVDS::GetAccessManager( m_handle );
+
+    OpenVDS::VolumeDataLayout const* layout = accessManager.GetVolumeDataLayout();
+    if ( layout == nullptr ) return { 0.0, 0.0 };
+
+    auto chanDesc = layout->GetChannelDescriptor( m_dataChannelToUse );
+    return { chanDesc.GetValueRangeMin(), chanDesc.GetValueRangeMax() };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -172,16 +245,43 @@ std::vector<cvf::Vec3d> RifOpenVDSReader::worldCorners()
 {
     if ( !isOpen() ) return {};
 
-    //auto [zmin, zmax] = m_reader->zRange();
-    //auto outline      = m_reader->seismicWorldOutline();
+    auto accessManager = OpenVDS::GetAccessManager( m_handle );
+
+    OpenVDS::VolumeDataLayout const* layout = accessManager.GetVolumeDataLayout();
+    if ( layout == nullptr ) return {};
+
+    const int zDimension = 0, xlineDimension = 1, inlineDimension = 2;
+
+    auto iAxis = layout->GetAxisDescriptor( inlineDimension );
+    auto xAxis = layout->GetAxisDescriptor( xlineDimension );
+    auto zAxis = layout->GetAxisDescriptor( zDimension );
+
+    float iMin = iAxis.GetCoordinateMin();
+    float iMax = iAxis.GetCoordinateMax();
+    float xMin = xAxis.GetCoordinateMin();
+    float xMax = xAxis.GetCoordinateMax();
+    float zMin = zAxis.GetCoordinateMin();
+    float zMax = zAxis.GetCoordinateMax();
+
+    cvf::Vec3dArray annotPoints;
+    annotPoints.resize( 8 );
+    annotPoints[0] = cvf::Vec3d( iMin, xMin, zMin );
+    annotPoints[1] = cvf::Vec3d( iMin, xMax, zMin );
+    annotPoints[2] = cvf::Vec3d( iMax, xMax, zMin );
+    annotPoints[3] = cvf::Vec3d( iMax, xMin, zMin );
+    annotPoints[4] = cvf::Vec3d( iMin, xMin, zMax );
+    annotPoints[5] = cvf::Vec3d( iMin, xMax, zMax );
+    annotPoints[6] = cvf::Vec3d( iMax, xMax, zMax );
+    annotPoints[7] = cvf::Vec3d( iMax, xMin, zMax );
 
     std::vector<cvf::Vec3d> retval;
 
-    //for ( auto p : outline.points() )
-    //{
-    //    retval.push_back( cvf::Vec3d( p.x(), p.y(), -zmin ) );
-    //    retval.push_back( cvf::Vec3d( p.x(), p.y(), -zmax ) );
-    //}
+    for ( auto p : annotPoints )
+    {
+        auto world = m_coordinateTransform->AnnotationToWorld( OpenVDS::DoubleVector3( p.x(), p.y(), p.z() ) );
+
+        retval.push_back( cvf::Vec3d( world.X, world.Y, world.Z ) );
+    }
 
     return retval;
 }
@@ -193,7 +293,12 @@ double RifOpenVDSReader::zStep()
 {
     if ( !isOpen() ) return 0.0;
 
-    return 0.0;
+    auto accessManager = OpenVDS::GetAccessManager( m_handle );
+
+    OpenVDS::VolumeDataLayout const* layout = accessManager.GetVolumeDataLayout();
+    if ( layout == nullptr ) return 0.0;
+
+    return layout->GetAxisDescriptor( VDS_Z_DIM ).GetCoordinateStep();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -203,7 +308,29 @@ int RifOpenVDSReader::zSize()
 {
     if ( !isOpen() ) return 0;
 
-    return 0;
+    auto accessManager = OpenVDS::GetAccessManager( m_handle );
+
+    OpenVDS::VolumeDataLayout const* layout = accessManager.GetVolumeDataLayout();
+    if ( layout == nullptr ) return 0.0;
+
+    return layout->GetAxisDescriptor( VDS_Z_DIM ).GetNumSamples();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3i RifOpenVDSReader::minMaxStep( int dimension )
+{
+    if ( !isOpen() ) return { 0, 0, 0 };
+
+    auto accessManager = OpenVDS::GetAccessManager( m_handle );
+
+    OpenVDS::VolumeDataLayout const* layout = accessManager.GetVolumeDataLayout();
+    if ( layout == nullptr ) return { 0, 0, 0 };
+
+    auto axis = layout->GetAxisDescriptor( dimension );
+
+    return { (int)( axis.GetCoordinateMin() + 0.5 ), (int)( axis.GetCoordinateMax() + 0.5 ), (int)( axis.GetCoordinateStep() + 0.5 ) };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -211,8 +338,7 @@ int RifOpenVDSReader::zSize()
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3i RifOpenVDSReader::inlineMinMaxStep()
 {
-    if ( !isOpen() ) return { 0, 0, 0 };
-    return { 0, 0, 0 };
+    return minMaxStep( VDS_INLINE_DIM );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -220,8 +346,7 @@ cvf::Vec3i RifOpenVDSReader::inlineMinMaxStep()
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3i RifOpenVDSReader::xlineMinMaxStep()
 {
-    if ( !isOpen() ) return { 0, 0, 0 };
-    return { 0, 0, 0 };
+    return minMaxStep( VDS_XLINE_DIM );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -275,8 +400,8 @@ std::shared_ptr<ZGYAccess::SeismicSliceData> RifOpenVDSReader::trace( int inline
 {
     if ( isOpen() )
     {
-        //if ( zStartIndex < 0 ) return m_reader->zTrace( inlineIndex, xlineIndex );
-        //return m_reader->zTrace( inlineIndex, xlineIndex, zStartIndex, zSize );
+        // if ( zStartIndex < 0 ) return m_reader->zTrace( inlineIndex, xlineIndex );
+        // return m_reader->zTrace( inlineIndex, xlineIndex, zStartIndex, zSize );
     }
 
     return nullptr;

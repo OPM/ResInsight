@@ -18,27 +18,13 @@
 
 #pragma once
 
-/////////////////////////////////////////////////////////////////////////////////
-//
-//  Copyright (C) 2022  Equinor ASA
-//
-//  ResInsight is free software: you can redistribute it and/or modify
-//  it under the terms of the GNU General Public License as published by
-//  the Free Software Foundation, either version 3 of the License, or
-//  (at your option) any later version.
-//
-//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
-//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//  FITNESS FOR A PARTICULAR PURPOSE.
-//
-//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
-//  for more details.
-//
-/////////////////////////////////////////////////////////////////////////////////
-
-#pragma once
-
 #include "RifSeismicReader.h"
+
+namespace OpenVDS
+{
+struct VDS;
+class IJKCoordinateTransformer;
+} // namespace OpenVDS
 
 class RifOpenVDSReader : public RifSeismicReader
 {
@@ -54,8 +40,6 @@ public:
     bool isOpen() const override;
 
     std::vector<std::pair<QString, QString>> metaData() override;
-
-    cvf::BoundingBox boundingBox() override;
 
     void histogramData( std::vector<double>& xvals, std::vector<double>& yvals ) override;
 
@@ -76,7 +60,12 @@ public:
         slice( RiaDefines::SeismicSliceDirection direction, int sliceIndex, int zStartIndex = -1, int zSize = 0 ) override;
     std::shared_ptr<ZGYAccess::SeismicSliceData> trace( int inlineIndex, int xlineIndex, int zStartIndex = -1, int zSize = 0 ) override;
 
+protected:
+    cvf::Vec3i minMaxStep( int dimension );
+
 private:
-    QString m_filename;
-    // std::unique_ptr<ZGYAccess::ZGYReader> m_reader;
+    QString                                            m_filename;
+    OpenVDS::VDS*                                      m_handle;
+    int                                                m_dataChannelToUse;
+    std::unique_ptr<OpenVDS::IJKCoordinateTransformer> m_coordinateTransform;
 };

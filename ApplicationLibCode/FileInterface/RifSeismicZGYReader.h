@@ -40,8 +40,6 @@ public:
 
     std::vector<std::pair<QString, QString>> metaData() override;
 
-    cvf::BoundingBox boundingBox() override;
-
     void histogramData( std::vector<double>& xvals, std::vector<double>& yvals ) override;
 
     std::pair<double, double> dataRange() override;

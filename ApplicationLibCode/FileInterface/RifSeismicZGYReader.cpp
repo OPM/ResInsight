@@ -127,30 +127,6 @@ std::vector<std::pair<QString, QString>> RifSeismicZGYReader::metaData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::BoundingBox RifSeismicZGYReader::boundingBox()
-{
-    cvf::BoundingBox retBox;
-
-    if ( isOpen() )
-    {
-        auto [zmin, zmax] = m_reader->zRange();
-
-        auto outline = m_reader->seismicWorldOutline();
-
-        auto corners = outline.points();
-        for ( auto p : corners )
-        {
-            retBox.add( cvf::Vec3d( p.x(), p.y(), -zmin ) );
-            retBox.add( cvf::Vec3d( p.x(), p.y(), -zmax ) );
-        }
-    }
-
-    return retBox;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RifSeismicZGYReader::histogramData( std::vector<double>& xvals, std::vector<double>& yvals )
 {
     if ( !isOpen() ) return;
