@@ -487,45 +487,51 @@ bool RiaImportEclipseCaseTools::addEclipseCases( const QStringList& fileNames, R
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiaImportEclipseCaseTools::openRoffCaseFromFileNames( const QStringList& fileNames, bool createDefaultView )
+std::vector<int> RiaImportEclipseCaseTools::openRoffCaseFromFileNames( const QStringList& fileNames, bool createDefaultView )
 {
     CAF_ASSERT( !fileNames.empty() );
 
-    auto* roffCase = new RimRoffCase();
-
-    RiaApplication* app     = RiaApplication::instance();
-    RimProject*     project = app->project();
-    project->assignCaseIdToCase( roffCase );
-    roffCase->setGridFileName( fileNames[0] );
-
-    bool gridImportSuccess = roffCase->openEclipseGridFile();
-    if ( !gridImportSuccess )
-    {
-        RiaLogging::error( "Failed to import grid" );
-        return -1;
-    }
-
+    RiaApplication* app = RiaApplication::instance();
+    if ( !app ) return {};
+    RimProject* project = app->project();
+    if ( !project ) return {};
     RimEclipseCaseCollection* analysisModels = project->activeOilField() ? project->activeOilField()->analysisModels() : nullptr;
-    if ( !analysisModels ) return -1;
+    if ( !analysisModels ) return {};
 
-    analysisModels->cases.push_back( roffCase );
-
-    RimEclipseView* eclipseView = nullptr;
-    if ( createDefaultView )
+    std::vector<int> roffCaseIds;
+    for ( const auto& fileName : fileNames )
     {
-        eclipseView = roffCase->createAndAddReservoirView();
+        auto* roffCase = new RimRoffCase();
+        project->assignCaseIdToCase( roffCase );
+        roffCase->setGridFileName( fileName );
 
-        eclipseView->cellResult()->setResultType( RiaDefines::ResultCatType::INPUT_PROPERTY );
-
-        if ( RiaGuiApplication::isRunning() )
+        bool gridImportSuccess = roffCase->openEclipseGridFile();
+        if ( !gridImportSuccess )
         {
-            if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->selectAsCurrentItem( eclipseView->cellResult() );
+            const auto errMsg = "Failed to import grid from file: " + fileName.toStdString();
+            RiaLogging::error( errMsg.c_str() );
+            continue;
         }
 
-        eclipseView->loadDataAndUpdate();
+        analysisModels->cases.push_back( roffCase );
+
+        RimEclipseView* eclipseView = nullptr;
+        if ( createDefaultView )
+        {
+            eclipseView = roffCase->createAndAddReservoirView();
+
+            eclipseView->cellResult()->setResultType( RiaDefines::ResultCatType::INPUT_PROPERTY );
+
+            if ( RiaGuiApplication::isRunning() )
+            {
+                if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->selectAsCurrentItem( eclipseView->cellResult() );
+            }
+
+            eclipseView->loadDataAndUpdate();
+        }
+
+        analysisModels->updateConnectedEditors();
+        roffCaseIds.push_back( roffCase->caseId() );
     }
-
-    analysisModels->updateConnectedEditors();
-
-    return roffCase->caseId();
+    return roffCaseIds;
 }

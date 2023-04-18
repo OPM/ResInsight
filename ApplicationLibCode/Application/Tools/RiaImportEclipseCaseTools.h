@@ -20,6 +20,7 @@
 
 #include <map>
 #include <memory>
+#include <vector>
 
 class QString;
 class QStringList;
@@ -50,7 +51,7 @@ public:
 
     static int openEclipseCaseFromFile( const QString& fileName, bool createView, std::shared_ptr<RifReaderSettings> readerSettings = nullptr );
 
-    static int openRoffCaseFromFileNames( const QStringList& fileNames, bool createDefaultView );
+    static std::vector<int> openRoffCaseFromFileNames( const QStringList& fileNames, bool createDefaultView );
 
 private:
     static int openEclipseCaseShowTimeStepFilterImpl( const QString&                     fileName,
