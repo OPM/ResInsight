@@ -487,7 +487,7 @@ bool RiaImportEclipseCaseTools::addEclipseCases( const QStringList& fileNames, R
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<int> RiaImportEclipseCaseTools::openRoffCaseFromFileNames( const QStringList& fileNames, bool createDefaultView )
+std::vector<int> RiaImportEclipseCaseTools::openRoffCasesFromFileNames( const QStringList& fileNames, bool createDefaultView )
 {
     CAF_ASSERT( !fileNames.empty() );
 
@@ -534,4 +534,50 @@ std::vector<int> RiaImportEclipseCaseTools::openRoffCaseFromFileNames( const QSt
         roffCaseIds.push_back( roffCase->caseId() );
     }
     return roffCaseIds;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimRoffCase* RiaImportEclipseCaseTools::openRoffCaseFromFileName( const QString& fileName, bool createDefaultView )
+{
+    RiaApplication* app = RiaApplication::instance();
+    if ( !app ) return nullptr;
+    RimProject* project = app->project();
+    if ( !project ) return nullptr;
+    RimEclipseCaseCollection* analysisModels = project->activeOilField() ? project->activeOilField()->analysisModels() : nullptr;
+    if ( !analysisModels ) return nullptr;
+
+    auto* roffCase = new RimRoffCase();
+    project->assignCaseIdToCase( roffCase );
+    roffCase->setGridFileName( fileName );
+
+    bool gridImportSuccess = roffCase->openEclipseGridFile();
+    if ( !gridImportSuccess )
+    {
+        const auto errMsg = "Failed to import grid from file: " + fileName.toStdString();
+        RiaLogging::error( errMsg.c_str() );
+        return nullptr;
+    }
+
+    analysisModels->cases.push_back( roffCase );
+
+    RimEclipseView* eclipseView = nullptr;
+    if ( createDefaultView )
+    {
+        eclipseView = roffCase->createAndAddReservoirView();
+
+        eclipseView->cellResult()->setResultType( RiaDefines::ResultCatType::INPUT_PROPERTY );
+
+        if ( RiaGuiApplication::isRunning() )
+        {
+            if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->selectAsCurrentItem( eclipseView->cellResult() );
+        }
+
+        eclipseView->loadDataAndUpdate();
+    }
+
+    analysisModels->updateConnectedEditors();
+
+    return roffCase;
 }
