@@ -432,13 +432,13 @@ void RimWellLogExtractionCurve::performDataExtraction( bool* isUsingPseudoLength
             auto maxCurvePointInterval = wbsPlot->commonDataSource()->maximumCurvePointInterval();
             if ( maxCurvePointInterval.first )
             {
-                double maxIntervalLenght = maxCurvePointInterval.second;
+                double maxIntervalLength = maxCurvePointInterval.second;
 
                 // Special handling for a UCS parameter curve as this curve also depends on UCS that can be defined in a LAS file with
                 // high resolution. The maximum curve interval was designed to only be used by RimWellLogWbsCurve. To be able to use
                 // this functionality for a wellpath UCS curve, we get the maximumCurvePointInterval directly. It is not possible to
                 // control this setting locally on the curve object, the value is always taken directly from the WBS plot settings.
-                extractData( isUsingPseudoLength, {}, maxIntervalLenght );
+                extractData( isUsingPseudoLength, {}, maxIntervalLength );
 
                 return;
             }
