@@ -129,6 +129,7 @@ set(LINK_LIBRARIES
     qwt
     ${QT_LIBRARIES}
     Eigen3::Eigen
+    roffcpp
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${LINK_LIBRARIES})
