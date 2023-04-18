@@ -27,7 +27,7 @@ std::optional<T> createOptional( bool enable, const T& value )
 {
     if ( !enable ) return {};
 
-    return std::optional<T>( value );
+    return value;
 }
 
 template <typename T>

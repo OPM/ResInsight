@@ -836,6 +836,14 @@ QString RimWellLogCurveCommonDataSource::smoothingUiOrderinglabel()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::pair<bool, double> RimWellLogCurveCommonDataSource::maximumCurvePointInterval() const
+{
+    return m_maximumCurvePointInterval();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogCurveCommonDataSource::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimWellLogPlot* parentPlot = nullptr;

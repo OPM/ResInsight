@@ -103,6 +103,8 @@ public:
 
     static QString smoothingUiOrderinglabel();
 
+    std::pair<bool, double> maximumCurvePointInterval() const;
+
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
