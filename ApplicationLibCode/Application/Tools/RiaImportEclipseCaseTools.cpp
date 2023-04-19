@@ -74,11 +74,7 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList&    
                                                           std::shared_ptr<RifReaderSettings> readerSettings )
 {
     RimProject* project = RimProject::current();
-    if ( !project )
-    {
-        RiaLogging::error( "Failed to find project" );
-        return false;
-    }
+    if ( !project ) return false;
 
     // Get list of files to import
     RifSummaryCaseRestartSelector selector;
@@ -262,11 +258,7 @@ int RiaImportEclipseCaseTools::openEclipseInputCaseFromFileNames( const QStringL
     auto* rimInputReservoir = new RimEclipseInputCase();
 
     RimProject* project = RimProject::current();
-    if ( !project )
-    {
-        RiaLogging::error( "Failed to find project" );
-        return -1;
-    }
+    if ( !project ) return -1;
 
     project->assignCaseIdToCase( rimInputReservoir );
 
@@ -333,11 +325,7 @@ int RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl( const QStr
     rimResultReservoir->setReaderSettings( readerSettings );
 
     RimProject* project = RimProject::current();
-    if ( !project )
-    {
-        RiaLogging::error( "Failed to find project" );
-        return -1;
-    }
+    if ( !project ) return -1;
 
     RimEclipseCaseCollection* analysisModels = project->activeOilField() ? project->activeOilField()->analysisModels() : nullptr;
     if ( analysisModels == nullptr )
@@ -407,11 +395,7 @@ bool RiaImportEclipseCaseTools::addEclipseCases( const QStringList& fileNames, R
     RimIdenticalGridCaseGroup*    gridCaseGroup = nullptr;
 
     RimProject* project = RimProject::current();
-    if ( !project )
-    {
-        RiaLogging::error( "Failed to find project" );
-        return false;
-    }
+    if ( !project ) return false;
 
     {
         QString   firstFileName = fileNames[0];
@@ -507,11 +491,7 @@ std::vector<int> RiaImportEclipseCaseTools::openRoffCasesFromFileNames( const QS
     CAF_ASSERT( !fileNames.empty() );
 
     RimProject* project = RimProject::current();
-    if ( !project )
-    {
-        RiaLogging::error( "Failed to find project" );
-        return {};
-    }
+    if ( !project ) return {};
 
     RimEclipseCaseCollection* analysisModels = project->activeOilField() ? project->activeOilField()->analysisModels() : nullptr;
     if ( !analysisModels ) return {};
@@ -560,11 +540,7 @@ std::vector<int> RiaImportEclipseCaseTools::openRoffCasesFromFileNames( const QS
 RimRoffCase* RiaImportEclipseCaseTools::openRoffCaseFromFileName( const QString& fileName, bool createDefaultView )
 {
     RimProject* project = RimProject::current();
-    if ( !project )
-    {
-        RiaLogging::error( "Failed to find project" );
-        return nullptr;
-    }
+    if ( !project ) return nullptr;
 
     RimEclipseCaseCollection* analysisModels = project->activeOilField() ? project->activeOilField()->analysisModels() : nullptr;
     if ( !analysisModels ) return nullptr;
