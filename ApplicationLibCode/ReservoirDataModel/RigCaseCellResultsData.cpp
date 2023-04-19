@@ -28,6 +28,7 @@
 #include "RiaResultNames.h"
 #include "RigAllanDiagramData.h"
 #include "RigCaseCellResultCalculator.h"
+#include "RigCellVolumeResultCalculator.h"
 #include "RigEclipseAllanFaultsStatCalc.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseMultiPropertyStatCalc.h"
@@ -2612,36 +2613,9 @@ double RigCaseCellResultsData::darchysValue()
 //--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::computeCellVolumes()
 {
-    size_t cellVolIdx = this->findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                                                      RiaResultNames::riCellVolumeResultName() ),
-                                                             false );
-
-    if ( m_cellScalarResults[cellVolIdx].empty() )
-    {
-        m_cellScalarResults[cellVolIdx].resize( 1 );
-    }
-    std::vector<double>& cellVolumeResults = m_cellScalarResults[cellVolIdx][0];
-
-    size_t cellResultCount = m_activeCellInfo->reservoirActiveCellCount();
-    cellVolumeResults.resize( cellResultCount, std::numeric_limits<double>::infinity() );
-
-#pragma omp parallel for
-    for ( int nativeResvCellIndex = 0; nativeResvCellIndex < static_cast<int>( m_ownerMainGrid->globalCellArray().size() );
-          nativeResvCellIndex++ )
-    {
-        size_t resultIndex = activeCellInfo()->cellResultIndex( nativeResvCellIndex );
-        if ( resultIndex != cvf::UNDEFINED_SIZE_T )
-        {
-            const RigCell& cell = m_ownerMainGrid->globalCellArray()[nativeResvCellIndex];
-            if ( !cell.subGrid() )
-            {
-                cellVolumeResults[resultIndex] = cell.volume();
-            }
-        }
-    }
-
-    // Clear oil volume so it will have to be recalculated.
-    clearScalarResult( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::riOilVolumeResultName() );
+    RigEclipseResultAddress       addr( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::riCellVolumeResultName() );
+    RigCellVolumeResultCalculator calculator( *this );
+    calculator.calculate( addr, 0 );
 }
 
 //--------------------------------------------------------------------------------------------------
