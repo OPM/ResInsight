@@ -101,6 +101,20 @@
 
 CAF_PDM_SOURCE_INIT( RimSummaryPlot, "SummaryPlot" );
 
+struct RimSummaryPlot::CurveInfo
+{
+    int                               curveCount = 0;
+    std::vector<RimSummaryCurve*>     curves;
+    std::vector<RimEnsembleCurveSet*> curveSets;
+
+    void appendCurveInfo( const CurveInfo& other )
+    {
+        curveCount += other.curveCount;
+        curves.insert( curves.end(), other.curves.begin(), other.curves.end() );
+        curveSets.insert( curveSets.end(), other.curveSets.begin(), other.curveSets.end() );
+    };
+};
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -775,11 +789,13 @@ bool RimSummaryPlot::containsResamplableCurves() const
 //--------------------------------------------------------------------------------------------------
 size_t RimSummaryPlot::singleColorCurveCount() const
 {
-    auto   allCurveSets = ensembleCurveSetCollection()->curveSets();
-    size_t colorIndex   = std::count_if( allCurveSets.begin(),
-                                       allCurveSets.end(),
-                                       []( RimEnsembleCurveSet* curveSet )
-                                       { return curveSet->colorMode() == RimEnsembleCurveSet::ColorMode::SINGLE_COLOR; } );
+    auto allCurveSets = ensembleCurveSetCollection()->curveSets();
+
+    size_t colorIndex =
+        std::count_if( allCurveSets.begin(),
+                       allCurveSets.end(),
+                       []( RimEnsembleCurveSet* curveSet )
+                       { return RimEnsembleCurveSetColorManager::hasSameColorForAllRealizationCurves( curveSet->colorMode() ); } );
 
     colorIndex += curveCount();
 
@@ -815,25 +831,54 @@ void RimSummaryPlot::applyDefaultCurveAppearances( std::vector<RimSummaryCurve*>
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::applyDefaultCurveAppearances( std::vector<RimEnsembleCurveSet*> ensembleCurvesToUpdate )
 {
-    auto allCurveSets = ensembleCurveSetCollection()->curveSets();
+    std::vector<QColor> usedColors;
+    for ( auto c : ensembleCurveSetCollection()->curveSets() )
+    {
+        // ensembleCurvesToUpdate can be present in the ensembleCurveSetCollection()->curveSets() vector, exclude this from used
+        // colors
+        if ( std::find( ensembleCurvesToUpdate.begin(), ensembleCurvesToUpdate.end(), c ) == ensembleCurvesToUpdate.end() )
+        {
+            usedColors.push_back( c->mainEnsembleColor() );
+        }
+    }
 
     for ( auto curveSet : ensembleCurvesToUpdate )
     {
-        size_t colorIndex = 0;
+        cvf::Color3f curveColor = cvf::Color3f::ORANGE;
 
-        auto it = std::find( allCurveSets.begin(), allCurveSets.end(), curveSet );
-        if ( it != allCurveSets.end() )
+        const auto adr = curveSet->summaryAddress();
+        if ( adr.isHistoryVector() )
         {
-            colorIndex = std::distance( allCurveSets.begin(), it );
+            curveColor = RiaPreferencesSummary::current()->historyCurveContrastColor();
         }
+        else
+        {
+            if ( RimEnsembleCurveSetColorManager::hasSameColorForAllRealizationCurves( curveSet->colorMode() ) )
+            {
+                std::vector<QColor> candidateColors;
+                if ( RiaPreferencesSummary::current()->colorCurvesByPhase() )
+                {
+                    // Put the the phase color as first candidate, will then be used if there is only one ensemble in the plot
+                    candidateColors.push_back( RiaColorTools::toQColor( RimSummaryCurveAppearanceCalculator::assignColorByPhase( adr ) ) );
+                }
 
-        if ( curveSet->colorMode() != RimEnsembleCurveSet::ColorMode::SINGLE_COLOR ) continue;
+                auto summaryColors = RiaColorTables::summaryCurveDefaultPaletteColors();
+                for ( int i = 0; i < static_cast<int>( summaryColors.size() ); i++ )
+                {
+                    candidateColors.push_back( summaryColors.cycledQColor( i ) );
+                }
 
-        cvf::Color3f curveColor = RimSummaryCurveAppearanceCalculator::computeTintedCurveColorForAddress( curveSet->summaryAddress(),
-                                                                                                          static_cast<int>( colorIndex ) );
-
-        auto adr = curveSet->summaryAddress();
-        if ( adr.isHistoryVector() ) curveColor = RiaPreferencesSummary::current()->historyCurveContrastColor();
+                for ( const auto& candidateCol : candidateColors )
+                {
+                    if ( std::find( usedColors.begin(), usedColors.end(), candidateCol ) == usedColors.end() )
+                    {
+                        curveColor = RiaColorTools::fromQColorTo3f( candidateCol );
+                        usedColors.push_back( candidateCol );
+                        break;
+                    }
+                }
+            }
+        }
 
         curveSet->setColor( curveColor );
     }
@@ -2053,7 +2098,7 @@ std::vector<RimPlotCurve*> RimSummaryPlot::visibleCurvesForLegend()
     for ( auto curveSet : curveSets() )
     {
         if ( !curveSet->isCurvesVisible() ) continue;
-        if ( curveSet->colorMode() == RimEnsembleCurveSetColorManager::ColorMode::SINGLE_COLOR )
+        if ( RimEnsembleCurveSetColorManager::hasSameColorForAllRealizationCurves( curveSet->colorMode() ) )
         {
             auto curveSetCurves = curveSet->curves();
 
@@ -2153,7 +2198,7 @@ bool RimSummaryPlot::autoPlotTitle() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<int, std::vector<RimSummaryCurve*>> RimSummaryPlot::handleSummaryCaseDrop( RimSummaryCase* summaryCase )
+RimSummaryPlot::CurveInfo RimSummaryPlot::handleSummaryCaseDrop( RimSummaryCase* summaryCase )
 {
     int                           newCurves = 0;
     std::vector<RimSummaryCurve*> curves;
@@ -2174,13 +2219,13 @@ std::pair<int, std::vector<RimSummaryCurve*>> RimSummaryPlot::handleSummaryCaseD
         newCurves++;
     }
 
-    return { newCurves, curves };
+    return { newCurves, curves, {} };
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<int, std::vector<RimEnsembleCurveSet*>> RimSummaryPlot::handleEnsembleDrop( RimSummaryCaseCollection* ensemble )
+RimSummaryPlot::CurveInfo RimSummaryPlot::handleEnsembleDrop( RimSummaryCaseCollection* ensemble )
 {
     int                               newCurves = 0;
     std::vector<RimEnsembleCurveSet*> curveSetsToUpdate;
@@ -2202,16 +2247,17 @@ std::pair<int, std::vector<RimEnsembleCurveSet*>> RimSummaryPlot::handleEnsemble
         newCurves++;
     }
 
-    return { newCurves, curveSetsToUpdate };
+    return { newCurves, {}, curveSetsToUpdate };
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<int, std::vector<RimSummaryCurve*>> RimSummaryPlot::handleAddressCollectionDrop( RimSummaryAddressCollection* addressCollection )
+RimSummaryPlot::CurveInfo RimSummaryPlot::handleAddressCollectionDrop( RimSummaryAddressCollection* addressCollection )
 {
-    int                           newCurves = 0;
-    std::vector<RimSummaryCurve*> curves;
+    int                               newCurves = 0;
+    std::vector<RimSummaryCurve*>     curves;
+    std::vector<RimEnsembleCurveSet*> curveSetsToUpdate;
 
     auto droppedName = addressCollection->name().toStdString();
 
@@ -2294,7 +2340,7 @@ std::pair<int, std::vector<RimSummaryCurve*>> RimSummaryPlot::handleAddressColle
             auto addresses = curveDef.ensemble()->ensembleSummaryAddresses();
             if ( addresses.find( curveDef.summaryAddress() ) != addresses.end() )
             {
-                addNewEnsembleCurveY( curveDef.summaryAddress(), curveDef.ensemble() );
+                curveSetsToUpdate.push_back( addNewEnsembleCurveY( curveDef.summaryAddress(), curveDef.ensemble() ) );
                 newCurves++;
             }
         }
@@ -2308,16 +2354,17 @@ std::pair<int, std::vector<RimSummaryCurve*>> RimSummaryPlot::handleAddressColle
         }
     }
 
-    return { newCurves, curves };
+    return { newCurves, curves, curveSetsToUpdate };
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<int, std::vector<RimSummaryCurve*>> RimSummaryPlot::handleSummaryAddressDrop( RimSummaryAddress* summaryAddr )
+RimSummaryPlot::CurveInfo RimSummaryPlot::handleSummaryAddressDrop( RimSummaryAddress* summaryAddr )
 {
-    int                           newCurves = 0;
-    std::vector<RimSummaryCurve*> curves;
+    int                               newCurves = 0;
+    std::vector<RimSummaryCurve*>     curves;
+    std::vector<RimEnsembleCurveSet*> curveSetsToUpdate;
 
     std::vector<RifEclipseSummaryAddress> newCurveAddresses;
     newCurveAddresses.push_back( summaryAddr->address() );
@@ -2354,7 +2401,7 @@ std::pair<int, std::vector<RimSummaryCurve*>> RimSummaryPlot::handleSummaryAddre
 
                 if ( !skipAddress )
                 {
-                    addNewEnsembleCurveY( droppedAddress, ensemble );
+                    curveSetsToUpdate.push_back( addNewEnsembleCurveY( droppedAddress, ensemble ) );
                     newCurves++;
                 }
             }
@@ -2392,7 +2439,7 @@ std::pair<int, std::vector<RimSummaryCurve*>> RimSummaryPlot::handleSummaryAddre
             }
         }
     }
-    return { newCurves, curves };
+    return { newCurves, curves, curveSetsToUpdate };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2400,65 +2447,43 @@ std::pair<int, std::vector<RimSummaryCurve*>> RimSummaryPlot::handleSummaryAddre
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects )
 {
-    int                               accumulatedCurveCount = 0;
-    std::vector<RimSummaryCurve*>     curvesToUpdate;
-    std::vector<RimEnsembleCurveSet*> curveSetsToUpdate;
-
+    CurveInfo curveInfo;
     for ( auto obj : objects )
     {
-        auto summaryCase = dynamic_cast<RimSummaryCase*>( obj );
-        if ( summaryCase )
+        if ( auto summaryCase = dynamic_cast<RimSummaryCase*>( obj ) )
         {
-            auto [curveCount, curvesCreated] = handleSummaryCaseDrop( summaryCase );
-            accumulatedCurveCount += curveCount;
-            curvesToUpdate.insert( curvesToUpdate.end(), curvesCreated.begin(), curvesCreated.end() );
-            continue;
+            curveInfo.appendCurveInfo( handleSummaryCaseDrop( summaryCase ) );
         }
-        auto ensemble = dynamic_cast<RimSummaryCaseCollection*>( obj );
-        if ( ensemble )
+        else if ( auto ensemble = dynamic_cast<RimSummaryCaseCollection*>( obj ) )
         {
-            auto [curveCount, curvesCreated] = handleEnsembleDrop( ensemble );
-            accumulatedCurveCount += curveCount;
-            curveSetsToUpdate.insert( curveSetsToUpdate.end(), curvesCreated.begin(), curvesCreated.end() );
-            continue;
+            curveInfo.appendCurveInfo( handleEnsembleDrop( ensemble ) );
+        }
+        else if ( auto summaryAddr = dynamic_cast<RimSummaryAddress*>( obj ) )
+        {
+            curveInfo.appendCurveInfo( handleSummaryAddressDrop( summaryAddr ) );
         }
 
-        auto summaryAddr = dynamic_cast<RimSummaryAddress*>( obj );
-        if ( summaryAddr )
-        {
-            auto [curveCount, curvesCreated] = handleSummaryAddressDrop( summaryAddr );
-            accumulatedCurveCount += curveCount;
-            curvesToUpdate.insert( curvesToUpdate.end(), curvesCreated.begin(), curvesCreated.end() );
-            continue;
-        }
-
-        auto addressCollection = dynamic_cast<RimSummaryAddressCollection*>( obj );
-        if ( addressCollection )
+        else if ( auto addressCollection = dynamic_cast<RimSummaryAddressCollection*>( obj ) )
         {
             if ( addressCollection->isFolder() )
             {
                 for ( auto coll : addressCollection->subFolders() )
                 {
-                    auto [curveCount, curvesCreated] = handleAddressCollectionDrop( coll );
-                    accumulatedCurveCount += curveCount;
-                    curvesToUpdate.insert( curvesToUpdate.end(), curvesCreated.begin(), curvesCreated.end() );
+                    auto localInfo = handleAddressCollectionDrop( coll );
+                    curveInfo.appendCurveInfo( localInfo );
                 }
-                continue;
             }
             else
             {
-                auto [curveCount, curvesCreated] = handleAddressCollectionDrop( addressCollection );
-                accumulatedCurveCount += curveCount;
-                curvesToUpdate.insert( curvesToUpdate.end(), curvesCreated.begin(), curvesCreated.end() );
-                continue;
+                curveInfo.appendCurveInfo( handleAddressCollectionDrop( addressCollection ) );
             }
         }
     }
 
-    if ( accumulatedCurveCount > 0 )
+    if ( curveInfo.curveCount > 0 )
     {
-        applyDefaultCurveAppearances( curvesToUpdate );
-        applyDefaultCurveAppearances( curveSetsToUpdate );
+        applyDefaultCurveAppearances( curveInfo.curves );
+        applyDefaultCurveAppearances( curveInfo.curveSets );
 
         loadDataAndUpdate();
 

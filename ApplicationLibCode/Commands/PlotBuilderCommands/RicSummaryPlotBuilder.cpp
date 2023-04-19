@@ -535,14 +535,17 @@ RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( con
     if ( !plots.empty() )
     {
         auto* plot = plots.front();
-        RiuPlotMainWindowTools::selectAsCurrentItem( plot );
         if ( !plot->curveSets().empty() )
         {
-            RiuPlotMainWindowTools::setExpanded( plot->curveSets().front() );
+            RiuPlotMainWindowTools::selectAsCurrentItem( plot->curveSets().front() );
         }
         else if ( !plot->summaryCurves().empty() )
         {
-            RiuPlotMainWindowTools::setExpanded( plot->summaryCurves().front() );
+            RiuPlotMainWindowTools::selectAsCurrentItem( plot->summaryCurves().front() );
+        }
+        else
+        {
+            RiuPlotMainWindowTools::selectAsCurrentItem( plot );
         }
     }
     else

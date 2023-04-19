@@ -40,7 +40,7 @@ public:
     RimEnsembleCurveSetCollection();
     ~RimEnsembleCurveSetCollection() override;
 
-    bool isCurveSetsVisible();
+    bool isCurveSetsVisible() const;
 
     void loadDataAndUpdate( bool updateParentPlot );
     void setParentPlotAndReplot( RiuPlotWidget* plot );

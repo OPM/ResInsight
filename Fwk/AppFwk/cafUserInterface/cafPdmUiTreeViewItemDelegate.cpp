@@ -101,6 +101,19 @@ QRect PdmUiTreeViewItemDelegate::tagRect( const QRect& itemRect, QModelIndex ind
     auto it = m_tags.find( index );
     if ( it == m_tags.end() ) return QRect();
 
+    if ( it->second.size() == 1 )
+    {
+        const PdmUiTreeViewItemAttribute::Tag* tag = it->second[0].get();
+        if ( !tag->icon.valid() && tag->position == PdmUiTreeViewItemAttribute::Tag::Position::AT_END )
+        {
+            // Special case for single tag at end, which is not an icon
+
+            QPoint bottomRight = itemRect.bottomRight();
+            QPoint topLeft     = itemRect.topRight() - QPoint( itemRect.height() * 1.5, 0 );
+            return QRect( topLeft, bottomRight );
+        }
+    }
+
     QSize fullSize = itemRect.size();
 
     QPoint offset( 0, 0 );
@@ -113,7 +126,7 @@ QRect PdmUiTreeViewItemDelegate::tagRect( const QRect& itemRect, QModelIndex ind
             auto  icon     = tag->icon.icon();
             QSize iconSize = icon->actualSize( fullSize );
             QRect iconRect;
-            if ( tag->position == PdmUiTreeViewItemAttribute::Tag::AT_END )
+            if ( tag->position == PdmUiTreeViewItemAttribute::Tag::Position::AT_END )
             {
                 QPoint bottomRight = itemRect.bottomRight() - offset;
                 QPoint topLeft     = bottomRight - QPoint( iconSize.width(), iconSize.height() );
@@ -162,7 +175,7 @@ void PdmUiTreeViewItemDelegate::paint( QPainter* painter, const QStyleOptionView
             auto  icon     = tag->icon.icon();
             QSize iconSize = icon->actualSize( fullSize );
             QRect iconRect;
-            if ( tag->position == PdmUiTreeViewItemAttribute::Tag::AT_END )
+            if ( tag->position == PdmUiTreeViewItemAttribute::Tag::Position::AT_END )
             {
                 QPoint bottomRight( rect.bottomRight().x() - offset.x(), center.y() + iconSize.height() / 2 );
                 QPoint topLeft( bottomRight.x() - iconSize.width(), bottomRight.y() - iconSize.height() );
@@ -202,7 +215,7 @@ void PdmUiTreeViewItemDelegate::paint( QPainter* painter, const QStyleOptionView
             int   textDiff = ( fullSize.height() - textSize.height() );
 
             QRect textRect;
-            if ( tag->position == PdmUiTreeViewItemAttribute::Tag::AT_END )
+            if ( tag->position == PdmUiTreeViewItemAttribute::Tag::Position::AT_END )
             {
                 QPoint bottomRight     = rect.bottomRight() - QPoint( outsideLeftRightMargins, 0 ) - offset;
                 QPoint textBottomRight = bottomRight - QPoint( insideleftRightMargins, textDiff / 2 );
@@ -283,14 +296,14 @@ bool PdmUiTreeViewItemDelegate::editorEvent( QEvent*                     event,
                     PdmObjectHandle* pdmObject = uiObjectHandle->objectHandle();
                     if ( pdmObject )
                     {
-                        PdmFieldReorderCapability* reorderability =
-                            PdmFieldReorderCapability::reorderCapabilityOfParentContainer( pdmObject );
+                        size_t indexInParent = 0;
 
-                        if ( reorderability )
+                        if ( PdmFieldReorderCapability* reorderability =
+                                 PdmFieldReorderCapability::reorderCapabilityOfParentContainer( pdmObject ) )
                         {
-                            size_t indexInParent = reorderability->indexOf( pdmObject );
-                            tag->clicked.send( indexInParent );
+                            indexInParent = reorderability->indexOf( pdmObject );
                         }
+                        tag->clicked.send( indexInParent );
                     }
                 }
 
