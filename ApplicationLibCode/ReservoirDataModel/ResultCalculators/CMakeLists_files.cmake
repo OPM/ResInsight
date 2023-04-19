@@ -6,6 +6,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigIndexIjkResultCalculator.h
     ${CMAKE_CURRENT_LIST_DIR}/RigOilVolumeResultCalculator.h
     ${CMAKE_CURRENT_LIST_DIR}/RigCellVolumeResultCalculator.h
+    ${CMAKE_CURRENT_LIST_DIR}/RigAllanUtil.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -16,6 +17,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigIndexIjkResultCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigOilVolumeResultCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigCellVolumeResultCalculator.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigAllanUtil.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
