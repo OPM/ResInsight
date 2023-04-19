@@ -145,6 +145,8 @@ public:
 
     void setStatisticsDataCacheNumBins( const RigEclipseResultAddress& resultAddress, size_t numBins );
 
+    size_t addStaticScalarResult( RiaDefines::ResultCatType type, const QString& resultName, bool needsToBeStored, size_t resultValueCount );
+
 private:
     size_t findOrLoadKnownScalarResult( const RigEclipseResultAddress& resVarAddr );
     size_t findOrLoadKnownScalarResultByResultTypeOrder( const RigEclipseResultAddress&                resVarAddr,
@@ -164,8 +166,6 @@ private:
     size_t findOrCreateScalarResultIndex( const RigEclipseResultAddress& resVarAddr, bool needsToBeStored );
 
     size_t findScalarResultIndexFromAddress( const RigEclipseResultAddress& resVarAddr ) const;
-
-    size_t addStaticScalarResult( RiaDefines::ResultCatType type, const QString& resultName, bool needsToBeStored, size_t resultValueCount );
 
     const std::vector<RigEclipseResultInfo>& infoForEachResultIndex() const;
     size_t                                   resultCount() const;
@@ -200,8 +200,6 @@ private:
     void assignValuesToTemporaryLgrs( const QString& resultName, std::vector<double>& values );
 
     RigStatisticsDataCache* statistics( const RigEclipseResultAddress& resVarAddr );
-
-    static void computeAllanResults( RigCaseCellResultsData* cellResultsData, RigMainGrid* mainGrid, bool includeInactiveCells );
 
 private:
     cvf::ref<RifReaderInterface>  m_readerInterface;
