@@ -325,8 +325,7 @@ void PdmUiTreeViewEditor::updateMySubTree( PdmUiItem* uiItem, bool notifyEditors
         }
 
         m_treeViewModel->updateSubTree( itemToUpdate, notifyEditors );
-        QModelIndex itemIndex = m_treeViewModel->findModelIndex( itemToUpdate );
-        updateItemDelegateForSubTree( itemIndex );
+        updateItemDelegateForSubTree();
     }
 }
 
