@@ -40,14 +40,18 @@ class RicImportSummaryCasesFeature : public caf::CmdFeature
 public:
     RicImportSummaryCasesFeature() {}
 
-    static bool createAndAddSummaryCasesFromFiles( const QStringList&            fileName,
-                                                   bool                          doCreateDefaultPlot,
-                                                   std::vector<RimSummaryCase*>* newCases = nullptr );
-    static bool createSummaryCasesFromFiles( const QStringList&            fileName,
-                                             std::vector<RimSummaryCase*>* newCases,
-                                             RiaDefines::FileType          fileType,
-                                             bool                          ensembleOrGroup = false,
-                                             bool                          allowDialogs    = true );
+    static std::pair<bool, std::vector<RimSummaryCase*>> createAndAddSummaryCasesFromFiles( const QStringList& fileName,
+                                                                                            bool               doCreateDefaultPlot );
+
+    struct CreateConfig
+    {
+        RiaDefines::FileType fileType;
+        bool                 ensembleOrGroup;
+        bool                 allowDialogs;
+    };
+
+    static std::pair<bool, std::vector<RimSummaryCase*>> createSummaryCasesFromFiles( const QStringList& fileName, CreateConfig createConfig );
+
     static void addSummaryCases( const std::vector<RimSummaryCase*>& cases );
     static void addCasesToGroupIfRelevant( const std::vector<RimSummaryCase*>& cases );
 

@@ -350,8 +350,8 @@ bool RicImportGeneralDataFeature::openInputEclipseCaseFromFileNames( const QStri
 //--------------------------------------------------------------------------------------------------
 bool RicImportGeneralDataFeature::openSummaryCaseFromFileNames( const QStringList& fileNames, bool doCreateDefaultPlot )
 {
-    std::vector<RimSummaryCase*> newCases;
-    if ( RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles( fileNames, doCreateDefaultPlot, &newCases ) )
+    auto [isOk, newCases] = RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles( fileNames, doCreateDefaultPlot );
+    if ( isOk )
     {
         RicImportSummaryCasesFeature::addCasesToGroupIfRelevant( newCases );
         for ( const RimSummaryCase* newCase : newCases )

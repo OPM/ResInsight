@@ -62,16 +62,13 @@ caf::PdmObjectHandle* RimProject_importSummaryCase::execute()
         absolutePath = startDir.absoluteFilePath( m_fileName );
     }
 
-    QStringList                  summaryFileNames{ absolutePath };
-    std::vector<RimSummaryCase*> newCases;
-    bool                         ensembleOrGroup = false;
-    bool                         allowDialogs    = false;
+    QStringList summaryFileNames{ absolutePath };
 
-    if ( RicImportSummaryCasesFeature::createSummaryCasesFromFiles( summaryFileNames,
-                                                                    &newCases,
-                                                                    RiaDefines::FileType::SMSPEC,
-                                                                    ensembleOrGroup,
-                                                                    allowDialogs ) )
+    RicImportSummaryCasesFeature::CreateConfig createConfig{ .fileType        = RiaDefines::FileType::SMSPEC,
+                                                             .ensembleOrGroup = false,
+                                                             .allowDialogs    = false };
+    auto [isOk, newCases] = RicImportSummaryCasesFeature::createSummaryCasesFromFiles( summaryFileNames, createConfig );
+    if ( isOk )
     {
         RicImportSummaryCasesFeature::addSummaryCases( newCases );
 

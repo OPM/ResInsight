@@ -122,10 +122,10 @@ void RicImportEnsembleFeature::importSingleEnsemble( const QStringList&         
 
     if ( ensembleName.isEmpty() ) return;
 
-    std::vector<RimSummaryCase*> cases;
-    RicImportSummaryCasesFeature::createSummaryCasesFromFiles( fileNames, &cases, fileType, true );
+    RicImportSummaryCasesFeature::CreateConfig createConfig{ .fileType = fileType, .ensembleOrGroup = true, .allowDialogs = true };
+    auto [isOk, cases] = RicImportSummaryCasesFeature::createSummaryCasesFromFiles( fileNames, createConfig );
 
-    if ( cases.empty() ) return;
+    if ( !isOk || cases.empty() ) return;
 
     RimSummaryCaseCollection* ensemble = RicCreateSummaryCaseCollectionFeature::groupSummaryCases( cases, ensembleName, true );
 
@@ -142,7 +142,7 @@ void RicImportEnsembleFeature::importSingleEnsemble( const QStringList&         
     std::vector<RimCase*> allCases;
     RiaApplication::instance()->project()->allCases( allCases );
 
-    if ( allCases.size() == 0 )
+    if ( allCases.empty() )
     {
         RiuMainWindow::closeIfOpen();
     }

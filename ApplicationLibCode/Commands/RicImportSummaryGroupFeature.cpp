@@ -62,8 +62,8 @@ void RicImportSummaryGroupFeature::onActionTriggered( bool isChecked )
 
     RiaDefines::FileType fileType = RicRecursiveFileSearchDialog::mapSummaryFileType( result.fileType );
 
-    std::vector<RimSummaryCase*> cases;
-    RicImportSummaryCasesFeature::createSummaryCasesFromFiles( fileNames, &cases, fileType, true );
+    RicImportSummaryCasesFeature::CreateConfig createConfig{ .fileType = fileType, .ensembleOrGroup = true, .allowDialogs = true };
+    auto [isOk, cases] = RicImportSummaryCasesFeature::createSummaryCasesFromFiles( fileNames, createConfig );
 
     RicImportSummaryCasesFeature::addSummaryCases( cases );
     RicCreateSummaryCaseCollectionFeature::groupSummaryCases( cases, "", false );
