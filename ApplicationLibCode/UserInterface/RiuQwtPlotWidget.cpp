@@ -996,6 +996,12 @@ void RiuQwtPlotWidget::highlightPlotCurves( const std::set<const QwtPlotItem*>& 
     auto plotItemList = m_plot->itemList();
     for ( QwtPlotItem* plotItem : plotItemList )
     {
+        auto* riuPlotCurve = dynamic_cast<RiuPlotCurve*>( plotItem );
+        auto  pdmObject    = m_plotDefinition->findPdmObjectFromPlotCurve( riuPlotCurve );
+
+        // Do not modify curve objects with no associated Rim object, as the Rim object is used to restore color after highlight manipulation
+        if ( !pdmObject ) continue;
+
         auto* plotCurve = dynamic_cast<QwtPlotCurve*>( plotItem );
         if ( plotCurve )
         {
@@ -1017,6 +1023,13 @@ void RiuQwtPlotWidget::highlightPlotCurves( const std::set<const QwtPlotItem*>& 
             double zValue = plotCurve->z();
             if ( closestItems.count( plotCurve ) > 0 )
             {
+                auto saturation = 1.0;
+                auto value      = 1.0;
+                auto hue        = curveColor.hueF();
+
+                auto highlightColor = QColor::fromHsvF( hue, saturation, value );
+
+                existingPen.setColor( highlightColor );
                 existingPen.setWidth( penWidth + highlightItemWidthAdjustment() );
                 plotCurve->setPen( existingPen );
                 plotCurve->setZ( zValue + 100.0 );
@@ -1024,9 +1037,10 @@ void RiuQwtPlotWidget::highlightPlotCurves( const std::set<const QwtPlotItem*>& 
             }
             else
             {
-                QColor blendedColor           = RiaColorTools::blendQColors( bgColor, curveColor, 3, 1 );
-                QColor blendedSymbolColor     = RiaColorTools::blendQColors( bgColor, symbolColor, 3, 1 );
-                QColor blendedSymbolLineColor = RiaColorTools::blendQColors( bgColor, symbolLineColor, 3, 1 );
+                int    backgroundWeight       = 2;
+                QColor blendedColor           = RiaColorTools::blendQColors( bgColor, curveColor, backgroundWeight, 1 );
+                QColor blendedSymbolColor     = RiaColorTools::blendQColors( bgColor, symbolColor, backgroundWeight, 1 );
+                QColor blendedSymbolLineColor = RiaColorTools::blendQColors( bgColor, symbolLineColor, backgroundWeight, 1 );
 
                 plotCurve->setPen( blendedColor, existingPen.width(), existingPen.style() );
                 if ( symbol )
