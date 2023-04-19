@@ -373,7 +373,7 @@ bool RicImportGeneralDataFeature::openRoffFilesFromFileNames( const QStringList&
 {
     CAF_ASSERT( !fileNames.empty() );
 
-    auto numGridCases = static_cast<size_t>(
+    auto numGridCases = static_cast<int>(
         std::count_if( fileNames.begin(), fileNames.end(), []( const auto& fileName ) { return RifRoffFileTools::hasGridData( fileName ); } ) );
 
     if ( numGridCases != fileNames.size() && numGridCases != 1 )
@@ -406,14 +406,15 @@ bool RicImportGeneralDataFeature::openRoffCasesFromFileNames( const QStringList&
     const size_t initialNumCases  = createdCaseIds.size();
     auto         generatedCaseIds = RiaImportEclipseCaseTools::openRoffCasesFromFileNames( fileNames, createDefaultView );
 
-    CAF_ASSERT( fileNames.size() == generatedCaseIds.size() );
+    CAF_ASSERT( fileNames.size() == static_cast<int>( generatedCaseIds.size() ) && "Expected to create one roff case per file provided!" );
 
-    for ( size_t i = 0; i < fileNames.size(); ++i )
+    for ( int i = 0; i < fileNames.size(); ++i )
     {
-        if ( generatedCaseIds[i] >= 0 )
+        const auto caseId = generatedCaseIds[static_cast<size_t>( i )];
+        if ( caseId >= 0 )
         {
             RiaApplication::instance()->addToRecentFiles( fileNames[i] );
-            createdCaseIds.push_back( generatedCaseIds[i] );
+            createdCaseIds.push_back( caseId );
         }
     }
     return initialNumCases != createdCaseIds.size();
