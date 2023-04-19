@@ -59,15 +59,6 @@ add_library(
   ${COMMAND_MOC_SOURCE_FILES}
 )
 
-target_include_directories(
-  ${PROJECT_NAME}
-  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
-         ${CMAKE_SOURCE_DIR}/ThirdParty
-         ${CMAKE_SOURCE_DIR}/ThirdParty/custom-opm-common/generated-opm-common
-         ${CMAKE_SOURCE_DIR}/ThirdParty/custom-opm-common/opm-common
-         ${CMAKE_SOURCE_DIR}/ThirdParty/qtadvanceddocking/src
-         ${CMAKE_SOURCE_DIR}/ThirdParty/openzgy/include
-)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   target_compile_options(
@@ -130,6 +121,8 @@ set(LINK_LIBRARIES
     ${QT_LIBRARIES}
     Eigen3::Eigen
     roffcpp
+    qtadvanceddocking
+    custom-opm-common
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${LINK_LIBRARIES})
