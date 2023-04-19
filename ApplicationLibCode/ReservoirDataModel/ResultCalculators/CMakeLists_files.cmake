@@ -4,6 +4,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigFaultDistanceResultCalculator.h
     ${CMAKE_CURRENT_LIST_DIR}/RigMobilePoreVolumeResultCalculator.h
     ${CMAKE_CURRENT_LIST_DIR}/RigIndexIjkResultCalculator.h
+    ${CMAKE_CURRENT_LIST_DIR}/RigOilVolumeResultCalculator.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -12,6 +13,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigFaultDistanceResultCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigMobilePoreVolumeResultCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigIndexIjkResultCalculator.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigOilVolumeResultCalculator.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
