@@ -69,6 +69,19 @@ PdmUiColorEditor::PdmUiColorEditor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QColor PdmUiColorEditor::getColor( const QColor& sourceColor )
+{
+    QColorDialog::ColorDialogOptions flags;
+#ifndef WIN32
+    flags = QColorDialog::DontUseNativeDialog;
+#endif
+
+    return QColorDialog::getColor( sourceColor, nullptr, "Select color", flags );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void PdmUiColorEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
     CAF_ASSERT( !m_label.isNull() );

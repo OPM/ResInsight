@@ -41,6 +41,8 @@
 #include "cafPdmUiFieldEditorHandle.h"
 #include "cafSignal.h"
 
+#include <memory>
+
 namespace caf
 {
 class PdmUiTreeViewItemAttribute : public PdmUiEditorAttribute
@@ -48,14 +50,13 @@ class PdmUiTreeViewItemAttribute : public PdmUiEditorAttribute
 public:
     struct Tag : public SignalEmitter
     {
-        enum Position
+        enum class Position
         {
             IN_FRONT,
             AT_END
         };
         Tag()
-            : text()
-            , position( AT_END )
+            : position( Position::AT_END )
             , bgColor( Qt::red )
             , fgColor( Qt::white )
             , selectedOnly( false )
@@ -71,7 +72,7 @@ public:
 
         caf::Signal<size_t> clicked;
 
-        static std::unique_ptr<Tag> create() { return std::unique_ptr<Tag>( new Tag ); }
+        static std::unique_ptr<Tag> create() { return std::make_unique<Tag>(); }
 
     private:
         Tag& operator=( const Tag& rhs ) { return *this; }
