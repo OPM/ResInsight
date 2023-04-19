@@ -103,7 +103,7 @@ CAF_PDM_SOURCE_INIT( RimSummaryPlot, "SummaryPlot" );
 
 struct RimSummaryPlot::CurveInfo
 {
-    int                               curveCount{};
+    int                               curveCount = 0;
     std::vector<RimSummaryCurve*>     curves;
     std::vector<RimEnsembleCurveSet*> curveSets;
 
@@ -789,11 +789,13 @@ bool RimSummaryPlot::containsResamplableCurves() const
 //--------------------------------------------------------------------------------------------------
 size_t RimSummaryPlot::singleColorCurveCount() const
 {
-    auto   allCurveSets = ensembleCurveSetCollection()->curveSets();
-    size_t colorIndex   = std::count_if( allCurveSets.begin(),
-                                       allCurveSets.end(),
-                                       []( RimEnsembleCurveSet* curveSet )
-                                       { return curveSet->colorMode() == RimEnsembleCurveSet::ColorMode::SINGLE_COLOR; } );
+    auto allCurveSets = ensembleCurveSetCollection()->curveSets();
+
+    size_t colorIndex =
+        std::count_if( allCurveSets.begin(),
+                       allCurveSets.end(),
+                       []( RimEnsembleCurveSet* curveSet )
+                       { return RimEnsembleCurveSetColorManager::hasSameColorForAllRealizationCurves( curveSet->colorMode() ); } );
 
     colorIndex += curveCount();
 
@@ -829,25 +831,54 @@ void RimSummaryPlot::applyDefaultCurveAppearances( std::vector<RimSummaryCurve*>
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::applyDefaultCurveAppearances( std::vector<RimEnsembleCurveSet*> ensembleCurvesToUpdate )
 {
-    auto allCurveSets = ensembleCurveSetCollection()->curveSets();
+    std::vector<QColor> usedColors;
+    for ( auto c : ensembleCurveSetCollection()->curveSets() )
+    {
+        // ensembleCurvesToUpdate can be present in the ensembleCurveSetCollection()->curveSets() vector, exclude this from used
+        // colors
+        if ( std::find( ensembleCurvesToUpdate.begin(), ensembleCurvesToUpdate.end(), c ) == ensembleCurvesToUpdate.end() )
+        {
+            usedColors.push_back( c->mainEnsembleColor() );
+        }
+    }
 
     for ( auto curveSet : ensembleCurvesToUpdate )
     {
-        size_t colorIndex = 0;
+        cvf::Color3f curveColor = cvf::Color3f::ORANGE;
 
-        auto it = std::find( allCurveSets.begin(), allCurveSets.end(), curveSet );
-        if ( it != allCurveSets.end() )
+        const auto adr = curveSet->summaryAddress();
+        if ( adr.isHistoryVector() )
         {
-            colorIndex = std::distance( allCurveSets.begin(), it );
+            curveColor = RiaPreferencesSummary::current()->historyCurveContrastColor();
         }
+        else
+        {
+            if ( RimEnsembleCurveSetColorManager::hasSameColorForAllRealizationCurves( curveSet->colorMode() ) )
+            {
+                std::vector<QColor> candidateColors;
+                if ( RiaPreferencesSummary::current()->colorCurvesByPhase() )
+                {
+                    // Put the the phase color as first candidate, will then be used if there is only one ensemble in the plot
+                    candidateColors.push_back( RiaColorTools::toQColor( RimSummaryCurveAppearanceCalculator::assignColorByPhase( adr ) ) );
+                }
 
-        if ( curveSet->colorMode() != RimEnsembleCurveSet::ColorMode::SINGLE_COLOR ) continue;
+                auto summaryColors = RiaColorTables::summaryCurveDefaultPaletteColors();
+                for ( int i = 0; i < static_cast<int>( summaryColors.size() ); i++ )
+                {
+                    candidateColors.push_back( summaryColors.cycledQColor( i ) );
+                }
 
-        cvf::Color3f curveColor = RimSummaryCurveAppearanceCalculator::computeTintedCurveColorForAddress( curveSet->summaryAddress(),
-                                                                                                          static_cast<int>( colorIndex ) );
-
-        auto adr = curveSet->summaryAddress();
-        if ( adr.isHistoryVector() ) curveColor = RiaPreferencesSummary::current()->historyCurveContrastColor();
+                for ( const auto& candidateCol : candidateColors )
+                {
+                    if ( std::find( usedColors.begin(), usedColors.end(), candidateCol ) == usedColors.end() )
+                    {
+                        curveColor = RiaColorTools::fromQColorTo3f( candidateCol );
+                        usedColors.push_back( candidateCol );
+                        break;
+                    }
+                }
+            }
+        }
 
         curveSet->setColor( curveColor );
     }
@@ -2067,7 +2098,7 @@ std::vector<RimPlotCurve*> RimSummaryPlot::visibleCurvesForLegend()
     for ( auto curveSet : curveSets() )
     {
         if ( !curveSet->isCurvesVisible() ) continue;
-        if ( curveSet->colorMode() == RimEnsembleCurveSetColorManager::ColorMode::SINGLE_COLOR )
+        if ( RimEnsembleCurveSetColorManager::hasSameColorForAllRealizationCurves( curveSet->colorMode() ) )
         {
             auto curveSetCurves = curveSet->curves();
 

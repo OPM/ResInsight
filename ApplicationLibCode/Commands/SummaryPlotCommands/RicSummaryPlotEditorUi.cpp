@@ -509,10 +509,11 @@ void RicSummaryPlotEditorUi::updatePreviewCurvesFromCurveDefinitions( const std:
 
                 // Set single curve set color
                 auto   allCurveSets = m_previewPlot->ensembleCurveSetCollection()->curveSets();
-                size_t colorIndex   = std::count_if( allCurveSets.begin(),
-                                                   allCurveSets.end(),
-                                                   []( RimEnsembleCurveSet* curveSet )
-                                                   { return curveSet->colorMode() == RimEnsembleCurveSet::ColorMode::SINGLE_COLOR; } );
+                size_t colorIndex =
+                    std::count_if( allCurveSets.begin(),
+                                   allCurveSets.end(),
+                                   []( RimEnsembleCurveSet* curveSet )
+                                   { return RimEnsembleCurveSetColorManager::hasSameColorForAllRealizationCurves( curveSet->colorMode() ); } );
                 curveSet->setColor( RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f( colorIndex ) );
 
                 // Add curve to plot
@@ -831,8 +832,10 @@ void RicSummaryPlotEditorUi::applyAppearanceToAllPreviewCurves()
     int colorIndex = 0;
     for ( auto& curveSet : m_previewPlot->ensembleCurveSetCollection()->curveSets() )
     {
-        if ( curveSet->colorMode() != RimEnsembleCurveSet::ColorMode::SINGLE_COLOR ) continue;
-        curveSet->setColor( RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f( colorIndex++ ) );
+        if ( RimEnsembleCurveSetColorManager::hasSameColorForAllRealizationCurves( curveSet->colorMode() ) )
+        {
+            curveSet->setColor( RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f( colorIndex++ ) );
+        }
     }
 }
 
