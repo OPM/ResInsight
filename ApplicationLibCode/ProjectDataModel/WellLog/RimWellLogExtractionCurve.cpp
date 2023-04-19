@@ -50,6 +50,7 @@
 #include "RimTools.h"
 #include "RimWellBoreStabilityPlot.h"
 #include "RimWellLogCurve.h"
+#include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogFile.h"
 #include "RimWellLogFileChannel.h"
 #include "RimWellLogPlot.h"
@@ -421,6 +422,29 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::performDataExtraction( bool* isUsingPseudoLength )
 {
+    if ( dynamic_cast<RimGeoMechCase*>( m_case.value() ) && ( m_geomResultDefinition->resultPositionType() == RIG_WELLPATH_DERIVED ) &&
+         ( m_geomResultDefinition->resultFieldName() == "UCS" ) )
+    {
+        RimWellBoreStabilityPlot* wbsPlot = nullptr;
+        this->firstAncestorOrThisOfType( wbsPlot );
+        if ( wbsPlot )
+        {
+            auto maxCurvePointInterval = wbsPlot->commonDataSource()->maximumCurvePointInterval();
+            if ( maxCurvePointInterval.first )
+            {
+                double maxIntervalLength = maxCurvePointInterval.second;
+
+                // Special handling for a UCS parameter curve as this curve also depends on UCS that can be defined in a LAS file with
+                // high resolution. The maximum curve interval was designed to only be used by RimWellLogWbsCurve. To be able to use
+                // this functionality for a wellpath UCS curve, we get the maximumCurvePointInterval directly. It is not possible to
+                // control this setting locally on the curve object, the value is always taken directly from the WBS plot settings.
+                extractData( isUsingPseudoLength, {}, maxIntervalLength );
+
+                return;
+            }
+        }
+    }
+
     extractData( isUsingPseudoLength, {}, {} );
 }
 

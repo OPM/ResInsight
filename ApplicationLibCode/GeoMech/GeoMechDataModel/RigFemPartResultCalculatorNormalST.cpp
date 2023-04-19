@@ -105,14 +105,17 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNormalST::calculate( int par
                 {
                     for ( int elmNodIdx = 0; elmNodIdx < elmNodeCount; ++elmNodIdx )
                     {
-                        size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
+                        const size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
+                        const int    nodeIdx      = femPart->nodeIdxFromElementNodeResultIdx( elmNodResIdx );
+                        float        por          = 0.0f;
+                        if ( nodeIdx < srcPORFrameData.size() )
+                        {
+                            por = srcPORFrameData[nodeIdx];
+                            if ( por == inf ) por = 0.0f;
+                        }
+
                         if ( elmNodResIdx < srcSFrameData.size() )
                         {
-                            int nodeIdx = femPart->nodeIdxFromElementNodeResultIdx( elmNodResIdx );
-
-                            float por = srcPORFrameData[nodeIdx];
-                            if ( por == inf ) por = 0.0f;
-
                             // ST = SE_abacus + porePressure
                             // porePressure is POR-Bar.
                             double SE_abacus           = -srcSFrameData[elmNodResIdx];
