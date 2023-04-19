@@ -830,15 +830,14 @@ void RimSummaryPlot::applyDefaultCurveAppearances( std::vector<RimSummaryCurve*>
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::applyDefaultCurveAppearances( std::vector<RimEnsembleCurveSet*> ensembleCurvesToUpdate )
 {
-    auto allCurveSets = ensembleCurveSetCollection()->curveSets();
-
-    std::vector<QColor> existingColors;
-
-    for ( auto c : allCurveSets )
+    std::vector<QColor> usedColors;
+    for ( auto c : ensembleCurveSetCollection()->curveSets() )
     {
+        // ensembleCurvesToUpdate can be present in the ensembleCurveSetCollection()->curveSets() vector, exclude this from used
+        // colors
         if ( std::find( ensembleCurvesToUpdate.begin(), ensembleCurvesToUpdate.end(), c ) == ensembleCurvesToUpdate.end() )
         {
-            existingColors.push_back( c->colorForLegend() );
+            usedColors.push_back( c->mainEnsembleColor() );
         }
     }
 
@@ -846,7 +845,7 @@ void RimSummaryPlot::applyDefaultCurveAppearances( std::vector<RimEnsembleCurveS
     {
         cvf::Color3f curveColor = cvf::Color3f::ORANGE;
 
-        auto adr = curveSet->summaryAddress();
+        const auto adr = curveSet->summaryAddress();
         if ( adr.isHistoryVector() )
         {
             curveColor = RiaPreferencesSummary::current()->historyCurveContrastColor();
@@ -858,22 +857,22 @@ void RimSummaryPlot::applyDefaultCurveAppearances( std::vector<RimEnsembleCurveS
                 std::vector<QColor> candidateColors;
                 if ( RiaPreferencesSummary::current()->colorCurvesByPhase() )
                 {
+                    // Put the the phase color as first candidate, will then be used if there is only one ensemble in the plot
                     candidateColors.push_back( RiaColorTools::toQColor( RimSummaryCurveAppearanceCalculator::assignColorByPhase( adr ) ) );
                 }
 
                 auto summaryColors = RiaColorTables::summaryCurveDefaultPaletteColors();
-                for ( int i = 0; i < summaryColors.size(); i++ )
+                for ( int i = 0; i < static_cast<int>( summaryColors.size() ); i++ )
                 {
                     candidateColors.push_back( summaryColors.cycledQColor( i ) );
                 }
 
                 for ( const auto& candidateCol : candidateColors )
                 {
-                    auto v = std::find( existingColors.begin(), existingColors.end(), candidateCol );
-                    if ( v == existingColors.end() )
+                    if ( std::find( usedColors.begin(), usedColors.end(), candidateCol ) == usedColors.end() )
                     {
                         curveColor = RiaColorTools::fromQColorTo3f( candidateCol );
-                        existingColors.push_back( candidateCol );
+                        usedColors.push_back( candidateCol );
                         break;
                     }
                 }

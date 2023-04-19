@@ -142,10 +142,10 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     CAF_PDM_InitField( &m_colorMode, "ColorMode", caf::AppEnum<ColorMode>( ColorMode::SINGLE_COLOR_WITH_ALPHA ), "Coloring Mode" );
 
-    CAF_PDM_InitField( &m_color, "Color", RiaColorTools::textColor3f(), "Color" );
-    CAF_PDM_InitField( &m_baseColorForTransparentCurves, "BaseColorForTransparentCurves", RiaColorTools::textColor3f(), "Color" );
-    CAF_PDM_InitField( &m_colorTransparencey, "ColorTransparencey", 0.3, "Transparency" );
-    m_colorTransparencey.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+    CAF_PDM_InitField( &m_colorForRealizations, "Color", RiaColorTools::textColor3f(), "Color" );
+    CAF_PDM_InitField( &m_mainEnsembleColor, "MainEnsembleColor", RiaColorTools::textColor3f(), "Color" );
+    CAF_PDM_InitField( &m_colorTransparency, "ColorTransparency", 0.3, "Transparency" );
+    m_colorTransparency.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_ensembleParameter, "EnsembleParameter", QString( "" ), "Parameter" );
     m_ensembleParameter.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
@@ -288,7 +288,7 @@ bool RimEnsembleCurveSet::isCurvesVisible()
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::setColor( cvf::Color3f color )
 {
-    m_baseColorForTransparentCurves = color;
+    m_mainEnsembleColor = color;
 
     setTransparentCurveColor();
 }
@@ -383,7 +383,7 @@ void RimEnsembleCurveSet::addCurve( RimSummaryCurve* curve )
         firstAncestorOrThisOfType( plot );
         if ( plot && plot->plotWidget() ) curve->setParentPlotNoReplot( plot->plotWidget() );
 
-        curve->setColor( m_color );
+        curve->setColor( m_colorForRealizations );
         m_curves.push_back( curve );
     }
 }
@@ -681,7 +681,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     {
         updateAllCurves();
     }
-    else if ( changedField == &m_color || changedField == &m_baseColorForTransparentCurves || changedField == &m_colorTransparencey )
+    else if ( changedField == &m_colorForRealizations || changedField == &m_mainEnsembleColor || changedField == &m_colorTransparency )
     {
         setTransparentCurveColor();
 
@@ -898,7 +898,7 @@ void RimEnsembleCurveSet::defineObjectEditorAttribute( QString uiConfigName, caf
     {
         treeItemAttribute->tags.clear();
         auto tag     = caf::PdmUiTreeViewItemAttribute::Tag::create();
-        tag->bgColor = RiaColorTools::toQColor( m_color );
+        tag->bgColor = RiaColorTools::toQColor( m_colorForRealizations );
         tag->fgColor = RiaColorTools::toQColor( m_statistics->color() );
         tag->text    = "---";
 
@@ -994,13 +994,13 @@ void RimEnsembleCurveSet::setTransparentCurveColor()
     {
         auto backgroundColor = RiuGuiTheme::getColorByVariableName( "backgroundColor1" );
 
-        auto sourceColor      = RiaColorTools::toQColor( m_baseColorForTransparentCurves );
+        auto sourceColor      = RiaColorTools::toQColor( m_mainEnsembleColor );
         auto sourceWeight     = 100;
-        int  backgroundWeight = std::max( 1, static_cast<int>( sourceWeight * 10 * m_colorTransparencey ) );
+        int  backgroundWeight = std::max( 1, static_cast<int>( sourceWeight * 10 * m_colorTransparency ) );
         auto blendedColor     = RiaColorTools::blendQColors( backgroundColor, sourceColor, backgroundWeight, sourceWeight );
 
-        m_color = RiaColorTools::fromQColorTo3f( blendedColor );
-        setStatisticsColor( m_baseColorForTransparentCurves );
+        m_colorForRealizations = RiaColorTools::fromQColorTo3f( blendedColor );
+        setStatisticsColor( m_mainEnsembleColor );
         updateStatisticsCurves();
     }
 }
@@ -1008,14 +1008,14 @@ void RimEnsembleCurveSet::setTransparentCurveColor()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QColor RimEnsembleCurveSet::colorForLegend() const
+QColor RimEnsembleCurveSet::mainEnsembleColor() const
 {
     if ( m_colorMode() == RimEnsembleCurveSetColorManager::ColorMode::SINGLE_COLOR_WITH_ALPHA )
     {
-        return RiaColorTools::toQColor( m_baseColorForTransparentCurves );
+        return RiaColorTools::toQColor( m_mainEnsembleColor );
     }
 
-    return RiaColorTools::toQColor( m_color );
+    return RiaColorTools::toQColor( m_colorForRealizations );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1026,11 +1026,11 @@ void RimEnsembleCurveSet::onColorTagClicked( const SignalEmitter* emitter, size_
     caf::PdmField<cvf::Color3f>* colorToModify = nullptr;
     if ( m_colorMode() == RimEnsembleCurveSetColorManager::ColorMode::SINGLE_COLOR )
     {
-        colorToModify = &m_color;
+        colorToModify = &m_colorForRealizations;
     }
     else
     {
-        colorToModify = &m_baseColorForTransparentCurves;
+        colorToModify = &m_mainEnsembleColor;
     }
 
     if ( colorToModify )
@@ -1069,12 +1069,12 @@ void RimEnsembleCurveSet::appendColorGroup( caf::PdmUiOrdering& uiOrdering )
 
     if ( m_colorMode() == RimEnsembleCurveSetColorManager::ColorMode::SINGLE_COLOR )
     {
-        colorsGroup->add( &m_color );
+        colorsGroup->add( &m_colorForRealizations );
     }
     else if ( m_colorMode() == RimEnsembleCurveSetColorManager::ColorMode::SINGLE_COLOR_WITH_ALPHA )
     {
-        colorsGroup->add( &m_baseColorForTransparentCurves );
-        colorsGroup->add( &m_colorTransparencey );
+        colorsGroup->add( &m_mainEnsembleColor );
+        colorsGroup->add( &m_colorTransparency );
     }
     else if ( m_colorMode == ColorMode::BY_ENSEMBLE_PARAM )
     {
@@ -1204,7 +1204,7 @@ void RimEnsembleCurveSet::defineEditorAttribute( const caf::PdmFieldHandle* fiel
             myAttr->m_showSpinBox = false;
         }
     }
-    if ( field == &m_colorTransparencey )
+    if ( field == &m_colorTransparency )
     {
         if ( auto* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
         {
@@ -1620,7 +1620,7 @@ std::vector<cvf::Color3f> RimEnsembleCurveSet::generateColorsForCases( const std
     }
     else if ( RimEnsembleCurveSetColorManager::hasSameColorForAllCurves( m_colorMode() ) )
     {
-        caseColors.resize( summaryCases.size(), m_color );
+        caseColors.resize( summaryCases.size(), m_colorForRealizations );
     }
     else if ( m_colorMode == ColorMode::BY_OBJECTIVE_FUNCTION )
     {
@@ -1700,7 +1700,7 @@ void RimEnsembleCurveSet::updateCurveColors()
 
     if ( m_plotCurveForLegendText )
     {
-        m_plotCurveForLegendText->setColor( colorForLegend() );
+        m_plotCurveForLegendText->setColor( mainEnsembleColor() );
     }
 
     RimSummaryPlot* plot;
@@ -2110,7 +2110,7 @@ void RimEnsembleCurveSet::updateEnsembleLegendItem()
 
         if ( RimEnsembleCurveSetColorManager::hasSameColorForAllCurves( m_colorMode() ) )
         {
-            QColor curveColor = colorForLegend();
+            QColor curveColor = mainEnsembleColor();
             QPen   curvePen( curveColor );
             curvePen.setWidth( 2 );
 

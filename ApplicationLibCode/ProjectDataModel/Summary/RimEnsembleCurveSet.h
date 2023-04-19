@@ -99,7 +99,7 @@ public:
     void   setColor( cvf::Color3f color );
     void   setStatisticsColor( const cvf::Color3f& color );
     void   enableStatisticsLables( bool enable );
-    QColor colorForLegend() const;
+    QColor mainEnsembleColor() const;
 
     void loadDataAndUpdate( bool updateParentPlot );
     void setParentPlotNoReplot( RiuPlotWidget* plot );
@@ -230,9 +230,9 @@ private:
     caf::PdmField<RiaDefines::DateTimePeriodEnum> m_resampling;
 
     caf::PdmField<ColorModeEnum>                                       m_colorMode;
-    caf::PdmField<cvf::Color3f>                                        m_baseColorForTransparentCurves;
-    caf::PdmField<cvf::Color3f>                                        m_color;
-    caf::PdmField<double>                                              m_colorTransparencey;
+    caf::PdmField<cvf::Color3f>                                        m_mainEnsembleColor;
+    caf::PdmField<cvf::Color3f>                                        m_colorForRealizations;
+    caf::PdmField<double>                                              m_colorTransparency;
     caf::PdmField<QString>                                             m_ensembleParameter;
     caf::PdmField<caf::AppEnum<RimEnsembleCurveSet::ParameterSorting>> m_ensembleParameterSorting;
 
