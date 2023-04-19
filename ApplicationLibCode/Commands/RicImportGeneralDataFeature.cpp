@@ -406,7 +406,7 @@ bool RicImportGeneralDataFeature::openRoffCasesFromFileNames( const QStringList&
     const size_t initialNumCases  = createdCaseIds.size();
     auto         generatedCaseIds = RiaImportEclipseCaseTools::openRoffCasesFromFileNames( fileNames, createDefaultView );
 
-    CAF_ASSERT( fileNames.size() == static_cast<int>( generatedCaseIds.size() ) && "Expected to create one roff case per file provided!" );
+    CAF_ASSERT( fileNames.size() == static_cast<int>( generatedCaseIds.size() ) && "Expected to create one roff case per file provided" );
 
     for ( int i = 0; i < fileNames.size(); ++i )
     {
