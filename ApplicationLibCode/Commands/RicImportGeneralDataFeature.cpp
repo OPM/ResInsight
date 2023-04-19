@@ -441,6 +441,8 @@ bool RicImportGeneralDataFeature::openRoffCaseAndPropertiesFromFileNames( const 
     auto* generatedRoffCase = RiaImportEclipseCaseTools::openRoffCaseFromFileName( *gridCaseItr, createDefaultView );
     if ( !generatedRoffCase ) return false;
 
+    createdCaseIds.push_back( generatedRoffCase->caseId() );
+
     QStringList propertyFileNames;
     for ( auto fileNameItr = fileNames.begin(); fileNameItr != fileNames.end(); ++fileNameItr )
     {
