@@ -156,6 +156,7 @@ private:
     friend class RigSoilResultCalculator;
     friend class RigFaultDistanceResultCalculator;
     friend class RigMobilePoreVolumeResultCalculator;
+    friend class RigIndexIjkResultCalculator;
     size_t findOrLoadKnownScalarResultForTimeStep( const RigEclipseResultAddress& resVarAddr, size_t timeStepIndex );
 
     size_t findOrCreateScalarResultIndex( const RigEclipseResultAddress& resVarAddr, bool needsToBeStored );

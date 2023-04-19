@@ -35,6 +35,7 @@
 #include "RigEclipseResultInfo.h"
 #include "RigFaultDistanceResultCalculator.h"
 #include "RigFormationNames.h"
+#include "RigIndexIjkResultCalculator.h"
 #include "RigMainGrid.h"
 #include "RigMobilePoreVolumeResultCalculator.h"
 #include "RigSoilResultCalculator.h"
@@ -1823,84 +1824,9 @@ void RigCaseCellResultsData::computeDepthRelatedResults()
 //--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::computeIndexResults()
 {
-    size_t reservoirCellCount = activeCellInfo()->reservoirCellCount();
-    if ( reservoirCellCount == 0 ) return;
-
-    size_t iResultIndex = findScalarResultIndexFromAddress(
-        RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::indexIResultName() ) );
-    size_t jResultIndex = findScalarResultIndexFromAddress(
-        RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::indexJResultName() ) );
-    size_t kResultIndex = findScalarResultIndexFromAddress(
-        RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::indexKResultName() ) );
-
-    if ( iResultIndex == cvf::UNDEFINED_SIZE_T || jResultIndex == cvf::UNDEFINED_SIZE_T || kResultIndex == cvf::UNDEFINED_SIZE_T ) return;
-
-    bool computeIndexI = false;
-    bool computeIndexJ = false;
-    bool computeIndexK = false;
-
-    std::vector<std::vector<double>>& indexI = m_cellScalarResults[iResultIndex];
-    std::vector<std::vector<double>>& indexJ = m_cellScalarResults[jResultIndex];
-    std::vector<std::vector<double>>& indexK = m_cellScalarResults[kResultIndex];
-
-    if ( indexI.empty() ) indexI.resize( 1 );
-    if ( indexI[0].size() < reservoirCellCount )
-    {
-        indexI[0].resize( reservoirCellCount, std::numeric_limits<double>::infinity() );
-        computeIndexI = true;
-    }
-
-    if ( indexJ.empty() ) indexJ.resize( 1 );
-    if ( indexJ[0].size() < reservoirCellCount )
-    {
-        indexJ[0].resize( reservoirCellCount, std::numeric_limits<double>::infinity() );
-        computeIndexJ = true;
-    }
-
-    if ( indexK.empty() ) indexK.resize( 1 );
-    if ( indexK[0].size() < reservoirCellCount )
-    {
-        indexK[0].resize( reservoirCellCount, std::numeric_limits<double>::infinity() );
-        computeIndexK = true;
-    }
-
-    if ( !( computeIndexI || computeIndexJ || computeIndexK ) ) return;
-
-    const std::vector<RigCell>& globalCellArray = m_ownerMainGrid->globalCellArray();
-    long long                   numCells        = static_cast<long long>( globalCellArray.size() );
-#pragma omp parallel for
-    for ( long long cellIdx = 0; cellIdx < numCells; cellIdx++ )
-    {
-        const RigCell& cell = globalCellArray[cellIdx];
-
-        size_t resultIndex = cellIdx;
-        if ( resultIndex == cvf::UNDEFINED_SIZE_T ) continue;
-
-        bool isTemporaryGrid = cell.hostGrid()->isTempGrid();
-
-        size_t       gridLocalNativeCellIndex = cell.gridLocalCellIndex();
-        RigGridBase* grid                     = cell.hostGrid();
-
-        size_t i, j, k;
-        if ( grid->ijkFromCellIndex( gridLocalNativeCellIndex, &i, &j, &k ) )
-        {
-            // I/J/K is 1-indexed when shown to user, thus "+ 1"
-            if ( computeIndexI || isTemporaryGrid )
-            {
-                indexI[0][resultIndex] = i + 1;
-            }
-
-            if ( computeIndexJ || isTemporaryGrid )
-            {
-                indexJ[0][resultIndex] = j + 1;
-            }
-
-            if ( computeIndexK || isTemporaryGrid )
-            {
-                indexK[0][resultIndex] = k + 1;
-            }
-        }
-    }
+    RigEclipseResultAddress     addr( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::indexIResultName() );
+    RigIndexIjkResultCalculator calculator( *this );
+    calculator.calculate( addr, 0 );
 }
 
 //--------------------------------------------------------------------------------------------------
