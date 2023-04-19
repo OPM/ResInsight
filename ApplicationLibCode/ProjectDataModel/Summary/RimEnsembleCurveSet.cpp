@@ -276,7 +276,7 @@ RimEnsembleCurveSet::~RimEnsembleCurveSet()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimEnsembleCurveSet::isCurvesVisible()
+bool RimEnsembleCurveSet::isCurvesVisible() const
 {
     RimEnsembleCurveSetCollection* coll = nullptr;
     firstAncestorOrThisOfType( coll );

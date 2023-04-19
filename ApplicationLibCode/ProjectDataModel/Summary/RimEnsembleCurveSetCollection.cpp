@@ -66,7 +66,7 @@ RimEnsembleCurveSetCollection::~RimEnsembleCurveSetCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimEnsembleCurveSetCollection::isCurveSetsVisible()
+bool RimEnsembleCurveSetCollection::isCurveSetsVisible() const
 {
     return m_showCurves();
 }

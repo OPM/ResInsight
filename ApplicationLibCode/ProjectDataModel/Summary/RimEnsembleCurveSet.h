@@ -95,7 +95,7 @@ public:
 
     QString name() const;
 
-    bool   isCurvesVisible();
+    bool   isCurvesVisible() const;
     void   setColor( cvf::Color3f color );
     void   setStatisticsColor( const cvf::Color3f& color );
     void   enableStatisticsLables( bool enable );
