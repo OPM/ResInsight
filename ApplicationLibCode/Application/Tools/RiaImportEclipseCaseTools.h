@@ -20,11 +20,13 @@
 
 #include <map>
 #include <memory>
+#include <vector>
 
 class QString;
 class QStringList;
 
 class RimIdenticalGridCaseGroup;
+class RimRoffCase;
 class RifReaderSettings;
 
 //==================================================================================================
@@ -50,7 +52,8 @@ public:
 
     static int openEclipseCaseFromFile( const QString& fileName, bool createView, std::shared_ptr<RifReaderSettings> readerSettings = nullptr );
 
-    static int openRoffCaseFromFileNames( const QStringList& fileNames, bool createDefaultView );
+    static std::vector<int> openRoffCasesFromFileNames( const QStringList& fileNames, bool createDefaultView );
+    static RimRoffCase*     openRoffCaseFromFileName( const QString& fileName, bool createDefaultView );
 
 private:
     static int openEclipseCaseShowTimeStepFilterImpl( const QString&                     fileName,

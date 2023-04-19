@@ -43,6 +43,32 @@
 using namespace std::chrono;
 
 //--------------------------------------------------------------------------------------------------
+/// NOTE: Moved from header file due to compile header when using RifRoffFileTools from
+/// ApplicationLibCode/Commands
+//--------------------------------------------------------------------------------------------------
+template <typename IN, typename OUT>
+static void convertToReservoirIndexOrder( int nx, int ny, int nz, const std::vector<IN>& in, std::vector<OUT>& out )
+{
+    CAF_ASSERT( static_cast<size_t>( nx * ny * nz ) == in.size() );
+
+    out.resize( in.size(), -1 );
+
+    int outIdx = 0;
+    for ( int k = 0; k < nz; k++ )
+    {
+        for ( int j = 0; j < ny; j++ )
+        {
+            for ( int i = 0; i < nx; i++ )
+            {
+                int inIdx   = i * ny * nz + j * nz + ( nz - k - 1 );
+                out[outIdx] = static_cast<OUT>( in[inIdx] );
+                outIdx++;
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Constructor
 //--------------------------------------------------------------------------------------------------
 RifRoffFileTools::RifRoffFileTools()
@@ -518,6 +544,37 @@ std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputPropert
     }
 
     return std::make_pair( true, keywordMapping );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifRoffFileTools::hasGridData( const QString& filename )
+{
+    // Check if arrayTypes contains grid info
+    // - Alt 1. Look for tag "cornerLines" and its data with keyword "cornerLines.data" - actual representation of grid data
+    // - Alt 2. Look for tag "filedata" and its filetype with keyword "filedata.filetype" - should be equal "grid" (not as robust, rather
+    // look for "cornerLines" which is grid representation)
+
+    std::ifstream stream( filename.toStdString(), std::ios::binary );
+    if ( !stream.good() )
+    {
+        RiaLogging::error( "Unable to open roff file" );
+        return false;
+    }
+
+    roff::Reader reader( stream );
+    reader.parse();
+
+    const std::vector<std::pair<std::string, roff::Token::Kind>> arrayTypes = reader.getNamedArrayTypes();
+
+    const std::string cornerLinesDataKeyword = "cornerLines.data";
+    auto              cornerLinesDataItr     = std::find_if( arrayTypes.begin(),
+                                            arrayTypes.end(),
+                                            [&cornerLinesDataKeyword]( const auto& arrayType )
+                                            { return arrayType.first == cornerLinesDataKeyword; } );
+
+    return cornerLinesDataItr != arrayTypes.end();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -25,6 +25,9 @@
 
 #include "RicImportSummaryCasesFeature.h"
 
+#include "RifRoffFileTools.h"
+
+#include "RimRoffCase.h"
 #include "RimSummaryCase.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -108,7 +111,7 @@ RicImportGeneralDataFeature::OpenCaseResults
     }
     if ( !roffFiles.empty() )
     {
-        if ( !openRoffCaseFromFileNames( roffFiles, createDefaultView, results.createdCaseIds ) )
+        if ( !openRoffFilesFromFileNames( roffFiles, createDefaultView, results.createdCaseIds ) )
         {
             return OpenCaseResults();
         }
@@ -366,16 +369,88 @@ bool RicImportGeneralDataFeature::openSummaryCaseFromFileNames( const QStringLis
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicImportGeneralDataFeature::openRoffCaseFromFileNames( const QStringList& fileNames, bool createDefaultView, std::vector<int>& createdCaseIds )
+bool RicImportGeneralDataFeature::openRoffFilesFromFileNames( const QStringList& fileNames, bool createDefaultView, std::vector<int>& createdCaseIds )
 {
     CAF_ASSERT( !fileNames.empty() );
 
-    auto generatedCaseId = RiaImportEclipseCaseTools::openRoffCaseFromFileNames( fileNames, createDefaultView );
-    if ( generatedCaseId >= 0 )
+    auto numGridCases = static_cast<int>(
+        std::count_if( fileNames.begin(), fileNames.end(), []( const auto& fileName ) { return RifRoffFileTools::hasGridData( fileName ); } ) );
+
+    if ( numGridCases != fileNames.size() && numGridCases != 1 )
     {
-        RiaApplication::instance()->addToRecentFiles( fileNames[0] );
-        createdCaseIds.push_back( generatedCaseId );
-        return true;
+        RiaLogging::error( "Select only grid case files or 1 grid case file with N property files!" );
+        return false;
     }
+
+    if ( numGridCases == 1 )
+    {
+        // Open single grid case and connected property files
+        return openRoffCaseAndPropertiesFromFileNames( fileNames, createDefaultView, createdCaseIds );
+    }
+    else
+    {
+        // Open multiple grid cases
+        return openRoffCasesFromFileNames( fileNames, createDefaultView, createdCaseIds );
+    }
+
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Assumes N files containing grid info - each file must be grid case
+//--------------------------------------------------------------------------------------------------
+bool RicImportGeneralDataFeature::openRoffCasesFromFileNames( const QStringList& fileNames, bool createDefaultView, std::vector<int>& createdCaseIds )
+{
+    CAF_ASSERT( !fileNames.empty() );
+
+    const size_t initialNumCases  = createdCaseIds.size();
+    auto         generatedCaseIds = RiaImportEclipseCaseTools::openRoffCasesFromFileNames( fileNames, createDefaultView );
+
+    CAF_ASSERT( fileNames.size() == static_cast<int>( generatedCaseIds.size() ) && "Expected to create one roff case per file provided" );
+
+    for ( int i = 0; i < fileNames.size(); ++i )
+    {
+        const auto caseId = generatedCaseIds[static_cast<size_t>( i )];
+        if ( caseId >= 0 )
+        {
+            RiaApplication::instance()->addToRecentFiles( fileNames[i] );
+            createdCaseIds.push_back( caseId );
+        }
+    }
+    return initialNumCases != createdCaseIds.size();
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Assuming 1 roff file with grid data and N roff files with property info for respective grid file
+//--------------------------------------------------------------------------------------------------
+bool RicImportGeneralDataFeature::openRoffCaseAndPropertiesFromFileNames( const QStringList& fileNames,
+                                                                          bool               createDefaultView,
+                                                                          std::vector<int>&  createdCaseIds )
+{
+    CAF_ASSERT( !fileNames.empty() );
+
+    auto gridCaseItr =
+        std::find_if( fileNames.begin(), fileNames.end(), []( const auto& fileName ) { return RifRoffFileTools::hasGridData( fileName ); } );
+
+    if ( gridCaseItr == fileNames.end() )
+    {
+        RiaLogging::error( "Provided file names must contain one grid file" );
+        return false;
+    }
+
+    auto* generatedRoffCase = RiaImportEclipseCaseTools::openRoffCaseFromFileName( *gridCaseItr, createDefaultView );
+    if ( !generatedRoffCase ) return false;
+
+    createdCaseIds.push_back( generatedRoffCase->caseId() );
+
+    QStringList propertyFileNames;
+    for ( auto fileNameItr = fileNames.begin(); fileNameItr != fileNames.end(); ++fileNameItr )
+    {
+        if ( fileNameItr == gridCaseItr ) continue;
+
+        propertyFileNames.push_back( *fileNameItr );
+    }
+    generatedRoffCase->importAsciiInputProperties( propertyFileNames );
+
+    return true;
 }

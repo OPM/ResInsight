@@ -24,7 +24,6 @@
 #include "SummaryPlotCommands/RicNewSummaryCurveFeature.h"
 #include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
 
-#include "RiaApplication.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 
@@ -74,8 +73,8 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList&    
                                                           bool                               noDialog,
                                                           std::shared_ptr<RifReaderSettings> readerSettings )
 {
-    RiaApplication* app     = RiaApplication::instance();
-    RimProject*     project = app->project();
+    RimProject* project = RimProject::current();
+    if ( !project ) return false;
 
     // Get list of files to import
     RifSummaryCaseRestartSelector selector;
@@ -258,8 +257,8 @@ int RiaImportEclipseCaseTools::openEclipseInputCaseFromFileNames( const QStringL
 {
     auto* rimInputReservoir = new RimEclipseInputCase();
 
-    RiaApplication* app     = RiaApplication::instance();
-    RimProject*     project = app->project();
+    RimProject* project = RimProject::current();
+    if ( !project ) return -1;
 
     project->assignCaseIdToCase( rimInputReservoir );
 
@@ -325,8 +324,8 @@ int RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl( const QStr
     rimResultReservoir->setCaseInfo( caseName, fileName );
     rimResultReservoir->setReaderSettings( readerSettings );
 
-    RiaApplication* app     = RiaApplication::instance();
-    RimProject*     project = app->project();
+    RimProject* project = RimProject::current();
+    if ( !project ) return -1;
 
     RimEclipseCaseCollection* analysisModels = project->activeOilField() ? project->activeOilField()->analysisModels() : nullptr;
     if ( analysisModels == nullptr )
@@ -395,8 +394,8 @@ bool RiaImportEclipseCaseTools::addEclipseCases( const QStringList& fileNames, R
     std::vector<std::vector<int>> mainCaseGridDimensions;
     RimIdenticalGridCaseGroup*    gridCaseGroup = nullptr;
 
-    RiaApplication* app     = RiaApplication::instance();
-    RimProject*     project = app->project();
+    RimProject* project = RimProject::current();
+    if ( !project ) return false;
 
     {
         QString   firstFileName = fileNames[0];
@@ -487,26 +486,76 @@ bool RiaImportEclipseCaseTools::addEclipseCases( const QStringList& fileNames, R
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiaImportEclipseCaseTools::openRoffCaseFromFileNames( const QStringList& fileNames, bool createDefaultView )
+std::vector<int> RiaImportEclipseCaseTools::openRoffCasesFromFileNames( const QStringList& fileNames, bool createDefaultView )
 {
     CAF_ASSERT( !fileNames.empty() );
 
-    auto* roffCase = new RimRoffCase();
+    RimProject* project = RimProject::current();
+    if ( !project ) return {};
 
-    RiaApplication* app     = RiaApplication::instance();
-    RimProject*     project = app->project();
+    RimEclipseCaseCollection* analysisModels = project->activeOilField() ? project->activeOilField()->analysisModels() : nullptr;
+    if ( !analysisModels ) return {};
+
+    std::vector<int> roffCaseIds;
+    for ( const auto& fileName : fileNames )
+    {
+        auto* roffCase = new RimRoffCase();
+        project->assignCaseIdToCase( roffCase );
+        roffCase->setGridFileName( fileName );
+
+        bool gridImportSuccess = roffCase->openEclipseGridFile();
+        if ( !gridImportSuccess )
+        {
+            const auto errMsg = "Failed to import grid from file: " + fileName.toStdString();
+            RiaLogging::error( errMsg.c_str() );
+            continue;
+        }
+
+        analysisModels->cases.push_back( roffCase );
+
+        RimEclipseView* eclipseView = nullptr;
+        if ( createDefaultView )
+        {
+            eclipseView = roffCase->createAndAddReservoirView();
+
+            eclipseView->cellResult()->setResultType( RiaDefines::ResultCatType::INPUT_PROPERTY );
+
+            if ( RiaGuiApplication::isRunning() )
+            {
+                if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->selectAsCurrentItem( eclipseView->cellResult() );
+            }
+
+            eclipseView->loadDataAndUpdate();
+        }
+
+        analysisModels->updateConnectedEditors();
+        roffCaseIds.push_back( roffCase->caseId() );
+    }
+    return roffCaseIds;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimRoffCase* RiaImportEclipseCaseTools::openRoffCaseFromFileName( const QString& fileName, bool createDefaultView )
+{
+    RimProject* project = RimProject::current();
+    if ( !project ) return nullptr;
+
+    RimEclipseCaseCollection* analysisModels = project->activeOilField() ? project->activeOilField()->analysisModels() : nullptr;
+    if ( !analysisModels ) return nullptr;
+
+    auto* roffCase = new RimRoffCase();
     project->assignCaseIdToCase( roffCase );
-    roffCase->setGridFileName( fileNames[0] );
+    roffCase->setGridFileName( fileName );
 
     bool gridImportSuccess = roffCase->openEclipseGridFile();
     if ( !gridImportSuccess )
     {
-        RiaLogging::error( "Failed to import grid" );
-        return -1;
+        const auto errMsg = "Failed to import grid from file: " + fileName.toStdString();
+        RiaLogging::error( errMsg.c_str() );
+        return nullptr;
     }
-
-    RimEclipseCaseCollection* analysisModels = project->activeOilField() ? project->activeOilField()->analysisModels() : nullptr;
-    if ( !analysisModels ) return -1;
 
     analysisModels->cases.push_back( roffCase );
 
@@ -527,5 +576,5 @@ int RiaImportEclipseCaseTools::openRoffCaseFromFileNames( const QStringList& fil
 
     analysisModels->updateConnectedEditors();
 
-    return roffCase->caseId();
+    return roffCase;
 }
