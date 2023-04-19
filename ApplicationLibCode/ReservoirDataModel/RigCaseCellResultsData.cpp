@@ -38,6 +38,7 @@
 #include "RigIndexIjkResultCalculator.h"
 #include "RigMainGrid.h"
 #include "RigMobilePoreVolumeResultCalculator.h"
+#include "RigOilVolumeResultCalculator.h"
 #include "RigSoilResultCalculator.h"
 #include "RigStatisticsDataCache.h"
 #include "RigStatisticsMath.h"
@@ -2648,40 +2649,10 @@ void RigCaseCellResultsData::computeCellVolumes()
 //--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::computeOilVolumes()
 {
-    size_t cellVolIdx = this->findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                                                      RiaResultNames::riCellVolumeResultName() ),
-                                                             false );
-    const std::vector<double>& cellVolumeResults = m_cellScalarResults[cellVolIdx][0];
-
-    size_t soilIdx =
-        this->findOrLoadKnownScalarResult( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() ) );
-    size_t oilVolIdx = this->findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                                                     RiaResultNames::riOilVolumeResultName() ),
-                                                            false );
-    m_cellScalarResults[oilVolIdx].resize( this->maxTimeStepCount() );
-
-    size_t cellResultCount = m_activeCellInfo->reservoirActiveCellCount();
-    for ( size_t timeStepIdx = 0; timeStepIdx < this->maxTimeStepCount(); timeStepIdx++ )
-    {
-        const std::vector<double>& soilResults      = m_cellScalarResults[soilIdx][timeStepIdx];
-        std::vector<double>&       oilVolumeResults = m_cellScalarResults[oilVolIdx][timeStepIdx];
-        oilVolumeResults.resize( cellResultCount, 0u );
-
-#pragma omp parallel for
-        for ( int nativeResvCellIndex = 0; nativeResvCellIndex < static_cast<int>( m_ownerMainGrid->globalCellArray().size() );
-              nativeResvCellIndex++ )
-        {
-            size_t resultIndex = activeCellInfo()->cellResultIndex( nativeResvCellIndex );
-            if ( resultIndex != cvf::UNDEFINED_SIZE_T )
-            {
-                if ( resultIndex < soilResults.size() && resultIndex < cellVolumeResults.size() )
-                {
-                    CVF_ASSERT( soilResults.at( resultIndex ) <= 1.01 );
-                    oilVolumeResults[resultIndex] = std::max( 0.0, soilResults.at( resultIndex ) * cellVolumeResults.at( resultIndex ) );
-                }
-            }
-        }
-    }
+    RigEclipseResultAddress      addr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::riOilVolumeResultName() );
+    RigOilVolumeResultCalculator calculator( *this );
+    // Computes for all time steps
+    calculator.calculate( addr, -1 );
 }
 
 //--------------------------------------------------------------------------------------------------
