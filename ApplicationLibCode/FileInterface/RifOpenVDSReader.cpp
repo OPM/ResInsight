@@ -402,7 +402,7 @@ cvf::Vec3d RifOpenVDSReader::convertToWorldCoords( int iLine, int xLine, double 
     if ( !isOpen() ) return { 0, 0, 0 };
 
     auto world = m_coordinateTransform->AnnotationToWorld( OpenVDS::DoubleVector3( iLine, xLine, depth ) );
-    return { world.X, world.Y, world.Z };
+    return { world.X, world.Y, depth };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -423,23 +423,82 @@ std::pair<int, int> RifOpenVDSReader::convertToInlineXline( double worldx, doubl
 std::shared_ptr<ZGYAccess::SeismicSliceData>
     RifOpenVDSReader::slice( RiaDefines::SeismicSliceDirection direction, int sliceIndex, int zStartIndex, int zSize )
 {
-    if ( isOpen() )
+    if ( !isOpen() ) return nullptr;
+
+    if ( zStartIndex < 0 )
     {
-        // switch ( direction )
-        //{
-        //     case RiaDefines::SeismicSliceDirection::INLINE:
-        //         if ( zStartIndex < 0 ) return m_reader->inlineSlice( sliceIndex );
-        //         return m_reader->inlineSlice( sliceIndex, zStartIndex, zSize );
-        //     case RiaDefines::SeismicSliceDirection::XLINE:
-        //         if ( zStartIndex < 0 ) return m_reader->xlineSlice( sliceIndex );
-        //         return m_reader->xlineSlice( sliceIndex, zStartIndex, zSize );
-        //     case RiaDefines::SeismicSliceDirection::DEPTH:
-        //         return m_reader->zSlice( sliceIndex );
-        //     default:
-        //         break;
-        // }
+        zStartIndex = 0;
+        zSize       = this->zSize();
     }
-    return nullptr;
+
+    auto                             accessManager = OpenVDS::GetAccessManager( m_handle );
+    OpenVDS::VolumeDataLayout const* layout        = accessManager.GetVolumeDataLayout();
+    if ( layout == nullptr ) return nullptr;
+
+    int xlineSize  = layout->GetAxisDescriptor( VDS_XLINE_DIM ).GetNumSamples();
+    int inlineSize = layout->GetAxisDescriptor( VDS_INLINE_DIM ).GetNumSamples();
+
+    int voxelMin[OpenVDS::Dimensionality_Max] = { 0, 0, 0, 0, 0, 0 };
+    int voxelMax[OpenVDS::Dimensionality_Max] = { 1, 1, 1, 1, 1, 1 };
+
+    int width  = 0;
+    int height = 0;
+
+    switch ( direction )
+    {
+        case RiaDefines::SeismicSliceDirection::INLINE:
+            voxelMin[VDS_Z_DIM]      = zStartIndex;
+            voxelMax[VDS_Z_DIM]      = zStartIndex + zSize;
+            voxelMin[VDS_XLINE_DIM]  = 0;
+            voxelMax[VDS_XLINE_DIM]  = xlineSize;
+            voxelMin[VDS_INLINE_DIM] = sliceIndex;
+            voxelMax[VDS_INLINE_DIM] = sliceIndex + 1;
+            width                    = xlineSize;
+            height                   = zSize;
+            break;
+
+        case RiaDefines::SeismicSliceDirection::XLINE:
+            voxelMin[VDS_Z_DIM]      = zStartIndex;
+            voxelMax[VDS_Z_DIM]      = zStartIndex + zSize;
+            voxelMin[VDS_XLINE_DIM]  = sliceIndex;
+            voxelMax[VDS_XLINE_DIM]  = sliceIndex + 1;
+            voxelMin[VDS_INLINE_DIM] = 0;
+            voxelMax[VDS_INLINE_DIM] = inlineSize;
+            width                    = inlineSize;
+            height                   = zSize;
+            break;
+
+        case RiaDefines::SeismicSliceDirection::DEPTH:
+            voxelMin[VDS_Z_DIM]      = sliceIndex;
+            voxelMax[VDS_Z_DIM]      = sliceIndex + 1;
+            voxelMin[VDS_XLINE_DIM]  = 0;
+            voxelMax[VDS_XLINE_DIM]  = xlineSize;
+            voxelMin[VDS_INLINE_DIM] = 0;
+            voxelMax[VDS_INLINE_DIM] = inlineSize;
+            width                    = inlineSize;
+            height                   = xlineSize;
+            break;
+
+        default:
+            return nullptr;
+    }
+
+    int totalSize = width * height;
+
+    std::shared_ptr<ZGYAccess::SeismicSliceData> retData = std::make_shared<ZGYAccess::SeismicSliceData>( width, height );
+
+    auto request = accessManager.RequestVolumeSubset<float>( retData->values(),
+                                                             totalSize * sizeof( float ),
+                                                             OpenVDS::Dimensions_012,
+                                                             0,
+                                                             m_dataChannelToUse,
+                                                             voxelMin,
+                                                             voxelMax );
+
+    bool success = request->WaitForCompletion();
+    if ( !success ) retData.reset();
+
+    return retData;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -447,48 +506,45 @@ std::shared_ptr<ZGYAccess::SeismicSliceData>
 //--------------------------------------------------------------------------------------------------
 std::shared_ptr<ZGYAccess::SeismicSliceData> RifOpenVDSReader::trace( int inlineIndex, int xlineIndex, int zStartIndex, int zSize )
 {
-    if ( isOpen() )
+    if ( !isOpen() ) return nullptr;
+
+    if ( zStartIndex < 0 )
     {
-        if ( zStartIndex < 0 )
-        {
-            zStartIndex = 0;
-            zSize       = this->zSize();
-        }
-
-        auto                             accessManager = OpenVDS::GetAccessManager( m_handle );
-        OpenVDS::VolumeDataLayout const* layout        = accessManager.GetVolumeDataLayout();
-        if ( layout == nullptr ) return nullptr;
-
-        int voxelMin[OpenVDS::Dimensionality_Max] = { 0, 0, 0, 0, 0, 0 };
-        int voxelMax[OpenVDS::Dimensionality_Max] = { 1, 1, 1, 1, 1, 1 };
-
-        voxelMin[VDS_Z_DIM] = zStartIndex;
-        voxelMax[VDS_Z_DIM] = zStartIndex + zSize;
-
-        voxelMin[VDS_XLINE_DIM] = xlineIndex;
-        voxelMax[VDS_XLINE_DIM] = xlineIndex + 1;
-
-        voxelMin[VDS_INLINE_DIM] = inlineIndex;
-        voxelMax[VDS_INLINE_DIM] = inlineIndex + 1;
-
-        int totalSize = ( voxelMax[VDS_Z_DIM] - voxelMin[VDS_Z_DIM] ) * ( voxelMax[VDS_XLINE_DIM] - voxelMin[VDS_XLINE_DIM] ) *
-                        ( voxelMax[VDS_INLINE_DIM] - voxelMin[VDS_INLINE_DIM] );
-
-        std::shared_ptr<ZGYAccess::SeismicSliceData> retData = std::make_shared<ZGYAccess::SeismicSliceData>( 1, totalSize );
-
-        auto request = accessManager.RequestVolumeSubset<float>( retData->values(),
-                                                                 totalSize * sizeof( float ),
-                                                                 OpenVDS::Dimensions_012,
-                                                                 0,
-                                                                 m_dataChannelToUse,
-                                                                 voxelMin,
-                                                                 voxelMax );
-
-        bool success = request->WaitForCompletion();
-        if ( !success ) retData.reset();
-
-        return retData;
+        zStartIndex = 0;
+        zSize       = this->zSize();
     }
 
-    return nullptr;
+    auto                             accessManager = OpenVDS::GetAccessManager( m_handle );
+    OpenVDS::VolumeDataLayout const* layout        = accessManager.GetVolumeDataLayout();
+    if ( layout == nullptr ) return nullptr;
+
+    int voxelMin[OpenVDS::Dimensionality_Max] = { 0, 0, 0, 0, 0, 0 };
+    int voxelMax[OpenVDS::Dimensionality_Max] = { 1, 1, 1, 1, 1, 1 };
+
+    voxelMin[VDS_Z_DIM] = zStartIndex;
+    voxelMax[VDS_Z_DIM] = zStartIndex + zSize;
+
+    voxelMin[VDS_XLINE_DIM] = xlineIndex;
+    voxelMax[VDS_XLINE_DIM] = xlineIndex + 1;
+
+    voxelMin[VDS_INLINE_DIM] = inlineIndex;
+    voxelMax[VDS_INLINE_DIM] = inlineIndex + 1;
+
+    int totalSize = ( voxelMax[VDS_Z_DIM] - voxelMin[VDS_Z_DIM] ) * ( voxelMax[VDS_XLINE_DIM] - voxelMin[VDS_XLINE_DIM] ) *
+                    ( voxelMax[VDS_INLINE_DIM] - voxelMin[VDS_INLINE_DIM] );
+
+    std::shared_ptr<ZGYAccess::SeismicSliceData> retData = std::make_shared<ZGYAccess::SeismicSliceData>( 1, totalSize );
+
+    auto request = accessManager.RequestVolumeSubset<float>( retData->values(),
+                                                             totalSize * sizeof( float ),
+                                                             OpenVDS::Dimensions_012,
+                                                             0,
+                                                             m_dataChannelToUse,
+                                                             voxelMin,
+                                                             voxelMax );
+
+    bool success = request->WaitForCompletion();
+    if ( !success ) retData.reset();
+
+    return retData;
 }
