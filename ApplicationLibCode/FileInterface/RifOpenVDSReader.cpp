@@ -311,13 +311,13 @@ std::vector<cvf::Vec3d> RifOpenVDSReader::worldCorners()
     cvf::Vec3dArray annotPoints;
     annotPoints.resize( 8 );
     annotPoints[0] = cvf::Vec3d( iMin, xMin, zMin );
-    annotPoints[1] = cvf::Vec3d( iMin, xMax, zMin );
-    annotPoints[2] = cvf::Vec3d( iMax, xMax, zMin );
-    annotPoints[3] = cvf::Vec3d( iMax, xMin, zMin );
+    annotPoints[1] = cvf::Vec3d( iMax, xMin, zMin );
+    annotPoints[2] = cvf::Vec3d( iMin, xMax, zMin );
+    annotPoints[3] = cvf::Vec3d( iMax, xMax, zMin );
     annotPoints[4] = cvf::Vec3d( iMin, xMin, zMax );
-    annotPoints[5] = cvf::Vec3d( iMin, xMax, zMax );
-    annotPoints[6] = cvf::Vec3d( iMax, xMax, zMax );
-    annotPoints[7] = cvf::Vec3d( iMax, xMin, zMax );
+    annotPoints[5] = cvf::Vec3d( iMax, xMin, zMax );
+    annotPoints[6] = cvf::Vec3d( iMin, xMax, zMax );
+    annotPoints[7] = cvf::Vec3d( iMax, xMax, zMax );
 
     std::vector<cvf::Vec3d> retval;
 
