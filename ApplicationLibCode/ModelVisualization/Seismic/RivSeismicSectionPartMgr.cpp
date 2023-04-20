@@ -43,7 +43,7 @@
 #include "cvfPart.h"
 #include "cvfScalarMapper.h"
 
-#include <zgyaccess/seismicslice.h>
+#include <seismicslice.h>
 
 //--------------------------------------------------------------------------------------------------
 ///

@@ -18,8 +18,8 @@
 
 #include "RifSeismicZGYReader.h"
 
-#include <zgyaccess/seismicslice.h>
-#include <zgyaccess/zgyreader.h>
+#include <seismicslice.h>
+#include <zgyreader.h>
 
 #include "cvfBoundingBox.h"
 

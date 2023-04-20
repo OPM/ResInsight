@@ -20,7 +20,7 @@
 
 #include "cvfTextureImage.h"
 
-#include <zgyaccess/seismicslice.h>
+#include <seismicslice.h>
 
 //--------------------------------------------------------------------------------------------------
 ///

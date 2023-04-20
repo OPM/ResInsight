@@ -49,7 +49,7 @@
 #include "cvfTextureImage.h"
 #include "cvfVector3.h"
 
-#include <zgyaccess/seismicslice.h>
+#include <seismicslice.h>
 
 #include <QDialog>
 #include <QImage>

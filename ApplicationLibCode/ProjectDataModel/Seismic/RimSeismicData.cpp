@@ -29,7 +29,7 @@
 #include "RiuMainWindow.h"
 #include "RiuSeismicHistogramPanel.h"
 
-#include <zgyaccess/seismicslice.h>
+#include <seismicslice.h>
 
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTableViewEditor.h"
