@@ -54,6 +54,7 @@
 #include "RiuDockWidgetTools.h"
 #include "RiuMdiArea.h"
 #include "RiuMdiSubWindow.h"
+#include "RiuMenuBarBuildTools.h"
 #include "RiuMessagePanel.h"
 #include "RiuMohrsCirclePlot.h"
 #include "RiuProcessMonitor.h"
@@ -434,60 +435,13 @@ void RiuMainWindow::createMenus()
     CVF_ASSERT( cmdFeatureMgr );
 
     // File menu
-    QMenu* fileMenu = new RiuToolTipMenu( menuBar() );
-    fileMenu->setTitle( "&File" );
-
-    menuBar()->addMenu( fileMenu );
-
-    fileMenu->addAction( cmdFeatureMgr->action( "RicOpenProjectFeature" ) );
-    fileMenu->addAction( cmdFeatureMgr->action( "RicOpenLastUsedFileFeature" ) );
+    QMenu* fileMenu = RiuMenuBarBuildTools::createDefaultFileMenu( menuBar() );
     fileMenu->addSeparator();
 
-    QMenu* importMenu = fileMenu->addMenu( "&Import" );
+    // Import menu actions
+    RiuMenuBarBuildTools::addImportMenuWithActions( this, fileMenu );
 
-    QMenu* importEclipseMenu = importMenu->addMenu( QIcon( ":/Case48x48.png" ), "Eclipse Cases" );
-    importEclipseMenu->addAction( cmdFeatureMgr->action( "RicImportEclipseCaseFeature" ) );
-    importEclipseMenu->addAction( cmdFeatureMgr->action( "RicImportEclipseCasesFeature" ) );
-    importEclipseMenu->addAction( cmdFeatureMgr->action( "RicImportEclipseCaseTimeStepFilterFeature" ) );
-    importEclipseMenu->addAction( cmdFeatureMgr->action( "RicImportInputEclipseCaseFeature" ) );
-    importEclipseMenu->addAction( cmdFeatureMgr->action( "RicCreateGridCaseGroupFromFilesFeature" ) );
-
-    QMenu* importRoffMenu = importMenu->addMenu( QIcon( ":/Case48x48.png" ), "Roff Grid Models" );
-    importRoffMenu->addAction( cmdFeatureMgr->action( "RicImportRoffCaseFeature" ) );
-
-    importMenu->addSeparator();
-    QMenu* importSummaryMenu = importMenu->addMenu( QIcon( ":/SummaryCase.svg" ), "Summary Cases" );
-    importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportSummaryCaseFeature" ) );
-    importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportSummaryCasesFeature" ) );
-    importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportSummaryGroupFeature" ) );
-    importSummaryMenu->addAction( cmdFeatureMgr->action( "RicImportEnsembleFeature" ) );
-
-#ifdef USE_ODB_API
-    importMenu->addSeparator();
-    QMenu* importGeoMechMenu = importMenu->addMenu( QIcon( ":/GeoMechCase24x24.png" ), "Geo Mechanical Cases" );
-    importGeoMechMenu->addAction( cmdFeatureMgr->action( "RicImportGeoMechCaseFeature" ) );
-    importGeoMechMenu->addAction( cmdFeatureMgr->action( "RicImportGeoMechCaseTimeStepFilterFeature" ) );
-    importGeoMechMenu->addAction( cmdFeatureMgr->action( "RicImportElementPropertyFeature" ) );
-#endif
-
-    importMenu->addSeparator();
-    QMenu* importWellMenu = importMenu->addMenu( QIcon( ":/Well.svg" ), "Well Data" );
-    importWellMenu->addAction( cmdFeatureMgr->action( "RicWellPathsImportFileFeature" ) );
-    importWellMenu->addAction( cmdFeatureMgr->action( "RicWellPathsImportSsihubFeature" ) );
-    importWellMenu->addAction( cmdFeatureMgr->action( "RicWellLogsImportFileFeature" ) );
-    importWellMenu->addAction( cmdFeatureMgr->action( "RicWellPathFormationsImportFileFeature" ) );
-    importWellMenu->addAction( cmdFeatureMgr->action( "RicImportWellMeasurementsFeature" ) );
-
-    importMenu->addSeparator();
-    importMenu->addAction( cmdFeatureMgr->action( "RicImportObservedDataFeature" ) );
-    importMenu->addAction( cmdFeatureMgr->action( "RicImportObservedFmuDataFeature" ) );
-    importMenu->addAction( cmdFeatureMgr->action( "RicImportPressureDepthDataFeature" ) );
-    importMenu->addAction( cmdFeatureMgr->action( "RicImportFormationNamesFeature" ) );
-    importMenu->addAction( cmdFeatureMgr->action( "RicImportSurfacesFeature" ) );
-    importMenu->addAction( cmdFeatureMgr->action( "RicImportSeismicFeature" ) );
-
-    RiuTools::enableAllActionsOnShow( this, importMenu );
-
+    // Export menu actions
     QMenu* exportMenu = fileMenu->addMenu( "&Export" );
     exportMenu->addAction( cmdFeatureMgr->action( "RicSnapshotViewToFileFeature" ) );
     exportMenu->addAction( m_snapshotAllViewsToFile );
@@ -498,9 +452,9 @@ void RiuMainWindow::createMenus()
     exportMenu->addAction( cmdFeatureMgr->action( "RicExportCompletionsForVisibleWellPathsFeature" ) );
     exportMenu->addAction( cmdFeatureMgr->action( "RicExportVisibleWellPathsFeature" ) );
 
+    // Save menu actions
     fileMenu->addSeparator();
-    fileMenu->addAction( cmdFeatureMgr->action( "RicSaveProjectFeature" ) );
-    fileMenu->addAction( cmdFeatureMgr->action( "RicSaveProjectAsFeature" ) );
+    RiuMenuBarBuildTools::addSaveProjectActions( fileMenu );
 
     std::vector<QAction*> recentFileActions = RiaGuiApplication::instance()->recentFileActions();
     for ( auto act : recentFileActions )
@@ -511,33 +465,24 @@ void RiuMainWindow::createMenus()
     fileMenu->addSeparator();
     QMenu* testMenu = fileMenu->addMenu( "&Testing" );
 
+    // Close and Exit actions
     fileMenu->addSeparator();
-    fileMenu->addAction( cmdFeatureMgr->action( "RicCloseProjectFeature" ) );
-    fileMenu->addSeparator();
-    fileMenu->addAction( cmdFeatureMgr->action( "RicExitApplicationFeature" ) );
+    RiuMenuBarBuildTools::addCloseAndExitActions( fileMenu );
 
     connect( fileMenu, SIGNAL( aboutToShow() ), SLOT( slotRefreshFileActions() ) );
 
     // Edit menu
-    QMenu* editMenu = menuBar()->addMenu( "&Edit" );
-    editMenu->addAction( cmdFeatureMgr->action( "RicSnapshotViewToClipboardFeature" ) );
-    editMenu->addSeparator();
-    editMenu->addAction( cmdFeatureMgr->action( "RicShowMemoryCleanupDialogFeature" ) );
-    editMenu->addSeparator();
-    editMenu->addAction( cmdFeatureMgr->action( "RicEditPreferencesFeature" ) );
-
+    QMenu* editMenu = RiuMenuBarBuildTools::createDefaultEditMenu( menuBar() );
     if ( RiaPreferences::current()->useUndoRedo() )
     {
         editMenu->addSeparator();
         editMenu->addAction( m_undoAction );
         editMenu->addAction( m_redoAction );
     }
-
     connect( editMenu, SIGNAL( aboutToShow() ), SLOT( slotRefreshUndoRedoActions() ) );
 
     // View menu
-    QMenu* viewMenu = menuBar()->addMenu( "&View" );
-    viewMenu->addAction( cmdFeatureMgr->action( "RicViewZoomAllFeature" ) );
+    QMenu* viewMenu = RiuMenuBarBuildTools::createDefaultViewMenu( menuBar() );
     viewMenu->addSeparator();
     viewMenu->addAction( m_viewFromSouth );
     viewMenu->addAction( m_viewFromNorth );
@@ -548,6 +493,7 @@ void RiuMainWindow::createMenus()
 
     connect( viewMenu, SIGNAL( aboutToShow() ), SLOT( slotRefreshViewActions() ) );
 
+    // Test menu
     testMenu->addAction( m_mockModelAction );
     testMenu->addAction( m_mockResultsModelAction );
     testMenu->addAction( m_mockLargeResultsModelAction );
@@ -565,12 +511,10 @@ void RiuMainWindow::createMenus()
     testMenu->addAction( cmdFeatureMgr->action( "RicExecuteLastUsedScriptFeature" ) );
 
     testMenu->addSeparator();
-
     testMenu->addAction( cmdFeatureMgr->action( "RicHoloLensExportToFolderFeature" ) );
     testMenu->addAction( cmdFeatureMgr->action( "RicHoloLensCreateDummyFiledBackedSessionFeature" ) );
 
     testMenu->addSeparator();
-
     testMenu->addAction( cmdFeatureMgr->action( "RicThemeColorEditorFeature" ) );
 
     // Windows menu
@@ -578,16 +522,7 @@ void RiuMainWindow::createMenus()
     connect( m_windowMenu, SIGNAL( aboutToShow() ), SLOT( slotBuildWindowActions() ) );
 
     // Help menu
-    QMenu* helpMenu = menuBar()->addMenu( "&Help" );
-    helpMenu->addAction( cmdFeatureMgr->action( "RicHelpAboutFeature" ) );
-    helpMenu->addAction( cmdFeatureMgr->action( "RicHelpCommandLineFeature" ) );
-    helpMenu->addAction( cmdFeatureMgr->action( "RicHelpSummaryCommandLineFeature" ) );
-    helpMenu->addSeparator();
-    helpMenu->addAction( cmdFeatureMgr->action( "RicHelpOpenUsersGuideFeature" ) );
-    helpMenu->addAction( cmdFeatureMgr->action( "RicSearchHelpFeature" ) );
-    helpMenu->addAction( cmdFeatureMgr->action( "RicSearchIssuesHelpFeature" ) );
-    helpMenu->addAction( cmdFeatureMgr->action( "RicCreateNewIssueHelpFeature" ) );
-
+    QMenu* helpMenu = RiuMenuBarBuildTools::createDefaultHelpMenu( menuBar() );
     connect( helpMenu, SIGNAL( aboutToShow() ), SLOT( slotRefreshHelpActions() ) );
 }
 
