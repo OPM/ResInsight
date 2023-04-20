@@ -26,6 +26,11 @@ struct VDS;
 class IJKCoordinateTransformer;
 } // namespace OpenVDS
 
+namespace ZGYAccess
+{
+class HistogramData;
+}
+
 class RifOpenVDSReader : public RifSeismicReader
 {
 public:
@@ -68,4 +73,5 @@ private:
     OpenVDS::VDS*                                      m_handle;
     int                                                m_dataChannelToUse;
     std::unique_ptr<OpenVDS::IJKCoordinateTransformer> m_coordinateTransform;
+    std::unique_ptr<ZGYAccess::HistogramData>          m_histogram;
 };
