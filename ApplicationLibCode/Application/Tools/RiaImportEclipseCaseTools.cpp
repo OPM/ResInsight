@@ -302,6 +302,21 @@ int RiaImportEclipseCaseTools::openEclipseInputCaseAndPropertiesFromFileNames( c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<int> RiaImportEclipseCaseTools::openEclipseInputCasesFromFileNames( const QStringList& fileNames, bool createDefaultView )
+{
+    std::vector<int> eclipseCaseIds;
+    for ( const auto& fileName : fileNames )
+    {
+        // Open with single file
+        auto eclipseCaseId = openEclipseInputCaseAndPropertiesFromFileNames( { fileName }, createDefaultView );
+        eclipseCaseIds.push_back( eclipseCaseId );
+    }
+    return eclipseCaseIds;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RiaImportEclipseCaseTools::openMockModel( const QString& name )
 {
     bool showTimeStepFilter = false;

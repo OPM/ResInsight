@@ -45,7 +45,9 @@ public:
 
     static bool openEclipseCaseShowTimeStepFilter( const QString& fileName );
 
-    static int  openEclipseInputCaseAndPropertiesFromFileNames( const QStringList& fileNames, bool createDefaultView );
+    static int              openEclipseInputCaseAndPropertiesFromFileNames( const QStringList& fileNames, bool createDefaultView );
+    static std::vector<int> openEclipseInputCasesFromFileNames( const QStringList& fileNames, bool createDefaultView );
+
     static bool openMockModel( const QString& name );
 
     static bool addEclipseCases( const QStringList& fileNames, RimIdenticalGridCaseGroup** resultingCaseGroup = nullptr );

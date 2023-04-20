@@ -144,12 +144,9 @@ bool RimEclipseInputCase::openDataFileSet( const QStringList& fileNames )
 
     if ( this->eclipseCaseData()->mainGrid()->gridPointDimensions() == cvf::Vec3st( 0, 0, 0 ) )
     {
-        if ( !allErrorMessages.empty() )
+        for ( QString errorMessages : allErrorMessages )
         {
-            for ( QString errorMessages : allErrorMessages )
-            {
-                RiaLogging::error( errorMessages );
-            }
+            RiaLogging::error( errorMessages );
         }
         return false; // No grid present
     }

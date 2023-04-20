@@ -1402,6 +1402,23 @@ cvf::StructGridInterface::FaceEnum RifEclipseInputFileTools::faceEnumFromText( c
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifEclipseInputFileTools::hasGridData( const QString& fileName )
+{
+    // Look for keyword "COORD" in file
+    // NOTE: If readKeywordAndValues is slow for large .GRDECL files, consider function in RifEclipseTextFileReader
+    // reading line for line and returns true on first hit of keyword. This prevents reading entire file on large cases
+
+    const auto keywordAndValues = RifEclipseTextFileReader::readKeywordAndValues( fileName.toStdString() );
+    auto       coordKeywordItr  = std::find_if( keywordAndValues.begin(),
+                                         keywordAndValues.end(),
+                                         []( const auto& keywordAndValue ) { return keywordAndValue.keyword == "COORD"; } );
+
+    return coordKeywordItr != keywordAndValues.end();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// The file pointer is pointing at the line following the FAULTS keyword.
 /// Parse content of this keyword until end of file or
 /// end of keyword when a single line with '/' is found
