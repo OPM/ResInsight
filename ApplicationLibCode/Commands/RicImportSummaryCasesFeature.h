@@ -19,7 +19,9 @@
 #pragma once
 
 #include "RiaEnsembleNameTools.h"
+#include "RiaSummaryDefines.h"
 
+#include "RicRecursiveFileSearchDialog.h"
 #include "cafCmdFeature.h"
 
 #include <QString>
@@ -38,20 +40,26 @@ class RicImportSummaryCasesFeature : public caf::CmdFeature
 public:
     RicImportSummaryCasesFeature() {}
 
-    static bool createAndAddSummaryCasesFromFiles( const QStringList&            fileName,
-                                                   bool                          doCreateDefaultPlot,
-                                                   std::vector<RimSummaryCase*>* newCases = nullptr );
-    static bool createSummaryCasesFromFiles( const QStringList&            fileName,
-                                             std::vector<RimSummaryCase*>* newCases,
-                                             bool                          ensembleOrGroup = false,
-                                             bool                          allowDialogs    = true );
+    static std::pair<bool, std::vector<RimSummaryCase*>> createAndAddSummaryCasesFromFiles( const QStringList& fileName,
+                                                                                            bool               doCreateDefaultPlot );
+
+    struct CreateConfig
+    {
+        RiaDefines::FileType fileType;
+        bool                 ensembleOrGroup;
+        bool                 allowDialogs;
+    };
+
+    static std::pair<bool, std::vector<RimSummaryCase*>> createSummaryCasesFromFiles( const QStringList& fileName, CreateConfig createConfig );
+
     static void addSummaryCases( const std::vector<RimSummaryCase*>& cases );
     static void addCasesToGroupIfRelevant( const std::vector<RimSummaryCase*>& cases );
 
-    static QStringList runRecursiveSummaryCaseFileSearchDialog( const QString& dialogTitle, const QString& pathCacheName );
+    static RicRecursiveFileSearchDialogResult runRecursiveSummaryCaseFileSearchDialog( const QString& dialogTitle,
+                                                                                       const QString& pathCacheName );
 
-    static std::pair<QStringList, RiaEnsembleNameTools::EnsembleGroupingMode>
-        runRecursiveSummaryCaseFileSearchDialogWithGrouping( const QString& dialogTitle, const QString& pathCacheName );
+    static RicRecursiveFileSearchDialogResult runRecursiveSummaryCaseFileSearchDialogWithGrouping( const QString& dialogTitle,
+                                                                                                   const QString& pathCacheName );
 
 protected:
     bool isCommandEnabled() override;

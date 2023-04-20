@@ -25,6 +25,7 @@
 
 #include "RiuFileDialogTools.h"
 #include "RiuTools.h"
+#include "opm/io/eclipse/EclUtil.hpp"
 
 #include <QAbstractItemView>
 #include <QAction>
@@ -58,25 +59,24 @@
 //--------------------------------------------------------------------------------------------------
 /// Internal functions
 //--------------------------------------------------------------------------------------------------
-static QStringList trimLeftStrings( const QStringList& strings, const QString& trimText );
-static void        sortStringsByLength( QStringList& strings, bool ascending = true );
+static void sortStringsByLength( QStringList& strings, bool ascending = true );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSearchDialog( QWidget*           parent,
-                                                                                           const QString&     caption,
-                                                                                           const QString&     dir,
-                                                                                           const QString&     pathFilter,
-                                                                                           const QString&     fileNameFilter,
-                                                                                           const QStringList& fileExtensions )
+RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSearchDialog( QWidget*                     parent,
+                                                                                           const QString&               caption,
+                                                                                           const QString&               dir,
+                                                                                           const QString&               pathFilter,
+                                                                                           const QString&               fileNameFilter,
+                                                                                           const std::vector<FileType>& fileTypes )
 {
     const QString filePathRegistryKey   = QString( "RicRecursiveFileSearchDialog %1" ).arg( caption ).replace( " ", "_" );
     const QString fileFilterRegistryKey = QString( "RicRecursiveFileSearchDialog file filter %1" ).arg( caption ).replace( " ", "_" );
     const QString useRealizationStarRegistryKey = "RecursiveFileSearchDialog_use_realization";
     QSettings     settings;
 
-    RicRecursiveFileSearchDialog dialog( parent, fileExtensions );
+    RicRecursiveFileSearchDialog dialog( parent, fileTypes );
     {
         QSignalBlocker signalBlocker( dialog.m_pathFilterField );
         QSignalBlocker signalBlocker2( dialog.m_ensembleGroupingMode );
@@ -89,8 +89,11 @@ RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSea
         dialog.m_fileFilterField->addItem( fileNameFilter );
         dialog.m_pathFilterField->addItem( QDir::toNativeSeparators( pathFilterText ) );
 
-        QString joined = fileExtensions.join( '|' );
-        dialog.m_fileExtensionsField->setText( joined );
+        for ( const auto& fileType : fileTypes )
+        {
+            QString item = QString( "%1 (%2)" ).arg( fileNameForType( fileType ) ).arg( fileExtensionForType( fileType ) );
+            dialog.m_fileTypeField->addItem( item, static_cast<int>( fileType ) );
+        }
 
         dialog.m_fileFilterField->addItem( fileNameFilter );
 
@@ -107,7 +110,11 @@ RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSea
         dialog.m_pathFilterField->setCurrentText( QDir::toNativeSeparators( pathFilterText ) );
         dialog.m_pathFilterField->setEditable( true );
 
-        dialog.m_fileExtensions = trimLeftStrings( fileExtensions, "." );
+        if ( !fileTypes.empty() )
+        {
+            dialog.m_fileExtensions = QStringList( fileExtensionForType( fileTypes.front() ) );
+            dialog.m_fileType       = fileTypes.front();
+        }
 
         for ( const auto& s : caf::AppEnum<RiaEnsembleNameTools::EnsembleGroupingMode>::uiTexts() )
         {
@@ -144,15 +151,16 @@ RicRecursiveFileSearchDialogResult RicRecursiveFileSearchDialog::runRecursiveSea
                                                dialog.rootDirWithEndSeparator(),
                                                dialog.pathFilterWithoutStartSeparator(),
                                                dialog.fileNameFilter(),
+                                               dialog.fileType(),
                                                dialog.ensembleGroupingMode() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent, const QStringList& fileExtensions )
+RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent, const std::vector<FileType>& fileTypes )
     : QDialog( parent, RiuTools::defaultDialogFlags() )
-    , m_incomingFileExtensions( fileExtensions )
+    , m_incomingFileTypes( fileTypes )
 {
     // Create widgets
     m_browseButton = new QPushButton();
@@ -164,8 +172,10 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent, con
     m_pathFilterField             = new QComboBox();
     m_fileFilterLabel             = new QLabel();
     m_fileFilterField             = new QComboBox();
-    m_fileExtensionsLabel         = new QLabel();
-    m_fileExtensionsField         = new QLineEdit();
+    m_fileTypeLabel               = new QLabel();
+    m_fileTypeField               = new QComboBox();
+    m_fileExtensionLabel          = new QLabel();
+    m_fileExtensionField          = new QLineEdit();
     m_effectiveFilterLabel        = new QLabel();
     m_effectiveFilterContentLabel = new QLabel();
     m_ensembleGroupingMode        = new QComboBox();
@@ -183,7 +193,9 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent, con
     connect( m_fileFilterField, SIGNAL( currentTextChanged( const QString& ) ), this, SLOT( slotFileFilterChanged( const QString& ) ) );
     connect( m_fileFilterField, SIGNAL( editTextChanged( const QString& ) ), this, SLOT( slotFileFilterChanged( const QString& ) ) );
 
-    connect( m_fileExtensionsField, SIGNAL( editingFinished() ), this, SLOT( slotFileExtensionsChanged() ) );
+    connect( m_fileTypeField, SIGNAL( currentIndexChanged( int ) ), this, SLOT( slotFileTypeChanged( int ) ) );
+
+    connect( m_fileExtensionField, SIGNAL( textChanged( const QString& ) ), this, SLOT( slotFileExtensionChanged( const QString& ) ) );
 
     connect( m_fileListWidget,
              SIGNAL( customContextMenuRequested( const QPoint& ) ),
@@ -200,7 +212,8 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent, con
     // Set widget properties
     m_pathFilterLabel->setText( "Path pattern" );
     m_fileFilterLabel->setText( "File pattern" );
-    m_fileExtensionsLabel->setText( "File Extensions" );
+    m_fileTypeLabel->setText( "File type" );
+    m_fileExtensionLabel->setText( "File extension" );
     m_effectiveFilterLabel->setText( "Effective filter" );
     m_searchRootLabel->setText( "Root" );
     m_searchRootLabel->setVisible( false );
@@ -236,8 +249,12 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent, con
     inputGridLayout->addWidget( m_fileFilterField, row, 1, 1, 2 );
 
     row++;
-    inputGridLayout->addWidget( m_fileExtensionsLabel, row, 0 );
-    inputGridLayout->addWidget( m_fileExtensionsField, row, 1, 1, 2 );
+    inputGridLayout->addWidget( m_fileTypeLabel, row, 0 );
+    inputGridLayout->addWidget( m_fileTypeField, row, 1, 1, 2 );
+
+    row++;
+    inputGridLayout->addWidget( m_fileExtensionLabel, row, 0 );
+    inputGridLayout->addWidget( m_fileExtensionField, row, 1, 1, 2 );
 
     row++;
     {
@@ -291,8 +308,8 @@ RicRecursiveFileSearchDialog::RicRecursiveFileSearchDialog( QWidget* parent, con
 
     {
         QString text = "Define the extension using \".EGRID|.GRDECL\"";
-        m_fileExtensionsLabel->setToolTip( text );
-        m_fileExtensionsField->setToolTip( text );
+        m_fileExtensionLabel->setToolTip( text );
+        m_fileExtensionField->setToolTip( text );
     }
 
     {
@@ -386,6 +403,14 @@ QStringList RicRecursiveFileSearchDialog::fileExtensions() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RicRecursiveFileSearchDialog::FileType RicRecursiveFileSearchDialog::fileType() const
+{
+    return m_fileType;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RicRecursiveFileSearchDialog::extensionFromFileNameFilter() const
 {
     for ( const QString& ext : m_fileExtensions )
@@ -407,12 +432,24 @@ void RicRecursiveFileSearchDialog::updateFileListWidget()
 
     if ( ensembleGroupingMode() != RiaEnsembleNameTools::EnsembleGroupingMode::NONE )
     {
-        std::vector<QStringList> groupedByEnsemble = RiaEnsembleNameTools::groupFilesByEnsemble( m_foundFiles, ensembleGroupingMode() );
-        for ( const QStringList& groupedFileNames : groupedByEnsemble )
+        if ( m_fileType == RicRecursiveFileSearchDialog::FileType::STIMPLAN_SUMMARY )
         {
-            QString ensembleName = RiaEnsembleNameTools::findSuitableEnsembleName( groupedFileNames, ensembleGroupingMode() );
-            new QListWidgetItem( QDir::toNativeSeparators( ensembleName ), m_fileListWidget );
-            addToFileListWidget( groupedFileNames );
+            std::map<QString, QStringList> groupedByEnsemble = RiaEnsembleNameTools::groupFilesByStimPlanEnsemble( m_foundFiles );
+            for ( auto [ensembleName, groupedFileNames] : groupedByEnsemble )
+            {
+                new QListWidgetItem( QDir::toNativeSeparators( ensembleName ), m_fileListWidget );
+                addToFileListWidget( groupedFileNames );
+            }
+        }
+        else
+        {
+            std::vector<QStringList> groupedByEnsemble = RiaEnsembleNameTools::groupFilesByEnsemble( m_foundFiles, ensembleGroupingMode() );
+            for ( const QStringList& groupedFileNames : groupedByEnsemble )
+            {
+                QString ensembleName = RiaEnsembleNameTools::findSuitableEnsembleName( groupedFileNames, ensembleGroupingMode() );
+                new QListWidgetItem( QDir::toNativeSeparators( ensembleName ), m_fileListWidget );
+                addToFileListWidget( groupedFileNames );
+            }
         }
     }
     else
@@ -720,12 +757,24 @@ void RicRecursiveFileSearchDialog::slotFileFilterChanged( const QString& text )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicRecursiveFileSearchDialog::slotFileExtensionsChanged()
+void RicRecursiveFileSearchDialog::slotFileTypeChanged( int index )
 {
-    QStringList items = m_fileExtensionsField->text().split( '|' );
+    m_fileType = static_cast<FileType>( m_fileTypeField->itemData( index ).toInt() );
 
-    m_fileExtensions = trimLeftStrings( items, "." );
+    QString extension = fileExtensionForType( m_fileType );
+    m_fileExtensions  = QStringList( extension );
 
+    m_fileExtensionField->setText( extension );
+
+    updateEffectiveFilter();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicRecursiveFileSearchDialog::slotFileExtensionChanged( const QString& text )
+{
+    m_fileExtensions = QStringList( text );
     updateEffectiveFilter();
 }
 
@@ -934,26 +983,21 @@ RiaEnsembleNameTools::EnsembleGroupingMode RicRecursiveFileSearchDialog::ensembl
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Internal functions
-//--------------------------------------------------------------------------------------------------
-
-//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList trimLeftStrings( const QStringList& strings, const QString& trimText )
+QStringList RicRecursiveFileSearchDialog::fileTypeToExtensionStrings( const std::vector<RicRecursiveFileSearchDialog::FileType>& fileTypes )
 {
-    QStringList trimmedStrings;
-    for ( const auto& string : strings )
+    QStringList extensions;
+    for ( const auto& f : fileTypes )
     {
-        QString trimmedString = string;
-        if ( string.startsWith( trimText ) )
-        {
-            trimmedString = string.right( string.size() - trimText.size() );
-        }
-        trimmedStrings.append( trimmedString );
+        extensions.append( RicRecursiveFileSearchDialog::fileExtensionForType( f ) );
     }
-    return trimmedStrings;
+    return extensions;
 }
+
+//--------------------------------------------------------------------------------------------------
+/// Internal functions
+//--------------------------------------------------------------------------------------------------
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -1041,4 +1085,85 @@ bool RicRecursiveFileSearchDialog::pathFilterMatch( const QString& pathFilter, c
 
     QRegExp regexp( pattern, Qt::CaseInsensitive, QRegExp::Wildcard );
     return regexp.exactMatch( relPath );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicRecursiveFileSearchDialog::fileExtensionForType( FileType fileType )
+{
+    switch ( fileType )
+    {
+        case FileType::GRDECL:
+            return "GRDECL";
+        case FileType::EGRID:
+            return "EGRID";
+        case FileType::GRID:
+            return "GRID";
+        case FileType::SMSPEC:
+            return "SMSPEC";
+        case FileType::STIMPLAN_FRACTURE:
+            return "XML";
+        case FileType::LAS:
+            return "LAS";
+        case FileType::SURFACE:
+            return "TS";
+        case FileType::STIMPLAN_SUMMARY:
+            return "CSV";
+        case FileType::REVEAL_SUMMARY:
+            return "CSV";
+        default:
+            return "*";
+    }
+};
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicRecursiveFileSearchDialog::fileNameForType( FileType fileType )
+{
+    switch ( fileType )
+    {
+        case FileType::GRDECL:
+            return "Eclipse Text File";
+        case FileType::EGRID:
+            return "Eclipse Grid File";
+        case FileType::GRID:
+            return "Eclipse Grid File";
+        case FileType::SMSPEC:
+            return "Eclipse Summary File";
+        case FileType::STIMPLAN_FRACTURE:
+            return "StimPlan Fracture";
+        case FileType::LAS:
+            return "LAS File";
+        case FileType::SURFACE:
+            return "Surface File";
+        case FileType::STIMPLAN_SUMMARY:
+            return "StimPlan Summary File";
+        case FileType::REVEAL_SUMMARY:
+            return "Reveal Summary File";
+        default:
+            return "*";
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::FileType RicRecursiveFileSearchDialog::mapSummaryFileType( RicRecursiveFileSearchDialog::FileType fileType )
+{
+    switch ( fileType )
+    {
+        case RicRecursiveFileSearchDialog::FileType::SMSPEC:
+            return RiaDefines::FileType::SMSPEC;
+        case RicRecursiveFileSearchDialog::FileType::REVEAL_SUMMARY:
+            return RiaDefines::FileType::REVEAL_SUMMARY;
+        case RicRecursiveFileSearchDialog::FileType::STIMPLAN_SUMMARY:
+            return RiaDefines::FileType::STIMPLAN_SUMMARY;
+        default:
+        {
+            CAF_ASSERT( false && "Unsupported file type" );
+            return RiaDefines::FileType::SMSPEC;
+        }
+    }
 }

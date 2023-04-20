@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RiaEnsembleNameTools.h"
+#include "RiaSummaryDefines.h"
 
 #include "cafCmdFeature.h"
 
@@ -41,5 +42,7 @@ protected:
     static QString askForEnsembleName( const QString& suggestion );
     static void    importSingleEnsemble( const QStringList&                         fileNames,
                                          bool                                       useEnsembleNameDialog,
-                                         RiaEnsembleNameTools::EnsembleGroupingMode groupingMode );
+                                         RiaEnsembleNameTools::EnsembleGroupingMode groupingMode,
+                                         RiaDefines::FileType                       fileType,
+                                         const QString&                             defaultEnsembleName = QString() );
 };

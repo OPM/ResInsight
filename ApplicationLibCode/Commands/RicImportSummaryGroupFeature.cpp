@@ -21,6 +21,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
 
+#include "RiaSummaryDefines.h"
 #include "RicCreateSummaryCaseCollectionFeature.h"
 #include "RicImportSummaryCasesFeature.h"
 
@@ -55,12 +56,14 @@ void RicImportSummaryGroupFeature::onActionTriggered( bool isChecked )
 {
     RiaGuiApplication* app           = RiaGuiApplication::instance();
     QString            pathCacheName = "INPUT_FILES";
-    QStringList fileNames = RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialog( "Import Summary Case Group", pathCacheName );
-
+    auto result = RicImportSummaryCasesFeature::runRecursiveSummaryCaseFileSearchDialog( "Import Summary Case Group", pathCacheName );
+    QStringList fileNames = result.files;
     if ( fileNames.isEmpty() ) return;
 
-    std::vector<RimSummaryCase*> cases;
-    RicImportSummaryCasesFeature::createSummaryCasesFromFiles( fileNames, &cases, true );
+    RiaDefines::FileType fileType = RicRecursiveFileSearchDialog::mapSummaryFileType( result.fileType );
+
+    RicImportSummaryCasesFeature::CreateConfig createConfig{ .fileType = fileType, .ensembleOrGroup = true, .allowDialogs = true };
+    auto [isOk, cases] = RicImportSummaryCasesFeature::createSummaryCasesFromFiles( fileNames, createConfig );
 
     RicImportSummaryCasesFeature::addSummaryCases( cases );
     RicCreateSummaryCaseCollectionFeature::groupSummaryCases( cases, "", false );

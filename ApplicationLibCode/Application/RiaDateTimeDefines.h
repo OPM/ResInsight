@@ -45,6 +45,8 @@ enum class TimeFormatComponents
 enum class DateTimePeriod
 {
     NONE = -1,
+    MINUTE,
+    HOUR,
     DAY,
     WEEK,
     MONTH,

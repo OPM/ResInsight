@@ -276,234 +276,236 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
         }
     }
 
-    bool isEnsembleMode = ensembleColoringStyle != EnsembleColoringType::NONE;
-
-    std::vector<RimSummaryCase*> summaryCasesToUse;
-
-    if ( summaryFileNames.size() )
+    if ( summaryFileNames.empty() )
     {
-        RicImportSummaryCasesFeature::createSummaryCasesFromFiles( summaryFileNames, &summaryCasesToUse, isEnsembleMode );
-        RicImportSummaryCasesFeature::addSummaryCases( summaryCasesToUse );
-
-        RiaApplication::instance()->setLastUsedDialogDirectory( RiaDefines::defaultDirectoryLabel(
-                                                                    RiaDefines::ImportFileType::ECLIPSE_SUMMARY_FILE ),
-                                                                QFileInfo( summaryFileNames[0] ).absolutePath() );
+        RiaLogging::error( "Needs at least one summary case to create a plot." );
+        return;
     }
 
-    if ( summaryCasesToUse.size() )
+    bool isEnsembleMode = ensembleColoringStyle != EnsembleColoringType::NONE;
+
+    RicImportSummaryCasesFeature::CreateConfig createConfig{ .fileType        = RiaDefines::FileType::SMSPEC,
+                                                             .ensembleOrGroup = isEnsembleMode,
+                                                             .allowDialogs    = true };
+    auto [isOk, summaryCasesToUse] = RicImportSummaryCasesFeature::createSummaryCasesFromFiles( summaryFileNames, createConfig );
+    if ( !isOk || summaryCasesToUse.empty() )
     {
-        // Sort in summary and grid curve addresses
-        QStringList gridResultAddressFilters;
-        QStringList summaryAddressFilters;
+        RiaLogging::error( "Needs at least one summary case to create a plot." );
+        return;
+    }
 
-        RimSummaryPlot* lastPlotCreated = nullptr;
+    RicImportSummaryCasesFeature::addSummaryCases( summaryCasesToUse );
 
-        RiaSummaryStringTools::splitAddressFiltersInGridAndSummary( summaryCasesToUse[0],
-                                                                    allCurveAddressFilters,
-                                                                    &summaryAddressFilters,
-                                                                    &gridResultAddressFilters );
+    RiaApplication::instance()->setLastUsedDialogDirectory( RiaDefines::defaultDirectoryLabel( RiaDefines::ImportFileType::ECLIPSE_SUMMARY_FILE ),
+                                                            QFileInfo( summaryFileNames[0] ).absolutePath() );
 
-        if ( summaryAddressFilters.size() )
+    // Sort in summary and grid curve addresses
+    QStringList gridResultAddressFilters;
+    QStringList summaryAddressFilters;
+
+    RimSummaryPlot* lastPlotCreated = nullptr;
+
+    RiaSummaryStringTools::splitAddressFiltersInGridAndSummary( summaryCasesToUse[0],
+                                                                allCurveAddressFilters,
+                                                                &summaryAddressFilters,
+                                                                &gridResultAddressFilters );
+
+    if ( summaryAddressFilters.size() )
+    {
+        RimSummaryCaseCollection* ensemble = nullptr;
+
+        if ( isEnsembleMode )
         {
-            RimSummaryCaseCollection* ensemble = nullptr;
+            ensemble = RicCreateSummaryCaseCollectionFeature::groupSummaryCases( summaryCasesToUse, "Ensemble", true );
+        }
 
-            if ( isEnsembleMode )
+        if ( isSinglePlot )
+        {
+            RimSummaryPlot* newPlot = nullptr;
+            if ( ensemble )
             {
-                ensemble = RicCreateSummaryCaseCollectionFeature::groupSummaryCases( summaryCasesToUse, "Ensemble", true );
+                newPlot = createSummaryPlotForEnsemble( summaryCasesToUse,
+                                                        ensemble,
+                                                        summaryAddressFilters,
+                                                        addHistoryCurves,
+                                                        ensembleColoringStyle,
+                                                        ensembleColoringParameter );
+            }
+            else
+            {
+                newPlot = createSummaryPlotForCases( summaryCasesToUse, summaryAddressFilters, addHistoryCurves );
             }
 
-            if ( isSinglePlot )
-            {
-                RimSummaryPlot* newPlot = nullptr;
-                if ( ensemble )
-                {
-                    newPlot = createSummaryPlotForEnsemble( summaryCasesToUse,
-                                                            ensemble,
-                                                            summaryAddressFilters,
-                                                            addHistoryCurves,
-                                                            ensembleColoringStyle,
-                                                            ensembleColoringParameter );
-                }
-                else
-                {
-                    newPlot = createSummaryPlotForCases( summaryCasesToUse, summaryAddressFilters, addHistoryCurves );
-                }
+            lastPlotCreated = newPlot;
 
-                lastPlotCreated = newPlot;
+            newPlot->setLegendsVisible( !hideLegend );
+            newPlot->setNormalizationEnabled( isNormalizedY );
+            newPlot->loadDataAndUpdate();
+
+            RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( newPlot );
+        }
+        else // Multiple plots, one for each separate summary address, put them all in a summary multiplot
+        {
+            std::vector<RimSummaryPlot*> summaryPlots = createMultipleSummaryPlotsFromAddresses( summaryCasesToUse,
+                                                                                                 ensemble,
+                                                                                                 summaryAddressFilters,
+                                                                                                 addHistoryCurves,
+                                                                                                 ensembleColoringStyle,
+                                                                                                 ensembleColoringParameter );
+
+            lastPlotCreated = summaryPlots.back();
+
+            for ( auto summaryPlot : summaryPlots )
+            {
+                summaryPlot->setLegendsVisible( !hideLegend );
+                summaryPlot->setNormalizationEnabled( isNormalizedY );
+                summaryPlot->loadDataAndUpdate();
+            }
+
+            RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( summaryPlots );
+        }
+    }
+
+    // Grid Cell Result vectors
+
+    if ( gridResultAddressFilters.size() )
+    {
+        // Todo: Use identical grid case import if -e -c or -cl
+
+        std::vector<RimEclipseCase*> gridCasesToPlotFrom = openEclipseCasesForCellPlotting( gridFileNames );
+
+        if ( isSinglePlot )
+        {
+            std::vector<RimGridTimeHistoryCurve*> createdCurves;
+            int                                   curveColorIndex = 0;
+            for ( const QString& gridAddressFilter : gridResultAddressFilters )
+            {
+                std::vector<RigGridCellResultAddress> cellResAddrs =
+                    RigGridCellResultAddress::createGridCellAddressesFromFilter( gridAddressFilter );
+
+                for ( RigGridCellResultAddress cellResAddr : cellResAddrs )
+                {
+                    for ( RimEclipseCase* eclCase : gridCasesToPlotFrom )
+                    {
+                        if ( !( eclCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) &&
+                                eclCase->eclipseCaseData()
+                                    ->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
+                                    ->resultInfo( cellResAddr.eclipseResultAddress ) ) )
+                        {
+                            RiaLogging::warning( "Could not find a restart result property with name: \"" +
+                                                 cellResAddr.eclipseResultAddress.resultName() + "\"" );
+                            continue;
+                        }
+
+                        RimGridTimeHistoryCurve* newCurve = new RimGridTimeHistoryCurve();
+                        newCurve->setFromEclipseCellAndResult( eclCase,
+                                                               cellResAddr.gridIndex,
+                                                               cellResAddr.i,
+                                                               cellResAddr.j,
+                                                               cellResAddr.k,
+                                                               cellResAddr.eclipseResultAddress );
+                        newCurve->setLineThickness( 2 );
+                        cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( curveColorIndex );
+                        newCurve->setColor( curveColor );
+                        if ( !isEnsembleMode ) ++curveColorIndex;
+
+                        createdCurves.push_back( newCurve );
+                    }
+                    if ( isEnsembleMode ) ++curveColorIndex;
+                }
+            }
+
+            if ( createdCurves.size() )
+            {
+                RimSummaryPlot* newPlot = new RimSummaryPlot();
+                newPlot->enableAutoPlotTitle( true );
+
+                for ( auto curve : createdCurves )
+                {
+                    newPlot->addGridTimeHistoryCurve( curve );
+                }
 
                 newPlot->setLegendsVisible( !hideLegend );
                 newPlot->setNormalizationEnabled( isNormalizedY );
                 newPlot->loadDataAndUpdate();
+                lastPlotCreated = newPlot;
 
                 RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( newPlot );
             }
-            else // Multiple plots, one for each separate summary address, put them all in a summary multiplot
-            {
-                std::vector<RimSummaryPlot*> summaryPlots = createMultipleSummaryPlotsFromAddresses( summaryCasesToUse,
-                                                                                                     ensemble,
-                                                                                                     summaryAddressFilters,
-                                                                                                     addHistoryCurves,
-                                                                                                     ensembleColoringStyle,
-                                                                                                     ensembleColoringParameter );
-
-                lastPlotCreated = summaryPlots.back();
-
-                for ( auto summaryPlot : summaryPlots )
-                {
-                    summaryPlot->setLegendsVisible( !hideLegend );
-                    summaryPlot->setNormalizationEnabled( isNormalizedY );
-                    summaryPlot->loadDataAndUpdate();
-                }
-
-                RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( summaryPlots );
-            }
         }
-
-        // Grid Cell Result vectors
-
-        if ( gridResultAddressFilters.size() )
+        else // Multiplot
         {
-            // Todo: Use identical grid case import if -e -c or -cl
+            int curveColorIndex = 0;
 
-            std::vector<RimEclipseCase*> gridCasesToPlotFrom = openEclipseCasesForCellPlotting( gridFileNames );
-
-            if ( isSinglePlot )
+            for ( const QString& gridAddressFilter : gridResultAddressFilters )
             {
-                std::vector<RimGridTimeHistoryCurve*> createdCurves;
-                int                                   curveColorIndex = 0;
-                for ( const QString& gridAddressFilter : gridResultAddressFilters )
+                std::vector<RigGridCellResultAddress> cellResAddrs =
+                    RigGridCellResultAddress::createGridCellAddressesFromFilter( gridAddressFilter );
+                for ( RigGridCellResultAddress cellResAddr : cellResAddrs )
                 {
-                    std::vector<RigGridCellResultAddress> cellResAddrs =
-                        RigGridCellResultAddress::createGridCellAddressesFromFilter( gridAddressFilter );
-
-                    for ( RigGridCellResultAddress cellResAddr : cellResAddrs )
+                    std::vector<RimGridTimeHistoryCurve*> createdCurves;
+                    for ( RimEclipseCase* eclCase : gridCasesToPlotFrom )
                     {
-                        for ( RimEclipseCase* eclCase : gridCasesToPlotFrom )
+                        if ( !( eclCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) &&
+                                eclCase->eclipseCaseData()
+                                    ->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
+                                    ->resultInfo( cellResAddr.eclipseResultAddress ) ) )
                         {
-                            if ( !( eclCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) &&
-                                    eclCase->eclipseCaseData()
-                                        ->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
-                                        ->resultInfo( cellResAddr.eclipseResultAddress ) ) )
-                            {
-                                RiaLogging::warning( "Could not find a restart result property with name: \"" +
-                                                     cellResAddr.eclipseResultAddress.resultName() + "\"" );
-                                continue;
-                            }
-
-                            RimGridTimeHistoryCurve* newCurve = new RimGridTimeHistoryCurve();
-                            newCurve->setFromEclipseCellAndResult( eclCase,
-                                                                   cellResAddr.gridIndex,
-                                                                   cellResAddr.i,
-                                                                   cellResAddr.j,
-                                                                   cellResAddr.k,
-                                                                   cellResAddr.eclipseResultAddress );
-                            newCurve->setLineThickness( 2 );
-                            cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( curveColorIndex );
-                            newCurve->setColor( curveColor );
-                            if ( !isEnsembleMode ) ++curveColorIndex;
-
-                            createdCurves.push_back( newCurve );
+                            RiaLogging::warning( "Could not find a restart result property with name: \"" +
+                                                 cellResAddr.eclipseResultAddress.resultName() + "\"" );
+                            continue;
                         }
-                        if ( isEnsembleMode ) ++curveColorIndex;
-                    }
-                }
-
-                if ( createdCurves.size() )
-                {
-                    RimSummaryPlot* newPlot = new RimSummaryPlot();
-                    newPlot->enableAutoPlotTitle( true );
-
-                    for ( auto curve : createdCurves )
-                    {
-                        newPlot->addGridTimeHistoryCurve( curve );
+                        RimGridTimeHistoryCurve* newCurve = new RimGridTimeHistoryCurve();
+                        newCurve->setFromEclipseCellAndResult( eclCase,
+                                                               cellResAddr.gridIndex,
+                                                               cellResAddr.i,
+                                                               cellResAddr.j,
+                                                               cellResAddr.k,
+                                                               cellResAddr.eclipseResultAddress );
+                        newCurve->setLineThickness( 2 );
+                        cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( curveColorIndex );
+                        newCurve->setColor( curveColor );
+                        if ( !isEnsembleMode ) ++curveColorIndex;
+                        createdCurves.push_back( newCurve );
                     }
 
-                    newPlot->setLegendsVisible( !hideLegend );
-                    newPlot->setNormalizationEnabled( isNormalizedY );
-                    newPlot->loadDataAndUpdate();
-                    lastPlotCreated = newPlot;
+                    if ( isEnsembleMode ) ++curveColorIndex;
 
-                    RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( newPlot );
-                }
-            }
-            else // Multiplot
-            {
-                int curveColorIndex = 0;
-
-                for ( const QString& gridAddressFilter : gridResultAddressFilters )
-                {
-                    std::vector<RigGridCellResultAddress> cellResAddrs =
-                        RigGridCellResultAddress::createGridCellAddressesFromFilter( gridAddressFilter );
-                    for ( RigGridCellResultAddress cellResAddr : cellResAddrs )
+                    if ( createdCurves.size() )
                     {
-                        std::vector<RimGridTimeHistoryCurve*> createdCurves;
-                        for ( RimEclipseCase* eclCase : gridCasesToPlotFrom )
+                        RimSummaryPlot* newPlot = new RimSummaryPlot();
+                        newPlot->enableAutoPlotTitle( true );
+                        for ( auto newCurve : createdCurves )
                         {
-                            if ( !( eclCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) &&
-                                    eclCase->eclipseCaseData()
-                                        ->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
-                                        ->resultInfo( cellResAddr.eclipseResultAddress ) ) )
-                            {
-                                RiaLogging::warning( "Could not find a restart result property with name: \"" +
-                                                     cellResAddr.eclipseResultAddress.resultName() + "\"" );
-                                continue;
-                            }
-                            RimGridTimeHistoryCurve* newCurve = new RimGridTimeHistoryCurve();
-                            newCurve->setFromEclipseCellAndResult( eclCase,
-                                                                   cellResAddr.gridIndex,
-                                                                   cellResAddr.i,
-                                                                   cellResAddr.j,
-                                                                   cellResAddr.k,
-                                                                   cellResAddr.eclipseResultAddress );
-                            newCurve->setLineThickness( 2 );
-                            cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( curveColorIndex );
-                            newCurve->setColor( curveColor );
-                            if ( !isEnsembleMode ) ++curveColorIndex;
-                            createdCurves.push_back( newCurve );
+                            newPlot->addGridTimeHistoryCurve( newCurve );
                         }
+                        newPlot->setLegendsVisible( !hideLegend );
+                        newPlot->setNormalizationEnabled( isNormalizedY );
+                        newPlot->loadDataAndUpdate();
+                        lastPlotCreated = newPlot;
 
-                        if ( isEnsembleMode ) ++curveColorIndex;
-
-                        if ( createdCurves.size() )
-                        {
-                            RimSummaryPlot* newPlot = new RimSummaryPlot();
-                            newPlot->enableAutoPlotTitle( true );
-                            for ( auto newCurve : createdCurves )
-                            {
-                                newPlot->addGridTimeHistoryCurve( newCurve );
-                            }
-                            newPlot->setLegendsVisible( !hideLegend );
-                            newPlot->setNormalizationEnabled( isNormalizedY );
-                            newPlot->loadDataAndUpdate();
-                            lastPlotCreated = newPlot;
-
-                            RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( newPlot );
-                        }
+                        RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( newPlot );
                     }
                 }
             }
-        }
-
-        if ( lastPlotCreated )
-        {
-            RimMainPlotCollection::current()->summaryMultiPlotCollection()->updateConnectedEditors();
-
-            RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
-            // Needed to avoid unnecessary activation of sub windows (plots)
-            // which results in population of property editor, and missing deleteLater because we are outside any event
-            // loop when switching object. Results in stray widgets.
-            mpw->setBlockViewSelectionOnSubWindowActivated( true );
-            RiuPlotMainWindowTools::showPlotMainWindow();
-            mpw->setBlockViewSelectionOnSubWindowActivated( false );
-            RiuPlotMainWindowTools::setExpanded( lastPlotCreated );
-            RiuPlotMainWindowTools::selectAsCurrentItem( lastPlotCreated );
-
-            RiuMainWindow::closeIfOpen();
         }
     }
-    else
+
+    if ( lastPlotCreated )
     {
-        RiaLogging::error( "Needs at least one summary case to create a plot." );
+        RimMainPlotCollection::current()->summaryMultiPlotCollection()->updateConnectedEditors();
+
+        RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
+        // Needed to avoid unnecessary activation of sub windows (plots)
+        // which results in population of property editor, and missing deleteLater because we are outside any event
+        // loop when switching object. Results in stray widgets.
+        mpw->setBlockViewSelectionOnSubWindowActivated( true );
+        RiuPlotMainWindowTools::showPlotMainWindow();
+        mpw->setBlockViewSelectionOnSubWindowActivated( false );
+        RiuPlotMainWindowTools::setExpanded( lastPlotCreated );
+        RiuPlotMainWindowTools::selectAsCurrentItem( lastPlotCreated );
+
+        RiuMainWindow::closeIfOpen();
     }
 }
 
