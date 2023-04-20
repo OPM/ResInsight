@@ -101,7 +101,18 @@ bool RifOpenVDSReader::isOpen() const
 //--------------------------------------------------------------------------------------------------
 bool RifOpenVDSReader::isValid()
 {
-    return true;
+    if ( !isOpen() ) return false;
+
+    auto accessManager = OpenVDS::GetAccessManager( m_handle );
+
+    OpenVDS::VolumeDataLayout const* layout = accessManager.GetVolumeDataLayout();
+    if ( layout == nullptr ) return false;
+
+    auto iAxis = layout->GetAxisDescriptor( VDS_INLINE_DIM );
+    auto xAxis = layout->GetAxisDescriptor( VDS_XLINE_DIM );
+    auto zAxis = layout->GetAxisDescriptor( VDS_Z_DIM );
+
+    return ( iAxis.GetCoordinateStep() > 0 ) && ( xAxis.GetCoordinateStep() > 0 ) && ( zAxis.GetCoordinateStep() > 0 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -295,11 +306,9 @@ std::vector<cvf::Vec3d> RifOpenVDSReader::worldCorners()
     OpenVDS::VolumeDataLayout const* layout = accessManager.GetVolumeDataLayout();
     if ( layout == nullptr ) return {};
 
-    const int zDimension = 0, xlineDimension = 1, inlineDimension = 2;
-
-    auto iAxis = layout->GetAxisDescriptor( inlineDimension );
-    auto xAxis = layout->GetAxisDescriptor( xlineDimension );
-    auto zAxis = layout->GetAxisDescriptor( zDimension );
+    auto iAxis = layout->GetAxisDescriptor( VDS_INLINE_DIM );
+    auto xAxis = layout->GetAxisDescriptor( VDS_XLINE_DIM );
+    auto zAxis = layout->GetAxisDescriptor( VDS_Z_DIM );
 
     float iMin = iAxis.GetCoordinateMin();
     float iMax = iAxis.GetCoordinateMax();
