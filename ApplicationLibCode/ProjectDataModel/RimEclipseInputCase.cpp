@@ -171,7 +171,10 @@ bool RimEclipseInputCase::openDataFileSet( const QStringList& fileNames )
         }
     }
 
-    RifInputPropertyLoader::loadAndSynchronizeInputProperties( m_inputPropertyCollection, this->eclipseCaseData(), filesToRead, importFaults );
+    if ( !filesToRead.empty() )
+    {
+        RifInputPropertyLoader::loadAndSynchronizeInputProperties( m_inputPropertyCollection, this->eclipseCaseData(), filesToRead, importFaults );
+    }
 
     if ( importFaults )
     {
