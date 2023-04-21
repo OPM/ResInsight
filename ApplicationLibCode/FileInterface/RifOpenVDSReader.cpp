@@ -41,6 +41,7 @@ RifOpenVDSReader::RifOpenVDSReader()
     : m_filename( "" )
     , m_handle( nullptr )
     , m_dataChannelToUse( 0 )
+    , m_layout( nullptr )
 {
 }
 
@@ -73,12 +74,13 @@ bool RifOpenVDSReader::open( QString filename )
         }
 
         auto accessManager = OpenVDS::GetAccessManager( m_handle );
-
-        OpenVDS::VolumeDataLayout const* layout = accessManager.GetVolumeDataLayout();
-        if ( layout != nullptr )
+        m_layout           = accessManager.GetVolumeDataLayout();
+        if ( m_layout == nullptr )
         {
-            m_coordinateTransform = std::make_unique<OpenVDS::IJKCoordinateTransformer>( layout );
+            close();
+            return false;
         }
+        m_coordinateTransform = std::make_unique<OpenVDS::IJKCoordinateTransformer>( m_layout );
     }
     catch ( const std::exception& )
     {
@@ -104,14 +106,9 @@ bool RifOpenVDSReader::isValid()
 {
     if ( !isOpen() ) return false;
 
-    auto accessManager = OpenVDS::GetAccessManager( m_handle );
-
-    OpenVDS::VolumeDataLayout const* layout = accessManager.GetVolumeDataLayout();
-    if ( layout == nullptr ) return false;
-
-    auto iAxis = layout->GetAxisDescriptor( VDS_INLINE_DIM );
-    auto xAxis = layout->GetAxisDescriptor( VDS_XLINE_DIM );
-    auto zAxis = layout->GetAxisDescriptor( VDS_Z_DIM );
+    auto iAxis = m_layout->GetAxisDescriptor( VDS_INLINE_DIM );
+    auto xAxis = m_layout->GetAxisDescriptor( VDS_XLINE_DIM );
+    auto zAxis = m_layout->GetAxisDescriptor( VDS_Z_DIM );
 
     return ( iAxis.GetCoordinateStep() > 0 ) && ( xAxis.GetCoordinateStep() > 0 ) && ( zAxis.GetCoordinateStep() > 0 );
 }
@@ -132,6 +129,7 @@ void RifOpenVDSReader::close()
     }
 
     m_handle = nullptr;
+    m_layout = nullptr;
 
     return;
 }
@@ -189,22 +187,21 @@ std::vector<std::pair<QString, QString>> RifOpenVDSReader::metaData()
     if ( OpenVDS::GetCompressionMethod( m_handle ) != OpenVDS::CompressionMethod::None ) compressed = "Yes";
     retValues.push_back( std::make_pair( QString( "Compression" ), compressed ) );
 
-    auto accessManager = OpenVDS::GetAccessManager( m_handle );
+    retValues.push_back( std::make_pair( QString( "Inline" ), openvds_axisToString( m_layout->GetAxisDescriptor( VDS_INLINE_DIM ) ) ) );
+    retValues.push_back( std::make_pair( QString( "Xline" ), openvds_axisToString( m_layout->GetAxisDescriptor( VDS_XLINE_DIM ) ) ) );
+    retValues.push_back( std::make_pair( QString( "Z" ), openvds_axisToString( m_layout->GetAxisDescriptor( VDS_Z_DIM ) ) ) );
 
-    OpenVDS::VolumeDataLayout const* layout = accessManager.GetVolumeDataLayout();
-    if ( layout == nullptr ) return retValues;
-
-    const int dimensions = layout->GetDimensionality();
+    const int dimensions = m_layout->GetDimensionality();
     retValues.push_back( std::make_pair( QString( "Dimensions" ), QString::number( dimensions ) ) );
 
-    const int channels = layout->GetChannelCount();
+    const int channels = m_layout->GetChannelCount();
     retValues.push_back( std::make_pair( QString( "Data Channels" ), QString::number( channels ) ) );
 
     for ( int i = 0; i < channels; i++ )
     {
         QString prefix = QString( "Data Channel %1 " ).arg( i );
 
-        auto chanDesc = layout->GetChannelDescriptor( i );
+        auto chanDesc = m_layout->GetChannelDescriptor( i );
 
         QString chanName( chanDesc.GetName() );
         retValues.push_back( std::make_pair( prefix + "Name", chanName ) );
@@ -215,10 +212,6 @@ std::vector<std::pair<QString, QString>> RifOpenVDSReader::metaData()
         if ( chanName.toLower() == "amplitude" ) m_dataChannelToUse = i;
     }
 
-    retValues.push_back( std::make_pair( QString( "Inline" ), openvds_axisToString( layout->GetAxisDescriptor( VDS_INLINE_DIM ) ) ) );
-    retValues.push_back( std::make_pair( QString( "Xline" ), openvds_axisToString( layout->GetAxisDescriptor( VDS_XLINE_DIM ) ) ) );
-    retValues.push_back( std::make_pair( QString( "Z" ), openvds_axisToString( layout->GetAxisDescriptor( VDS_Z_DIM ) ) ) );
-
     return retValues;
 }
 
@@ -228,10 +221,6 @@ std::vector<std::pair<QString, QString>> RifOpenVDSReader::metaData()
 void RifOpenVDSReader::histogramData( std::vector<double>& xvals, std::vector<double>& yvals )
 {
     if ( !isOpen() ) return;
-
-    auto                             accessManager = OpenVDS::GetAccessManager( m_handle );
-    OpenVDS::VolumeDataLayout const* layout        = accessManager.GetVolumeDataLayout();
-    if ( layout == nullptr ) return;
 
     auto iMinMaxStep = inlineMinMaxStep();
     auto xMinMaxStep = xlineMinMaxStep();
@@ -258,6 +247,8 @@ void RifOpenVDSReader::histogramData( std::vector<double>& xvals, std::vector<do
 
     std::vector<float> buffer( totalSize );
 
+    auto accessManager = OpenVDS::GetAccessManager( m_handle );
+
     auto request = accessManager.RequestVolumeSubset<float>( buffer.data(),
                                                              buffer.size() * sizeof( float ),
                                                              OpenVDS::Dimensions_012,
@@ -269,7 +260,7 @@ void RifOpenVDSReader::histogramData( std::vector<double>& xvals, std::vector<do
     bool success = request->WaitForCompletion();
     if ( success )
     {
-        auto chanDesc = layout->GetChannelDescriptor( m_dataChannelToUse );
+        auto chanDesc = m_layout->GetChannelDescriptor( m_dataChannelToUse );
 
         m_histogram =
             ZGYAccess::HistogramGenerator::getHistogram( buffer, 151, (float)chanDesc.GetValueRangeMin(), (float)chanDesc.GetValueRangeMax() );
@@ -286,12 +277,7 @@ std::pair<double, double> RifOpenVDSReader::dataRange()
 {
     if ( !isOpen() ) return { 0.0, 0.0 };
 
-    auto accessManager = OpenVDS::GetAccessManager( m_handle );
-
-    OpenVDS::VolumeDataLayout const* layout = accessManager.GetVolumeDataLayout();
-    if ( layout == nullptr ) return { 0.0, 0.0 };
-
-    auto chanDesc = layout->GetChannelDescriptor( m_dataChannelToUse );
+    auto chanDesc = m_layout->GetChannelDescriptor( m_dataChannelToUse );
     return { chanDesc.GetValueRangeMin(), chanDesc.GetValueRangeMax() };
 }
 
@@ -302,14 +288,9 @@ std::vector<cvf::Vec3d> RifOpenVDSReader::worldCorners()
 {
     if ( !isOpen() ) return {};
 
-    auto accessManager = OpenVDS::GetAccessManager( m_handle );
-
-    OpenVDS::VolumeDataLayout const* layout = accessManager.GetVolumeDataLayout();
-    if ( layout == nullptr ) return {};
-
-    auto iAxis = layout->GetAxisDescriptor( VDS_INLINE_DIM );
-    auto xAxis = layout->GetAxisDescriptor( VDS_XLINE_DIM );
-    auto zAxis = layout->GetAxisDescriptor( VDS_Z_DIM );
+    auto iAxis = m_layout->GetAxisDescriptor( VDS_INLINE_DIM );
+    auto xAxis = m_layout->GetAxisDescriptor( VDS_XLINE_DIM );
+    auto zAxis = m_layout->GetAxisDescriptor( VDS_Z_DIM );
 
     float iMin = iAxis.GetCoordinateMin();
     float iMax = iAxis.GetCoordinateMax();
@@ -348,12 +329,7 @@ double RifOpenVDSReader::zStep()
 {
     if ( !isOpen() ) return 0.0;
 
-    auto accessManager = OpenVDS::GetAccessManager( m_handle );
-
-    OpenVDS::VolumeDataLayout const* layout = accessManager.GetVolumeDataLayout();
-    if ( layout == nullptr ) return 0.0;
-
-    return layout->GetAxisDescriptor( VDS_Z_DIM ).GetCoordinateStep();
+    return m_layout->GetAxisDescriptor( VDS_Z_DIM ).GetCoordinateStep();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -363,12 +339,7 @@ int RifOpenVDSReader::zSize()
 {
     if ( !isOpen() ) return 0;
 
-    auto accessManager = OpenVDS::GetAccessManager( m_handle );
-
-    OpenVDS::VolumeDataLayout const* layout = accessManager.GetVolumeDataLayout();
-    if ( layout == nullptr ) return 0.0;
-
-    return layout->GetAxisDescriptor( VDS_Z_DIM ).GetNumSamples();
+    return m_layout->GetAxisDescriptor( VDS_Z_DIM ).GetNumSamples();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -378,12 +349,7 @@ cvf::Vec3i RifOpenVDSReader::minMaxStep( int dimension )
 {
     if ( !isOpen() ) return { 0, 0, 0 };
 
-    auto accessManager = OpenVDS::GetAccessManager( m_handle );
-
-    OpenVDS::VolumeDataLayout const* layout = accessManager.GetVolumeDataLayout();
-    if ( layout == nullptr ) return { 0, 0, 0 };
-
-    auto axis = layout->GetAxisDescriptor( dimension );
+    auto axis = m_layout->GetAxisDescriptor( dimension );
 
     return { (int)( axis.GetCoordinateMin() + 0.5 ), (int)( axis.GetCoordinateMax() + 0.5 ), (int)( axis.GetCoordinateStep() + 0.5 ) };
 }
@@ -423,7 +389,6 @@ std::pair<int, int> RifOpenVDSReader::convertToInlineXline( double worldx, doubl
     if ( !isOpen() ) return { 0, 0 };
 
     auto annot = m_coordinateTransform->WorldToAnnotation( OpenVDS::DoubleVector3( worldx, worldy, 0 ) );
-
     return { (int)( annot.X + 0.5 ), (int)( annot.Y + 0.5 ) };
 }
 
@@ -441,12 +406,8 @@ std::shared_ptr<ZGYAccess::SeismicSliceData>
         zSize       = this->zSize();
     }
 
-    auto                             accessManager = OpenVDS::GetAccessManager( m_handle );
-    OpenVDS::VolumeDataLayout const* layout        = accessManager.GetVolumeDataLayout();
-    if ( layout == nullptr ) return nullptr;
-
-    int xlineSize  = layout->GetAxisDescriptor( VDS_XLINE_DIM ).GetNumSamples();
-    int inlineSize = layout->GetAxisDescriptor( VDS_INLINE_DIM ).GetNumSamples();
+    int xlineSize  = m_layout->GetAxisDescriptor( VDS_XLINE_DIM ).GetNumSamples();
+    int inlineSize = m_layout->GetAxisDescriptor( VDS_INLINE_DIM ).GetNumSamples();
 
     int voxelMin[OpenVDS::Dimensionality_Max] = { 0, 0, 0, 0, 0, 0 };
     int voxelMax[OpenVDS::Dimensionality_Max] = { 1, 1, 1, 1, 1, 1 };
@@ -497,6 +458,8 @@ std::shared_ptr<ZGYAccess::SeismicSliceData>
 
     std::shared_ptr<ZGYAccess::SeismicSliceData> retData = std::make_shared<ZGYAccess::SeismicSliceData>( width, height );
 
+    auto accessManager = OpenVDS::GetAccessManager( m_handle );
+
     auto request = accessManager.RequestVolumeSubset<float>( retData->values(),
                                                              totalSize * sizeof( float ),
                                                              OpenVDS::Dimensions_012,
@@ -524,10 +487,6 @@ std::shared_ptr<ZGYAccess::SeismicSliceData> RifOpenVDSReader::trace( int inline
         zSize       = this->zSize();
     }
 
-    auto                             accessManager = OpenVDS::GetAccessManager( m_handle );
-    OpenVDS::VolumeDataLayout const* layout        = accessManager.GetVolumeDataLayout();
-    if ( layout == nullptr ) return nullptr;
-
     int voxelMin[OpenVDS::Dimensionality_Max] = { 0, 0, 0, 0, 0, 0 };
     int voxelMax[OpenVDS::Dimensionality_Max] = { 1, 1, 1, 1, 1, 1 };
 
@@ -544,6 +503,8 @@ std::shared_ptr<ZGYAccess::SeismicSliceData> RifOpenVDSReader::trace( int inline
                     ( voxelMax[VDS_INLINE_DIM] - voxelMin[VDS_INLINE_DIM] );
 
     std::shared_ptr<ZGYAccess::SeismicSliceData> retData = std::make_shared<ZGYAccess::SeismicSliceData>( 1, totalSize );
+
+    auto accessManager = OpenVDS::GetAccessManager( m_handle );
 
     auto request = accessManager.RequestVolumeSubset<float>( retData->values(),
                                                              totalSize * sizeof( float ),

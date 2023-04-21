@@ -24,6 +24,7 @@ namespace OpenVDS
 {
 struct VDS;
 struct IJKCoordinateTransformer;
+class VolumeDataLayout;
 } // namespace OpenVDS
 
 namespace ZGYAccess
@@ -71,6 +72,7 @@ protected:
 private:
     QString                                            m_filename;
     OpenVDS::VDS*                                      m_handle;
+    OpenVDS::VolumeDataLayout const*                   m_layout;
     int                                                m_dataChannelToUse;
     std::unique_ptr<OpenVDS::IJKCoordinateTransformer> m_coordinateTransform;
     std::unique_ptr<ZGYAccess::HistogramData>          m_histogram;
