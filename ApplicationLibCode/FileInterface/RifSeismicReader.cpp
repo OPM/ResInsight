@@ -41,10 +41,9 @@ cvf::BoundingBox RifSeismicReader::boundingBox()
 {
     cvf::BoundingBox retBox;
 
-    for ( auto p : worldCorners() )
+    for ( auto& p : worldCorners() )
     {
-        retBox.add( cvf::Vec3d( p.x(), p.y(), p.z() ) );
-        retBox.add( cvf::Vec3d( p.x(), p.y(), p.z() ) );
+        retBox.add( p );
     }
 
     return retBox;
