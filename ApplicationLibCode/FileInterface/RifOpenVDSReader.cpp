@@ -228,10 +228,10 @@ void RifOpenVDSReader::histogramData( std::vector<double>& xvals, std::vector<do
     int voxelMin[OpenVDS::Dimensionality_Max] = { 0, 0, 0, 0, 0, 0 };
     int voxelMax[OpenVDS::Dimensionality_Max] = { 1, 1, 1, 1, 1, 1 };
 
-    int zMax = zSize();
+    const int zMax = zSize();
 
-    int iSize = ( iMinMaxStep[1] - iMinMaxStep[0] ) / iMinMaxStep[2];
-    int xSize = ( xMinMaxStep[1] - xMinMaxStep[0] ) / xMinMaxStep[2];
+    const int iSize = ( iMinMaxStep[1] - iMinMaxStep[0] ) / iMinMaxStep[2];
+    const int xSize = ( xMinMaxStep[1] - xMinMaxStep[0] ) / xMinMaxStep[2];
 
     voxelMin[VDS_Z_DIM] = zMax / 4;
     voxelMax[VDS_Z_DIM] = zMax - zMax / 4;
@@ -242,8 +242,8 @@ void RifOpenVDSReader::histogramData( std::vector<double>& xvals, std::vector<do
     voxelMin[VDS_INLINE_DIM] = iSize / 4;
     voxelMax[VDS_INLINE_DIM] = iSize - iSize / 4;
 
-    int totalSize = ( voxelMax[VDS_Z_DIM] - voxelMin[VDS_Z_DIM] ) * ( voxelMax[VDS_XLINE_DIM] - voxelMin[VDS_XLINE_DIM] ) *
-                    ( voxelMax[VDS_INLINE_DIM] - voxelMin[VDS_INLINE_DIM] );
+    const int totalSize = ( voxelMax[VDS_Z_DIM] - voxelMin[VDS_Z_DIM] ) * ( voxelMax[VDS_XLINE_DIM] - voxelMin[VDS_XLINE_DIM] ) *
+                          ( voxelMax[VDS_INLINE_DIM] - voxelMin[VDS_INLINE_DIM] );
 
     std::vector<float> buffer( totalSize );
 
@@ -292,12 +292,12 @@ std::vector<cvf::Vec3d> RifOpenVDSReader::worldCorners()
     auto xAxis = m_layout->GetAxisDescriptor( VDS_XLINE_DIM );
     auto zAxis = m_layout->GetAxisDescriptor( VDS_Z_DIM );
 
-    float iMin = iAxis.GetCoordinateMin();
-    float iMax = iAxis.GetCoordinateMax();
-    float xMin = xAxis.GetCoordinateMin();
-    float xMax = xAxis.GetCoordinateMax();
-    float zMin = zAxis.GetCoordinateMin();
-    float zMax = zAxis.GetCoordinateMax();
+    const float iMin = iAxis.GetCoordinateMin();
+    const float iMax = iAxis.GetCoordinateMax();
+    const float xMin = xAxis.GetCoordinateMin();
+    const float xMax = xAxis.GetCoordinateMax();
+    const float zMin = zAxis.GetCoordinateMin();
+    const float zMax = zAxis.GetCoordinateMax();
 
     cvf::Vec3dArray annotPoints;
     annotPoints.resize( 8 );
@@ -406,8 +406,8 @@ std::shared_ptr<ZGYAccess::SeismicSliceData>
         zSize       = this->zSize();
     }
 
-    int xlineSize  = m_layout->GetAxisDescriptor( VDS_XLINE_DIM ).GetNumSamples();
-    int inlineSize = m_layout->GetAxisDescriptor( VDS_INLINE_DIM ).GetNumSamples();
+    const int xlineSize  = m_layout->GetAxisDescriptor( VDS_XLINE_DIM ).GetNumSamples();
+    const int inlineSize = m_layout->GetAxisDescriptor( VDS_INLINE_DIM ).GetNumSamples();
 
     int voxelMin[OpenVDS::Dimensionality_Max] = { 0, 0, 0, 0, 0, 0 };
     int voxelMax[OpenVDS::Dimensionality_Max] = { 1, 1, 1, 1, 1, 1 };
@@ -499,15 +499,12 @@ std::shared_ptr<ZGYAccess::SeismicSliceData> RifOpenVDSReader::trace( int inline
     voxelMin[VDS_INLINE_DIM] = inlineIndex;
     voxelMax[VDS_INLINE_DIM] = inlineIndex + 1;
 
-    int totalSize = ( voxelMax[VDS_Z_DIM] - voxelMin[VDS_Z_DIM] ) * ( voxelMax[VDS_XLINE_DIM] - voxelMin[VDS_XLINE_DIM] ) *
-                    ( voxelMax[VDS_INLINE_DIM] - voxelMin[VDS_INLINE_DIM] );
-
-    std::shared_ptr<ZGYAccess::SeismicSliceData> retData = std::make_shared<ZGYAccess::SeismicSliceData>( 1, totalSize );
+    std::shared_ptr<ZGYAccess::SeismicSliceData> retData = std::make_shared<ZGYAccess::SeismicSliceData>( 1, zSize );
 
     auto accessManager = OpenVDS::GetAccessManager( m_handle );
 
     auto request = accessManager.RequestVolumeSubset<float>( retData->values(),
-                                                             totalSize * sizeof( float ),
+                                                             zSize * sizeof( float ),
                                                              OpenVDS::Dimensions_012,
                                                              0,
                                                              m_dataChannelToUse,
