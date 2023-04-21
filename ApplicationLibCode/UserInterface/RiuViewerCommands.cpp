@@ -962,7 +962,7 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
                 cvf::Vec3d                           domainCoord = transForm->transformToDomainCoord( globalIntersectionPoint );
 
                 // Set surface resultInfo text
-                QString resultInfoText = "Seismic Section: \"" + section->userDescription() + "\"\n\n";
+                QString resultInfoText = "Seismic Section: \"" + section->fullName() + "\"\n\n";
 
                 resultInfoText += section->resultInfoText( domainCoord, seismicSourceInfo->partIndex() );
 

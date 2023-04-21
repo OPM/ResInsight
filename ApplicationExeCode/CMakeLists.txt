@@ -322,6 +322,10 @@ if(MSVC)
     set(RESINSIGHT_USE_ODB_API 1)
   endif()
 
+  if(NOT ${RESINSIGHT_OPENVDS_API_DIR} EQUAL "")
+    set(RESINSIGHT_USE_OPENVDS_API 1)
+  endif()
+
   # Odb Dlls
   if(RESINSIGHT_USE_ODB_API)
     # Find all the dlls
@@ -336,6 +340,16 @@ if(MSVC)
     foreach(aDLL ${RI_ODB_DLLS})
       list(APPEND RI_DLL_FILENAMES ${RESINSIGHT_ODB_API_DIR}/lib/${aDLL})
     endforeach()
+  endif()
+
+  # OpenVDS Dlls
+  if(RESINSIGHT_USE_OPENVDS_API)
+    set(OPENVDS_DLL_NAMES openvds segyutils)
+    foreach(OPENVDS_DLL_NAME ${OPENVDS_DLL_NAMES})
+      list(APPEND RI_DLL_FILENAMES
+           ${RESINSIGHT_OPENVDS_API_DIR}/lib/${OPENVDS_DLL_NAME}.dll
+      )
+    endforeach(OPENVDS_DLL_NAME)
   endif()
 
   # HDF5 Dlls
