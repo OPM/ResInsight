@@ -74,8 +74,13 @@ protected:
                                               bool                               createDefaultView,
                                               std::vector<int>&                  createdCaseIds,
                                               std::shared_ptr<RifReaderSettings> readerSettings );
-    static bool openInputEclipseCaseFromFileNames( const QStringList& fileNames, bool createDefaultView, std::vector<int>& createdCaseIds );
+
     static bool openSummaryCaseFromFileNames( const QStringList& fileNames, bool doCreateDefaultPlot = true );
+
+    static bool openEclipseInputFilesFromFileNames( const QStringList& fileNames, bool createDefaultView, std::vector<int>& createdCaseIds );
+    static bool openGrdeclCasesFromFileNames( const QStringList& fileNames, bool createDefaultView, std::vector<int>& createdCaseIds );
+    static bool
+        openGrdeclCaseAndPropertiesFromFileNames( const QStringList& fileNames, bool createDefaultView, std::vector<int>& createdCaseIds );
 
     static bool openRoffFilesFromFileNames( const QStringList& fileNames, bool createDefaultView, std::vector<int>& createdCaseIds );
     static bool openRoffCasesFromFileNames( const QStringList& fileNames, bool createDefaultView, std::vector<int>& createdCaseIds );

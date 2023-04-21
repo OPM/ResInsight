@@ -249,7 +249,8 @@ void RiaApplication::createMockModelCustomized()
 void RiaApplication::createInputMockModel()
 {
     bool createView = true;
-    RiaImportEclipseCaseTools::openEclipseInputCaseFromFileNames( QStringList( RiaDefines::mockModelBasicInputCase() ), createView );
+    RiaImportEclipseCaseTools::openEclipseInputCaseAndPropertiesFromFileNames( QStringList( RiaDefines::mockModelBasicInputCase() ),
+                                                                               createView );
 }
 
 //--------------------------------------------------------------------------------------------------
