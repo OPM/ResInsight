@@ -57,6 +57,8 @@ public:
     bool empty();
     int  size();
 
+    bool shouldBeVisibleInTree() const;
+
     QString userDescription();
     void    setUserDescription( QString description );
 

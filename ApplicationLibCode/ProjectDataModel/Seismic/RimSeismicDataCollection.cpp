@@ -24,6 +24,7 @@
 #include "RimGridView.h"
 #include "RimProject.h"
 #include "RimSeismicData.h"
+#include "RimSeismicSectionCollection.h"
 
 #include <QFile>
 #include <QFileInfo>
@@ -63,6 +64,8 @@ RimSeismicData* RimSeismicDataCollection::importSeismicFromFile( const QString f
     m_seismicData.push_back( seisData );
     updateAllRequiredEditors();
 
+    if ( m_seismicData.size() == 1 ) updateTreeForAllViews();
+
     return seisData;
 }
 
@@ -88,6 +91,7 @@ bool RimSeismicDataCollection::isEmpty()
 void RimSeismicDataCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     updateViews();
+    if ( m_seismicData.size() == 0 ) updateTreeForAllViews();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -102,5 +106,22 @@ void RimSeismicDataCollection::updateViews()
     for ( auto view : views )
     {
         view->scheduleCreateDisplayModelAndRedraw();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSeismicDataCollection::updateTreeForAllViews()
+{
+    RimProject* proj = RimProject::current();
+    if ( proj != nullptr )
+    {
+        std::vector<RimGridView*> views;
+        proj->allVisibleGridViews( views );
+        for ( auto view : views )
+        {
+            view->updateAllRequiredEditors();
+        }
     }
 }
