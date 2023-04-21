@@ -23,7 +23,7 @@
 namespace OpenVDS
 {
 struct VDS;
-class IJKCoordinateTransformer;
+struct IJKCoordinateTransformer;
 } // namespace OpenVDS
 
 namespace ZGYAccess
