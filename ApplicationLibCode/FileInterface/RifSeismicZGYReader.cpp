@@ -37,6 +37,7 @@ RifSeismicZGYReader::RifSeismicZGYReader()
 //--------------------------------------------------------------------------------------------------
 RifSeismicZGYReader::~RifSeismicZGYReader()
 {
+    close();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -44,7 +45,7 @@ RifSeismicZGYReader::~RifSeismicZGYReader()
 //--------------------------------------------------------------------------------------------------
 bool RifSeismicZGYReader::open( QString filename )
 {
-    if ( isOpen() ) close();
+    close();
 
     m_filename = filename;
 

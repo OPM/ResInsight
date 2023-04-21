@@ -49,6 +49,7 @@ RifOpenVDSReader::RifOpenVDSReader()
 //--------------------------------------------------------------------------------------------------
 RifOpenVDSReader::~RifOpenVDSReader()
 {
+    close();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,7 +57,7 @@ RifOpenVDSReader::~RifOpenVDSReader()
 //--------------------------------------------------------------------------------------------------
 bool RifOpenVDSReader::open( QString filename )
 {
-    if ( isOpen() ) close();
+    close();
 
     m_filename = filename;
 
