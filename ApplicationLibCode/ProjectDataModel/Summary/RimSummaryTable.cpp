@@ -382,16 +382,21 @@ void RimSummaryTable::onLoadDataAndUpdate()
         const auto [resampledTimeSteps, resampledValues] =
             RiaSummaryTools::resampledValuesForPeriod( adr, timeSteps, values, m_resamplingSelection() );
 
-        // First and last time step with value above threshold and set flag (first and last should be valid/invalid simultaneously)
-        const auto firstItr =
+        // Detect if values contain at least one value above threshold
+        const auto valueAboveThresholdItr =
             std::find_if( resampledValues.begin(), resampledValues.end(), [&]( double value ) { return value > m_thresholdValue; } );
-        const auto lastItr =
-            std::find_if( resampledValues.rbegin(), resampledValues.rend(), [&]( double value ) { return value > m_thresholdValue; } );
-        const auto firstIdx = static_cast<size_t>( std::distance( resampledValues.begin(), firstItr ) );
-        const auto lastIdx  = resampledValues.size() - static_cast<size_t>( std::distance( resampledValues.rbegin(), lastItr ) ) - 1;
-        const bool hasValueAboveThreshold = firstIdx < resampledTimeSteps.size() && lastIdx < resampledTimeSteps.size();
-        const auto firstTimeStep          = hasValueAboveThreshold ? resampledTimeSteps[firstIdx] : invalidTimeStep;
-        const auto lastTimeStep           = hasValueAboveThreshold ? resampledTimeSteps[lastIdx] : invalidTimeStep;
+        const bool hasValueAboveThreshold = valueAboveThresholdItr != resampledValues.end();
+
+        // Find first and last time step with value above 0.0 when hasValueAboveThreshold flag is true (first and last should be
+        // valid/invalid simultaneously)
+        const auto firstTimeStepItr =
+            std::find_if( resampledValues.begin(), resampledValues.end(), [&]( double value ) { return value > 0.0; } );
+        const auto lastTimeStepItr =
+            std::find_if( resampledValues.rbegin(), resampledValues.rend(), [&]( double value ) { return value > 0.0; } );
+        const auto firstIdx = static_cast<size_t>( std::distance( resampledValues.begin(), firstTimeStepItr ) );
+        const auto lastIdx = resampledValues.size() - static_cast<size_t>( std::distance( resampledValues.rbegin(), lastTimeStepItr ) ) - 1;
+        const auto firstTimeStep = hasValueAboveThreshold ? resampledTimeSteps[firstIdx] : invalidTimeStep;
+        const auto lastTimeStep  = hasValueAboveThreshold ? resampledTimeSteps[lastIdx] : invalidTimeStep;
 
         // Add to vector of VectorData
         VectorData vectorData{ .category               = categoryName,
