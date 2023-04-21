@@ -253,10 +253,11 @@ bool RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilter( const QString
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiaImportEclipseCaseTools::openEclipseInputCaseAndPropertiesFromFileNames( const QStringList& fileNames, bool createDefaultView )
+RiaImportEclipseCaseTools::CaseFileNameAndId
+    RiaImportEclipseCaseTools::openEclipseInputCaseAndPropertiesFromFileNames( const QStringList& fileNames, bool createDefaultView )
 {
     RimProject* project = RimProject::current();
-    if ( !project ) return -1;
+    if ( !project ) return { QString(), -1 };
 
     auto* rimInputReservoir = new RimEclipseInputCase();
     project->assignCaseIdToCase( rimInputReservoir );
@@ -266,11 +267,11 @@ int RiaImportEclipseCaseTools::openEclipseInputCaseAndPropertiesFromFileNames( c
     {
         RiaLogging::error( "Failed to import grid" );
         delete rimInputReservoir;
-        return -1;
+        return { QString(), -1 };
     }
 
     RimEclipseCaseCollection* analysisModels = project->activeOilField() ? project->activeOilField()->analysisModels() : nullptr;
-    if ( analysisModels == nullptr ) return false;
+    if ( analysisModels == nullptr ) return { QString(), -1 };
 
     analysisModels->cases.push_back( rimInputReservoir );
 
@@ -296,7 +297,7 @@ int RiaImportEclipseCaseTools::openEclipseInputCaseAndPropertiesFromFileNames( c
         Riu3DMainWindowTools::selectAsCurrentItem( eclipseView->cellResult() );
     }
 
-    return rimInputReservoir->caseId();
+    return { rimInputReservoir->gridFileName(), rimInputReservoir->caseId() };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -308,8 +309,8 @@ std::vector<int> RiaImportEclipseCaseTools::openEclipseInputCasesFromFileNames( 
     for ( const auto& fileName : fileNames )
     {
         // Open with single file
-        auto eclipseCaseId = openEclipseInputCaseAndPropertiesFromFileNames( { fileName }, createDefaultView );
-        eclipseCaseIds.push_back( eclipseCaseId );
+        auto [caseFileName, caseId] = openEclipseInputCaseAndPropertiesFromFileNames( { fileName }, createDefaultView );
+        eclipseCaseIds.push_back( caseId );
     }
     return eclipseCaseIds;
 }

@@ -20,6 +20,7 @@
 
 #include <map>
 #include <memory>
+#include <utility>
 #include <vector>
 
 class QString;
@@ -35,7 +36,8 @@ class RifReaderSettings;
 class RiaImportEclipseCaseTools
 {
 public:
-    using FileCaseIdMap = std::map<QString, int>;
+    using CaseFileNameAndId = std::pair<QString, int>;
+    using FileCaseIdMap     = std::map<QString, int>;
 
     static bool openEclipseCasesFromFile( const QStringList&                 fileNames,
                                           bool                               createView,
@@ -45,8 +47,8 @@ public:
 
     static bool openEclipseCaseShowTimeStepFilter( const QString& fileName );
 
-    static int              openEclipseInputCaseAndPropertiesFromFileNames( const QStringList& fileNames, bool createDefaultView );
-    static std::vector<int> openEclipseInputCasesFromFileNames( const QStringList& fileNames, bool createDefaultView );
+    static CaseFileNameAndId openEclipseInputCaseAndPropertiesFromFileNames( const QStringList& fileNames, bool createDefaultView );
+    static std::vector<int>  openEclipseInputCasesFromFileNames( const QStringList& fileNames, bool createDefaultView );
 
     static bool openMockModel( const QString& name );
 
