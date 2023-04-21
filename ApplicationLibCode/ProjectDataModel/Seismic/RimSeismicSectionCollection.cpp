@@ -258,3 +258,14 @@ void RimSeismicSectionCollection::updateView()
     firstAncestorOrThisOfType( view );
     if ( view ) view->scheduleCreateDisplayModelAndRedraw();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSeismicSectionCollection::shouldBeVisibleInTree() const
+{
+    RimProject* proj = RimProject::current();
+    if ( proj == nullptr ) return false;
+
+    return !proj->activeOilField()->seismicCollection()->isEmpty();
+}

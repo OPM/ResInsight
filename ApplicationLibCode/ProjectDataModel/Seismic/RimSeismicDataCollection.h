@@ -43,6 +43,7 @@ public:
 protected:
     void onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
     void updateViews();
+    void updateTreeForAllViews();
 
 private:
     caf::PdmChildArrayField<RimSeismicData*> m_seismicData;
