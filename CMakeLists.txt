@@ -331,6 +331,7 @@ if(MSVC)
   FetchContent_Declare(openvds URL https://bluware.jfrog.io/artifactory/Releases-OpenVDSPlus/3.2/openvds+-3.2.3-win.zip)
 else()
   FetchContent_Declare(openvds URL https://bluware.jfrog.io/artifactory/Releases-OpenVDSPlus/3.2/openvds+-3.2.3-manylinux_2014.tar.gz)
+endif()
 
 FetchContent_Populate(openvds)
 
