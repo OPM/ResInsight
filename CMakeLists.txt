@@ -324,6 +324,18 @@ set(RESINSIGHT_OPENVDS_API_DIR
       PATH
       "Optional path to the OpenVDS API. Adds support for OpenVDS seismic files"
 )
+
+include(FetchContent)
+
+if(MSVC)
+  FetchContent_Declare(openvds URL https://bluware.jfrog.io/artifactory/Releases-OpenVDSPlus/3.2/openvds+-3.2.3-win.zip)
+else()
+  FetchContent_Declare(openvds URL https://bluware.jfrog.io/artifactory/Releases-OpenVDSPlus/3.2/openvds+-3.2.3-manylinux_2014.tar.gz)
+
+FetchContent_Populate(openvds)
+
+set (RESINSIGHT_OPENVDS_API_DIR ${openvds_SOURCE_DIR})
+
 if(NOT ${RESINSIGHT_OPENVDS_API_DIR} EQUAL "")
   add_definitions(-DUSE_OPENVDS)
   set(RESINSIGHT_USE_OPENVDS_API 1)
@@ -331,13 +343,13 @@ if(NOT ${RESINSIGHT_OPENVDS_API_DIR} EQUAL "")
 
   if(MSVC)
     list(APPEND EXTERNAL_LINK_LIBRARIES
-         ${RESINSIGHT_OPENVDS_API_DIR}/lib/segyutils.lib
-         ${RESINSIGHT_OPENVDS_API_DIR}/lib/openvds.lib
+         ${RESINSIGHT_OPENVDS_API_DIR}/lib/msvc_141/segyutils.lib
+         ${RESINSIGHT_OPENVDS_API_DIR}/lib/msvc_141/openvds.lib
     )
   else()
     list(APPEND EXTERNAL_LINK_LIBRARIES
-         ${RESINSIGHT_OPENVDS_API_DIR}/lib/libsegyutils.so
-         ${RESINSIGHT_OPENVDS_API_DIR}/lib/libopenvds.so
+         ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so
+         ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so
     )
   endif()
 endif()
