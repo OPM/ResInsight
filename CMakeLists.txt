@@ -328,14 +328,20 @@ set(RESINSIGHT_OPENVDS_API_DIR
 include(FetchContent)
 
 if(MSVC)
-  FetchContent_Declare(openvds URL https://bluware.jfrog.io/artifactory/Releases-OpenVDSPlus/3.2/openvds+-3.2.3-win.zip)
+  FetchContent_Declare(
+    openvds
+    URL https://bluware.jfrog.io/artifactory/Releases-OpenVDSPlus/3.2/openvds+-3.2.3-win.zip
+  )
 else()
-  FetchContent_Declare(openvds URL https://bluware.jfrog.io/artifactory/Releases-OpenVDSPlus/3.2/openvds+-3.2.3-manylinux_2014.tar.gz)
+  FetchContent_Declare(
+    openvds
+    URL https://bluware.jfrog.io/artifactory/Releases-OpenVDSPlus/3.2/openvds+-3.2.3-manylinux_2014.tar.gz
+  )
 endif()
 
 FetchContent_Populate(openvds)
 
-set (RESINSIGHT_OPENVDS_API_DIR ${openvds_SOURCE_DIR})
+set(RESINSIGHT_OPENVDS_API_DIR ${openvds_SOURCE_DIR})
 
 if(NOT ${RESINSIGHT_OPENVDS_API_DIR} EQUAL "")
   add_definitions(-DUSE_OPENVDS)
