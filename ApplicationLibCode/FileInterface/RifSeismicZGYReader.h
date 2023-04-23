@@ -29,7 +29,7 @@ class RifSeismicZGYReader : public RifSeismicReader
 {
 public:
     RifSeismicZGYReader();
-    ~RifSeismicZGYReader();
+    ~RifSeismicZGYReader() override;
 
     bool open( QString filename ) override;
     void close() override;
