@@ -9,6 +9,7 @@ cmake_policy(SET CMP0020 NEW)
 if(POLICY CMP0077)
   cmake_policy(SET CMP0077 NEW)
 endif()
+cmake_policy(SET CMP0135 OLD)
 
 if(UNIX)
   option(
@@ -822,6 +823,10 @@ if(NOT ${RESINSIGHT_OPENVDS_API_DIR} EQUAL "")
         ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so.3
         ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so.3.2.3
         ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds-968eeb36.so.3.2.3
+        ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so
+        ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so.3
+        ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so.3.2.3
+        ${RESINSIGHT_OPENVDS_API_DIR}/bin/SEGYImport
     )
     install(FILES ${OPENVDS_SHARED_LIB_FILES}
             DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
