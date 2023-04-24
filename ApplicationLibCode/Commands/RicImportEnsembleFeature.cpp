@@ -85,9 +85,9 @@ void RicImportEnsembleFeature::onActionTriggered( bool isChecked )
     }
     else
     {
-        if ( fileType == RiaDefines::FileType::STIMPLAN_SUMMARY )
+        if ( fileType == RiaDefines::FileType::STIMPLAN_SUMMARY || fileType == RiaDefines::FileType::REVEAL_SUMMARY )
         {
-            std::map<QString, QStringList> groupedByEnsemble = RiaEnsembleNameTools::groupFilesByStimPlanEnsemble( fileNames );
+            std::map<QString, QStringList> groupedByEnsemble = RiaEnsembleNameTools::groupFilesByCustomEnsemble( fileNames, fileType );
             for ( const auto& [ensembleName, groupedFileNames] : groupedByEnsemble )
             {
                 bool useEnsembleNameDialog = false;

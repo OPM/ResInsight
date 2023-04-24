@@ -19,6 +19,7 @@
 #include "RiaEnsembleNameTools.h"
 
 #include "RiaFilePathTools.h"
+#include "RiaSummaryDefines.h"
 #include "RiaTextStringTools.h"
 
 #include "RimCaseDisplayNameTools.h"
@@ -136,7 +137,7 @@ std::vector<QStringList> RiaEnsembleNameTools::groupFilesByEnsemble( const QStri
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<QString, QStringList> RiaEnsembleNameTools::groupFilesByStimPlanEnsemble( const QStringList& fileNames )
+std::map<QString, QStringList> RiaEnsembleNameTools::groupFilesByCustomEnsemble( const QStringList& fileNames, RiaDefines::FileType fileType )
 {
     std::vector<QStringList> componentsForAllFilePaths;
     for ( const auto& filePath : fileNames )
@@ -145,7 +146,7 @@ std::map<QString, QStringList> RiaEnsembleNameTools::groupFilesByStimPlanEnsembl
         componentsForAllFilePaths.push_back( components );
     }
 
-    auto mapping = findUniqueStimPlanEnsembleNames( fileNames, componentsForAllFilePaths );
+    auto mapping = findUniqueCustomEnsembleNames( fileType, fileNames, componentsForAllFilePaths );
 
     std::set<QString> iterations;
     for ( const auto& [name, iterFileNamePair] : mapping )
@@ -179,50 +180,54 @@ std::map<QString, QStringList> RiaEnsembleNameTools::groupFilesByStimPlanEnsembl
 ///
 //--------------------------------------------------------------------------------------------------
 std::map<QString, std::pair<QString, QString>>
-    RiaEnsembleNameTools::findUniqueStimPlanEnsembleNames( const QStringList& fileNames, const std::vector<QStringList>& fileNameComponents )
+    RiaEnsembleNameTools::findUniqueCustomEnsembleNames( RiaDefines::FileType            fileType,
+                                                         const QStringList&              fileNames,
+                                                         const std::vector<QStringList>& fileNameComponents )
 {
     CAF_ASSERT( fileNames.size() == static_cast<int>( fileNameComponents.size() ) );
 
-    struct StimPlanComponents
-    {
-        QString realization;
-        QString iteration;
-        QString well;
-        QString fracture;
-        QString job;
-        QString fileName;
-    };
-
-    std::vector<StimPlanComponents> comps;
+    std::map<QString, std::pair<QString, QString>> mapping;
 
     int i = 0;
     for ( const auto& fileComponents : fileNameComponents )
     {
         int numComponents = fileComponents.size();
 
-        if ( numComponents >= 8 )
+        if ( fileType == RiaDefines::FileType::STIMPLAN_SUMMARY )
         {
-            // Expected path: realization/iteration/stimplan/output/well/job/fracture/data.csv
-            // Example: realization-1/iteration-1/stimplan/output/H-B33/job-01/mainfrac/data.csv
-            StimPlanComponents c;
-            c.fileName    = fileNames[i];
-            c.fracture    = fileComponents[numComponents - 2];
-            c.job         = fileComponents[numComponents - 3];
-            c.well        = fileComponents[numComponents - 4];
-            c.iteration   = fileComponents[numComponents - 7];
-            c.realization = fileComponents[numComponents - 8];
+            if ( numComponents >= 8 && fileComponents[numComponents - 6] == "stimplan" )
+            {
+                // Expected path: realization/iteration/stimplan/output/well/job/fracture/data.csv
+                // Example: realization-1/iteration-1/stimplan/output/H-B33/job-01/mainfrac/data.csv
+                QString fileName    = fileNames[i];
+                QString fracture    = fileComponents[numComponents - 2];
+                QString job         = fileComponents[numComponents - 3];
+                QString well        = fileComponents[numComponents - 4];
+                QString iteration   = fileComponents[numComponents - 7];
+                QString realization = fileComponents[numComponents - 8];
 
-            comps.push_back( c );
+                QString key         = QString( "%1, %2, %3, %4, %5" ).arg( iteration, realization, well, fracture, job );
+                QString displayName = QString( "%1, %2, %3, %4" ).arg( iteration, well, fracture, job );
+                mapping[key]        = std::make_pair( displayName, fileName );
+            }
+        }
+        else if ( fileType == RiaDefines::FileType::REVEAL_SUMMARY )
+        {
+            if ( numComponents >= 6 && fileComponents[numComponents - 4] == "reveal" )
+            {
+                // Expected path: realization/iteration/reveal/output/well/data.csv
+                // Example: realization-1/iteration-1/reveal/output/H-B33/data.csv
+
+                QString fileName    = fileNames[i];
+                QString well        = fileComponents[numComponents - 2];
+                QString iteration   = fileComponents[numComponents - 5];
+                QString realization = fileComponents[numComponents - 6];
+                QString key         = QString( "%1, %2, %3" ).arg( iteration, realization, well );
+                QString displayName = QString( "%1, %2" ).arg( iteration, well );
+                mapping[key]        = std::make_pair( displayName, fileName );
+            }
         }
         i++;
-    }
-
-    std::map<QString, std::pair<QString, QString>> mapping;
-    for ( const StimPlanComponents& c : comps )
-    {
-        QString key       = QString( "%1, %2, %3, %4, %5" ).arg( c.iteration, c.realization, c.well, c.fracture, c.job );
-        QString iteration = QString( "%1, %2, %3, %4" ).arg( c.iteration, c.well, c.fracture, c.job );
-        mapping[key]      = std::make_pair( iteration, c.fileName );
     }
 
     return mapping;

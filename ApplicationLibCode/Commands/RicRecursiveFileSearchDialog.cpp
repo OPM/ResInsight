@@ -432,9 +432,11 @@ void RicRecursiveFileSearchDialog::updateFileListWidget()
 
     if ( ensembleGroupingMode() != RiaEnsembleNameTools::EnsembleGroupingMode::NONE )
     {
-        if ( m_fileType == RicRecursiveFileSearchDialog::FileType::STIMPLAN_SUMMARY )
+        if ( m_fileType == RicRecursiveFileSearchDialog::FileType::STIMPLAN_SUMMARY ||
+             m_fileType == RicRecursiveFileSearchDialog::FileType::REVEAL_SUMMARY )
         {
-            std::map<QString, QStringList> groupedByEnsemble = RiaEnsembleNameTools::groupFilesByStimPlanEnsemble( m_foundFiles );
+            auto                           fileType          = RicRecursiveFileSearchDialog::mapSummaryFileType( m_fileType );
+            std::map<QString, QStringList> groupedByEnsemble = RiaEnsembleNameTools::groupFilesByCustomEnsemble( m_foundFiles, fileType );
             for ( auto [ensembleName, groupedFileNames] : groupedByEnsemble )
             {
                 new QListWidgetItem( QDir::toNativeSeparators( ensembleName ), m_fileListWidget );
