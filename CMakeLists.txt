@@ -807,7 +807,6 @@ if(RESINSIGHT_USE_ODB_API)
   add_subdirectory(ApplicationLibCode/GeoMech/OdbReader)
 endif()
 
-
 if(RESINSIGHT_ENABLE_GRPC)
   add_subdirectory(GrpcInterface)
 endif()
