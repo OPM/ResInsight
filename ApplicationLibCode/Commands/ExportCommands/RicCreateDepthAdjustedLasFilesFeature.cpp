@@ -74,6 +74,7 @@ void RicCreateDepthAdjustedLasFilesFeature::onActionTriggered( bool isChecked )
         {
             RimCase*                  selectedCase             = featureUi.selectedCase();
             RimWellPath*              sourceWell               = featureUi.sourceWell();
+            RimWellLogFile*           soureWellLogFile         = featureUi.wellLogFile();
             std::vector<RimWellPath*> destinationWells         = featureUi.destinationWells().ptrReferencedObjects();
             std::vector<QString>      selectedResultProperties = featureUi.selectedResultProperties();
             QString                   exportFolder             = featureUi.exportFolder();
@@ -89,11 +90,21 @@ void RicCreateDepthAdjustedLasFilesFeature::onActionTriggered( bool isChecked )
 
             if ( eclipseCase != nullptr )
             {
-                createDepthAdjustedWellLogFileFromEclipseCase( eclipseCase, sourceWell, destinationWells, selectedResultProperties, exportFolder );
+                createDepthAdjustedWellLogFileFromEclipseCase( eclipseCase,
+                                                               sourceWell,
+                                                               soureWellLogFile,
+                                                               destinationWells,
+                                                               selectedResultProperties,
+                                                               exportFolder );
             }
             else if ( geomCase != nullptr )
             {
-                createDepthAdjustedWellLogFileFromGeoMechCase( geomCase, sourceWell, destinationWells, selectedResultProperties, exportFolder );
+                createDepthAdjustedWellLogFileFromGeoMechCase( geomCase,
+                                                               sourceWell,
+                                                               soureWellLogFile,
+                                                               destinationWells,
+                                                               selectedResultProperties,
+                                                               exportFolder );
             }
         }
     }
@@ -112,6 +123,7 @@ void RicCreateDepthAdjustedLasFilesFeature::setupActionLook( QAction* actionToSe
 //--------------------------------------------------------------------------------------------------
 void RicCreateDepthAdjustedLasFilesFeature::createDepthAdjustedWellLogFileFromEclipseCase( RimEclipseCase*                 eclipseCase,
                                                                                            RimWellPath*                    sourceWell,
+                                                                                           RimWellLogFile*                 soureWellLogFile,
                                                                                            const std::vector<RimWellPath*> destinationWells,
                                                                                            const std::vector<QString>& selectedResultProperties,
                                                                                            const QString& exportFolder )
@@ -128,6 +140,7 @@ void RicCreateDepthAdjustedLasFilesFeature::createDepthAdjustedWellLogFileFromEc
     const double rkbDiff = sourceWellExtractor->wellPathGeometry()->rkbDiff();
     RicCreateDepthAdjustedLasFilesImpl::createDestinationWellsLasFiles( eclipseCase,
                                                                         sourceWell,
+                                                                        soureWellLogFile,
                                                                         destinationWells,
                                                                         selectedResultProperties,
                                                                         exportFolder,
@@ -139,6 +152,7 @@ void RicCreateDepthAdjustedLasFilesFeature::createDepthAdjustedWellLogFileFromEc
 //--------------------------------------------------------------------------------------------------
 void RicCreateDepthAdjustedLasFilesFeature::createDepthAdjustedWellLogFileFromGeoMechCase( RimGeoMechCase*                 geoMechCase,
                                                                                            RimWellPath*                    sourceWell,
+                                                                                           RimWellLogFile*                 soureWellLogFile,
                                                                                            const std::vector<RimWellPath*> destinationWells,
                                                                                            const std::vector<QString>& selectedResultProperties,
                                                                                            const QString& exportFolder )
@@ -155,6 +169,7 @@ void RicCreateDepthAdjustedLasFilesFeature::createDepthAdjustedWellLogFileFromGe
     const double rkbDiff = sourceWellExtractor->wellPathGeometry()->rkbDiff();
     RicCreateDepthAdjustedLasFilesImpl::createDestinationWellsLasFiles( geoMechCase,
                                                                         sourceWell,
+                                                                        soureWellLogFile,
                                                                         destinationWells,
                                                                         selectedResultProperties,
                                                                         exportFolder,
