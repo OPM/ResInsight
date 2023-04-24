@@ -342,13 +342,13 @@ set(RESINSIGHT_OPENVDS_API_DIR ${openvds_SOURCE_DIR})
 message(STATUS "Using OpenVDS api from : ${RESINSIGHT_OPENVDS_API_DIR}")
 
 if(MSVC)
-list(APPEND EXTERNAL_LINK_LIBRARIES
-        ${RESINSIGHT_OPENVDS_API_DIR}/lib/msvc_141/openvds.lib
-)
+  list(APPEND EXTERNAL_LINK_LIBRARIES
+       ${RESINSIGHT_OPENVDS_API_DIR}/lib/msvc_141/openvds.lib
+  )
 else()
-list(APPEND EXTERNAL_LINK_LIBRARIES
-        ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so
-)
+  list(APPEND EXTERNAL_LINK_LIBRARIES
+       ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so
+  )
 endif()
 
 # ##############################################################################
@@ -807,21 +807,21 @@ endif()
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   set(OPENVDS_SHARED_LIB_FILES
-    ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so
-    ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so.3
-    ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so.3.2.3
-    ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds-968eeb36.so.3.2.3
-    ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so
-    ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so.3
-    ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so.3.2.3
-)
-install(FILES ${OPENVDS_SHARED_LIB_FILES}
-        DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
-)
+      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so
+      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so.3
+      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so.3.2.3
+      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds-968eeb36.so.3.2.3
+      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so
+      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so.3
+      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so.3.2.3
+  )
+  install(FILES ${OPENVDS_SHARED_LIB_FILES}
+          DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
+  )
 
-install(PROGRAMS ${RESINSIGHT_OPENVDS_API_DIR}/bin/SEGYImport
-        DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
-)
+  install(PROGRAMS ${RESINSIGHT_OPENVDS_API_DIR}/bin/SEGYImport
+          DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
+  )
 endif()
 
 # ##############################################################################
