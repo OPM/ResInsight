@@ -21,12 +21,12 @@
 #include "RiaApplication.h"
 #include "RiaLogging.h"
 
-#include "CommandRouter/RimcExtractSurfaces.h"
 #include "RicCreateEnsembleSurfaceUi.h"
 #include "RicImportEnsembleSurfaceFeature.h"
 #include "RicRecursiveFileSearchDialog.h"
 #include "RimDialogData.h"
 #include "RimProject.h"
+#include "RimcExtractSurfaces.h"
 
 #include "Riu3DMainWindowTools.h"
 #include "RiuPropertyViewTabWidget.h"

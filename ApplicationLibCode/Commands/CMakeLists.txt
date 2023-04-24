@@ -59,6 +59,13 @@ add_library(
   ${COMMAND_MOC_SOURCE_FILES}
 )
 
+target_include_directories(
+  ${PROJECT_NAME}
+  PRIVATE 
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/EclipseCommands
+)
+
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   target_compile_options(
     Commands
@@ -107,21 +114,8 @@ if(MSVC)
 endif()
 
 set(LINK_LIBRARIES
-    LibCore
-    cafCommand
-    cafPdmCvf
-    cafPdmScripting
-    cafTensor
-    cafViewer
-    cafVizExtensions
-    ecl
-    nightcharts
-    qwt
-    ${QT_LIBRARIES}
-    Eigen3::Eigen
-    roffcpp
-    qtadvanceddocking
-    custom-opm-common
+ApplicationLibCode
+ResultStatisticsCache
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${LINK_LIBRARIES})
