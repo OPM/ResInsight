@@ -49,12 +49,7 @@ bool RicImportSeismicFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicImportSeismicFeature::onActionTriggered( bool isChecked )
 {
-#ifdef USE_OPENVDS
-    QString filter = "Seismic files (*.zgy *.vds);;All Files (*.*)";
-#else
-    QString filter = "Seismic files (*.zgy);;All Files (*.*)";
-#endif
-
+    QString         filter     = "Seismic files (*.zgy *.vds);;All Files (*.*)";
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( "SEISMIC_GRID" );
     QString fileName = RiuFileDialogTools::getOpenFileName( Riu3DMainWindowTools::mainWindowWidget(), "Import Seismic", defaultDir, filter );
