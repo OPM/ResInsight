@@ -1,7 +1,5 @@
 project(ResultStatisticsCache)
 
-include_directories(${LibCore_SOURCE_DIR})
-
 add_library(
   ${PROJECT_NAME}
   RigStatisticsCalculator.h RigStatisticsCalculator.cpp
