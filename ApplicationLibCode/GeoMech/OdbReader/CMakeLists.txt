@@ -38,16 +38,13 @@ else()
   add_definitions(-DABQ_MPI_PMPI)
 endif(MSVC)
 
-
 add_library(
   ${PROJECT_NAME} RifOdbReader.h RifOdbReader.cpp RifGeoMechReaderInterface.h
                   RifGeoMechReaderInterface.cpp OdbSetup.cmake
 )
 
 target_include_directories(
-  ${PROJECT_NAME}
-  PRIVATE 
-${RESINSIGHT_ODB_API_DIR}/include
+  ${PROJECT_NAME} PRIVATE ${RESINSIGHT_ODB_API_DIR}/include
 )
 
 if(MSVC)

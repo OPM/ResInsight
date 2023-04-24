@@ -60,10 +60,8 @@ add_library(
 )
 
 target_include_directories(
-  ${PROJECT_NAME}
-  PRIVATE 
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/EclipseCommands
+  ${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+                          ${CMAKE_CURRENT_SOURCE_DIR}/EclipseCommands
 )
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
@@ -113,10 +111,7 @@ if(MSVC)
 
 endif()
 
-set(LINK_LIBRARIES
-ApplicationLibCode
-ResultStatisticsCache
-)
+set(LINK_LIBRARIES ApplicationLibCode ResultStatisticsCache)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${LINK_LIBRARIES})
 

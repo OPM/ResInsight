@@ -84,7 +84,9 @@ set(QRC_FILES
 
 add_library(${PROJECT_NAME} ${PROJECT_FILES} ${MOC_SOURCE_FILES})
 
-target_link_libraries(${PROJECT_NAME} cafPdmCore cafProjectDataModel ${QT_LIBRARIES})
+target_link_libraries(
+  ${PROJECT_NAME} cafPdmCore cafProjectDataModel ${QT_LIBRARIES}
+)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
