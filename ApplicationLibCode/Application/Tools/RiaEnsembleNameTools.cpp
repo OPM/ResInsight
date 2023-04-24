@@ -200,22 +200,17 @@ std::map<QString, std::pair<QString, QString>>
     {
         int numComponents = fileComponents.size();
 
-        if ( numComponents >= 7 )
+        if ( numComponents >= 8 )
         {
+            // Expected path: realization/iteration/stimplan/output/well/job/fracture/data.csv
+            // Example: realization-1/iteration-1/stimplan/output/H-B33/job-01/mainfrac/data.csv
             StimPlanComponents c;
             c.fileName    = fileNames[i];
             c.fracture    = fileComponents[numComponents - 2];
-            c.iteration   = fileComponents[numComponents - 6];
-            c.realization = fileComponents[numComponents - 7];
-
-            QString     wellJobComponent = fileComponents[numComponents - 3];
-            QStringList parts            = wellJobComponent.split( "_" );
-
-            if ( parts.size() == 4 )
-            {
-                c.well = parts[0];
-                c.job  = parts[3];
-            }
+            c.job         = fileComponents[numComponents - 3];
+            c.well        = fileComponents[numComponents - 4];
+            c.iteration   = fileComponents[numComponents - 7];
+            c.realization = fileComponents[numComponents - 8];
 
             comps.push_back( c );
         }
