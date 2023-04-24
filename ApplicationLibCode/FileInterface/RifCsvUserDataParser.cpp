@@ -85,10 +85,10 @@ RifCsvUserDataParser::~RifCsvUserDataParser()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifCsvUserDataParser::parse( const AsciiDataParseOptions& parseOptions )
+bool RifCsvUserDataParser::parse( const AsciiDataParseOptions& parseOptions, const std::map<QString, std::pair<QString, double>>& unitMapping )
 {
     if ( determineCsvLayout() == LineBased ) return parseLineBasedData();
-    return parseColumnBasedData( parseOptions );
+    return parseColumnBasedData( parseOptions, unitMapping );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -302,7 +302,10 @@ RifCsvUserDataParser::CsvLayout RifCsvUserDataParser::determineCsvLayout()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifCsvUserDataParser::parseColumnInfo( QTextStream* dataStream, const AsciiDataParseOptions& parseOptions, std::vector<Column>* columnInfoList )
+bool RifCsvUserDataParser::parseColumnInfo( QTextStream*                                         dataStream,
+                                            const AsciiDataParseOptions&                         parseOptions,
+                                            std::vector<Column>*                                 columnInfoList,
+                                            const std::map<QString, std::pair<QString, double>>& unitMapping )
 {
     bool headerFound = false;
 
@@ -413,7 +416,17 @@ bool RifCsvUserDataParser::parseColumnInfo( QTextStream* dataStream, const Ascii
             else if ( parseOptions.defaultCategory == RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_FIELD )
                 addr = RifEclipseSummaryAddress::fieldAddress( colName.toStdString() );
 
-            Column col = Column::createColumnInfoFromCsvData( addr, unit.toStdString() );
+            double scaleFactor = 1.0;
+            if ( !unit.isEmpty() )
+            {
+                if ( auto it = unitMapping.find( unit ); it != unitMapping.end() )
+                {
+                    std::tie( unit, scaleFactor ) = it->second;
+                }
+            }
+
+            Column col      = Column::createColumnInfoFromCsvData( addr, unit.toStdString() );
+            col.scaleFactor = scaleFactor;
             columnInfoList->push_back( col );
         }
 
@@ -426,7 +439,8 @@ bool RifCsvUserDataParser::parseColumnInfo( QTextStream* dataStream, const Ascii
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifCsvUserDataParser::parseColumnBasedData( const AsciiDataParseOptions& parseOptions )
+bool RifCsvUserDataParser::parseColumnBasedData( const AsciiDataParseOptions&                         parseOptions,
+                                                 const std::map<QString, std::pair<QString, double>>& unitMapping )
 {
     bool errors = false;
     enum
@@ -440,7 +454,7 @@ bool RifCsvUserDataParser::parseColumnBasedData( const AsciiDataParseOptions& pa
     QTextStream* dataStream = openDataStream();
 
     // Parse header
-    if ( !parseColumnInfo( dataStream, parseOptions, &columnInfoList ) )
+    if ( !parseColumnInfo( dataStream, parseOptions, &columnInfoList, unitMapping ) )
     {
         if ( m_errorText ) m_errorText->append( "CSV import: Failed to parse header columns" );
         return false;
@@ -521,7 +535,7 @@ bool RifCsvUserDataParser::parseColumnBasedData( const AsciiDataParseOptions& pa
                             // Add nullptr value
                             value = HUGE_VAL;
                         }
-                        col.values.push_back( value );
+                        col.values.push_back( value * col.scaleFactor );
                     }
                     else if ( col.dataType == Column::TEXT )
                     {

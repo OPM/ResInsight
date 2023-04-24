@@ -66,7 +66,20 @@ bool RifRevealCsvSectionSummaryReader::parse( const QString& text, RifEclipseSum
     parseOptions.defaultCategory         = defaultCategory;
 
     m_parser = std::unique_ptr<RifCsvUserDataPastedTextParser>( new RifCsvUserDataPastedTextParser( text, errorText ) );
-    if ( !m_parser->parse( parseOptions ) )
+    std::map<QString, std::pair<QString, double>> unitMapping = { { "Sm3", { "SM3", 1.0 } },
+                                                                  { "Sm3/day", { "SM3/DAY", 1.0 } },
+                                                                  { "Sm3/day/bar", { "SM3/DAY/BAR", 1.0 } },
+                                                                  { "Sm3/Sm3", { "SM3/SM3", 1.0 } },
+                                                                  { "rm3", { "RM3", 1.0 } },
+                                                                  { "rm3/day", { "RM3/DAY", 1.0 } },
+                                                                  { "rm3/day/bar", { "RM3/DAY/BAR", 1.0 } },
+                                                                  { "Rm3/day/bar", { "RM3/DAY/BAR", 1.0 } },
+                                                                  { "BARa", { "BARSA", 1.0 } },
+                                                                  { "fraction", { "", 1.0 } },
+                                                                  { "1000Sm3/d", { "SM3/DAY", 1000.0 } },
+                                                                  { "MSm3", { "SM3", 1000000.0 } } };
+
+    if ( !m_parser->parse( parseOptions, unitMapping ) )
     {
         RiaLogging::error( QString( "Failed to parse file" ) );
         return false;
