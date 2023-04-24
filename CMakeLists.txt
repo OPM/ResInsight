@@ -9,7 +9,9 @@ cmake_policy(SET CMP0020 NEW)
 if(POLICY CMP0077)
   cmake_policy(SET CMP0077 NEW)
 endif()
-cmake_policy(SET CMP0135 OLD)
+if(POLICY CMP0135)
+  cmake_policy(SET CMP0135 OLD)
+endif()
 
 if(UNIX)
   option(
@@ -351,12 +353,10 @@ if(NOT ${RESINSIGHT_OPENVDS_API_DIR} EQUAL "")
 
   if(MSVC)
     list(APPEND EXTERNAL_LINK_LIBRARIES
-         ${RESINSIGHT_OPENVDS_API_DIR}/lib/msvc_141/segyutils.lib
          ${RESINSIGHT_OPENVDS_API_DIR}/lib/msvc_141/openvds.lib
     )
   else()
     list(APPEND EXTERNAL_LINK_LIBRARIES
-         ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so
          ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so
     )
   endif()
