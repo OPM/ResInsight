@@ -818,10 +818,10 @@ endif()
 if(NOT ${RESINSIGHT_OPENVDS_API_DIR} EQUAL "")
   if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(OPENVDS_SHARED_LIB_FILES
-      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so
-      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so.3
-      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so.3.2.3
-      ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds-968eeb36.so.3.2.3
+        ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so
+        ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so.3
+        ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds.so.3.2.3
+        ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libopenvds-968eeb36.so.3.2.3
     )
     install(FILES ${OPENVDS_SHARED_LIB_FILES}
             DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
