@@ -20,8 +20,6 @@ find_package(
 set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
 qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})
 
-include_directories(..)
-
 add_definitions(-DCVF_USING_CMAKE)
 
 set(PROJECT_FILES
@@ -86,7 +84,7 @@ set(QRC_FILES
 
 add_library(${PROJECT_NAME} ${PROJECT_FILES} ${MOC_SOURCE_FILES})
 
-target_link_libraries(${PROJECT_NAME} cafPdmCore ${QT_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} cafPdmCore cafProjectDataModel ${QT_LIBRARIES})
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
