@@ -826,9 +826,12 @@ if(NOT ${RESINSIGHT_OPENVDS_API_DIR} EQUAL "")
         ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so
         ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so.3
         ${RESINSIGHT_OPENVDS_API_DIR}/lib64/libsegyutils.so.3.2.3
-        ${RESINSIGHT_OPENVDS_API_DIR}/bin/SEGYImport
     )
     install(FILES ${OPENVDS_SHARED_LIB_FILES}
+            DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
+    )
+
+    install(PROGRAMS ${RESINSIGHT_OPENVDS_API_DIR}/bin/SEGYImport
             DESTINATION ${RESINSIGHT_INSTALL_FOLDER}
     )
   endif()
