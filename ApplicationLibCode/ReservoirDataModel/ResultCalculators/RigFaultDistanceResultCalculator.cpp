@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RigFaultDistanceResultCalculator.h"
+
 #include "RiaDefines.h"
 #include "RiaResultNames.h"
 #include "RigActiveCellInfo.h"
@@ -24,6 +25,8 @@
 #include "RigCell.h"
 #include "RigEclipseResultInfo.h"
 #include "RigMainGrid.h"
+
+#include "cvfBoundingBoxTree.h"
 
 //==================================================================================================
 ///
@@ -96,6 +99,28 @@ void RigFaultDistanceResultCalculator::calculate( const RigEclipseResultAddress&
         }
     }
 
+    if ( faultFaceCenters.empty() ) return;
+
+    // Create bounding box tree for all face centers
+    auto searchTree = new cvf::BoundingBoxTree;
+    {
+        std::vector<size_t>           faceIndicesForBoundingBoxes;
+        std::vector<cvf::BoundingBox> faceBBs;
+
+        size_t faceCenterIndex = 0;
+        for ( const auto& faultFaceCenter : faultFaceCenters )
+        {
+            cvf::BoundingBox bb;
+            bb.add( faultFaceCenter );
+            faceBBs.push_back( bb );
+            faceIndicesForBoundingBoxes.push_back( faceCenterIndex++ );
+        }
+        searchTree->buildTreeFromBoundingBoxes( faceBBs, &faceIndicesForBoundingBoxes );
+    }
+
+    const auto nodes      = m_resultsData->m_ownerMainGrid->nodes();
+    const auto mainGridBB = m_resultsData->m_ownerMainGrid->boundingBox();
+
 #pragma omp parallel for
     for ( long long cellIdx = 0; cellIdx < numCells; cellIdx++ )
     {
@@ -104,11 +129,43 @@ void RigFaultDistanceResultCalculator::calculate( const RigEclipseResultAddress&
         size_t resultIndex = cellIdx;
         if ( resultIndex == cvf::UNDEFINED_SIZE_T || !m_resultsData->activeCellInfo()->isActive( cellIdx ) ) continue;
 
+        std::vector<size_t> candidateFaceIndices;
+        {
+            cvf::BoundingBox bb;
+            const auto&      cellIndices = cell.cornerIndices();
+            for ( const auto& i : cellIndices )
+            {
+                bb.add( nodes[i] );
+            }
+
+            searchTree->findIntersections( bb, &candidateFaceIndices );
+
+            bool bbIsBelowThreshold = true;
+            while ( candidateFaceIndices.empty() && bbIsBelowThreshold )
+            {
+                if ( bb.extent().x() > mainGridBB.extent().x() * 2 )
+                {
+                    bbIsBelowThreshold = false;
+                    break;
+                }
+                if ( bb.extent().y() > mainGridBB.extent().y() * 2 )
+                {
+                    bbIsBelowThreshold = false;
+                    break;
+                }
+
+                bb.expand( bb.extent().x() );
+                searchTree->findIntersections( bb, &candidateFaceIndices );
+            }
+        }
+
         // Find closest fault face
         double shortestDistance = std::numeric_limits<double>::infinity();
-        for ( const cvf::Vec3d& faultFaceCenter : faultFaceCenters )
+
+        for ( const auto& faultFaceIndex : candidateFaceIndices )
         {
-            shortestDistance = std::min( cell.center().pointDistance( faultFaceCenter ), shortestDistance );
+            const cvf::Vec3d& faultFaceCenter = faultFaceCenters[faultFaceIndex];
+            shortestDistance                  = std::min( cell.center().pointDistance( faultFaceCenter ), shortestDistance );
         }
 
         result[0][resultIndex] = shortestDistance;
