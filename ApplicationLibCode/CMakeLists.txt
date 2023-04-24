@@ -455,6 +455,7 @@ target_include_directories(
     ${CMAKE_SOURCE_DIR}/ApplicationLibCode/ReservoirDataModel/ResultCalculators
     ${CMAKE_SOURCE_DIR}/ApplicationLibCode/SocketInterface
     ${CMAKE_SOURCE_DIR}/ApplicationLibCode/UserInterface
+    ${ResInsight_SOURCE_DIR}/ThirdParty
 )
 
 # ##############################################################################
