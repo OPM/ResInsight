@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.15)
 
 include(CheckCSourceCompiles)
+include(FetchContent)
+
 project(ResInsight)
 
 set(VIZ_MODULES_FOLDER_NAME Fwk/VizFwk)
@@ -321,14 +323,6 @@ endif()
 # ##############################################################################
 # OpenVDS seismic file access
 # ##############################################################################
-set(RESINSIGHT_OPENVDS_API_DIR
-    ""
-    CACHE
-      PATH
-      "Optional path to the OpenVDS API. Adds support for OpenVDS seismic files"
-)
-
-include(FetchContent)
 
 if(MSVC)
   FetchContent_Declare(
