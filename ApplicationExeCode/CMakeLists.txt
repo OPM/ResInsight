@@ -277,10 +277,12 @@ if(RESINSIGHT_ENABLE_GRPC)
   list(APPEND LINK_LIBRARIES GrpcInterface)
 endif()
 
+list(APPEND LINK_LIBRARIES RigGeoMechDataModel)
+
 if(RESINSIGHT_USE_ODB_API)
   add_definitions(-DUSE_ODB_API)
-  list(APPEND LINK_LIBRARIES RigGeoMechDataModel)
   list(APPEND LINK_LIBRARIES RifOdbReader)
+  list(APPEND LINK_LIBRARIES OdbReader)
 endif()
 
 target_link_libraries(ResInsight ${LINK_LIBRARIES})
