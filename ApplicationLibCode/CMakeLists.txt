@@ -258,17 +258,7 @@ list(APPEND RI_LIBRARIES RigGeoMechDataModel)
 #
 # OpenVDS
 #
-if(RESINSIGHT_USE_OPENVDS_API)
-  set(OPENVDS_FILES FileInterface/RifOpenVDSReader.h
-                    FileInterface/RifOpenVDSReader.cpp
-  )
-
-  list(APPEND CPP_SOURCES ${OPENVDS_FILES})
-
-  add_definitions(-DUSE_OPENVDS)
-
-  include_directories(${RESINSIGHT_OPENVDS_API_DIR}/include)
-endif()
+include_directories(${RESINSIGHT_OPENVDS_API_DIR}/include)
 
 #
 # HDF5
