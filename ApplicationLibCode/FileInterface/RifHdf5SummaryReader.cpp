@@ -22,6 +22,9 @@
 #include "RiaTimeTTools.h"
 #include "RifHdf5Reader.h"
 
+#ifdef _MSC_VER
+#pragma warning( disable : 4251 )
+#endif
 #include "H5Cpp.h"
 
 #include <QDateTime>

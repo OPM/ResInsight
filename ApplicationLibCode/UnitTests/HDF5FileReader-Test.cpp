@@ -6,6 +6,9 @@
 #include "RifHdf5SummaryReader.h"
 #include "RifOpmHdf5Summary.h"
 
+#ifdef _MSC_VER
+#pragma warning( disable : 4251 )
+#endif
 #include "H5Cpp.h"
 
 #include <iostream>

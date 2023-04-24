@@ -18,6 +18,9 @@
 
 #pragma once
 
+#ifdef _MSC_VER
+#pragma warning( disable : 4251 )
+#endif
 #include "H5Cpp.h"
 
 #include <string>
