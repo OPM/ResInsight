@@ -181,8 +181,8 @@ std::map<QString, QStringList> RiaEnsembleNameTools::groupFilesByCustomEnsemble(
 //--------------------------------------------------------------------------------------------------
 std::map<QString, std::pair<QString, QString>>
     RiaEnsembleNameTools::findUniqueCustomEnsembleNames( RiaDefines::FileType            fileType,
-                                                           const QStringList&              fileNames,
-                                                           const std::vector<QStringList>& fileNameComponents )
+                                                         const QStringList&              fileNames,
+                                                         const std::vector<QStringList>& fileNameComponents )
 {
     CAF_ASSERT( fileNames.size() == static_cast<int>( fileNameComponents.size() ) );
 
