@@ -20,12 +20,17 @@
 
 #include "cafCmdFeature.h"
 
+#include <QString>
+
 //==================================================================================================
 ///
 //==================================================================================================
 class RicImportSeismicFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
+
+public:
+    static QString convertSEGYtoVDS( QString filename );
 
 protected:
     bool isCommandEnabled() override;

@@ -33,6 +33,7 @@
 
 #include <QAction>
 #include <QFileInfo>
+#include <QMessageBox>
 
 CAF_CMD_SOURCE_INIT( RicImportSeismicFeature, "RicImportSeismicFeature" );
 
@@ -49,10 +50,21 @@ bool RicImportSeismicFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicImportSeismicFeature::onActionTriggered( bool isChecked )
 {
-    QString         filter     = "Seismic files (*.zgy *.vds);;All Files (*.*)";
+    QString         filter     = "Seismic files (*.zgy *.vds);;SEG-Y files (*.sgy *.segy);;All Files (*.*)";
     RiaApplication* app        = RiaApplication::instance();
     QString         defaultDir = app->lastUsedDialogDirectory( "SEISMIC_GRID" );
     QString fileName = RiuFileDialogTools::getOpenFileName( Riu3DMainWindowTools::mainWindowWidget(), "Import Seismic", defaultDir, filter );
+
+    QFileInfo fi( fileName );
+
+    QString ext = fi.suffix().toLower();
+    if ( ( ext == "segy" ) || ( ext == "sgy" ) )
+    {
+        QMessageBox::information( nullptr,
+                                  QString( "SEG-Y import" ),
+                                  QString( "SEG-Y file %1 will be converted to VDS format." ).arg( fileName ) );
+        fileName = convertSEGYtoVDS( fileName );
+    }
 
     if ( fileName.isEmpty() ) return;
 
@@ -82,4 +94,12 @@ void RicImportSeismicFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/Seismic16x16.png" ) );
     actionToSetup->setText( "Import Seismic" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicImportSeismicFeature::convertSEGYtoVDS( QString filename )
+{
+    return "";
 }
