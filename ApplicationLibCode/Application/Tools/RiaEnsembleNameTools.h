@@ -55,8 +55,8 @@ public:
     static std::map<QString, QStringList> groupFilesByCustomEnsemble( const QStringList& fileNames, RiaDefines::FileType fileType );
 
     static std::map<QString, std::pair<QString, QString>> findUniqueCustomEnsembleNames( RiaDefines::FileType fileType,
-                                                                                           const QStringList&   fileNames,
-                                                                                           const std::vector<QStringList>& fileNameComponents );
+                                                                                         const QStringList&   fileNames,
+                                                                                         const std::vector<QStringList>& fileNameComponents );
 
     static QString uniqueShortNameForEnsembleCase( RimSummaryCase* summaryCase );
     static QString uniqueShortNameForSummaryCase( RimSummaryCase* summaryCase );
