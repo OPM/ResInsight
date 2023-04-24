@@ -347,7 +347,7 @@ if(MSVC)
     set(OPENVDS_DLL_NAMES openvds segyutils)
     foreach(OPENVDS_DLL_NAME ${OPENVDS_DLL_NAMES})
       list(APPEND RI_DLL_FILENAMES
-           ${RESINSIGHT_OPENVDS_API_DIR}/lib/${OPENVDS_DLL_NAME}.dll
+           ${RESINSIGHT_OPENVDS_API_DIR}/bin/msvc_141/${OPENVDS_DLL_NAME}.dll
       )
     endforeach(OPENVDS_DLL_NAME)
   endif()
