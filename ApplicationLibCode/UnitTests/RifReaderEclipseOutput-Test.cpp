@@ -111,9 +111,9 @@ TEST( RigReservoirTest, BasicTest10kRestart )
     filenames << filePath;
     unrstAccess.setRestartFiles( filenames );
 
-    auto keywordInfo = unrstAccess.resultNames();
+    auto keywordValueCounts = unrstAccess.keywordValueCounts();
 
-    EXPECT_EQ( 83, keywordInfo.size() );
+    EXPECT_EQ( 83, keywordValueCounts.size() );
 
     /* for (int i = 0; i < resultNames.size(); i++)
     {

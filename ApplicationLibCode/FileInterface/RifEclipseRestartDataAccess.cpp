@@ -35,48 +35,40 @@ RifEclipseRestartDataAccess::~RifEclipseRestartDataAccess()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifRestartReportKeywords::RifRestartReportKeywords()
+void RifRestartReportKeywords::appendKeywordCount( const std::string& keyword, size_t valueCount, RifKeywordValueCount::KeywordDataType dataType )
 {
-}
+    auto it = m_keywordValueCounts.find( keyword );
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RifRestartReportKeywords::appendKeyword( const std::string& keyword, size_t itemCount, RifKeywordItemCount::KeywordDataType dataType )
-{
-    auto it = m_keywordNameAndItemCount.find( keyword );
-
-    if ( it == m_keywordNameAndItemCount.end() )
+    if ( it == m_keywordValueCounts.end() )
     {
-        m_keywordNameAndItemCount[keyword] = RifKeywordItemCount( keyword, itemCount, dataType );
+        m_keywordValueCounts[keyword] = RifKeywordValueCount( keyword, valueCount, dataType );
     }
     else
     {
-        it->second.addItemCount( itemCount );
+        it->second.addValueCount( valueCount );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifRestartReportKeywords::appendKeyword( const RifRestartReportKeywords& other )
+void RifRestartReportKeywords::appendKeywordCount( const RifRestartReportKeywords& other )
 {
-    for ( const auto& [keyword, keywordInfo] : other.m_keywordNameAndItemCount )
+    for ( const auto& [keyword, keywordInfo] : other.m_keywordValueCounts )
     {
-        appendKeyword( keyword, keywordInfo.itemCount(), keywordInfo.dataType() );
+        appendKeywordCount( keyword, keywordInfo.valueCount(), keywordInfo.dataType() );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RifKeywordItemCount> RifRestartReportKeywords::keywordItemCount() const
+std::vector<RifKeywordValueCount> RifRestartReportKeywords::keywordValueCounts() const
 {
-    std::vector<RifKeywordItemCount> tmp;
-    for ( const auto& [keyword, info] : m_keywordNameAndItemCount )
+    std::vector<RifKeywordValueCount> tmp;
+    for ( const auto& [keyword, info] : m_keywordValueCounts )
     {
         tmp.push_back( info );
     }
     return tmp;
-    ;
 }
