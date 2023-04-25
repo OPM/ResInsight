@@ -39,7 +39,6 @@
 #include "RicfCommandFileExecutor.h"
 #include "RicfCommandObject.h"
 
-#include "CommandRouter/RimCommandRouter.h"
 #include "PlotTemplates/RimPlotTemplateFolderItem.h"
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimAnnotationCollection.h"
@@ -47,6 +46,7 @@
 #include "RimAnnotationTextAppearance.h"
 #include "RimCellFilterCollection.h"
 #include "RimCommandObject.h"
+#include "RimCommandRouter.h"
 #include "RimCompletionTemplateCollection.h"
 #include "RimEclipseCaseCollection.h"
 #include "RimEclipseView.h"

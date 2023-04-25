@@ -9,7 +9,8 @@ find_package(
 )
 set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL Qt5::Svg)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} # required for gtest-all.cpp
+)
 
 set(PROJECT_FILES cafUserInterface_UnitTests.cpp cafPdmUiTreeViewModelTest.cpp
                   cafPdmUiTreeSelectionQModelTest.cpp gtest/gtest-all.cpp

@@ -19,18 +19,7 @@ qt5_add_resources(QRC_FILES_CPP ${QRC_FILES})
 
 option(USE_COMMAND_FRAMEWORK "Use Caf Command Framework" ON)
 
-include_directories(
-  ${LibCore_SOURCE_DIR}
-  ${LibGeometry_SOURCE_DIR}
-  ${LibGuiQt_SOURCE_DIR}
-  ${LibRender_SOURCE_DIR}
-  ${LibViewing_SOURCE_DIR}
-  ${cafProjectDataModel_SOURCE_DIR}
-  ${cafUserInterface_SOURCE_DIR}
-)
-
 if(USE_COMMAND_FRAMEWORK)
-  include_directories(${cafCommand_SOURCE_DIR})
   add_definitions(-DTAP_USE_COMMAND_FRAMEWORK)
 endif(USE_COMMAND_FRAMEWORK)
 

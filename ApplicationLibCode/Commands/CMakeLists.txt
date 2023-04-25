@@ -60,12 +60,8 @@ add_library(
 )
 
 target_include_directories(
-  ${PROJECT_NAME}
-  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
-         ${CMAKE_SOURCE_DIR}/ThirdParty
-         ${CMAKE_SOURCE_DIR}/ThirdParty/custom-opm-common/generated-opm-common
-         ${CMAKE_SOURCE_DIR}/ThirdParty/custom-opm-common/opm-common
-         ${CMAKE_SOURCE_DIR}/ThirdParty/qtadvanceddocking/src
+  ${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+                          ${CMAKE_CURRENT_SOURCE_DIR}/EclipseCommands
 )
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
@@ -115,21 +111,7 @@ if(MSVC)
 
 endif()
 
-set(LINK_LIBRARIES
-    LibCore
-    cafCommand
-    cafPdmCvf
-    cafPdmScripting
-    cafTensor
-    cafViewer
-    cafVizExtensions
-    ecl
-    nightcharts
-    qwt
-    ${QT_LIBRARIES}
-    Eigen3::Eigen
-    roffcpp
-)
+set(LINK_LIBRARIES ApplicationLibCode ResultStatisticsCache)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${LINK_LIBRARIES})
 

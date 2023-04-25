@@ -1,7 +1,5 @@
 project(ResultStatisticsCache)
 
-include_directories(${LibCore_SOURCE_DIR})
-
 add_library(
   ${PROJECT_NAME}
   RigStatisticsCalculator.h RigStatisticsCalculator.cpp
@@ -11,6 +9,6 @@ add_library(
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(${PROJECT_NAME} LibCore)
+target_link_libraries(${PROJECT_NAME} LibCore ApplicationLibCode)
 
 source_group("" FILES ${PROJECT_FILES})
