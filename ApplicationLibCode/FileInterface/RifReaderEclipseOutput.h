@@ -36,6 +36,7 @@ class RigEclipseTimeStepInfo;
 class RigGridBase;
 class RigMainGrid;
 class QDateTime;
+class RifKeywordItemCount;
 
 struct RigWellResultPoint;
 
@@ -113,12 +114,11 @@ private:
 
     void ensureDynamicResultAccessIsPresent();
 
-    QStringList validKeywordsForPorosityModel( const QStringList&            keywords,
-                                               const std::vector<size_t>&    keywordDataItemCounts,
-                                               const RigActiveCellInfo*      activeCellInfo,
-                                               const RigActiveCellInfo*      fractureActiveCellInfo,
-                                               RiaDefines::PorosityModelType matrixOrFracture,
-                                               size_t                        timeStepCount ) const;
+    QStringList validKeywordsForPorosityModel( const std::vector<RifKeywordItemCount>& keywordItemCount,
+                                               const RigActiveCellInfo*                activeCellInfo,
+                                               const RigActiveCellInfo*                fractureActiveCellInfo,
+                                               RiaDefines::PorosityModelType           matrixOrFracture,
+                                               size_t                                  timeStepCount ) const;
 
     std::vector<RigEclipseTimeStepInfo> createFilteredTimeStepInfos();
 

@@ -111,13 +111,9 @@ TEST( RigReservoirTest, BasicTest10kRestart )
     filenames << filePath;
     unrstAccess.setRestartFiles( filenames );
 
-    QStringList         resultNames;
-    std::vector<size_t> dataItemCount;
+    auto keywordInfo = unrstAccess.resultNames();
 
-    unrstAccess.resultNames( &resultNames, &dataItemCount );
-
-    EXPECT_EQ( resultNames.size(), (int)dataItemCount.size() );
-    EXPECT_EQ( 83, resultNames.size() );
+    EXPECT_EQ( 83, keywordInfo.size() );
 
     /* for (int i = 0; i < resultNames.size(); i++)
     {

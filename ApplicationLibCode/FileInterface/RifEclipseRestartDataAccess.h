@@ -31,24 +31,41 @@
 
 #include "RifReaderInterface.h"
 
-class RifKeywordLocation
+class RifKeywordItemCount
 {
 public:
-    RifKeywordLocation( const std::string& keyword, size_t itemCount, int indexWithinReportStep )
+    enum class KeywordDataType
+    {
+        UNKNOWN,
+        FLOAT,
+        DOUBLE,
+        INTEGER,
+    };
+
+public:
+    RifKeywordItemCount( const std::string& keyword, size_t itemCount, KeywordDataType dataType )
         : m_keyword( keyword )
         , m_itemCount( itemCount )
-        , m_indexWithinReportStep( indexWithinReportStep )
+        , m_dataType( dataType )
     {
     }
 
-    std::string keyword() const { return m_keyword; }
-    size_t      itemCount() const { return m_itemCount; }
-    int         indexWithinReportStep() const { return m_indexWithinReportStep; }
+    RifKeywordItemCount()
+        : m_itemCount( 0 )
+        , m_dataType( KeywordDataType::UNKNOWN )
+    {
+    }
+
+    void addItemCount( size_t itemCount ) { m_itemCount += itemCount; }
+
+    std::string     keyword() const { return m_keyword; }
+    size_t          itemCount() const { return m_itemCount; }
+    KeywordDataType dataType() const { return m_dataType; }
 
 private:
-    std::string m_keyword;
-    size_t      m_itemCount;
-    int         m_indexWithinReportStep;
+    std::string     m_keyword;
+    size_t          m_itemCount;
+    KeywordDataType m_dataType;
 };
 
 class RifRestartReportKeywords
@@ -56,25 +73,13 @@ class RifRestartReportKeywords
 public:
     RifRestartReportKeywords();
 
-    void appendKeyword( const std::string& keyword, size_t itemCount, int globalIndex );
+    void appendKeyword( const RifRestartReportKeywords& other );
+    void appendKeyword( const std::string& keyword, size_t itemCount, RifKeywordItemCount::KeywordDataType dataType );
 
-    std::vector<std::pair<std::string, size_t>> keywordsWithAggregatedItemCount();
-
-private:
-    std::vector<RifKeywordLocation> objectsForKeyword( const std::string& keyword );
-    std::set<std::string>           uniqueKeywords();
+    std::vector<RifKeywordItemCount> keywordItemCount() const;
 
 private:
-    std::vector<RifKeywordLocation> m_keywordNameAndItemCount;
-};
-
-class RifRestartReportStep
-{
-public:
-    // int globalIndex;
-    QDateTime dateTime;
-
-    RifRestartReportKeywords m_keywords;
+    std::map<std::string, RifKeywordItemCount> m_keywordNameAndItemCount;
 };
 
 //==================================================================================================
@@ -97,7 +102,7 @@ public:
     virtual void             timeSteps( std::vector<QDateTime>* timeSteps, std::vector<double>* daysSinceSimulationStart ) = 0;
     virtual std::vector<int> reportNumbers()                                                                               = 0;
 
-    virtual void resultNames( QStringList* resultNames, std::vector<size_t>* resultDataItemCounts )                   = 0;
+    virtual std::vector<RifKeywordItemCount> resultNames()                                                            = 0;
     virtual bool results( const QString& resultName, size_t timeStep, size_t gridCount, std::vector<double>* values ) = 0;
 
     virtual bool dynamicNNCResults( const ecl_grid_type* grid,
