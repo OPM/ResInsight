@@ -246,6 +246,8 @@ struct PdmFieldScriptingCapabilityIOHandler<std::vector<T>>
         QChar chr = errorMessageContainer->readCharWithLineNumberCount( inputStream );
         if ( chr == QChar( '[' ) )
         {
+            std::vector<QString> allValues;
+            QString              currentValue;
             while ( !inputStream.atEnd() )
             {
                 errorMessageContainer->skipWhiteSpaceWithLineNumberCount( inputStream );
@@ -259,11 +261,25 @@ struct PdmFieldScriptingCapabilityIOHandler<std::vector<T>>
                 {
                     nextChar = errorMessageContainer->readCharWithLineNumberCount( inputStream );
                     errorMessageContainer->skipWhiteSpaceWithLineNumberCount( inputStream );
+                    if ( !currentValue.isEmpty() ) allValues.push_back( currentValue );
+                    currentValue = "";
                 }
+                else
+                {
+                    currentValue += errorMessageContainer->readCharWithLineNumberCount( inputStream );
+                }
+            }
+            if ( !currentValue.isEmpty() ) allValues.push_back( currentValue );
 
-                T value;
-                PdmFieldScriptingCapabilityIOHandler<T>::writeToField( value, inputStream, errorMessageContainer, true );
-                fieldValue.push_back( value );
+            for ( QString textValue : allValues )
+            {
+                QTextStream singleValueStream( &textValue, QIODevice::ReadOnly );
+                T           singleValue;
+                PdmFieldScriptingCapabilityIOHandler<T>::writeToField( singleValue,
+                                                                       singleValueStream,
+                                                                       errorMessageContainer,
+                                                                       false );
+                fieldValue.push_back( singleValue );
             }
         }
         else
