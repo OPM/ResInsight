@@ -22,6 +22,8 @@
 
 #include <QString>
 
+class RimSEGYConvertOptions;
+
 //==================================================================================================
 ///
 //==================================================================================================
@@ -36,4 +38,7 @@ protected:
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
+
+private:
+    static bool runSEGYConversion( RimSEGYConvertOptions* options );
 };
