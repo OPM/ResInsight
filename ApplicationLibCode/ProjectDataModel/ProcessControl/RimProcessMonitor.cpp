@@ -20,7 +20,6 @@
 
 #include "RiaLogging.h"
 
-#include <QApplication>
 #include <QProcess>
 #include <QtCore/QtCore>
 

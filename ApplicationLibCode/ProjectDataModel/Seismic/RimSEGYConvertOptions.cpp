@@ -19,6 +19,7 @@
 #include "RimSEGYConvertOptions.h"
 
 #include "cafPdmUiLineEditor.h"
+#include "cafPdmUiFilePathEditor.h"
 
 #include <QCoreApplication>
 
@@ -69,6 +70,21 @@ void RimSEGYConvertOptions::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     convGrp->add( &m_headerFormatFilename );
 
     uiOrdering.skipRemainingFields();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSEGYConvertOptions::defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_outputFilename )
+    {
+        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
+        if ( myAttr )
+        {
+            myAttr->m_selectSaveFileName = true;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
