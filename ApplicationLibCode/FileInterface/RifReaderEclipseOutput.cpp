@@ -922,14 +922,11 @@ void RifReaderEclipseOutput::buildMetaData( ecl_grid_type* grid )
 
         timeStepInfos = createFilteredTimeStepInfos();
 
-        QStringList         resultNames;
-        std::vector<size_t> resultNamesDataItemCounts;
-        m_dynamicResultsAccess->resultNames( &resultNames, &resultNamesDataItemCounts );
+        auto keywordInfo = m_dynamicResultsAccess->resultNames();
 
         {
             QStringList matrixResultNames =
-                validKeywordsForPorosityModel( resultNames,
-                                               resultNamesDataItemCounts,
+                validKeywordsForPorosityModel( keywordInfo,
                                                m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ),
                                                m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL ),
                                                RiaDefines::PorosityModelType::MATRIX_MODEL,
@@ -945,8 +942,7 @@ void RifReaderEclipseOutput::buildMetaData( ecl_grid_type* grid )
 
         {
             QStringList fractureResultNames =
-                validKeywordsForPorosityModel( resultNames,
-                                               resultNamesDataItemCounts,
+                validKeywordsForPorosityModel( keywordInfo,
                                                m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ),
                                                m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL ),
                                                RiaDefines::PorosityModelType::FRACTURE_MODEL,
@@ -1002,12 +998,10 @@ void RifReaderEclipseOutput::buildMetaData( ecl_grid_type* grid )
 
     if ( m_ecl_init_file )
     {
-        QStringList                 resultNames;
-        std::vector<size_t>         resultNamesDataItemCounts;
         std::vector<ecl_file_type*> filesUsedToFindAvailableKeywords;
         filesUsedToFindAvailableKeywords.push_back( m_ecl_init_file );
 
-        RifEclipseOutputFileTools::findKeywordsAndItemCount( filesUsedToFindAvailableKeywords, &resultNames, &resultNamesDataItemCounts );
+        auto keywordInfo = RifEclipseOutputFileTools::findKeywordsAndItemCount( filesUsedToFindAvailableKeywords );
 
         std::vector<RigEclipseTimeStepInfo> staticTimeStepInfo;
         if ( !timeStepInfos.empty() )
@@ -1017,8 +1011,7 @@ void RifReaderEclipseOutput::buildMetaData( ecl_grid_type* grid )
 
         {
             QStringList matrixResultNames =
-                validKeywordsForPorosityModel( resultNames,
-                                               resultNamesDataItemCounts,
+                validKeywordsForPorosityModel( keywordInfo,
                                                m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ),
                                                m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL ),
                                                RiaDefines::PorosityModelType::MATRIX_MODEL,
@@ -1037,8 +1030,7 @@ void RifReaderEclipseOutput::buildMetaData( ecl_grid_type* grid )
 
         {
             QStringList fractureResultNames =
-                validKeywordsForPorosityModel( resultNames,
-                                               resultNamesDataItemCounts,
+                validKeywordsForPorosityModel( keywordInfo,
                                                m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ),
                                                m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL ),
                                                RiaDefines::PorosityModelType::FRACTURE_MODEL,
@@ -2110,19 +2102,13 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel( const QStringList&            keywords,
-                                                                   const std::vector<size_t>&    keywordDataItemCounts,
-                                                                   const RigActiveCellInfo*      matrixActiveCellInfo,
-                                                                   const RigActiveCellInfo*      fractureActiveCellInfo,
-                                                                   RiaDefines::PorosityModelType porosityModel,
-                                                                   size_t                        timeStepCount ) const
+QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel( const std::vector<RifKeywordItemCount>& keywordItemCount,
+                                                                   const RigActiveCellInfo*                matrixActiveCellInfo,
+                                                                   const RigActiveCellInfo*                fractureActiveCellInfo,
+                                                                   RiaDefines::PorosityModelType           porosityModel,
+                                                                   size_t                                  timeStepCount ) const
 {
     CVF_ASSERT( matrixActiveCellInfo );
-
-    if ( keywords.size() != static_cast<int>( keywordDataItemCounts.size() ) )
-    {
-        return QStringList();
-    }
 
     if ( porosityModel == RiaDefines::PorosityModelType::FRACTURE_MODEL )
     {
@@ -2134,10 +2120,10 @@ QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel( const QString
 
     QStringList keywordsWithCorrectNumberOfDataItems;
 
-    for ( int i = 0; i < keywords.size(); i++ )
+    for ( const auto& info : keywordItemCount )
     {
-        QString keyword              = keywords[i];
-        size_t  keywordDataItemCount = keywordDataItemCounts[i];
+        QString keyword              = QString::fromStdString( info.keyword() );
+        size_t  keywordDataItemCount = info.itemCount();
 
         bool validKeyword = false;
 
