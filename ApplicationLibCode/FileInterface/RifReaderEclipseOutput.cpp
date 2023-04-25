@@ -922,11 +922,11 @@ void RifReaderEclipseOutput::buildMetaData( ecl_grid_type* grid )
 
         timeStepInfos = createFilteredTimeStepInfos();
 
-        auto keywordInfo = m_dynamicResultsAccess->resultNames();
+        auto keywordValueCounts = m_dynamicResultsAccess->keywordValueCounts();
 
         {
             QStringList matrixResultNames =
-                validKeywordsForPorosityModel( keywordInfo,
+                validKeywordsForPorosityModel( keywordValueCounts,
                                                m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ),
                                                m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL ),
                                                RiaDefines::PorosityModelType::MATRIX_MODEL,
@@ -942,7 +942,7 @@ void RifReaderEclipseOutput::buildMetaData( ecl_grid_type* grid )
 
         {
             QStringList fractureResultNames =
-                validKeywordsForPorosityModel( keywordInfo,
+                validKeywordsForPorosityModel( keywordValueCounts,
                                                m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ),
                                                m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL ),
                                                RiaDefines::PorosityModelType::FRACTURE_MODEL,
@@ -1001,7 +1001,7 @@ void RifReaderEclipseOutput::buildMetaData( ecl_grid_type* grid )
         std::vector<ecl_file_type*> filesUsedToFindAvailableKeywords;
         filesUsedToFindAvailableKeywords.push_back( m_ecl_init_file );
 
-        auto keywordInfo = RifEclipseOutputFileTools::findKeywordsAndItemCount( filesUsedToFindAvailableKeywords );
+        auto keywordInfo = RifEclipseOutputFileTools::keywordValueCounts( filesUsedToFindAvailableKeywords );
 
         std::vector<RigEclipseTimeStepInfo> staticTimeStepInfo;
         if ( !timeStepInfos.empty() )
@@ -2102,11 +2102,11 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel( const std::vector<RifKeywordItemCount>& keywordItemCount,
-                                                                   const RigActiveCellInfo*                matrixActiveCellInfo,
-                                                                   const RigActiveCellInfo*                fractureActiveCellInfo,
-                                                                   RiaDefines::PorosityModelType           porosityModel,
-                                                                   size_t                                  timeStepCount ) const
+QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel( const std::vector<RifKeywordValueCount>& keywordItemCounts,
+                                                                   const RigActiveCellInfo*                 matrixActiveCellInfo,
+                                                                   const RigActiveCellInfo*                 fractureActiveCellInfo,
+                                                                   RiaDefines::PorosityModelType            porosityModel,
+                                                                   size_t                                   timeStepCount ) const
 {
     CVF_ASSERT( matrixActiveCellInfo );
 
@@ -2120,36 +2120,36 @@ QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel( const std::ve
 
     QStringList keywordsWithCorrectNumberOfDataItems;
 
-    for ( const auto& info : keywordItemCount )
+    for ( const auto& keywordValueCount : keywordItemCounts )
     {
-        QString keyword              = QString::fromStdString( info.keyword() );
-        size_t  keywordDataItemCount = info.itemCount();
+        QString keyword    = QString::fromStdString( keywordValueCount.keyword() );
+        size_t  valueCount = keywordValueCount.valueCount();
 
         bool validKeyword = false;
 
-        size_t timeStepsAllCellsRest = keywordDataItemCount % matrixActiveCellInfo->reservoirCellCount();
-        if ( timeStepsAllCellsRest == 0 && keywordDataItemCount <= timeStepCount * matrixActiveCellInfo->reservoirCellCount() )
+        size_t timeStepsAllCellsRest = valueCount % matrixActiveCellInfo->reservoirCellCount();
+        if ( timeStepsAllCellsRest == 0 && valueCount <= timeStepCount * matrixActiveCellInfo->reservoirCellCount() )
         {
             // Found result for all cells for N time steps, usually a static dataset for one time step
             validKeyword = true;
         }
         else
         {
-            size_t timeStepsMatrixRest = keywordDataItemCount % matrixActiveCellInfo->reservoirActiveCellCount();
+            size_t timeStepsMatrixRest = valueCount % matrixActiveCellInfo->reservoirActiveCellCount();
 
             size_t timeStepsFractureRest = 0;
             if ( fractureActiveCellInfo->reservoirActiveCellCount() > 0 )
             {
-                timeStepsFractureRest = keywordDataItemCount % fractureActiveCellInfo->reservoirActiveCellCount();
+                timeStepsFractureRest = valueCount % fractureActiveCellInfo->reservoirActiveCellCount();
             }
 
             size_t sumFractureMatrixActiveCellCount = matrixActiveCellInfo->reservoirActiveCellCount() +
                                                       fractureActiveCellInfo->reservoirActiveCellCount();
-            size_t timeStepsMatrixAndFractureRest = keywordDataItemCount % sumFractureMatrixActiveCellCount;
+            size_t timeStepsMatrixAndFractureRest = valueCount % sumFractureMatrixActiveCellCount;
 
             if ( porosityModel == RiaDefines::PorosityModelType::MATRIX_MODEL && timeStepsMatrixRest == 0 )
             {
-                if ( keywordDataItemCount <=
+                if ( valueCount <=
                      timeStepCount * std::max( matrixActiveCellInfo->reservoirActiveCellCount(), sumFractureMatrixActiveCellCount ) )
                 {
                     validKeyword = true;
@@ -2158,7 +2158,7 @@ QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel( const std::ve
             else if ( porosityModel == RiaDefines::PorosityModelType::FRACTURE_MODEL &&
                       fractureActiveCellInfo->reservoirActiveCellCount() > 0 && timeStepsFractureRest == 0 )
             {
-                if ( keywordDataItemCount <=
+                if ( valueCount <=
                      timeStepCount * std::max( fractureActiveCellInfo->reservoirActiveCellCount(), sumFractureMatrixActiveCellCount ) )
                 {
                     validKeyword = true;
@@ -2166,7 +2166,7 @@ QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel( const std::ve
             }
             else if ( timeStepsMatrixAndFractureRest == 0 )
             {
-                if ( keywordDataItemCount <= timeStepCount * sumFractureMatrixActiveCellCount )
+                if ( valueCount <= timeStepCount * sumFractureMatrixActiveCellCount )
                 {
                     validKeyword = true;
                 }
@@ -2181,8 +2181,8 @@ QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel( const std::ve
                 size_t mainGridMatrixActiveCellCount   = matrixActiveCellInfo->gridActiveCellCounts( 0 );
                 size_t mainGridFractureActiveCellCount = fractureActiveCellInfo->gridActiveCellCounts( 0 );
 
-                if ( keywordDataItemCount == mainGridMatrixActiveCellCount || keywordDataItemCount == mainGridFractureActiveCellCount ||
-                     keywordDataItemCount == mainGridMatrixActiveCellCount + mainGridFractureActiveCellCount )
+                if ( valueCount == mainGridMatrixActiveCellCount || valueCount == mainGridFractureActiveCellCount ||
+                     valueCount == mainGridMatrixActiveCellCount + mainGridFractureActiveCellCount )
                 {
                     validKeyword = true;
                 }

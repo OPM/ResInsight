@@ -59,10 +59,10 @@ RifEclipseOutputFileTools::~RifEclipseOutputFileTools()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RifKeywordItemCount> RifEclipseOutputFileTools::findKeywordsAndItemCount( const std::vector<ecl_file_type*>& ecl_files )
+std::vector<RifKeywordValueCount> RifEclipseOutputFileTools::keywordValueCounts( const std::vector<ecl_file_type*>& ecl_files )
 {
     auto reportstepMetaData = RifEclipseOutputFileTools::createReportStepsMetaData( ecl_files );
-    return reportstepMetaData.keywordItemCount();
+    return reportstepMetaData.keywordValueCounts();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -635,22 +635,22 @@ RifRestartReportKeywords RifEclipseOutputFileTools::createReportStepsMetaData( c
                                 continue;
                             }
 
-                            RifKeywordItemCount::KeywordDataType dataType = RifKeywordItemCount::KeywordDataType::UNKNOWN;
+                            RifKeywordValueCount::KeywordDataType dataType = RifKeywordValueCount::KeywordDataType::UNKNOWN;
                             if ( dataTypeEnumOnFile == ECL_DOUBLE_TYPE )
                             {
-                                dataType = RifKeywordItemCount::KeywordDataType::DOUBLE;
+                                dataType = RifKeywordValueCount::KeywordDataType::DOUBLE;
                             }
                             else if ( dataTypeEnumOnFile == ECL_FLOAT_TYPE )
                             {
-                                dataType = RifKeywordItemCount::KeywordDataType::FLOAT;
+                                dataType = RifKeywordValueCount::KeywordDataType::FLOAT;
                             }
                             else if ( dataTypeEnumOnFile == ECL_INT_TYPE )
                             {
-                                dataType = RifKeywordItemCount::KeywordDataType::INTEGER;
+                                dataType = RifKeywordValueCount::KeywordDataType::INTEGER;
                             }
 
                             int itemCount = ecl_file_iget_named_size( ecl_file, kw, iOcc );
-                            reportSteps.appendKeyword( kw, itemCount, dataType );
+                            reportSteps.appendKeywordCount( kw, itemCount, dataType );
                         }
                     }
                 }

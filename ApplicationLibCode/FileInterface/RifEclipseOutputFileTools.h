@@ -48,7 +48,7 @@ public:
     RifEclipseOutputFileTools();
     virtual ~RifEclipseOutputFileTools();
 
-    static std::vector<RifKeywordItemCount> findKeywordsAndItemCount( const std::vector<ecl_file_type*>& ecl_files );
+    static std::vector<RifKeywordValueCount> keywordValueCounts( const std::vector<ecl_file_type*>& ecl_files );
 
     static bool keywordData( const ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<double>* values );
     static bool keywordData( const ecl_file_type* ecl_file, const QString& keyword, size_t fileKeywordOccurrence, std::vector<int>* values );
