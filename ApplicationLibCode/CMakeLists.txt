@@ -192,7 +192,6 @@ endif()
 #
 list(APPEND RI_PRIVATE_INCLUDES ${RESINSIGHT_OPENVDS_API_DIR}/include)
 
-
 #
 # HDF5
 #
