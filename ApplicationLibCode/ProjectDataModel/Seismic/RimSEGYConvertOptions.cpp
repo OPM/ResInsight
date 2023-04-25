@@ -18,8 +18,8 @@
 
 #include "RimSEGYConvertOptions.h"
 
-#include "cafPdmUiLineEditor.h"
 #include "cafPdmUiFilePathEditor.h"
+#include "cafPdmUiLineEditor.h"
 
 #include <QCoreApplication>
 
