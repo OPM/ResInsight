@@ -53,11 +53,11 @@ public:
     ~RimSummaryCurve() override;
 
     // Y Axis functions
-    RiaSummaryCurveDefinition curveDefinitionY() const;
-    RimSummaryCase*           summaryCaseY() const;
-    RifEclipseSummaryAddress  summaryAddressY() const;
-    std::string               unitNameY() const;
-    std::vector<double>       valuesY() const;
+    RiaSummaryCurveDefinition   curveDefinitionY() const;
+    RimSummaryCase*             summaryCaseY() const;
+    RifEclipseSummaryAddress    summaryAddressY() const;
+    std::string                 unitNameY() const;
+    virtual std::vector<double> valuesY() const;
 
     void applyCurveDefinitionY( const RiaSummaryCurveDefinition& curveDefinition );
     void setSummaryCaseY( RimSummaryCase* sumCase );
@@ -65,20 +65,20 @@ public:
     void setSummaryAddressY( const RifEclipseSummaryAddress& address );
     void setResampling( RiaDefines::DateTimePeriodEnum resampling );
 
-    RifEclipseSummaryAddress errorSummaryAddressY() const;
-    std::vector<double>      errorValuesY() const;
-    void                     setLeftOrRightAxisY( RiuPlotAxis plotAxis );
-    RiuPlotAxis              axisY() const;
-    std::vector<time_t>      timeStepsY() const;
-    double                   yValueAtTimeT( time_t time ) const;
-    void                     setOverrideCurveDataY( const std::vector<time_t>& xValues, const std::vector<double>& yValues );
+    RifEclipseSummaryAddress    errorSummaryAddressY() const;
+    std::vector<double>         errorValuesY() const;
+    void                        setLeftOrRightAxisY( RiuPlotAxis plotAxis );
+    RiuPlotAxis                 axisY() const;
+    virtual std::vector<time_t> timeStepsY() const;
+    double                      yValueAtTimeT( time_t time ) const;
+    void                        setOverrideCurveDataY( const std::vector<time_t>& xValues, const std::vector<double>& yValues );
 
     // X Axis functions
-    RiaSummaryCurveDefinition curveDefinitionX() const;
-    RimSummaryCase*           summaryCaseX() const;
-    RifEclipseSummaryAddress  summaryAddressX() const;
-    std::string               unitNameX() const;
-    std::vector<double>       valuesX() const;
+    RiaSummaryCurveDefinition   curveDefinitionX() const;
+    RimSummaryCase*             summaryCaseX() const;
+    RifEclipseSummaryAddress    summaryAddressX() const;
+    std::string                 unitNameX() const;
+    virtual std::vector<double> valuesX() const;
 
     void setSummaryCaseX( RimSummaryCase* sumCase );
     void setSummaryAddressX( const RifEclipseSummaryAddress& address );
@@ -105,24 +105,27 @@ protected:
     void    updateZoomInParentPlot() override;
     void    onLoadDataAndUpdate( bool updateParentPlot ) override;
 
+    void loadAndUpdateDataAndPlot();
+
     void updateLegendsInPlot() override;
 
     void   defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void   initAfterRead() override;
     double computeCurveZValue() override;
 
-private:
-    RifSummaryReaderInterface* valuesSummaryReaderX() const;
-    RifSummaryReaderInterface* valuesSummaryReaderY() const;
-    std::vector<time_t>        timeStepsX() const;
-
-    void calculateCurveInterpolationFromAddress();
+    virtual std::vector<time_t> timeStepsX() const;
 
     // Overridden PDM methods
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+
+private:
+    RifSummaryReaderInterface* valuesSummaryReaderX() const;
+    RifSummaryReaderInterface* valuesSummaryReaderY() const;
+
+    void calculateCurveInterpolationFromAddress();
 
     static void appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options, RimSummaryCase* summaryCase );
 
