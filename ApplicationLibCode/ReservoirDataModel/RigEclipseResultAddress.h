@@ -26,19 +26,21 @@ class RigEclipseResultAddress
 {
 public:
     RigEclipseResultAddress()
-        : m_resultCatType( RiaDefines::ResultCatType::UNDEFINED )
-        , m_timeLapseBaseFrameIdx( NO_TIME_LAPSE )
+        : m_divideByCellFaceArea( false )
         , m_differenceCaseId( NO_CASE_DIFF )
-        , m_divideByCellFaceArea( false )
+        , m_timeLapseBaseFrameIdx( NO_TIME_LAPSE )
+        , m_resultCatType( RiaDefines::ResultCatType::UNDEFINED )
+        , m_resultDataType( RiaDefines::ResultDataType::DOUBLE )
     {
     }
 
     explicit RigEclipseResultAddress( const QString& resultName )
-        : m_resultCatType( RiaDefines::ResultCatType::UNDEFINED )
-        , m_resultName( resultName )
-        , m_timeLapseBaseFrameIdx( NO_TIME_LAPSE )
+        : m_divideByCellFaceArea( false )
         , m_differenceCaseId( NO_CASE_DIFF )
-        , m_divideByCellFaceArea( false )
+        , m_timeLapseBaseFrameIdx( NO_TIME_LAPSE )
+        , m_resultCatType( RiaDefines::ResultCatType::UNDEFINED )
+        , m_resultDataType( RiaDefines::ResultDataType::DOUBLE )
+        , m_resultName( resultName.toStdString() )
     {
     }
 
@@ -47,25 +49,19 @@ public:
                                       int                       timeLapseBaseTimeStep = NO_TIME_LAPSE,
                                       int                       differenceCaseId      = NO_CASE_DIFF,
                                       bool                      divideByCellFaceArea  = false )
-        : m_resultCatType( type )
-        , m_resultName( resultName )
-        , m_timeLapseBaseFrameIdx( timeLapseBaseTimeStep )
+        : m_divideByCellFaceArea( false )
         , m_differenceCaseId( differenceCaseId )
-        , m_divideByCellFaceArea( false )
+        , m_timeLapseBaseFrameIdx( timeLapseBaseTimeStep )
+        , m_resultCatType( type )
+        , m_resultDataType( RiaDefines::ResultDataType::DOUBLE )
+        , m_resultName( resultName.toStdString() )
     {
         enableDivideByCellFaceArea( divideByCellFaceArea );
     }
 
     bool isValid() const
     {
-        if ( m_resultName.isEmpty() || m_resultName == RiaResultNames::undefinedResultName() )
-        {
-            return false;
-        }
-        else
-        {
-            return true;
-        }
+        return !( m_resultName.empty() || QString::fromStdString( m_resultName ) == RiaResultNames::undefinedResultName() );
     }
 
     // Delta Time Step
@@ -85,57 +81,27 @@ public:
     // Divide by Cell Face Area
     void enableDivideByCellFaceArea( bool enable ) { m_divideByCellFaceArea = enable; }
 
+    void                       setDataType( RiaDefines::ResultDataType dataType ) { m_resultDataType = dataType; }
+    RiaDefines::ResultDataType dataType() const { return m_resultDataType; }
+
     bool isDivideByCellFaceAreaActive() const { return m_divideByCellFaceArea; }
 
-    bool operator<( const RigEclipseResultAddress& other ) const
-    {
-        if ( m_divideByCellFaceArea != other.m_divideByCellFaceArea )
-        {
-            return ( m_divideByCellFaceArea < other.m_divideByCellFaceArea );
-        }
+    auto operator<=>( const RigEclipseResultAddress& ) const = default;
 
-        if ( m_differenceCaseId != other.m_differenceCaseId )
-        {
-            return ( m_differenceCaseId < other.m_differenceCaseId );
-        }
-
-        if ( m_timeLapseBaseFrameIdx != other.m_timeLapseBaseFrameIdx )
-        {
-            return ( m_timeLapseBaseFrameIdx < other.m_timeLapseBaseFrameIdx );
-        }
-
-        if ( m_resultCatType != other.m_resultCatType )
-        {
-            return ( m_resultCatType < other.m_resultCatType );
-        }
-
-        return ( m_resultName < other.m_resultName );
-    }
-
-    bool operator==( const RigEclipseResultAddress& other ) const
-    {
-        if ( m_resultCatType != other.m_resultCatType || m_resultName != other.m_resultName ||
-             m_timeLapseBaseFrameIdx != other.m_timeLapseBaseFrameIdx || m_differenceCaseId != other.m_differenceCaseId ||
-             m_divideByCellFaceArea != other.m_divideByCellFaceArea )
-        {
-            return false;
-        }
-
-        return true;
-    }
-
-    const QString& resultName() const { return m_resultName; }
-    void           setResultName( QString name ) { m_resultName = name; }
+    const QString resultName() const { return QString::fromStdString( m_resultName ); }
+    void          setResultName( const QString& name ) { m_resultName = name.toStdString(); }
 
     RiaDefines::ResultCatType resultCatType() const { return m_resultCatType; }
     void                      setResultCatType( RiaDefines::ResultCatType catType ) { m_resultCatType = catType; }
 
 private:
-    int                       m_timeLapseBaseFrameIdx;
-    int                       m_differenceCaseId;
-    bool                      m_divideByCellFaceArea;
-    RiaDefines::ResultCatType m_resultCatType;
-    QString                   m_resultName;
+    // Note: The order of the members is important for the sorting of the addresses
+    bool                       m_divideByCellFaceArea;
+    int                        m_differenceCaseId;
+    int                        m_timeLapseBaseFrameIdx;
+    RiaDefines::ResultCatType  m_resultCatType;
+    RiaDefines::ResultDataType m_resultDataType;
+    std::string                m_resultName;
 
     static const int ALL_TIME_LAPSES = -2;
     static const int NO_TIME_LAPSE   = -1;

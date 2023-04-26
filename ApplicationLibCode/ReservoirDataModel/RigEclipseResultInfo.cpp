@@ -83,7 +83,7 @@ void RigEclipseResultInfo::setResultType( RiaDefines::ResultCatType newType )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QString& RigEclipseResultInfo::resultName() const
+QString RigEclipseResultInfo::resultName() const
 {
     return m_resultAddress.resultName();
 }

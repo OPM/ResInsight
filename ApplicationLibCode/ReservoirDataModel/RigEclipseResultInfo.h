@@ -56,7 +56,7 @@ public:
                           size_t                         gridScalarResultIndex = 0u );
 
     RiaDefines::ResultCatType resultType() const;
-    const QString&            resultName() const;
+    QString                   resultName() const;
     bool                      needsToBeStored() const;
 
     std::vector<QDateTime> dates() const;
