@@ -52,8 +52,6 @@
 #include <QUndoStack>
 #include <QUndoView>
 
-#define DOCKSTATE_VERSION 3
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -183,6 +181,8 @@ void RiuMainWindowBase::loadWinGeoAndDockToolBarLayout()
             m_dockManager->restoreState( RiuDockWidgetTools::defaultDockState( defaultDockStateNames()[0] ), DOCKSTATE_VERSION );
         }
     }
+
+    m_lastDockState = m_dockManager->saveState( DOCKSTATE_VERSION );
 
     settings.beginGroup( registryFolderName() );
     m_dockManager->loadPerspectives( settings );

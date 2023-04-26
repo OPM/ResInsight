@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <QByteArray>
 #include <QMainWindow>
 
 #include "cafPdmUiDragDropInterface.h"
@@ -139,6 +140,10 @@ protected:
 
     RiuMdiArea* m_mdiArea;
     QMenu*      m_windowMenu;
+
+    const int DOCKSTATE_VERSION = 3;
+
+    QByteArray m_lastDockState;
 
 private:
     QString registryFolderName();
