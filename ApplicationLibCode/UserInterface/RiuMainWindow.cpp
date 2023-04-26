@@ -351,6 +351,11 @@ void RiuMainWindow::createActions()
     connect( m_executePaintEventPerformanceTest, SIGNAL( triggered() ), SLOT( slotExecutePaintEventPerformanceTest() ) );
 
     // View actions
+    m_viewFullScreen = new QAction( QIcon( ":/Fullscreen.png" ), "Full Screen", this );
+    m_viewFullScreen->setToolTip( "Full Screen (Ctrl+Alt+F)" );
+    m_viewFullScreen->setCheckable( true );
+    caf::CmdFeature::applyShortcutWithHintToAction( m_viewFullScreen, QKeySequence( tr( "Ctrl+Alt+F" ) ) );
+
     m_viewFromNorth = new QAction( QIcon( ":/SouthView.svg" ), "Look South", this );
     m_viewFromNorth->setToolTip( "Look South (Ctrl+Alt+S)" );
     caf::CmdFeature::applyShortcutWithHintToAction( m_viewFromNorth, QKeySequence( tr( "Ctrl+Alt+S" ) ) );
@@ -381,6 +386,7 @@ void RiuMainWindow::createActions()
     connect( m_viewFromWest, SIGNAL( triggered() ), SLOT( slotViewFromWest() ) );
     connect( m_viewFromAbove, SIGNAL( triggered() ), SLOT( slotViewFromAbove() ) );
     connect( m_viewFromBelow, SIGNAL( triggered() ), SLOT( slotViewFromBelow() ) );
+    connect( m_viewFullScreen, SIGNAL( toggled( bool ) ), SLOT( slotViewFullScreen( bool ) ) );
 
     // Debug actions
     m_newPropertyView = new QAction( "New Project and Property View", this );
@@ -483,6 +489,8 @@ void RiuMainWindow::createMenus()
 
     // View menu
     QMenu* viewMenu = RiuMenuBarBuildTools::createDefaultViewMenu( menuBar() );
+    viewMenu->addSeparator();
+    viewMenu->addAction( m_viewFullScreen );
     viewMenu->addSeparator();
     viewMenu->addAction( m_viewFromSouth );
     viewMenu->addAction( m_viewFromNorth );
@@ -595,6 +603,7 @@ void RiuMainWindow::createToolBars()
         toolbar->setObjectName( toolbar->windowTitle() );
         toolbar->addAction( cmdFeatureMgr->action( "RicTogglePerspectiveViewFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicViewZoomAllFeature" ) );
+        toolbar->addAction( m_viewFullScreen );
         toolbar->addAction( m_viewFromNorth );
         toolbar->addAction( m_viewFromSouth );
         toolbar->addAction( m_viewFromEast );
@@ -1224,6 +1233,22 @@ void RiuMainWindow::slotViewFromNorth()
     if ( RiaApplication::instance()->activeReservoirView() && RiaApplication::instance()->activeReservoirView()->viewer() )
     {
         RiaApplication::instance()->activeReservoirView()->viewer()->setView( cvf::Vec3d( 0, -1, 0 ), cvf::Vec3d( 0, 0, 1 ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::slotViewFullScreen( bool showFullScreen )
+{
+    if ( showFullScreen )
+    {
+        m_lastDockState = dockManager()->saveState( DOCKSTATE_VERSION );
+        dockManager()->restoreState( RiuDockWidgetTools::hideAllDocking3DState(), DOCKSTATE_VERSION );
+    }
+    else
+    {
+        dockManager()->restoreState( m_lastDockState, DOCKSTATE_VERSION );
     }
 }
 
