@@ -20,6 +20,10 @@
 
 #include "cafCmdFeature.h"
 
+#include <QString>
+
+class RimSEGYConvertOptions;
+
 //==================================================================================================
 ///
 //==================================================================================================
@@ -27,8 +31,14 @@ class RicImportSeismicFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
+public:
+    static QString convertSEGYtoVDS( QString filename );
+
 protected:
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
+
+private:
+    static bool runSEGYConversion( RimSEGYConvertOptions* options );
 };

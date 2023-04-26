@@ -36,7 +36,7 @@ class RifOpenVDSReader : public RifSeismicReader
 {
 public:
     RifOpenVDSReader();
-    ~RifOpenVDSReader();
+    ~RifOpenVDSReader() override;
 
     bool open( QString filename ) override;
     void close() override;
