@@ -181,6 +181,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigWellAllocationOverTime.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigWellResultBranch.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigWellResultFrame.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigDeclineCurveCalculator.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

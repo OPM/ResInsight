@@ -603,3 +603,25 @@ std::vector<QDateTime> RiaQDateTimeTools::getTimeStepsWithinSelectedRange( const
 
     return selectedTimeSteps;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<QDateTime>
+    RiaQDateTimeTools::createEvenlyDistributedDatesInInterval( const QDateTime& fromTimeStamp, const QDateTime& toTimeStamp, int numDates )
+{
+    if ( numDates < 2 ) return {};
+
+    // Calculate the time step between the two time stamps
+    qint64 timeStep = ( toTimeStamp.toMSecsSinceEpoch() - fromTimeStamp.toMSecsSinceEpoch() ) / ( static_cast<qint64>( numDates ) - 1 );
+
+    // Create a set of evenly spaced datetimes.
+    std::set<QDateTime> outputDates;
+    for ( int i = 0; i < numDates; ++i )
+    {
+        qint64 targetTime = i * timeStep;
+        outputDates.insert( RiaQDateTimeTools::addMSecs( fromTimeStamp, targetTime ) );
+    }
+
+    return outputDates;
+}

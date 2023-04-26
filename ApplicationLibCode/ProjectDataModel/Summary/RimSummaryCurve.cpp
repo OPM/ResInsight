@@ -1233,17 +1233,29 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
     if ( loadAndUpdate )
     {
-        this->loadDataAndUpdate( true );
-
-        plot->updateAxes();
-        plot->updatePlotTitle();
-        plot->updateConnectedEditors();
-
-        RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
-        mainPlotWindow->updateMultiPlotToolBar();
-
-        dataChanged.send();
+        loadAndUpdateDataAndPlot();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::loadAndUpdateDataAndPlot()
+{
+    this->loadDataAndUpdate( true );
+
+    RimSummaryPlot* plot = nullptr;
+    firstAncestorOrThisOfType( plot );
+    CVF_ASSERT( plot );
+
+    plot->updateAxes();
+    plot->updatePlotTitle();
+    plot->updateConnectedEditors();
+
+    RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
+    mainPlotWindow->updateMultiPlotToolBar();
+
+    dataChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------
