@@ -113,7 +113,7 @@ TEST( RigReservoirTest, BasicTest10kRestart )
 
     auto keywordValueCounts = unrstAccess.keywordValueCounts();
 
-    EXPECT_EQ( 83, keywordValueCounts.size() );
+    EXPECT_EQ( (size_t)83, keywordValueCounts.size() );
 
     /* for (int i = 0; i < resultNames.size(); i++)
     {
