@@ -335,32 +335,53 @@ if(MSVC)
     endforeach(aDLL)
 
     foreach(aDLL ${RI_ODB_DLLS})
-      list(APPEND RI_DLL_FILENAMES ${RESINSIGHT_ODB_API_DIR}/lib/${aDLL})
+      list(APPEND RI_FILENAMES ${RESINSIGHT_ODB_API_DIR}/lib/${aDLL})
     endforeach()
   endif()
 
   # OpenVDS Dlls
   set(OPENVDS_DLL_NAMES openvds segyutils)
   foreach(OPENVDS_DLL_NAME ${OPENVDS_DLL_NAMES})
-    list(APPEND RI_DLL_FILENAMES
+    list(APPEND RI_FILENAMES
          ${RESINSIGHT_OPENVDS_API_DIR}/bin/msvc_141/${OPENVDS_DLL_NAME}.dll
     )
   endforeach(OPENVDS_DLL_NAME)
+  list(APPEND RI_FILENAMES
+       ${RESINSIGHT_OPENVDS_API_DIR}/bin/msvc_141/SEGYImport.exe
+  )
 
   # HDF5 Dlls
   if(RESINSIGHT_FOUND_HDF5)
     set(HDF5_DLL_NAMES hdf5 hdf5_cpp szip zlib)
     foreach(HDF5_DLL_NAME ${HDF5_DLL_NAMES})
-      list(APPEND RI_DLL_FILENAMES
-           ${RESINSIGHT_HDF5_DIR}/bin/${HDF5_DLL_NAME}.dll
-      )
+      list(APPEND RI_FILENAMES ${RESINSIGHT_HDF5_DIR}/bin/${HDF5_DLL_NAME}.dll)
     endforeach(HDF5_DLL_NAME)
   endif()
 
+else()
+  # Linux
+
+  # OpenVDS lib files
+  list(APPEND RI_FILENAMES ${RESINSIGHT_OPENVDS_API_DIR}/bin/SEGYImport)
+
+  set(OPENVDS_LIB_NAMES
+      libopenvds.so
+      libopenvds.so.3
+      libopenvds.so.3.2.3
+      libopenvds-968eeb36.so.3.2.3
+      libsegyutils.so
+      libsegyutils.so.3
+      libsegyutils.so.3.2.3
+  )
+  foreach(OPENVDS_LIB_NAME ${OPENVDS_LIB_NAMES})
+    list(APPEND RI_FILENAMES
+         ${RESINSIGHT_OPENVDS_API_DIR}/lib64/${OPENVDS_LIB_NAME}
+    )
+  endforeach(OPENVDS_LIB_NAME)
 endif(MSVC)
 
-# Copy to target directory
-foreach(FILE_TO_COPY ${RI_DLL_FILENAMES})
+# Copy dependencies to make it possible to run ResInsight from the build folder
+foreach(FILE_TO_COPY ${RI_FILENAMES})
   add_custom_command(
     TARGET ResInsight
     POST_BUILD
@@ -514,7 +535,7 @@ if(RESINSIGHT_PRIVATE_INSTALL)
       CODE "exec_program (\"${CMAKE_COMMAND}\" ARGS -E touch \$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}ResInsight${CMAKE_EXECUTABLE_SUFFIX}.local)"
     )
 
-    set(RESINSIGHT_FILES ${RI_DLL_FILENAMES})
+    set(RESINSIGHT_FILES ${RI_FILENAMES})
 
     if(WIN32
        AND TARGET Qt5::qmake
