@@ -66,12 +66,10 @@ caf::PdmObjectHandle* RimcEclipseCase_importProperties::execute()
         }
     }
 
-    const QStringList propertyFileNames{ absolutePaths.begin(), absolutePaths.end() };
+    const QStringList propertyFileNames = QStringList::fromVector( QVector<QString>::fromStdVector( absolutePaths ) );
 
     auto eclipseCase = self<RimEclipseCase>();
     eclipseCase->importAsciiInputProperties( propertyFileNames );
-
-    eclipseCase->inputPropertyCollection();
 
     return nullptr;
 }
