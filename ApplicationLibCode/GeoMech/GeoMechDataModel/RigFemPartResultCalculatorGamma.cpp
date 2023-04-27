@@ -143,7 +143,8 @@ void RigFemPartResultCalculatorGamma::calculateGammaFromFrames( int             
                         {
                             int nodeIdx = femPart->nodeIdxFromElementNodeResultIdx( elmNodResIdx );
 
-                            float por = srcPORFrameData[nodeIdx];
+                            float por = inf;
+                            if ( nodeIdx < srcPORFrameData.size() ) por = srcPORFrameData[nodeIdx];
 
                             if ( por == inf || fabs( por ) < 0.01e6 * 1.0e-5 )
                                 dstFrameData[elmNodResIdx] = inf;
