@@ -53,14 +53,11 @@ std::vector<RigEclipseTimeStepInfo> RigEclipseTimeStepInfo::createTimeStepInfos(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigEclipseResultInfo::RigEclipseResultInfo( const RigEclipseResultAddress& resultAddress,
-                                            bool                           needsToBeStored,
-                                            bool                           mustBeCalculated,
-                                            size_t                         gridScalarResultIndex )
-    : m_resultAddress( resultAddress )
-    , m_needsToBeStored( needsToBeStored )
-    , m_mustBeCalculated( mustBeCalculated )
-    , m_gridScalarResultIndex( gridScalarResultIndex )
+RigEclipseResultInfo::RigEclipseResultInfo( const RigResultInfoData& resultInfoData )
+    : m_resultAddress( resultInfoData.resultAddress )
+    , m_needsToBeStored( resultInfoData.needsToBeStored )
+    , m_mustBeCalculated( resultInfoData.mustBeCalculated )
+    , m_gridScalarResultIndex( resultInfoData.gridScalarResultIndex )
 {
 }
 

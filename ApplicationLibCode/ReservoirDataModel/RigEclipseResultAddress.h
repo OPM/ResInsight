@@ -86,8 +86,42 @@ public:
 
     bool isDivideByCellFaceAreaActive() const { return m_divideByCellFaceArea; }
 
-    auto operator<=>( const RigEclipseResultAddress& ) const = default;
+    bool operator<( const RigEclipseResultAddress& other ) const
+    {
+        if ( m_divideByCellFaceArea != other.m_divideByCellFaceArea )
+        {
+            return ( m_divideByCellFaceArea < other.m_divideByCellFaceArea );
+        }
 
+        if ( m_differenceCaseId != other.m_differenceCaseId )
+        {
+            return ( m_differenceCaseId < other.m_differenceCaseId );
+        }
+
+        if ( m_timeLapseBaseFrameIdx != other.m_timeLapseBaseFrameIdx )
+        {
+            return ( m_timeLapseBaseFrameIdx < other.m_timeLapseBaseFrameIdx );
+        }
+
+        if ( m_resultCatType != other.m_resultCatType )
+        {
+            return ( m_resultCatType < other.m_resultCatType );
+        }
+
+        return ( m_resultName < other.m_resultName );
+    }
+
+    bool operator==( const RigEclipseResultAddress& other ) const
+    {
+        if ( m_resultCatType != other.m_resultCatType || m_resultName != other.m_resultName ||
+             m_timeLapseBaseFrameIdx != other.m_timeLapseBaseFrameIdx || m_differenceCaseId != other.m_differenceCaseId ||
+             m_divideByCellFaceArea != other.m_divideByCellFaceArea )
+        {
+            return false;
+        }
+
+        return true;
+    }
     const QString resultName() const { return QString::fromStdString( m_resultName ); }
     void          setResultName( const QString& name ) { m_resultName = name.toStdString(); }
 

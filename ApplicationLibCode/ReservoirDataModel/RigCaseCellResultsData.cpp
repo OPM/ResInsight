@@ -286,7 +286,8 @@ const std::vector<double>& RigCaseCellResultsData::cellScalarResults( const RigE
 /// Adds an empty scalar set, and returns the scalarResultIndex to it.
 /// if resultName already exists, it just returns the scalarResultIndex to the existing result.
 //--------------------------------------------------------------------------------------------------
-size_t RigCaseCellResultsData::findOrCreateScalarResultIndex( const RigEclipseResultAddress& resVarAddr, bool needsToBeStored )
+size_t RigCaseCellResultsData::findOrCreateScalarResultIndex( const RigEclipseResultAddress& resVarAddr,
+                                                              const RigResultInfoData&       resultInfoConfig )
 {
     size_t scalarResultIndex = this->findScalarResultIndexFromAddress( resVarAddr );
 
@@ -302,7 +303,7 @@ size_t RigCaseCellResultsData::findOrCreateScalarResultIndex( const RigEclipseRe
     scalarResultIndex = this->resultCount();
     m_cellScalarResults.push_back( std::vector<std::vector<double>>() );
 
-    RigEclipseResultInfo resInfo( resVarAddr, needsToBeStored, false, scalarResultIndex );
+    RigEclipseResultInfo resInfo( resultInfoConfig );
 
     m_resultInfos.push_back( resInfo );
     m_addressToResultIndexMap[resVarAddr] = scalarResultIndex;

@@ -925,32 +925,30 @@ void RifReaderEclipseOutput::buildMetaData( ecl_grid_type* grid )
         auto keywordValueCounts = m_dynamicResultsAccess->keywordValueCounts();
 
         {
-            QStringList matrixResultNames =
-                validKeywordsForPorosityModel( keywordValueCounts,
-                                               m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ),
-                                               m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL ),
-                                               RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                               m_dynamicResultsAccess->timeStepCount() );
+            auto validKeywords = validKeywordsForPorosityModel( keywordValueCounts,
+                                                                m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ),
+                                                                m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL ),
+                                                                RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                                m_dynamicResultsAccess->timeStepCount() );
 
-            for ( int i = 0; i < matrixResultNames.size(); ++i )
+            for ( const auto& keywordData : validKeywords )
             {
-                RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, matrixResultNames[i] );
+                RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, QString::fromStdString( keywordData.keyword() ) );
                 matrixModelResults->createResultEntry( resAddr, false );
                 matrixModelResults->setTimeStepInfos( resAddr, timeStepInfos );
             }
         }
 
         {
-            QStringList fractureResultNames =
-                validKeywordsForPorosityModel( keywordValueCounts,
-                                               m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ),
-                                               m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL ),
-                                               RiaDefines::PorosityModelType::FRACTURE_MODEL,
-                                               m_dynamicResultsAccess->timeStepCount() );
+            auto validKeywords = validKeywordsForPorosityModel( keywordValueCounts,
+                                                                m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ),
+                                                                m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL ),
+                                                                RiaDefines::PorosityModelType::FRACTURE_MODEL,
+                                                                m_dynamicResultsAccess->timeStepCount() );
 
-            for ( int i = 0; i < fractureResultNames.size(); ++i )
+            for ( const auto& keywordData : validKeywords )
             {
-                RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, fractureResultNames[i] );
+                RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, QString::fromStdString( keywordData.keyword() ) );
                 fractureModelResults->createResultEntry( resAddr, false );
                 fractureModelResults->setTimeStepInfos( resAddr, timeStepInfos );
             }
@@ -1010,37 +1008,33 @@ void RifReaderEclipseOutput::buildMetaData( ecl_grid_type* grid )
         }
 
         {
-            QStringList matrixResultNames =
-                validKeywordsForPorosityModel( keywordInfo,
-                                               m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ),
-                                               m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL ),
-                                               RiaDefines::PorosityModelType::MATRIX_MODEL,
-                                               1 );
+            auto validKeywords = validKeywordsForPorosityModel( keywordInfo,
+                                                                m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ),
+                                                                m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL ),
+                                                                RiaDefines::PorosityModelType::MATRIX_MODEL,
+                                                                1 );
 
-            // Add ACTNUM
-            matrixResultNames += "ACTNUM";
+            validKeywords.push_back( RifKeywordValueCount( "ACTNUM", 0, RifKeywordValueCount::KeywordDataType::INTEGER ) );
 
-            for ( int i = 0; i < matrixResultNames.size(); ++i )
+            for ( const auto& keywordData : validKeywords )
             {
-                RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::STATIC_NATIVE, matrixResultNames[i] );
+                RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, QString::fromStdString( keywordData.keyword() ) );
                 matrixModelResults->createResultEntry( resAddr, false );
                 matrixModelResults->setTimeStepInfos( resAddr, staticTimeStepInfo );
             }
         }
 
         {
-            QStringList fractureResultNames =
-                validKeywordsForPorosityModel( keywordInfo,
-                                               m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ),
-                                               m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL ),
-                                               RiaDefines::PorosityModelType::FRACTURE_MODEL,
-                                               1 );
-            // Add ACTNUM
-            fractureResultNames += "ACTNUM";
+            auto validKeywords = validKeywordsForPorosityModel( keywordInfo,
+                                                                m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ),
+                                                                m_eclipseCase->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL ),
+                                                                RiaDefines::PorosityModelType::FRACTURE_MODEL,
+                                                                1 );
+            validKeywords.push_back( RifKeywordValueCount( "ACTNUM", 0, RifKeywordValueCount::KeywordDataType::INTEGER ) );
 
-            for ( int i = 0; i < fractureResultNames.size(); ++i )
+            for ( const auto& keywordData : validKeywords )
             {
-                RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::STATIC_NATIVE, fractureResultNames[i] );
+                RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, QString::fromStdString( keywordData.keyword() ) );
                 fractureModelResults->createResultEntry( resAddr, false );
                 fractureModelResults->setTimeStepInfos( resAddr, staticTimeStepInfo );
             }
@@ -2102,11 +2096,12 @@ void RifReaderEclipseOutput::readWellCells( const ecl_grid_type* mainEclGrid, bo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel( const std::vector<RifKeywordValueCount>& keywordItemCounts,
-                                                                   const RigActiveCellInfo*                 matrixActiveCellInfo,
-                                                                   const RigActiveCellInfo*                 fractureActiveCellInfo,
-                                                                   RiaDefines::PorosityModelType            porosityModel,
-                                                                   size_t                                   timeStepCount ) const
+std::vector<RifKeywordValueCount>
+    RifReaderEclipseOutput::validKeywordsForPorosityModel( const std::vector<RifKeywordValueCount>& keywordItemCounts,
+                                                           const RigActiveCellInfo*                 matrixActiveCellInfo,
+                                                           const RigActiveCellInfo*                 fractureActiveCellInfo,
+                                                           RiaDefines::PorosityModelType            porosityModel,
+                                                           size_t                                   timeStepCount ) const
 {
     CVF_ASSERT( matrixActiveCellInfo );
 
@@ -2114,11 +2109,11 @@ QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel( const std::ve
     {
         if ( fractureActiveCellInfo->reservoirActiveCellCount() == 0 )
         {
-            return QStringList();
+            return {};
         }
     }
 
-    QStringList keywordsWithCorrectNumberOfDataItems;
+    std::vector<RifKeywordValueCount> keywordsWithCorrectNumberOfDataItems;
 
     for ( const auto& keywordValueCount : keywordItemCounts )
     {
@@ -2191,7 +2186,7 @@ QStringList RifReaderEclipseOutput::validKeywordsForPorosityModel( const std::ve
 
         if ( validKeyword )
         {
-            keywordsWithCorrectNumberOfDataItems.push_back( keyword );
+            keywordsWithCorrectNumberOfDataItems.push_back( keywordValueCount );
         }
     }
 

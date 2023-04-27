@@ -47,13 +47,21 @@ public:
 //==================================================================================================
 ///
 //==================================================================================================
+struct RigResultInfoData
+{
+    RigEclipseResultAddress resultAddress{};
+    bool                    needsToBeStored{ false };
+    bool                    mustBeCalculated{ false };
+    size_t                  gridScalarResultIndex{ 0u };
+};
+
+//==================================================================================================
+///
+//==================================================================================================
 class RigEclipseResultInfo
 {
 public:
-    RigEclipseResultInfo( const RigEclipseResultAddress& resultAddress,
-                          bool                           needsToBeStored       = false,
-                          bool                           mustBeCalculated      = false,
-                          size_t                         gridScalarResultIndex = 0u );
+    RigEclipseResultInfo( const RigResultInfoData& resultInfoData );
 
     RiaDefines::ResultCatType resultType() const;
     QString                   resultName() const;
