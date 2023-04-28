@@ -49,6 +49,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimCsvSummaryCase.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryTable.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryTableCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryTableTools.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -102,6 +103,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimCsvSummaryCase.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryTable.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryTableCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryTableTools.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

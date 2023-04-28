@@ -56,17 +56,21 @@ RimSummaryTable::RimSummaryTable()
 
     CAF_PDM_InitFieldNoDefault( &m_case, "SummaryCase", "Case" );
     m_case.uiCapability()->setUiTreeChildrenHidden( true );
-    CAF_PDM_InitFieldNoDefault( &m_vector, "Vectors", "Vector" );
+    CAF_PDM_InitFieldNoDefault( &m_vector, "Vector", "Vector" );
     m_vector.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
-    CAF_PDM_InitFieldNoDefault( &m_categories, "Categories", "Category" );
-    m_categories.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
-    m_categories = RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL;
+    CAF_PDM_InitFieldNoDefault( &m_category, "Categories", "Category" );
+    m_category.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
+    m_category = RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL;
 
     CAF_PDM_InitFieldNoDefault( &m_resamplingSelection, "ResamplingSelection", "Date Resampling" );
     m_resamplingSelection.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     m_resamplingSelection = RiaDefines::DateTimePeriod::YEAR;
 
     CAF_PDM_InitField( &m_thresholdValue, "ThresholdValue", 0.0, "Threshold" );
+
+    CAF_PDM_InitFieldNoDefault( &m_excludedRowsUiField, "ExcludedTableRows", "Exclude Rows" );
+    m_excludedRowsUiField.xmlCapability()->disableIO();
+    m_excludedRowsUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     // Table settings
     CAF_PDM_InitField( &m_showValueLabels, "ShowValueLabels", false, "Show Value Labels" );
@@ -107,9 +111,10 @@ void RimSummaryTable::setDefaultCaseAndCategoryAndVectorName()
 {
     const auto summaryCases = getToplevelSummaryCases();
     m_case                  = nullptr;
-    m_categories            = RifEclipseSummaryAddress::SUMMARY_WELL;
+    m_category              = RifEclipseSummaryAddress::SUMMARY_WELL;
     m_vector                = "";
-    m_tableName             = createTableName();
+
+    m_tableName = createTableName();
     if ( summaryCases.empty() ) return;
 
     m_case = summaryCases.front();
@@ -117,12 +122,14 @@ void RimSummaryTable::setDefaultCaseAndCategoryAndVectorName()
     const auto summaryReader = m_case->summaryReader();
     if ( !summaryReader ) return;
 
-    const auto categoryVectors = getCategoryVectorsFromSummaryReader( summaryReader, m_categories() );
+    const auto categoryVectors = getCategoryVectorFromSummaryReader( summaryReader, m_category() );
     if ( !categoryVectors.empty() )
     {
         m_vector = *categoryVectors.begin();
     }
     m_tableName = createTableName();
+    createTableData();
+    setExcludedRowsUiSelectionsFromTableData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -132,10 +139,12 @@ void RimSummaryTable::setFromCaseAndCategoryAndVectorName( RimSummaryCase*      
                                                            RifEclipseSummaryAddress::SummaryVarCategory category,
                                                            const QString&                               vectorName )
 {
-    m_case       = summaryCase;
-    m_categories = category;
-    m_vector     = vectorName;
-    m_tableName  = createTableName();
+    m_case      = summaryCase;
+    m_category  = category;
+    m_vector    = vectorName;
+    m_tableName = createTableName();
+    createTableData();
+    setExcludedRowsUiSelectionsFromTableData();
     onLoadDataAndUpdate();
 }
 
@@ -173,7 +182,7 @@ void RimSummaryTable::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         if ( m_case )
         {
             auto*      summaryReader   = m_case->summaryReader();
-            const auto categoryVectors = getCategoryVectorsFromSummaryReader( summaryReader, m_categories() );
+            const auto categoryVectors = getCategoryVectorFromSummaryReader( summaryReader, m_category() );
             if ( summaryReader && !categoryVectors.empty() )
             {
                 m_vector = *categoryVectors.begin();
@@ -187,14 +196,16 @@ void RimSummaryTable::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         {
             m_tableName = createTableName();
         }
+        createTableData();
+        setExcludedRowsUiSelectionsFromTableData();
         onLoadDataAndUpdate();
     }
-    else if ( changedField == &m_categories )
+    else if ( changedField == &m_category )
     {
         if ( m_case )
         {
             auto*      summaryReader   = m_case->summaryReader();
-            const auto categoryVectors = getCategoryVectorsFromSummaryReader( summaryReader, m_categories() );
+            const auto categoryVectors = getCategoryVectorFromSummaryReader( summaryReader, m_category() );
             if ( summaryReader && !categoryVectors.empty() )
             {
                 m_vector = *categoryVectors.begin();
@@ -212,6 +223,8 @@ void RimSummaryTable::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         {
             m_tableName = createTableName();
         }
+        createTableData();
+        setExcludedRowsUiSelectionsFromTableData();
         onLoadDataAndUpdate();
     }
     else if ( changedField == &m_vector || changedField == &m_resamplingSelection || changedField == &m_thresholdValue )
@@ -220,6 +233,12 @@ void RimSummaryTable::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         {
             m_tableName = createTableName();
         }
+        createTableData();
+        setExcludedRowsUiSelectionsFromTableData();
+        onLoadDataAndUpdate();
+    }
+    else if ( changedField == &m_excludedRowsUiField )
+    {
         onLoadDataAndUpdate();
     }
     else if ( changedField == &m_isAutomaticName && m_isAutomaticName )
@@ -249,6 +268,8 @@ void RimSummaryTable::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 //--------------------------------------------------------------------------------------------------
 void RimSummaryTable::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
 {
+    createTableData();
+    setExcludedRowsUiSelectionsFromTableData();
     onLoadDataAndUpdate();
 }
 
@@ -263,10 +284,11 @@ void RimSummaryTable::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     dataGroup.add( &m_tableName );
     dataGroup.add( &m_isAutomaticName );
     dataGroup.add( &m_case );
-    dataGroup.add( &m_categories );
+    dataGroup.add( &m_category );
     dataGroup.add( &m_vector );
     dataGroup.add( &m_resamplingSelection );
     dataGroup.add( &m_thresholdValue );
+    dataGroup.add( &m_excludedRowsUiField );
 
     caf::PdmUiGroup* tableSettingsGroup = uiOrdering.addNewGroup( "Table Settings" );
     tableSettingsGroup->add( &m_showValueLabels );
@@ -300,7 +322,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryTable::calculateValueOptions( const caf:
             options.push_back( caf::PdmOptionItemInfo( summaryCase->displayCaseName(), summaryCase, false, summaryCase->uiIconProvider() ) );
         }
     }
-    else if ( fieldNeedingOptions == &m_categories )
+    else if ( fieldNeedingOptions == &m_category )
     {
         options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::uiText(
                                                        RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL ),
@@ -317,11 +339,19 @@ QList<caf::PdmOptionItemInfo> RimSummaryTable::calculateValueOptions( const caf:
         auto* summaryReader = m_case->summaryReader();
         if ( summaryReader )
         {
-            const auto categoryVectorsUnion = getCategoryVectorsFromSummaryReader( summaryReader, m_categories() );
+            const auto categoryVectorsUnion = getCategoryVectorFromSummaryReader( summaryReader, m_category() );
             for ( const auto& vectorName : categoryVectorsUnion )
             {
                 options.push_back( caf::PdmOptionItemInfo( vectorName, vectorName ) );
             }
+        }
+    }
+    else if ( fieldNeedingOptions == &m_excludedRowsUiField )
+    {
+        const auto vectorNames = RimSummaryTableTools::categoryNames( m_tableData.vectorDataCollection );
+        for ( const auto& vectorName : vectorNames )
+        {
+            options.push_back( caf::PdmOptionItemInfo( vectorName, vectorName ) );
         }
     }
     else if ( fieldNeedingOptions == &m_axisTitleFontSize || fieldNeedingOptions == &m_axisLabelFontSize ||
@@ -350,82 +380,12 @@ void RimSummaryTable::onLoadDataAndUpdate()
         return;
     }
 
-    // Struct for storing vector data
-    struct VectorData
-    {
-        QString             category;
-        QString             name;
-        std::vector<double> values;
-        time_t              firstTimeStep;
-        time_t              lastTimeStep;
-        bool                hasValueAboveThreshold;
-    };
-
-    // Create time step value for vectors with no values above threshold
-    const time_t invalidTimeStep = 0;
-
-    // Get all summary addresses for selected category (group, region, well)
-    std::vector<VectorData> vectorDataCollection;
-    std::set<time_t>        timeStepsUnion;
-    const auto              summaryAddresses = getSummaryAddressesFromReader( summaryReader, m_categories(), m_vector() );
-    QString                 unitName;
-    for ( const auto& adr : summaryAddresses )
-    {
-        std::vector<double> values;
-        summaryReader->values( adr, &values );
-        const std::vector<time_t> timeSteps    = summaryReader->timeSteps( adr );
-        const QString             vectorName   = QString::fromStdString( adr.vectorName() );
-        const QString             categoryName = getCategoryNameFromAddress( adr );
-        unitName                               = QString::fromStdString( summaryReader->unitName( adr ) );
-
-        // Get re-sampled time steps and values
-        const auto [resampledTimeSteps, resampledValues] =
-            RiaSummaryTools::resampledValuesForPeriod( adr, timeSteps, values, m_resamplingSelection() );
-
-        // Detect if values contain at least one value above threshold
-        const auto valueAboveThresholdItr =
-            std::find_if( resampledValues.begin(), resampledValues.end(), [&]( double value ) { return value > m_thresholdValue; } );
-        const bool hasValueAboveThreshold = valueAboveThresholdItr != resampledValues.end();
-
-        // Find first and last time step with value above 0.0 when hasValueAboveThreshold flag is true (first and last should be
-        // valid/invalid simultaneously)
-        const auto firstTimeStepItr =
-            std::find_if( resampledValues.begin(), resampledValues.end(), [&]( double value ) { return value > 0.0; } );
-        const auto lastTimeStepItr =
-            std::find_if( resampledValues.rbegin(), resampledValues.rend(), [&]( double value ) { return value > 0.0; } );
-        const auto firstIdx = static_cast<size_t>( std::distance( resampledValues.begin(), firstTimeStepItr ) );
-        const auto lastIdx = resampledValues.size() - static_cast<size_t>( std::distance( resampledValues.rbegin(), lastTimeStepItr ) ) - 1;
-        const auto firstTimeStep = hasValueAboveThreshold ? resampledTimeSteps[firstIdx] : invalidTimeStep;
-        const auto lastTimeStep  = hasValueAboveThreshold ? resampledTimeSteps[lastIdx] : invalidTimeStep;
-
-        // Add to vector of VectorData
-        VectorData vectorData{ .category               = categoryName,
-                               .name                   = vectorName,
-                               .values                 = resampledValues,
-                               .firstTimeStep          = firstTimeStep,
-                               .lastTimeStep           = lastTimeStep,
-                               .hasValueAboveThreshold = hasValueAboveThreshold };
-        vectorDataCollection.push_back( vectorData );
-
-        // Build union of resampled time steps
-        timeStepsUnion.insert( resampledTimeSteps.begin(), resampledTimeSteps.end() );
-    }
-
-    // Sort vector data on date (vectors with no values above threshold placed last):
-    std::sort( vectorDataCollection.begin(),
-               vectorDataCollection.end(),
-               []( const VectorData& v1, const VectorData& v2 )
-               {
-                   if ( !v1.hasValueAboveThreshold ) return false;
-                   if ( v1.hasValueAboveThreshold && !v2.hasValueAboveThreshold ) return true;
-                   if ( v1.firstTimeStep < v2.firstTimeStep ) return true;
-                   if ( v1.firstTimeStep == v2.firstTimeStep && v1.lastTimeStep < v2.lastTimeStep ) return true;
-                   return false;
-               } );
+    // Exclude rows that are selected
+    const auto excludedRows = std::set<QString>( m_excludedRowsUiField().begin(), m_excludedRowsUiField().end() );
 
     // Convert to strings
     std::vector<QString> timeStepStrings;
-    for ( const auto& timeStep : timeStepsUnion )
+    for ( const auto& timeStep : m_tableData.timeStepsUnion )
     {
         timeStepStrings.push_back( RiaQDateTimeTools::fromTime_t( timeStep ).toString( dateFormatString() ) );
     }
@@ -433,28 +393,25 @@ void RimSummaryTable::onLoadDataAndUpdate()
     // Clear matrix plot
     m_matrixPlotWidget->clearPlotData();
     m_matrixPlotWidget->setColumnHeaders( timeStepStrings );
-    double maxValue = 0.0;
-    double minValue = 0.0;
-    for ( const auto& vectorData : vectorDataCollection )
+    for ( const auto& vectorData : m_tableData.vectorDataCollection )
     {
-        const auto maxRowValue = *std::max_element( vectorData.values.begin(), vectorData.values.end() );
-        const auto minRowValue = *std::min_element( vectorData.values.begin(), vectorData.values.end() );
-        if ( maxRowValue < m_thresholdValue() ) continue;
-        maxValue = std::max( maxValue, maxRowValue );
-        minValue = std::min( minValue, minRowValue );
+        if ( excludedRows.contains( vectorData.category ) ) continue;
+
         m_matrixPlotWidget->setRowValues( vectorData.category, vectorData.values );
     }
 
     if ( m_legendConfig )
     {
-        m_legendConfig->setAutomaticRanges( minValue, maxValue, 0.0, 0.0 );
+        m_legendConfig->setAutomaticRanges( m_tableData.minValue, m_tableData.maxValue, 0.0, 0.0 );
     }
 
     // Set titles and font sizes
-    const QString title =
-        QString( "Summary Table - %1 [%2]<br>Date Resampling: %3</br>" ).arg( m_vector() ).arg( unitName ).arg( m_resamplingSelection().uiText() );
+    const QString title = QString( "Summary Table - %1 [%2]<br>Date Resampling: %3</br>" )
+                              .arg( m_vector() )
+                              .arg( m_tableData.unitName )
+                              .arg( m_resamplingSelection().uiText() );
     m_matrixPlotWidget->setPlotTitle( title );
-    m_matrixPlotWidget->setRowTitle( QString( "%1s" ).arg( m_categories().uiText() ) );
+    m_matrixPlotWidget->setRowTitle( QString( "%1s" ).arg( m_category().uiText() ) );
     m_matrixPlotWidget->setColumnTitle( "Time steps" );
     m_matrixPlotWidget->setPlotTitleFontSize( titleFontSize() );
     m_matrixPlotWidget->setLegendFontSize( legendFontSize() );
@@ -591,7 +548,7 @@ std::set<RifEclipseSummaryAddress> RimSummaryTable::getSummaryAddressesFromReade
                                                                                    RifEclipseSummaryAddress::SummaryVarCategory category,
                                                                                    const QString& vector ) const
 {
-    if ( !summaryReader ) return std::set<RifEclipseSummaryAddress>();
+    if ( !summaryReader ) return {};
 
     std::set<RifEclipseSummaryAddress>       categoryAddresses;
     const std::set<RifEclipseSummaryAddress> allResultAddresses = summaryReader->allResultAddresses();
@@ -607,15 +564,15 @@ std::set<RifEclipseSummaryAddress> RimSummaryTable::getSummaryAddressesFromReade
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<QString> RimSummaryTable::getCategoryVectorsFromSummaryReader( const RifSummaryReaderInterface*             summaryReader,
-                                                                        RifEclipseSummaryAddress::SummaryVarCategory category ) const
+std::set<QString> RimSummaryTable::getCategoryVectorFromSummaryReader( const RifSummaryReaderInterface*             summaryReader,
+                                                                       RifEclipseSummaryAddress::SummaryVarCategory category ) const
 {
-    if ( !summaryReader ) return std::set<QString>();
+    if ( !summaryReader ) return {};
     if ( category != RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL &&
          category != RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_GROUP &&
          category != RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_REGION )
     {
-        return std::set<QString>();
+        return {};
     }
 
     std::set<QString>                        categoryVectors;
@@ -657,4 +614,102 @@ std::vector<RimSummaryCase*> RimSummaryTable::getToplevelSummaryCases() const
     RimSummaryCaseMainCollection* summaryCaseMainCollection = RiaSummaryTools::summaryCaseMainCollection();
     if ( !summaryCaseMainCollection ) return {};
     return summaryCaseMainCollection->topLevelSummaryCases();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryTable::createTableData()
+{
+    m_tableData                = TableData();
+    m_tableData.thresholdValue = m_thresholdValue();
+
+    const auto summaryReader = m_case->summaryReader();
+    if ( !summaryReader )
+    {
+        return;
+    }
+
+    // Create time step value for vectors with no values above threshold
+    const time_t invalidTimeStep = 0;
+
+    // Get all summary addresses for selected category (group, region, well)
+    const auto summaryAddresses = getSummaryAddressesFromReader( summaryReader, m_category(), m_vector() );
+    QString    unitName;
+    for ( const auto& adr : summaryAddresses )
+    {
+        std::vector<double> values;
+        summaryReader->values( adr, &values );
+        const std::vector<time_t> timeSteps    = summaryReader->timeSteps( adr );
+        const QString             vectorName   = QString::fromStdString( adr.vectorName() );
+        const QString             categoryName = getCategoryNameFromAddress( adr );
+
+        // Get re-sampled time steps and values
+        const auto& [resampledTimeSteps, resampledValues] =
+            RiaSummaryTools::resampledValuesForPeriod( adr, timeSteps, values, m_resamplingSelection() );
+
+        if ( resampledValues.empty() ) continue;
+
+        // Exclude vectors with values BELOW threshold - to include visualization of values equal to threshold!
+        const auto maxRowValue = *std::max_element( resampledValues.begin(), resampledValues.end() );
+        const auto minRowValue = *std::min_element( resampledValues.begin(), resampledValues.end() );
+        if ( maxRowValue < m_tableData.thresholdValue ) continue;
+
+        // Detect if values contain at least one value ABOVE threshold
+        const bool hasValueAboveThreshold = RimSummaryTableTools::hasValueAboveThreshold( resampledValues, m_tableData.thresholdValue );
+
+        // Find first and last time step with value above 0.0 when hasValueAboveThreshold flag is true (first and last should be
+        // valid/invalid simultaneously)
+        const auto firstTimeStepItr =
+            std::find_if( resampledValues.begin(), resampledValues.end(), [&]( double value ) { return value > 0.0; } );
+        const auto lastTimeStepItr =
+            std::find_if( resampledValues.rbegin(), resampledValues.rend(), [&]( double value ) { return value > 0.0; } );
+        const auto firstIdx = static_cast<size_t>( std::distance( resampledValues.begin(), firstTimeStepItr ) );
+        const auto lastIdx = resampledValues.size() - static_cast<size_t>( std::distance( resampledValues.rbegin(), lastTimeStepItr ) ) - 1;
+        const auto firstTimeStep = hasValueAboveThreshold ? resampledTimeSteps[firstIdx] : invalidTimeStep;
+        const auto lastTimeStep  = hasValueAboveThreshold ? resampledTimeSteps[lastIdx] : invalidTimeStep;
+
+        // Add to collection of VectorData for table data
+        VectorData vectorData{ .category      = categoryName,
+                               .name          = vectorName,
+                               .values        = resampledValues,
+                               .firstTimeStep = firstTimeStep,
+                               .lastTimeStep  = lastTimeStep };
+        m_tableData.vectorDataCollection.push_back( vectorData );
+
+        // Update min/max values
+        m_tableData.maxValue = std::max( m_tableData.maxValue, maxRowValue );
+        m_tableData.minValue = std::min( m_tableData.minValue, minRowValue );
+
+        // Build union of resampled time steps
+        m_tableData.timeStepsUnion.insert( resampledTimeSteps.begin(), resampledTimeSteps.end() );
+
+        // Set unit name
+        if ( m_tableData.unitName.isEmpty() )
+        {
+            m_tableData.unitName = QString::fromStdString( summaryReader->unitName( adr ) );
+        }
+    }
+
+    // Sort vector data on date
+    RimSummaryTableTools::sortVectorDataOnDate( m_tableData );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryTable::setExcludedRowsUiSelectionsFromTableData()
+{
+    const auto initialSelections = std::set<QString>( m_excludedRowsUiField().begin(), m_excludedRowsUiField().end() );
+
+    std::vector<QString> newSelections;
+    const auto           categoryNames = RimSummaryTableTools::categoryNames( m_tableData.vectorDataCollection );
+    for ( const auto& categoryName : categoryNames )
+    {
+        if ( initialSelections.contains( categoryName ) )
+        {
+            newSelections.push_back( categoryName );
+        }
+    }
+    m_excludedRowsUiField.setValueWithFieldChanged( newSelections );
 }
