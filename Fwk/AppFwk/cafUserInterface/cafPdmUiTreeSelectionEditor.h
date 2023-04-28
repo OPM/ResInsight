@@ -109,7 +109,8 @@ private slots:
     void slotSetSubItemsOff();
 
     void slotToggleAll();
-    void slotInvertSelection();
+    void slotInvertCheckedStateForSelection();
+    void slotInvertCheckedStateOfAll();
 
     void slotTextFilterChanged();
 

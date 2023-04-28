@@ -163,7 +163,7 @@ void caf::PdmUiTreeSelectionQModel::invertCheckedStateForItems( const QModelInde
         if ( !optionItemInfo->isReadOnly() )
         {
             auto index = static_cast<unsigned int>( optionIndex( mi ) );
-            if ( !currentSelectedIndices.contains( index ) )
+            if ( currentSelectedIndices.count( index ) == 0 )
             {
                 fieldValueSelection.push_back( QVariant( index ) );
             }

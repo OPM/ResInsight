@@ -407,22 +407,32 @@ void PdmUiTreeSelectionEditor::customMenuRequested( const QPoint& pos )
     else if ( !selectedIndexes.empty() )
     {
         {
-            QAction* act = new QAction( "Set Selected On", this );
+            QAction* act = new QAction( "Set Selected Checked", this );
             connect( act, SIGNAL( triggered() ), SLOT( slotSetSelectedOn() ) );
 
             menu.addAction( act );
         }
 
         {
-            QAction* act = new QAction( "Set Selected Off", this );
+            QAction* act = new QAction( "Set Selected Unchecked", this );
             connect( act, SIGNAL( triggered() ), SLOT( slotSetSelectedOff() ) );
 
             menu.addAction( act );
         }
 
+        menu.addSeparator();
+
+        if ( selectedIndexes.size() == 1 )
         {
-            QAction* act = new QAction( "Invert Selection", this );
-            connect( act, SIGNAL( triggered() ), SLOT( slotInvertSelection() ) );
+            QAction* act = new QAction( "Invert Checked State Of All", this );
+            connect( act, SIGNAL( triggered() ), SLOT( slotInvertCheckedStateOfAll() ) );
+
+            menu.addAction( act );
+        }
+        else
+        {
+            QAction* act = new QAction( "Invert Checked States of Selected", this );
+            connect( act, SIGNAL( triggered() ), SLOT( slotInvertCheckedStateForSelection() ) );
 
             menu.addAction( act );
         }
@@ -519,7 +529,18 @@ void PdmUiTreeSelectionEditor::slotToggleAll()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeSelectionEditor::slotInvertSelection()
+void PdmUiTreeSelectionEditor::slotInvertCheckedStateForSelection()
+{
+    QItemSelection selectionInProxyModel  = m_treeView->selectionModel()->selection();
+    QItemSelection selectionInSourceModel = m_proxyModel->mapSelectionToSource( selectionInProxyModel );
+
+    m_model->invertCheckedStateForItems( selectionInSourceModel.indexes() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeSelectionEditor::slotInvertCheckedStateOfAll()
 {
     QModelIndexList indices = allVisibleSourceModelIndices();
 
