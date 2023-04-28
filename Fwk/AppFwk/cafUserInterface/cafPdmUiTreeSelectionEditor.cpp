@@ -232,14 +232,14 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi( const QString& uiConfigName
         }
         else
         {
-            if ( options.size() == 0 )
+            if ( options.empty() == 0 )
             {
                 m_toggleAllCheckBox->setChecked( false );
             }
             else
             {
                 QModelIndexList indices = allVisibleSourceModelIndices();
-                if ( indices.size() > 0 )
+                if ( !indices.empty() )
                 {
                     size_t editableItems        = 0u;
                     size_t checkedEditableItems = 0u;
@@ -388,7 +388,7 @@ void PdmUiTreeSelectionEditor::customMenuRequested( const QPoint& pos )
         }
     }
 
-    if ( onlyHeadersInSelection && selectedIndexes.size() > 0 )
+    if ( onlyHeadersInSelection && !selectedIndexes.empty() )
     {
         {
             QAction* act = new QAction( "Sub Items On", this );
@@ -404,7 +404,7 @@ void PdmUiTreeSelectionEditor::customMenuRequested( const QPoint& pos )
             menu.addAction( act );
         }
     }
-    else if ( selectedIndexes.size() > 0 )
+    else if ( !selectedIndexes.empty() )
     {
         {
             QAction* act = new QAction( "Set Selected On", this );
@@ -419,9 +419,16 @@ void PdmUiTreeSelectionEditor::customMenuRequested( const QPoint& pos )
 
             menu.addAction( act );
         }
+
+        {
+            QAction* act = new QAction( "Invert Selection", this );
+            connect( act, SIGNAL( triggered() ), SLOT( slotInvertSelection() ) );
+
+            menu.addAction( act );
+        }
     }
 
-    if ( menu.actions().size() > 0 )
+    if ( !menu.actions().empty() )
     {
         // Qt doc: QAbstractScrollArea and its subclasses that map the context menu event to coordinates of the viewport().
         QPoint globalPos = m_treeView->viewport()->mapToGlobal( pos );
@@ -507,6 +514,16 @@ void PdmUiTreeSelectionEditor::slotToggleAll()
     {
         unCheckAllItems();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeSelectionEditor::slotInvertSelection()
+{
+    QModelIndexList indices = allVisibleSourceModelIndices();
+
+    m_model->invertCheckedStateForItems( indices );
 }
 
 //--------------------------------------------------------------------------------------------------
