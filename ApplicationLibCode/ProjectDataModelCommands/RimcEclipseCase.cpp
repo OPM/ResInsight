@@ -66,7 +66,8 @@ caf::PdmObjectHandle* RimcEclipseCase_importProperties::execute()
         }
     }
 
-    const QStringList propertyFileNames = QStringList::fromVector( QVector<QString>::fromStdVector( absolutePaths ) );
+    QStringList propertyFileNames;
+    std::copy( absolutePaths.begin(), absolutePaths.end(), std::back_inserter( propertyFileNames ) );
 
     auto eclipseCase = self<RimEclipseCase>();
     eclipseCase->importAsciiInputProperties( propertyFileNames );
