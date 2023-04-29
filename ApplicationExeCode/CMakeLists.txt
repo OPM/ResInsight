@@ -319,6 +319,16 @@ endif()
 # ##############################################################################
 if(MSVC)
 
+  # Use response files always to avoid command line length issues
+  # https://stackoverflow.com/questions/43184251/cmake-command-line-too-long-windows
+  set(CMAKE_C_USE_RESPONSE_FILE_FOR_LIBRARIES 1)
+  set(CMAKE_CXX_USE_RESPONSE_FILE_FOR_LIBRARIES 1)
+
+  # Ninja requires to be forced for response files
+  if ("${CMAKE_GENERATOR}" MATCHES "Ninja")
+    set(CMAKE_NINJA_FORCE_RESPONSE_FILE 1 CACHE INTERNAL "") 
+  endif()
+
   if(NOT ${RESINSIGHT_ODB_API_DIR} EQUAL "")
     set(RESINSIGHT_USE_ODB_API 1)
   endif()

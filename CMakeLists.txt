@@ -355,13 +355,6 @@ endif()
 # HDF5
 # ##############################################################################
 if(MSVC)
-  set(RESINSIGHT_HDF5_DIR
-      ""
-      CACHE PATH "Windows Only: Optional path to HDF5 libraries on Windows"
-  )
-endif()
-
-if(MSVC)
   FetchContent_Declare(
     hdf-external-lib
     URL https://github.com/magnesj/ri-dependencies/releases/download/v1/HDF_Group.zip
