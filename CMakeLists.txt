@@ -404,18 +404,29 @@ if(VCPKG_AUTO_INSTALL)
   include(${CMAKE_TOOLCHAIN_FILE})
 endif()
 
+option(BUILD_FROM_SOURCE "Build library from source" OFF)
+
 add_subdirectory(ThirdParty/custom-opm-flowdiagnostics)
 add_subdirectory(ThirdParty/custom-opm-flowdiag-app)
-add_subdirectory(ThirdParty/custom-opm-common)
-add_subdirectory(ThirdParty/custom-opm-common/custom-opm-parser-tests)
 
-list(APPEND OPM_LIBRARIES custom-opm-flowdiagnostics custom-opm-flowdiag-app
-     custom-opm-common
-)
+if (BUILD_FROM_SOURCE)
+  add_subdirectory(ThirdParty/custom-opm-common)
+  add_subdirectory(ThirdParty/custom-opm-common/custom-opm-parser-tests)
+  list(APPEND OPM_LIBRARIES custom-opm-common)
+  set_property(
+    TARGET ${OPM_LIBRARIES} opm-parser-tests PROPERTY FOLDER "Thirdparty/OPM"
+  )
+else()
+   # add handling of opm-common as a library
+    if(MSVC)
+        list(APPEND EXTERNAL_LINK_LIBRARIES
+           e:/gitroot/ResInsight/build/_deps/opm/custom-opm-common.lib 
+        )
+    endif()
+endif()
 
-set_property(
-  TARGET ${OPM_LIBRARIES} opm-parser-tests PROPERTY FOLDER "Thirdparty/OPM"
-)
+list(APPEND OPM_LIBRARIES custom-opm-flowdiagnostics custom-opm-flowdiag-app)
+
 
 # ##############################################################################
 # NRLib
