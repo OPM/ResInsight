@@ -325,8 +325,11 @@ if(MSVC)
   set(CMAKE_CXX_USE_RESPONSE_FILE_FOR_LIBRARIES 1)
 
   # Ninja requires to be forced for response files
-  if ("${CMAKE_GENERATOR}" MATCHES "Ninja")
-    set(CMAKE_NINJA_FORCE_RESPONSE_FILE 1 CACHE INTERNAL "") 
+  if("${CMAKE_GENERATOR}" MATCHES "Ninja")
+    set(CMAKE_NINJA_FORCE_RESPONSE_FILE
+        1
+        CACHE INTERNAL ""
+    )
   endif()
 
   if(NOT ${RESINSIGHT_ODB_API_DIR} EQUAL "")
