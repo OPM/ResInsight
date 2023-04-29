@@ -417,6 +417,9 @@ if(VCPKG_AUTO_INSTALL)
 endif()
 
 option(BUILD_FROM_SOURCE "Build library from source" OFF)
+if(NOT MSVC)
+  set(BUILD_FROM_SOURCE ON)
+endif()
 
 add_subdirectory(ThirdParty/custom-opm-flowdiagnostics)
 add_subdirectory(ThirdParty/custom-opm-flowdiag-app)
