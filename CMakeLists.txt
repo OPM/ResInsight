@@ -369,13 +369,16 @@ endif()
 # HDF5
 # ##############################################################################
 if(MSVC)
-  FetchContent_Declare(
-    hdf-external-lib
-    URL https://github.com/magnesj/ri-dependencies/releases/download/v1/HDF_Group.zip
-  )
-  FetchContent_Populate(hdf-external-lib)
+  option(RESINSIGHT_ENABLE_HDF5 "Use external HDF5 library" ON)
 
-  set(RESINSIGHT_HDF5_DIR ${hdf-external-lib_SOURCE_DIR}/HDF5/1.8.18)
+  if (RESINSIGHT_ENABLE_HDF5)
+    FetchContent_Declare(
+      hdf-external-lib
+      URL https://github.com/magnesj/ri-dependencies/releases/download/v1/HDF_Group.zip
+    )
+    FetchContent_Populate(hdf-external-lib)
+    set(RESINSIGHT_HDF5_DIR ${hdf-external-lib_SOURCE_DIR}/HDF5/1.8.18)
+  endif()
 
   if(NOT ${RESINSIGHT_HDF5_DIR} EQUAL "")
     list(APPEND EXTERNAL_LINK_LIBRARIES ${RESINSIGHT_HDF5_DIR}/lib/hdf5.lib
