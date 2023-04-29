@@ -59,15 +59,18 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 elseif(MSVC)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
   set(_HAS_STD_BYTE 0)
-  
+
   # Use response files always to avoid command line length issues
   # https://stackoverflow.com/questions/43184251/cmake-command-line-too-long-windows
   set(CMAKE_C_USE_RESPONSE_FILE_FOR_LIBRARIES 1)
   set(CMAKE_CXX_USE_RESPONSE_FILE_FOR_LIBRARIES 1)
 
   # Ninja requires to be forced for response files
-  if ("${CMAKE_GENERATOR}" MATCHES "Ninja")
-    set(CMAKE_NINJA_FORCE_RESPONSE_FILE 1 CACHE INTERNAL "") 
+  if("${CMAKE_GENERATOR}" MATCHES "Ninja")
+    set(CMAKE_NINJA_FORCE_RESPONSE_FILE
+        1
+        CACHE INTERNAL ""
+    )
   endif()
 
 endif()
