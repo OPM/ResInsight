@@ -417,13 +417,23 @@ if (BUILD_FROM_SOURCE)
     TARGET ${OPM_LIBRARIES} opm-parser-tests PROPERTY FOLDER "Thirdparty/OPM"
   )
 else()
-   # add handling of opm-common as a library
+   
+# add handling of opm-common as an external library
     if(MSVC)
+      FetchContent_Declare(
+        ri-dependencies
+        URL https://github.com/magnesj/ri-dependencies/releases/download/v1/custom-opm-common.zip
+      )
+      FetchContent_Populate(ri-dependencies)
         list(APPEND EXTERNAL_LINK_LIBRARIES
-           e:/gitroot/ResInsight/build/_deps/opm/custom-opm-common.lib 
+           ${ri-dependencies_SOURCE_DIR}/custom-opm-common.lib 
         )
     endif()
 endif()
+
+
+
+
 
 list(APPEND OPM_LIBRARIES custom-opm-flowdiagnostics custom-opm-flowdiag-app)
 
