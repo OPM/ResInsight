@@ -371,7 +371,7 @@ endif()
 if(MSVC)
   option(RESINSIGHT_ENABLE_HDF5 "Use external HDF5 library" ON)
 
-  if (RESINSIGHT_ENABLE_HDF5)
+  if(RESINSIGHT_ENABLE_HDF5)
     FetchContent_Declare(
       hdf-external-lib
       URL https://github.com/magnesj/ri-dependencies/releases/download/v1/HDF_Group.zip
