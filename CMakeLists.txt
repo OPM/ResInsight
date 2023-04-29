@@ -362,13 +362,13 @@ if(MSVC)
 endif()
 
 if(MSVC)
-    FetchContent_Declare(
+  FetchContent_Declare(
     hdf-external-lib
     URL https://github.com/magnesj/ri-dependencies/releases/download/v1/HDF_Group.zip
-    )
-    FetchContent_Populate(hdf-external-lib)
-    
-    set(RESINSIGHT_HDF5_DIR ${hdf-external-lib_SOURCE_DIR}/HDF5/1.8.18)
+  )
+  FetchContent_Populate(hdf-external-lib)
+
+  set(RESINSIGHT_HDF5_DIR ${hdf-external-lib_SOURCE_DIR}/HDF5/1.8.18)
 
   if(NOT ${RESINSIGHT_HDF5_DIR} EQUAL "")
     list(APPEND EXTERNAL_LINK_LIBRARIES ${RESINSIGHT_HDF5_DIR}/lib/hdf5.lib
@@ -417,7 +417,7 @@ option(BUILD_FROM_SOURCE "Build library from source" OFF)
 add_subdirectory(ThirdParty/custom-opm-flowdiagnostics)
 add_subdirectory(ThirdParty/custom-opm-flowdiag-app)
 
-if (BUILD_FROM_SOURCE)
+if(BUILD_FROM_SOURCE)
   add_subdirectory(ThirdParty/custom-opm-common)
   add_subdirectory(ThirdParty/custom-opm-common/custom-opm-parser-tests)
   list(APPEND OPM_LIBRARIES custom-opm-common)
@@ -425,26 +425,21 @@ if (BUILD_FROM_SOURCE)
     TARGET ${OPM_LIBRARIES} opm-parser-tests PROPERTY FOLDER "Thirdparty/OPM"
   )
 else()
-   
-# add handling of opm-common as an external library
-    if(MSVC)
-      FetchContent_Declare(
-        ri-dependencies
-        URL https://github.com/magnesj/ri-dependencies/releases/download/v1/custom-opm-common.zip
-      )
-      FetchContent_Populate(ri-dependencies)
-        list(APPEND EXTERNAL_LINK_LIBRARIES
-           ${ri-dependencies_SOURCE_DIR}/custom-opm-common.lib 
-        )
-    endif()
+
+  # add handling of opm-common as an external library
+  if(MSVC)
+    FetchContent_Declare(
+      ri-dependencies
+      URL https://github.com/magnesj/ri-dependencies/releases/download/v1/custom-opm-common.zip
+    )
+    FetchContent_Populate(ri-dependencies)
+    list(APPEND EXTERNAL_LINK_LIBRARIES
+         ${ri-dependencies_SOURCE_DIR}/custom-opm-common.lib
+    )
+  endif()
 endif()
 
-
-
-
-
 list(APPEND OPM_LIBRARIES custom-opm-flowdiagnostics custom-opm-flowdiag-app)
-
 
 # ##############################################################################
 # NRLib

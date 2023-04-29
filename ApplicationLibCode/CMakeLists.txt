@@ -195,9 +195,15 @@ list(APPEND RI_PRIVATE_INCLUDES ${RESINSIGHT_OPENVDS_API_DIR}/include)
 #
 # External libraries (not built from source)
 #
-if (NOT BUILD_FROM_SOURCE)
-  list(APPEND RI_PUBLIC_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/custom-opm-common/opm-common )
-  list(APPEND RI_PRIVATE_INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/custom-opm-common/generated-opm-common/include )
+if(NOT BUILD_FROM_SOURCE)
+  list(APPEND RI_PUBLIC_INCLUDES
+       ${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/custom-opm-common/opm-common
+  )
+  list(
+    APPEND
+    RI_PRIVATE_INCLUDES
+    ${CMAKE_CURRENT_SOURCE_DIR}/../ThirdParty/custom-opm-common/generated-opm-common/include
+  )
 endif()
 
 #
@@ -424,7 +430,6 @@ target_include_directories(
          ${ResInsight_SOURCE_DIR}/ThirdParty
          ${CMAKE_BINARY_DIR}/Generated
          ${RI_PUBLIC_INCLUDES}
-
 )
 
 # ##############################################################################
