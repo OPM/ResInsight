@@ -193,7 +193,8 @@ endif()
 list(APPEND RI_PRIVATE_INCLUDES ${RESINSIGHT_OPENVDS_API_DIR}/include)
 
 #
-# Configure include directories if opm-common.lib is downloaded and linked without building from source
+# Configure include directories if opm-common.lib is downloaded and linked
+# without building from source
 #
 if(NOT BUILD_FROM_SOURCE)
   list(APPEND RI_PUBLIC_INCLUDES

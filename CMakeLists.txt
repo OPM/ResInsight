@@ -356,8 +356,9 @@ endif()
 # ##############################################################################
 
 if(MSVC)
-    # this option is disabled in the daily build defined in ResInsightWithCache.yml, as the text input to ninja becomes too long
-    option(RESINSIGHT_ENABLE_HDF5 "Use external HDF5 library" ON)
+  # this option is disabled in the daily build defined in
+  # ResInsightWithCache.yml, as the text input to ninja becomes too long
+  option(RESINSIGHT_ENABLE_HDF5 "Use external HDF5 library" ON)
 
   if(RESINSIGHT_ENABLE_HDF5)
     FetchContent_Declare(
@@ -423,9 +424,7 @@ if(RESINSIGHT_BUILD_LIBS_FROM_SOURCE)
   add_subdirectory(ThirdParty/custom-opm-common)
   add_subdirectory(ThirdParty/custom-opm-common/custom-opm-parser-tests)
   list(APPEND OPM_LIBRARIES custom-opm-common)
-  set_property(
-    TARGET opm-parser-tests PROPERTY FOLDER "Thirdparty/OPM"
-  )
+  set_property(TARGET opm-parser-tests PROPERTY FOLDER "Thirdparty/OPM")
 else()
   if(MSVC)
     FetchContent_Declare(
@@ -440,9 +439,7 @@ else()
 endif()
 
 list(APPEND OPM_LIBRARIES custom-opm-flowdiagnostics custom-opm-flowdiag-app)
-  set_property(
-    TARGET ${OPM_LIBRARIES} PROPERTY FOLDER "Thirdparty/OPM"
-  )
+set_property(TARGET ${OPM_LIBRARIES} PROPERTY FOLDER "Thirdparty/OPM")
 
 # ##############################################################################
 # NRLib
