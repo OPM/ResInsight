@@ -354,14 +354,20 @@ endif()
 # ##############################################################################
 # HDF5
 # ##############################################################################
-if(MSVC)
-  set(RESINSIGHT_HDF5_DIR
-      ""
-      CACHE PATH "Windows Only: Optional path to HDF5 libraries on Windows"
-  )
-endif()
 
 if(MSVC)
+    # this option is disabled in the daily build defined in ResInsightWithCache.yml, as the text input to ninja becomes too long
+    option(RESINSIGHT_ENABLE_HDF5 "Use external HDF5 library" ON)
+
+  if(RESINSIGHT_ENABLE_HDF5)
+    FetchContent_Declare(
+      hdf-external-lib
+      URL https://github.com/CeetronSolutions/resinsight-dependencies/releases/download/2023.04/HDF_Group.zip
+    )
+    FetchContent_Populate(hdf-external-lib)
+    set(RESINSIGHT_HDF5_DIR ${hdf-external-lib_SOURCE_DIR}/HDF5/1.8.18)
+  endif()
+
   if(NOT ${RESINSIGHT_HDF5_DIR} EQUAL "")
     list(APPEND EXTERNAL_LINK_LIBRARIES ${RESINSIGHT_HDF5_DIR}/lib/hdf5.lib
          ${RESINSIGHT_HDF5_DIR}/lib/hdf5_cpp.lib
@@ -406,16 +412,37 @@ endif()
 
 add_subdirectory(ThirdParty/custom-opm-flowdiagnostics)
 add_subdirectory(ThirdParty/custom-opm-flowdiag-app)
-add_subdirectory(ThirdParty/custom-opm-common)
-add_subdirectory(ThirdParty/custom-opm-common/custom-opm-parser-tests)
 
-list(APPEND OPM_LIBRARIES custom-opm-flowdiagnostics custom-opm-flowdiag-app
-     custom-opm-common
-)
+# Option used to build opm-common from source or use precompiled binaries
+option(RESINSIGHT_BUILD_LIBS_FROM_SOURCE "Build opm-common from source" OFF)
+if(NOT MSVC)
+  set(RESINSIGHT_BUILD_LIBS_FROM_SOURCE ON)
+endif()
 
-set_property(
-  TARGET ${OPM_LIBRARIES} opm-parser-tests PROPERTY FOLDER "Thirdparty/OPM"
-)
+if(RESINSIGHT_BUILD_LIBS_FROM_SOURCE)
+  add_subdirectory(ThirdParty/custom-opm-common)
+  add_subdirectory(ThirdParty/custom-opm-common/custom-opm-parser-tests)
+  list(APPEND OPM_LIBRARIES custom-opm-common)
+  set_property(
+    TARGET opm-parser-tests PROPERTY FOLDER "Thirdparty/OPM"
+  )
+else()
+  if(MSVC)
+    FetchContent_Declare(
+      ri-dependencies
+      URL https://github.com/CeetronSolutions/resinsight-dependencies/releases/download/2023.04/custom-opm-common.zip
+    )
+    FetchContent_Populate(ri-dependencies)
+    list(APPEND EXTERNAL_LINK_LIBRARIES
+         ${ri-dependencies_SOURCE_DIR}/custom-opm-common.lib
+    )
+  endif()
+endif()
+
+list(APPEND OPM_LIBRARIES custom-opm-flowdiagnostics custom-opm-flowdiag-app)
+  set_property(
+    TARGET ${OPM_LIBRARIES} PROPERTY FOLDER "Thirdparty/OPM"
+  )
 
 # ##############################################################################
 # NRLib
