@@ -130,16 +130,18 @@ set(RESINSIGHT_ODB_API_DIR
       "Optional path to the ABAQUS ODB API from Simulia. Needed for support of geomechanical models"
 )
 
-if (MSVC)
-  option(RESINSIGHT_DONWLOAD_ODB_FROM_SERVER "Download ODB library from inhouse build server" OFF)
+if(MSVC)
+  option(RESINSIGHT_DONWLOAD_ODB_FROM_SERVER
+         "Download ODB library from inhouse build server" OFF
+  )
   mark_as_advanced(FORCE RESINSIGHT_DONWLOAD_ODB_FROM_SERVER)
 
-  if (RESINSIGHT_DONWLOAD_ODB_FROM_SERVER)
+  if(RESINSIGHT_DONWLOAD_ODB_FROM_SERVER)
     FetchContent_Declare(
-    odb-library-from-server
-    URL http://10.10.0.26:8080/job/resinsight-dependencies/ws/odb-api-2020.zip
+      odb-library-from-server
+      URL http://10.10.0.26:8080/job/resinsight-dependencies/ws/odb-api-2020.zip
     )
-  
+
     FetchContent_Populate(odb-library-from-server)
 
     set(RESINSIGHT_ODB_API_DIR ${odb-library-from-server_SOURCE_DIR})
