@@ -434,10 +434,7 @@ add_subdirectory(ThirdParty/custom-opm-flowdiagnostics)
 add_subdirectory(ThirdParty/custom-opm-flowdiag-app)
 
 # Option used to build opm-common from source or use precompiled binaries
-option(RESINSIGHT_BUILD_LIBS_FROM_SOURCE "Build opm-common from source" OFF)
-if(NOT MSVC)
-  set(RESINSIGHT_BUILD_LIBS_FROM_SOURCE ON)
-endif()
+option(RESINSIGHT_BUILD_LIBS_FROM_SOURCE "Build opm-common from source" ON)
 
 if(RESINSIGHT_BUILD_LIBS_FROM_SOURCE)
   add_subdirectory(ThirdParty/custom-opm-common)
