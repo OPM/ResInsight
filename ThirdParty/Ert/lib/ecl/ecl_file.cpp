@@ -798,8 +798,7 @@ ecl_version_enum ecl_file_get_ecl_version( const ecl_file_type * file ) {
   if (int_value == INTEHEAD_FRONTSIM_VALUE)
     return FRONTSIM;
 
-  util_abort("%s: Simulator version value:%d not recognized \n",__func__ , int_value );
-  return (ecl_version_enum)0;
+  return ECLIPSE_UNDEFINED;
 }
 
 /*
