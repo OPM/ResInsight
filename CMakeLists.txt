@@ -437,15 +437,15 @@ add_subdirectory(ThirdParty/custom-opm-flowdiag-app)
 option(RESINSIGHT_BUILD_LIBS_FROM_SOURCE "Build opm-common from source" ON)
 
 if((NOT RESINSIGHT_BUILD_LIBS_FROM_SOURCE) AND MSVC)
-    FetchContent_Declare(
-      ri-dependencies
-      URL https://github.com/CeetronSolutions/resinsight-dependencies/releases/download/2023.04/custom-opm-common.zip
-    )
-    FetchContent_Populate(ri-dependencies)
-    list(APPEND EXTERNAL_LINK_LIBRARIES
-         ${ri-dependencies_SOURCE_DIR}/custom-opm-common.lib
-    )
-    message(STATUS "opm-common: Enabled use of precompiled library")
+  FetchContent_Declare(
+    ri-dependencies
+    URL https://github.com/CeetronSolutions/resinsight-dependencies/releases/download/2023.04/custom-opm-common.zip
+  )
+  FetchContent_Populate(ri-dependencies)
+  list(APPEND EXTERNAL_LINK_LIBRARIES
+       ${ri-dependencies_SOURCE_DIR}/custom-opm-common.lib
+  )
+  message(STATUS "opm-common: Enabled use of precompiled library")
 else()
   add_subdirectory(ThirdParty/custom-opm-common)
   add_subdirectory(ThirdParty/custom-opm-common/custom-opm-parser-tests)
