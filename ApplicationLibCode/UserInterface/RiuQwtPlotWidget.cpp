@@ -94,15 +94,18 @@ RiuQwtPlotWidget::RiuQwtPlotWidget( RimPlot* plotDefinition, QWidget* parent )
 
     setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
 
-    connect( this, SIGNAL( plotSelected( bool ) ), plotDefinition, SLOT( onPlotSelected( bool ) ) );
-    connect( this, SIGNAL( axisSelected( RiuPlotAxis, bool ) ), plotDefinition, SLOT( onAxisSelected( RiuPlotAxis, bool ) ) );
-    connect( this,
-             SIGNAL( plotItemSelected( std::shared_ptr<RiuPlotItem>, bool, int ) ),
-             plotDefinition,
-             SLOT( onPlotItemSelected( std::shared_ptr<RiuPlotItem>, bool, int ) ) );
-    connect( this, SIGNAL( onKeyPressEvent( QKeyEvent* ) ), plotDefinition, SLOT( onKeyPressEvent( QKeyEvent* ) ) );
-    connect( this, SIGNAL( onWheelEvent( QWheelEvent* ) ), plotDefinition, SLOT( onWheelEvent( QWheelEvent* ) ) );
-    connect( this, SIGNAL( destroyed() ), plotDefinition, SLOT( onViewerDestroyed() ) );
+    if ( plotDefinition )
+    {
+        connect( this, SIGNAL( plotSelected( bool ) ), plotDefinition, SLOT( onPlotSelected( bool ) ) );
+        connect( this, SIGNAL( axisSelected( RiuPlotAxis, bool ) ), plotDefinition, SLOT( onAxisSelected( RiuPlotAxis, bool ) ) );
+        connect( this,
+                 SIGNAL( plotItemSelected( std::shared_ptr<RiuPlotItem>, bool, int ) ),
+                 plotDefinition,
+                 SLOT( onPlotItemSelected( std::shared_ptr<RiuPlotItem>, bool, int ) ) );
+        connect( this, SIGNAL( onKeyPressEvent( QKeyEvent* ) ), plotDefinition, SLOT( onKeyPressEvent( QKeyEvent* ) ) );
+        connect( this, SIGNAL( onWheelEvent( QWheelEvent* ) ), plotDefinition, SLOT( onWheelEvent( QWheelEvent* ) ) );
+        connect( this, SIGNAL( destroyed() ), plotDefinition, SLOT( onViewerDestroyed() ) );
+    }
 
     ensureAxisIsCreated( RiuPlotAxis::defaultLeft() );
     ensureAxisIsCreated( RiuPlotAxis::defaultBottom() );
