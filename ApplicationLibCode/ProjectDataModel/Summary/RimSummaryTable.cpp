@@ -69,7 +69,6 @@ RimSummaryTable::RimSummaryTable()
     CAF_PDM_InitField( &m_thresholdValue, "ThresholdValue", 0.0, "Threshold" );
 
     CAF_PDM_InitFieldNoDefault( &m_excludedRowsUiField, "ExcludedTableRows", "Exclude Rows" );
-    m_excludedRowsUiField.xmlCapability()->disableIO();
     m_excludedRowsUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     // Table settings
@@ -128,8 +127,6 @@ void RimSummaryTable::setDefaultCaseAndCategoryAndVectorName()
         m_vector = *categoryVectors.begin();
     }
     m_tableName = createTableName();
-    createTableData();
-    setExcludedRowsUiSelectionsFromTableData();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -143,8 +140,6 @@ void RimSummaryTable::setFromCaseAndCategoryAndVectorName( RimSummaryCase*      
     m_category  = category;
     m_vector    = vectorName;
     m_tableName = createTableName();
-    createTableData();
-    setExcludedRowsUiSelectionsFromTableData();
     onLoadDataAndUpdate();
 }
 
@@ -196,8 +191,6 @@ void RimSummaryTable::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         {
             m_tableName = createTableName();
         }
-        createTableData();
-        setExcludedRowsUiSelectionsFromTableData();
         onLoadDataAndUpdate();
     }
     else if ( changedField == &m_category )
@@ -223,8 +216,6 @@ void RimSummaryTable::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         {
             m_tableName = createTableName();
         }
-        createTableData();
-        setExcludedRowsUiSelectionsFromTableData();
         onLoadDataAndUpdate();
     }
     else if ( changedField == &m_vector || changedField == &m_resamplingSelection || changedField == &m_thresholdValue )
@@ -233,8 +224,6 @@ void RimSummaryTable::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         {
             m_tableName = createTableName();
         }
-        createTableData();
-        setExcludedRowsUiSelectionsFromTableData();
         onLoadDataAndUpdate();
     }
     else if ( changedField == &m_excludedRowsUiField )
@@ -268,8 +257,6 @@ void RimSummaryTable::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 //--------------------------------------------------------------------------------------------------
 void RimSummaryTable::childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField )
 {
-    createTableData();
-    setExcludedRowsUiSelectionsFromTableData();
     onLoadDataAndUpdate();
 }
 
@@ -368,6 +355,8 @@ QList<caf::PdmOptionItemInfo> RimSummaryTable::calculateValueOptions( const caf:
 void RimSummaryTable::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
+    createTableData();
+    setExcludedRowsUiSelectionsFromTableData();
 
     if ( m_matrixPlotWidget == nullptr || m_case == nullptr )
     {
