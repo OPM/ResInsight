@@ -199,6 +199,7 @@ jobs:
               -D RESINSIGHT_GRPC_PYTHON_EXECUTABLE=${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
               -D RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE=true
               -D RESINSIGHT_ENABLE_HDF5=false
+              -D RESINSIGHT_BUILD_LIBS_FROM_SOURCE=false
               -D CMAKE_TOOLCHAIN_FILE=ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake
               -G Ninja
             RESULT_VARIABLE result
