@@ -140,6 +140,42 @@ void caf::PdmUiTreeSelectionQModel::setCheckedStateForItems( const QModelIndexLi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void caf::PdmUiTreeSelectionQModel::invertCheckedStateForItems( const QModelIndexList& indices )
+{
+    if ( !m_uiFieldHandle || !m_uiFieldHandle->uiField() ) return;
+
+    std::set<unsigned int> currentSelectedIndices;
+    {
+        QVariant        fieldValue          = m_uiFieldHandle->uiField()->uiValue();
+        QList<QVariant> fieldValueSelection = fieldValue.toList();
+
+        for ( const auto& v : fieldValueSelection )
+        {
+            currentSelectedIndices.insert( v.toUInt() );
+        }
+    }
+
+    QList<QVariant> fieldValueSelection;
+
+    for ( const auto& mi : indices )
+    {
+        const caf::PdmOptionItemInfo* optionItemInfo = optionItem( mi );
+        if ( !optionItemInfo->isReadOnly() )
+        {
+            auto index = static_cast<unsigned int>( optionIndex( mi ) );
+            if ( currentSelectedIndices.count( index ) == 0 )
+            {
+                fieldValueSelection.push_back( QVariant( index ) );
+            }
+        }
+    }
+
+    PdmUiCommandSystemProxy::instance()->setUiValueToField( m_uiFieldHandle->uiField(), fieldValueSelection );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void caf::PdmUiTreeSelectionQModel::enableSingleSelectionMode( bool enable )
 {
     m_singleSelectionMode = enable;

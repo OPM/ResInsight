@@ -24,6 +24,8 @@
 
 #include "RifEclipseSummaryAddress.h"
 
+#include "RimSummaryTableTools.h"
+
 #include "cafPdmField.h"
 #include "cafPdmPtrField.h"
 
@@ -90,8 +92,8 @@ private:
     std::set<RifEclipseSummaryAddress> getSummaryAddressesFromReader( const RifSummaryReaderInterface*             summaryReader,
                                                                       RifEclipseSummaryAddress::SummaryVarCategory category,
                                                                       const QString&                               vector ) const;
-    std::set<QString>                  getCategoryVectorsFromSummaryReader( const RifSummaryReaderInterface*             summaryReader,
-                                                                            RifEclipseSummaryAddress::SummaryVarCategory category ) const;
+    std::set<QString>                  getCategoryVectorFromSummaryReader( const RifSummaryReaderInterface*             summaryReader,
+                                                                           RifEclipseSummaryAddress::SummaryVarCategory category ) const;
     QString                            getCategoryNameFromAddress( const RifEclipseSummaryAddress& address ) const;
 
     std::vector<RimSummaryCase*> getToplevelSummaryCases() const;
@@ -104,10 +106,12 @@ private:
     caf::PdmField<bool>               m_isAutomaticName;
     caf::PdmPtrField<RimSummaryCase*> m_case;
 
-    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>> m_categories;
+    caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>> m_category;
     caf::PdmField<QString>                                                    m_vector;
     caf::PdmField<caf::AppEnum<RiaDefines::DateTimePeriod>>                   m_resamplingSelection;
     caf::PdmField<double>                                                     m_thresholdValue;
+
+    caf::PdmField<std::vector<QString>> m_excludedRowsUiField;
 
     caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
 
@@ -115,4 +119,13 @@ private:
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisLabelFontSize;
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_valueLabelFontSize;
     caf::PdmField<bool>                             m_showValueLabels;
+
+private:
+    using VectorData = RimSummaryTableTools::VectorData;
+    using TableData  = RimSummaryTableTools::TableData;
+
+    TableData m_tableData;
+
+    void createTableData();
+    void setExcludedRowsUiSelectionsFromTableData();
 };
