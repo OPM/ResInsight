@@ -437,16 +437,20 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
                     menuBuilder.addSeparator();
 
                     QString      faultName = fault->name();
-                    QVariantList hideFaultList;
+                    QVariantList faultDataList;
                     qulonglong   currentCellIndex = m_currentCellIndex;
-                    hideFaultList.push_back( currentCellIndex );
-                    hideFaultList.push_back( m_currentFaceIndex );
+                    faultDataList.push_back( currentCellIndex );
+                    faultDataList.push_back( m_currentFaceIndex );
 
-                    menuBuilder.addCmdFeatureWithUserData( "RicEclipseHideFaultFeature", QString( "Hide " ) + faultName, hideFaultList );
+                    menuBuilder.addCmdFeatureWithUserData( "RicEclipseHideFaultFeature", QString( "Hide " ) + faultName, faultDataList );
 
                     menuBuilder.addCmdFeatureWithUserData( "RicEclipseShowOnlyFaultFeature",
                                                            QString( "Show " ) + faultName + QString( " - Others Off" ),
                                                            QVariant( fault->name() ) );
+
+                    menuBuilder.addCmdFeatureWithUserData( "RicNewFaultReactModelingFeature",
+                                                           QString( "New Fault Re-activation Model" ),
+                                                           faultDataList );
 
                     menuBuilder.addSeparator();
                 }

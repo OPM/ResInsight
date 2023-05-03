@@ -17,17 +17,15 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RivTexturePartMgr.h"
+
 #include "cafPdmPointer.h"
 #include "cvfArray.h"
-#include "cvfObject.h"
-#include "cvfVector3.h"
 
 namespace cvf
 {
 class ModelBasicList;
-class Transform;
 class Part;
-class ScalarMapper;
 class DrawableGeo;
 class BoundingBox;
 class ShaderProgram;
@@ -44,13 +42,12 @@ namespace ZGYAccess
 class SeismicSliceData;
 }
 
-class RimSeismicSectionCollection;
 class RimSeismicSection;
 class RimSurface;
 class Rim3dView;
 class RivPolylinePartMgr;
 
-class RivSeismicSectionPartMgr : public cvf::Object
+class RivSeismicSectionPartMgr : public RivTexturePartMgr
 {
 public:
     explicit RivSeismicSectionPartMgr( RimSeismicSection* section );
@@ -73,6 +70,7 @@ private:
     cvf::ref<cvf::DrawableGeo> createXYPlaneQuadGeoWithTexCoords( const cvf::Vec3dArray& cornerPoints );
     cvf::ref<cvf::Part>        createSingleTexturedQuadPart( const cvf::Vec3dArray& cornerPoints, cvf::ref<cvf::TextureImage> image );
 
+protected:
     cvf::TextureImage* createImageFromData( ZGYAccess::SeismicSliceData* data );
 
     static std::vector<std::vector<cvf::Vec3d>> projectPolyLineOntoSurface( std::vector<cvf::Vec3d>           polyLine,
@@ -82,7 +80,4 @@ private:
 private:
     caf::PdmPointer<RimSeismicSection> m_section;
     cvf::ref<RivPolylinePartMgr>       m_polylinePartMgr;
-    cvf::ref<cvf::ShaderProgram>       m_textureShaderProg;
-
-    bool m_canUseShaders;
 };

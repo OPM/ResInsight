@@ -120,3 +120,45 @@ cvf::ref<cvf::DrawableGeo> RivPolylineGenerator::createPointsFromPolylineDrawabl
 
     return geo;
 }
+
+///
+//--------------------------------------------------------------------------------------------------
+cvf::ref<cvf::DrawableGeo> RivPolylineGenerator::createSetOfLines( const std::vector<std::vector<cvf::Vec3d>>& lines )
+{
+    std::vector<cvf::uint>  lineIndices;
+    std::vector<cvf::Vec3f> vertices;
+
+    for ( const std::vector<cvf::Vec3d>& polyLine : lines )
+    {
+        if ( polyLine.size() < 2 ) continue;
+
+        size_t verticesCount = vertices.size();
+
+        for ( size_t i = 0; i < polyLine.size(); i += 2 )
+        {
+            vertices.emplace_back( polyLine[i] );
+            vertices.emplace_back( polyLine[i + 1] );
+            if ( i < polyLine.size() - 1 )
+            {
+                lineIndices.push_back( static_cast<cvf::uint>( verticesCount + i ) );
+                lineIndices.push_back( static_cast<cvf::uint>( verticesCount + i + 1 ) );
+            }
+        }
+    }
+
+    if ( vertices.empty() ) return nullptr;
+
+    cvf::ref<cvf::Vec3fArray> vx = new cvf::Vec3fArray;
+    vx->assign( vertices );
+    cvf::ref<cvf::UIntArray> idxes = new cvf::UIntArray;
+    idxes->assign( lineIndices );
+
+    cvf::ref<cvf::PrimitiveSetIndexedUInt> prim = new cvf::PrimitiveSetIndexedUInt( cvf::PT_LINES );
+    prim->setIndices( idxes.p() );
+
+    cvf::ref<cvf::DrawableGeo> polylineGeo = new cvf::DrawableGeo;
+    polylineGeo->setVertexArray( vx.p() );
+    polylineGeo->addPrimitiveSet( prim.p() );
+
+    return polylineGeo;
+}

@@ -55,17 +55,8 @@
 //--------------------------------------------------------------------------------------------------
 RivSeismicSectionPartMgr::RivSeismicSectionPartMgr( RimSeismicSection* section )
     : m_section( section )
-    , m_canUseShaders( true )
 {
     CVF_ASSERT( section );
-
-    m_canUseShaders = RiaGuiApplication::instance()->useShaders();
-
-    cvf::ShaderProgramGenerator gen( "Texturing", cvf::ShaderSourceProvider::instance() );
-    gen.addVertexCode( cvf::ShaderSourceRepository::vs_Standard );
-    gen.addFragmentCode( cvf::ShaderSourceRepository::src_Texture );
-    gen.addFragmentCode( cvf::ShaderSourceRepository::fs_Unlit );
-    m_textureShaderProg = gen.generate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -111,92 +102,13 @@ void RivSeismicSectionPartMgr::appendGeometryPartsToModel( cvf::ModelBasicList* 
             part.texture = createImageFromData( part.sliceData.get() );
         }
 
-        cvf::ref<cvf::Part> quadPart = createSingleTexturedQuadPart( displayPoints, part.texture );
+        cvf::ref<cvf::Part> quadPart = createSingleTexturedQuadPart( displayPoints, part.texture, m_section->isTransparent() );
 
         cvf::ref<RivSeismicSectionSourceInfo> si = new RivSeismicSectionSourceInfo( m_section, i );
         quadPart->setSourceInfo( si.p() );
 
         model->addPart( quadPart.p() );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::Part> RivSeismicSectionPartMgr::createSingleTexturedQuadPart( const cvf::Vec3dArray&      cornerPoints,
-                                                                            cvf::ref<cvf::TextureImage> image )
-{
-    cvf::ref<cvf::Part> part = new cvf::Part;
-
-    cvf::ref<cvf::DrawableGeo> geo = createXYPlaneQuadGeoWithTexCoords( cornerPoints );
-
-    cvf::ref<cvf::Texture> texture = new cvf::Texture( image.p() );
-    cvf::ref<cvf::Sampler> sampler = new cvf::Sampler;
-    sampler->setMinFilter( cvf::Sampler::LINEAR );
-    sampler->setMagFilter( cvf::Sampler::NEAREST );
-    sampler->setWrapModeS( cvf::Sampler::CLAMP_TO_EDGE );
-    sampler->setWrapModeT( cvf::Sampler::CLAMP_TO_EDGE );
-
-    cvf::ref<cvf::RenderStateTextureBindings> textureBindings = new cvf::RenderStateTextureBindings;
-    textureBindings->addBinding( texture.p(), sampler.p(), "u_texture2D" );
-
-    cvf::ref<cvf::Effect> eff = new cvf::Effect;
-    eff->setRenderState( textureBindings.p() );
-    eff->setShaderProgram( m_textureShaderProg.p() );
-
-    if ( m_section->isTransparent() )
-    {
-        part->setPriority( RivPartPriority::PartType::TransparentSeismic );
-        cvf::ref<cvf::RenderStateBlending> blending = new cvf::RenderStateBlending;
-        blending->configureTransparencyBlending();
-        eff->setRenderState( blending.p() );
-    }
-
-    part->setDrawable( geo.p() );
-    part->setEffect( eff.p() );
-
-    return part;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RivSeismicSectionPartMgr::createXYPlaneQuadGeoWithTexCoords( const cvf::Vec3dArray& cornerPoints )
-{
-    cvf::ref<cvf::Vec3fArray> vertices = new cvf::Vec3fArray;
-    vertices->reserve( 4 );
-
-    for ( const auto& v : cornerPoints )
-    {
-        vertices->add( cvf::Vec3f( v ) );
-    }
-
-    cvf::ref<cvf::Vec2fArray> texCoords = new cvf::Vec2fArray;
-    texCoords->reserve( 4 );
-    texCoords->add( cvf::Vec2f( 0, 0 ) );
-    texCoords->add( cvf::Vec2f( 1, 0 ) );
-    texCoords->add( cvf::Vec2f( 1, 1 ) );
-    texCoords->add( cvf::Vec2f( 0, 1 ) );
-
-    cvf::ref<cvf::DrawableGeo> geo = new cvf::DrawableGeo;
-    geo->setVertexArray( vertices.p() );
-    geo->setTextureCoordArray( texCoords.p() );
-
-    cvf::ref<cvf::UIntArray> indices = new cvf::UIntArray;
-    indices->reserve( 6 );
-
-    for ( uint i : { 0, 1, 2, 0, 2, 3 } )
-    {
-        indices->add( i );
-    }
-
-    cvf::ref<cvf::PrimitiveSetIndexedUInt> primSet = new cvf::PrimitiveSetIndexedUInt( cvf::PT_TRIANGLES );
-    primSet->setIndices( indices.p() );
-    geo->addPrimitiveSet( primSet.p() );
-
-    geo->computeNormals();
-
-    return geo;
 }
 
 //--------------------------------------------------------------------------------------------------
