@@ -29,6 +29,8 @@
 #include "RimColorLegend.h"
 #include "RimColorLegendCollection.h"
 #include "RimEclipseCase.h"
+#include "RimFaultInView.h"
+#include "RimFaultInViewCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -579,5 +581,19 @@ void RimTools::optionItemsForSpecifiedWellPaths( const std::vector<RimWellPath*>
     for ( auto wellPath : wellPaths )
     {
         options->push_back( caf::PdmOptionItemInfo( wellPath->name(), wellPath, false, wellIcon ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimTools::faultOptionItems( QList<caf::PdmOptionItemInfo>* options, RimFaultInViewCollection* coll )
+{
+    if ( !options ) return;
+    if ( !coll ) return;
+
+    for ( auto& f : coll->faults() )
+    {
+        options->push_back( caf::PdmOptionItemInfo( f->name(), f, false, f->uiIconProvider() ) );
     }
 }
