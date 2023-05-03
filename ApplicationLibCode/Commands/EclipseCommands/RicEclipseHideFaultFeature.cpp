@@ -18,23 +18,15 @@
 
 #include "RicEclipseHideFaultFeature.h"
 
-#include "RicEclipsePropertyFilterFeatureImpl.h"
-#include "RicEclipsePropertyFilterNewExec.h"
-
 #include "RiaApplication.h"
 
 #include "Rim3dView.h"
-#include "RimEclipseCellColors.h"
-#include "RimEclipsePropertyFilterCollection.h"
 #include "RimEclipseView.h"
 #include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
 
 #include "RigFault.h"
 #include "RigMainGrid.h"
-
-#include "cafCmdExecCommandManager.h"
-#include "cvfStructGrid.h"
 
 #include <QAction>
 

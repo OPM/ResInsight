@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2021  Equinor ASA
+//  Copyright (C) 2017-     Statoil ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,9 +16,10 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicEclipseShowOnlyFaultFeature.h"
+#include "RicNewFaultReactModelingFeature.h"
 
 #include "RiaApplication.h"
+#include "RiaPreferencesGeoMech.h"
 
 #include "Rim3dView.h"
 #include "RimEclipseView.h"
@@ -28,67 +29,60 @@
 #include "RigFault.h"
 #include "RigMainGrid.h"
 
-#include "cafPdmUiObjectHandle.h"
+#include "cafCmdExecCommandManager.h"
+#include "cvfStructGrid.h"
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT( RicEclipseShowOnlyFaultFeature, "RicEclipseShowOnlyFaultFeature" );
+CAF_CMD_SOURCE_INIT( RicNewFaultReactModelingFeature, "RicNewFaultReactModelingFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicEclipseShowOnlyFaultFeature::isCommandEnabled() const
+bool RicNewFaultReactModelingFeature::isCommandEnabled()
 {
-    Rim3dView* view = RiaApplication::instance()->activeReservoirView();
-    if ( !view ) return false;
-
-    RimEclipseView* eclView = dynamic_cast<RimEclipseView*>( view );
-    return eclView != nullptr;
+    return RiaPreferencesGeoMech::current()->validateFRMSettings();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicEclipseShowOnlyFaultFeature::onActionTriggered( bool isChecked )
+void RicNewFaultReactModelingFeature::onActionTriggered( bool isChecked )
 {
     QVariant userData = this->userData();
-    if ( userData.isNull() || userData.type() != QVariant::String ) return;
 
-    QString faultName = userData.toString();
-
-    Rim3dView* view = RiaApplication::instance()->activeReservoirView();
-    if ( !view ) return;
-
-    RimEclipseView* eclView = dynamic_cast<RimEclipseView*>( view );
-    if ( !eclView ) return;
-
-    RimFaultInViewCollection* coll     = eclView->faultCollection();
-    RimFaultInView*           rimFault = coll->findFaultByName( faultName );
-    if ( !rimFault ) return;
-    if ( !rimFault->parentField() ) return;
-
-    std::vector<caf::PdmObjectHandle*> children = rimFault->parentField()->children();
-    for ( auto& child : children )
+    if ( !userData.isNull() && userData.type() == QVariant::List )
     {
-        caf::PdmUiObjectHandle* childUiObject = uiObj( child );
-        if ( childUiObject && childUiObject->objectToggleField() )
+        Rim3dView* view = RiaApplication::instance()->activeMainOrComparisonGridView();
+        if ( !view ) return;
+        RimEclipseView* eclView = dynamic_cast<RimEclipseView*>( view );
+        if ( !eclView ) return;
+
+        QVariantList list = userData.toList();
+        CAF_ASSERT( list.size() == 2 );
+
+        size_t currentCellIndex = static_cast<size_t>( list[0].toULongLong() );
+        int    currentFaceIndex = list[1].toInt();
+
+        const RigFault* fault =
+            eclView->mainGrid()->findFaultFromCellIndexAndCellFace( currentCellIndex, cvf::StructGridInterface::FaceType( currentFaceIndex ) );
+        if ( fault )
         {
-            caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>*>( childUiObject->objectToggleField() );
+            QString faultName = fault->name();
 
-            if ( field ) field->setValueWithFieldChanged( false );
+            RimFaultInView* rimFault = eclView->faultCollection()->findFaultByName( faultName );
+            if ( rimFault )
+            {
+                rimFault->showFault.setValueWithFieldChanged( !rimFault->showFault );
+            }
         }
-    }
-
-    if ( rimFault )
-    {
-        rimFault->showFault.setValueWithFieldChanged( true );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicEclipseShowOnlyFaultFeature::setupActionLook( QAction* actionToSetup )
+void RicNewFaultReactModelingFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/draw_style_faults_24x24.png" ) );
 }
