@@ -37,23 +37,25 @@ public:
     void appendItems( caf::PdmUiOrdering& uiOrdering ) const;
 
     bool validateWIASettings() const;
+    bool validateFRMSettings() const;
 
     // geomech settings
     QString geomechWIADefaultXML() const;
     QString geomechWIACommand() const;
-    bool    waitBeforeRunWIA() const;
 
+    QString geomechFRMCommand() const;
+
+    bool waitBeforeRun() const;
     bool keepTemporaryFiles() const;
-
-protected:
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 private:
     bool filesExists( QStringList& filelist ) const;
 
     caf::PdmField<QString> m_geomechWIADefaultXML;
     caf::PdmField<QString> m_geomechWIACommand;
-    caf::PdmField<bool>    m_waitForInputFileEdit;
 
+    caf::PdmField<QString> m_geomechFRMCommand;
+
+    caf::PdmField<bool> m_waitForInputFileEdit;
     caf::PdmField<bool> m_keepTemporaryFiles;
 };

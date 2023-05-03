@@ -86,7 +86,7 @@ void RicRunWellIntegrityAnalysisFeature::onActionTriggered( bool isChecked )
         return;
     }
 
-    if ( RiaPreferencesGeoMech::current()->waitBeforeRunWIA() )
+    if ( RiaPreferencesGeoMech::current()->waitBeforeRun() )
     {
         runProgress.setProgressDescription( "Waiting for input file modifications." );
 
