@@ -37,6 +37,7 @@
 #include "RimEclipseView.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
+#include "RimGeoMechFaultReactivationResult.h"
 #include "RimGeoMechPart.h"
 #include "RimGeoMechPartCollection.h"
 #include "RimGeoMechPropertyFilterCollection.h"
@@ -98,6 +99,9 @@ RimGeoMechView::RimGeoMechView()
     m_tensorResults = new RimTensorResults();
     m_tensorResults.uiCapability()->setUiTreeHidden( true );
 
+    CAF_PDM_InitFieldNoDefault( &m_faultReactivationResult, "FaultReactivationResult", "Fault Reactivation Result" );
+    m_faultReactivationResult = new RimGeoMechFaultReactivationResult();
+
     CAF_PDM_InitFieldNoDefault( &m_propertyFilterCollection, "PropertyFilters", "Property Filters" );
     m_propertyFilterCollection = new RimGeoMechPropertyFilterCollection();
     m_propertyFilterCollection.uiCapability()->setUiTreeHidden( true );
@@ -132,6 +136,7 @@ RimGeoMechView::~RimGeoMechView()
     delete m_tensorResults;
     delete cellResult;
     delete m_propertyFilterCollection;
+    delete m_faultReactivationResult;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1051,6 +1056,7 @@ void RimGeoMechView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     uiTreeOrdering.add( m_tensorResults() );
     uiTreeOrdering.add( m_cellFilterCollection() );
     uiTreeOrdering.add( m_propertyFilterCollection() );
+    uiTreeOrdering.add( m_faultReactivationResult() );
 
     addRequiredUiTreeObjects( uiTreeOrdering );
 

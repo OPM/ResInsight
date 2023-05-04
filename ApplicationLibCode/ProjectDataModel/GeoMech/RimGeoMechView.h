@@ -37,6 +37,7 @@ class Rim3dOverlayInfoConfig;
 class RimCellRangeFilterCollection;
 class RimGeoMechCase;
 class RimGeoMechCellColors;
+class RimGeoMechFaultReactivationResult;
 class RimGeoMechPartCollection;
 class RimGeoMechPropertyFilterCollection;
 class RimGeoMechResultDefinition;
@@ -150,6 +151,7 @@ private:
 
     caf::PdmChildField<RimTensorResults*>                   m_tensorResults;
     caf::PdmChildField<RimGeoMechPropertyFilterCollection*> m_propertyFilterCollection;
+    caf::PdmChildField<RimGeoMechFaultReactivationResult*>  m_faultReactivationResult;
     caf::PdmPointer<RimGeoMechPropertyFilterCollection>     m_overridePropertyFilterCollection;
     caf::PdmChildField<RimGeoMechPartCollection*>           m_partsCollection;
     caf::PdmPointer<RimGeoMechCase>                         m_geomechCase;
