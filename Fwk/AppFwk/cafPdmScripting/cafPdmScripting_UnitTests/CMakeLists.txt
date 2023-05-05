@@ -19,8 +19,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR} # required for gtest-all.cpp
 # add the executable
 add_executable(
   ${PROJECT_NAME} cafPdmScripting_UnitTests.cpp gtest/gtest-all.cpp
-                  cafPdmScriptingBasicTest.cpp
-                  cafPdmFieldSerializationTest.cpp
+                  cafPdmScriptingBasicTest.cpp cafPdmFieldSerializationTest.cpp
 )
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
