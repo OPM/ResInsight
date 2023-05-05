@@ -52,6 +52,14 @@ enum class ResultCatType
     UNDEFINED = 999
 };
 
+enum class ResultDataType
+{
+    UNKNOWN,
+    FLOAT,
+    DOUBLE,
+    INTEGER
+};
+
 // WARNING: DO NOT CHANGE THE ORDER WITHOUT KNOWING WHAT YOU ARE DOING!
 //          You may well change the behaviour of property filters.
 enum class WellPathComponentType

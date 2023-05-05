@@ -933,7 +933,9 @@ void RifReaderEclipseOutput::buildMetaData( ecl_grid_type* grid )
 
             for ( const auto& keywordData : validKeywords )
             {
-                RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, QString::fromStdString( keywordData.keyword() ) );
+                RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                 RifKeywordValueCount::mapType( keywordData.dataType() ),
+                                                 QString::fromStdString( keywordData.keyword() ) );
                 matrixModelResults->createResultEntry( resAddr, false );
                 matrixModelResults->setTimeStepInfos( resAddr, timeStepInfos );
             }
@@ -948,7 +950,9 @@ void RifReaderEclipseOutput::buildMetaData( ecl_grid_type* grid )
 
             for ( const auto& keywordData : validKeywords )
             {
-                RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, QString::fromStdString( keywordData.keyword() ) );
+                RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                 RifKeywordValueCount::mapType( keywordData.dataType() ),
+                                                 QString::fromStdString( keywordData.keyword() ) );
                 fractureModelResults->createResultEntry( resAddr, false );
                 fractureModelResults->setTimeStepInfos( resAddr, timeStepInfos );
             }
@@ -1018,7 +1022,9 @@ void RifReaderEclipseOutput::buildMetaData( ecl_grid_type* grid )
 
             for ( const auto& keywordData : validKeywords )
             {
-                RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::STATIC_NATIVE, QString::fromStdString( keywordData.keyword() ) );
+                RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                 RifKeywordValueCount::mapType( keywordData.dataType() ),
+                                                 QString::fromStdString( keywordData.keyword() ) );
                 matrixModelResults->createResultEntry( resAddr, false );
                 matrixModelResults->setTimeStepInfos( resAddr, staticTimeStepInfo );
             }
@@ -1034,7 +1040,9 @@ void RifReaderEclipseOutput::buildMetaData( ecl_grid_type* grid )
 
             for ( const auto& keywordData : validKeywords )
             {
-                RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::STATIC_NATIVE, QString::fromStdString( keywordData.keyword() ) );
+                RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                 RifKeywordValueCount::mapType( keywordData.dataType() ),
+                                                 QString::fromStdString( keywordData.keyword() ) );
                 fractureModelResults->createResultEntry( resAddr, false );
                 fractureModelResults->setTimeStepInfos( resAddr, staticTimeStepInfo );
             }

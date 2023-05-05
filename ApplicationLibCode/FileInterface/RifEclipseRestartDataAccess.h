@@ -65,6 +65,21 @@ public:
     size_t          valueCount() const { return m_valueCount; }
     KeywordDataType dataType() const { return m_dataType; }
 
+    static RiaDefines::ResultDataType mapType( RifKeywordValueCount::KeywordDataType dataType )
+    {
+        switch ( dataType )
+        {
+            case RifKeywordValueCount::KeywordDataType::FLOAT:
+                return RiaDefines::ResultDataType::FLOAT;
+            case RifKeywordValueCount::KeywordDataType::DOUBLE:
+                return RiaDefines::ResultDataType::DOUBLE;
+            case RifKeywordValueCount::KeywordDataType::INTEGER:
+                return RiaDefines::ResultDataType::INTEGER;
+        }
+
+        return RiaDefines::ResultDataType::UNKNOWN;
+    }
+
 private:
     std::string     m_keyword;
     size_t          m_valueCount;
