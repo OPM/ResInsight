@@ -278,7 +278,7 @@ struct PdmFieldScriptingCapabilityIOHandler<std::vector<T>>
                 PdmFieldScriptingCapabilityIOHandler<T>::writeToField( singleValue,
                                                                        singleValueStream,
                                                                        errorMessageContainer,
-                                                                       false );
+                                                                       stringsAreQuoted );
                 fieldValue.push_back( singleValue );
             }
         }
