@@ -1469,6 +1469,19 @@ bool RimEclipseResultDefinition::isCompletionTypeSelected() const
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseResultDefinition::hasCategoryResult() const
 {
+    if ( auto* gridCellResults = currentGridCellResults() )
+    {
+        const auto addresses = gridCellResults->existingResults();
+        for ( const auto& address : addresses )
+        {
+            if ( address.resultCatType() == m_resultType() && address.resultName() == m_resultVariable() )
+            {
+                if ( address.dataType() == RiaDefines::ResultDataType::INTEGER ) return true;
+                break;
+            }
+        }
+    }
+
     if ( this->m_resultType() == RiaDefines::ResultCatType::FORMATION_NAMES && m_eclipseCase && m_eclipseCase->eclipseCaseData() &&
          !m_eclipseCase->eclipseCaseData()->formationNames().empty() )
         return true;
@@ -1486,9 +1499,7 @@ bool RimEclipseResultDefinition::hasCategoryResult() const
         return true;
     }
 
-    if ( !this->hasStaticResult() ) return false;
-
-    return RiaDefines::isNativeCategoryResult( this->resultVariable() );
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

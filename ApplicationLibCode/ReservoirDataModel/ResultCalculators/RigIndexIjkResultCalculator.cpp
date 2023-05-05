@@ -58,12 +58,10 @@ void RigIndexIjkResultCalculator::calculate( const RigEclipseResultAddress& resV
     size_t reservoirCellCount = m_resultsData->activeCellInfo()->reservoirCellCount();
     if ( reservoirCellCount == 0 ) return;
 
-    size_t iResultIndex = m_resultsData->findScalarResultIndexFromAddress(
-        RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::indexIResultName() ) );
-    size_t jResultIndex = m_resultsData->findScalarResultIndexFromAddress(
-        RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::indexJResultName() ) );
-    size_t kResultIndex = m_resultsData->findScalarResultIndexFromAddress(
-        RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, RiaResultNames::indexKResultName() ) );
+    size_t iResultIndex =
+        m_resultsData->findScalarResultIndexFromAddress( RiaResultNames::staticIntegerAddress( RiaResultNames::indexIResultName() ) );
+    size_t jResultIndex = m_resultsData->findScalarResultIndexFromAddress( RiaResultNames::staticIntegerAddress( RiaResultNames::indexJResultName() ) );
+    size_t kResultIndex = m_resultsData->findScalarResultIndexFromAddress( RiaResultNames::staticIntegerAddress( RiaResultNames::indexKResultName() ) );
 
     if ( iResultIndex == cvf::UNDEFINED_SIZE_T || jResultIndex == cvf::UNDEFINED_SIZE_T || kResultIndex == cvf::UNDEFINED_SIZE_T ) return;
 

@@ -87,8 +87,6 @@ enum class MeshModeType
     NO_MESH
 };
 
-bool isNativeCategoryResult( const QString& resultName );
-
 // Mock model text identifiers
 QString mockModelBasic();
 QString mockModelBasicWithResults();
