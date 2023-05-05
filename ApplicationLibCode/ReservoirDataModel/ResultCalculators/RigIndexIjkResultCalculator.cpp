@@ -60,8 +60,10 @@ void RigIndexIjkResultCalculator::calculate( const RigEclipseResultAddress& resV
 
     size_t iResultIndex =
         m_resultsData->findScalarResultIndexFromAddress( RiaResultNames::staticIntegerAddress( RiaResultNames::indexIResultName() ) );
-    size_t jResultIndex = m_resultsData->findScalarResultIndexFromAddress( RiaResultNames::staticIntegerAddress( RiaResultNames::indexJResultName() ) );
-    size_t kResultIndex = m_resultsData->findScalarResultIndexFromAddress( RiaResultNames::staticIntegerAddress( RiaResultNames::indexKResultName() ) );
+    size_t jResultIndex =
+        m_resultsData->findScalarResultIndexFromAddress( RiaResultNames::staticIntegerAddress( RiaResultNames::indexJResultName() ) );
+    size_t kResultIndex =
+        m_resultsData->findScalarResultIndexFromAddress( RiaResultNames::staticIntegerAddress( RiaResultNames::indexKResultName() ) );
 
     if ( iResultIndex == cvf::UNDEFINED_SIZE_T || jResultIndex == cvf::UNDEFINED_SIZE_T || kResultIndex == cvf::UNDEFINED_SIZE_T ) return;
 
