@@ -39,6 +39,11 @@
 #ifdef USE_OPENMP
 #include <omp.h>
 #endif
+#include "RiaColorTables.h"
+#include "RimColorLegend.h"
+#include "RimColorLegendCollection.h"
+#include "RimColorLegendItem.h"
+#include "RimProject.h"
 
 using namespace std::chrono;
 
@@ -518,6 +523,66 @@ std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputPropert
             }
             if ( eclipseCaseData->mainGrid()->cellCount() == keywordLength )
             {
+                {
+                    const std::string codeNamesKeyword  = keyword + roff::Parser::postFixCodeNames();
+                    const std::string codeValuesKeyword = keyword + roff::Parser::postFixCodeValues();
+
+                    auto codeNamesSize  = reader.getArrayLength( codeNamesKeyword );
+                    auto codeValuesSize = reader.getArrayLength( codeValuesKeyword );
+
+                    if ( codeNamesSize != 0 && codeNamesSize == codeValuesSize )
+                    {
+                        const auto readCodeNames  = reader.getStringArray( codeNamesKeyword );
+                        const auto readCodeValues = reader.getIntArray( codeValuesKeyword );
+
+                        QStringList trimmedCodeNames;
+                        bool        anyValidName = false;
+                        for ( int i = 0; i < static_cast<int>( readCodeNames.size() ); i++ )
+                        {
+                            const auto& codeName = readCodeNames[i];
+
+                            QString trimmedCodeName = QString::fromStdString( codeName ).trimmed();
+                            trimmedCodeNames.push_back( trimmedCodeName );
+
+                            if ( !trimmedCodeName.isEmpty() )
+                            {
+                                anyValidName = true;
+                            }
+                        }
+
+                        if ( anyValidName )
+                        {
+                            std::vector<std::pair<int, QString>> codeNames;
+
+                            for ( int i = 0; i < static_cast<int>( trimmedCodeNames.size() ); i++ )
+                            {
+                                const auto& codeName = trimmedCodeNames[i];
+                                codeNames.push_back( std::make_pair( readCodeValues[i], codeName ) );
+                            }
+
+                            auto colors = RiaColorTables::categoryPaletteColors().color3ubArray();
+
+                            RimColorLegend* colorLegend = new RimColorLegend();
+                            colorLegend->setColorLegendName( QString::fromStdString( keyword ) );
+                            int colorIndex = 0;
+                            for ( const auto& [value, name] : codeNames )
+                            {
+                                RimColorLegendItem* item = new RimColorLegendItem();
+
+                                auto         color = colors[colorIndex++ % colors.size()];
+                                cvf::Color3f color3f( color );
+
+                                item->setValues( name, value, color3f );
+
+                                colorLegend->appendColorLegendItem( item );
+                            }
+
+                            RimColorLegendCollection* colorLegendCollection = RimProject::current()->colorLegendCollection;
+                            colorLegendCollection->appendCustomColorLegend( colorLegend );
+                        }
+                    }
+                }
+
                 QString newResultName = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
                                             ->makeResultNameUnique( QString::fromStdString( keyword ) );
                 // Special handling for active.data ==> ACTNUM
