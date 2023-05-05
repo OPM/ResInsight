@@ -640,7 +640,7 @@ bool RifRoffFileTools::appendNewInputPropertyResult( RigEclipseCaseData* caseDat
         }
     }
 
-    RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::INPUT_PROPERTY, resultName );
+    RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::INPUT_PROPERTY, RifRoffFileTools::mapFromType( kind ), resultName );
     caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->createResultEntry( resAddr, false );
 
     auto newPropertyData = caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->modifiableCellScalarResultTimesteps( resAddr );
@@ -648,4 +648,20 @@ bool RifRoffFileTools::appendNewInputPropertyResult( RigEclipseCaseData* caseDat
     newPropertyData->push_back( values );
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::ResultDataType RifRoffFileTools::mapFromType( roff::Token::Kind kind )
+{
+    switch ( kind )
+    {
+        case roff::Token::Kind::BOOL:
+            return RiaDefines::ResultDataType::INTEGER;
+        case roff::Token::Kind::INT:
+            return RiaDefines::ResultDataType::INTEGER;
+    }
+
+    return RiaDefines::ResultDataType::FLOAT;
 }
