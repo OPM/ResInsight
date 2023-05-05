@@ -112,21 +112,10 @@ TEST( RigReservoirTest, BasicTest10kRestart )
     unrstAccess.setRestartFiles( filenames );
 
     auto keywordValueCounts = unrstAccess.keywordValueCounts();
-
-    EXPECT_EQ( 83, keywordValueCounts.size() );
-
-    /* for (int i = 0; i < resultNames.size(); i++)
-    {
-        qDebug() << resultNames[i] << "\t" << dataItemCount[i];
-    } */
+    EXPECT_EQ( (size_t)83, keywordValueCounts.size() );
 
     auto reportNums = unrstAccess.reportNumbers();
     EXPECT_EQ( (size_t)9, reportNums.size() );
-
-    /* for (auto reportNum : reportNums)
-    {
-        qDebug() << reportNum;
-    } */
 }
 
 TEST( RigReservoirTest, BasicTest10k_NativeECL )
