@@ -37,6 +37,8 @@
 
 CAF_PDM_SOURCE_INIT( RimGeoMechFaultReactivationResult, "RimGeoMechFaultReactivationResult" );
 
+#pragma optimize( "", off )
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -47,11 +49,16 @@ RimGeoMechFaultReactivationResult::RimGeoMechFaultReactivationResult()
 
     CAF_PDM_InitFieldNoDefault( &m_intersection, "Intersection", "Intersection" );
 
-    CAF_PDM_InitField( &m_wellDistanceFromIntersection, "FaceDistanceFromIntersection", 0.0, "Face Distance From Intersection" );
-    CAF_PDM_InitField( &m_wellWidthOutsideIntersection, "FaceWidthOutsideIntersection", 0.0, "Face Width Outside Intersection" );
+    CAF_PDM_InitField( &m_distanceFromIntersection, "FaceDistanceFromIntersection", 0.0, "Face Distance From Intersection" );
+    CAF_PDM_InitField( &m_widthOutsideIntersection, "FaceWidthOutsideIntersection", 0.0, "Face Width Outside Intersection" );
 
     CAF_PDM_InitFieldNoDefault( &m_createFaultReactivationResult, "CreateReactivationResult", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_createFaultReactivationResult );
+
+    m_faceAWellPath = new RimModeledWellPath();
+    m_faceAWellPath->setName( "Fault Face A Well" );
+    m_faceBWellPath = new RimModeledWellPath();
+    m_faceBWellPath->setName( "Fault Face B Well" );
 
     setDeletable( false );
 }
@@ -61,6 +68,8 @@ RimGeoMechFaultReactivationResult::RimGeoMechFaultReactivationResult()
 //--------------------------------------------------------------------------------------------------
 RimGeoMechFaultReactivationResult::~RimGeoMechFaultReactivationResult()
 {
+    delete m_faceAWellPath;
+    delete m_faceBWellPath;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -93,8 +102,8 @@ void RimGeoMechFaultReactivationResult::defineUiOrdering( QString uiConfigName, 
 {
     caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Fault Reactivation Result" );
     group->add( &m_intersection );
-    group->add( &m_wellDistanceFromIntersection );
-    group->add( &m_wellWidthOutsideIntersection );
+    group->add( &m_distanceFromIntersection );
+    group->add( &m_widthOutsideIntersection );
     group->add( &m_createFaultReactivationResult );
 }
 
@@ -107,51 +116,72 @@ void RimGeoMechFaultReactivationResult::fieldChangedByUi( const caf::PdmFieldHan
 {
     if ( changedField == &m_createFaultReactivationResult && m_intersection() )
     {
+        // TODO: Should set visibility of well paths unchecked (as of now it seems to be a protected/private functionality)
+
+        RimWellPathCollection* wellPathCollection = RimProject::current()->activeOilField()->wellPathCollection();
+        if ( wellPathCollection )
+        {
+            const auto allWellPaths     = wellPathCollection->allWellPaths();
+            const auto faceAWellPathItr = std::find( allWellPaths.begin(), allWellPaths.end(), m_faceAWellPath );
+            const auto faceBWellPathItr = std::find( allWellPaths.begin(), allWellPaths.end(), m_faceBWellPath );
+            if ( faceAWellPathItr == allWellPaths.end() )
+            {
+                wellPathCollection->addWellPath( m_faceAWellPath );
+            }
+            if ( faceBWellPathItr == allWellPaths.end() )
+            {
+                wellPathCollection->addWellPath( m_faceBWellPath );
+            }
+            wellPathCollection->uiCapability()->updateConnectedEditors();
+        }
+        RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
+
+        if ( !m_faceAWellPath->geometryDefinition() || !m_faceBWellPath->geometryDefinition() ) return;
+
+        // Delete the previous well path target values
+        m_faceAWellPath->geometryDefinition()->deleteAllTargets();
+        m_faceBWellPath->geometryDefinition()->deleteAllTargets();
+
         // Using first two points from first polyline
         const auto polyLines = m_intersection()->polyLines();
         if ( polyLines.size() != 1 || polyLines[0].size() != 2 ) return;
 
         const std::vector<cvf::Vec3d> wellPoints = { polyLines[0][0], polyLines[0][1] };
 
-        RimModeledWellPath* faceAWellPath            = new RimModeledWellPath;
-        RimModeledWellPath* faceBWellPath            = new RimModeledWellPath;
-        auto*               faceAWellPathGeometryDef = faceAWellPath->geometryDefinition();
-        auto*               faceBWellPathGeometryDef = faceBWellPath->geometryDefinition();
-
-        if ( !faceAWellPathGeometryDef || !faceBWellPathGeometryDef ) return;
-
-        faceAWellPath->setName( "Fault Face A Well" );
-        faceBWellPath->setName( "Fault Face B Well" );
-
-        faceAWellPathGeometryDef->createAndInsertTargets( wellPoints );
-        faceBWellPathGeometryDef->createAndInsertTargets( wellPoints );
-        faceAWellPathGeometryDef->setUseAutoGeneratedTargetAtSeaLevel( false );
-        faceBWellPathGeometryDef->setUseAutoGeneratedTargetAtSeaLevel( false );
-        faceAWellPath->createWellPathGeometry();
-        faceBWellPath->createWellPathGeometry();
-
-        RimWellPathCollection* wellPathCollection = RimProject::current()->activeOilField()->wellPathCollection();
-        if ( wellPathCollection )
-        {
-            wellPathCollection->addWellPath( faceAWellPath );
-            wellPathCollection->addWellPath( faceBWellPath );
-
-            wellPathCollection->uiCapability()->updateConnectedEditors();
-
-            RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
-        }
-
         // Add well paths to internal storage?
-        // Apply m_wellDistanceFromIntersection and m_wellWidthOutsideIntersection for adjustement of well paths
-        // Find vector normal onto intersection plane, i.e. cross product of z-axis and wellpath angle
-        // Create vector from first and last point in well paths/ wellPoints and use w/ z-axis to create normal vector with cross product
+        // Apply m_wellDistanceFromIntersection and m_wellWidthOutsideIntersection for adjustment of well paths
+        // TODO:
+        // - Apply m_wellWidthOutsideIntersection for adjustment of point a and b
+        // - Check which cell point is in, then check which part this cell inn -> provide part as name for curves
+        //
+        // NOTES:
+        // - No data for face B well path when creating well log extraction curves? Empty data in part 2-1?
+
+        // Create vector for well path defined by point a and b
+        const cvf::Vec3d a          = wellPoints[0];
+        const cvf::Vec3d b          = wellPoints[1];
+        const cvf::Vec3d wellVector = b - a;
+
+        // Cross product off well path vector and z-axis. New vector must be normalized
+        const cvf::Vec3d normVector     = wellVector ^ cvf::Vector3<double>::Z_AXIS;
+        const cvf::Vec3d distanceVector = m_distanceFromIntersection() * normVector.getNormalized();
+
+        // Get normalized vector along well to adjust point a and b outside of defined intersection
+        const auto       normalizedWellVector = wellVector.getNormalized();
+        const cvf::Vec3d widthAdjustedA       = a - ( normalizedWellVector * m_widthOutsideIntersection() );
+        const cvf::Vec3d widthAdjustedB       = b + ( normalizedWellVector * m_widthOutsideIntersection() );
+
+        const std::vector<cvf::Vec3d> newFaceAWellPoints = { widthAdjustedA + distanceVector, widthAdjustedB + distanceVector };
+        const std::vector<cvf::Vec3d> newFaceBWellPoints = { widthAdjustedA - distanceVector, widthAdjustedB - distanceVector };
+
+        // Update the well paths
+        m_faceAWellPath->geometryDefinition()->createAndInsertTargets( newFaceAWellPoints );
+        m_faceBWellPath->geometryDefinition()->createAndInsertTargets( newFaceBWellPoints );
+        m_faceAWellPath->geometryDefinition()->setUseAutoGeneratedTargetAtSeaLevel( false );
+        m_faceBWellPath->geometryDefinition()->setUseAutoGeneratedTargetAtSeaLevel( false );
+        m_faceAWellPath->createWellPathGeometry();
+        m_faceBWellPath->createWellPathGeometry();
     }
-    // if ( changedField == objectToggleField() )
-    //{
-    //     RimGeoMechView* ownerView;
-    //     firstAncestorOrThisOfType( ownerView );
-    //     if ( ownerView ) ownerView->scheduleCreateDisplayModelAndRedraw();
-    // }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -29,6 +29,8 @@
 
 #include <vector>
 
+class RimModeledWellPath;
+
 class RimGeoMechFaultReactivationResult : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
@@ -49,6 +51,10 @@ private:
     caf::PdmField<bool> m_createFaultReactivationResult;
 
     // TODO: Remove "well" from name?
-    caf::PdmField<double> m_wellDistanceFromIntersection; // To move wells to each side of intersection
-    caf::PdmField<double> m_wellWidthOutsideIntersection; // To stretch well points outside intersection
+    caf::PdmField<double> m_distanceFromIntersection; // To move wells to each side of intersection
+    caf::PdmField<double> m_widthOutsideIntersection; // To stretch well points outside intersection
+
+    // Pdm field?
+    RimModeledWellPath* m_faceAWellPath = nullptr;
+    RimModeledWellPath* m_faceBWellPath = nullptr;
 };
