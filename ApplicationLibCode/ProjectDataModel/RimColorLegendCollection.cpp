@@ -18,6 +18,7 @@
 
 #include "RimColorLegendCollection.h"
 
+#include "RiaColorTables.h"
 #include "RiaFractureDefines.h"
 
 #include "RimColorLegend.h"
@@ -77,6 +78,40 @@ bool RimColorLegendCollection::isStandardColorLegend( RimColorLegend* legend )
 void RimColorLegendCollection::deleteCustomColorLegends()
 {
     m_customColorLegends.deleteChildren();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimColorLegend* RimColorLegendCollection::createColorLegend( const QString& name, const std::vector<std::pair<int, QString>>& valuesAndNames )
+{
+    auto colors = RiaColorTables::categoryPaletteColors().color3ubArray();
+
+    auto colorLegend = new RimColorLegend();
+    colorLegend->setColorLegendName( name );
+    int colorIndex = 0;
+    for ( const auto& [value, name] : valuesAndNames )
+    {
+        auto         item  = new RimColorLegendItem();
+        auto         color = colors[colorIndex++ % colors.size()];
+        cvf::Color3f color3f( color );
+
+        item->setValues( name, value, color3f );
+
+        colorLegend->appendColorLegendItem( item );
+    }
+
+    appendCustomColorLegend( colorLegend );
+
+    return colorLegend;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimColorLegendCollection::setDefaultColorLegendForResult( const QString& resultName, const QString& colorLegendName )
+{
+    m_defaultColorLegendNameForResult[resultName] = colorLegendName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -165,6 +200,20 @@ RimColorLegend* RimColorLegendCollection::findByName( const QString& name ) cons
         {
             return legend;
         }
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimColorLegend* RimColorLegendCollection::findDefaultLegendForResult( const QString& resultName ) const
+{
+    auto it = m_defaultColorLegendNameForResult.find( resultName );
+    if ( it != m_defaultColorLegendNameForResult.end() )
+    {
+        return findByName( it->second );
     }
 
     return nullptr;

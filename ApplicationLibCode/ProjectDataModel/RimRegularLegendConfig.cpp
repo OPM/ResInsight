@@ -1215,7 +1215,13 @@ void RimRegularLegendConfig::setDefaultConfigForResultName( const QString& resul
     setTickNumberFormat( numberFormat );
     updateTickCountAndUserDefinedRange();
 
-    if ( colorRangeType != RimRegularLegendConfig::ColorRangesType::UNDEFINED )
+    RimProject* project       = RimProject::current();
+    auto        defaultLegend = project->colorLegendCollection()->findDefaultLegendForResult( resultName );
+    if ( defaultLegend )
+    {
+        setColorLegend( defaultLegend );
+    }
+    else if ( colorRangeType != RimRegularLegendConfig::ColorRangesType::UNDEFINED )
     {
         RimColorLegend* colorLegend = RimRegularLegendConfig::mapToColorLegend( colorRangeType );
 

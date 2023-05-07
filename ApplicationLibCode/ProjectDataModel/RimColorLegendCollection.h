@@ -47,9 +47,13 @@ public:
     bool isStandardColorLegend( RimColorLegend* colorLegend );
     void deleteCustomColorLegends();
 
+    RimColorLegend* createColorLegend( const QString& name, const std::vector<std::pair<int, QString>>& valuesAndNames );
+    void            setDefaultColorLegendForResult( const QString& resultName, const QString& colorLegendName );
+
     std::vector<RimColorLegend*> allColorLegends() const;
 
     RimColorLegend* findByName( const QString& name ) const;
+    RimColorLegend* findDefaultLegendForResult( const QString& resultName ) const;
 
 protected:
     void initAfterRead() override;
@@ -60,4 +64,6 @@ private:
 
     caf::PdmChildArrayField<RimColorLegend*> m_standardColorLegends; // ResInsight standard (built-in) legends
     caf::PdmChildArrayField<RimColorLegend*> m_customColorLegends; // user specified legends
+
+    std::map<QString, QString> m_defaultColorLegendNameForResult;
 };
