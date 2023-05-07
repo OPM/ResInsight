@@ -575,6 +575,10 @@ std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputPropert
                             }
 
                             RimColorLegendCollection* colorLegendCollection = RimProject::current()->colorLegendCollection;
+
+                            // Delete existing color legend, as new legend will be populated by values from file
+                            colorLegendCollection->deleteColorLegend( newResultName );
+
                             colorLegendCollection->createColorLegend( newResultName, valuesAndNames );
                             colorLegendCollection->setDefaultColorLegendForResult( newResultName, newResultName );
                         }

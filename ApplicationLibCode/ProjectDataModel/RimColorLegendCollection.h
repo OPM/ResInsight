@@ -48,6 +48,7 @@ public:
     void deleteCustomColorLegends();
 
     RimColorLegend* createColorLegend( const QString& name, const std::vector<std::pair<int, QString>>& valuesAndNames );
+    void            deleteColorLegend( const QString& name );
     void            setDefaultColorLegendForResult( const QString& resultName, const QString& colorLegendName );
 
     std::vector<RimColorLegend*> allColorLegends() const;

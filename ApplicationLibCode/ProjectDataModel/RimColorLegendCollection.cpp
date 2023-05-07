@@ -109,6 +109,18 @@ RimColorLegend* RimColorLegendCollection::createColorLegend( const QString& name
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimColorLegendCollection::deleteColorLegend( const QString& name )
+{
+    auto legend = findByName( name );
+    if ( !legend ) return;
+
+    m_customColorLegends.removeChild( legend );
+    delete legend;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimColorLegendCollection::setDefaultColorLegendForResult( const QString& resultName, const QString& colorLegendName )
 {
     m_defaultColorLegendNameForResult[resultName] = colorLegendName;
