@@ -24,21 +24,25 @@
 
 #include <QString>
 
+using RD = RimEclipseResultDefinition;
+
 class RimEclipseResultDefinitionTools
 {
 public:
-    static bool isDivideByCellFaceAreaPossible( const QString& resultName );
-    static RimEclipseResultDefinition::FlowTracerSelectionState
-                       getFlowTracerSelectionState( bool                                                isInjector,
-                                                    RimEclipseResultDefinition::FlowTracerSelectionType tracerSelectionType,
-                                                    RimFlowDiagSolution*                                flowDiagSolution,
-                                                    size_t                                              selectedTracerCount );
+    static bool                         isDivideByCellFaceAreaPossible( const QString& resultName );
+    static RD::FlowTracerSelectionState getFlowTracerSelectionState( bool                        isInjector,
+                                                                     RD::FlowTracerSelectionType tracerSelectionType,
+                                                                     RimFlowDiagSolution*        flowDiagSolution,
+                                                                     size_t                      selectedTracerCount );
     static QStringList getResultNamesForResultType( RiaDefines::ResultCatType resultCatType, const RigCaseCellResultsData* results );
 
-    static QString timeOfFlightString( RimEclipseResultDefinition::FlowTracerSelectionState injectorState,
-                                       RimEclipseResultDefinition::FlowTracerSelectionState producerState,
-                                       bool                                                 shorter );
-    static QString maxFractionTracerString( RimEclipseResultDefinition::FlowTracerSelectionState injectorState,
-                                            RimEclipseResultDefinition::FlowTracerSelectionState producerState,
-                                            bool                                                 shorter );
+    static QString timeOfFlightString( RD::FlowTracerSelectionState injectorState, RD::FlowTracerSelectionState producerState, bool shorter );
+    static QString
+        maxFractionTracerString( RD::FlowTracerSelectionState injectorState, RD::FlowTracerSelectionState producerState, bool shorter );
+
+    static QString selectedTracersString( RD::FlowTracerSelectionState injectorState,
+                                          RD::FlowTracerSelectionState producerState,
+                                          const std::vector<QString>&  selectedInjectors,
+                                          const std::vector<QString>&  selectedProducers,
+                                          int                          maxTracerStringLength );
 };

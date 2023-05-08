@@ -1711,17 +1711,14 @@ QString RimEclipseResultDefinition::flowDiagResUiText( bool shortLabel, int maxT
         uiText = RimEclipseResultDefinitionTools::maxFractionTracerString( injectorSelectionState(), producerSelectionState(), shortLabel );
     }
 
-    QString tracersString = selectedTracersString();
+    QString tracersString = RimEclipseResultDefinitionTools::selectedTracersString( injectorSelectionState(),
+                                                                                    producerSelectionState(),
+                                                                                    m_selectedInjectorTracers(),
+                                                                                    m_selectedProducerTracers(),
+                                                                                    maxTracerStringLength );
 
     if ( !tracersString.isEmpty() )
     {
-        const QString postfix = "...";
-
-        if ( tracersString.size() > maxTracerStringLength + postfix.size() )
-        {
-            tracersString = tracersString.left( maxTracerStringLength );
-            tracersString += postfix;
-        }
         uiText += QString( "\n%1" ).arg( tracersString );
     }
     return uiText;
@@ -2259,67 +2256,6 @@ void RimEclipseResultDefinition::updateLegendTitle( RimRegularLegendConfig* lege
     }
 
     legendConfig->setTitle( title );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimEclipseResultDefinition::selectedTracersString() const
-{
-    QStringList fullTracersList;
-
-    FlowTracerSelectionState injectorState = injectorSelectionState();
-    FlowTracerSelectionState producerState = producerSelectionState();
-
-    if ( injectorState == ALL_SELECTED && producerState == ALL_SELECTED )
-    {
-        fullTracersList += caf::AppEnum<FlowTracerSelectionType>::uiText( FLOW_TR_INJ_AND_PROD );
-    }
-    else
-    {
-        if ( injectorState == ALL_SELECTED )
-        {
-            fullTracersList += caf::AppEnum<FlowTracerSelectionType>::uiText( FLOW_TR_INJECTORS );
-        }
-
-        if ( producerState == ALL_SELECTED )
-        {
-            fullTracersList += caf::AppEnum<FlowTracerSelectionType>::uiText( FLOW_TR_PRODUCERS );
-        }
-
-        if ( injectorSelectionState() == ONE_SELECTED || injectorSelectionState() == MULTIPLE_SELECTED )
-        {
-            QStringList listOfSelectedInjectors;
-            for ( const QString& injector : m_selectedInjectorTracers() )
-            {
-                listOfSelectedInjectors.push_back( injector );
-            }
-            if ( !listOfSelectedInjectors.empty() )
-            {
-                fullTracersList += listOfSelectedInjectors.join( ", " );
-            }
-        }
-
-        if ( producerSelectionState() == ONE_SELECTED || producerSelectionState() == MULTIPLE_SELECTED )
-        {
-            QStringList listOfSelectedProducers;
-            for ( const QString& producer : m_selectedProducerTracers() )
-            {
-                listOfSelectedProducers.push_back( producer );
-            }
-            if ( !listOfSelectedProducers.empty() )
-            {
-                fullTracersList.push_back( listOfSelectedProducers.join( ", " ) );
-            }
-        }
-    }
-
-    QString tracersText;
-    if ( !fullTracersList.empty() )
-    {
-        tracersText = fullTracersList.join( ", " );
-    }
-    return tracersText;
 }
 
 //--------------------------------------------------------------------------------------------------

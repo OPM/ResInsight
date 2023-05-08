@@ -52,34 +52,33 @@ bool RimEclipseResultDefinitionTools::isDivideByCellFaceAreaPossible( const QStr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseResultDefinition::FlowTracerSelectionState
-    RimEclipseResultDefinitionTools::getFlowTracerSelectionState( bool                                                isInjector,
-                                                                  RimEclipseResultDefinition::FlowTracerSelectionType tracerSelectionType,
-                                                                  RimFlowDiagSolution*                                flowDiagSolution,
-                                                                  size_t                                              selectedTracerCount )
+RD::FlowTracerSelectionState RimEclipseResultDefinitionTools::getFlowTracerSelectionState( bool                        isInjector,
+                                                                                           RD::FlowTracerSelectionType tracerSelectionType,
+                                                                                           RimFlowDiagSolution*        flowDiagSolution,
+                                                                                           size_t                      selectedTracerCount )
 {
-    if ( tracerSelectionType == RimEclipseResultDefinition::FLOW_TR_INJECTORS ||
-         tracerSelectionType == RimEclipseResultDefinition::FLOW_TR_INJ_AND_PROD )
+    if ( tracerSelectionType == RD::FLOW_TR_INJECTORS || tracerSelectionType == RD::FLOW_TR_INJ_AND_PROD )
     {
-        return RimEclipseResultDefinition::ALL_SELECTED;
+        return RD::ALL_SELECTED;
     }
-    else if ( tracerSelectionType == RimEclipseResultDefinition::FLOW_TR_BY_SELECTION )
+
+    if ( tracerSelectionType == RD::FLOW_TR_BY_SELECTION )
     {
         if ( selectedTracerCount == RimFlowDiagnosticsTools::setOfTracersOfType( flowDiagSolution, isInjector ).size() )
         {
-            return RimEclipseResultDefinition::ALL_SELECTED;
+            return RD::ALL_SELECTED;
         }
         else if ( selectedTracerCount == (size_t)1 )
         {
-            return RimEclipseResultDefinition::ONE_SELECTED;
+            return RD::ONE_SELECTED;
         }
         else if ( selectedTracerCount > (size_t)1 )
         {
-            return RimEclipseResultDefinition::MULTIPLE_SELECTED;
+            return RD::MULTIPLE_SELECTED;
         }
     }
 
-    return RimEclipseResultDefinition::NONE_SELECTED;
+    return RD::NONE_SELECTED;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -106,22 +105,22 @@ QStringList RimEclipseResultDefinitionTools::getResultNamesForResultType( RiaDef
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimEclipseResultDefinitionTools::timeOfFlightString( RimEclipseResultDefinition::FlowTracerSelectionState injectorState,
-                                                             RimEclipseResultDefinition::FlowTracerSelectionState producerState,
-                                                             bool                                                 shorter )
+QString RimEclipseResultDefinitionTools::timeOfFlightString( RD::FlowTracerSelectionState injectorState,
+                                                             RD::FlowTracerSelectionState producerState,
+                                                             bool                         shorter )
 {
     QString tofString;
     bool    multipleSelected = false;
-    if ( injectorState != RimEclipseResultDefinition::NONE_SELECTED && producerState != RimEclipseResultDefinition::NONE_SELECTED )
+    if ( injectorState != RD::NONE_SELECTED && producerState != RD::NONE_SELECTED )
     {
         tofString        = shorter ? "Res.Time" : "Residence Time";
         multipleSelected = true;
     }
-    else if ( injectorState != RimEclipseResultDefinition::NONE_SELECTED )
+    else if ( injectorState != RD::NONE_SELECTED )
     {
         tofString = shorter ? "Fwd.TOF" : "Forward Time of Flight";
     }
-    else if ( producerState != RimEclipseResultDefinition::NONE_SELECTED )
+    else if ( producerState != RD::NONE_SELECTED )
     {
         tofString = shorter ? "Rev.TOF" : "Reverse Time of Flight";
     }
@@ -130,8 +129,7 @@ QString RimEclipseResultDefinitionTools::timeOfFlightString( RimEclipseResultDef
         tofString = shorter ? "TOF" : "Time of Flight";
     }
 
-    multipleSelected = multipleSelected || injectorState >= RimEclipseResultDefinition::MULTIPLE_SELECTED ||
-                       producerState >= RimEclipseResultDefinition::MULTIPLE_SELECTED;
+    multipleSelected = multipleSelected || injectorState >= RD::MULTIPLE_SELECTED || producerState >= RD::MULTIPLE_SELECTED;
 
     if ( multipleSelected && !shorter )
     {
@@ -147,24 +145,98 @@ QString RimEclipseResultDefinitionTools::timeOfFlightString( RimEclipseResultDef
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimEclipseResultDefinitionTools::maxFractionTracerString( RimEclipseResultDefinition::FlowTracerSelectionState injectorState,
-                                                                  RimEclipseResultDefinition::FlowTracerSelectionState producerState,
-                                                                  bool                                                 shorter )
+QString RimEclipseResultDefinitionTools::maxFractionTracerString( RD::FlowTracerSelectionState injectorState,
+                                                                  RD::FlowTracerSelectionState producerState,
+                                                                  bool                         shorter )
 {
     QString mfString;
-    if ( injectorState >= RimEclipseResultDefinition::ONE_SELECTED && producerState == RimEclipseResultDefinition::NONE_SELECTED )
+    if ( injectorState >= RD::ONE_SELECTED && producerState == RD::NONE_SELECTED )
     {
         mfString = shorter ? "FloodReg" : "Flooding Region";
-        if ( injectorState >= RimEclipseResultDefinition::MULTIPLE_SELECTED ) mfString += "s";
+        if ( injectorState >= RD::MULTIPLE_SELECTED ) mfString += "s";
     }
-    else if ( injectorState == RimEclipseResultDefinition::NONE_SELECTED && producerState >= RimEclipseResultDefinition::ONE_SELECTED )
+    else if ( injectorState == RD::NONE_SELECTED && producerState >= RD::ONE_SELECTED )
     {
         mfString = shorter ? "DrainReg" : "Drainage Region";
-        if ( producerState >= RimEclipseResultDefinition::MULTIPLE_SELECTED ) mfString += "s";
+        if ( producerState >= RD::MULTIPLE_SELECTED ) mfString += "s";
     }
     else
     {
         mfString = shorter ? "Drain&FloodReg" : "Drainage/Flooding Regions";
     }
     return mfString;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimEclipseResultDefinitionTools::selectedTracersString( RD::FlowTracerSelectionState injectorState,
+                                                                RD::FlowTracerSelectionState producerState,
+                                                                const std::vector<QString>&  selectedInjectors,
+                                                                const std::vector<QString>&  selectedProducers,
+                                                                int                          maxTracerStringLength )
+{
+    QStringList fullTracersList;
+
+    if ( injectorState == RD::ALL_SELECTED && producerState == RD::ALL_SELECTED )
+    {
+        fullTracersList += caf::AppEnum<RD::FlowTracerSelectionType>::uiText( RD::FLOW_TR_INJ_AND_PROD );
+    }
+    else
+    {
+        if ( injectorState == RD::ALL_SELECTED )
+        {
+            fullTracersList += caf::AppEnum<RD::FlowTracerSelectionType>::uiText( RD::FLOW_TR_INJECTORS );
+        }
+
+        if ( producerState == RD::ALL_SELECTED )
+        {
+            fullTracersList += caf::AppEnum<RD::FlowTracerSelectionType>::uiText( RD::FLOW_TR_PRODUCERS );
+        }
+
+        if ( injectorState == RD::ONE_SELECTED || injectorState == RD::MULTIPLE_SELECTED )
+        {
+            QStringList listOfSelectedInjectors;
+            for ( const QString& injector : selectedInjectors )
+            {
+                listOfSelectedInjectors.push_back( injector );
+            }
+            if ( !listOfSelectedInjectors.empty() )
+            {
+                fullTracersList += listOfSelectedInjectors.join( ", " );
+            }
+        }
+
+        if ( producerState == RD::ONE_SELECTED || producerState == RD::MULTIPLE_SELECTED )
+        {
+            QStringList listOfSelectedProducers;
+            for ( const QString& producer : selectedProducers )
+            {
+                listOfSelectedProducers.push_back( producer );
+            }
+            if ( !listOfSelectedProducers.empty() )
+            {
+                fullTracersList.push_back( listOfSelectedProducers.join( ", " ) );
+            }
+        }
+    }
+
+    QString tracersText;
+    if ( !fullTracersList.empty() )
+    {
+        tracersText = fullTracersList.join( ", " );
+    }
+
+    if ( !tracersText.isEmpty() )
+    {
+        const QString postfix = "...";
+
+        if ( tracersText.size() > maxTracerStringLength + postfix.size() )
+        {
+            tracersText = tracersText.left( maxTracerStringLength );
+            tracersText += postfix;
+        }
+    }
+
+    return tracersText;
 }

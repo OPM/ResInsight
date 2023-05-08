@@ -197,8 +197,6 @@ private:
 
     QString flowDiagResUiText( bool shortLabel, int maxTracerStringLength = std::numeric_limits<int>::max() ) const;
 
-    QString selectedTracersString() const;
-
     void changedTracerSelectionField( bool injector );
 
     FlowTracerSelectionState injectorSelectionState() const;
