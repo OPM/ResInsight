@@ -42,6 +42,7 @@
 #include "Rim3dWellLogCurve.h"
 #include "RimCellEdgeColors.h"
 #include "RimColorLegend.h"
+#include "RimColorLegendItem.h"
 #include "RimContourMapProjection.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
@@ -2128,7 +2129,21 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
                             }
                         }
                         else
-                            valueTxt = QString( "%1" ).arg( value );
+                        {
+                            auto items = legendConfigToUpdate->colorLegend()->colorLegendItems();
+                            auto it    = std::find_if( items.begin(),
+                                                    items.end(),
+                                                    [value]( const RimColorLegendItem* const item )
+                                                    { return item->categoryValue() == value; } );
+                            if ( it != items.end() && !( *it )->categoryName().isEmpty() )
+                            {
+                                valueTxt = QString( "%1 (%2)" ).arg( ( *it )->categoryName() ).arg( value );
+                            }
+                            else
+                            {
+                                valueTxt = QString( "%1" ).arg( value );
+                            }
+                        }
 
                         categoryVector.push_back( std::make_tuple( valueTxt, value, categoryColor ) );
                     }
