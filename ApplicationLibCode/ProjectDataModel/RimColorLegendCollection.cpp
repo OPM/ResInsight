@@ -164,10 +164,9 @@ void RimColorLegendCollection::createStandardColorLegends()
             for ( size_t i = 0; i < colorArray.size(); i++ )
             {
                 cvf::Color3f color3f( colorArray[i] );
-                QColor       colorQ( colorArray[i].r(), colorArray[i].g(), colorArray[i].b() );
 
                 RimColorLegendItem* colorLegendItem = new RimColorLegendItem;
-                colorLegendItem->setValues( colorQ.name(), static_cast<int>( i ), color3f );
+                colorLegendItem->setValues( "", static_cast<int>( i ), color3f );
 
                 colorLegend->appendColorLegendItem( colorLegendItem );
                 colorLegend->setReadOnly( true );
