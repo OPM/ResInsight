@@ -90,7 +90,10 @@ void RivPolylinePartMgr::buildPolylineParts( const caf::DisplayCoordTransform* d
 
     auto linesInDomain = getPolylinesPointsInDomain( polylineDef.p() );
 
-    if ( !isPolylinesInBoundingBox( linesInDomain, boundingBox ) ) return;
+    if ( !polylineDef->skipBoundingBoxCheck() )
+    {
+        if ( !isPolylinesInBoundingBox( linesInDomain, boundingBox ) ) return;
+    }
 
     auto linesInDisplay = transformPolylinesPointsToDisplay( linesInDomain, displayXf );
 

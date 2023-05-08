@@ -44,6 +44,7 @@ public:
     void setLineAppearance( int lineThickness, cvf::Color3f color, bool closePolyline );
     void setSphereAppearance( double radiusFactor, cvf::Color3f color );
     void setZPlaneLock( bool lockToZ, double lockZValue );
+    void setSkipBoundingBoxCheck( bool skipCheck );
 
     bool         showLines() const;
     bool         showSpheres() const;
@@ -54,6 +55,7 @@ public:
     double       sphereRadiusFactor() const;
     double       lockedZValue() const;
     bool         lockToZPlane() const;
+    bool         skipBoundingBoxCheck() const;
 
 private:
     std::vector<std::vector<cvf::Vec3d>> m_polylines;
@@ -61,6 +63,7 @@ private:
     bool m_showLines;
     int  m_lineThickness;
     bool m_closePolyline;
+    bool m_skipBoundingBoxCheck;
 
     bool   m_showSpheres;
     double m_sphereRadiusFactor;
