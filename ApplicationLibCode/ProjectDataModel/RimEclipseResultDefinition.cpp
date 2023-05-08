@@ -735,11 +735,17 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
     {
         if ( fieldNeedingOptions == &m_resultVariableUiField )
         {
-            options.push_back( caf::PdmOptionItemInfo( timeOfFlightString( false ), RIG_FLD_TOF_RESNAME ) );
+            options.push_back( caf::PdmOptionItemInfo( RimEclipseResultDefinitionTools::timeOfFlightString( injectorSelectionState(),
+                                                                                                            producerSelectionState(),
+                                                                                                            false ),
+                                                       RIG_FLD_TOF_RESNAME ) );
             if ( m_phaseSelection() == RigFlowDiagResultAddress::PHASE_ALL )
             {
                 options.push_back( caf::PdmOptionItemInfo( "Tracer Cell Fraction (Sum)", RIG_FLD_CELL_FRACTION_RESNAME ) );
-                options.push_back( caf::PdmOptionItemInfo( maxFractionTracerString( false ), RIG_FLD_MAX_FRACTION_TRACER_RESNAME ) );
+                options.push_back( caf::PdmOptionItemInfo( RimEclipseResultDefinitionTools::maxFractionTracerString( injectorSelectionState(),
+                                                                                                                     producerSelectionState(),
+                                                                                                                     false ),
+                                                           RIG_FLD_MAX_FRACTION_TRACER_RESNAME ) );
                 options.push_back( caf::PdmOptionItemInfo( "Injector Producer Communication", RIG_FLD_COMMUNICATION_RESNAME ) );
             }
         }
@@ -1698,11 +1704,11 @@ QString RimEclipseResultDefinition::flowDiagResUiText( bool shortLabel, int maxT
     QString uiText = QString::fromStdString( flowDiagResAddress().variableName );
     if ( flowDiagResAddress().variableName == RIG_FLD_TOF_RESNAME )
     {
-        uiText = timeOfFlightString( shortLabel );
+        uiText = RimEclipseResultDefinitionTools::timeOfFlightString( injectorSelectionState(), producerSelectionState(), shortLabel );
     }
     else if ( flowDiagResAddress().variableName == RIG_FLD_MAX_FRACTION_TRACER_RESNAME )
     {
-        uiText = maxFractionTracerString( shortLabel );
+        uiText = RimEclipseResultDefinitionTools::maxFractionTracerString( injectorSelectionState(), producerSelectionState(), shortLabel );
     }
 
     QString tracersString = selectedTracersString();
@@ -2253,67 +2259,6 @@ void RimEclipseResultDefinition::updateLegendTitle( RimRegularLegendConfig* lege
     }
 
     legendConfig->setTitle( title );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimEclipseResultDefinition::timeOfFlightString( bool shorter ) const
-{
-    QString tofString;
-    bool    multipleSelected = false;
-    if ( injectorSelectionState() != NONE_SELECTED && producerSelectionState() != NONE_SELECTED )
-    {
-        tofString        = shorter ? "Res.Time" : "Residence Time";
-        multipleSelected = true;
-    }
-    else if ( injectorSelectionState() != NONE_SELECTED )
-    {
-        tofString = shorter ? "Fwd.TOF" : "Forward Time of Flight";
-    }
-    else if ( producerSelectionState() != NONE_SELECTED )
-    {
-        tofString = shorter ? "Rev.TOF" : "Reverse Time of Flight";
-    }
-    else
-    {
-        tofString = shorter ? "TOF" : "Time of Flight";
-    }
-
-    multipleSelected = multipleSelected || injectorSelectionState() >= MULTIPLE_SELECTED || producerSelectionState() >= MULTIPLE_SELECTED;
-
-    if ( multipleSelected && !shorter )
-    {
-        tofString += " (Average)";
-    }
-
-    tofString += " [days]";
-    // Conversion from seconds in flow module to days is done in RigFlowDiagTimeStepResult::setTracerTOF()
-
-    return tofString;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimEclipseResultDefinition::maxFractionTracerString( bool shorter ) const
-{
-    QString mfString;
-    if ( injectorSelectionState() >= ONE_SELECTED && producerSelectionState() == NONE_SELECTED )
-    {
-        mfString = shorter ? "FloodReg" : "Flooding Region";
-        if ( injectorSelectionState() >= MULTIPLE_SELECTED ) mfString += "s";
-    }
-    else if ( injectorSelectionState() == NONE_SELECTED && producerSelectionState() >= ONE_SELECTED )
-    {
-        mfString = shorter ? "DrainReg" : "Drainage Region";
-        if ( producerSelectionState() >= MULTIPLE_SELECTED ) mfString += "s";
-    }
-    else
-    {
-        mfString = shorter ? "Drain&FloodReg" : "Drainage/Flooding Regions";
-    }
-    return mfString;
 }
 
 //--------------------------------------------------------------------------------------------------

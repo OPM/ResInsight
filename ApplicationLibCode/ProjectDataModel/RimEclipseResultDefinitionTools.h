@@ -34,4 +34,11 @@ public:
                                                     RimFlowDiagSolution*                                flowDiagSolution,
                                                     size_t                                              selectedTracerCount );
     static QStringList getResultNamesForResultType( RiaDefines::ResultCatType resultCatType, const RigCaseCellResultsData* results );
+
+    static QString timeOfFlightString( RimEclipseResultDefinition::FlowTracerSelectionState injectorState,
+                                       RimEclipseResultDefinition::FlowTracerSelectionState producerState,
+                                       bool                                                 shorter );
+    static QString maxFractionTracerString( RimEclipseResultDefinition::FlowTracerSelectionState injectorState,
+                                            RimEclipseResultDefinition::FlowTracerSelectionState producerState,
+                                            bool                                                 shorter );
 };
