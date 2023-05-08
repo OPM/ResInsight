@@ -202,8 +202,7 @@ private:
 
     QString selectedTracersString() const;
 
-    void               changedTracerSelectionField( bool injector );
-    static QStringList getResultNamesForResultType( RiaDefines::ResultCatType resultCatType, const RigCaseCellResultsData* results );
+    void changedTracerSelectionField( bool injector );
 
     FlowTracerSelectionState injectorSelectionState() const;
     FlowTracerSelectionState producerSelectionState() const;

@@ -53,6 +53,7 @@
 #include "RimEclipseInputPropertyCollection.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipseResultCase.h"
+#include "RimEclipseResultDefinitionTools.h"
 #include "RimEclipseView.h"
 #include "RimFlowDiagSolution.h"
 #include "RimFlowDiagnosticsTools.h"
@@ -265,7 +266,8 @@ void RimEclipseResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
         // If the user are seeing the list with the actually selected result,
         // select that result in the list. Otherwise select nothing.
 
-        QStringList varList = getResultNamesForResultType( m_resultTypeUiField(), this->currentGridCellResults() );
+        QStringList varList =
+            RimEclipseResultDefinitionTools::getResultNamesForResultType( m_resultTypeUiField(), this->currentGridCellResults() );
 
         bool isFlowDiagFieldsRelevant = ( m_resultType() == RiaDefines::ResultCatType::FLOW_DIAGNOSTICS );
 
@@ -1737,7 +1739,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calcOptionsForVariable
         QStringList cellCenterResultNames;
         QStringList cellFaceResultNames;
 
-        for ( const QString& s : getResultNamesForResultType( resultCatType, results ) )
+        for ( const QString& s : RimEclipseResultDefinitionTools::getResultNamesForResultType( resultCatType, results ) )
         {
             if ( s == RiaResultNames::completionTypeResultName() )
             {
@@ -2378,52 +2380,13 @@ QString RimEclipseResultDefinition::selectedTracersString() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QStringList RimEclipseResultDefinition::getResultNamesForResultType( RiaDefines::ResultCatType     resultCatType,
-                                                                     const RigCaseCellResultsData* results )
-{
-    if ( resultCatType != RiaDefines::ResultCatType::FLOW_DIAGNOSTICS )
-    {
-        if ( !results ) return QStringList();
-
-        return results->resultNames( resultCatType );
-    }
-    else
-    {
-        QStringList flowVars;
-        flowVars.push_back( RIG_FLD_TOF_RESNAME );
-        flowVars.push_back( RIG_FLD_CELL_FRACTION_RESNAME );
-        flowVars.push_back( RIG_FLD_MAX_FRACTION_TRACER_RESNAME );
-        flowVars.push_back( RIG_FLD_COMMUNICATION_RESNAME );
-        return flowVars;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimEclipseResultDefinition::FlowTracerSelectionState RimEclipseResultDefinition::injectorSelectionState() const
 {
-    if ( m_flowTracerSelectionMode == FLOW_TR_INJECTORS || m_flowTracerSelectionMode == FLOW_TR_INJ_AND_PROD )
-    {
-        return ALL_SELECTED;
-    }
-    else if ( m_flowTracerSelectionMode == FLOW_TR_BY_SELECTION )
-    {
-        const bool isInjector = true;
-        if ( m_selectedInjectorTracers().size() == RimFlowDiagnosticsTools::setOfTracersOfType( m_flowSolutionUiField(), isInjector ).size() )
-        {
-            return ALL_SELECTED;
-        }
-        else if ( m_selectedInjectorTracers().size() == (size_t)1 )
-        {
-            return ONE_SELECTED;
-        }
-        else if ( m_selectedInjectorTracers().size() > (size_t)1 )
-        {
-            return MULTIPLE_SELECTED;
-        }
-    }
-    return NONE_SELECTED;
+    const bool isInjector = true;
+    return RimEclipseResultDefinitionTools::getFlowTracerSelectionState( isInjector,
+                                                                         m_flowTracerSelectionMode(),
+                                                                         m_flowSolutionUiField(),
+                                                                         m_selectedInjectorTracers().size() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2431,27 +2394,11 @@ RimEclipseResultDefinition::FlowTracerSelectionState RimEclipseResultDefinition:
 //--------------------------------------------------------------------------------------------------
 RimEclipseResultDefinition::FlowTracerSelectionState RimEclipseResultDefinition::producerSelectionState() const
 {
-    if ( m_flowTracerSelectionMode == FLOW_TR_PRODUCERS || m_flowTracerSelectionMode == FLOW_TR_INJ_AND_PROD )
-    {
-        return ALL_SELECTED;
-    }
-    else if ( m_flowTracerSelectionMode == FLOW_TR_BY_SELECTION )
-    {
-        const bool isInjector = false;
-        if ( m_selectedProducerTracers().size() == RimFlowDiagnosticsTools::setOfTracersOfType( m_flowSolutionUiField(), isInjector ).size() )
-        {
-            return ALL_SELECTED;
-        }
-        else if ( m_selectedProducerTracers().size() == (size_t)1 )
-        {
-            return ONE_SELECTED;
-        }
-        else if ( m_selectedProducerTracers().size() > (size_t)1 )
-        {
-            return MULTIPLE_SELECTED;
-        }
-    }
-    return NONE_SELECTED;
+    const bool isInjector = false;
+    return RimEclipseResultDefinitionTools::getFlowTracerSelectionState( isInjector,
+                                                                         m_flowTracerSelectionMode(),
+                                                                         m_flowSolutionUiField(),
+                                                                         m_selectedProducerTracers().size() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2561,31 +2508,7 @@ bool RimEclipseResultDefinition::isDeltaCaseActive() const
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseResultDefinition::isDivideByCellFaceAreaPossible() const
 {
-    QString str = m_resultVariable;
-
-    // TODO : Move to RiaDefines or a separate file for cell face results
-
-    if ( str == "FLRWATI+" ) return true;
-    if ( str == "FLRWATJ+" ) return true;
-    if ( str == "FLRWATK+" ) return true;
-
-    if ( str == "FLROILI+" ) return true;
-    if ( str == "FLROILJ+" ) return true;
-    if ( str == "FLROILK+" ) return true;
-
-    if ( str == "FLRGASI+" ) return true;
-    if ( str == "FLRGASJ+" ) return true;
-    if ( str == "FLRGASK+" ) return true;
-
-    if ( str == "TRANX" ) return true;
-    if ( str == "TRANY" ) return true;
-    if ( str == "TRANZ" ) return true;
-
-    if ( str == "riTRANX" ) return true;
-    if ( str == "riTRANY" ) return true;
-    if ( str == "riTRANZ" ) return true;
-
-    return false;
+    return RimEclipseResultDefinitionTools::isDivideByCellFaceAreaPossible( m_resultVariable );
 }
 
 //--------------------------------------------------------------------------------------------------

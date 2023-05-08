@@ -130,6 +130,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseCaseTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RimMultipleEclipseResults.h
     ${CMAKE_CURRENT_LIST_DIR}/RimPressureDepthData.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseResultDefinitionTools.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -259,6 +260,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseCaseTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimMultipleEclipseResults.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPressureDepthData.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseResultDefinitionTools.cpp
 )
 
 if(RESINSIGHT_USE_QT_CHARTS)
