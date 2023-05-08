@@ -569,6 +569,7 @@ RimRoffCase* RiaImportEclipseCaseTools::openRoffCaseFromFileName( const QString&
     }
 
     analysisModels->cases.push_back( roffCase );
+    analysisModels->updateConnectedEditors();
 
     RimEclipseView* eclipseView = nullptr;
     if ( createDefaultView )
@@ -576,16 +577,17 @@ RimRoffCase* RiaImportEclipseCaseTools::openRoffCaseFromFileName( const QString&
         eclipseView = roffCase->createAndAddReservoirView();
 
         eclipseView->cellResult()->setResultType( RiaDefines::ResultCatType::INPUT_PROPERTY );
+        eclipseView->loadDataAndUpdate();
 
+        roffCase->updateAllRequiredEditors();
         if ( RiaGuiApplication::isRunning() )
         {
             if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->selectAsCurrentItem( eclipseView->cellResult() );
+
+            // Make sure the call to setExpanded is done after the call to selectAsCurrentItem
+            Riu3DMainWindowTools::setExpanded( eclipseView );
         }
-
-        eclipseView->loadDataAndUpdate();
     }
-
-    analysisModels->updateConnectedEditors();
 
     return roffCase;
 }
