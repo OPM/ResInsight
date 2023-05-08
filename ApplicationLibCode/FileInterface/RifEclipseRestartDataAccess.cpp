@@ -35,68 +35,40 @@ RifEclipseRestartDataAccess::~RifEclipseRestartDataAccess()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifRestartReportKeywords::RifRestartReportKeywords()
+void RifRestartReportKeywords::appendKeywordCount( const std::string& keyword, size_t valueCount, RifKeywordValueCount::KeywordDataType dataType )
 {
-}
+    auto it = m_keywordValueCounts.find( keyword );
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RifRestartReportKeywords::appendKeyword( const std::string& keyword, size_t itemCount, int globalIndex )
-{
-    m_keywordNameAndItemCount.push_back( RifKeywordLocation( keyword, itemCount, globalIndex ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<std::pair<std::string, size_t>> RifRestartReportKeywords::keywordsWithAggregatedItemCount()
-{
-    std::vector<std::pair<std::string, size_t>> tmp;
-
-    for ( auto uni : uniqueKeywords() )
+    if ( it == m_keywordValueCounts.end() )
     {
-        size_t sum = 0;
-        for ( auto loc : objectsForKeyword( uni ) )
-        {
-            sum += loc.itemCount();
-        }
-
-        tmp.push_back( std::make_pair( uni, sum ) );
+        m_keywordValueCounts[keyword] = RifKeywordValueCount( keyword, valueCount, dataType );
     }
+    else
+    {
+        it->second.addValueCount( valueCount );
+    }
+}
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifRestartReportKeywords::appendKeywordCount( const RifRestartReportKeywords& other )
+{
+    for ( const auto& [keyword, keywordInfo] : other.m_keywordValueCounts )
+    {
+        appendKeywordCount( keyword, keywordInfo.valueCount(), keywordInfo.dataType() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RifKeywordValueCount> RifRestartReportKeywords::keywordValueCounts() const
+{
+    std::vector<RifKeywordValueCount> tmp;
+    for ( const auto& [keyword, info] : m_keywordValueCounts )
+    {
+        tmp.push_back( info );
+    }
     return tmp;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::vector<RifKeywordLocation> RifRestartReportKeywords::objectsForKeyword( const std::string& keyword )
-{
-    std::vector<RifKeywordLocation> tmp;
-
-    for ( auto a : m_keywordNameAndItemCount )
-    {
-        if ( a.keyword() == keyword )
-        {
-            tmp.push_back( a );
-        }
-    }
-
-    return tmp;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::set<std::string> RifRestartReportKeywords::uniqueKeywords()
-{
-    std::set<std::string> unique;
-
-    for ( auto a : m_keywordNameAndItemCount )
-    {
-        unique.insert( a.keyword() );
-    }
-
-    return unique;
 }

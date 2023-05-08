@@ -223,15 +223,17 @@ void RifEclipseUnifiedRestartFileAccess::timeSteps( std::vector<QDateTime>* time
 //--------------------------------------------------------------------------------------------------
 /// Get list of result names
 //--------------------------------------------------------------------------------------------------
-void RifEclipseUnifiedRestartFileAccess::resultNames( QStringList* resultNames, std::vector<size_t>* resultDataItemCounts )
+std::vector<RifKeywordValueCount> RifEclipseUnifiedRestartFileAccess::keywordValueCounts()
 {
     if ( openFile() )
     {
         std::vector<ecl_file_type*> filesUsedToFindAvailableKeywords;
         filesUsedToFindAvailableKeywords.push_back( m_ecl_file );
 
-        RifEclipseOutputFileTools::findKeywordsAndItemCount( filesUsedToFindAvailableKeywords, resultNames, resultDataItemCounts );
+        return RifEclipseOutputFileTools::keywordValueCounts( filesUsedToFindAvailableKeywords );
     }
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
