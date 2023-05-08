@@ -24,8 +24,11 @@
 #include "RiaDefines.h"
 #include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
-
+#include "RiaPreferences.h"
 #include "RiaResultNames.h"
+
+#include "RifReaderEclipseOutput.h"
+
 #include "RigAllanDiagramData.h"
 #include "RigAllanUtil.h"
 #include "RigCaseCellResultCalculator.h"
@@ -50,8 +53,6 @@
 #include "RimGridCalculation.h"
 #include "RimGridCalculationCollection.h"
 #include "RimProject.h"
-
-#include "RifReaderEclipseOutput.h"
 
 #include "cafAssert.h"
 #include "cafProgressInfo.h"
@@ -744,6 +745,50 @@ size_t RigCaseCellResultsData::addStaticScalarResult( RiaDefines::ResultCatType 
     m_cellScalarResults[resultIdx][0].resize( resultValueCount, HUGE_VAL );
 
     return resultIdx;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigEclipseResultAddress RigCaseCellResultsData::defaultResult() const
+{
+    auto allResults = existingResults();
+
+    auto prefs = RiaPreferences::current();
+    if ( prefs->loadAndShowSoil )
+    {
+        // If we have a result called "soil", use that
+        auto soil = std::find_if( allResults.begin(),
+                                  allResults.end(),
+                                  []( const RigEclipseResultAddress& adr ) { return adr.resultName() == RiaResultNames::soil(); } );
+        if ( soil != allResults.end() ) return *soil;
+    }
+
+    // If any input property exists, use that
+    auto inputProperty = std::find_if( allResults.begin(),
+                                       allResults.end(),
+                                       []( const RigEclipseResultAddress& adr )
+                                       { return adr.resultCatType() == RiaDefines::ResultCatType::INPUT_PROPERTY; } );
+
+    if ( inputProperty != allResults.end() ) return *inputProperty;
+
+    // If any dynamic property exists, use that
+    auto dynamicResult = std::find_if( allResults.begin(),
+                                       allResults.end(),
+                                       []( const RigEclipseResultAddress& adr )
+                                       { return adr.resultCatType() == RiaDefines::ResultCatType::DYNAMIC_NATIVE; } );
+
+    if ( dynamicResult != allResults.end() ) return *dynamicResult;
+
+    // If any static property exists, use that
+    auto staticResult = std::find_if( allResults.begin(),
+                                      allResults.end(),
+                                      []( const RigEclipseResultAddress& adr )
+                                      { return adr.resultCatType() == RiaDefines::ResultCatType::STATIC_NATIVE; } );
+
+    if ( staticResult != allResults.end() ) return *staticResult;
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------

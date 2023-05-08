@@ -26,6 +26,9 @@
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 
+#include "RimColorLegendCollection.h"
+#include "RimProject.h"
+
 #include "cafProgressInfo.h"
 
 #include <chrono>
@@ -39,11 +42,6 @@
 #ifdef USE_OPENMP
 #include <omp.h>
 #endif
-#include "RiaColorTables.h"
-#include "RimColorLegend.h"
-#include "RimColorLegendCollection.h"
-#include "RimColorLegendItem.h"
-#include "RimProject.h"
 
 using namespace std::chrono;
 
@@ -581,6 +579,7 @@ std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputPropert
 
                             colorLegendCollection->createColorLegend( newResultName, valuesAndNames );
                             colorLegendCollection->setDefaultColorLegendForResult( newResultName, newResultName );
+                            colorLegendCollection->updateAllRequiredEditors();
                         }
                     }
                 }

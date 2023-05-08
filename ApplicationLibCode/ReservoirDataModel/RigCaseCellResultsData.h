@@ -147,6 +147,8 @@ public:
 
     size_t addStaticScalarResult( RiaDefines::ResultCatType type, const QString& resultName, bool needsToBeStored, size_t resultValueCount );
 
+    RigEclipseResultAddress defaultResult() const;
+
 private:
     size_t findOrLoadKnownScalarResult( const RigEclipseResultAddress& resVarAddr );
     size_t findOrLoadKnownScalarResultByResultTypeOrder( const RigEclipseResultAddress&                resVarAddr,
