@@ -70,7 +70,7 @@ RimSeismicSection::RimSeismicSection()
 {
     CAF_PDM_InitObject( "Seismic Section", ":/Seismic16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_userDescription, "UserDecription", "Description" );
+    CAF_PDM_InitFieldNoDefault( &m_userDescription, "UserDescription", "Description" );
 
     CAF_PDM_InitFieldNoDefault( &m_nameProxy, "NameProxy", "Name Proxy" );
     m_nameProxy.registerGetMethod( this, &RimSeismicSection::fullName );

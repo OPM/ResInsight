@@ -44,7 +44,7 @@ RimSeismicSectionCollection::RimSeismicSectionCollection()
 {
     CAF_PDM_InitObject( "Seismic Sections", ":/Seismic16x16.png" );
 
-    CAF_PDM_InitField( &m_userDescription, "UserDecription", QString( "Seismic Sections" ), "Name" );
+    CAF_PDM_InitField( &m_userDescription, "UserDescription", QString( "Seismic Sections" ), "Name" );
 
     CAF_PDM_InitFieldNoDefault( &m_seismicSections, "SeismicSections", "SeismicSections" );
     m_seismicSections.uiCapability()->setUiTreeHidden( true );
