@@ -26,6 +26,9 @@
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 
+#include "RimColorLegendCollection.h"
+#include "RimProject.h"
+
 #include "cafProgressInfo.h"
 
 #include <chrono>
@@ -147,10 +150,10 @@ bool RifRoffFileTools::openGridFile( const QString& fileName, RigEclipseCaseData
             RiaLogging::info( QString( "Scale: %1 %2 %3" ).arg( xScale ).arg( yScale ).arg( zScale ) );
         }
 
-        std::vector<float> cornerLines = reader.getFloatArray( "cornerLines.data" );
-        std::vector<float> zValues     = reader.getFloatArray( "zvalues.data" );
+        std::vector<float> cornerLines = reader.getFloatArray( "cornerLines" + roff::Parser::postFixData() );
+        std::vector<float> zValues     = reader.getFloatArray( "zvalues" + roff::Parser::postFixData() );
         std::vector<char>  splitEnz    = reader.getByteArray( "zvalues.splitEnz" );
-        std::vector<char>  active      = reader.getByteArray( "active.data" );
+        std::vector<char>  active      = reader.getByteArray( "active" + roff::Parser::postFixData() );
 
         const auto parsingDone = high_resolution_clock::now();
 
@@ -521,7 +524,7 @@ std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputPropert
                 QString newResultName = eclipseCaseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
                                             ->makeResultNameUnique( QString::fromStdString( keyword ) );
                 // Special handling for active.data ==> ACTNUM
-                if ( newResultName == "active.data" )
+                if ( newResultName == QString( "active" ) + QString::fromStdString( roff::Parser::postFixData() ) )
                 {
                     newResultName = "ACTNUM";
                 }
@@ -531,6 +534,54 @@ std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputPropert
                     RiaLogging::error(
                         QString( "Unable to import result '%1' from %2" ).arg( QString::fromStdString( keyword ) ).arg( fileName ) );
                     return std::make_pair( false, keywordMapping );
+                }
+
+                // Create color legend
+                {
+                    const std::string codeNamesKeyword  = keyword + roff::Parser::postFixCodeNames();
+                    const std::string codeValuesKeyword = keyword + roff::Parser::postFixCodeValues();
+
+                    auto codeNamesSize  = reader.getArrayLength( codeNamesKeyword );
+                    auto codeValuesSize = reader.getArrayLength( codeValuesKeyword );
+
+                    if ( codeNamesSize != 0 && codeNamesSize == codeValuesSize )
+                    {
+                        const auto fileCodeNames  = reader.getStringArray( codeNamesKeyword );
+                        const auto fileCodeValues = reader.getIntArray( codeValuesKeyword );
+
+                        QStringList trimmedCodeNames;
+                        bool        anyValidName = false;
+                        for ( const std::string& codeName : fileCodeNames )
+                        {
+                            QString trimmedCodeName = QString::fromStdString( codeName ).trimmed();
+                            trimmedCodeNames.push_back( trimmedCodeName );
+
+                            if ( !trimmedCodeName.isEmpty() )
+                            {
+                                anyValidName = true;
+                            }
+                        }
+
+                        if ( anyValidName )
+                        {
+                            std::vector<std::pair<int, QString>> valuesAndNames;
+
+                            for ( int i = 0; i < static_cast<int>( trimmedCodeNames.size() ); i++ )
+                            {
+                                const auto& codeName = trimmedCodeNames[i];
+                                valuesAndNames.emplace_back( fileCodeValues[i], codeName );
+                            }
+
+                            RimColorLegendCollection* colorLegendCollection = RimProject::current()->colorLegendCollection;
+
+                            // Delete existing color legend, as new legend will be populated by values from file
+                            colorLegendCollection->deleteColorLegend( newResultName );
+
+                            colorLegendCollection->createColorLegend( newResultName, valuesAndNames );
+                            colorLegendCollection->setDefaultColorLegendForResult( newResultName, newResultName );
+                            colorLegendCollection->updateAllRequiredEditors();
+                        }
+                    }
                 }
 
                 keywordMapping[QString::fromStdString( keyword )] = newResultName;
@@ -568,7 +619,7 @@ bool RifRoffFileTools::hasGridData( const QString& filename )
 
     const std::vector<std::pair<std::string, roff::Token::Kind>> arrayTypes = reader.getNamedArrayTypes();
 
-    const std::string cornerLinesDataKeyword = "cornerLines.data";
+    const std::string cornerLinesDataKeyword = "cornerLines" + roff::Parser::postFixData();
     auto              cornerLinesDataItr     = std::find_if( arrayTypes.begin(),
                                             arrayTypes.end(),
                                             [&cornerLinesDataKeyword]( const auto& arrayType )
@@ -640,7 +691,7 @@ bool RifRoffFileTools::appendNewInputPropertyResult( RigEclipseCaseData* caseDat
         }
     }
 
-    RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::INPUT_PROPERTY, resultName );
+    RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::INPUT_PROPERTY, RifRoffFileTools::mapFromType( kind ), resultName );
     caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->createResultEntry( resAddr, false );
 
     auto newPropertyData = caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->modifiableCellScalarResultTimesteps( resAddr );
@@ -648,4 +699,20 @@ bool RifRoffFileTools::appendNewInputPropertyResult( RigEclipseCaseData* caseDat
     newPropertyData->push_back( values );
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::ResultDataType RifRoffFileTools::mapFromType( roff::Token::Kind kind )
+{
+    switch ( kind )
+    {
+        case roff::Token::Kind::BOOL:
+            return RiaDefines::ResultDataType::INTEGER;
+        case roff::Token::Kind::INT:
+            return RiaDefines::ResultDataType::INTEGER;
+    }
+
+    return RiaDefines::ResultDataType::FLOAT;
 }
