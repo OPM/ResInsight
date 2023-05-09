@@ -20,7 +20,6 @@
 
 #pragma once
 
-#include "RiaDefines.h"
 #include "RiaPorosityModel.h"
 
 #include "RigFlowDiagResultAddress.h"
@@ -129,7 +128,7 @@ public:
     bool hasDualPorFractureResult();
 
     static QList<caf::PdmOptionItemInfo> calcOptionsForVariableUiFieldStandard( RiaDefines::ResultCatType     resultCatType,
-                                                                                const RigCaseCellResultsData* results,
+                                                                                RigCaseCellResultsData* const results,
                                                                                 bool showDerivedResultsFirst   = false,
                                                                                 bool addPerCellFaceOptionItems = false,
                                                                                 bool enableTernary             = false );
@@ -138,6 +137,8 @@ public:
 
     void updateRangesForExplicitLegends( RimRegularLegendConfig* legendConfig, RimTernaryLegendConfig* ternaryLegendConfig, int currentTimeStep );
     void updateLegendTitle( RimRegularLegendConfig* legendConfig, const QString& legendHeading );
+
+    bool showOnlyVisibleCategoriesInLegend() const;
 
 protected:
     virtual void updateLegendCategorySettings(){};
