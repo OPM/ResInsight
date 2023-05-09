@@ -170,7 +170,7 @@ public:
 
     QString valueToText( double value ) const;
 
-    void setDefaultConfigForResultName( const QString& resultName, bool useDiscreteLogLevels, bool isCategoryResult );
+    void setDefaultConfigForResultName( int caseId, const QString& resultName, bool useDiscreteLogLevels, bool isCategoryResult );
 
     void defineUiOrderingColorOnly( caf::PdmUiOrdering* colorGroup );
 

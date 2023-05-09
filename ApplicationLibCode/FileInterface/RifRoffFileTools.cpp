@@ -27,6 +27,7 @@
 #include "RigMainGrid.h"
 
 #include "RimColorLegendCollection.h"
+#include "RimEclipseCase.h"
 #include "RimProject.h"
 
 #include "cafProgressInfo.h"
@@ -574,11 +575,16 @@ std::pair<bool, std::map<QString, QString>> RifRoffFileTools::createInputPropert
 
                             RimColorLegendCollection* colorLegendCollection = RimProject::current()->colorLegendCollection;
 
-                            // Delete existing color legend, as new legend will be populated by values from file
-                            colorLegendCollection->deleteColorLegend( newResultName );
+                            int  caseId  = 0;
+                            auto rimCase = eclipseCaseData->ownerCase();
+                            if ( rimCase ) caseId = rimCase->caseId();
 
-                            colorLegendCollection->createColorLegend( newResultName, valuesAndNames );
-                            colorLegendCollection->setDefaultColorLegendForResult( newResultName, newResultName );
+                            // Delete existing color legend, as new legend will be populated by values from file
+                            colorLegendCollection->deleteColorLegend( caseId, newResultName );
+
+                            auto colorLegend = colorLegendCollection->createColorLegend( newResultName, valuesAndNames );
+
+                            colorLegendCollection->setDefaultColorLegendForResult( caseId, newResultName, colorLegend );
                             colorLegendCollection->updateAllRequiredEditors();
                         }
                     }
