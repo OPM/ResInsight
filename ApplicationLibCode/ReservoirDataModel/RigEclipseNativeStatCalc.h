@@ -23,6 +23,7 @@
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigStatisticsCalculator.h"
 
 class RigHistogramCalculator;

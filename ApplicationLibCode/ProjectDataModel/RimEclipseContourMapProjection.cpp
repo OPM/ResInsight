@@ -27,6 +27,7 @@
 #include "RigCell.h"
 #include "RigCellGeometryTools.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigHexIntersectionTools.h"
 #include "RigMainGrid.h"
 

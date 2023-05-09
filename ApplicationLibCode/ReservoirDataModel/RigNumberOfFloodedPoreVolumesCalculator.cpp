@@ -23,6 +23,7 @@
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
 #include "RigNNCData.h"
 #include "RigReservoirBuilderMock.h"

@@ -25,6 +25,7 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigSimWellData.h"
 
 #include "RimEclipseCase.h"

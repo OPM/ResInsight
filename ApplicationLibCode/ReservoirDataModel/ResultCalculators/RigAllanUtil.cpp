@@ -17,8 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RigAllanUtil.h"
+
 #include "RigAllanDiagramData.h"
 #include "RigCaseCellResultsData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigFormationNames.h"
 #include "RigMainGrid.h"
 #include "RigNNCData.h"

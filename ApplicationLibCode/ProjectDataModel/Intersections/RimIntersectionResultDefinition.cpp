@@ -18,6 +18,7 @@
 
 #include "RimIntersectionResultDefinition.h"
 
+#include "RiaResultNames.h"
 #include "RigCaseCellResultsData.h"
 
 #include "Rim2dIntersectionView.h"

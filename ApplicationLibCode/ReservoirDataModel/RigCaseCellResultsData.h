@@ -23,8 +23,6 @@
 #include "RiaDefines.h"
 #include "RiaPorosityModel.h"
 
-#include "RigEclipseResultAddress.h"
-
 #include "cvfCollection.h"
 
 #include <QDateTime>
@@ -42,6 +40,7 @@ class RigEclipseTimeStepInfo;
 class RigEclipseCaseData;
 class RigFormationNames;
 class RigAllanDiagramData;
+class RigEclipseResultAddress;
 
 class RimEclipseCase;
 

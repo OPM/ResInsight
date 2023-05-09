@@ -22,7 +22,9 @@
 #include "RiaColorTools.h"
 
 #include "RigAllanDiagramData.h"
+#include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigFlowDiagResults.h"
 #include "RigVisibleCategoriesCalculator.h"
 
@@ -41,7 +43,6 @@
 
 #include <QString>
 
-#include "RigCaseCellResultsData.h"
 #include "cafCategoryMapper.h"
 #include "cvfColor3.h"
 //--------------------------------------------------------------------------------------------------
