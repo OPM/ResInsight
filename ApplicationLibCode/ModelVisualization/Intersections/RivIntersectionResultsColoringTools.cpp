@@ -18,7 +18,8 @@
 
 #include "RivIntersectionResultsColoringTools.h"
 
-#include "RiuGeoMechXfTensorResultAccessor.h"
+#include "RiaOffshoreSphericalCoords.h"
+#include "RiaResultNames.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
@@ -42,7 +43,7 @@
 #include "RivScalarMapperUtils.h"
 #include "RivTernaryTextureCoordsCreator.h"
 
-#include "RiaOffshoreSphericalCoords.h"
+#include "RiuGeoMechXfTensorResultAccessor.h"
 
 #include "cvfGeometryTools.h"
 #include "cvfStructGridGeometryGenerator.h"
