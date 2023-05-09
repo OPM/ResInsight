@@ -620,3 +620,24 @@ TEST( BaseTest, MultiplePdmFilePath )
 
     delete d;
 }
+
+TEST( BaseTest, testTypedChildren )
+{
+    auto ihd1 = new InheritedDemoObj;
+
+    auto s1 = new DemoPdmObject;
+    auto s2 = new DemoPdmObject;
+    auto s3 = new DemoPdmObject;
+
+    ihd1->m_childArrayField.push_back( s1 );
+    ihd1->m_childArrayField.push_back( s2 );
+    ihd1->m_childArrayField.push_back( s3 );
+
+    auto obj = s1->firstAncestorOrThisOfType<InheritedDemoObj>();
+    EXPECT_TRUE( obj == ihd1 );
+
+    auto decendants = ihd1->descendantsIncludingThisOfType<DemoPdmObject>();
+    EXPECT_EQ( size_t( 4 ), decendants.size() );
+
+    delete ihd1;
+}

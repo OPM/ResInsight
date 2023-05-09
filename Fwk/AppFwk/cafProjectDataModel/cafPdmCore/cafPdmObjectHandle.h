@@ -32,8 +32,8 @@ public:
     static std::vector<QString> classKeywordAliases();
 
     /// The registered fields contained in this PdmObject.
-    void            fields( std::vector<PdmFieldHandle*>& fields ) const;
-    PdmFieldHandle* findField( const QString& keyword ) const;
+    std::vector<PdmFieldHandle*> fields() const;
+    PdmFieldHandle*              findField( const QString& keyword ) const;
 
     /// The field referencing this object as a child
     PdmFieldHandle* parentField() const;
@@ -41,32 +41,32 @@ public:
     /// Returns _this_ if _this_ is of requested type
     /// Traverses parents recursively and returns first parent of the requested type.
     template <typename T>
-    void firstAncestorOrThisOfType( T*& ancestor ) const;
+    T* firstAncestorOrThisOfType() const;
 
     /// Traverses parents recursively and returns first parent of the requested type.
     /// Does NOT check _this_ object
     template <typename T>
-    void firstAncestorOfType( T*& ancestor ) const;
+    T* firstAncestorOfType() const;
 
     /// Calls firstAncestorOrThisOfType, and asserts that a valid object is found
     template <typename T>
-    void firstAncestorOrThisOfTypeAsserted( T*& ancestor ) const;
+    T* firstAncestorOrThisOfTypeAsserted() const;
 
     template <typename T>
-    void allAncestorsOfType( std::vector<T*>& ancestors ) const;
+    std::vector<T*> allAncestorsOfType() const;
 
     template <typename T>
-    void allAncestorsOrThisOfType( std::vector<T*>& ancestors ) const;
+    std::vector<T*> allAncestorsOrThisOfType() const;
 
     /// Traverses all children recursively to find objects of the requested type. This object is also
     /// included if it is of the requested type.
     template <typename T>
-    void descendantsIncludingThisOfType( std::vector<T*>& descendants ) const;
+    std::vector<T*> descendantsIncludingThisOfType() const;
 
     /// Traverses all children recursively to find objects of the requested type. This object is NOT
     /// included if it is of the requested type.
     template <typename T>
-    void descendantsOfType( std::vector<T*>& descendants ) const;
+    std::vector<T*> descendantsOfType() const;
 
     // PtrReferences
     /// The PdmPtrField's containing pointers to this PdmObjecthandle
@@ -168,31 +168,26 @@ namespace caf
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-void PdmObjectHandle::firstAncestorOrThisOfType( T*& ancestor ) const
+T* PdmObjectHandle::firstAncestorOrThisOfType() const
 {
-    ancestor = nullptr;
-
     // If compilation error occurs, include of header file for type T might be missing in calling
     // code resulting in invalid dynamic_cast
 
-    const T* objectOfTypeConst = dynamic_cast<const T*>( this );
+    auto objectOfTypeConst = dynamic_cast<const T*>( this );
     if ( objectOfTypeConst )
     {
-        ancestor = const_cast<T*>( objectOfTypeConst );
-        return;
+        return const_cast<T*>( objectOfTypeConst );
     }
 
-    this->firstAncestorOfType<T>( ancestor );
+    return firstAncestorOfType<T>();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-void PdmObjectHandle::firstAncestorOfType( T*& ancestor ) const
+T* PdmObjectHandle::firstAncestorOfType() const
 {
-    ancestor = nullptr;
-
     // Search parents for first type match
     PdmObjectHandle* parent      = nullptr;
     PdmFieldHandle*  parentField = this->parentField();
@@ -200,71 +195,88 @@ void PdmObjectHandle::firstAncestorOfType( T*& ancestor ) const
 
     if ( parent != nullptr )
     {
-        parent->firstAncestorOrThisOfType<T>( ancestor );
+        return parent->firstAncestorOrThisOfType<T>();
     }
+
+    return nullptr;
 }
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-void PdmObjectHandle::firstAncestorOrThisOfTypeAsserted( T*& ancestor ) const
+T* PdmObjectHandle::firstAncestorOrThisOfTypeAsserted() const
 {
-    firstAncestorOrThisOfType( ancestor );
+    auto ancestor = firstAncestorOrThisOfType();
 
     CAF_ASSERT( ancestor );
+
+    return ancestor;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-void PdmObjectHandle::allAncestorsOfType( std::vector<T*>& ancestors ) const
+std::vector<T*> PdmObjectHandle::allAncestorsOfType() const
 {
-    T* firstAncestor = nullptr;
-    this->firstAncestorOfType( firstAncestor );
+    std::vector<T*> ancestors;
+    T*              firstAncestor = firstAncestorOfType();
     if ( firstAncestor )
     {
         ancestors.push_back( firstAncestor );
-        firstAncestor->allAncestorsOfType( ancestors );
+        std::vector<T*> other = firstAncestor->allAncestorsOfType();
+        ancestors.insert( ancestors.end(), other.begin(), other.end() );
     }
+
+    return ancestors;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-void PdmObjectHandle::allAncestorsOrThisOfType( std::vector<T*>& ancestors ) const
+std::vector<T*> PdmObjectHandle::allAncestorsOrThisOfType() const
 {
-    T* firstAncestorOrThis = nullptr;
-    this->firstAncestorOrThisOfType( firstAncestorOrThis );
+    std::vector<T*> ancestors;
+
+    T* firstAncestorOrThis = firstAncestorOrThisOfType();
     if ( firstAncestorOrThis )
     {
         ancestors.push_back( firstAncestorOrThis );
-        firstAncestorOrThis->allAncestorsOfType( ancestors );
+        std::vector<T*> other = firstAncestorOrThis->allAncestorsOfType();
+        ancestors.insert( ancestors.end(), other.begin(), other.end() );
     }
+
+    return ancestors;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-void PdmObjectHandle::descendantsIncludingThisOfType( std::vector<T*>& descendants ) const
+std::vector<T*> PdmObjectHandle::descendantsIncludingThisOfType() const
 {
-    const T* objectOfType = dynamic_cast<const T*>( this );
+    std::vector<T*> descendants;
+    const T*        objectOfType = dynamic_cast<const T*>( this );
     if ( objectOfType )
     {
         descendants.push_back( const_cast<T*>( objectOfType ) );
     }
 
-    descendantsOfType( descendants );
+    auto other = descendantsOfType<T>();
+    descendants.insert( descendants.end(), other.begin(), other.end() );
+
+    return descendants;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-void PdmObjectHandle::descendantsOfType( std::vector<T*>& descendants ) const
+std::vector<T*> PdmObjectHandle::descendantsOfType() const
 {
+    std::vector<T*> descendants;
+
     for ( auto f : m_fields )
     {
         std::vector<PdmObjectHandle*> childObjects;
@@ -274,10 +286,13 @@ void PdmObjectHandle::descendantsOfType( std::vector<T*>& descendants ) const
         {
             if ( childObject )
             {
-                childObject->descendantsIncludingThisOfType( descendants );
+                auto other = childObject->descendantsIncludingThisOfType<T>();
+                descendants.insert( descendants.end(), other.begin(), other.end() );
             }
         }
     }
+
+    return descendants;
 }
 
 //--------------------------------------------------------------------------------------------------

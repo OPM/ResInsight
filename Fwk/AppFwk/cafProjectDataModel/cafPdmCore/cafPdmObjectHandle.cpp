@@ -44,9 +44,9 @@ std::vector<QString> PdmObjectHandle::classKeywordAliases()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmObjectHandle::fields( std::vector<PdmFieldHandle*>& fields ) const
+std::vector<PdmFieldHandle*> PdmObjectHandle::fields() const
 {
-    fields = m_fields;
+    return m_fields;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -177,8 +177,7 @@ void PdmObjectHandle::addField( PdmFieldHandle* field, const QString& keyword )
 //--------------------------------------------------------------------------------------------------
 PdmFieldHandle* PdmObjectHandle::findField( const QString& keyword ) const
 {
-    std::vector<PdmFieldHandle*> fields;
-    this->fields( fields );
+    std::vector<PdmFieldHandle*> fields = this->fields();
 
     for ( size_t it = 0; it < fields.size(); it++ )
     {
