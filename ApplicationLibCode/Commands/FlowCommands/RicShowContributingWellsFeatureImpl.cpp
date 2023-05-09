@@ -110,10 +110,10 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells( Rim
     switch ( tracerStatus )
     {
         case RimFlowDiagSolution::TracerStatusType::PRODUCER:
-            viewToModify->cellResult()->setFlowDiagTracerSelectionType( RimEclipseResultDefinition::FLOW_TR_INJECTORS );
+            viewToModify->cellResult()->setFlowDiagTracerSelectionType( RimEclipseResultDefinition::FlowTracerSelectionType::FLOW_TR_INJECTORS );
             break;
         case RimFlowDiagSolution::TracerStatusType::INJECTOR:
-            viewToModify->cellResult()->setFlowDiagTracerSelectionType( RimEclipseResultDefinition::FLOW_TR_PRODUCERS );
+            viewToModify->cellResult()->setFlowDiagTracerSelectionType( RimEclipseResultDefinition::FlowTracerSelectionType::FLOW_TR_PRODUCERS );
             break;
 
         default:

@@ -78,12 +78,12 @@ namespace caf
 template <>
 void RimEclipseResultDefinition::FlowTracerSelectionEnum::setUp()
 {
-    addItem( RimEclipseResultDefinition::FLOW_TR_INJ_AND_PROD, "FLOW_TR_INJ_AND_PROD", "All Injectors and Producers" );
-    addItem( RimEclipseResultDefinition::FLOW_TR_PRODUCERS, "FLOW_TR_PRODUCERS", "All Producers" );
-    addItem( RimEclipseResultDefinition::FLOW_TR_INJECTORS, "FLOW_TR_INJECTORS", "All Injectors" );
-    addItem( RimEclipseResultDefinition::FLOW_TR_BY_SELECTION, "FLOW_TR_BY_SELECTION", "By Selection" );
+    addItem( RimEclipseResultDefinition::FlowTracerSelectionType::FLOW_TR_INJ_AND_PROD, "FLOW_TR_INJ_AND_PROD", "All Injectors and Producers" );
+    addItem( RimEclipseResultDefinition::FlowTracerSelectionType::FLOW_TR_PRODUCERS, "FLOW_TR_PRODUCERS", "All Producers" );
+    addItem( RimEclipseResultDefinition::FlowTracerSelectionType::FLOW_TR_INJECTORS, "FLOW_TR_INJECTORS", "All Injectors" );
+    addItem( RimEclipseResultDefinition::FlowTracerSelectionType::FLOW_TR_BY_SELECTION, "FLOW_TR_BY_SELECTION", "By Selection" );
 
-    setDefault( RimEclipseResultDefinition::FLOW_TR_INJ_AND_PROD );
+    setDefault( RimEclipseResultDefinition::FlowTracerSelectionType::FLOW_TR_INJ_AND_PROD );
 }
 } // namespace caf
 
@@ -509,7 +509,7 @@ void RimEclipseResultDefinition::setTofAndSelectTracer( const QString& tracerNam
 {
     setResultType( RiaDefines::ResultCatType::FLOW_DIAGNOSTICS );
     setResultVariable( "TOF" );
-    setFlowDiagTracerSelectionType( FLOW_TR_BY_SELECTION );
+    setFlowDiagTracerSelectionType( FlowTracerSelectionType::FLOW_TR_BY_SELECTION );
 
     if ( m_flowSolution() == nullptr )
     {
@@ -944,7 +944,7 @@ RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
         CVF_ASSERT( timeHistoryCurve == nullptr );
 
         std::set<std::string> selTracerNames;
-        if ( m_flowTracerSelectionMode == FLOW_TR_BY_SELECTION )
+        if ( m_flowTracerSelectionMode == FlowTracerSelectionType::FLOW_TR_BY_SELECTION )
         {
             for ( const QString& tName : m_selectedInjectorTracers() )
             {
@@ -962,7 +962,8 @@ RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
             {
                 std::vector<QString> tracerNames = flowSol->tracerNames();
 
-                if ( m_flowTracerSelectionMode == FLOW_TR_INJECTORS || m_flowTracerSelectionMode == FLOW_TR_INJ_AND_PROD )
+                if ( m_flowTracerSelectionMode == FlowTracerSelectionType::FLOW_TR_INJECTORS ||
+                     m_flowTracerSelectionMode == FlowTracerSelectionType::FLOW_TR_INJ_AND_PROD )
                 {
                     for ( const QString& tracerName : tracerNames )
                     {
@@ -974,7 +975,8 @@ RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
                     }
                 }
 
-                if ( m_flowTracerSelectionMode == FLOW_TR_PRODUCERS || m_flowTracerSelectionMode == FLOW_TR_INJ_AND_PROD )
+                if ( m_flowTracerSelectionMode == FlowTracerSelectionType::FLOW_TR_PRODUCERS ||
+                     m_flowTracerSelectionMode == FlowTracerSelectionType::FLOW_TR_INJ_AND_PROD )
                 {
                     for ( const QString& tracerName : tracerNames )
                     {
@@ -1530,7 +1532,7 @@ void RimEclipseResultDefinition::defineUiOrdering( QString uiConfigName, caf::Pd
 
         uiOrdering.add( &m_flowTracerSelectionMode );
 
-        if ( m_flowTracerSelectionMode == FLOW_TR_BY_SELECTION )
+        if ( m_flowTracerSelectionMode == FlowTracerSelectionType::FLOW_TR_BY_SELECTION )
         {
             caf::PdmUiGroup* selectionGroup = uiOrdering.addNewGroup( "Tracer Selection" );
             selectionGroup->setEnableFrame( false );
@@ -1834,7 +1836,7 @@ void RimEclipseResultDefinition::syncInjectorToProducerSelection()
     }
 
     RimFlowDiagSolution* flowSol = m_flowSolution();
-    if ( flowSol && m_flowTracerSelectionMode == FLOW_TR_BY_SELECTION )
+    if ( flowSol && m_flowTracerSelectionMode == FlowTracerSelectionType::FLOW_TR_BY_SELECTION )
     {
         std::set<QString, RimFlowDiagnosticsTools::TracerComp> newProducerSelection =
             RimFlowDiagnosticsTools::setOfProducerTracersFromInjectors( m_flowSolutionUiField(), m_selectedInjectorTracers(), timeStep );
@@ -1863,7 +1865,7 @@ void RimEclipseResultDefinition::syncProducerToInjectorSelection()
     }
 
     RimFlowDiagSolution* flowSol = m_flowSolution();
-    if ( flowSol && m_flowTracerSelectionMode == FLOW_TR_BY_SELECTION )
+    if ( flowSol && m_flowTracerSelectionMode == FlowTracerSelectionType::FLOW_TR_BY_SELECTION )
     {
         std::set<QString, RimFlowDiagnosticsTools::TracerComp> newInjectorSelection =
             RimFlowDiagnosticsTools::setOfInjectorTracersFromProducers( m_flowSolutionUiField(), m_selectedProducerTracers(), timeStep );

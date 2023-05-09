@@ -30,6 +30,7 @@
 #include "RigWellLogCurveData.h"
 #include "RigWellPath.h"
 
+#include "RigEclipseResultAddress.h"
 #include "RimCase.h"
 #include "RimColorLegend.h"
 #include "RimColorLegendItem.h"

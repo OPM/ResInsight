@@ -20,9 +20,11 @@
 
 #pragma once
 
+#include "RiaDefines.h"
 #include "RiaPorosityModel.h"
 
 #include "RigFlowDiagResultAddress.h"
+
 #include "RimCheckableObject.h"
 #include "RimFlowDiagSolution.h"
 
@@ -35,14 +37,13 @@
 
 #include <limits>
 
-#include "RigCaseCellResultsData.h"
-
 class RigCaseCellResultsData;
 class RimEclipseCase;
 class RimEclipseView;
 class RimReservoirCellResultsStorage;
 class RimRegularLegendConfig;
 class RimTernaryLegendConfig;
+class RigEclipseResultAddress;
 
 //==================================================================================================
 ///
@@ -53,7 +54,7 @@ class RimEclipseResultDefinition : public RimCheckableObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum FlowTracerSelectionType
+    enum class FlowTracerSelectionType
     {
         FLOW_TR_INJ_AND_PROD,
         FLOW_TR_PRODUCERS,
@@ -62,7 +63,7 @@ public:
     };
     using FlowTracerSelectionEnum = caf::AppEnum<RimEclipseResultDefinition::FlowTracerSelectionType>;
 
-    enum FlowTracerSelectionState
+    enum class FlowTracerSelectionState
     {
         NONE_SELECTED,
         ONE_SELECTED,

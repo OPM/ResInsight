@@ -18,7 +18,9 @@
 
 #include "RiuPvtPlotUpdater.h"
 
+#include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
 

@@ -41,6 +41,7 @@
 
 #include <QString>
 
+#include "RigCaseCellResultsData.h"
 #include "cafCategoryMapper.h"
 #include "cvfColor3.h"
 //--------------------------------------------------------------------------------------------------
@@ -79,28 +80,29 @@ RD::FlowTracerSelectionState RimEclipseResultDefinitionTools::getFlowTracerSelec
                                                                                            RimFlowDiagSolution* const  flowDiagSolution,
                                                                                            size_t                      selectedTracerCount )
 {
-    if ( tracerSelectionType == RD::FLOW_TR_INJECTORS || tracerSelectionType == RD::FLOW_TR_INJ_AND_PROD )
+    if ( tracerSelectionType == RD::FlowTracerSelectionType::FLOW_TR_INJECTORS ||
+         tracerSelectionType == RD::FlowTracerSelectionType::FLOW_TR_INJ_AND_PROD )
     {
-        return RD::ALL_SELECTED;
+        return RD::FlowTracerSelectionState::ALL_SELECTED;
     }
 
-    if ( tracerSelectionType == RD::FLOW_TR_BY_SELECTION )
+    if ( tracerSelectionType == RD::FlowTracerSelectionType::FLOW_TR_BY_SELECTION )
     {
         if ( selectedTracerCount == RimFlowDiagnosticsTools::setOfTracersOfType( flowDiagSolution, isInjector ).size() )
         {
-            return RD::ALL_SELECTED;
+            return RD::FlowTracerSelectionState::ALL_SELECTED;
         }
         if ( selectedTracerCount == (size_t)1 )
         {
-            return RD::ONE_SELECTED;
+            return RD::FlowTracerSelectionState::ONE_SELECTED;
         }
         if ( selectedTracerCount > (size_t)1 )
         {
-            return RD::MULTIPLE_SELECTED;
+            return RD::FlowTracerSelectionState::MULTIPLE_SELECTED;
         }
     }
 
-    return RD::NONE_SELECTED;
+    return RD::FlowTracerSelectionState::NONE_SELECTED;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -133,16 +135,16 @@ QString RimEclipseResultDefinitionTools::timeOfFlightString( RD::FlowTracerSelec
 {
     QString tofString;
     bool    multipleSelected = false;
-    if ( injectorState != RD::NONE_SELECTED && producerState != RD::NONE_SELECTED )
+    if ( injectorState != RD::FlowTracerSelectionState::NONE_SELECTED && producerState != RD::FlowTracerSelectionState::NONE_SELECTED )
     {
         tofString        = shorter ? "Res.Time" : "Residence Time";
         multipleSelected = true;
     }
-    else if ( injectorState != RD::NONE_SELECTED )
+    else if ( injectorState != RD::FlowTracerSelectionState::NONE_SELECTED )
     {
         tofString = shorter ? "Fwd.TOF" : "Forward Time of Flight";
     }
-    else if ( producerState != RD::NONE_SELECTED )
+    else if ( producerState != RD::FlowTracerSelectionState::NONE_SELECTED )
     {
         tofString = shorter ? "Rev.TOF" : "Reverse Time of Flight";
     }
@@ -151,7 +153,8 @@ QString RimEclipseResultDefinitionTools::timeOfFlightString( RD::FlowTracerSelec
         tofString = shorter ? "TOF" : "Time of Flight";
     }
 
-    multipleSelected = multipleSelected || injectorState >= RD::MULTIPLE_SELECTED || producerState >= RD::MULTIPLE_SELECTED;
+    multipleSelected = multipleSelected || injectorState >= RD::FlowTracerSelectionState::MULTIPLE_SELECTED ||
+                       producerState >= RD::FlowTracerSelectionState::MULTIPLE_SELECTED;
 
     if ( multipleSelected && !shorter )
     {
@@ -172,15 +175,15 @@ QString RimEclipseResultDefinitionTools::maxFractionTracerString( RD::FlowTracer
                                                                   bool                         shorter )
 {
     QString mfString;
-    if ( injectorState >= RD::ONE_SELECTED && producerState == RD::NONE_SELECTED )
+    if ( injectorState >= RD::FlowTracerSelectionState::ONE_SELECTED && producerState == RD::FlowTracerSelectionState::NONE_SELECTED )
     {
         mfString = shorter ? "FloodReg" : "Flooding Region";
-        if ( injectorState >= RD::MULTIPLE_SELECTED ) mfString += "s";
+        if ( injectorState >= RD::FlowTracerSelectionState::MULTIPLE_SELECTED ) mfString += "s";
     }
-    else if ( injectorState == RD::NONE_SELECTED && producerState >= RD::ONE_SELECTED )
+    else if ( injectorState == RD::FlowTracerSelectionState::NONE_SELECTED && producerState >= RD::FlowTracerSelectionState::ONE_SELECTED )
     {
         mfString = shorter ? "DrainReg" : "Drainage Region";
-        if ( producerState >= RD::MULTIPLE_SELECTED ) mfString += "s";
+        if ( producerState >= RD::FlowTracerSelectionState::MULTIPLE_SELECTED ) mfString += "s";
     }
     else
     {
@@ -200,23 +203,23 @@ QString RimEclipseResultDefinitionTools::selectedTracersString( RD::FlowTracerSe
 {
     QStringList fullTracersList;
 
-    if ( injectorState == RD::ALL_SELECTED && producerState == RD::ALL_SELECTED )
+    if ( injectorState == RD::FlowTracerSelectionState::ALL_SELECTED && producerState == RD::FlowTracerSelectionState::ALL_SELECTED )
     {
-        fullTracersList += caf::AppEnum<RD::FlowTracerSelectionType>::uiText( RD::FLOW_TR_INJ_AND_PROD );
+        fullTracersList += caf::AppEnum<RD::FlowTracerSelectionType>::uiText( RD::FlowTracerSelectionType::FLOW_TR_INJ_AND_PROD );
     }
     else
     {
-        if ( injectorState == RD::ALL_SELECTED )
+        if ( injectorState == RD::FlowTracerSelectionState::ALL_SELECTED )
         {
-            fullTracersList += caf::AppEnum<RD::FlowTracerSelectionType>::uiText( RD::FLOW_TR_INJECTORS );
+            fullTracersList += caf::AppEnum<RD::FlowTracerSelectionType>::uiText( RD::FlowTracerSelectionType::FLOW_TR_INJECTORS );
         }
 
-        if ( producerState == RD::ALL_SELECTED )
+        if ( producerState == RD::FlowTracerSelectionState::ALL_SELECTED )
         {
-            fullTracersList += caf::AppEnum<RD::FlowTracerSelectionType>::uiText( RD::FLOW_TR_PRODUCERS );
+            fullTracersList += caf::AppEnum<RD::FlowTracerSelectionType>::uiText( RD::FlowTracerSelectionType::FLOW_TR_PRODUCERS );
         }
 
-        if ( injectorState == RD::ONE_SELECTED || injectorState == RD::MULTIPLE_SELECTED )
+        if ( injectorState == RD::FlowTracerSelectionState::ONE_SELECTED || injectorState == RD::FlowTracerSelectionState::MULTIPLE_SELECTED )
         {
             QStringList listOfSelectedInjectors;
             for ( const QString& injector : selectedInjectors )
@@ -229,7 +232,7 @@ QString RimEclipseResultDefinitionTools::selectedTracersString( RD::FlowTracerSe
             }
         }
 
-        if ( producerState == RD::ONE_SELECTED || producerState == RD::MULTIPLE_SELECTED )
+        if ( producerState == RD::FlowTracerSelectionState::ONE_SELECTED || producerState == RD::FlowTracerSelectionState::MULTIPLE_SELECTED )
         {
             QStringList listOfSelectedProducers;
             for ( const QString& producer : selectedProducers )

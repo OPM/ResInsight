@@ -26,8 +26,10 @@
 #include "RigActiveCellInfo.h"
 #include "RigActiveCellsResultAccessor.h"
 #include "RigCaseCellResultCalculator.h"
+#include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigEclipseCrossPlotDataExtractor.h"
+#include "RigEclipseResultAddress.h"
 
 #include "RigFormationNames.h"
 #include "RigMainGrid.h"
