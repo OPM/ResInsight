@@ -28,6 +28,7 @@
 #include <map>
 #include <vector>
 
+#include "RiaDefines.h"
 #include "Token.hpp"
 
 class RigEclipseCaseData;
@@ -83,4 +84,6 @@ private:
                                               const std::string&  keyword,
                                               roff::Token::Kind   token,
                                               roff::Reader&       reader );
+
+    static RiaDefines::ResultDataType mapFromType( roff::Token::Kind kind );
 };

@@ -387,7 +387,10 @@ void RimIntersectionResultDefinition::setDefaultEclipseLegendConfig()
     auto eclResultDef = this->eclipseResultDefinition();
     eclResultDef->updateRangesForExplicitLegends( this->regularLegendConfig(), this->ternaryLegendConfig(), this->timeStep() );
 
-    m_legendConfig->setDefaultConfigForResultName( m_eclipseResultDefinition->resultVariable(), useDiscreteLogLevels, isCategoryResult );
+    m_legendConfig->setDefaultConfigForResultName( m_case->caseId(),
+                                                   m_eclipseResultDefinition->resultVariable(),
+                                                   useDiscreteLogLevels,
+                                                   isCategoryResult );
 }
 
 //--------------------------------------------------------------------------------------------------

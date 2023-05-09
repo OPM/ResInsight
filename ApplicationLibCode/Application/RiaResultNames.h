@@ -20,7 +20,10 @@
 
 #pragma once
 
+class RigEclipseResultAddress;
+
 #include <QString>
+
 #include <set>
 #include <vector>
 
@@ -66,9 +69,10 @@ QString faultReactAssessmentPrefix();
 
 QString completionTypeResultName();
 
-QString indexIResultName();
-QString indexJResultName();
-QString indexKResultName();
+QString                 indexIResultName();
+QString                 indexJResultName();
+QString                 indexKResultName();
+RigEclipseResultAddress staticIntegerAddress( const QString& resultName );
 
 QString faultDistanceName();
 

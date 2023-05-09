@@ -111,26 +111,11 @@ TEST( RigReservoirTest, BasicTest10kRestart )
     filenames << filePath;
     unrstAccess.setRestartFiles( filenames );
 
-    QStringList         resultNames;
-    std::vector<size_t> dataItemCount;
-
-    unrstAccess.resultNames( &resultNames, &dataItemCount );
-
-    EXPECT_EQ( resultNames.size(), (int)dataItemCount.size() );
-    EXPECT_EQ( 83, resultNames.size() );
-
-    /* for (int i = 0; i < resultNames.size(); i++)
-    {
-        qDebug() << resultNames[i] << "\t" << dataItemCount[i];
-    } */
+    auto keywordValueCounts = unrstAccess.keywordValueCounts();
+    EXPECT_EQ( (size_t)83, keywordValueCounts.size() );
 
     auto reportNums = unrstAccess.reportNumbers();
     EXPECT_EQ( (size_t)9, reportNums.size() );
-
-    /* for (auto reportNum : reportNums)
-    {
-        qDebug() << reportNum;
-    } */
 }
 
 TEST( RigReservoirTest, BasicTest10k_NativeECL )

@@ -158,7 +158,7 @@ void RifEclipseRestartFilesetAccess::timeSteps( std::vector<QDateTime>* timeStep
 //--------------------------------------------------------------------------------------------------
 /// Get list of result names
 //--------------------------------------------------------------------------------------------------
-void RifEclipseRestartFilesetAccess::resultNames( QStringList* resultNames, std::vector<size_t>* resultDataItemCounts )
+std::vector<RifKeywordValueCount> RifEclipseRestartFilesetAccess::keywordValueCounts()
 {
     CVF_ASSERT( timeStepCount() > 0 );
 
@@ -167,7 +167,7 @@ void RifEclipseRestartFilesetAccess::resultNames( QStringList* resultNames, std:
         openTimeStep( i );
     }
 
-    RifEclipseOutputFileTools::findKeywordsAndItemCount( m_ecl_files, resultNames, resultDataItemCounts );
+    return RifEclipseOutputFileTools::keywordValueCounts( m_ecl_files );
 }
 
 //--------------------------------------------------------------------------------------------------

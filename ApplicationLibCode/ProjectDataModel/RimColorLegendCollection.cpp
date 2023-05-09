@@ -18,6 +18,7 @@
 
 #include "RimColorLegendCollection.h"
 
+#include "RiaColorTables.h"
 #include "RiaFractureDefines.h"
 
 #include "RimColorLegend.h"
@@ -76,7 +77,57 @@ bool RimColorLegendCollection::isStandardColorLegend( RimColorLegend* legend )
 //--------------------------------------------------------------------------------------------------
 void RimColorLegendCollection::deleteCustomColorLegends()
 {
+    m_defaultColorLegendNameForResult.clear();
     m_customColorLegends.deleteChildren();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimColorLegend* RimColorLegendCollection::createColorLegend( const QString& name, const std::vector<std::pair<int, QString>>& valuesAndNames )
+{
+    auto colors = RiaColorTables::categoryPaletteColors().color3ubArray();
+
+    auto colorLegend = new RimColorLegend();
+    colorLegend->setColorLegendName( name );
+    int colorIndex = 0;
+    for ( const auto& [value, name] : valuesAndNames )
+    {
+        auto         item  = new RimColorLegendItem();
+        auto         color = colors[colorIndex++ % colors.size()];
+        cvf::Color3f color3f( color );
+
+        item->setValues( name, value, color3f );
+
+        colorLegend->appendColorLegendItem( item );
+    }
+
+    appendCustomColorLegend( colorLegend );
+
+    return colorLegend;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimColorLegendCollection::deleteColorLegend( int caseId, const QString& resultName )
+{
+    m_defaultColorLegendNameForResult.erase( createLookupKey( caseId, resultName ) );
+
+    auto legend = findDefaultLegendForResult( caseId, resultName );
+    if ( !legend ) return;
+
+    m_customColorLegends.removeChild( legend );
+    delete legend;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimColorLegendCollection::setDefaultColorLegendForResult( int caseId, const QString& resultName, RimColorLegend* colorLegend )
+{
+    auto key                               = createLookupKey( caseId, resultName );
+    m_defaultColorLegendNameForResult[key] = colorLegend;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -173,6 +224,22 @@ RimColorLegend* RimColorLegendCollection::findByName( const QString& name ) cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimColorLegend* RimColorLegendCollection::findDefaultLegendForResult( int caseId, const QString& resultName ) const
+{
+    auto key = createLookupKey( caseId, resultName );
+
+    auto it = m_defaultColorLegendNameForResult.find( key );
+    if ( it != m_defaultColorLegendNameForResult.end() )
+    {
+        return it->second;
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimColorLegendItem* RimColorLegendCollection::createColorLegendItem( const QString& name, int r, int g, int b ) const
 {
     RimColorLegendItem* item = new RimColorLegendItem;
@@ -244,6 +311,14 @@ RimColorLegend* RimColorLegendCollection::createRockTypeColorLegend() const
     }
 
     return colorLegend;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimColorLegendCollection::createLookupKey( int caseId, const QString& resultName )
+{
+    return QString( "%1 (case %2)" ).arg( resultName ).arg( caseId );
 }
 
 //--------------------------------------------------------------------------------------------------

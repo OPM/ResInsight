@@ -305,21 +305,18 @@ RimEclipseView* RimEclipseCase::createAndAddReservoirView()
     rimEclipseView->setEclipseCase( this );
 
     // Set default values
+    if ( rimEclipseView->currentGridCellResults() )
     {
-        rimEclipseView->cellResult()->setResultType( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
-
-        auto prefs = RiaPreferences::current();
-        if ( prefs->loadAndShowSoil )
-        {
-            rimEclipseView->cellResult()->setResultVariable( RiaResultNames::soil() );
-        }
-
-        rimEclipseView->faultCollection()->showFaultCollection = prefs->enableFaultsByDefault();
-
-        rimEclipseView->cellEdgeResult()->setResultVariable( "MULT" );
-        rimEclipseView->cellEdgeResult()->setActive( false );
-        rimEclipseView->fractureColors()->setDefaultResultName();
+        auto defaultResult = rimEclipseView->currentGridCellResults()->defaultResult();
+        rimEclipseView->cellResult()->setFromEclipseResultAddress( defaultResult );
     }
+
+    auto prefs                                             = RiaPreferences::current();
+    rimEclipseView->faultCollection()->showFaultCollection = prefs->enableFaultsByDefault();
+
+    rimEclipseView->cellEdgeResult()->setResultVariable( "MULT" );
+    rimEclipseView->cellEdgeResult()->setActive( false );
+    rimEclipseView->fractureColors()->setDefaultResultName();
 
     caf::PdmDocument::updateUiIconStateRecursively( rimEclipseView );
 

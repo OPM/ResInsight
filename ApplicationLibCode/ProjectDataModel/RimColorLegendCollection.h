@@ -47,9 +47,14 @@ public:
     bool isStandardColorLegend( RimColorLegend* colorLegend );
     void deleteCustomColorLegends();
 
+    RimColorLegend* createColorLegend( const QString& name, const std::vector<std::pair<int, QString>>& valuesAndNames );
+    void            deleteColorLegend( int caseId, const QString& resultName );
+    void            setDefaultColorLegendForResult( int caseId, const QString& resultName, RimColorLegend* colorLegend );
+
     std::vector<RimColorLegend*> allColorLegends() const;
 
     RimColorLegend* findByName( const QString& name ) const;
+    RimColorLegend* findDefaultLegendForResult( int caseId, const QString& resultName ) const;
 
 protected:
     void initAfterRead() override;
@@ -58,6 +63,10 @@ private:
     RimColorLegendItem* createColorLegendItem( const QString& name, int r, int g, int b ) const;
     RimColorLegend*     createRockTypeColorLegend() const;
 
+    static QString createLookupKey( int caseId, const QString& resultName );
+
     caf::PdmChildArrayField<RimColorLegend*> m_standardColorLegends; // ResInsight standard (built-in) legends
     caf::PdmChildArrayField<RimColorLegend*> m_customColorLegends; // user specified legends
+
+    std::map<QString, caf::PdmPointer<RimColorLegend>> m_defaultColorLegendNameForResult;
 };

@@ -1167,7 +1167,7 @@ QString RimRegularLegendConfig::valueToText( double value ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimRegularLegendConfig::setDefaultConfigForResultName( const QString& resultName, bool useDiscreteLogLevels, bool isCategoryResult )
+void RimRegularLegendConfig::setDefaultConfigForResultName( int caseId, const QString& resultName, bool useDiscreteLogLevels, bool isCategoryResult )
 {
     bool useLog = RiaResultNames::isLogarithmicResult( resultName );
 
@@ -1215,7 +1215,13 @@ void RimRegularLegendConfig::setDefaultConfigForResultName( const QString& resul
     setTickNumberFormat( numberFormat );
     updateTickCountAndUserDefinedRange();
 
-    if ( colorRangeType != RimRegularLegendConfig::ColorRangesType::UNDEFINED )
+    RimProject* project       = RimProject::current();
+    auto        defaultLegend = project->colorLegendCollection()->findDefaultLegendForResult( caseId, resultName );
+    if ( defaultLegend )
+    {
+        setColorLegend( defaultLegend );
+    }
+    else if ( colorRangeType != RimRegularLegendConfig::ColorRangesType::UNDEFINED )
     {
         RimColorLegend* colorLegend = RimRegularLegendConfig::mapToColorLegend( colorRangeType );
 

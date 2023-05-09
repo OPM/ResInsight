@@ -56,58 +56,18 @@ RifEclipseOutputFileTools::~RifEclipseOutputFileTools()
 {
 }
 
-struct KeywordItemCounter
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RifKeywordValueCount> RifEclipseOutputFileTools::keywordValueCounts( const std::vector<ecl_file_type*>& ecl_files )
 {
-    KeywordItemCounter( const std::string& keyword, size_t aggregatedItemCount )
-        : m_keyword( keyword )
-        , m_aggregatedItemCount( aggregatedItemCount )
-        , m_reportStepCount( 1 )
-    {
-    }
-
-    bool operator==( const std::string& rhs ) const { return this->m_keyword == rhs; }
-
-    std::string m_keyword;
-    size_t      m_aggregatedItemCount;
-    size_t      m_reportStepCount;
-};
+    auto reportstepMetaData = RifEclipseOutputFileTools::createReportStepsMetaData( ecl_files );
+    return reportstepMetaData.keywordValueCounts();
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifEclipseOutputFileTools::findKeywordsAndItemCount( std::vector<ecl_file_type*> ecl_files,
-                                                          QStringList*                resultNames,
-                                                          std::vector<size_t>*        resultDataItemCounts )
-{
-    std::vector<RifRestartReportStep> reportSteps;
-    RifEclipseOutputFileTools::createReportStepsMetaData( ecl_files, &reportSteps );
-
-    std::vector<KeywordItemCounter> foundKeywords;
-
-    for ( auto reportStep : reportSteps )
-    {
-        for ( auto keywordItemCount : reportStep.m_keywords.keywordsWithAggregatedItemCount() )
-        {
-            auto it = std::find( foundKeywords.begin(), foundKeywords.end(), keywordItemCount.first );
-            if ( it == foundKeywords.end() )
-            {
-                foundKeywords.push_back( KeywordItemCounter( keywordItemCount.first, keywordItemCount.second ) );
-            }
-            else
-            {
-                it->m_aggregatedItemCount += keywordItemCount.second;
-                it->m_reportStepCount++;
-            }
-        }
-    }
-
-    for ( auto stdKeyword : foundKeywords )
-    {
-        resultNames->push_back( QString::fromStdString( stdKeyword.m_keyword ) );
-        resultDataItemCounts->push_back( stdKeyword.m_aggregatedItemCount );
-    }
-}
-
 void getDayMonthYear( const ecl_kw_type* intehead_kw, int* day, int* month, int* year )
 {
     assert( day && month && year );
@@ -636,9 +596,9 @@ FILE* RifEclipseOutputFileTools::fopen( const QString& filePath, const QString& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifEclipseOutputFileTools::createReportStepsMetaData( std::vector<ecl_file_type*> ecl_files, std::vector<RifRestartReportStep>* reportSteps )
+RifRestartReportKeywords RifEclipseOutputFileTools::createReportStepsMetaData( const std::vector<ecl_file_type*>& ecl_files )
 {
-    if ( !reportSteps ) return;
+    RifRestartReportKeywords reportSteps;
 
     for ( auto ecl_file : ecl_files )
     {
@@ -658,15 +618,6 @@ void RifEclipseOutputFileTools::createReportStepsMetaData( std::vector<ecl_file_
                 {
                     ecl_file_select_block( ecl_file, INTEHEAD_KW, reportStepIndex );
 
-                    RifRestartReportStep reportStep;
-
-                    // Set Date
-                    {
-                        QDateTime reportDateTime =
-                            RiaQDateTimeTools::createDateTime( QDate( restart_header->year, restart_header->month, restart_header->day ) );
-                        reportStep.dateTime = reportDateTime;
-                    }
-
                     // Find number of keywords within this report step
                     int numKeywords = ecl_file_get_num_distinct_kw( ecl_file );
                     for ( int iKey = 0; iKey < numKeywords; iKey++ )
@@ -676,19 +627,32 @@ void RifEclipseOutputFileTools::createReportStepsMetaData( std::vector<ecl_file_
                         int namedKeywordCount = ecl_file_get_num_named_kw( ecl_file, kw );
                         for ( int iOcc = 0; iOcc < namedKeywordCount; iOcc++ )
                         {
-                            ecl_data_type dataType     = ecl_file_iget_named_data_type( ecl_file, kw, iOcc );
-                            ecl_type_enum dataTypeEmum = ecl_type_get_type( dataType );
-                            if ( dataTypeEmum != ECL_DOUBLE_TYPE && dataTypeEmum != ECL_FLOAT_TYPE && dataTypeEmum != ECL_INT_TYPE )
+                            ecl_data_type dataTypeOnFile     = ecl_file_iget_named_data_type( ecl_file, kw, iOcc );
+                            ecl_type_enum dataTypeEnumOnFile = ecl_type_get_type( dataTypeOnFile );
+                            if ( dataTypeEnumOnFile != ECL_DOUBLE_TYPE && dataTypeEnumOnFile != ECL_FLOAT_TYPE &&
+                                 dataTypeEnumOnFile != ECL_INT_TYPE )
                             {
                                 continue;
                             }
 
+                            RifKeywordValueCount::KeywordDataType dataType = RifKeywordValueCount::KeywordDataType::UNKNOWN;
+                            if ( dataTypeEnumOnFile == ECL_DOUBLE_TYPE )
+                            {
+                                dataType = RifKeywordValueCount::KeywordDataType::DOUBLE;
+                            }
+                            else if ( dataTypeEnumOnFile == ECL_FLOAT_TYPE )
+                            {
+                                dataType = RifKeywordValueCount::KeywordDataType::FLOAT;
+                            }
+                            else if ( dataTypeEnumOnFile == ECL_INT_TYPE )
+                            {
+                                dataType = RifKeywordValueCount::KeywordDataType::INTEGER;
+                            }
+
                             int itemCount = ecl_file_iget_named_size( ecl_file, kw, iOcc );
-                            reportStep.m_keywords.appendKeyword( kw, itemCount, iOcc );
+                            reportSteps.appendKeywordCount( kw, itemCount, dataType );
                         }
                     }
-
-                    reportSteps->push_back( reportStep );
                 }
 
                 ecl_file_pop_block( ecl_file );
@@ -697,4 +661,6 @@ void RifEclipseOutputFileTools::createReportStepsMetaData( std::vector<ecl_file_
             }
         }
     }
+
+    return reportSteps;
 }

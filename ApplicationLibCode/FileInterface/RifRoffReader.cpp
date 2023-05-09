@@ -21,6 +21,7 @@
 #include <QFile>
 #include <QTextStream>
 
+#include "roffcpp/src/Parser.hpp"
 #include "roffcpp/src/Reader.hpp"
 
 #include <fstream>
@@ -41,8 +42,8 @@ void RifRoffReader::readCodeNames( const QString& filename, const QString& param
     std::vector<std::pair<std::string, roff::Token::Kind>> arrayTypes = reader.getNamedArrayTypes();
 
     // Find array types by keywords
-    const std::string codeNamesKeyword  = parameterTagName.toStdString() + ".codeNames";
-    const std::string codeValuesKeyword = parameterTagName.toStdString() + ".codeValues";
+    const std::string codeNamesKeyword  = parameterTagName.toStdString() + roff::Parser::postFixCodeNames();
+    const std::string codeValuesKeyword = parameterTagName.toStdString() + roff::Parser::postFixCodeValues();
     auto              codeNamesItr      = std::find_if( arrayTypes.begin(),
                                       arrayTypes.end(),
                                       [&codeNamesKeyword]( const auto& arrayType ) { return arrayType.first == codeNamesKeyword; } );
