@@ -19,6 +19,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimEclipseResultDefinitionTools.h"
+#include "RimEclipseCase.h"
+#include "RimEclipseInputProperty.h"
+#include "RimEclipseInputPropertyCollection.h"
 #include "RimFlowDiagnosticsTools.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -239,4 +242,25 @@ QString RimEclipseResultDefinitionTools::selectedTracersString( RD::FlowTracerSe
     }
 
     return tracersText;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimEclipseResultDefinitionTools::getInputPropertyFileName( const RimEclipseCase* eclipseCase, const QString& resultName )
+{
+    if ( eclipseCase )
+    {
+        RimEclipseInputPropertyCollection* inputPropertyCollection = eclipseCase->inputPropertyCollection();
+        if ( inputPropertyCollection )
+        {
+            RimEclipseInputProperty* inputProperty = inputPropertyCollection->findInputProperty( resultName );
+            if ( inputProperty )
+            {
+                return inputProperty->fileName.v().path();
+            }
+        }
+    }
+
+    return "";
 }

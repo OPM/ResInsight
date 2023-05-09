@@ -316,7 +316,7 @@ void RimEclipseResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
         }
         else if ( m_resultTypeUiField() == RiaDefines::ResultCatType::INPUT_PROPERTY )
         {
-            m_inputPropertyFileName = getInputPropertyFileName( newValue.toString() );
+            m_inputPropertyFileName = RimEclipseResultDefinitionTools::getInputPropertyFileName( eclipseCase(), newValue.toString() );
         }
         loadDataAndUpdate();
     }
@@ -2435,28 +2435,4 @@ bool RimEclipseResultDefinition::addPerCellFaceOptionsForVariableUiField() const
     }
 
     return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimEclipseResultDefinition::getInputPropertyFileName( const QString& resultName ) const
-{
-    RimEclipseCase* eclipseCase;
-    this->firstAncestorOrThisOfType( eclipseCase );
-
-    if ( eclipseCase )
-    {
-        RimEclipseInputPropertyCollection* inputPropertyCollection = eclipseCase->inputPropertyCollection();
-        if ( inputPropertyCollection )
-        {
-            RimEclipseInputProperty* inputProperty = inputPropertyCollection->findInputProperty( resultName );
-            if ( inputProperty )
-            {
-                return inputProperty->fileName.v().path();
-            }
-        }
-    }
-
-    return "";
 }

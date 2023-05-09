@@ -219,8 +219,6 @@ private:
     bool showDerivedResultsFirstInVariableUiField() const;
     bool addPerCellFaceOptionsForVariableUiField() const;
 
-    QString getInputPropertyFileName( const QString& resultName ) const;
-
 private:
     bool                             m_isDeltaResultEnabled;
     caf::PdmUiItemInfo::LabelPosType m_labelPosition;

@@ -45,4 +45,6 @@ public:
                                           const std::vector<QString>&  selectedInjectors,
                                           const std::vector<QString>&  selectedProducers,
                                           int                          maxTracerStringLength );
+
+    static QString getInputPropertyFileName( const RimEclipseCase* eclipseCase, const QString& resultName );
 };
