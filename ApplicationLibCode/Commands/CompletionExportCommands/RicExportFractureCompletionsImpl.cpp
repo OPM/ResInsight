@@ -24,6 +24,7 @@
 #include "RiaLogging.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaSummaryTools.h"
+#include "RigEclipseResultAddress.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseResultCase.h"
