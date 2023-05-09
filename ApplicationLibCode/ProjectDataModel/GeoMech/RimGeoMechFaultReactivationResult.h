@@ -40,21 +40,24 @@ public:
     ~RimGeoMechFaultReactivationResult() override;
 
 private:
+    void onLoadDataAndUpdate();
+
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+
+    void createWellGeometry();
+    void createWellLogCurves();
 
 private:
     caf::PdmPtrField<RimExtrudedCurveIntersection*> m_intersection;
 
     caf::PdmField<bool> m_createFaultReactivationResult;
 
-    // TODO: Remove "well" from name?
     caf::PdmField<double> m_distanceFromIntersection; // To move wells to each side of intersection
     caf::PdmField<double> m_widthOutsideIntersection; // To stretch well points outside intersection
 
-    // Pdm field?
-    RimModeledWellPath* m_faceAWellPath = nullptr;
-    RimModeledWellPath* m_faceBWellPath = nullptr;
+    caf::PdmPtrField<RimModeledWellPath*> m_faceAWellPath;
+    caf::PdmPtrField<RimModeledWellPath*> m_faceBWellPath;
 };
