@@ -56,6 +56,7 @@
 #include "RimElementVectorResult.h"
 #include "RimExtrudedCurveIntersection.h"
 #include "RimFaultInViewCollection.h"
+#include "RimFaultReactivationModelCollection.h"
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowDiagSolution.h"
 #include "RimFracture.h"
@@ -171,6 +172,10 @@ RimEclipseView::RimEclipseView()
     CAF_PDM_InitFieldNoDefault( &m_faultCollection, "FaultCollection", "Faults" );
     m_faultCollection = new RimFaultInViewCollection;
     m_faultCollection.uiCapability()->setUiTreeHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_faultReactivationModelCollection, "FaultReactivationModelCollection", "Fault Reactivation Models" );
+    m_faultReactivationModelCollection = new RimFaultReactivationModelCollection;
+    m_faultReactivationModelCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_annotationCollection, "AnnotationCollection", "Annotations" );
     m_annotationCollection = new RimAnnotationInViewCollection;
@@ -304,6 +309,14 @@ RimSimWellInViewCollection* RimEclipseView::wellCollection() const
 RimFaultInViewCollection* RimEclipseView::faultCollection() const
 {
     return m_faultCollection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimFaultReactivationModelCollection* RimEclipseView::faultReactivationModelCollection() const
+{
+    return m_faultReactivationModelCollection;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1879,8 +1892,6 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     uiTreeOrdering.add( wellCollection() );
 
     {
-        bool showFractureColors = false;
-
         std::vector<RimFracture*> fractures = m_wellCollection->descendantsIncludingThisOfType<RimFracture>();
 
         auto otherFractures = wellPathCollection()->descendantsIncludingThisOfType<RimFracture>();
@@ -1888,16 +1899,14 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 
         if ( !fractures.empty() )
         {
-            showFractureColors = true;
-        }
-
-        if ( showFractureColors )
-        {
             uiTreeOrdering.add( fractureColors() );
         }
     }
 
     uiTreeOrdering.add( faultCollection() );
+
+    if ( faultReactivationModelCollection()->shouldBeVisibleInTree() ) uiTreeOrdering.add( faultReactivationModelCollection() );
+
     uiTreeOrdering.add( annotationCollection() );
     uiTreeOrdering.add( intersectionCollection() );
 

@@ -448,11 +448,11 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
                                                            QString( "Show " ) + faultName + QString( " - Others Off" ),
                                                            QVariant( fault->name() ) );
 
-                    menuBuilder.addSeparator();
-
                     menuBuilder.addCmdFeatureWithUserData( "RicNewFaultReactModelingFeature",
                                                            QString( "New Fault Re-activation Model" ),
                                                            faultDataList );
+
+                    menuBuilder.addSeparator();
                 }
             }
 

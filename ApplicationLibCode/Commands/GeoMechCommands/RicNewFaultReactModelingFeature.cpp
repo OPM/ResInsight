@@ -25,6 +25,8 @@
 #include "RimEclipseView.h"
 #include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
+#include "RimFaultReactivationModel.h"
+#include "RimFaultReactivationModelCollection.h"
 
 #include "RigFault.h"
 #include "RigMainGrid.h"
@@ -64,8 +66,9 @@ void RicNewFaultReactModelingFeature::onActionTriggered( bool isChecked )
         size_t currentCellIndex = static_cast<size_t>( list[0].toULongLong() );
         int    currentFaceIndex = list[1].toInt();
 
-        const RigFault* fault =
-            eclView->mainGrid()->findFaultFromCellIndexAndCellFace( currentCellIndex, cvf::StructGridInterface::FaceType( currentFaceIndex ) );
+        auto face = cvf::StructGridInterface::FaceType( currentFaceIndex );
+
+        const RigFault* fault = eclView->mainGrid()->findFaultFromCellIndexAndCellFace( currentCellIndex, face );
         if ( fault )
         {
             QString faultName = fault->name();
@@ -73,7 +76,11 @@ void RicNewFaultReactModelingFeature::onActionTriggered( bool isChecked )
             RimFaultInView* rimFault = eclView->faultCollection()->findFaultByName( faultName );
             if ( rimFault )
             {
-                rimFault->showFault.setValueWithFieldChanged( !rimFault->showFault );
+                RigCell cell = eclView->mainGrid()->cell( currentCellIndex );
+
+                // RimFaultReactivationModel* model = eclView->faultReactivationModelCollection()->addNewModel( rimFault, cell, face );
+
+                view->updateAllRequiredEditors();
             }
         }
     }
