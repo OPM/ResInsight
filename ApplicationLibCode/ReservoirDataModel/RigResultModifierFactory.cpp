@@ -21,6 +21,7 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigResultModifier.h"
 
 #include <cmath>

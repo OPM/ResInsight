@@ -20,6 +20,7 @@
 
 #include "RiaDefines.h"
 #include "RiaPorosityModel.h"
+#include "RiaResultNames.h"
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"

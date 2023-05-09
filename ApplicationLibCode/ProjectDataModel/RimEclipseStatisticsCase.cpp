@@ -20,11 +20,14 @@
 
 #include "RimEclipseStatisticsCase.h"
 
+#include "RiaResultNames.h"
+
 #include "RicNewViewFeature.h"
 #include "RicfCommandObject.h"
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigSimWellData.h"
 
 #include "RimCaseCollection.h"

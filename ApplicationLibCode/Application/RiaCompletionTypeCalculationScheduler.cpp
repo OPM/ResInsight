@@ -19,6 +19,7 @@
 #include "RiaCompletionTypeCalculationScheduler.h"
 
 #include "RiaApplication.h"
+#include "RiaResultNames.h"
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"

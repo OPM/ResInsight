@@ -19,7 +19,10 @@
 
 #include "RigFlowDiagStatCalc.h"
 
+#include "RiaResultNames.h"
+
 #include "RigCaseCellResultsData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigFlowDiagResults.h"
 #include "RigStatisticsMath.h"
 #include "RigWeightedMeanCalc.h"

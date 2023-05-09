@@ -19,6 +19,7 @@
 #include "RicEclipseCellResultToFileImpl.h"
 
 #include "RiaLogging.h"
+
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"

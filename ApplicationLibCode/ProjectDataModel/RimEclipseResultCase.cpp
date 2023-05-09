@@ -25,6 +25,7 @@
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaRegressionTestRunner.h"
+#include "RiaResultNames.h"
 
 #include "RicfCommandObject.h"
 
