@@ -291,11 +291,10 @@ TEST( BaseTest, PdmChildArrayField )
     EXPECT_EQ( s3, ihd1->m_childArrayField[2] );
 
     // childObjects
-    std::vector<caf::PdmObjectHandle*> objects;
-    ihd1->m_childArrayField.children( &objects );
+    std::vector<caf::PdmObjectHandle*> objects = ihd1->m_childArrayField.children();
     EXPECT_EQ( size_t( 3 ), objects.size() );
 
-    std::vector<DemoPdmObject*> typedObjects = ihd1->m_childArrayField.children();
+    std::vector<DemoPdmObject*> typedObjects = ihd1->m_childArrayField.childrenByType();
     EXPECT_EQ( size_t( 3 ), typedObjects.size() );
 
     // set()
