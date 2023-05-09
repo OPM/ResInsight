@@ -71,12 +71,12 @@ public:
     // PtrReferences
     /// The PdmPtrField's containing pointers to this PdmObjecthandle
     /// Use ownerObject() on the fieldHandle to get the PdmObjectHandle
-    void referringPtrFields( std::vector<PdmFieldHandle*>& fieldsReferringToMe ) const;
+    std::vector<PdmFieldHandle*> referringPtrFields() const;
     /// Convenience method to get the objects pointing to this field
-    void objectsWithReferringPtrFields( std::vector<PdmObjectHandle*>& objects ) const;
+    std::vector<PdmObjectHandle*> objectsWithReferringPtrFields() const;
     /// Convenience method to get the objects of specified type pointing to this field
     template <typename T>
-    void objectsWithReferringPtrFieldsOfType( std::vector<T*>& objectsOfType ) const;
+    std::vector<T*> objectsWithReferringPtrFieldsOfType() const;
 
     // Detach object from all referring fields
     void prepareForDelete();
@@ -299,11 +299,11 @@ std::vector<T*> PdmObjectHandle::descendantsOfType() const
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-void PdmObjectHandle::objectsWithReferringPtrFieldsOfType( std::vector<T*>& objectsOfType ) const
+std::vector<T*> PdmObjectHandle::objectsWithReferringPtrFieldsOfType() const
 {
-    std::vector<PdmObjectHandle*> objectsReferencingThis;
-    this->objectsWithReferringPtrFields( objectsReferencingThis );
+    std::vector<T*> objectsOfType;
 
+    std::vector<PdmObjectHandle*> objectsReferencingThis = objectsWithReferringPtrFields();
     for ( auto object : objectsReferencingThis )
     {
         if ( dynamic_cast<T*>( object ) )
@@ -311,6 +311,8 @@ void PdmObjectHandle::objectsWithReferringPtrFieldsOfType( std::vector<T*>& obje
             objectsOfType.push_back( dynamic_cast<T*>( object ) );
         }
     }
+
+    return objectsOfType;
 }
 
 } // End of namespace caf

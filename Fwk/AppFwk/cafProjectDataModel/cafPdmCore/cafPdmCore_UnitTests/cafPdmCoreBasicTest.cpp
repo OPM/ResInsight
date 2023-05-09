@@ -530,22 +530,19 @@ TEST( BaseTest, PdmPtrField )
 
     // Referencing system
     {
-        std::vector<caf::PdmFieldHandle*> ptrFields;
-        ihd2->referringPtrFields( ptrFields );
+        std::vector<caf::PdmFieldHandle*> ptrFields = ihd2->referringPtrFields();
         EXPECT_EQ( 1u, ptrFields.size() );
         EXPECT_EQ( &( ihd1->m_ptrField ), ptrFields[0] );
     }
 
     {
-        std::vector<caf::PdmObjectHandle*> objects;
-        ihd2->objectsWithReferringPtrFields( objects );
+        std::vector<caf::PdmObjectHandle*> objects = ihd2->objectsWithReferringPtrFields();
         EXPECT_EQ( 1u, objects.size() );
         EXPECT_EQ( ihd1, objects[0] );
     }
 
     {
-        std::vector<InheritedDemoObj*> reffingDemoObjects;
-        ihd2->objectsWithReferringPtrFieldsOfType( reffingDemoObjects );
+        std::vector<InheritedDemoObj*> reffingDemoObjects = ihd2->objectsWithReferringPtrFieldsOfType<InheritedDemoObj>();
         EXPECT_EQ( 1u, reffingDemoObjects.size() );
     }
 
