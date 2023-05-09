@@ -23,6 +23,7 @@
 #include "RiaStimPlanModelDefines.h"
 
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigEclipseWellLogExtractor.h"
 #include "RigElasticProperties.h"
 #include "RigResultAccessor.h"
@@ -30,7 +31,6 @@
 #include "RigWellLogCurveData.h"
 #include "RigWellPath.h"
 
-#include "RigEclipseResultAddress.h"
 #include "RimCase.h"
 #include "RimColorLegend.h"
 #include "RimColorLegendItem.h"
