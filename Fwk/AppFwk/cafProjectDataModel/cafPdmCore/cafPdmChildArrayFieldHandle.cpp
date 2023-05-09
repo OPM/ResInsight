@@ -21,8 +21,7 @@ bool PdmChildArrayFieldHandle::hasSameFieldCountForAllObjects()
     size_t fieldCount = 0;
     for ( size_t i = 0; i < listObjects.size(); i++ )
     {
-        std::vector<PdmFieldHandle*> fields;
-        listObjects[i]->fields( fields );
+        std::vector<PdmFieldHandle*> fields = listObjects[i]->fields();
 
         if ( i == 0 )
         {

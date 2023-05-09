@@ -103,8 +103,7 @@ PdmFieldHandle* PdmReferenceHelper::findField( PdmObjectHandle* object, const QS
 {
     if ( object == nullptr ) return nullptr;
 
-    std::vector<PdmFieldHandle*> fields;
-    object->fields( fields );
+    std::vector<PdmFieldHandle*> fields = object->fields();
 
     for ( size_t i = 0; i < fields.size(); i++ )
     {
