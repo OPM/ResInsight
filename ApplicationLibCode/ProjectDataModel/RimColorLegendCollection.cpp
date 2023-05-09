@@ -117,8 +117,6 @@ void RimColorLegendCollection::deleteColorLegend( int caseId, const QString& res
     auto legend = findDefaultLegendForResult( caseId, resultName );
     if ( !legend ) return;
 
-    m_defaultColorLegendNameForResult.erase( createLookupKey( caseId, resultName ) );
-
     m_customColorLegends.removeChild( legend );
     delete legend;
 }
