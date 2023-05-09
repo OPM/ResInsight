@@ -1745,8 +1745,6 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
                                                                  int                     currentTimeStep )
 
 {
-    RimEclipseCase* rimEclipseCase = this->eclipseCase();
-
     if ( this->hasResult() )
     {
         if ( this->isFlowDiagOrInjectionFlooding() )
