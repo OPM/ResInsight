@@ -754,14 +754,17 @@ RigEclipseResultAddress RigCaseCellResultsData::defaultResult() const
 {
     auto allResults = existingResults();
 
-    auto prefs = RiaPreferences::current();
-    if ( prefs->loadAndShowSoil )
+    if ( maxTimeStepCount() > 0 )
     {
-        // If we have a result called "soil", use that
-        auto soil = std::find_if( allResults.begin(),
-                                  allResults.end(),
-                                  []( const RigEclipseResultAddress& adr ) { return adr.resultName() == RiaResultNames::soil(); } );
-        if ( soil != allResults.end() ) return *soil;
+        auto prefs = RiaPreferences::current();
+        if ( prefs->loadAndShowSoil ) return RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() );
+
+        auto dynamicResult = std::find_if( allResults.begin(),
+                                           allResults.end(),
+                                           []( const RigEclipseResultAddress& adr )
+                                           { return adr.resultCatType() == RiaDefines::ResultCatType::DYNAMIC_NATIVE; } );
+
+        if ( dynamicResult != allResults.end() ) return *dynamicResult;
     }
 
     // If any input property exists, use that
@@ -771,14 +774,6 @@ RigEclipseResultAddress RigCaseCellResultsData::defaultResult() const
                                        { return adr.resultCatType() == RiaDefines::ResultCatType::INPUT_PROPERTY; } );
 
     if ( inputProperty != allResults.end() ) return *inputProperty;
-
-    // If any dynamic property exists, use that
-    auto dynamicResult = std::find_if( allResults.begin(),
-                                       allResults.end(),
-                                       []( const RigEclipseResultAddress& adr )
-                                       { return adr.resultCatType() == RiaDefines::ResultCatType::DYNAMIC_NATIVE; } );
-
-    if ( dynamicResult != allResults.end() ) return *dynamicResult;
 
     // If any static property exists, use that
     auto staticResult = std::find_if( allResults.begin(),
