@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.15)
 
 find_program(buildcache_program buildcache)
 if(buildcache_program)
@@ -7,6 +7,8 @@ if(buildcache_program)
 else()
   message( STATUS "No buildcache found" )
 endif()
+
+set(CMAKE_CXX_STANDARD 17)
 
 project (TestCafAndVizFwk)
 
@@ -27,6 +29,8 @@ add_subdirectory(AppFwk/cafPdmScripting)
 add_subdirectory(AppFwk/cafProjectDataModel/cafProjectDataModel_UnitTests)
 add_subdirectory(AppFwk/cafProjectDataModel/cafPdmCore/cafPdmCore_UnitTests)
 add_subdirectory(AppFwk/cafProjectDataModel/cafPdmXml/cafPdmXml_UnitTests)
+add_subdirectory(AppFwk/cafPdmScripting/cafPdmScripting_UnitTests)
+add_subdirectory(AppFwk/cafUserInterface/cafUserInterface_UnitTests)
 
 # Executables
 add_subdirectory(AppFwk/cafTests/cafTestApplication)
@@ -37,7 +41,7 @@ add_subdirectory(AppFwk/cafTests/cafTestApplication)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set_property(TARGET cafPdmCore cafPdmUiCore cafPdmXml cafProjectDataModel PROPERTY FOLDER "ProjectDataModel")
-set_property(TARGET cafPdmCore_UnitTests cafPdmXml_UnitTests cafProjectDataModel_UnitTests PROPERTY FOLDER "UnitTests")
+set_property(TARGET cafPdmCore_UnitTests cafPdmXml_UnitTests cafProjectDataModel_UnitTests cafPdmScripting_UnitTests cafUserInterface_UnitTests PROPERTY FOLDER "UnitTests")
 
 option (USE_CEE_VIZ "Enable visualization projects" ON)
 if (USE_CEE_VIZ)
