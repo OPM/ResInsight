@@ -138,8 +138,8 @@ void PdmDocument::updateUiIconStateRecursively( PdmObjectHandle* object )
     {
         if ( fields[fIdx] )
         {
-            auto other = fields[fIdx]->children();
-            children.insert( children.end(), other.begin(), other.end() );
+            auto fieldChildren = fields[fIdx]->children();
+            children.insert( children.end(), fieldChildren.begin(), fieldChildren.end() );
         }
     }
 
