@@ -33,7 +33,7 @@ CAF_PDM_SOURCE_INIT( RimFaultReactivationModelCollection, "FaultReactivationMode
 //--------------------------------------------------------------------------------------------------
 RimFaultReactivationModelCollection::RimFaultReactivationModelCollection()
 {
-    CAF_PDM_InitObject( "Fault Reactivation Models", ":/draw_style_faults_24x24.png" );
+    CAF_PDM_InitObject( "Fault Reactivation Models", ":/fault_react_24x24.png" );
 
     CAF_PDM_InitField( &m_userDescription, "UserDescription", QString( "Fault Reactivation Models" ), "Name" );
 
@@ -53,11 +53,14 @@ RimFaultReactivationModelCollection::~RimFaultReactivationModelCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimFaultReactivationModel* RimFaultReactivationModelCollection::addNewModel( RimFaultInView* fault )
+RimFaultReactivationModel* RimFaultReactivationModelCollection::addNewModel( RimFaultInView* fault, cvf::Vec3d target1, cvf::Vec3d target2 )
 {
     auto newModel = new RimFaultReactivationModel();
     newModel->setFault( fault );
     newModel->setUserDescription( fault->name() );
+    newModel->setTargets( target1, target2 );
+
+    m_models.push_back( newModel );
     return newModel;
 }
 

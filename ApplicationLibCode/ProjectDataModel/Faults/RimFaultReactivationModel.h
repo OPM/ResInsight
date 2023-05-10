@@ -17,6 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RimPolylinePickerInterface.h"
+#include "RimPolylinesDataInterface.h"
+
 #include "cafFilePath.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
@@ -31,14 +34,16 @@
 #include <memory>
 #include <utility>
 
+class RicPolylineTargetsPickEventHandler;
 class RimFaultInView;
+class RimPolylineTarget;
 
 namespace cvf
 {
 class BoundingBox;
 } // namespace cvf
 
-class RimFaultReactivationModel : public caf::PdmObject
+class RimFaultReactivationModel : public caf::PdmObject, public RimPolylinePickerInterface, public RimPolylinesDataInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -52,10 +57,27 @@ public:
     void            setFault( RimFaultInView* fault );
     RimFaultInView* fault() const;
 
+    void setTargets( cvf::Vec3d target1, cvf::Vec3d target2 );
+
+    // polyline picker interface
+    void insertTarget( const RimPolylineTarget* targetToInsertBefore, RimPolylineTarget* targetToInsert ) override;
+    void deleteTarget( RimPolylineTarget* targetToDelete ) override;
+    void updateEditorsAndVisualization() override;
+    void updateVisualization() override;
+    std::vector<RimPolylineTarget*> activeTargets() const override;
+    bool                            pickingEnabled() const override;
+    caf::PickEventHandler*          pickEventHandler() const override;
+
+    // polyline data interface
+    cvf::ref<RigPolyLinesData> polyLinesData() const override;
+
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;
 
 private:
-    caf::PdmField<QString>            m_userDescription;
-    caf::PdmPtrField<RimFaultInView*> m_fault;
+    std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
+
+    caf::PdmField<QString>                      m_userDescription;
+    caf::PdmPtrField<RimFaultInView*>           m_fault;
+    caf::PdmChildArrayField<RimPolylineTarget*> m_targets;
 };

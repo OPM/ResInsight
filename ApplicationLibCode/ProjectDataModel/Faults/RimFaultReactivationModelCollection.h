@@ -22,6 +22,8 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 
+#include "cvfVector3.h"
+
 #include <vector>
 
 class RimFaultReactivationModel;
@@ -35,7 +37,7 @@ public:
     RimFaultReactivationModelCollection();
     ~RimFaultReactivationModelCollection() override;
 
-    RimFaultReactivationModel* addNewModel( RimFaultInView* fault );
+    RimFaultReactivationModel* addNewModel( RimFaultInView* fault, cvf::Vec3d target1, cvf::Vec3d target2 );
 
     bool empty();
     int  size();

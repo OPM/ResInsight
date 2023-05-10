@@ -21,7 +21,11 @@
 #include "RiaApplication.h"
 #include "RiaPreferencesGeoMech.h"
 
+#include "Riu3DMainWindowTools.h"
+#include "RiuViewer.h"
+
 #include "Rim3dView.h"
+#include "RimCase.h"
 #include "RimEclipseView.h"
 #include "RimFaultInView.h"
 #include "RimFaultInViewCollection.h"
@@ -32,6 +36,7 @@
 #include "RigMainGrid.h"
 
 #include "cafCmdExecCommandManager.h"
+#include "cvfCamera.h"
 #include "cvfStructGrid.h"
 
 #include <QAction>
@@ -78,9 +83,29 @@ void RicNewFaultReactModelingFeature::onActionTriggered( bool isChecked )
             {
                 RigCell cell = eclView->mainGrid()->cell( currentCellIndex );
 
-                // RimFaultReactivationModel* model = eclView->faultReactivationModelCollection()->addNewModel( rimFault, cell, face );
+                auto normal = cell.faceNormalWithAreaLength( face );
+                normal.normalize();
+                normal *= eclView->ownerCase()->characteristicCellSize();
+                normal *= 3;
 
-                view->updateAllRequiredEditors();
+                auto antiNormal = -1.0 * normal;
+
+                auto camPos = eclView->viewer()->mainCamera()->position();
+
+                auto target1    = cell.faceCenter( face );
+                auto candidate1 = target1 + normal;
+                auto candidate2 = target1 + antiNormal;
+                auto target2    = candidate1;
+
+                if ( camPos.pointDistance( candidate2 ) < camPos.pointDistance( candidate1 ) ) target2 = candidate2;
+
+                RimFaultReactivationModel* model = eclView->faultReactivationModelCollection()->addNewModel( rimFault, target1, target2 );
+
+                if ( model != nullptr )
+                {
+                    view->updateAllRequiredEditors();
+                    Riu3DMainWindowTools::selectAsCurrentItem( model );
+                }
             }
         }
     }
@@ -91,5 +116,5 @@ void RicNewFaultReactModelingFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicNewFaultReactModelingFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setIcon( QIcon( ":/draw_style_faults_24x24.png" ) );
+    actionToSetup->setIcon( QIcon( ":/fault_react_24x24.png" ) );
 }

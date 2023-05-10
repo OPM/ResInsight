@@ -20,10 +20,18 @@
 
 #include "RiaPreferencesGeoMech.h"
 
+#include "RigPolyLinesData.h"
+
+#include "WellPathCommands/PointTangentManipulator/RicPolyline3dEditor.h"
+#include "WellPathCommands/RicPolylineTargetsPickEventHandler.h"
+
 #include "RiuViewer.h"
 
 #include "Rim3dView.h"
 #include "RimFaultInView.h"
+#include "RimPolylineTarget.h"
+
+#include "cafPdmUiTableViewEditor.h"
 
 CAF_PDM_SOURCE_INIT( RimFaultReactivationModel, "FaultReactivationModel" );
 
@@ -32,12 +40,19 @@ CAF_PDM_SOURCE_INIT( RimFaultReactivationModel, "FaultReactivationModel" );
 //--------------------------------------------------------------------------------------------------
 RimFaultReactivationModel::RimFaultReactivationModel()
 {
-    CAF_PDM_InitObject( "Fault Reactivation Model", ":/draw_style_faults_24x24.png" );
+    CAF_PDM_InitObject( "Fault Reactivation Model", ":/fault_react_24x24.png" );
 
     CAF_PDM_InitField( &m_userDescription, "UserDescription", QString( "Model" ), "Name" );
 
     CAF_PDM_InitFieldNoDefault( &m_fault, "Fault", "Fault" );
     m_fault.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );
+    m_targets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
+    m_targets.uiCapability()->setUiTreeChildrenHidden( true );
+    m_targets.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_targets.uiCapability()->setCustomContextMenuEnabled( false );
+    m_targets.uiCapability()->setUiReadOnly( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -85,4 +100,88 @@ void RimFaultReactivationModel::setFault( RimFaultInView* fault )
 RimFaultInView* RimFaultReactivationModel::fault() const
 {
     return m_fault();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultReactivationModel::setTargets( cvf::Vec3d target1, cvf::Vec3d target2 )
+{
+    m_targets.deleteChildren();
+
+    RimPolylineTarget* planeCenter = new RimPolylineTarget();
+    planeCenter->setAsPointXYZ( target1 );
+
+    m_targets.push_back( planeCenter );
+
+    RimPolylineTarget* steeringTarget = new RimPolylineTarget();
+    steeringTarget->setAsPointXYZ( target2 );
+
+    m_targets.push_back( steeringTarget );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPolylineTarget*> RimFaultReactivationModel::activeTargets() const
+{
+    return m_targets.children();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultReactivationModel::insertTarget( const RimPolylineTarget* targetToInsertBefore, RimPolylineTarget* targetToInsert )
+{
+    // do nothing, we should only have 2 predefined targets
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultReactivationModel::deleteTarget( RimPolylineTarget* targetToDelete )
+{
+    // do nothing, we should only have 2 predefined targets
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFaultReactivationModel::pickingEnabled() const
+{
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PickEventHandler* RimFaultReactivationModel::pickEventHandler() const
+{
+    return m_pickTargetsEventHandler.get();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultReactivationModel::updateVisualization()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultReactivationModel::updateEditorsAndVisualization()
+{
+    updateConnectedEditors();
+    updateVisualization();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::ref<RigPolyLinesData> RimFaultReactivationModel::polyLinesData() const
+{
+    cvf::ref<RigPolyLinesData> pld = new RigPolyLinesData;
+
+    return pld;
 }
