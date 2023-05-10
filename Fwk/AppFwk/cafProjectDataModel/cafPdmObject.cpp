@@ -67,12 +67,10 @@ void PdmObject::descendantsIncludingThisFromClassKeyword( const QString&        
         descendants.push_back( const_cast<PdmObject*>( this ) );
     }
 
-    std::vector<PdmFieldHandle*> fields;
-    this->fields( fields );
+    std::vector<PdmFieldHandle*> fields = this->fields();
     for ( auto f : fields )
     {
-        std::vector<PdmObjectHandle*> childObjects;
-        f->children( &childObjects );
+        std::vector<PdmObjectHandle*> childObjects = f->children();
         for ( auto childObject : childObjects )
         {
             PdmObject* pdmObjectChild = dynamic_cast<PdmObject*>( childObject );
@@ -89,12 +87,10 @@ void PdmObject::descendantsIncludingThisFromClassKeyword( const QString&        
 //--------------------------------------------------------------------------------------------------
 void PdmObject::childrenFromClassKeyword( const QString& classKeyword, std::vector<PdmObject*>& children ) const
 {
-    std::vector<PdmFieldHandle*> fields;
-    this->fields( fields );
+    std::vector<PdmFieldHandle*> fields = this->fields();
     for ( auto f : fields )
     {
-        std::vector<PdmObjectHandle*> childObjects;
-        f->children( &childObjects );
+        std::vector<PdmObjectHandle*> childObjects = f->children();
         for ( auto childObject : childObjects )
         {
             PdmObject* pdmObjectChild = dynamic_cast<PdmObject*>( childObject );

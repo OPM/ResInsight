@@ -104,8 +104,7 @@ void UiListViewModelPdm::computeColumnCount()
         // Loop over all objects and find the object with largest number of fields
         for ( size_t i = 0; i < m_pdmObjectGroup->objects.size(); i++ )
         {
-            std::vector<PdmFieldHandle*> fields;
-            m_pdmObjectGroup->objects[i]->fields( fields );
+            std::vector<PdmFieldHandle*> fields = m_pdmObjectGroup->objects[i]->fields();
 
             if ( m_columnCount < static_cast<int>( fields.size() ) )
             {
@@ -135,9 +134,7 @@ QVariant caf::UiListViewModelPdm::data( const QModelIndex& index, int role /*= Q
             PdmObjectHandle* pdmObject = m_pdmObjectGroup->objects[index.row()];
             if ( pdmObject )
             {
-                std::vector<PdmFieldHandle*> fields;
-                pdmObject->fields( fields );
-
+                std::vector<PdmFieldHandle*> fields = pdmObject->fields();
                 if ( index.column() < static_cast<int>( fields.size() ) )
                 {
                     size_t fieldIndex = 0;

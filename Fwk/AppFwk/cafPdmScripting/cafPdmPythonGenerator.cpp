@@ -113,8 +113,7 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
 
             if ( classKeyword == object->classKeyword() )
             {
-                std::vector<PdmFieldHandle*> fields;
-                object->fields( fields );
+                std::vector<PdmFieldHandle*> fields = object->fields();
                 for ( auto field : fields )
                 {
                     auto scriptability = field->template capability<PdmAbstractFieldScriptingCapability>();
@@ -257,8 +256,7 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
             {
                 std::shared_ptr<PdmObjectMethod> method =
                     PdmObjectMethodFactory::instance()->createMethod( object.get(), methodName );
-                std::vector<PdmFieldHandle*> arguments;
-                method->fields( arguments );
+                std::vector<PdmFieldHandle*> arguments = method->fields();
 
                 QString methodComment = method->uiCapability()->uiWhatsThis();
 

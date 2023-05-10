@@ -216,9 +216,8 @@ void PdmObjectScriptingCapability::readFields( QTextStream&         inputStream,
 //--------------------------------------------------------------------------------------------------
 void PdmObjectScriptingCapability::writeFields( QTextStream& outputStream ) const
 {
-    std::vector<PdmFieldHandle*> fields;
-    m_owner->fields( fields );
-    int writtenFieldCount = 0;
+    std::vector<PdmFieldHandle*> fields            = m_owner->fields();
+    int                          writtenFieldCount = 0;
     for ( size_t it = 0; it < fields.size(); ++it )
     {
         const PdmXmlFieldHandle*                   xmlField = fields[it]->xmlCapability();
