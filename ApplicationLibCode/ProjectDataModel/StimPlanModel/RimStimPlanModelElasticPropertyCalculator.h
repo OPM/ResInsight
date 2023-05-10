@@ -44,7 +44,7 @@ public:
 
     bool isMatching( RiaDefines::CurveProperty curveProperty ) const override;
 
-    static QString findFaciesName( const RimColorLegend& colorLegend, double value );
+    static std::pair<bool, QString> findFaciesName( const RimColorLegend& colorLegend, double value );
 
 protected:
     static void addOverburden( std::vector<QString>& formationNames,
