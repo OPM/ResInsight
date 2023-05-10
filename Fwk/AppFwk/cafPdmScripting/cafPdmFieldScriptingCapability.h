@@ -512,8 +512,7 @@ public:
                        bool                  stringsAreQuoted    = true,
                        caf::PdmObjectHandle* existingObjectsRoot = nullptr ) override
     {
-        std::vector<DataType*> allObjectsOfType;
-        existingObjectsRoot->descendantsIncludingThisOfType( allObjectsOfType );
+        std::vector<DataType*> allObjectsOfType = existingObjectsRoot->descendantsIncludingThisOfType<DataType>();
 
         DataType* object = nullptr;
         PdmFieldScriptingCapabilityIOHandler<DataType*>::writeToField( object,
@@ -557,8 +556,7 @@ public:
                        bool                  stringsAreQuoted    = true,
                        caf::PdmObjectHandle* existingObjectsRoot = nullptr ) override
     {
-        std::vector<DataType*> allObjectsOfType;
-        existingObjectsRoot->descendantsIncludingThisOfType( allObjectsOfType );
+        std::vector<DataType*> allObjectsOfType = existingObjectsRoot->descendantsIncludingThisOfType<DataType>();
 
         DataType* object = nullptr;
         PdmFieldScriptingCapabilityIOHandler<DataType*>::writeToField( object,
@@ -647,8 +645,7 @@ public:
                        bool                  stringsAreQuoted    = true,
                        caf::PdmObjectHandle* existingObjectsRoot = nullptr ) override
     {
-        std::vector<DataType*> allObjectsOfType;
-        existingObjectsRoot->descendantsIncludingThisOfType( allObjectsOfType );
+        std::vector<DataType*> allObjectsOfType = existingObjectsRoot->descendantsIncludingThisOfType<DataType>();
 
         std::vector<DataType*> objects;
         PdmFieldScriptingCapabilityIOHandler<std::vector<DataType*>>::writeToField( objects,
