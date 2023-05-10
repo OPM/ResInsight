@@ -206,7 +206,7 @@ T* PdmObjectHandle::firstAncestorOfType() const
 template <typename T>
 T* PdmObjectHandle::firstAncestorOrThisOfTypeAsserted() const
 {
-    auto ancestor = firstAncestorOrThisOfType();
+    auto ancestor = firstAncestorOrThisOfType<T>();
 
     CAF_ASSERT( ancestor );
 
@@ -220,7 +220,7 @@ template <typename T>
 std::vector<T*> PdmObjectHandle::allAncestorsOfType() const
 {
     std::vector<T*> ancestors;
-    T*              firstAncestor = firstAncestorOfType();
+    T*              firstAncestor = firstAncestorOfType<T>();
     if ( firstAncestor )
     {
         ancestors.push_back( firstAncestor );
@@ -239,7 +239,7 @@ std::vector<T*> PdmObjectHandle::allAncestorsOrThisOfType() const
 {
     std::vector<T*> ancestors;
 
-    T* firstAncestorOrThis = firstAncestorOrThisOfType();
+    T* firstAncestorOrThis = firstAncestorOrThisOfType<T>();
     if ( firstAncestorOrThis )
     {
         ancestors.push_back( firstAncestorOrThis );
