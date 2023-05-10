@@ -14,8 +14,6 @@ find_package(
 set(QT_LIBRARIES Qt5::Core)
 
 set(PROJECT_FILES
-    caf.h
-    caf.cpp
     cafAssert.h
     cafAppEnum.h
     cafClassTypeName.h
