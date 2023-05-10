@@ -47,17 +47,15 @@ namespace caf
 template <typename T>
 T firstAncestorOfTypeFromSelectedObject()
 {
-    T objToFind = nullptr;
-
     caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
 
     caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>( pdmUiItem );
     if ( objHandle )
     {
-        objHandle->firstAncestorOrThisOfType( objToFind );
+        return objHandle->firstAncestorOrThisOfType<T>();
     }
 
-    return objToFind;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
