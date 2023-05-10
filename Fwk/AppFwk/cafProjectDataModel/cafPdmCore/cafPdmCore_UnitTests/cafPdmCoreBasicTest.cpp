@@ -472,8 +472,7 @@ TEST( BaseTest, PdmChildField )
         EXPECT_EQ( c2, a.field2.value() );
         EXPECT_TRUE( c2 == a.field2 );
 
-        std::vector<caf::PdmObjectHandle*> objects;
-        a.field2.children( &objects );
+        std::vector<caf::PdmObjectHandle*> objects = a.field2.children();
         EXPECT_EQ( (size_t)1, objects.size() );
         EXPECT_EQ( c2, objects[0] );
     }
