@@ -40,14 +40,14 @@ RigEclipseWellLogExtractor* RiaExtractionTools::findOrCreateWellLogExtractor( Ri
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigGeoMechWellLogExtractor* RiaExtractionTools::findOrCreateWellLogExtractor( RimWellPath* wellPath, RimGeoMechCase* geomCase )
+RigGeoMechWellLogExtractor* RiaExtractionTools::findOrCreateWellLogExtractor( RimWellPath* wellPath, RimGeoMechCase* geomCase, int partId )
 {
     if ( !( wellPath && geomCase ) ) return nullptr;
 
     auto wlPlotCollection = wellLogPlotCollection();
     if ( !wlPlotCollection ) return nullptr;
 
-    return wlPlotCollection->findOrCreateExtractor( wellPath, geomCase );
+    return wlPlotCollection->findOrCreateExtractor( wellPath, geomCase, partId );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -114,7 +114,7 @@ RigEclipseWellLogExtractor* RimWellLogPlotCollection::findOrCreateExtractor( Rim
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigGeoMechWellLogExtractor* RimWellLogPlotCollection::findOrCreateExtractor( RimWellPath* wellPath, RimGeoMechCase* geoMechCase )
+RigGeoMechWellLogExtractor* RimWellLogPlotCollection::findOrCreateExtractor( RimWellPath* wellPath, RimGeoMechCase* geoMechCase, int partId )
 {
     if ( !( wellPath && geoMechCase ) ) return nullptr;
 
@@ -124,17 +124,22 @@ RigGeoMechWellLogExtractor* RimWellLogPlotCollection::findOrCreateExtractor( Rim
 
     for ( size_t exIdx = 0; exIdx < m_geomExtractors.size(); ++exIdx )
     {
-        if ( m_geomExtractors[exIdx]->caseData() == caseData && m_geomExtractors[exIdx]->wellPathGeometry() == wellPathGeometry )
+        if ( ( m_geomExtractors[exIdx]->caseData() == caseData ) && ( m_geomExtractors[exIdx]->wellPathGeometry() == wellPathGeometry ) &&
+             ( m_geomExtractors[exIdx]->partId() == partId ) )
         {
             return m_geomExtractors[exIdx].p();
         }
     }
 
     std::string                          errorIdName = ( wellPath->name() + " " + geoMechCase->caseUserDescription() ).toStdString();
-    cvf::ref<RigGeoMechWellLogExtractor> extractor   = new RigGeoMechWellLogExtractor( caseData, wellPathGeometry, errorIdName );
-    m_geomExtractors.push_back( extractor.p() );
+    cvf::ref<RigGeoMechWellLogExtractor> extractor   = new RigGeoMechWellLogExtractor( caseData, partId, wellPathGeometry, errorIdName );
+    if ( extractor->valid() )
+    {
+        m_geomExtractors.push_back( extractor.p() );
+        return extractor.p();
+    }
 
-    return extractor.p();
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

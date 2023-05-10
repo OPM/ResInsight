@@ -56,11 +56,16 @@ const double RigGeoMechWellLogExtractor::GRAVITY_ACCEL           = 9.81; // m / 
 ///
 //--------------------------------------------------------------------------------------------------
 RigGeoMechWellLogExtractor::RigGeoMechWellLogExtractor( gsl::not_null<RigGeoMechCaseData*> aCase,
+                                                        int                                partId,
                                                         gsl::not_null<const RigWellPath*>  wellpath,
                                                         const std::string&                 wellCaseErrorMsgName )
     : RigWellLogExtractor( wellpath, wellCaseErrorMsgName )
     , m_caseData( aCase )
+    , m_partId( partId )
 {
+    m_valid = ( ( partId < m_caseData->femParts()->partCount() ) && ( partId >= 0 ) );
+    if ( !valid() ) return;
+
     calculateIntersection();
 
     m_waterDepth = calculateWaterDepth();
@@ -90,8 +95,8 @@ void RigGeoMechWellLogExtractor::performCurveDataSmoothing( int                 
     RigFemResultAddress shAddr( RIG_ELEMENT_NODAL, "ST", "S3" );
     RigFemResultAddress porBarResAddr( RIG_ELEMENT_NODAL, "POR-Bar", "" );
 
-    const std::vector<float>& unscaledShValues = resultCollection->resultValues( shAddr, 0, timeStepIndex, frameIndex );
-    const std::vector<float>& porePressures    = resultCollection->resultValues( porBarResAddr, 0, timeStepIndex, frameIndex );
+    const std::vector<float>& unscaledShValues = resultCollection->resultValues( shAddr, m_partId, timeStepIndex, frameIndex );
+    const std::vector<float>& porePressures    = resultCollection->resultValues( porBarResAddr, m_partId, timeStepIndex, frameIndex );
 
     std::vector<float> interfaceShValues      = interpolateInterfaceValues( shAddr, timeStepIndex, frameIndex, unscaledShValues );
     std::vector<float> interfacePorePressures = interpolateInterfaceValues( porBarResAddr, timeStepIndex, frameIndex, porePressures );
@@ -210,7 +215,7 @@ QString RigGeoMechWellLogExtractor::curveData( const RigFemResultAddress& resAdd
 
         CVF_ASSERT( resAddr.resultPosType != RIG_WELLPATH_DERIVED );
 
-        const std::vector<float>& resultValues = m_caseData->femPartResults()->resultValues( convResAddr, 0, timeStepIndex, frameIndex );
+        const std::vector<float>& resultValues = m_caseData->femPartResults()->resultValues( convResAddr, m_partId, timeStepIndex, frameIndex );
 
         if ( !resultValues.empty() )
         {
@@ -261,7 +266,7 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
     {
         RigFemResultAddress nativeAddr = parameter.femAddress( RigWbsParameter::GRID );
 
-        const std::vector<float>& unscaledResultValues = resultCollection->resultValues( nativeAddr, 0, timeStepIndex, frameIndex );
+        const std::vector<float>& unscaledResultValues = resultCollection->resultValues( nativeAddr, m_partId, timeStepIndex, frameIndex );
         std::vector<float>        interpolatedInterfaceValues =
             interpolateInterfaceValues( nativeAddr, timeStepIndex, frameIndex, unscaledResultValues );
         gridValues.resize( intersections().size(), std::numeric_limits<double>::infinity() );
@@ -292,7 +297,7 @@ std::vector<RigGeoMechWellLogExtractor::WbsParameterSource>
             tvdRKBs.push_back( tvdValue + m_wellPathGeometry->rkbDiff() );
         }
         RigFemResultAddress elementPropertyAddr = parameter.femAddress( RigWbsParameter::ELEMENT_PROPERTY_TABLE );
-        elementPropertyValuesInput              = &( resultCollection->resultValues( elementPropertyAddr, 0, timeStepIndex, frameIndex ) );
+        elementPropertyValuesInput = &( resultCollection->resultValues( elementPropertyAddr, m_partId, timeStepIndex, frameIndex ) );
         if ( elementPropertyValuesInput )
         {
             RiaWellLogUnitTools<float>::convertValues( tvdRKBs,
@@ -591,7 +596,7 @@ void RigGeoMechWellLogExtractor::wellBoreWallCurveData( const RigFemResultAddres
     RigFemPartResultsCollection* resultCollection = m_caseData->femPartResults();
 
     // Load results
-    std::vector<caf::Ten3f> vertexStressesFloat = resultCollection->tensors( stressResAddr, 0, timeStepIndex, frameIndex );
+    std::vector<caf::Ten3f> vertexStressesFloat = resultCollection->tensors( stressResAddr, m_partId, timeStepIndex, frameIndex );
     if ( !vertexStressesFloat.size() ) return;
 
     std::vector<caf::Ten3d> vertexStresses;
@@ -867,7 +872,7 @@ T RigGeoMechWellLogExtractor::interpolateGridResultValue( RigFemResultPosEnum   
                                                           const std::vector<T>& gridResultValues,
                                                           int64_t               intersectionIdx ) const
 {
-    const RigFemPart*              femPart    = m_caseData->femParts()->part( 0 );
+    const RigFemPart*              femPart    = m_caseData->femParts()->part( m_partId );
     const std::vector<cvf::Vec3f>& nodeCoords = femPart->nodes().coordinates;
 
     size_t         elmIdx  = intersectedCellsGlobIdx()[intersectionIdx];
@@ -963,11 +968,9 @@ size_t RigGeoMechWellLogExtractor::gridResultIndexFace( size_t elementIdx, cvf::
 //--------------------------------------------------------------------------------------------------
 void RigGeoMechWellLogExtractor::calculateIntersection()
 {
-    CVF_ASSERT( m_caseData->femParts()->partCount() == 1 );
-
     std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo> uniqueIntersections;
 
-    const RigFemPart*              femPart    = m_caseData->femParts()->part( 0 );
+    const RigFemPart*              femPart    = m_caseData->femParts()->part( m_partId );
     const std::vector<cvf::Vec3f>& nodeCoords = femPart->nodes().coordinates;
 
     for ( size_t wpp = 0; wpp < m_wellPathGeometry->wellPathPoints().size() - 1; ++wpp )
@@ -1030,7 +1033,7 @@ std::vector<size_t> RigGeoMechWellLogExtractor::findCloseCells( const cvf::Bound
 
     if ( m_caseData->femParts()->partCount() )
     {
-        m_caseData->femParts()->part( 0 )->findIntersectingCells( bb, &closeCells );
+        m_caseData->femParts()->part( m_partId )->findIntersectingCells( bb, &closeCells );
     }
     return closeCells;
 }
@@ -1042,7 +1045,7 @@ cvf::Vec3d RigGeoMechWellLogExtractor::calculateLengthInCell( size_t cellIndex, 
 {
     std::array<cvf::Vec3d, 8> hexCorners;
 
-    const RigFemPart*              femPart       = m_caseData->femParts()->part( 0 );
+    const RigFemPart*              femPart       = m_caseData->femParts()->part( m_partId );
     const std::vector<cvf::Vec3f>& nodeCoords    = femPart->nodes().coordinates;
     const int*                     cornerIndices = femPart->connectivities( cellIndex );
 
@@ -1105,7 +1108,7 @@ caf::Ten3d RigGeoMechWellLogExtractor::transformTensorToWellPathOrientation( con
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3f RigGeoMechWellLogExtractor::cellCentroid( size_t intersectionIdx ) const
 {
-    const RigFemPart*              femPart    = m_caseData->femParts()->part( 0 );
+    const RigFemPart*              femPart    = m_caseData->femParts()->part( m_partId );
     const std::vector<cvf::Vec3f>& nodeCoords = femPart->nodes().coordinates;
 
     size_t         elmIdx           = intersectedCellsGlobIdx()[intersectionIdx];
@@ -1243,7 +1246,7 @@ std::vector<T> RigGeoMechWellLogExtractor::interpolateInterfaceValues( RigFemRes
     std::vector<T> interpolatedInterfaceValues;
     initializeResultValues( interpolatedInterfaceValues, intersections().size() );
 
-    const RigFemPart* femPart = m_caseData->femParts()->part( 0 );
+    const RigFemPart* femPart = m_caseData->femParts()->part( m_partId );
 
 #pragma omp parallel for
     for ( int64_t intersectionIdx = 0; intersectionIdx < static_cast<int64_t>( intersections().size() ); ++intersectionIdx )
@@ -1471,4 +1474,20 @@ double RigGeoMechWellLogExtractor::estimateWaterDepth() const
 double RigGeoMechWellLogExtractor::waterDepth() const
 {
     return m_waterDepth;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RigGeoMechWellLogExtractor::partId() const
+{
+    return m_partId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigGeoMechWellLogExtractor::valid() const
+{
+    return m_valid;
 }

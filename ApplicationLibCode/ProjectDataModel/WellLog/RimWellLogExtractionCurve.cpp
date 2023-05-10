@@ -130,6 +130,7 @@ RimWellLogExtractionCurve::RimWellLogExtractionCurve()
     m_geomResultDefinition->setAddWellPathDerivedResults( true );
 
     CAF_PDM_InitField( &m_timeStep, "CurveTimeStep", 0, "Time Step" );
+    CAF_PDM_InitField( &m_geomPartId, "GeomPartId", 0, "Part Id" );
 
     // Add some space before name to indicate these belong to the Auto Name field
     CAF_PDM_InitField( &m_addCaseNameToCurveName, "AddCaseNameToCurveName", true, "   Case Name" );
@@ -307,28 +308,15 @@ void RimWellLogExtractionCurve::fieldChangedByUi( const caf::PdmFieldHandle* cha
         if ( m_wellPath == m_refWellPath ) m_refWellPath = nullptr;
         this->loadDataAndUpdate( true );
     }
-    else if ( changedField == &m_refWellPath )
+    else if ( ( changedField == &m_refWellPath ) || ( changedField == &m_timeStep ) || ( changedField == &m_trajectoryType ) ||
+              ( changedField == &m_geomPartId ) )
     {
         this->loadDataAndUpdate( true );
     }
-    else if ( changedField == &m_simWellName )
+    else if ( ( changedField == &m_branchDetection ) || ( changedField == &m_branchIndex ) || ( changedField == &m_simWellName ) )
     {
         clearGeneratedSimWellPaths();
 
-        this->loadDataAndUpdate( true );
-    }
-    else if ( changedField == &m_trajectoryType )
-    {
-        this->loadDataAndUpdate( true );
-    }
-    else if ( changedField == &m_branchDetection || changedField == &m_branchIndex )
-    {
-        clearGeneratedSimWellPaths();
-
-        this->loadDataAndUpdate( true );
-    }
-    else if ( changedField == &m_timeStep )
-    {
         this->loadDataAndUpdate( true );
     }
 
@@ -637,18 +625,26 @@ RimWellLogExtractionCurve::WellLogExtractionCurveData
         if ( caseData && wellPathGeometry )
         {
             std::string errorIdName = ( m_wellPath->name() + " " + geoMechCase->caseUserDescription() ).toStdString();
-            wellExtractor           = new RigGeoMechWellLogExtractor( caseData, wellPathGeometry, errorIdName );
+            wellExtractor           = new RigGeoMechWellLogExtractor( caseData, m_geomPartId, wellPathGeometry, errorIdName );
 
-            // make sure the resampling of the well path is done before the extraction of the curve data
-            wellExtractor->resampleIntersections( maxDistanceBetweenCurvePoints.value() );
+            if ( wellExtractor->valid() )
+            {
+                // make sure the resampling of the well path is done before the extraction of the curve data
+                wellExtractor->resampleIntersections( maxDistanceBetweenCurvePoints.value() );
+            }
+            else
+            {
+                return curveData;
+            }
         }
     }
     else
     {
-        wellExtractor = wellLogCollection->findOrCreateExtractor( m_wellPath, geoMechCase );
+        wellExtractor = wellLogCollection->findOrCreateExtractor( m_wellPath, geoMechCase, m_geomPartId );
     }
 
-    cvf::ref<RigGeoMechWellLogExtractor> refWellExtractor = wellLogCollection->findOrCreateExtractor( m_refWellPath, geoMechCase );
+    cvf::ref<RigGeoMechWellLogExtractor> refWellExtractor =
+        wellLogCollection->findOrCreateExtractor( m_refWellPath, geoMechCase, m_geomPartId );
 
     auto [timeStepIdx, frameIdx] = geoMechCase->geoMechData()->femPartResults()->stepListIndexToTimeStepAndDataFrameIndex( m_timeStep );
 
@@ -1061,6 +1057,7 @@ void RimWellLogExtractionCurve::defineUiOrdering( QString uiConfigName, caf::Pdm
     }
     else if ( geomCase )
     {
+        curveDataGroup->add( &m_geomPartId );
         curveDataGroup->add( &m_wellPath );
         curveDataGroup->add( &m_refWellPath );
         RimWellLogCurve::defineUiOrdering( uiConfigName, uiOrdering );
@@ -1391,6 +1388,22 @@ void RimWellLogExtractionCurve::setEclipseResultCategory( RiaDefines::ResultCatT
 void RimWellLogExtractionCurve::setGeoMechResultAddress( const RigFemResultAddress& resAddr )
 {
     m_geomResultDefinition->setResultAddress( resAddr );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogExtractionCurve::setGeoMechPart( int partId )
+{
+    m_geomPartId = partId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimWellLogExtractionCurve::geoMechPart() const
+{
+    return m_geomPartId;
 }
 
 //--------------------------------------------------------------------------------------------------
