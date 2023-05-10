@@ -134,8 +134,7 @@ void PdmXmlObjectHandle::readFields( QXmlStreamReader& xmlStream, PdmObjectFacto
 //--------------------------------------------------------------------------------------------------
 void PdmXmlObjectHandle::writeFields( QXmlStreamWriter& xmlStream ) const
 {
-    std::vector<PdmFieldHandle*> fields;
-    m_owner->fields( fields );
+    std::vector<PdmFieldHandle*> fields = m_owner->fields();
     for ( const auto& fieldHandle : fields )
     {
         const PdmXmlFieldHandle* field = fieldHandle->xmlCapability();
@@ -342,14 +341,17 @@ void PdmXmlObjectHandle::initAfterReadRecursively( PdmObjectHandle* object )
 {
     if ( object == nullptr ) return;
 
-    std::vector<PdmFieldHandle*> fields;
-    object->fields( fields );
+    std::vector<PdmFieldHandle*> fields = object->fields();
 
     std::vector<PdmObjectHandle*> children;
     size_t                        fIdx;
     for ( fIdx = 0; fIdx < fields.size(); ++fIdx )
     {
-        if ( fields[fIdx] ) fields[fIdx]->children( &children );
+        if ( fields[fIdx] )
+        {
+            std::vector<PdmObjectHandle*> other = fields[fIdx]->children();
+            children.insert( children.end(), other.begin(), other.end() );
+        }
     }
 
     size_t cIdx;
@@ -373,8 +375,7 @@ void PdmXmlObjectHandle::resolveReferencesRecursively( PdmObjectHandle*         
 {
     if ( object == nullptr ) return;
 
-    std::vector<PdmFieldHandle*> fields;
-    object->fields( fields );
+    std::vector<PdmFieldHandle*> fields = object->fields();
 
     std::vector<PdmObjectHandle*> children;
     size_t                        fIdx;
@@ -383,13 +384,15 @@ void PdmXmlObjectHandle::resolveReferencesRecursively( PdmObjectHandle*         
         PdmFieldHandle* field = fields[fIdx];
         if ( field )
         {
-            field->children( &children );
+            std::vector<PdmObjectHandle*> other = field->children();
 
             bool resolvedOk = field->xmlCapability()->resolveReferences();
             if ( fieldWithFailingResolve && !resolvedOk )
             {
                 fieldWithFailingResolve->push_back( field );
             }
+
+            children.insert( children.end(), other.begin(), other.end() );
         }
     }
 
@@ -425,14 +428,17 @@ void PdmXmlObjectHandle::setupBeforeSaveRecursively( PdmObjectHandle* object )
 {
     if ( object == nullptr ) return;
 
-    std::vector<PdmFieldHandle*> fields;
-    object->fields( fields );
+    std::vector<PdmFieldHandle*> fields = object->fields();
 
     std::vector<PdmObjectHandle*> children;
     size_t                        fIdx;
     for ( fIdx = 0; fIdx < fields.size(); ++fIdx )
     {
-        if ( fields[fIdx] ) fields[fIdx]->children( &children );
+        if ( fields[fIdx] )
+        {
+            std::vector<PdmObjectHandle*> other = fields[fIdx]->children();
+            children.insert( children.end(), other.begin(), other.end() );
+        }
     }
 
     size_t cIdx;

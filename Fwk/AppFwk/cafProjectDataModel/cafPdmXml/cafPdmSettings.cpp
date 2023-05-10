@@ -52,16 +52,12 @@ void PdmSettings::readFieldsFromApplicationStore( caf::PdmObjectHandle* object, 
     // set previously with a call to QCoreApplication::setOrganizationName(),
     // QCoreApplication::setOrganizationDomain(), and QCoreApplication::setApplicationName().
     QSettings                         settings;
-    std::vector<caf::PdmFieldHandle*> fields;
-
-    object->fields( fields );
-    size_t i;
-    for ( i = 0; i < fields.size(); i++ )
+    std::vector<caf::PdmFieldHandle*> fields = object->fields();
+    for ( size_t i = 0; i < fields.size(); i++ )
     {
         caf::PdmFieldHandle* fieldHandle = fields[i];
 
-        std::vector<caf::PdmObjectHandle*> children;
-        fieldHandle->children( &children );
+        std::vector<caf::PdmObjectHandle*> children = fieldHandle->children();
         for ( size_t childIdx = 0; childIdx < children.size(); childIdx++ )
         {
             caf::PdmObjectHandle*    child        = children[childIdx];
@@ -100,16 +96,12 @@ void PdmSettings::writeFieldsToApplicationStore( const caf::PdmObjectHandle* obj
     // QCoreApplication::setOrganizationDomain(), and QCoreApplication::setApplicationName().
     QSettings settings;
 
-    std::vector<caf::PdmFieldHandle*> fields;
-    object->fields( fields );
-
-    size_t i;
-    for ( i = 0; i < fields.size(); i++ )
+    std::vector<caf::PdmFieldHandle*> fields = object->fields();
+    for ( size_t i = 0; i < fields.size(); i++ )
     {
         caf::PdmFieldHandle* fieldHandle = fields[i];
 
-        std::vector<caf::PdmObjectHandle*> children;
-        fieldHandle->children( &children );
+        std::vector<caf::PdmObjectHandle*> children = fieldHandle->children();
         for ( size_t childIdx = 0; childIdx < children.size(); childIdx++ )
         {
             caf::PdmObjectHandle* child = children[childIdx];
@@ -150,11 +142,8 @@ void PdmSettings::readValueFieldsFromApplicationStore( caf::PdmObjectHandle* obj
         settings.beginGroup( folderName );
     }
 
-    std::vector<caf::PdmFieldHandle*> fields;
-
-    object->fields( fields );
-    size_t i;
-    for ( i = 0; i < fields.size(); i++ )
+    std::vector<caf::PdmFieldHandle*> fields = object->fields();
+    for ( size_t i = 0; i < fields.size(); i++ )
     {
         caf::PdmFieldHandle* fieldHandle = fields[i];
         caf::PdmValueField*  valueField  = dynamic_cast<caf::PdmValueField*>( fieldHandle );
@@ -199,11 +188,8 @@ void PdmSettings::writeValueFieldsToApplicationStore( const caf::PdmObjectHandle
         settings.beginGroup( folderName );
     }
 
-    std::vector<caf::PdmFieldHandle*> fields;
-    object->fields( fields );
-
-    size_t i;
-    for ( i = 0; i < fields.size(); i++ )
+    std::vector<caf::PdmFieldHandle*> fields = object->fields();
+    for ( size_t i = 0; i < fields.size(); i++ )
     {
         caf::PdmFieldHandle* fieldHandle = fields[i];
         caf::PdmValueField*  valueField  = dynamic_cast<caf::PdmValueField*>( fieldHandle );

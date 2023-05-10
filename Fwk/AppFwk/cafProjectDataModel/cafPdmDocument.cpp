@@ -131,18 +131,19 @@ void PdmDocument::writeFile( QIODevice* xmlFile )
 void PdmDocument::updateUiIconStateRecursively( PdmObjectHandle* object )
 {
     if ( object == nullptr ) return;
-    std::vector<PdmFieldHandle*> fields;
-    object->fields( fields );
+    std::vector<PdmFieldHandle*> fields = object->fields();
 
     std::vector<PdmObjectHandle*> children;
-    size_t                        fIdx;
-    for ( fIdx = 0; fIdx < fields.size(); ++fIdx )
+    for ( size_t fIdx = 0; fIdx < fields.size(); ++fIdx )
     {
-        if ( fields[fIdx] ) fields[fIdx]->children( &children );
+        if ( fields[fIdx] )
+        {
+            auto other = fields[fIdx]->children();
+            children.insert( children.end(), other.begin(), other.end() );
+        }
     }
 
-    size_t cIdx;
-    for ( cIdx = 0; cIdx < children.size(); ++cIdx )
+    for ( size_t cIdx = 0; cIdx < children.size(); ++cIdx )
     {
         PdmDocument::updateUiIconStateRecursively( children[cIdx] );
     }
