@@ -141,7 +141,7 @@ QStringList PdmReferenceHelper::referenceFromRootToObjectAsStringList( PdmObject
 
             std::vector<PdmObjectHandle*> childObjects = parentField->children();
 
-            if ( childObjects.size() > 0 )
+            if ( !childObjects.empty() )
             {
                 int index = -1;
 
@@ -218,8 +218,7 @@ PdmObjectHandle* PdmReferenceHelper::objectFromReferenceStringList( PdmObjectHan
         }
 
         std::vector<PdmObjectHandle*> childObjects = fieldHandle->children();
-
-        if ( childObjects.size() == 0 )
+        if ( childObjects.empty() )
         {
             return nullptr;
         }
