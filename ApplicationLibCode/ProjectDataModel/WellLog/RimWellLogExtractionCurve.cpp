@@ -500,6 +500,10 @@ void RimWellLogExtractionCurve::extractData( bool*                        isUsin
                                                  curveData.xUnits );
         }
     }
+    else
+    {
+        clearCurveData();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
