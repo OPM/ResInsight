@@ -78,7 +78,7 @@ bool RimEclipseResultDefinitionTools::isDivideByCellFaceAreaPossible( const QStr
 //--------------------------------------------------------------------------------------------------
 RD::FlowTracerSelectionState RimEclipseResultDefinitionTools::getFlowTracerSelectionState( bool                        isInjector,
                                                                                            RD::FlowTracerSelectionType tracerSelectionType,
-                                                                                           RimFlowDiagSolution* const  flowDiagSolution,
+                                                                                           const RimFlowDiagSolution*  flowDiagSolution,
                                                                                            size_t                      selectedTracerCount )
 {
     if ( tracerSelectionType == RD::FlowTracerSelectionType::FLOW_TR_INJECTORS ||
@@ -93,11 +93,11 @@ RD::FlowTracerSelectionState RimEclipseResultDefinitionTools::getFlowTracerSelec
         {
             return RD::FlowTracerSelectionState::ALL_SELECTED;
         }
-        if ( selectedTracerCount == (size_t)1 )
+        if ( selectedTracerCount == 1 )
         {
             return RD::FlowTracerSelectionState::ONE_SELECTED;
         }
-        if ( selectedTracerCount > (size_t)1 )
+        if ( selectedTracerCount > 1 )
         {
             return RD::FlowTracerSelectionState::MULTIPLE_SELECTED;
         }
@@ -110,7 +110,7 @@ RD::FlowTracerSelectionState RimEclipseResultDefinitionTools::getFlowTracerSelec
 ///
 //--------------------------------------------------------------------------------------------------
 QStringList RimEclipseResultDefinitionTools::getResultNamesForResultType( RiaDefines::ResultCatType     resultCatType,
-                                                                          RigCaseCellResultsData* const results )
+                                                                          const RigCaseCellResultsData* results )
 {
     if ( resultCatType != RiaDefines::ResultCatType::FLOW_DIAGNOSTICS )
     {
@@ -270,7 +270,7 @@ QString RimEclipseResultDefinitionTools::selectedTracersString( RD::FlowTracerSe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimEclipseResultDefinitionTools::getInputPropertyFileName( RimEclipseCase* const eclipseCase, const QString& resultName )
+QString RimEclipseResultDefinitionTools::getInputPropertyFileName( const RimEclipseCase* eclipseCase, const QString& resultName )
 {
     if ( eclipseCase )
     {
@@ -353,6 +353,9 @@ void RimEclipseResultDefinitionTools::updateTernaryLegend( RigCaseCellResultsDat
     }
 }
 
+namespace RimEclipseResultDefinitionTools
+{
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -381,13 +384,14 @@ public:
         return false;
     }
 };
+} // namespace RimEclipseResultDefinitionTools
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseResultDefinitionTools::updateLegendForFlowDiagnostics( RD* const               resultDefinition,
-                                                                      RimRegularLegendConfig* legendConfigToUpdate,
-                                                                      int                     timeStep )
+void RimEclipseResultDefinitionTools::updateLegendForFlowDiagnostics( const RimEclipseResultDefinition* resultDefinition,
+                                                                      RimRegularLegendConfig*           legendConfigToUpdate,
+                                                                      int                               timeStep )
 {
     if ( timeStep < 0 ) return;
     if ( !resultDefinition || !legendConfigToUpdate ) return;
@@ -480,7 +484,9 @@ void RimEclipseResultDefinitionTools::updateLegendForFlowDiagnostics( RD* const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseResultDefinitionTools::updateCellResultLegend( RD* const resultDefinition, RimRegularLegendConfig* legendConfigToUpdate, int timeStep )
+void RimEclipseResultDefinitionTools::updateCellResultLegend( const RimEclipseResultDefinition* resultDefinition,
+                                                              RimRegularLegendConfig*           legendConfigToUpdate,
+                                                              int                               timeStep )
 {
     if ( !resultDefinition || !legendConfigToUpdate ) return;
 
@@ -693,7 +699,7 @@ void RimEclipseResultDefinitionTools::updateCellResultLegend( RD* const resultDe
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimEclipseResultDefinitionTools::calcOptionsForVariableUiFieldStandard( RiaDefines::ResultCatType resultCatType,
-                                                                                                      RigCaseCellResultsData* const results,
+                                                                                                      const RigCaseCellResultsData* results,
                                                                                                       bool showDerivedResultsFirst,
                                                                                                       bool addPerCellFaceOptionItems,
                                                                                                       bool enableTernary )

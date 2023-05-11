@@ -30,10 +30,10 @@ bool isDivideByCellFaceAreaPossible( const QString& resultName );
 
 RD::FlowTracerSelectionState getFlowTracerSelectionState( bool                        isInjector,
                                                           RD::FlowTracerSelectionType tracerSelectionType,
-                                                          RimFlowDiagSolution* const  flowDiagSolution,
+                                                          const RimFlowDiagSolution*  flowDiagSolution,
                                                           size_t                      selectedTracerCount );
 
-QStringList getResultNamesForResultType( RiaDefines::ResultCatType resultCatType, RigCaseCellResultsData* const results );
+QStringList getResultNamesForResultType( RiaDefines::ResultCatType resultCatType, const RigCaseCellResultsData* results );
 
 QString timeOfFlightString( RD::FlowTracerSelectionState injectorState, RD::FlowTracerSelectionState producerState, bool shorter );
 QString maxFractionTracerString( RD::FlowTracerSelectionState injectorState, RD::FlowTracerSelectionState producerState, bool shorter );
@@ -44,16 +44,18 @@ QString selectedTracersString( RD::FlowTracerSelectionState injectorState,
                                const std::vector<QString>&  selectedProducers,
                                int                          maxTracerStringLength );
 
-QString getInputPropertyFileName( RimEclipseCase* const eclipseCase, const QString& resultName );
+QString getInputPropertyFileName( const RimEclipseCase* eclipseCase, const QString& resultName );
 
-void updateTernaryLegend( RigCaseCellResultsData* const cellResultsData, RimTernaryLegendConfig* const ternaryLegendConfigToUpdate, int timeStep );
+void updateTernaryLegend( RigCaseCellResultsData* cellResultsData, RimTernaryLegendConfig* ternaryLegendConfigToUpdate, int timeStep );
 
-void updateLegendForFlowDiagnostics( RD* const resultDefinition, RimRegularLegendConfig* const legendConfigToUpdate, int timeStep );
+void updateLegendForFlowDiagnostics( const RimEclipseResultDefinition* resultDefinition,
+                                     RimRegularLegendConfig*           legendConfigToUpdate,
+                                     int                               timeStep );
 
-void updateCellResultLegend( RD* const resultDefinition, RimRegularLegendConfig* const legendConfigToUpdate, int timeStep );
+void updateCellResultLegend( const RimEclipseResultDefinition* resultDefinition, RimRegularLegendConfig* legendConfigToUpdate, int timeStep );
 
 QList<caf::PdmOptionItemInfo> calcOptionsForVariableUiFieldStandard( RiaDefines::ResultCatType     resultCatType,
-                                                                     RigCaseCellResultsData* const results,
+                                                                     const RigCaseCellResultsData* results,
                                                                      bool                          showDerivedResultsFirst,
                                                                      bool                          addPerCellFaceOptionItems,
                                                                      bool                          enableTernary );

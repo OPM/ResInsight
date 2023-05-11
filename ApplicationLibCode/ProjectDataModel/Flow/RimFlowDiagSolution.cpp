@@ -119,6 +119,14 @@ RigFlowDiagResults* RimFlowDiagSolution::flowDiagResults()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const RigFlowDiagResults* RimFlowDiagSolution::flowDiagResults() const
+{
+    return m_flowDiagResults.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<QString> RimFlowDiagSolution::tracerNames() const
 {
     RimEclipseResultCase* eclCase;

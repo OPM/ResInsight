@@ -38,22 +38,22 @@ struct TracerComp
 using FDS = RimFlowDiagSolution;
 
 QList<caf::PdmOptionItemInfo> calcOptionsForSelectedTracerField( FDS* flowSol, bool isInjector );
-std::set<QString, TracerComp> setOfTracersOfType( FDS* const flowSol, bool isInjector );
+std::set<QString, TracerComp> setOfTracersOfType( const FDS* flowSol, bool isInjector );
 
-std::vector<QString> producerTracersInTimeStep( FDS* const flowSol, int timeStepIndex );
-std::vector<QString> injectorTracersInTimeStep( FDS* const flowSol, int timeStepIndex );
-std::vector<QString> tracersOfStatusInTimeStep( FDS* const flowSol, FDS::TracerStatusType status, int timeStepIndex );
-
-std::set<QString, RimFlowDiagnosticsTools::TracerComp>
-    setOfInjectorTracersFromProducers( FDS* const flowSol, const std::vector<QString>& producerTracers, std::vector<int> timeStepIndices );
+std::vector<QString> producerTracersInTimeStep( const FDS* flowSol, int timeStepIndex );
+std::vector<QString> injectorTracersInTimeStep( const FDS* flowSol, int timeStepIndex );
+std::vector<QString> tracersOfStatusInTimeStep( const FDS* flowSol, FDS::TracerStatusType status, int timeStepIndex );
 
 std::set<QString, RimFlowDiagnosticsTools::TracerComp>
-    setOfInjectorTracersFromProducers( FDS* const flowSol, const std::vector<QString>& producerTracers, int timeStepIndex );
+    setOfInjectorTracersFromProducers( FDS* flowSol, const std::vector<QString>& producerTracers, std::vector<int> timeStepIndices );
 
 std::set<QString, RimFlowDiagnosticsTools::TracerComp>
-    setOfProducerTracersFromInjectors( FDS* const flowSol, const std::vector<QString>& injectorTracers, std::vector<int> timeStepIndices );
+    setOfInjectorTracersFromProducers( FDS* flowSol, const std::vector<QString>& producerTracers, int timeStepIndex );
 
 std::set<QString, RimFlowDiagnosticsTools::TracerComp>
-    setOfProducerTracersFromInjectors( FDS* const flowSol, const std::vector<QString>& injectorTracers, int timeStepIndex );
+    setOfProducerTracersFromInjectors( FDS* flowSol, const std::vector<QString>& injectorTracers, std::vector<int> timeStepIndices );
+
+std::set<QString, RimFlowDiagnosticsTools::TracerComp>
+    setOfProducerTracersFromInjectors( FDS* flowSol, const std::vector<QString>& injectorTracers, int timeStepIndex );
 
 }; // namespace RimFlowDiagnosticsTools
