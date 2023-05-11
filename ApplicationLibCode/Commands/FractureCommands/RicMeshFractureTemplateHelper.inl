@@ -64,8 +64,7 @@ void RicMeshFractureTemplateHelper<T>::selectFractureTemplateAndUpdate( RimFract
 {
     fractureTemplate->loadDataAndUpdate();
 
-    RimFractureTemplateCollection* templateCollection = nullptr;
-    fractureTemplate->firstAncestorOrThisOfTypeAsserted( templateCollection );
+    RimFractureTemplateCollection* templateCollection = fractureTemplate->firstAncestorOrThisOfTypeAsserted<RimFractureTemplateCollection>();
     templateCollection->updateConnectedEditors();
 
     RimProject* project = RimProject::current();

@@ -60,10 +60,6 @@ RimStimPlanModel* RicNewStimPlanModelFeature::addStimPlanModel( RimWellPath*    
     RimStimPlanModelCollection* stimPlanModelCollection = wellPath->stimPlanModelCollection();
     CVF_ASSERT( stimPlanModelCollection );
 
-    RimOilField* oilfield = nullptr;
-    stimPlanModelCollection->firstAncestorOrThisOfType( oilfield );
-    if ( !oilfield ) return nullptr;
-
     RimStimPlanModel* stimPlanModel = new RimStimPlanModel();
     stimPlanModelCollection->addStimPlanModel( stimPlanModel );
 
@@ -73,9 +69,6 @@ RimStimPlanModel* RicNewStimPlanModelFeature::addStimPlanModel( RimWellPath*    
     QString stimPlanModelName = RicFractureNameGenerator::nameForNewStimPlanModel();
     stimPlanModel->setName( stimPlanModelName );
 
-    RimProject* project = nullptr;
-    stimPlanModelCollection->firstAncestorOrThisOfType( project );
-
     // Add a "fake" well path for thickess direction
     RimModeledWellPath* thicknessDirectionWellPath = new RimModeledWellPath;
     stimPlanModel->setThicknessDirectionWellPath( thicknessDirectionWellPath );
@@ -83,6 +76,7 @@ RimStimPlanModel* RicNewStimPlanModelFeature::addStimPlanModel( RimWellPath*    
     std::vector<RimWellPath*> wellPaths = { thicknessDirectionWellPath };
     wellPathCollection->addWellPaths( wellPaths );
 
+    RimProject* project = RimProject::current();
     if ( project )
     {
         project->reloadCompletionTypeResultsInAllViews();
@@ -149,12 +143,10 @@ RimStimPlanModelCollection* RicNewStimPlanModelFeature::selectedStimPlanModelCol
 
     caf::PdmUiItem* pdmUiItem = selectedItems.front();
 
-    RimStimPlanModelCollection* stimPlanModelCollection = nullptr;
-    caf::PdmObjectHandle*       objHandle               = dynamic_cast<caf::PdmObjectHandle*>( pdmUiItem );
+    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>( pdmUiItem );
     if ( objHandle )
     {
-        objHandle->firstAncestorOrThisOfType( stimPlanModelCollection );
-
+        RimStimPlanModelCollection* stimPlanModelCollection = objHandle->firstAncestorOrThisOfType<RimStimPlanModelCollection>();
         if ( stimPlanModelCollection ) return stimPlanModelCollection;
 
         RimWellPath* wellPath = dynamic_cast<RimWellPath*>( objHandle );

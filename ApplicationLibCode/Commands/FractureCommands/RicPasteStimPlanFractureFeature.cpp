@@ -27,6 +27,7 @@
 
 #include "cafPdmObjectGroup.h"
 #include "cafSelectionManager.h"
+#include "cafSelectionManagerTools.h"
 
 #include <QAction>
 #include <QString>
@@ -99,13 +100,5 @@ void RicPasteStimPlanFractureFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 RimFractureTemplateCollection* RicPasteStimPlanFractureFeature::fractureTemplateCollection()
 {
-    RimFractureTemplateCollection* fractureTemplateColl = nullptr;
-
-    auto destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
-    if ( destinationObject )
-    {
-        destinationObject->firstAncestorOrThisOfType( fractureTemplateColl );
-    }
-
-    return fractureTemplateColl;
+    return caf::firstAncestorOfTypeFromSelectedObject<RimFractureTemplateCollection>();
 }

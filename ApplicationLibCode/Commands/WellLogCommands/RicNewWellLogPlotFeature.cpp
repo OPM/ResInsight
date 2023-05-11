@@ -55,8 +55,7 @@ void RicNewWellLogPlotFeature::onActionTriggered( bool isChecked )
     RimWellLogTrack* plotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
     RimWellLogExtractionCurve* curve = RicWellLogTools::addWellLogExtractionCurve( plotTrack, nullptr, nullptr, nullptr, nullptr, -1, true );
     curve->loadDataAndUpdate( true );
-    RimWellLogPlot* plot = nullptr;
-    plotTrack->firstAncestorOrThisOfTypeAsserted( plot );
+    RimWellLogPlot* plot = plotTrack->firstAncestorOrThisOfTypeAsserted<RimWellLogPlot>();
     plot->zoomAll();
     RiuPlotMainWindowTools::refreshToolbars();
 }

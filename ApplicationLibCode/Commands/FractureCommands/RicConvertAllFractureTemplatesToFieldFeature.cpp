@@ -34,6 +34,7 @@
 #include "cafPdmObjectHandle.h"
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafSelectionManager.h"
+#include "cafSelectionManagerTools.h"
 
 #include "cvfAssert.h"
 
@@ -48,14 +49,9 @@ CAF_CMD_SOURCE_INIT( RicConvertAllFractureTemplatesToFieldFeature, "RicConvertAl
 //--------------------------------------------------------------------------------------------------
 void RicConvertAllFractureTemplatesToFieldFeature::onActionTriggered( bool isChecked )
 {
-    auto objHandle = caf::SelectionManager::instance()->selectedItemOfType<caf::PdmObjectHandle>();
-    if ( !objHandle ) return;
+    RimFractureTemplateCollection* fracTempColl = caf::firstAncestorOfTypeFromSelectedObject<RimFractureTemplateCollection>();
 
-    RimFractureTemplateCollection* fracTempColl = nullptr;
-    objHandle->firstAncestorOrThisOfType( fracTempColl );
-
-    std::vector<RimEllipseFractureTemplate*> ellipseFracTemplates;
-    fracTempColl->descendantsIncludingThisOfType( ellipseFracTemplates );
+    std::vector<RimEllipseFractureTemplate*> ellipseFracTemplates = fracTempColl->descendantsIncludingThisOfType<RimEllipseFractureTemplate>();
 
     for ( auto ellipseFracTemplate : ellipseFracTemplates )
     {
