@@ -162,10 +162,7 @@ void RimEclipsePropertyFilter::fieldChangedByUi( const caf::PdmFieldHandle* chan
 //--------------------------------------------------------------------------------------------------
 RimEclipsePropertyFilterCollection* RimEclipsePropertyFilter::parentContainer()
 {
-    RimEclipsePropertyFilterCollection* propFilterColl = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( propFilterColl );
-
-    return propFilterColl;
+    return this->firstAncestorOrThisOfTypeAsserted<RimEclipsePropertyFilterCollection>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -241,8 +238,7 @@ void RimEclipsePropertyFilter::updateReadOnlyStateOfAllFields()
 {
     bool readOnlyState = isPropertyFilterControlled();
 
-    std::vector<caf::PdmFieldHandle*> objFields;
-    this->fields( objFields );
+    std::vector<caf::PdmFieldHandle*> objFields = fields();
 
     // Include fields declared in Rimm_resultDefinition
     objFields.push_back( &( m_resultDefinition->m_resultTypeUiField ) );
@@ -277,8 +273,7 @@ void RimEclipsePropertyFilter::updateRangeLabel()
 //--------------------------------------------------------------------------------------------------
 bool RimEclipsePropertyFilter::isPropertyFilterControlled()
 {
-    Rim3dView* rimView = nullptr;
-    firstAncestorOrThisOfTypeAsserted( rimView );
+    auto rimView = firstAncestorOrThisOfTypeAsserted<Rim3dView>();
 
     bool isPropertyFilterControlled = false;
 
@@ -353,8 +348,7 @@ void RimEclipsePropertyFilter::defineObjectEditorAttribute( QString uiConfigName
 {
     if ( !m_isDuplicatedFromLinkedView ) return;
 
-    Rim3dView* rimView = nullptr;
-    firstAncestorOrThisOfTypeAsserted( rimView );
+    auto rimView = firstAncestorOrThisOfTypeAsserted<Rim3dView>();
 
     RimViewController* vc = rimView->viewController();
     if ( vc && vc->isPropertyFilterDuplicationActive() )
@@ -385,8 +379,7 @@ void RimEclipsePropertyFilter::computeResultValueRange()
 
     if ( m_resultDefinition->isFlowDiagOrInjectionFlooding() )
     {
-        Rim3dView* view;
-        this->firstAncestorOrThisOfType( view );
+        auto view = firstAncestorOrThisOfType<Rim3dView>();
 
         int timeStep = 0;
         if ( view ) timeStep = view->currentTimeStep();
@@ -490,8 +483,7 @@ void RimEclipsePropertyFilter::updateFromCurrentTimeStep()
 
     clearCategories();
 
-    Rim3dView* view = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( view );
+    auto view = firstAncestorOrThisOfTypeAsserted<Rim3dView>();
 
     int                      timeStep = view->currentTimeStep();
     RigFlowDiagResultAddress resAddr  = m_resultDefinition->flowDiagResAddress();

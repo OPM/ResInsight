@@ -127,14 +127,12 @@ RimSummaryPlot* RiaSummaryTools::parentSummaryPlot( caf::PdmObject* object )
         return nullptr;
     }
 
-    RimSummaryPlot* summaryPlot = nullptr;
-
     if ( object )
     {
-        object->firstAncestorOrThisOfType( summaryPlot );
+        return object->firstAncestorOrThisOfType<RimSummaryPlot>();
     }
 
-    return summaryPlot;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -142,14 +140,12 @@ RimSummaryPlot* RiaSummaryTools::parentSummaryPlot( caf::PdmObject* object )
 //--------------------------------------------------------------------------------------------------
 RimSummaryMultiPlotCollection* RiaSummaryTools::parentSummaryPlotCollection( caf::PdmObject* object )
 {
-    RimSummaryMultiPlotCollection* summaryPlotColl = nullptr;
-
     if ( object )
     {
-        object->firstAncestorOrThisOfType( summaryPlotColl );
+        return object->firstAncestorOrThisOfType<RimSummaryMultiPlotCollection>();
     }
 
-    return summaryPlotColl;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -157,14 +153,12 @@ RimSummaryMultiPlotCollection* RiaSummaryTools::parentSummaryPlotCollection( caf
 //--------------------------------------------------------------------------------------------------
 RimSummaryMultiPlot* RiaSummaryTools::parentSummaryMultiPlot( caf::PdmObject* object )
 {
-    RimSummaryMultiPlot* multiPlot = nullptr;
-
     if ( object )
     {
-        object->firstAncestorOrThisOfType( multiPlot );
+        return object->firstAncestorOrThisOfType<RimSummaryMultiPlot>();
     }
 
-    return multiPlot;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -172,14 +166,12 @@ RimSummaryMultiPlot* RiaSummaryTools::parentSummaryMultiPlot( caf::PdmObject* ob
 //--------------------------------------------------------------------------------------------------
 RimSummaryCrossPlot* RiaSummaryTools::parentCrossPlot( caf::PdmObject* object )
 {
-    RimSummaryCrossPlot* crossPlot = nullptr;
-
     if ( object )
     {
-        object->firstAncestorOrThisOfType( crossPlot );
+        return object->firstAncestorOrThisOfType<RimSummaryCrossPlot>();
     }
 
-    return crossPlot;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -187,14 +179,12 @@ RimSummaryCrossPlot* RiaSummaryTools::parentCrossPlot( caf::PdmObject* object )
 //--------------------------------------------------------------------------------------------------
 RimSummaryCrossPlotCollection* RiaSummaryTools::parentCrossPlotCollection( caf::PdmObject* object )
 {
-    RimSummaryCrossPlotCollection* crossPlotColl = nullptr;
-
     if ( object )
     {
-        object->firstAncestorOrThisOfType( crossPlotColl );
+        return object->firstAncestorOrThisOfType<RimSummaryCrossPlotCollection>();
     }
 
-    return crossPlotColl;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -210,14 +200,12 @@ bool RiaSummaryTools::isSummaryCrossPlot( const RimSummaryPlot* plot )
 //--------------------------------------------------------------------------------------------------
 RimSummaryTable* RiaSummaryTools::parentSummaryTable( caf::PdmObject* object )
 {
-    RimSummaryTable* summaryTable = nullptr;
-
     if ( object )
     {
-        object->firstAncestorOrThisOfType( summaryTable );
+        return object->firstAncestorOrThisOfType<RimSummaryTable>();
     }
 
-    return summaryTable;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -225,14 +213,12 @@ RimSummaryTable* RiaSummaryTools::parentSummaryTable( caf::PdmObject* object )
 //--------------------------------------------------------------------------------------------------
 RimSummaryTableCollection* RiaSummaryTools::parentSummaryTableCollection( caf::PdmObject* object )
 {
-    RimSummaryTableCollection* summaryTableColl = nullptr;
-
     if ( object )
     {
-        object->firstAncestorOrThisOfType( summaryTableColl );
+        return object->firstAncestorOrThisOfType<RimSummaryTableCollection>();
     }
 
-    return summaryTableColl;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

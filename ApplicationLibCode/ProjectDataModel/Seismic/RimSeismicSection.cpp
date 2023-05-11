@@ -384,7 +384,7 @@ std::vector<RimPolylineTarget*> RimSeismicSection::activeTargets() const
 {
     if ( m_type() != RiaDefines::SeismicSectionType::SS_POLYLINE ) return {};
 
-    return m_targets.children();
+    return m_targets.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -456,8 +456,7 @@ void RimSeismicSection::updateEditorsAndVisualization()
 //--------------------------------------------------------------------------------------------------
 void RimSeismicSection::scheduleViewUpdate()
 {
-    Rim3dView* view = nullptr;
-    firstAncestorOrThisOfType( view );
+    auto view = firstAncestorOrThisOfType<Rim3dView>();
     if ( view ) view->scheduleCreateDisplayModelAndRedraw();
 }
 
@@ -543,8 +542,7 @@ QList<caf::PdmOptionItemInfo> RimSeismicSection::calculateValueOptions( const ca
 
     if ( fieldNeedingOptions == &m_seismicData )
     {
-        Rim3dView* view = nullptr;
-        firstAncestorOrThisOfType( view );
+        auto view = firstAncestorOrThisOfType<Rim3dView>();
 
         if ( view != nullptr ) RimTools::seismicDataOptionItems( &options, view->domainBoundingBox() );
     }

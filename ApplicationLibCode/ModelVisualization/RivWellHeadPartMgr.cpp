@@ -243,7 +243,7 @@ void RivWellHeadPartMgr::buildWellHeadParts( size_t frameIndex, const caf::Displ
         RimSimWellInViewCollection* wellColl = nullptr;
         if ( m_rimWell )
         {
-            m_rimWell->firstAncestorOrThisOfType( wellColl );
+            wellColl = m_rimWell->firstAncestorOrThisOfType<RimSimWellInViewCollection>();
         }
 
         if ( wellColl && wellColl->showConnectionStatusColors() )
@@ -395,10 +395,9 @@ void RivWellHeadPartMgr::appendFlattenedDynamicGeometryPartsToModel( cvf::ModelB
 //--------------------------------------------------------------------------------------------------
 Rim3dView* RivWellHeadPartMgr::viewWithSettings()
 {
-    Rim3dView* view = nullptr;
-    if ( m_rimWell ) m_rimWell->firstAncestorOrThisOfType( view );
+    if ( m_rimWell ) return m_rimWell->firstAncestorOrThisOfType<Rim3dView>();
 
-    return view;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -406,8 +405,7 @@ Rim3dView* RivWellHeadPartMgr::viewWithSettings()
 //--------------------------------------------------------------------------------------------------
 RimSimWellInViewCollection* RivWellHeadPartMgr::simWellInViewCollection()
 {
-    RimSimWellInViewCollection* wellCollection = nullptr;
-    if ( m_rimWell ) m_rimWell->firstAncestorOrThisOfType( wellCollection );
+    if ( m_rimWell ) return m_rimWell->firstAncestorOrThisOfType<RimSimWellInViewCollection>();
 
-    return wellCollection;
+    return nullptr;
 }

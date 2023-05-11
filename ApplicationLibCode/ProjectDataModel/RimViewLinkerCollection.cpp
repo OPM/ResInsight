@@ -100,8 +100,7 @@ void RimViewLinkerCollection::onChildDeleted( caf::PdmChildArrayFieldHandle* chi
 {
     uiCapability()->updateConnectedEditors();
 
-    RimProject* project = nullptr;
-    firstAncestorOrThisOfType( project );
+    RimProject* project = RimProject::current();
     if ( project )
     {
         // Update visibility of top level Linked Views item in the project tree

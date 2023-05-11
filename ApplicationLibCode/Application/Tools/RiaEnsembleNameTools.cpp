@@ -265,8 +265,7 @@ QString RiaEnsembleNameTools::uniqueShortNameForSummaryCase( RimSummaryCase* sum
 {
     std::set<QString> allAutoShortNames;
 
-    std::vector<RimSummaryCase*> allCases;
-    RimProject::current()->descendantsOfType( allCases );
+    std::vector<RimSummaryCase*> allCases = RimProject::current()->descendantsOfType<RimSummaryCase>();
 
     for ( auto sumCase : allCases )
     {

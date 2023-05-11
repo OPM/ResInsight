@@ -103,9 +103,7 @@ RimSurface* RimEnsembleStatisticsSurface::createCopy()
 //--------------------------------------------------------------------------------------------------
 bool RimEnsembleStatisticsSurface::updateSurfaceData()
 {
-    RimEnsembleSurface* ensembleSurface;
-    firstAncestorOrThisOfType( ensembleSurface );
-
+    auto ensembleSurface = firstAncestorOrThisOfType<RimEnsembleSurface>();
     if ( ensembleSurface )
     {
         const RigSurface* surface = ensembleSurface->statisticsSurface();

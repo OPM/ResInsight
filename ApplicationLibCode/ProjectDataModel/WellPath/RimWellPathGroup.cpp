@@ -100,7 +100,7 @@ void RimWellPathGroup::addChildWellPath( RimWellPath* wellPath )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellPath*> RimWellPathGroup::childWellPaths() const
 {
-    return m_childWellPaths.children();
+    return m_childWellPaths.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -146,7 +146,7 @@ void RimWellPathGroup::removeChildWellPath( RimWellPath* wellPath )
 //--------------------------------------------------------------------------------------------------
 void RimWellPathGroup::removeAllChildWellPaths()
 {
-    auto childWellPaths = m_childWellPaths.children();
+    auto childWellPaths = m_childWellPaths.childrenByType();
     for ( auto wellPath : childWellPaths )
     {
         removeChildWellPath( wellPath );
@@ -269,8 +269,7 @@ std::vector<const RigWellPath*> RimWellPathGroup::wellPathGeometries() const
 QString RimWellPathGroup::createGroupName() const
 {
     QStringList               allNames;
-    std::vector<RimWellPath*> descendantWellPaths;
-    this->descendantsOfType( descendantWellPaths );
+    std::vector<RimWellPath*> descendantWellPaths = descendantsOfType<RimWellPath>();
     for ( auto wellPath : descendantWellPaths )
     {
         if ( wellPath )
@@ -286,8 +285,7 @@ QString RimWellPathGroup::createGroupName() const
     // if no imported well path is present, use all modeled well paths
     if ( allNames.empty() )
     {
-        std::vector<RimModeledWellPath*> descendantWellPaths;
-        this->descendantsOfType( descendantWellPaths );
+        std::vector<RimModeledWellPath*> descendantWellPaths = descendantsOfType<RimModeledWellPath>();
         for ( auto wellPath : descendantWellPaths )
         {
             if ( wellPath )

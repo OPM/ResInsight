@@ -83,8 +83,7 @@ void RimEnsembleCurveSetCollection::loadDataAndUpdate( bool updateParentPlot )
 
     if ( updateParentPlot )
     {
-        RimSummaryPlot* parentPlot;
-        firstAncestorOrThisOfTypeAsserted( parentPlot );
+        auto parentPlot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
         parentPlot->updateAll();
     }
 }
@@ -206,7 +205,7 @@ void RimEnsembleCurveSetCollection::deleteCurveSets( const std::vector<RimEnsemb
 //--------------------------------------------------------------------------------------------------
 std::vector<RimEnsembleCurveSet*> RimEnsembleCurveSetCollection::curveSets() const
 {
-    return m_curveSets.children();
+    return m_curveSets.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -337,7 +336,6 @@ caf::PdmFieldHandle* RimEnsembleCurveSetCollection::objectToggleField()
 void RimEnsembleCurveSetCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                                                     std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
-    RimSummaryPlot* plot = nullptr;
-    this->firstAncestorOrThisOfType( plot );
+    auto plot = firstAncestorOrThisOfType<RimSummaryPlot>();
     if ( plot ) plot->updateConnectedEditors();
 }

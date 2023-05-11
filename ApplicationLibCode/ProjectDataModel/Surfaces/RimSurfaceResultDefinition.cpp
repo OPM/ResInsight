@@ -143,9 +143,7 @@ void RimSurfaceResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
         updateMinMaxValues();
     }
 
-    Rim3dView* view = nullptr;
-    this->firstAncestorOrThisOfType( view );
-
+    auto view = firstAncestorOrThisOfType<Rim3dView>();
     if ( view )
     {
         view->scheduleCreateDisplayModelAndRedraw();

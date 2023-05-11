@@ -96,8 +96,7 @@ Rim3dWellLogCurve::~Rim3dWellLogCurve()
 //--------------------------------------------------------------------------------------------------
 void Rim3dWellLogCurve::updateCurveIn3dView()
 {
-    RimProject* proj;
-    this->firstAncestorOrThisOfTypeAsserted( proj );
+    RimProject* proj = RimProject::current();
     proj->scheduleCreateDisplayModelAndRedrawAllViews();
 }
 
@@ -215,8 +214,7 @@ caf::PdmFieldHandle* Rim3dWellLogCurve::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 void Rim3dWellLogCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    RimProject* proj;
-    this->firstAncestorOrThisOfTypeAsserted( proj );
+    RimProject* proj = RimProject::current();
     if ( changedField == &m_showCurve )
     {
         proj->reloadCompletionTypeResultsInAllViews();

@@ -82,9 +82,7 @@ void RimModeledWellPath::updateWellPathVisualization()
 {
     createWellPathGeometry();
 
-    std::vector<RimPlotCurve*> referringCurves;
-    objectsWithReferringPtrFieldsOfType( referringCurves );
-
+    std::vector<RimPlotCurve*> referringCurves = objectsWithReferringPtrFieldsOfType<RimPlotCurve>();
     for ( auto curve : referringCurves )
     {
         curve->loadDataAndUpdate( false );
@@ -95,23 +93,20 @@ void RimModeledWellPath::updateWellPathVisualization()
         fracture->loadDataAndUpdate();
     }
 
-    std::vector<RimExtrudedCurveIntersection*> referringIntersections;
-    objectsWithReferringPtrFieldsOfType( referringIntersections );
+    std::vector<RimExtrudedCurveIntersection*> referringIntersections = objectsWithReferringPtrFieldsOfType<RimExtrudedCurveIntersection>();
 
     for ( auto intersection : referringIntersections )
     {
         intersection->rebuildGeometryAndScheduleCreateDisplayModel();
     }
 
-    std::vector<RimSeismicSection*> referringSeismic;
-    objectsWithReferringPtrFieldsOfType( referringSeismic );
+    std::vector<RimSeismicSection*> referringSeismic = objectsWithReferringPtrFieldsOfType<RimSeismicSection>();
     for ( auto seisSec : referringSeismic )
     {
         seisSec->updateVisualization();
     }
 
-    RimProject* proj;
-    firstAncestorOrThisOfTypeAsserted( proj );
+    RimProject* proj = RimProject::current();
     proj->scheduleCreateDisplayModelAndRedrawAllViews();
 }
 
@@ -222,8 +217,7 @@ void RimModeledWellPath::updateGeometry( bool fullUpdate )
 {
     updateWellPathVisualization();
 
-    std::vector<RimWellPathTieIn*> tieInObjects;
-    objectsWithReferringPtrFieldsOfType( tieInObjects );
+    std::vector<RimWellPathTieIn*> tieInObjects = objectsWithReferringPtrFieldsOfType<RimWellPathTieIn>();
     for ( auto tieIn : tieInObjects )
     {
         if ( tieIn->parentWell() == this )

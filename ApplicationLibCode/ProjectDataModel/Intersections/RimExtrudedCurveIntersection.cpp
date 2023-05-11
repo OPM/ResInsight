@@ -708,8 +708,7 @@ std::vector<std::vector<cvf::Vec3d>> RimExtrudedCurveIntersection::polyLines( cv
         if ( m_wellPath() && wellPath()->wellPathGeometry() )
         {
             lines.push_back( wellPath()->wellPathGeometry()->wellPathPoints() );
-            RimCase* ownerCase = nullptr;
-            this->firstAncestorOrThisOfType( ownerCase );
+            auto ownerCase = firstAncestorOrThisOfType<RimCase>();
             if ( ownerCase && ownerCase->activeCellsBoundingBox().isValid() )
             {
                 size_t dummy;
@@ -1041,8 +1040,7 @@ void RimExtrudedCurveIntersection::appendPointToPolyLine( const cvf::Vec3d& poin
 //--------------------------------------------------------------------------------------------------
 Rim2dIntersectionView* RimExtrudedCurveIntersection::correspondingIntersectionView() const
 {
-    std::vector<Rim2dIntersectionView*> objects;
-    this->objectsWithReferringPtrFieldsOfType( objects );
+    std::vector<Rim2dIntersectionView*> objects = objectsWithReferringPtrFieldsOfType<Rim2dIntersectionView>();
     for ( auto isectView : objects )
     {
         if ( isectView )
@@ -1237,8 +1235,7 @@ void RimExtrudedCurveIntersection::rebuildGeometryAndScheduleCreateDisplayModel(
 {
     m_crossSectionPartMgr = nullptr;
 
-    Rim3dView* rimView = nullptr;
-    this->firstAncestorOrThisOfType( rimView );
+    auto rimView = firstAncestorOrThisOfType<Rim3dView>();
     if ( rimView )
     {
         rimView->scheduleCreateDisplayModelAndRedraw();
@@ -1314,7 +1311,5 @@ void RimExtrudedCurveIntersection::setPointsFromXYD( const std::vector<cvf::Vec3
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RimExtrudedCurveIntersection::eclipseView() const
 {
-    RimEclipseView* eclipseView = nullptr;
-    firstAncestorOrThisOfType( eclipseView );
-    return eclipseView;
+    return firstAncestorOrThisOfType<RimEclipseView>();
 }

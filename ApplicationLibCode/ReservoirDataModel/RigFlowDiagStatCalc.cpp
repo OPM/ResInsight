@@ -117,8 +117,7 @@ size_t RigFlowDiagStatCalc::timeStepCount()
 //--------------------------------------------------------------------------------------------------
 void RigFlowDiagStatCalc::mobileVolumeWeightedMean( size_t timeStepIndex, double& mean )
 {
-    RimEclipseResultCase* eclCase = nullptr;
-    m_resultsData->flowDiagSolution()->firstAncestorOrThisOfType( eclCase );
+    auto eclCase = m_resultsData->flowDiagSolution()->firstAncestorOrThisOfType<RimEclipseResultCase>();
     if ( !eclCase ) return;
 
     RigCaseCellResultsData* caseCellResultsData = eclCase->results( RiaDefines::PorosityModelType::MATRIX_MODEL );

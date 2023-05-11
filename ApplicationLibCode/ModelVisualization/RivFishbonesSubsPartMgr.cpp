@@ -84,8 +84,7 @@ void RivFishbonesSubsPartMgr::clearGeometryCache()
 //--------------------------------------------------------------------------------------------------
 void RivFishbonesSubsPartMgr::buildParts( const caf::DisplayCoordTransform* displayCoordTransform, double characteristicCellSize )
 {
-    RimWellPath* wellPath = nullptr;
-    m_rimFishbonesSubs->firstAncestorOrThisOfTypeAsserted( wellPath );
+    auto wellPath = m_rimFishbonesSubs->firstAncestorOrThisOfTypeAsserted<RimWellPath>();
 
     for ( const auto& [subIndex, lateralIndex] : m_rimFishbonesSubs->installedLateralIndices() )
     {

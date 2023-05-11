@@ -181,12 +181,10 @@ void RimWellMeasurement::setFilePath( const QString& filePath )
 //--------------------------------------------------------------------------------------------------
 void RimWellMeasurement::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    RimProject* proj;
-    this->firstAncestorOrThisOfTypeAsserted( proj );
+    RimProject* proj = RimProject::current();
     proj->scheduleCreateDisplayModelAndRedrawAllViews();
 
-    RimWellMeasurementCollection* wellMeasurementCollection;
-    this->firstAncestorOrThisOfTypeAsserted( wellMeasurementCollection );
+    auto wellMeasurementCollection = firstAncestorOrThisOfTypeAsserted<RimWellMeasurementCollection>();
     wellMeasurementCollection->updateAllCurves();
 }
 

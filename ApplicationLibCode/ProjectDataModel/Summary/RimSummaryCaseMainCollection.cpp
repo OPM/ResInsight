@@ -243,9 +243,7 @@ RimSummaryCaseCollection* RimSummaryCaseMainCollection::addCaseCollection( std::
 
     for ( RimSummaryCase* summaryCase : summaryCases )
     {
-        RimSummaryCaseCollection* currentSummaryCaseCollection = nullptr;
-        summaryCase->firstAncestorOrThisOfType( currentSummaryCaseCollection );
-
+        auto currentSummaryCaseCollection = summaryCase->firstAncestorOrThisOfType<RimSummaryCaseCollection>();
         if ( currentSummaryCaseCollection )
         {
             currentSummaryCaseCollection->removeCase( summaryCase );

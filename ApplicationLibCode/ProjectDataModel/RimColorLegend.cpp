@@ -104,7 +104,7 @@ void RimColorLegend::appendColorLegendItem( RimColorLegendItem* colorLegendItem 
 //--------------------------------------------------------------------------------------------------
 std::vector<RimColorLegendItem*> RimColorLegend::colorLegendItems() const
 {
-    return m_colorLegendItems.children();
+    return m_colorLegendItems.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -183,15 +183,13 @@ void RimColorLegend::onColorLegendItemHasChanged()
 {
     this->updateConnectedEditors();
 
-    std::vector<caf::PdmObjectHandle*> referringObjects;
-    this->objectsWithReferringPtrFields( referringObjects );
+    std::vector<caf::PdmObjectHandle*> referringObjects = objectsWithReferringPtrFields();
 
     for ( auto o : referringObjects )
     {
         o->uiCapability()->updateConnectedEditors();
 
-        Rim3dView* view = nullptr;
-        o->firstAncestorOrThisOfType( view );
+        auto view = o->firstAncestorOrThisOfType<Rim3dView>();
         if ( view )
         {
             view->resetLegends();

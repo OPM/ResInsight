@@ -104,7 +104,7 @@ void RimCellFilterCollection::setCase( RimCase* theCase )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimCellFilter*> RimCellFilterCollection::filters() const
 {
-    return m_cellFilters.children();
+    return m_cellFilters.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -157,8 +157,7 @@ void RimCellFilterCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTr
 {
     PdmObject::defineUiTreeOrdering( uiTreeOrdering, uiConfigName );
 
-    Rim3dView* rimView = nullptr;
-    this->firstAncestorOrThisOfType( rimView );
+    auto               rimView        = firstAncestorOrThisOfType<Rim3dView>();
     RimViewController* viewController = rimView->viewController();
     if ( viewController && ( viewController->isPropertyFilterOveridden() || viewController->isVisibleCellsOveridden() ) )
     {
@@ -179,8 +178,7 @@ void RimCellFilterCollection::updateIconState()
 {
     bool activeIcon = true;
 
-    Rim3dView* rimView = nullptr;
-    this->firstAncestorOrThisOfType( rimView );
+    auto               rimView        = firstAncestorOrThisOfType<Rim3dView>();
     RimViewController* viewController = rimView->viewController();
 
     bool isControlled = viewController && ( viewController->isCellFiltersControlled() || viewController->isVisibleCellsOveridden() );
@@ -340,8 +338,7 @@ void RimCellFilterCollection::connectToFilterUpdates( RimCellFilter* filter )
 //--------------------------------------------------------------------------------------------------
 void RimCellFilterCollection::onFilterUpdated( const SignalEmitter* emitter )
 {
-    Rim3dView* view = nullptr;
-    firstAncestorOrThisOfType( view );
+    auto view = firstAncestorOrThisOfType<Rim3dView>();
     if ( !view ) return;
 
     if ( view->isMasterView() )

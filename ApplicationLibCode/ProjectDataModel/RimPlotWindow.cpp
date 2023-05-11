@@ -249,8 +249,7 @@ void RimPlotWindow::updateParentLayout()
     if ( parentField )
     {
         caf::PdmObjectHandle* parentObject = parentField->ownerObject();
-        RimPlotWindow*        plotWindow   = nullptr;
-        parentObject->firstAncestorOrThisOfType( plotWindow );
+        auto                  plotWindow   = parentObject->firstAncestorOrThisOfType<RimPlotWindow>();
         if ( plotWindow )
         {
             plotWindow->updateLayout();

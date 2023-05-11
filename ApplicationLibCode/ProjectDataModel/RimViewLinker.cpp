@@ -435,8 +435,7 @@ void RimViewLinker::updateScaleZ( Rim3dView* sourceView, double scaleZ )
 //--------------------------------------------------------------------------------------------------
 bool RimViewLinker::isActive() const
 {
-    RimViewLinkerCollection* viewLinkerCollection = nullptr;
-    this->firstAncestorOrThisOfType( viewLinkerCollection );
+    RimViewLinkerCollection* viewLinkerCollection = firstAncestorOrThisOfType<RimViewLinkerCollection>();
 
     if ( !viewLinkerCollection )
     {
@@ -545,8 +544,7 @@ void RimViewLinker::updateCursorPosition( const Rim3dView* sourceView, const cvf
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
-    RimViewLinkerCollection* viewLinkerCollection = nullptr;
-    this->firstAncestorOrThisOfType( viewLinkerCollection );
+    RimViewLinkerCollection* viewLinkerCollection = firstAncestorOrThisOfType<RimViewLinkerCollection>();
     if ( viewLinkerCollection ) viewLinkerCollection->updateConnectedEditors();
 
     updateScaleWidgetVisibility();

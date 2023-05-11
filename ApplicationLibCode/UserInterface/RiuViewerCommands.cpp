@@ -842,9 +842,7 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
                 RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( mainOrComparisonView );
                 if ( eclipseView )
                 {
-                    RimEclipseCase* eclipseCase = nullptr;
-                    eclipseView->firstAncestorOrThisOfTypeAsserted( eclipseCase );
-
+                    auto eclipseCase = eclipseView->firstAncestorOrThisOfType<RimEclipseCase>();
                     if ( eclipseCase->eclipseCaseData() && eclipseCase->eclipseCaseData()->virtualPerforationTransmissibilities() )
                     {
                         std::vector<RigCompletionData> completionsForOneCell;
@@ -914,9 +912,7 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
                 RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( mainOrComparisonView );
                 if ( eclipseView )
                 {
-                    RimEclipseCase* eclipseCase = nullptr;
-                    eclipseView->firstAncestorOrThisOfTypeAsserted( eclipseCase );
-
+                    auto eclipseCase = eclipseView->firstAncestorOrThisOfType<RimEclipseCase>();
                     if ( eclipseCase->eclipseCaseData() && eclipseCase->eclipseCaseData()->virtualPerforationTransmissibilities() )
                     {
                         auto   connectionFactors = eclipseCase->eclipseCaseData()->virtualPerforationTransmissibilities();

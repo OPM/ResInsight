@@ -193,11 +193,8 @@ void RimSaturationPressurePlot::fixPointersAfterCopy( RimSaturationPressurePlot*
 {
     CAF_ASSERT( source && copy );
 
-    std::vector<RimPlotCellPropertyFilter*> sourceFilters;
-    source->descendantsIncludingThisOfType( sourceFilters );
-
-    std::vector<RimPlotCellPropertyFilter*> copyFilters;
-    copy->descendantsIncludingThisOfType( copyFilters );
+    auto sourceFilters = source->descendantsIncludingThisOfType<RimPlotCellPropertyFilter>();
+    auto copyFilters   = copy->descendantsIncludingThisOfType<RimPlotCellPropertyFilter>();
 
     if ( !sourceFilters.empty() && ( sourceFilters.size() == copyFilters.size() ) )
     {

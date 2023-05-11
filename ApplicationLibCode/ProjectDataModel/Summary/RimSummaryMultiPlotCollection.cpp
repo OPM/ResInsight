@@ -71,7 +71,7 @@ void RimSummaryMultiPlotCollection::deleteAllPlots()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryMultiPlot*> RimSummaryMultiPlotCollection::multiPlots() const
 {
-    return m_summaryMultiPlots.children();
+    return m_summaryMultiPlots.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -97,7 +97,7 @@ void RimSummaryMultiPlotCollection::removePlotNoUpdate( RimSummaryMultiPlot* plo
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlotCollection::loadDataAndUpdateAllPlots()
 {
-    for ( const auto& p : m_summaryMultiPlots.children() )
+    for ( const auto& p : m_summaryMultiPlots.childrenByType() )
         p->loadDataAndUpdate();
 }
 

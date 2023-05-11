@@ -125,15 +125,13 @@ void RivWellFracturePartMgr::appendGeometryPartsToModel( cvf::ModelBasicList* mo
 
     double distanceToCenterLine = 1.0;
     {
-        RimWellPathCollection* wellPathColl = nullptr;
-        m_rimFracture->firstAncestorOrThisOfType( wellPathColl );
+        auto wellPathColl = m_rimFracture->firstAncestorOrThisOfType<RimWellPathCollection>();
         if ( wellPathColl )
         {
             distanceToCenterLine = wellPathColl->wellPathRadiusScaleFactor() * characteristicCellSize;
         }
 
-        RimSimWellInView* simWell = nullptr;
-        m_rimFracture->firstAncestorOrThisOfType( simWell );
+        auto simWell = m_rimFracture->firstAncestorOrThisOfType<RimSimWellInView>();
         if ( simWell )
         {
             distanceToCenterLine = simWell->pipeRadius();
@@ -662,8 +660,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createContainmentMaskPart( const Rim
 
     std::vector<cvf::Vec3f> maskTriangles;
 
-    RimEclipseCase* eclipseCase = nullptr;
-    activeView.firstAncestorOrThisOfType( eclipseCase );
+    auto eclipseCase                     = activeView.firstAncestorOrThisOfType<RimEclipseCase>();
     auto reservoirCellIndicesOpenForFlow = RimFractureContainmentTools::reservoirCellIndicesOpenForFlow( eclipseCase, m_rimFracture );
 
     for ( size_t resCellIdx : cellCandidates )
@@ -935,8 +932,7 @@ void RivWellFracturePartMgr::appendFracturePerforationLengthParts( const RimEcli
     double wellPathRadius         = 1.0;
 
     {
-        RimWellPath* rimWellPath = nullptr;
-        m_rimFracture->firstAncestorOrThisOfType( rimWellPath );
+        auto rimWellPath = m_rimFracture->firstAncestorOrThisOfType<RimWellPath>();
         if ( rimWellPath )
         {
             wellPathRadius = rimWellPath->wellPathRadius( characteristicCellSize );
@@ -944,8 +940,7 @@ void RivWellFracturePartMgr::appendFracturePerforationLengthParts( const RimEcli
     }
 
     {
-        RimSimWellInView* simWell = nullptr;
-        m_rimFracture->firstAncestorOrThisOfType( simWell );
+        auto simWell = m_rimFracture->firstAncestorOrThisOfType<RimSimWellInView>();
         if ( simWell )
         {
             wellPathRadius = simWell->pipeRadius();

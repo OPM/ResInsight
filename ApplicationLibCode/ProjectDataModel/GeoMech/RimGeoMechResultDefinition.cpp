@@ -351,13 +351,10 @@ void RimGeoMechResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
     }
 
     // Get the possible property filter owner
-    RimGeoMechPropertyFilter* propFilter = dynamic_cast<RimGeoMechPropertyFilter*>( this->parentField()->ownerObject() );
-    RimGridView*              view       = nullptr;
-    this->firstAncestorOrThisOfType( view );
-    RimPlotCurve* curve = nullptr;
-    this->firstAncestorOrThisOfType( curve );
-    Rim3dWellLogCurve* rim3dWellLogCurve = nullptr;
-    this->firstAncestorOrThisOfType( rim3dWellLogCurve );
+    auto propFilter        = dynamic_cast<RimGeoMechPropertyFilter*>( this->parentField()->ownerObject() );
+    auto view              = firstAncestorOrThisOfType<RimGridView>();
+    auto curve             = firstAncestorOrThisOfType<RimPlotCurve>();
+    auto rim3dWellLogCurve = this->firstAncestorOrThisOfType<Rim3dWellLogCurve>();
 
     if ( &m_resultVariableUiField == changedField || &m_compactionRefLayerUiField == changedField ||
          &m_timeLapseBaseTimestep == changedField || &m_normalizeByHydrostaticPressure == changedField ||

@@ -358,9 +358,7 @@ void RivFemPartPartMgr::updateCellResultColor( int timeStepIndex, int frameIndex
             }
         }
 
-        Rim3dView* view = nullptr;
-        cellResultColors->firstAncestorOrThisOfType( view );
-        CVF_ASSERT( view );
+        auto view = cellResultColors->firstAncestorOrThisOfTypeAsserted<Rim3dView>();
 
         RivScalarMapperUtils::applyTextureResultsToPart( m_surfaceFaces.p(),
                                                          m_surfaceFacesTextureCoords.p(),

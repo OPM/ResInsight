@@ -81,6 +81,7 @@
 #include "RimSummaryPlot.h"
 #include "RimTextAnnotation.h"
 #include "RimTextAnnotationInView.h"
+#include "RimTools.h"
 #include "RimViewLinker.h"
 #include "RimViewLinkerCollection.h"
 #include "RimWellLogFile.h"
@@ -1375,10 +1376,9 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences*              
 
     if ( this->project() )
     {
-        std::vector<RimViewWindow*> allViewWindows;
-        project()->descendantsIncludingThisOfType( allViewWindows );
+        std::vector<RimViewWindow*> allViewWindows = project()->descendantsIncludingThisOfType<RimViewWindow>();
 
-        RimWellPathCollection* wellPathCollection = this->project()->activeOilField()->wellPathCollection();
+        RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
 
         bool existingViewsWithDifferentMeshLines = false;
         bool existingViewsWithCustomColors       = false;

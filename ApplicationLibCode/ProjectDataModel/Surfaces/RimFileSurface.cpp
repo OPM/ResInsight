@@ -105,8 +105,7 @@ void RimFileSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
         clearCachedNativeData();
         updateSurfaceData();
 
-        RimSurfaceCollection* surfColl;
-        this->firstAncestorOrThisOfTypeAsserted( surfColl );
+        auto surfColl = firstAncestorOrThisOfTypeAsserted<RimSurfaceCollection>();
         surfColl->updateViews( { this } );
     }
 }

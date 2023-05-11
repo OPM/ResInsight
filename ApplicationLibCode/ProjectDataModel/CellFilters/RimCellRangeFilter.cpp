@@ -175,12 +175,9 @@ void RimCellRangeFilter::setDefaultValues( int sliceDirection, int defaultSlice 
 
     if ( !grid ) return;
 
-    Rim3dView* rimView = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( rimView );
+    auto rimView     = firstAncestorOrThisOfType<Rim3dView>();
     auto actCellInfo = RigReservoirGridTools::activeCellInfo( rimView );
-
-    RimCase* rimCase = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( rimCase );
+    auto rimCase     = firstAncestorOrThisOfTypeAsserted<RimCase>();
 
     const cvf::StructGridInterface* mainGrid = RigReservoirGridTools::mainGrid( rimCase );
 
@@ -277,12 +274,10 @@ void RimCellRangeFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 
     const cvf::StructGridInterface* grid = selectedGrid();
 
-    RimCase* rimCase = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( rimCase );
+    auto                            rimCase  = firstAncestorOrThisOfTypeAsserted<RimCase>();
     const cvf::StructGridInterface* mainGrid = RigReservoirGridTools::mainGrid( rimCase );
 
-    Rim3dView* rimView = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( rimView );
+    auto rimView     = firstAncestorOrThisOfType<Rim3dView>();
     auto actCellInfo = RigReservoirGridTools::activeCellInfo( rimView );
 
     if ( grid == mainGrid && actCellInfo )

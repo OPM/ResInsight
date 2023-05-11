@@ -417,7 +417,7 @@ bool RimPlotAxisProperties::isAxisInverted() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPlotAxisAnnotation*> RimPlotAxisProperties::annotations() const
 {
-    return m_annotations.children();
+    return m_annotations.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -741,8 +741,7 @@ caf::FontTools::FontSize RimPlotAxisProperties::plotFontSize() const
 //--------------------------------------------------------------------------------------------------
 void RimPlotAxisProperties::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
-    RimSummaryMultiPlot* summaryMultiPlot = nullptr;
-    firstAncestorOfType( summaryMultiPlot );
+    auto summaryMultiPlot = firstAncestorOfType<RimSummaryMultiPlot>();
 
     if ( summaryMultiPlot && summaryMultiPlot->isSubPlotAxesLinked() )
     {

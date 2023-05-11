@@ -61,8 +61,7 @@ void RivCellFilterPartMgr::appendGeometryPartsToModel( cvf::ModelBasicList*     
 //--------------------------------------------------------------------------------------------------
 void RivCellFilterPartMgr::createCellFilterPartManagers()
 {
-    std::vector<RimCellFilterCollection*> colls;
-    m_rimView->descendantsIncludingThisOfType( colls );
+    std::vector<RimCellFilterCollection*> colls = m_rimView->descendantsIncludingThisOfType<RimCellFilterCollection>();
 
     if ( colls.empty() ) return;
     auto coll = colls.front();

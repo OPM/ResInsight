@@ -579,8 +579,7 @@ void RimSimWellInViewCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& u
 //--------------------------------------------------------------------------------------------------
 void RimSimWellInViewCollection::assignDefaultWellColors()
 {
-    RimEclipseCase* ownerCase;
-    firstAncestorOrThisOfTypeAsserted( ownerCase );
+    auto ownerCase = firstAncestorOrThisOfTypeAsserted<RimEclipseCase>();
 
     for ( size_t wIdx = 0; wIdx < wells.size(); ++wIdx )
     {
@@ -601,9 +600,7 @@ void RimSimWellInViewCollection::updateWellAllocationPlots()
 {
     RimProject* proj = RimProject::current();
 
-    std::vector<RimWellAllocationPlot*> wellAllocationPlots;
-    proj->descendantsIncludingThisOfType( wellAllocationPlots );
-
+    std::vector<RimWellAllocationPlot*> wellAllocationPlots = proj->descendantsIncludingThisOfType<RimWellAllocationPlot>();
     for ( auto wap : wellAllocationPlots )
     {
         wap->loadDataAndUpdate();
@@ -724,8 +721,7 @@ void RimSimWellInViewCollection::defineUiOrdering( QString uiConfigName, caf::Pd
         wellDiskColor.uiCapability()->setUiReadOnly( isReadOnly );
     }
 
-    RimEclipseResultCase* ownerCase = nullptr;
-    firstAncestorOrThisOfType( ownerCase );
+    auto ownerCase = firstAncestorOrThisOfType<RimEclipseResultCase>();
     if ( ownerCase )
     {
         m_showWellCommunicationLines.uiCapability()->setUiHidden( !ownerCase->flowDiagSolverInterface() );

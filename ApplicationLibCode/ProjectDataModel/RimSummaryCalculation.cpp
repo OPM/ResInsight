@@ -400,8 +400,7 @@ std::optional<std::pair<std::vector<double>, std::vector<time_t>>>
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCalculation::updateDependentObjects()
 {
-    RimSummaryCalculationCollection* calcColl = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( calcColl );
+    RimSummaryCalculationCollection* calcColl = firstAncestorOrThisOfTypeAsserted<RimSummaryCalculationCollection>();
     calcColl->rebuildCaseMetaData();
 
     // Refresh data sources tree.

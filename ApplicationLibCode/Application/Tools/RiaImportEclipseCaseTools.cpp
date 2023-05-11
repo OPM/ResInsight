@@ -123,11 +123,10 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList&    
                 auto existingSummaryCase = sumCaseColl->findTopLevelSummaryCaseFromFileName( newSumCase->summaryHeaderFilename() );
                 if ( existingSummaryCase )
                 {
-                    existingSummaryCase->firstAncestorOrThisOfType( existingCollection );
+                    existingCollection = existingSummaryCase->firstAncestorOrThisOfType<RimSummaryCaseCollection>();
 
                     // Replace file summary case pointers in Rft Curves
-                    std::vector<RimWellLogRftCurve*> rftCurves;
-                    existingSummaryCase->objectsWithReferringPtrFieldsOfType( rftCurves );
+                    auto rftCurves = existingSummaryCase->objectsWithReferringPtrFieldsOfType<RimWellLogRftCurve>();
                     for ( RimWellLogRftCurve* curve : rftCurves )
                     {
                         if ( curve->summaryCase() == existingSummaryCase )
@@ -138,8 +137,7 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList&    
 
                     // Replace all occurrences of file sum with ecl sum
 
-                    std::vector<RimSummaryCurve*> objects;
-                    existingSummaryCase->objectsWithReferringPtrFieldsOfType( objects );
+                    auto objects = existingSummaryCase->objectsWithReferringPtrFieldsOfType<RimSummaryCurve>();
 
                     // UI settings of a curve filter is updated based
                     // on the new case association for the curves in the curve filter
@@ -158,8 +156,7 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList&    
                                 summaryCurve->setSummaryCaseY( newSumCase );
                             }
 
-                            RimSummaryCurveCollection* parentCollection = nullptr;
-                            summaryCurve->firstAncestorOrThisOfType( parentCollection );
+                            auto parentCollection = summaryCurve->firstAncestorOrThisOfType<RimSummaryCurveCollection>();
                             if ( parentCollection )
                             {
                                 parentCollection->loadDataAndUpdate( true );

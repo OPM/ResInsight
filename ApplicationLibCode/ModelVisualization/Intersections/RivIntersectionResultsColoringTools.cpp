@@ -62,9 +62,7 @@ void RivIntersectionResultsColoringTools::calculateIntersectionResultColors( int
 {
     if ( !intersectionGeomGenIF || !intersectionGeomGenIF->isAnyGeometryPresent() ) return;
 
-    RimGridView* gridView = nullptr;
-    rimIntersectionHandle->firstAncestorOrThisOfType( gridView );
-
+    auto gridView = rimIntersectionHandle->firstAncestorOrThisOfType<RimGridView>();
     if ( !gridView ) return;
 
     bool isLightingDisabled = gridView->isLightingDisabled();
@@ -100,9 +98,7 @@ void RivIntersectionResultsColoringTools::calculateIntersectionResultColors( int
 
     if ( !eclipseResDef && !geomResultDef )
     {
-        RimEclipseView* eclipseView = nullptr;
-        rimIntersectionHandle->firstAncestorOrThisOfType( eclipseView );
-
+        auto eclipseView = rimIntersectionHandle->firstAncestorOrThisOfType<RimEclipseView>();
         if ( eclipseView )
         {
             eclipseResDef = eclipseView->cellResult();
@@ -110,9 +106,7 @@ void RivIntersectionResultsColoringTools::calculateIntersectionResultColors( int
             if ( !ternaryColorMapper ) ternaryColorMapper = eclipseView->cellResult()->ternaryLegendConfig()->scalarMapper();
         }
 
-        RimGeoMechView* geoView;
-        rimIntersectionHandle->firstAncestorOrThisOfType( geoView );
-
+        auto geoView = rimIntersectionHandle->firstAncestorOrThisOfType<RimGeoMechView>();
         if ( geoView )
         {
             geomResultDef = geoView->cellResult();

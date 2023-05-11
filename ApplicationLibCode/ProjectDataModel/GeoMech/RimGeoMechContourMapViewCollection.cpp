@@ -28,7 +28,7 @@ RimGeoMechContourMapViewCollection::~RimGeoMechContourMapViewCollection()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimGeoMechContourMapView*> RimGeoMechContourMapViewCollection::views()
 {
-    return m_contourMapViews.children();
+    return m_contourMapViews.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------

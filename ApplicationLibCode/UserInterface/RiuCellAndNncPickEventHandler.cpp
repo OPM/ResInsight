@@ -266,7 +266,7 @@ bool RiuCellAndNncPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
 
         if ( intersectionView )
         {
-            intersectionView->intersection()->firstAncestorOrThisOfType( associatedGridView );
+            associatedGridView = intersectionView->intersection()->firstAncestorOrThisOfType<RimGridView>();
         }
 
         // Use the clicked views default settings if we have not found any special stuff

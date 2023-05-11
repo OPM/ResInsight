@@ -118,10 +118,7 @@ QList<caf::PdmOptionItemInfo> RimViewController::calculateValueOptions( const ca
             views.push_back( this->managedView() );
         }
 
-        RimViewLinker* viewLinker = nullptr;
-        this->firstAncestorOrThisOfType( viewLinker );
-        CVF_ASSERT( viewLinker );
-
+        RimViewLinker* viewLinker = firstAncestorOrThisOfTypeAsserted<RimViewLinker>();
         for ( auto view : views )
         {
             if ( view != viewLinker->masterView() )
@@ -361,10 +358,7 @@ void RimViewController::updateOptionSensitivity()
     Rim3dView* mainView = nullptr;
 
     {
-        RimViewLinker* linkedViews = nullptr;
-        firstAncestorOrThisOfType( linkedViews );
-        CVF_ASSERT( linkedViews );
-
+        RimViewLinker* linkedViews = firstAncestorOrThisOfTypeAsserted<RimViewLinker>();
         if ( linkedViews )
         {
             mainView = linkedViews->masterView();
@@ -501,16 +495,13 @@ void RimViewController::updateDuplicatedPropertyFilters()
         // A chain icon is used to indicate that a property filter is linked. If a property filter is unlinked, update
         // the property filters to make sure the chain icon is removed
 
-        std::vector<RimPropertyFilterCollection*> eclipsePropertyFilters;
-
-        RimProject::current()->descendantsIncludingThisOfType( eclipsePropertyFilters );
+        auto eclipsePropertyFilters = RimProject::current()->descendantsIncludingThisOfType<RimPropertyFilterCollection>();
         for ( auto p : eclipsePropertyFilters )
         {
             p->updateConnectedEditors();
         }
 
-        std::vector<RimGeoMechPropertyFilterCollection*> geoMechPropertyFilters;
-        RimProject::current()->descendantsIncludingThisOfType( geoMechPropertyFilters );
+        auto geoMechPropertyFilters = RimProject::current()->descendantsIncludingThisOfType<RimGeoMechPropertyFilterCollection>();
         for ( auto p : geoMechPropertyFilters )
         {
             p->updateConnectedEditors();
@@ -613,10 +604,7 @@ void RimViewController::updateLegendDefinitions()
 //--------------------------------------------------------------------------------------------------
 RimViewLinker* RimViewController::ownerViewLinker() const
 {
-    RimViewLinker* viewLinker = nullptr;
-    this->firstAncestorOrThisOfType( viewLinker );
-
-    return viewLinker;
+    return firstAncestorOrThisOfType<RimViewLinker>();
 }
 
 //--------------------------------------------------------------------------------------------------

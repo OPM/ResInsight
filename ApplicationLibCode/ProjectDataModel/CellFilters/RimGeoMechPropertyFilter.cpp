@@ -167,8 +167,7 @@ void RimGeoMechPropertyFilter::updateReadOnlyStateOfAllFields()
 {
     bool readOnlyState = isPropertyFilterControlled();
 
-    std::vector<caf::PdmFieldHandle*> objFields;
-    this->fields( objFields );
+    std::vector<caf::PdmFieldHandle*> objFields = fields();
 
     // Include fields declared in RimResultDefinition
     objFields.push_back( &( resultDefinition->m_resultPositionTypeUiField ) );
@@ -188,9 +187,7 @@ bool RimGeoMechPropertyFilter::isPropertyFilterControlled()
 {
     bool isPropertyFilterControlled = false;
 
-    Rim3dView* rimView = nullptr;
-    firstAncestorOrThisOfType( rimView );
-    CVF_ASSERT( rimView );
+    auto rimView = firstAncestorOrThisOfTypeAsserted<Rim3dView>();
     if ( rimView )
     {
         RimViewController* vc = rimView->viewController();

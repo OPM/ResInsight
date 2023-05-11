@@ -81,8 +81,7 @@ RimWellPathAicdParameters::RimWellPathAicdParameters()
                        QString( "1*" ),
                        "Viscosity Exponent of Gas Fraction" );
 
-    std::vector<caf::PdmFieldHandle*> allFields;
-    this->fields( allFields );
+    std::vector<caf::PdmFieldHandle*> allFields = fields();
     for ( caf::PdmFieldHandle* field : allFields )
     {
         caf::PdmField<QString>* stringField = dynamic_cast<caf::PdmField<QString>*>( field );
@@ -226,9 +225,8 @@ void RimWellPathAicdParameters::setUnitLabels()
 //--------------------------------------------------------------------------------------------------
 bool RimWellPathAicdParameters::isMetric() const
 {
-    bool         metric = false;
-    RimWellPath* wellPath;
-    firstAncestorOrThisOfType( wellPath );
+    bool metric   = false;
+    auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
     if ( wellPath )
     {
         if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )

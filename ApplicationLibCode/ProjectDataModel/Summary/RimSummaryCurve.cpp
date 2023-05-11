@@ -262,9 +262,8 @@ std::vector<double> RimSummaryCurve::valuesY() const
 
     if ( values.empty() ) return values;
 
-    RimSummaryPlot* plot = nullptr;
-    firstAncestorOrThisOfTypeAsserted( plot );
-    bool isNormalized = plot->isNormalizationEnabled();
+    RimSummaryPlot* plot         = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
+    bool            isNormalized = plot->isNormalizationEnabled();
     if ( isNormalized )
     {
         auto   minMaxPair = std::minmax_element( values.begin(), values.end() );
@@ -433,8 +432,7 @@ void RimSummaryCurve::setLeftOrRightAxisY( RiuPlotAxis plotAxis )
 {
     m_plotAxis_OBSOLETE = plotAxis.axis();
 
-    RimSummaryPlot* plot = nullptr;
-    firstAncestorOrThisOfTypeAsserted( plot );
+    RimSummaryPlot* plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
     m_plotAxisProperties = plot->axisPropertiesForPlotAxis( plotAxis );
 }
 
@@ -504,8 +502,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions( const caf:
     }
     else if ( fieldNeedingOptions == &m_plotAxisProperties )
     {
-        RimSummaryPlot* plot = nullptr;
-        firstAncestorOrThisOfTypeAsserted( plot );
+        auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
 
         for ( auto axis : plot->plotAxes() )
         {
@@ -527,8 +524,7 @@ QString RimSummaryCurve::createCurveAutoName()
     const RimSummaryNameHelper*              currentPlotNameHelper = nullptr;
     std::vector<const RimSummaryNameHelper*> plotNameHelpers;
     {
-        RimSummaryPlot* plot = nullptr;
-        firstAncestorOrThisOfType( plot );
+        auto plot = firstAncestorOrThisOfType<RimSummaryPlot>();
         if ( plot )
         {
             currentPlotNameHelper = plot->plotTitleHelper();
@@ -536,8 +532,7 @@ QString RimSummaryCurve::createCurveAutoName()
         }
     }
     {
-        RimSummaryMultiPlot* summaryMultiPlot = nullptr;
-        firstAncestorOrThisOfType( summaryMultiPlot );
+        RimSummaryMultiPlot* summaryMultiPlot = firstAncestorOrThisOfType<RimSummaryMultiPlot>();
         if ( summaryMultiPlot )
         {
             auto nameHelper = summaryMultiPlot->nameHelper();
@@ -579,8 +574,7 @@ QString RimSummaryCurve::createCurveAutoName()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::updateZoomInParentPlot()
 {
-    RimSummaryPlot* plot = nullptr;
-    firstAncestorOrThisOfTypeAsserted( plot );
+    auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
 
     plot->updateZoomInParentPlot();
 }
@@ -603,8 +597,7 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
     {
         std::vector<double> curveValuesY = this->valuesY();
 
-        RimSummaryPlot* plot = nullptr;
-        firstAncestorOrThisOfTypeAsserted( plot );
+        auto plot                = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
         bool useLogarithmicScale = plot->isLogarithmicScaleEnabled( this->axisY() );
 
         bool shouldPopulateViewWithEmptyData = false;
@@ -738,8 +731,7 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::updateLegendsInPlot()
 {
-    RimSummaryPlot* plot = nullptr;
-    firstAncestorOrThisOfTypeAsserted( plot );
+    auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
     plot->updateLegend();
 }
 
@@ -753,8 +745,7 @@ void RimSummaryCurve::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderi
     caf::IconProvider iconProvider = this->uiIconProvider();
     if ( !iconProvider.valid() ) return;
 
-    RimSummaryCurveCollection* coll = nullptr;
-    this->firstAncestorOrThisOfType( coll );
+    RimSummaryCurveCollection* coll = firstAncestorOrThisOfType<RimSummaryCurveCollection>();
     if ( coll && coll->curveForSourceStepping() == this )
     {
         iconProvider.setOverlayResourceString( ":/StepUpDownCorner16x16.png" );
@@ -776,8 +767,7 @@ void RimSummaryCurve::initAfterRead()
 
     if ( m_plotAxisProperties.value() == nullptr )
     {
-        RimSummaryPlot* plot = nullptr;
-        firstAncestorOrThisOfType( plot );
+        auto plot = firstAncestorOrThisOfType<RimSummaryPlot>();
         if ( plot ) m_plotAxisProperties = plot->axisPropertiesForPlotAxis( RiuPlotAxis( m_plotAxis_OBSOLETE() ) );
     }
 
@@ -966,8 +956,7 @@ QString RimSummaryCurve::curveExportDescription( const RifEclipseSummaryAddress&
 {
     auto addr = address.isValid() ? address : m_yValuesSummaryAddress->address();
 
-    RimEnsembleCurveSetCollection* coll;
-    firstAncestorOrThisOfType( coll );
+    RimEnsembleCurveSetCollection* coll = firstAncestorOrThisOfType<RimEnsembleCurveSetCollection>();
 
     auto curveSet = coll ? coll->findCurveSetFromPlotCurve( m_plotCurve ) : nullptr;
     auto group    = curveSet ? curveSet->summaryCaseCollection() : nullptr;
@@ -1033,8 +1022,7 @@ void RimSummaryCurve::setCurveAppearanceFromCaseType()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setDefaultCurveAppearance()
 {
-    RimSummaryPlot* plot = nullptr;
-    firstAncestorOrThisOfType( plot );
+    auto plot = firstAncestorOrThisOfType<RimSummaryPlot>();
     if ( plot ) plot->applyDefaultCurveAppearances( { this } );
 }
 
@@ -1053,9 +1041,7 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 {
     RimStackablePlotCurve::fieldChangedByUi( changedField, oldValue, newValue );
 
-    RimSummaryPlot* plot = nullptr;
-    firstAncestorOrThisOfType( plot );
-    CVF_ASSERT( plot );
+    auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
 
     bool loadAndUpdate                     = false;
     bool crossPlotTestForMatchingTimeSteps = false;
@@ -1244,9 +1230,7 @@ void RimSummaryCurve::loadAndUpdateDataAndPlot()
 {
     this->loadDataAndUpdate( true );
 
-    RimSummaryPlot* plot = nullptr;
-    firstAncestorOrThisOfType( plot );
-    CVF_ASSERT( plot );
+    auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
 
     plot->updateAxes();
     plot->updatePlotTitle();

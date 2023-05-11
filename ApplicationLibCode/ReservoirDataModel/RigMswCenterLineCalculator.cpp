@@ -44,11 +44,7 @@ std::vector<SimulationWellCellBranch> RigMswCenterLineCalculator::calculateMswWe
     const RigSimWellData* simWellData = rimWell->simWellData();
     if ( !simWellData ) return {};
 
-    RimEclipseView* eclipseView;
-    rimWell->firstAncestorOrThisOfType( eclipseView );
-
-    CVF_ASSERT( eclipseView );
-
+    auto eclipseView = rimWell->firstAncestorOrThisOfTypeAsserted<RimEclipseView>();
     if ( eclipseView->eclipseCase() && eclipseView->eclipseCase()->eclipseCaseData() )
     {
         auto eclipseCaseData = eclipseView->eclipseCase()->eclipseCaseData();

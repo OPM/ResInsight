@@ -197,9 +197,7 @@ caf::FontTools::FontSize RimSummaryTimeAxisProperties::plotFontSize() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryTimeAxisProperties::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
-    RimSummaryMultiPlot* summaryMultiPlot = nullptr;
-    firstAncestorOfType( summaryMultiPlot );
-
+    auto summaryMultiPlot = firstAncestorOfType<RimSummaryMultiPlot>();
     if ( summaryMultiPlot && summaryMultiPlot->isTimeAxisLinked() )
     {
         auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute );
@@ -317,9 +315,8 @@ void RimSummaryTimeAxisProperties::updateDateVisibleRange()
 //--------------------------------------------------------------------------------------------------
 QDateTime RimSummaryTimeAxisProperties::fromDisplayTimeToDate( double displayTime )
 {
-    RimSummaryPlot* rimSummaryPlot = nullptr;
-    this->firstAncestorOrThisOfType( rimSummaryPlot );
-    time_t startOfSimulation = rimSummaryPlot->firstTimeStepOfFirstCurve();
+    RimSummaryPlot* rimSummaryPlot    = this->firstAncestorOrThisOfType<RimSummaryPlot>();
+    time_t          startOfSimulation = rimSummaryPlot->firstTimeStepOfFirstCurve();
 
     time_t    secsSinceSimulationStart = displayTime / fromTimeTToDisplayUnitScale();
     QDateTime date;
@@ -335,9 +332,8 @@ double RimSummaryTimeAxisProperties::fromDateToDisplayTime( const QDateTime& dis
 {
     time_t secsSinceEpoc = displayTime.toSecsSinceEpoch();
 
-    RimSummaryPlot* rimSummaryPlot = nullptr;
-    this->firstAncestorOrThisOfType( rimSummaryPlot );
-    time_t startOfSimulation = rimSummaryPlot->firstTimeStepOfFirstCurve();
+    RimSummaryPlot* rimSummaryPlot    = firstAncestorOrThisOfType<RimSummaryPlot>();
+    time_t          startOfSimulation = rimSummaryPlot->firstTimeStepOfFirstCurve();
 
     return fromTimeTToDisplayUnitScale() * ( secsSinceEpoc - startOfSimulation );
 }
@@ -743,7 +739,7 @@ RiaDefines::TimeFormatComponents RimSummaryTimeAxisProperties::timeComponents( R
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPlotAxisAnnotation*> RimSummaryTimeAxisProperties::annotations() const
 {
-    return m_annotations.children();
+    return m_annotations.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -851,8 +847,7 @@ void RimSummaryTimeAxisProperties::defineUiOrdering( QString uiConfigName, caf::
 //--------------------------------------------------------------------------------------------------
 void RimSummaryTimeAxisProperties::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    RimSummaryPlot* rimSummaryPlot = nullptr;
-    this->firstAncestorOrThisOfType( rimSummaryPlot );
+    RimSummaryPlot* rimSummaryPlot = firstAncestorOrThisOfType<RimSummaryPlot>();
     if ( !rimSummaryPlot ) return;
 
     if ( changedField == &m_visibleDateRangeMax )

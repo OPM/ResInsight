@@ -253,8 +253,7 @@ void RivBoxIntersectionGeometryGenerator::calculateArrays()
 
     cvf::Vec3d displayOffset( 0, 0, 0 );
     {
-        RimGridView* gridView = nullptr;
-        m_intersectionBoxDefinition->firstAncestorOrThisOfType( gridView );
+        auto gridView = m_intersectionBoxDefinition->firstAncestorOrThisOfType<RimGridView>();
         if ( gridView && gridView->ownerCase() )
         {
             displayOffset = gridView->ownerCase()->displayModelOffset();

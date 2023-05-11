@@ -125,8 +125,7 @@ QString RimSurfaceIntersectionCurve::objectName() const
 {
     if ( m_surface1() )
     {
-        RimEnsembleSurface* ensembleSurface = nullptr;
-        m_surface1()->firstAncestorOfType( ensembleSurface );
+        auto ensembleSurface = m_surface1()->firstAncestorOfType<RimEnsembleSurface>();
         if ( ensembleSurface )
         {
             QString text;

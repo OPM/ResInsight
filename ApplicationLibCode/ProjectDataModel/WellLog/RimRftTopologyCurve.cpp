@@ -333,8 +333,7 @@ void RimRftTopologyCurve::onLoadDataAndUpdate( bool updateParentPlot )
                 }
             }
 
-            RimDepthTrackPlot* wellLogPlot;
-            firstAncestorOrThisOfTypeAsserted( wellLogPlot );
+            auto wellLogPlot = firstAncestorOrThisOfTypeAsserted<RimDepthTrackPlot>();
 
             RimWellLogPlot::DepthTypeEnum depthType           = wellLogPlot->depthType();
             RiaDefines::DepthUnitType     displayUnit         = wellLogPlot->depthUnit();

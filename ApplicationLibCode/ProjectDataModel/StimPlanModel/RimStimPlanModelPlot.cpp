@@ -178,8 +178,7 @@ void RimStimPlanModelPlot::applyDataSource()
 //--------------------------------------------------------------------------------------------------
 RimWellLogExtractionCurve* RimStimPlanModelPlot::findCurveByProperty( RiaDefines::CurveProperty curveProperty ) const
 {
-    std::vector<RimStimPlanModelPropertyCurve*> curves;
-    descendantsIncludingThisOfType( curves );
+    std::vector<RimStimPlanModelPropertyCurve*> curves = descendantsIncludingThisOfType<RimStimPlanModelPropertyCurve>();
 
     for ( RimStimPlanModelPropertyCurve* curve : curves )
     {

@@ -148,8 +148,7 @@ void RiuSeismicHistogramPanel::showHistogram( caf::PdmObjectHandle* selectedObje
         RimRegularLegendConfig* legend = dynamic_cast<RimRegularLegendConfig*>( selectedObject );
         if ( legend )
         {
-            RimSeismicSection* section = nullptr;
-            legend->firstAncestorOfType( section );
+            auto section = legend->firstAncestorOfType<RimSeismicSection>();
             if ( section != nullptr )
             {
                 seisData = section->seismicData();

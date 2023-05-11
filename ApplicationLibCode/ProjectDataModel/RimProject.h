@@ -247,8 +247,7 @@ void RimProject::fieldContentsByType( const caf::PdmObjectHandle* object, std::v
 {
     if ( !object ) return;
 
-    std::vector<caf::PdmFieldHandle*> allFieldsInObject;
-    object->fields( allFieldsInObject );
+    std::vector<caf::PdmFieldHandle*> allFieldsInObject = object->fields();
 
     std::vector<caf::PdmObjectHandle*> children;
 
@@ -269,7 +268,8 @@ void RimProject::fieldContentsByType( const caf::PdmObjectHandle* object, std::v
             }
         }
 
-        field->children( &children );
+        auto other = field->children();
+        children.insert( children.end(), other.begin(), other.end() );
     }
 
     for ( const auto& child : children )

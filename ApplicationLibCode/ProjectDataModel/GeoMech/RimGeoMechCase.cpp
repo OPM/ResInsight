@@ -398,8 +398,7 @@ std::vector<Rim3dView*> RimGeoMechCase::allSpecialViews() const
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
-    std::vector<PdmObjectHandle*> children;
-    geoMechViews.children( &children );
+    std::vector<PdmObjectHandle*> children = geoMechViews.children();
 
     for ( auto child : children )
         uiTreeOrdering.add( child );

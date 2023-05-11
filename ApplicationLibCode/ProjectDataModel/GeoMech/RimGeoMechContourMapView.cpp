@@ -104,8 +104,7 @@ QString RimGeoMechContourMapView::createAutoName() const
 
     QStringList generatedAutoTags;
 
-    RimCase* ownerCase = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( ownerCase );
+    auto ownerCase = firstAncestorOrThisOfTypeAsserted<RimCase>();
 
     if ( nameConfig()->addCaseName() )
     {

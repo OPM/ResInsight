@@ -52,8 +52,7 @@ void RimWellAllocationPlotLegend::fieldChangedByUi( const caf::PdmFieldHandle* c
 {
     if ( changedField == &m_showLegend )
     {
-        RimWellAllocationPlot* walp;
-        firstAncestorOrThisOfType( walp );
+        auto walp = firstAncestorOrThisOfType<RimWellAllocationPlot>();
 
         if ( walp ) walp->showPlotLegend( m_showLegend() );
     }

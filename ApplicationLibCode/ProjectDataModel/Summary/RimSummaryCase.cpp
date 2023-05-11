@@ -159,8 +159,7 @@ bool RimSummaryCase::hasCaseRealizationParameters() const
 //--------------------------------------------------------------------------------------------------
 RimSummaryCaseCollection* RimSummaryCase::ensemble() const
 {
-    RimSummaryCaseCollection* e;
-    firstAncestorOrThisOfType( e );
+    RimSummaryCaseCollection* e = firstAncestorOrThisOfType<RimSummaryCaseCollection>();
     return e && e->isEnsemble() ? e : nullptr;
 }
 

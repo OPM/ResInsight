@@ -182,8 +182,7 @@ bool RimWellLogFile::readFile( QString* errorMessage )
         m_wellLogChannelNames.push_back( wellLog );
     }
 
-    RimFileWellPath* wellPath;
-    this->firstAncestorOrThisOfType( wellPath );
+    auto wellPath = firstAncestorOrThisOfType<RimFileWellPath>();
     if ( wellPath )
     {
         if ( wellPath->filePath().isEmpty() ) // Has dummy wellpath
@@ -240,8 +239,7 @@ std::vector<std::pair<double, double>> RimWellLogFile::findMdAndChannelValuesFor
                                                                                           QString*           unitString /*=nullptr*/ )
 {
     CVF_ASSERT( wellPath );
-    std::vector<RimWellLogFile*> wellLogFiles;
-    wellPath->descendantsIncludingThisOfType( wellLogFiles );
+    std::vector<RimWellLogFile*> wellLogFiles = wellPath->descendantsIncludingThisOfType<RimWellLogFile>();
     for ( RimWellLogFile* wellLogFile : wellLogFiles )
     {
         RigWellLogFile*     fileData      = wellLogFile->wellLogFileData();

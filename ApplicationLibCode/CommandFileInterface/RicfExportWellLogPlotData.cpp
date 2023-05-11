@@ -81,8 +81,7 @@ caf::PdmScriptResponse RicfExportWellLogPlotData::execute()
 
     if ( QFileInfo::exists( m_folder ) )
     {
-        std::vector<RimWellLogPlot*> plots;
-        RimProject::current()->descendantsIncludingThisOfType( plots );
+        std::vector<RimWellLogPlot*>     plots  = RimProject::current()->descendantsIncludingThisOfType<RimWellLogPlot>();
         RicfExportWellLogPlotDataResult* result = new RicfExportWellLogPlotDataResult;
 
         for ( RimWellLogPlot* plot : plots )

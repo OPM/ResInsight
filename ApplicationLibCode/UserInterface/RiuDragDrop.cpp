@@ -158,8 +158,7 @@ private:
         std::vector<T*> typedAncestorsVec;
         for ( size_t i = 0; i < m_objects.size(); i++ )
         {
-            T* typedAncestor = nullptr;
-            m_objects[i]->firstAncestorOfType( typedAncestor );
+            auto typedAncestor = m_objects[i]->firstAncestorOfType<T>();
             if ( typedAncestor )
             {
                 typedAncestorsVec.push_back( typedAncestor );
@@ -246,8 +245,7 @@ Qt::ItemFlags RiuDragDrop::flags( const QModelIndex& index ) const
         caf::PdmObject* pdmObj = dynamic_cast<caf::PdmObject*>( uiItem );
         if ( pdmObj )
         {
-            RimWellAllocationPlot* wellAllocationPlot = nullptr;
-            pdmObj->firstAncestorOrThisOfType( wellAllocationPlot );
+            auto wellAllocationPlot = pdmObj->firstAncestorOrThisOfType<RimWellAllocationPlot>();
             if ( wellAllocationPlot ) return itemflags;
         }
 
@@ -399,57 +397,49 @@ bool RiuDragDrop::dropMimeData( const QMimeData* data, Qt::DropAction action, in
                                                dropTargetIndex.parent(),
                                                RiuTypedPdmObjects<const caf::PdmUiItem>::typedObjectsFromGroup( draggedObjects ) );
 
-        RimIdenticalGridCaseGroup* gridCaseGroup;
-        dropTarget->firstAncestorOrThisOfType( gridCaseGroup );
+        auto gridCaseGroup = dropTarget->firstAncestorOrThisOfType<RimIdenticalGridCaseGroup>();
         if ( gridCaseGroup )
         {
             return handleGridCaseGroupDrop( action, draggedObjects, gridCaseGroup );
         }
 
-        RimWellLogTrack* wellLogPlotTrack;
-        dropTarget->firstAncestorOrThisOfType( wellLogPlotTrack );
+        auto wellLogPlotTrack = dropTarget->firstAncestorOrThisOfType<RimWellLogTrack>();
         if ( wellLogPlotTrack )
         {
             return handleWellLogPlotTrackDrop( action, draggedObjects, wellLogPlotTrack, row );
         }
 
-        RimWellLogPlot* wellLogPlot;
-        dropTarget->firstAncestorOrThisOfType( wellLogPlot );
+        auto wellLogPlot = dropTarget->firstAncestorOrThisOfType<RimWellLogPlot>();
         if ( wellLogPlot )
         {
             return handleWellLogPlotDrop( action, draggedObjects, wellLogPlot, row );
         }
 
-        RimSummaryPlot* summaryPlot;
-        dropTarget->firstAncestorOrThisOfType( summaryPlot );
+        auto summaryPlot = dropTarget->firstAncestorOrThisOfType<RimSummaryPlot>();
         if ( summaryPlot )
         {
             return handleSummaryPlotDrop( action, draggedObjects, summaryPlot, row );
         }
 
-        RimMultiPlot* multiPlot;
-        dropTarget->firstAncestorOrThisOfType( multiPlot );
+        auto multiPlot = dropTarget->firstAncestorOrThisOfType<RimMultiPlot>();
         if ( multiPlot )
         {
             return handleMultiPlotDrop( action, draggedObjects, multiPlot, row );
         }
 
-        RimSummaryCaseCollection* summaryCaseCollection;
-        dropTarget->firstAncestorOrThisOfType( summaryCaseCollection );
+        auto summaryCaseCollection = dropTarget->firstAncestorOrThisOfType<RimSummaryCaseCollection>();
         if ( summaryCaseCollection )
         {
             return handleSummaryCaseCollectionDrop( action, draggedObjects, summaryCaseCollection );
         }
 
-        RimSummaryCaseMainCollection* summaryCaseMainCollection;
-        dropTarget->firstAncestorOrThisOfType( summaryCaseMainCollection );
+        auto summaryCaseMainCollection = dropTarget->firstAncestorOrThisOfType<RimSummaryCaseMainCollection>();
         if ( summaryCaseMainCollection )
         {
             return handleSummaryCaseMainCollectionDrop( action, draggedObjects, summaryCaseMainCollection );
         }
 
-        RimSurfaceCollection* surfaceCollection;
-        dropTarget->firstAncestorOrThisOfType( surfaceCollection );
+        auto surfaceCollection = dropTarget->firstAncestorOrThisOfType<RimSurfaceCollection>();
         if ( surfaceCollection )
         {
             return handleSurfaceCollectionDrop( action, row, draggedObjects, surfaceCollection );
@@ -624,8 +614,7 @@ bool RiuDragDrop::handleSummaryCaseCollectionDrop( Qt::DropAction            act
 
     for ( RimSummaryCase* summaryCase : summaryCases )
     {
-        RimSummaryCaseCollection* summaryCaseCollection;
-        summaryCase->firstAncestorOrThisOfType( summaryCaseCollection );
+        auto summaryCaseCollection = summaryCase->firstAncestorOrThisOfType<RimSummaryCaseCollection>();
 
         if ( summaryCaseCollection )
         {
@@ -635,8 +624,7 @@ bool RiuDragDrop::handleSummaryCaseCollectionDrop( Qt::DropAction            act
             continue;
         }
 
-        RimSummaryCaseMainCollection* summaryCaseMainCollection;
-        summaryCase->firstAncestorOrThisOfType( summaryCaseMainCollection );
+        auto summaryCaseMainCollection = summaryCase->firstAncestorOrThisOfType<RimSummaryCaseMainCollection>();
         if ( summaryCaseMainCollection )
         {
             summaryCaseMainCollection->removeCase( summaryCase );
@@ -661,8 +649,7 @@ bool RiuDragDrop::handleSummaryCaseMainCollectionDrop( Qt::DropAction           
 
     for ( RimSummaryCase* summaryCase : summaryCases )
     {
-        RimSummaryCaseCollection* summaryCaseCollection;
-        summaryCase->firstAncestorOrThisOfType( summaryCaseCollection );
+        auto summaryCaseCollection = summaryCase->firstAncestorOrThisOfType<RimSummaryCaseCollection>();
 
         if ( summaryCaseCollection )
         {
@@ -734,8 +721,7 @@ bool RiuDragDrop::handleSurfaceCollectionDrop( Qt::DropAction action, int row, c
 
     for ( RimSurface* surface : surfaces )
     {
-        RimSurfaceCollection* sourceCollection;
-        surface->firstAncestorOrThisOfType( sourceCollection );
+        auto sourceCollection = surface->firstAncestorOrThisOfType<RimSurfaceCollection>();
 
         if ( sourceCollection )
         {

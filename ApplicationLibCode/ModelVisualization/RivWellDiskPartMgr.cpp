@@ -487,10 +487,9 @@ void RivWellDiskPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicList*
 //--------------------------------------------------------------------------------------------------
 Rim3dView* RivWellDiskPartMgr::viewWithSettings()
 {
-    Rim3dView* view = nullptr;
-    if ( m_rimWell ) m_rimWell->firstAncestorOrThisOfType( view );
+    if ( m_rimWell ) return m_rimWell->firstAncestorOrThisOfType<Rim3dView>();
 
-    return view;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -498,10 +497,9 @@ Rim3dView* RivWellDiskPartMgr::viewWithSettings()
 //--------------------------------------------------------------------------------------------------
 RimSimWellInViewCollection* RivWellDiskPartMgr::simWellInViewCollection()
 {
-    RimSimWellInViewCollection* wellCollection = nullptr;
-    if ( m_rimWell ) m_rimWell->firstAncestorOrThisOfType( wellCollection );
+    if ( m_rimWell ) return m_rimWell->firstAncestorOrThisOfType<RimSimWellInViewCollection>();
 
-    return wellCollection;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

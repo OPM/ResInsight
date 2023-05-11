@@ -80,7 +80,7 @@ RimCustomObjectiveFunctionWeight* RimCustomObjectiveFunction::addWeight()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimCustomObjectiveFunctionWeight*> RimCustomObjectiveFunction::weights() const
 {
-    return m_weights.children();
+    return m_weights.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -325,9 +325,7 @@ void RimCustomObjectiveFunction::defineUiOrdering( QString uiConfigName, caf::Pd
 //--------------------------------------------------------------------------------------------------
 RimEnsembleCurveSet* RimCustomObjectiveFunction::parentCurveSet() const
 {
-    RimEnsembleCurveSet* curveSet;
-    firstAncestorOrThisOfType( curveSet );
-    return curveSet;
+    return firstAncestorOrThisOfType<RimEnsembleCurveSet>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -335,9 +333,7 @@ RimEnsembleCurveSet* RimCustomObjectiveFunction::parentCurveSet() const
 //--------------------------------------------------------------------------------------------------
 RimCustomObjectiveFunctionCollection* RimCustomObjectiveFunction::parentCollection() const
 {
-    RimCustomObjectiveFunctionCollection* collection;
-    firstAncestorOrThisOfType( collection );
-    return collection;
+    return firstAncestorOrThisOfType<RimCustomObjectiveFunctionCollection>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -345,7 +341,7 @@ RimCustomObjectiveFunctionCollection* RimCustomObjectiveFunction::parentCollecti
 //--------------------------------------------------------------------------------------------------
 RimObjectiveFunction* RimCustomObjectiveFunction::objectiveFunction( RimObjectiveFunction::FunctionType functionType ) const
 {
-    for ( auto objectiveFunc : m_objectiveFunctions.children() )
+    for ( auto objectiveFunc : m_objectiveFunctions.childrenByType() )
     {
         if ( objectiveFunc->functionType() == functionType )
         {

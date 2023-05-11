@@ -122,8 +122,7 @@ caf::PdmFieldHandle* RimSimWellInView::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimSimWellInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    RimEclipseView* reservoirView = nullptr;
-    this->firstAncestorOrThisOfType( reservoirView );
+    auto reservoirView = firstAncestorOrThisOfType<RimEclipseView>();
     if ( reservoirView )
     {
         if ( &showWellLabel == changedField || &showWellHead == changedField || &showWellPipe == changedField ||
@@ -148,8 +147,7 @@ void RimSimWellInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField
         }
     }
 
-    RimSimWellInViewCollection* wellColl = nullptr;
-    this->firstAncestorOrThisOfType( wellColl );
+    RimSimWellInViewCollection* wellColl = firstAncestorOrThisOfType<RimSimWellInViewCollection>();
     if ( wellColl )
     {
         wellColl->updateStateForVisibilityCheckboxes();
@@ -176,16 +174,13 @@ caf::PdmFieldHandle* RimSimWellInView::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 std::vector<const RigWellPath*> RimSimWellInView::wellPipeBranches() const
 {
-    RimSimWellInViewCollection* simWellCollection = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( simWellCollection );
-
-    RimEclipseCase* eclipseCase = nullptr;
-    this->firstAncestorOrThisOfType( eclipseCase );
+    auto eclipseCase = firstAncestorOrThisOfType<RimEclipseCase>();
     if ( eclipseCase && eclipseCase->eclipseCaseData() )
     {
         RigEclipseCaseData* caseData = eclipseCase->eclipseCaseData();
 
         bool includeCellCenters = this->isUsingCellCenterForPipe();
+        auto simWellCollection  = firstAncestorOrThisOfTypeAsserted<RimSimWellInViewCollection>();
         bool detectBrances      = simWellCollection->isAutoDetectingBranches;
 
         return caseData->simulationWellBranches( this->name(), includeCellCenters, detectBrances );
@@ -198,15 +193,14 @@ std::vector<const RigWellPath*> RimSimWellInView::wellPipeBranches() const
 //--------------------------------------------------------------------------------------------------
 void RimSimWellInView::wellHeadTopBottomPosition( int frameIndex, cvf::Vec3d* top, cvf::Vec3d* bottom )
 {
-    RimEclipseView* m_rimReservoirView;
-    firstAncestorOrThisOfTypeAsserted( m_rimReservoirView );
+    RimEclipseView* rimReservoirView = firstAncestorOrThisOfTypeAsserted<RimEclipseView>();
 
-    if ( !m_rimReservoirView->eclipseCase() || !m_rimReservoirView->eclipseCase()->eclipseCaseData() )
+    if ( !rimReservoirView->eclipseCase() || !rimReservoirView->eclipseCase()->eclipseCaseData() )
     {
         return;
     }
 
-    RigEclipseCaseData* rigReservoir = m_rimReservoirView->eclipseCase()->eclipseCaseData();
+    RigEclipseCaseData* rigReservoir = rimReservoirView->eclipseCase()->eclipseCaseData();
 
     const RigWellResultFrame* wellResultFramePtr = nullptr;
     const RigCell*            whCellPtr          = nullptr;
@@ -232,7 +226,7 @@ void RimSimWellInView::wellHeadTopBottomPosition( int frameIndex, cvf::Vec3d* to
 
     // Compute well head based on the z position of the top of the K column the well head is part of
     ( *top ) = ( *bottom );
-    if ( m_rimReservoirView->wellCollection()->wellHeadPosition() == RimSimWellInViewCollection::WELLHEAD_POS_TOP_COLUMN )
+    if ( rimReservoirView->wellCollection()->wellHeadPosition() == RimSimWellInViewCollection::WELLHEAD_POS_TOP_COLUMN )
     {
         // Position well head at top active cell of IJ-column
 
@@ -243,7 +237,7 @@ void RimSimWellInView::wellHeadTopBottomPosition( int frameIndex, cvf::Vec3d* to
         k                         = 0;
 
         size_t topActiveCellIndex = rigReservoir->mainGrid()->cellIndexFromIJK( i, j, k );
-        while ( k < kIndexWellHeadCell && !m_rimReservoirView->currentActiveCellInfo()->isActive( topActiveCellIndex ) )
+        while ( k < kIndexWellHeadCell && !rimReservoirView->currentActiveCellInfo()->isActive( topActiveCellIndex ) )
         {
             k++;
             topActiveCellIndex = rigReservoir->mainGrid()->cellIndexFromIJK( i, j, k );
@@ -262,7 +256,7 @@ void RimSimWellInView::wellHeadTopBottomPosition( int frameIndex, cvf::Vec3d* to
     {
         // Position well head at top of active cells bounding box
 
-        cvf::Vec3d activeCellsBoundingBoxMax = m_rimReservoirView->currentActiveCellInfo()->geometryBoundingBox().max();
+        cvf::Vec3d activeCellsBoundingBoxMax = rimReservoirView->currentActiveCellInfo()->geometryBoundingBox().max();
 
         top->z() = activeCellsBoundingBoxMax.z();
     }
@@ -273,8 +267,7 @@ void RimSimWellInView::wellHeadTopBottomPosition( int frameIndex, cvf::Vec3d* to
 //--------------------------------------------------------------------------------------------------
 double RimSimWellInView::pipeRadius()
 {
-    RimEclipseView* reservoirView;
-    firstAncestorOrThisOfTypeAsserted( reservoirView );
+    auto reservoirView = firstAncestorOrThisOfTypeAsserted<RimEclipseView>();
 
     RigEclipseCaseData* rigReservoir = reservoirView->eclipseCase()->eclipseCaseData();
 
@@ -290,8 +283,7 @@ double RimSimWellInView::pipeRadius()
 //--------------------------------------------------------------------------------------------------
 int RimSimWellInView::pipeCrossSectionVertexCount()
 {
-    RimSimWellInViewCollection* simWellCollection = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( simWellCollection );
+    auto simWellCollection = firstAncestorOrThisOfTypeAsserted<RimSimWellInViewCollection>();
     return simWellCollection->pipeCrossSectionVertexCount();
 }
 
@@ -314,8 +306,7 @@ bool RimSimWellInView::intersectsDynamicWellCellsFilteredCells( size_t frameInde
 //--------------------------------------------------------------------------------------------------
 bool RimSimWellInView::intersectsWellCellsFilteredCells( const RigWellResultFrame* wrsf, size_t frameIndex ) const
 {
-    RimEclipseView* reservoirView = nullptr;
-    this->firstAncestorOrThisOfType( reservoirView );
+    auto reservoirView = firstAncestorOrThisOfType<RimEclipseView>();
     if ( !reservoirView ) return false;
 
     const std::vector<RivCellSetEnum>& visGridParts = reservoirView->visibleGridParts();
@@ -436,8 +427,7 @@ void RimSimWellInView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrder
     }
     uiTreeOrdering.skipRemainingChildren( true );
 
-    const RimEclipseView* reservoirView = nullptr;
-    this->firstAncestorOrThisOfType( reservoirView );
+    const auto reservoirView = firstAncestorOrThisOfType<RimEclipseView>();
     if ( !reservoirView ) return;
 
     if ( reservoirView->cellFilterCollection() && !reservoirView->cellFilterCollection()->hasActiveFilters() )
@@ -447,8 +437,7 @@ void RimSimWellInView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrder
         return;
     }
 
-    const RimSimWellInViewCollection* wellColl = nullptr;
-    this->firstAncestorOrThisOfType( wellColl );
+    const RimSimWellInViewCollection* wellColl = firstAncestorOrThisOfType<RimSimWellInViewCollection>();
     if ( !wellColl ) return;
 
     if ( wellColl->showWellsIntersectingVisibleCells() &&
@@ -469,8 +458,7 @@ void RimSimWellInView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrder
 //--------------------------------------------------------------------------------------------------
 bool RimSimWellInView::isWellCellsVisible() const
 {
-    const RimEclipseView* reservoirView = nullptr;
-    this->firstAncestorOrThisOfType( reservoirView );
+    const auto reservoirView = firstAncestorOrThisOfType<RimEclipseView>();
 
     if ( reservoirView == nullptr ) return false;
     if ( this->simWellData() == nullptr ) return false;
@@ -498,8 +486,7 @@ bool RimSimWellInView::isWellCellsVisible() const
 //--------------------------------------------------------------------------------------------------
 bool RimSimWellInView::isWellPipeVisible( size_t frameIndex ) const
 {
-    const RimEclipseView* reservoirView = nullptr;
-    this->firstAncestorOrThisOfType( reservoirView );
+    const auto reservoirView = firstAncestorOrThisOfType<RimEclipseView>();
 
     if ( reservoirView == nullptr ) return false;
     if ( this->simWellData() == nullptr ) return false;
@@ -539,8 +526,7 @@ bool RimSimWellInView::isWellPipeVisible( size_t frameIndex ) const
 //--------------------------------------------------------------------------------------------------
 bool RimSimWellInView::isWellSpheresVisible( size_t frameIndex ) const
 {
-    const RimEclipseView* reservoirView = nullptr;
-    this->firstAncestorOrThisOfType( reservoirView );
+    const auto reservoirView = firstAncestorOrThisOfType<RimEclipseView>();
 
     if ( reservoirView == nullptr ) return false;
     if ( this->simWellData() == nullptr ) return false;
@@ -579,8 +565,7 @@ bool RimSimWellInView::isWellSpheresVisible( size_t frameIndex ) const
 //--------------------------------------------------------------------------------------------------
 bool RimSimWellInView::isWellValvesVisible( size_t frameIndex ) const
 {
-    const RimEclipseView* reservoirView = nullptr;
-    this->firstAncestorOrThisOfType( reservoirView );
+    const auto reservoirView = firstAncestorOrThisOfType<RimEclipseView>();
 
     if ( reservoirView == nullptr ) return false;
     if ( this->simWellData() == nullptr ) return false;
@@ -616,8 +601,7 @@ bool RimSimWellInView::isWellValvesVisible( size_t frameIndex ) const
 //--------------------------------------------------------------------------------------------------
 bool RimSimWellInView::isUsingCellCenterForPipe() const
 {
-    const RimSimWellInViewCollection* wellColl = nullptr;
-    this->firstAncestorOrThisOfType( wellColl );
+    const RimSimWellInViewCollection* wellColl = firstAncestorOrThisOfType<RimSimWellInViewCollection>();
 
     return ( wellColl && wellColl->wellPipeCoordType() == RimSimWellInViewCollection::WELLPIPE_CELLCENTER );
 }
@@ -668,8 +652,7 @@ size_t RimSimWellInView::resultWellIndex() const
 //--------------------------------------------------------------------------------------------------
 bool RimSimWellInView::isWellDiskVisible() const
 {
-    const RimEclipseView* reservoirView = nullptr;
-    this->firstAncestorOrThisOfType( reservoirView );
+    const auto reservoirView = firstAncestorOrThisOfType<RimEclipseView>();
 
     if ( reservoirView == nullptr ) return false;
     if ( this->simWellData() == nullptr ) return false;
@@ -689,8 +672,7 @@ bool RimSimWellInView::isWellDiskVisible() const
 //--------------------------------------------------------------------------------------------------
 double RimSimWellInView::calculateInjectionProductionFractions( const RimWellDiskConfig& wellDiskConfig, bool* isOk )
 {
-    const RimEclipseView* reservoirView = nullptr;
-    this->firstAncestorOrThisOfType( reservoirView );
+    const auto reservoirView = firstAncestorOrThisOfType<RimEclipseView>();
     if ( !reservoirView ) return false;
     if ( !reservoirView->eclipseCase() ) return false;
 
@@ -847,13 +829,11 @@ double RimSimWellInView::diskScale() const
 //--------------------------------------------------------------------------------------------------
 Rim2dIntersectionView* corresponding2dIntersectionView( RimSimWellInView* simWellInView )
 {
-    Rim3dView* tdView;
-    simWellInView->firstAncestorOrThisOfType( tdView );
+    Rim3dView* tdView = simWellInView->firstAncestorOrThisOfType<Rim3dView>();
 
-    std::vector<RimIntersectionCollection*> intersectionColls;
     if ( tdView )
     {
-        tdView->descendantsIncludingThisOfType( intersectionColls );
+        std::vector<RimIntersectionCollection*> intersectionColls = tdView->descendantsIncludingThisOfType<RimIntersectionCollection>();
         if ( intersectionColls.size() == 1 )
         {
             for ( const auto intersection : intersectionColls[0]->intersections() )
@@ -873,9 +853,7 @@ Rim2dIntersectionView* corresponding2dIntersectionView( RimSimWellInView* simWel
 //--------------------------------------------------------------------------------------------------
 void RimSimWellInView::onChildDeleted( caf::PdmChildArrayFieldHandle* childArray, std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
-    RimEclipseView* view = nullptr;
-    this->firstAncestorOrThisOfType( view );
-
+    RimEclipseView* view = firstAncestorOrThisOfType<RimEclipseView>();
     if ( view )
     {
         view->scheduleCreateDisplayModelAndRedraw();

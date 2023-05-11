@@ -659,8 +659,7 @@ void RimEclipseView::onCreateDisplayModel()
         updateFaultColors();
     }
 
-    std::vector<RimFlowCharacteristicsPlot*> characteristicsPlots;
-    this->objectsWithReferringPtrFieldsOfType( characteristicsPlots );
+    std::vector<RimFlowCharacteristicsPlot*> characteristicsPlots = this->objectsWithReferringPtrFieldsOfType<RimFlowCharacteristicsPlot>();
     for ( auto plot : characteristicsPlots )
     {
         if ( plot != nullptr )
@@ -669,8 +668,7 @@ void RimEclipseView::onCreateDisplayModel()
         }
     }
 
-    std::vector<RimGridCrossPlotDataSet*> curveSets;
-    this->objectsWithReferringPtrFieldsOfType( curveSets );
+    std::vector<RimGridCrossPlotDataSet*> curveSets = objectsWithReferringPtrFieldsOfType<RimGridCrossPlotDataSet>();
     for ( auto curveSet : curveSets )
     {
         if ( curveSet != nullptr )
@@ -680,8 +678,7 @@ void RimEclipseView::onCreateDisplayModel()
     }
 
 #ifdef USE_QTCHARTS
-    std::vector<RimGridStatisticsPlot*> gridStatisticsPlots;
-    this->objectsWithReferringPtrFieldsOfType( gridStatisticsPlots );
+    std::vector<RimGridStatisticsPlot*> gridStatisticsPlots = objectsWithReferringPtrFieldsOfType<RimGridStatisticsPlot>();
     for ( auto gridStatisticsPlot : gridStatisticsPlots )
     {
         if ( gridStatisticsPlot != nullptr )
@@ -958,12 +955,10 @@ void RimEclipseView::appendWellsAndFracturesToModel()
 
                 cvf::ref<caf::DisplayCoordTransform> transForm = this->displayCoordTransform();
 
-                std::vector<RimFracture*> fractures;
-                this->descendantsIncludingThisOfType( fractures );
+                std::vector<RimFracture*> fractures = this->descendantsIncludingThisOfType<RimFracture>();
                 for ( RimFracture* f : fractures )
                 {
-                    RimSimWellInView* simWell = nullptr;
-                    f->firstAncestorOrThisOfType( simWell );
+                    RimSimWellInView* simWell = f->firstAncestorOrThisOfType<RimSimWellInView>();
                     if ( simWell )
                     {
                         bool isAnyGeometryPresent = simWell->isWellPipeVisible( m_currentTimeStep ) ||
@@ -1086,8 +1081,7 @@ void RimEclipseView::onLoadDataAndUpdate()
     {
         // Update simulation well fractures after well cell results are imported
 
-        std::vector<RimSimWellFracture*> simFractures;
-        this->descendantsIncludingThisOfType( simFractures );
+        std::vector<RimSimWellFracture*> simFractures = descendantsIncludingThisOfType<RimSimWellFracture>();
         for ( auto fracture : simFractures )
         {
             fracture->loadDataAndUpdate();
@@ -1222,8 +1216,7 @@ QString RimEclipseView::createAutoName() const
 
     QStringList generatedAutoTags;
 
-    RimCase* ownerCase = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( ownerCase );
+    RimCase* ownerCase = firstAncestorOrThisOfTypeAsserted<RimCase>();
 
     if ( nameConfig()->addCaseName() )
     {
@@ -1428,10 +1421,7 @@ void RimEclipseView::onUpdateLegends()
     {
         bool hasAnyVisibleFractures = false;
         {
-            std::vector<RimFracture*> fractures;
-
-            RimProject::current()->activeOilField()->descendantsIncludingThisOfType( fractures );
-
+            std::vector<RimFracture*> fractures = RimProject::current()->activeOilField()->descendantsIncludingThisOfType<RimFracture>();
             for ( const auto& f : fractures )
             {
                 if ( f->isEnabled() ) hasAnyVisibleFractures = true;
@@ -1910,9 +1900,11 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     {
         bool showFractureColors = false;
 
-        std::vector<RimFracture*> fractures;
-        m_wellCollection->descendantsIncludingThisOfType( fractures );
-        wellPathCollection()->descendantsIncludingThisOfType( fractures );
+        std::vector<RimFracture*> fractures = m_wellCollection->descendantsIncludingThisOfType<RimFracture>();
+
+        auto otherFractures = wellPathCollection()->descendantsIncludingThisOfType<RimFracture>();
+        fractures.insert( fractures.end(), otherFractures.begin(), otherFractures.end() );
+
         if ( !fractures.empty() )
         {
             showFractureColors = true;

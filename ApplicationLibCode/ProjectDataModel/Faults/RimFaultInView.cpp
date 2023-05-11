@@ -69,10 +69,7 @@ void RimFaultInView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
 
     if ( &faultColor == changedField || &showFault == changedField )
     {
-        RimEclipseView* reservoirView = nullptr;
-
-        this->firstAncestorOrThisOfType( reservoirView );
-
+        auto reservoirView = firstAncestorOrThisOfType<RimEclipseView>();
         if ( reservoirView )
         {
             reservoirView->scheduleCreateDisplayModelAndRedraw();

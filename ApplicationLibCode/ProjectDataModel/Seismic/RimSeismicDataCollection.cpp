@@ -74,7 +74,7 @@ RimSeismicData* RimSeismicDataCollection::importSeismicFromFile( const QString f
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSeismicData*> RimSeismicDataCollection::seismicData() const
 {
-    return m_seismicData.children();
+    return m_seismicData.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------

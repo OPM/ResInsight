@@ -127,8 +127,7 @@ caf::PdmFieldHandle* RimGridInfo::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimGridInfo::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    RimGridView* rimView = nullptr;
-    this->firstAncestorOrThisOfType( rimView );
+    auto rimView = firstAncestorOfType<RimGridView>();
 
     rimView->scheduleCreateDisplayModelAndRedraw();
 }
@@ -219,7 +218,7 @@ void RimGridInfoCollection::deleteGridInfo( const QString& gridName )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimGridInfo*> RimGridInfoCollection::gridInfos() const
 {
-    return m_gridInfos.children();
+    return m_gridInfos.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -235,8 +234,7 @@ caf::PdmFieldHandle* RimGridInfoCollection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 void RimGridInfoCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    RimGridView* rimView = nullptr;
-    this->firstAncestorOrThisOfType( rimView );
+    auto rimView = firstAncestorOfType<RimGridView>();
 
     rimView->scheduleCreateDisplayModelAndRedraw();
 }
@@ -438,19 +436,14 @@ void RimGridCollection::setMainGridActive( bool active )
 //--------------------------------------------------------------------------------------------------
 void RimGridCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
+    auto rimView = firstAncestorOrThisOfTypeAsserted<RimGridView>();
+
     if ( changedField == &m_isActive )
     {
-        RimGridView* rimView = nullptr;
-        this->firstAncestorOrThisOfType( rimView );
-        CVF_ASSERT( rimView );
-
         if ( rimView ) rimView->showGridCells( m_isActive );
 
         updateUiIconFromState( m_isActive );
     }
-
-    RimGridView* rimView = nullptr;
-    this->firstAncestorOrThisOfType( rimView );
 
     rimView->scheduleCreateDisplayModelAndRedraw();
 }
@@ -488,8 +481,7 @@ void RimGridCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrde
 //--------------------------------------------------------------------------------------------------
 const RigMainGrid* RimGridCollection::mainEclipseGrid() const
 {
-    RimEclipseCase* eclipseCase;
-    firstAncestorOrThisOfType( eclipseCase );
+    auto eclipseCase = firstAncestorOrThisOfType<RimEclipseCase>();
     return eclipseCase ? eclipseCase->mainGrid() : nullptr;
 }
 
