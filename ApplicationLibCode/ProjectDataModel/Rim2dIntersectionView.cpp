@@ -550,13 +550,8 @@ void Rim2dIntersectionView::onCreateDisplayModel()
 
     if ( m_intersection->type() == RimExtrudedCurveIntersection::CrossSectionEnum::CS_SIMULATION_WELL && m_intersection->simulationWell() )
     {
-        RimEclipseView* eclipseView = m_intersection->firstAncestorOrThisOfType<RimEclipseView>();
-
-        // if ( eclipseView ) Do we need this ?
-        {
-            m_flatSimWellPipePartMgr = new RivSimWellPipesPartMgr( m_intersection->simulationWell() );
-            m_flatWellHeadPartMgr    = new RivWellHeadPartMgr( m_intersection->simulationWell() );
-        }
+        m_flatSimWellPipePartMgr = new RivSimWellPipesPartMgr( m_intersection->simulationWell() );
+        m_flatWellHeadPartMgr    = new RivWellHeadPartMgr( m_intersection->simulationWell() );
     }
 
     m_flatWellpathPartMgr = nullptr;
