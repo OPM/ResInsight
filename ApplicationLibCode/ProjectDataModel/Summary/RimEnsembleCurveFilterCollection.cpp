@@ -67,7 +67,7 @@ RimEnsembleCurveFilter* RimEnsembleCurveFilterCollection::addFilter( const QStri
 //--------------------------------------------------------------------------------------------------
 std::vector<RimEnsembleCurveFilter*> RimEnsembleCurveFilterCollection::filters() const
 {
-    return m_filters.children();
+    return m_filters.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -110,8 +110,7 @@ void RimEclipseInputProperty::fieldChangedByUi( const caf::PdmFieldHandle* chang
 
             if ( anyNameUpdated )
             {
-                std::vector<RimEclipseResultDefinition*> resDefs;
-                rimCase->descendantsIncludingThisOfType( resDefs );
+                std::vector<RimEclipseResultDefinition*> resDefs = rimCase->descendantsIncludingThisOfType<RimEclipseResultDefinition>();
 
                 for ( auto it : resDefs )
                 {

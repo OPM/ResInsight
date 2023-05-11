@@ -190,8 +190,7 @@ void RimColorLegend::onColorLegendItemHasChanged()
     {
         o->uiCapability()->updateConnectedEditors();
 
-        Rim3dView* view = nullptr;
-        o->firstAncestorOrThisOfType( view );
+        auto view = o->firstAncestorOrThisOfType<Rim3dView>();
         if ( view )
         {
             view->resetLegends();

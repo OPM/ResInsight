@@ -242,8 +242,7 @@ void RimElementVectorResult::mappingRange( double& min, double& max ) const
     min = 0.0;
     max = 0.0;
 
-    Rim3dView* view = nullptr;
-    firstAncestorOrThisOfType( view );
+    auto view = firstAncestorOrThisOfType<Rim3dView>();
 
     int currentTimeStep = view->currentTimeStep();
 

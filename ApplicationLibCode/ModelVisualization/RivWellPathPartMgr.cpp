@@ -399,8 +399,7 @@ void RivWellPathPartMgr::appendPerforationsToModel( cvf::ModelBasicList*        
     double wellPathRadius    = this->wellPathRadius( characteristicCellSize, wellPathCollection );
     double perforationRadius = wellPathRadius * 1.1;
 
-    std::vector<RimPerforationInterval*> perforations;
-    m_rimWellPath->descendantsIncludingThisOfType( perforations );
+    std::vector<RimPerforationInterval*> perforations = m_rimWellPath->descendantsIncludingThisOfType<RimPerforationInterval>();
     for ( RimPerforationInterval* perforation : perforations )
     {
         using namespace std;

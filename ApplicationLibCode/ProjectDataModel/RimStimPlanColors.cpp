@@ -211,8 +211,7 @@ void RimStimPlanColors::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
 
     if ( changedField == &m_stimPlanCellVizMode )
     {
-        Rim3dView* rimView = nullptr;
-        this->firstAncestorOrThisOfType( rimView );
+        auto rimView = firstAncestorOrThisOfType<Rim3dView>();
         if ( rimView )
         {
             rimView->createDisplayModelAndRedraw();

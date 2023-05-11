@@ -848,9 +848,8 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptionsForSources() 
         {
             if ( summaryCase->rftReader() && summaryCase->rftReader()->wellNames().contains( m_wellPathNameOrSimWellName ) )
             {
-                RimSummaryCaseCollection* parentEnsemble = nullptr;
-                summaryCase->firstAncestorOrThisOfType( parentEnsemble );
-                auto addr = RifDataSourceForRftPlt( summaryCase, parentEnsemble );
+                auto parentEnsemble = summaryCase->firstAncestorOrThisOfType<RimSummaryCaseCollection>();
+                auto addr           = RifDataSourceForRftPlt( summaryCase, parentEnsemble );
 
                 auto item = caf::PdmOptionItemInfo( summaryCase->displayCaseName(), QVariant::fromValue( addr ) );
                 item.setLevel( 1 );

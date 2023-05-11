@@ -1375,8 +1375,7 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences*              
 
     if ( this->project() )
     {
-        std::vector<RimViewWindow*> allViewWindows;
-        project()->descendantsIncludingThisOfType( allViewWindows );
+        std::vector<RimViewWindow*> allViewWindows = project()->descendantsIncludingThisOfType<RimViewWindow>( allViewWindows );
 
         RimWellPathCollection* wellPathCollection = this->project()->activeOilField()->wellPathCollection();
 

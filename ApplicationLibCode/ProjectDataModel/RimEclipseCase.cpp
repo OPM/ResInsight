@@ -559,8 +559,7 @@ void RimEclipseCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 {
     if ( uiConfigName == "MainWindow.ProjectTree" )
     {
-        std::vector<PdmObjectHandle*> children;
-        reservoirViews.children( &children );
+        std::vector<PdmObjectHandle*> children = reservoirViews.children();
 
         for ( auto child : children )
             uiTreeOrdering.add( child );
@@ -1051,8 +1050,7 @@ bool RimEclipseCase::openReserviorCase()
 
     // Update grids node
     {
-        std::vector<RimGridCollection*> gridColls;
-        descendantsIncludingThisOfType( gridColls );
+        std::vector<RimGridCollection*> gridColls = descendantsIncludingThisOfType<RimGridCollection>();
         for ( RimGridCollection* gridCollection : gridColls )
         {
             gridCollection->syncFromMainEclipseGrid();

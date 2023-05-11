@@ -79,10 +79,9 @@ RivSimWellPipesPartMgr::~RivSimWellPipesPartMgr()
 //--------------------------------------------------------------------------------------------------
 Rim3dView* RivSimWellPipesPartMgr::viewWithSettings()
 {
-    Rim3dView* view = nullptr;
-    if ( m_simWellInView ) m_simWellInView->firstAncestorOrThisOfType( view );
+    if ( m_simWellInView ) return m_simWellInView->firstAncestorOrThisOfType<Rim3dView>();
 
-    return view;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -292,8 +291,7 @@ void RivSimWellPipesPartMgr::buildWellPipeParts( const caf::DisplayCoordTransfor
         pbd.m_connectionFactorsPart             = nullptr;
         pbd.m_valveParts.clear();
 
-        RimEclipseView* eclipseView = nullptr;
-        m_simWellInView->firstAncestorOrThisOfType( eclipseView );
+        auto eclipseView = m_simWellInView->firstAncestorOrThisOfType<RimEclipseView>();
 
         appendVirtualConnectionFactorGeo( eclipseView, frameIndex, brIdx, displayXf, pipeRadius, pbd );
         appendValvesGeo( eclipseView, frameIndex, brIdx, displayXf, pipeRadius, pbd );
@@ -581,7 +579,7 @@ void RivSimWellPipesPartMgr::updatePipeResultColor( size_t frameIndex )
         RimSimWellInViewCollection* wellColl = nullptr;
         if ( m_simWellInView )
         {
-            m_simWellInView->firstAncestorOrThisOfType( wellColl );
+            wellColl = m_simWellInView->firstAncestorOrThisOfType<RimSimWellInViewCollection>();
         }
 
         if ( wellColl && wellColl->showConnectionStatusColors() )

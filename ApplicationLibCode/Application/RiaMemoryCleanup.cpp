@@ -153,8 +153,7 @@ std::set<RigFemResultAddress> RiaMemoryCleanup::findGeoMechCaseResultsInUse() co
     auto geoMechCase = dynamic_cast<RimGeoMechCase*>( m_case() );
     if ( geoMechCase )
     {
-        std::vector<RimFemResultObserver*> geoMechResults;
-        geoMechCase->descendantsIncludingThisOfType( geoMechResults );
+        std::vector<RimFemResultObserver*> geoMechResults = geoMechCase->descendantsIncludingThisOfType<RimFemResultObserver>();
         for ( RimFemResultObserver* resultDef : geoMechResults )
         {
             auto pdmObj = dynamic_cast<caf::PdmObject*>( resultDef );
@@ -181,8 +180,7 @@ std::set<RigEclipseResultAddress> RiaMemoryCleanup::findEclipseResultsInUse() co
     RimEclipseCase*                   eclipseCase = dynamic_cast<RimEclipseCase*>( m_case() );
     if ( eclipseCase )
     {
-        std::vector<RimEclipseResultDefinition*> eclipseResultDefs;
-        eclipseCase->descendantsIncludingThisOfType( eclipseResultDefs );
+        auto eclipseResultDefs = eclipseCase->descendantsIncludingThisOfType<RimEclipseResultDefinition>( eclipseResultDefs );
         for ( RimEclipseResultDefinition* resultDef : eclipseResultDefs )
         {
             RigEclipseResultAddress resultAddr( resultDef->resultType(), resultDef->resultVariable() );

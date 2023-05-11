@@ -213,8 +213,7 @@ void RimSurface::fieldChangedByUi( const caf::PdmFieldHandle* changedField, cons
 
     if ( updateViews )
     {
-        RimSurfaceCollection* surfColl;
-        this->firstAncestorOrThisOfTypeAsserted( surfColl );
+        auto surfColl = firstAncestorOrThisOfTypeAsserted<RimSurfaceCollection>();
         surfColl->updateViews( { this } );
     }
 }
