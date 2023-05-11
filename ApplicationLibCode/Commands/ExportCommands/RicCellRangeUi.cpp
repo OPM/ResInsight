@@ -177,8 +177,7 @@ void RicCellRangeUi::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
     }
 
     // If this object is contained in another object, make sure the other object is updated
-    RicExportCarfinUi* exportCarfin = nullptr;
-    this->firstAncestorOrThisOfType( exportCarfin );
+    RicExportCarfinUi* exportCarfin = this->firstAncestorOrThisOfType<RicExportCarfinUi>();
     if ( exportCarfin )
     {
         exportCarfin->uiCapability()->updateConnectedEditors();

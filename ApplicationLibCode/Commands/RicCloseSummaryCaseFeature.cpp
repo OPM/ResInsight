@@ -81,8 +81,7 @@ void RicCloseSummaryCaseFeature::deleteSummaryCases( std::vector<RimSummaryCase*
         {
             if ( !object ) continue;
 
-            RimWellLogPlot* wellLogPlot = nullptr;
-            object->firstAncestorOrThisOfType( wellLogPlot );
+            RimWellLogPlot* wellLogPlot = object->firstAncestorOrThisOfType<RimWellLogPlot>();
             if ( wellLogPlot ) wellLogPlotsToDelete.insert( wellLogPlot );
         }
     }

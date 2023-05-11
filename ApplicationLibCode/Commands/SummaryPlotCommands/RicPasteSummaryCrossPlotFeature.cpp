@@ -39,7 +39,7 @@ CAF_CMD_SOURCE_INIT( RicPasteSummaryCrossPlotFeature, "RicPasteSummaryCrossPlotF
 //--------------------------------------------------------------------------------------------------
 void RicPasteSummaryCrossPlotFeature::copyPlotAndAddToCollection( RimSummaryCrossPlot* sourcePlot )
 {
-    RimSummaryCrossPlotCollection* plotColl = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryCrossPlotCollection*>();
+    RimSummaryCrossPlotCollection* plotColl = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryCrossPlotCollection>();
 
     if ( plotColl )
     {
@@ -70,8 +70,7 @@ bool RicPasteSummaryCrossPlotFeature::isCommandEnabled()
     caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
     if ( !destinationObject ) return false;
 
-    RimSummaryCrossPlotCollection* plotColl = nullptr;
-    destinationObject->firstAncestorOrThisOfType( plotColl );
+    RimSummaryCrossPlotCollection* plotColl = destinationObject->firstAncestorOrThisOfType<RimSummaryCrossPlotCollection>();
     if ( !plotColl )
     {
         return false;

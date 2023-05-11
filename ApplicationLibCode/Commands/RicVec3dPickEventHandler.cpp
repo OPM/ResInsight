@@ -42,8 +42,7 @@ bool RicVec3dPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eventObj
 
     cvf::Vec3d pickedPosition = eventObject.m_pickItemInfos.front().globalPickedPoint();
 
-    RimCase* ownerCase = nullptr;
-    rimView->firstAncestorOrThisOfType( ownerCase );
+    RimCase* ownerCase = rimView->firstAncestorOrThisOfType<RimCase>();
     if ( ownerCase )
     {
         double zPickOffset = ownerCase->characteristicCellSize() * m_zOffsetFactor;

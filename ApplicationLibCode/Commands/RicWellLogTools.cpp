@@ -147,10 +147,8 @@ void RicWellLogTools::addWellLogChannelsToPlotTrack( RimWellLogTrack* plotTrack,
     {
         RimWellLogFileCurve* plotCurve = RicWellLogTools::addFileCurve( plotTrack );
 
-        RimWellPath*    wellPath;
-        RimWellLogFile* wellLogFile;
-        wellLogFileChannels[cIdx]->firstAncestorOrThisOfType( wellPath );
-        wellLogFileChannels[cIdx]->firstAncestorOrThisOfType( wellLogFile );
+        RimWellPath*    wellPath    = wellLogFileChannels[cIdx]->firstAncestorOrThisOfType<RimWellPath>();
+        RimWellLogFile* wellLogFile = wellLogFileChannels[cIdx]->firstAncestorOrThisOfType<RimWellLogFile>();
 
         if ( wellPath )
         {

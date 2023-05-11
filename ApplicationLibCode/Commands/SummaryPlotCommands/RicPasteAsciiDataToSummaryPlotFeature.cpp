@@ -55,8 +55,7 @@ bool RicPasteAsciiDataToSummaryPlotFeature::isCommandEnabled()
 
     if ( !destinationObject ) return false;
 
-    RimSummaryMultiPlot* multiPlot = nullptr;
-    destinationObject->firstAncestorOrThisOfType( multiPlot );
+    RimSummaryMultiPlot* multiPlot = destinationObject->firstAncestorOrThisOfType<RimSummaryMultiPlot>();
     if ( !multiPlot )
     {
         return false;
@@ -71,8 +70,7 @@ bool RicPasteAsciiDataToSummaryPlotFeature::isCommandEnabled()
 void RicPasteAsciiDataToSummaryPlotFeature::onActionTriggered( bool isChecked )
 {
     caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
-    RimSummaryPlot*       summaryPlot       = nullptr;
-    destinationObject->firstAncestorOrThisOfType( summaryPlot );
+    RimSummaryPlot*       summaryPlot       = destinationObject->firstAncestorOrThisOfType<RimSummaryPlot>();
 
     QString text = getPastedData();
 

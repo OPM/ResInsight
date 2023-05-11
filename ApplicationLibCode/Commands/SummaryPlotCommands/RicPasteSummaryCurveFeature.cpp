@@ -44,7 +44,7 @@ CAF_CMD_SOURCE_INIT( RicPasteSummaryCurveFeature, "RicPasteSummaryCurveFeature" 
 //--------------------------------------------------------------------------------------------------
 RimSummaryCurve* RicPasteSummaryCurveFeature::copyCurveAndAddToPlot( RimSummaryCurve* sourceCurve )
 {
-    RimSummaryPlot* summaryPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot*>();
+    RimSummaryPlot* summaryPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot>();
 
     RimSummaryCurve* newCurve =
         dynamic_cast<RimSummaryCurve*>( sourceCurve->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
@@ -64,8 +64,7 @@ RimSummaryCurve* RicPasteSummaryCurveFeature::copyCurveAndAddToPlot( RimSummaryC
     newCurve->loadDataAndUpdate( true );
     newCurve->updateConnectedEditors();
 
-    RimSummaryMultiPlot* summaryMultiPlot = nullptr;
-    summaryPlot->firstAncestorOrThisOfType( summaryMultiPlot );
+    RimSummaryMultiPlot* summaryMultiPlot = summaryPlot->firstAncestorOrThisOfType<RimSummaryMultiPlot>();
     if ( summaryMultiPlot )
     {
         summaryMultiPlot->updatePlotTitles();

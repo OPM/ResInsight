@@ -834,8 +834,7 @@ std::vector<RimWellPath*> RicExportLgrFeature::selectedWellPaths()
 
     for ( auto completion : selectedCompletions )
     {
-        RimWellPath* parentWellPath;
-        completion->firstAncestorOrThisOfType( parentWellPath );
+        RimWellPath* parentWellPath = completion->firstAncestorOrThisOfType<RimWellPath>();
 
         if ( parentWellPath ) wellPaths.push_back( parentWellPath );
     }
