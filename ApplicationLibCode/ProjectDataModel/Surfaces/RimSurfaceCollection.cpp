@@ -325,9 +325,7 @@ void RimSurfaceCollection::updateViews( const std::vector<RimSurface*>& surfsToR
             surfInView->clearGeometry();
             surfInView->surfaceResultDefinition()->legendConfig()->setShowLegend( showLegend );
 
-            RimGridView* gridView;
-            surfInView->firstAncestorOrThisOfType( gridView );
-
+            auto gridView = surfInView->firstAncestorOrThisOfType<RimGridView>();
             if ( gridView ) viewsNeedingUpdate.insert( gridView );
         }
     }

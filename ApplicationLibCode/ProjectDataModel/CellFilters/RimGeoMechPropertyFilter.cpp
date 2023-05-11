@@ -188,9 +188,7 @@ bool RimGeoMechPropertyFilter::isPropertyFilterControlled()
 {
     bool isPropertyFilterControlled = false;
 
-    Rim3dView* rimView = nullptr;
-    firstAncestorOrThisOfType( rimView );
-    CVF_ASSERT( rimView );
+    auto rimView = firstAncestorOrThisOfTypeAsserted<Rim3dView>();
     if ( rimView )
     {
         RimViewController* vc = rimView->viewController();

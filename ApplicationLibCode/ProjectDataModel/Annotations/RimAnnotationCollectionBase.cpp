@@ -132,18 +132,16 @@ void RimAnnotationCollectionBase::scheduleRedrawOfRelevantViews()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimGridView*> RimAnnotationCollectionBase::gridViewsContainingAnnotations() const
 {
+    RimProject* project = RimProject::current();
+    if ( !project ) return {};
+
     std::vector<RimGridView*> views;
-    RimProject*               project = nullptr;
-    this->firstAncestorOrThisOfType( project );
-
-    if ( !project ) return views;
-
     std::vector<RimGridView*> visibleGridViews;
     project->allVisibleGridViews( visibleGridViews );
 
     for ( auto& gridView : visibleGridViews )
     {
-        /*if (gridView->annotationCollection()->annotationsCount() > 0)*/ views.push_back( gridView );
+        views.push_back( gridView );
     }
     return views;
 }
