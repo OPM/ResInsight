@@ -291,11 +291,10 @@ TEST( BaseTest, PdmChildArrayField )
     EXPECT_EQ( s3, ihd1->m_childArrayField[2] );
 
     // childObjects
-    std::vector<caf::PdmObjectHandle*> objects;
-    ihd1->m_childArrayField.children( &objects );
+    std::vector<caf::PdmObjectHandle*> objects = ihd1->m_childArrayField.children();
     EXPECT_EQ( size_t( 3 ), objects.size() );
 
-    std::vector<DemoPdmObject*> typedObjects = ihd1->m_childArrayField.children();
+    std::vector<DemoPdmObject*> typedObjects = ihd1->m_childArrayField.childrenByType();
     EXPECT_EQ( size_t( 3 ), typedObjects.size() );
 
     // set()
@@ -473,8 +472,7 @@ TEST( BaseTest, PdmChildField )
         EXPECT_EQ( c2, a.field2.value() );
         EXPECT_TRUE( c2 == a.field2 );
 
-        std::vector<caf::PdmObjectHandle*> objects;
-        a.field2.children( &objects );
+        std::vector<caf::PdmObjectHandle*> objects = a.field2.children();
         EXPECT_EQ( (size_t)1, objects.size() );
         EXPECT_EQ( c2, objects[0] );
     }
@@ -530,22 +528,19 @@ TEST( BaseTest, PdmPtrField )
 
     // Referencing system
     {
-        std::vector<caf::PdmFieldHandle*> ptrFields;
-        ihd2->referringPtrFields( ptrFields );
+        std::vector<caf::PdmFieldHandle*> ptrFields = ihd2->referringPtrFields();
         EXPECT_EQ( 1u, ptrFields.size() );
         EXPECT_EQ( &( ihd1->m_ptrField ), ptrFields[0] );
     }
 
     {
-        std::vector<caf::PdmObjectHandle*> objects;
-        ihd2->objectsWithReferringPtrFields( objects );
+        std::vector<caf::PdmObjectHandle*> objects = ihd2->objectsWithReferringPtrFields();
         EXPECT_EQ( 1u, objects.size() );
         EXPECT_EQ( ihd1, objects[0] );
     }
 
     {
-        std::vector<InheritedDemoObj*> reffingDemoObjects;
-        ihd2->objectsWithReferringPtrFieldsOfType( reffingDemoObjects );
+        std::vector<InheritedDemoObj*> reffingDemoObjects = ihd2->objectsWithReferringPtrFieldsOfType<InheritedDemoObj>();
         EXPECT_EQ( 1u, reffingDemoObjects.size() );
     }
 
@@ -619,4 +614,25 @@ TEST( BaseTest, MultiplePdmFilePath )
     EXPECT_EQ( 2, str.size() );
 
     delete d;
+}
+
+TEST( BaseTest, testTypedChildren )
+{
+    auto ihd1 = new InheritedDemoObj;
+
+    auto s1 = new DemoPdmObject;
+    auto s2 = new DemoPdmObject;
+    auto s3 = new DemoPdmObject;
+
+    ihd1->m_childArrayField.push_back( s1 );
+    ihd1->m_childArrayField.push_back( s2 );
+    ihd1->m_childArrayField.push_back( s3 );
+
+    auto obj = s1->firstAncestorOrThisOfType<InheritedDemoObj>();
+    EXPECT_TRUE( obj == ihd1 );
+
+    auto decendants = ihd1->descendantsIncludingThisOfType<DemoPdmObject>();
+    EXPECT_EQ( size_t( 4 ), decendants.size() );
+
+    delete ihd1;
 }

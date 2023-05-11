@@ -146,8 +146,7 @@ void MainWindow::setPdmRoot(caf::PdmObjectHandle* pdmRoot)
     // Set up test of using a field as a root item
     // Hack, because we know that pdmRoot is a PdmObjectGroup ...
 
-    std::vector<caf::PdmFieldHandle*> fields;
-    pdmRoot->fields(fields);
+    std::vector<caf::PdmFieldHandle*> fields = pdmRoot->fields();
     if (fields.size())
     {
         caf::PdmFieldHandle*   field         = fields[0];

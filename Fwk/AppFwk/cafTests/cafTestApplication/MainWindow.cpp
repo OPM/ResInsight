@@ -775,12 +775,8 @@ public:
 
         if ( &m_ptrField == fieldNeedingOptions )
         {
-            caf::PdmFieldHandle*               field;
-            std::vector<caf::PdmObjectHandle*> objects;
-            field = this->parentField();
-
-            field->children( &objects );
-
+            caf::PdmFieldHandle*               field   = this->parentField();
+            std::vector<caf::PdmObjectHandle*> objects = field->children();
             for ( size_t i = 0; i < objects.size(); ++i )
             {
                 QString userDesc;
@@ -1075,8 +1071,7 @@ public:
 
         if ( changedField == &m_applyAutoOnChildObjectFields )
         {
-            std::vector<SmallDemoPdmObjectA*> objs;
-            descendantsIncludingThisOfType( objs );
+            auto objs = descendantsIncludingThisOfType<SmallDemoPdmObjectA>();
             for ( auto obj : objs )
             {
                 obj->enableAutoValueForDouble( doubleValue );
@@ -1089,8 +1084,7 @@ public:
 
         if ( changedField == &m_updateAutoValues )
         {
-            std::vector<SmallDemoPdmObjectA*> objs;
-            descendantsIncludingThisOfType( objs );
+            auto objs = descendantsIncludingThisOfType<SmallDemoPdmObjectA>();
             for ( auto obj : objs )
             {
                 obj->setAutoValueForDouble( doubleValue );
@@ -1355,7 +1349,7 @@ void MainWindow::setPdmRoot( caf::PdmObjectHandle* pdmRoot )
     std::vector<caf::PdmFieldHandle*> fields;
     if ( pdmRoot )
     {
-        pdmRoot->fields( fields );
+        fields = pdmRoot->fields();
     }
 
     if ( fields.size() )
@@ -1377,7 +1371,7 @@ void MainWindow::setPdmRoot( caf::PdmObjectHandle* pdmRoot )
     std::vector<ManyGroups*> obj;
     if ( pdmRoot )
     {
-        pdmRoot->descendantsIncludingThisOfType( obj );
+        obj = pdmRoot->descendantsIncludingThisOfType<ManyGroups>();
     }
 
     m_customObjectEditor->removeWidget( m_plotLabel );
