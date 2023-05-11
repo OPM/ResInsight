@@ -150,9 +150,8 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
                     validDepths.insert( std::make_pair( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB, tvdRkbValues ) );
                 }
 
-                bool             useLogarithmicScale = false;
-                RimWellLogTrack* track               = nullptr;
-                firstAncestorOfType( track );
+                bool useLogarithmicScale = false;
+                auto track               = firstAncestorOfType<RimWellLogTrack>();
                 if ( track )
                 {
                     useLogarithmicScale = track->isLogarithmicScale();

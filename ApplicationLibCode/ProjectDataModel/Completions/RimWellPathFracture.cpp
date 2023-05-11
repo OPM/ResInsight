@@ -115,8 +115,7 @@ void RimWellPathFracture::updateAzimuthBasedOnWellAzimuthAngle()
 //--------------------------------------------------------------------------------------------------
 double RimWellPathFracture::wellAzimuthAtFracturePosition() const
 {
-    RimWellPath* wellPath = nullptr;
-    this->firstAncestorOrThisOfType( wellPath );
+    auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
     if ( !wellPath ) return cvf::UNDEFINED_DOUBLE;
 
     double wellPathAzimuth = 0.0;
@@ -137,8 +136,7 @@ double RimWellPathFracture::wellAzimuthAtFracturePosition() const
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RimWellPathFracture::computeFractureDirectionNormal() const
 {
-    RimWellPath* wellPath = nullptr;
-    this->firstAncestorOrThisOfType( wellPath );
+    auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
     if ( !wellPath ) return cvf::Vec3d::UNDEFINED;
 
     RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
@@ -184,8 +182,7 @@ std::vector<cvf::Vec3d> RimWellPathFracture::perforationLengthCenterLineCoords()
 {
     std::vector<cvf::Vec3d> wellPathCoords;
 
-    RimWellPath* wellPath = nullptr;
-    this->firstAncestorOrThisOfType( wellPath );
+    auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
     if ( wellPath && wellPath->wellPathGeometry() )
     {
         double startMd = m_measuredDepth - perforationLength() / 2.0;
@@ -325,8 +322,7 @@ void RimWellPathFracture::defineEditorAttribute( const caf::PdmFieldHandle* fiel
 
         if ( myAttr )
         {
-            RimWellPath* wellPath = nullptr;
-            this->firstAncestorOrThisOfType( wellPath );
+            auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
             if ( !wellPath ) return;
 
             myAttr->m_minimum = wellPath->uniqueStartMD();

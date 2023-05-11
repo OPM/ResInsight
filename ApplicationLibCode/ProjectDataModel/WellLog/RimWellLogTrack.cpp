@@ -948,8 +948,7 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
     auto depthUnit             = parentWellLogPlot()->depthUnit();
     bool isWellAllocInflowPlot = false;
     {
-        RimWellAllocationPlot* wapl = nullptr;
-        parentWellLogPlot()->firstAncestorOfType( wapl );
+        auto wapl = parentWellLogPlot()->firstAncestorOfType<RimWellAllocationPlot>();
         if ( wapl )
         {
             isWellAllocInflowPlot = ( wapl->flowType() == RimWellAllocationPlot::INFLOW );

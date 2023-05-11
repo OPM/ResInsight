@@ -401,8 +401,7 @@ void RimPerforationInterval::defineEditorAttribute( const caf::PdmFieldHandle* f
 
         if ( myAttr )
         {
-            RimWellPath* wellPath = nullptr;
-            this->firstAncestorOrThisOfType( wellPath );
+            auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
             if ( !wellPath ) return;
 
             myAttr->m_minimum = wellPath->uniqueStartMD();

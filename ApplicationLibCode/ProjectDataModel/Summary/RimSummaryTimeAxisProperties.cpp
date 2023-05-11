@@ -197,9 +197,7 @@ caf::FontTools::FontSize RimSummaryTimeAxisProperties::plotFontSize() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryTimeAxisProperties::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
 {
-    RimSummaryMultiPlot* summaryMultiPlot = nullptr;
-    firstAncestorOfType( summaryMultiPlot );
-
+    auto summaryMultiPlot = firstAncestorOfType<RimSummaryMultiPlot>();
     if ( summaryMultiPlot && summaryMultiPlot->isTimeAxisLinked() )
     {
         auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute );

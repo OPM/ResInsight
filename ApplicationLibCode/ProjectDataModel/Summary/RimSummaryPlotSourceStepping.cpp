@@ -1287,8 +1287,7 @@ void RimSummaryPlotSourceStepping::updateVectorNameInCurves( std::vector<RimSumm
 
         if ( m_autoUpdateAppearance )
         {
-            RimSummaryPlot* summaryPlot = nullptr;
-            curve->firstAncestorOfType( summaryPlot );
+            auto summaryPlot = curve->firstAncestorOfType<RimSummaryPlot>();
             if ( summaryPlot )
             {
                 if ( curvesInPlot.count( summaryPlot ) )

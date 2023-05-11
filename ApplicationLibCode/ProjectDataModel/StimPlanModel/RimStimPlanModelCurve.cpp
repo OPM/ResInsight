@@ -153,10 +153,7 @@ void RimStimPlanModelCurve::performDataExtraction( bool* isUsingPseudoLength )
 
     bool performDataSmoothing = false;
     if ( !values.empty() && !measuredDepthValues.empty() && measuredDepthValues.size() == values.size() )
-    {
-        RimWellLogTrack* track = nullptr;
-        firstAncestorOfType( track );
-        if ( track && track->isLogarithmicScale() )
+    {auto track = firstAncestorOfType<RimWellLogTrack>();if ( track && track->isLogarithmicScale() )
         {
             filterInvalidValuesForLogarithmicScale( values );
         }

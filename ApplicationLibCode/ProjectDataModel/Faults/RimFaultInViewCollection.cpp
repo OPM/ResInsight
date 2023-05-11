@@ -309,8 +309,7 @@ void RimFaultInViewCollection::defineUiOrdering( QString uiConfigName, caf::PdmU
 //--------------------------------------------------------------------------------------------------
 void RimFaultInViewCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
 {
-    RimEclipseView* eclipseView = nullptr;
-    this->firstAncestorOfType( eclipseView );
+    auto eclipseView = firstAncestorOfType<RimEclipseView>();
     if ( eclipseView )
     {
         auto uiTree = eclipseView->faultResultSettings()->uiTreeOrdering();
@@ -330,10 +329,7 @@ void RimFaultInViewCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiT
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RimFaultInViewCollection::parentView() const
 {
-    RimEclipseView* view = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( view );
-
-    return view;
+    return firstAncestorOrThisOfTypeAsserted<RimEclipseView>();
 }
 
 //--------------------------------------------------------------------------------------------------
