@@ -51,8 +51,7 @@ void RicNewPerforationIntervalFeature::onActionTriggered( bool isChecked )
     RimPerforationCollection* perforationCollection = selectedPerforationCollection();
     if ( perforationCollection == nullptr ) return;
 
-    RimWellPath* wellPath;
-    perforationCollection->firstAncestorOrThisOfTypeAsserted( wellPath );
+    RimWellPath* wellPath = perforationCollection->firstAncestorOrThisOfTypeAsserted<RimWellPath>();
     if ( !RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem( wellPath ) ) return;
 
     RimPerforationInterval* perforationInterval = new RimPerforationInterval;
@@ -61,8 +60,7 @@ void RicNewPerforationIntervalFeature::onActionTriggered( bool isChecked )
 
     perforationCollection->appendPerforation( perforationInterval );
 
-    RimWellPathCollection* wellPathCollection = nullptr;
-    perforationCollection->firstAncestorOrThisOfType( wellPathCollection );
+    RimWellPathCollection* wellPathCollection = perforationCollection->firstAncestorOrThisOfType<RimWellPathCollection>();
     if ( !wellPathCollection ) return;
 
     wellPathCollection->uiCapability()->updateConnectedEditors();
@@ -95,7 +93,7 @@ RimPerforationCollection* RicNewPerforationIntervalFeature::selectedPerforationC
     caf::PdmObjectHandle*     objHandle             = dynamic_cast<caf::PdmObjectHandle*>( pdmUiItem );
     if ( objHandle )
     {
-        objHandle->firstAncestorOrThisOfType( perforationCollection );
+        perforationCollection = objHandle->firstAncestorOrThisOfType<RimPerforationCollection>();
 
         if ( perforationCollection ) return perforationCollection;
 

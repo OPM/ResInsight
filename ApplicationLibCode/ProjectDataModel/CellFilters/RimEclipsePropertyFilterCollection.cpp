@@ -76,7 +76,7 @@ void RimEclipsePropertyFilterCollection::setIsDuplicatedFromLinkedView()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimEclipsePropertyFilter*> RimEclipsePropertyFilterCollection::propertyFilters() const
 {
-    return m_propertyFilters.children();
+    return m_propertyFilters.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------

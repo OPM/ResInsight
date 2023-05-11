@@ -50,8 +50,7 @@ void RicEditPerforationCollectionFeature::onActionTriggered( bool isChecked )
 
     if ( perforationCollection == nullptr ) return;
 
-    RimWellPath* wellPath;
-    perforationCollection->firstAncestorOrThisOfTypeAsserted( wellPath );
+    RimWellPath* wellPath = perforationCollection->firstAncestorOrThisOfTypeAsserted<RimWellPath>();
     if ( !RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem( wellPath ) ) return;
 
     RiuEditPerforationCollectionWidget dlg( nullptr, perforationCollection );

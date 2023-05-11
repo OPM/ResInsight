@@ -210,7 +210,6 @@ std::vector<cvf::Vec3d> RivReachCircleAnnotationPartMgr::computeCirclePointsInDo
 //--------------------------------------------------------------------------------------------------
 RimAnnotationInViewCollection* RivReachCircleAnnotationPartMgr::annotationCollection() const
 {
-    std::vector<RimAnnotationInViewCollection*> colls;
-    m_rimView->descendantsIncludingThisOfType( colls );
+    auto colls = m_rimView->descendantsIncludingThisOfType<RimAnnotationInViewCollection>();
     return !colls.empty() ? colls.front() : nullptr;
 }

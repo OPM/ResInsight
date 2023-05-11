@@ -88,8 +88,7 @@ void RiuSummaryPlot::showContextMenu( QPoint pos )
             QString                   clickedQuantityName;
             QStringList               allQuantityNamesInPlot;
 
-            RimEnsembleCurveSet* clickedEnsembleCurveSet = nullptr;
-            summaryCurve->firstAncestorOrThisOfType( clickedEnsembleCurveSet );
+            auto clickedEnsembleCurveSet = summaryCurve->firstAncestorOrThisOfType<RimEnsembleCurveSet>();
 
             bool curveClicked = distanceFromClick < 50;
 

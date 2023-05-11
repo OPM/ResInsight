@@ -135,8 +135,8 @@ void RiuWellPathComponentPlotItem::calculateColumnOffsets( const RimWellPathComp
 {
     std::set<double> uniqueCasingDiameters;
 
-    std::vector<RimWellPathAttributeCollection*> attributeCollection;
-    m_wellPath->descendantsIncludingThisOfType( attributeCollection );
+    std::vector<RimWellPathAttributeCollection*> attributeCollection =
+        m_wellPath->descendantsIncludingThisOfType<RimWellPathAttributeCollection>();
     for ( const RimWellPathAttribute* otherAttribute : attributeCollection.front()->attributes() )
     {
         if ( otherAttribute->componentType() == RiaDefines::WellPathComponentType::CASING )

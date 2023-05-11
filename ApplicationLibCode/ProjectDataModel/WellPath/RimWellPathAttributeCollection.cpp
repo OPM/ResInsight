@@ -53,9 +53,7 @@ RimWellPathAttributeCollection::~RimWellPathAttributeCollection()
 //--------------------------------------------------------------------------------------------------
 void RimWellPathAttributeCollection::updateAllReferringTracks()
 {
-    std::vector<RimWellLogTrack*> wellLogTracks;
-
-    this->objectsWithReferringPtrFieldsOfType( wellLogTracks );
+    std::vector<RimWellLogTrack*> wellLogTracks = objectsWithReferringPtrFieldsOfType<RimWellLogTrack>();
     for ( RimWellLogTrack* track : wellLogTracks )
     {
         track->loadDataAndUpdate();

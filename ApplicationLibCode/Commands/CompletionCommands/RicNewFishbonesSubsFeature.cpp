@@ -52,8 +52,7 @@ void RicNewFishbonesSubsFeature::onActionTriggered( bool isChecked )
     RimFishbonesCollection* fishbonesCollection = selectedFishbonesCollection();
     CVF_ASSERT( fishbonesCollection );
 
-    RimWellPath* wellPath;
-    fishbonesCollection->firstAncestorOrThisOfTypeAsserted( wellPath );
+    RimWellPath* wellPath = fishbonesCollection->firstAncestorOrThisOfTypeAsserted<RimWellPath>();
     if ( !RicWellPathsUnitSystemSettingsImpl::ensureHasUnitSystem( wellPath ) ) return;
 
     RimFishbones* obj = new RimFishbones;
@@ -70,8 +69,7 @@ void RicNewFishbonesSubsFeature::onActionTriggered( bool isChecked )
 
     RicNewFishbonesSubsFeature::adjustWellPathScaling( fishbonesCollection );
 
-    RimWellPathCollection* wellPathCollection = nullptr;
-    fishbonesCollection->firstAncestorOrThisOfType( wellPathCollection );
+    RimWellPathCollection* wellPathCollection = fishbonesCollection->firstAncestorOrThisOfType<RimWellPathCollection>();
     if ( wellPathCollection )
     {
         wellPathCollection->uiCapability()->updateConnectedEditors();
@@ -99,7 +97,7 @@ RimFishbonesCollection* RicNewFishbonesSubsFeature::selectedFishbonesCollection(
     caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>( pdmUiItem );
     if ( objHandle )
     {
-        objHandle->firstAncestorOrThisOfType( objToFind );
+        objToFind = objHandle->firstAncestorOrThisOfType<RimFishbonesCollection>();
     }
 
     if ( objToFind == nullptr )
@@ -148,8 +146,7 @@ bool RicNewFishbonesSubsFeature::isCommandEnabled()
 void RicNewFishbonesSubsFeature::adjustWellPathScaling( RimFishbonesCollection* fishboneCollection )
 {
     CVF_ASSERT( fishboneCollection );
-    RimWellPathCollection* wellPathColl = nullptr;
-    fishboneCollection->firstAncestorOrThisOfTypeAsserted( wellPathColl );
+    RimWellPathCollection* wellPathColl = fishboneCollection->firstAncestorOrThisOfTypeAsserted<RimWellPathCollection>();
 
     if ( wellPathColl->wellPathRadiusScaleFactor > 0.05 )
     {
