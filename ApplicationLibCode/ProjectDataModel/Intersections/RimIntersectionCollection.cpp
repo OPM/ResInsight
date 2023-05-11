@@ -96,8 +96,7 @@ caf::PdmFieldHandle* RimIntersectionCollection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= "" */ )
 {
-    RimGridView* gridView = nullptr;
-    this->firstAncestorOfType( gridView );
+    auto gridView = firstAncestorOfType<RimGridView>();
     if ( gridView )
     {
         auto uiTree = gridView->separateIntersectionResultsCollection()->uiTreeOrdering();

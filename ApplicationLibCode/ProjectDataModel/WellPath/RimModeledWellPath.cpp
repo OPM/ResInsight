@@ -110,8 +110,7 @@ void RimModeledWellPath::updateWellPathVisualization()
         seisSec->updateVisualization();
     }
 
-    RimProject* proj;
-    firstAncestorOrThisOfTypeAsserted( proj );
+    RimProject* proj = RimProject::current();
     proj->scheduleCreateDisplayModelAndRedrawAllViews();
 }
 

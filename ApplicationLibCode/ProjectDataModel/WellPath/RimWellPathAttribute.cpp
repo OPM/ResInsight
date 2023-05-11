@@ -95,8 +95,7 @@ void RimWellPathAttribute::setDepthsFromWellPath( gsl::not_null<const RimWellPat
 //--------------------------------------------------------------------------------------------------
 bool RimWellPathAttribute::isEnabled() const
 {
-    RimWellPathAttributeCollection* collection = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( collection );
+    auto collection = firstAncestorOrThisOfTypeAsserted<RimWellPathAttributeCollection>();
     return collection->isChecked();
 }
 
@@ -260,9 +259,8 @@ void RimWellPathAttribute::fieldChangedByUi( const caf::PdmFieldHandle* changedF
     {
         if ( m_type() == RiaDefines::WellPathComponentType::CASING )
         {
-            RimWellPath* wellPath = nullptr;
-            this->firstAncestorOrThisOfTypeAsserted( wellPath );
-            m_startMD = wellPath->startMD();
+            auto wellPath = firstAncestorOrThisOfTypeAsserted<RimWellPath>();
+            m_startMD     = wellPath->startMD();
 
             if ( !supportedDiameters( m_type() ).count( m_diameterInInches() ) )
             {
@@ -290,13 +288,11 @@ void RimWellPathAttribute::fieldChangedByUi( const caf::PdmFieldHandle* changedF
     }
 
     {
-        RimWellPathAttributeCollection* collection = nullptr;
-        this->firstAncestorOrThisOfTypeAsserted( collection );
+        auto collection = firstAncestorOrThisOfTypeAsserted<RimWellPathAttributeCollection>();
         collection->updateAllReferringTracks();
     }
     {
-        RimProject* proj;
-        this->firstAncestorOrThisOfTypeAsserted( proj );
+        RimProject* proj = RimProject::current();
         proj->reloadCompletionTypeResultsInAllViews();
     }
 }

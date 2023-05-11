@@ -485,8 +485,7 @@ caf::PdmFieldHandle* RimWellPathCollection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::scheduleRedrawAffectedViews()
 {
-    RimProject* proj;
-    this->firstAncestorOrThisOfType( proj );
+    RimProject* proj = RimProject::current();
     if ( proj ) proj->reloadCompletionTypeResultsInAllViews();
 }
 

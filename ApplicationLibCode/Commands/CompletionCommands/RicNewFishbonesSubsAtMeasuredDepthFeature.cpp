@@ -58,7 +58,7 @@ void RicNewFishbonesSubsAtMeasuredDepthFeature::onActionTriggered( bool isChecke
     wellPath->updateConnectedEditors();
     Riu3DMainWindowTools::selectAsCurrentItem( obj );
 
-    RimProject* proj;
+    RimProject* proj = RimProject::current();
     wellPath->firstAncestorOrThisOfTypeAsserted( proj );
     proj->reloadCompletionTypeResultsInAllViews();
 }

@@ -362,8 +362,7 @@ void RimFishbones::geometryUpdated()
     this->firstAncestorOrThisOfTypeAsserted( collection );
     collection->recalculateStartMD();
 
-    RimProject* proj;
-    this->firstAncestorOrThisOfTypeAsserted( proj );
+    RimProject* proj = RimProject::current();
     proj->reloadCompletionTypeResultsInAllViews();
 }
 

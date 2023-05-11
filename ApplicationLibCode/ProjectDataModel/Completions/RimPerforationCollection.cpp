@@ -117,8 +117,7 @@ void RimPerforationCollection::appendPerforation( RimPerforationInterval* perfor
     updateConnectedEditors();
     Riu3DMainWindowTools::selectAsCurrentItem( perforation );
 
-    RimProject* proj;
-    this->firstAncestorOrThisOfTypeAsserted( proj );
+    RimProject* proj = RimProject::current();
     proj->reloadCompletionTypeResultsInAllViews();
 }
 
@@ -184,8 +183,7 @@ void RimPerforationCollection::defineUiOrdering( QString uiConfigName, caf::PdmU
 //--------------------------------------------------------------------------------------------------
 void RimPerforationCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    RimProject* proj;
-    this->firstAncestorOrThisOfTypeAsserted( proj );
+    RimProject* proj = RimProject::current();
     if ( changedField == &m_isChecked )
     {
         proj->reloadCompletionTypeResultsInAllViews();

@@ -1720,8 +1720,7 @@ void RimContourMapProjection::fieldChangedByUi( const caf::PdmFieldHandle* chang
 
     baseView()->updateConnectedEditors();
 
-    RimProject* proj;
-    firstAncestorOrThisOfTypeAsserted( proj );
+    RimProject* proj = RimProject::current();
     proj->scheduleCreateDisplayModelAndRedrawAllViews();
 }
 

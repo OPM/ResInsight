@@ -64,8 +64,7 @@ void RimFishbonesCollection::fieldChangedByUi( const caf::PdmFieldHandle* change
         manuallyModifiedStartMD = true;
     }
 
-    RimProject* proj;
-    this->firstAncestorOrThisOfTypeAsserted( proj );
+    RimProject* proj = RimProject::current();
     if ( changedField == &m_isChecked )
     {
         proj->reloadCompletionTypeResultsInAllViews();

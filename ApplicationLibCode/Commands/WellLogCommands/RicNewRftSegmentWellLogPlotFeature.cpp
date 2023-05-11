@@ -307,8 +307,7 @@ RimSummaryCase* RicNewRftSegmentWellLogPlotFeature::getSelectedOrFirstRftCase()
     auto rftCase = caf::SelectionManager::instance()->selectedItemOfType<RimRftCase>();
     if ( rftCase )
     {
-        RimSummaryCase* summaryCase = nullptr;
-        rftCase->firstAncestorOfType( summaryCase );
+        auto summaryCase = rftCase->firstAncestorOfType<RimSummaryCase>();
         if ( summaryCase ) return summaryCase;
     }
 

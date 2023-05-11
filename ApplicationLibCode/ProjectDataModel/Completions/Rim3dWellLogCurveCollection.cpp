@@ -183,8 +183,7 @@ Rim3dWellLogCurve* Rim3dWellLogCurveCollection::checkForCurveIntersection( const
 //--------------------------------------------------------------------------------------------------
 void Rim3dWellLogCurveCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    RimProject* proj;
-    this->firstAncestorOrThisOfTypeAsserted( proj );
+    RimProject* proj = RimProject::current();
     proj->scheduleCreateDisplayModelAndRedrawAllViews();
 }
 

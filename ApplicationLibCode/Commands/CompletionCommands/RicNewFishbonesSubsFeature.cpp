@@ -79,8 +79,7 @@ void RicNewFishbonesSubsFeature::onActionTriggered( bool isChecked )
 
     RiuMainWindow::instance()->selectAsCurrentItem( obj );
 
-    RimProject* proj;
-    fishbonesCollection->firstAncestorOrThisOfTypeAsserted( proj );
+    RimProject* proj = RimProject::current();
     proj->reloadCompletionTypeResultsInAllViews();
 }
 

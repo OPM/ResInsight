@@ -466,8 +466,7 @@ double RimWellPath::uniqueEndMD() const
 //--------------------------------------------------------------------------------------------------
 void RimWellPath::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    RimProject* proj;
-    this->firstAncestorOrThisOfTypeAsserted( proj );
+    RimProject* proj = RimProject::current();
     if ( changedField == &m_showWellPath )
     {
         proj->reloadCompletionTypeResultsInAllViews();

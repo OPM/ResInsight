@@ -167,8 +167,7 @@ void RimWellPathAttributeCollection::fieldChangedByUi( const caf::PdmFieldHandle
 {
     if ( changedField == this->objectToggleField() )
     {
-        RimProject* proj;
-        this->firstAncestorOrThisOfTypeAsserted( proj );
+        RimProject* proj = RimProject::current();
         proj->scheduleCreateDisplayModelAndRedrawAllViews();
         this->updateAllReferringTracks();
     }

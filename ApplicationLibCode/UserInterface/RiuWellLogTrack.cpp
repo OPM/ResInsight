@@ -51,8 +51,7 @@
 RiuWellLogTrack::RiuWellLogTrack( RimWellLogTrack* track, QWidget* parent /*= nullptr */ )
     : RiuQwtPlotWidget( track, parent )
 {
-    RimWellLogPlot* wlp = nullptr;
-    track->firstAncestorOfType( wlp );
+    auto wlp = track->firstAncestorOfType<RimWellLogPlot>();
 
     bool isVertical = ( wlp && wlp->depthOrientation() == RiaDefines::Orientation::VERTICAL );
     setAxisEnabled( QwtAxis::YLeft, true );
@@ -101,8 +100,7 @@ void RiuWellLogTrack::createAnnotationsInPlot( const std::vector<RimPlotAxisAnno
     // Not required to update annotations in an invisible plot
     if ( !plotDefinition()->showWindow() ) return;
 
-    RimDepthTrackPlot* depthTrackPlot = nullptr;
-    m_plotDefinition->firstAncestorOfType( depthTrackPlot );
+    auto depthTrackPlot = m_plotDefinition->firstAncestorOfType<RimDepthTrackPlot>();
     if ( !depthTrackPlot ) return;
 
     auto orientation = depthTrackPlot->depthOrientation() == RiaDefines::Orientation::HORIZONTAL ? RiaDefines::Orientation::VERTICAL
@@ -125,8 +123,7 @@ void RiuWellLogTrack::onMouseMoveEvent( QMouseEvent* mouseEvent )
     if ( !m_plotDefinition ) return;
     if ( mouseEvent->type() != QMouseEvent::MouseMove ) return;
 
-    RimDepthTrackPlot* depthTrackPlot = nullptr;
-    m_plotDefinition->firstAncestorOfType( depthTrackPlot );
+    auto depthTrackPlot = m_plotDefinition->firstAncestorOfType<RimDepthTrackPlot>();
     if ( !depthTrackPlot || !depthTrackPlot->isDepthMarkerLineEnabled() ) return;
 
     auto plotwidget = dynamic_cast<RiuQwtPlotWidget*>( m_plotDefinition->plotWidget() );
@@ -188,9 +185,7 @@ QwtText RiuWellLogCurvePointTracker::trackerText( const QPoint& pos ) const
         {
             QString str;
 
-            RimWellLogPlot* wlp = nullptr;
-            m_wellLogTrack->firstAncestorOfType( wlp );
-
+            auto wlp = m_wellLogTrack->firstAncestorOfType<RimWellLogPlot>();
             if ( wlp && wlp->depthOrientation() == RiaDefines::Orientation::HORIZONTAL )
             {
                 str = QString( "%1\nDepth: %2" ).arg( depthAxisValueString ).arg( xAxisValueString );

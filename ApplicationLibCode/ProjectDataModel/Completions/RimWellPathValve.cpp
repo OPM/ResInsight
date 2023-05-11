@@ -112,8 +112,7 @@ void RimWellPathValve::multipleValveGeometryUpdated()
 
     m_measuredDepth = m_multipleValveLocations->valveLocations().front();
 
-    RimProject* proj;
-    this->firstAncestorOrThisOfTypeAsserted( proj );
+    RimProject* proj = RimProject::current();
     proj->reloadCompletionTypeResultsInAllViews();
 }
 
@@ -451,8 +450,7 @@ void RimWellPathValve::templateUpdated()
     this->firstAncestorOrThisOfTypeAsserted( perfInterval );
     perfInterval->updateAllReferringTracks();
 
-    RimProject* proj;
-    this->firstAncestorOrThisOfTypeAsserted( proj );
+    RimProject* proj = RimProject::current();
     proj->reloadCompletionTypeResultsInAllViews();
 }
 
@@ -507,8 +505,7 @@ void RimWellPathValve::fieldChangedByUi( const caf::PdmFieldHandle* changedField
         perfInterval->updateAllReferringTracks();
     }
 
-    RimProject* proj;
-    this->firstAncestorOrThisOfTypeAsserted( proj );
+    RimProject* proj = RimProject::current();
     proj->reloadCompletionTypeResultsInAllViews();
 }
 

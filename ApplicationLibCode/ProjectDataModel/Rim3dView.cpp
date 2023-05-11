@@ -1497,8 +1497,7 @@ QList<caf::PdmOptionItemInfo> Rim3dView::calculateValueOptions( const caf::PdmFi
 
     if ( fieldNeedingOptions == &m_comparisonView )
     {
-        RimProject* proj;
-        this->firstAncestorOrThisOfType( proj );
+        RimProject* proj = RimProject::current();
         if ( proj )
         {
             std::vector<Rim3dView*> views;
