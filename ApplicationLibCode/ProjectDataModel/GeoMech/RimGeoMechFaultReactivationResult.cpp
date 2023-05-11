@@ -32,6 +32,7 @@
 #include "RimModeledWellPath.h"
 #include "RimWellLogDiffCurve.h"
 #include "RimWellLogExtractionCurve.h"
+#include "RimWellLogPlotNameConfig.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPathGeometryDef.h"
 
@@ -239,44 +240,39 @@ void RimGeoMechFaultReactivationResult::createWellGeometry()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechFaultReactivationResult::createWellLogCurves()
 {
-    // Create well log extraction curve for m_faceAWellPath and m_faceBWellPath
-    // Create well log diff curve for the two well log extraction curves
-
-    // NOTE:
-    // - Single track with 3 curves or 3 tracks with 1 curve each
-
-    // Create well log extraction curves
-    RimWellLogTrack* faultReactivationTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack();
-    faultReactivationTrack->setDescription( "Fault Reactivation Curves" );
-
     RimGeoMechCase* geomCase = nullptr;
     firstAncestorOrThisOfTypeAsserted( geomCase );
     if ( !geomCase ) return;
-
     Rim3dView* view = RiaApplication::instance()->activeMainOrComparisonGridView();
     if ( !view ) return;
+
+    // Create Plot
+    const bool      showAfterCreation = true;
+    RimWellLogPlot* newPlot = RicNewWellLogPlotFeatureImpl::createWellLogPlot( showAfterCreation, QString( "Fault Reactivation Plot" ) );
+    newPlot->setNamingMethod( RiaDefines::ObjectNamingMethod::CUSTOM );
+    newPlot->nameConfig()->setCustomName( "Fault Reactivation Plot" );
+
+    // Create curve tracks
+    const bool       doUpdateAfter = true;
+    RimWellLogTrack* wellLogExtractionTrack =
+        RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( doUpdateAfter, QString( "Fault Reactivation Face Curves" ), newPlot );
+    RimWellLogTrack* wellLogDiffTrack =
+        RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( doUpdateAfter, QString( "Fault Reactivation Diff" ), newPlot );
 
     // Well log extraction curves
     RigFemResultAddress        wellLogExtractionResult( RigFemResultPosEnum::RIG_NODAL, "U", "U_LENGTH" );
     RimWellLogExtractionCurve* faceAWellLogExtractionCurve =
-        RicWellLogTools::addWellLogExtractionCurve( faultReactivationTrack, geomCase, view, m_faceAWellPath(), nullptr, -1, true );
+        RicWellLogTools::addWellLogExtractionCurve( wellLogExtractionTrack, geomCase, view, m_faceAWellPath(), nullptr, -1, true );
     RimWellLogExtractionCurve* faceBWellLogExtractionCurve =
-        RicWellLogTools::addWellLogExtractionCurve( faultReactivationTrack, geomCase, view, m_faceBWellPath(), nullptr, -1, true );
+        RicWellLogTools::addWellLogExtractionCurve( wellLogExtractionTrack, geomCase, view, m_faceBWellPath(), nullptr, -1, true );
     faceAWellLogExtractionCurve->setGeoMechResultAddress( wellLogExtractionResult );
     faceBWellLogExtractionCurve->setGeoMechResultAddress( wellLogExtractionResult );
     faceAWellLogExtractionCurve->updateConnectedEditors();
     faceBWellLogExtractionCurve->updateConnectedEditors();
 
     // Create well log diff curve for m_faceAWellPath and m_faceBWellPath
-    // RicWellLogTools::addWellLogDiffCurve( faultReactivationTrack, geomCase, view );
-    RimWellLogDiffCurve* faceWellLogDiffCurve = new RimWellLogDiffCurve();
+    RimWellLogDiffCurve* faceWellLogDiffCurve = RicWellLogTools::addWellLogDiffCurve( wellLogDiffTrack );
     faceWellLogDiffCurve->setWellLogCurves( faceAWellLogExtractionCurve, faceBWellLogExtractionCurve );
-    const cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( faultReactivationTrack->curveCount() );
-    faceWellLogDiffCurve->setColor( curveColor );
-
-    faultReactivationTrack->addCurve( faceWellLogDiffCurve );
-
     faceWellLogDiffCurve->loadDataAndUpdate( true );
     faceWellLogDiffCurve->updateConnectedEditors();
-    faultReactivationTrack->updateConnectedEditors();
 }
