@@ -283,7 +283,7 @@ void RimWellPathCollection::addWellPath( gsl::not_null<RimWellPath*> wellPath )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellPath*> RimWellPathCollection::allWellPaths() const
 {
-    return m_wellPaths.children();
+    return m_wellPaths.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -759,8 +759,7 @@ void RimWellPathCollection::sortWellsByName()
 //--------------------------------------------------------------------------------------------------
 caf::AppEnum<RiaDefines::EclipseUnitSystem> RimWellPathCollection::findUnitSystemForWellPath( const RimWellPath* wellPath )
 {
-    RimProject* project;
-    firstAncestorOrThisOfTypeAsserted( project );
+    RimProject* project = RimProject::current();
     if ( project->activeOilField()->analysisModels->cases.empty() )
     {
         return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
@@ -789,7 +788,7 @@ void RimWellPathCollection::rebuildWellPathNodes()
 {
     m_wellPathNodes.deleteChildren();
 
-    std::map<QString, std::vector<RimWellPath*>> rootWells = wellPathsForWellNameStem( m_wellPaths.children() );
+    std::map<QString, std::vector<RimWellPath*>> rootWells = wellPathsForWellNameStem( m_wellPaths.childrenByType() );
     for ( auto [groupName, wellPathGroup] : rootWells )
     {
         if ( groupName == unGroupedText() )

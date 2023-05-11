@@ -126,11 +126,7 @@ void RimSurfaceCollection::addEnsembleSurface( RimEnsembleSurface* ensembleSurfa
 //--------------------------------------------------------------------------------------------------
 std::vector<RimEnsembleSurface*> RimSurfaceCollection::ensembleSurfaces() const
 {
-    std::vector<RimEnsembleSurface*> ensSurfaces;
-
-    this->descendantsIncludingThisOfType( ensSurfaces );
-
-    return ensSurfaces;
+    return descendantsIncludingThisOfType<RimEnsembleSurface>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -269,7 +265,7 @@ RimSurface* RimSurfaceCollection::addGridCaseSurface( RimCase* sourceCase, int o
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSurface*> RimSurfaceCollection::surfaces() const
 {
-    return m_surfaces.children();
+    return m_surfaces.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -277,7 +273,7 @@ std::vector<RimSurface*> RimSurfaceCollection::surfaces() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSurfaceCollection*> RimSurfaceCollection::subCollections() const
 {
-    return m_subCollections.children();
+    return m_subCollections.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -318,8 +314,7 @@ void RimSurfaceCollection::updateViews( const std::vector<RimSurface*>& surfsToR
 
     for ( auto surf : surfsToReload )
     {
-        std::vector<RimSurfaceInView*> surfsInView;
-        surf->objectsWithReferringPtrFieldsOfType( surfsInView );
+        std::vector<RimSurfaceInView*> surfsInView = surf->objectsWithReferringPtrFieldsOfType<RimSurfaceInView>();
         for ( auto surfInView : surfsInView )
         {
             surfInView->clearGeometry();

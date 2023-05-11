@@ -73,9 +73,7 @@ RimWellMeasurementCurve::~RimWellMeasurementCurve()
 //--------------------------------------------------------------------------------------------------
 void RimWellMeasurementCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
-    RimDepthTrackPlot* wellLogPlot;
-    firstAncestorOrThisOfType( wellLogPlot );
-    CVF_ASSERT( wellLogPlot );
+    auto wellLogPlot = firstAncestorOrThisOfTypeAsserted<RimDepthTrackPlot>();
 
     RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
     if ( m_wellPath && !m_measurementKind().isEmpty() && wellPathCollection )
@@ -260,7 +258,7 @@ QList<caf::PdmOptionItemInfo> RimWellMeasurementCurve::calculateValueOptions( co
         RimWellPathCollection* wellPathCollection = nullptr;
         if ( m_wellPath )
         {
-            m_wellPath->firstAncestorOrThisOfTypeAsserted( wellPathCollection );
+            wellPathCollection = m_wellPath->firstAncestorOrThisOfTypeAsserted<RimWellPathCollection>();
         }
 
         std::set<QString> kindNames;

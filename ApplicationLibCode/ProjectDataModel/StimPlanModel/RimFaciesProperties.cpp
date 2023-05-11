@@ -197,8 +197,7 @@ void RimFaciesProperties::loadDataAndUpdate()
 {
     if ( !m_filePath().path().isEmpty() )
     {
-        RimStimPlanModelTemplate* stimPlanModelTemplate;
-        firstAncestorOrThisOfType( stimPlanModelTemplate );
+        auto stimPlanModelTemplate = firstAncestorOrThisOfType<RimStimPlanModelTemplate>();
         RicFaciesPropertiesImportTools::importFaciesPropertiesFromFile( m_filePath().path(), stimPlanModelTemplate );
     }
 }

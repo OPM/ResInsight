@@ -926,9 +926,7 @@ RimWellPath* RimStimPlanModel::wellPath() const
     const caf::PdmObjectHandle* objHandle = dynamic_cast<const caf::PdmObjectHandle*>( this );
     if ( !objHandle ) return nullptr;
 
-    RimWellPath* wellPath = nullptr;
-    objHandle->firstAncestorOrThisOfType( wellPath );
-    return wellPath;
+    return objHandle->firstAncestorOrThisOfType<RimWellPath>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1301,8 +1299,7 @@ QString RimStimPlanModel::underburdenFacies() const
 void RimStimPlanModel::updateReferringPlots()
 {
     // Update plots referring to this fracture model
-    std::vector<RimStimPlanModelPlot*> referringObjects;
-    objectsWithReferringPtrFieldsOfType( referringObjects );
+    std::vector<RimStimPlanModelPlot*> referringObjects = objectsWithReferringPtrFieldsOfType<RimStimPlanModelPlot>();
 
     for ( auto modelPlot : referringObjects )
     {
@@ -1551,8 +1548,7 @@ void RimStimPlanModel::stimPlanModelTemplateChanged( const caf::SignalEmitter* e
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanModel::updateViewsAndPlots()
 {
-    RimEclipseCase* eclipseCase = nullptr;
-    this->firstAncestorOrThisOfType( eclipseCase );
+    auto eclipseCase = firstAncestorOrThisOfType<RimEclipseCase>();
     if ( eclipseCase )
     {
         RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews( { eclipseCase } );

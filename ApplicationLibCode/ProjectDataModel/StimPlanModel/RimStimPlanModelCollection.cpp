@@ -77,7 +77,7 @@ void RimStimPlanModelCollection::deleteStimPlanModels()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimStimPlanModel*> RimStimPlanModelCollection::allStimPlanModels() const
 {
-    return m_stimPlanModels.children();
+    return m_stimPlanModels.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -363,9 +363,7 @@ void RimIntersectionResultDefinition::update2dIntersectionViews()
     // Update 2D Intersection views
     updateCaseInResultDefinitions();
 
-    std::vector<RimExtrudedCurveIntersection*> intersections;
-    this->objectsWithReferringPtrFieldsOfType( intersections );
-
+    auto intersections = objectsWithReferringPtrFieldsOfType<RimExtrudedCurveIntersection>();
     for ( auto intersection : intersections )
     {
         if ( intersection && intersection->correspondingIntersectionView() )

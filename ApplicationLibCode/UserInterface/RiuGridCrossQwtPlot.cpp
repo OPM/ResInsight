@@ -237,7 +237,7 @@ bool RiuGridCrossQwtPlot::curveText( const QwtPlotCurve* curve, QString* curveTi
         {
             *curveTitle = crossPlotCurve->curveName();
 
-            auto dataSet = crossPlotCurve->firstAncestorOrThisOfType<RimGridCrossPlotDataSet>( dataSet );
+            auto dataSet = crossPlotCurve->firstAncestorOrThisOfType<RimGridCrossPlotDataSet>();
             if ( dataSet )
             {
                 *xParamName = dataSet->xAxisName();

@@ -485,7 +485,7 @@ void RimStimPlanModelTemplate::initAfterRead()
         m_faciesProperties->setEclipseCase( eclipseCase );
     }
 
-    for ( auto& fipConfig : m_faciesInitialPressureConfigs.children() )
+    for ( auto& fipConfig : m_faciesInitialPressureConfigs.childrenByType() )
     {
         fipConfig->changed.connect( this, &RimStimPlanModelTemplate::faciesPropertiesChanged );
     }
@@ -811,7 +811,7 @@ RimEclipseCase* RimStimPlanModelTemplate::initialPressureEclipseCase() const
 std::map<int, double> RimStimPlanModelTemplate::faciesWithInitialPressure() const
 {
     std::map<int, double> valueFractionMap;
-    for ( const RimFaciesInitialPressureConfig* c : m_faciesInitialPressureConfigs.children() )
+    for ( const RimFaciesInitialPressureConfig* c : m_faciesInitialPressureConfigs.childrenByType() )
     {
         if ( c->isEnabled() ) valueFractionMap[c->faciesValue()] = c->fraction();
     }

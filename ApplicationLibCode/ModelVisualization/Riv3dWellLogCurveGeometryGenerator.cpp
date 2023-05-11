@@ -87,8 +87,7 @@ void Riv3dWellLogCurveGeometryGenerator::createCurveDrawables( gsl::not_null<con
     if ( resultValues.empty() ) return;
     CVF_ASSERT( resultValues.size() == resultMds.size() );
 
-    RimWellPathCollection* wellPathCollection = nullptr;
-    m_wellPath->firstAncestorOrThisOfTypeAsserted( wellPathCollection );
+    auto wellPathCollection = m_wellPath->firstAncestorOrThisOfTypeAsserted<RimWellPathCollection>();
 
     cvf::Vec3d clipLocation = wellPathGeometry->wellPathPoints().front();
     if ( wellPathCollection->wellPathClip )

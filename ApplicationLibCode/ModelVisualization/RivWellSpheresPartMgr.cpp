@@ -203,7 +203,7 @@ cvf::Color3f RivWellSpheresPartMgr::wellCellColor( const RigWellResultFrame* wel
     RimSimWellInViewCollection* wellColl = nullptr;
     if ( m_rimWell )
     {
-        m_rimWell->firstAncestorOrThisOfType( wellColl );
+        wellColl = m_rimWell->firstAncestorOrThisOfType<RimSimWellInViewCollection>();
     }
 
     if ( wellColl )

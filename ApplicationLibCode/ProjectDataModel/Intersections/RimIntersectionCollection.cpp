@@ -250,7 +250,7 @@ void RimIntersectionCollection::rebuildGeometry()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimExtrudedCurveIntersection*> RimIntersectionCollection::intersections() const
 {
-    return m_intersections.children();
+    return m_intersections.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -258,7 +258,7 @@ std::vector<RimExtrudedCurveIntersection*> RimIntersectionCollection::intersecti
 //--------------------------------------------------------------------------------------------------
 std::vector<RimBoxIntersection*> RimIntersectionCollection::intersectionBoxes() const
 {
-    return m_intersectionBoxes.children();
+    return m_intersectionBoxes.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -305,8 +305,7 @@ void RimIntersectionCollection::appendIntersectionNoUpdate( RimExtrudedCurveInte
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionCollection::syncronize2dIntersectionViews()
 {
-    RimCase* ownerCase = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( ownerCase );
+    auto ownerCase = firstAncestorOrThisOfTypeAsserted<RimCase>();
     ownerCase->intersectionViewCollection()->syncFromExistingIntersections( true );
 }
 
@@ -507,9 +506,7 @@ void RimIntersectionCollection::defineEditorAttribute( const caf::PdmFieldHandle
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RimIntersectionCollection::eclipseView() const
 {
-    RimEclipseView* eclipseView = nullptr;
-    firstAncestorOrThisOfType( eclipseView );
-    return eclipseView;
+    return firstAncestorOrThisOfType<RimEclipseView>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -517,8 +514,7 @@ RimEclipseView* RimIntersectionCollection::eclipseView() const
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionCollection::rebuild3dView() const
 {
-    Rim3dView* rimView = nullptr;
-    firstAncestorOrThisOfType( rimView );
+    auto rimView = firstAncestorOrThisOfType<Rim3dView>();
     if ( rimView )
     {
         rimView->scheduleCreateDisplayModelAndRedraw();

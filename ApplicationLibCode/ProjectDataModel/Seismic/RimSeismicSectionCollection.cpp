@@ -64,8 +64,7 @@ RimSeismicSectionCollection::~RimSeismicSectionCollection()
 //--------------------------------------------------------------------------------------------------
 RimSeismicSection* RimSeismicSectionCollection::addNewSection( RiaDefines::SeismicSectionType sectionType )
 {
-    Rim3dView* view = nullptr;
-    firstAncestorOrThisOfType( view );
+    auto view = firstAncestorOrThisOfType<Rim3dView>();
     if ( view == nullptr ) return nullptr;
 
     RimSeismicData* defaultSeis = nullptr;
@@ -146,7 +145,7 @@ void RimSeismicSectionCollection::defineUiOrdering( QString uiConfigName, caf::P
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSeismicSection*> RimSeismicSectionCollection::seismicSections() const
 {
-    return m_seismicSections.children();
+    return m_seismicSections.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -254,8 +253,7 @@ void RimSeismicSectionCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*
 //--------------------------------------------------------------------------------------------------
 void RimSeismicSectionCollection::updateView()
 {
-    Rim3dView* view = nullptr;
-    firstAncestorOrThisOfType( view );
+    auto view = firstAncestorOrThisOfType<Rim3dView>();
     if ( view ) view->scheduleCreateDisplayModelAndRedraw();
 }
 
