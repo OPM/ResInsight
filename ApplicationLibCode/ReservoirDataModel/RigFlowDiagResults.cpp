@@ -420,8 +420,7 @@ std::vector<double>* RigFlowDiagResults::calculateCommunicationResult( const Rig
 //--------------------------------------------------------------------------------------------------
 void RigFlowDiagResults::calculateNumFloodedPV( const RigFlowDiagResultAddress& resVarAddr )
 {
-    RimEclipseCase* eclipseCase;
-    m_flowDiagSolution->firstAncestorOrThisOfTypeAsserted( eclipseCase );
+    auto                 eclipseCase = m_flowDiagSolution->firstAncestorOrThisOfTypeAsserted<RimEclipseCase>();
     std::vector<QString> tracerNames;
     for ( const std::string& tracerName : resVarAddr.selectedTracerNames )
     {

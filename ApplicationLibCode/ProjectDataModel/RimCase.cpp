@@ -356,8 +356,7 @@ QString RimCase::uniqueShortNameCase( RimCase* rimCase, int shortNameLengthLimit
 {
     std::set<QString> allAutoShortNames;
 
-    std::vector<RimCase*> allCases;
-    RimProject::current()->descendantsOfType( allCases );
+    std::vector<RimCase*> allCases = RimProject::current()->descendantsOfType<RimCase>();
 
     for ( RimCase* rCase : allCases )
     {

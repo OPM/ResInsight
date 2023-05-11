@@ -80,9 +80,7 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
     if ( isChecked() )
     {
-        RimWellLogPlot* wellLogPlot;
-        firstAncestorOrThisOfType( wellLogPlot );
-        CVF_ASSERT( wellLogPlot );
+        auto wellLogPlot = firstAncestorOrThisOfTypeAsserted<RimWellLogPlot>();
 
         if ( m_wellPath && m_wellLogFile )
         {
@@ -434,8 +432,7 @@ void RimWellLogFileCurve::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogFileCurve::isRftPlotChild() const
 {
-    RimWellRftPlot* rftPlot;
-    firstAncestorOrThisOfType( rftPlot );
+    RimWellRftPlot* rftPlot = firstAncestorOrThisOfType<RimWellRftPlot>();
     return rftPlot != nullptr;
 }
 
@@ -465,10 +462,8 @@ QString RimWellLogFileCurve::createCurveAutoName()
         {
             if ( channelNameAvailable )
             {
-                RimWellLogPlot* wellLogPlot;
-                firstAncestorOrThisOfType( wellLogPlot );
-                CVF_ASSERT( wellLogPlot );
-                QString unitName = wellLogFile->wellLogChannelUnitString( m_wellLogChannelName, wellLogPlot->depthUnit() );
+                auto    wellLogPlot = firstAncestorOrThisOfTypeAsserted<RimWellLogPlot>();
+                QString unitName    = wellLogFile->wellLogChannelUnitString( m_wellLogChannelName, wellLogPlot->depthUnit() );
 
                 if ( !unitName.isEmpty() )
                 {

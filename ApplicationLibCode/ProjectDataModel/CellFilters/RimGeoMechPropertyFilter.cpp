@@ -167,8 +167,7 @@ void RimGeoMechPropertyFilter::updateReadOnlyStateOfAllFields()
 {
     bool readOnlyState = isPropertyFilterControlled();
 
-    std::vector<caf::PdmFieldHandle*> objFields;
-    this->fields( objFields );
+    std::vector<caf::PdmFieldHandle*> objFields = fields();
 
     // Include fields declared in RimResultDefinition
     objFields.push_back( &( resultDefinition->m_resultPositionTypeUiField ) );

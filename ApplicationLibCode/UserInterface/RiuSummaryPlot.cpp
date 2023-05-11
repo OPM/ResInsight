@@ -123,9 +123,8 @@ void RiuSummaryPlot::showContextMenu( QPoint pos )
 
             if ( !curveClicked )
             {
-                auto*                             summaryPlot = static_cast<RimSummaryPlot*>( plotWidget()->plotDefinition() );
-                std::vector<RimEnsembleCurveSet*> allCurveSetsInPlot;
-                summaryPlot->descendantsOfType( allCurveSetsInPlot );
+                auto*                             summaryPlot        = static_cast<RimSummaryPlot*>( plotWidget()->plotDefinition() );
+                std::vector<RimEnsembleCurveSet*> allCurveSetsInPlot = summaryPlot->descendantsOfType<RimEnsembleCurveSet>();
                 for ( auto curveSet : allCurveSetsInPlot )
                 {
                     allQuantityNamesInPlot.push_back( QString::fromStdString( curveSet->summaryAddress().uiText() ) );

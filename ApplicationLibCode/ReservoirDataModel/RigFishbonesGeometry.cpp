@@ -69,8 +69,7 @@ void RigFisbonesGeometry::computeLateralPositionAndOrientation( size_t      subI
                                                                 cvf::Vec3d* startDirection,
                                                                 cvf::Mat4d* buildAngleMatrix ) const
 {
-    RimWellPath* wellPath = nullptr;
-    m_fishbonesSub->firstAncestorOrThisOfTypeAsserted( wellPath );
+    auto wellPath = m_fishbonesSub->firstAncestorOrThisOfTypeAsserted<RimWellPath>();
 
     auto wellPathGeometry = wellPath->wellPathGeometry();
     if ( !wellPathGeometry ) return;

@@ -567,9 +567,7 @@ void RimWellIASettings::resetModelData()
 //--------------------------------------------------------------------------------------------------
 RimWellPath* RimWellIASettings::wellPath() const
 {
-    RimWellPath* wellpath = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( wellpath );
-    return wellpath;
+    return firstAncestorOrThisOfTypeAsserted<RimWellPath>();
 }
 
 //--------------------------------------------------------------------------------------------------

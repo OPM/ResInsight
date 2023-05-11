@@ -288,8 +288,7 @@ QString RiuResultTextBuilder::coordinatesText( const RigGridBase* grid, size_t g
 
     if ( m_eclipseView )
     {
-        std::vector<RimMultipleEclipseResults*> additionalResultSettings;
-        m_eclipseView->descendantsOfType( additionalResultSettings );
+        std::vector<RimMultipleEclipseResults*> additionalResultSettings = m_eclipseView->descendantsOfType<RimMultipleEclipseResults>();
         if ( !additionalResultSettings.empty() )
         {
             showCenter = additionalResultSettings[0]->showCenterCoordinates();
@@ -1121,8 +1120,7 @@ std::map<QString, QString> RiuResultTextBuilder::cellResultTextAndValueText( Rim
                     }
                     else
                     {
-                        RimIntersectionResultDefinition* interResDef = nullptr;
-                        eclResDef->firstAncestorOrThisOfType( interResDef );
+                        auto interResDef = eclResDef->firstAncestorOrThisOfType<RimIntersectionResultDefinition>();
                         if ( interResDef )
                         {
                             legendConfig = interResDef->regularLegendConfig();

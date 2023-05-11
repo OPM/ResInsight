@@ -254,13 +254,16 @@ void RimCommandIssueFieldChanged::childObjects( caf::PdmObject* pdmObject, std::
 {
     if ( !pdmObject ) return;
 
-    std::vector<caf::PdmFieldHandle*> fields;
-    pdmObject->fields( fields );
+    std::vector<caf::PdmFieldHandle*> fields = pdmObject->fields();
 
     size_t fIdx;
     for ( fIdx = 0; fIdx < fields.size(); ++fIdx )
     {
-        if ( fields[fIdx] ) fields[fIdx]->children( &children );
+        if ( fields[fIdx] )
+        {
+            auto other = fields[fIdx]->children();
+            children.insert( children.end(), other.begin(), other.end() );
+        }
     }
 }
 
@@ -269,8 +272,7 @@ void RimCommandIssueFieldChanged::childObjects( caf::PdmObject* pdmObject, std::
 //--------------------------------------------------------------------------------------------------
 caf::PdmObjectHandle* RimCommandIssueFieldChanged::findObjectByName( caf::PdmObjectHandle* pdmObject, const QString& name )
 {
-    std::vector<caf::PdmFieldHandle*> fields;
-    pdmObject->fields( fields );
+    std::vector<caf::PdmFieldHandle*> fields = pdmObject->fields();
 
     caf::PdmUiObjectHandle* uiObjectHandle = uiObj( pdmObject );
 
@@ -283,8 +285,7 @@ caf::PdmObjectHandle* RimCommandIssueFieldChanged::findObjectByName( caf::PdmObj
     {
         if ( fields[fIdx] )
         {
-            std::vector<caf::PdmObjectHandle*> children;
-            fields[fIdx]->children( &children );
+            std::vector<caf::PdmObjectHandle*> children = fields[fIdx]->children();
 
             for ( size_t cIdx = 0; cIdx < children.size(); cIdx++ )
             {
@@ -305,8 +306,7 @@ caf::PdmObjectHandle* RimCommandIssueFieldChanged::findObjectByName( caf::PdmObj
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimCommandIssueFieldChanged::findFieldByKeyword( caf::PdmObjectHandle* pdmObject, const QString& keywordName )
 {
-    std::vector<caf::PdmFieldHandle*> fields;
-    pdmObject->fields( fields );
+    std::vector<caf::PdmFieldHandle*> fields = pdmObject->fields();
 
     for ( size_t fIdx = 0; fIdx < fields.size(); fIdx++ )
     {
