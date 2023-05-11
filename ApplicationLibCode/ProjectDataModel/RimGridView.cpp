@@ -321,8 +321,7 @@ void RimGridView::initAfterRead()
 {
     Rim3dView::initAfterRead();
 
-    RimProject* proj = nullptr;
-    firstAncestorOrThisOfType( proj );
+    RimProject* proj = RimProject::current();
     if ( proj && proj->isProjectFileVersionEqualOrOlderThan( "2018.1.1" ) )
     {
         // For version prior to 2018.1.1 : Grid visualization mode was derived from surfaceMode and meshMode

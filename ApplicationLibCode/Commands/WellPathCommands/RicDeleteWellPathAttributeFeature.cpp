@@ -82,14 +82,12 @@ void RicDeleteWellPathAttributeFeature::onActionTriggered( bool isChecked )
     {
         if ( wellPathAttributeCollection->attributes().empty() )
         {
-            RimWellPath* wellPath = nullptr;
-            wellPathAttributeCollection->firstAncestorOrThisOfTypeAsserted( wellPath );
+            auto wellPath = wellPathAttributeCollection->firstAncestorOrThisOfTypeAsserted<RimWellPath>();
             wellPath->updateConnectedEditors();
             Riu3DMainWindowTools::selectAsCurrentItem( wellPath );
         }
 
-        RimProject* proj = nullptr;
-        wellPathAttributeCollection->firstAncestorOrThisOfType( proj );
+        RimProject* proj = RimProject::current();
         if ( proj )
         {
             proj->scheduleCreateDisplayModelAndRedrawAllViews();

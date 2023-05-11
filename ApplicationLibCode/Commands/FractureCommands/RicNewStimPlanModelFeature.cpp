@@ -106,11 +106,8 @@ void RicNewStimPlanModelFeature::onActionTriggered( bool isChecked )
     RimStimPlanModelCollection* fractureColl = RicNewStimPlanModelFeature::selectedStimPlanModelCollection();
     if ( !fractureColl ) return;
 
-    RimWellPath* wellPath = nullptr;
-    fractureColl->firstAncestorOrThisOfTypeAsserted( wellPath );
-
-    RimWellPathCollection* wellPathCollection = nullptr;
-    fractureColl->firstAncestorOrThisOfTypeAsserted( wellPathCollection );
+    auto wellPath           = fractureColl->firstAncestorOrThisOfTypeAsserted<RimWellPath>();
+    auto wellPathCollection = fractureColl->firstAncestorOrThisOfTypeAsserted<RimWellPathCollection>();
 
     RimEclipseView* activeView  = dynamic_cast<RimEclipseView*>( RiaApplication::instance()->activeGridView() );
     RimEclipseCase* eclipseCase = nullptr;

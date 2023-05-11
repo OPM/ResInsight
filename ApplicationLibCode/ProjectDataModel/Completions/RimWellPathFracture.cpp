@@ -203,11 +203,8 @@ bool RimWellPathFracture::compareByWellPathNameAndMD( const RimWellPathFracture*
 {
     CVF_TIGHT_ASSERT( lhs && rhs );
 
-    RimWellPath* lhsWellPath = nullptr;
-    lhs->firstAncestorOrThisOfType( lhsWellPath );
-
-    RimWellPath* rhsWellPath = nullptr;
-    rhs->firstAncestorOrThisOfType( rhsWellPath );
+    RimWellPath* lhsWellPath = lhs->firstAncestorOrThisOfType<RimWellPath>();
+    RimWellPath* rhsWellPath = rhs->firstAncestorOrThisOfType<RimWellPath>();
 
     if ( lhsWellPath && rhsWellPath )
     {
@@ -225,8 +222,7 @@ bool RimWellPathFracture::compareByWellPathNameAndMD( const RimWellPathFracture*
 //--------------------------------------------------------------------------------------------------
 bool RimWellPathFracture::isEnabled() const
 {
-    RimWellPathFractureCollection* fractureCollection = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( fractureCollection );
+    auto fractureCollection = firstAncestorOrThisOfTypeAsserted<RimWellPathFractureCollection>();
 
     return fractureCollection->isChecked() && isChecked();
 }
@@ -241,8 +237,7 @@ void RimWellPathFracture::updatePositionFromMeasuredDepth()
     caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>( this );
     if ( !objHandle ) return;
 
-    RimWellPath* wellPath = nullptr;
-    objHandle->firstAncestorOrThisOfType( wellPath );
+    auto wellPath = objHandle->firstAncestorOrThisOfType<RimWellPath>();
     if ( !wellPath ) return;
 
     RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();

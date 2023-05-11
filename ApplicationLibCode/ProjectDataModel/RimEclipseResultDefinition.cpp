@@ -801,8 +801,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
             this->firstAncestorOrThisOfTypeAsserted( eclipseCase );
             if ( eclipseCase && eclipseCase->eclipseCaseData() && eclipseCase->eclipseCaseData()->mainGrid() )
             {
-                RimProject* proj = nullptr;
-                eclipseCase->firstAncestorOrThisOfTypeAsserted( proj );
+                RimProject* proj = RimProject::current();
 
                 std::vector<RimEclipseCase*> allCases = proj->eclipseCases();
                 for ( RimEclipseCase* otherCase : allCases )

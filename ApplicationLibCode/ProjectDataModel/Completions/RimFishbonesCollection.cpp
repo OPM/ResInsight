@@ -151,7 +151,7 @@ std::vector<RimFishbones*> RimFishbonesCollection::activeFishbonesSubs() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimFishbones*> RimFishbonesCollection::allFishbonesSubs() const
 {
-    return m_fishbones.children();
+    return m_fishbones.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -223,7 +223,7 @@ double RimFishbonesCollection::endMD() const
     double endMD = m_startMD;
     if ( !m_fishbones.empty() )
     {
-        auto lastFishbone = m_fishbones.children().back();
+        auto lastFishbone = m_fishbones.childrenByType().back();
         CVF_ASSERT( lastFishbone );
         endMD = lastFishbone->endMD();
     }
@@ -235,8 +235,7 @@ double RimFishbonesCollection::endMD() const
 //--------------------------------------------------------------------------------------------------
 double RimFishbonesCollection::mainBoreDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const
 {
-    RimWellPath* wellPath;
-    firstAncestorOrThisOfTypeAsserted( wellPath );
+    auto wellPath = firstAncestorOrThisOfTypeAsserted<RimWellPath>();
     if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD && unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
         return RiaEclipseUnitTools::feetToMeter( m_mainBoreDiameter() );

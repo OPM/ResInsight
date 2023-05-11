@@ -532,8 +532,7 @@ void RimWellPathValve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
         {
             if ( componentType() == RiaDefines::WellPathComponentType::ICV )
             {
-                RimWellPath* wellPath;
-                firstAncestorOrThisOfType( wellPath );
+                auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
                 if ( wellPath )
                 {
                     if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )

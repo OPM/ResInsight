@@ -48,9 +48,7 @@ void RicExportFishbonesLateralsFeature::onActionTriggered( bool isChecked )
     RimFishbonesCollection* fishbonesCollection = selectedFishbonesCollection();
     CVF_ASSERT( fishbonesCollection );
 
-    RimWellPath* wellPath = nullptr;
-    fishbonesCollection->firstAncestorOrThisOfType( wellPath );
-    CVF_ASSERT( wellPath );
+    auto wellPath = fishbonesCollection->firstAncestorOrThisOfTypeAsserted<RimWellPath>();
 
     auto fileName = caf::Utils::makeValidFileBasename( wellPath->name() ) + "_laterals.dev";
 

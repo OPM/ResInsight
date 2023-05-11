@@ -136,8 +136,7 @@ void RimPerforationInterval::setSkinFactor( double skinFactor )
 //--------------------------------------------------------------------------------------------------
 double RimPerforationInterval::diameter( RiaDefines::EclipseUnitSystem unitSystem ) const
 {
-    RimWellPath* wellPath;
-    firstAncestorOrThisOfTypeAsserted( wellPath );
+    auto wellPath = firstAncestorOrThisOfTypeAsserted<RimWellPath>();
     if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC && wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
     {
         return RiaEclipseUnitTools::feetToMeter( m_diameter() );
@@ -177,8 +176,7 @@ cvf::BoundingBox RimPerforationInterval::boundingBoxInDomainCoords() const
 {
     cvf::BoundingBox bb;
 
-    RimWellPath* wellPath = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( wellPath );
+    auto wellPath = firstAncestorOrThisOfTypeAsserted<RimWellPath>();
 
     RigWellPath* rigWellPath = wellPath->wellPathGeometry();
     if ( rigWellPath )
@@ -195,8 +193,7 @@ cvf::BoundingBox RimPerforationInterval::boundingBoxInDomainCoords() const
 //--------------------------------------------------------------------------------------------------
 void RimPerforationInterval::setUnitSystemSpecificDefaults()
 {
-    RimWellPath* wellPath;
-    firstAncestorOrThisOfType( wellPath );
+    auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
     if ( wellPath )
     {
         if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
@@ -328,8 +325,7 @@ void RimPerforationInterval::fieldChangedByUi( const caf::PdmFieldHandle* change
 
     this->updateAllReferringTracks();
 
-    RimProject* proj = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( proj );
+    RimProject* proj = RimProject::current();
     proj->reloadCompletionTypeResultsInAllViews();
 }
 
@@ -347,8 +343,7 @@ void RimPerforationInterval::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTre
 void RimPerforationInterval::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     {
-        RimWellPath* wellPath;
-        firstAncestorOrThisOfType( wellPath );
+        auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
         if ( wellPath )
         {
             if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )

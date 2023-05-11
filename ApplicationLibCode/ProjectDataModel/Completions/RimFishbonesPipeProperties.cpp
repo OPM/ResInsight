@@ -49,8 +49,7 @@ RimFishbonesPipeProperties::~RimFishbonesPipeProperties()
 //--------------------------------------------------------------------------------------------------
 double RimFishbonesPipeProperties::holeDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const
 {
-    RimWellPath* wellPath;
-    firstAncestorOrThisOfTypeAsserted( wellPath );
+    auto wellPath = firstAncestorOrThisOfTypeAsserted<RimWellPath>();
     if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
         if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )

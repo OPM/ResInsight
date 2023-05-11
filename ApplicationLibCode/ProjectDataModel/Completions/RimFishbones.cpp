@@ -216,8 +216,7 @@ double RimFishbones::buildAngle() const
 //--------------------------------------------------------------------------------------------------
 double RimFishbones::tubingDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const
 {
-    RimWellPath* wellPath;
-    firstAncestorOrThisOfTypeAsserted( wellPath );
+    auto wellPath = firstAncestorOrThisOfTypeAsserted<RimWellPath>();
     if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
         if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
@@ -284,8 +283,7 @@ double RimFishbones::skinFactor() const
 //--------------------------------------------------------------------------------------------------
 double RimFishbones::openHoleRoughnessFactor( RiaDefines::EclipseUnitSystem unitSystem ) const
 {
-    RimWellPath* wellPath;
-    firstAncestorOrThisOfTypeAsserted( wellPath );
+    auto wellPath = firstAncestorOrThisOfTypeAsserted<RimWellPath>();
     if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD && unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
         return RiaEclipseUnitTools::feetToMeter( m_lateralOpenHoleRoghnessFactor() );
@@ -302,8 +300,7 @@ double RimFishbones::openHoleRoughnessFactor( RiaDefines::EclipseUnitSystem unit
 //--------------------------------------------------------------------------------------------------
 double RimFishbones::icdOrificeDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const
 {
-    RimWellPath* wellPath;
-    firstAncestorOrThisOfTypeAsserted( wellPath );
+    auto wellPath = firstAncestorOrThisOfTypeAsserted<RimWellPath>();
     return RimWellPathValve::convertOrificeDiameter( m_icdOrificeDiameter(), wellPath->unitSystem(), unitSystem );
 }
 

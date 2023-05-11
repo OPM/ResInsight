@@ -226,9 +226,8 @@ void RimWellPathAicdParameters::setUnitLabels()
 //--------------------------------------------------------------------------------------------------
 bool RimWellPathAicdParameters::isMetric() const
 {
-    bool         metric = false;
-    RimWellPath* wellPath;
-    firstAncestorOrThisOfType( wellPath );
+    bool metric   = false;
+    auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
     if ( wellPath )
     {
         if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
