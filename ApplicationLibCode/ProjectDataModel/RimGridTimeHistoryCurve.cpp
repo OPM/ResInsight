@@ -370,8 +370,7 @@ QString RimGridTimeHistoryCurve::createCurveAutoName()
 //--------------------------------------------------------------------------------------------------
 void RimGridTimeHistoryCurve::updateZoomInParentPlot()
 {
-    RimSummaryPlot* plot = nullptr;
-    firstAncestorOrThisOfType( plot );
+    auto plot = firstAncestorOrThisOfType<RimSummaryPlot>();
 
     plot->updateZoomInParentPlot();
 }
@@ -401,8 +400,7 @@ void RimGridTimeHistoryCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         values = yValues();
 
-        RimSummaryPlot* plot = nullptr;
-        firstAncestorOrThisOfType( plot );
+        auto plot                = firstAncestorOrThisOfType<RimSummaryPlot>();
         bool useLogarithmicScale = plot->isLogarithmicScaleEnabled( yAxis() );
 
         if ( plot->timeAxisProperties()->timeMode() == RimSummaryTimeAxisProperties::DATE )

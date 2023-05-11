@@ -82,8 +82,7 @@ void RimEclipseInputProperty::fieldChangedByUi( const caf::PdmFieldHandle* chang
 {
     if ( changedField == &resultName )
     {
-        RimEclipseInputCase* rimCase = nullptr;
-        this->firstAncestorOrThisOfType( rimCase );
+        auto rimCase = firstAncestorOrThisOfType<RimEclipseInputCase>();
         if ( rimCase )
         {
             bool anyNameUpdated = false;

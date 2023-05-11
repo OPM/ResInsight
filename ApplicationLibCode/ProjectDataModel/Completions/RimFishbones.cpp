@@ -413,8 +413,7 @@ void RimFishbones::recomputeLateralLocations()
 //--------------------------------------------------------------------------------------------------
 void RimFishbones::setUnitSystemSpecificDefaults()
 {
-    RimWellPath* wellPath;
-    firstAncestorOrThisOfType( wellPath );
+    auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
     if ( wellPath )
     {
         if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
@@ -556,8 +555,7 @@ void RimFishbones::computeRangesAndLocations()
 void RimFishbones::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     {
-        RimWellPath* wellPath;
-        firstAncestorOrThisOfType( wellPath );
+        auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
         if ( wellPath )
         {
             if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )

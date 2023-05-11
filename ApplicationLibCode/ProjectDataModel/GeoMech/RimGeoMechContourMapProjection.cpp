@@ -568,9 +568,7 @@ std::vector<double> RimGeoMechContourMapProjection::gridCellValues( RigFemResult
 //--------------------------------------------------------------------------------------------------
 RimGeoMechCase* RimGeoMechContourMapProjection::geoMechCase() const
 {
-    RimGeoMechCase* geoMechCase = nullptr;
-    firstAncestorOrThisOfType( geoMechCase );
-    return geoMechCase;
+    return firstAncestorOrThisOfType<RimGeoMechCase>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -578,9 +576,7 @@ RimGeoMechCase* RimGeoMechContourMapProjection::geoMechCase() const
 //--------------------------------------------------------------------------------------------------
 RimGeoMechContourMapView* RimGeoMechContourMapProjection::view() const
 {
-    RimGeoMechContourMapView* view = nullptr;
-    firstAncestorOrThisOfTypeAsserted( view );
-    return view;
+    return firstAncestorOrThisOfTypeAsserted<RimGeoMechContourMapView>();
 }
 
 //--------------------------------------------------------------------------------------------------
