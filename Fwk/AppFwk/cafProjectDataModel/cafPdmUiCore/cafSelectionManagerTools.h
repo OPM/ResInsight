@@ -45,7 +45,7 @@ namespace caf
 /// first object of given type searching upwards to root using firstAncestorOrThisOfType()
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-T firstAncestorOfTypeFromSelectedObject()
+T* firstAncestorOfTypeFromSelectedObject()
 {
     caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
 
