@@ -155,10 +155,8 @@ void RicNewWellBoreStabilityPlotFeature::onActionTriggered( bool isChecked )
     {
         if ( plotCollection )
         {
-            RimProject* project = nullptr;
-            plotCollection->firstAncestorOrThisOfTypeAsserted( project );
-            std::vector<RimWellPath*> allWellPaths;
-            project->descendantsIncludingThisOfType( allWellPaths );
+            RimProject*               project      = RimProject::current();
+            std::vector<RimWellPath*> allWellPaths = project->allWellPaths();
             if ( !allWellPaths.empty() )
             {
                 wellPath = allWellPaths.front();
