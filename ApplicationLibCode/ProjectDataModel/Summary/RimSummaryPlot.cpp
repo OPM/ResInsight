@@ -359,11 +359,10 @@ QString RimSummaryPlot::asciiDataForPlotExport() const
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryPlot::asciiDataForSummaryPlotExport( RiaDefines::DateTimePeriod resamplingPeriod, bool showTimeAsLongString ) const
 {
-    std::vector<RimSummaryCurve*> curves;
-    this->descendantsIncludingThisOfType( curves );
+    std::vector<RimSummaryCurve*> curves = descendantsIncludingThisOfType<RimSummaryCurve>();
 
-    auto gridCurves  = m_gridTimeHistoryCurves.children();
-    auto asciiCurves = m_asciiDataCurves.children();
+    auto gridCurves  = m_gridTimeHistoryCurves.childrenByType();
+    auto asciiCurves = m_asciiDataCurves.childrenByType();
 
     QString text = RimSummaryCurvesData::createTextForExport( curves, asciiCurves, gridCurves, resamplingPeriod, showTimeAsLongString );
 
@@ -438,9 +437,7 @@ void RimSummaryPlot::moveCurvesToPlot( RimSummaryPlot* plot, const std::vector<R
 
     for ( auto curve : curves )
     {
-        RimSummaryPlot* srcPlot = nullptr;
-
-        curve->firstAncestorOrThisOfTypeAsserted( srcPlot );
+        auto srcPlot = curve->firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
 
         srcPlot->removeCurve( curve );
         srcPlots.insert( srcPlot );
@@ -594,11 +591,10 @@ void RimSummaryPlot::updatePlotTitle()
 
     if ( m_description().isEmpty() )
     {
-        RimMultiPlot* plotWindow = nullptr;
-        firstAncestorOrThisOfType( plotWindow );
+        auto multiPlot = firstAncestorOrThisOfType<RimMultiPlot>();
 
         size_t index = 0;
-        if ( plotWindow ) index = plotWindow->plotIndex( this );
+        if ( multiPlot ) index = multiPlot->plotIndex( this );
 
         QString title      = QString( "Sub Plot %1" ).arg( index + 1 );
         m_fallbackPlotName = title;
@@ -1575,7 +1571,7 @@ void RimSummaryPlot::addGridTimeHistoryCurveNoUpdate( RimGridTimeHistoryCurve* c
 //--------------------------------------------------------------------------------------------------
 std::vector<RimGridTimeHistoryCurve*> RimSummaryPlot::gridTimeHistoryCurves() const
 {
-    return m_gridTimeHistoryCurves.children();
+    return m_gridTimeHistoryCurves.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1817,8 +1813,7 @@ void RimSummaryPlot::onLoadDataAndUpdate()
 {
     updatePlotTitle();
 
-    RimMultiPlot* plotWindow = nullptr;
-    firstAncestorOrThisOfType( plotWindow );
+    auto plotWindow = firstAncestorOrThisOfType<RimMultiPlot>();
     if ( plotWindow == nullptr ) updateMdiWindowVisibility();
 
     if ( m_summaryCurveCollection )
@@ -2980,8 +2975,7 @@ size_t RimSummaryPlot::curveCount() const
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryPlot::isDeletable() const
 {
-    RimMultiPlot* plotWindow = nullptr;
-    firstAncestorOrThisOfType( plotWindow );
+    auto plotWindow = firstAncestorOrThisOfType<RimMultiPlot>();
     return plotWindow == nullptr;
 }
 

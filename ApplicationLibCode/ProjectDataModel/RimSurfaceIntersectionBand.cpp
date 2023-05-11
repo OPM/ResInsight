@@ -249,8 +249,7 @@ QString RimSurfaceIntersectionBand::objectName() const
         auto firstSurface = surfaces[0];
         if ( firstSurface )
         {
-            RimSurfaceCollection* surfColl = nullptr;
-            firstSurface->firstAncestorOfType( surfColl );
+            auto surfColl = firstSurface->firstAncestorOfType<RimSurfaceCollection>();
             if ( surfColl )
             {
                 text += surfColl->collectionName();

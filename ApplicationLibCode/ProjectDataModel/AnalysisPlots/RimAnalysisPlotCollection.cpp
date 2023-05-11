@@ -123,7 +123,7 @@ void RimAnalysisPlotCollection::updateSummaryNameHasChanged()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimAnalysisPlot*> RimAnalysisPlotCollection::plots() const
 {
-    return m_analysisPlots.children();
+    return m_analysisPlots.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -164,8 +164,7 @@ void RimAnalysisPlotCollection::applyFirstSummaryCaseCollectionAndFieldAddresses
 //--------------------------------------------------------------------------------------------------
 void RimAnalysisPlotCollection::applyAllSummaryCasesAndFieldAddressesToPlot( RimAnalysisPlot* plot, const std::string& quantityName /*= "" */ )
 {
-    std::vector<RimSummaryCase*> allSummaryCases;
-    RimProject::current()->descendantsOfType( allSummaryCases );
+    std::vector<RimSummaryCase*> allSummaryCases = RimProject::current()->descendantsOfType<RimSummaryCase>();
 
     if ( !allSummaryCases.empty() )
     {
@@ -223,8 +222,7 @@ void RimAnalysisPlotCollection::applySummaryCaseCollectionAndFieldAddressToPlot(
 //--------------------------------------------------------------------------------------------------
 RimSummaryCaseCollection* RimAnalysisPlotCollection::firstEnsemble() const
 {
-    std::vector<RimSummaryCaseCollection*> allSummaryCaseCollections;
-    RimProject::current()->descendantsOfType( allSummaryCaseCollections );
+    std::vector<RimSummaryCaseCollection*> allSummaryCaseCollections = RimProject::current()->descendantsOfType<RimSummaryCaseCollection>();
     for ( auto summaryCaseCollection : allSummaryCaseCollections )
     {
         if ( summaryCaseCollection->isEnsemble() ) return summaryCaseCollection;
@@ -237,8 +235,7 @@ RimSummaryCaseCollection* RimAnalysisPlotCollection::firstEnsemble() const
 //--------------------------------------------------------------------------------------------------
 RimSummaryCaseCollection* RimAnalysisPlotCollection::firstSummaryCaseCollection() const
 {
-    std::vector<RimSummaryCaseCollection*> allSummaryCaseCollections;
-    RimProject::current()->descendantsOfType( allSummaryCaseCollections );
+    std::vector<RimSummaryCaseCollection*> allSummaryCaseCollections = RimProject::current()->descendantsOfType<RimSummaryCaseCollection>();
 
     if ( !allSummaryCaseCollections.empty() ) return allSummaryCaseCollections.front();
 

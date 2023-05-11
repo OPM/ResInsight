@@ -126,8 +126,7 @@ RimEnsembleCurveFilter::RimEnsembleCurveFilter( const QString& ensembleParameter
 //--------------------------------------------------------------------------------------------------
 bool RimEnsembleCurveFilter::isActive() const
 {
-    RimEnsembleCurveFilterCollection* coll;
-    firstAncestorOrThisOfType( coll );
+    auto coll = firstAncestorOrThisOfType<RimEnsembleCurveFilterCollection>();
 
     return ( !coll || coll->isActive() ) && m_active;
 }
@@ -376,7 +375,7 @@ void RimEnsembleCurveFilter::fieldChangedByUi( const caf::PdmFieldHandle* change
         RimSummaryCaseCollection* candidateEnsemble = parentCurveSet()->summaryCaseCollection();
 
         std::vector<RifEclipseSummaryAddress> candidateAddresses;
-        for ( auto address : m_objectiveValuesSummaryAddresses().children() )
+        for ( auto address : m_objectiveValuesSummaryAddresses().childrenByType() )
         {
             candidateAddresses.push_back( address->address() );
         }
@@ -600,9 +599,7 @@ caf::PdmFieldHandle* RimEnsembleCurveFilter::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 RimEnsembleCurveSet* RimEnsembleCurveFilter::parentCurveSet() const
 {
-    RimEnsembleCurveSet* curveSet;
-    firstAncestorOrThisOfType( curveSet );
-    return curveSet;
+    return firstAncestorOrThisOfType<RimEnsembleCurveSet>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -629,9 +626,7 @@ void RimEnsembleCurveFilter::updateMaxMinAndDefaultValuesFromParent()
 //--------------------------------------------------------------------------------------------------
 RimEnsembleCurveFilterCollection* RimEnsembleCurveFilter::parentCurveFilterCollection() const
 {
-    RimEnsembleCurveFilterCollection* coll;
-    firstAncestorOrThisOfType( coll );
-    return coll;
+    return firstAncestorOrThisOfType<RimEnsembleCurveFilterCollection>();
 }
 
 //--------------------------------------------------------------------------------------------------

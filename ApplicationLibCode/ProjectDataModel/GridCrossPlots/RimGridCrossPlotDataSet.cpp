@@ -191,8 +191,7 @@ void RimGridCrossPlotDataSet::setCellFilterView( RimGridView* cellFilterView )
             m_yAxisProperty->setResultVariable( "DEPTH" );
             m_timeStep = eclipseView->currentTimeStep();
 
-            RimGridCrossPlot* parentPlot = nullptr;
-            firstAncestorOrThisOfType( parentPlot );
+            auto parentPlot = firstAncestorOrThisOfType<RimGridCrossPlot>();
             if ( parentPlot )
             {
                 parentPlot->setYAxisInverted( true );
@@ -271,8 +270,7 @@ QString RimGridCrossPlotDataSet::infoText() const
 //--------------------------------------------------------------------------------------------------
 int RimGridCrossPlotDataSet::indexInPlot() const
 {
-    RimGridCrossPlot* parent;
-    this->firstAncestorOrThisOfTypeAsserted( parent );
+    auto parent = firstAncestorOrThisOfTypeAsserted<RimGridCrossPlot>();
     return parent->indexOfDataSet( this );
 }
 
@@ -385,7 +383,7 @@ RimRegularLegendConfig* RimGridCrossPlotDataSet::legendConfig() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimGridCrossPlotCurve*> RimGridCrossPlotDataSet::curves() const
 {
-    return m_crossPlotCurves.children();
+    return m_crossPlotCurves.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -940,8 +938,7 @@ void RimGridCrossPlotDataSet::childFieldChangedByUi( const caf::PdmFieldHandle* 
     {
         if ( m_yAxisProperty->resultVariable() == "DEPTH" )
         {
-            RimGridCrossPlot* plot;
-            this->firstAncestorOrThisOfTypeAsserted( plot );
+            auto plot = firstAncestorOrThisOfTypeAsserted<RimGridCrossPlot>();
             plot->setYAxisInverted( true );
             triggerPlotNameUpdateAndReplot();
         }
@@ -979,7 +976,7 @@ QList<caf::PdmOptionItemInfo> RimGridCrossPlotDataSet::calculateValueOptions( co
         if ( eclipseCase )
         {
             options.push_back( caf::PdmOptionItemInfo( "Disabled", nullptr ) );
-            for ( RimEclipseView* view : eclipseCase->reservoirViews.children() )
+            for ( RimEclipseView* view : eclipseCase->reservoirViews.childrenByType() )
             {
                 CVF_ASSERT( view && "Really always should have a valid view pointer in ReservoirViews" );
                 options.push_back( caf::PdmOptionItemInfo( view->name(), view, false, view->uiIconProvider() ) );
@@ -1017,8 +1014,7 @@ void RimGridCrossPlotDataSet::updateLegendRange()
     legendConfig()->setTitle( groupParameter() );
     legendConfig()->disableAllTimeStepsRange( !hasMultipleTimeSteps() );
 
-    RimGridCrossPlot* parent;
-    this->firstAncestorOrThisOfTypeAsserted( parent );
+    auto parent = firstAncestorOrThisOfTypeAsserted<RimGridCrossPlot>();
     if ( parent->plotWidget() )
     {
         if ( groupingEnabled() && m_case() && isChecked() && legendConfig()->showLegend() )
@@ -1194,8 +1190,7 @@ void RimGridCrossPlotDataSet::exportFormattedData( RifTextDataTableFormatter& fo
 //--------------------------------------------------------------------------------------------------
 bool RimGridCrossPlotDataSet::isXAxisLogarithmic() const
 {
-    RimGridCrossPlot* parent = nullptr;
-    firstAncestorOrThisOfTypeAsserted( parent );
+    auto parent = firstAncestorOrThisOfTypeAsserted<RimGridCrossPlot>();
     return parent->isXAxisLogarithmic();
 }
 
@@ -1204,8 +1199,7 @@ bool RimGridCrossPlotDataSet::isXAxisLogarithmic() const
 //--------------------------------------------------------------------------------------------------
 bool RimGridCrossPlotDataSet::isYAxisLogarithmic() const
 {
-    RimGridCrossPlot* parent = nullptr;
-    firstAncestorOrThisOfTypeAsserted( parent );
+    auto parent = firstAncestorOrThisOfTypeAsserted<RimGridCrossPlot>();
     return parent->isYAxisLogarithmic();
 }
 
@@ -1260,8 +1254,7 @@ void RimGridCrossPlotDataSet::setCustomColor( const cvf::Color3f color )
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotDataSet::triggerPlotNameUpdateAndReplot()
 {
-    RimGridCrossPlot* parent;
-    this->firstAncestorOrThisOfType( parent );
+    auto parent = firstAncestorOrThisOfType<RimGridCrossPlot>();
     if ( parent )
     {
         parent->updateCurveNamesAndPlotTitle();

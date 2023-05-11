@@ -335,15 +335,13 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
 
     if ( changedField == &m_includeEnsembleCasesForCaseStepping )
     {
-        RimSummaryCurveCollection* curveCollection = nullptr;
-        this->firstAncestorOrThisOfType( curveCollection );
+        auto curveCollection = firstAncestorOrThisOfType<RimSummaryCurveCollection>();
         if ( curveCollection )
         {
             curveCollection->updateConnectedEditors();
         }
 
-        RimEnsembleCurveSetCollection* ensembleCurveColl = nullptr;
-        this->firstAncestorOrThisOfType( ensembleCurveColl );
+        auto ensembleCurveColl = firstAncestorOrThisOfType<RimEnsembleCurveSetCollection>();
         if ( ensembleCurveColl )
         {
             ensembleCurveColl->updateConnectedEditors();
@@ -504,8 +502,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
 
     if ( triggerLoadDataAndUpdate )
     {
-        RimSummaryPlot* summaryPlot = nullptr;
-        this->firstAncestorOrThisOfType( summaryPlot );
+        auto summaryPlot = firstAncestorOrThisOfType<RimSummaryPlot>();
 
         RimSummaryMultiPlot* summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( m_objectForSourceStepping.p() );
         if ( summaryMultiPlot )
@@ -526,8 +523,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
             summaryPlot->curvesChanged.send();
         }
 
-        RimEnsembleCurveSetCollection* ensembleCurveColl = nullptr;
-        this->firstAncestorOrThisOfType( ensembleCurveColl );
+        auto ensembleCurveColl = firstAncestorOrThisOfType<RimEnsembleCurveSetCollection>();
         if ( ensembleCurveColl )
         {
             ensembleCurveColl->updateConnectedEditors();
@@ -538,8 +534,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
         {
             // Trigger update of curve collection (and summary toolbar in main window), as the visibility of combo
             // boxes might have been changed due to the updates in this function
-            RimSummaryCurveCollection* curveCollection = nullptr;
-            this->firstAncestorOrThisOfType( curveCollection );
+            auto curveCollection = firstAncestorOrThisOfType<RimSummaryCurveCollection>();
             if ( curveCollection )
             {
                 curveCollection->updateConnectedEditors();
@@ -898,9 +893,7 @@ std::vector<RimSummaryCase*> RimSummaryPlotSourceStepping::summaryCasesForSource
     {
         if ( sumCase->isObservedData() ) continue;
 
-        RimSummaryCaseCollection* sumCaseColl = nullptr;
-        sumCase->firstAncestorOrThisOfType( sumCaseColl );
-
+        auto sumCaseColl = sumCase->firstAncestorOrThisOfType<RimSummaryCaseCollection>();
         if ( sumCaseColl && sumCaseColl->isEnsemble() )
         {
             if ( m_includeEnsembleCasesForCaseStepping() )

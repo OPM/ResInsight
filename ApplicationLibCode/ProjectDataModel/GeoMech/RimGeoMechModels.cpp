@@ -52,7 +52,7 @@ RimGeoMechModels::~RimGeoMechModels()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimGeoMechCase*> RimGeoMechModels::cases() const
 {
-    return m_cases.children();
+    return m_cases.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
