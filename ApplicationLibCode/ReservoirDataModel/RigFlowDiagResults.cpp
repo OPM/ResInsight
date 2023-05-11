@@ -80,8 +80,7 @@ const std::vector<double>* RigFlowDiagResults::resultValues( const RigFlowDiagRe
 //--------------------------------------------------------------------------------------------------
 const RigActiveCellInfo* RigFlowDiagResults::activeCellInfo( const RigFlowDiagResultAddress& resVarAddr )
 {
-    RimEclipseResultCase* eclCase;
-    m_flowDiagSolution->firstAncestorOrThisOfType( eclCase );
+    auto eclCase = m_flowDiagSolution->firstAncestorOrThisOfType<RimEclipseResultCase>();
 
     return eclCase->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL ); // Todo: base on
                                                                                                       // resVarAddr member
@@ -162,8 +161,7 @@ std::vector<double>* RigFlowDiagResults::findScalarResultFrame( const RigFlowDia
 //--------------------------------------------------------------------------------------------------
 RigFlowDiagSolverInterface* RigFlowDiagResults::solverInterface()
 {
-    RimEclipseResultCase* eclCase;
-    m_flowDiagSolution->firstAncestorOrThisOfType( eclCase );
+    auto eclCase = m_flowDiagSolution->firstAncestorOrThisOfType<RimEclipseResultCase>();
 
     return eclCase->flowDiagSolverInterface();
 }

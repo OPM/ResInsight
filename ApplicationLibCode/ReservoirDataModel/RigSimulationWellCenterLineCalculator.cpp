@@ -127,10 +127,7 @@ void RigSimulationWellCenterLineCalculator::calculateWellPipeStaticCenterline( R
     const RigSimWellData* simWellData = rimWell->simWellData();
     if ( !simWellData ) return;
 
-    RimEclipseView* eclipseView;
-    rimWell->firstAncestorOrThisOfType( eclipseView );
-
-    CVF_ASSERT( eclipseView );
+    auto eclipseView = rimWell->firstAncestorOrThisOfTypeAsserted<RimEclipseView>();
 
     RigEclipseCaseData* eclipseCaseData      = eclipseView->eclipseCase()->eclipseCaseData();
     bool                isAutoDetectBranches = eclipseView->wellCollection()->isAutoDetectingBranches();
