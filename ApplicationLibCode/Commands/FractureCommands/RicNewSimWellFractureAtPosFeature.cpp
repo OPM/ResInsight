@@ -112,8 +112,7 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered( bool isChecked )
 
     activeView->scheduleCreateDisplayModelAndRedraw();
 
-    RimEclipseCase* eclipseCase = nullptr;
-    simWell->firstAncestorOrThisOfType( eclipseCase );
+    auto eclipseCase = simWell->firstAncestorOrThisOfType<RimEclipseCase>();
     if ( eclipseCase )
     {
         proj->reloadCompletionTypeResultsForEclipseCase( eclipseCase );

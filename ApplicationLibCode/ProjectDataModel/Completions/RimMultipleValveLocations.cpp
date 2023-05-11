@@ -346,9 +346,8 @@ void RimMultipleValveLocations::fieldChangedByUi( const caf::PdmFieldHandle* cha
         computeRangesAndLocations();
     }
 
-    RimWellPathComponentInterface* parentCompletion = nullptr;
-    this->firstAncestorOrThisOfType( parentCompletion );
-    caf::PdmObject* pdmParent = dynamic_cast<caf::PdmObject*>( parentCompletion );
+    auto            parentCompletion = firstAncestorOrThisOfType<RimWellPathComponentInterface>();
+    caf::PdmObject* pdmParent        = dynamic_cast<caf::PdmObject*>( parentCompletion );
 
     if ( recomputeLocations || changedField == &m_locationOfValves )
     {

@@ -184,9 +184,7 @@ void RimTextAnnotation::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
         this->updateConnectedEditors();
     }
 
-    RimAnnotationCollectionBase* annColl = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( annColl );
-
+    auto annColl = firstAncestorOrThisOfTypeAsserted<RimAnnotationCollectionBase>();
     if ( annColl ) annColl->scheduleRedrawOfRelevantViews();
 }
 

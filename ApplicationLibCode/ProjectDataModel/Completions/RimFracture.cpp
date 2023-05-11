@@ -79,9 +79,7 @@ void setDefaultFractureColorResult()
     {
         for ( Rim3dView* const view : eclCase->views() )
         {
-            std::vector<RimStimPlanColors*> fractureColors;
-            view->descendantsIncludingThisOfType( fractureColors );
-
+            std::vector<RimStimPlanColors*> fractureColors = view->descendantsIncludingThisOfType<RimStimPlanColors>();
             for ( RimStimPlanColors* const stimPlanColors : fractureColors )
             {
                 stimPlanColors->setDefaultResultName();
@@ -286,8 +284,7 @@ void RimFracture::fieldChangedByUi( const caf::PdmFieldHandle* changedField, con
     {
         clearCachedNonDarcyProperties();
 
-        RimEclipseCase* eclipseCase = nullptr;
-        this->firstAncestorOrThisOfType( eclipseCase );
+        auto eclipseCase = firstAncestorOrThisOfType<RimEclipseCase>();
         if ( eclipseCase )
         {
             RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews( { eclipseCase } );

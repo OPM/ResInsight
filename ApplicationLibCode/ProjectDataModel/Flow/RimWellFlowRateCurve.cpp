@@ -165,8 +165,7 @@ void RimWellFlowRateCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
     if ( updateParentPlot )
     {
-        RimWellLogTrack* track = nullptr;
-        this->firstAncestorOrThisOfTypeAsserted( track );
+        auto track = firstAncestorOrThisOfTypeAsserted<RimWellLogTrack>();
         track->updateStackedCurveData();
 
         updateZoomInParentPlot();
@@ -184,8 +183,7 @@ void RimWellFlowRateCurve::updateCurveAppearance()
 
     bool isLastCurveInGroup = false;
     {
-        RimWellLogTrack* wellLogTrack;
-        firstAncestorOrThisOfTypeAsserted( wellLogTrack );
+        auto                                         wellLogTrack       = firstAncestorOrThisOfTypeAsserted<RimWellLogTrack>();
         std::map<int, std::vector<RimWellLogCurve*>> stackedCurveGroups = wellLogTrack->visibleStackedCurves();
         const std::vector<RimWellLogCurve*>&         curveGroup         = stackedCurveGroups[this->m_groupId];
 

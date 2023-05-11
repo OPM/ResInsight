@@ -85,8 +85,7 @@ RimRegularLegendConfig* RimVirtualPerforationResults::legendConfig() const
 //--------------------------------------------------------------------------------------------------
 void RimVirtualPerforationResults::loadData()
 {
-    RimEclipseCase* eclipseCase = nullptr;
-    this->firstAncestorOrThisOfType( eclipseCase );
+    auto eclipseCase = firstAncestorOrThisOfType<RimEclipseCase>();
     if ( eclipseCase )
     {
         eclipseCase->computeAndGetVirtualPerforationTransmissibilities();

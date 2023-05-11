@@ -88,8 +88,7 @@ void RimPerforationCollection::appendPerforation( RimPerforationInterval* perfor
     Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
     if ( activeView )
     {
-        RimEclipseCase* eclipseCase = nullptr;
-        activeView->firstAncestorOrThisOfType( eclipseCase );
+        auto eclipseCase = activeView->firstAncestorOrThisOfType<RimEclipseCase>();
         if ( eclipseCase )
         {
             auto dates = eclipseCase->timeStepDates();

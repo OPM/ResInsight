@@ -151,8 +151,7 @@ void RimReachCircleAnnotation::fieldChangedByUi( const caf::PdmFieldHandle* chan
     {
         this->updateConnectedEditors();
     }
-    RimAnnotationCollection* annColl = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( annColl );
+    auto annColl = firstAncestorOrThisOfTypeAsserted<RimAnnotationCollection>();
 
     annColl->scheduleRedrawOfRelevantViews();
 }

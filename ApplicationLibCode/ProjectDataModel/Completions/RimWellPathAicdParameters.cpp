@@ -81,8 +81,7 @@ RimWellPathAicdParameters::RimWellPathAicdParameters()
                        QString( "1*" ),
                        "Viscosity Exponent of Gas Fraction" );
 
-    std::vector<caf::PdmFieldHandle*> allFields;
-    this->fields( allFields );
+    std::vector<caf::PdmFieldHandle*> allFields = fields();
     for ( caf::PdmFieldHandle* field : allFields )
     {
         caf::PdmField<QString>* stringField = dynamic_cast<caf::PdmField<QString>*>( field );

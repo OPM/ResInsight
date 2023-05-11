@@ -355,8 +355,7 @@ void RimFishbones::geometryUpdated()
     computeRotationAngles();
     computeSubLateralIndices();
 
-    RimFishbonesCollection* collection;
-    this->firstAncestorOrThisOfTypeAsserted( collection );
+    auto collection = firstAncestorOrThisOfTypeAsserted<RimFishbonesCollection>();
     collection->recalculateStartMD();
 
     RimProject* proj = RimProject::current();
@@ -665,8 +664,7 @@ cvf::BoundingBox RimFishbones::boundingBoxInDomainCoords() const
 //--------------------------------------------------------------------------------------------------
 bool RimFishbones::isEnabled() const
 {
-    RimFishbonesCollection* collection;
-    this->firstAncestorOrThisOfTypeAsserted( collection );
+    auto collection = firstAncestorOrThisOfTypeAsserted<RimFishbonesCollection>();
 
     return collection->isChecked() && isActive();
 }

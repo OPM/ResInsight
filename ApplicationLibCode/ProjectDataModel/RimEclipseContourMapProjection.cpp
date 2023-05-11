@@ -387,9 +387,7 @@ std::vector<double> RimEclipseContourMapProjection::retrieveParameterWeights()
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase* RimEclipseContourMapProjection::eclipseCase() const
 {
-    RimEclipseCase* eclipseCase = nullptr;
-    firstAncestorOrThisOfType( eclipseCase );
-    return eclipseCase;
+    return firstAncestorOrThisOfType<RimEclipseCase>();
 }
 
 //--------------------------------------------------------------------------------------------------

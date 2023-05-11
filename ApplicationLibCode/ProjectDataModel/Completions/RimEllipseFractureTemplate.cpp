@@ -385,8 +385,7 @@ void RimEllipseFractureTemplate::onLoadDataAndUpdateGeometryHasChanged()
 {
     loadDataAndUpdate();
 
-    RimEclipseCase* eclipseCase = nullptr;
-    this->firstAncestorOrThisOfType( eclipseCase );
+    auto eclipseCase = firstAncestorOrThisOfType<RimEclipseCase>();
     if ( eclipseCase )
     {
         RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews( { eclipseCase } );

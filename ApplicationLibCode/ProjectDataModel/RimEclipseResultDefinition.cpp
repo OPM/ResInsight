@@ -797,8 +797,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
         {
             options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
 
-            RimEclipseCase* eclipseCase = nullptr;
-            this->firstAncestorOrThisOfTypeAsserted( eclipseCase );
+            auto eclipseCase = firstAncestorOrThisOfTypeAsserted<RimEclipseCase>();
             if ( eclipseCase && eclipseCase->eclipseCaseData() && eclipseCase->eclipseCaseData()->mainGrid() )
             {
                 RimProject* proj = RimProject::current();

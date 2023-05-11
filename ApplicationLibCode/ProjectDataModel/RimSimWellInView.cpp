@@ -176,16 +176,13 @@ caf::PdmFieldHandle* RimSimWellInView::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 std::vector<const RigWellPath*> RimSimWellInView::wellPipeBranches() const
 {
-    RimSimWellInViewCollection* simWellCollection = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( simWellCollection );
-
-    RimEclipseCase* eclipseCase = nullptr;
-    this->firstAncestorOrThisOfType( eclipseCase );
+    auto eclipseCase = firstAncestorOrThisOfType<RimEclipseCase>();
     if ( eclipseCase && eclipseCase->eclipseCaseData() )
     {
         RigEclipseCaseData* caseData = eclipseCase->eclipseCaseData();
 
         bool includeCellCenters = this->isUsingCellCenterForPipe();
+        auto simWellCollection  = firstAncestorOrThisOfTypeAsserted<RimSimWellInViewCollection>();
         bool detectBrances      = simWellCollection->isAutoDetectingBranches;
 
         return caseData->simulationWellBranches( this->name(), includeCellCenters, detectBrances );
