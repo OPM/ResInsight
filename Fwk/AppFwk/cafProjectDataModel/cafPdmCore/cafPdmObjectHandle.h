@@ -224,7 +224,7 @@ std::vector<T*> PdmObjectHandle::allAncestorsOfType() const
     if ( firstAncestor )
     {
         ancestors.push_back( firstAncestor );
-        auto other = firstAncestor->allAncestorsOfType();
+        auto other = firstAncestor->allAncestorsOfType<T>();
         ancestors.insert( ancestors.end(), other.begin(), other.end() );
     }
 
