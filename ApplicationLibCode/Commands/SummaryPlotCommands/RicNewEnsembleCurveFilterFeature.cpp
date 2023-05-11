@@ -49,8 +49,8 @@ void RicNewEnsembleCurveFilterFeature::onActionTriggered( bool isChecked )
 
     RimEnsembleCurveFilterCollection* filterCollection = nullptr;
     {
-        std::vector<RimEnsembleCurveFilterCollection*> filterColls;
-        selObj->descendantsIncludingThisOfType( filterColls );
+        std::vector<RimEnsembleCurveFilterCollection*> filterColls =
+            selObj->descendantsIncludingThisOfType<RimEnsembleCurveFilterCollection>();
         if ( filterColls.size() == 1 )
         {
             filterCollection = filterColls.front();

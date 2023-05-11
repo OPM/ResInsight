@@ -28,6 +28,7 @@
 #include "RiuPlotMainWindowTools.h"
 
 #include "cafSelectionManager.h"
+#include "cafSelectionManagerTools.h"
 
 #include <QAction>
 
@@ -38,15 +39,8 @@ CAF_CMD_SOURCE_INIT( RicNewAnalysisPlotFeature, "RicNewAnalysisPlotFeature" );
 //--------------------------------------------------------------------------------------------------
 bool RicNewAnalysisPlotFeature::isCommandEnabled()
 {
-    caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
-    if ( selObj )
-    {
-        RimAnalysisPlotCollection* analysisPlotColl = selObj->firstAncestorOrThisOfType<RimAnalysisPlotCollection>();
-        if ( analysisPlotColl ) return true;
-
-        RimSummaryPlot* summaryPlot = selObj->firstAncestorOrThisOfType<RimSummaryPlot>();
-        if ( summaryPlot ) return true;
-    }
+    if ( caf::firstAncestorOfTypeFromSelectedObject<RimAnalysisPlotCollection>() ) return true;
+    if ( caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot>() ) return true;
 
     return false;
 }
@@ -56,13 +50,7 @@ bool RicNewAnalysisPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewAnalysisPlotFeature::onActionTriggered( bool isChecked )
 {
-    RimAnalysisPlotCollection* analysisPlotColl = nullptr;
-
-    caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
-    if ( selObj )
-    {
-        analysisPlotColl = selObj->firstAncestorOrThisOfType<RimAnalysisPlotCollection>();
-    }
+    RimAnalysisPlotCollection* analysisPlotColl = caf::firstAncestorOfTypeFromSelectedObject<RimAnalysisPlotCollection>();
 
     RimAnalysisPlot* newPlot = nullptr;
     if ( !analysisPlotColl )

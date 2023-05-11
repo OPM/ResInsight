@@ -187,7 +187,7 @@ double RimWellPath::wellPathRadius( double characteristicCellSize ) const
 {
     double radius = characteristicCellSize * m_wellPathRadiusScaleFactor();
 
-    RimWellPathCollection* coll = firstAncestorOrThisOfType<RimWellPathCollection>();
+    RimWellPathCollection* coll = RimTools::wellPathCollection();
     if ( coll )
     {
         radius *= coll->wellPathRadiusScaleFactor();

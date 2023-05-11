@@ -255,14 +255,9 @@ QList<caf::PdmOptionItemInfo> RimWellMeasurementCurve::calculateValueOptions( co
     }
     else if ( fieldNeedingOptions == &m_measurementKind )
     {
-        RimWellPathCollection* wellPathCollection = nullptr;
-        if ( m_wellPath )
-        {
-            wellPathCollection = m_wellPath->firstAncestorOrThisOfTypeAsserted<RimWellPathCollection>();
-        }
-
         std::set<QString> kindNames;
 
+        RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
         if ( wellPathCollection )
         {
             const RimWellMeasurementCollection* measurementCollection = wellPathCollection->measurementCollection();
