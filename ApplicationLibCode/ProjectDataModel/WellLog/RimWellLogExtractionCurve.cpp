@@ -367,7 +367,9 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
                 isUsingPseudoLength = false;
             }
 
-            bool useLogarithmicScale = false;auto track = firstAncestorOfType<RimWellLogTrack>();if ( track )
+            bool useLogarithmicScale = false;
+            auto track               = firstAncestorOfType<RimWellLogTrack>();
+            if ( track )
             {
                 useLogarithmicScale = track->isLogarithmicScale();
             }
@@ -477,7 +479,9 @@ void RimWellLogExtractionCurve::extractData( bool*                        isUsin
     {
         bool useLogarithmicScale = false;
 
-        bool performDataSmoothing = smoothingThreshold.has_value();auto track = firstAncestorOfType<RimWellLogTrack>();if ( track )
+        bool performDataSmoothing = smoothingThreshold.has_value();
+        auto track                = firstAncestorOfType<RimWellLogTrack>();
+        if ( track )
         {
             useLogarithmicScale = track->isLogarithmicScale();
         }

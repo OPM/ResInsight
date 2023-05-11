@@ -114,8 +114,9 @@ caf::PdmFieldHandle* RimEclipseFaultColors::objectToggleField()
 void RimEclipseFaultColors::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     caf::PdmUiGroup* group1 = uiOrdering.addNewGroup( "Result" );
-    m_customFaultResultColors->uiOrdering( uiConfigName, *group1 );    auto eclipseView = firstAncestorOfType<RimEclipseView>();
-if ( eclipseView )
+    m_customFaultResultColors->uiOrdering( uiConfigName, *group1 );
+    auto eclipseView = firstAncestorOfType<RimEclipseView>();
+    if ( eclipseView )
     {
         eclipseView->faultCollection()->uiOrderingFaults( uiConfigName, uiOrdering );
     }
