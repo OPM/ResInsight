@@ -19,8 +19,11 @@
 
 #include "RivTernaryTextureCoordsCreator.h"
 
+#include "RiaResultNames.h"
+
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigPipeInCellEvaluator.h"
 #include "RigResultAccessorFactory.h"
 #include "RigTernaryResultAccessor.h"

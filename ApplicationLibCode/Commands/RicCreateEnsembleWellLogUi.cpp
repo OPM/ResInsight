@@ -21,6 +21,7 @@
 #include "RiaApplication.h"
 
 #include "RiaDefines.h"
+#include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 
 #include "RigEclipseResultAddress.h"

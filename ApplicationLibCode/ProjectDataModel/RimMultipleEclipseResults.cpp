@@ -18,6 +18,9 @@
 
 #include "RimMultipleEclipseResults.h"
 
+#include "RigCaseCellResultsData.h"
+#include "RigEclipseResultAddress.h"
+
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 

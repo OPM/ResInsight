@@ -29,20 +29,19 @@ bool RimFlowDiagnosticsTools::TracerComp::operator()( const QString& lhs, const 
     {
         return true;
     }
-    else if ( lhs.endsWith( "-XF" ) && !rhs.endsWith( "-XF" ) )
+
+    if ( lhs.endsWith( "-XF" ) && !rhs.endsWith( "-XF" ) )
     {
         return false;
     }
-    else
-    {
-        return lhs < rhs;
-    }
+
+    return lhs < rhs;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimFlowDiagnosticsTools::calcOptionsForSelectedTracerField( RimFlowDiagSolution* flowSol, bool isInjector )
+QList<caf::PdmOptionItemInfo> RimFlowDiagnosticsTools::calcOptionsForSelectedTracerField( FDS* flowSol, bool isInjector )
 {
     if ( !flowSol ) return {};
 
@@ -50,13 +49,13 @@ QList<caf::PdmOptionItemInfo> RimFlowDiagnosticsTools::calcOptionsForSelectedTra
     std::set<QString, TracerComp> sortedTracers = setOfTracersOfType( flowSol, isInjector );
     for ( const QString& tracerName : sortedTracers )
     {
-        QString                               postfix;
-        RimFlowDiagSolution::TracerStatusType status = flowSol->tracerStatusOverall( tracerName );
-        if ( status == RimFlowDiagSolution::TracerStatusType::VARYING )
+        QString               postfix;
+        FDS::TracerStatusType status = flowSol->tracerStatusOverall( tracerName );
+        if ( status == FDS::TracerStatusType::VARYING )
         {
             postfix = " [I/P]";
         }
-        else if ( status == RimFlowDiagSolution::TracerStatusType::UNDEFINED )
+        else if ( status == FDS::TracerStatusType::UNDEFINED )
         {
             postfix = " [U]";
         }
@@ -68,8 +67,7 @@ QList<caf::PdmOptionItemInfo> RimFlowDiagnosticsTools::calcOptionsForSelectedTra
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<QString, RimFlowDiagnosticsTools::TracerComp> RimFlowDiagnosticsTools::setOfTracersOfType( RimFlowDiagSolution* flowSol,
-                                                                                                    bool                 isInjector )
+std::set<QString, RimFlowDiagnosticsTools::TracerComp> RimFlowDiagnosticsTools::setOfTracersOfType( const FDS* flowSol, bool isInjector )
 {
     if ( !flowSol ) return {};
 
@@ -77,11 +75,10 @@ std::set<QString, RimFlowDiagnosticsTools::TracerComp> RimFlowDiagnosticsTools::
     std::vector<QString>          tracerNames = flowSol->tracerNames();
     for ( const QString& tracerName : tracerNames )
     {
-        RimFlowDiagSolution::TracerStatusType status        = flowSol->tracerStatusOverall( tracerName );
-        bool                                  includeTracer = status == RimFlowDiagSolution::TracerStatusType::VARYING ||
-                             status == RimFlowDiagSolution::TracerStatusType::UNDEFINED;
-        includeTracer |= isInjector && status == RimFlowDiagSolution::TracerStatusType::INJECTOR;
-        includeTracer |= !isInjector && status == RimFlowDiagSolution::TracerStatusType::PRODUCER;
+        FDS::TracerStatusType status        = flowSol->tracerStatusOverall( tracerName );
+        bool                  includeTracer = status == FDS::TracerStatusType::VARYING || status == FDS::TracerStatusType::UNDEFINED;
+        includeTracer |= isInjector && status == FDS::TracerStatusType::INJECTOR;
+        includeTracer |= !isInjector && status == FDS::TracerStatusType::PRODUCER;
 
         if ( includeTracer )
         {
@@ -94,25 +91,23 @@ std::set<QString, RimFlowDiagnosticsTools::TracerComp> RimFlowDiagnosticsTools::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> RimFlowDiagnosticsTools::producerTracersInTimeStep( RimFlowDiagSolution* flowSol, int timeStepIndex )
+std::vector<QString> RimFlowDiagnosticsTools::producerTracersInTimeStep( const FDS* flowSol, int timeStepIndex )
 {
-    return tracersOfStatusInTimeStep( flowSol, RimFlowDiagSolution::TracerStatusType::PRODUCER, timeStepIndex );
+    return tracersOfStatusInTimeStep( flowSol, FDS::TracerStatusType::PRODUCER, timeStepIndex );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> RimFlowDiagnosticsTools::injectorTracersInTimeStep( RimFlowDiagSolution* flowSol, int timeStepIndex )
+std::vector<QString> RimFlowDiagnosticsTools::injectorTracersInTimeStep( const FDS* flowSol, int timeStepIndex )
 {
-    return tracersOfStatusInTimeStep( flowSol, RimFlowDiagSolution::TracerStatusType::INJECTOR, timeStepIndex );
+    return tracersOfStatusInTimeStep( flowSol, FDS::TracerStatusType::INJECTOR, timeStepIndex );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> RimFlowDiagnosticsTools::tracersOfStatusInTimeStep( RimFlowDiagSolution*                  flowSol,
-                                                                         RimFlowDiagSolution::TracerStatusType status,
-                                                                         int                                   timeStepIndex )
+std::vector<QString> RimFlowDiagnosticsTools::tracersOfStatusInTimeStep( const FDS* flowSol, FDS::TracerStatusType status, int timeStepIndex )
 {
     if ( !flowSol || timeStepIndex < 0 ) return {};
 
@@ -131,7 +126,7 @@ std::vector<QString> RimFlowDiagnosticsTools::tracersOfStatusInTimeStep( RimFlow
 ///
 //--------------------------------------------------------------------------------------------------
 std::set<QString, RimFlowDiagnosticsTools::TracerComp>
-    RimFlowDiagnosticsTools::setOfInjectorTracersFromProducers( RimFlowDiagSolution*        flowSol,
+    RimFlowDiagnosticsTools::setOfInjectorTracersFromProducers( FDS*                        flowSol,
                                                                 const std::vector<QString>& producerTracers,
                                                                 std::vector<int>            timeStepIndices )
 {
@@ -164,9 +159,7 @@ std::set<QString, RimFlowDiagnosticsTools::TracerComp>
 ///
 //--------------------------------------------------------------------------------------------------
 std::set<QString, RimFlowDiagnosticsTools::TracerComp>
-    RimFlowDiagnosticsTools::setOfInjectorTracersFromProducers( RimFlowDiagSolution*        flowSol,
-                                                                const std::vector<QString>& producerTracers,
-                                                                int                         timeStepIndex )
+    RimFlowDiagnosticsTools::setOfInjectorTracersFromProducers( FDS* flowSol, const std::vector<QString>& producerTracers, int timeStepIndex )
 {
     if ( timeStepIndex < 0 ) return {};
 
@@ -178,7 +171,7 @@ std::set<QString, RimFlowDiagnosticsTools::TracerComp>
 ///
 //--------------------------------------------------------------------------------------------------
 std::set<QString, RimFlowDiagnosticsTools::TracerComp>
-    RimFlowDiagnosticsTools::setOfProducerTracersFromInjectors( RimFlowDiagSolution*        flowSol,
+    RimFlowDiagnosticsTools::setOfProducerTracersFromInjectors( FDS*                        flowSol,
                                                                 const std::vector<QString>& injectorTracers,
                                                                 std::vector<int>            timeStepIndices )
 {
@@ -211,9 +204,7 @@ std::set<QString, RimFlowDiagnosticsTools::TracerComp>
 ///
 //--------------------------------------------------------------------------------------------------
 std::set<QString, RimFlowDiagnosticsTools::TracerComp>
-    RimFlowDiagnosticsTools::setOfProducerTracersFromInjectors( RimFlowDiagSolution*        flowSol,
-                                                                const std::vector<QString>& injectorTracers,
-                                                                int                         timeStepIndex )
+    RimFlowDiagnosticsTools::setOfProducerTracersFromInjectors( FDS* flowSol, const std::vector<QString>& injectorTracers, int timeStepIndex )
 {
     if ( timeStepIndex < 0 ) return {};
 

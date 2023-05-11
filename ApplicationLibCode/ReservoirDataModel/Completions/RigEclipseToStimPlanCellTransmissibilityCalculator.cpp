@@ -22,6 +22,7 @@
 #include "RigCaseCellResultsData.h"
 #include "RigCellGeometryTools.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigFractureCell.h"
 #include "RigFractureTransmissibilityEquations.h"
 #include "RigHexIntersectionTools.h"

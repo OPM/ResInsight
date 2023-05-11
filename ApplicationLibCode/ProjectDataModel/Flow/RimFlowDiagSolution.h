@@ -38,9 +38,10 @@ public:
     RimFlowDiagSolution();
     ~RimFlowDiagSolution() override;
 
-    QString              userDescription() const;
-    RigFlowDiagResults*  flowDiagResults();
-    std::vector<QString> tracerNames() const;
+    QString                   userDescription() const;
+    RigFlowDiagResults*       flowDiagResults();
+    const RigFlowDiagResults* flowDiagResults() const;
+    std::vector<QString>      tracerNames() const;
 
     std::map<std::string, std::vector<int>> allInjectorTracerActiveCellIndices( size_t timeStepIndex ) const;
     std::map<std::string, std::vector<int>> allProducerTracerActiveCellIndices( size_t timeStepIndex ) const;

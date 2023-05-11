@@ -20,14 +20,15 @@
 
 #pragma once
 
+#include "RigCaseCellResultsData.h"
+#include "RigEclipseResultAddress.h"
+
 #include "cafAppEnum.h"
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
 #include <array>
-
-#include "RigCaseCellResultsData.h"
 
 class RigCaseCellResultsData;
 class RimEclipseCase;

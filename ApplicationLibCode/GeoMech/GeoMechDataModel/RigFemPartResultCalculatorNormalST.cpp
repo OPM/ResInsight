@@ -108,7 +108,7 @@ RigFemScalarResultFrames* RigFemPartResultCalculatorNormalST::calculate( int par
                         const size_t elmNodResIdx = femPart->elementNodeResultIdx( elmIdx, elmNodIdx );
                         const int    nodeIdx      = femPart->nodeIdxFromElementNodeResultIdx( elmNodResIdx );
                         float        por          = 0.0f;
-                        if ( nodeIdx < srcPORFrameData.size() )
+                        if ( nodeIdx < static_cast<int>( srcPORFrameData.size() ) )
                         {
                             por = srcPORFrameData[nodeIdx];
                             if ( por == inf ) por = 0.0f;

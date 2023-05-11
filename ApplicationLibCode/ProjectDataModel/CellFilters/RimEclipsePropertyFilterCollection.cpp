@@ -20,6 +20,8 @@
 
 #include "RimEclipsePropertyFilterCollection.h"
 
+#include "RiaResultNames.h"
+
 #include "RimEclipseCellColors.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipseResultDefinition.h"

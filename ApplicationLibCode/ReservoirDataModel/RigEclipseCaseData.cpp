@@ -24,6 +24,7 @@
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigEquil.h"
 #include "RigFormationNames.h"
 #include "RigMainGrid.h"

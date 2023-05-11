@@ -27,6 +27,7 @@
 #include "RiaWellLogUnitTools.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigEclipseWellLogExtractor.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigGeoMechCaseData.h"

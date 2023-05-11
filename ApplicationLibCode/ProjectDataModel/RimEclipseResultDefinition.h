@@ -24,6 +24,7 @@
 #include "RiaPorosityModel.h"
 
 #include "RigFlowDiagResultAddress.h"
+
 #include "RimCheckableObject.h"
 #include "RimFlowDiagSolution.h"
 
@@ -36,14 +37,13 @@
 
 #include <limits>
 
-#include "RigCaseCellResultsData.h"
-
 class RigCaseCellResultsData;
 class RimEclipseCase;
 class RimEclipseView;
 class RimReservoirCellResultsStorage;
 class RimRegularLegendConfig;
 class RimTernaryLegendConfig;
+class RigEclipseResultAddress;
 
 //==================================================================================================
 ///
@@ -54,7 +54,7 @@ class RimEclipseResultDefinition : public RimCheckableObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum FlowTracerSelectionType
+    enum class FlowTracerSelectionType
     {
         FLOW_TR_INJ_AND_PROD,
         FLOW_TR_PRODUCERS,
@@ -63,7 +63,7 @@ public:
     };
     using FlowTracerSelectionEnum = caf::AppEnum<RimEclipseResultDefinition::FlowTracerSelectionType>;
 
-    enum FlowTracerSelectionState
+    enum class FlowTracerSelectionState
     {
         NONE_SELECTED,
         ONE_SELECTED,
@@ -139,6 +139,8 @@ public:
     void updateRangesForExplicitLegends( RimRegularLegendConfig* legendConfig, RimTernaryLegendConfig* ternaryLegendConfig, int currentTimeStep );
     void updateLegendTitle( RimRegularLegendConfig* legendConfig, const QString& legendHeading );
 
+    bool showOnlyVisibleCategoriesInLegend() const;
+
 protected:
     virtual void updateLegendCategorySettings(){};
 
@@ -197,13 +199,7 @@ private:
 
     QString flowDiagResUiText( bool shortLabel, int maxTracerStringLength = std::numeric_limits<int>::max() ) const;
 
-    QString timeOfFlightString( bool shorter ) const;
-    QString maxFractionTracerString( bool shorter ) const;
-
-    QString selectedTracersString() const;
-
-    void               changedTracerSelectionField( bool injector );
-    static QStringList getResultNamesForResultType( RiaDefines::ResultCatType resultCatType, const RigCaseCellResultsData* results );
+    void changedTracerSelectionField( bool injector );
 
     FlowTracerSelectionState injectorSelectionState() const;
     FlowTracerSelectionState producerSelectionState() const;
@@ -224,8 +220,6 @@ private:
 
     bool showDerivedResultsFirstInVariableUiField() const;
     bool addPerCellFaceOptionsForVariableUiField() const;
-
-    QString getInputPropertyFileName( const QString& resultName ) const;
 
 private:
     bool                             m_isDeltaResultEnabled;

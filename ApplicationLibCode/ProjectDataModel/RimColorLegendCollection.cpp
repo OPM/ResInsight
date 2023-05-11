@@ -64,7 +64,7 @@ void RimColorLegendCollection::appendCustomColorLegend( RimColorLegend* colorLeg
 //--------------------------------------------------------------------------------------------------
 bool RimColorLegendCollection::isStandardColorLegend( RimColorLegend* legend )
 {
-    for ( auto standardLegend : m_standardColorLegends )
+    for ( const auto& standardLegend : m_standardColorLegends )
     {
         if ( legend == standardLegend ) return true;
     }
@@ -135,7 +135,7 @@ void RimColorLegendCollection::setDefaultColorLegendForResult( int caseId, const
 //--------------------------------------------------------------------------------------------------
 void RimColorLegendCollection::createStandardColorLegends()
 {
-    typedef caf::AppEnum<RimRegularLegendConfig::ColorRangesType> ColorRangeEnum;
+    using ColorRangeEnum = caf::AppEnum<RimRegularLegendConfig::ColorRangesType>;
 
     for ( size_t typeIdx = 0; typeIdx < ColorRangeEnum::size(); typeIdx++ )
     {
@@ -158,14 +158,17 @@ void RimColorLegendCollection::createStandardColorLegends()
                 }
             }
 
-            RimColorLegend* colorLegend = new RimColorLegend;
+            auto* colorLegend = new RimColorLegend;
             colorLegend->setColorLegendName( legendName );
 
             for ( size_t i = 0; i < colorArray.size(); i++ )
             {
                 cvf::Color3f color3f( colorArray[i] );
 
-                RimColorLegendItem* colorLegendItem = new RimColorLegendItem;
+                auto* colorLegendItem = new RimColorLegendItem;
+
+                // Set empty text for color legend items
+                // The text defined is used in RimEclipseResultDefinitionTools::updateCellResultLegend()
                 colorLegendItem->setValues( "", static_cast<int>( i ), color3f );
 
                 colorLegend->appendColorLegendItem( colorLegendItem );
@@ -241,7 +244,7 @@ RimColorLegend* RimColorLegendCollection::findDefaultLegendForResult( int caseId
 //--------------------------------------------------------------------------------------------------
 RimColorLegendItem* RimColorLegendCollection::createColorLegendItem( const QString& name, int r, int g, int b ) const
 {
-    RimColorLegendItem* item = new RimColorLegendItem;
+    auto* item = new RimColorLegendItem;
     item->setValues( name, 0, cvf::Color3f::fromByteColor( r, g, b ) );
     return item;
 }
@@ -251,7 +254,7 @@ RimColorLegendItem* RimColorLegendCollection::createColorLegendItem( const QStri
 //--------------------------------------------------------------------------------------------------
 RimColorLegend* RimColorLegendCollection::createRockTypeColorLegend() const
 {
-    RimColorLegend* colorLegend = new RimColorLegend;
+    auto* colorLegend = new RimColorLegend;
     colorLegend->setColorLegendName( RiaDefines::rockTypeColorLegendName() );
 
     // Rock types colors taken from "Equinor GeoStandard - May 2020" document.
@@ -325,7 +328,7 @@ QString RimColorLegendCollection::createLookupKey( int caseId, const QString& re
 //--------------------------------------------------------------------------------------------------
 void RimColorLegendCollection::initAfterRead()
 {
-    for ( auto legend : m_customColorLegends )
+    for ( const auto& legend : m_customColorLegends )
     {
         legend->addReorderCapability();
     }

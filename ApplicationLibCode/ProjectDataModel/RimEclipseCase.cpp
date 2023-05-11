@@ -680,7 +680,7 @@ RimEclipseContourMapViewCollection* RimEclipseCase::contourMapCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseInputPropertyCollection* RimEclipseCase::inputPropertyCollection()
+RimEclipseInputPropertyCollection* RimEclipseCase::inputPropertyCollection() const
 {
     return m_inputPropertyCollection();
 }

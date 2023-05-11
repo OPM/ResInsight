@@ -19,8 +19,11 @@
 
 #include "RigFlowDiagVisibleCellsStatCalc.h"
 
+#include "RiaResultNames.h"
+
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
+#include "RigEclipseResultAddress.h"
 #include "RigStatisticsMath.h"
 #include "RigWeightedMeanCalc.h"
 
