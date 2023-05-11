@@ -830,8 +830,7 @@ void RiuPlotMainWindow::slotSubWindowActivated( QMdiSubWindow* subWindow )
                 caf::PdmObject* pdmObject = dynamic_cast<caf::PdmObject*>( uiItem );
                 if ( pdmObject )
                 {
-                    std::vector<RimViewWindow*> ancestralViews;
-                    pdmObject->allAncestorsOrThisOfType( ancestralViews );
+                    std::vector<RimViewWindow*> ancestralViews = pdmObject->allAncestorsOrThisOfType<RimViewWindow>();
                     for ( auto ancestralView : ancestralViews )
                     {
                         if ( ancestralView == activatedView )
@@ -909,7 +908,7 @@ void RiuPlotMainWindow::selectedObjectsChanged()
         RimViewWindow* selectedWindow = dynamic_cast<RimViewWindow*>( firstSelectedObject );
         if ( !selectedWindow )
         {
-            firstSelectedObject->firstAncestorOrThisOfType( selectedWindow );
+            selectedWindow = firstSelectedObject->firstAncestorOrThisOfType<RimViewWindow>();
         }
 
         // If we cant find the view window as an MDI sub window, we search higher in the
@@ -918,7 +917,7 @@ void RiuPlotMainWindow::selectedObjectsChanged()
         {
             if ( selectedWindow->parentField() && selectedWindow->parentField()->ownerObject() )
             {
-                selectedWindow->parentField()->ownerObject()->firstAncestorOrThisOfType( selectedWindow );
+                selectedWindow = selectedWindow->parentField()->ownerObject()->firstAncestorOrThisOfType<RimViewWindow>();
             }
         }
 
@@ -935,14 +934,12 @@ void RiuPlotMainWindow::selectedObjectsChanged()
 
             if ( firstSelectedObject )
             {
-                RimSummaryMultiPlot* multiSummaryPlot = nullptr;
-                firstSelectedObject->firstAncestorOrThisOfType( multiSummaryPlot );
+                auto multiSummaryPlot = firstSelectedObject->firstAncestorOrThisOfType<RimSummaryMultiPlot>();
                 if ( multiSummaryPlot )
                 {
                     updateMultiPlotToolBar();
 
-                    RimSummaryPlot* summaryPlot = nullptr;
-                    firstSelectedObject->firstAncestorOrThisOfType( summaryPlot );
+                    auto summaryPlot = firstSelectedObject->firstAncestorOrThisOfType<RimSummaryPlot>();
                     if ( summaryPlot )
                     {
                         multiSummaryPlot->makeSureIsVisible( summaryPlot );

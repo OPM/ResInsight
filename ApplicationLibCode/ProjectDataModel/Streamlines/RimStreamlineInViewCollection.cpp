@@ -435,8 +435,7 @@ void RimStreamlineInViewCollection::updateStreamlines()
     bool bNeedRedraw = ( m_streamlines.size() > 0 );
 
     // get the view
-    RimEclipseView* eclView = nullptr;
-    this->firstAncestorOrThisOfType( eclView );
+    auto eclView = firstAncestorOrThisOfType<RimEclipseView>();
     if ( !eclView ) return;
 
     if ( m_shouldGenerateTracers && isActive() )
@@ -545,8 +544,7 @@ void RimStreamlineInViewCollection::outputSummary() const
 //--------------------------------------------------------------------------------------------------
 void RimStreamlineInViewCollection::initAfterRead()
 {
-    RimEclipseView* eclView = nullptr;
-    this->firstAncestorOrThisOfType( eclView );
+    auto eclView = firstAncestorOrThisOfType<RimEclipseView>();
 
     if ( eclView && m_isActive() ) eclView->requestAnimationTimer();
 }
@@ -657,9 +655,7 @@ void RimStreamlineInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle*
         m_shouldGenerateTracers = true;
     }
 
-    RimEclipseView* eclView = nullptr;
-    this->firstAncestorOrThisOfType( eclView );
-
+    auto eclView = firstAncestorOrThisOfType<RimEclipseView>();
     if ( changedField == &m_isActive )
     {
         if ( eclView )

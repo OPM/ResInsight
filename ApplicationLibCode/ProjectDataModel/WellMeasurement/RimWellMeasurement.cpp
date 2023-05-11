@@ -184,8 +184,7 @@ void RimWellMeasurement::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
     RimProject* proj = RimProject::current();
     proj->scheduleCreateDisplayModelAndRedrawAllViews();
 
-    RimWellMeasurementCollection* wellMeasurementCollection;
-    this->firstAncestorOrThisOfTypeAsserted( wellMeasurementCollection );
+    auto wellMeasurementCollection = firstAncestorOrThisOfTypeAsserted<RimWellMeasurementCollection>();
     wellMeasurementCollection->updateAllCurves();
 }
 
