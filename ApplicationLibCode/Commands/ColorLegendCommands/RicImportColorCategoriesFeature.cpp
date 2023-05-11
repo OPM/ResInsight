@@ -32,6 +32,7 @@
 #include "RiuFileDialogTools.h"
 
 #include "cafSelectionManager.h"
+#include "cafSelectionManagerTools.h"
 
 #include <QAction>
 #include <QFileInfo>
@@ -43,17 +44,7 @@ CAF_CMD_SOURCE_INIT( RicImportColorCategoriesFeature, "RicImportColorCategoriesF
 //--------------------------------------------------------------------------------------------------
 bool RicImportColorCategoriesFeature::isCommandEnabled()
 {
-    RimColorLegendCollection* legendCollection = nullptr;
-
-    caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
-    if ( selObj )
-    {
-        selObj->firstAncestorOrThisOfType( legendCollection );
-    }
-
-    if ( legendCollection ) return true;
-
-    return false;
+    return caf::firstAncestorOfTypeFromSelectedObject<RimColorLegendCollection>() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

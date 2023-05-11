@@ -1159,9 +1159,7 @@ void RicWellPathExportMswCompletionsImpl::createValveCompletions( gsl::not_null<
         {
             if ( !interval->isChecked() ) continue;
 
-            std::vector<const RimWellPathValve*> perforationValves;
-            interval->descendantsIncludingThisOfType( perforationValves );
-
+            auto perforationValves = interval->descendantsIncludingThisOfType<RimWellPathValve>();
             for ( const RimWellPathValve* valve : perforationValves )
             {
                 if ( !valve->isChecked() ) continue;
@@ -1306,10 +1304,8 @@ void RicWellPathExportMswCompletionsImpl::assignValveContributionsToSuperICDsOrA
     {
         if ( !interval->isChecked() ) continue;
 
-        std::vector<const RimWellPathValve*> perforationValves;
-        interval->descendantsIncludingThisOfType( perforationValves );
-
-        double totalPerforationLength = 0.0;
+        std::vector<const RimWellPathValve*> perforationValves      = interval->descendantsIncludingThisOfType<const RimWellPathValve>();
+        double                               totalPerforationLength = 0.0;
         for ( const RimWellPathValve* valve : perforationValves )
         {
             if ( !valve->isChecked() ) continue;
@@ -1409,8 +1405,7 @@ void RicWellPathExportMswCompletionsImpl::moveIntersectionsToICVs( gsl::not_null
         {
             if ( !interval->isChecked() ) continue;
 
-            std::vector<const RimWellPathValve*> perforationValves;
-            interval->descendantsIncludingThisOfType( perforationValves );
+            std::vector<const RimWellPathValve*> perforationValves = interval->descendantsIncludingThisOfType<const RimWellPathValve>();
 
             for ( const RimWellPathValve* valve : perforationValves )
             {

@@ -97,24 +97,20 @@ void RicShowCumulativePhasePlotFeature::setupActionLook( QAction* actionToSetup 
 //--------------------------------------------------------------------------------------------------
 RimEclipseResultCase* RicShowCumulativePhasePlotFeature::getDataFromSimWell( RimSimWellInView* simWell, QString& wellName, int& timeStepIndex )
 {
-    RimEclipseResultCase* resultCase = nullptr;
-
     if ( simWell )
     {
         wellName = simWell->name();
 
-        RimEclipseView* eclView = nullptr;
-        simWell->firstAncestorOfType( eclView );
-
+        auto eclView = simWell->firstAncestorOfType<RimEclipseView>();
         if ( eclView )
         {
             timeStepIndex = eclView->currentTimeStep();
         }
 
-        simWell->firstAncestorOfType( resultCase );
+        return simWell->firstAncestorOfType<RimEclipseResultCase>();
     }
 
-    return resultCase;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

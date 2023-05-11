@@ -37,8 +37,7 @@ private:
     template <typename T>
     static QString nameForNewObject( const QString& namePattern )
     {
-        std::vector<T*> oldObjects;
-        RimProject::current()->activeOilField()->descendantsIncludingThisOfType( oldObjects );
+        std::vector<T*> oldObjects = RimProject::current()->activeOilField()->descendantsIncludingThisOfType<T>();
 
         size_t objectNum = oldObjects.size();
 

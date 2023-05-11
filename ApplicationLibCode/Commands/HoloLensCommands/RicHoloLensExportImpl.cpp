@@ -61,8 +61,7 @@ std::vector<VdeExportPart> RicHoloLensExportImpl::partsForExport( const RimGridV
 {
     std::vector<VdeExportPart> exportParts;
 
-    RimEclipseCase* rimEclipseCase = nullptr;
-    view.firstAncestorOrThisOfType( rimEclipseCase );
+    RimEclipseCase* rimEclipseCase = view.firstAncestorOrThisOfType<RimEclipseCase>();
 
     if ( view.viewer() )
     {

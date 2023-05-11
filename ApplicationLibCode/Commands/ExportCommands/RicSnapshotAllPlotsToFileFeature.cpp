@@ -86,9 +86,7 @@ void RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( const QS
 
     const QString absSnapshotPath = snapshotPath.absolutePath();
 
-    std::vector<RimViewWindow*> viewWindows;
-    RimMainPlotCollection::current()->descendantsIncludingThisOfType( viewWindows );
-
+    std::vector<RimViewWindow*> viewWindows = RimMainPlotCollection::current()->descendantsIncludingThisOfType<RimViewWindow>();
     for ( auto viewWindow : viewWindows )
     {
         if ( viewWindow->isMdiWindow() && viewWindow->viewWidget() && ( viewId == -1 || viewId == viewWindow->id() ) )

@@ -258,9 +258,8 @@ void RicImportSummaryCasesFeature::addCasesToGroupIfRelevant( const std::vector<
 
     if ( selectedColl.size() == 1 )
     {
-        RimSummaryCaseCollection*     coll = selectedColl.front();
-        RimSummaryCaseMainCollection* mainColl;
-        coll->firstAncestorOrThisOfType( mainColl );
+        RimSummaryCaseCollection*     coll     = selectedColl.front();
+        RimSummaryCaseMainCollection* mainColl = coll->firstAncestorOrThisOfType<RimSummaryCaseMainCollection>();
 
         if ( mainColl )
         {

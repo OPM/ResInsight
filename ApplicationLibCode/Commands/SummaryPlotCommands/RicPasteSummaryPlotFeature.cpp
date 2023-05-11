@@ -42,7 +42,7 @@ CAF_CMD_SOURCE_INIT( RicPasteSummaryPlotFeature, "RicPasteSummaryPlotFeature" );
 //--------------------------------------------------------------------------------------------------
 void RicPasteSummaryPlotFeature::copyPlotAndAddToCollection( RimSummaryPlot* sourcePlot )
 {
-    auto multiPlot = caf::firstAncestorOfTypeFromSelectedObject<RimMultiPlot*>();
+    auto multiPlot = caf::firstAncestorOfTypeFromSelectedObject<RimMultiPlot>();
     if ( multiPlot )
     {
         auto plots = RicSummaryPlotBuilder::duplicatePlots( { sourcePlot } );
@@ -66,7 +66,7 @@ bool RicPasteSummaryPlotFeature::isCommandEnabled()
 
     if ( !destinationObject ) return false;
 
-    auto multiPlot = caf::firstAncestorOfTypeFromSelectedObject<RimMultiPlot*>();
+    auto multiPlot = caf::firstAncestorOfTypeFromSelectedObject<RimMultiPlot>();
     if ( !multiPlot ) return false;
 
     return RicPasteSummaryPlotFeature::summaryPlots().size() > 0;

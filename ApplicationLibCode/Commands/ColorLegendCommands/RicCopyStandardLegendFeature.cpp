@@ -23,6 +23,7 @@
 #include "RimProject.h"
 
 #include "cafSelectionManager.h"
+#include "cafSelectionManagerTools.h"
 
 #include "Riu3DMainWindowTools.h"
 
@@ -79,14 +80,5 @@ void RicCopyStandardLegendFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 RimColorLegend* RicCopyStandardLegendFeature::selectedColorLegend()
 {
-    caf::PdmObject* selectedObject = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
-
-    if ( !selectedObject ) return nullptr;
-
-    RimColorLegend* colorLegend = nullptr;
-
-    selectedObject->firstAncestorOrThisOfType( colorLegend );
-    if ( colorLegend ) return colorLegend;
-
-    return nullptr;
+    return caf::firstAncestorOfTypeFromSelectedObject<RimColorLegend>();
 }

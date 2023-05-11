@@ -62,7 +62,7 @@ void RicNewOptionItemFeature::onActionTriggered( bool isChecked )
         if ( !optionItems.empty() )
         {
             selectedOptionItem = optionItems.front();
-            selectedOptionItem->firstAncestorOrThisOfTypeAsserted( multipleFractionUi );
+            multipleFractionUi = selectedOptionItem->firstAncestorOrThisOfTypeAsserted<RiuCreateMultipleFractionsUi>();
         }
 
         if ( !selectedOptionItem && multipleFractionUi && !multipleFractionUi->options().empty() )

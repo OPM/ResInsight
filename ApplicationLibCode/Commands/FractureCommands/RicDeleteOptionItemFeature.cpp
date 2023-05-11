@@ -37,8 +37,7 @@ void RicDeleteOptionItemFeature::onActionTriggered( bool isChecked )
 
     if ( !optionItems.empty() )
     {
-        RiuCreateMultipleFractionsUi* multipleFractionUi = nullptr;
-        optionItems[0]->firstAncestorOrThisOfTypeAsserted( multipleFractionUi );
+        RiuCreateMultipleFractionsUi* multipleFractionUi = optionItems[0]->firstAncestorOrThisOfTypeAsserted<RiuCreateMultipleFractionsUi>();
 
         for ( auto optionItem : optionItems )
         {

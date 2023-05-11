@@ -552,8 +552,7 @@ QString RicWellPathFractureTextReportFeatureImpl::createFractureInstancesText( c
 
         QString wellName;
 
-        RimWellPath* wellPath = nullptr;
-        fracture->firstAncestorOrThisOfType( wellPath );
+        auto wellPath = fracture->firstAncestorOrThisOfType<RimWellPath>();
         if ( wellPath )
         {
             wellName = wellPath->completionSettings()->wellNameForExport();

@@ -116,8 +116,7 @@ void RicDeleteSummaryCaseCollectionFeature::onActionTriggered( bool isChecked )
         }
     }
 
-    RimSummaryCaseMainCollection* summaryCaseMainCollection = nullptr;
-    selection[0]->firstAncestorOrThisOfTypeAsserted( summaryCaseMainCollection );
+    RimSummaryCaseMainCollection* summaryCaseMainCollection = selection[0]->firstAncestorOrThisOfTypeAsserted<RimSummaryCaseMainCollection>();
 
     for ( RimSummaryCaseCollection* caseCollection : selection )
     {
@@ -146,8 +145,7 @@ void RicDeleteSummaryCaseCollectionFeature::moveAllCasesToMainSummaryCollection(
     std::vector<RimSummaryCase*> summaryCases = summaryCaseCollection->allSummaryCases();
     if ( summaryCases.size() == 0 ) return;
 
-    RimSummaryCaseMainCollection* summaryCaseMainCollection = nullptr;
-    summaryCaseCollection->firstAncestorOrThisOfType( summaryCaseMainCollection );
+    RimSummaryCaseMainCollection* summaryCaseMainCollection = summaryCaseCollection->firstAncestorOrThisOfType<RimSummaryCaseMainCollection>();
 
     for ( RimSummaryCase* summaryCase : summaryCases )
     {

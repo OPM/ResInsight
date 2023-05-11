@@ -116,8 +116,7 @@ void RicExportObjectAndFieldKeywordsFeature::exportObjectAndFieldKeywords( const
 
         stream << "\n";
 
-        std::vector<caf::PdmFieldHandle*> fields;
-        myClass->fields( fields );
+        std::vector<caf::PdmFieldHandle*> fields = myClass->fields();
 
         for ( auto f : fields )
         {

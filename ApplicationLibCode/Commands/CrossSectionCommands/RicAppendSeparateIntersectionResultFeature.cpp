@@ -49,8 +49,8 @@ void RicAppendSeparateIntersectionResultFeature::onActionTriggered( bool isCheck
     caf::SelectionManager::instance()->objectsByType( &collection );
     CVF_ASSERT( collection.size() == 1 );
 
-    RimIntersectionResultsDefinitionCollection* intersectionResCollection = nullptr;
-    collection[0]->firstAncestorOrThisOfType( intersectionResCollection );
+    RimIntersectionResultsDefinitionCollection* intersectionResCollection =
+        collection[0]->firstAncestorOrThisOfType<RimIntersectionResultsDefinitionCollection>();
 
     CVF_ASSERT( intersectionResCollection );
 

@@ -1641,15 +1641,13 @@ std::pair<double, cvf::Vec2i>
 //--------------------------------------------------------------------------------------------------
 RimWellPath* RicWellPathExportCompletionDataFeatureImpl::topLevelWellPath( const RigCompletionData& completion )
 {
-    RimWellPath* parentWellPath = nullptr;
     if ( completion.sourcePdmObject() )
     {
-        completion.sourcePdmObject()->firstAncestorOrThisOfType( parentWellPath );
-    }
-
-    if ( parentWellPath )
-    {
-        return parentWellPath->topLevelWellPath();
+        auto parentWellPath = completion.sourcePdmObject()->firstAncestorOrThisOfType<RimWellPath>();
+        if ( parentWellPath )
+        {
+            return parentWellPath->topLevelWellPath();
+        }
     }
 
     return nullptr;

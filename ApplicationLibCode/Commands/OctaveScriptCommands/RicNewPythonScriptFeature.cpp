@@ -69,7 +69,7 @@ void RicNewPythonScriptFeature::onActionTriggered( bool isChecked )
     {
         QFileInfo existingScriptFileInfo( calcScript->absoluteFileName() );
         fullPathNewScript = existingScriptFileInfo.absolutePath();
-        calcScript->firstAncestorOrThisOfTypeAsserted( scriptColl );
+        scriptColl        = calcScript->firstAncestorOrThisOfTypeAsserted<RimScriptCollection>();
     }
     else if ( scriptColl )
     {

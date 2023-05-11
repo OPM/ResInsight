@@ -90,8 +90,7 @@ bool RicWellPathPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& event
                             auto wellPathSourceCandidate = dynamic_cast<const RivWellPathSourceInfo*>( secondPickedPart->sourceInfo() );
                             if ( wellPathSourceCandidate )
                             {
-                                RimWellPath* perforationWellPath = nullptr;
-                                objectToSelect->firstAncestorOrThisOfType( perforationWellPath );
+                                auto perforationWellPath = objectToSelect->firstAncestorOrThisOfType<RimWellPath>();
                                 if ( perforationWellPath == wellPathSourceCandidate->wellPath() )
                                 {
                                     wellPathSourceInfo    = dynamic_cast<const RivWellPathSourceInfo*>( secondPickedPart->sourceInfo() );
@@ -103,9 +102,8 @@ bool RicWellPathPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& event
                 }
                 else if ( dynamic_cast<RimWellPathValve*>( sourceInfo->object() ) )
                 {
-                    objectToSelect        = sourceInfo->object();
-                    RimWellPath* wellPath = nullptr;
-                    objectToSelect->firstAncestorOrThisOfType( wellPath );
+                    objectToSelect = sourceInfo->object();
+                    auto wellPath  = objectToSelect->firstAncestorOrThisOfType<RimWellPath>();
 
                     RimWellPathValve* valve = static_cast<RimWellPathValve*>( sourceInfo->object() );
 
@@ -119,12 +117,11 @@ bool RicWellPathPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& event
                 }
                 else if ( dynamic_cast<RimWellPathAttribute*>( sourceInfo->object() ) )
                 {
-                    RimWellPath* wellPath = nullptr;
+                    RimWellPathAttribute*           attribute = static_cast<RimWellPathAttribute*>( sourceInfo->object() );
+                    RimWellPathAttributeCollection* collection =
+                        attribute->firstAncestorOrThisOfTypeAsserted<RimWellPathAttributeCollection>();
 
-                    RimWellPathAttribute*           attribute  = static_cast<RimWellPathAttribute*>( sourceInfo->object() );
-                    RimWellPathAttributeCollection* collection = nullptr;
-                    attribute->firstAncestorOrThisOfTypeAsserted( collection );
-                    collection->firstAncestorOrThisOfTypeAsserted( wellPath );
+                    RimWellPath* wellPath = collection->firstAncestorOrThisOfTypeAsserted<RimWellPath>();
 
                     QString attrText =
                         QString( "Well Path: %1\nCasing Design Attribute: %2" ).arg( wellPath->name() ).arg( attribute->componentLabel() );
@@ -134,9 +131,8 @@ bool RicWellPathPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& event
                 }
                 else if ( dynamic_cast<RimWellMeasurement*>( sourceInfo->object() ) )
                 {
-                    RimWellMeasurement*           measurement = dynamic_cast<RimWellMeasurement*>( sourceInfo->object() );
-                    RimWellMeasurementCollection* collection  = nullptr;
-                    measurement->firstAncestorOrThisOfTypeAsserted( collection );
+                    RimWellMeasurement* measurement = dynamic_cast<RimWellMeasurement*>( sourceInfo->object() );
+                    RimWellMeasurementCollection* collection = measurement->firstAncestorOrThisOfTypeAsserted<RimWellMeasurementCollection>();
 
                     QString measurementText = QString( "Well path name: %1\n" ).arg( measurement->wellName() );
                     measurementText += QString( "Measured Depth: %1\n" ).arg( measurement->MD() );
@@ -164,8 +160,7 @@ bool RicWellPathPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& event
                     if ( rimView )
                     {
                         // Find the RimWellMeasurementInView which matches the selection
-                        std::vector<RimWellMeasurementInViewCollection*> wellMeasurementInViewCollections;
-                        rimView->descendantsIncludingThisOfType( wellMeasurementInViewCollections );
+                        auto wellMeasurementInViewCollections = rimView->descendantsIncludingThisOfType<RimWellMeasurementInViewCollection>();
                         if ( !wellMeasurementInViewCollections.empty() )
                         {
                             RimWellMeasurementInView* wellMeasurementInView =

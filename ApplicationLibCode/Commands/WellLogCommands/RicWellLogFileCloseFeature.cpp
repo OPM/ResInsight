@@ -55,9 +55,7 @@ void RicWellLogFileCloseFeature::onActionTriggered( bool isChecked )
 
     for ( const auto& wellLogFile : objects )
     {
-        RimWellPath* parentWellPath;
-        wellLogFile->firstAncestorOrThisOfType( parentWellPath );
-
+        RimWellPath* parentWellPath = wellLogFile->firstAncestorOrThisOfType<RimWellPath>();
         if ( parentWellPath )
         {
             std::set<RimViewWindow*> referringPlots = referringWellLogPlots( wellLogFile );
@@ -90,21 +88,15 @@ void RicWellLogFileCloseFeature::setupActionLook( QAction* actionToSetup )
 std::set<RimViewWindow*> RicWellLogFileCloseFeature::referringWellLogPlots( const RimWellLogFile* wellLogFile )
 {
     // Remove all curves displaying data from the specified wellLogFile
-    std::vector<caf::PdmObjectHandle*> referringObjects;
-    wellLogFile->objectsWithReferringPtrFields( referringObjects );
+    std::vector<caf::PdmObjectHandle*> referringObjects = wellLogFile->objectsWithReferringPtrFields();
 
     std::set<RimViewWindow*> plots;
     for ( const auto& obj : referringObjects )
     {
-        RimWellAllocationPlot* allocationPlot;
-        RimWellPltPlot*        pltPlot;
-        RimWellRftPlot*        rftPlot;
-        RimWellLogPlot*        wellLogPlot;
-
-        obj->firstAncestorOrThisOfType( allocationPlot );
-        obj->firstAncestorOrThisOfType( pltPlot );
-        obj->firstAncestorOrThisOfType( rftPlot );
-        obj->firstAncestorOrThisOfType( wellLogPlot );
+        RimWellAllocationPlot* allocationPlot = obj->firstAncestorOrThisOfType<RimWellAllocationPlot>();
+        RimWellPltPlot*        pltPlot        = obj->firstAncestorOrThisOfType<RimWellPltPlot>();
+        RimWellRftPlot*        rftPlot        = obj->firstAncestorOrThisOfType<RimWellRftPlot>();
+        RimWellLogPlot*        wellLogPlot    = obj->firstAncestorOrThisOfType<RimWellLogPlot>();
 
         RimViewWindow* plot = allocationPlot ? dynamic_cast<RimViewWindow*>( allocationPlot )
                               : pltPlot      ? dynamic_cast<RimViewWindow*>( pltPlot )

@@ -45,8 +45,7 @@ bool RicPasteTimeHistoryCurveFeature::isCommandEnabled()
         return false;
     }
 
-    RimSummaryPlot* summaryPlot = nullptr;
-    destinationObject->firstAncestorOrThisOfType( summaryPlot );
+    auto summaryPlot = destinationObject->firstAncestorOrThisOfType<RimSummaryPlot>();
     if ( !summaryPlot )
     {
         return false;
@@ -63,8 +62,7 @@ void RicPasteTimeHistoryCurveFeature::onActionTriggered( bool isChecked )
     caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
     CVF_ASSERT( destinationObject );
 
-    RimSummaryPlot* summaryPlot = nullptr;
-    destinationObject->firstAncestorOrThisOfType( summaryPlot );
+    auto summaryPlot = destinationObject->firstAncestorOrThisOfType<RimSummaryPlot>();
     if ( !summaryPlot )
     {
         return;

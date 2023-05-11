@@ -108,9 +108,7 @@ RimSummaryCaseMainCollection* RicNewDerivedSummaryFeature::mainCollection()
     auto sumCases = twoSelectedSummaryCases();
     if ( !sumCases.empty() )
     {
-        RimSummaryCaseMainCollection* mainColl = nullptr;
-        sumCases.front()->firstAncestorOfType( mainColl );
-        return mainColl;
+        return sumCases.front()->firstAncestorOfType<RimSummaryCaseMainCollection>();
     }
 
     return nullptr;

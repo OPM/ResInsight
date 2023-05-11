@@ -83,20 +83,18 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered( bool isChecked )
 
     fracture->setClosestWellCoord( simWellItem->m_domainCoord, simWellItem->m_branchIndex );
 
-    RimOilField* oilfield = nullptr;
-    simWell->firstAncestorOrThisOfType( oilfield );
+    RimOilField* oilfield = RimProject::current()->activeOilField();
     if ( !oilfield ) return;
 
     std::vector<RimFracture*> oldFractures;
-    oilfield->descendantsIncludingThisOfType( oldFractures );
+    oilfield->descendantsIncludingThisOfType<RimFracture>();
     QString fracNum = QString( "%1" ).arg( oldFractures.size(), 2, 10, QChar( '0' ) );
 
     fracture->setName( QString( "Fracture_" ) + fracNum );
 
     auto unitSet = RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
     {
-        RimEclipseResultCase* eclipseCase = nullptr;
-        simWell->firstAncestorOrThisOfType( eclipseCase );
+        RimEclipseResultCase* eclipseCase = simWell->firstAncestorOrThisOfType<RimEclipseResultCase>();
         if ( eclipseCase )
         {
             unitSet = eclipseCase->eclipseCaseData()->unitsType();
@@ -112,8 +110,7 @@ void RicNewSimWellFractureAtPosFeature::onActionTriggered( bool isChecked )
 
     activeView->scheduleCreateDisplayModelAndRedraw();
 
-    RimEclipseCase* eclipseCase = nullptr;
-    simWell->firstAncestorOrThisOfType( eclipseCase );
+    auto eclipseCase = simWell->firstAncestorOrThisOfType<RimEclipseCase>();
     if ( eclipseCase )
     {
         proj->reloadCompletionTypeResultsForEclipseCase( eclipseCase );
@@ -142,9 +139,7 @@ bool RicNewSimWellFractureAtPosFeature::isCommandEnabled()
     auto objHandle = caf::SelectionManager::instance()->selectedItemOfType<caf::PdmObjectHandle>();
     if ( !objHandle ) return false;
 
-    RimSimWellInView* eclipseWell = nullptr;
-    objHandle->firstAncestorOrThisOfType( eclipseWell );
-
+    RimSimWellInView* eclipseWell = objHandle->firstAncestorOrThisOfType<RimSimWellInView>();
     if ( eclipseWell )
     {
         return true;

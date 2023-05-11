@@ -48,9 +48,7 @@ void RicExportFishbonesLateralsFeature::onActionTriggered( bool isChecked )
     RimFishbonesCollection* fishbonesCollection = selectedFishbonesCollection();
     CVF_ASSERT( fishbonesCollection );
 
-    RimWellPath* wellPath = nullptr;
-    fishbonesCollection->firstAncestorOrThisOfType( wellPath );
-    CVF_ASSERT( wellPath );
+    auto wellPath = fishbonesCollection->firstAncestorOrThisOfTypeAsserted<RimWellPath>();
 
     auto fileName = caf::Utils::makeValidFileBasename( wellPath->name() ) + "_laterals.dev";
 
@@ -109,17 +107,15 @@ void RicExportFishbonesLateralsFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 RimFishbonesCollection* RicExportFishbonesLateralsFeature::selectedFishbonesCollection()
 {
-    RimFishbonesCollection* objToFind = nullptr;
-
     caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
 
     caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>( pdmUiItem );
     if ( objHandle )
     {
-        objHandle->firstAncestorOrThisOfType( objToFind );
+        return objHandle->firstAncestorOrThisOfType<RimFishbonesCollection>();
     }
 
-    return objToFind;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

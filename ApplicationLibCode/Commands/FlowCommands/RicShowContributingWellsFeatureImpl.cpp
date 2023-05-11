@@ -83,8 +83,7 @@ void RicShowContributingWellsFeatureImpl::modifyViewToShowContributingWells( Rim
     CVF_ASSERT( selectedWell );
     if ( !selectedWell ) return;
 
-    RimEclipseResultCase* eclipseResultCase = nullptr;
-    selectedWell->firstAncestorOrThisOfTypeAsserted( eclipseResultCase );
+    RimEclipseResultCase* eclipseResultCase = selectedWell->firstAncestorOrThisOfTypeAsserted<RimEclipseResultCase>();
 
     // Use the active flow diag solutions, or the first one as default
     RimFlowDiagSolution* flowDiagSolution = viewToModify->cellResult()->flowDiagSolution();

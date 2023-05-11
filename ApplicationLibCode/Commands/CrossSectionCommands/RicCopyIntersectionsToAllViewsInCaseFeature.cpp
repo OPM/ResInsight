@@ -71,7 +71,7 @@ void RicCopyIntersectionsToAllViewsInCaseFeature::onActionTriggered( bool isChec
     std::vector<caf::PdmUiItem*> selItems;
     caf::SelectionManager::instance()->selectedItems( selItems );
     caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>( selItems.front() );
-    if ( objHandle ) objHandle->firstAncestorOrThisOfType( gridCase );
+    if ( objHandle ) gridCase = objHandle->firstAncestorOrThisOfType<RimCase>();
 
     if ( gridCase )
     {
@@ -117,8 +117,7 @@ void RicCopyIntersectionsToAllViewsInCaseFeature::copyIntersectionsToOtherViews(
         for ( Rim3dView* const view : gridCase.views() )
         {
             RimGridView* currGridView = dynamic_cast<RimGridView*>( view );
-            RimGridView* parentView   = nullptr;
-            intersection->firstAncestorOrThisOfType( parentView );
+            RimGridView* parentView   = intersection->firstAncestorOrThisOfType<RimGridView>();
 
             if ( currGridView && parentView != nullptr && parentView != currGridView )
             {
@@ -149,8 +148,7 @@ void RicCopyIntersectionsToAllViewsInCaseFeature::copyIntersectionBoxesToOtherVi
         for ( Rim3dView* const view : gridCase.views() )
         {
             RimGridView* currGridView = dynamic_cast<RimGridView*>( view );
-            RimGridView* parentView   = nullptr;
-            intersectionBox->firstAncestorOrThisOfType( parentView );
+            RimGridView* parentView   = intersectionBox->firstAncestorOrThisOfType<RimGridView>();
 
             if ( currGridView && parentView != nullptr && parentView != currGridView )
             {
@@ -238,8 +236,7 @@ RimCase* commonGridCase( std::vector<caf::PdmUiItem*> selectedItems )
             continue;
         }
 
-        RimCase* itemCase = nullptr;
-        obj->firstAncestorOrThisOfType( itemCase );
+        RimCase* itemCase = obj->firstAncestorOrThisOfType<RimCase>();
 
         if ( gridCase == nullptr )
             gridCase = itemCase;

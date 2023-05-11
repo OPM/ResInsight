@@ -50,22 +50,19 @@ bool RicPasteWellLogCurveFeature::isCommandEnabled()
     auto* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
     if ( !destinationObject ) return false;
 
-    RimWellLogTrack* wellLogTrack = nullptr;
-    destinationObject->firstAncestorOrThisOfType( wellLogTrack );
+    RimWellLogTrack* wellLogTrack = destinationObject->firstAncestorOrThisOfType<RimWellLogTrack>();
     if ( !wellLogTrack )
     {
         return false;
     }
 
-    RimWellBoreStabilityPlot* wbsPlotToPasteInto = nullptr;
-    wellLogTrack->firstAncestorOrThisOfType( wbsPlotToPasteInto );
+    RimWellBoreStabilityPlot* wbsPlotToPasteInto = wellLogTrack->firstAncestorOrThisOfType<RimWellBoreStabilityPlot>();
 
     std::vector<caf::PdmPointer<RimWellLogCurve>> sourceObjects = RicPasteWellLogCurveFeature::curves();
 
     for ( const auto& sourceObject : sourceObjects )
     {
-        RimWellBoreStabilityPlot* originalWbsPlot = nullptr;
-        sourceObject->firstAncestorOrThisOfType( originalWbsPlot );
+        RimWellBoreStabilityPlot* originalWbsPlot = sourceObject->firstAncestorOrThisOfType<RimWellBoreStabilityPlot>();
         if ( originalWbsPlot && originalWbsPlot != wbsPlotToPasteInto )
         {
             return false;
@@ -84,22 +81,19 @@ void RicPasteWellLogCurveFeature::onActionTriggered( bool isChecked )
     auto* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
     if ( !destinationObject ) return;
 
-    RimWellLogTrack* wellLogTrack = nullptr;
-    destinationObject->firstAncestorOrThisOfType( wellLogTrack );
+    RimWellLogTrack* wellLogTrack = destinationObject->firstAncestorOrThisOfType<RimWellLogTrack>();
     if ( !wellLogTrack )
     {
         return;
     }
 
-    RimWellBoreStabilityPlot* wbsPlotToPasteInto = nullptr;
-    wellLogTrack->firstAncestorOrThisOfType( wbsPlotToPasteInto );
+    RimWellBoreStabilityPlot* wbsPlotToPasteInto = wellLogTrack->firstAncestorOrThisOfType<RimWellBoreStabilityPlot>();
 
     std::vector<caf::PdmPointer<RimWellLogCurve>> sourceObjects = RicPasteWellLogCurveFeature::curves();
 
     for ( const auto& sourceObject : sourceObjects )
     {
-        RimWellBoreStabilityPlot* originalWbsPlot = nullptr;
-        sourceObject->firstAncestorOrThisOfType( originalWbsPlot );
+        RimWellBoreStabilityPlot* originalWbsPlot = sourceObject->firstAncestorOrThisOfType<RimWellBoreStabilityPlot>();
         if ( originalWbsPlot && originalWbsPlot != wbsPlotToPasteInto )
         {
             continue;

@@ -28,6 +28,7 @@
 #include "cafPdmObjectGroup.h"
 #include "cafPdmObjectHandle.h"
 #include "cafSelectionManager.h"
+#include "cafSelectionManagerTools.h"
 
 #include "cvfAssert.h"
 
@@ -42,13 +43,8 @@ bool RicPasteWellLogTrackFeature::isCommandEnabled()
 {
     if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return false;
 
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
-    if ( !destinationObject ) return false;
-
-    RimWellLogPlot* wellLogPlot = nullptr;
-    RimWellRftPlot* rftPlot     = nullptr;
-    destinationObject->firstAncestorOrThisOfType( wellLogPlot );
-    destinationObject->firstAncestorOrThisOfType( rftPlot );
+    RimWellLogPlot* wellLogPlot = caf::firstAncestorOfTypeFromSelectedObject<RimWellLogPlot>();
+    RimWellRftPlot* rftPlot     = caf::firstAncestorOfTypeFromSelectedObject<RimWellRftPlot>();
     if ( !wellLogPlot || rftPlot )
     {
         return false;

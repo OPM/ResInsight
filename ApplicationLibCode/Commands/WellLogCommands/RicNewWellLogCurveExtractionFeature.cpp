@@ -79,16 +79,15 @@ void RicNewWellLogCurveExtractionFeature::onActionTriggered( bool isChecked )
     }
     else
     {
-        RimWellPath*                wellPath           = caf::SelectionManager::instance()->selectedItemOfType<RimWellPath>();
-        int                         branchIndex        = -1;
-        RimSimWellInView*           simWell            = RicWellLogTools::selectedSimulationWell( &branchIndex );
-        Rim3dView*                  view               = RiaApplication::instance()->activeMainOrComparisonGridView();
-        bool                        useBranchDetection = true;
-        RimSimWellInViewCollection* simWellColl        = nullptr;
+        RimWellPath*      wellPath           = caf::SelectionManager::instance()->selectedItemOfType<RimWellPath>();
+        int               branchIndex        = -1;
+        RimSimWellInView* simWell            = RicWellLogTools::selectedSimulationWell( &branchIndex );
+        Rim3dView*        view               = RiaApplication::instance()->activeMainOrComparisonGridView();
+        bool              useBranchDetection = true;
         if ( simWell )
         {
-            simWell->firstAncestorOrThisOfTypeAsserted( simWellColl );
-            useBranchDetection = simWellColl->isAutoDetectingBranches;
+            RimSimWellInViewCollection* simWellColl = simWell->firstAncestorOrThisOfTypeAsserted<RimSimWellInViewCollection>();
+            useBranchDetection                      = simWellColl->isAutoDetectingBranches;
         }
 
         if ( wellPath || simWell )

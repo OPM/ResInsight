@@ -3,6 +3,7 @@
 
 #include "RimPerforationInterval.h"
 #include "RimProject.h"
+#include "RimTools.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathValve.h"
 
@@ -35,8 +36,7 @@ void RicNewValveFeature::onActionTriggered( bool isChecked )
     {
         RimWellPathValve* valve = new RimWellPathValve;
 
-        RimProject* project = nullptr;
-        perfInterval->firstAncestorOrThisOfTypeAsserted( project );
+        RimProject* project = RimProject::current();
 
         std::vector<RimWellPathValve*> existingValves = perfInterval->valves();
         valve->setName( QString( "Valve #%1" ).arg( existingValves.size() + 1 ) );
@@ -50,8 +50,7 @@ void RicNewValveFeature::onActionTriggered( bool isChecked )
         perfInterval->addValve( valve );
         valve->setMeasuredDepthAndCount( perfInterval->startMD(), perfInterval->endMD() - perfInterval->startMD(), 1 );
 
-        RimWellPathCollection* wellPathCollection = nullptr;
-        perfInterval->firstAncestorOrThisOfType( wellPathCollection );
+        RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
         if ( !wellPathCollection ) return;
 
         wellPathCollection->uiCapability()->updateConnectedEditors();

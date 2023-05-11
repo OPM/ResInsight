@@ -28,6 +28,7 @@
 #include "RimWellRftPlot.h"
 
 #include "cafSelectionManager.h"
+#include "cafSelectionManagerTools.h"
 
 #include <QColor>
 
@@ -58,8 +59,7 @@ std::vector<RimWellLogCurve*> RicWellLogPlotCurveFeatureImpl::selectedWellLogCur
             caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>( selectedItem );
             if ( objHandle )
             {
-                std::vector<RimWellLogTrack*> childTracks;
-                objHandle->descendantsIncludingThisOfType( childTracks );
+                std::vector<RimWellLogTrack*> childTracks = objHandle->descendantsIncludingThisOfType<RimWellLogTrack>();
                 for ( auto track : childTracks )
                 {
                     if ( track->showWindow() )
@@ -86,13 +86,7 @@ std::vector<RimWellLogCurve*> RicWellLogPlotCurveFeatureImpl::selectedWellLogCur
 //--------------------------------------------------------------------------------------------------
 RimWellAllocationPlot* RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot()
 {
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
-    if ( !destinationObject ) return nullptr;
-
-    RimWellAllocationPlot* wellAllocationPlot = nullptr;
-    destinationObject->firstAncestorOrThisOfType( wellAllocationPlot );
-
-    return wellAllocationPlot;
+    return caf::firstAncestorOfTypeFromSelectedObject<RimWellAllocationPlot>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,13 +94,7 @@ RimWellAllocationPlot* RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot(
 //--------------------------------------------------------------------------------------------------
 RimWellRftPlot* RicWellLogPlotCurveFeatureImpl::parentWellRftPlot()
 {
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
-    if ( !destinationObject ) return nullptr;
-
-    RimWellRftPlot* wellRftPlot = nullptr;
-    destinationObject->firstAncestorOrThisOfType( wellRftPlot );
-
-    return wellRftPlot;
+    return caf::firstAncestorOfTypeFromSelectedObject<RimWellRftPlot>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -114,11 +102,5 @@ RimWellRftPlot* RicWellLogPlotCurveFeatureImpl::parentWellRftPlot()
 //--------------------------------------------------------------------------------------------------
 RimWellBoreStabilityPlot* RicWellLogPlotCurveFeatureImpl::parentWellBoreStabilityPlot()
 {
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
-    if ( !destinationObject ) return nullptr;
-
-    RimWellBoreStabilityPlot* wbsPlot = nullptr;
-    destinationObject->firstAncestorOrThisOfType( wbsPlot );
-
-    return wbsPlot;
+    return caf::firstAncestorOfTypeFromSelectedObject<RimWellBoreStabilityPlot>();
 }

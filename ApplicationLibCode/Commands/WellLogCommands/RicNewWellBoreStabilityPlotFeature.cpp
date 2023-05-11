@@ -35,6 +35,7 @@
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"
 #include "RimProject.h"
+#include "RimTools.h"
 #include "RimWellBoreStabilityPlot.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogFile.h"
@@ -154,10 +155,8 @@ void RicNewWellBoreStabilityPlotFeature::onActionTriggered( bool isChecked )
     {
         if ( plotCollection )
         {
-            RimProject* project = nullptr;
-            plotCollection->firstAncestorOrThisOfTypeAsserted( project );
-            std::vector<RimWellPath*> allWellPaths;
-            project->descendantsIncludingThisOfType( allWellPaths );
+            RimProject*               project      = RimProject::current();
+            std::vector<RimWellPath*> allWellPaths = project->allWellPaths();
             if ( !allWellPaths.empty() )
             {
                 wellPath = allWellPaths.front();
@@ -345,8 +344,7 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
         }
     }
 
-    RimWellPathCollection* wellPathCollection = nullptr;
-    wellPath->firstAncestorOrThisOfTypeAsserted( wellPathCollection );
+    RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
 
     const RimWellMeasurementCollection* measurementCollection = wellPathCollection->measurementCollection();
     for ( QString wbsMeasurementKind : RimWellMeasurement::measurementKindsForWellBoreStability() )

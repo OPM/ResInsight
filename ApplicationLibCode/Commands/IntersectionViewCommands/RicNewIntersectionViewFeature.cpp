@@ -58,8 +58,7 @@ void RicNewIntersectionViewFeature::onActionTriggered( bool isChecked )
     {
         if ( !intersection ) continue;
 
-        RimCase* rimCase = nullptr;
-        intersection->firstAncestorOrThisOfType( rimCase );
+        RimCase* rimCase = intersection->firstAncestorOrThisOfType<RimCase>();
         if ( rimCase )
         {
             if ( intersection->direction() != RimExtrudedCurveIntersection::CrossSectionDirEnum::CS_VERTICAL )

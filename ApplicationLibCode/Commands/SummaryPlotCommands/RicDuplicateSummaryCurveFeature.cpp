@@ -39,7 +39,7 @@ CAF_CMD_SOURCE_INIT( RicDuplicateSummaryCurveFeature, "RicDuplicateSummaryCurveF
 //--------------------------------------------------------------------------------------------------
 bool RicDuplicateSummaryCurveFeature::isCommandEnabled()
 {
-    RimSummaryPlot* selectedPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot*>();
+    RimSummaryPlot* selectedPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot>();
     return ( selectedPlot && !RiaSummaryTools::isSummaryCrossPlot( selectedPlot ) );
 }
 
@@ -48,7 +48,7 @@ bool RicDuplicateSummaryCurveFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicDuplicateSummaryCurveFeature::onActionTriggered( bool isChecked )
 {
-    RimSummaryCurve* curve = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryCurve*>();
+    RimSummaryCurve* curve = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryCurve>();
     if ( curve )
     {
         RimSummaryCurve* newCurve = RicPasteSummaryCurveFeature::copyCurveAndAddToPlot( curve );

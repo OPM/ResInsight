@@ -26,6 +26,7 @@
 #include "Riu3DMainWindowTools.h"
 
 #include "cafSelectionManager.h"
+#include "cafSelectionManagerTools.h"
 
 #include <QAction>
 
@@ -40,9 +41,7 @@ bool RicInsertColorLegendItemFeature::isCommandEnabled()
 
     if ( legend )
     {
-        RimColorLegendCollection* colorLegendCollection = nullptr;
-
-        legend->firstAncestorOrThisOfType( colorLegendCollection );
+        RimColorLegendCollection* colorLegendCollection = legend->firstAncestorOrThisOfType<RimColorLegendCollection>();
 
         if ( colorLegendCollection && !colorLegendCollection->isStandardColorLegend( legend ) ) return true;
     }
@@ -88,15 +87,5 @@ void RicInsertColorLegendItemFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 RimColorLegend* RicInsertColorLegendItemFeature::selectedColorLegend()
 {
-    caf::PdmObject* selectedObject = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
-
-    if ( !selectedObject ) return nullptr;
-
-    RimColorLegend* colorLegend = nullptr;
-
-    selectedObject->firstAncestorOrThisOfType( colorLegend );
-
-    if ( colorLegend ) return colorLegend;
-
-    return nullptr;
+    return caf::firstAncestorOfTypeFromSelectedObject<RimColorLegend>();
 }
