@@ -72,8 +72,7 @@ void RimGeoMechPart::fieldChangedByUi( const caf::PdmFieldHandle* changedField, 
 
     if ( changedField == objectToggleField() )
     {
-        RimGeoMechView* ownerView;
-        firstAncestorOrThisOfType( ownerView );
+        auto ownerView = firstAncestorOrThisOfType<RimGeoMechView>();
         if ( ownerView ) ownerView->scheduleCreateDisplayModelAndRedraw();
     }
 }

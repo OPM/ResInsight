@@ -313,8 +313,7 @@ int RimFractureTemplateCollection::nextFractureTemplateId()
 void RimFractureTemplateCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                                                     std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
-    RimProject* proj = nullptr;
-    firstAncestorOrThisOfType( proj );
+    RimProject* proj = RimProject::current();
     if ( proj )
     {
         proj->scheduleCreateDisplayModelAndRedrawAllViews();

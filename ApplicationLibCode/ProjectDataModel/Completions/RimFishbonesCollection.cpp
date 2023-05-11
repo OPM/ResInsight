@@ -82,8 +82,7 @@ void RimFishbonesCollection::fieldChangedByUi( const caf::PdmFieldHandle* change
 void RimFishbonesCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     {
-        RimWellPath* wellPath;
-        firstAncestorOrThisOfType( wellPath );
+        auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
         if ( wellPath )
         {
             if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
@@ -161,8 +160,7 @@ std::vector<RimFishbones*> RimFishbonesCollection::allFishbonesSubs() const
 //--------------------------------------------------------------------------------------------------
 cvf::Color3f RimFishbonesCollection::nextFishbonesColor() const
 {
-    RimWellPath* wellPath;
-    firstAncestorOrThisOfType( wellPath );
+    auto          wellPath = firstAncestorOrThisOfType<RimWellPath>();
     cvf::Color3ub wellPathColor( wellPath->wellPathColor() );
     QColor        qWellPathColor = QColor( wellPathColor.r(), wellPathColor.g(), wellPathColor.b() );
 
@@ -256,8 +254,7 @@ double RimFishbonesCollection::mainBoreDiameter( RiaDefines::EclipseUnitSystem u
 //--------------------------------------------------------------------------------------------------
 void RimFishbonesCollection::setUnitSystemSpecificDefaults()
 {
-    RimWellPath* wellPath;
-    firstAncestorOrThisOfType( wellPath );
+    auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
     if ( wellPath )
     {
         if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
