@@ -99,9 +99,7 @@ RigFlowDiagResults* RimFlowDiagSolution::flowDiagResults()
     {
         size_t timeStepCount;
         {
-            RimEclipseResultCase* eclCase;
-            this->firstAncestorOrThisOfType( eclCase );
-
+            auto eclCase = this->firstAncestorOrThisOfType<RimEclipseResultCase>();
             if ( !eclCase || !eclCase->eclipseCaseData() )
             {
                 return nullptr;
@@ -129,8 +127,7 @@ const RigFlowDiagResults* RimFlowDiagSolution::flowDiagResults() const
 //--------------------------------------------------------------------------------------------------
 std::vector<QString> RimFlowDiagSolution::tracerNames() const
 {
-    RimEclipseResultCase* eclCase;
-    this->firstAncestorOrThisOfType( eclCase );
+    auto eclCase = firstAncestorOrThisOfType<RimEclipseResultCase>();
 
     std::vector<QString> tracerNameSet;
 
@@ -169,8 +166,7 @@ std::map<std::string, std::vector<int>> RimFlowDiagSolution::allProducerTracerAc
 //--------------------------------------------------------------------------------------------------
 std::map<std::string, std::vector<int>> RimFlowDiagSolution::allTracerActiveCellIndices( size_t timeStepIndex, bool useInjectors ) const
 {
-    RimEclipseResultCase* eclCase;
-    this->firstAncestorOrThisOfType( eclCase );
+    auto eclCase = firstAncestorOrThisOfType<RimEclipseResultCase>();
 
     std::map<std::string, std::vector<int>> tracersWithCells;
 
@@ -337,9 +333,7 @@ cvf::Color3f RimFlowDiagSolution::tracerColor( const QString& tracerName ) const
     if ( wellName == RIG_RESERVOIR_TRACER_NAME ) return cvf::Color3f::LIGHT_GRAY;
     if ( wellName == RIG_TINY_TRACER_GROUP_NAME ) return cvf::Color3f::DARK_GRAY;
 
-    RimEclipseResultCase* eclCase;
-    this->firstAncestorOrThisOfType( eclCase );
-
+    auto eclCase = firstAncestorOrThisOfType<RimEclipseResultCase>();
     if ( eclCase )
     {
         return eclCase->defaultWellColor( wellName );

@@ -211,8 +211,7 @@ bool RimTextAnnotation::isActive()
 //--------------------------------------------------------------------------------------------------
 bool RimTextAnnotation::isVisible() const
 {
-    RimAnnotationGroupCollection* coll;
-    firstAncestorOrThisOfType( coll );
+    auto coll = firstAncestorOrThisOfType<RimAnnotationGroupCollection>();
 
     bool visible = true;
     if ( coll ) visible = coll->isVisible();

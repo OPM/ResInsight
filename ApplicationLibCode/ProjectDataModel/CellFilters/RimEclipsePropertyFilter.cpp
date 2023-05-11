@@ -385,8 +385,7 @@ void RimEclipsePropertyFilter::computeResultValueRange()
 
     if ( m_resultDefinition->isFlowDiagOrInjectionFlooding() )
     {
-        Rim3dView* view;
-        this->firstAncestorOrThisOfType( view );
+        auto view = firstAncestorOrThisOfType<Rim3dView>();
 
         int timeStep = 0;
         if ( view ) timeStep = view->currentTimeStep();

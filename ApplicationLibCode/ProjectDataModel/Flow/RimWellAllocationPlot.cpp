@@ -168,10 +168,8 @@ void RimWellAllocationPlot::setFromSimulationWell( RimSimWellInView* simWell )
 {
     m_showWindow = true;
 
-    RimEclipseView* eclView;
-    simWell->firstAncestorOrThisOfType( eclView );
-    RimEclipseResultCase* eclCase;
-    simWell->firstAncestorOrThisOfType( eclCase );
+    auto eclView = simWell->firstAncestorOrThisOfType<RimEclipseView>();
+    auto eclCase = simWell->firstAncestorOrThisOfType<RimEclipseResultCase>();
 
     m_case     = eclCase;
     m_wellName = simWell->simWellData()->m_wellName;
