@@ -39,7 +39,7 @@ CAF_CMD_SOURCE_INIT( RicCreateDeclineCurvesFeature, "RicCreateDeclineCurvesFeatu
 //--------------------------------------------------------------------------------------------------
 bool RicCreateDeclineCurvesFeature::isCommandEnabled()
 {
-    RimSummaryPlot* selectedPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot*>();
+    RimSummaryPlot* selectedPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot>();
     return ( selectedPlot && !RiaSummaryTools::isSummaryCrossPlot( selectedPlot ) );
 }
 
@@ -48,7 +48,7 @@ bool RicCreateDeclineCurvesFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCreateDeclineCurvesFeature::onActionTriggered( bool isChecked )
 {
-    RimSummaryCurve* curve = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryCurve*>();
+    RimSummaryCurve* curve = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryCurve>();
     if ( curve )
     {
         std::vector<RimSummaryDeclineCurve::DeclineCurveType> declineCurveTypes = { RimSummaryDeclineCurve::DeclineCurveType::EXPONENTIAL,
@@ -87,7 +87,7 @@ RimSummaryDeclineCurve* RicCreateDeclineCurvesFeature::createDeclineCurveAndAddT
         return RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_DASH_DOT;
     };
 
-    RimSummaryPlot* summaryPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot*>();
+    RimSummaryPlot* summaryPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot>();
 
     RimSummaryDeclineCurve* newCurve = new RimSummaryDeclineCurve();
     CVF_ASSERT( newCurve );
@@ -108,8 +108,7 @@ RimSummaryDeclineCurve* RicCreateDeclineCurvesFeature::createDeclineCurveAndAddT
     newCurve->loadDataAndUpdate( true );
     newCurve->updateConnectedEditors();
 
-    RimSummaryMultiPlot* summaryMultiPlot = nullptr;
-    summaryPlot->firstAncestorOrThisOfType( summaryMultiPlot );
+    RimSummaryMultiPlot* summaryMultiPlot = summaryPlot->firstAncestorOrThisOfType<RimSummaryMultiPlot>();
     if ( summaryMultiPlot )
     {
         summaryMultiPlot->updatePlotTitles();

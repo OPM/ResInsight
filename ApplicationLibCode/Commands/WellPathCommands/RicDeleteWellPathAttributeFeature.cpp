@@ -62,7 +62,7 @@ void RicDeleteWellPathAttributeFeature::onActionTriggered( bool isChecked )
     RimWellPathAttributeCollection* wellPathAttributeCollection = nullptr;
     if ( attributes.size() > 0 )
     {
-        attributes[0]->firstAncestorOrThisOfTypeAsserted( wellPathAttributeCollection );
+        wellPathAttributeCollection = attributes[0]->firstAncestorOrThisOfTypeAsserted<RimWellPathAttributeCollection>();
         for ( RimWellPathAttribute* attributeToDelete : attributes )
         {
             wellPathAttributeCollection->deleteAttribute( attributeToDelete );

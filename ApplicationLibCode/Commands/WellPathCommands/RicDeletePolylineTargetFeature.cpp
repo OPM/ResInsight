@@ -53,8 +53,7 @@ void RicDeletePolylineTargetFeature::onActionTriggered( bool isChecked )
 
     if ( !targets.empty() )
     {
-        RimPolylinePickerInterface* polylineDef = nullptr;
-        targets[0]->firstAncestorOrThisOfTypeAsserted( polylineDef );
+        RimPolylinePickerInterface* polylineDef = targets[0]->firstAncestorOrThisOfTypeAsserted<RimPolylinePickerInterface>();
 
         for ( auto target : targets )
         {

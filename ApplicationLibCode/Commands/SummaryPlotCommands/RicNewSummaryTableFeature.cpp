@@ -54,7 +54,7 @@ bool RicNewSummaryTableFeature::isCommandEnabled()
     RimSummaryAddress* selectedSummaryAddress = nullptr;
     if ( selObj )
     {
-        selObj->firstAncestorOrThisOfType( selectedSummaryAddress );
+        selectedSummaryAddress = selObj->firstAncestorOrThisOfType<RimSummaryAddress>();
     }
     if ( selectedSummaryAddress && m_enabledCategories.contains( selectedSummaryAddress->address().category() ) ) return true;
 
@@ -73,7 +73,7 @@ void RicNewSummaryTableFeature::onActionTriggered( bool isChecked )
     RimSummaryAddress* selectedSummaryAddress = nullptr;
     if ( selObj )
     {
-        selObj->firstAncestorOrThisOfType( selectedSummaryAddress );
+        selectedSummaryAddress = selObj->firstAncestorOrThisOfType<RimSummaryAddress>();
     }
 
     RimSummaryTable* summaryTable = nullptr;

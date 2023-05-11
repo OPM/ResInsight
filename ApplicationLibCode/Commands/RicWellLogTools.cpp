@@ -222,8 +222,7 @@ ExtractionCurveType* RicWellLogTools::addExtractionCurve( RimWellLogTrack*      
     cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( plotTrack->curveCount() );
     curve->setColor( curveColor );
 
-    RimDepthTrackPlot* plot = nullptr;
-    plotTrack->firstAncestorOrThisOfTypeAsserted( plot );
+    RimDepthTrackPlot*               plot             = plotTrack->firstAncestorOrThisOfTypeAsserted<RimDepthTrackPlot>();
     RimWellLogCurveCommonDataSource* commonDataSource = plot->commonDataSource();
 
     if ( !caseToApply )

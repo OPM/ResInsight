@@ -31,6 +31,7 @@
 
 #include "cafCmdFeatureManager.h"
 #include "cafSelectionManager.h"
+#include "cafSelectionManagerTools.h"
 
 #include <QAction>
 
@@ -65,10 +66,7 @@ void RicCreateGridCrossPlotFeature::onActionTriggered( bool isChecked )
     }
     else
     {
-        caf::PdmObject* selectedObject = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
-        if ( !selectedObject ) return;
-
-        RimGridView* cellFilterView = selectedObject->firstAncestorOrThisOfType<RimGridView>();
+        auto cellFilterView = caf::firstAncestorOfTypeFromSelectedObject<RimGridView>();
         if ( cellFilterView ) dataSet->setCellFilterView( cellFilterView );
     }
 
