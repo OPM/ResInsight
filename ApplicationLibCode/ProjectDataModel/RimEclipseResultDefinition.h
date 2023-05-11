@@ -129,7 +129,7 @@ public:
     bool hasDualPorFractureResult();
 
     static QList<caf::PdmOptionItemInfo> calcOptionsForVariableUiFieldStandard( RiaDefines::ResultCatType     resultCatType,
-                                                                                RigCaseCellResultsData* const results,
+                                                                                const RigCaseCellResultsData* results,
                                                                                 bool showDerivedResultsFirst   = false,
                                                                                 bool addPerCellFaceOptionItems = false,
                                                                                 bool enableTernary             = false );

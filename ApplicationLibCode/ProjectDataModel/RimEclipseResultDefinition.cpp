@@ -1717,7 +1717,7 @@ QString RimEclipseResultDefinition::flowDiagResUiText( bool shortLabel, int maxT
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard( RiaDefines::ResultCatType resultCatType,
-                                                                                                 RigCaseCellResultsData* const results,
+                                                                                                 const RigCaseCellResultsData* results,
                                                                                                  bool showDerivedResultsFirst,
                                                                                                  bool addPerCellFaceOptionItems,
                                                                                                  bool ternaryEnabled )
