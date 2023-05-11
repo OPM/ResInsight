@@ -68,8 +68,7 @@ void RicCreateGridCrossPlotFeature::onActionTriggered( bool isChecked )
         caf::PdmObject* selectedObject = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
         if ( !selectedObject ) return;
 
-        RimGridView* cellFilterView = nullptr;
-        selectedObject->firstAncestorOrThisOfType( cellFilterView );
+        RimGridView* cellFilterView = selectedObject->firstAncestorOrThisOfType<RimGridView>();
         if ( cellFilterView ) dataSet->setCellFilterView( cellFilterView );
     }
 

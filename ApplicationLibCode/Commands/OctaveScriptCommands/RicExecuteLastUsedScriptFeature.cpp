@@ -61,8 +61,7 @@ void RicExecuteLastUsedScriptFeature::onActionTriggered( bool isChecked )
     {
         RimScriptCollection* rootScriptCollection = RiaApplication::instance()->project()->scriptCollection();
 
-        std::vector<RimCalcScript*> scripts;
-        rootScriptCollection->descendantsIncludingThisOfType( scripts );
+        std::vector<RimCalcScript*> scripts = rootScriptCollection->descendantsIncludingThisOfType<RimCalcScript>();
         for ( auto c : scripts )
         {
             if ( c->absoluteFileName() == lastUsedScript )

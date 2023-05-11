@@ -145,15 +145,13 @@ RimIntersectionCollection* RicPasteIntersectionsFeature::findIntersectionCollect
     RimExtrudedCurveIntersection* intersection = dynamic_cast<RimExtrudedCurveIntersection*>( objectHandle );
     if ( intersection )
     {
-        intersection->firstAncestorOrThisOfType( intersectionCollection );
-        return intersectionCollection;
+        return intersection->firstAncestorOrThisOfType<RimIntersectionCollection>();
     }
 
     RimBoxIntersection* intersectionBox = dynamic_cast<RimBoxIntersection*>( objectHandle );
     if ( intersectionBox )
     {
-        intersectionBox->firstAncestorOrThisOfType( intersectionCollection );
-        return intersectionCollection;
+        return intersectionBox->firstAncestorOrThisOfType<RimIntersectionCollection>();
     }
 
     return nullptr;

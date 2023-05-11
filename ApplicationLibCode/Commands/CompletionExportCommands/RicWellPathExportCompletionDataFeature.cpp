@@ -94,7 +94,8 @@ void RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompl
 
     for ( auto s : simWells )
     {
-        s->descendantsIncludingThisOfType( simWellFractures );
+        auto fratures = s->descendantsIncludingThisOfType<RimSimWellFracture>();
+        simWellFractures.insert( simWellFractures.end(), fratures.begin(), fratures.end() );
     }
 
     std::vector<RimWellPath*> topLevelWells;
@@ -127,9 +128,14 @@ void RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompl
 
     for ( auto w : allLaterals )
     {
-        w->descendantsIncludingThisOfType( wellPathFractures );
-        w->descendantsIncludingThisOfType( wellPathFishbones );
-        w->descendantsIncludingThisOfType( wellPathPerforations );
+        auto fractures = w->descendantsIncludingThisOfType<RimWellPathFracture>();
+        wellPathFractures.insert( wellPathFractures.end(), fractures.begin(), fractures.end() );
+
+        auto fishbones = w->descendantsIncludingThisOfType<RimFishbones>();
+        wellPathFishbones.insert( wellPathFishbones.end(), fishbones.begin(), fishbones.end() );
+
+        auto perforations = w->descendantsIncludingThisOfType<RimPerforationInterval>();
+        wellPathPerforations.insert( wellPathPerforations.end(), perforations.begin(), perforations.end() );
     }
 
     if ( ( !simWellFractures.empty() ) || ( !wellPathFractures.empty() ) )
@@ -157,7 +163,8 @@ void RicWellPathExportCompletionDataFeature::prepareExportSettingsAndExportCompl
         std::vector<const RimWellPathValve*> perforationValves;
         for ( const auto& perf : wellPathPerforations )
         {
-            perf->descendantsIncludingThisOfType( perforationValves );
+            auto other = perf->descendantsIncludingThisOfType<const RimWellPathValve>();
+            perforationValves.insert( perforationValves.end(), other.begin(), other.end() );
         }
 
         if ( !perforationValves.empty() )

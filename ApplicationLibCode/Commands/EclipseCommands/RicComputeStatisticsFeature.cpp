@@ -43,8 +43,7 @@ bool RicComputeStatisticsFeature::isCommandEnabled()
         RimEclipseStatisticsCase* statisticsCase = selection[0];
         if ( statisticsCase )
         {
-            RimIdenticalGridCaseGroup* gridCaseGroup = nullptr;
-            statisticsCase->firstAncestorOrThisOfType( gridCaseGroup );
+            RimIdenticalGridCaseGroup* gridCaseGroup = statisticsCase->firstAncestorOrThisOfType<RimIdenticalGridCaseGroup>();
 
             RimCaseCollection* caseCollection = gridCaseGroup ? gridCaseGroup->caseCollection() : nullptr;
             return caseCollection ? caseCollection->reservoirs.size() > 0 : false;

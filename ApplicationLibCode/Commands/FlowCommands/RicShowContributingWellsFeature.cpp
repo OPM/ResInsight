@@ -45,17 +45,14 @@ bool RicShowContributingWellsFeature::isCommandEnabled()
     if ( collection.size() == 1 )
     {
         RimSimWellInView* well        = collection[0];
-        RimEclipseView*   eclipseView = nullptr;
-        well->firstAncestorOrThisOfType( eclipseView );
+        RimEclipseView*   eclipseView = well->firstAncestorOrThisOfType<RimEclipseView>();
 
         if ( eclipseView )
         {
             RimFlowDiagSolution* flowDiagSolution = eclipseView->cellResult()->flowDiagSolution();
             if ( !flowDiagSolution )
             {
-                RimEclipseResultCase* eclipseResultCase = nullptr;
-                well->firstAncestorOrThisOfType( eclipseResultCase );
-
+                RimEclipseResultCase* eclipseResultCase = well->firstAncestorOrThisOfType<RimEclipseResultCase>();
                 if ( eclipseResultCase )
                 {
                     flowDiagSolution = eclipseResultCase->defaultFlowDiagSolution();
@@ -83,11 +80,9 @@ void RicShowContributingWellsFeature::onActionTriggered( bool isChecked )
     CAF_ASSERT( collection.size() == 1 );
 
     RimSimWellInView* well        = collection[0];
-    RimEclipseView*   eclipseView = nullptr;
-    well->firstAncestorOrThisOfTypeAsserted( eclipseView );
+    RimEclipseView*   eclipseView = well->firstAncestorOrThisOfTypeAsserted<RimEclipseView>();
 
-    RimEclipseResultCase* eclipseResultCase = nullptr;
-    well->firstAncestorOrThisOfTypeAsserted( eclipseResultCase );
+    RimEclipseResultCase* eclipseResultCase = well->firstAncestorOrThisOfTypeAsserted<RimEclipseResultCase>();
 
     RimEclipseView* modifiedView =
         RicShowContributingWellsFeatureImpl::manipulateSelectedView( eclipseResultCase, well->name(), eclipseView->currentTimeStep() );
