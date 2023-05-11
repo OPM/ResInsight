@@ -47,6 +47,7 @@ public:
 
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
@@ -54,6 +55,8 @@ private:
     // Inherited via RimWellLogCurve
     virtual QString createCurveAutoName() override;
     virtual void    onLoadDataAndUpdate( bool updateParentPlot ) override;
+
+    void setAutomaticName();
 
 private:
     caf::PdmPtrField<RimCase*> m_case;

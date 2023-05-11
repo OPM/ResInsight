@@ -23,6 +23,7 @@
 
 #include "RicWellLogTools.h"
 #include "WellLogCommands/RicNewWellLogPlotFeatureImpl.h"
+#include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
 
 #include "RimGeoMechCase.h"
 #include "RimGeoMechView.h"
@@ -151,7 +152,7 @@ void RimGeoMechFaultReactivationResult::defineEditorAttribute( const caf::PdmFie
         caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
         if ( attrib )
         {
-            attrib->m_buttonText = "Create Fault Reactivation Curves";
+            attrib->m_buttonText = "Create";
         }
     }
 }
@@ -262,15 +263,19 @@ void RimGeoMechFaultReactivationResult::createWellLogCurves()
         RicWellLogTools::addWellLogExtractionCurve( faultReactivationTrack, geomCase, view, m_faceBWellPath(), nullptr, -1, true );
     faceAWellLogExtractionCurve->setGeoMechResultAddress( wellLogExtractionResult );
     faceBWellLogExtractionCurve->setGeoMechResultAddress( wellLogExtractionResult );
-    faceAWellLogExtractionCurve->updateAllRequiredEditors();
-    faceBWellLogExtractionCurve->updateAllRequiredEditors();
+    faceAWellLogExtractionCurve->updateConnectedEditors();
+    faceBWellLogExtractionCurve->updateConnectedEditors();
 
     // Create well log diff curve for m_faceAWellPath and m_faceBWellPath
     // RicWellLogTools::addWellLogDiffCurve( faultReactivationTrack, geomCase, view );
     RimWellLogDiffCurve* faceWellLogDiffCurve = new RimWellLogDiffCurve();
     faceWellLogDiffCurve->setWellLogCurves( faceAWellLogExtractionCurve, faceBWellLogExtractionCurve );
-    faceWellLogDiffCurve->setParentPlotNoReplot( faultReactivationTrack->plotWidget() );
-    faceWellLogDiffCurve->loadDataAndUpdate( false );
+    const cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( faultReactivationTrack->curveCount() );
+    faceWellLogDiffCurve->setColor( curveColor );
+
     faultReactivationTrack->addCurve( faceWellLogDiffCurve );
-    faultReactivationTrack->updateAllRequiredEditors();
+
+    faceWellLogDiffCurve->loadDataAndUpdate( true );
+    faceWellLogDiffCurve->updateConnectedEditors();
+    faultReactivationTrack->updateConnectedEditors();
 }
