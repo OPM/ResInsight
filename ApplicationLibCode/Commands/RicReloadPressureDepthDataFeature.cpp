@@ -53,8 +53,7 @@ void RicReloadPressureDepthDataFeature::onActionTriggered( bool isChecked )
         {
             if ( refObj )
             {
-                RimViewWindow* viewWindow = nullptr;
-                refObj->firstAncestorOrThisOfType( viewWindow );
+                RimViewWindow* viewWindow = refObj->firstAncestorOrThisOfType<RimViewWindow>();
                 if ( viewWindow )
                 {
                     viewWindow->loadDataAndUpdate();

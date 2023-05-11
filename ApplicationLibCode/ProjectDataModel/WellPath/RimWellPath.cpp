@@ -187,8 +187,7 @@ double RimWellPath::wellPathRadius( double characteristicCellSize ) const
 {
     double radius = characteristicCellSize * m_wellPathRadiusScaleFactor();
 
-    RimWellPathCollection* coll = nullptr;
-    this->firstAncestorOrThisOfType( coll );
+    RimWellPathCollection* coll = firstAncestorOrThisOfType<RimWellPathCollection>();
     if ( coll )
     {
         radius *= coll->wellPathRadiusScaleFactor();
@@ -817,8 +816,7 @@ size_t RimWellPath::simulationWellBranchCount( const QString& simWellName )
 //--------------------------------------------------------------------------------------------------
 double RimWellPath::combinedScaleFactor() const
 {
-    RimWellPathCollection* wellPathColl = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( wellPathColl );
+    RimWellPathCollection* wellPathColl = firstAncestorOrThisOfTypeAsserted<RimWellPathCollection>();
 
     return this->m_wellPathRadiusScaleFactor() * wellPathColl->wellPathRadiusScaleFactor();
 }
@@ -832,8 +830,7 @@ void RimWellPath::setUnitSystem( RiaDefines::EclipseUnitSystem unitSystem )
 
     m_completions->setUnitSystemSpecificDefaults();
 
-    std::vector<RimMswCompletionParameters*> mswParameters;
-    descendantsOfType( mswParameters );
+    std::vector<RimMswCompletionParameters*> mswParameters = descendantsOfType<RimMswCompletionParameters>();
     for ( auto mswParams : mswParameters )
     {
         mswParams->setUnitSystemSpecificDefaults();
@@ -1103,8 +1100,7 @@ bool RimWellPath::isMultiLateralWellPath() const
 {
     auto top = topLevelWellPath();
 
-    std::vector<RimWellPath*> wells;
-    top->descendantsIncludingThisOfType( wells );
+    std::vector<RimWellPath*> wells = top->descendantsIncludingThisOfType<RimWellPath>();
 
     return wells.size() > 1;
 }

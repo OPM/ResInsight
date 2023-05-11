@@ -356,8 +356,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
             bool isUsingPseudoLength = false;
             performDataExtraction( &isUsingPseudoLength );
 
-            RimDepthTrackPlot* wellLogPlot;
-            firstAncestorOrThisOfType( wellLogPlot );
+            RimDepthTrackPlot* wellLogPlot = firstAncestorOrThisOfType<RimDepthTrackPlot>();
             if ( !wellLogPlot ) return;
 
             RiaDefines::DepthTypeEnum depthType   = wellLogPlot->depthType();
@@ -390,9 +389,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
             if ( isUsingPseudoLength )
             {
-                RimWellLogTrack* wellLogTrack;
-                firstAncestorOrThisOfType( wellLogTrack );
-                CVF_ASSERT( wellLogTrack );
+                RimWellLogTrack* wellLogTrack = firstAncestorOrThisOfTypeAsserted<RimWellLogTrack>();
 
                 RiuQwtPlotWidget* viewer = wellLogTrack->viewer();
                 if ( viewer )
@@ -424,8 +421,7 @@ void RimWellLogExtractionCurve::performDataExtraction( bool* isUsingPseudoLength
     if ( dynamic_cast<RimGeoMechCase*>( m_case.value() ) && ( m_geomResultDefinition->resultPositionType() == RIG_WELLPATH_DERIVED ) &&
          ( m_geomResultDefinition->resultFieldName() == "UCS" ) )
     {
-        RimWellBoreStabilityPlot* wbsPlot = nullptr;
-        this->firstAncestorOrThisOfType( wbsPlot );
+        RimWellBoreStabilityPlot* wbsPlot = firstAncestorOrThisOfType<RimWellBoreStabilityPlot>();
         if ( wbsPlot )
         {
             auto maxCurvePointInterval = wbsPlot->commonDataSource()->maximumCurvePointInterval();
@@ -661,8 +657,7 @@ RimWellLogExtractionCurve::WellLogExtractionCurveData
         }
 
         findAndLoadWbsParametersFromLasFiles( m_wellPath(), wellExtractor.p() );
-        RimWellBoreStabilityPlot* wbsPlot;
-        this->firstAncestorOrThisOfType( wbsPlot );
+        RimWellBoreStabilityPlot* wbsPlot = firstAncestorOrThisOfType<RimWellBoreStabilityPlot>();
         if ( wbsPlot )
         {
             wbsPlot->applyWbsParametersToExtractor( wellExtractor.p() );
@@ -1125,8 +1120,7 @@ void RimWellLogExtractionCurve::setLogScaleFromSelectedResult()
     QString resVar = m_eclipseResultDefinition->resultVariable();
     if ( RiaResultNames::isLogarithmicResult( resVar ) )
     {
-        RimWellLogTrack* track = nullptr;
-        this->firstAncestorOrThisOfType( track );
+        RimWellLogTrack* track = firstAncestorOrThisOfType<RimWellLogTrack>();
         if ( track && track->curveCount() == 1 ) track->setLogarithmicScale( true );
     }
 }

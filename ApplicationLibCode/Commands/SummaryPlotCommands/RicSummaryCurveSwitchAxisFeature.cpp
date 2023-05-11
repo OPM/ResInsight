@@ -70,8 +70,7 @@ void RicSummaryCurveSwitchAxisFeature::onActionTriggered( bool isChecked )
         summaryCurve->updatePlotAxis();
         summaryCurve->updateConnectedEditors();
 
-        RimSummaryPlot* plot = nullptr;
-        summaryCurve->firstAncestorOrThisOfType( plot );
+        auto plot = summaryCurve->firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
         if ( plot ) plot->updateAxes();
     }
 
@@ -91,8 +90,7 @@ void RicSummaryCurveSwitchAxisFeature::onActionTriggered( bool isChecked )
         asciiCurve->updateQwtPlotAxis();
         asciiCurve->updateConnectedEditors();
 
-        RimSummaryPlot* plot = nullptr;
-        asciiCurve->firstAncestorOrThisOfType( plot );
+        auto plot = asciiCurve->firstAncestorOrThisOfType<RimSummaryPlot>();
         if ( plot ) plot->updateAxes();
     }
 
@@ -111,8 +109,7 @@ void RicSummaryCurveSwitchAxisFeature::onActionTriggered( bool isChecked )
 
         timeHistoryCurve->updateConnectedEditors();
 
-        RimSummaryPlot* plot = nullptr;
-        timeHistoryCurve->firstAncestorOrThisOfType( plot );
+        auto plot = timeHistoryCurve->firstAncestorOrThisOfType<RimSummaryPlot>();
         if ( plot ) plot->updateAxes();
     }
 }

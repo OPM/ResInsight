@@ -462,7 +462,7 @@ RimViewLinker* Rim3dView::assosiatedViewLinker() const
 //--------------------------------------------------------------------------------------------------
 RimViewController* Rim3dView::viewController() const
 {
-    std::vector<RimViewController*> objects = objectsWithReferringPtrFieldsOfType();
+    std::vector<RimViewController*> objects = objectsWithReferringPtrFieldsOfType<RimViewController>();
 
     for ( auto v : objects )
     {

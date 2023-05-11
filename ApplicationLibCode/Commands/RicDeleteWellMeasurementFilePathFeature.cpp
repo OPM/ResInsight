@@ -48,8 +48,7 @@ void RicDeleteWellMeasurementFilePathFeature::onActionTriggered( bool isChecked 
 
     RimWellMeasurementFilePath* filePath = selectedFilePaths[0];
 
-    RimWellMeasurementCollection* wellMeasurementCollection = nullptr;
-    filePath->firstAncestorOrThisOfType( wellMeasurementCollection );
+    RimWellMeasurementCollection* wellMeasurementCollection = filePath->firstAncestorOrThisOfType<RimWellMeasurementCollection>();
     if ( !wellMeasurementCollection ) return;
 
     wellMeasurementCollection->removeMeasurementsForFilePath( filePath );

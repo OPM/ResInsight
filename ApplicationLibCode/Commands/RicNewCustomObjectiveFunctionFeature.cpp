@@ -46,8 +46,7 @@ void RicNewCustomObjectiveFunctionFeature::onActionTriggered( bool isChecked )
     caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
     if ( !selObj ) return;
 
-    std::vector<RimCustomObjectiveFunctionCollection*> coll;
-    selObj->descendantsIncludingThisOfType( coll );
+    std::vector<RimCustomObjectiveFunctionCollection*> coll = selObj->descendantsIncludingThisOfType<RimCustomObjectiveFunctionCollection>();
 
     if ( coll.size() == 1 )
     {

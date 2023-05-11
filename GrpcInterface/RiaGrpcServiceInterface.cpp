@@ -115,8 +115,7 @@ void RiaGrpcServiceInterface::copyPdmObjectFromCafToRips( const caf::PdmObjectHa
     }
     destination->set_visible( visible );
 
-    std::vector<caf::PdmFieldHandle*> fields;
-    source->fields( fields );
+    std::vector<caf::PdmFieldHandle*> fields = source->fields();
 
     auto parametersMap = destination->mutable_parameters();
     for ( auto field : fields )
@@ -160,8 +159,7 @@ void RiaGrpcServiceInterface::copyPdmObjectFromRipsToCaf( const rips::PdmObject*
         }
     }
 
-    std::vector<caf::PdmFieldHandle*> fields;
-    destination->fields( fields );
+    std::vector<caf::PdmFieldHandle*> fields = destination->fields();
 
     auto parametersMap = source->parameters();
 
@@ -241,8 +239,7 @@ caf::PdmObjectHandle* RiaGrpcServiceInterface::emplaceChildField( caf::PdmObject
                                                                   const QString&  fieldKeyword,
                                                                   const QString&  keywordForClassToCreate )
 {
-    std::vector<caf::PdmFieldHandle*> fields;
-    parent->fields( fields );
+    std::vector<caf::PdmFieldHandle*> fields = parent->fields();
 
     for ( auto field : fields )
     {

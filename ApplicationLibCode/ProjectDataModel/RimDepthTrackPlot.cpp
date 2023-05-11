@@ -290,7 +290,7 @@ std::vector<RimPlot*> RimDepthTrackPlot::plots() const
 {
     std::vector<RimPlot*> baseClassPlots;
 
-    for ( auto p : m_plots.children() )
+    for ( auto p : m_plots.childrenByType() )
     {
         baseClassPlots.push_back( p );
     }
@@ -498,7 +498,7 @@ void RimDepthTrackPlot::clearDepthAnnotations()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPlotAxisAnnotation*> RimDepthTrackPlot::depthAxisAnnotations() const
 {
-    return m_depthAnnotations.children();
+    return m_depthAnnotations.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1050,8 +1050,7 @@ void RimDepthTrackPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
     {
         m_isAutoScaleDepthEnabled = true;
 
-        RimWellAllocationPlot* parentWellAllocation = nullptr;
-        this->firstAncestorOrThisOfType( parentWellAllocation );
+        RimWellAllocationPlot* parentWellAllocation = firstAncestorOrThisOfType<RimWellAllocationPlot>();
         if ( parentWellAllocation )
         {
             parentWellAllocation->loadDataAndUpdate();
@@ -1080,8 +1079,7 @@ void RimDepthTrackPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
     }
     else if ( changedField == &m_depthEqualization )
     {
-        std::vector<RimEnsembleWellLogCurveSet*> ensembleWellLogCurveSets;
-        descendantsOfType( ensembleWellLogCurveSets );
+        std::vector<RimEnsembleWellLogCurveSet*> ensembleWellLogCurveSets = descendantsOfType<RimEnsembleWellLogCurveSet>();
         for ( auto ensembleWellLogCurveSet : ensembleWellLogCurveSets )
         {
             ensembleWellLogCurveSet->setDepthEqualization( m_depthEqualization() );
@@ -1090,8 +1088,7 @@ void RimDepthTrackPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
     }
     else if ( changedField == &m_ensembleCurveSet )
     {
-        std::vector<RimEnsembleWellLogCurveSet*> ensembleWellLogCurveSets;
-        descendantsOfType( ensembleWellLogCurveSets );
+        std::vector<RimEnsembleWellLogCurveSet*> ensembleWellLogCurveSets = descendantsOfType<RimEnsembleWellLogCurveSet>();
         for ( auto ensembleWellLogCurveSet : ensembleWellLogCurveSets )
         {
             ensembleWellLogCurveSet->setFilterByEnsembleCurveSet( m_ensembleCurveSet() );
@@ -1140,8 +1137,7 @@ void RimDepthTrackPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     fontGroup->add( &m_axisTitleFontSize );
     fontGroup->add( &m_axisValueFontSize );
 
-    std::vector<RimEnsembleWellLogCurveSet*> ensembleWellLogCurveSets;
-    descendantsOfType( ensembleWellLogCurveSets );
+    std::vector<RimEnsembleWellLogCurveSet*> ensembleWellLogCurveSets = descendantsOfType<RimEnsembleWellLogCurveSet>();
     if ( !ensembleWellLogCurveSets.empty() )
     {
         caf::PdmUiGroup* ensembleWellLogGroup = uiOrdering.addNewGroup( "Ensemble Well Log" );
@@ -1546,7 +1542,7 @@ void RimDepthTrackPlot::updateTrackVisibility()
 //--------------------------------------------------------------------------------------------------
 void RimDepthTrackPlot::setAutoScalePropertyValuesEnabled( bool enabled )
 {
-    for ( auto plot : m_plots.children() )
+    for ( auto plot : m_plots.childrenByType() )
     {
         plot->setAutoScalePropertyValuesEnabled( enabled );
     }

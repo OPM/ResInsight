@@ -85,8 +85,7 @@ void RicDeleteItemFeature::deleteObject( caf::PdmObject* objectToDelete )
 
     int indexToObject = -1;
 
-    std::vector<caf::PdmObjectHandle*> childObjects;
-    childArrayFieldHandle->children( &childObjects );
+    std::vector<caf::PdmObjectHandle*> childObjects = childArrayFieldHandle->children();
 
     for ( size_t i = 0; i < childObjects.size(); i++ )
     {
