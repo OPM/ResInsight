@@ -27,6 +27,8 @@
 
 #include <cmath>
 
+#pragma optimize( "", off )
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -345,6 +347,9 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( 
     return reSampledData;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigWellLogCurveData::interpolateSegment( RiaDefines::DepthTypeEnum                                 resamplingDepthType,
                                               double                                                    depthValue,
                                               size_t                                                    firstIndex,
@@ -380,43 +385,27 @@ void RigWellLogCurveData::interpolateSegment( RiaDefines::DepthTypeEnum         
     }
 }
 
-bool isLeftOf( double x1, double x2, bool reverseOrder, double eps )
-{
-    if ( reverseOrder )
-    {
-        return x1 - x2 > eps;
-    }
-    return x2 - x1 > eps;
-}
-
-bool isRightOf( double x1, double x2, bool reverseOrder, double eps )
-{
-    return isLeftOf( x2, x1, reverseOrder, eps );
-}
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( RiaDefines::DepthTypeEnum  resamplingDepthType,
-                                                                                const std::vector<double>& depths ) const
+std::pair<std::vector<double>, std::map<RiaDefines::DepthTypeEnum, std::vector<double>>>
+    RigWellLogCurveData::createResampledValuesAndDepths( RiaDefines::DepthTypeEnum  resamplingDepthType,
+                                                         const std::vector<double>& targetDepths,
+                                                         const std::map<RiaDefines::DepthTypeEnum, std::vector<double>>& originalDepths,
+                                                         const std::vector<double>&                                      propertyValues )
 {
     const double eps = 1.0e-8;
 
-    std::vector<double> xValues;
+    auto depthIt = originalDepths.find( resamplingDepthType );
+    if ( depthIt == originalDepths.end() || depthIt->second.empty() ) return {};
 
+    std::vector<double>                                      xValues;
     std::map<RiaDefines::DepthTypeEnum, std::vector<double>> resampledDepths;
-    resampledDepths.insert( std::make_pair( resamplingDepthType, depths ) );
+    resampledDepths.insert( std::make_pair( resamplingDepthType, targetDepths ) );
 
-    auto depthIt = m_depths.find( resamplingDepthType );
-
-    cvf::ref<RigWellLogCurveData> reSampledData = new RigWellLogCurveData;
-
-    if ( depthIt == m_depths.end() || depthIt->second.empty() ) return reSampledData;
-
-    bool reverseOrder = resamplingDepthType == RiaDefines::DepthTypeEnum::CONNECTION_NUMBER;
-
+    bool   reverseOrder          = resamplingDepthType == RiaDefines::DepthTypeEnum::CONNECTION_NUMBER;
     size_t segmentSearchStartIdx = 0;
-    for ( auto depth : depths )
+    for ( auto depth : targetDepths )
     {
         bool foundPoint = false;
         for ( size_t segmentStartIdx = segmentSearchStartIdx; segmentStartIdx < depthIt->second.size(); ++segmentStartIdx )
@@ -424,16 +413,16 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( 
             if ( std::fabs( depthIt->second[segmentStartIdx] - depth ) < eps ) // already have this depth point,
                                                                                // reuse it
             {
-                xValues.push_back( m_propertyValues[segmentStartIdx] );
+                xValues.push_back( propertyValues[segmentStartIdx] );
                 // Copy all depth types for this segment
-                for ( auto depthTypeValuesPair : m_depths )
+                for ( const auto& depthTypeValuesPair : originalDepths )
                 {
                     if ( depthTypeValuesPair.first != resamplingDepthType )
                     {
                         resampledDepths[depthTypeValuesPair.first].push_back( depthTypeValuesPair.second[segmentStartIdx] );
                     }
                 }
-                segmentSearchStartIdx = segmentStartIdx + 1;
+                segmentSearchStartIdx = segmentStartIdx; /* + 1;*/
                 foundPoint            = true;
                 break;
             }
@@ -469,7 +458,38 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( 
 
         CAF_ASSERT( foundPoint );
     }
+    return std::make_pair( xValues, resampledDepths );
+}
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool isLeftOf( double x1, double x2, bool reverseOrder, double eps )
+{
+    if ( reverseOrder )
+    {
+        return x1 - x2 > eps;
+    }
+    return x2 - x1 > eps;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool isRightOf( double x1, double x2, bool reverseOrder, double eps )
+{
+    return isLeftOf( x2, x1, reverseOrder, eps );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( RiaDefines::DepthTypeEnum  resamplingDepthType,
+                                                                                const std::vector<double>& depths ) const
+{
+    const auto [xValues, resampledDepths] = createResampledValuesAndDepths( resamplingDepthType, depths, m_depths, m_propertyValues );
+
+    cvf::ref<RigWellLogCurveData> reSampledData = new RigWellLogCurveData;
     reSampledData->setValuesAndDepths( xValues, resampledDepths, m_rkbDiff, m_depthUnit, true, m_useLogarithmicScale );
     return reSampledData;
 }

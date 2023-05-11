@@ -89,6 +89,12 @@ public:
                                                       std::map<RiaDefines::DepthTypeEnum, std::vector<double>>& resampledDepths,
                                                       const double                                              eps ) const;
 
+    static std::pair<std::vector<double>, std::map<RiaDefines::DepthTypeEnum, std::vector<double>>>
+        createResampledValuesAndDepths( RiaDefines::DepthTypeEnum                                       resamplingDepthType,
+                                        const std::vector<double>&                                      targetDepths,
+                                        const std::map<RiaDefines::DepthTypeEnum, std::vector<double>>& originalDepths,
+                                        const std::vector<double>&                                      propertyValues );
+
 private:
     void calculateIntervalsOfContinousValidValues();
 
