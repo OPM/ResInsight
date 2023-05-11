@@ -215,9 +215,7 @@ void RimFractureTemplateCollection::createAndAssignTemplateCopyForNonMatchingUni
         {
             RimFractureTemplate* templateWithMatchingUnit = nullptr;
 
-            std::vector<RimFracture*> referringObjects;
-            fractureTemplate->objectsWithReferringPtrFieldsOfType( referringObjects );
-
+            std::vector<RimFracture*> referringObjects = fractureTemplate->objectsWithReferringPtrFieldsOfType<RimFracture>();
             for ( auto fracture : referringObjects )
             {
                 if ( fracture && fracture->fractureUnit() != fractureTemplate->fractureTemplateUnit() )

@@ -208,9 +208,7 @@ void RimWellAllocationPlot::updateFromWell()
 
     // Delete existing tracks
     {
-        std::vector<RimWellLogTrack*> tracks;
-        accumulatedWellFlowPlot()->descendantsIncludingThisOfType( tracks );
-
+        std::vector<RimWellLogTrack*> tracks = accumulatedWellFlowPlot()->descendantsIncludingThisOfType<RimWellLogTrack>();
         for ( RimWellLogTrack* t : tracks )
         {
             for ( auto c : t->curves() )

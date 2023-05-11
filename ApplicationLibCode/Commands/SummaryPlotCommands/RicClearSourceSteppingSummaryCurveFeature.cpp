@@ -44,8 +44,7 @@ bool RicClearSourceSteppingSummaryCurveFeature::isCommandEnabled()
     {
         auto c = objects[0];
 
-        RimSummaryPlot* summaryPlot = nullptr;
-        c->firstAncestorOrThisOfTypeAsserted( summaryPlot );
+        auto summaryPlot = c->firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
         if ( summaryPlot )
         {
             if ( summaryPlot->ensembleCurveSetCollection()->curveSetForSourceStepping() ||
@@ -71,8 +70,7 @@ void RicClearSourceSteppingSummaryCurveFeature::onActionTriggered( bool isChecke
     {
         auto c = summaryCurves[0];
 
-        RimSummaryPlot* summaryPlot = nullptr;
-        c->firstAncestorOrThisOfType( summaryPlot );
+        auto summaryPlot = c->firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
         if ( summaryPlot )
         {
             RicClearSourceSteppingEnsembleCurveSetFeature::clearAllSourceSteppingInSummaryPlot( summaryPlot );

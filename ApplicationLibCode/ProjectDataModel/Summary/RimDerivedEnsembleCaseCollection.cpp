@@ -575,9 +575,8 @@ RimSummaryCase* RimDerivedEnsembleCaseCollection::findCaseByRealizationNumber( c
 std::vector<RimDerivedEnsembleCaseCollection*> RimDerivedEnsembleCaseCollection::findReferringEnsembles() const
 {
     std::vector<RimDerivedEnsembleCaseCollection*> referringEnsembles;
-    RimSummaryCaseMainCollection*                  mainColl;
 
-    firstAncestorOrThisOfType( mainColl );
+    auto mainColl = firstAncestorOrThisOfType<RimSummaryCaseMainCollection>();
     if ( mainColl )
     {
         for ( auto group : mainColl->summaryCaseCollections() )

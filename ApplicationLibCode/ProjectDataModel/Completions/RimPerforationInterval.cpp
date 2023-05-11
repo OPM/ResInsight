@@ -233,9 +233,7 @@ std::vector<RimWellPathValve*> RimPerforationInterval::valves() const
 //--------------------------------------------------------------------------------------------------
 void RimPerforationInterval::updateAllReferringTracks()
 {
-    std::vector<RimWellLogTrack*> wellLogTracks;
-
-    this->objectsWithReferringPtrFieldsOfType( wellLogTracks );
+    std::vector<RimWellLogTrack*> wellLogTracks = objectsWithReferringPtrFieldsOfType<RimWellLogTrack>();
     for ( RimWellLogTrack* track : wellLogTracks )
     {
         track->loadDataAndUpdate();
@@ -248,8 +246,7 @@ void RimPerforationInterval::updateAllReferringTracks()
 //--------------------------------------------------------------------------------------------------
 bool RimPerforationInterval::isEnabled() const
 {
-    RimPerforationCollection* perforationCollection;
-    this->firstAncestorOrThisOfTypeAsserted( perforationCollection );
+    auto perforationCollection = firstAncestorOrThisOfTypeAsserted<RimPerforationCollection>();
     return perforationCollection->isChecked() && isChecked();
 }
 

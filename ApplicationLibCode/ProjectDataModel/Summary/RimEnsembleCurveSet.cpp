@@ -246,8 +246,7 @@ RimEnsembleCurveSet::~RimEnsembleCurveSet()
 {
     m_curves.deleteChildren();
 
-    RimSummaryPlot* parentPlot;
-    firstAncestorOrThisOfType( parentPlot );
+    auto parentPlot = firstAncestorOrThisOfType<RimSummaryPlot>();
     if ( parentPlot && parentPlot->plotWidget() )
     {
         if ( m_plotCurveForLegendText ) m_plotCurveForLegendText->detach();
@@ -278,8 +277,7 @@ RimEnsembleCurveSet::~RimEnsembleCurveSet()
 //--------------------------------------------------------------------------------------------------
 bool RimEnsembleCurveSet::isCurvesVisible() const
 {
-    RimEnsembleCurveSetCollection* coll = nullptr;
-    firstAncestorOrThisOfType( coll );
+    auto coll = firstAncestorOrThisOfType<RimEnsembleCurveSetCollection>();
     return m_showCurves() && ( coll ? coll->isCurveSetsVisible() : true );
 }
 
@@ -327,8 +325,7 @@ void RimEnsembleCurveSet::loadDataAndUpdate( bool updateParentPlot )
 
     if ( updateParentPlot )
     {
-        RimSummaryPlot* parentPlot;
-        firstAncestorOrThisOfTypeAsserted( parentPlot );
+        auto parentPlot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
         parentPlot->updateAll();
     }
 }
@@ -379,8 +376,7 @@ void RimEnsembleCurveSet::addCurve( RimSummaryCurve* curve )
 {
     if ( curve )
     {
-        RimSummaryPlot* plot;
-        firstAncestorOrThisOfType( plot );
+        auto plot = firstAncestorOrThisOfType<RimSummaryPlot>();
         if ( plot && plot->plotWidget() ) curve->setParentPlotNoReplot( plot->plotWidget() );
 
         curve->setColor( m_colorForRealizations );
@@ -434,7 +430,7 @@ RifEclipseSummaryAddress RimEnsembleCurveSet::summaryAddress() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCurve*> RimEnsembleCurveSet::curves() const
 {
-    return m_curves.children();
+    return m_curves.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -646,9 +642,7 @@ std::vector<time_t> RimEnsembleCurveSet::selectedTimeSteps() const
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    RimSummaryPlot* plot = nullptr;
-    firstAncestorOrThisOfType( plot );
-    CVF_ASSERT( plot );
+    auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
 
     bool updateTextInPlot = false;
 
@@ -837,7 +831,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         RimSummaryCaseCollection* candidateEnsemble = m_yValuesSummaryCaseCollection();
 
         std::vector<RifEclipseSummaryAddress> candidateAddresses;
-        for ( auto address : m_objectiveValuesSummaryAddresses().children() )
+        for ( auto address : m_objectiveValuesSummaryAddresses().childrenByType() )
         {
             candidateAddresses.push_back( address->address() );
         }
@@ -1152,8 +1146,7 @@ void RimEnsembleCurveSet::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOr
     caf::IconProvider iconProvider = this->uiIconProvider();
     if ( !iconProvider.valid() ) return;
 
-    RimEnsembleCurveSetCollection* coll = nullptr;
-    this->firstAncestorOrThisOfType( coll );
+    auto coll = firstAncestorOrThisOfType<RimEnsembleCurveSetCollection>();
     if ( coll && coll->curveSetForSourceStepping() == this )
     {
         iconProvider.setOverlayResourceString( ":/StepUpDownCorner16x16.png" );
@@ -1335,9 +1328,7 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions( const 
     }
     else if ( fieldNeedingOptions == &m_plotAxisProperties )
     {
-        RimSummaryPlot* plot = nullptr;
-        firstAncestorOrThisOfTypeAsserted( plot );
-
+        auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
         for ( auto axis : plot->plotAxes() )
         {
             options.push_back( caf::PdmOptionItemInfo( axis->objectName(), axis ) );
@@ -1454,8 +1445,7 @@ void RimEnsembleCurveSet::appendOptionItemsForSummaryAddresses( QList<caf::PdmOp
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::updateFilterLegend()
 {
-    RimSummaryPlot* plot;
-    firstAncestorOrThisOfType( plot );
+    auto plot = firstAncestorOrThisOfType<RimSummaryPlot>();
     if ( plot && plot->plotWidget() )
     {
         if ( m_curveFilters()->isActive() && m_curveFilters()->countActiveFilters() > 0 )
@@ -1483,8 +1473,7 @@ void RimEnsembleCurveSet::updateFilterLegend()
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::updateObjectiveFunctionLegend()
 {
-    RimSummaryPlot* plot;
-    firstAncestorOrThisOfType( plot );
+    auto plot = firstAncestorOrThisOfType<RimSummaryPlot>();
     if ( plot && plot->plotWidget() )
     {
         if ( ( m_colorMode == ColorMode::BY_OBJECTIVE_FUNCTION || m_colorMode == ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION ) &&
@@ -1499,7 +1488,7 @@ void RimEnsembleCurveSet::updateObjectiveFunctionLegend()
             if ( m_colorMode() == ColorMode::BY_OBJECTIVE_FUNCTION )
             {
                 std::vector<RifEclipseSummaryAddress> addresses;
-                for ( auto address : m_objectiveValuesSummaryAddresses().children() )
+                for ( auto address : m_objectiveValuesSummaryAddresses().childrenByType() )
                 {
                     addresses.push_back( address->address() );
                 }
@@ -1511,7 +1500,7 @@ void RimEnsembleCurveSet::updateObjectiveFunctionLegend()
             else if ( m_colorMode() == ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION && m_customObjectiveFunction() )
             {
                 std::vector<RifEclipseSummaryAddress> addresses;
-                for ( auto address : m_objectiveValuesSummaryAddresses().children() )
+                for ( auto address : m_objectiveValuesSummaryAddresses().childrenByType() )
                 {
                     addresses.push_back( address->address() );
                 }
@@ -1703,8 +1692,7 @@ void RimEnsembleCurveSet::updateCurveColors()
         m_plotCurveForLegendText->setColor( mainEnsembleColor() );
     }
 
-    RimSummaryPlot* plot;
-    firstAncestorOrThisOfType( plot );
+    auto plot = firstAncestorOrThisOfType<RimSummaryPlot>();
     if ( plot && plot->plotWidget() )
     {
         if ( m_yValuesSummaryCaseCollection() && isCurvesVisible() &&
@@ -1734,10 +1722,7 @@ void RimEnsembleCurveSet::updateCurveColors()
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::updateTimeAnnotations()
 {
-    RimSummaryPlot* plot = nullptr;
-    firstAncestorOrThisOfType( plot );
-    CVF_ASSERT( plot );
-
+    auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
     plot->removeAllTimeAnnotations();
 
     if ( ( m_colorMode() == ColorMode::BY_OBJECTIVE_FUNCTION &&
@@ -1790,9 +1775,7 @@ void RimEnsembleCurveSet::updatePlotAxis()
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase*>& sumCases )
 {
-    RimSummaryPlot* plot = nullptr;
-    firstAncestorOrThisOfType( plot );
-    CVF_ASSERT( plot );
+    auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
 
     deleteEnsembleCurves();
     if ( m_plotCurveForLegendText ) m_plotCurveForLegendText->detach();
@@ -1906,8 +1889,7 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
 
     deleteStatisticsCurves();
 
-    RimSummaryPlot* plot = nullptr;
-    firstAncestorOrThisOfType( plot );
+    auto plot = firstAncestorOrThisOfType<RimSummaryPlot>();
     if ( plot && plot->plotWidget() )
     {
         for ( auto address : addresses )
@@ -1983,8 +1965,7 @@ void RimEnsembleCurveSet::updateAllTextInPlot()
 {
     updateEnsembleLegendItem();
 
-    RimSummaryPlot* summaryPlot = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( summaryPlot );
+    auto summaryPlot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
     if ( summaryPlot->plotWidget() )
     {
         summaryPlot->updatePlotTitle();
@@ -2164,8 +2145,7 @@ QString RimEnsembleCurveSet::name() const
 //--------------------------------------------------------------------------------------------------
 QString RimEnsembleCurveSet::createAutoName() const
 {
-    RimSummaryPlot* plot = nullptr;
-    firstAncestorOrThisOfTypeAsserted( plot );
+    auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
 
     QString curveSetName =
         m_summaryAddressNameTools->curveNameY( m_yValuesSummaryAddress->address(), plot->plotTitleHelper(), plot->plotTitleHelper() );
@@ -2241,8 +2221,7 @@ RiuPlotAxis RimEnsembleCurveSet::axisY() const
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::setLeftOrRightAxisY( RiuPlotAxis plotAxis )
 {
-    RimSummaryPlot* plot = nullptr;
-    firstAncestorOrThisOfTypeAsserted( plot );
+    auto plot            = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
     m_plotAxisProperties = plot->axisPropertiesForPlotAxis( plotAxis );
 
     for ( RimSummaryCurve* curve : curves() )
@@ -2258,8 +2237,7 @@ void RimEnsembleCurveSet::initAfterRead()
 {
     if ( m_plotAxisProperties.value() == nullptr )
     {
-        RimSummaryPlot* plot = nullptr;
-        firstAncestorOrThisOfType( plot );
+        auto plot = firstAncestorOrThisOfType<RimSummaryPlot>();
         if ( plot )
         {
             m_plotAxisProperties = plot->axisPropertiesForPlotAxis( RiuPlotAxis( m_plotAxis_OBSOLETE() ) );

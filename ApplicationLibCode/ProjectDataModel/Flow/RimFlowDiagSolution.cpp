@@ -229,8 +229,7 @@ std::map<std::string, std::vector<int>> RimFlowDiagSolution::allTracerActiveCell
 //--------------------------------------------------------------------------------------------------
 RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatusOverall( const QString& tracerName ) const
 {
-    RimEclipseResultCase* eclCase;
-    this->firstAncestorOrThisOfTypeAsserted( eclCase );
+    auto eclCase = firstAncestorOrThisOfTypeAsserted<RimEclipseResultCase>();
 
     TracerStatusType tracerStatus = TracerStatusType::UNDEFINED;
     if ( eclCase && eclCase->eclipseCaseData() )
@@ -283,9 +282,7 @@ RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatusOverall( 
 //--------------------------------------------------------------------------------------------------
 RimFlowDiagSolution::TracerStatusType RimFlowDiagSolution::tracerStatusInTimeStep( const QString& tracerName, size_t timeStepIndex ) const
 {
-    RimEclipseResultCase* eclCase;
-    this->firstAncestorOrThisOfTypeAsserted( eclCase );
-
+    auto eclCase = firstAncestorOrThisOfTypeAsserted<RimEclipseResultCase>();
     if ( eclCase && eclCase->eclipseCaseData() )
     {
         const cvf::Collection<RigSimWellData>& simWellData = eclCase->eclipseCaseData()->wellResults();
