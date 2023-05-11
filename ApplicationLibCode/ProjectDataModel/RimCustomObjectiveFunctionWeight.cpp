@@ -152,7 +152,7 @@ void RimCustomObjectiveFunctionWeight::fieldChangedByUi( const caf::PdmFieldHand
         RimSummaryCaseCollection* candidateEnsemble = parentCurveSet()->summaryCaseCollection();
 
         std::vector<RifEclipseSummaryAddress> candidateAddresses;
-        for ( auto address : m_objectiveValuesSummaryAddresses().children() )
+        for ( auto address : m_objectiveValuesSummaryAddresses().childrenByType() )
         {
             candidateAddresses.push_back( address->address() );
         }
@@ -240,9 +240,7 @@ caf::PdmFieldHandle* RimCustomObjectiveFunctionWeight::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 RimEnsembleCurveSet* RimCustomObjectiveFunctionWeight::parentCurveSet() const
 {
-    RimEnsembleCurveSet* curveSet;
-    firstAncestorOrThisOfType( curveSet );
-    return curveSet;
+    return firstAncestorOrThisOfType<RimEnsembleCurveSet>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -250,9 +248,7 @@ RimEnsembleCurveSet* RimCustomObjectiveFunctionWeight::parentCurveSet() const
 //--------------------------------------------------------------------------------------------------
 RimCustomObjectiveFunction* RimCustomObjectiveFunctionWeight::parentObjectiveFunction() const
 {
-    RimCustomObjectiveFunction* func;
-    firstAncestorOrThisOfType( func );
-    return func;
+    return firstAncestorOrThisOfType<RimCustomObjectiveFunction>();
 }
 
 //--------------------------------------------------------------------------------------------------

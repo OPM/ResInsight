@@ -90,8 +90,7 @@ void RicWellLogFileCloseFeature::setupActionLook( QAction* actionToSetup )
 std::set<RimViewWindow*> RicWellLogFileCloseFeature::referringWellLogPlots( const RimWellLogFile* wellLogFile )
 {
     // Remove all curves displaying data from the specified wellLogFile
-    std::vector<caf::PdmObjectHandle*> referringObjects;
-    wellLogFile->objectsWithReferringPtrFields( referringObjects );
+    std::vector<caf::PdmObjectHandle*> referringObjects = wellLogFile->objectsWithReferringPtrFields();
 
     std::set<RimViewWindow*> plots;
     for ( const auto& obj : referringObjects )

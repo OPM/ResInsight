@@ -1146,8 +1146,7 @@ void RimWellPath::wellPathLateralsRecursively( std::vector<RimWellPath*>& wellPa
 {
     wellPathLaterals.push_back( const_cast<RimWellPath*>( this ) );
 
-    std::vector<caf::PdmObjectHandle*> referringObjects;
-    this->objectsWithReferringPtrFields( referringObjects );
+    std::vector<caf::PdmObjectHandle*> referringObjects = objectsWithReferringPtrFields();
     for ( auto obj : referringObjects )
     {
         if ( auto tieIn = dynamic_cast<RimWellPathTieIn*>( obj ) )
@@ -1183,8 +1182,7 @@ std::vector<RimWellPath*> RimWellPath::wellPathLaterals() const
 {
     std::vector<RimWellPath*> laterals;
 
-    std::vector<caf::PdmObjectHandle*> referringObjects;
-    this->objectsWithReferringPtrFields( referringObjects );
+    std::vector<caf::PdmObjectHandle*> referringObjects = objectsWithReferringPtrFields();
     for ( auto obj : referringObjects )
     {
         if ( auto tieIn = dynamic_cast<RimWellPathTieIn*>( obj ) )

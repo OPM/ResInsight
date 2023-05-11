@@ -75,8 +75,7 @@ void RicCloseSummaryCaseFeature::deleteSummaryCases( std::vector<RimSummaryCase*
             plotsToUpdate.insert( multiPlot );
         }
 
-        std::vector<caf::PdmObjectHandle*> referringObjects;
-        summaryCase->objectsWithReferringPtrFields( referringObjects );
+        std::vector<caf::PdmObjectHandle*> referringObjects = summaryCase->objectsWithReferringPtrFields();
 
         for ( auto object : referringObjects )
         {

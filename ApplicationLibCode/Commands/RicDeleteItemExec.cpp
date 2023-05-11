@@ -56,8 +56,7 @@ void RicDeleteItemExec::redo()
         caf::PdmObjectHandle* obj = children[m_commandData.m_indexToObject];
         caf::SelectionManager::instance()->removeObjectFromAllSelections( obj );
 
-        std::vector<caf::PdmObjectHandle*> referringObjects;
-        obj->objectsWithReferringPtrFields( referringObjects );
+        std::vector<caf::PdmObjectHandle*> referringObjects = obj->objectsWithReferringPtrFields();
 
         if ( m_commandData.m_deletedObjectAsXml().isEmpty() )
         {

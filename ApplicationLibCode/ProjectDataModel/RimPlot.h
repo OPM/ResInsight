@@ -90,7 +90,7 @@ public:
     template <typename PlotWindowType = RimPlotWindow>
     bool isSubPlot() const
     {
-        auto parentPlotWindow = firstAncestorOfType<PlotWindowType>( parentPlotWindow );
+        auto parentPlotWindow = firstAncestorOfType<PlotWindowType>();
         return parentPlotWindow != nullptr;
     }
 

@@ -48,8 +48,7 @@ void RicReloadPressureDepthDataFeature::onActionTriggered( bool isChecked )
     {
         pressureDepthData->createRftReaderInterface();
 
-        std::vector<caf::PdmObjectHandle*> referringObjects;
-        pressureDepthData->objectsWithReferringPtrFields( referringObjects );
+        std::vector<caf::PdmObjectHandle*> referringObjects = pressureDepthData->objectsWithReferringPtrFields();
         for ( auto refObj : referringObjects )
         {
             if ( refObj )

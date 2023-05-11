@@ -197,7 +197,7 @@ RimDepthTrackPlot& RimDepthTrackPlot::operator=( RimDepthTrackPlot&& rhs )
     RimPlotWindow::operator=( std::move( rhs ) );
 
     // Move all tracks
-    auto plots = rhs.m_plots.children();
+    auto plots = rhs.m_plots.childrenByType();
     rhs.m_plots.clearWithoutDelete();
     for ( auto plot : plots )
     {

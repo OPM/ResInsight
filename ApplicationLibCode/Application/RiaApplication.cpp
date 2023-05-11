@@ -569,7 +569,7 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
 
         {
             std::vector<RimWellPathFracture*> wellPathFractures =
-                oilField->wellPathCollection->descendantsIncludingThisOfType<RimWellPathFracture>( wellPathFractures );
+                oilField->wellPathCollection->descendantsIncludingThisOfType<RimWellPathFracture>();
 
             for ( auto fracture : wellPathFractures )
             {
@@ -627,8 +627,7 @@ bool RiaApplication::loadProject( const QString& projectFileName, ProjectLoadAct
 
                     if ( m_project->isProjectFileVersionEqualOrOlderThan( "2018.1.0.103" ) )
                     {
-                        std::vector<RimStimPlanColors*> stimPlanColors =
-                            riv->descendantsIncludingThisOfType<RimStimPlanColors>( stimPlanColors );
+                        std::vector<RimStimPlanColors*> stimPlanColors = riv->descendantsIncludingThisOfType<RimStimPlanColors>();
                         if ( stimPlanColors.size() == 1 )
                         {
                             stimPlanColors[0]->updateConductivityResultName();

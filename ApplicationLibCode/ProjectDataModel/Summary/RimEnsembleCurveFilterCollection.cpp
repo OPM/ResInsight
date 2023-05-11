@@ -109,8 +109,7 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveFilterCollection::calculateValueOp
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveFilterCollection::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    RimEnsembleCurveSet* curveSet = nullptr;
-    firstAncestorOrThisOfType( curveSet );
+    RimEnsembleCurveSet* curveSet = firstAncestorOrThisOfType<RimEnsembleCurveSet>();
     if ( !curveSet ) return;
 
     if ( changedField == &m_active )
@@ -266,11 +265,9 @@ caf::PdmFieldHandle* RimEnsembleCurveFilterCollection::objectToggleField()
 void RimEnsembleCurveFilterCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                                                        std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
-    RimSummaryPlot* plot = nullptr;
-    firstAncestorOrThisOfType( plot );
+    RimSummaryPlot* plot = firstAncestorOrThisOfType<RimSummaryPlot>();
     if ( plot ) plot->loadDataAndUpdate();
 
-    RimEnsembleCurveSet* curveSet = nullptr;
-    firstAncestorOrThisOfType( curveSet );
+    RimEnsembleCurveSet* curveSet = firstAncestorOrThisOfType<RimEnsembleCurveSet>();
     if ( curveSet ) curveSet->updateConnectedEditors();
 }

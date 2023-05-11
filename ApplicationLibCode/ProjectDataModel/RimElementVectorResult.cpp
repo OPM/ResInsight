@@ -469,8 +469,7 @@ void RimElementVectorResult::fieldChangedByUi( const caf::PdmFieldHandle* change
         m_vectorSurfaceCrossingLocation.uiCapability()->setUiReadOnly( vectorView() == RimElementVectorResult::VectorView::CELL_CENTER_TOTAL );
     }
 
-    RimEclipseView* view;
-    firstAncestorOrThisOfType( view );
+    RimEclipseView* view = firstAncestorOrThisOfType<RimEclipseView>();
     view->loadDataAndUpdate();
 }
 

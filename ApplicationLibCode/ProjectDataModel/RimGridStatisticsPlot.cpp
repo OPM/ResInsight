@@ -99,7 +99,7 @@ void RimGridStatisticsPlot::setDefaults()
 
             if ( eclipseCase && !eclipseCase->reservoirViews.children().empty() )
             {
-                m_cellFilterView.setValue( eclipseCase->reservoirViews.children().front() );
+                m_cellFilterView.setValue( eclipseCase->reservoirViews.childrenByType().front() );
             }
 
             m_numHistogramBins = 15;
@@ -197,7 +197,7 @@ QList<caf::PdmOptionItemInfo> RimGridStatisticsPlot::calculateValueOptions( cons
         if ( eclipseCase )
         {
             options.push_back( caf::PdmOptionItemInfo( "Disabled", nullptr ) );
-            for ( RimEclipseView* view : eclipseCase->reservoirViews.children() )
+            for ( RimEclipseView* view : eclipseCase->reservoirViews.childrenByType() )
             {
                 CVF_ASSERT( view && "Really always should have a valid view pointer in ReservoirViews" );
                 options.push_back( caf::PdmOptionItemInfo( view->name(), view, false, view->uiIconProvider() ) );

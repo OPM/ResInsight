@@ -110,10 +110,9 @@ bool RimWellLogCurve::depthValueRangeInData( double* minimumValue, double* maxim
         return false;
     }
 
-    RimDepthTrackPlot* wellLogPlot = nullptr;
-    firstAncestorOrThisOfTypeAsserted( wellLogPlot );
-    auto depthType   = wellLogPlot->depthType();
-    auto displayUnit = wellLogPlot->depthUnit();
+    RimDepthTrackPlot* wellLogPlot = firstAncestorOrThisOfTypeAsserted<RimDepthTrackPlot>();
+    auto               depthType   = wellLogPlot->depthType();
+    auto               displayUnit = wellLogPlot->depthUnit();
 
     return m_curveData->calculateDepthRange( depthType, displayUnit, minimumValue, maximumValue );
 }

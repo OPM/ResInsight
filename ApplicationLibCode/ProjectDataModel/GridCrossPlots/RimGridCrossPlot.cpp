@@ -143,7 +143,7 @@ void RimGridCrossPlot::addDataSet( RimGridCrossPlotDataSet* dataSet )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimGridCrossPlotDataSet*> RimGridCrossPlot::dataSets() const
 {
-    return m_crossPlotDataSets.children();
+    return m_crossPlotDataSets.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------

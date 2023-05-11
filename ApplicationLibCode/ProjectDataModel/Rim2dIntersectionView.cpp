@@ -178,7 +178,7 @@ RimCase* Rim2dIntersectionView::ownerCase() const
 
     if ( !rimCase )
     {
-        this->firstAncestorOrThisOfTypeAsserted( rimCase );
+        rimCase = firstAncestorOrThisOfTypeAsserted<RimCase>();
     }
 
     return rimCase;
@@ -198,8 +198,7 @@ bool Rim2dIntersectionView::isTimeStepDependentDataVisible() const
         }
         else
         {
-            RimGridView* gridView = nullptr;
-            m_intersection->firstAncestorOrThisOfTypeAsserted( gridView );
+            RimGridView* gridView = m_intersection->firstAncestorOrThisOfTypeAsserted<RimGridView>();
             return gridView->isTimeStepDependentDataVisibleInThisOrComparisonView();
         }
     }
@@ -221,10 +220,8 @@ void Rim2dIntersectionView::update3dInfo()
     RimEclipseResultDefinition* eclResDef         = nullptr;
 
     {
-        RimEclipseView* originEclView = nullptr;
-        m_intersection->firstAncestorOrThisOfType( originEclView );
-        RimGeoMechView* originGeoView = nullptr;
-        m_intersection->firstAncestorOrThisOfType( originGeoView );
+        RimEclipseView* originEclView = m_intersection->firstAncestorOrThisOfType<RimEclipseView>();
+        RimGeoMechView* originGeoView = m_intersection->firstAncestorOrThisOfType<RimGeoMechView>();
 
         if ( originEclView )
         {
@@ -350,8 +347,7 @@ void Rim2dIntersectionView::updateName()
 {
     if ( m_intersection )
     {
-        Rim3dView* parentView = nullptr;
-        m_intersection->firstAncestorOrThisOfTypeAsserted( parentView );
+        Rim3dView* parentView = m_intersection->firstAncestorOrThisOfTypeAsserted<Rim3dView>();
         this->setName( parentView->name() + ": " + m_intersection->name() );
     }
 }
@@ -453,15 +449,13 @@ bool Rim2dIntersectionView::hasResults()
         }
     }
 
-    RimEclipseView* eclView = nullptr;
-    m_intersection->firstAncestorOrThisOfType( eclView );
+    RimEclipseView* eclView = m_intersection->firstAncestorOrThisOfType<RimEclipseView>();
     if ( eclView )
     {
         return ( eclView->cellResult()->hasResult() || eclView->cellResult()->isTernarySaturationSelected() );
     }
 
-    RimGeoMechView* geoView = nullptr;
-    m_intersection->firstAncestorOrThisOfType( geoView );
+    RimGeoMechView* geoView = m_intersection->firstAncestorOrThisOfType<RimGeoMechView>();
     if ( geoView )
     {
         return geoView->cellResult()->hasResult();
@@ -556,8 +550,7 @@ void Rim2dIntersectionView::onCreateDisplayModel()
 
     if ( m_intersection->type() == RimExtrudedCurveIntersection::CrossSectionEnum::CS_SIMULATION_WELL && m_intersection->simulationWell() )
     {
-        RimEclipseView* eclipseView = nullptr;
-        m_intersection->firstAncestorOrThisOfType( eclipseView );
+        RimEclipseView* eclipseView = m_intersection->firstAncestorOrThisOfType<RimEclipseView>();
 
         // if ( eclipseView ) Do we need this ?
         {
@@ -569,8 +562,7 @@ void Rim2dIntersectionView::onCreateDisplayModel()
     m_flatWellpathPartMgr = nullptr;
     if ( m_intersection->type() == RimExtrudedCurveIntersection::CrossSectionEnum::CS_WELL_PATH && m_intersection->wellPath() )
     {
-        Rim3dView* settingsView = nullptr;
-        m_intersection->firstAncestorOrThisOfType( settingsView );
+        Rim3dView* settingsView = m_intersection->firstAncestorOrThisOfType<Rim3dView>();
         if ( settingsView )
         {
             m_flatWellpathPartMgr = new RivWellPathPartMgr( m_intersection->wellPath(), settingsView );
@@ -690,10 +682,8 @@ void Rim2dIntersectionView::onUpdateLegends()
     RimTernaryLegendConfig*     ternaryLegendConfig = nullptr;
 
     {
-        RimEclipseView* originEclView = nullptr;
-        m_intersection->firstAncestorOrThisOfType( originEclView );
-        RimGeoMechView* originGeoView = nullptr;
-        m_intersection->firstAncestorOrThisOfType( originGeoView );
+        RimEclipseView* originEclView = m_intersection->firstAncestorOrThisOfType<RimEclipseView>();
+        RimGeoMechView* originGeoView = m_intersection->firstAncestorOrThisOfType<RimGeoMechView>();
 
         if ( originEclView )
         {

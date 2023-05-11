@@ -462,8 +462,7 @@ RimViewLinker* Rim3dView::assosiatedViewLinker() const
 //--------------------------------------------------------------------------------------------------
 RimViewController* Rim3dView::viewController() const
 {
-    std::vector<RimViewController*> objects;
-    this->objectsWithReferringPtrFieldsOfType( objects );
+    std::vector<RimViewController*> objects = objectsWithReferringPtrFieldsOfType();
 
     for ( auto v : objects )
     {
@@ -561,9 +560,7 @@ void Rim3dView::scheduleCreateDisplayModelAndRedraw()
 std::set<Rim3dView*> Rim3dView::viewsUsingThisAsComparisonView()
 {
     std::set<Rim3dView*>              containingViews;
-    std::vector<caf::PdmFieldHandle*> fieldsReferringToMe;
-
-    this->referringPtrFields( fieldsReferringToMe );
+    std::vector<caf::PdmFieldHandle*> fieldsReferringToMe = referringPtrFields();
     for ( caf::PdmFieldHandle* field : fieldsReferringToMe )
     {
         if ( field->keyword() == m_comparisonView.keyword() )
@@ -815,8 +812,7 @@ bool Rim3dView::hasVisibleTimeStepDependent3dWellLogCurves() const
 {
     if ( wellPathCollection() )
     {
-        std::vector<Rim3dWellLogCurve*> wellLogCurves;
-        wellPathCollection()->descendantsIncludingThisOfType( wellLogCurves );
+        std::vector<Rim3dWellLogCurve*> wellLogCurves = wellPathCollection()->descendantsIncludingThisOfType<Rim3dWellLogCurve>();
         for ( const Rim3dWellLogCurve* curve : wellLogCurves )
         {
             if ( curve->showInView( this ) && curve->isShowingTimeDependentResult() )
@@ -996,8 +992,7 @@ void Rim3dView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const
     {
         if ( changedField == &m_fontSize )
         {
-            std::vector<caf::FontHolderInterface*> fontHolderChildren;
-            descendantsOfType( fontHolderChildren );
+            auto fontHolderChildren = descendantsOfType<caf::FontHolderInterface>();
             for ( auto fontHolder : fontHolderChildren )
             {
                 fontHolder->updateFonts();
@@ -1072,8 +1067,7 @@ void Rim3dView::addAnnotationsToModel( cvf::ModelBasicList* annotationsModel )
 {
     if ( !this->ownerCase() ) return;
 
-    std::vector<RimAnnotationInViewCollection*> annotationCollections;
-    descendantsIncludingThisOfType( annotationCollections );
+    auto annotationCollections = descendantsIncludingThisOfType<RimAnnotationInViewCollection>();
 
     if ( annotationCollections.empty() || !annotationCollections.front()->isActive() )
     {
@@ -1750,8 +1744,7 @@ void Rim3dView::restoreComparisonView()
 //--------------------------------------------------------------------------------------------------
 RimViewLinker* Rim3dView::viewLinkerIfMasterView() const
 {
-    std::vector<RimViewLinker*> objects;
-    this->objectsWithReferringPtrFieldsOfType( objects );
+    std::vector<RimViewLinker*> objects = objectsWithReferringPtrFieldsOfType<RimViewLinker>();
 
     for ( auto viewLinker : objects )
     {
