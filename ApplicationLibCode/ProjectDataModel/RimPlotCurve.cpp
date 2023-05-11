@@ -322,17 +322,13 @@ QList<caf::PdmOptionItemInfo> RimPlotCurve::calculateValueOptions( const caf::Pd
     }
     else if ( fieldNeedingOptions == &m_additionalDataSources )
     {
-        std::vector<RimPlotWindow*> parentPlots;
-
         // Find all plot windows above this object upwards in the object hierarchy. Use the top most plot window as the
         // root to find all plot curves.
-        this->allAncestorsOfType( parentPlots );
+        auto parentPlots = this->allAncestorsOfType<RimPlotWindow>();
 
         if ( !parentPlots.empty() )
         {
-            std::vector<RimPlotCurve*> plotCurves;
-            parentPlots.back()->descendantsOfType( plotCurves );
-
+            auto plotCurves = parentPlots.back()->descendantsOfType<RimPlotCurve>();
             for ( auto p : plotCurves )
             {
                 caf::PdmOptionItemInfo optionInfo( p->curveName(), p );
@@ -476,8 +472,7 @@ void RimPlotCurve::updateFieldUiState()
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updatePlotTitle()
 {
-    RimNameConfigHolderInterface* nameConfigHolder = nullptr;
-    this->firstAncestorOrThisOfType( nameConfigHolder );
+    auto nameConfigHolder = firstAncestorOrThisOfType<RimNameConfigHolderInterface>();
     if ( nameConfigHolder )
     {
         nameConfigHolder->updateAutoName();
@@ -553,12 +548,10 @@ bool RimPlotCurve::canCurveBeAttached() const
     bool isVisibleInPossibleParent = true;
 
     {
-        RimSummaryCurveCollection* summaryCurveCollection = nullptr;
-        this->firstAncestorOrThisOfType( summaryCurveCollection );
+        auto summaryCurveCollection = firstAncestorOrThisOfType<RimSummaryCurveCollection>();
         if ( summaryCurveCollection ) isVisibleInPossibleParent = summaryCurveCollection->isCurvesVisible();
 
-        RimEnsembleCurveSet* ensembleCurveSet = nullptr;
-        firstAncestorOrThisOfType( ensembleCurveSet );
+        auto ensembleCurveSet = firstAncestorOrThisOfType<RimEnsembleCurveSet>();
         if ( ensembleCurveSet ) isVisibleInPossibleParent = ensembleCurveSet->isCurvesVisible();
     }
 
@@ -581,8 +574,7 @@ void RimPlotCurve::checkAndApplyDefaultFillColor()
 //--------------------------------------------------------------------------------------------------
 bool RimPlotCurve::isCrossPlotCurve() const
 {
-    RimSummaryCrossPlot* crossPlot = nullptr;
-    this->firstAncestorOrThisOfType( crossPlot );
+    auto crossPlot = firstAncestorOrThisOfType<RimSummaryCrossPlot>();
     if ( crossPlot ) return true;
 
     return false;
@@ -900,8 +892,7 @@ void RimPlotCurve::updateLegendEntryVisibilityNoPlotUpdate()
 {
     if ( !m_plotCurve ) return;
 
-    RimEnsembleCurveSet* ensembleCurveSet = nullptr;
-    this->firstAncestorOrThisOfType( ensembleCurveSet );
+    auto ensembleCurveSet = firstAncestorOrThisOfType<RimEnsembleCurveSet>();
     if ( ensembleCurveSet )
     {
         return;
@@ -909,8 +900,7 @@ void RimPlotCurve::updateLegendEntryVisibilityNoPlotUpdate()
 
     bool showLegendInPlot = m_showLegend();
 
-    RimSummaryPlot* summaryPlot = nullptr;
-    this->firstAncestorOrThisOfType( summaryPlot );
+    auto summaryPlot = firstAncestorOrThisOfType<RimSummaryPlot>();
     if ( summaryPlot )
     {
         bool anyCalculated = false;
@@ -1000,8 +990,7 @@ void RimPlotCurve::updateCurveAppearance()
         int legendFontSize =
             caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(), caf::FontTools::RelativeSize::Small );
 
-        RimPlotWindow* plotWindow = nullptr;
-        this->firstAncestorOrThisOfType( plotWindow );
+        auto plotWindow = firstAncestorOrThisOfType<RimPlotWindow>();
         if ( plotWindow )
         {
             legendFontSize = plotWindow->legendFontSize();

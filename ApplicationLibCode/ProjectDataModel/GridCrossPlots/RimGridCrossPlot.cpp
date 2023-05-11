@@ -1041,8 +1041,7 @@ void RimGridCrossPlot::cleanupBeforeClose()
 //--------------------------------------------------------------------------------------------------
 bool RimGridCrossPlot::isDeletable() const
 {
-    RimMultiPlot* plotWindow = nullptr;
-    firstAncestorOrThisOfType( plotWindow );
+    auto plotWindow = firstAncestorOrThisOfType<RimMultiPlot>();
     return plotWindow == nullptr;
 }
 

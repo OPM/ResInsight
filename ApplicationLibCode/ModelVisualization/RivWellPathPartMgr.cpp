@@ -381,8 +381,7 @@ void RivWellPathPartMgr::appendPerforationsToModel( cvf::ModelBasicList*        
     QDateTime currentTimeStamp;
     if ( m_rimView )
     {
-        RimCase* rimCase = nullptr;
-        m_rimView->firstAncestorOrThisOfType( rimCase );
+        auto rimCase = m_rimView->firstAncestorOrThisOfType<RimCase>();
 
         if ( rimCase )
         {
@@ -578,8 +577,7 @@ void RivWellPathPartMgr::appendVirtualTransmissibilitiesToModel( cvf::ModelBasic
 
     if ( !eclView->isVirtualConnectionFactorGeometryVisible() ) return;
 
-    RimEclipseCase* eclipseCase = nullptr;
-    eclView->firstAncestorOrThisOfType( eclipseCase );
+    auto eclipseCase = eclView->firstAncestorOrThisOfType<RimEclipseCase>();
     if ( !eclipseCase ) return;
 
     const RigVirtualPerforationTransmissibilities* trans = eclipseCase->computeAndGetVirtualPerforationTransmissibilities();
@@ -976,10 +974,7 @@ RimWellPathCollection* RivWellPathPartMgr::wellPathCollection() const
 {
     if ( !m_rimWellPath ) return nullptr;
 
-    RimWellPathCollection* wellPathCollection = nullptr;
-    m_rimWellPath->firstAncestorOrThisOfType( wellPathCollection );
-
-    return wellPathCollection;
+    return m_rimWellPath->firstAncestorOrThisOfType<RimWellPathCollection>();
 }
 
 //--------------------------------------------------------------------------------------------------

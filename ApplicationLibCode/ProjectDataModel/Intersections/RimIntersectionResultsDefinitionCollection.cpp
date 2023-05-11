@@ -73,8 +73,7 @@ void RimIntersectionResultsDefinitionCollection::appendIntersectionResultDefinit
 
     if ( interResDef->activeCase() == nullptr )
     {
-        RimCase* ownerCase = nullptr;
-        this->firstAncestorOrThisOfType( ownerCase );
+        auto ownerCase = firstAncestorOrThisOfType<RimCase>();
         interResDef->setActiveCase( ownerCase );
     }
 }
@@ -96,8 +95,7 @@ void RimIntersectionResultsDefinitionCollection::fieldChangedByUi( const caf::Pd
 {
     this->updateUiIconFromToggleField();
 
-    RimGridView* gridView = nullptr;
-    this->firstAncestorOrThisOfType( gridView );
+    auto gridView = firstAncestorOrThisOfType<RimGridView>();
     if ( gridView ) gridView->scheduleCreateDisplayModelAndRedraw();
     if ( intersectionResultsDefinitions().size() > 0 ) intersectionResultsDefinitions()[0]->update2dIntersectionViews();
 }
@@ -116,8 +114,7 @@ void RimIntersectionResultsDefinitionCollection::initAfterRead()
 void RimIntersectionResultsDefinitionCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                                                                  std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
-    RimGridView* gridView = nullptr;
-    this->firstAncestorOrThisOfType( gridView );
+    auto gridView = firstAncestorOrThisOfType<RimGridView>();
     if ( gridView )
     {
         gridView->scheduleCreateDisplayModelAndRedraw();
