@@ -224,7 +224,7 @@ std::vector<T*> PdmObjectHandle::allAncestorsOfType() const
     if ( firstAncestor )
     {
         ancestors.push_back( firstAncestor );
-        auto other = firstAncestor->allAncestorsOfType<T>();
+        auto other = firstAncestor->template allAncestorsOfType<T>();
         ancestors.insert( ancestors.end(), other.begin(), other.end() );
     }
 
@@ -243,7 +243,7 @@ std::vector<T*> PdmObjectHandle::allAncestorsOrThisOfType() const
     if ( firstAncestorOrThis )
     {
         ancestors.push_back( firstAncestorOrThis );
-        auto other = firstAncestorOrThis->allAncestorsOfType<T>();
+        auto other = firstAncestorOrThis->template allAncestorsOfType<T>();
         ancestors.insert( ancestors.end(), other.begin(), other.end() );
     }
 
