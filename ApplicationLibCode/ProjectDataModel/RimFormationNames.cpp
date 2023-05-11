@@ -116,8 +116,7 @@ QString RimFormationNames::fileNameWoPath()
 //--------------------------------------------------------------------------------------------------
 void RimFormationNames::updateConnectedViews()
 {
-    std::vector<RimCase*> objects;
-    this->objectsWithReferringPtrFieldsOfType( objects );
+    std::vector<RimCase*> objects = objectsWithReferringPtrFieldsOfType<RimCase>();
 
     for ( RimCase* caseObj : objects )
     {
@@ -125,8 +124,7 @@ void RimFormationNames::updateConnectedViews()
         {
             caseObj->updateFormationNamesData();
 
-            std::vector<RimWellLogTrack*> tracks;
-            caseObj->objectsWithReferringPtrFieldsOfType( tracks );
+            std::vector<RimWellLogTrack*> tracks = caseObj->objectsWithReferringPtrFieldsOfType<RimWellLogTrack>();
             for ( RimWellLogTrack* track : tracks )
             {
                 // The track may be referring to the case for other reasons than formations.

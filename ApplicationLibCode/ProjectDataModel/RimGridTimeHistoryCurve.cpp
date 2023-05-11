@@ -241,8 +241,7 @@ std::vector<double> RimGridTimeHistoryCurve::yValues() const
         }
     }
 
-    RimSummaryPlot* plot = nullptr;
-    firstAncestorOrThisOfTypeAsserted( plot );
+    auto plot         = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
     bool isNormalized = plot->isNormalizationEnabled();
     if ( isNormalized )
     {
@@ -602,8 +601,7 @@ void RimGridTimeHistoryCurve::fieldChangedByUi( const caf::PdmFieldHandle* chang
     {
         updateQwtPlotAxis();
 
-        RimSummaryPlot* plot = nullptr;
-        firstAncestorOrThisOfTypeAsserted( plot );
+        auto plot = firstAncestorOrThisOfTypeAsserted<RimSummaryPlot>();
 
         plot->updateAxes();
     }

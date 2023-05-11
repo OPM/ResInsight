@@ -328,8 +328,7 @@ double RimMudWeightWindowParameters::airGap() const
 //--------------------------------------------------------------------------------------------------
 void RimMudWeightWindowParameters::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    RimGeoMechCase* geoMechCase = nullptr;
-    firstAncestorOrThisOfType( geoMechCase );
+    auto geoMechCase = firstAncestorOrThisOfType<RimGeoMechCase>();
     if ( !geoMechCase )
     {
         return;
@@ -462,8 +461,7 @@ void RimMudWeightWindowParameters::defineUiOrdering( QString uiConfigName, caf::
     defineGroup( uiOrdering, "UCS", &m_UCSType, &m_UCSFixed, &m_UCSAddress );
     defineGroup( uiOrdering, "Poisson's Ratio", &m_poissonsRatioType, &m_poissonsRatioFixed, &m_poissonsRatioAddress );
 
-    RimGeoMechCase* geoMechCase = nullptr;
-    firstAncestorOrThisOfType( geoMechCase );
+    auto geoMechCase = firstAncestorOrThisOfType<RimGeoMechCase>();
     if ( !geoMechCase )
     {
         return;
@@ -539,9 +537,7 @@ QList<caf::PdmOptionItemInfo> RimMudWeightWindowParameters::calculateValueOption
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    RimGeoMechCase* geoMechCase = nullptr;
-    firstAncestorOrThisOfType( geoMechCase );
-
+    auto geoMechCase = firstAncestorOrThisOfType<RimGeoMechCase>();
     if ( geoMechCase != nullptr )
     {
         if ( fieldNeedingOptions == &m_obg0Type )
@@ -606,8 +602,7 @@ QList<caf::PdmOptionItemInfo> RimMudWeightWindowParameters::calculateValueOption
 //--------------------------------------------------------------------------------------------------
 void RimMudWeightWindowParameters::updateFemPartResults() const
 {
-    RimGeoMechCase* geoMechCase = nullptr;
-    firstAncestorOrThisOfType( geoMechCase );
+    auto geoMechCase = firstAncestorOrThisOfType<RimGeoMechCase>();
     if ( !geoMechCase )
     {
         return;

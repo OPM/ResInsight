@@ -187,8 +187,7 @@ QList<caf::PdmOptionItemInfo> RimStimPlanColors::calculateValueOptions( const ca
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanColors::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    RimEclipseView* sourceView = nullptr;
-    this->firstAncestorOrThisOfType( sourceView );
+    RimEclipseView* sourceView = firstAncestorOrThisOfType<RimEclipseView>();
     if ( sourceView )
     {
         sourceView->scheduleCreateDisplayModelAndRedraw();
@@ -302,8 +301,7 @@ void RimStimPlanColors::updateStimPlanTemplates() const
     // Get all frac templates and re-generate stimplan cells
     RimProject* proj = RimProject::current();
 
-    std::vector<RimFracture*> fractures;
-    proj->descendantsIncludingThisOfType( fractures );
+    std::vector<RimFracture*> fractures = proj->descendantsIncludingThisOfType<RimFracture>();
     for ( RimFracture* fracture : fractures )
     {
         fracture->updateFractureGrid();

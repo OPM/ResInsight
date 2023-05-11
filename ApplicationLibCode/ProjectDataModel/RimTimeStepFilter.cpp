@@ -415,10 +415,7 @@ void RimTimeStepFilter::updateFieldVisibility()
 //--------------------------------------------------------------------------------------------------
 RimEclipseResultCase* RimTimeStepFilter::parentEclipseResultCase() const
 {
-    RimEclipseResultCase* rimEclipseResultCase = nullptr;
-    this->firstAncestorOrThisOfType( rimEclipseResultCase );
-
-    return rimEclipseResultCase;
+    return firstAncestorOrThisOfType<RimEclipseResultCase>();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -426,9 +423,7 @@ RimEclipseResultCase* RimTimeStepFilter::parentEclipseResultCase() const
 //--------------------------------------------------------------------------------------------------
 RimGeoMechCase* RimTimeStepFilter::parentGeoMechCase() const
 {
-    RimGeoMechCase* rimGeoMechCase = nullptr;
-    this->firstAncestorOrThisOfType( rimGeoMechCase );
-    return rimGeoMechCase;
+    return firstAncestorOrThisOfType<RimGeoMechCase>();
 }
 
 //--------------------------------------------------------------------------------------------------

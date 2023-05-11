@@ -102,7 +102,7 @@ RimMultiPlot& RimMultiPlot::operator=( RimMultiPlot&& rhs )
     RimPlotWindow::operator=( std::move( rhs ) );
 
     // Move all tracks
-    std::vector<RimPlot*> plots = rhs.m_plots.children();
+    std::vector<RimPlot*> plots = rhs.m_plots.childrenByType();
     rhs.m_plots.clearWithoutDelete();
     for ( RimPlot* plot : plots )
     {
@@ -254,8 +254,7 @@ void RimMultiPlot::movePlotsToThis( const std::vector<RimPlot*>& plotsToMove, in
 {
     for ( size_t tIdx = 0; tIdx < plotsToMove.size(); tIdx++ )
     {
-        RimMultiPlot* previousMultiPlotWindow = nullptr;
-        plotsToMove[tIdx]->firstAncestorOrThisOfType( previousMultiPlotWindow );
+        RimMultiPlot* previousMultiPlotWindow = plotsToMove[tIdx]->firstAncestorOrThisOfType<RimMultiPlot>();
         if ( previousMultiPlotWindow )
         {
             previousMultiPlotWindow->removePlot( plotsToMove[tIdx] );
@@ -320,7 +319,7 @@ size_t RimMultiPlot::plotIndex( const RimPlot* plot ) const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPlot*> RimMultiPlot::plots() const
 {
-    return m_plots.children();
+    return m_plots.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -453,8 +452,7 @@ void RimMultiPlot::setTickmarkCount( RimPlotAxisPropertiesInterface::LegendTickm
 //--------------------------------------------------------------------------------------------------
 void RimMultiPlot::setTickmarkCount( RimPlot* plot, RimPlotAxisPropertiesInterface::LegendTickmarkCountEnum tickmarkCount )
 {
-    std::vector<RimSummaryTimeAxisProperties*> timeAxisProps;
-    plot->descendantsIncludingThisOfType( timeAxisProps );
+    std::vector<RimSummaryTimeAxisProperties*> timeAxisProps = plot->descendantsIncludingThisOfType<RimSummaryTimeAxisProperties>();
     for ( auto tap : timeAxisProps )
     {
         tap->setMajorTickmarkCount( tickmarkCount );

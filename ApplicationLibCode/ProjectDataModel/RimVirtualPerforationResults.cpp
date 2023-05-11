@@ -104,8 +104,7 @@ void RimVirtualPerforationResults::fieldChangedByUi( const caf::PdmFieldHandle* 
         loadData();
     }
 
-    RimEclipseView* eclView = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( eclView );
+    RimEclipseView* eclView = firstAncestorOrThisOfTypeAsserted<RimEclipseView>();
 
     eclView->scheduleCreateDisplayModelAndRedraw();
 }

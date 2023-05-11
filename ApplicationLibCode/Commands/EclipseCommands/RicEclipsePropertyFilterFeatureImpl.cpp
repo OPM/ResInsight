@@ -114,11 +114,8 @@ void RicEclipsePropertyFilterFeatureImpl::setDefaults( RimEclipsePropertyFilter*
 {
     CVF_ASSERT( propertyFilter );
 
-    RimEclipsePropertyFilterCollection* propertyFilterCollection = nullptr;
-    propertyFilter->firstAncestorOrThisOfTypeAsserted( propertyFilterCollection );
-
-    RimEclipseView* reservoirView = nullptr;
-    propertyFilter->firstAncestorOrThisOfTypeAsserted( reservoirView );
+    auto propertyFilterCollection = propertyFilter->firstAncestorOrThisOfTypeAsserted<RimEclipsePropertyFilterCollection>();
+    auto reservoirView            = propertyFilter->firstAncestorOrThisOfType<RimEclipseView>();
 
     propertyFilter->resultDefinition()->setEclipseCase( reservoirView->eclipseCase() );
 

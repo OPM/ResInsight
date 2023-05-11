@@ -170,8 +170,7 @@ void RimEclipseContourMapProjection::clearGridMappingAndRedraw()
     this->generateResultsIfNecessary( view()->currentTimeStep() );
     this->updateLegend();
 
-    RimEclipseView* parentView = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( parentView );
+    RimEclipseView* parentView = firstAncestorOrThisOfTypeAsserted<RimEclipseView>();
     parentView->scheduleCreateDisplayModelAndRedraw();
 }
 
@@ -507,9 +506,7 @@ size_t RimEclipseContourMapProjection::gridResultIndex( size_t globalCellIdx ) c
 //--------------------------------------------------------------------------------------------------
 RimEclipseContourMapView* RimEclipseContourMapProjection::view() const
 {
-    RimEclipseContourMapView* view = nullptr;
-    firstAncestorOrThisOfTypeAsserted( view );
-    return view;
+    return firstAncestorOrThisOfTypeAsserted<RimEclipseContourMapView>();
 }
 
 //--------------------------------------------------------------------------------------------------

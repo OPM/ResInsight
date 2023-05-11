@@ -269,8 +269,7 @@ void RimTensorResults::fieldChangedByUi( const caf::PdmFieldHandle* changedField
         setShowTensors( m_showTensors );
     }
 
-    RimGeoMechView* view;
-    firstAncestorOrThisOfType( view );
+    auto view = firstAncestorOrThisOfType<RimGeoMechView>();
     view->loadDataAndUpdate();
 }
 

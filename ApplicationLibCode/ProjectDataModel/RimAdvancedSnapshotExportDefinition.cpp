@@ -192,8 +192,7 @@ void RimAdvancedSnapshotExportDefinition::fieldChangedByUi( const caf::PdmFieldH
         {
             actCellInfo = RigReservoirGridTools::activeCellInfo( view() );
 
-            RimCase* rimCase = nullptr;
-            view()->firstAncestorOrThisOfTypeAsserted( rimCase );
+            auto rimCase = view()->firstAncestorOrThisOfTypeAsserted<RimCase>();
 
             mainGrid = RigReservoirGridTools::mainGrid( rimCase );
         }

@@ -180,7 +180,7 @@ std::set<RigEclipseResultAddress> RiaMemoryCleanup::findEclipseResultsInUse() co
     RimEclipseCase*                   eclipseCase = dynamic_cast<RimEclipseCase*>( m_case() );
     if ( eclipseCase )
     {
-        auto eclipseResultDefs = eclipseCase->descendantsIncludingThisOfType<RimEclipseResultDefinition>( eclipseResultDefs );
+        auto eclipseResultDefs = eclipseCase->descendantsIncludingThisOfType<RimEclipseResultDefinition>();
         for ( RimEclipseResultDefinition* resultDef : eclipseResultDefs )
         {
             RigEclipseResultAddress resultAddr( resultDef->resultType(), resultDef->resultVariable() );
