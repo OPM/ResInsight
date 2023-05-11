@@ -67,8 +67,7 @@ void RicPasteModeledWellPathFeature::onActionTriggered( bool isChecked )
 
     if ( proj && proj->activeOilField() )
     {
-        RimWellPathCollection* wellPathCollection = proj->activeOilField()->wellPathCollection();
-
+        RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
         if ( wellPathCollection )
         {
             RimModeledWellPath* wellPathToSelect = nullptr;

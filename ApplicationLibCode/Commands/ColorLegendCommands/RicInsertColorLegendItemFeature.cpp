@@ -40,9 +40,7 @@ bool RicInsertColorLegendItemFeature::isCommandEnabled()
 
     if ( legend )
     {
-        RimColorLegendCollection* colorLegendCollection = nullptr;
-
-        legend->firstAncestorOrThisOfType( colorLegendCollection );
+        RimColorLegendCollection* colorLegendCollection = legend->firstAncestorOrThisOfType<RimColorLegendCollection>();
 
         if ( colorLegendCollection && !colorLegendCollection->isStandardColorLegend( legend ) ) return true;
     }
@@ -92,11 +90,5 @@ RimColorLegend* RicInsertColorLegendItemFeature::selectedColorLegend()
 
     if ( !selectedObject ) return nullptr;
 
-    RimColorLegend* colorLegend = nullptr;
-
-    selectedObject->firstAncestorOrThisOfType( colorLegend );
-
-    if ( colorLegend ) return colorLegend;
-
-    return nullptr;
+    return selectedObject->firstAncestorOrThisOfType<RimColorLegend>();
 }

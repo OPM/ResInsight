@@ -49,8 +49,7 @@ void RicNewUserDefinedFilterFeature::onActionTriggered( bool isChecked )
     RimCellFilterCollection* filtColl = colls[0];
 
     // and the case to use
-    RimCase* sourceCase = nullptr;
-    filtColl->firstAncestorOrThisOfTypeAsserted( sourceCase );
+    RimCase* sourceCase = filtColl->firstAncestorOrThisOfTypeAsserted<RimCase>();
 
     RimUserDefinedFilter* lastCreatedOrUpdated = filtColl->addNewUserDefinedFilter( sourceCase );
     if ( lastCreatedOrUpdated )

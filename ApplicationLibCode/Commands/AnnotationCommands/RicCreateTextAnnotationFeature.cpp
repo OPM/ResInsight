@@ -83,12 +83,11 @@ RimAnnotationCollectionBase* RicCreateTextAnnotationFeature::annotationCollectio
     auto selColls = caf::selectedObjectsByTypeStrict<RimAnnotationCollectionBase*>();
     if ( selColls.size() == 1 ) return selColls.front();
 
-    RimAnnotationCollectionBase* coll         = nullptr;
-    auto                         selGroupColl = caf::selectedObjectsByTypeStrict<RimAnnotationGroupCollection*>();
+    auto selGroupColl = caf::selectedObjectsByTypeStrict<RimAnnotationGroupCollection*>();
     if ( selGroupColl.size() == 1 )
     {
-        selGroupColl.front()->firstAncestorOrThisOfType( coll );
+        return selGroupColl.front()->firstAncestorOrThisOfType<RimAnnotationCollectionBase>();
     }
 
-    return coll;
+    return nullptr;
 }

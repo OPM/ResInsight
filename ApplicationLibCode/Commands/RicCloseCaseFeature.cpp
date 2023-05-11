@@ -163,8 +163,7 @@ void RicCloseCaseFeature::deleteEclipseCase( RimEclipseCase* eclipseCase )
                 // This is done because the views do not work well
                 if ( caseGroup->caseCollection()->reservoirs.size() == 1 )
                 {
-                    std::vector<caf::PdmObjectHandle*> children;
-                    caseGroup->statisticsCaseCollection()->reservoirs.children( &children );
+                    std::vector<caf::PdmObjectHandle*> children = caseGroup->statisticsCaseCollection()->reservoirs.children();
 
                     for ( size_t i = children.size(); i-- > 0; )
                     {

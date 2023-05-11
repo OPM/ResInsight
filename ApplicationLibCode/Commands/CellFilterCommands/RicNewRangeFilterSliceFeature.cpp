@@ -53,8 +53,7 @@ void RicNewRangeFilterSliceFeature::onActionTriggered( bool isChecked )
     RimCellFilterCollection* filtColl = colls[0];
 
     // and the case to use
-    RimCase* sourceCase = nullptr;
-    filtColl->firstAncestorOrThisOfTypeAsserted( sourceCase );
+    RimCase* sourceCase = filtColl->firstAncestorOrThisOfTypeAsserted<RimCase>();
 
     int            gridIndex            = 0;
     RimCellFilter* lastCreatedOrUpdated = filtColl->addNewCellRangeFilter( sourceCase, gridIndex, m_sliceDirection );

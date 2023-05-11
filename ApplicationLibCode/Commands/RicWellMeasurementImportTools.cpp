@@ -53,7 +53,7 @@ void RicWellMeasurementImportTools::importWellMeasurementsFromFiles( const std::
     }
 
     // This assumes that the filepaths have the same well path collection
-    RimWellPathCollection* wellPathCollection = filePaths[0]->firstAncestorOrThisOfType<RimWellPathCollection>( wellPathCollection );
+    RimWellPathCollection* wellPathCollection = filePaths[0]->firstAncestorOrThisOfType<RimWellPathCollection>();
     if ( wellPathCollection )
     {
         importWellMeasurementsFromFiles( files, wellPathCollection );

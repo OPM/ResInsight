@@ -38,19 +38,15 @@ CAF_CMD_SOURCE_INIT( RicNewAnalysisPlotFeature, "RicNewAnalysisPlotFeature" );
 //--------------------------------------------------------------------------------------------------
 bool RicNewAnalysisPlotFeature::isCommandEnabled()
 {
-    RimAnalysisPlotCollection* analysisPlotColl = nullptr;
-    RimSummaryPlot*            summaryPlot      = nullptr;
-
     caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
     if ( selObj )
     {
-        selObj->firstAncestorOrThisOfType( analysisPlotColl );
-        selObj->firstAncestorOrThisOfType( summaryPlot );
+        RimAnalysisPlotCollection* analysisPlotColl = selObj->firstAncestorOrThisOfType<RimAnalysisPlotCollection>();
+        if ( analysisPlotColl ) return true;
+
+        RimSummaryPlot* summaryPlot = selObj->firstAncestorOrThisOfType<RimSummaryPlot>();
+        if ( summaryPlot ) return true;
     }
-
-    if ( analysisPlotColl ) return true;
-
-    if ( summaryPlot ) return true;
 
     return false;
 }
@@ -65,7 +61,7 @@ void RicNewAnalysisPlotFeature::onActionTriggered( bool isChecked )
     caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
     if ( selObj )
     {
-        selObj->firstAncestorOrThisOfType( analysisPlotColl );
+        analysisPlotColl = selObj->firstAncestorOrThisOfType<RimAnalysisPlotCollection>();
     }
 
     RimAnalysisPlot* newPlot = nullptr;
@@ -74,8 +70,7 @@ void RicNewAnalysisPlotFeature::onActionTriggered( bool isChecked )
         QVariant userData = this->userData();
         if ( !userData.isNull() && userData.canConvert<EnsemblePlotParams>() )
         {
-            std::vector<RimAnalysisPlotCollection*> correlationPlotCollections;
-            RimProject::current()->descendantsOfType( correlationPlotCollections );
+            auto correlationPlotCollections = RimProject::current()->descendantsOfType<RimAnalysisPlotCollection>();
             CAF_ASSERT( !correlationPlotCollections.empty() );
             analysisPlotColl = correlationPlotCollections.front();
 

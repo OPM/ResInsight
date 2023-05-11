@@ -40,6 +40,7 @@
 #include <QAction>
 #include <QMessageBox>
 
+#include "RimTools.h"
 #include <cmath>
 
 CAF_CMD_SOURCE_INIT( RicNewFishbonesSubsFeature, "RicNewFishbonesSubsFeature" );
@@ -69,7 +70,7 @@ void RicNewFishbonesSubsFeature::onActionTriggered( bool isChecked )
 
     RicNewFishbonesSubsFeature::adjustWellPathScaling( fishbonesCollection );
 
-    RimWellPathCollection* wellPathCollection = fishbonesCollection->firstAncestorOrThisOfType<RimWellPathCollection>();
+    RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
     if ( wellPathCollection )
     {
         wellPathCollection->uiCapability()->updateConnectedEditors();
@@ -146,7 +147,7 @@ bool RicNewFishbonesSubsFeature::isCommandEnabled()
 void RicNewFishbonesSubsFeature::adjustWellPathScaling( RimFishbonesCollection* fishboneCollection )
 {
     CVF_ASSERT( fishboneCollection );
-    RimWellPathCollection* wellPathColl = fishboneCollection->firstAncestorOrThisOfTypeAsserted<RimWellPathCollection>();
+    RimWellPathCollection* wellPathColl = RimTools::wellPathCollection();
 
     if ( wellPathColl->wellPathRadiusScaleFactor > 0.05 )
     {

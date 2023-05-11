@@ -107,17 +107,15 @@ void RicExportFishbonesLateralsFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 RimFishbonesCollection* RicExportFishbonesLateralsFeature::selectedFishbonesCollection()
 {
-    RimFishbonesCollection* objToFind = nullptr;
-
     caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
 
     caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>( pdmUiItem );
     if ( objHandle )
     {
-        objHandle->firstAncestorOrThisOfType( objToFind );
+        return objHandle->firstAncestorOrThisOfType<RimFishbonesCollection>();
     }
 
-    return objToFind;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

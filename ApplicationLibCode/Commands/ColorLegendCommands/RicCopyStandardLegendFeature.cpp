@@ -83,10 +83,5 @@ RimColorLegend* RicCopyStandardLegendFeature::selectedColorLegend()
 
     if ( !selectedObject ) return nullptr;
 
-    RimColorLegend* colorLegend = nullptr;
-
-    selectedObject->firstAncestorOrThisOfType( colorLegend );
-    if ( colorLegend ) return colorLegend;
-
-    return nullptr;
+    return selectedObject->firstAncestorOrThisOfType<RimColorLegend>();
 }

@@ -45,9 +45,8 @@ bool RicEditPreferencesFeature::isCommandEnabled()
 
 std::vector<caf::FontHolderInterface*> findFontObjects()
 {
-    auto                                   project = RimProject::current();
-    std::vector<caf::FontHolderInterface*> allFontObjects;
-    project->descendantsIncludingThisOfType( allFontObjects );
+    auto                                   project        = RimProject::current();
+    std::vector<caf::FontHolderInterface*> allFontObjects = project->descendantsIncludingThisOfType<caf::FontHolderInterface>();
 
     std::vector<caf::FontHolderInterface*> defaultFontObjects;
     for ( auto fontObject : allFontObjects )
