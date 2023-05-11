@@ -66,7 +66,7 @@ public:
     void setFixedWellPathPoints( const std::vector<cvf::Vec3d>& points );
     void setFixedMeasuredDepths( const std::vector<double>& mds );
 
-    std::vector<RimWellPathTarget*> createTargets( const std::vector<cvf::Vec3d>& points );
+    std::vector<RimWellPathTarget*> createAndInsertTargets( const std::vector<cvf::Vec3d>& points );
 
     std::pair<RimWellPathTarget*, RimWellPathTarget*> findActiveTargetsAroundInsertionPoint( const RimWellPathTarget* targetToInsertBefore );
 
