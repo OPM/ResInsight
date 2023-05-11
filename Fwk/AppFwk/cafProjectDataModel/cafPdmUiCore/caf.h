@@ -35,47 +35,14 @@
 //##################################################################################################
 #pragma once
 
-#include "QtGui/qevent.h"
-#include <QLocale>
-#include <QTextStream>
+class QLocale;
+class QTextStream;
+class QPointF;
+class QWheelEvent;
 
 namespace caf
 {
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QLocale norwegianLocale()
-{
-#if QT_VERSION >= QT_VERSION_CHECK( 5, 15, 0 )
-    return QLocale::NorwegianBokmal;
-#else
-    return QLocale::Norwegian;
-#endif
-} // namespace caf::norwegianLocale()
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QTextStream& endl( QTextStream& s )
-{
-    // https: // github.com/qt/qtbase/blob/dev/src/corelib/serialization/qtextstream.cpp#L2845
-#if QT_VERSION >= QT_VERSION_CHECK( 5, 15, 0 )
-    return s << QLatin1Char( '\n' ) << Qt::flush;
-#else
-    return s << QLatin1Char( '\n' ) << flush;
-#endif
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QPointF position( QWheelEvent* wheelEvent )
-{
-#if QT_VERSION >= QT_VERSION_CHECK( 5, 15, 0 )
-    return wheelEvent->position();
-#else
-    return wheelEvent->pos();
-#endif
-}
-
-} // namespace caf
+QLocale      norwegianLocale();
+QTextStream& endl( QTextStream& s );
+QPointF      position( QWheelEvent* wheelEvent );
+}; // namespace caf
