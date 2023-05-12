@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RiaDefines.h"
+#include "RiaTextStringTools.h"
 
 #include <QString>
 
@@ -28,10 +29,7 @@
 class RicWellPathFractureReportItem
 {
 public:
-    RicWellPathFractureReportItem( const QString& wellPathNameForExport,
-                                   const QString& fractureName,
-                                   const QString& fractureTemplateName,
-                                   double         measuredDepth );
+    RicWellPathFractureReportItem( const QString& wellPathNameForExport, const QString& fractureName, const QString& fractureTemplateName );
 
     void setData( double trans, size_t connCount, double area );
     void setWidthAndConductivity( double width, double conductivity );
@@ -74,14 +72,13 @@ public:
     double  pressureDepletionMinPressureDrop() const;
     double  pressureDepletionMaxPressureDrop() const;
 
-    bool operator<( const RicWellPathFractureReportItem& other ) const;
+    auto operator<=>( const RicWellPathFractureReportItem& rhs ) const = default;
 
 private:
     RiaDefines::EclipseUnitSystem m_unitSystem;
     QString                       m_wellPathNameForExport;
     QString                       m_wellPathFracture;
     QString                       m_wellPathFractureTemplate;
-    double                        m_mesuredDepth;
 
     double m_transmissibility;
     size_t m_connectionCount;

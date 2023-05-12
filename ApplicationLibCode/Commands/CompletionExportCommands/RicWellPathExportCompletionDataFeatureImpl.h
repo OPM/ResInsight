@@ -21,7 +21,6 @@
 #include "RigCompletionData.h"
 
 #include "RicExportCompletionDataSettingsUi.h"
-#include "RicWellPathFractureReportItem.h"
 
 #include "cvfVector2.h"
 #include "cvfVector3.h"
