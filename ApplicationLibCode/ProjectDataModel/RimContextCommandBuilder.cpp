@@ -718,6 +718,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewSummaryCurveFeature";
             menuBuilder << "RicDuplicateSummaryCurveFeature";
             menuBuilder << "RicCreateDeclineCurvesFeature";
+            menuBuilder << "RicCreateRegressionAnalysisCurveFeature";
             menuBuilder << "RicNewSummaryCrossPlotCurveFeature";
             menuBuilder << "RicDuplicateSummaryCrossPlotCurveFeature";
             menuBuilder << "Separator";

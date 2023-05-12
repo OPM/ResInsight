@@ -587,6 +587,17 @@ list(APPEND THIRD_PARTY_LIBRARIES roffcpp)
 set_property(TARGET roffcpp-tests gtest gtest_main PROPERTY FOLDER "Thirdparty")
 
 # ##############################################################################
+# regression-analysis
+# ##############################################################################
+
+add_subdirectory(ThirdParty/regression-analysis)
+list(APPEND THIRD_PARTY_LIBRARIES regression-analysis)
+set_property(
+  TARGET regression-analysis-tests gtest gtest_main PROPERTY FOLDER
+                                                             "Thirdparty"
+)
+
+# ##############################################################################
 # Thirdparty libraries are put in ThirdParty solution folder
 # ##############################################################################
 set_property(TARGET ${THIRD_PARTY_LIBRARIES} PROPERTY FOLDER "Thirdparty")
