@@ -156,8 +156,7 @@ const QString& RimNonNetLayers::facies() const
 //--------------------------------------------------------------------------------------------------
 RimColorLegend* RimNonNetLayers::getFaciesColorLegend()
 {
-    RimStimPlanModelTemplate* stimPlanModelTemplate;
-    firstAncestorOrThisOfType( stimPlanModelTemplate );
+    auto stimPlanModelTemplate = firstAncestorOrThisOfType<RimStimPlanModelTemplate>();
     if ( !stimPlanModelTemplate ) return nullptr;
 
     RimFaciesProperties* faciesProperties = stimPlanModelTemplate->faciesProperties();

@@ -92,9 +92,7 @@ TEST( ListKeywords, ListAllObjectKeywordsAndFieldKeywords )
 
         stream << "\n";
 
-        std::vector<caf::PdmFieldHandle*> fields;
-        myClass->fields( fields );
-
+        std::vector<caf::PdmFieldHandle*> fields = myClass->fields();
         for ( auto f : fields )
         {
             stream << "  " << f->keyword() << "\n";

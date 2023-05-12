@@ -95,10 +95,10 @@ public:
     typename std::vector<PdmPointer<DataType>>::const_iterator end() const { return m_pointers.end(); };
 
     // Child objects
-    std::vector<DataType*> children() const;
+    std::vector<DataType*> childrenByType() const;
 
-    void children( std::vector<PdmObjectHandle*>* objects ) override;
-    void removeChild( PdmObjectHandle* object ) override;
+    [[nodiscard]] std::vector<PdmObjectHandle*> children() const override;
+    void                                        removeChild( PdmObjectHandle* object ) override;
 
 private: // To be disabled
     PDM_DISABLE_COPY_AND_ASSIGN( PdmChildArrayField );

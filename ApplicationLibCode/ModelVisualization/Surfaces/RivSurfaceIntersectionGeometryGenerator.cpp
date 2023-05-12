@@ -52,10 +52,7 @@
 
 cvf::ref<caf::DisplayCoordTransform> displayCoordTransform( const RimIntersection* intersection )
 {
-    Rim3dView* rimView = nullptr;
-    intersection->firstAncestorOrThisOfType( rimView );
-    CVF_ASSERT( rimView );
-
+    auto                                 rimView   = intersection->firstAncestorOrThisOfTypeAsserted<Rim3dView>();
     cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
     return transForm;
 }

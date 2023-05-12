@@ -49,8 +49,7 @@ RimFishbonesPipeProperties::~RimFishbonesPipeProperties()
 //--------------------------------------------------------------------------------------------------
 double RimFishbonesPipeProperties::holeDiameter( RiaDefines::EclipseUnitSystem unitSystem ) const
 {
-    RimWellPath* wellPath;
-    firstAncestorOrThisOfTypeAsserted( wellPath );
+    auto wellPath = firstAncestorOrThisOfTypeAsserted<RimWellPath>();
     if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
     {
         if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
@@ -82,8 +81,7 @@ double RimFishbonesPipeProperties::holeDiameter( RiaDefines::EclipseUnitSystem u
 //--------------------------------------------------------------------------------------------------
 void RimFishbonesPipeProperties::setUnitSystemSpecificDefaults()
 {
-    RimWellPath* wellPath;
-    firstAncestorOrThisOfType( wellPath );
+    auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
     if ( wellPath )
     {
         if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
@@ -102,19 +100,16 @@ void RimFishbonesPipeProperties::setUnitSystemSpecificDefaults()
 //--------------------------------------------------------------------------------------------------
 void RimFishbonesPipeProperties::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
+    if ( wellPath )
     {
-        RimWellPath* wellPath;
-        firstAncestorOrThisOfType( wellPath );
-        if ( wellPath )
+        if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
         {
-            if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
-            {
-                m_lateralHoleDiameter.uiCapability()->setUiName( "Hole Diameter [mm]" );
-            }
-            else if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
-            {
-                m_lateralHoleDiameter.uiCapability()->setUiName( "Hole Diameter [in]" );
-            }
+            m_lateralHoleDiameter.uiCapability()->setUiName( "Hole Diameter [mm]" );
+        }
+        else if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
+        {
+            m_lateralHoleDiameter.uiCapability()->setUiName( "Hole Diameter [in]" );
         }
     }
 

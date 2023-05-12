@@ -66,8 +66,7 @@ RimEnsembleFractureStatisticsPlot::~RimEnsembleFractureStatisticsPlot()
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleFractureStatisticsPlot::setDefaults()
 {
-    std::vector<RimEnsembleFractureStatistics*> esfItems;
-    RimProject::current()->descendantsIncludingThisOfType( esfItems );
+    auto esfItems = RimProject::current()->descendantsIncludingThisOfType<RimEnsembleFractureStatistics>();
     if ( !esfItems.empty() ) m_ensembleFractureStatistics = esfItems.front();
 }
 
@@ -108,8 +107,8 @@ QList<caf::PdmOptionItemInfo> RimEnsembleFractureStatisticsPlot::calculateValueO
 
     if ( fieldNeedingOptions == &m_ensembleFractureStatistics )
     {
-        std::vector<RimEnsembleFractureStatistics*> esfItems;
-        RimProject::current()->descendantsIncludingThisOfType( esfItems );
+        std::vector<RimEnsembleFractureStatistics*> esfItems =
+            RimProject::current()->descendantsIncludingThisOfType<RimEnsembleFractureStatistics>();
         for ( auto item : esfItems )
         {
             options.push_back( caf::PdmOptionItemInfo( item->name(), item ) );

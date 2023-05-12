@@ -80,7 +80,7 @@ size_t RimSummaryTableCollection::plotCount() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryTable*> RimSummaryTableCollection::tables() const
 {
-    return m_summaryTables.children();
+    return m_summaryTables.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------

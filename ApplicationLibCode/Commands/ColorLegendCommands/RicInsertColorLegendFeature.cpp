@@ -83,9 +83,7 @@ RimColorLegendCollection* RicInsertColorLegendFeature::selectedColorLegendCollec
 
     if ( !selectedObject ) return nullptr;
 
-    RimColorLegendCollection* colorLegendCollection = nullptr;
-
-    selectedObject->firstAncestorOrThisOfType( colorLegendCollection );
+    RimColorLegendCollection* colorLegendCollection = selectedObject->firstAncestorOrThisOfType<RimColorLegendCollection>();
     if ( colorLegendCollection )
     {
         // Disable the menu for standard color legends

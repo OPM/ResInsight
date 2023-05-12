@@ -76,9 +76,7 @@ void RicEclipseShowOnlyFaultFeature::onActionTriggered( bool isChecked )
     if ( !rimFault ) return;
     if ( !rimFault->parentField() ) return;
 
-    std::vector<caf::PdmObjectHandle*> children;
-    rimFault->parentField()->children( &children );
-
+    std::vector<caf::PdmObjectHandle*> children = rimFault->parentField()->children();
     for ( auto& child : children )
     {
         caf::PdmUiObjectHandle* childUiObject = uiObj( child );

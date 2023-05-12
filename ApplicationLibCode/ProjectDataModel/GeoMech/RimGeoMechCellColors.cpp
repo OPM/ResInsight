@@ -51,10 +51,7 @@ RimGeoMechCellColors::~RimGeoMechCellColors()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechCellColors::updateIconState()
 {
-    Rim3dView* rimView = nullptr;
-    this->firstAncestorOrThisOfType( rimView );
-    CVF_ASSERT( rimView );
-
+    auto rimView = firstAncestorOrThisOfTypeAsserted<Rim3dView>();
     if ( rimView )
     {
         RimViewController* viewController = rimView->viewController();

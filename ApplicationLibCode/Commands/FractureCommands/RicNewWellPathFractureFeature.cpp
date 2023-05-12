@@ -72,9 +72,7 @@ RimWellPathFracture* RicNewWellPathFractureFeature::addFracture( gsl::not_null<R
     CVF_ASSERT( wellPathGeometry );
     if ( !wellPathGeometry ) return nullptr;
 
-    RimOilField* oilfield = nullptr;
-    fractureCollection->firstAncestorOrThisOfType( oilfield );
-    if ( !oilfield ) return nullptr;
+    RimProject* project = RimProject::current();
 
     RimWellPathFracture* fracture = new RimWellPathFracture();
     fractureCollection->addFracture( fracture );
@@ -90,14 +88,12 @@ RimWellPathFracture* RicNewWellPathFractureFeature::addFracture( gsl::not_null<R
     auto unitSet = wellPath->unitSystem();
     fracture->setFractureUnit( unitSet );
 
-    RimFractureTemplate* fracDef = oilfield->fractureDefinitionCollection()->firstFractureOfUnit( unitSet );
+    RimFractureTemplate* fracDef = project->activeOilField()->fractureDefinitionCollection()->firstFractureOfUnit( unitSet );
     if ( fracDef )
     {
         fracture->setFractureTemplate( fracDef );
     }
 
-    RimProject* project = nullptr;
-    fractureCollection->firstAncestorOrThisOfType( project );
     if ( project )
     {
         project->reloadCompletionTypeResultsInAllViews();
@@ -119,8 +115,7 @@ void RicNewWellPathFractureFeature::onActionTriggered( bool isChecked )
     RimWellPathFractureCollection* fractureColl = RicNewWellPathFractureFeature::selectedWellPathFractureCollection();
     if ( !fractureColl ) return;
 
-    RimWellPath* wellPath = nullptr;
-    fractureColl->firstAncestorOrThisOfTypeAsserted( wellPath );
+    auto wellPath = fractureColl->firstAncestorOrThisOfTypeAsserted<RimWellPath>();
 
     double defaultMeasuredDepth = wellPath->uniqueStartMD();
     RicNewWellPathFractureFeature::addFracture( wellPath, defaultMeasuredDepth );
@@ -164,7 +159,7 @@ RimWellPathFractureCollection* RicNewWellPathFractureFeature::selectedWellPathFr
     caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>( pdmUiItem );
     if ( objHandle )
     {
-        objHandle->firstAncestorOrThisOfType( objToFind );
+        objToFind = objHandle->firstAncestorOrThisOfType<RimWellPathFractureCollection>();
     }
 
     if ( objToFind == nullptr )

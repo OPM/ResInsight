@@ -78,9 +78,7 @@ void RicExportFaultsFeature::onActionTriggered( bool isChecked )
 
     for ( RimFaultInView* rimFault : selectedFaults )
     {
-        RimEclipseCase* eclCase = nullptr;
-        rimFault->firstAncestorOrThisOfType( eclCase );
-
+        RimEclipseCase* eclCase = rimFault->firstAncestorOrThisOfType<RimEclipseCase>();
         if ( eclCase )
         {
             QString caseName = eclCase->caseUserDescription();

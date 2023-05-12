@@ -179,8 +179,7 @@ void RimFractureContainment::defineUiOrdering( QString uiConfigName, caf::PdmUiO
 void RimFractureContainment::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     {
-        RimProject* proj;
-        this->firstAncestorOrThisOfType( proj );
+        RimProject* proj = RimProject::current();
         if ( proj )
         {
             proj->reloadCompletionTypeResultsInAllViews();
@@ -189,8 +188,7 @@ void RimFractureContainment::fieldChangedByUi( const caf::PdmFieldHandle* change
 
     if ( changedField == &m_useContainment || changedField == &m_truncateAtFaults )
     {
-        RimFractureTemplate* fractureTemplate = nullptr;
-        this->firstAncestorOrThisOfType( fractureTemplate );
+        auto fractureTemplate = firstAncestorOrThisOfType<RimFractureTemplate>();
         if ( fractureTemplate )
         {
             fractureTemplate->updateConnectedEditors();

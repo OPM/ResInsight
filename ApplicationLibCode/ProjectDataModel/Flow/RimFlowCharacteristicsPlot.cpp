@@ -145,9 +145,8 @@ void RimFlowCharacteristicsPlot::setFromFlowSolution( RimFlowDiagSolution* flowS
     }
     else
     {
-        RimEclipseResultCase* eclCase;
-        flowSolution->firstAncestorOrThisOfType( eclCase );
-        m_case = eclCase;
+        auto eclCase = flowSolution->firstAncestorOrThisOfType<RimEclipseResultCase>();
+        m_case       = eclCase;
         if ( !eclCase->reservoirViews.empty() )
         {
             m_cellFilterView = eclCase->reservoirViews()[0];

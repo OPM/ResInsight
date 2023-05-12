@@ -80,10 +80,9 @@ void RimWellPathValve::perforationIntervalUpdated()
 {
     if ( componentType() == RiaDefines::WellPathComponentType::ICV )
     {
-        const RimPerforationInterval* perfInterval = nullptr;
-        this->firstAncestorOrThisOfType( perfInterval );
-        double startMD  = perfInterval->startMD();
-        double endMD    = perfInterval->endMD();
+        const RimPerforationInterval* perfInterval = firstAncestorOrThisOfType<RimPerforationInterval>();
+        double                        startMD      = perfInterval->startMD();
+        double                        endMD        = perfInterval->endMD();
         m_measuredDepth = std::clamp( m_measuredDepth(), std::min( startMD, endMD ), std::max( startMD, endMD ) );
     }
     else if ( componentType() == RiaDefines::WellPathComponentType::ICD || componentType() == RiaDefines::WellPathComponentType::AICD )
@@ -112,8 +111,7 @@ void RimWellPathValve::multipleValveGeometryUpdated()
 
     m_measuredDepth = m_multipleValveLocations->valveLocations().front();
 
-    RimProject* proj;
-    this->firstAncestorOrThisOfTypeAsserted( proj );
+    RimProject* proj = RimProject::current();
     proj->reloadCompletionTypeResultsInAllViews();
 }
 
@@ -263,8 +261,7 @@ double RimWellPathValve::convertOrificeDiameter( double                        o
 //--------------------------------------------------------------------------------------------------
 std::vector<std::pair<double, double>> RimWellPathValve::valveSegments() const
 {
-    RimPerforationInterval* perforationInterval = nullptr;
-    this->firstAncestorOrThisOfType( perforationInterval );
+    auto perforationInterval = firstAncestorOrThisOfType<RimPerforationInterval>();
 
     std::vector<std::pair<double, double>> segments;
     if ( componentType() == RiaDefines::WellPathComponentType::ICV )
@@ -315,8 +312,7 @@ void RimWellPathValve::setComponentTypeFilter( const std::set<RiaDefines::WellPa
 //--------------------------------------------------------------------------------------------------
 bool RimWellPathValve::isEnabled() const
 {
-    RimPerforationInterval* perforationInterval = nullptr;
-    this->firstAncestorOrThisOfType( perforationInterval );
+    auto perforationInterval = firstAncestorOrThisOfType<RimPerforationInterval>();
     return perforationInterval->isEnabled() && isChecked();
 }
 
@@ -447,12 +443,10 @@ void RimWellPathValve::templateUpdated()
 {
     applyValveLabelAndIcon();
 
-    RimPerforationInterval* perfInterval;
-    this->firstAncestorOrThisOfTypeAsserted( perfInterval );
-    perfInterval->updateAllReferringTracks();
+    auto perforationInterval = firstAncestorOrThisOfType<RimPerforationInterval>();
+    perforationInterval->updateAllReferringTracks();
 
-    RimProject* proj;
-    this->firstAncestorOrThisOfTypeAsserted( proj );
+    RimProject* proj = RimProject::current();
     proj->reloadCompletionTypeResultsInAllViews();
 }
 
@@ -463,8 +457,7 @@ QList<caf::PdmOptionItemInfo> RimWellPathValve::calculateValueOptions( const caf
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    RimProject* project = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( project );
+    RimProject* project = RimProject::current();
 
     std::vector<RimValveTemplate*> allTemplates = project->allValveTemplates();
     for ( RimValveTemplate* valveTemplate : allTemplates )
@@ -500,15 +493,13 @@ void RimWellPathValve::fieldChangedByUi( const caf::PdmFieldHandle* changedField
         Riu3DMainWindowTools::selectAsCurrentItem( m_valveTemplate() );
     }
 
-    RimPerforationInterval* perfInterval;
-    this->firstAncestorOrThisOfType( perfInterval );
+    auto perfInterval = firstAncestorOrThisOfType<RimPerforationInterval>();
     if ( perfInterval )
     {
         perfInterval->updateAllReferringTracks();
     }
 
-    RimProject* proj;
-    this->firstAncestorOrThisOfTypeAsserted( proj );
+    RimProject* proj = RimProject::current();
     proj->reloadCompletionTypeResultsInAllViews();
 }
 
@@ -535,8 +526,7 @@ void RimWellPathValve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
         {
             if ( componentType() == RiaDefines::WellPathComponentType::ICV )
             {
-                RimWellPath* wellPath;
-                firstAncestorOrThisOfType( wellPath );
+                auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
                 if ( wellPath )
                 {
                     if ( wellPath->unitSystem() == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
@@ -580,9 +570,7 @@ void RimWellPathValve::defineEditorAttribute( const caf::PdmFieldHandle* field, 
         {
             double minimumValue = 0.0, maximumValue = 0.0;
 
-            RimPerforationInterval* perforationInterval = nullptr;
-            this->firstAncestorOrThisOfType( perforationInterval );
-
+            auto perforationInterval = firstAncestorOrThisOfType<RimPerforationInterval>();
             if ( perforationInterval )
             {
                 minimumValue = perforationInterval->startMD();
@@ -590,8 +578,7 @@ void RimWellPathValve::defineEditorAttribute( const caf::PdmFieldHandle* field, 
             }
             else
             {
-                RimWellPath* wellPath = nullptr;
-                this->firstAncestorOrThisOfTypeAsserted( wellPath );
+                auto wellPath = firstAncestorOrThisOfTypeAsserted<RimWellPath>();
 
                 minimumValue = wellPath->startMD();
                 maximumValue = wellPath->endMD();

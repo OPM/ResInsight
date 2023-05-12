@@ -184,9 +184,7 @@ void RimTextAnnotation::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
         this->updateConnectedEditors();
     }
 
-    RimAnnotationCollectionBase* annColl = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( annColl );
-
+    auto annColl = firstAncestorOrThisOfTypeAsserted<RimAnnotationCollectionBase>();
     if ( annColl ) annColl->scheduleRedrawOfRelevantViews();
 }
 
@@ -211,8 +209,7 @@ bool RimTextAnnotation::isActive()
 //--------------------------------------------------------------------------------------------------
 bool RimTextAnnotation::isVisible() const
 {
-    RimAnnotationGroupCollection* coll;
-    firstAncestorOrThisOfType( coll );
+    auto coll = firstAncestorOrThisOfType<RimAnnotationGroupCollection>();
 
     bool visible = true;
     if ( coll ) visible = coll->isVisible();

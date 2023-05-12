@@ -48,8 +48,7 @@ RimSummaryCase* RimSimWellInViewTools::summaryCaseForWell( RimSimWellInView* wel
     RimSummaryCaseMainCollection* sumCaseColl = project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection() : nullptr;
     if ( !sumCaseColl ) return nullptr;
 
-    RimEclipseResultCase* eclCase = nullptr;
-    well->firstAncestorOrThisOfType( eclCase );
+    auto eclCase = well->firstAncestorOrThisOfType<RimEclipseResultCase>();
     if ( eclCase )
     {
         return sumCaseColl->findSummaryCaseFromEclipseResultCase( eclCase );
@@ -87,8 +86,7 @@ bool RimSimWellInViewTools::isInjector( RimSimWellInView* well )
     RigSimWellData* wRes = well->simWellData();
     if ( wRes )
     {
-        Rim3dView* rimView = nullptr;
-        well->firstAncestorOrThisOfTypeAsserted( rimView );
+        auto rimView = well->firstAncestorOrThisOfTypeAsserted<Rim3dView>();
 
         int currentTimeStep = rimView->currentTimeStep();
 
@@ -114,8 +112,7 @@ bool RimSimWellInViewTools::isProducer( RimSimWellInView* well )
     RigSimWellData* wRes = well->simWellData();
     if ( wRes )
     {
-        Rim3dView* rimView = nullptr;
-        well->firstAncestorOrThisOfTypeAsserted( rimView );
+        auto rimView = well->firstAncestorOrThisOfTypeAsserted<Rim3dView>();
 
         int currentTimeStep = rimView->currentTimeStep();
 

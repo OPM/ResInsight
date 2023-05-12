@@ -238,8 +238,7 @@ void RimValveTemplate::fieldChangedByUi( const caf::PdmFieldHandle* changedField
     }
     if ( changedField == &m_type )
     {
-        std::vector<caf::PdmFieldHandle*> referringFields;
-        this->referringPtrFields( referringFields );
+        std::vector<caf::PdmFieldHandle*> referringFields = referringPtrFields();
         for ( caf::PdmFieldHandle* field : referringFields )
         {
             RimWellPathValve* valve = dynamic_cast<RimWellPathValve*>( field->ownerObject() );

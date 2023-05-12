@@ -284,9 +284,7 @@ void RimAnnotationInViewCollection::defineEditorAttribute( const caf::PdmFieldHa
 
         if ( attr )
         {
-            RimCase* rimCase;
-            firstAncestorOrThisOfType( rimCase );
-
+            auto rimCase = firstAncestorOrThisOfType<RimCase>();
             if ( rimCase )
             {
                 auto bb         = rimCase->allCellsBoundingBox();

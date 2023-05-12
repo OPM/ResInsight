@@ -98,9 +98,8 @@ RiaDefines::CurveProperty RimStimPlanModelCurve::curveProperty() const
 void RimStimPlanModelCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     RimWellLogExtractionCurve::fieldChangedByUi( changedField, oldValue, newValue );
-    RimStimPlanModelPlot* stimPlanModelPlot;
-    firstAncestorOrThisOfTypeAsserted( stimPlanModelPlot );
 
+    auto stimPlanModelPlot = firstAncestorOrThisOfTypeAsserted<RimStimPlanModelPlot>();
     if ( stimPlanModelPlot )
     {
         stimPlanModelPlot->loadDataAndUpdate();
@@ -154,8 +153,7 @@ void RimStimPlanModelCurve::performDataExtraction( bool* isUsingPseudoLength )
     bool performDataSmoothing = false;
     if ( !values.empty() && !measuredDepthValues.empty() && measuredDepthValues.size() == values.size() )
     {
-        RimWellLogTrack* track = nullptr;
-        firstAncestorOfType( track );
+        auto track = firstAncestorOfType<RimWellLogTrack>();
         if ( track && track->isLogarithmicScale() )
         {
             filterInvalidValuesForLogarithmicScale( values );

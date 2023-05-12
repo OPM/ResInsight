@@ -440,9 +440,7 @@ void RimEclipseResultDefinitionTools::updateLegendForFlowDiagnostics( const RimE
 
     if ( resultDefinition->hasCategoryResult() )
     {
-        RimEclipseView* eclView = nullptr;
-        resultDefinition->firstAncestorOrThisOfType( eclView );
-
+        auto eclView = resultDefinition->firstAncestorOrThisOfType<RimEclipseView>();
         if ( eclView )
         {
             std::set<std::tuple<QString, int, cvf::Color3ub>, TupleCompare> categories;
@@ -563,8 +561,7 @@ void RimEclipseResultDefinitionTools::updateCellResultLegend( const RimEclipseRe
 
                 std::set<size_t> visibleAllanCategories;
                 {
-                    RimEclipseView* eclView = nullptr;
-                    resultDefinition->firstAncestorOrThisOfType( eclView );
+                    auto eclView = resultDefinition->firstAncestorOrThisOfType<RimEclipseView>();
 
                     visibleAllanCategories = RigVisibleCategoriesCalculator::visibleAllanCategories( eclView );
                 }
@@ -646,8 +643,7 @@ void RimEclipseResultDefinitionTools::updateCellResultLegend( const RimEclipseRe
 
             if ( resultDefinition->showOnlyVisibleCategoriesInLegend() )
             {
-                RimEclipseView* eclView = nullptr;
-                resultDefinition->firstAncestorOrThisOfType( eclView );
+                auto eclView = resultDefinition->firstAncestorOrThisOfType<RimEclipseView>();
                 if ( eclView && eclView->showWindow() )
                 {
                     // Check if current result is cell result, and update the visible set of values

@@ -278,8 +278,7 @@ void RimEnsembleFractureStatistics::fieldChangedByUi( const caf::PdmFieldHandle*
         // Update views
         if ( !updatedTemplates.empty() )
         {
-            RimFractureTemplateCollection* templateCollection = nullptr;
-            updatedTemplates.front()->firstAncestorOrThisOfTypeAsserted( templateCollection );
+            auto templateCollection = updatedTemplates.front()->firstAncestorOrThisOfTypeAsserted<RimFractureTemplateCollection>();
             templateCollection->updateConnectedEditors();
 
             RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
@@ -291,8 +290,7 @@ void RimEnsembleFractureStatistics::fieldChangedByUi( const caf::PdmFieldHandle*
 
 #ifdef USE_QTCHARTS
         // Update referring plots
-        std::vector<caf::PdmObjectHandle*> referringObjects;
-        this->objectsWithReferringPtrFields( referringObjects );
+        std::vector<caf::PdmObjectHandle*> referringObjects = this->objectsWithReferringPtrFields();
         for ( caf::PdmObjectHandle* obj : referringObjects )
         {
             auto plot = dynamic_cast<RimEnsembleFractureStatisticsPlot*>( obj );

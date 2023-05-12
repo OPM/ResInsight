@@ -190,8 +190,7 @@ void RimSummaryCaseCollection::addCase( RimSummaryCase* summaryCase )
     m_analyzer.reset();
 
     // Update derived ensemble cases (if any)
-    std::vector<RimDerivedEnsembleCaseCollection*> referringObjects;
-    objectsWithReferringPtrFieldsOfType( referringObjects );
+    std::vector<RimDerivedEnsembleCaseCollection*> referringObjects = objectsWithReferringPtrFieldsOfType<RimDerivedEnsembleCaseCollection>();
     for ( auto derivedEnsemble : referringObjects )
     {
         if ( !derivedEnsemble ) continue;
@@ -216,7 +215,7 @@ void RimSummaryCaseCollection::addCase( RimSummaryCase* summaryCase )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCase*> RimSummaryCaseCollection::allSummaryCases() const
 {
-    return m_cases.children();
+    return m_cases.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -936,8 +935,7 @@ void RimSummaryCaseCollection::onLoadDataAndUpdate()
 void RimSummaryCaseCollection::updateReferringCurveSets()
 {
     // Update curve set referring to this group
-    std::vector<caf::PdmObject*> referringObjects;
-    objectsWithReferringPtrFieldsOfType( referringObjects );
+    std::vector<caf::PdmObject*> referringObjects = objectsWithReferringPtrFieldsOfType<PdmObject>();
 
     for ( auto object : referringObjects )
     {

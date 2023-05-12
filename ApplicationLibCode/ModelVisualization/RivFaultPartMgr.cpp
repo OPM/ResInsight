@@ -591,8 +591,7 @@ void RivFaultPartMgr::createLabelWithAnchorLine( const cvf::Part* part )
         cvf::Color3f defWellLabelColor = app->preferences()->defaultWellLabelColor();
         {
             {
-                RimFaultInViewCollection* parentObject;
-                m_rimFault->firstAncestorOrThisOfType( parentObject );
+                auto parentObject = m_rimFault->firstAncestorOrThisOfType<RimFaultInViewCollection>();
                 if ( parentObject )
                 {
                     defWellLabelColor = parentObject->faultLabelColor();

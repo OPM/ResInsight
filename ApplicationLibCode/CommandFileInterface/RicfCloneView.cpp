@@ -33,9 +33,8 @@ RicfCloneView::RicfCloneView()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfCloneView::execute()
 {
-    RimProject*             project = RimProject::current();
-    std::vector<Rim3dView*> allViews;
-    project->descendantsIncludingThisOfType( allViews );
+    RimProject*             project  = RimProject::current();
+    std::vector<Rim3dView*> allViews = project->descendantsIncludingThisOfType<Rim3dView>();
 
     for ( Rim3dView* view : allViews )
     {

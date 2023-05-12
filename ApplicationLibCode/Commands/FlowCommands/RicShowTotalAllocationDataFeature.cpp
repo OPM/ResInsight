@@ -92,9 +92,7 @@ std::set<RimWellAllocationPlot*> RicShowTotalAllocationDataFeature::selectedWell
     {
         CVF_ASSERT( obj );
 
-        RimWellAllocationPlot* parentPlot = nullptr;
-        obj->firstAncestorOrThisOfType( parentPlot );
-
+        RimWellAllocationPlot* parentPlot = obj->firstAncestorOrThisOfType<RimWellAllocationPlot>();
         if ( parentPlot )
         {
             wellAllocPlots.insert( parentPlot );

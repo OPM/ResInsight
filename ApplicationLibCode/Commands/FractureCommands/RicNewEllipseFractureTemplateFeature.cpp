@@ -53,8 +53,7 @@ void RicNewEllipseFractureTemplateFeature::selectFractureTemplateAndUpdate( RimF
 {
     fractureTemplate->loadDataAndUpdate();
 
-    RimFractureTemplateCollection* templateCollection = nullptr;
-    fractureTemplate->firstAncestorOrThisOfTypeAsserted( templateCollection );
+    RimFractureTemplateCollection* templateCollection = fractureTemplate->firstAncestorOrThisOfTypeAsserted<RimFractureTemplateCollection>();
     templateCollection->updateConnectedEditors();
 
     RimProject* project = RimProject::current();

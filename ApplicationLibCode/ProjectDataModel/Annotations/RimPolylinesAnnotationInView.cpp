@@ -74,8 +74,7 @@ RimPolylinesAnnotation* RimPolylinesAnnotationInView::sourceAnnotation() const
 //--------------------------------------------------------------------------------------------------
 bool RimPolylinesAnnotationInView::isVisible() const
 {
-    RimAnnotationGroupCollection* coll;
-    firstAncestorOrThisOfType( coll );
+    auto coll = firstAncestorOrThisOfType<RimAnnotationGroupCollection>();
 
     bool visible = true;
     if ( coll ) visible = coll->isVisible();
@@ -85,8 +84,7 @@ bool RimPolylinesAnnotationInView::isVisible() const
 
         if ( visible )
         {
-            RimAnnotationGroupCollection* globalColl;
-            m_sourceAnnotation->firstAncestorOrThisOfType( globalColl );
+            auto globalColl = m_sourceAnnotation->firstAncestorOrThisOfType<RimAnnotationGroupCollection>();
             if ( globalColl ) visible = globalColl->isVisible();
         }
     }
@@ -101,9 +99,7 @@ void RimPolylinesAnnotationInView::fieldChangedByUi( const caf::PdmFieldHandle* 
 {
     if ( changedField == &m_isActive )
     {
-        RimAnnotationCollectionBase* coll;
-        firstAncestorOrThisOfType( coll );
-
+        auto coll = firstAncestorOrThisOfType<RimAnnotationCollectionBase>();
         if ( coll ) coll->scheduleRedrawOfRelevantViews();
     }
 }
@@ -132,8 +128,7 @@ cvf::ref<RigPolyLinesData> RimPolylinesAnnotationInView::polyLinesData() const
         retval->setVisibility( false, false );
     }
 
-    RimAnnotationInViewCollection* coll;
-    firstAncestorOrThisOfType( coll );
+    auto coll = firstAncestorOrThisOfType<RimAnnotationInViewCollection>();
     if ( coll )
     {
         retval->setZPlaneLock( coll->snapAnnotations(), coll->annotationPlaneZ() );

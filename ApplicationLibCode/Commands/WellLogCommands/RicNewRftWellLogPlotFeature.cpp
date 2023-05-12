@@ -60,8 +60,7 @@ void RicNewRftWellLogPlotFeature::onActionTriggered( bool isChecked )
     auto rftCase = caf::SelectionManager::instance()->selectedItemOfType<RimRftCase>();
     if ( !rftCase ) return;
 
-    RimSummaryCase* summaryCase = nullptr;
-    rftCase->firstAncestorOfType( summaryCase );
+    auto summaryCase = rftCase->firstAncestorOfType<RimSummaryCase>();
 
     auto plot = RicNewWellLogPlotFeatureImpl::createWellLogPlot();
 

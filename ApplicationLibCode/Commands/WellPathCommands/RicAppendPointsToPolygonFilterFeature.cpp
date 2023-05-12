@@ -26,6 +26,7 @@
 #include "OperationsUsingObjReferences/RicPasteFeatureImpl.h"
 
 #include "cafSelectionManager.h"
+#include "cafSelectionManagerTools.h"
 
 #include <QAction>
 #include <QClipboard>
@@ -37,13 +38,8 @@ CAF_CMD_SOURCE_INIT( RicAppendPointsToPolygonFilterFeature, "RicAppendPointsToPo
 //--------------------------------------------------------------------------------------------------
 bool RicAppendPointsToPolygonFilterFeature::isCommandEnabled()
 {
-    caf::PdmObject* selectedObject = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
-    if ( !selectedObject ) return false;
-
-    RimPolygonFilter* polygonFilter = nullptr;
-    selectedObject->firstAncestorOrThisOfType( polygonFilter );
-
-    return ( polygonFilter != nullptr );
+    auto obj = caf::firstAncestorOfTypeFromSelectedObject<RimPolygonFilter>();
+    return obj != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -51,11 +47,7 @@ bool RicAppendPointsToPolygonFilterFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicAppendPointsToPolygonFilterFeature::onActionTriggered( bool isChecked )
 {
-    caf::PdmObject* selectedObject = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
-    if ( !selectedObject ) return;
-
-    RimPolygonFilter* polygonFilter = nullptr;
-    selectedObject->firstAncestorOrThisOfType( polygonFilter );
+    auto polygonFilter = caf::firstAncestorOfTypeFromSelectedObject<RimPolygonFilter>();
     if ( !polygonFilter ) return;
 
     QStringList listOfThreeDoubles;

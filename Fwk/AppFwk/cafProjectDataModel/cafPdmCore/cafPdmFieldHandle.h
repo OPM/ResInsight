@@ -31,14 +31,14 @@ public:
     std::vector<QString> keywordAliases() const;
 
     // Child objects
-    bool         hasChildren();
-    virtual void children( std::vector<PdmObjectHandle*>* ) {}
-    virtual void removeChild( PdmObjectHandle* ) {}
-    void         setOwnerClass( const QString& ownerClass );
+    bool                                                hasChildren() const;
+    [[nodiscard]] virtual std::vector<PdmObjectHandle*> children() const { return {}; }
+    virtual void                                        removeChild( PdmObjectHandle* ) {}
+    void                                                setOwnerClass( const QString& ownerClass );
 
     // Ptr referenced objects
-    bool         hasPtrReferencedObjects();
-    virtual void ptrReferencedObjects( std::vector<PdmObjectHandle*>* ) {}
+    bool                                  hasPtrReferencedObjects() const;
+    virtual std::vector<PdmObjectHandle*> ptrReferencedObjects() const { return {}; }
 
     // Capabilities
     void addCapability( PdmFieldCapability* capability, bool takeOwnership )

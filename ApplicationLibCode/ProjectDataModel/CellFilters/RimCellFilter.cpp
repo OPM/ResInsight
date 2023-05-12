@@ -213,8 +213,7 @@ void RimCellFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
 
     bool readOnlyState = isFilterControlled();
 
-    std::vector<caf::PdmFieldHandle*> objFields;
-    this->fields( objFields );
+    std::vector<caf::PdmFieldHandle*> objFields = fields();
     for ( auto& objField : objFields )
     {
         objField->uiCapability()->setUiReadOnly( readOnlyState );
@@ -235,8 +234,7 @@ QString RimCellFilter::modeString() const
 //--------------------------------------------------------------------------------------------------
 const cvf::StructGridInterface* RimCellFilter::selectedGrid() const
 {
-    RimCase* rimCase = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( rimCase );
+    auto rimCase = firstAncestorOrThisOfTypeAsserted<RimCase>();
 
     int clampedIndex = gridIndex();
     if ( clampedIndex >= RigReservoirGridTools::gridCount( rimCase ) )
@@ -256,8 +254,7 @@ QList<caf::PdmOptionItemInfo> RimCellFilter::calculateValueOptions( const caf::P
 
     if ( &m_gridIndex == fieldNeedingOptions )
     {
-        RimCase* rimCase = nullptr;
-        this->firstAncestorOrThisOfTypeAsserted( rimCase );
+        auto rimCase = firstAncestorOrThisOfTypeAsserted<RimCase>();
 
         for ( int gIdx = 0; gIdx < RigReservoirGridTools::gridCount( rimCase ); ++gIdx )
         {
@@ -284,8 +281,7 @@ QList<caf::PdmOptionItemInfo> RimCellFilter::calculateValueOptions( const caf::P
 //--------------------------------------------------------------------------------------------------
 bool RimCellFilter::isFilterControlled() const
 {
-    Rim3dView* rimView = nullptr;
-    firstAncestorOrThisOfTypeAsserted( rimView );
+    auto rimView = firstAncestorOrThisOfTypeAsserted<Rim3dView>();
 
     bool isFilterControlled = false;
     if ( rimView && rimView->viewController() && rimView->viewController()->isCellFiltersControlled() )

@@ -65,8 +65,7 @@ void RicNewWellPathListTargetFeature::onActionTriggered( bool isChecked )
     if ( selectedTargets.size() > 0 )
     {
         RimWellPathTarget*      firstTarget = selectedTargets.front();
-        RimWellPathGeometryDef* wellGeomDef = nullptr;
-        firstTarget->firstAncestorOrThisOfTypeAsserted( wellGeomDef );
+        RimWellPathGeometryDef* wellGeomDef = firstTarget->firstAncestorOrThisOfTypeAsserted<RimWellPathGeometryDef>();
 
         auto afterBeforePair = wellGeomDef->findActiveTargetsAroundInsertionPoint( firstTarget );
 
@@ -183,8 +182,7 @@ void RicNewWellPathListTargetFeature::setupActionLook( QAction* actionToSetup )
     if ( selectedTargets.size() > 0 )
     {
         auto                    firstTarget = selectedTargets.front();
-        RimWellPathGeometryDef* wellGeomDef = nullptr;
-        firstTarget->firstAncestorOrThisOfTypeAsserted( wellGeomDef );
+        RimWellPathGeometryDef* wellGeomDef = firstTarget->firstAncestorOrThisOfTypeAsserted<RimWellPathGeometryDef>();
 
         auto afterBeforePair = wellGeomDef->findActiveTargetsAroundInsertionPoint( firstTarget );
 

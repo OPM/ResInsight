@@ -74,8 +74,7 @@ bool RimReachCircleAnnotation::isActive()
 //--------------------------------------------------------------------------------------------------
 bool RimReachCircleAnnotation::isVisible()
 {
-    RimAnnotationCollectionBase* coll;
-    firstAncestorOrThisOfType( coll );
+    auto coll = firstAncestorOrThisOfType<RimAnnotationCollectionBase>();
 
     return coll && coll->isActive() && m_isActive;
 }
@@ -152,8 +151,7 @@ void RimReachCircleAnnotation::fieldChangedByUi( const caf::PdmFieldHandle* chan
     {
         this->updateConnectedEditors();
     }
-    RimAnnotationCollection* annColl = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( annColl );
+    auto annColl = firstAncestorOrThisOfTypeAsserted<RimAnnotationCollection>();
 
     annColl->scheduleRedrawOfRelevantViews();
 }

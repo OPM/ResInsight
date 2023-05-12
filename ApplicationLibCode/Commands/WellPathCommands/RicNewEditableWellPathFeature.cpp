@@ -17,18 +17,22 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RicNewEditableWellPathFeature.h"
 
-CAF_CMD_SOURCE_INIT( RicNewEditableWellPathFeature, "RicNewEditableWellPathFeature" );
-
 #include "RiaColorTables.h"
+
 #include "RimModeledWellPath.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimTools.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathGeometryDef.h"
 #include "Riu3DMainWindowTools.h"
+
 #include "cafSelectionManager.h"
+
 #include <QAction>
+
+CAF_CMD_SOURCE_INIT( RicNewEditableWellPathFeature, "RicNewEditableWellPathFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -65,8 +69,7 @@ void RicNewEditableWellPathFeature::onActionTriggered( bool isChecked )
     RimProject* project = RimProject::current();
     if ( project && RimProject::current()->activeOilField() )
     {
-        RimWellPathCollection* wellPathCollection = RimProject::current()->activeOilField()->wellPathCollection();
-
+        RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
         if ( wellPathCollection )
         {
             std::vector<RimWellPath*> newWellPaths;

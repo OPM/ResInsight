@@ -153,8 +153,6 @@ private:
     caf::PdmField<std::vector<RifDataSourceForRftPlt>> m_selectedSources;
     caf::PdmField<std::vector<QDateTime>>              m_selectedTimeSteps;
 
-    caf::PdmPtrField<RimWellPathCollection*> m_wellPathCollection;
-
     caf::PdmChildArrayField<RimWellRftEnsembleCurveSet*>                      m_ensembleCurveSets;
     std::map<RimWellRftEnsembleCurveSet*, QPointer<RiuDraggableOverlayFrame>> m_ensembleLegendFrames;
 

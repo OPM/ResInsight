@@ -183,8 +183,7 @@ void Rim3dWellLogExtractionCurve::curveValuesAndMdsAtTimeStep( std::vector<doubl
     CAF_ASSERT( values != nullptr );
     CAF_ASSERT( measuredDepthValues != nullptr );
 
-    RimWellPath* wellPath;
-    firstAncestorOrThisOfType( wellPath );
+    auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
 
     RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case() );
     if ( eclipseCase )
@@ -299,8 +298,7 @@ QString Rim3dWellLogExtractionCurve::createAutoName() const
 
     if ( m_nameConfig->addWellName() )
     {
-        RimWellPath* wellPath;
-        this->firstAncestorOrThisOfTypeAsserted( wellPath );
+        auto wellPath = firstAncestorOrThisOfTypeAsserted<RimWellPath>();
         if ( !wellPath->name().isEmpty() )
         {
             generatedAutoTags += wellPath->name();
@@ -366,8 +364,7 @@ QString Rim3dWellLogExtractionCurve::createAutoName() const
 //--------------------------------------------------------------------------------------------------
 double Rim3dWellLogExtractionCurve::rkbDiff() const
 {
-    RimWellPath* wellPath;
-    firstAncestorOrThisOfType( wellPath );
+    auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
 
     if ( wellPath && wellPath->wellPathGeometry() )
     {

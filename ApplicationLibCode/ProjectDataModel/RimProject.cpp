@@ -565,9 +565,7 @@ void RimProject::assignCaseIdToCase( RimCase* reservoirCase )
 {
     if ( reservoirCase )
     {
-        std::vector<RimCase*> cases;
-        this->descendantsIncludingThisOfType( cases );
-
+        std::vector<RimCase*> cases = this->descendantsIncludingThisOfType<RimCase>();
         for ( RimCase* rimCase : cases )
         {
             m_nextValidCaseId = std::max( m_nextValidCaseId, rimCase->caseId() + 1 );
@@ -584,8 +582,7 @@ void RimProject::assignIdToCaseGroup( RimIdenticalGridCaseGroup* caseGroup )
 {
     if ( caseGroup )
     {
-        std::vector<RimIdenticalGridCaseGroup*> identicalCaseGroups;
-        this->descendantsIncludingThisOfType( identicalCaseGroups );
+        std::vector<RimIdenticalGridCaseGroup*> identicalCaseGroups = this->descendantsIncludingThisOfType<RimIdenticalGridCaseGroup>();
 
         for ( RimIdenticalGridCaseGroup* existingCaseGroup : identicalCaseGroups )
         {
@@ -605,8 +602,7 @@ void RimProject::assignViewIdToView( Rim3dView* view )
     {
         if ( m_nextValidViewId < 0 )
         {
-            std::vector<Rim3dView*> views;
-            this->descendantsIncludingThisOfType( views );
+            std::vector<Rim3dView*> views = this->descendantsIncludingThisOfType<Rim3dView>();
 
             for ( Rim3dView* existingView : views )
             {
@@ -627,8 +623,7 @@ void RimProject::assignPlotIdToPlotWindow( RimPlotWindow* plotWindow )
     {
         if ( m_nextValidPlotId < 0 )
         {
-            std::vector<RimPlotWindow*> plotWindows;
-            this->descendantsIncludingThisOfType( plotWindows );
+            std::vector<RimPlotWindow*> plotWindows = this->descendantsIncludingThisOfType<RimPlotWindow>();
 
             for ( RimPlotWindow* existingPlotWindow : plotWindows )
             {
@@ -1174,8 +1169,7 @@ std::vector<RimTextAnnotation*> RimProject::textAnnotations() const
     allVisibleGridViews( visibleViews );
     for ( const auto& view : visibleViews )
     {
-        std::vector<RimAnnotationInViewCollection*> annotationColls;
-        view->descendantsIncludingThisOfType( annotationColls );
+        std::vector<RimAnnotationInViewCollection*> annotationColls = view->descendantsIncludingThisOfType<RimAnnotationInViewCollection>();
 
         if ( annotationColls.size() == 1 )
         {

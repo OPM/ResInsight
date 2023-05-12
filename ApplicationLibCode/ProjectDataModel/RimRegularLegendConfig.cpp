@@ -291,9 +291,7 @@ void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
 
     updateLegend();
 
-    RimGridView* view = nullptr;
-    this->firstAncestorOrThisOfType( view );
-
+    auto view = firstAncestorOrThisOfType<RimGridView>();
     if ( view )
     {
         RimViewLinker* viewLinker = view->assosiatedViewLinker();
@@ -308,23 +306,20 @@ void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
     }
 
     // Update stim plan templates if relevant
-    RimStimPlanColors* stimPlanColors;
-    firstAncestorOrThisOfType( stimPlanColors );
+    auto stimPlanColors = firstAncestorOrThisOfType<RimStimPlanColors>();
     if ( stimPlanColors )
     {
         stimPlanColors->updateStimPlanTemplates();
     }
 
     // Update ensemble curve set if relevant
-    RimEnsembleCurveSet* ensembleCurveSet;
-    firstAncestorOrThisOfType( ensembleCurveSet );
+    auto ensembleCurveSet = firstAncestorOrThisOfType<RimEnsembleCurveSet>();
     if ( ensembleCurveSet )
     {
         ensembleCurveSet->onLegendDefinitionChanged();
     }
 
-    RimGridCrossPlotDataSet* crossPlotCurveSet;
-    firstAncestorOrThisOfType( crossPlotCurveSet );
+    auto crossPlotCurveSet = firstAncestorOrThisOfType<RimGridCrossPlotDataSet>();
     if ( crossPlotCurveSet )
     {
         if ( changedField != &m_showLegend )
@@ -335,8 +330,7 @@ void RimRegularLegendConfig::fieldChangedByUi( const caf::PdmFieldHandle* change
         crossPlotCurveSet->loadDataAndUpdate( true );
     }
 
-    RimWellRftPlot* rftPlot;
-    firstAncestorOrThisOfType( rftPlot );
+    auto rftPlot = firstAncestorOrThisOfType<RimWellRftPlot>();
     if ( rftPlot )
     {
         rftPlot->onLegendDefinitionChanged();
@@ -1299,26 +1293,20 @@ QList<caf::PdmOptionItemInfo> RimRegularLegendConfig::calculateValueOptions( con
     bool hasEnsembleCurveSetParent = false;
     bool hasRftPlotParent          = false;
 
-    RimStimPlanColors* stimPlanColors = nullptr;
-    this->firstAncestorOrThisOfType( stimPlanColors );
+    auto stimPlanColors = firstAncestorOrThisOfType<RimStimPlanColors>();
     if ( stimPlanColors ) hasStimPlanParent = true;
 
-    RimEnsembleCurveSet* ensembleCurveSet = nullptr;
-    this->firstAncestorOrThisOfType( ensembleCurveSet );
+    auto ensembleCurveSet = firstAncestorOrThisOfType<RimEnsembleCurveSet>();
     if ( ensembleCurveSet ) hasEnsembleCurveSetParent = true;
 
-    RimGridCrossPlotDataSet* crossPlotCurveSet = nullptr;
-    this->firstAncestorOrThisOfType( crossPlotCurveSet );
+    auto crossPlotCurveSet = firstAncestorOrThisOfType<RimGridCrossPlotDataSet>();
 
-    RimWellRftEnsembleCurveSet* rftCurveSet = nullptr;
-    this->firstAncestorOrThisOfType( rftCurveSet );
+    auto rftCurveSet = firstAncestorOrThisOfType<RimWellRftEnsembleCurveSet>();
     if ( rftCurveSet ) hasRftPlotParent = true;
 
     bool isAllanDiagram = false;
     {
-        RimEclipseCellColors* eclCellColors = nullptr;
-        this->firstAncestorOrThisOfType( eclCellColors );
-
+        auto eclCellColors = firstAncestorOrThisOfType<RimEclipseCellColors>();
         if ( eclCellColors && eclCellColors->resultType() == RiaDefines::ResultCatType::ALLAN_DIAGRAMS )
         {
             isAllanDiagram = true;

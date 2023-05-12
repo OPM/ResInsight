@@ -82,8 +82,7 @@ QString RimRftCase::dataDeckFilePath() const
 //--------------------------------------------------------------------------------------------------
 void RimRftCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    RimSummaryCase* parentCase = nullptr;
-    firstAncestorOfType( parentCase );
+    auto parentCase = firstAncestorOfType<RimSummaryCase>();
 
     if ( parentCase ) RicReloadSummaryCaseFeature::reloadSummaryCase( parentCase );
 

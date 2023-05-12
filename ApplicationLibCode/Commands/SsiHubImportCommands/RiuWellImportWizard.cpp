@@ -958,12 +958,10 @@ void WellSelectionPage::selectedWellPathEntries( std::vector<DownloadEntity>& do
         objHandle = m_regionsWithVisibleWells;
     }
 
-    std::vector<caf::PdmFieldHandle*> childFields;
-    objHandle->fields( childFields );
+    std::vector<caf::PdmFieldHandle*> childFields = objHandle->fields();
     for ( size_t i = 0; i < childFields.size(); i++ )
     {
-        std::vector<caf::PdmObjectHandle*> childObjects;
-        childFields[i]->children( &childObjects );
+        std::vector<caf::PdmObjectHandle*> childObjects = childFields[i]->children();
 
         for ( size_t j = 0; j < childObjects.size(); j++ )
         {

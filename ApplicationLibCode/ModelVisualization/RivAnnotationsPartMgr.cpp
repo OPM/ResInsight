@@ -76,8 +76,7 @@ void RivAnnotationsPartMgr::appendGeometryPartsToModel( cvf::ModelBasicList*    
 //--------------------------------------------------------------------------------------------------
 void RivAnnotationsPartMgr::createAnnotationPartManagers()
 {
-    std::vector<RimAnnotationInViewCollection*> colls;
-    m_rimView->descendantsIncludingThisOfType( colls );
+    std::vector<RimAnnotationInViewCollection*> colls = m_rimView->descendantsIncludingThisOfType<RimAnnotationInViewCollection>();
 
     if ( colls.empty() ) return;
     auto coll = colls.front();

@@ -75,8 +75,7 @@ QString RimSummaryCurveAutoName::curveNameY( const RifEclipseSummaryAddress& sum
                                              const RimSummaryNameHelper*     currentNameHelper,
                                              const RimSummaryNameHelper*     plotNameHelper ) const
 {
-    RimSummaryCurve* summaryCurve = nullptr;
-    this->firstAncestorOrThisOfType( summaryCurve );
+    auto summaryCurve = firstAncestorOrThisOfType<RimSummaryCurve>();
 
     std::string unitNameY;
     if ( summaryCurve )
@@ -91,8 +90,7 @@ QString RimSummaryCurveAutoName::curveNameY( const RifEclipseSummaryAddress& sum
     }
 
     {
-        RimEnsembleCurveSet* ensembleCurveSet = nullptr;
-        this->firstAncestorOrThisOfType( ensembleCurveSet );
+        auto ensembleCurveSet = firstAncestorOrThisOfType<RimEnsembleCurveSet>();
         if ( ensembleCurveSet && ensembleCurveSet->summaryCaseCollection() )
         {
             caseNameY = ensembleCurveSet->summaryCaseCollection()->name().toStdString();
@@ -111,8 +109,7 @@ QString RimSummaryCurveAutoName::curveNameX( const RifEclipseSummaryAddress& sum
                                              const RimSummaryNameHelper*     currentNameHelper,
                                              const RimSummaryNameHelper*     plotNameHelper ) const
 {
-    RimSummaryCurve* summaryCurve = nullptr;
-    this->firstAncestorOrThisOfType( summaryCurve );
+    auto summaryCurve = firstAncestorOrThisOfType<RimSummaryCurve>();
 
     std::string unitNameX;
     if ( summaryCurve )
@@ -127,8 +124,7 @@ QString RimSummaryCurveAutoName::curveNameX( const RifEclipseSummaryAddress& sum
     }
 
     {
-        RimEnsembleCurveSet* ensembleCurveSet = nullptr;
-        this->firstAncestorOrThisOfType( ensembleCurveSet );
+        auto ensembleCurveSet = firstAncestorOrThisOfType<RimEnsembleCurveSet>();
         if ( ensembleCurveSet && ensembleCurveSet->summaryCaseCollection() )
         {
             caseNameX = ensembleCurveSet->summaryCaseCollection()->name().toStdString();

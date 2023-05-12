@@ -341,8 +341,7 @@ void RivExtrudedCurveIntersectionPartMgr::createFaultLabelParts( const std::vect
 
     if ( !m_rimIntersection->activeSeparateResultDefinition() )
     {
-        RimEclipseView* eclipseView = nullptr;
-        m_rimIntersection->firstAncestorOrThisOfType( eclipseView );
+        auto eclipseView = m_rimIntersection->firstAncestorOrThisOfType<RimEclipseView>();
         if ( eclipseView )
         {
             faultInViewColl = eclipseView->faultCollection();

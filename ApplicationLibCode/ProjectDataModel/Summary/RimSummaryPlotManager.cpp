@@ -447,7 +447,7 @@ void RimSummaryPlotManager::updateUiFromSelection()
     auto destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
 
     RimSummaryPlot* summaryPlot = nullptr;
-    if ( destinationObject ) destinationObject->firstAncestorOrThisOfType( summaryPlot );
+    if ( destinationObject ) summaryPlot = destinationObject->firstAncestorOrThisOfType<RimSummaryPlot>();
 
     if ( summaryPlot && ( m_summaryPlot() != summaryPlot ) )
     {

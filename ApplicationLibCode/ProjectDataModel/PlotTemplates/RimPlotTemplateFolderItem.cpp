@@ -85,7 +85,7 @@ void RimPlotTemplateFolderItem::updateIconState() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPlotTemplateFileItem*> RimPlotTemplateFolderItem::fileItems() const
 {
-    return m_fileNames.children();
+    return m_fileNames.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -93,7 +93,7 @@ std::vector<RimPlotTemplateFileItem*> RimPlotTemplateFolderItem::fileItems() con
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPlotTemplateFolderItem*> RimPlotTemplateFolderItem::subFolders() const
 {
-    return m_subFolders.children();
+    return m_subFolders.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------

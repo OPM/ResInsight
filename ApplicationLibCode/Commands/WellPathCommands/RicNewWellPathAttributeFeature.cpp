@@ -66,13 +66,11 @@ void RicNewWellPathAttributeFeature::onActionTriggered( bool isChecked )
     RimWellPathAttribute* attribute = nullptr;
     if ( attributes.size() == 1u )
     {
-        RimWellPathAttributeCollection* attributeCollection = nullptr;
-        attributes[0]->firstAncestorOrThisOfTypeAsserted( attributeCollection );
+        auto attributeCollection = attributes[0]->firstAncestorOrThisOfTypeAsserted<RimWellPathAttributeCollection>();
 
-        attribute             = new RimWellPathAttribute;
-        RimWellPath* wellPath = nullptr;
-        attributeCollection->firstAncestorOrThisOfTypeAsserted( wellPath );
+        attribute = new RimWellPathAttribute;
 
+        auto wellPath = attributeCollection->firstAncestorOrThisOfType<RimWellPath>();
         attribute->setDepthsFromWellPath( wellPath );
         attributeCollection->insertAttribute( attributes[0], attribute );
 
@@ -83,8 +81,8 @@ void RicNewWellPathAttributeFeature::onActionTriggered( bool isChecked )
         RimWellPath* wellPath = caf::SelectionManager::instance()->selectedItemAncestorOfType<RimWellPath>();
         if ( wellPath )
         {
-            std::vector<RimWellPathAttributeCollection*> attributeCollections;
-            wellPath->descendantsIncludingThisOfType( attributeCollections );
+            std::vector<RimWellPathAttributeCollection*> attributeCollections =
+                wellPath->descendantsIncludingThisOfType<RimWellPathAttributeCollection>();
             if ( !attributeCollections.empty() )
             {
                 attribute = new RimWellPathAttribute;
@@ -101,8 +99,7 @@ void RicNewWellPathAttributeFeature::onActionTriggered( bool isChecked )
 
     if ( attribute )
     {
-        RimProject* project = nullptr;
-        attribute->firstAncestorOrThisOfTypeAsserted( project );
+        RimProject* project = RimProject::current();
         project->scheduleCreateDisplayModelAndRedrawAllViews();
     }
 }

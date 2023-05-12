@@ -47,7 +47,7 @@ Rim2dIntersectionViewCollection::~Rim2dIntersectionViewCollection()
 //--------------------------------------------------------------------------------------------------
 std::vector<Rim2dIntersectionView*> Rim2dIntersectionViewCollection::views()
 {
-    return m_intersectionViews.children();
+    return m_intersectionViews.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,11 +55,10 @@ std::vector<Rim2dIntersectionView*> Rim2dIntersectionViewCollection::views()
 //--------------------------------------------------------------------------------------------------
 void Rim2dIntersectionViewCollection::syncFromExistingIntersections( bool doUpdate )
 {
-    RimCase* parentCase = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( parentCase );
+    auto parentCase = firstAncestorOrThisOfTypeAsserted<RimCase>();
 
-    std::vector<RimExtrudedCurveIntersection*> allOrderedIntersectionsInCase;
-    parentCase->descendantsIncludingThisOfType( allOrderedIntersectionsInCase );
+    std::vector<RimExtrudedCurveIntersection*> allOrderedIntersectionsInCase =
+        parentCase->descendantsIncludingThisOfType<RimExtrudedCurveIntersection>();
 
     // Delete views without a valid intersection
 
@@ -95,8 +94,7 @@ void Rim2dIntersectionViewCollection::syncFromExistingIntersections( bool doUpda
         {
             Rim2dIntersectionView* newView = new Rim2dIntersectionView();
 
-            Rim3dView* view = nullptr;
-            intersection->firstAncestorOrThisOfType( view );
+            auto view = intersection->firstAncestorOrThisOfType<Rim3dView>();
             if ( view )
             {
                 newView->setCurrentTimeStep( view->currentTimeStep() );
@@ -113,8 +111,7 @@ void Rim2dIntersectionViewCollection::syncFromExistingIntersections( bool doUpda
 
     if ( doUpdate ) this->updateConnectedEditors();
 
-    RimCase* rimCase = nullptr;
-    firstAncestorOrThisOfType( rimCase );
+    auto rimCase = firstAncestorOrThisOfType<RimCase>();
 
     if ( rimCase ) rimCase->updateConnectedEditors();
 }

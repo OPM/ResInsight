@@ -64,8 +64,7 @@ caf::PdmScriptResponse RicfCreateWellBoreStabilityPlotFeature::execute()
 {
     RimProject* project = RimProject::current();
 
-    std::vector<RimGeoMechCase*> geoMechCases;
-    project->descendantsIncludingThisOfType( geoMechCases );
+    std::vector<RimGeoMechCase*> geoMechCases = project->descendantsIncludingThisOfType<RimGeoMechCase>();
 
     RimGeoMechCase* chosenCase = nullptr;
     for ( RimGeoMechCase* geoMechCase : geoMechCases )

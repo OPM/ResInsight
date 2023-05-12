@@ -121,11 +121,6 @@ RimWellRftPlot::RimWellRftPlot()
     m_selectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_selectedTimeSteps.uiCapability()->setAutoAddingOptionFromValue( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellPathCollection, "WellPathCollection", "Well Path Collection" );
-    m_wellPathCollection.uiCapability()->setUiHidden( true );
-    m_wellPathCollection.xmlCapability()->disableIO();
-    m_wellPathCollection = RimProject::current()->activeOilField()->wellPathCollection();
-
     CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSets, "EnsembleCurveSets", "Ensemble Curve Sets" );
 
     // TODO: may want to support TRUE_VERTICAL_DEPTH_RKB in the future
@@ -848,9 +843,8 @@ QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptionsForSources() 
         {
             if ( summaryCase->rftReader() && summaryCase->rftReader()->wellNames().contains( m_wellPathNameOrSimWellName ) )
             {
-                RimSummaryCaseCollection* parentEnsemble = nullptr;
-                summaryCase->firstAncestorOrThisOfType( parentEnsemble );
-                auto addr = RifDataSourceForRftPlt( summaryCase, parentEnsemble );
+                auto parentEnsemble = summaryCase->firstAncestorOrThisOfType<RimSummaryCaseCollection>();
+                auto addr           = RifDataSourceForRftPlt( summaryCase, parentEnsemble );
 
                 auto item = caf::PdmOptionItemInfo( summaryCase->displayCaseName(), QVariant::fromValue( addr ) );
                 item.setLevel( 1 );

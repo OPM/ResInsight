@@ -116,8 +116,7 @@ RimEclipseCase* RimGridSummaryCase_obsolete::associatedEclipseCase()
     {
         // Find a possible associated eclipse case
 
-        RimProject* project;
-        firstAncestorOrThisOfTypeAsserted( project );
+        RimProject*           project = RimProject::current();
         std::vector<RimCase*> allCases;
         project->allCases( allCases );
         for ( RimCase* someCase : allCases )
@@ -221,9 +220,7 @@ void RimGridSummaryCase_obsolete::convertGridCasesToSummaryFileCases( RimProject
         RimFileSummaryCase* fileSummaryCase = createFileSummaryCaseCopy( *gridCase );
         summaryCaseMainCollection->addCase( fileSummaryCase );
 
-        std::vector<caf::PdmFieldHandle*> referringFields;
-        gridCase->referringPtrFields( referringFields );
-
+        std::vector<caf::PdmFieldHandle*> referringFields = gridCase->referringPtrFields();
         for ( caf::PdmFieldHandle* field : referringFields )
         {
             auto ptrField = dynamic_cast<caf::PdmPtrField<RimSummaryCase*>*>( field );

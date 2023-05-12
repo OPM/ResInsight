@@ -1090,8 +1090,7 @@ RimViewWindow* RiuMainWindow::findViewWindowFromSubWindow( QMdiSubWindow* subWin
 {
     if ( subWindow )
     {
-        std::vector<RimViewWindow*> allViewWindows;
-        RimProject::current()->descendantsIncludingThisOfType( allViewWindows );
+        std::vector<RimViewWindow*> allViewWindows = RimProject::current()->descendantsIncludingThisOfType<RimViewWindow>();
 
         for ( RimViewWindow* viewWindow : allViewWindows )
         {
@@ -1354,9 +1353,7 @@ void RiuMainWindow::selectViewInProjectTreePreservingSubItemSelection( const Rim
 
     if ( !is3dViewCurrentlySelected )
     {
-        std::vector<RimEclipseCellColors*> objects;
-
-        activatedView->descendantsIncludingThisOfType( objects );
+        std::vector<RimEclipseCellColors*> objects = activatedView->descendantsIncludingThisOfType<RimEclipseCellColors>();
         if ( !objects.empty() )
         {
             auto candidate = tv->findModelIndex( objects.front() );
@@ -1485,7 +1482,7 @@ void RiuMainWindow::selectedObjectsChanged()
         Rim3dView* selectedReservoirView = dynamic_cast<Rim3dView*>( firstSelectedObject );
         if ( !selectedReservoirView )
         {
-            firstSelectedObject->firstAncestorOrThisOfType( selectedReservoirView );
+            selectedReservoirView = firstSelectedObject->firstAncestorOrThisOfType<Rim3dView>();
         }
 
         bool isActiveViewChanged = false;
@@ -1610,7 +1607,7 @@ void RiuMainWindow::slotToggleFaultLabelsAction( bool showLabels )
         Rim2dIntersectionView* isectView = dynamic_cast<Rim2dIntersectionView*>( activeView );
         if ( isectView )
         {
-            isectView->intersection()->firstAncestorOrThisOfType( activeRiv );
+            activeRiv = isectView->intersection()->firstAncestorOrThisOfType<RimEclipseView>();
         }
     }
 
@@ -1683,7 +1680,7 @@ void RiuMainWindow::refreshDrawStyleActions()
         Rim2dIntersectionView* intView = dynamic_cast<Rim2dIntersectionView*>( view );
         if ( intView && intView->intersection() )
         {
-            intView->intersection()->firstAncestorOrThisOfType( eclView );
+            eclView = intView->intersection()->firstAncestorOrThisOfType<RimEclipseView>();
         }
     }
 

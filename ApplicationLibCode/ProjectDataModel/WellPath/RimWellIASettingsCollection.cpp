@@ -89,7 +89,7 @@ RimWellIASettings* RimWellIASettingsCollection::startWellIntegrationAnalysis( QS
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellIASettings*> RimWellIASettingsCollection::settings() const
 {
-    return m_wellIASettings.children();
+    return m_wellIASettings.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -114,8 +114,7 @@ bool RimWellIASettingsCollection::hasSettings() const
 void RimWellIASettingsCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                                                   std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
-    RimWellPath* wellPath;
-    this->firstAncestorOrThisOfType( wellPath );
+    auto wellPath = firstAncestorOrThisOfType<RimWellPath>();
     if ( wellPath ) wellPath->updateConnectedEditors();
     RiaApplication::instance()->project()->scheduleCreateDisplayModelAndRedrawAllViews();
 }

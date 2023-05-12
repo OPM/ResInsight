@@ -496,15 +496,11 @@ void RimWellLogCurveCommonDataSource::analyseCurvesAndTracks( const std::vector<
 //--------------------------------------------------------------------------------------------------
 void RimWellLogCurveCommonDataSource::analyseCurvesAndTracks()
 {
-    RimWellLogPlot* parentPlot = nullptr;
-    this->firstAncestorOrThisOfType( parentPlot );
+    auto parentPlot = firstAncestorOrThisOfType<RimWellLogPlot>();
     if ( parentPlot )
     {
-        std::vector<RimWellLogCurve*> curves;
-        parentPlot->descendantsIncludingThisOfType( curves );
-
-        std::vector<RimWellLogTrack*> tracks;
-        parentPlot->descendantsIncludingThisOfType( tracks );
+        std::vector<RimWellLogCurve*> curves = parentPlot->descendantsIncludingThisOfType<RimWellLogCurve>();
+        std::vector<RimWellLogTrack*> tracks = parentPlot->descendantsIncludingThisOfType<RimWellLogTrack>();
 
         this->analyseCurvesAndTracks( curves, tracks );
     }
@@ -533,8 +529,7 @@ void RimWellLogCurveCommonDataSource::applyDataSourceChanges( const std::vector<
                 {
                     RimWellLogFile* logFile = wellPathToApply()->firstWellLogFileMatchingChannelName( fileCurve->wellLogChannelUiName() );
                     fileCurve->setWellLogFile( logFile );
-                    RimWellLogPlot* parentPlot = nullptr;
-                    fileCurve->firstAncestorOrThisOfTypeAsserted( parentPlot );
+                    auto parentPlot = fileCurve->firstAncestorOrThisOfTypeAsserted<RimWellLogPlot>();
                     plots.insert( parentPlot );
                 }
             }
@@ -608,8 +603,7 @@ void RimWellLogCurveCommonDataSource::applyDataSourceChanges( const std::vector<
 
             if ( updatedSomething )
             {
-                RimWellLogPlot* parentPlot = nullptr;
-                extractionCurve->firstAncestorOrThisOfTypeAsserted( parentPlot );
+                auto parentPlot = extractionCurve->firstAncestorOrThisOfTypeAsserted<RimWellLogPlot>();
                 plots.insert( parentPlot );
             }
         }
@@ -630,8 +624,7 @@ void RimWellLogCurveCommonDataSource::applyDataSourceChanges( const std::vector<
             if ( m_rftSegmentBranchType() != RiaDefines::RftBranchType::RFT_UNKNOWN )
                 rftCurve->setSegmentBranchType( m_rftSegmentBranchType() );
 
-            RimWellLogPlot* parentPlot = nullptr;
-            rftCurve->firstAncestorOrThisOfTypeAsserted( parentPlot );
+            auto parentPlot = rftCurve->firstAncestorOrThisOfTypeAsserted<RimWellLogPlot>();
             plots.insert( parentPlot );
         }
         else if ( topologyCurve )
@@ -689,8 +682,7 @@ void RimWellLogCurveCommonDataSource::applyDataSourceChanges( const std::vector<
         }
         if ( updatedSomething )
         {
-            RimWellLogPlot* parentPlot = nullptr;
-            track->firstAncestorOrThisOfTypeAsserted( parentPlot );
+            auto parentPlot = track->firstAncestorOrThisOfTypeAsserted<RimWellLogPlot>();
             plots.insert( parentPlot );
             track->updateConnectedEditors();
         }
@@ -707,15 +699,11 @@ void RimWellLogCurveCommonDataSource::applyDataSourceChanges( const std::vector<
 //--------------------------------------------------------------------------------------------------
 void RimWellLogCurveCommonDataSource::applyDataSourceChanges()
 {
-    RimWellLogPlot* parentPlot = nullptr;
-    this->firstAncestorOrThisOfType( parentPlot );
+    auto parentPlot = firstAncestorOrThisOfType<RimWellLogPlot>();
     if ( parentPlot )
     {
-        std::vector<RimWellLogCurve*> curves;
-        parentPlot->descendantsIncludingThisOfType( curves );
-
-        std::vector<RimWellLogTrack*> tracks;
-        parentPlot->descendantsIncludingThisOfType( tracks );
+        auto curves = parentPlot->descendantsIncludingThisOfType<RimWellLogCurve>();
+        auto tracks = parentPlot->descendantsIncludingThisOfType<RimWellLogTrack>();
 
         this->applyDataSourceChanges( curves, tracks );
 
@@ -846,9 +834,6 @@ std::pair<bool, double> RimWellLogCurveCommonDataSource::maximumCurvePointInterv
 //--------------------------------------------------------------------------------------------------
 void RimWellLogCurveCommonDataSource::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    RimWellLogPlot* parentPlot = nullptr;
-    this->firstAncestorOrThisOfType( parentPlot );
-
     if ( changedField == &m_branchDetection && m_branchDetection().isPartiallyTrue() )
     {
         // The Tristate is cycled from false -> partially true -> true

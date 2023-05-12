@@ -51,8 +51,7 @@ void RicAppendIntersectionFeature::onActionTriggered( bool isChecked )
     caf::SelectionManager::instance()->objectsByType( &collection );
     CVF_ASSERT( collection.size() == 1 );
 
-    RimIntersectionCollection* intersectionCollection = nullptr;
-    collection[0]->firstAncestorOrThisOfType( intersectionCollection );
+    RimIntersectionCollection* intersectionCollection = collection[0]->firstAncestorOrThisOfType<RimIntersectionCollection>();
 
     CVF_ASSERT( intersectionCollection );
 
@@ -104,8 +103,7 @@ void RicAppendIntersectionFeatureCmd::redo()
     intersection->setName( "Intersection" );
     m_intersectionCollection->appendIntersectionAndUpdate( intersection );
 
-    RimGridView* view = nullptr;
-    m_intersectionCollection->firstAncestorOrThisOfTypeAsserted( view );
+    RimGridView* view = m_intersectionCollection->firstAncestorOrThisOfTypeAsserted<RimGridView>();
 
     RimGeoMechView* geoMechView = nullptr;
     geoMechView                 = dynamic_cast<RimGeoMechView*>( view );

@@ -67,8 +67,7 @@ bool Riv3dWellLogDrawSurfaceGenerator::createDrawSurface( const caf::DisplayCoor
         return false;
     }
 
-    RimWellPathCollection* wellPathCollection = nullptr;
-    m_wellPath->firstAncestorOrThisOfTypeAsserted( wellPathCollection );
+    auto wellPathCollection = m_wellPath->firstAncestorOrThisOfTypeAsserted<RimWellPathCollection>();
 
     std::vector<cvf::Vec3d> wellPathDisplayCoords;
     {

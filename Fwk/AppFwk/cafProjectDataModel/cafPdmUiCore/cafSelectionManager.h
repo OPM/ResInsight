@@ -143,9 +143,7 @@ public:
         PdmObjectHandle* selectedObject = dynamic_cast<PdmObjectHandle*>( item );
         if ( selectedObject )
         {
-            T* ancestor = nullptr;
-            selectedObject->firstAncestorOrThisOfType( ancestor );
-            return ancestor;
+            return selectedObject->firstAncestorOrThisOfType<T>();
         }
         return nullptr;
     }

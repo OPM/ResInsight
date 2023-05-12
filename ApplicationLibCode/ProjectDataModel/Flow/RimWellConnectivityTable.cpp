@@ -202,10 +202,8 @@ void RimWellConnectivityTable::setFromSimulationWell( RimSimWellInView* simWell 
 {
     if ( !simWell ) return;
 
-    RimEclipseView* eclView;
-    simWell->firstAncestorOrThisOfType( eclView );
-    RimEclipseResultCase* eclCase;
-    simWell->firstAncestorOrThisOfType( eclCase );
+    auto eclView = simWell->firstAncestorOrThisOfType<RimEclipseView>();
+    auto eclCase = simWell->firstAncestorOrThisOfType<RimEclipseResultCase>();
 
     m_cellFilterView = eclView;
     m_case           = eclCase;
@@ -665,7 +663,7 @@ QList<caf::PdmOptionItemInfo> RimWellConnectivityTable::calculateValueOptions( c
     else if ( fieldNeedingOptions == &m_cellFilterView && m_case() )
     {
         options.push_back( caf::PdmOptionItemInfo( "Disabled", nullptr ) );
-        for ( RimEclipseView* view : m_case()->reservoirViews.children() )
+        for ( RimEclipseView* view : m_case()->reservoirViews.childrenByType() )
         {
             CVF_ASSERT( view && "Really always should have a valid view pointer in ReservoirViews" );
             options.push_back( caf::PdmOptionItemInfo( view->name(), view, false, view->uiIconProvider() ) );

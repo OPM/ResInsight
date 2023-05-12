@@ -67,8 +67,7 @@ void RicPasteModeledWellPathFeature::onActionTriggered( bool isChecked )
 
     if ( proj && proj->activeOilField() )
     {
-        RimWellPathCollection* wellPathCollection = proj->activeOilField()->wellPathCollection();
-
+        RimWellPathCollection* wellPathCollection = RimTools::wellPathCollection();
         if ( wellPathCollection )
         {
             RimModeledWellPath* wellPathToSelect = nullptr;
@@ -160,8 +159,7 @@ RimModeledWellPath* RicPasteModeledWellPathFeature::duplicateAndInitializeWellPa
     // Resolve references, will connect to the fracture template
     destinationWellPath->resolveReferencesRecursively();
 
-    std::vector<RimWellPathFracture*> wellPathFractures;
-    destinationWellPath->descendantsIncludingThisOfType( wellPathFractures );
+    std::vector<RimWellPathFracture*> wellPathFractures = destinationWellPath->descendantsIncludingThisOfType<RimWellPathFracture>();
     destinationWellPath->createWellPathGeometry();
 
     for ( auto fracture : wellPathFractures )

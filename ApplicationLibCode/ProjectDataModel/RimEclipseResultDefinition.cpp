@@ -313,8 +313,7 @@ void RimEclipseResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
         m_porosityModel         = m_porosityModelUiField;
         m_resultVariableUiField = resultVariable();
 
-        RimEclipseView* eclipseView = nullptr;
-        this->firstAncestorOrThisOfType( eclipseView );
+        auto eclipseView = firstAncestorOrThisOfType<RimEclipseView>();
         if ( eclipseView )
         {
             // Active cells can be different between matrix and fracture, make sure all geometry is recreated
@@ -324,8 +323,7 @@ void RimEclipseResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
         loadDataAndUpdate();
     }
 
-    RimEclipseContourMapView* contourMapView = nullptr;
-    this->firstAncestorOrThisOfType( contourMapView );
+    auto contourMapView = firstAncestorOrThisOfType<RimEclipseContourMapView>();
 
     if ( &m_differenceCase == changedField )
     {
@@ -429,72 +427,62 @@ void RimEclipseResultDefinition::changedTracerSelectionField( bool injector )
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::updateAnyFieldHasChanged()
 {
-    RimEclipsePropertyFilter* propFilter = nullptr;
-    this->firstAncestorOrThisOfType( propFilter );
+    RimEclipsePropertyFilter* propFilter = firstAncestorOrThisOfType<RimEclipsePropertyFilter>();
     if ( propFilter )
     {
         propFilter->updateConnectedEditors();
     }
 
-    RimEclipseFaultColors* faultColors = nullptr;
-    this->firstAncestorOrThisOfType( faultColors );
+    RimEclipseFaultColors* faultColors = firstAncestorOrThisOfType<RimEclipseFaultColors>();
     if ( faultColors )
     {
         faultColors->updateConnectedEditors();
     }
 
-    RimCellEdgeColors* cellEdgeColors = nullptr;
-    this->firstAncestorOrThisOfType( cellEdgeColors );
+    RimCellEdgeColors* cellEdgeColors = firstAncestorOrThisOfType<RimCellEdgeColors>();
     if ( cellEdgeColors )
     {
         cellEdgeColors->updateConnectedEditors();
     }
 
-    RimEclipseCellColors* cellColors = nullptr;
-    this->firstAncestorOrThisOfType( cellColors );
+    RimEclipseCellColors* cellColors = firstAncestorOrThisOfType<RimEclipseCellColors>();
     if ( cellColors )
     {
         cellColors->updateConnectedEditors();
     }
 
-    RimIntersectionResultDefinition* intersectResDef = nullptr;
-    this->firstAncestorOrThisOfType( intersectResDef );
+    RimIntersectionResultDefinition* intersectResDef = firstAncestorOrThisOfType<RimIntersectionResultDefinition>();
     if ( intersectResDef )
     {
         intersectResDef->setDefaultEclipseLegendConfig();
         intersectResDef->updateConnectedEditors();
     }
 
-    RimGridCrossPlotDataSet* crossPlotCurveSet = nullptr;
-    this->firstAncestorOrThisOfType( crossPlotCurveSet );
+    RimGridCrossPlotDataSet* crossPlotCurveSet = firstAncestorOrThisOfType<RimGridCrossPlotDataSet>();
     if ( crossPlotCurveSet )
     {
         crossPlotCurveSet->updateConnectedEditors();
     }
 
-    RimPlotCurve* curve = nullptr;
-    this->firstAncestorOrThisOfType( curve );
+    RimPlotCurve* curve = firstAncestorOrThisOfType<RimPlotCurve>();
     if ( curve )
     {
         curve->updateConnectedEditors();
     }
 
-    Rim3dWellLogCurve* rim3dWellLogCurve = nullptr;
-    this->firstAncestorOrThisOfType( rim3dWellLogCurve );
+    Rim3dWellLogCurve* rim3dWellLogCurve = firstAncestorOrThisOfType<Rim3dWellLogCurve>();
     if ( rim3dWellLogCurve )
     {
         rim3dWellLogCurve->resetMinMaxValues();
     }
 
-    RimEclipseContourMapProjection* contourMap = nullptr;
-    this->firstAncestorOrThisOfType( contourMap );
+    RimEclipseContourMapProjection* contourMap = firstAncestorOrThisOfType<RimEclipseContourMapProjection>();
     if ( contourMap )
     {
         contourMap->clearGridMappingAndRedraw();
     }
 
-    RimWellLogTrack* wellLogTrack = nullptr;
-    this->firstAncestorOrThisOfType( wellLogTrack );
+    RimWellLogTrack* wellLogTrack = firstAncestorOrThisOfType<RimWellLogTrack>();
     if ( wellLogTrack )
     {
         wellLogTrack->loadDataAndUpdate();
@@ -541,13 +529,11 @@ void RimEclipseResultDefinition::setTofAndSelectTracer( const QString& tracerNam
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultDefinition::loadDataAndUpdate()
 {
-    Rim3dView* view = nullptr;
-    this->firstAncestorOrThisOfType( view );
+    auto view = firstAncestorOrThisOfType<Rim3dView>();
 
     loadResult();
 
-    RimEclipsePropertyFilter* propFilter = nullptr;
-    this->firstAncestorOrThisOfType( propFilter );
+    RimEclipsePropertyFilter* propFilter = firstAncestorOrThisOfType<RimEclipsePropertyFilter>();
     if ( propFilter )
     {
         propFilter->setToDefaultValues();
@@ -560,8 +546,7 @@ void RimEclipseResultDefinition::loadDataAndUpdate()
         }
     }
 
-    RimEclipseCellColors* cellColors = nullptr;
-    this->firstAncestorOrThisOfType( cellColors );
+    RimEclipseCellColors* cellColors = firstAncestorOrThisOfType<RimEclipseCellColors>();
     if ( cellColors )
     {
         this->updateLegendCategorySettings();
@@ -578,8 +563,7 @@ void RimEclipseResultDefinition::loadDataAndUpdate()
         }
     }
 
-    RimIntersectionResultDefinition* sepIntersectionResDef = nullptr;
-    this->firstAncestorOrThisOfType( sepIntersectionResDef );
+    RimIntersectionResultDefinition* sepIntersectionResDef = firstAncestorOrThisOfType<RimIntersectionResultDefinition>();
     if ( sepIntersectionResDef && sepIntersectionResDef->isInAction() )
     {
         if ( view ) view->scheduleCreateDisplayModelAndRedraw();
@@ -587,8 +571,7 @@ void RimEclipseResultDefinition::loadDataAndUpdate()
         if ( gridView ) gridView->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
     }
 
-    RimCellEdgeColors* cellEdgeColors = nullptr;
-    this->firstAncestorOrThisOfType( cellEdgeColors );
+    RimCellEdgeColors* cellEdgeColors = firstAncestorOrThisOfType<RimCellEdgeColors>();
     if ( cellEdgeColors )
     {
         cellEdgeColors->loadResult();
@@ -599,31 +582,27 @@ void RimEclipseResultDefinition::loadDataAndUpdate()
         }
     }
 
-    RimGridCrossPlotDataSet* crossPlotCurveSet = nullptr;
-    this->firstAncestorOrThisOfType( crossPlotCurveSet );
+    RimGridCrossPlotDataSet* crossPlotCurveSet = firstAncestorOrThisOfType<RimGridCrossPlotDataSet>();
     if ( crossPlotCurveSet )
     {
         crossPlotCurveSet->destroyCurves();
         crossPlotCurveSet->loadDataAndUpdate( true );
     }
 
-    RimPlotCurve* curve = nullptr;
-    this->firstAncestorOrThisOfType( curve );
+    RimPlotCurve* curve = firstAncestorOrThisOfType<RimPlotCurve>();
     if ( curve )
     {
         curve->loadDataAndUpdate( true );
     }
 
-    Rim3dWellLogCurve* rim3dWellLogCurve = nullptr;
-    this->firstAncestorOrThisOfType( rim3dWellLogCurve );
+    Rim3dWellLogCurve* rim3dWellLogCurve = firstAncestorOrThisOfType<Rim3dWellLogCurve>();
     if ( rim3dWellLogCurve )
     {
         rim3dWellLogCurve->updateCurveIn3dView();
     }
 
 #ifdef USE_QTCHARTS
-    RimGridStatisticsPlot* gridStatisticsPlot = nullptr;
-    this->firstAncestorOrThisOfType( gridStatisticsPlot );
+    RimGridStatisticsPlot* gridStatisticsPlot = firstAncestorOrThisOfType<RimGridStatisticsPlot>();
     if ( gridStatisticsPlot )
     {
         gridStatisticsPlot->loadDataAndUpdate();
@@ -667,13 +646,11 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
         }
 #endif /* USE_HDF5 */
 
-        RimGridTimeHistoryCurve* timeHistoryCurve;
-        this->firstAncestorOrThisOfType( timeHistoryCurve );
+        RimGridTimeHistoryCurve* timeHistoryCurve = firstAncestorOrThisOfType<RimGridTimeHistoryCurve>();
 
         bool isSeparateFaultResult = false;
         {
-            RimEclipseFaultColors* sepFaultResult;
-            this->firstAncestorOrThisOfType( sepFaultResult );
+            RimEclipseFaultColors* sepFaultResult = firstAncestorOrThisOfType<RimEclipseFaultColors>();
             if ( sepFaultResult ) isSeparateFaultResult = true;
         }
 
@@ -797,12 +774,10 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
         {
             options.push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
 
-            RimEclipseCase* eclipseCase = nullptr;
-            this->firstAncestorOrThisOfTypeAsserted( eclipseCase );
+            auto eclipseCase = firstAncestorOrThisOfTypeAsserted<RimEclipseCase>();
             if ( eclipseCase && eclipseCase->eclipseCaseData() && eclipseCase->eclipseCaseData()->mainGrid() )
             {
-                RimProject* proj = nullptr;
-                eclipseCase->firstAncestorOrThisOfTypeAsserted( proj );
+                RimProject* proj = RimProject::current();
 
                 std::vector<RimEclipseCase*> allCases = proj->eclipseCases();
                 for ( RimEclipseCase* otherCase : allCases )
@@ -822,8 +797,7 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultDefinition::calculateValueOptions(
         }
         else if ( fieldNeedingOptions == &m_timeLapseBaseTimestep )
         {
-            RimEclipseCase* currentCase = nullptr;
-            this->firstAncestorOrThisOfTypeAsserted( currentCase );
+            RimEclipseCase* currentCase = firstAncestorOrThisOfTypeAsserted<RimEclipseCase>();
 
             RimEclipseCase* baseCase = currentCase;
             if ( m_differenceCase )
@@ -924,24 +898,16 @@ RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
     {
         size_t timeStep = 0;
 
-        Rim3dView* rimView = nullptr;
-        this->firstAncestorOrThisOfType( rimView );
+        auto rimView = firstAncestorOrThisOfType<Rim3dView>();
         if ( rimView )
         {
             timeStep = rimView->currentTimeStep();
         }
-        RimWellLogExtractionCurve* wellLogExtractionCurve = nullptr;
-        this->firstAncestorOrThisOfType( wellLogExtractionCurve );
+        RimWellLogExtractionCurve* wellLogExtractionCurve = firstAncestorOrThisOfType<RimWellLogExtractionCurve>();
         if ( wellLogExtractionCurve )
         {
             timeStep = static_cast<size_t>( wellLogExtractionCurve->currentTimeStep() );
         }
-
-        // Time history curves are not supported, since it requires the time
-        // step to access to be supplied.
-        RimGridTimeHistoryCurve* timeHistoryCurve = nullptr;
-        this->firstAncestorOrThisOfType( timeHistoryCurve );
-        CVF_ASSERT( timeHistoryCurve == nullptr );
 
         std::set<std::string> selTracerNames;
         if ( m_flowTracerSelectionMode == FlowTracerSelectionType::FLOW_TR_BY_SELECTION )
@@ -992,15 +958,13 @@ RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
 
         return RigFlowDiagResultAddress( m_resultVariable().toStdString(), m_phaseSelection(), selTracerNames );
     }
-    else
+
+    std::set<std::string> selTracerNames;
+    for ( const QString& selectedTracerName : m_selectedSouringTracers() )
     {
-        std::set<std::string> selTracerNames;
-        for ( const QString& selectedTracerName : m_selectedSouringTracers() )
-        {
-            selTracerNames.insert( selectedTracerName.toUtf8().constData() );
-        }
-        return RigFlowDiagResultAddress( m_resultVariable().toStdString(), RigFlowDiagResultAddress::PHASE_ALL, selTracerNames );
+        selTracerNames.insert( selectedTracerName.toUtf8().constData() );
     }
+    return RigFlowDiagResultAddress( m_resultVariable().toStdString(), RigFlowDiagResultAddress::PHASE_ALL, selTracerNames );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1583,8 +1547,7 @@ void RimEclipseResultDefinition::defineUiOrdering( QString uiConfigName, caf::Pd
 
         bool showOnlyVisibleCategoriesOption = false;
 
-        RimEclipseView* eclView = nullptr;
-        this->firstAncestorOrThisOfType( eclView );
+        RimEclipseView* eclView = firstAncestorOrThisOfType<RimEclipseView>();
 
         if ( eclView )
         {
@@ -1828,8 +1791,7 @@ void RimEclipseResultDefinition::syncInjectorToProducerSelection()
 {
     int timeStep = 0;
 
-    Rim3dView* rimView = nullptr;
-    this->firstAncestorOrThisOfType( rimView );
+    auto rimView = firstAncestorOrThisOfType<Rim3dView>();
     if ( rimView )
     {
         timeStep = rimView->currentTimeStep();
@@ -1857,8 +1819,7 @@ void RimEclipseResultDefinition::syncProducerToInjectorSelection()
 {
     int timeStep = 0;
 
-    Rim3dView* rimView = nullptr;
-    this->firstAncestorOrThisOfType( rimView );
+    auto rimView = firstAncestorOrThisOfType<Rim3dView>();
     if ( rimView )
     {
         timeStep = rimView->currentTimeStep();
@@ -1946,8 +1907,7 @@ bool RimEclipseResultDefinition::showDerivedResultsFirstInVariableUiField() cons
 {
     // Cell Face result names
     bool                   showDerivedResultsFirstInList = false;
-    RimEclipseFaultColors* rimEclipseFaultColors         = nullptr;
-    this->firstAncestorOrThisOfType( rimEclipseFaultColors );
+    RimEclipseFaultColors* rimEclipseFaultColors         = firstAncestorOrThisOfType<RimEclipseFaultColors>();
 
     if ( rimEclipseFaultColors ) showDerivedResultsFirstInList = true;
 
@@ -1959,14 +1919,9 @@ bool RimEclipseResultDefinition::showDerivedResultsFirstInVariableUiField() cons
 //--------------------------------------------------------------------------------------------------
 bool RimEclipseResultDefinition::addPerCellFaceOptionsForVariableUiField() const
 {
-    RimPlotCurve* curve = nullptr;
-    this->firstAncestorOrThisOfType( curve );
-
-    RimEclipsePropertyFilter* propFilter = nullptr;
-    this->firstAncestorOrThisOfType( propFilter );
-
-    RimCellEdgeColors* cellEdge = nullptr;
-    this->firstAncestorOrThisOfType( cellEdge );
+    RimPlotCurve*             curve      = firstAncestorOrThisOfType<RimPlotCurve>();
+    RimEclipsePropertyFilter* propFilter = firstAncestorOrThisOfType<RimEclipsePropertyFilter>();
+    RimCellEdgeColors*        cellEdge   = firstAncestorOrThisOfType<RimCellEdgeColors>();
 
     if ( propFilter || curve || cellEdge )
     {

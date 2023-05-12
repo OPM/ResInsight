@@ -55,8 +55,8 @@ bool RicNewPltPlotFeature::isCommandEnabled()
 {
     if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return false;
 
-    RimSimWellInView* simWell          = caf::firstAncestorOfTypeFromSelectedObject<RimSimWellInView*>();
-    RimWellPath*      selectedWellPath = caf::firstAncestorOfTypeFromSelectedObject<RimWellPath*>();
+    RimSimWellInView* simWell          = caf::firstAncestorOfTypeFromSelectedObject<RimSimWellInView>();
+    RimWellPath*      selectedWellPath = caf::firstAncestorOfTypeFromSelectedObject<RimWellPath>();
 
     bool enable = true;
 
@@ -91,11 +91,11 @@ void RicNewPltPlotFeature::onActionTriggered( bool isChecked )
         RimWellPath*      wellPath    = nullptr;
         RimSimWellInView* eclipseWell = nullptr;
 
-        if ( ( wellPath = caf::firstAncestorOfTypeFromSelectedObject<RimWellPath*>() ) != nullptr )
+        if ( ( wellPath = caf::firstAncestorOfTypeFromSelectedObject<RimWellPath>() ) != nullptr )
         {
             wellPathName = wellPath->name();
         }
-        else if ( ( eclipseWell = caf::firstAncestorOfTypeFromSelectedObject<RimSimWellInView*>() ) != nullptr )
+        else if ( ( eclipseWell = caf::firstAncestorOfTypeFromSelectedObject<RimSimWellInView>() ) != nullptr )
         {
             wellPath = RimProject::current()->wellPathFromSimWellName( eclipseWell->name() );
             if ( !wellPath ) return;

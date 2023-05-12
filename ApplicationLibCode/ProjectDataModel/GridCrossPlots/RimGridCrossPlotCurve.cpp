@@ -93,9 +93,8 @@ void RimGridCrossPlotCurve::determineLegendIcon()
 {
     if ( !m_plotCurve ) return;
 
-    RimGridCrossPlot* plot = nullptr;
-    firstAncestorOrThisOfTypeAsserted( plot );
-    int fontSize = plot->legendFontSize();
+    auto plot     = firstAncestorOrThisOfTypeAsserted<RimGridCrossPlot>();
+    int  fontSize = plot->legendFontSize();
     m_plotCurve->setLegendIconSize( QSize( fontSize, fontSize ) );
 }
 
@@ -124,8 +123,7 @@ void RimGridCrossPlotCurve::determineSymbol()
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCurve::updateZoomInParentPlot()
 {
-    RimGridCrossPlot* plot;
-    this->firstAncestorOrThisOfTypeAsserted( plot );
+    auto plot = firstAncestorOrThisOfTypeAsserted<RimGridCrossPlot>();
     plot->calculateZoomRangeAndUpdateQwt();
 }
 

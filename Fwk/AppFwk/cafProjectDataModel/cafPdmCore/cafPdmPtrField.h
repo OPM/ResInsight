@@ -69,9 +69,7 @@ public:
 
     bool operator==( const DataTypePtr& fieldValue ) { return m_fieldValue == fieldValue; }
 
-    // Ptr referenced objects
-
-    void ptrReferencedObjects( std::vector<PdmObjectHandle*>* objectsToFill ) override;
+    std::vector<PdmObjectHandle*> ptrReferencedObjects() const override;
 
 private:
     PDM_DISABLE_COPY_AND_ASSIGN( PdmPtrField );

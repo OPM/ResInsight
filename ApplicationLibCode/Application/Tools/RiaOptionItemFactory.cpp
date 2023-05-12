@@ -44,9 +44,8 @@ void RiaOptionItemFactory::appendOptionItemsForEnsembleCurveSets( QList<caf::Pdm
 {
     options->push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
 
-    RimMainPlotCollection*            mainPlotColl = RimMainPlotCollection::current();
-    std::vector<RimEnsembleCurveSet*> ensembleCurveSets;
-    mainPlotColl->descendantsOfType( ensembleCurveSets );
+    RimMainPlotCollection*            mainPlotColl      = RimMainPlotCollection::current();
+    std::vector<RimEnsembleCurveSet*> ensembleCurveSets = mainPlotColl->descendantsOfType<RimEnsembleCurveSet>();
     for ( auto ensembleCurveSet : ensembleCurveSets )
     {
         options->push_back( caf::PdmOptionItemInfo( ensembleCurveSet->name(), ensembleCurveSet ) );

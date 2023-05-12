@@ -80,9 +80,7 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
     if ( isChecked() )
     {
-        RimWellLogPlot* wellLogPlot;
-        firstAncestorOrThisOfType( wellLogPlot );
-        CVF_ASSERT( wellLogPlot );
+        auto wellLogPlot = firstAncestorOrThisOfTypeAsserted<RimWellLogPlot>();
 
         if ( m_wellPath && m_wellLogFile )
         {
@@ -150,9 +148,8 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
                     validDepths.insert( std::make_pair( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB, tvdRkbValues ) );
                 }
 
-                bool             useLogarithmicScale = false;
-                RimWellLogTrack* track               = nullptr;
-                firstAncestorOfType( track );
+                bool useLogarithmicScale = false;
+                auto track               = firstAncestorOfType<RimWellLogTrack>();
                 if ( track )
                 {
                     useLogarithmicScale = track->isLogarithmicScale();
@@ -435,8 +432,7 @@ void RimWellLogFileCurve::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogFileCurve::isRftPlotChild() const
 {
-    RimWellRftPlot* rftPlot;
-    firstAncestorOrThisOfType( rftPlot );
+    RimWellRftPlot* rftPlot = firstAncestorOrThisOfType<RimWellRftPlot>();
     return rftPlot != nullptr;
 }
 
@@ -466,10 +462,8 @@ QString RimWellLogFileCurve::createCurveAutoName()
         {
             if ( channelNameAvailable )
             {
-                RimWellLogPlot* wellLogPlot;
-                firstAncestorOrThisOfType( wellLogPlot );
-                CVF_ASSERT( wellLogPlot );
-                QString unitName = wellLogFile->wellLogChannelUnitString( m_wellLogChannelName, wellLogPlot->depthUnit() );
+                auto    wellLogPlot = firstAncestorOrThisOfTypeAsserted<RimWellLogPlot>();
+                QString unitName    = wellLogFile->wellLogChannelUnitString( m_wellLogChannelName, wellLogPlot->depthUnit() );
 
                 if ( !unitName.isEmpty() )
                 {

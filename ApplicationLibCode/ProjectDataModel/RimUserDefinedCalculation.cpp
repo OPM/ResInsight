@@ -411,7 +411,7 @@ void RimUserDefinedCalculation::defineEditorAttribute( const caf::PdmFieldHandle
 //--------------------------------------------------------------------------------------------------
 std::vector<RimUserDefinedCalculationVariable*> RimUserDefinedCalculation::allVariables() const
 {
-    return m_variables.children();
+    return m_variables.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------

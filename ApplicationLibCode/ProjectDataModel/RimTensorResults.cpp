@@ -196,9 +196,7 @@ void RimTensorResults::mappingRange( double* min, double* max ) const
 
     if ( scaleMethod() == RESULT )
     {
-        Rim3dView* view = nullptr;
-        firstAncestorOrThisOfType( view );
-
+        auto                         view             = firstAncestorOrThisOfType<Rim3dView>();
         RimGeoMechView*              geoMechView      = dynamic_cast<RimGeoMechView*>( view );
         RigFemPartResultsCollection* resultCollection = geoMechView->geoMechCase()->geoMechData()->femPartResults();
         if ( !resultCollection ) return;
@@ -271,8 +269,7 @@ void RimTensorResults::fieldChangedByUi( const caf::PdmFieldHandle* changedField
         setShowTensors( m_showTensors );
     }
 
-    RimGeoMechView* view;
-    firstAncestorOrThisOfType( view );
+    auto view = firstAncestorOrThisOfType<RimGeoMechView>();
     view->loadDataAndUpdate();
 }
 

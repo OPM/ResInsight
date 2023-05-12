@@ -491,7 +491,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 
             menuBuilder.subMenuStart( "Move LAS file to well path" );
 
-            RimWellPath* parentWellPath     = caf::firstAncestorOfTypeFromSelectedObject<RimWellPath*>();
+            RimWellPath* parentWellPath     = caf::firstAncestorOfTypeFromSelectedObject<RimWellPath>();
             QString      parentWellPathName = parentWellPath ? parentWellPath->name() : "";
 
             for ( RimWellPath* wellPath : allWellPaths() )

@@ -51,9 +51,7 @@
 
 cvf::ref<caf::DisplayCoordTransform> displayCoordTransform( const RimExtrudedCurveIntersection* intersection )
 {
-    Rim3dView* rimView = nullptr;
-    intersection->firstAncestorOrThisOfType( rimView );
-    CVF_ASSERT( rimView );
+    auto rimView = intersection->firstAncestorOrThisOfTypeAsserted<Rim3dView>();
 
     cvf::ref<caf::DisplayCoordTransform> transForm = rimView->displayCoordTransform();
     return transForm;
@@ -114,8 +112,7 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateLineSegementTransfo
 
         cvf::Vec3d displayOffset( 0, 0, 0 );
         {
-            RimGridView* gridView = nullptr;
-            m_intersection->firstAncestorOrThisOfType( gridView );
+            auto gridView = m_intersection->firstAncestorOrThisOfType<RimGridView>();
             if ( gridView && gridView->ownerCase() )
             {
                 displayOffset = gridView->ownerCase()->displayModelOffset();

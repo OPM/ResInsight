@@ -18,7 +18,6 @@
 
 #include "RicWellMeasurementImportTools.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 
 #include "Rim3dView.h"
@@ -53,8 +52,7 @@ void RicWellMeasurementImportTools::importWellMeasurementsFromFiles( const std::
     }
 
     // This assumes that the filepaths have the same well path collection
-    RimWellPathCollection* wellPathCollection = nullptr;
-    filePaths[0]->firstAncestorOrThisOfType( wellPathCollection );
+    RimWellPathCollection* wellPathCollection = filePaths[0]->firstAncestorOrThisOfType<RimWellPathCollection>();
     if ( wellPathCollection )
     {
         importWellMeasurementsFromFiles( files, wellPathCollection );
@@ -101,11 +99,11 @@ void RicWellMeasurementImportTools::importWellMeasurementsFromFiles( const QStri
     }
     wellPathCollection->uiCapability()->updateConnectedEditors();
 
-    RiaApplication* app = RiaApplication::instance();
-    if ( app->project() )
+    auto proj = RimProject::current();
+    if ( proj )
     {
         std::vector<Rim3dView*> views;
-        app->project()->allViews( views );
+        proj->allViews( views );
         for ( auto& view : views )
         {
             RimGridView* gridView = dynamic_cast<RimGridView*>( view );
@@ -116,7 +114,7 @@ void RicWellMeasurementImportTools::importWellMeasurementsFromFiles( const QStri
             }
         }
 
-        app->project()->scheduleCreateDisplayModelAndRedrawAllViews();
+        proj->scheduleCreateDisplayModelAndRedrawAllViews();
     }
 
     if ( lastWellMeasurement )
@@ -132,8 +130,7 @@ void RicWellMeasurementImportTools::removeWellMeasurementsFromFiles( const std::
 {
     for ( RimWellMeasurementFilePath* filePath : filePaths )
     {
-        RimWellMeasurementCollection* wellMeasurementCollection = nullptr;
-        filePath->firstAncestorOrThisOfType( wellMeasurementCollection );
+        RimWellMeasurementCollection* wellMeasurementCollection = filePath->firstAncestorOrThisOfType<RimWellMeasurementCollection>();
         if ( wellMeasurementCollection )
         {
             wellMeasurementCollection->removeMeasurementsForFilePath( filePath );
@@ -146,10 +143,7 @@ void RicWellMeasurementImportTools::removeWellMeasurementsFromFiles( const std::
 //--------------------------------------------------------------------------------------------------
 void RicWellMeasurementImportTools::deleteAllEmptyMeasurementCurves()
 {
-    RiaApplication* app = RiaApplication::instance();
-
-    std::vector<RimWellMeasurementCollection*> measurementCollections;
-    app->project()->descendantsIncludingThisOfType( measurementCollections );
+    auto measurementCollections = RimProject::current()->descendantsIncludingThisOfType<RimWellMeasurementCollection>();
     for ( auto measurementCollection : measurementCollections )
     {
         measurementCollection->deleteAllEmptyCurves();

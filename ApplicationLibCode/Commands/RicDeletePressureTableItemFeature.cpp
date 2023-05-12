@@ -45,8 +45,7 @@ void RicDeletePressureTableItemFeature::onActionTriggered( bool isChecked )
     caf::SelectionManager::instance()->objectsByType( &items, caf::SelectionManager::FIRST_LEVEL );
     if ( !items.empty() )
     {
-        RimPressureTable* pressureTable = nullptr;
-        items[0]->firstAncestorOrThisOfTypeAsserted( pressureTable );
+        RimPressureTable* pressureTable = items[0]->firstAncestorOrThisOfTypeAsserted<RimPressureTable>();
         for ( RimPressureTableItem* attributeToDelete : items )
         {
             pressureTable->deleteItem( attributeToDelete );

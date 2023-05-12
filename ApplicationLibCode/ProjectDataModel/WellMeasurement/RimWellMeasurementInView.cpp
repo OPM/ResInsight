@@ -171,8 +171,7 @@ void RimWellMeasurementInView::fieldChangedByUi( const caf::PdmFieldHandle* chan
     }
 
     updateLegendData();
-    RimGridView* rimGridView = nullptr;
-    this->firstAncestorOrThisOfTypeAsserted( rimGridView );
+    auto rimGridView = firstAncestorOrThisOfTypeAsserted<RimGridView>();
     rimGridView->scheduleCreateDisplayModelAndRedraw();
 }
 

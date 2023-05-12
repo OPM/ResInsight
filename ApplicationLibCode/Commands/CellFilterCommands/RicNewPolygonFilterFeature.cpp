@@ -49,8 +49,7 @@ void RicNewPolygonFilterFeature::onActionTriggered( bool isChecked )
     RimCellFilterCollection* filtColl = colls[0];
 
     // and the case to use
-    RimCase* sourceCase = nullptr;
-    filtColl->firstAncestorOrThisOfTypeAsserted( sourceCase );
+    RimCase* sourceCase = filtColl->firstAncestorOrThisOfTypeAsserted<RimCase>();
 
     RimPolygonFilter* lastCreatedOrUpdated = filtColl->addNewPolygonFilter( sourceCase );
     if ( lastCreatedOrUpdated )

@@ -60,8 +60,7 @@ RigEclipseWellLogExtractor* RiaExtractionTools::findOrCreateSimWellExtractor( co
     auto wlPlotCollection = wellLogPlotCollection();
     if ( !wlPlotCollection ) return nullptr;
 
-    RimEclipseCase* eclipseCase = nullptr;
-    simWell->firstAncestorOrThisOfType( eclipseCase );
+    auto eclipseCase = simWell->firstAncestorOrThisOfType<RimEclipseCase>();
     if ( !( eclipseCase && eclipseCase->eclipseCaseData() ) )
     {
         return nullptr;

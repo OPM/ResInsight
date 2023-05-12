@@ -184,8 +184,7 @@ void RimWellRftEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* ch
 {
     if ( changedField == &m_ensembleColorMode || changedField == &m_ensembleParameter )
     {
-        RimWellRftPlot* rftPlot = nullptr;
-        this->firstAncestorOrThisOfTypeAsserted( rftPlot );
+        RimWellRftPlot* rftPlot = firstAncestorOrThisOfTypeAsserted<RimWellRftPlot>();
         rftPlot->syncCurvesFromUiSelection();
         rftPlot->updateConnectedEditors();
     }

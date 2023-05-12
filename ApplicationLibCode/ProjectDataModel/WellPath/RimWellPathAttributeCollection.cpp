@@ -53,9 +53,7 @@ RimWellPathAttributeCollection::~RimWellPathAttributeCollection()
 //--------------------------------------------------------------------------------------------------
 void RimWellPathAttributeCollection::updateAllReferringTracks()
 {
-    std::vector<RimWellLogTrack*> wellLogTracks;
-
-    this->objectsWithReferringPtrFieldsOfType( wellLogTracks );
+    std::vector<RimWellLogTrack*> wellLogTracks = objectsWithReferringPtrFieldsOfType<RimWellLogTrack>();
     for ( RimWellLogTrack* track : wellLogTracks )
     {
         track->loadDataAndUpdate();
@@ -167,8 +165,7 @@ void RimWellPathAttributeCollection::fieldChangedByUi( const caf::PdmFieldHandle
 {
     if ( changedField == this->objectToggleField() )
     {
-        RimProject* proj;
-        this->firstAncestorOrThisOfTypeAsserted( proj );
+        RimProject* proj = RimProject::current();
         proj->scheduleCreateDisplayModelAndRedrawAllViews();
         this->updateAllReferringTracks();
     }

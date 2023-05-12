@@ -109,9 +109,7 @@ void RimMdiWindowController::removeWindowFromMDI()
 //--------------------------------------------------------------------------------------------------
 RimViewWindow* RimMdiWindowController::viewPdmObject()
 {
-    RimViewWindow* viewWindowObj;
-    this->firstAncestorOrThisOfType( viewWindowObj );
-    return viewWindowObj;
+    return firstAncestorOrThisOfType<RimViewWindow>();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -36,7 +36,7 @@ CAF_CMD_SOURCE_INIT( RicNewPlotAxisPropertiesFeature, "RicNewPlotAxisPropertiesF
 //--------------------------------------------------------------------------------------------------
 bool RicNewPlotAxisPropertiesFeature::isCommandEnabled()
 {
-    auto* summaryPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot*>();
+    auto* summaryPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot>();
     return ( summaryPlot != nullptr );
 }
 
@@ -45,7 +45,7 @@ bool RicNewPlotAxisPropertiesFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewPlotAxisPropertiesFeature::onActionTriggered( bool isChecked )
 {
-    auto* summaryPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot*>();
+    auto* summaryPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot>();
     if ( !summaryPlot ) return;
 
     RimPlotAxisProperties* newPlotAxisProperties = summaryPlot->addNewAxisProperties( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, "New Axis" );

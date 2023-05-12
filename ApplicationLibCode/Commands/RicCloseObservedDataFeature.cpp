@@ -65,8 +65,7 @@ void RicCloseObservedDataFeature::deleteObservedSummaryData( const std::vector<R
             multiPlot->updateConnectedEditors();
         }
 
-        RimObservedDataCollection* observedDataCollection = nullptr;
-        observedData->firstAncestorOrThisOfTypeAsserted( observedDataCollection );
+        RimObservedDataCollection* observedDataCollection = observedData->firstAncestorOrThisOfTypeAsserted<RimObservedDataCollection>();
 
         observedDataCollection->removeObservedSummaryData( observedData );
         delete observedData;
@@ -83,8 +82,7 @@ void RicCloseObservedDataFeature::deleteObservedRmuRftData( const std::vector<Ri
 
     for ( RimObservedFmuRftData* observedData : data )
     {
-        RimObservedDataCollection* observedDataCollection = nullptr;
-        observedData->firstAncestorOrThisOfTypeAsserted( observedDataCollection );
+        RimObservedDataCollection* observedDataCollection = observedData->firstAncestorOrThisOfTypeAsserted<RimObservedDataCollection>();
 
         for ( RimWellRftPlot* plot : rftPlotColl->rftPlots() )
         {

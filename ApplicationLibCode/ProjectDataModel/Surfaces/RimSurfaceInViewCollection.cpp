@@ -80,11 +80,8 @@ caf::PdmFieldHandle* RimSurfaceInViewCollection::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceInViewCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
-    RimGridView* gridView = nullptr;
-    this->firstAncestorOfType( gridView );
-
-    RimSurfaceInViewCollection* surfViewColl = nullptr;
-    this->firstAncestorOfType( surfViewColl );
+    auto gridView     = firstAncestorOfType<RimGridView>();
+    auto surfViewColl = firstAncestorOfType<RimSurfaceInViewCollection>();
 
     if ( gridView && !surfViewColl )
     {
@@ -136,7 +133,7 @@ void RimSurfaceInViewCollection::updateAllViewItems()
 void RimSurfaceInViewCollection::syncCollectionsWithView()
 {
     // check that we have surface in view collections for all sub-collections
-    std::vector<RimSurfaceInViewCollection*> colls = m_collectionsInView.children();
+    std::vector<RimSurfaceInViewCollection*> colls = m_collectionsInView.childrenByType();
 
     for ( auto surfcoll : colls )
     {
@@ -187,7 +184,7 @@ void RimSurfaceInViewCollection::syncSurfacesWithView()
 {
     // Delete surfaceInView without any real Surface connection
 
-    std::vector<RimSurfaceInView*> surfsInView = m_surfacesInView.children();
+    std::vector<RimSurfaceInView*> surfsInView = m_surfacesInView.childrenByType();
 
     for ( auto surf : surfsInView )
     {
@@ -314,8 +311,7 @@ void RimSurfaceInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
 
     if ( changedField == &m_isChecked )
     {
-        RimGridView* ownerView;
-        this->firstAncestorOrThisOfTypeAsserted( ownerView );
+        auto ownerView = firstAncestorOrThisOfTypeAsserted<RimGridView>();
         ownerView->scheduleCreateDisplayModelAndRedraw();
     }
 }

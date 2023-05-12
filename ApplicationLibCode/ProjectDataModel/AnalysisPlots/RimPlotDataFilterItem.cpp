@@ -270,8 +270,7 @@ void RimPlotDataFilterItem::fieldChangedByUi( const caf::PdmFieldHandle* changed
 QList<caf::PdmOptionItemInfo> RimPlotDataFilterItem::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
-    RimAnalysisPlot*              parentPlot;
-    this->firstAncestorOrThisOfTypeAsserted( parentPlot );
+    auto                          parentPlot = firstAncestorOrThisOfTypeAsserted<RimAnalysisPlot>();
 
     if ( fieldNeedingOptions == &m_filterQuantityUiField )
     {
@@ -417,8 +416,7 @@ void RimPlotDataFilterItem::defineEditorAttribute( const caf::PdmFieldHandle* fi
 //--------------------------------------------------------------------------------------------------
 void RimPlotDataFilterItem::updateMaxMinAndDefaultValues( bool forceDefault )
 {
-    RimAnalysisPlot* parentPlot;
-    this->firstAncestorOrThisOfTypeAsserted( parentPlot );
+    auto parentPlot = firstAncestorOrThisOfTypeAsserted<RimAnalysisPlot>();
 
     if ( m_filterTarget == ENSEMBLE_CASE )
     {
@@ -471,7 +469,6 @@ void RimPlotDataFilterItem::updateMaxMinAndDefaultValues( bool forceDefault )
 //--------------------------------------------------------------------------------------------------
 RigEnsembleParameter RimPlotDataFilterItem::selectedEnsembleParameter() const
 {
-    RimAnalysisPlot* parentPlot;
-    this->firstAncestorOrThisOfTypeAsserted( parentPlot );
+    auto parentPlot = firstAncestorOrThisOfTypeAsserted<RimAnalysisPlot>();
     return parentPlot->ensembleParameter( m_filterEnsembleParameter );
 }

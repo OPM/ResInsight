@@ -162,8 +162,7 @@ caf::PdmFieldHandle* RimPlotAxisAnnotation::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 void RimPlotAxisAnnotation::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    RimPlot* parentPlot = nullptr;
-    this->firstAncestorOrThisOfType( parentPlot );
+    RimPlot* parentPlot = firstAncestorOrThisOfType<RimPlot>();
     if ( parentPlot )
     {
         parentPlot->updateAxes();

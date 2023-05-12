@@ -143,7 +143,7 @@ void RimGridCrossPlot::addDataSet( RimGridCrossPlotDataSet* dataSet )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimGridCrossPlotDataSet*> RimGridCrossPlot::dataSets() const
 {
-    return m_crossPlotDataSets.children();
+    return m_crossPlotDataSets.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1041,8 +1041,7 @@ void RimGridCrossPlot::cleanupBeforeClose()
 //--------------------------------------------------------------------------------------------------
 bool RimGridCrossPlot::isDeletable() const
 {
-    RimMultiPlot* plotWindow = nullptr;
-    firstAncestorOrThisOfType( plotWindow );
+    auto plotWindow = firstAncestorOrThisOfType<RimMultiPlot>();
     return plotWindow == nullptr;
 }
 

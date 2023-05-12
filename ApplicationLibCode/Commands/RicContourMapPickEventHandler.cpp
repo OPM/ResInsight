@@ -58,8 +58,7 @@ bool RicContourMapPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& eve
         {
             RiuMainWindow::instance()->selectAsCurrentItem( contourMap );
 
-            RimGridView* view = nullptr;
-            contourMap->firstAncestorOrThisOfTypeAsserted( view );
+            RimGridView* view = contourMap->firstAncestorOrThisOfTypeAsserted<RimGridView>();
             if ( !view ) return false;
 
             cvf::Vec2d pickedPoint;
