@@ -385,8 +385,6 @@ void RimEnsembleWellLogCurveSet::updateEditors()
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleWellLogCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    auto plot = firstAncestorOrThisOfTypeAsserted<RimWellLogPlot>();
-
     bool updateTextInPlot = false;
 
     if ( changedField == &m_showCurves )
@@ -395,8 +393,8 @@ void RimEnsembleWellLogCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* ch
 
         updateConnectedEditors();
 
-        auto summaryPlot = firstAncestorOrThisOfTypeAsserted<RimWellLogPlot>();
-        summaryPlot->updateConnectedEditors();
+        auto plot = firstAncestorOrThisOfTypeAsserted<RimWellLogPlot>();
+        plot->updateConnectedEditors();
 
         updateTextInPlot = true;
     }
@@ -878,8 +876,6 @@ void RimEnsembleWellLogCurveSet::updateStatisticsCurves( const std::vector<RimWe
     deleteStatisticsCurves();
 
     if ( !updateStatistics( sumCases ) ) return;
-
-    auto plot = firstAncestorOrThisOfTypeAsserted<RimWellLogPlot>();
 
     std::vector<RimEnsembleWellLogStatistics::StatisticsType> statisticsTypes;
     if ( m_statistics->isActive() )
