@@ -909,11 +909,6 @@ RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
             timeStep = static_cast<size_t>( wellLogExtractionCurve->currentTimeStep() );
         }
 
-        // Time history curves are not supported, since it requires the time
-        // step to access to be supplied.
-        RimGridTimeHistoryCurve* timeHistoryCurve = firstAncestorOrThisOfType<RimGridTimeHistoryCurve>();
-        CVF_ASSERT( timeHistoryCurve == nullptr );
-
         std::set<std::string> selTracerNames;
         if ( m_flowTracerSelectionMode == FlowTracerSelectionType::FLOW_TR_BY_SELECTION )
         {
@@ -963,15 +958,13 @@ RigFlowDiagResultAddress RimEclipseResultDefinition::flowDiagResAddress() const
 
         return RigFlowDiagResultAddress( m_resultVariable().toStdString(), m_phaseSelection(), selTracerNames );
     }
-    else
+
+    std::set<std::string> selTracerNames;
+    for ( const QString& selectedTracerName : m_selectedSouringTracers() )
     {
-        std::set<std::string> selTracerNames;
-        for ( const QString& selectedTracerName : m_selectedSouringTracers() )
-        {
-            selTracerNames.insert( selectedTracerName.toUtf8().constData() );
-        }
-        return RigFlowDiagResultAddress( m_resultVariable().toStdString(), RigFlowDiagResultAddress::PHASE_ALL, selTracerNames );
+        selTracerNames.insert( selectedTracerName.toUtf8().constData() );
     }
+    return RigFlowDiagResultAddress( m_resultVariable().toStdString(), RigFlowDiagResultAddress::PHASE_ALL, selTracerNames );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -24,6 +24,7 @@
 #include "cafPdmDocument.h"
 #include "cafPdmObjectGroup.h"
 #include "cafSelectionManager.h"
+#include "cafSelectionManagerTools.h"
 
 #include "cvfAssert.h"
 
@@ -39,14 +40,7 @@ CAF_CMD_SOURCE_INIT( RicPasteAsciiDataCurveFeature, "RicPasteAsciiDataCurveFeatu
 //--------------------------------------------------------------------------------------------------
 bool RicPasteAsciiDataCurveFeature::isCommandEnabled()
 {
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
-
-    if ( !destinationObject )
-    {
-        return false;
-    }
-
-    auto summaryPlot = destinationObject->firstAncestorOrThisOfType<RimSummaryPlot>();
+    auto summaryPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot>();
     if ( !summaryPlot )
     {
         return false;
@@ -60,10 +54,7 @@ bool RicPasteAsciiDataCurveFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicPasteAsciiDataCurveFeature::onActionTriggered( bool isChecked )
 {
-    caf::PdmObjectHandle* destinationObject = dynamic_cast<caf::PdmObjectHandle*>( caf::SelectionManager::instance()->selectedItem() );
-    CVF_ASSERT( destinationObject );
-
-    auto summaryPlot = destinationObject->firstAncestorOrThisOfType<RimSummaryPlot>();
+    auto summaryPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot>();
     if ( !summaryPlot )
     {
         return;
