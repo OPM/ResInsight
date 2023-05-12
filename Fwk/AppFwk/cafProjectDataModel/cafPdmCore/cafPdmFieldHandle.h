@@ -37,8 +37,8 @@ public:
     void                                                setOwnerClass( const QString& ownerClass );
 
     // Ptr referenced objects
-    bool         hasPtrReferencedObjects();
-    virtual void ptrReferencedObjects( std::vector<PdmObjectHandle*>* ) {}
+    bool                                  hasPtrReferencedObjects() const;
+    virtual std::vector<PdmObjectHandle*> ptrReferencedObjects() const { return {}; }
 
     // Capabilities
     void addCapability( PdmFieldCapability* capability, bool takeOwnership )

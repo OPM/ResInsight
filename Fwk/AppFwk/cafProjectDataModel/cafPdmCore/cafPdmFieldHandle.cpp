@@ -72,11 +72,10 @@ void PdmFieldHandle::setOwnerClass( const QString& ownerClass )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmFieldHandle::hasPtrReferencedObjects()
+bool PdmFieldHandle::hasPtrReferencedObjects() const
 {
-    std::vector<PdmObjectHandle*> ptrReffedObjs;
-    this->ptrReferencedObjects( &ptrReffedObjs );
-    return ( ptrReffedObjs.size() > 0 );
+    std::vector<PdmObjectHandle*> ptrReffedObjs = ptrReferencedObjects();
+    return !ptrReffedObjs.empty();
 }
 
 //--------------------------------------------------------------------------------------------------

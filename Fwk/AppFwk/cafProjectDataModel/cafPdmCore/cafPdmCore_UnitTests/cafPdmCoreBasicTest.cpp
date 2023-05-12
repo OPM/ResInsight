@@ -516,8 +516,7 @@ TEST( BaseTest, PdmPtrField )
 
     // Generic access
     {
-        std::vector<caf::PdmObjectHandle*> objects;
-        ihd1->m_ptrField.ptrReferencedObjects( &objects );
+        std::vector<caf::PdmObjectHandle*> objects = ihd1->m_ptrField.ptrReferencedObjects();
         EXPECT_EQ( 1u, objects.size() );
         EXPECT_EQ( ihd2, objects[0] );
     }

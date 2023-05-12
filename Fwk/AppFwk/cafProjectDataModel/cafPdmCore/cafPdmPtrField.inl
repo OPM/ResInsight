@@ -104,12 +104,14 @@ caf::PdmPtrField<DataType*>& PdmPtrField<DataType*>::operator=( const FieldDataT
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void PdmPtrField<DataType*>::ptrReferencedObjects( std::vector<PdmObjectHandle*>* objectsToFill )
+std::vector<PdmObjectHandle*> PdmPtrField<DataType*>::ptrReferencedObjects() const
 {
     if ( m_fieldValue.rawPtr() )
     {
-        objectsToFill->push_back( m_fieldValue.rawPtr() );
+        return { m_fieldValue.rawPtr() };
     }
+
+    return {};
 }
 
 } // End of namespace caf
