@@ -44,7 +44,7 @@ std::vector<QString> PdmObjectHandle::classKeywordAliases()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<PdmFieldHandle*> PdmObjectHandle::fields() const
+[[nodiscard]] std::vector<PdmFieldHandle*> PdmObjectHandle::fields() const
 {
     return m_fields;
 }
@@ -110,7 +110,7 @@ void PdmObjectHandle::removeReferencingPtrField( PdmFieldHandle* fieldReferringT
 /// As the PdmPtrArrayFields can hold several pointers to the same object, the returned vector can
 /// contain multiple pointers to the same field.
 //--------------------------------------------------------------------------------------------------
-std::vector<PdmFieldHandle*> PdmObjectHandle::referringPtrFields() const
+[[nodiscard]] std::vector<PdmFieldHandle*> PdmObjectHandle::referringPtrFields() const
 {
     std::vector<PdmFieldHandle*> fieldsReferringToMe;
 
@@ -126,7 +126,7 @@ std::vector<PdmFieldHandle*> PdmObjectHandle::referringPtrFields() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<PdmObjectHandle*> PdmObjectHandle::objectsWithReferringPtrFields() const
+[[nodiscard]] std::vector<PdmObjectHandle*> PdmObjectHandle::objectsWithReferringPtrFields() const
 {
     std::vector<PdmObjectHandle*> objects;
 
@@ -180,7 +180,7 @@ void PdmObjectHandle::addField( PdmFieldHandle* field, const QString& keyword )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmFieldHandle* PdmObjectHandle::findField( const QString& keyword ) const
+[[nodiscard]] PdmFieldHandle* PdmObjectHandle::findField( const QString& keyword ) const
 {
     std::vector<PdmFieldHandle*> fields = this->fields();
 
@@ -199,7 +199,7 @@ PdmFieldHandle* PdmObjectHandle::findField( const QString& keyword ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmFieldHandle* PdmObjectHandle::parentField() const
+[[nodiscard]] PdmFieldHandle* PdmObjectHandle::parentField() const
 {
     return m_parentField;
 }

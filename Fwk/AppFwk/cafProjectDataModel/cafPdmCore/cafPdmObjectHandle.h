@@ -170,7 +170,7 @@ namespace caf
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-T* PdmObjectHandle::firstAncestorOrThisOfType() const
+[[nodiscard]] T* PdmObjectHandle::firstAncestorOrThisOfType() const
 {
     static_assert( !std::is_pointer<T>::value );
 
@@ -190,7 +190,7 @@ T* PdmObjectHandle::firstAncestorOrThisOfType() const
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-T* PdmObjectHandle::firstAncestorOfType() const
+[[nodiscard]] T* PdmObjectHandle::firstAncestorOfType() const
 {
     static_assert( !std::is_pointer<T>::value );
 
@@ -210,7 +210,7 @@ T* PdmObjectHandle::firstAncestorOfType() const
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-T* PdmObjectHandle::firstAncestorOrThisOfTypeAsserted() const
+[[nodiscard]] T* PdmObjectHandle::firstAncestorOrThisOfTypeAsserted() const
 {
     static_assert( !std::is_pointer<T>::value );
 
@@ -224,7 +224,7 @@ T* PdmObjectHandle::firstAncestorOrThisOfTypeAsserted() const
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-std::vector<T*> PdmObjectHandle::allAncestorsOfType() const
+[[nodiscard]] std::vector<T*> PdmObjectHandle::allAncestorsOfType() const
 {
     static_assert( !std::is_pointer<T>::value );
 
@@ -244,7 +244,7 @@ std::vector<T*> PdmObjectHandle::allAncestorsOfType() const
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-std::vector<T*> PdmObjectHandle::allAncestorsOrThisOfType() const
+[[nodiscard]] std::vector<T*> PdmObjectHandle::allAncestorsOrThisOfType() const
 {
     static_assert( !std::is_pointer<T>::value );
 
@@ -265,7 +265,7 @@ std::vector<T*> PdmObjectHandle::allAncestorsOrThisOfType() const
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-std::vector<T*> PdmObjectHandle::descendantsIncludingThisOfType() const
+[[nodiscard]] std::vector<T*> PdmObjectHandle::descendantsIncludingThisOfType() const
 {
     static_assert( !std::is_pointer<T>::value );
 
@@ -286,7 +286,7 @@ std::vector<T*> PdmObjectHandle::descendantsIncludingThisOfType() const
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-std::vector<T*> PdmObjectHandle::descendantsOfType() const
+[[nodiscard]] std::vector<T*> PdmObjectHandle::descendantsOfType() const
 {
     static_assert( !std::is_pointer<T>::value );
 
@@ -313,7 +313,7 @@ std::vector<T*> PdmObjectHandle::descendantsOfType() const
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename T>
-std::vector<T*> PdmObjectHandle::objectsWithReferringPtrFieldsOfType() const
+[[nodiscard]] std::vector<T*> PdmObjectHandle::objectsWithReferringPtrFieldsOfType() const
 {
     static_assert( !std::is_pointer<T>::value );
 

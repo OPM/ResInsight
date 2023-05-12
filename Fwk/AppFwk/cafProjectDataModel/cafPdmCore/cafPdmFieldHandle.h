@@ -31,10 +31,10 @@ public:
     std::vector<QString> keywordAliases() const;
 
     // Child objects
-    bool hasChildren();
-    virtual std::vector<PdmObjectHandle*> [[nodiscard]] children() { return {}; }
-    virtual void removeChild( PdmObjectHandle* ) {}
-    void         setOwnerClass( const QString& ownerClass );
+    bool                                                hasChildren() const;
+    [[nodiscard]] virtual std::vector<PdmObjectHandle*> children() const { return {}; }
+    virtual void                                        removeChild( PdmObjectHandle* ) {}
+    void                                                setOwnerClass( const QString& ownerClass );
 
     // Ptr referenced objects
     bool         hasPtrReferencedObjects();

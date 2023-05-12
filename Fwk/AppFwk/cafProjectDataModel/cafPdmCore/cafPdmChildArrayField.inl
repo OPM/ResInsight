@@ -278,7 +278,7 @@ std::vector<DataType*> caf::PdmChildArrayField<DataType*>::childrenByType() cons
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-std::vector<PdmObjectHandle*> [[nodiscard]] PdmChildArrayField<DataType*>::children()
+[[nodiscard]] std::vector<PdmObjectHandle*> PdmChildArrayField<DataType*>::children() const
 {
     std::vector<PdmObjectHandle*> objects;
     for ( size_t i = 0; i < m_pointers.size(); ++i )

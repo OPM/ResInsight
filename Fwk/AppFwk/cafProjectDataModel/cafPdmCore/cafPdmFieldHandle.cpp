@@ -4,27 +4,6 @@
 
 namespace caf
 {
-#if 0
-//--------------------------------------------------------------------------------------------------
-/// 
-//--------------------------------------------------------------------------------------------------
-bool PdmFieldHandle::assertValid() const
-{
-    if (m_keyword == "UNDEFINED")
-    {
-        std::cout << "PdmField: Detected use of non-initialized field. Did you forget to do CAF_PDM_InitField() on this field ?\n";
-        return false;
-    }
-
-    if (!PdmXmlSerializable::isValidXmlElementName(m_keyword))
-    {
-        std::cout << "PdmField: The supplied keyword: \"" << m_keyword.toStdString() << "\" is an invalid XML element name, and will break your file format!\n";
-        return false;
-    }
-
-    return true;
-}
-#endif
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -37,7 +16,7 @@ void PdmFieldHandle::setKeyword( const QString& keyword )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmFieldHandle::hasChildren()
+bool PdmFieldHandle::hasChildren() const
 {
     return !children().empty();
 }
