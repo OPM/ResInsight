@@ -56,7 +56,7 @@ public:
                                                               const RigEclipseCaseData* eclCaseData );
 
     RigEclipseWellLogExtractor* findOrCreateExtractor( RimWellPath* wellPath, RimEclipseCase* eclCase );
-    RigGeoMechWellLogExtractor* findOrCreateExtractor( RimWellPath* wellPath, RimGeoMechCase* geoMechCase );
+    RigGeoMechWellLogExtractor* findOrCreateExtractor( RimWellPath* wellPath, RimGeoMechCase* geoMechCase, int partId = 0 );
 
     std::vector<RimWellLogPlot*> wellLogPlots() const;
 

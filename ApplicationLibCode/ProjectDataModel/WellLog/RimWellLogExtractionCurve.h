@@ -87,6 +87,8 @@ public:
     void    setEclipseResultCategory( RiaDefines::ResultCatType catType );
 
     void setGeoMechResultAddress( const RigFemResultAddress& resAddr );
+    void setGeoMechPart( int partId );
+    int  geoMechPart() const;
 
     void setTrajectoryType( TrajectoryType trajectoryType );
     void setWellName( QString wellName );
@@ -136,6 +138,7 @@ protected:
     caf::PdmChildField<RimEclipseResultDefinition*> m_eclipseResultDefinition;
     caf::PdmChildField<RimGeoMechResultDefinition*> m_geomResultDefinition;
     caf::PdmField<int>                              m_timeStep;
+    caf::PdmField<int>                              m_geomPartId;
 
     caf::PdmField<bool> m_addCaseNameToCurveName;
     caf::PdmField<bool> m_addPropertyToCurveName;

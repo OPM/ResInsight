@@ -71,6 +71,7 @@ Rim3dWellLogExtractionCurve::Rim3dWellLogExtractionCurve()
     m_case = nullptr;
 
     CAF_PDM_InitField( &m_timeStep, "CurveTimeStep", -1, "Time Step" );
+    CAF_PDM_InitField( &m_geomPartId, "GeomPartId", 0, "Part Id" );
 
     CAF_PDM_InitFieldNoDefault( &m_eclipseResultDefinition, "CurveEclipseResult", "" );
     m_eclipseResultDefinition.uiCapability()->setUiTreeHidden( true );
@@ -208,7 +209,8 @@ void Rim3dWellLogExtractionCurve::curveValuesAndMdsAtTimeStep( std::vector<doubl
         RimGeoMechCase* geomCase = dynamic_cast<RimGeoMechCase*>( m_case() );
         if ( geomCase )
         {
-            cvf::ref<RigGeoMechWellLogExtractor> geomExtractor = RiaExtractionTools::findOrCreateWellLogExtractor( wellPath, geomCase );
+            cvf::ref<RigGeoMechWellLogExtractor> geomExtractor =
+                RiaExtractionTools::findOrCreateWellLogExtractor( wellPath, geomCase, m_geomPartId );
 
             if ( geomExtractor.notNull() )
             {
@@ -439,7 +441,7 @@ void Rim3dWellLogExtractionCurve::fieldChangedByUi( const caf::PdmFieldHandle* c
         this->resetMinMaxValues();
         this->updateConnectedEditors();
     }
-    else if ( changedField == &m_timeStep )
+    else if ( ( changedField == &m_timeStep ) || ( changedField == &m_geomPartId ) )
     {
         this->resetMinMaxValues();
         this->updateConnectedEditors();
@@ -491,6 +493,7 @@ void Rim3dWellLogExtractionCurve::defineUiOrdering( QString uiConfigName, caf::P
     }
     else if ( geomCase )
     {
+        curveDataGroup->add( &m_geomPartId );
         m_geomResultDefinition->uiOrdering( uiConfigName, *curveDataGroup );
     }
 
