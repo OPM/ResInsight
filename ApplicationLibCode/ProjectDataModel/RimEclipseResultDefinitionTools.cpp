@@ -81,8 +81,14 @@ RD::FlowTracerSelectionState RimEclipseResultDefinitionTools::getFlowTracerSelec
                                                                                            const RimFlowDiagSolution*  flowDiagSolution,
                                                                                            size_t                      selectedTracerCount )
 {
-    if ( tracerSelectionType == RD::FlowTracerSelectionType::FLOW_TR_INJECTORS ||
-         tracerSelectionType == RD::FlowTracerSelectionType::FLOW_TR_INJ_AND_PROD )
+    if ( isInjector && ( tracerSelectionType == RD::FlowTracerSelectionType::FLOW_TR_INJECTORS ||
+                         tracerSelectionType == RD::FlowTracerSelectionType::FLOW_TR_INJ_AND_PROD ) )
+    {
+        return RD::FlowTracerSelectionState::ALL_SELECTED;
+    }
+
+    if ( !isInjector && ( tracerSelectionType == RD::FlowTracerSelectionType::FLOW_TR_PRODUCERS ||
+                          tracerSelectionType == RD::FlowTracerSelectionType::FLOW_TR_INJ_AND_PROD ) )
     {
         return RD::FlowTracerSelectionState::ALL_SELECTED;
     }
