@@ -1134,7 +1134,7 @@ double RimPlotCurve::closestYValueForX( double xValue ) const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPlotCurve*> RimPlotCurve::additionalDataSources() const
 {
-    return m_additionalDataSources.ptrReferencedObjects();
+    return m_additionalDataSources.ptrReferencedObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------

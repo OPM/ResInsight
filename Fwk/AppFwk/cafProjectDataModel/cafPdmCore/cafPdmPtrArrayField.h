@@ -73,7 +73,7 @@ public:
     typename std::vector<PdmPointer<DataType>>::const_iterator begin() const { return m_pointers.begin(); };
     typename std::vector<PdmPointer<DataType>>::const_iterator end() const { return m_pointers.end(); };
 
-    std::vector<DataType*> ptrReferencedObjects() const;
+    std::vector<DataType*> ptrReferencedObjectsByType() const;
 
     // Child objects
     void ptrReferencedObjects( std::vector<PdmObjectHandle*>* ) override;

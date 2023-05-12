@@ -262,7 +262,7 @@ void RimEnsembleWellLogCurveSet::reattachPlotCurves()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellLogCurve*> RimEnsembleWellLogCurveSet::curves() const
 {
-    return m_curves.ptrReferencedObjects();
+    return m_curves.ptrReferencedObjectsByType();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -146,7 +146,7 @@ double RimSurfaceIntersectionBand::polygonOffsetUnit() const
 //--------------------------------------------------------------------------------------------------
 RimSurface* RimSurfaceIntersectionBand::surface1() const
 {
-    auto surfaces = m_surfaces.ptrReferencedObjects();
+    auto surfaces = m_surfaces.ptrReferencedObjectsByType();
     if ( !surfaces.empty() ) return surfaces[0];
 
     return nullptr;
@@ -157,7 +157,7 @@ RimSurface* RimSurfaceIntersectionBand::surface1() const
 //--------------------------------------------------------------------------------------------------
 RimSurface* RimSurfaceIntersectionBand::surface2() const
 {
-    auto surfaces = m_surfaces.ptrReferencedObjects();
+    auto surfaces = m_surfaces.ptrReferencedObjectsByType();
     if ( surfaces.size() > 1 ) return surfaces[1];
 
     return nullptr;
@@ -170,7 +170,7 @@ void RimSurfaceIntersectionBand::fieldChangedByUi( const caf::PdmFieldHandle* ch
 {
     if ( changedField == &m_surfaces )
     {
-        auto surfaces = m_surfaces.ptrReferencedObjects();
+        auto surfaces = m_surfaces.ptrReferencedObjectsByType();
 
         if ( surfaces.size() > 2 )
         {
@@ -240,7 +240,7 @@ void RimSurfaceIntersectionBand::onObjectChanged( const caf::SignalEmitter* emit
 //--------------------------------------------------------------------------------------------------
 QString RimSurfaceIntersectionBand::objectName() const
 {
-    auto surfaces = m_surfaces.ptrReferencedObjects();
+    auto surfaces = m_surfaces.ptrReferencedObjectsByType();
 
     if ( surfaces.size() == 2 )
     {

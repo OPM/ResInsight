@@ -69,7 +69,7 @@ caf::PdmObjectHandle* RimcSummaryPlotCollection_newSummaryPlot::execute()
     }
     if ( !m_summaryCases.empty() )
     {
-        std::vector<RimSummaryCase*> summaryCases = m_summaryCases.ptrReferencedObjects();
+        std::vector<RimSummaryCase*> summaryCases = m_summaryCases.ptrReferencedObjectsByType();
         if ( !addressStrings.empty() )
         {
             newPlot = RicSummaryPlotFeatureImpl::createSummaryPlotForCases( summaryCases, addressStrings );
