@@ -18,7 +18,6 @@
 
 #include "RicWellMeasurementImportTools.h"
 
-#include "RiaApplication.h"
 #include "RiaLogging.h"
 
 #include "Rim3dView.h"
@@ -100,11 +99,11 @@ void RicWellMeasurementImportTools::importWellMeasurementsFromFiles( const QStri
     }
     wellPathCollection->uiCapability()->updateConnectedEditors();
 
-    RiaApplication* app = RiaApplication::instance();
-    if ( app->project() )
+    auto proj = RimProject::current();
+    if ( proj )
     {
         std::vector<Rim3dView*> views;
-        app->project()->allViews( views );
+        proj->allViews( views );
         for ( auto& view : views )
         {
             RimGridView* gridView = dynamic_cast<RimGridView*>( view );
@@ -115,7 +114,7 @@ void RicWellMeasurementImportTools::importWellMeasurementsFromFiles( const QStri
             }
         }
 
-        app->project()->scheduleCreateDisplayModelAndRedrawAllViews();
+        proj->scheduleCreateDisplayModelAndRedrawAllViews();
     }
 
     if ( lastWellMeasurement )
@@ -144,10 +143,7 @@ void RicWellMeasurementImportTools::removeWellMeasurementsFromFiles( const std::
 //--------------------------------------------------------------------------------------------------
 void RicWellMeasurementImportTools::deleteAllEmptyMeasurementCurves()
 {
-    RiaApplication* app = RiaApplication::instance();
-
-    std::vector<RimWellMeasurementCollection*> measurementCollections =
-        app->project()->descendantsIncludingThisOfType<RimWellMeasurementCollection>();
+    auto measurementCollections = RimProject::current()->descendantsIncludingThisOfType<RimWellMeasurementCollection>();
     for ( auto measurementCollection : measurementCollections )
     {
         measurementCollection->deleteAllEmptyCurves();

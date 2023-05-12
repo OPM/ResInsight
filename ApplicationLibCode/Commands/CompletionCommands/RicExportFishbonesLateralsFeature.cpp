@@ -30,6 +30,7 @@
 #include "RimWellPath.h"
 
 #include "cafSelectionManager.h"
+#include "cafSelectionManagerTools.h"
 #include "cafUtils.h"
 
 #include "cvfAssert.h"
@@ -107,15 +108,7 @@ void RicExportFishbonesLateralsFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 RimFishbonesCollection* RicExportFishbonesLateralsFeature::selectedFishbonesCollection()
 {
-    caf::PdmUiItem* pdmUiItem = caf::SelectionManager::instance()->selectedItem();
-
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>( pdmUiItem );
-    if ( objHandle )
-    {
-        return objHandle->firstAncestorOrThisOfType<RimFishbonesCollection>();
-    }
-
-    return nullptr;
+    return caf::firstAncestorOfTypeFromSelectedObject<RimFishbonesCollection>();
 }
 
 //--------------------------------------------------------------------------------------------------

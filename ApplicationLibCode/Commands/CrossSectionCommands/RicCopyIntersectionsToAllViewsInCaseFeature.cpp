@@ -67,11 +67,7 @@ bool RicCopyIntersectionsToAllViewsInCaseFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCopyIntersectionsToAllViewsInCaseFeature::onActionTriggered( bool isChecked )
 {
-    RimCase*                     gridCase = nullptr;
-    std::vector<caf::PdmUiItem*> selItems;
-    caf::SelectionManager::instance()->selectedItems( selItems );
-    caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>( selItems.front() );
-    if ( objHandle ) gridCase = objHandle->firstAncestorOrThisOfType<RimCase>();
+    RimCase* gridCase = caf::firstAncestorOfTypeFromSelectedObject<RimCase>();
 
     if ( gridCase )
     {
