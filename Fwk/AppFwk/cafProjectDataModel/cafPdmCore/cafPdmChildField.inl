@@ -11,14 +11,13 @@ namespace caf
 template <typename DataType>
 std::vector<PdmObjectHandle*> caf::PdmChildField<DataType*>::children()
 {
-    std::vector<PdmObjectHandle*> objects;
-    PdmObjectHandle*              obj = m_fieldValue.rawPtr();
+    PdmObjectHandle* obj = m_fieldValue.rawPtr();
     if ( obj )
     {
-        objects.push_back( obj );
+        return { obj };
     }
 
-    return objects;
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
