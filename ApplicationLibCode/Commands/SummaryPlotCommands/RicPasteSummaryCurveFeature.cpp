@@ -87,7 +87,6 @@ bool RicPasteSummaryCurveFeature::isCommandEnabled()
     caf::PdmObject* destinationObject = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
     if ( !destinationObject ) return false;
 
-    auto summaryPlot = destinationObject->firstAncestorOrThisOfType<RimSummaryPlot>();
     if ( !RiaSummaryTools::parentSummaryPlot( destinationObject ) )
     {
         return false;
