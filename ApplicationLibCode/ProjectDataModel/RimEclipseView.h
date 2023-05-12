@@ -217,6 +217,9 @@ private:
     void setVisibleGridParts( const std::vector<RivCellSetEnum>& cellSets );
     void setVisibleGridPartsWatertight();
 
+protected:
+    cvf::ref<cvf::ModelBasicList> m_faultReactVizModel;
+
 private:
     caf::PdmField<bool> m_showInvalidCells;
     caf::PdmField<bool> m_showInactiveCells;

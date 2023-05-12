@@ -18,7 +18,6 @@
 #pragma once
 
 #include "cafPdmPointer.h"
-#include "cvfArray.h"
 #include "cvfObject.h"
 
 namespace cvf
@@ -27,8 +26,6 @@ class ModelBasicList;
 class Part;
 class DrawableGeo;
 class BoundingBox;
-class ShaderProgram;
-class TextureImage;
 } // namespace cvf
 
 namespace caf
@@ -36,19 +33,14 @@ namespace caf
 class DisplayCoordTransform;
 }
 
-namespace ZGYAccess
-{
-class SeismicSliceData;
-}
-
-class RimSeismicSection;
+class RimFaultReactivationModel;
 class Rim3dView;
 class RivPolylinePartMgr;
 
-class RivSeismicSectionPartMgr : public cvf::Object
+class RivFaultReactivationModelPartMgr : public cvf::Object
 {
 public:
-    explicit RivSeismicSectionPartMgr( RimSeismicSection* section );
+    explicit RivFaultReactivationModelPartMgr( RimFaultReactivationModel* frm );
 
     void appendGeometryPartsToModel( cvf::ModelBasicList*              model,
                                      const caf::DisplayCoordTransform* displayCoordTransform,
@@ -60,15 +52,7 @@ public:
                                      const cvf::BoundingBox&           boundingBox );
 
 protected:
-    cvf::ref<cvf::DrawableGeo> createXYPlaneQuadGeoWithTexCoords( const cvf::Vec3dArray& cornerPoints );
-    cvf::ref<cvf::Part>        createSingleTexturedQuadPart( const cvf::Vec3dArray& cornerPoints, cvf::ref<cvf::TextureImage> image );
-
-    cvf::TextureImage* createImageFromData( ZGYAccess::SeismicSliceData* data );
-
 private:
-    caf::PdmPointer<RimSeismicSection> m_section;
-    cvf::ref<RivPolylinePartMgr>       m_polylinePartMgr;
-    cvf::ref<cvf::ShaderProgram>       m_textureShaderProg;
-
-    bool m_canUseShaders;
+    caf::PdmPointer<RimFaultReactivationModel> m_frm;
+    cvf::ref<RivPolylinePartMgr>               m_polylinePartMgr;
 };

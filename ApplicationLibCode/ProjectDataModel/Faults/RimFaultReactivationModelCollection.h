@@ -28,6 +28,19 @@
 
 class RimFaultReactivationModel;
 class RimFaultInView;
+class Rim3dView;
+
+namespace cvf
+{
+class ModelBasicList;
+class Transform;
+class BoundingBox;
+} // namespace cvf
+
+namespace caf
+{
+class DisplayCoordTransform;
+}
 
 class RimFaultReactivationModelCollection : public RimCheckableNamedObject
 {
@@ -46,6 +59,11 @@ public:
 
     QString userDescription();
     void    setUserDescription( QString description );
+
+    void appendPartsToModel( Rim3dView*                  view,
+                             cvf::ModelBasicList*        model,
+                             caf::DisplayCoordTransform* transform,
+                             const cvf::BoundingBox&     boundingBox );
 
 protected:
     caf::PdmFieldHandle* userDescriptionField() override;

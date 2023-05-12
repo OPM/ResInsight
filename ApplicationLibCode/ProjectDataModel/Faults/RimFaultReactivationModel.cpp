@@ -27,9 +27,13 @@
 
 #include "RiuViewer.h"
 
+#include "RivFaultReactivationModelPartMgr.h"
+
 #include "Rim3dView.h"
 #include "RimFaultInView.h"
+#include "RimFaultInViewCollection.h"
 #include "RimPolylineTarget.h"
+#include "RimTools.h"
 
 #include "cafPdmUiTableViewEditor.h"
 
@@ -183,5 +187,40 @@ cvf::ref<RigPolyLinesData> RimFaultReactivationModel::polyLinesData() const
 {
     cvf::ref<RigPolyLinesData> pld = new RigPolyLinesData;
 
+    std::vector<cvf::Vec3d> line;
+    for ( const RimPolylineTarget* target : m_targets )
+    {
+        line.push_back( target->targetPointXYZ() );
+    }
+    pld->setPolyLine( line );
+
     return pld;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimFaultReactivationModel::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if ( fieldNeedingOptions == &m_fault )
+    {
+        RimFaultInViewCollection* coll = nullptr;
+        if ( m_fault() != nullptr ) m_fault->firstAncestorOrThisOfType( coll );
+
+        if ( coll != nullptr ) RimTools::faultOptionItems( &options, coll );
+    }
+
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RivFaultReactivationModelPartMgr* RimFaultReactivationModel::partMgr()
+{
+    if ( m_partMgr.isNull() ) m_partMgr = new RivFaultReactivationModelPartMgr( this );
+
+    return m_partMgr.p();
 }

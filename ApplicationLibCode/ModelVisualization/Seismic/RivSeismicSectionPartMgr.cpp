@@ -28,7 +28,6 @@
 #include "RimRegularLegendConfig.h"
 #include "RimSeismicAlphaMapper.h"
 #include "RimSeismicSection.h"
-#include "RimSeismicSectionCollection.h"
 
 #include "RigTexturedSection.h"
 

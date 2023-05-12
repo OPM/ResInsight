@@ -1,14 +1,11 @@
 set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RivCellEdgeEffectGenerator.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivFaultPartMgr.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivFaultGeometryGenerator.h
     ${CMAKE_CURRENT_LIST_DIR}/RivNNCGeometryGenerator.h
     ${CMAKE_CURRENT_LIST_DIR}/RivGridPartMgr.h
     ${CMAKE_CURRENT_LIST_DIR}/RivTernarySaturationOverlayItem.h
     ${CMAKE_CURRENT_LIST_DIR}/RivReservoirPartMgr.h
     ${CMAKE_CURRENT_LIST_DIR}/RivReservoirViewPartMgr.h
     ${CMAKE_CURRENT_LIST_DIR}/RivPipeGeometryGenerator.h
-    ${CMAKE_CURRENT_LIST_DIR}/RivReservoirFaultsPartMgr.h
     ${CMAKE_CURRENT_LIST_DIR}/RivReservoirSimWellsPartMgr.h
     ${CMAKE_CURRENT_LIST_DIR}/RivSourceInfo.h
     ${CMAKE_CURRENT_LIST_DIR}/RivWellPathSourceInfo.h
@@ -64,12 +61,9 @@ set(SOURCE_GROUP_HEADER_FILES
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RivCellEdgeEffectGenerator.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RivFaultPartMgr.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RivNNCGeometryGenerator.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RivFaultGeometryGenerator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RivGridPartMgr.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RivTernarySaturationOverlayItem.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RivReservoirFaultsPartMgr.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RivReservoirPartMgr.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RivReservoirViewPartMgr.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RivPipeGeometryGenerator.cpp

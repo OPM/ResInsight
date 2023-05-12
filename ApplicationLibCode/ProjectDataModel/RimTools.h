@@ -37,6 +37,7 @@ class PdmOptionItemInfo;
 class RimWellPathCollection;
 class RimCase;
 class RimWellPath;
+class RimFaultInViewCollection;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -62,6 +63,8 @@ public:
     static void colorLegendOptionItems( QList<caf::PdmOptionItemInfo>* options );
     static void seismicDataOptionItems( QList<caf::PdmOptionItemInfo>* options, cvf::BoundingBox worldBBox, bool basicDataOnly = false );
     static void seismicDataOptionItems( QList<caf::PdmOptionItemInfo>* options );
+
+    static void faultOptionItems( QList<caf::PdmOptionItemInfo>* options, RimFaultInViewCollection* coll );
 
     static RimWellPathCollection* wellPathCollection();
     static RimWellPath*           firstWellPath();

@@ -225,6 +225,9 @@ RimEclipseView::RimEclipseView()
     setDeletable( true );
 
     updateAnimations.connect( this, &RimEclipseView::onAnimationsUpdate );
+
+    m_faultReactVizModel = new cvf::ModelBasicList;
+    m_faultReactVizModel->setName( "FaultReactModel" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -610,6 +613,12 @@ void RimEclipseView::onCreateDisplayModel()
     m_seismicVizModel->removeAllParts();
     m_seismicSectionCollection->appendPartsToModel( this, m_seismicVizModel.p(), transform.p(), ownerCase()->allCellsBoundingBox() );
     nativeOrOverrideViewer()->addStaticModelOnce( m_seismicVizModel.p(), isUsingOverrideViewer() );
+
+    // Fault reactivation models
+
+    m_faultReactVizModel->removeAllParts();
+    m_faultReactivationModelCollection->appendPartsToModel( this, m_faultReactVizModel.p(), transform.p(), ownerCase()->allCellsBoundingBox() );
+    nativeOrOverrideViewer()->addStaticModelOnce( m_faultReactVizModel.p(), isUsingOverrideViewer() );
 
     // Surfaces
     m_surfaceVizModel->removeAllParts();

@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RimCheckableNamedObject.h"
 #include "RimPolylinePickerInterface.h"
 #include "RimPolylinesDataInterface.h"
 
@@ -37,13 +38,14 @@
 class RicPolylineTargetsPickEventHandler;
 class RimFaultInView;
 class RimPolylineTarget;
+class RivFaultReactivationModelPartMgr;
 
 namespace cvf
 {
 class BoundingBox;
 } // namespace cvf
 
-class RimFaultReactivationModel : public caf::PdmObject, public RimPolylinePickerInterface, public RimPolylinesDataInterface
+class RimFaultReactivationModel : public RimCheckableNamedObject, public RimPolylinePickerInterface, public RimPolylinesDataInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -59,6 +61,8 @@ public:
 
     void setTargets( cvf::Vec3d target1, cvf::Vec3d target2 );
 
+    RivFaultReactivationModelPartMgr* partMgr();
+
     // polyline picker interface
     void insertTarget( const RimPolylineTarget* targetToInsertBefore, RimPolylineTarget* targetToInsert ) override;
     void deleteTarget( RimPolylineTarget* targetToDelete ) override;
@@ -72,10 +76,13 @@ public:
     cvf::ref<RigPolyLinesData> polyLinesData() const override;
 
 protected:
-    caf::PdmFieldHandle* userDescriptionField() override;
+    caf::PdmFieldHandle*          userDescriptionField() override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 private:
     std::shared_ptr<RicPolylineTargetsPickEventHandler> m_pickTargetsEventHandler;
+
+    cvf::ref<RivFaultReactivationModelPartMgr> m_partMgr;
 
     caf::PdmField<QString>                      m_userDescription;
     caf::PdmPtrField<RimFaultInView*>           m_fault;

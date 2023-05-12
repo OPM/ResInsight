@@ -26,6 +26,13 @@
 #include "RimFaultInView.h"
 #include "RimFaultReactivationModel.h"
 
+#include "RivFaultReactivationModelPartMgr.h"
+
+#include "cvfBoundingBox.h"
+#include "cvfModelBasicList.h"
+
+#include "cafDisplayCoordTransform.h"
+
 CAF_PDM_SOURCE_INIT( RimFaultReactivationModelCollection, "FaultReactivationModelCollection" );
 
 //--------------------------------------------------------------------------------------------------
@@ -150,4 +157,26 @@ void RimFaultReactivationModelCollection::updateView()
 bool RimFaultReactivationModelCollection::shouldBeVisibleInTree() const
 {
     return RiaPreferencesGeoMech::current()->validateFRMSettings();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFaultReactivationModelCollection::appendPartsToModel( Rim3dView*                  view,
+                                                              cvf::ModelBasicList*        model,
+                                                              caf::DisplayCoordTransform* transform,
+                                                              const cvf::BoundingBox&     boundingBox )
+{
+    if ( !isChecked() ) return;
+
+    for ( auto& frm : m_models )
+    {
+        if ( frm->isChecked() )
+        {
+            frm->partMgr()->appendPolylinePartsToModel( view, model, transform, boundingBox );
+            frm->partMgr()->appendGeometryPartsToModel( model, transform, boundingBox );
+        }
+    }
+
+    model->updateBoundingBoxesRecursive();
 }
