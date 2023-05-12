@@ -354,7 +354,7 @@ void RimGeoMechResultDefinition::fieldChangedByUi( const caf::PdmFieldHandle* ch
     auto propFilter        = dynamic_cast<RimGeoMechPropertyFilter*>( this->parentField()->ownerObject() );
     auto view              = firstAncestorOrThisOfType<RimGridView>();
     auto curve             = firstAncestorOrThisOfType<RimPlotCurve>();
-    auto rim3dWellLogCurve = this->firstAncestorOrThisOfType<Rim3dWellLogCurve>();
+    auto rim3dWellLogCurve = firstAncestorOrThisOfType<Rim3dWellLogCurve>();
 
     if ( &m_resultVariableUiField == changedField || &m_compactionRefLayerUiField == changedField ||
          &m_timeLapseBaseTimestep == changedField || &m_normalizeByHydrostaticPressure == changedField ||

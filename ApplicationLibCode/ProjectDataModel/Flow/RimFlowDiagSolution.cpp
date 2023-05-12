@@ -99,7 +99,7 @@ RigFlowDiagResults* RimFlowDiagSolution::flowDiagResults()
     {
         size_t timeStepCount;
         {
-            auto eclCase = this->firstAncestorOrThisOfType<RimEclipseResultCase>();
+            auto eclCase = firstAncestorOrThisOfType<RimEclipseResultCase>();
             if ( !eclCase || !eclCase->eclipseCaseData() )
             {
                 return nullptr;

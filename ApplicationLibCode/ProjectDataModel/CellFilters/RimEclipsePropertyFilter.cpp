@@ -162,7 +162,7 @@ void RimEclipsePropertyFilter::fieldChangedByUi( const caf::PdmFieldHandle* chan
 //--------------------------------------------------------------------------------------------------
 RimEclipsePropertyFilterCollection* RimEclipsePropertyFilter::parentContainer()
 {
-    return this->firstAncestorOrThisOfTypeAsserted<RimEclipsePropertyFilterCollection>();
+    return firstAncestorOrThisOfTypeAsserted<RimEclipsePropertyFilterCollection>();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -872,7 +872,7 @@ void RimWellLogTrack::updatePropertyValueAxisAndGridTickIntervals()
 
             div.setTicks( QwtScaleDiv::TickType::MajorTick, majorTicks );
 
-            RimDepthTrackPlot* wellLogPlot = this->firstAncestorOrThisOfTypeAsserted<RimDepthTrackPlot>();
+            RimDepthTrackPlot* wellLogPlot = firstAncestorOrThisOfTypeAsserted<RimDepthTrackPlot>();
             if ( wellLogPlot->depthOrientation() == RiaDefines::Orientation::VERTICAL )
             {
                 m_plotWidget->qwtPlot()->setAxisScaleDiv( QwtAxis::XTop, div );
@@ -1333,7 +1333,7 @@ void RimWellLogTrack::updateAxesVisibility( RiaDefines::Orientation orientation,
 
     bool needUpdate = false;
 
-    RimDepthTrackPlot* wellLogPlot = this->firstAncestorOrThisOfTypeAsserted<RimDepthTrackPlot>();
+    RimDepthTrackPlot* wellLogPlot = firstAncestorOrThisOfTypeAsserted<RimDepthTrackPlot>();
 
     bool showFirstTrack = wellLogPlot->depthAxisVisibility() == RiaDefines::MultiPlotAxisVisibility::ALL_VISIBLE ||
                           ( isFirstTrack && wellLogPlot->depthAxisVisibility() == RiaDefines::MultiPlotAxisVisibility::ONE_VISIBLE );
@@ -1379,7 +1379,7 @@ void RimWellLogTrack::updateDepthMarkerLine()
 {
     if ( m_plotWidget )
     {
-        RimDepthTrackPlot* wellLogPlot = this->firstAncestorOrThisOfTypeAsserted<RimDepthTrackPlot>();
+        RimDepthTrackPlot* wellLogPlot = firstAncestorOrThisOfTypeAsserted<RimDepthTrackPlot>();
         if ( wellLogPlot->isDepthMarkerLineEnabled() )
         {
             m_plotWidget->createAnnotationsInPlot( wellLogPlot->depthAxisAnnotations() );
@@ -1576,7 +1576,7 @@ void RimWellLogTrack::setPropertyValueAxisTitle( const QString& text )
 //--------------------------------------------------------------------------------------------------
 QString RimWellLogTrack::depthAxisTitle() const
 {
-    RimDepthTrackPlot* parent = this->firstAncestorOrThisOfType<RimDepthTrackPlot>();
+    RimDepthTrackPlot* parent = firstAncestorOrThisOfType<RimDepthTrackPlot>();
     if ( parent )
     {
         return parent->depthAxisTitle();
@@ -1748,7 +1748,7 @@ void RimWellLogTrack::updateParentPlotZoom()
 {
     if ( m_plotWidget )
     {
-        RimDepthTrackPlot* wellLogPlot = this->firstAncestorOrThisOfType<RimDepthTrackPlot>();
+        RimDepthTrackPlot* wellLogPlot = firstAncestorOrThisOfType<RimDepthTrackPlot>();
         if ( wellLogPlot )
         {
             wellLogPlot->updateZoom();
@@ -2706,7 +2706,7 @@ std::vector<QString> RimWellLogTrack::formationNamesVector( RimCase* rimCase )
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::updateStackedCurveData()
 {
-    RimDepthTrackPlot* wellLogPlot = this->firstAncestorOrThisOfTypeAsserted<RimDepthTrackPlot>();
+    RimDepthTrackPlot* wellLogPlot = firstAncestorOrThisOfTypeAsserted<RimDepthTrackPlot>();
 
     RimWellLogPlot::DepthTypeEnum depthType   = wellLogPlot->depthType();
     RiaDefines::DepthUnitType     displayUnit = wellLogPlot->depthUnit();
@@ -3335,7 +3335,7 @@ void RimWellLogTrack::updateWellPathAttributesOnPlot()
             completionsAssignedToLegend.insert( legendTitle );
         }
 
-        RimDepthTrackPlot*            wellLogPlot      = this->firstAncestorOrThisOfTypeAsserted<RimDepthTrackPlot>();
+        RimDepthTrackPlot*            wellLogPlot      = firstAncestorOrThisOfTypeAsserted<RimDepthTrackPlot>();
         RimWellLogPlot::DepthTypeEnum depthType        = wellLogPlot->depthType();
         auto                          depthOrientation = wellLogPlot->depthOrientation();
 
@@ -3469,7 +3469,7 @@ void RimWellLogTrack::setEnsembleWellLogCurveSet( RimEnsembleWellLogCurveSet* cu
 //--------------------------------------------------------------------------------------------------
 RiuPlotAxis RimWellLogTrack::depthAxis() const
 {
-    RimDepthTrackPlot* wellLogPlot = this->firstAncestorOrThisOfTypeAsserted<RimDepthTrackPlot>();
+    RimDepthTrackPlot* wellLogPlot = firstAncestorOrThisOfTypeAsserted<RimDepthTrackPlot>();
 
     return wellLogPlot->depthAxis();
 }
@@ -3479,7 +3479,7 @@ RiuPlotAxis RimWellLogTrack::depthAxis() const
 //--------------------------------------------------------------------------------------------------
 RiuPlotAxis RimWellLogTrack::valueAxis() const
 {
-    RimDepthTrackPlot* wellLogPlot = this->firstAncestorOrThisOfTypeAsserted<RimDepthTrackPlot>();
+    RimDepthTrackPlot* wellLogPlot = firstAncestorOrThisOfTypeAsserted<RimDepthTrackPlot>();
 
     return wellLogPlot->valueAxis();
 }

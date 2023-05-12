@@ -315,7 +315,7 @@ void RimSummaryTimeAxisProperties::updateDateVisibleRange()
 //--------------------------------------------------------------------------------------------------
 QDateTime RimSummaryTimeAxisProperties::fromDisplayTimeToDate( double displayTime )
 {
-    RimSummaryPlot* rimSummaryPlot    = this->firstAncestorOrThisOfType<RimSummaryPlot>();
+    RimSummaryPlot* rimSummaryPlot    = firstAncestorOrThisOfType<RimSummaryPlot>();
     time_t          startOfSimulation = rimSummaryPlot->firstTimeStepOfFirstCurve();
 
     time_t    secsSinceSimulationStart = displayTime / fromTimeTToDisplayUnitScale();

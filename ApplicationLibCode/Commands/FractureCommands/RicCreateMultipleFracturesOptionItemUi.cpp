@@ -112,7 +112,7 @@ void RicCreateMultipleFracturesOptionItemUi::fieldChangedByUi( const caf::PdmFie
         if ( m_baseKOneBased < m_topKOneBased ) m_topKOneBased = m_baseKOneBased;
     }
 
-    RiuCreateMultipleFractionsUi* parent = this->firstAncestorOrThisOfType<RiuCreateMultipleFractionsUi>();
+    RiuCreateMultipleFractionsUi* parent = firstAncestorOrThisOfType<RiuCreateMultipleFractionsUi>();
     if ( parent )
     {
         parent->updateButtonsEnableState();
