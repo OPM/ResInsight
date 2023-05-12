@@ -174,3 +174,11 @@ QStringList RiaTextStringTools::splitSkipEmptyParts( const QString& text, const 
     return text.split( regExp, QString::SkipEmptyParts );
 #endif
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::strong_ordering operator<=>( const QString& lhs, const QString& rhs )
+{
+    return lhs.compare( rhs ) <=> 0;
+}

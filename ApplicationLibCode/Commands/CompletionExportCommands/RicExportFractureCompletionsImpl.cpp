@@ -374,7 +374,7 @@ std::vector<RigCompletionData>
 
         if ( fractureDataReportItems )
         {
-            RicWellPathFractureReportItem reportItem( wellNameForExport, fracture->name(), fracTemplate->name(), fracture->fractureMD() );
+            RicWellPathFractureReportItem reportItem( wellNameForExport, fracture->name(), fracTemplate->name() );
             reportItem.setUnitSystem( fracTemplate->fractureTemplateUnit() );
 
             if ( performPressureDepletionScaling )
