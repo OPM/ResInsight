@@ -9,7 +9,7 @@ namespace caf
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-std::vector<PdmObjectHandle*> caf::PdmChildField<DataType*>::children()
+std::vector<PdmObjectHandle*> [[nodiscard]] caf::PdmChildField<DataType*>::children()
 {
     PdmObjectHandle* obj = m_fieldValue.rawPtr();
     if ( obj )

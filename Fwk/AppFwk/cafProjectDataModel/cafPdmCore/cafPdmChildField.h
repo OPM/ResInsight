@@ -66,9 +66,9 @@ public:
     const PdmPointer<DataType>& v() const { return m_fieldValue; }
 
     // Child objects
-    std::vector<PdmObjectHandle*> children() override;
-    void                          setChildObject( PdmObjectHandle* object ) override;
-    void                          removeChild( PdmObjectHandle* object ) override;
+    std::vector<PdmObjectHandle*> [[nodiscard]] children() override;
+    void setChildObject( PdmObjectHandle* object ) override;
+    void removeChild( PdmObjectHandle* object ) override;
 
 private:
     PDM_DISABLE_COPY_AND_ASSIGN( PdmChildField );

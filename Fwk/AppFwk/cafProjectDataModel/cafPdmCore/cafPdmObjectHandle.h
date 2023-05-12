@@ -32,51 +32,53 @@ public:
     static std::vector<QString> classKeywordAliases();
 
     /// The registered fields contained in this PdmObject.
-    std::vector<PdmFieldHandle*> fields() const;
-    PdmFieldHandle*              findField( const QString& keyword ) const;
+    [[nodiscard]] std::vector<PdmFieldHandle*> fields() const;
+    [[nodiscard]] PdmFieldHandle*              findField( const QString& keyword ) const;
 
     /// The field referencing this object as a child
-    PdmFieldHandle* parentField() const;
+    [[nodiscard]] PdmFieldHandle* parentField() const;
 
     /// Returns _this_ if _this_ is of requested type
     /// Traverses parents recursively and returns first parent of the requested type.
     template <typename T>
-    T* firstAncestorOrThisOfType() const;
+    [[nodiscard]] T* firstAncestorOrThisOfType() const;
 
     /// Traverses parents recursively and returns first parent of the requested type.
     /// Does NOT check _this_ object
     template <typename T>
-    T* firstAncestorOfType() const;
+    [[nodiscard]] T* firstAncestorOfType() const;
 
     /// Calls firstAncestorOrThisOfType, and asserts that a valid object is found
     template <typename T>
-    T* firstAncestorOrThisOfTypeAsserted() const;
+    [[nodiscard]] T* firstAncestorOrThisOfTypeAsserted() const;
 
     template <typename T>
-    std::vector<T*> allAncestorsOfType() const;
+    [[nodiscard]] std::vector<T*> allAncestorsOfType() const;
 
     template <typename T>
-    std::vector<T*> allAncestorsOrThisOfType() const;
+    [[nodiscard]] std::vector<T*> allAncestorsOrThisOfType() const;
 
     /// Traverses all children recursively to find objects of the requested type. This object is also
     /// included if it is of the requested type.
     template <typename T>
-    std::vector<T*> descendantsIncludingThisOfType() const;
+    [[nodiscard]] std::vector<T*> descendantsIncludingThisOfType() const;
 
     /// Traverses all children recursively to find objects of the requested type. This object is NOT
     /// included if it is of the requested type.
     template <typename T>
-    std::vector<T*> descendantsOfType() const;
+    [[nodiscard]] std::vector<T*> descendantsOfType() const;
 
     // PtrReferences
     /// The PdmPtrField's containing pointers to this PdmObjecthandle
     /// Use ownerObject() on the fieldHandle to get the PdmObjectHandle
-    std::vector<PdmFieldHandle*> referringPtrFields() const;
+    [[nodiscard]] std::vector<PdmFieldHandle*> referringPtrFields() const;
+
     /// Convenience method to get the objects pointing to this field
-    std::vector<PdmObjectHandle*> objectsWithReferringPtrFields() const;
+    [[nodiscard]] std::vector<PdmObjectHandle*> objectsWithReferringPtrFields() const;
+
     /// Convenience method to get the objects of specified type pointing to this field
     template <typename T>
-    std::vector<T*> objectsWithReferringPtrFieldsOfType() const;
+    [[nodiscard]] std::vector<T*> objectsWithReferringPtrFieldsOfType() const;
 
     // Detach object from all referring fields
     void prepareForDelete();
@@ -170,6 +172,8 @@ namespace caf
 template <typename T>
 T* PdmObjectHandle::firstAncestorOrThisOfType() const
 {
+    static_assert( !std::is_pointer<T>::value );
+
     // If compilation error occurs, include of header file for type T might be missing in calling
     // code resulting in invalid dynamic_cast
 
@@ -188,6 +192,8 @@ T* PdmObjectHandle::firstAncestorOrThisOfType() const
 template <typename T>
 T* PdmObjectHandle::firstAncestorOfType() const
 {
+    static_assert( !std::is_pointer<T>::value );
+
     // Search parents for first type match
     PdmObjectHandle* parent      = nullptr;
     PdmFieldHandle*  parentField = this->parentField();
@@ -206,8 +212,9 @@ T* PdmObjectHandle::firstAncestorOfType() const
 template <typename T>
 T* PdmObjectHandle::firstAncestorOrThisOfTypeAsserted() const
 {
-    auto ancestor = firstAncestorOrThisOfType<T>();
+    static_assert( !std::is_pointer<T>::value );
 
+    auto ancestor = firstAncestorOrThisOfType<T>();
     CAF_ASSERT( ancestor );
 
     return ancestor;
@@ -219,6 +226,8 @@ T* PdmObjectHandle::firstAncestorOrThisOfTypeAsserted() const
 template <typename T>
 std::vector<T*> PdmObjectHandle::allAncestorsOfType() const
 {
+    static_assert( !std::is_pointer<T>::value );
+
     std::vector<T*> ancestors;
     T*              firstAncestor = firstAncestorOfType<T>();
     if ( firstAncestor )
@@ -237,6 +246,8 @@ std::vector<T*> PdmObjectHandle::allAncestorsOfType() const
 template <typename T>
 std::vector<T*> PdmObjectHandle::allAncestorsOrThisOfType() const
 {
+    static_assert( !std::is_pointer<T>::value );
+
     std::vector<T*> ancestors;
 
     T* firstAncestorOrThis = firstAncestorOrThisOfType<T>();
@@ -256,6 +267,8 @@ std::vector<T*> PdmObjectHandle::allAncestorsOrThisOfType() const
 template <typename T>
 std::vector<T*> PdmObjectHandle::descendantsIncludingThisOfType() const
 {
+    static_assert( !std::is_pointer<T>::value );
+
     std::vector<T*> descendants;
     const T*        objectOfType = dynamic_cast<const T*>( this );
     if ( objectOfType )
@@ -275,6 +288,8 @@ std::vector<T*> PdmObjectHandle::descendantsIncludingThisOfType() const
 template <typename T>
 std::vector<T*> PdmObjectHandle::descendantsOfType() const
 {
+    static_assert( !std::is_pointer<T>::value );
+
     std::vector<T*> descendants;
 
     for ( auto f : m_fields )
@@ -300,6 +315,8 @@ std::vector<T*> PdmObjectHandle::descendantsOfType() const
 template <typename T>
 std::vector<T*> PdmObjectHandle::objectsWithReferringPtrFieldsOfType() const
 {
+    static_assert( !std::is_pointer<T>::value );
+
     std::vector<T*> objectsOfType;
 
     std::vector<PdmObjectHandle*> objectsReferencingThis = objectsWithReferringPtrFields();

@@ -97,8 +97,8 @@ public:
     // Child objects
     std::vector<DataType*> childrenByType() const;
 
-    std::vector<PdmObjectHandle*> children() override;
-    void                          removeChild( PdmObjectHandle* object ) override;
+    std::vector<PdmObjectHandle*> [[nodiscard]] children() override;
+    void removeChild( PdmObjectHandle* object ) override;
 
 private: // To be disabled
     PDM_DISABLE_COPY_AND_ASSIGN( PdmChildArrayField );
