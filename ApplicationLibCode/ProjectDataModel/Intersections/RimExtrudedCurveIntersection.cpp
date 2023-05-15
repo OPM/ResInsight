@@ -31,6 +31,7 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimEnsembleSurface.h"
+#include "RimGeoMechView.h"
 #include "RimGridView.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimIntersectionResultsDefinitionCollection.h"
@@ -246,7 +247,7 @@ RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
     m_surfaceIntersections = new RimSurfaceIntersectionCollection;
     m_surfaceIntersections->objectChanged.connect( this, &RimExtrudedCurveIntersection::onSurfaceIntersectionsChanged );
 
-    CAF_PDM_InitField( &m_depthUpperThreshold, "UpperThreshold", 0.0, "Upper Threshold" );
+    CAF_PDM_InitField( &m_depthUpperThreshold, "UpperThreshold", -300000.0, "Upper Threshold" );
     m_depthUpperThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_depthLowerThreshold, "LowerThreshold", 300000.0, "Lower Threshold" );
@@ -338,15 +339,11 @@ double RimExtrudedCurveIntersection::upperFilterDepth( double upperGridLimit ) c
 //--------------------------------------------------------------------------------------------------
 RimIntersectionFilterEnum RimExtrudedCurveIntersection::depthFilterType() const
 {
-    if ( eclipseView() )
+    if ( m_depthThresholdOverridden )
     {
-        if ( m_depthThresholdOverridden )
-        {
-            return m_collectionDepthFilterType();
-        }
-        return m_depthFilterType();
+        return m_collectionDepthFilterType();
     }
-    return RimIntersectionFilterEnum::INTERSECT_FILTER_NONE;
+    return m_depthFilterType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -545,40 +542,37 @@ void RimExtrudedCurveIntersection::defineUiOrdering( QString uiConfigName, caf::
         m_extentLength.uiCapability()->setUiReadOnly( false );
     }
 
-    if ( eclipseView() )
+    auto filterGroup = uiOrdering.addNewGroup( "Depth Filter" );
+    if ( m_depthThresholdOverridden() )
     {
-        auto filterGroup = uiOrdering.addNewGroup( "Depth Filter" );
-        if ( m_depthThresholdOverridden() )
+        filterGroup->add( &m_depthThresholdOverridden );
+    }
+    else
+    {
+        filterGroup->add( &m_depthFilterType );
+
+        switch ( m_depthFilterType() )
         {
-            filterGroup->add( &m_depthThresholdOverridden );
-        }
-        else
-        {
-            filterGroup->add( &m_depthFilterType );
+            case RimIntersectionFilterEnum::INTERSECT_FILTER_BELOW:
+                m_depthUpperThreshold.uiCapability()->setUiName( "Depth" );
+                filterGroup->add( &m_depthUpperThreshold );
+                break;
 
-            switch ( m_depthFilterType() )
-            {
-                case RimIntersectionFilterEnum::INTERSECT_FILTER_BELOW:
-                    m_depthUpperThreshold.uiCapability()->setUiName( "Depth" );
-                    filterGroup->add( &m_depthUpperThreshold );
-                    break;
+            case RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN:
+                m_depthUpperThreshold.uiCapability()->setUiName( "Upper Depth" );
+                filterGroup->add( &m_depthUpperThreshold );
+                m_depthLowerThreshold.uiCapability()->setUiName( "Lower Depth" );
+                filterGroup->add( &m_depthLowerThreshold );
+                break;
 
-                case RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN:
-                    m_depthUpperThreshold.uiCapability()->setUiName( "Upper Depth" );
-                    filterGroup->add( &m_depthUpperThreshold );
-                    m_depthLowerThreshold.uiCapability()->setUiName( "Lower Depth" );
-                    filterGroup->add( &m_depthLowerThreshold );
-                    break;
+            case RimIntersectionFilterEnum::INTERSECT_FILTER_ABOVE:
+                m_depthLowerThreshold.uiCapability()->setUiName( "Depth" );
+                filterGroup->add( &m_depthLowerThreshold );
+                break;
 
-                case RimIntersectionFilterEnum::INTERSECT_FILTER_ABOVE:
-                    m_depthLowerThreshold.uiCapability()->setUiName( "Depth" );
-                    filterGroup->add( &m_depthLowerThreshold );
-                    break;
-
-                case RimIntersectionFilterEnum::INTERSECT_FILTER_NONE:
-                default:
-                    break;
-            }
+            case RimIntersectionFilterEnum::INTERSECT_FILTER_NONE:
+            default:
+                break;
         }
     }
 
@@ -994,6 +988,16 @@ void RimExtrudedCurveIntersection::defineEditorAttribute( const caf::PdmFieldHan
             if ( eclView )
             {
                 const cvf::BoundingBox bb = eclView->mainGrid()->boundingBox();
+
+                doubleSliderAttrib->m_minimum = -1.0 * bb.max().z();
+                doubleSliderAttrib->m_maximum = -1.0 * bb.min().z();
+            }
+
+            RimGeoMechView* geomView = firstAncestorOrThisOfType<RimGeoMechView>();
+
+            if ( geomView )
+            {
+                const cvf::BoundingBox bb = geomView->domainBoundingBox();
 
                 doubleSliderAttrib->m_minimum = -1.0 * bb.max().z();
                 doubleSliderAttrib->m_maximum = -1.0 * bb.min().z();
