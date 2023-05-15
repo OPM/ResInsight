@@ -38,8 +38,6 @@
 
 CAF_PDM_SOURCE_INIT( RimWellLogDiffCurve, "WellLogDiffCurve" );
 
-#pragma optimize( "", off )
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -237,7 +235,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogDiffCurve::calculateValueOptions( const 
     QList<caf::PdmOptionItemInfo> options;
 
     options = RimWellLogCurve::calculateValueOptions( fieldNeedingOptions );
-    if ( options.size() > 0 ) return options;
+    if ( !options.empty() ) return options;
 
     if ( fieldNeedingOptions == &m_firstWellLogCurve || fieldNeedingOptions == &m_secondWellLogCurve )
     {
@@ -247,8 +245,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogDiffCurve::calculateValueOptions( const 
         if ( !wellLogPlotCollection ) return {};
 
         // Find each well log plot in collection
-        std::vector<RimWellLogCurve*> wellLogCurves;
-        wellLogPlotCollection->descendantsOfType( wellLogCurves );
+        std::vector<RimWellLogCurve*> wellLogCurves = wellLogPlotCollection->descendantsOfType<RimWellLogCurve>();
         for ( RimWellLogCurve* curve : wellLogCurves )
         {
             if ( !curve || curve == this ) continue;

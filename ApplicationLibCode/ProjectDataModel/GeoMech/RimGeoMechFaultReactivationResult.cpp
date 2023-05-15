@@ -46,8 +46,6 @@
 
 CAF_PDM_SOURCE_INIT( RimGeoMechFaultReactivationResult, "RimGeoMechFaultReactivationResult" );
 
-#pragma optimize( "", off )
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -219,8 +217,7 @@ void RimGeoMechFaultReactivationResult::createWellGeometry()
     const cvf::Vec3d widthAdjustedB       = b + ( normalizedWellVector * m_widthOutsideIntersection() );
 
     const std::vector<cvf::Vec3d> newFaceAWellPoints = { widthAdjustedA + distanceVector, widthAdjustedB + distanceVector };
-    // const std::vector<cvf::Vec3d> newFaceBWellPoints = { widthAdjustedA - distanceVector, widthAdjustedB - distanceVector };
-    const std::vector<cvf::Vec3d> newFaceBWellPoints = { widthAdjustedA + 2.0 * distanceVector, widthAdjustedB + 2.0 * distanceVector };
+    const std::vector<cvf::Vec3d> newFaceBWellPoints = { widthAdjustedA - distanceVector, widthAdjustedB - distanceVector };
 
     // Update the well paths
     m_faceAWellPath->geometryDefinition()->createAndInsertTargets( newFaceAWellPoints );
@@ -240,8 +237,7 @@ void RimGeoMechFaultReactivationResult::createWellGeometry()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechFaultReactivationResult::createWellLogCurves()
 {
-    RimGeoMechCase* geomCase = nullptr;
-    firstAncestorOrThisOfTypeAsserted( geomCase );
+    RimGeoMechCase* geomCase = firstAncestorOrThisOfTypeAsserted<RimGeoMechCase>();
     if ( !geomCase ) return;
     Rim3dView* view = RiaApplication::instance()->activeMainOrComparisonGridView();
     if ( !view ) return;

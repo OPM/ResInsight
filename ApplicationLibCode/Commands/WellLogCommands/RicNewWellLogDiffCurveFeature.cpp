@@ -56,8 +56,7 @@ void RicNewWellLogDiffCurveFeature::onActionTriggered( bool isChecked )
         caf::SelectionManager::instance()->objectsByType( &wellLogCurves );
         if ( wellLogCurves.size() != 2 ) return;
 
-        RimWellLogTrack* wellLogTrack = nullptr;
-        wellLogCurves[0]->firstAncestorOrThisOfType( wellLogTrack );
+        RimWellLogTrack* wellLogTrack = wellLogCurves[0]->firstAncestorOrThisOfType<RimWellLogTrack>();
         if ( !wellLogTrack ) return;
 
         RimWellLogDiffCurve* newCurve = RicWellLogTools::addWellLogDiffCurve( wellLogTrack );
