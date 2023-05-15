@@ -649,7 +649,7 @@ void RimPolygonFilter::updateCellsForEclipse( const std::vector<cvf::Vec3d>& poi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPolygonFilter::updateCellsDepthGeoMech( const std::vector<cvf::Vec3d>& points, const RigFemPartGrid* grid )
+void RimPolygonFilter::updateCellsDepthGeoMech( const std::vector<cvf::Vec3d>& points, const RigFemPartGrid* grid, int partId )
 {
     // we should look in depth using Z coordinate
     // loop over all cells
@@ -662,6 +662,7 @@ void RimPolygonFilter::updateCellsDepthGeoMech( const std::vector<cvf::Vec3d>& p
                 if ( !m_intervalTool.isNumberIncluded( k ) ) continue;
 
                 size_t cellIdx = grid->cellIndexFromIJK( i, j, k );
+                if ( cellIdx == cvf::UNDEFINED_SIZE_T ) continue;
 
                 cvf::Vec3d vertices[8];
                 grid->cellCornerVertices( cellIdx, vertices );
@@ -674,7 +675,7 @@ void RimPolygonFilter::updateCellsDepthGeoMech( const std::vector<cvf::Vec3d>& p
                 // check if the polygon includes the cell
                 if ( cellInsidePolygon2D( center, corners, points ) )
                 {
-                    m_cells[0].push_back( cellIdx );
+                    m_cells[partId].push_back( cellIdx );
                 }
             }
         }
@@ -688,7 +689,7 @@ void RimPolygonFilter::updateCellsDepthGeoMech( const std::vector<cvf::Vec3d>& p
 // 2. find all cells in this K layer that matches the selection criteria
 // 3. extend those cells to all K layers
 //--------------------------------------------------------------------------------------------------
-void RimPolygonFilter::updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>& points, const RigFemPartGrid* grid )
+void RimPolygonFilter::updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>& points, const RigFemPartGrid* grid, int partId )
 {
     // we need to find the K layer we hit with the first point
     size_t nk;
@@ -705,7 +706,9 @@ void RimPolygonFilter::updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>& 
             for ( size_t k = 0; k < grid->cellCountK(); k++ )
             {
                 // get cell bounding box
-                size_t           cellIdx = grid->cellIndexFromIJK( i, j, k );
+                size_t cellIdx = grid->cellIndexFromIJK( i, j, k );
+                if ( cellIdx == cvf::UNDEFINED_SIZE_T ) continue;
+
                 cvf::BoundingBox bb;
                 cvf::Vec3d       vertices[8];
                 grid->cellCornerVertices( cellIdx, vertices );
@@ -742,6 +745,7 @@ void RimPolygonFilter::updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>& 
         for ( size_t j = 0; j < grid->cellCountJ(); j++ )
         {
             size_t cellIdx = grid->cellIndexFromIJK( i, j, nk );
+            if ( cellIdx == cvf::UNDEFINED_SIZE_T ) continue;
 
             // get corner coordinates
             std::array<cvf::Vec3d, 8> hexCorners;
@@ -768,7 +772,7 @@ void RimPolygonFilter::updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>& 
 
             // get the cell index
             size_t newIdx = grid->cellIndexFromIJK( ci, cj, k );
-            m_cells[0].push_back( newIdx );
+            m_cells[partId].push_back( newIdx );
         }
     }
 }
@@ -787,11 +791,11 @@ void RimPolygonFilter::updateCellsForGeoMech( const std::vector<cvf::Vec3d>& poi
 
             if ( m_polyFilterMode == PolygonFilterModeType::DEPTH_Z )
             {
-                updateCellsDepthGeoMech( points, grid );
+                updateCellsDepthGeoMech( points, grid, i );
             }
             else if ( m_polyFilterMode == PolygonFilterModeType::INDEX_K )
             {
-                updateCellsKIndexGeoMech( points, grid );
+                updateCellsKIndexGeoMech( points, grid, i );
             }
         }
     }
