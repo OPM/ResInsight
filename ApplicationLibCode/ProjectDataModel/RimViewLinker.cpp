@@ -48,7 +48,6 @@
 #include "cafIconProvider.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cvfCamera.h"
-#include "cvfMatrix4.h"
 #include "cvfScene.h"
 
 CAF_PDM_SOURCE_INIT( RimViewLinker, "ViewLinker" );

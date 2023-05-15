@@ -21,7 +21,6 @@
 
 #include "cvfArray.h"
 #include "cvfColor4.h"
-#include "cvfMatrix4.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
