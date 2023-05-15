@@ -320,7 +320,7 @@ double RimExtrudedCurveIntersection::upperFilterDepth( double upperGridLimit ) c
         }
     }
 
-    switch ( m_depthFilterType() )
+    switch ( depthFilterType() )
     {
         case RimIntersectionFilterEnum::INTERSECT_FILTER_BELOW:
         case RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN:
@@ -338,11 +338,15 @@ double RimExtrudedCurveIntersection::upperFilterDepth( double upperGridLimit ) c
 //--------------------------------------------------------------------------------------------------
 RimIntersectionFilterEnum RimExtrudedCurveIntersection::depthFilterType() const
 {
-    if ( m_depthThresholdOverridden )
+    if ( eclipseView() )
     {
-        return m_collectionDepthFilterType();
+        if ( m_depthThresholdOverridden )
+        {
+            return m_collectionDepthFilterType();
+        }
+        return m_depthFilterType();
     }
-    return m_depthFilterType();
+    return RimIntersectionFilterEnum::INTERSECT_FILTER_NONE;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -365,7 +369,7 @@ double RimExtrudedCurveIntersection::lowerFilterDepth( double lowerGridLimit ) c
         }
     }
 
-    switch ( m_depthFilterType() )
+    switch ( depthFilterType() )
     {
         case RimIntersectionFilterEnum::INTERSECT_FILTER_ABOVE:
         case RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN:
