@@ -772,6 +772,8 @@ void RimPolygonFilter::updateCellsKIndexGeoMech( const std::vector<cvf::Vec3d>& 
 
             // get the cell index
             size_t newIdx = grid->cellIndexFromIJK( ci, cj, k );
+            if ( cellIdx == cvf::UNDEFINED_SIZE_T ) continue;
+
             m_cells[partId].push_back( newIdx );
         }
     }
