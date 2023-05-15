@@ -22,7 +22,6 @@
 #include "cafTitledOverlayFrame.h"
 #include "cvfColor3.h"
 #include "cvfColor4.h"
-#include "cvfMatrix4.h"
 #include "cvfString.h"
 
 namespace cvf

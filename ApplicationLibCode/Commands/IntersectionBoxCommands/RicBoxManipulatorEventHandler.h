@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "cvfMatrix4.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
 

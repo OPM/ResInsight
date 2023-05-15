@@ -22,7 +22,6 @@
 
 #include "cvfCollection.h"
 #include "cvfColor4.h"
-#include "cvfMatrix4.h"
 #include "cvfVector3.h"
 
 #include <map>
