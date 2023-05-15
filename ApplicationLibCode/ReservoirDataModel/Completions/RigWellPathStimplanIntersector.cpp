@@ -29,7 +29,6 @@
 #include "RimStimPlanFractureTemplate.h"
 
 #include "cvfMath.h"
-#include "cvfMatrix4.h"
 
 #include <cmath>
 

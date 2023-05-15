@@ -18,12 +18,12 @@
 
 #include "RigFishbonesGeometry.h"
 
-#include "RimFishbones.h"
-
 #include "RigWellPath.h"
+
+#include "RimFishbones.h"
 #include "RimWellPath.h"
+
 #include "cvfAssert.h"
-#include "cvfMatrix4.h"
 
 //--------------------------------------------------------------------------------------------------
 ///

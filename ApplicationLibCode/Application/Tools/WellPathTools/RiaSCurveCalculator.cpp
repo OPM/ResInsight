@@ -20,8 +20,6 @@
 
 #include "RiaOffshoreSphericalCoords.h"
 
-#include "cvfMatrix4.h"
-
 #include <cmath>
 #include <iostream>
 

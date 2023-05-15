@@ -58,7 +58,6 @@
 #include "cvfBoundingBox.h"
 #include "cvfGeometryTools.h"
 #include "cvfMath.h"
-#include "cvfMatrix4.h"
 #include "cvfPlane.h"
 
 #include <QString>
