@@ -310,7 +310,7 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
         {
             assembledYAxisText += QString::fromStdString( quantIt );
 
-            insertLineShift ? ( assembledYAxisText += "\n" ) : ( assembledYAxisText += " " );
+            insertLineShift ? ( assembledYAxisText += "<br>" ) : ( assembledYAxisText += " " );
         }
 
         if ( m_axisProperties->showUnitText() )
