@@ -62,6 +62,8 @@ private:
                                                                           RimModeledWellPath*        wellPath,
                                                                           int                        partId );
 
+    QString plotDescription() const;
+
 private:
     caf::PdmPtrField<RimExtrudedCurveIntersection*> m_intersection;
 

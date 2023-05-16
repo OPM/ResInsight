@@ -33,9 +33,11 @@
 #include "RimGeoMechView.h"
 #include "RimGridView.h"
 #include "RimIntersectionCollection.h"
+#include "RimMainPlotCollection.h"
 #include "RimModeledWellPath.h"
 #include "RimWellLogDiffCurve.h"
 #include "RimWellLogExtractionCurve.h"
+#include "RimWellLogPlotCollection.h"
 #include "RimWellLogPlotNameConfig.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPathGeometryDef.h"
@@ -272,9 +274,10 @@ void RimGeoMechFaultReactivationResult::createWellLogCurves()
 
     // Create Plot
     const bool      showAfterCreation = true;
-    RimWellLogPlot* newPlot = RicNewWellLogPlotFeatureImpl::createWellLogPlot( showAfterCreation, QString( "Fault Reactivation Plot" ) );
+    const QString   name              = plotDescription();
+    RimWellLogPlot* newPlot           = RicNewWellLogPlotFeatureImpl::createWellLogPlot( showAfterCreation, name );
     newPlot->setNamingMethod( RiaDefines::ObjectNamingMethod::CUSTOM );
-    newPlot->nameConfig()->setCustomName( "Fault Reactivation Plot" );
+    newPlot->nameConfig()->setCustomName( name );
 
     // Create curve tracks
     const bool       doUpdateAfter = true;
@@ -366,4 +369,23 @@ RimWellLogExtractionCurve* RimGeoMechFaultReactivationResult::createWellLogExtra
     wellLogExtractionCurve->loadDataAndUpdate( updateParentPlot );
 
     return wellLogExtractionCurve;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimGeoMechFaultReactivationResult::plotDescription() const
+{
+    RimWellLogPlotCollection* wellLogPlotCollection = RimMainPlotCollection::current()->wellLogPlotCollection();
+    QString                   plotDescription       = "Fault Reactivation Plot";
+
+    if ( !wellLogPlotCollection ) return plotDescription;
+
+    int count = 0;
+    for ( const auto& plot : wellLogPlotCollection->wellLogPlots() )
+    {
+        if ( plot->description().startsWith( plotDescription ) ) ++count;
+    }
+
+    return count == 0 ? plotDescription : QString( "%1 %2" ).arg( plotDescription ).arg( count );
 }
