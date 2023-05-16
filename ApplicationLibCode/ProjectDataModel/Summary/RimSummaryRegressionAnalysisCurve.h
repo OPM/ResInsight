@@ -55,6 +55,8 @@ public:
     std::vector<time_t> timeStepsX() const override;
 
 private:
+    void onLoadDataAndUpdate( bool updateParentPlot ) override;
+
     QString createCurveAutoName() override;
     QString curveExportDescription( const RifEclipseSummaryAddress& address ) const override;
 
@@ -63,9 +65,15 @@ private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
-    std::pair<std::vector<time_t>, std::vector<double>> computeRegressionCurve( const std::vector<time_t>& timeSteps,
-                                                                                const std::vector<double>& values ) const;
+    std::tuple<std::vector<time_t>, std::vector<double>, QString> computeRegressionCurve( const std::vector<time_t>& timeSteps,
+                                                                                          const std::vector<double>& values ) const;
 
     caf::PdmField<caf::AppEnum<RegressionType>> m_regressionType;
     caf::PdmField<int>                          m_polynominalDegree;
+    caf::PdmField<QString>                      m_expressionText;
+
+    std::vector<double> m_valuesX;
+    std::vector<time_t> m_timeStepsX;
+    std::vector<double> m_valuesY;
+    std::vector<time_t> m_timeStepsY;
 };

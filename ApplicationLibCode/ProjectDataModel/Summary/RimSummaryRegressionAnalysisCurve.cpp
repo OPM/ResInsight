@@ -19,6 +19,7 @@
 #include "RimSummaryRegressionAnalysisCurve.h"
 
 #include "cafPdmUiLineEditor.h"
+#include "cafPdmUiTextEditor.h"
 
 #include "LinearRegression.hpp"
 #include "PolynominalRegression.hpp"
@@ -49,6 +50,12 @@ RimSummaryRegressionAnalysisCurve::RimSummaryRegressionAnalysisCurve()
 
     CAF_PDM_InitFieldNoDefault( &m_regressionType, "RegressionType", "Type" );
     CAF_PDM_InitField( &m_polynominalDegree, "PolynominalDegree", 3, "Degree" );
+
+    CAF_PDM_InitFieldNoDefault( &m_expressionText, "ExpressionText", "Expression" );
+    m_expressionText.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
+    m_expressionText.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    m_expressionText.uiCapability()->setUiReadOnly( true );
+    m_expressionText.xmlCapability()->disableIO();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -61,9 +68,25 @@ RimSummaryRegressionAnalysisCurve::~RimSummaryRegressionAnalysisCurve()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryRegressionAnalysisCurve::onLoadDataAndUpdate( bool updateParentPlot )
+{
+    QString descriptionX;
+    std::tie( m_timeStepsX, m_valuesX, descriptionX ) = computeRegressionCurve( RimSummaryCurve::timeStepsX(), RimSummaryCurve::valuesX() );
+
+    QString descriptionY;
+    std::tie( m_timeStepsY, m_valuesY, descriptionY ) = computeRegressionCurve( RimSummaryCurve::timeStepsY(), RimSummaryCurve::valuesY() );
+
+    m_expressionText = descriptionY;
+
+    RimSummaryCurve::onLoadDataAndUpdate( updateParentPlot );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<double> RimSummaryRegressionAnalysisCurve::valuesY() const
 {
-    return computeRegressionCurve( RimSummaryCurve::timeStepsY(), RimSummaryCurve::valuesY() ).second;
+    return m_valuesY;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -71,7 +94,7 @@ std::vector<double> RimSummaryRegressionAnalysisCurve::valuesY() const
 //--------------------------------------------------------------------------------------------------
 std::vector<double> RimSummaryRegressionAnalysisCurve::valuesX() const
 {
-    return computeRegressionCurve( RimSummaryCurve::timeStepsX(), RimSummaryCurve::valuesX() ).second;
+    return m_valuesX;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,7 +102,7 @@ std::vector<double> RimSummaryRegressionAnalysisCurve::valuesX() const
 //--------------------------------------------------------------------------------------------------
 std::vector<time_t> RimSummaryRegressionAnalysisCurve::timeStepsY() const
 {
-    return computeRegressionCurve( RimSummaryCurve::timeStepsY(), RimSummaryCurve::valuesY() ).first;
+    return m_timeStepsY;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,16 +110,16 @@ std::vector<time_t> RimSummaryRegressionAnalysisCurve::timeStepsY() const
 //--------------------------------------------------------------------------------------------------
 std::vector<time_t> RimSummaryRegressionAnalysisCurve::timeStepsX() const
 {
-    return computeRegressionCurve( RimSummaryCurve::timeStepsX(), RimSummaryCurve::valuesX() ).first;
+    return m_timeStepsX;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<std::vector<time_t>, std::vector<double>>
+std::tuple<std::vector<time_t>, std::vector<double>, QString>
     RimSummaryRegressionAnalysisCurve::computeRegressionCurve( const std::vector<time_t>& timeSteps, const std::vector<double>& values ) const
 {
-    if ( values.empty() || timeSteps.empty() ) return { timeSteps, values };
+    if ( values.empty() || timeSteps.empty() ) return { timeSteps, values, "" };
 
     auto convertToDouble = []( const std::vector<time_t>& timeSteps )
     {
@@ -112,27 +135,60 @@ std::pair<std::vector<time_t>, std::vector<double>>
 
     if ( m_regressionType == RegressionType::LINEAR )
     {
+        auto generateRegressionText = []( const regression::LinearRegression& reg ) {
+            return QString( "Linear Regression<br>Intercept: %1<br>Slope: %2<br><br>r = %2x + %1" ).arg( reg.intercept() ).arg( reg.slope() );
+        };
+
         regression::LinearRegression linearRegression;
         linearRegression.fit( timeStepsD, values );
         std::vector<double> predictedValues = linearRegression.predict( timeStepsD );
-        return { timeSteps, predictedValues };
+        return { timeSteps, predictedValues, generateRegressionText( linearRegression ) };
     }
     else if ( m_regressionType == RegressionType::POLYNOMINAL )
     {
+        auto generateRegressionText = []( const regression::PolynominalRegression& reg )
+        {
+            QString str = "Polynominal Regression<br><br>r = ";
+
+            std::vector<double> coeffs = reg.coeffisients();
+            QStringList         parts;
+            for ( size_t i = 0; i < coeffs.size(); i++ )
+            {
+                double coeff = coeffs[i];
+                // Skip zero coeffs
+                if ( coeff != 0.0 )
+                {
+                    if ( i == 0 )
+                    {
+                        parts.append( QString( " %1 " ).arg( coeff ) );
+                    }
+                    else
+                    {
+                        parts.append( QString( " %1x<sup>%2</sup>" ).arg( coeff ).arg( i ) );
+                    }
+                }
+            }
+
+            return str + parts.join( " + " );
+        };
+
         regression::PolynominalRegression polynominalRegression;
         polynominalRegression.fit( timeStepsD, values, m_polynominalDegree );
         std::vector<double> predictedValues = polynominalRegression.predict( timeStepsD );
-        return { timeSteps, predictedValues };
+        return { timeSteps, predictedValues, generateRegressionText( polynominalRegression ) };
     }
     else if ( m_regressionType == RegressionType::POWER_FIT )
     {
+        auto generateRegressionText = []( const regression::PowerFitRegression& reg )
+        { return QString( "Power Fit Regression<br><br>r = %1 + x<sup>%2</sup>" ).arg( reg.scale() ).arg( reg.exponent() ); };
+
         regression::PowerFitRegression powerFitRegression;
         powerFitRegression.fit( timeStepsD, values );
         std::vector<double> predictedValues = powerFitRegression.predict( timeStepsD );
-        return { timeSteps, predictedValues };
+        return { timeSteps, predictedValues, generateRegressionText( powerFitRegression ) };
     }
 
-    return { timeSteps, values };
+    return { timeSteps, values, "" };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -149,6 +205,8 @@ void RimSummaryRegressionAnalysisCurve::defineUiOrdering( QString uiConfigName, 
     {
         regressionCurveGroup->add( &m_polynominalDegree );
     }
+
+    regressionCurveGroup->add( &m_expressionText );
 
     RimSummaryCurve::defineUiOrdering( uiConfigName, uiOrdering );
 }
@@ -182,6 +240,15 @@ void RimSummaryRegressionAnalysisCurve::defineEditorAttribute( const caf::PdmFie
         {
             // Polynominal degree should be a positive number.
             lineEditorAttr->validator = new QIntValidator( 1, 50, nullptr );
+        }
+    }
+    else if ( field == &m_expressionText )
+    {
+        auto myAttr = dynamic_cast<caf::PdmUiTextEditorAttribute*>( attribute );
+        if ( myAttr )
+        {
+            myAttr->wrapMode = caf::PdmUiTextEditorAttribute::NoWrap;
+            myAttr->textMode = caf::PdmUiTextEditorAttribute::HTML;
         }
     }
 }
