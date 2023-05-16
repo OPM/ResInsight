@@ -22,8 +22,14 @@
 
 #include "RimWellLogCurve.h"
 #include "RimWellLogDiffCurve.h"
+#include "RimWellLogTrack.h"
+
+#include "RiuPlotMainWindowTools.h"
 
 #include "cafSelectionManager.h"
+
+#include <QAction>
+#include <QIcon>
 
 #include <vector>
 

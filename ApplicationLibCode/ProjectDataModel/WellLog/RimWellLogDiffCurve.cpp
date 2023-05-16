@@ -284,7 +284,6 @@ QList<caf::PdmOptionItemInfo> RimWellLogDiffCurve::calculateValueOptions( const 
 
     if ( fieldNeedingOptions == &m_firstWellLogCurve || fieldNeedingOptions == &m_secondWellLogCurve )
     {
-        RimWellPathCollection*    wellPathCollection    = RimProject::current()->activeOilField()->wellPathCollection();
         RimWellLogPlotCollection* wellLogPlotCollection = RimMainPlotCollection::current()->wellLogPlotCollection();
 
         if ( !wellLogPlotCollection ) return {};
