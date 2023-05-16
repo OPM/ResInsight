@@ -58,6 +58,10 @@ private:
 
     void setAutomaticName();
 
+    void onWellLogCurveChanged( const SignalEmitter* emitter );
+    void connectWellLogCurveChangedToSlots( RimWellLogCurve* wellLogCurve );
+    void disconnectWellLogCurveChangedFromSlots( RimWellLogCurve* wellLogCurve );
+
 private:
     caf::PdmPtrField<RimCase*> m_case;
 

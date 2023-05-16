@@ -64,8 +64,18 @@ RimWellLogDiffCurve::~RimWellLogDiffCurve()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogDiffCurve::setWellLogCurves( RimWellLogCurve* firstWellLogCurve, RimWellLogCurve* secondWellLogCurve )
 {
-    if ( firstWellLogCurve ) m_firstWellLogCurve = firstWellLogCurve;
-    if ( secondWellLogCurve ) m_secondWellLogCurve = secondWellLogCurve;
+    if ( firstWellLogCurve )
+    {
+        disconnectWellLogCurveChangedFromSlots( m_firstWellLogCurve );
+        m_firstWellLogCurve = firstWellLogCurve;
+        connectWellLogCurveChangedToSlots( m_firstWellLogCurve );
+    }
+    if ( secondWellLogCurve )
+    {
+        disconnectWellLogCurveChangedFromSlots( m_secondWellLogCurve );
+        m_secondWellLogCurve = secondWellLogCurve;
+        connectWellLogCurveChangedToSlots( m_secondWellLogCurve );
+    }
 
     if ( m_namingMethod() == RiaDefines::ObjectNamingMethod::AUTO )
     {
@@ -161,6 +171,34 @@ void RimWellLogDiffCurve::setAutomaticName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellLogDiffCurve::onWellLogCurveChanged( const SignalEmitter* emitter )
+{
+    onLoadDataAndUpdate( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogDiffCurve::connectWellLogCurveChangedToSlots( RimWellLogCurve* wellLogCurve )
+{
+    if ( !wellLogCurve ) return;
+
+    wellLogCurve->dataChanged.connect( this, &RimWellLogDiffCurve::onWellLogCurveChanged );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogDiffCurve::disconnectWellLogCurveChangedFromSlots( RimWellLogCurve* wellLogCurve )
+{
+    if ( !wellLogCurve ) return;
+
+    wellLogCurve->dataChanged.disconnect( this );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimWellLogDiffCurve::wellName() const
 {
     return m_curveName;
@@ -222,6 +260,13 @@ void RimWellLogDiffCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     if ( changedField == &m_firstWellLogCurve || changedField == &m_secondWellLogCurve )
     {
         if ( !m_firstWellLogCurve() || !m_secondWellLogCurve() ) return;
+
+        PdmObjectHandle* prevValue        = oldValue.value<caf::PdmPointer<PdmObjectHandle>>().rawPtr();
+        auto*            prevWellLogCurve = dynamic_cast<RimWellLogCurve*>( prevValue );
+        disconnectWellLogCurveChangedFromSlots( prevWellLogCurve );
+
+        if ( changedField == &m_firstWellLogCurve ) connectWellLogCurveChangedToSlots( m_firstWellLogCurve );
+        if ( changedField == &m_secondWellLogCurve ) connectWellLogCurveChangedToSlots( m_firstWellLogCurve );
 
         onLoadDataAndUpdate( true );
     }
