@@ -40,9 +40,10 @@ public:
 
     std::pair<int, size_t>               partIdAndElementIndex( size_t globalIndex ) const;
     std::pair<const RigFemPart*, size_t> partAndElementIndex( size_t globalIndex ) const;
-    size_t                               globalIndex( int partId, size_t localIndex ) const;
+    size_t                               globalElementIndex( int partId, size_t localIndex ) const;
 
-    std::pair<int, size_t> partIdAndNodeIndex( size_t globalNodeIndex ) const;
+    void findIntersectingGlobalElementIndices( const cvf::BoundingBox& intersectingBB,
+                                               std::vector<size_t>*    intersectedGlobalElementIndices ) const;
 
     int nodeIdxFromElementNodeResultIdx( size_t globalResultIdx ) const;
 

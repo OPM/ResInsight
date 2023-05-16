@@ -53,18 +53,12 @@ cvf::BoundingBox RivFemIntersectionGrid::boundingBox() const
 //--------------------------------------------------------------------------------------------------
 void RivFemIntersectionGrid::findIntersectingCells( const cvf::BoundingBox& intersectingBB, std::vector<size_t>* intersectedCells ) const
 {
-    for ( int i = 0; i < m_femParts->partCount(); i++ )
-    {
-        const RigFemPart*   part = m_femParts->part( i );
-        std::vector<size_t> foundElements;
-        part->findIntersectingCells( intersectingBB, &foundElements );
+    // For FEM models the term element is used instead of cell.
+    // Each FEM part has a local element index which is transformed into global index for a FEM part collection.
+    std::vector<size_t> intersectedGlobalElementIndices;
+    m_femParts->findIntersectingGlobalElementIndices( intersectingBB, &intersectedGlobalElementIndices );
 
-        for ( size_t t = 0; t < foundElements.size(); t++ )
-        {
-            size_t globalIdx = m_femParts->globalIndex( i, foundElements[t] );
-            intersectedCells->push_back( globalIdx );
-        }
-    }
+    *intersectedCells = intersectedGlobalElementIndices;
 }
 
 //--------------------------------------------------------------------------------------------------

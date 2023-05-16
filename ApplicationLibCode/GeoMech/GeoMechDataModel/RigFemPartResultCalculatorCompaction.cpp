@@ -164,7 +164,7 @@ void findReferenceElementForNode( const RigFemPart& part, size_t nodeIdx, size_t
     bb.add( p2 );
 
     std::vector<size_t> refElementCandidates;
-    part.findIntersectingCells( bb, &refElementCandidates );
+    part.findIntersectingElementIndices( bb, &refElementCandidates );
 
     const RigFemPartGrid* grid = part.getOrCreateStructGrid();
 

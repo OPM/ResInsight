@@ -383,7 +383,7 @@ RigCaseToCaseRangeFilterMapper::CellMatchType RigCaseToCaseRangeFilterMapper::fi
         elmBBox.add( geoMechConvertedEclCell[i] );
 
     std::vector<size_t> closeElements;
-    dependentFemPart->findIntersectingCells( elmBBox, &closeElements );
+    dependentFemPart->findIntersectingElementIndices( elmBBox, &closeElements );
 
     cvf::Vec3d elmCorners[8];
     int        elmIdxToBestMatch        = -1;

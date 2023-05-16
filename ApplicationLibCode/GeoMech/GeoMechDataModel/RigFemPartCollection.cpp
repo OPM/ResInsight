@@ -127,7 +127,7 @@ cvf::BoundingBox RigFemPartCollection::boundingBox() const
 }
 
 //--------------------------------------------------------------------------------------------------
-/// convert from global element index to part and part-local index
+/// Get part id and local part element index from global element index
 //--------------------------------------------------------------------------------------------------
 std::pair<int, size_t> RigFemPartCollection::partIdAndElementIndex( size_t globalIndex ) const
 {
@@ -147,7 +147,7 @@ std::pair<int, size_t> RigFemPartCollection::partIdAndElementIndex( size_t globa
 }
 
 //--------------------------------------------------------------------------------------------------
-/// convert from global element index to part and part-local index
+/// Get part and local part element index from global element index
 //--------------------------------------------------------------------------------------------------
 std::pair<const RigFemPart*, size_t> RigFemPartCollection::partAndElementIndex( size_t globalIndex ) const
 {
@@ -156,11 +156,29 @@ std::pair<const RigFemPart*, size_t> RigFemPartCollection::partAndElementIndex( 
 }
 
 //--------------------------------------------------------------------------------------------------
-/// convert from part and part-local index to global index
+/// Get global element index from part id and local part element index
 //--------------------------------------------------------------------------------------------------
-size_t RigFemPartCollection::globalIndex( int partId, size_t localIndex ) const
+size_t RigFemPartCollection::globalElementIndex( int partId, size_t localIndex ) const
 {
     return localIndex + m_partElementOffset[partId];
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Find intersecting global element indexes for a given bounding box
+//--------------------------------------------------------------------------------------------------
+void RigFemPartCollection::findIntersectingGlobalElementIndices( const cvf::BoundingBox& intersectingBB,
+                                                                 std::vector<size_t>*    intersectedGlobalElementIndices ) const
+{
+    for ( const auto& part : m_femParts )
+    {
+        std::vector<size_t> foundElements;
+        part->findIntersectingElementIndices( intersectingBB, &foundElements );
+        for ( const auto& foundElement : foundElements )
+        {
+            const size_t globalIdx = globalElementIndex( part->elementPartId(), foundElement );
+            intersectedGlobalElementIndices->push_back( globalIdx );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

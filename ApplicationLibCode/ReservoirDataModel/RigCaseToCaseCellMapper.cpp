@@ -160,7 +160,7 @@ void RigCaseToCaseCellMapper::calculateEclToGeomCellMapping( RigMainGrid* master
             elmBBox.add( geoMechConvertedEclCell[i] );
 
         std::vector<size_t> closeElements;
-        dependentFemPart->findIntersectingCells( elmBBox, &closeElements );
+        dependentFemPart->findIntersectingElementIndices( elmBBox, &closeElements );
 
         for ( size_t ccIdx = 0; ccIdx < closeElements.size(); ++ccIdx )
         {
