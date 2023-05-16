@@ -57,6 +57,7 @@ public:
 
 private:
     QString createCurveAutoName() override;
+    QString curveExportDescription( const RifEclipseSummaryAddress& address ) const override;
 
     std::vector<time_t> timeStepsX() const override;
 

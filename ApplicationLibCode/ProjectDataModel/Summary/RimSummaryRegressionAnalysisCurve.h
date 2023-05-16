@@ -56,6 +56,7 @@ public:
 
 private:
     QString createCurveAutoName() override;
+    QString curveExportDescription( const RifEclipseSummaryAddress& address ) const override;
 
     // Overridden PDM methods
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
