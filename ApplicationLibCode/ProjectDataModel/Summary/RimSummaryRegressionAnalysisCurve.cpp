@@ -193,3 +193,11 @@ QString RimSummaryRegressionAnalysisCurve::createCurveAutoName()
 {
     return RimSummaryCurve::createCurveAutoName() + " " + m_regressionType().uiText() + " Regression";
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryRegressionAnalysisCurve::curveExportDescription( const RifEclipseSummaryAddress& address ) const
+{
+    return RimSummaryCurve::curveExportDescription() + "." + m_regressionType().uiText() + "_Regression";
+}
