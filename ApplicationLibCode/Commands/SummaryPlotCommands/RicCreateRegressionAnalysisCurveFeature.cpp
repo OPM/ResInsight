@@ -85,7 +85,8 @@ RimSummaryRegressionAnalysisCurve*
     newCurve->setSummaryAddressY( sourceCurve->summaryAddressY() );
 
     newCurve->setColor( sourceCurve->color() );
-    // newCurve->setLineStyle( mapToLineStyle( declineCurveType ) );
+    newCurve->setSymbol( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_RECT );
+    newCurve->setSymbolSkipDistance( 50 );
 
     summaryPlot->addCurveAndUpdate( newCurve );
 
