@@ -590,6 +590,7 @@ set_property(TARGET roffcpp-tests gtest gtest_main PROPERTY FOLDER "Thirdparty")
 # regression-analysis
 # ##############################################################################
 
+set(REGRESSION_FETCH_EIGEN false)
 add_subdirectory(ThirdParty/regression-analysis)
 list(APPEND THIRD_PARTY_LIBRARIES regression-analysis)
 set_property(
