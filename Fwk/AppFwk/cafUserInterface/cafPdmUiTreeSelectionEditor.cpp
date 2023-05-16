@@ -147,6 +147,7 @@ CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiTreeSelectionEditor );
 PdmUiTreeSelectionEditor::PdmUiTreeSelectionEditor()
     : m_model( nullptr )
     , m_proxyModel( nullptr )
+    , m_useSingleSelectionMode( false )
 {
 }
 
@@ -195,31 +196,17 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi( const QString& uiConfigName
         m_treeView->expandAll();
     }
 
-    if ( PdmUiTreeSelectionQModel::isSingleValueField( fieldValue ) )
+    m_useSingleSelectionMode = PdmUiTreeSelectionQModel::isSingleValueField( fieldValue );
+
+    caf::PdmUiObjectHandle* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
+    if ( uiObject )
     {
-        m_toggleAllCheckBox->hide();
+        uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
     }
-    else if ( PdmUiTreeSelectionQModel::isMultipleValueField( fieldValue ) )
+
+    if ( PdmUiTreeSelectionQModel::isMultipleValueField( fieldValue ) )
     {
-        caf::PdmUiObjectHandle* uiObject = uiObj( uiField()->fieldHandle()->ownerObject() );
-        if ( uiObject )
-        {
-            uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &m_attributes );
-        }
-
-        if ( m_attributes.singleSelectionMode )
-        {
-            m_treeView->setSelectionMode( QAbstractItemView::SingleSelection );
-            m_treeView->setContextMenuPolicy( Qt::NoContextMenu );
-
-            m_model->enableSingleSelectionMode( m_attributes.singleSelectionMode );
-        }
-        else
-        {
-            m_treeView->setSelectionMode( QAbstractItemView::ExtendedSelection );
-        }
-
-        connect( m_treeView, SIGNAL( clicked( QModelIndex ) ), this, SLOT( slotClicked( QModelIndex ) ), Qt::UniqueConnection );
+        m_useSingleSelectionMode = m_attributes.singleSelectionMode;
 
         if ( !m_attributes.showTextFilter )
         {
@@ -232,7 +219,7 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi( const QString& uiConfigName
         }
         else
         {
-            if ( options.empty() == 0 )
+            if ( options.empty() )
             {
                 m_toggleAllCheckBox->setChecked( false );
             }
@@ -259,6 +246,25 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi( const QString& uiConfigName
                 }
             }
         }
+    }
+
+    if ( m_useSingleSelectionMode )
+    {
+        m_treeView->setSelectionMode( QAbstractItemView::SingleSelection );
+        m_treeView->setContextMenuPolicy( Qt::NoContextMenu );
+
+        m_model->enableSingleSelectionMode( m_attributes.singleSelectionMode );
+
+        m_toggleAllCheckBox->hide();
+    }
+    else
+    {
+        m_treeView->setSelectionMode( QAbstractItemView::ExtendedSelection );
+    }
+
+    if ( m_attributes.heightHint > 0 )
+    {
+        m_treeView->setHeightHint( m_attributes.heightHint );
     }
 
     // If the tree doesn't have grand children we treat this as a straight list
@@ -329,6 +335,7 @@ QWidget* PdmUiTreeSelectionEditor::createEditorWidget( QWidget* parent )
 
     m_treeView->setContextMenuPolicy( Qt::CustomContextMenu );
     connect( m_treeView, SIGNAL( customContextMenuRequested( QPoint ) ), SLOT( customMenuRequested( QPoint ) ) );
+    connect( m_treeView, SIGNAL( clicked( QModelIndex ) ), this, SLOT( slotClicked( QModelIndex ) ), Qt::UniqueConnection );
 
     layout->addWidget( treeViewHeightHint );
 
@@ -645,7 +652,7 @@ void PdmUiTreeSelectionEditor::slotScrollToFirstCheckedItem()
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeSelectionEditor::currentChanged( const QModelIndex& current )
 {
-    if ( m_attributes.singleSelectionMode )
+    if ( m_useSingleSelectionMode )
     {
         m_proxyModel->setData( current, true, Qt::CheckStateRole );
     }

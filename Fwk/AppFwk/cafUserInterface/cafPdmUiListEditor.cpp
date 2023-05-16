@@ -176,13 +176,13 @@ void PdmUiListEditor::configureAndUpdateUi( const QString& uiConfigName )
     {
         uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &attributes );
 
-        m_listView->setHeightHint( attributes.m_heightHint );
-        if ( !attributes.m_allowHorizontalScrollBar )
+        m_listView->setHeightHint( attributes.heightHint );
+        if ( !attributes.allowHorizontalScrollBar )
         {
             m_listView->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
         }
 
-        m_listView->setProperty( "state", attributes.m_qssState );
+        m_listView->setProperty( "state", attributes.qssState );
         m_listView->style()->unpolish( m_listView );
         m_listView->style()->polish( m_listView );
     }

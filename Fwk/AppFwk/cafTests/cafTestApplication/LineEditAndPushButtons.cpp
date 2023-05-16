@@ -32,6 +32,7 @@ LineEditAndPushButtons::LineEditAndPushButtons()
     m_labelLongTextField.uiCapability()->setUiEditorTypeName( caf::PdmUiLabelEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_textListField, "TextListField", "Text List Field", "", "", "" );
+    m_textListField.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_pushButton_a, "PushButtonA", "Rotate", "", "", "" );
     m_pushButton_a.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
@@ -139,6 +140,14 @@ void LineEditAndPushButtons::defineEditorAttribute( const caf::PdmFieldHandle* f
             myAttr->m_useSingleWidgetInsteadOfLabelAndEditorWidget = true;
         }
     }
+    else if ( field == &m_textListField )
+    {
+        auto myAttr = dynamic_cast<caf::PdmUiListEditorAttribute*>( attribute );
+        if ( myAttr )
+        {
+            myAttr->heightHint = 150;
+        }
+    }
 
     {
         auto myAttr = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
@@ -172,7 +181,15 @@ void LineEditAndPushButtons::rotateContent()
     auto original = m_textListField.value();
 
     std::list<QString> newContent;
-    newContent.insert( newContent.begin(), original.begin(), original.end() );
+    if ( original.empty() )
+    {
+        newContent.push_back( "Item A" );
+        newContent.push_back( "Item B" );
+    }
+    else
+    {
+        newContent.insert( newContent.begin(), original.begin(), original.end() );
+    }
 
     auto firstItem = newContent.front();
     newContent.pop_front();
