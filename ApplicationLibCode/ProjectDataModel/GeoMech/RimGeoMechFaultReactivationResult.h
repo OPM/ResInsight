@@ -29,7 +29,12 @@
 
 #include <vector>
 
+class RigFemPartCollection;
+class RigFemResultAddress;
+
 class RimModeledWellPath;
+class RimWellLogTrack;
+class RimWellLogExtractionCurve;
 
 class RimGeoMechFaultReactivationResult : public caf::PdmObject
 {
@@ -50,6 +55,13 @@ private:
     void createWellGeometry();
     void createWellLogCurves();
 
+    int getPartIndexFromPoint( const RigFemPartCollection* const partCollection, const cvf::Vec3d& point ) const;
+
+    RimWellLogExtractionCurve* createWellLogExtractionCurveAndAddToTrack( RimWellLogTrack*           track,
+                                                                          const RigFemResultAddress& resultAddress,
+                                                                          RimModeledWellPath*        wellPath,
+                                                                          int                        partId );
+
 private:
     caf::PdmPtrField<RimExtrudedCurveIntersection*> m_intersection;
 
@@ -60,4 +72,7 @@ private:
 
     caf::PdmPtrField<RimModeledWellPath*> m_faceAWellPath;
     caf::PdmPtrField<RimModeledWellPath*> m_faceBWellPath;
+
+    caf::PdmField<int> m_faceAWellPathPartIndex;
+    caf::PdmField<int> m_faceBWellPathPartIndex;
 };
