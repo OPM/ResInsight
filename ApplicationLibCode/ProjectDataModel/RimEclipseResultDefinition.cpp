@@ -147,6 +147,7 @@ RimEclipseResultDefinition::RimEclipseResultDefinition( caf::PdmUiItemInfo::Labe
     CAF_PDM_InitField( &m_resultVariableUiField, "MResultVariable", RiaResultNames::undefinedResultName(), "Result Property" );
     m_resultVariableUiField.xmlCapability()->disableIO();
     m_resultVariableUiField.uiCapability()->setUiLabelPosition( m_labelPosition );
+    m_resultVariableUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_inputPropertyFileName, "InputPropertyFileName", "File Name" );
     m_inputPropertyFileName.xmlCapability()->disableIO();
