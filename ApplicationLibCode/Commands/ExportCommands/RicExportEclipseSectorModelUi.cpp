@@ -33,8 +33,8 @@
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiGroup.h"
 #include "cafPdmUiLineEditor.h"
-#include "cafPdmUiListEditor.h"
 #include "cafPdmUiOrdering.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 #include <QDir>
 #include <QFileInfo>
@@ -251,10 +251,10 @@ void RicExportEclipseSectorModelUi::defineEditorAttribute( const caf::PdmFieldHa
     }
     else if ( field == &selectedKeywords )
     {
-        auto* myAttr = dynamic_cast<caf::PdmUiListEditorAttribute*>( attribute );
+        auto myAttr = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*>( attribute );
         if ( myAttr )
         {
-            myAttr->m_heightHint = 280;
+            myAttr->heightHint = 280;
         }
     }
     else if ( field == &refinementCountI || field == &refinementCountJ || field == &refinementCountK )

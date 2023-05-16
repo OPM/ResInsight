@@ -32,7 +32,6 @@
 
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiLineEditor.h"
-#include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 
 #include <QDateTime>
@@ -83,7 +82,6 @@ RimTimeStepFilter::RimTimeStepFilter()
 
     CAF_PDM_InitFieldNoDefault( &m_filteredTimeStepsUi, "TimeStepIndicesUi", "Select From TimeSteps" );
     m_filteredTimeStepsUi.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
-    m_filteredTimeStepsUi.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
     m_filteredTimeStepsUi.xmlCapability()->disableIO();
 
     CAF_PDM_InitField( &m_readOnlyLastFrame, "OnlyLastFrame", false, "Load Only Last Frame Of Each Time Step" );

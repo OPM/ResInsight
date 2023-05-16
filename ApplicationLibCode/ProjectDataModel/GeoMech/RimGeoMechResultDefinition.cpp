@@ -48,7 +48,7 @@
 #include "RimWellPath.h"
 
 #include "cafPdmUiDoubleValueEditor.h"
-#include "cafPdmUiListEditor.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 #include <QDoubleValidator>
 
@@ -99,7 +99,7 @@ RimGeoMechResultDefinition::RimGeoMechResultDefinition()
     CAF_PDM_InitField( &m_resultVariableUiField, "ResultVariableUI", QString( "" ), "Value" );
     m_resultVariableUiField.xmlCapability()->disableIO();
 
-    m_resultVariableUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+    m_resultVariableUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_resultVariableUiField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
     CAF_PDM_InitField( &m_normalizeByHydrostaticPressure, "NormalizeByHSP", false, "Normalize by Hydrostatic Pressure" );

@@ -53,7 +53,6 @@
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiGroup.h"
-#include "cafPdmUiListEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
 #include <cmath>

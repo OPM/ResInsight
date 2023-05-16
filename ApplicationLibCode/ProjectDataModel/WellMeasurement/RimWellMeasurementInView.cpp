@@ -80,7 +80,6 @@ RimWellMeasurementInView::RimWellMeasurementInView()
 
     CAF_PDM_InitFieldNoDefault( &m_qualityFilter, "QualityFilter", "Quality Filter" );
     m_qualityFilter.uiCapability()->setAutoAddingOptionFromValue( false );
-    m_qualityFilter.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_radiusScaleFactor, "RadiusScaleFactor", 2.5, "Radius Scale" );
     m_radiusScaleFactor.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );

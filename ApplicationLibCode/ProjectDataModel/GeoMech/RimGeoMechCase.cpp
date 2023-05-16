@@ -54,7 +54,6 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiDoubleValueEditor.h"
-#include "cafPdmUiListEditor.h"
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeOrdering.h"
@@ -130,7 +129,6 @@ RimGeoMechCase::RimGeoMechCase()
     m_biotFixedCoefficient.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_biotResultAddress, "BiotResultAddress", QString( "" ), "Value" );
-    m_biotResultAddress.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
 
     caf::AppEnum<InitialPermeabilityType> defaultInitialPermeabilityType = RimGeoMechCase::InitialPermeabilityType::INITIAL_PERMEABILITY_FIXED;
     CAF_PDM_InitField( &m_initialPermeabilityType, "InitialPermeabilityType", defaultInitialPermeabilityType, "Initial Permeability" );
@@ -138,7 +136,6 @@ RimGeoMechCase::RimGeoMechCase()
     m_initialPermeabilityFixed.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_initialPermeabilityResultAddress, "InitialPermeabilityAddress", QString( "" ), "Value" );
-    m_initialPermeabilityResultAddress.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_permeabilityExponent, "PermeabilityExponent", 1.0, "Permeability Exponent" );
     m_permeabilityExponent.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );

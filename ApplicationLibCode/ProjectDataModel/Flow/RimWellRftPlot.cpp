@@ -64,7 +64,6 @@
 #include "RiuQwtPlotCurveDefines.h"
 #include "RiuQwtPlotWidget.h"
 
-#include "cafPdmUiListEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 

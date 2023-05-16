@@ -45,7 +45,6 @@
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiItem.h"
 #include "cafPdmUiLabelEditor.h"
-#include "cafPdmUiListEditor.h"
 #include "cafPdmUiToolBarEditor.h"
 
 #include <QString>
