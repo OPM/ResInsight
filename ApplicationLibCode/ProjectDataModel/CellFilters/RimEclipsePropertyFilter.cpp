@@ -41,6 +41,7 @@
 #include "RiuMainWindow.h"
 
 #include "cafPdmUiDoubleSliderEditor.h"
+#include "cafPdmUiSliderEditor.h"
 #include "cafPdmUiTreeAttributes.h"
 
 #include "cvfAssert.h"
@@ -74,6 +75,16 @@ RimEclipsePropertyFilter::RimEclipsePropertyFilter()
 
     CAF_PDM_InitField( &m_upperBound, "UpperBound", 0.0, "Max" );
     m_upperBound.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitFieldNoDefault( &m_integerLowerBound, "IntegerLowerBound", "Min" );
+    m_integerLowerBound.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
+    m_integerLowerBound.registerGetMethod( this, &RimEclipsePropertyFilter::lowerBound );
+    m_integerLowerBound.registerSetMethod( this, &RimEclipsePropertyFilter::setLowerBound );
+
+    CAF_PDM_InitFieldNoDefault( &m_integerUpperBound, "IntegerUpperBound", "Max" );
+    m_integerUpperBound.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
+    m_integerUpperBound.registerGetMethod( this, &RimEclipsePropertyFilter::upperBound );
+    m_integerUpperBound.registerSetMethod( this, &RimEclipsePropertyFilter::setUpperBound );
 
     CAF_PDM_InitField( &m_useCategorySelection, "CategorySelection", false, "Category Selection" );
     m_upperBound.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
@@ -143,7 +154,8 @@ void RimEclipsePropertyFilter::setIsDuplicatedFromLinkedView( bool isDuplicated 
 void RimEclipsePropertyFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
     if ( &m_lowerBound == changedField || &m_upperBound == changedField || &m_isActive == changedField || &m_filterMode == changedField ||
-         &m_selectedCategoryValues == changedField || &m_useCategorySelection == changedField )
+         &m_selectedCategoryValues == changedField || &m_useCategorySelection == changedField || &m_integerUpperBound == changedField ||
+         &m_integerLowerBound == changedField )
     {
         m_isDuplicatedFromLinkedView = false;
 
@@ -211,8 +223,16 @@ void RimEclipsePropertyFilter::defineUiOrdering( QString uiConfigName, caf::PdmU
     }
     else
     {
-        group2.add( &m_lowerBound );
-        group2.add( &m_upperBound );
+        if ( m_resultDefinition->hasCategoryResult() )
+        {
+            group2.add( &m_integerLowerBound );
+            group2.add( &m_integerUpperBound );
+        }
+        else
+        {
+            group2.add( &m_lowerBound );
+            group2.add( &m_upperBound );
+        }
     }
 
     uiOrdering.skipRemainingFields( true );
@@ -330,14 +350,20 @@ void RimEclipsePropertyFilter::defineEditorAttribute( const caf::PdmFieldHandle*
 
     if ( field == &m_lowerBound || field == &m_upperBound )
     {
-        caf::PdmUiDoubleSliderEditorAttribute* myAttr = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
-        if ( !myAttr )
+        if ( auto doubleAttributes = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute ) )
         {
-            return;
+            doubleAttributes->m_minimum = m_minimumResultValue;
+            doubleAttributes->m_maximum = m_maximumResultValue;
         }
+    }
 
-        myAttr->m_minimum = m_minimumResultValue;
-        myAttr->m_maximum = m_maximumResultValue;
+    if ( field == &m_integerLowerBound || field == &m_integerUpperBound )
+    {
+        if ( auto integerAttributes = dynamic_cast<caf::PdmUiSliderEditorAttribute*>( attribute ) )
+        {
+            integerAttributes->m_minimum = m_minimumResultValue;
+            integerAttributes->m_maximum = m_maximumResultValue;
+        }
     }
 }
 
@@ -363,6 +389,38 @@ void RimEclipsePropertyFilter::defineObjectEditorAttribute( QString uiConfigName
             treeItemAttribute->tags.push_back( std::move( tag ) );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimEclipsePropertyFilter::upperBound() const
+{
+    return m_upperBound;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipsePropertyFilter::setUpperBound( const int& upperBound )
+{
+    m_upperBound = upperBound;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimEclipsePropertyFilter::lowerBound() const
+{
+    return m_lowerBound;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipsePropertyFilter::setLowerBound( const int& lowerBound )
+{
+    m_lowerBound = lowerBound;
 }
 
 //--------------------------------------------------------------------------------------------------

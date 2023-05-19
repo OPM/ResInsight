@@ -59,11 +59,13 @@ public:
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
-
     void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
-
-private:
     void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+
+    int  upperBound() const;
+    void setUpperBound( const int& upperBound );
+    int  lowerBound() const;
+    void setLowerBound( const int& lowerBound );
 
 private:
     friend class RimEclipsePropertyFilterCollection;
@@ -80,9 +82,14 @@ private:
 private:
     caf::PdmChildField<RimEclipseResultDefinition*> m_resultDefinition;
     caf::PdmField<QString>                          m_rangeLabelText;
-    caf::PdmField<double>                           m_lowerBound;
-    caf::PdmField<double>                           m_upperBound;
-    caf::PdmField<bool>                             m_isDuplicatedFromLinkedView;
+
+    caf::PdmField<double> m_lowerBound;
+    caf::PdmField<double> m_upperBound;
+
+    caf::PdmProxyValueField<int> m_integerLowerBound;
+    caf::PdmProxyValueField<int> m_integerUpperBound;
+
+    caf::PdmField<bool> m_isDuplicatedFromLinkedView;
 
     caf::PdmField<bool> m_useCategorySelection;
 
