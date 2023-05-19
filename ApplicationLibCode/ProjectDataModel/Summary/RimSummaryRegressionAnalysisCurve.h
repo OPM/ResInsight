@@ -24,8 +24,16 @@
 #include "RimSummaryCurve.h"
 
 #include "cafAppEnum.h"
+#include "regression-analysis/src/PowerFitRegression.hpp"
 
 #include <utility>
+
+namespace regression
+{
+class LinearRegression;
+class PolynominalRegression;
+class PowerFitRegression;
+} // namespace regression
 
 //==================================================================================================
 ///
@@ -67,6 +75,12 @@ private:
 
     std::tuple<std::vector<time_t>, std::vector<double>, QString> computeRegressionCurve( const std::vector<time_t>& timeSteps,
                                                                                           const std::vector<double>& values ) const;
+
+    static QString generateRegressionText( const regression::LinearRegression& reg );
+    static QString generateRegressionText( const regression::PolynominalRegression& reg );
+    static QString generateRegressionText( const regression::PowerFitRegression& reg );
+
+    static QString formatDouble( double v );
 
     caf::PdmField<caf::AppEnum<RegressionType>> m_regressionType;
     caf::PdmField<int>                          m_polynominalDegree;

@@ -135,9 +135,6 @@ std::tuple<std::vector<time_t>, std::vector<double>, QString>
 
     if ( m_regressionType == RegressionType::LINEAR )
     {
-        auto generateRegressionText = []( const regression::LinearRegression& reg )
-        { return QString( "r = %2x + %1" ).arg( reg.intercept() ).arg( reg.slope() ) + QString( "<br>R<sup>2</sup> = %1" ).arg( reg.r2() ); };
-
         regression::LinearRegression linearRegression;
         linearRegression.fit( timeStepsD, values );
         std::vector<double> predictedValues = linearRegression.predict( timeStepsD );
@@ -145,32 +142,6 @@ std::tuple<std::vector<time_t>, std::vector<double>, QString>
     }
     else if ( m_regressionType == RegressionType::POLYNOMINAL )
     {
-        auto generateRegressionText = []( const regression::PolynominalRegression& reg )
-        {
-            QString str = "r = ";
-
-            std::vector<double> coeffs = reg.coeffisients();
-            QStringList         parts;
-            for ( size_t i = 0; i < coeffs.size(); i++ )
-            {
-                double coeff = coeffs[i];
-                // Skip zero coeffs
-                if ( coeff != 0.0 )
-                {
-                    if ( i == 0 )
-                    {
-                        parts.append( QString( " %1 " ).arg( coeff ) );
-                    }
-                    else
-                    {
-                        parts.append( QString( " %1x<sup>%2</sup>" ).arg( coeff ).arg( i ) );
-                    }
-                }
-            }
-
-            return str + parts.join( " + " ) + QString( "<br>R<sup>2</sup> = %1" ).arg( reg.r2() );
-        };
-
         regression::PolynominalRegression polynominalRegression;
         polynominalRegression.fit( timeStepsD, values, m_polynominalDegree );
         std::vector<double> predictedValues = polynominalRegression.predict( timeStepsD );
@@ -178,12 +149,6 @@ std::tuple<std::vector<time_t>, std::vector<double>, QString>
     }
     else if ( m_regressionType == RegressionType::POWER_FIT )
     {
-        auto generateRegressionText = []( const regression::PowerFitRegression& reg )
-        {
-            return QString( "r = %1 + x<sup>%2</sup>" ).arg( reg.scale() ).arg( reg.exponent() ) +
-                   QString( "<br>R<sup>2</sup> = %1" ).arg( reg.r2() );
-        };
-
         regression::PowerFitRegression powerFitRegression;
         powerFitRegression.fit( timeStepsD, values );
         std::vector<double> predictedValues = powerFitRegression.predict( timeStepsD );
@@ -269,4 +234,68 @@ QString RimSummaryRegressionAnalysisCurve::createCurveAutoName()
 QString RimSummaryRegressionAnalysisCurve::curveExportDescription( const RifEclipseSummaryAddress& address ) const
 {
     return RimSummaryCurve::curveExportDescription() + "." + m_regressionType().uiText() + "_Regression";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryRegressionAnalysisCurve::formatDouble( double v )
+{
+    return QString::number( v, 'g', 2 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regression::LinearRegression& reg )
+{
+    QString sign = reg.intercept() < 0.0 ? "-" : "+";
+    return QString( "y = %1x %2 %3" ).arg( formatDouble( reg.slope() ) ).arg( sign ).arg( formatDouble( std::fabs( reg.intercept() ) ) ) +
+           QString( "<br>R<sup>2</sup> = %1" ).arg( reg.r2() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regression::PolynominalRegression& reg )
+{
+    QString str = "y = ";
+
+    bool                isFirst = true;
+    std::vector<double> coeffs  = reg.coeffisients();
+    QStringList         parts;
+    for ( size_t i = 0; i < coeffs.size(); i++ )
+    {
+        double coeff = coeffs[i];
+        // Skip zero coeffs
+        if ( coeff != 0.0 )
+        {
+            if ( coeff < 0.0 )
+                parts.append( "-" );
+            else if ( !isFirst )
+                parts.append( "+" );
+
+            if ( i == 0 )
+            {
+                parts.append( QString( "%1" ).arg( formatDouble( std::fabs( coeff ) ) ) );
+            }
+            else
+            {
+                parts.append( QString( " %1x<sup>%2</sup>" ).arg( formatDouble( std::fabs( coeff ) ) ).arg( i ) );
+            }
+
+            isFirst = false;
+        }
+    }
+
+    return str + parts.join( " " ) + QString( "<br>R<sup>2</sup> = %1" ).arg( reg.r2() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryRegressionAnalysisCurve::generateRegressionText( const regression::PowerFitRegression& reg )
+{
+    return QString( "y = %1 + x<sup>%2</sup>" ).arg( formatDouble( reg.scale() ) ).arg( formatDouble( reg.exponent() ) ) +
+           QString( "<br>R<sup>2</sup> = %1" ).arg( reg.r2() );
 }
