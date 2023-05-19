@@ -135,9 +135,8 @@ std::tuple<std::vector<time_t>, std::vector<double>, QString>
 
     if ( m_regressionType == RegressionType::LINEAR )
     {
-        auto generateRegressionText = []( const regression::LinearRegression& reg ) {
-            return QString( "Linear Regression<br>Intercept: %1<br>Slope: %2<br><br>r = %2x + %1" ).arg( reg.intercept() ).arg( reg.slope() );
-        };
+        auto generateRegressionText = []( const regression::LinearRegression& reg )
+        { return QString( "r = %2x + %1" ).arg( reg.intercept() ).arg( reg.slope() ) + QString( "<br>R<sup>2</sup> = %1" ).arg( reg.r2() ); };
 
         regression::LinearRegression linearRegression;
         linearRegression.fit( timeStepsD, values );
@@ -148,7 +147,7 @@ std::tuple<std::vector<time_t>, std::vector<double>, QString>
     {
         auto generateRegressionText = []( const regression::PolynominalRegression& reg )
         {
-            QString str = "Polynominal Regression<br><br>r = ";
+            QString str = "r = ";
 
             std::vector<double> coeffs = reg.coeffisients();
             QStringList         parts;
@@ -169,7 +168,7 @@ std::tuple<std::vector<time_t>, std::vector<double>, QString>
                 }
             }
 
-            return str + parts.join( " + " );
+            return str + parts.join( " + " ) + QString( "<br>R<sup>2</sup> = %1" ).arg( reg.r2() );
         };
 
         regression::PolynominalRegression polynominalRegression;
@@ -180,7 +179,10 @@ std::tuple<std::vector<time_t>, std::vector<double>, QString>
     else if ( m_regressionType == RegressionType::POWER_FIT )
     {
         auto generateRegressionText = []( const regression::PowerFitRegression& reg )
-        { return QString( "Power Fit Regression<br><br>r = %1 + x<sup>%2</sup>" ).arg( reg.scale() ).arg( reg.exponent() ); };
+        {
+            return QString( "r = %1 + x<sup>%2</sup>" ).arg( reg.scale() ).arg( reg.exponent() ) +
+                   QString( "<br>R<sup>2</sup> = %1" ).arg( reg.r2() );
+        };
 
         regression::PowerFitRegression powerFitRegression;
         powerFitRegression.fit( timeStepsD, values );
