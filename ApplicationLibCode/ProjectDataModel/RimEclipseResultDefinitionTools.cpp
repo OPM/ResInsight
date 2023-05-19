@@ -682,7 +682,7 @@ void RimEclipseResultDefinitionTools::updateCellResultLegend( const RimEclipseRe
                                             [value]( const RimColorLegendItem* const item ) { return item->categoryValue() == value; } );
                     if ( it != items.end() && !( *it )->categoryName().isEmpty() )
                     {
-                        valueTxt = QString( "%1 (%2)" ).arg( ( *it )->categoryName() ).arg( value );
+                        valueTxt = QString( "%1 %2" ).arg( value ).arg( ( *it )->categoryName() );
                     }
                     else
                     {
