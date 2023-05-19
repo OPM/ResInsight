@@ -527,19 +527,19 @@ list(APPEND THIRD_PARTY_LIBRARIES qwt)
 # ##############################################################################
 # Qt Advanced Docking System
 # ##############################################################################
-set(ADS_VERSION "3.8.2")
+set(ADS_VERSION "4.0.3")
 
 add_subdirectory(ThirdParty/qtadvanceddocking EXCLUDE_FROM_ALL)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-  target_compile_options(qtadvanceddocking PRIVATE -Wno-deprecated-copy)
+  target_compile_options(qt5advanceddocking PRIVATE -Wno-deprecated-copy)
 elseif(MSVC)
-  target_compile_options(qtadvanceddocking PRIVATE /wd4996 /wd4005)
+  target_compile_options(qt5advanceddocking PRIVATE /wd4996 /wd4005)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  target_compile_options(qtadvanceddocking PRIVATE -Wno-deprecated)
+  target_compile_options(qt5advanceddocking PRIVATE -Wno-deprecated)
 endif()
 
-list(APPEND THIRD_PARTY_LIBRARIES qtadvanceddocking)
+list(APPEND THIRD_PARTY_LIBRARIES qt5advanceddocking)
 
 # ##############################################################################
 # Nightcharts
@@ -614,7 +614,7 @@ if(RESINSIGHT_ENABLE_UNITY_BUILD)
   # message("Cmake Unity build is enabled on : custom-opm-common")
   # set_property(TARGET custom-opm-common PROPERTY UNITY_BUILD true)
   message("Cmake Unity build is enabled on : qtadvanceddocking")
-  set_property(TARGET qtadvanceddocking PROPERTY UNITY_BUILD true)
+  set_property(TARGET qt5advanceddocking PROPERTY UNITY_BUILD true)
 endif()
 
 # ##############################################################################
