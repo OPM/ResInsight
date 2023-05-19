@@ -153,6 +153,16 @@ void RimEclipsePropertyFilter::setIsDuplicatedFromLinkedView( bool isDuplicated 
 //--------------------------------------------------------------------------------------------------
 void RimEclipsePropertyFilter::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
+    if ( &m_lowerBound == changedField || &m_integerLowerBound == changedField )
+    {
+        if ( m_lowerBound > m_upperBound ) m_upperBound = m_lowerBound;
+    }
+
+    if ( &m_upperBound == changedField || &m_integerUpperBound == changedField )
+    {
+        if ( m_upperBound < m_lowerBound ) m_lowerBound = m_upperBound;
+    }
+
     if ( &m_lowerBound == changedField || &m_upperBound == changedField || &m_isActive == changedField || &m_filterMode == changedField ||
          &m_selectedCategoryValues == changedField || &m_useCategorySelection == changedField || &m_integerUpperBound == changedField ||
          &m_integerLowerBound == changedField )
